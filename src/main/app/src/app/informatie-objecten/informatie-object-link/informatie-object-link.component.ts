@@ -46,11 +46,10 @@ export class InformatieObjectLinkComponent
   cases = new MatTableDataSource<KoppelbareZaakListItem>();
   totalCases: number = 0;
   caseColumns: string[] = [
-    "documentKoppelen",
-    "id",
     "identificatie",
-    "type",
-    "omschrijving",
+    "zaaktypeOmschrijving",
+    "status",
+    "registratiedatum",
     // "status",
     // "datum",
   ];

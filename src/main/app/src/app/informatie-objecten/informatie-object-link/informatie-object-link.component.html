@@ -30,14 +30,6 @@
 
   <div class="table-wrapper">
     <table mat-table [dataSource]="cases" matSort>
-      <ng-container matColumnDef="documentKoppelen">
-        <th *matHeaderCellDef mat-header-cell mat-sort-header>
-          {{ "documentKoppelen" | translate }}
-        </th>
-        <td *matCellDef="let case" mat-cell>
-          {{ case.documentKoppelene ? "true" : "false" }}
-        </td>
-      </ng-container>
       <ng-container matColumnDef="identificatie">
         <th *matHeaderCellDef mat-header-cell mat-sort-header>
           {{ "zaak.identificatie" | translate }}
@@ -46,27 +38,29 @@
           {{ case.identificatie | empty }}
         </td>
       </ng-container>
-      <ng-container matColumnDef="id">
-        <th *matHeaderCellDef mat-header-cell mat-sort-header>
-          {{ "id" | translate }}
-        </th>
-        <td *matCellDef="let case" mat-cell>
-          {{ case.id | empty }}
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="omschrijving">
+      <ng-container matColumnDef="zaaktypeOmschrijving">
         <th *matHeaderCellDef mat-header-cell mat-sort-header>
           {{ "zaaktypeOmschrijving" | translate }}
         </th>
         <td *matCellDef="let case" mat-cell>
-          {{ case.omschrijving | empty }}
+          {{ case.zaaktypeOmschrijving | empty }}
         </td>
       </ng-container>
-      <ng-container matColumnDef="type">
+      <ng-container matColumnDef="status">
         <th *matHeaderCellDef mat-header-cell mat-sort-header>
-          {{ "type" | translate }}
+          {{ "status" | translate }}
         </th>
-        <td *matCellDef="let case" mat-cell>{{ case.type | empty }}</td>
+        <td *matCellDef="let case" mat-cell>
+          {{ case?.status | empty }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="registratiedatum">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header>
+          {{ "registratiedatum" | translate }}
+        </th>
+        <td *matCellDef="let case" mat-cell>
+          {{ case.registratiedatum | empty }}
+        </td>
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="caseColumns; sticky: true"></tr>
       <tr
