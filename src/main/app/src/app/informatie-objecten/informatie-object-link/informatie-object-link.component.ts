@@ -49,9 +49,7 @@ export class InformatieObjectLinkComponent
     "identificatie",
     "zaaktypeOmschrijving",
     "status",
-    "registratiedatum",
-    // "status",
-    // "datum",
+    "omschrijving",
   ];
 
   private ngDestroy = new Subject<void>();
