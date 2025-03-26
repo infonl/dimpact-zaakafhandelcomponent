@@ -14,7 +14,6 @@ import { createFormData } from "../shared/utils/form-data";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { DocumentCreationData } from "./model/document-creation-data";
 import { DocumentCreationResponse } from "./model/document-creation-response";
-import { DocumentVerplaatsGegevens } from "./model/document-verplaats-gegevens";
 import { DocumentVerwijderenGegevens } from "./model/document-verwijderen-gegevens";
 import { DocumentVerzendGegevens } from "./model/document-verzend-gegevens";
 import { InformatieobjectZoekParameters } from "./model/informatieobject-zoek-parameters";
@@ -56,7 +55,9 @@ export class InformatieObjectenService {
       );
   }
 
-  listInformatieobjecttypes(zaakTypeID): Observable<Informatieobjecttype[]> {
+  listInformatieobjecttypes(
+    zaakTypeID: string,
+  ): Observable<Informatieobjecttype[]> {
     return this.http
       .get<
         Informatieobjecttype[]
@@ -67,7 +68,7 @@ export class InformatieObjectenService {
   }
 
   listInformatieobjecttypesForZaak(
-    zaakUUID,
+    zaakUUID: string,
   ): Observable<Informatieobjecttype[]> {
     return this.http
       .get<
@@ -225,7 +226,9 @@ export class InformatieObjectenService {
       );
   }
 
-  verzenden(gegevens: DocumentVerzendGegevens): Observable<void> {
+  verzenden(
+    gegevens: DocumentVerzendGegevens,
+  ): Observable<DocumentCreationResponse> {
     return this.http
       .post<DocumentCreationResponse>(
         `${this.basepath}/informatieobjecten/verzenden`,
@@ -233,7 +236,7 @@ export class InformatieObjectenService {
       )
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      ) as Observable<void>;
+      );
   }
 
   listHistorie(uuid: string): Observable<HistorieRegel[]> {
@@ -331,37 +334,14 @@ export class InformatieObjectenService {
       );
   }
 
-  postVerplaatsDocument(
-    documentVerplaatsGegevens: DocumentVerplaatsGegevens,
-    nieuweZaakID: string,
+  linkDocumentToCase(
+    linkDocumentDetails: GeneratedType<"RESTDocumentVerplaatsGegevens">,
   ): Observable<void> {
-    documentVerplaatsGegevens.nieuweZaakID = nieuweZaakID;
     return this.http
       .post<void>(
         `${this.basepath}/informatieobject/verplaats`,
-        documentVerplaatsGegevens,
+        linkDocumentDetails,
       )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
-  }
-
-  koppelInformatieObject(
-    documentVerplaatsGegevens: Partial<
-      GeneratedType<"RestEnkelvoudigInformatieobject"> & {
-        documentUUID: string;
-      }
-    >,
-    nieuweZaakID: string,
-  ): Observable<void> {
-    return this.http
-      .post<void>(`${this.basepath}/informatieobject/verplaats`, {
-        documentUUID: documentVerplaatsGegevens.documentUUID,
-        documentTitel: documentVerplaatsGegevens.titel,
-        documentTypeUUID: documentVerplaatsGegevens.informatieobjectTypeUUID,
-        bron: "ontkoppelde-documenten",
-        nieuweZaakID: nieuweZaakID,
-      })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -407,7 +387,7 @@ export class InformatieObjectenService {
       );
   }
 
-  private static addZaakParameter(url: string, zaakUuid: string): string {
+  private static addZaakParameter(url: string, zaakUuid?: string): string {
     if (zaakUuid) {
       return url.concat(`?zaak=${zaakUuid}`);
     } else {
