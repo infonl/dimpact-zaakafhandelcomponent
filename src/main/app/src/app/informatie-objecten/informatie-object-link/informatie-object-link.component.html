@@ -54,12 +54,12 @@
           {{ case?.status | empty }}
         </td>
       </ng-container>
-      <ng-container matColumnDef="registratiedatum">
+      <ng-container matColumnDef="omschrijving">
         <th *matHeaderCellDef mat-header-cell mat-sort-header>
-          {{ "registratiedatum" | translate }}
+          {{ "omschrijving" | translate }}
         </th>
         <td *matCellDef="let case" mat-cell>
-          {{ case.registratiedatum | empty }}
+          {{ case.omschrijving | empty }}
         </td>
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="caseColumns; sticky: true"></tr>
