@@ -23,6 +23,7 @@ import {
   KoppelbareZaakListItem,
   ZoekenService,
 } from "src/app/zoeken/zoeken.service";
+import { InformatieObjectenService } from "../informatie-objecten.service";
 
 @Component({
   selector: "zac-informatie-object-link",
@@ -32,9 +33,9 @@ import {
 export class InformatieObjectLinkComponent
   implements OnInit, OnChanges, OnDestroy
 {
-  @Input() infoObject?:
-    | (OntkoppeldDocument & { enkelvoudiginformatieobjectUUID?: string | null })
-    | null = null;
+  @Input() infoObject!: OntkoppeldDocument & {
+    enkelvoudiginformatieobjectUUID?: string | null;
+  };
   @Input({ required: true }) sideNav!: MatDrawer;
 
   intro: string | undefined = "";
@@ -56,6 +57,7 @@ export class InformatieObjectLinkComponent
 
   constructor(
     private zoekenService: ZoekenService,
+    private informatieObjectService: InformatieObjectenService,
     private utilService: UtilService,
     private translate: TranslateService,
   ) {}
@@ -119,8 +121,19 @@ export class InformatieObjectLinkComponent
       );
   }
 
-  selectCase(caseId: string): void {
-    console.log("caseId", caseId);
+  selectCase(row): void {
+    this.informatieObjectService
+      .koppelInformatieObject(
+        {
+          ...this.infoObject,
+          informatieobjectTypeUUID: "efc332f2-be3b-4bad-9e3c-49a6219c92ad",
+        },
+        row.identificatie,
+      )
+      .pipe(takeUntil(this.ngDestroy))
+      .subscribe(() =>
+        this.utilService.openSnackbar("msg.document.verplaatsen.uitgevoerd"),
+      );
   }
 
   private wissen(): void {
