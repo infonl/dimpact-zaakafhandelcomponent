@@ -21,11 +21,19 @@ import java.util.UUID
 class ZaaktypeBpmnProcessDefinitionService @Inject constructor(
     private val entityManager: EntityManager
 ) {
+    fun createZaaktypeBpmnProcessDefinition(zaaktypeBpmnProcessDefinition: ZaaktypeBpmnProcessDefinition) {
+        entityManager.persist(zaaktypeBpmnProcessDefinition)
+    }
+
+    fun deleteZaaktypeBpmnProcessDefinition(zaaktypeBpmnProcessDefinition: ZaaktypeBpmnProcessDefinition) {
+        entityManager.remove(zaaktypeBpmnProcessDefinition)
+    }
+
     /**
      * Returns the zaaktype - BPMN process definition relation for the given zaaktype UUID or 'null'
      * if no BPMN process definition could be found for the given zaaktype UUID.
      */
-    fun findZaaktypeProcessDefinition(zaaktypeUUID: UUID): ZaaktypeBpmnProcessDefinition? =
+    fun findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeUUID: UUID): ZaaktypeBpmnProcessDefinition? =
         entityManager.criteriaBuilder.let { criteriaBuilder ->
             criteriaBuilder.createQuery(ZaaktypeBpmnProcessDefinition::class.java).let { query ->
                 query.from(ZaaktypeBpmnProcessDefinition::class.java).let {

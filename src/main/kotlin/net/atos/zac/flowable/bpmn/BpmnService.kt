@@ -119,7 +119,7 @@ class BpmnService @Inject constructor(
      * Returns the BPMN process definition for the given zaaktype UUID or null if no process definition is found.
      */
     fun findProcessDefinitionForZaaktype(zaaktypeUUID: UUID) =
-        zaaktypeBpmnProcessDefinitionService.findZaaktypeProcessDefinition(zaaktypeUUID)
+        zaaktypeBpmnProcessDefinitionService.findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeUUID)
 
     /**
      * Returns a process instance for the given zaak UUID or null if no process instance is found.
