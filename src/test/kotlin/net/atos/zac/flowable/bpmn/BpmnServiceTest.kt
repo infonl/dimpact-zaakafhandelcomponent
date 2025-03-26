@@ -33,12 +33,12 @@ class BpmnServiceTest : BehaviorSpec({
     val repositoryService = mockk<RepositoryService>()
     val runtimeService = mockk<RuntimeService>()
     val processEngine = mockk<ProcessEngine>()
-    val bpmnProcessDefinitionService = mockk<BpmnProcessDefinitionService>()
+    val zaaktypeBpmnProcessDefinitionService = mockk<ZaaktypeBpmnProcessDefinitionService>()
     val bpmnService = BpmnService(
         repositoryService,
         runtimeService,
         processEngine,
-        bpmnProcessDefinitionService
+        zaaktypeBpmnProcessDefinitionService
     )
 
     beforeEach {
@@ -123,7 +123,9 @@ class BpmnServiceTest : BehaviorSpec({
     Given("A valid zaaktype UUID with a process definition") {
         val zaaktypeUUID = UUID.randomUUID()
         val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnProcessDefinition()
-        every { bpmnProcessDefinitionService.findZaaktypeProcessDefinition(zaaktypeUUID) } returns zaaktypeBpmnProcessDefinition
+        every {
+            zaaktypeBpmnProcessDefinitionService.findZaaktypeProcessDefinition(zaaktypeUUID)
+        } returns zaaktypeBpmnProcessDefinition
 
         When("finding the process definition for the zaaktype") {
             val result = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
@@ -136,7 +138,7 @@ class BpmnServiceTest : BehaviorSpec({
 
     Given("A valid zaaktype UUID without a process definition") {
         val zaaktypeUUID = UUID.randomUUID()
-        every { bpmnProcessDefinitionService.findZaaktypeProcessDefinition(zaaktypeUUID) } returns null
+        every { zaaktypeBpmnProcessDefinitionService.findZaaktypeProcessDefinition(zaaktypeUUID) } returns null
 
         When("finding the process definition for the zaaktype") {
             val result = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)

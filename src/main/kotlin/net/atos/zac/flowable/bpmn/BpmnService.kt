@@ -32,7 +32,7 @@ class BpmnService @Inject constructor(
     private val repositoryService: RepositoryService,
     private val runtimeService: RuntimeService,
     private val processEngine: ProcessEngine,
-    private val bpmnProcessDefinitionService: BpmnProcessDefinitionService
+    private val zaaktypeBpmnProcessDefinitionService: ZaaktypeBpmnProcessDefinitionService
 ) {
     companion object {
         private val LOG = Logger.getLogger(BpmnService::class.java.getName())
@@ -119,7 +119,7 @@ class BpmnService @Inject constructor(
      * Returns the BPMN process definition for the given zaaktype UUID or null if no process definition is found.
      */
     fun findProcessDefinitionForZaaktype(zaaktypeUUID: UUID) =
-        bpmnProcessDefinitionService.findZaaktypeProcessDefinition(zaaktypeUUID)
+        zaaktypeBpmnProcessDefinitionService.findZaaktypeProcessDefinition(zaaktypeUUID)
 
     /**
      * Returns a process instance for the given zaak UUID or null if no process instance is found.

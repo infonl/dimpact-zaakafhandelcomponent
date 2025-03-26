@@ -18,7 +18,7 @@ import java.util.UUID
 @Transactional
 @NoArgConstructor
 @AllOpen
-class BpmnProcessDefinitionService @Inject constructor(
+class ZaaktypeBpmnProcessDefinitionService @Inject constructor(
     private val entityManager: EntityManager
 ) {
     /**
