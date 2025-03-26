@@ -35,13 +35,11 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
 export class InformatieObjectLinkComponent
   implements OnInit, OnChanges, OnDestroy
 {
-  @Input() infoObject!: (
+  @Input() infoObject!:
     | GeneratedType<"RESTOntkoppeldDocument">
-    | GeneratedType<"RESTInboxDocument">
-  ) & {
-    informatieobjectTypeUUID: string;
-  };
+    | GeneratedType<"RESTInboxDocument">;
   @Input({ required: true }) sideNav!: MatDrawer;
+  @Input({ required: true }) source!: string;
   @Output() informationObjectLinked = new EventEmitter<void>();
 
   intro: string = "";
@@ -102,7 +100,7 @@ export class InformatieObjectLinkComponent
     this.zoekenService
       .listKoppelbareZaken(
         this.caseSearchField?.formControl.value,
-        this.infoObject?.informatieobjectTypeUUID,
+        this.infoObject.informatieobjectTypeUUID,
       )
       .subscribe(
         (result) => {
@@ -121,14 +119,20 @@ export class InformatieObjectLinkComponent
   }
 
   selectCase(row: any) {
+    const linkDocumentDetails = {
+      documentUUID:
+        "documentUUID" in this.infoObject
+          ? this.infoObject.documentUUID
+          : "enkelvoudiginformatieobjectUUID" in this.infoObject
+            ? this.infoObject.enkelvoudiginformatieobjectUUID
+            : "",
+      documentTitel: this.infoObject.titel,
+      bron: this.source,
+      nieuweZaakID: row.identificatie,
+    };
+
     this.informatieObjectService
-      .koppelInformatieObject(
-        {
-          ...this.infoObject,
-          informatieobjectTypeUUID: "efc332f2-be3b-4bad-9e3c-49a6219c92ad",
-        },
-        row.identificatie,
-      )
+      .linkDocumentToCase(linkDocumentDetails)
       .pipe(takeUntil(this.ngDestroy))
       .subscribe(
         () => {
