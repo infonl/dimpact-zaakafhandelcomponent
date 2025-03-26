@@ -91,7 +91,7 @@ class RestZoekResultaatConverter @Inject constructor(
             zaaktypeOmschrijving = restZaakZoekObject.zaaktypeOmschrijving,
             registratiedatum = restZaakZoekObject.registratiedatum,
             statusToelichting = restZaakZoekObject.statusToelichting,
-            documentKoppelen = restZaakZoekObject.identificatie.let {
+            documentKoppelbaar = restZaakZoekObject.identificatie.let {
                 zrcClientService.readZaakByID(it).zaaktype.extractUuid().let {
                     ztcClientService.readZaaktype(it).informatieobjecttypen.any {
                         it.extractUuid() == informationObjectTypeUuid

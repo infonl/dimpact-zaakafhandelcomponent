@@ -407,7 +407,7 @@ class SearchRestServiceTest : BehaviorSpec({
                   "foutmelding": "",
                   "resultaten": [
                     {
-                      "documentKoppelen": true,
+                      "documentKoppelbaar": true,
                       "identificatie": "ZAAK-2024-0000000001",
                       "omschrijving": "$ZAAK_DESCRIPTION_1",
                       "registratiedatum": "$YMD_TODAY_STRING",
@@ -417,7 +417,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                     },
                     {
-                      "documentKoppelen": false,
+                      "documentKoppelbaar": false,
                       "identificatie": "$ZAAK_MANUAL_1_IDENTIFICATION",
                       "omschrijving": "changedDescription",
                       "registratiedatum": "$YMD_TODAY_STRING",
@@ -427,7 +427,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                     },
                     {
-                      "documentKoppelen": true,
+                      "documentKoppelbaar": true,
                       "identificatie": "ZAAK-2000-0000000006",
                       "omschrijving": "dummyOmschrijving",
                       "registratiedatum": "$YMD_TODAY_STRING",
@@ -437,7 +437,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                     },
                     {
-                      "documentKoppelen": true,
+                      "documentKoppelbaar": true,
                       "identificatie": "ZAAK-2000-0000000005",
                       "omschrijving": "dummyOmschrijving",
                      "registratiedatum": "$YMD_TODAY_STRING",
@@ -447,7 +447,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                     },
                     {
-                      "documentKoppelen": true,
+                      "documentKoppelbaar": true,
                       "identificatie": "ZAAK-2000-0000000004",
                       "omschrijving": "dummyOmschrijving",
                       "registratiedatum": "$YMD_TODAY_STRING",
