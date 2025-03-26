@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.flowable.bpmn
+package nl.info.zac.flowable.bpmn
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -15,12 +15,12 @@ import net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING
 import net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
 import net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE
 import net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID
-import net.atos.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
-import net.atos.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.model.createReferentieProcess
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.engine.repository.createProcessDefinition
+import nl.info.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
+import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
 import org.flowable.engine.ProcessEngine
 import org.flowable.engine.RepositoryService
 import org.flowable.engine.RuntimeService
@@ -33,12 +33,12 @@ class BpmnServiceTest : BehaviorSpec({
     val repositoryService = mockk<RepositoryService>()
     val runtimeService = mockk<RuntimeService>()
     val processEngine = mockk<ProcessEngine>()
-    val bpmnProcessDefinitionService = mockk<BpmnProcessDefinitionService>()
+    val zaaktypeBpmnProcessDefinitionService = mockk<ZaaktypeBpmnProcessDefinitionService>()
     val bpmnService = BpmnService(
         repositoryService,
         runtimeService,
         processEngine,
-        bpmnProcessDefinitionService
+        zaaktypeBpmnProcessDefinitionService
     )
 
     beforeEach {
@@ -123,7 +123,9 @@ class BpmnServiceTest : BehaviorSpec({
     Given("A valid zaaktype UUID with a process definition") {
         val zaaktypeUUID = UUID.randomUUID()
         val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnProcessDefinition()
-        every { bpmnProcessDefinitionService.findZaaktypeProcessDefinition(zaaktypeUUID) } returns zaaktypeBpmnProcessDefinition
+        every {
+            zaaktypeBpmnProcessDefinitionService.findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeUUID)
+        } returns zaaktypeBpmnProcessDefinition
 
         When("finding the process definition for the zaaktype") {
             val result = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
@@ -136,7 +138,7 @@ class BpmnServiceTest : BehaviorSpec({
 
     Given("A valid zaaktype UUID without a process definition") {
         val zaaktypeUUID = UUID.randomUUID()
-        every { bpmnProcessDefinitionService.findZaaktypeProcessDefinition(zaaktypeUUID) } returns null
+        every { zaaktypeBpmnProcessDefinitionService.findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeUUID) } returns null
 
         When("finding the process definition for the zaaktype") {
             val result = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)

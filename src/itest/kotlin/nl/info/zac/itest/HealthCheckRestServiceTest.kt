@@ -11,7 +11,10 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_10_01
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
@@ -53,6 +56,34 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             And("the body contains all the performed checks") {
                 responseBody shouldEqualJson """
                     [
+                      {                     
+                        "besluittypeAanwezig": false,
+                        "informatieobjecttypeEmailAanwezig": true,
+                        "resultaattypeAanwezig": true,
+                        "resultaattypesMetVerplichtBesluit": [],
+                        "rolBehandelaarAanwezig": true,
+                        "rolInitiatorAanwezig": true,
+                        "rolOverigeAanwezig": true,
+                        "statustypeAanvullendeInformatieVereist": true,
+                        "statustypeAfgerondAanwezig": true,
+                        "statustypeAfgerondLaatsteVolgnummer": true,
+                        "statustypeHeropendAanwezig": true,
+                        "statustypeInBehandelingAanwezig": true,
+                        "statustypeIntakeAanwezig": true,
+                        "valide": false,
+                        "zaakafhandelParametersValide": false,
+                        "zaaktype": {
+                          "beginGeldigheid": "2025-01-01",
+                          "doel": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
+                          "identificatie": "$ZAAKTYPE_BPMN_TEST_IDENTIFICATIE",
+                          "nuGeldig": true,
+                          "omschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
+                          "servicenorm": false,
+                          "uuid": "$ZAAKTYPE_BPMN_TEST_UUID",
+                          "versiedatum": "2025-01-01",
+                          "vertrouwelijkheidaanduiding": "openbaar"
+                        }
+                      },  
                       {
                         "besluittypeAanwezig": true,
                         "informatieobjecttypeEmailAanwezig": true,
@@ -72,7 +103,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         "zaaktype": {
                           "beginGeldigheid": "$DATE_2023_10_01",
                           "doel": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
-                          "identificatie": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN",
+                          "identificatie": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE",
                           "nuGeldig": true,
                           "omschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
                           "servicenorm": false,
@@ -109,7 +140,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }
                       }
-                    ]
+                    ]    
                 """.trimIndent()
             }
         }

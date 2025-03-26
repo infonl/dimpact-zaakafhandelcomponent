@@ -2,16 +2,16 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.flowable.bpmn
+package nl.info.zac.flowable.bpmn
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.engine.ProcessEngine
@@ -32,7 +32,7 @@ class BpmnService @Inject constructor(
     private val repositoryService: RepositoryService,
     private val runtimeService: RuntimeService,
     private val processEngine: ProcessEngine,
-    private val bpmnProcessDefinitionService: BpmnProcessDefinitionService
+    private val zaaktypeBpmnProcessDefinitionService: ZaaktypeBpmnProcessDefinitionService
 ) {
     companion object {
         private val LOG = Logger.getLogger(BpmnService::class.java.getName())
@@ -119,7 +119,7 @@ class BpmnService @Inject constructor(
      * Returns the BPMN process definition for the given zaaktype UUID or null if no process definition is found.
      */
     fun findProcessDefinitionForZaaktype(zaaktypeUUID: UUID) =
-        bpmnProcessDefinitionService.findZaaktypeProcessDefinition(zaaktypeUUID)
+        zaaktypeBpmnProcessDefinitionService.findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeUUID)
 
     /**
      * Returns a process instance for the given zaak UUID or null if no process instance is found.

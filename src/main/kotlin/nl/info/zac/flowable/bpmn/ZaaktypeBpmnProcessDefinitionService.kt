@@ -2,14 +2,13 @@
  * SPDX-FileCopyrightText: 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
-package net.atos.zac.flowable.bpmn
+package nl.info.zac.flowable.bpmn
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import net.atos.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition
+import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
@@ -18,14 +17,22 @@ import java.util.UUID
 @Transactional
 @NoArgConstructor
 @AllOpen
-class BpmnProcessDefinitionService @Inject constructor(
+class ZaaktypeBpmnProcessDefinitionService @Inject constructor(
     private val entityManager: EntityManager
 ) {
+    fun createZaaktypeBpmnProcessDefinition(zaaktypeBpmnProcessDefinition: ZaaktypeBpmnProcessDefinition) {
+        entityManager.persist(zaaktypeBpmnProcessDefinition)
+    }
+
+    fun deleteZaaktypeBpmnProcessDefinition(zaaktypeBpmnProcessDefinition: ZaaktypeBpmnProcessDefinition) {
+        entityManager.remove(zaaktypeBpmnProcessDefinition)
+    }
+
     /**
      * Returns the zaaktype - BPMN process definition relation for the given zaaktype UUID or 'null'
      * if no BPMN process definition could be found for the given zaaktype UUID.
      */
-    fun findZaaktypeProcessDefinition(zaaktypeUUID: UUID): ZaaktypeBpmnProcessDefinition? =
+    fun findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeUUID: UUID): ZaaktypeBpmnProcessDefinition? =
         entityManager.criteriaBuilder.let { criteriaBuilder ->
             criteriaBuilder.createQuery(ZaaktypeBpmnProcessDefinition::class.java).let { query ->
                 query.from(ZaaktypeBpmnProcessDefinition::class.java).let {
