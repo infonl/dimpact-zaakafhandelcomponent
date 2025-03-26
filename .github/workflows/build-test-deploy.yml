@@ -276,6 +276,12 @@ jobs:
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
+      - name: authenticate with docker hub
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Setup JDK
         uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4.7.0
         with:
@@ -309,14 +315,6 @@ jobs:
           # use GitHub Actions cache to speed up the build
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      # Make sure this step is run _after_ we have built our ZAC Docker Image because
-      # we do not want the ZAC Docker image to be cached.
-      # See: https://github.com/ScribeMD/docker-cache/issues/532
-      - name: Cache Docker images
-        uses: ScribeMD/docker-cache@fb28c93772363301b8d0a6072ce850224b73f74e # 0.5.0
-        with:
-          key: docker-${{ runner.os }}-${{ hashFiles('docker-compose.yaml') }}
 
       - name: Run integration tests
         run: |
