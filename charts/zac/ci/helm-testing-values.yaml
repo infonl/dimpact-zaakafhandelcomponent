@@ -354,7 +354,7 @@ solr-operator:
     # -- solr-operator repository
     repository: apache/solr-operator
     # -- solr-operator tag
-    tag: v0.8.1@sha256:eccb92c2dbc468de0fcdcd41b0430d918ae0598bafbb94b7afb8e234a3ade47e
+    tag: v0.9.1@sha256:4db34508137f185d3cad03c7cf7c2b5d6533fb590822effcde9125cff5a90aa2
   metrics:
     # -- enable to have solr-operator metric endpoints
     enabled: true

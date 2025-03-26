@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.21](https://img.shields.io/badge/Version-1.0.21-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
+![Version: 1.0.22](https://img.shields.io/badge/Version-1.0.22-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -279,7 +279,7 @@ helm install my-release zac/zaakafhandelcomponent
 | solr-operator.fullnameOverride | string | `"solr-operator"` | set fullname for solr-operator |
 | solr-operator.image.pullPolicy | string | `"IfNotPresent"` | solr-operator imagePullPolicy |
 | solr-operator.image.repository | string | `"apache/solr-operator"` | solr-operator repository |
-| solr-operator.image.tag | string | `"v0.8.1@sha256:eccb92c2dbc468de0fcdcd41b0430d918ae0598bafbb94b7afb8e234a3ade47e"` | solr-operator tag |
+| solr-operator.image.tag | string | `"v0.9.1@sha256:4db34508137f185d3cad03c7cf7c2b5d6533fb590822effcde9125cff5a90aa2"` | solr-operator tag |
 | solr-operator.metrics.enabled | bool | `true` | enable to have solr-operator metric endpoints |
 | solr-operator.nodeSelector | object | `{}` | nodeSelector for solr-operator |
 | solr-operator.solr.affinity | object | `{}` | affinity for solr in solrcloud |
