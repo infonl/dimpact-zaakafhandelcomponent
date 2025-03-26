@@ -387,7 +387,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     "rows": 5,
                     "page":0,
                     "zaakIdentificator": "zaak",
-                    "documentTypeUUID": "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID"
+                    "informationObjectTypeUuid": "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID"
                 }
                 """.trimIndent()
             )
@@ -470,7 +470,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     "rows": 5,
                     "page":0,
                     "zaakIdentificator": "zaak",
-                    "documentTypeUUID": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
+                    "informationObjectTypeUuid": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
                 }
                 """.trimIndent()
             )

@@ -63,7 +63,7 @@ class SearchRestService @Inject constructor(
         PolicyService.assertPolicy(policyService.readWerklijstRechten().zakenTaken)
 
         return searchService.zoek(restZoekKoppelenParameters.toZoekParameters()).let {
-            restZoekResultaatConverter.convert(it, restZoekKoppelenParameters.documentTypeUUID)
+            restZoekResultaatConverter.convert(it, restZoekKoppelenParameters.informationObjectTypeUuid)
         }
     }
 }
