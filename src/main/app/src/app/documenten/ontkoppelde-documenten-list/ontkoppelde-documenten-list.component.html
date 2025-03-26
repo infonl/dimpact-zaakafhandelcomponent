@@ -8,6 +8,7 @@
     <zac-informatie-object-link
       [infoObject]="selectedDocument"
       [sideNav]="actionsSidenav"
+      (informationObjectLinked)="retriggerSearch()"
     ></zac-informatie-object-link>
   </mat-drawer>
 

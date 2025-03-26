@@ -358,7 +358,7 @@ export class InformatieObjectenService {
       .post<void>(`${this.basepath}/informatieobject/verplaats`, {
         documentUUID: documentVerplaatsGegevens.documentUUID,
         documentTitel: documentVerplaatsGegevens.titel,
-        documentTypeUUID: "f062a801-4264-4561-8d85-b9ee0b486d7e",
+        documentTypeUUID: documentVerplaatsGegevens.informatieobjectTypeUUID,
         bron: "ontkoppelde-documenten",
         nieuweZaakID: nieuweZaakID,
       })

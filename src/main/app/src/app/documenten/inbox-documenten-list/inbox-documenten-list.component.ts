@@ -188,6 +188,11 @@ export class InboxDocumentenListComponent
     this.filterChange.emit();
   }
 
+  retriggerSearch(): void {
+    console.log("Retriggering search");
+    this.filterChange.emit();
+  }
+
   createDefaultParameters(): InboxDocumentListParameters {
     return new InboxDocumentListParameters("creatiedatum", "desc");
   }

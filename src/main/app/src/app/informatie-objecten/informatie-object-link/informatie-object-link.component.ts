@@ -5,10 +5,12 @@
 
 import {
   Component,
+  EventEmitter,
   Input,
   OnChanges,
   OnDestroy,
   OnInit,
+  Output,
   SimpleChanges,
 } from "@angular/core";
 import { MatDrawer } from "@angular/material/sidenav";
@@ -34,10 +36,14 @@ import { GeneratedType } from "src/app/shared/utils/generated-types";
 export class InformatieObjectLinkComponent
   implements OnInit, OnChanges, OnDestroy
 {
-  @Input() infoObject!: GeneratedType<"RESTOntkoppeldDocument"> & {
+  @Input() infoObject!: (
+    | GeneratedType<"RESTOntkoppeldDocument">
+    | GeneratedType<"RESTInboxDocument">
+  ) & {
     informatieobjectTypeUUID: string;
   };
   @Input({ required: true }) sideNav!: MatDrawer;
+  @Output() informationObjectLinked = new EventEmitter<void>();
 
   intro: string = "";
   caseSearchField?: AbstractFormControlField;
@@ -49,7 +55,7 @@ export class InformatieObjectLinkComponent
   caseColumns: string[] = [
     "identificatie",
     "zaaktypeOmschrijving",
-    "status",
+    "statustypeOmschrijving",
     "omschrijving",
     "acties",
   ];
@@ -129,6 +135,7 @@ export class InformatieObjectLinkComponent
         () => {
           this.utilService.openSnackbar("msg.document.verplaatsen.uitgevoerd");
           this.closeDrawer();
+          this.informationObjectLinked.emit();
         },
         (error) => {
           console.error("Error linking case:", error);

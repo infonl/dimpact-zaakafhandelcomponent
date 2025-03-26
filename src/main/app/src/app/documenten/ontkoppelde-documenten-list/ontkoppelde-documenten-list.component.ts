@@ -123,8 +123,6 @@ export class OntkoppeldeDocumentenListComponent
 
   openDrawer(selectedDocument: OntkoppeldDocument) {
     this.selectedDocument = { ...selectedDocument };
-
-    console.log("this.selectedDocument", this.selectedDocument);
     this.actionsSidenav.open();
   }
 
@@ -222,6 +220,11 @@ export class OntkoppeldeDocumentenListComponent
     } else {
       this.filterChange.emit();
     }
+  }
+
+  retriggerSearch(): void {
+    console.log("Retriggering search");
+    this.filterChange.emit();
   }
 
   createDefaultParameters(): OntkoppeldDocumentListParameters {
