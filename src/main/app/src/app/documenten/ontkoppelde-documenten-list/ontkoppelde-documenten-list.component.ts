@@ -14,6 +14,7 @@ import {
 import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSelectChange } from "@angular/material/select";
+import { MatSidenav } from "@angular/material/sidenav";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
@@ -36,7 +37,6 @@ import { DatumRange } from "../../zoeken/model/datum-range";
 import { OntkoppeldDocument } from "../model/ontkoppeld-document";
 import { OntkoppeldDocumentListParameters } from "../model/ontkoppeld-document-list-parameters";
 import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
-import { MatDrawer, MatSidenav } from "@angular/material/sidenav";
 
 @Component({
   templateUrl: "./ontkoppelde-documenten-list.component.html",

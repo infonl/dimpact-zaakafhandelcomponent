@@ -31,7 +31,7 @@
   <div class="table-wrapper">
     <table mat-table [dataSource]="cases" matSort>
       <ng-container matColumnDef="identificatie">
-        <th *matHeaderCellDef mat-header-cell mat-sort-header>
+        <th *matHeaderCellDef mat-header-cell>
           {{ "zaak.identificatie" | translate }}
         </th>
         <td *matCellDef="let case" mat-cell>
@@ -39,7 +39,7 @@
         </td>
       </ng-container>
       <ng-container matColumnDef="zaaktypeOmschrijving">
-        <th *matHeaderCellDef mat-header-cell mat-sort-header>
+        <th *matHeaderCellDef mat-header-cell>
           {{ "zaaktypeOmschrijving" | translate }}
         </th>
         <td *matCellDef="let case" mat-cell>
@@ -47,7 +47,7 @@
         </td>
       </ng-container>
       <ng-container matColumnDef="status">
-        <th *matHeaderCellDef mat-header-cell mat-sort-header>
+        <th *matHeaderCellDef mat-header-cell>
           {{ "status" | translate }}
         </th>
         <td *matCellDef="let case" mat-cell>
@@ -55,7 +55,7 @@
         </td>
       </ng-container>
       <ng-container matColumnDef="omschrijving">
-        <th *matHeaderCellDef mat-header-cell mat-sort-header>
+        <th *matHeaderCellDef mat-header-cell>
           {{ "omschrijving" | translate }}
         </th>
         <td *matCellDef="let case" mat-cell>
@@ -69,10 +69,10 @@
             mat-icon-button
             color="primary"
             title="{{ 'actie.selecteren' | translate }}"
-            [disabled]="!row.documentKoppelen"
+            [disabled]="!row.documentKoppelbaar"
             (click)="selectCase(row)"
           >
-            <mat-icon [ngClass]="{ disabled: !row.documentKoppelen }"
+            <mat-icon [ngClass]="{ disabled: !row.documentKoppelbaar }"
               >link</mat-icon
             >
           </button>
@@ -83,9 +83,10 @@
       <tr
         mat-row
         *matRowDef="let row; columns: caseColumns"
-        [ngClass]="{ disabled: !row.documentKoppelen }"
+        [ngClass]="{ disabled: !row.documentKoppelbaar }"
       ></tr>
     </table>
+    <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
     <p *ngIf="cases.data.length == 0 && !loading">
       {{
         foutmelding ? foutmelding : ("msg.geen.gegevens.gevonden" | translate)
@@ -97,6 +98,5 @@
           | translate
       }}
     </p>
-    <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
   </div>
 </div>
