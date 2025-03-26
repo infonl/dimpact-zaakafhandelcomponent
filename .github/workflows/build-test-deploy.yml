@@ -444,8 +444,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          fetch-depth: 0
+
       - name: Create or update GitHub release
         uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1.16.0
         with:
@@ -462,7 +461,7 @@ jobs:
           generateReleaseNotes: true
 
   trigger-provision:
-    needs: [next-version, push-docker-image]
+    needs: [next-version, push-docker-image, create-release]
     env:
       NEXT_VERSION: ${{ needs.next-version.outputs.version }}
     runs-on: ubuntu-24.04
