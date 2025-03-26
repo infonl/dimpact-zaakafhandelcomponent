@@ -74,7 +74,7 @@ export class OntkoppeldeDocumentenListComponent
   filterOntkoppeldDoor: GeneratedType<"RestUser">[] = [];
   filterChange = new EventEmitter<void>();
   clearZoekopdracht = new EventEmitter<void>();
-  selectedDocument: OntkoppeldDocument | null = null;
+  selectedInformationObject: OntkoppeldDocument | null = null;
 
   constructor(
     private ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
@@ -121,8 +121,8 @@ export class OntkoppeldeDocumentenListComponent
       });
   }
 
-  openDrawer(selectedDocument: OntkoppeldDocument) {
-    this.selectedDocument = { ...selectedDocument };
+  openDrawer(selectedInformationObject: OntkoppeldDocument) {
+    this.selectedInformationObject = { ...selectedInformationObject };
     this.actionsSidenav.open();
   }
 

@@ -67,7 +67,7 @@ export class InboxDocumentenListComponent
   listParameters: InboxDocumentListParameters;
   filterChange: EventEmitter<void> = new EventEmitter<void>();
   clearZoekopdracht: EventEmitter<void> = new EventEmitter<void>();
-  selectedDocument: OntkoppeldDocument | null = null;
+  selectedInformationObject: OntkoppeldDocument | null = null;
 
   constructor(
     private inboxDocumentenService: InboxDocumentenService,
@@ -215,10 +215,13 @@ export class InboxDocumentenListComponent
     return Werklijst.INBOX_DOCUMENTEN;
   }
 
-  openDrawer(selectedDocument: OntkoppeldDocument) {
-    this.selectedDocument = { ...selectedDocument };
+  openDrawer(selectedInformationObject: OntkoppeldDocument) {
+    this.selectedInformationObject = { ...selectedInformationObject };
 
-    console.log("this.selectedDocument", this.selectedDocument);
+    console.log(
+      "this.selectedInformationObject",
+      this.selectedInformationObject,
+    );
     this.actionsSidenav.open();
   }
 

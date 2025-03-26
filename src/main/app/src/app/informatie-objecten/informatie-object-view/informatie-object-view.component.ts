@@ -306,23 +306,6 @@ export class InformatieObjectViewComponent
         ),
       );
     }
-
-    if (
-      document.cookie
-        .split("; ")
-        .find(
-          (row) =>
-            row.startsWith("koppelen-nieuw=") && row.split("=")[1] === "1",
-        )
-    ) {
-      this.menu.push(
-        new ButtonMenuItem(
-          "actie.informatieobject.koppelen",
-          () => this.actionsSidenav.open(),
-          "link",
-        ),
-      );
-    }
   }
 
   private loadZaakInformatieobjecten(): void {

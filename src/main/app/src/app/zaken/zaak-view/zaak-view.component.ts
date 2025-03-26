@@ -88,6 +88,7 @@ export class ZaakViewComponent
   menu: MenuItem[];
   activeSideAction: string | null = null;
   teWijzigenBesluit: GeneratedType<"RestDecision">;
+  documentToMove: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
   takenDataSource = new MatTableDataSource<ExpandableTableData<Taak>>();
   allTakenExpanded = false;
@@ -1239,6 +1240,14 @@ export class ZaakViewComponent
   besluitWijzigen($event): void {
     this.activeSideAction = "actie.besluit.wijzigen";
     this.teWijzigenBesluit = $event;
+    this.actionsSidenav.open();
+  }
+
+  documentMoveToCase(
+    $event: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>,
+  ): void {
+    this.activeSideAction = "actie.document.verplaatsen";
+    this.documentToMove = $event;
     this.actionsSidenav.open();
   }
 
