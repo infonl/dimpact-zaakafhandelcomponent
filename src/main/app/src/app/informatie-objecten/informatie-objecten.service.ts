@@ -346,6 +346,27 @@ export class InformatieObjectenService {
       );
   }
 
+  koppelInformatieObject(
+    documentVerplaatsGegevens: Partial<
+      GeneratedType<"RestEnkelvoudigInformatieobject"> & {
+        documentUUID: string;
+      }
+    >,
+    nieuweZaakID: string,
+  ): Observable<void> {
+    return this.http
+      .post<void>(`${this.basepath}/informatieobject/verplaats`, {
+        documentUUID: documentVerplaatsGegevens.documentUUID,
+        documentTitel: documentVerplaatsGegevens.titel,
+        documentTypeUUID: "f062a801-4264-4561-8d85-b9ee0b486d7e",
+        bron: "ontkoppelde-documenten",
+        nieuweZaakID: nieuweZaakID,
+      })
+      .pipe(
+        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+      );
+  }
+
   deleteEnkelvoudigInformatieObject(
     uuid: string,
     zaakUuid: string,
