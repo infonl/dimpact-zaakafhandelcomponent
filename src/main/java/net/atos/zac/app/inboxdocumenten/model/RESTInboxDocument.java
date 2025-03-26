@@ -16,6 +16,8 @@ public class RESTInboxDocument {
 
     public String enkelvoudiginformatieobjectID;
 
+    public UUID informatieobjectTypeUUID;
+
     public LocalDate creatiedatum;
 
     public String titel;

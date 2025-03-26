@@ -16,11 +16,11 @@ import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NOT_FOUND
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING
+import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.TAAK_1_FATAL_DATE
@@ -31,7 +31,6 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_DOCUMENTS
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_TASKS
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_ZAKEN
-import nl.info.zac.itest.config.ItestConfiguration.YMD_TODAY_STRING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
@@ -47,7 +46,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_DOCUME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_TITEL
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONObject
 
@@ -389,7 +387,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     "rows": 5,
                     "page":0,
                     "zaakIdentificator": "zaak",
-                    "documentUUID": "$enkelvoudigInformatieObjectUUID"
+                    "documentTypeUUID": "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID"
                 }
                 """.trimIndent()
             )
@@ -410,8 +408,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "documentKoppelbaar": true,
                       "identificatie": "ZAAK-2024-0000000001",
                       "omschrijving": "$ZAAK_DESCRIPTION_1",
-                      "registratiedatum": "$YMD_TODAY_STRING",
-                      "statusToelichting": "Status gewijzigd",
+                      "statustypeOmschrijving": "Wacht op aanvullende informatie",
                       "toelichting": "null",
                       "type": "ZAAK",
                       "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
@@ -420,8 +417,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "documentKoppelbaar": false,
                       "identificatie": "$ZAAK_MANUAL_1_IDENTIFICATION",
                       "omschrijving": "changedDescription",
-                      "registratiedatum": "$YMD_TODAY_STRING",
-                      "statusToelichting": "Status gewijzigd",
+                      "statustypeOmschrijving": "Intake",
                       "toelichting": "$ZAAK_EXPLANATION_1",
                       "type": "ZAAK",
                       "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
@@ -430,8 +426,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "documentKoppelbaar": true,
                       "identificatie": "ZAAK-2000-0000000006",
                       "omschrijving": "dummyOmschrijving",
-                      "registratiedatum": "$YMD_TODAY_STRING",
-                      "statusToelichting": "Zaak beeindigd",
+                      "statustypeOmschrijving": "Afgerond",
                       "toelichting": "null",
                       "type": "ZAAK",
                       "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
@@ -440,8 +435,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "documentKoppelbaar": true,
                       "identificatie": "ZAAK-2000-0000000005",
                       "omschrijving": "dummyOmschrijving",
-                     "registratiedatum": "$YMD_TODAY_STRING",
-                      "statusToelichting": "dummyReason",
+                      "statustypeOmschrijving": "Afgerond",
                       "toelichting": "null",
                       "type": "ZAAK",
                       "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
@@ -450,8 +444,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "documentKoppelbaar": true,
                       "identificatie": "ZAAK-2000-0000000004",
                       "omschrijving": "dummyOmschrijving",
-                      "registratiedatum": "$YMD_TODAY_STRING",
-                      "statusToelichting": "Status gewijzigd",
+                      "statustypeOmschrijving": "In behandeling",
                       "toelichting": "null",
                       "type": "ZAAK",
                       "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
@@ -477,14 +470,68 @@ class SearchRestServiceTest : BehaviorSpec({
                     "rows": 5,
                     "page":0,
                     "zaakIdentificator": "zaak",
-                    "documentUUID": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
+                    "documentTypeUUID": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
                 }
                 """.trimIndent()
             )
             Then("the response is successful and search results contain no zaak that can be linked to") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_NOT_FOUND
+                response.isSuccessful shouldBe true
+                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                {
+                  "foutmelding": "",
+                  "resultaten": [
+                    {
+                      "documentKoppelbaar": false,
+                      "identificatie": "ZAAK-2024-0000000001",
+                      "omschrijving": "$ZAAK_DESCRIPTION_1",
+                      "statustypeOmschrijving": "Wacht op aanvullende informatie",
+                      "toelichting": "null",
+                      "type": "ZAAK",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                    },
+                    {
+                      "documentKoppelbaar": false,
+                      "identificatie": "$ZAAK_MANUAL_1_IDENTIFICATION",
+                      "omschrijving": "changedDescription",
+                      "statustypeOmschrijving": "Intake",
+                      "toelichting": "$ZAAK_EXPLANATION_1",
+                      "type": "ZAAK",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                    },
+                    {
+                      "documentKoppelbaar": false,
+                      "identificatie": "ZAAK-2000-0000000006",
+                      "omschrijving": "dummyOmschrijving",
+                      "statustypeOmschrijving": "Afgerond",
+                      "toelichting": "null",
+                      "type": "ZAAK",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                    },
+                    {
+                      "documentKoppelbaar": false,
+                      "identificatie": "ZAAK-2000-0000000005",
+                      "omschrijving": "dummyOmschrijving",
+                      "statustypeOmschrijving": "Afgerond",
+                      "toelichting": "null",
+                      "type": "ZAAK",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                    },
+                    {
+                      "documentKoppelbaar": false,
+                      "identificatie": "ZAAK-2000-0000000004",
+                      "omschrijving": "dummyOmschrijving",
+                      "statustypeOmschrijving": "In behandeling",
+                      "toelichting": "null",
+                      "type": "ZAAK",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                    }
+                  ],
+                  "totaal": 10,
+                  "filters": {}
+                }
+                """.trimIndent()
             }
         }
     }

@@ -14,11 +14,9 @@ import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.search.SearchService
 import net.atos.zac.search.model.zoekobject.ZoekObjectType
-import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.app.search.converter.RestZoekParametersConverter
 import nl.info.zac.app.search.converter.RestZoekResultaatConverter
 import nl.info.zac.app.search.model.AbstractRestZoekObject
@@ -39,7 +37,6 @@ class SearchRestService @Inject constructor(
     private val searchService: SearchService,
     private val restZoekZaakParametersConverter: RestZoekParametersConverter,
     private val restZoekResultaatConverter: RestZoekResultaatConverter,
-    private val drcClientService: DrcClientService,
     private val policyService: PolicyService
 ) {
     @PUT
@@ -65,12 +62,8 @@ class SearchRestService @Inject constructor(
     ): RestZoekResultaat<out AbstractRestZoekObject?> {
         PolicyService.assertPolicy(policyService.readWerklijstRechten().zakenTaken)
 
-        val informationObjectTypeUuid = drcClientService.readEnkelvoudigInformatieobject(
-            restZoekKoppelenParameters.documentUUID
-        ).informatieobjecttype.extractUuid()
-
         return searchService.zoek(restZoekKoppelenParameters.toZoekParameters()).let {
-            restZoekResultaatConverter.convert(it, informationObjectTypeUuid)
+            restZoekResultaatConverter.convert(it, restZoekKoppelenParameters.documentTypeUUID)
         }
     }
 }
