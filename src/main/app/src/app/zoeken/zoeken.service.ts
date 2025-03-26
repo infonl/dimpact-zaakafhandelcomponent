@@ -51,12 +51,12 @@ export class ZoekenService {
 
   listKoppelbareZaken(
     zaakIdentificator: string,
-    documentUUID: string,
+    informationObjectTypeUuid: string,
   ): Observable<Resultaat<KoppelbareZaakListItem>> {
     return this.http
       .put<Resultaat<KoppelbareZaakListItem>>(`${this.basepath}/zaken`, {
         zaakIdentificator,
-        documentUUID,
+        informationObjectTypeUuid,
         page: 0,
         rows: 10,
       })

@@ -24,6 +24,7 @@ import {
   ZoekenService,
 } from "src/app/zoeken/zoeken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
+import { GeneratedType } from "src/app/shared/utils/generated-types";
 
 @Component({
   selector: "zac-informatie-object-link",
@@ -33,12 +34,12 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
 export class InformatieObjectLinkComponent
   implements OnInit, OnChanges, OnDestroy
 {
-  @Input() infoObject!: OntkoppeldDocument & {
-    enkelvoudiginformatieobjectUUID?: string | null;
+  @Input() infoObject!: GeneratedType<"RESTOntkoppeldDocument"> & {
+    informatieobjectTypeUUID: string;
   };
   @Input({ required: true }) sideNav!: MatDrawer;
 
-  intro: string | undefined = "";
+  intro: string = "";
   caseSearchField?: AbstractFormControlField;
   isValid: boolean = false;
   loading: boolean = false;
@@ -75,9 +76,9 @@ export class InformatieObjectLinkComponent
       });
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges) {
     if (changes.infoObject && changes.infoObject.currentValue) {
-      this.wissen();
+      this.reset();
       this.intro = this.translate.instant("informatieobject.koppelen.uitleg", {
         documentName:
           changes.infoObject.currentValue?.documentID ||
@@ -88,13 +89,7 @@ export class InformatieObjectLinkComponent
     }
   }
 
-  searchCases(): void {
-    if (
-      !this.infoObject?.enkelvoudiginformatieobjectUUID &&
-      !this.infoObject?.documentUUID
-    )
-      return;
-
+  searchCases() {
     this.loading = true;
     this.utilService.setLoading(true);
     console.log("infoObject", this.infoObject);
@@ -102,8 +97,7 @@ export class InformatieObjectLinkComponent
     this.zoekenService
       .listKoppelbareZaken(
         this.caseSearchField?.formControl.value,
-        this.infoObject?.enkelvoudiginformatieobjectUUID ||
-          this.infoObject?.documentUUID,
+        this.infoObject?.informatieobjectTypeUUID,
       )
       .subscribe(
         (result) => {
@@ -121,7 +115,7 @@ export class InformatieObjectLinkComponent
       );
   }
 
-  selectCase(row): void {
+  selectCase(row: any) {
     this.informatieObjectService
       .koppelInformatieObject(
         {
@@ -131,12 +125,25 @@ export class InformatieObjectLinkComponent
         row.identificatie,
       )
       .pipe(takeUntil(this.ngDestroy))
-      .subscribe(() =>
-        this.utilService.openSnackbar("msg.document.verplaatsen.uitgevoerd"),
+      .subscribe(
+        () => {
+          this.utilService.openSnackbar("msg.document.verplaatsen.uitgevoerd");
+          this.closeDrawer();
+        },
+        (error) => {
+          console.error("Error linking case:", error);
+          this.loading = false;
+          this.utilService.setLoading(false);
+        },
       );
   }
 
-  private wissen(): void {
+  closeDrawer() {
+    this.sideNav.close();
+    this.reset();
+  }
+
+  private reset() {
     this.caseSearchField?.formControl.reset();
     this.cases.data = [];
     this.totalCases = 0;
