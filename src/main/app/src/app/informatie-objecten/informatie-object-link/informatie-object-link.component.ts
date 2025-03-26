@@ -18,15 +18,14 @@ import { MatTableDataSource } from "@angular/material/table";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
-import { OntkoppeldDocument } from "src/app/documenten/model/ontkoppeld-document";
 import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
 import { AbstractFormControlField } from "src/app/shared/material-form-builder/model/abstract-form-control-field";
+import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
   KoppelbareZaakListItem,
   ZoekenService,
 } from "src/app/zoeken/zoeken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
-import { GeneratedType } from "src/app/shared/utils/generated-types";
 
 @Component({
   selector: "zac-informatie-object-link",
