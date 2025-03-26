@@ -672,7 +672,6 @@
   "actie.zaak.opschorten": "Suspend case",
   "actie.zaak.ontkoppelen": "Unlink case",
   "actie.zaak.koppelen": "Link case",
-  "actie.informatieobject.koppelen": "Link document",
   "actie.zaak.koppelen.disabled": "Go to the case this case must be linked to...",
   "actie.zaak.toekennen": "Assign case",
   "actie.zaak.toekennen.groep": "Assign case to group",

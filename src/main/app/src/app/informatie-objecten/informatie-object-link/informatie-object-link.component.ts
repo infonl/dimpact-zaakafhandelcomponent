@@ -37,9 +37,11 @@ export class InformatieObjectLinkComponent
 {
   @Input() infoObject!:
     | GeneratedType<"RESTOntkoppeldDocument">
-    | GeneratedType<"RESTInboxDocument">;
+    | GeneratedType<"RESTInboxDocument">
+    | GeneratedType<"RestEnkelvoudigInformatieobject">;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Input({ required: true }) source!: string;
+  @Input({ required: true }) action!: string;
   @Output() informationObjectLinked = new EventEmitter<void>();
 
   intro: string = "";
@@ -95,8 +97,6 @@ export class InformatieObjectLinkComponent
   searchCases() {
     this.loading = true;
     this.utilService.setLoading(true);
-    console.log("infoObject", this.infoObject);
-
     this.zoekenService
       .listKoppelbareZaken(
         this.caseSearchField?.formControl.value,
@@ -104,14 +104,12 @@ export class InformatieObjectLinkComponent
       )
       .subscribe(
         (result) => {
-          console.log("result", result);
           this.cases.data = result.resultaten;
           this.totalCases = result.totaal;
           this.loading = false;
           this.utilService.setLoading(false);
         },
         (error) => {
-          console.error("Error fetching cases:", error);
           this.loading = false;
           this.utilService.setLoading(false);
         },
@@ -121,11 +119,13 @@ export class InformatieObjectLinkComponent
   selectCase(row: any) {
     const linkDocumentDetails = {
       documentUUID:
-        "documentUUID" in this.infoObject
-          ? this.infoObject.documentUUID
-          : "enkelvoudiginformatieobjectUUID" in this.infoObject
-            ? this.infoObject.enkelvoudiginformatieobjectUUID
-            : "",
+        "uuid" in this.infoObject
+          ? this.infoObject.uuid
+          : "documentUUID" in this.infoObject
+            ? this.infoObject.documentUUID
+            : "enkelvoudiginformatieobjectUUID" in this.infoObject
+              ? this.infoObject.enkelvoudiginformatieobjectUUID
+              : "",
       documentTitel: this.infoObject.titel,
       bron: this.source,
       nieuweZaakID: row.identificatie,
@@ -141,7 +141,6 @@ export class InformatieObjectLinkComponent
           this.informationObjectLinked.emit();
         },
         (error) => {
-          console.error("Error linking case:", error);
           this.loading = false;
           this.utilService.setLoading(false);
         },
