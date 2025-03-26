@@ -62,11 +62,28 @@
           {{ case.omschrijving | empty }}
         </td>
       </ng-container>
+      <ng-container matColumnDef="acties" stickyEnd>
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row">
+          <button
+            mat-icon-button
+            color="primary"
+            title="{{ 'actie.selecteren' | translate }}"
+            [disabled]="!row.documentKoppelen"
+            (click)="selectCase(row)"
+          >
+            <mat-icon [ngClass]="{ disabled: !row.documentKoppelen }"
+              >link</mat-icon
+            >
+          </button>
+        </td>
+      </ng-container>
+
       <tr mat-header-row *matHeaderRowDef="caseColumns; sticky: true"></tr>
       <tr
         mat-row
         *matRowDef="let row; columns: caseColumns"
-        [ngClass]="{ 'disabled-row': !row.documentKoppelen }"
+        [ngClass]="{ disabled: !row.documentKoppelen }"
       ></tr>
     </table>
     <p *ngIf="cases.data.length == 0 && !loading">
