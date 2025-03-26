@@ -50,6 +50,7 @@ export class InformatieObjectLinkComponent
     "zaaktypeOmschrijving",
     "status",
     "omschrijving",
+    "acties",
   ];
 
   private ngDestroy = new Subject<void>();
@@ -117,6 +118,10 @@ export class InformatieObjectLinkComponent
           this.utilService.setLoading(false);
         },
       );
+  }
+
+  selectCase(caseId: string): void {
+    console.log("caseId", caseId);
   }
 
   private wissen(): void {
