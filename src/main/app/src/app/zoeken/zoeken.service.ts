@@ -8,11 +8,10 @@ import { Injectable } from "@angular/core";
 import { Observable, Subject } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { Resultaat } from "../shared/model/resultaat";
 import { ZoekObject } from "./model/zoek-object";
 import { ZoekParameters } from "./model/zoek-parameters";
 import { ZoekResultaat } from "./model/zoek-resultaat";
-import { GeneratedType } from "../shared/utils/generated-types";
-import { Resultaat } from "../shared/model/resultaat";
 
 export type KoppelbareZaakListItem = {
   foutmelding: string;

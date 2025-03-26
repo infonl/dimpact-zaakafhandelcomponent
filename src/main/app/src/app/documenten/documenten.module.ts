@@ -6,12 +6,12 @@
 import { NgModule } from "@angular/core";
 
 import { GebruikersvoorkeurenModule } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.module";
+import { InformatieObjectLinkComponent } from "../informatie-objecten/informatie-object-link/informatie-object-link.component";
 import { SharedModule } from "../shared/shared.module";
 import { ZoekenModule } from "../zoeken/zoeken.module";
 import { DocumentenRoutingModule } from "./documenten-routing.module";
 import { InboxDocumentenListComponent } from "./inbox-documenten-list/inbox-documenten-list.component";
 import { OntkoppeldeDocumentenListComponent } from "./ontkoppelde-documenten-list/ontkoppelde-documenten-list.component";
-import { InformatieObjectLinkComponent } from "../informatie-objecten/informatie-object-link/informatie-object-link.component";
 
 @NgModule({
   declarations: [

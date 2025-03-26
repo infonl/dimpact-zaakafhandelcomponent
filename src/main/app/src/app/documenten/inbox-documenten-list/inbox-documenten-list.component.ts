@@ -13,6 +13,7 @@ import {
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
+import { MatSidenav } from "@angular/material/sidenav";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
@@ -34,7 +35,6 @@ import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { InboxDocumentenService } from "../inbox-documenten.service";
 import { InboxDocument } from "../model/inbox-document";
 import { InboxDocumentListParameters } from "../model/inbox-document-list-parameters";
-import { MatSidenav } from "@angular/material/sidenav";
 import { OntkoppeldDocument } from "../model/ontkoppeld-document";
 
 @Component({

@@ -12,14 +12,13 @@ import {
   SimpleChanges,
 } from "@angular/core";
 import { MatDrawer } from "@angular/material/sidenav";
-import { GeneratedType } from "../../shared/utils/generated-types";
-import { AbstractFormControlField } from "src/app/shared/material-form-builder/model/abstract-form-control-field";
-import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
 import { MatTableDataSource } from "@angular/material/table";
-import { Subject, takeUntil } from "rxjs";
-import { OntkoppeldDocument } from "src/app/documenten/model/ontkoppeld-document";
 import { TranslateService } from "@ngx-translate/core";
+import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
+import { OntkoppeldDocument } from "src/app/documenten/model/ontkoppeld-document";
+import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
+import { AbstractFormControlField } from "src/app/shared/material-form-builder/model/abstract-form-control-field";
 import {
   KoppelbareZaakListItem,
   ZoekenService,
@@ -127,6 +126,7 @@ export class InformatieObjectLinkComponent
   private wissen(): void {
     this.caseSearchField?.formControl.reset();
     this.cases.data = [];
+    this.totalCases = 0;
     this.loading = false;
   }
 
