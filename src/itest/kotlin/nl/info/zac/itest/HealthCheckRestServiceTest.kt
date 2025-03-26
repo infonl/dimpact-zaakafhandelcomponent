@@ -139,8 +139,8 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                           "versiedatum": "$DATE_2023_09_21",
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }
-                      }            
-                    ]                    
+                      }
+                    ]    
                 """.trimIndent()
             }
         }
