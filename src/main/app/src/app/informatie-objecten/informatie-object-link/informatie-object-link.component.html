@@ -46,12 +46,12 @@
           {{ case.zaaktypeOmschrijving | empty }}
         </td>
       </ng-container>
-      <ng-container matColumnDef="status">
+      <ng-container matColumnDef="statustypeOmschrijving">
         <th *matHeaderCellDef mat-header-cell>
           {{ "status" | translate }}
         </th>
         <td *matCellDef="let case" mat-cell>
-          {{ case?.status | empty }}
+          {{ case?.statustypeOmschrijving | empty }}
         </td>
       </ng-container>
       <ng-container matColumnDef="omschrijving">
