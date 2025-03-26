@@ -24,7 +24,6 @@ import net.atos.zac.app.zaak.model.toGeometry
 import net.atos.zac.app.zaak.model.toRestGeometry
 import net.atos.zac.app.zaak.model.toRestZaakStatus
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.bpmn.BpmnService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.search.model.ZaakIndicatie
 import net.atos.zac.util.time.PeriodUtil
@@ -35,6 +34,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.flowable.bpmn.BpmnService
 import java.time.LocalDate
 import java.time.Period
 import java.util.EnumSet

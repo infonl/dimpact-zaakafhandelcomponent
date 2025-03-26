@@ -55,8 +55,8 @@ VALUES
     'BPMN test zaaktype', -- zaaktype_omschrijving
     'BPMN test zaaktype', -- zaaktype_omschrijving_generiek
     'openbaar', -- vertrouwelijkheidaanduiding
-    'BPMN test', -- doel
-    'BPMN test', -- aanleiding
+    'BPMN test zaaktype', -- doel
+    'BPMN test zaaktype', -- aanleiding
     '', -- toelichting
     'extern', -- indicatie_intern_of_extern
     'Indienen', -- handeling_initiator
@@ -74,7 +74,7 @@ VALUES
     '2025-01-01', -- versiedatum
     '{}', -- producten_of_diensten (empty array)
     'https://selectielijst.openzaak.nl/api/v1/procestypen/1e12ad30-b900-4e7f-b3b7-569673cee0b0', -- selectielijst_procestype
-    'BPMN test', -- referentieproces_naam
+    'BPMN test zaaktype', -- referentieproces_naam
     '', -- referentieproces_link
     1, -- catalogus_id, assuming a lookup is required
     2020, -- selectielijst_procestype_jaar (assuming this remains constant)
