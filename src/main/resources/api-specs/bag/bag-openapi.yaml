@@ -39,13 +39,13 @@ tags:
       met embedded resources en links.
   - name: Adres
     description: "Deze services leveren één of meer huidige adressen, met embedded resources\
-    \ en links. Huidig betekent dat het adres actueel is en geen eind status heeft.\
-    \ Voor een toelichting zie de [Praktijkhandleiding BAG](https://imbag.github.io/praktijkhandleiding/artikelen/wat-is-het-verschil-tussen-actieve-voorkomens-actuele-voorkomens-en-huidige-voorkomens)."
+      \ en links. Huidig betekent dat het adres actueel is en geen eind status heeft.\
+      \ Voor een toelichting zie de [Praktijkhandleiding BAG](https://imbag.github.io/praktijkhandleiding/artikelen/wat-is-het-verschil-tussen-actieve-voorkomens-actuele-voorkomens-en-huidige-voorkomens)."
   - name: Adres uitgebreid
     description: "Deze service levert uitgebreide informatie van één of meer huidige\
-    \  adressen, met embedded resources en links. Huidig betekent dat het adres  actueel\
-    \ is en geen eind status heeft. Voor een toelichting zie de  [Praktijkhandleiding\
-    \ BAG](https://imbag.github.io/praktijkhandleiding/artikelen/wat-is-het-verschil-tussen-actieve-voorkomens-actuele-voorkomens-en-huidige-voorkomens)."
+      \  adressen, met embedded resources en links. Huidig betekent dat het adres  actueel\
+      \ is en geen eind status heeft. Voor een toelichting zie de  [Praktijkhandleiding\
+      \ BAG](https://imbag.github.io/praktijkhandleiding/artikelen/wat-is-het-verschil-tussen-actieve-voorkomens-actuele-voorkomens-en-huidige-voorkomens)."
   - name: Algemene informatie
     description: Het endpoint voor algemene informatie levert informatie op van de API.
   - name: Bronhouder
