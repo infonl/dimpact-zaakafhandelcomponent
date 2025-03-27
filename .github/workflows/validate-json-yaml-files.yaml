@@ -24,4 +24,6 @@ jobs:
         id: json-yaml-validate
         uses: GrantBirki/json-yaml-validate@e42e6ece9b97f2b220274c909a9a98e380c2c9fd # v3.2.1
         with:
-          comment: "true"
+          comment: true
+          allow_multiple_documents: true
+          yaml_exclude_regex: "charts/.+\\.ya?ml$" # validation will break on helm charts. We have linting already in place
