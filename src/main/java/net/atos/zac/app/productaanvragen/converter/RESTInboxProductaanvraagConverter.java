@@ -13,7 +13,7 @@ import net.atos.zac.productaanvraag.model.InboxProductaanvraag;
 
 public class RESTInboxProductaanvraagConverter {
 
-    public RESTInboxProductaanvraag convert(final InboxProductaanvraag productaanvraag) {
+    public static RESTInboxProductaanvraag convert(final InboxProductaanvraag productaanvraag) {
         final RESTInboxProductaanvraag restInboxProductaanvraag = new RESTInboxProductaanvraag();
         restInboxProductaanvraag.id = productaanvraag.getId();
         restInboxProductaanvraag.aanvraagdocumentUUID = productaanvraag.getAanvraagdocumentUUID();
@@ -25,7 +25,7 @@ public class RESTInboxProductaanvraagConverter {
         return restInboxProductaanvraag;
     }
 
-    public List<RESTInboxProductaanvraag> convert(final List<InboxProductaanvraag> productaanvragen) {
-        return productaanvragen.stream().map(this::convert).collect(Collectors.toList());
+    public static List<RESTInboxProductaanvraag> convert(final List<InboxProductaanvraag> productaanvragen) {
+        return productaanvragen.stream().map(RESTInboxProductaanvraagConverter::convert).collect(Collectors.toList());
     }
 }

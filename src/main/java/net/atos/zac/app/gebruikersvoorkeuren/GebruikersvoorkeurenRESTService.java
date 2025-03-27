@@ -44,12 +44,6 @@ public class GebruikersvoorkeurenRESTService {
     private GebruikersvoorkeurenService gebruikersvoorkeurenService;
 
     @Inject
-    private RESTZoekopdrachtConverter zoekopdrachtConverter;
-
-    @Inject
-    private RESTDashboardCardInstellingConverter dashboardCardInstellingConverter;
-
-    @Inject
     private Instance<LoggedInUser> loggedInUserInstance;
 
     @Inject
@@ -60,7 +54,7 @@ public class GebruikersvoorkeurenRESTService {
     public List<RESTZoekopdracht> listZoekopdrachten(@PathParam("lijstID") final Werklijst lijstID) {
         final List<Zoekopdracht> zoekopdrachten = gebruikersvoorkeurenService.listZoekopdrachten(
                 new ZoekopdrachtListParameters(lijstID, loggedInUserInstance.get().getId()));
-        return zoekopdrachtConverter.convert(zoekopdrachten);
+        return RESTZoekopdrachtConverter.convert(zoekopdrachten);
     }
 
     @DELETE
@@ -72,14 +66,14 @@ public class GebruikersvoorkeurenRESTService {
     @POST
     @Path("zoekopdracht")
     public RESTZoekopdracht createOrUpdateZoekopdracht(final RESTZoekopdracht restZoekopdracht) {
-        final Zoekopdracht zoekopdracht = zoekopdrachtConverter.convert(restZoekopdracht);
-        return zoekopdrachtConverter.convert(gebruikersvoorkeurenService.createZoekopdracht(zoekopdracht));
+        final Zoekopdracht zoekopdracht = RESTZoekopdrachtConverter.convert(restZoekopdracht, loggedInUserInstance);
+        return RESTZoekopdrachtConverter.convert(gebruikersvoorkeurenService.createZoekopdracht(zoekopdracht));
     }
 
     @PUT
     @Path("zoekopdracht/actief")
     public void setZoekopdrachtActief(final RESTZoekopdracht restZoekopdracht) {
-        final Zoekopdracht zoekopdracht = zoekopdrachtConverter.convert(restZoekopdracht);
+        final Zoekopdracht zoekopdracht = RESTZoekopdrachtConverter.convert(restZoekopdracht, loggedInUserInstance);
         gebruikersvoorkeurenService.setActief(zoekopdracht);
     }
 
@@ -117,7 +111,7 @@ public class GebruikersvoorkeurenRESTService {
     @GET
     @Path("dasboardcard/actief")
     public List<RESTDashboardCardInstelling> listDashboardCards() {
-        return dashboardCardInstellingConverter.convert(
+        return RESTDashboardCardInstellingConverter.convert(
                 gebruikersvoorkeurenService.listDashboardCards(loggedInUserInstance.get().getId()));
     }
 
@@ -126,7 +120,7 @@ public class GebruikersvoorkeurenRESTService {
     public List<RESTDashboardCardInstelling> updateDashboardCards(final List<RESTDashboardCardInstelling> instellingen) {
         gebruikersvoorkeurenService.updateDashboardCards(
                 loggedInUserInstance.get().getId(),
-                instellingen.stream().map(dashboardCardInstellingConverter::convert).toList());
+                instellingen.stream().map(RESTDashboardCardInstellingConverter::convert).toList());
         return listDashboardCards();
     }
 
@@ -135,7 +129,7 @@ public class GebruikersvoorkeurenRESTService {
     public List<RESTDashboardCardInstelling> addDashboardCard(RESTDashboardCardInstelling instelling) {
         gebruikersvoorkeurenService.addDashboardCard(
                 loggedInUserInstance.get().getId(),
-                dashboardCardInstellingConverter.convert(instelling));
+                RESTDashboardCardInstellingConverter.convert(instelling));
         return listDashboardCards();
     }
 
@@ -144,7 +138,7 @@ public class GebruikersvoorkeurenRESTService {
     public List<RESTDashboardCardInstelling> deleteDashboardCard(final RESTDashboardCardInstelling instelling) {
         gebruikersvoorkeurenService.deleteDashboardCard(
                 loggedInUserInstance.get().getId(),
-                dashboardCardInstellingConverter.convert(instelling));
+                RESTDashboardCardInstellingConverter.convert(instelling));
         return listDashboardCards();
     }
 }
