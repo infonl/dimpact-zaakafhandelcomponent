@@ -1,12 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.ontkoppeldedocumenten.converter;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 import jakarta.inject.Inject;
 
@@ -24,11 +24,12 @@ public class RESTOntkoppeldDocumentConverter {
     @Inject
     private EnkelvoudigInformatieObjectLockService lockService;
 
-    public RESTOntkoppeldDocument convert(final OntkoppeldDocument document) {
+    public RESTOntkoppeldDocument convert(final OntkoppeldDocument document, final UUID informatieobjectTypeUUID) {
         final RESTOntkoppeldDocument restDocument = new RESTOntkoppeldDocument();
         restDocument.id = document.getId();
         restDocument.documentUUID = document.getDocumentUUID();
         restDocument.documentID = document.getDocumentID();
+        restDocument.informatieobjectTypeUUID = informatieobjectTypeUUID;
         restDocument.titel = document.getTitel();
         restDocument.zaakID = document.getZaakID();
         restDocument.creatiedatum = document.getCreatiedatum().toLocalDate();
@@ -41,7 +42,17 @@ public class RESTOntkoppeldDocumentConverter {
         return restDocument;
     }
 
-    public List<RESTOntkoppeldDocument> convert(final List<OntkoppeldDocument> documenten) {
-        return documenten.stream().map(this::convert).collect(Collectors.toList());
+    public List<RESTOntkoppeldDocument> convert(
+            final List<OntkoppeldDocument> documenten,
+            final List<UUID> informatieobjectTypeUUIDs
+    ) {
+        List<RESTOntkoppeldDocument> list = new ArrayList<>();
+        for (int index = 0; index < documenten.size(); index++) {
+            list.add(convert(
+                    documenten.get(index),
+                    informatieobjectTypeUUIDs.get(index)
+            ));
+        }
+        return list;
     }
 }

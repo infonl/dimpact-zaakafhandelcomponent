@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.inboxdocumenten;
 
 import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
@@ -67,8 +66,18 @@ public class InboxDocumentenRESTService {
     public RESTResultaat<RESTInboxDocument> list(final RESTInboxDocumentListParameters restListParameters) {
         PolicyService.assertPolicy(policyService.readWerklijstRechten().inbox());
         final InboxDocumentListParameters listParameters = listParametersConverter.convert(restListParameters);
-        return new RESTResultaat<>(inboxDocumentConverter.convert(
-                inboxDocumentenService.list(listParameters)), inboxDocumentenService.count(listParameters));
+        var inboxDocuments = inboxDocumentenService.list(listParameters);
+        var informationObjectTypeUUIDs = inboxDocuments.stream().map(
+                inboxDocument -> extractUuid(
+                        drcClientService
+                                .readEnkelvoudigInformatieobject(inboxDocument.getEnkelvoudiginformatieobjectUUID())
+                                .getInformatieobjecttype()
+                )
+        ).toList();
+        return new RESTResultaat<>(
+                inboxDocumentConverter.convert(inboxDocuments, informationObjectTypeUUIDs),
+                inboxDocumentenService.count(listParameters)
+        );
     }
 
     @DELETE

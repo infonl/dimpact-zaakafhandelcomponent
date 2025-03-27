@@ -19,6 +19,8 @@ import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_A
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING
+import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING
+import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.TAAK_1_FATAL_DATE
@@ -34,6 +36,8 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEM
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_EXPLANATION_1
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
@@ -222,12 +226,16 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "DOCUMENT_TYPE": [
                                 {
-                                    "aantal": 6,
-                                    "naam": "bijlage"
+                                    "aantal": 5,
+                                    "naam": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING"
                                 },
                                 {
                                     "aantal": 1,
-                                    "naam": "e-mail"
+                                    "naam": "$INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING"
+                                },
+                                {
+                                    "aantal": 1,
+                                    "naam": "$INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING"
                                 }
                             ],
                             "DOCUMENT_VERGRENDELD_DOOR": [],
@@ -251,6 +259,7 @@ class SearchRestServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("""Multiple zaken have been created and are indexed""") {
         When(
             """
@@ -363,6 +372,170 @@ class SearchRestServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("""Multiple zaken have been created and are indexed""") {
+        When(
+            """
+                the search endpoint is called to search for all objects of type 'ZAAK' with a specific information 
+                object UUID
+            """.trimMargin()
+        ) {
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/zoeken/zaken",
+                requestBodyAsString = """
+                {
+                    "rows": 5,
+                    "page":0,
+                    "zaakIdentificator": "zaak",
+                    "informationObjectTypeUuid": "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID"
+                }
+                """.trimIndent()
+            )
+            Then(
+                """
+                   the response is successful and the search results include the indexed zaken with compatibility info 
+                   about the information object type UUID
+                """
+            ) {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                {
+                  "foutmelding": "",
+                  "resultaten": [
+                    {
+                      "documentKoppelbaar": true,
+                      "identificatie": "ZAAK-2024-0000000001",
+                      "omschrijving": "$ZAAK_DESCRIPTION_1",
+                      "statustypeOmschrijving": "Wacht op aanvullende informatie",
+                      "toelichting": "null",
+                      "type": "ZAAK",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                    },
+                    {
+                      "documentKoppelbaar": false,
+                      "identificatie": "$ZAAK_MANUAL_1_IDENTIFICATION",
+                      "omschrijving": "changedDescription",
+                      "statustypeOmschrijving": "Intake",
+                      "toelichting": "$ZAAK_EXPLANATION_1",
+                      "type": "ZAAK",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                    },
+                    {
+                      "documentKoppelbaar": true,
+                      "identificatie": "ZAAK-2000-0000000006",
+                      "omschrijving": "dummyOmschrijving",
+                      "statustypeOmschrijving": "Afgerond",
+                      "toelichting": "null",
+                      "type": "ZAAK",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                    },
+                    {
+                      "documentKoppelbaar": true,
+                      "identificatie": "ZAAK-2000-0000000005",
+                      "omschrijving": "dummyOmschrijving",
+                      "statustypeOmschrijving": "Afgerond",
+                      "toelichting": "null",
+                      "type": "ZAAK",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                    },
+                    {
+                      "documentKoppelbaar": true,
+                      "identificatie": "ZAAK-2000-0000000004",
+                      "omschrijving": "dummyOmschrijving",
+                      "statustypeOmschrijving": "In behandeling",
+                      "toelichting": "null",
+                      "type": "ZAAK",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                    }
+                  ],
+                  "totaal": 10,
+                  "filters": {}
+                }
+                """.trimIndent()
+            }
+        }
+
+        When(
+            """
+                the search endpoint is called to search for all objects of type 'ZAAK' with a non-existing information 
+                object UUID
+            """.trimMargin()
+        ) {
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/zoeken/zaken",
+                requestBodyAsString = """
+                {
+                    "rows": 5,
+                    "page":0,
+                    "zaakIdentificator": "zaak",
+                    "informationObjectTypeUuid": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
+                }
+                """.trimIndent()
+            )
+            Then("the response is successful and search results contain no zaak that can be linked to") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                {
+                  "foutmelding": "",
+                  "resultaten": [
+                    {
+                      "documentKoppelbaar": false,
+                      "identificatie": "ZAAK-2024-0000000001",
+                      "omschrijving": "$ZAAK_DESCRIPTION_1",
+                      "statustypeOmschrijving": "Wacht op aanvullende informatie",
+                      "toelichting": "null",
+                      "type": "ZAAK",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                    },
+                    {
+                      "documentKoppelbaar": false,
+                      "identificatie": "$ZAAK_MANUAL_1_IDENTIFICATION",
+                      "omschrijving": "changedDescription",
+                      "statustypeOmschrijving": "Intake",
+                      "toelichting": "$ZAAK_EXPLANATION_1",
+                      "type": "ZAAK",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                    },
+                    {
+                      "documentKoppelbaar": false,
+                      "identificatie": "ZAAK-2000-0000000006",
+                      "omschrijving": "dummyOmschrijving",
+                      "statustypeOmschrijving": "Afgerond",
+                      "toelichting": "null",
+                      "type": "ZAAK",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                    },
+                    {
+                      "documentKoppelbaar": false,
+                      "identificatie": "ZAAK-2000-0000000005",
+                      "omschrijving": "dummyOmschrijving",
+                      "statustypeOmschrijving": "Afgerond",
+                      "toelichting": "null",
+                      "type": "ZAAK",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                    },
+                    {
+                      "documentKoppelbaar": false,
+                      "identificatie": "ZAAK-2000-0000000004",
+                      "omschrijving": "dummyOmschrijving",
+                      "statustypeOmschrijving": "In behandeling",
+                      "toelichting": "null",
+                      "type": "ZAAK",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                    }
+                  ],
+                  "totaal": 10,
+                  "filters": {}
+                }
+                """.trimIndent()
+            }
+        }
+    }
+
     Given("""Multiple taken have been created and are indexed""") {
         When(
             """the search endpoint is called to search for all objects of type 'TAAK'"""
@@ -527,11 +700,14 @@ class SearchRestServiceTest : BehaviorSpec({
                           "naam" : "$DOCUMENT_STATUS_IN_BEWERKING"
                         } ],
                         "DOCUMENT_TYPE" : [ {
-                          "aantal" : 6,
+                          "aantal" : 5,
                           "naam" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING"
                         }, {
                           "aantal" : 1,
                           "naam" : "$INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING"
+                        }, {
+                          "aantal" : 1,
+                          "naam" : "$INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING"
                         } ],
                         "DOCUMENT_VERGRENDELD_DOOR" : [ {
                           "aantal" : $TOTAL_COUNT_DOCUMENTS,

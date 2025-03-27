@@ -4,6 +4,7 @@
  */
 package nl.info.zac.itest.config
 
+import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Month
@@ -58,6 +59,8 @@ object ItestConfiguration {
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING = "bijlage"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
+    const val INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING = "factuur"
+    const val INFORMATIE_OBJECT_TYPE_FACTUUR_UUID = "eca3ae33-c9f1-4136-a48a-47dc3f4aaaf5"
     const val INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING = "e-mail"
     const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
     const val KEYCLOAK_HEALTH_READY_URL = "http://localhost:9001/health/ready"

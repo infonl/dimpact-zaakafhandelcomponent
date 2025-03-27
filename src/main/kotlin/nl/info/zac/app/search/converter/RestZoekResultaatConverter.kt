@@ -18,6 +18,8 @@ import net.atos.zac.search.model.zoekobject.ZaakZoekObject
 import net.atos.zac.search.model.zoekobject.ZoekObject
 import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.app.search.model.AbstractRestZoekObject
+import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
+import nl.info.zac.app.search.model.RestZaakZoekObject
 import nl.info.zac.app.search.model.RestZoekParameters
 import nl.info.zac.app.search.model.RestZoekResultaat
 import nl.info.zac.app.search.model.toRestDocumentZoekObject
@@ -64,4 +66,29 @@ class RestZoekResultaatConverter @Inject constructor(
                 policyService.readDocumentRechten(zoekObject)
             )
         }
+
+    fun convert(zoekResultaat: ZoekResultaat<out ZoekObject>, documentLinkableList: List<Boolean>) =
+        RestZoekResultaat(
+            zoekResultaat.items.mapIndexed { index, result ->
+                with(result as ZaakZoekObject) {
+                    convert(
+                        result.toRestZaakZoekObject(policyService.readZaakRechten(result)),
+                        documentLinkableList[index]
+                    )
+                }
+            },
+            zoekResultaat.count
+        )
+
+    private fun convert(restZaakZoekObject: RestZaakZoekObject, documentLinkable: Boolean) =
+        RestZaakKoppelenZoekObject(
+            id = restZaakZoekObject.id,
+            type = restZaakZoekObject.type,
+            identificatie = restZaakZoekObject.identificatie,
+            omschrijving = restZaakZoekObject.omschrijving,
+            toelichting = restZaakZoekObject.toelichting,
+            zaaktypeOmschrijving = restZaakZoekObject.zaaktypeOmschrijving,
+            statustypeOmschrijving = restZaakZoekObject.statustypeOmschrijving,
+            documentKoppelbaar = documentLinkable
+        )
 }
