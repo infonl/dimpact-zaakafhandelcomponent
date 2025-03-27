@@ -4,14 +4,12 @@
  */
 package net.atos.zac.app.ontkoppeldedocumenten.converter;
 
-import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
-
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
+import java.util.stream.IntStream;
 
 import jakarta.inject.Inject;
 
-import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.zac.app.identity.converter.RestUserConverter;
 import net.atos.zac.app.ontkoppeldedocumenten.model.RESTOntkoppeldDocument;
 import net.atos.zac.documenten.model.OntkoppeldDocument;
@@ -26,19 +24,12 @@ public class RESTOntkoppeldDocumentConverter {
     @Inject
     private EnkelvoudigInformatieObjectLockService lockService;
 
-    @Inject
-    private DrcClientService drcClientService;
-
-    public RESTOntkoppeldDocument convert(final OntkoppeldDocument document) {
+    public RESTOntkoppeldDocument convert(final OntkoppeldDocument document, final UUID informatieobjectTypeUUID) {
         final RESTOntkoppeldDocument restDocument = new RESTOntkoppeldDocument();
         restDocument.id = document.getId();
         restDocument.documentUUID = document.getDocumentUUID();
         restDocument.documentID = document.getDocumentID();
-        restDocument.informatieobjectTypeUUID = extractUuid(
-                drcClientService
-                        .readEnkelvoudigInformatieobject(restDocument.documentUUID)
-                        .getInformatieobjecttype()
-        );
+        restDocument.informatieobjectTypeUUID = informatieobjectTypeUUID;
         restDocument.titel = document.getTitel();
         restDocument.zaakID = document.getZaakID();
         restDocument.creatiedatum = document.getCreatiedatum().toLocalDate();
@@ -51,7 +42,15 @@ public class RESTOntkoppeldDocumentConverter {
         return restDocument;
     }
 
-    public List<RESTOntkoppeldDocument> convert(final List<OntkoppeldDocument> documenten) {
-        return documenten.stream().map(this::convert).collect(Collectors.toList());
+    public List<RESTOntkoppeldDocument> convert(
+            final List<OntkoppeldDocument> documenten,
+            final List<UUID> informatieobjectTypeUUIDs
+    ) {
+        return IntStream.range(0, documenten.size())
+                .mapToObj(index -> convert(
+                        documenten.get(index),
+                        informatieobjectTypeUUIDs.get(index)
+                ))
+                .toList();
     }
 }

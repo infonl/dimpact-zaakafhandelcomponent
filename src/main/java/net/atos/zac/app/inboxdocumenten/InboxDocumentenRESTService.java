@@ -67,8 +67,18 @@ public class InboxDocumentenRESTService {
     public RESTResultaat<RESTInboxDocument> list(final RESTInboxDocumentListParameters restListParameters) {
         PolicyService.assertPolicy(policyService.readWerklijstRechten().inbox());
         final InboxDocumentListParameters listParameters = listParametersConverter.convert(restListParameters);
-        return new RESTResultaat<>(inboxDocumentConverter.convert(
-                inboxDocumentenService.list(listParameters)), inboxDocumentenService.count(listParameters));
+        var inboxDocuments = inboxDocumentenService.list(listParameters);
+        var informationObjectTypeUUIDs = inboxDocuments.stream().map(
+                inboxDocument -> extractUuid(
+                        drcClientService
+                                .readEnkelvoudigInformatieobject(inboxDocument.getEnkelvoudiginformatieobjectUUID())
+                                .getInformatieobjecttype()
+                )
+        ).toList();
+        return new RESTResultaat<>(
+                inboxDocumentConverter.convert(inboxDocuments, informationObjectTypeUUIDs),
+                inboxDocumentenService.count(listParameters)
+        );
     }
 
     @DELETE

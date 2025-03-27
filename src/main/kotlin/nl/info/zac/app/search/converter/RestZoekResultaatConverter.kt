@@ -7,7 +7,6 @@
 package nl.info.zac.app.search.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.search.model.FilterParameters
 import net.atos.zac.search.model.FilterResultaat
@@ -18,8 +17,6 @@ import net.atos.zac.search.model.zoekobject.TaakZoekObject
 import net.atos.zac.search.model.zoekobject.ZaakZoekObject
 import net.atos.zac.search.model.zoekobject.ZoekObject
 import net.atos.zac.search.model.zoekobject.ZoekObjectType
-import nl.info.client.zgw.util.extractUuid
-import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.search.model.AbstractRestZoekObject
 import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
 import nl.info.zac.app.search.model.RestZaakZoekObject
@@ -30,13 +27,10 @@ import nl.info.zac.app.search.model.toRestTaakZoekObject
 import nl.info.zac.app.search.model.toRestZaakZoekObject
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.util.UUID
 
 @NoArgConstructor
 @AllOpen
 class RestZoekResultaatConverter @Inject constructor(
-    private val zrcClientService: ZrcClientService,
-    private val ztcClientService: ZtcClientService,
     private val policyService: PolicyService
 ) {
     fun convert(
@@ -73,15 +67,20 @@ class RestZoekResultaatConverter @Inject constructor(
             )
         }
 
-    fun convert(zoekResultaat: ZoekResultaat<out ZoekObject>, informationObjectTypeUuid: UUID) =
+    fun convert(zoekResultaat: ZoekResultaat<out ZoekObject>, documentLinkableList: List<Boolean>) =
         RestZoekResultaat(
-            zoekResultaat.items
-                .map { with(it as ZaakZoekObject) { it.toRestZaakZoekObject(policyService.readZaakRechten(it)) } }
-                .map { convert(it, informationObjectTypeUuid) },
+            zoekResultaat.items.mapIndexed { index, result ->
+                with(result as ZaakZoekObject) {
+                    convert(
+                        result.toRestZaakZoekObject(policyService.readZaakRechten(result)),
+                        documentLinkableList[index]
+                    )
+                }
+            },
             zoekResultaat.count
         )
 
-    private fun convert(restZaakZoekObject: RestZaakZoekObject, informationObjectTypeUuid: UUID) =
+    private fun convert(restZaakZoekObject: RestZaakZoekObject, documentLinkable: Boolean) =
         RestZaakKoppelenZoekObject(
             id = restZaakZoekObject.id,
             type = restZaakZoekObject.type,
@@ -90,12 +89,6 @@ class RestZoekResultaatConverter @Inject constructor(
             toelichting = restZaakZoekObject.toelichting,
             zaaktypeOmschrijving = restZaakZoekObject.zaaktypeOmschrijving,
             statustypeOmschrijving = restZaakZoekObject.statustypeOmschrijving,
-            documentKoppelbaar = restZaakZoekObject.identificatie.let {
-                zrcClientService.readZaakByID(it).zaaktype.extractUuid().let {
-                    ztcClientService.readZaaktype(it).informatieobjecttypen.any {
-                        it.extractUuid() == informationObjectTypeUuid
-                    }
-                }
-            }
+            documentKoppelbaar = documentLinkable
         )
 }
