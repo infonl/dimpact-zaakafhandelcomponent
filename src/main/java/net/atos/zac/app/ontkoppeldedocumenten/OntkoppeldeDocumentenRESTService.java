@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.ontkoppeldedocumenten;
 
 import static net.atos.zac.policy.PolicyService.assertPolicy;
