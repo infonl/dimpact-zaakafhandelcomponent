@@ -12,7 +12,7 @@ import net.atos.zac.gebruikersvoorkeuren.model.DashboardCardInstelling;
 
 public class RESTDashboardCardInstellingConverter {
 
-    public RESTDashboardCardInstelling convert(final DashboardCardInstelling card) {
+    public static RESTDashboardCardInstelling convert(final DashboardCardInstelling card) {
         final RESTDashboardCardInstelling restCard = new RESTDashboardCardInstelling();
         restCard.id = card.getId();
         restCard.cardId = card.getCardId();
@@ -21,7 +21,7 @@ public class RESTDashboardCardInstellingConverter {
         return restCard;
     }
 
-    public DashboardCardInstelling convert(final RESTDashboardCardInstelling restCard) {
+    public static DashboardCardInstelling convert(final RESTDashboardCardInstelling restCard) {
         final DashboardCardInstelling card = new DashboardCardInstelling();
         card.setId(restCard.id);
         card.setCardId(restCard.cardId);
@@ -31,9 +31,9 @@ public class RESTDashboardCardInstellingConverter {
         return card;
     }
 
-    public List<RESTDashboardCardInstelling> convert(final List<DashboardCardInstelling> cards) {
+    public static List<RESTDashboardCardInstelling> convert(final List<DashboardCardInstelling> cards) {
         return cards.stream()
-                .map(this::convert)
+                .map(RESTDashboardCardInstellingConverter::convert)
                 .toList();
     }
 }

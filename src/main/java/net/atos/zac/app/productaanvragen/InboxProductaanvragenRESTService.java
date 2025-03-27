@@ -49,15 +49,11 @@ public class InboxProductaanvragenRESTService {
     @Inject
     private DrcClientService drcClientService;
 
-
     @Inject
     private PolicyService policyService;
 
     @Inject
     private InboxProductaanvraagService inboxProductaanvraagService;
-
-    @Inject
-    private RESTInboxProductaanvraagConverter inboxProductaanvraagConverter;
 
     @Inject
     private RESTInboxProductaanvraagListParametersConverter listParametersConverter;
@@ -69,7 +65,7 @@ public class InboxProductaanvragenRESTService {
         final InboxProductaanvraagListParameters listParameters = listParametersConverter.convert(restListParameters);
         final InboxProductaanvraagResultaat resultaat = inboxProductaanvraagService.list(listParameters);
         final RESTInboxProductaanvraagResultaat restInboxProductaanvraagResultaat = new RESTInboxProductaanvraagResultaat(
-                inboxProductaanvraagConverter.convert(resultaat.getItems()), resultaat.getCount());
+                RESTInboxProductaanvraagConverter.convert(resultaat.getItems()), resultaat.getCount());
         final List<String> types = resultaat.getTypeFilter();
         if (CollectionUtils.isEmpty(types)) {
             if (restListParameters.type != null) {

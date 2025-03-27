@@ -9,7 +9,6 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
 
 import net.atos.zac.app.gebruikersvoorkeuren.model.RESTZoekopdracht;
 import net.atos.zac.gebruikersvoorkeuren.model.Zoekopdracht;
@@ -17,10 +16,7 @@ import nl.info.zac.authentication.LoggedInUser;
 
 public class RESTZoekopdrachtConverter {
 
-    @Inject
-    private Instance<LoggedInUser> loggedInUserInstance;
-
-    public RESTZoekopdracht convert(final Zoekopdracht zoekopdracht) {
+    public static RESTZoekopdracht convert(final Zoekopdracht zoekopdracht) {
         final RESTZoekopdracht restZoekopdracht = new RESTZoekopdracht();
         restZoekopdracht.id = zoekopdracht.getId();
         restZoekopdracht.lijstID = zoekopdracht.getLijstID();
@@ -31,7 +27,7 @@ public class RESTZoekopdrachtConverter {
         return restZoekopdracht;
     }
 
-    public Zoekopdracht convert(final RESTZoekopdracht restZoekopdracht) {
+    public static Zoekopdracht convert(final RESTZoekopdracht restZoekopdracht, final Instance<LoggedInUser> loggedInUserInstance) {
         final Zoekopdracht zoekopdracht = new Zoekopdracht();
         zoekopdracht.setId(restZoekopdracht.id);
         zoekopdracht.setLijstID(restZoekopdracht.lijstID);
@@ -43,7 +39,7 @@ public class RESTZoekopdrachtConverter {
         return zoekopdracht;
     }
 
-    public List<RESTZoekopdracht> convert(final List<Zoekopdracht> zoekopdrachten) {
-        return zoekopdrachten.stream().map(this::convert).toList();
+    public static List<RESTZoekopdracht> convert(final List<Zoekopdracht> zoekopdrachten) {
+        return zoekopdrachten.stream().map(RESTZoekopdrachtConverter::convert).toList();
     }
 }

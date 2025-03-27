@@ -13,7 +13,7 @@ import net.atos.zac.documenten.model.InboxDocument;
 
 public class RESTInboxDocumentConverter {
 
-    public RESTInboxDocument convert(final InboxDocument document, final UUID informatieobjectTypeUUID) {
+    public static RESTInboxDocument convert(final InboxDocument document, final UUID informatieobjectTypeUUID) {
         final RESTInboxDocument restDocument = new RESTInboxDocument();
         restDocument.id = document.getId();
         restDocument.enkelvoudiginformatieobjectUUID = document.getEnkelvoudiginformatieobjectUUID();
@@ -25,7 +25,7 @@ public class RESTInboxDocumentConverter {
         return restDocument;
     }
 
-    public List<RESTInboxDocument> convert(
+    public static List<RESTInboxDocument> convert(
             final List<InboxDocument> documenten,
             final List<UUID> informatieobjectTypeUUIDs
     ) {
