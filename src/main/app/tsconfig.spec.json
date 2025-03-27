@@ -5,10 +5,10 @@
     "types": ["jest", "node", "@angular/google-maps"],
     "lib": ["DOM", "DOM.Iterable"],
     "target": "ES2016",
-    "strict": false // Allows for the app to still build while we fixing all TS issues
+    "strict": false
   },
   "angularCompilerOptions": {
-    "strictTemplates": false // Allows for the app to still build while we fixing all TS issues
+    "strictTemplates": false
   },
   "include": ["src/**/*.spec.ts", "src/**/*.d.ts"]
 }
