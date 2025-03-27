@@ -39,38 +39,38 @@ tags:
       met embedded resources en links.
   - name: Adres
     description: "Deze services leveren één of meer huidige adressen, met embedded resources\
-    \ en links. Huidig betekent dat het adres actueel is en geen eind status heeft.\
-    \ Voor een toelichting zie de [Praktijkhandleiding BAG](https://imbag.github.io/praktijkhandleiding/artikelen/wat-is-het-verschil-tussen-actieve-voorkomens-actuele-voorkomens-en-huidige-voorkomens)."
+      \ en links. Huidig betekent dat het adres actueel is en geen eind status heeft.\
+      \ Voor een toelichting zie de [Praktijkhandleiding BAG](https://imbag.github.io/praktijkhandleiding/artikelen/wat-is-het-verschil-tussen-actieve-voorkomens-actuele-voorkomens-en-huidige-voorkomens)."
   - name: Adres uitgebreid
     description: "Deze service levert uitgebreide informatie van één of meer huidige\
-    \  adressen, met embedded resources en links. Huidig betekent dat het adres  actueel\
-    \ is en geen eind status heeft. Voor een toelichting zie de  [Praktijkhandleiding\
-    \ BAG](https://imbag.github.io/praktijkhandleiding/artikelen/wat-is-het-verschil-tussen-actieve-voorkomens-actuele-voorkomens-en-huidige-voorkomens)."
+      \  adressen, met embedded resources en links. Huidig betekent dat het adres  actueel\
+      \ is en geen eind status heeft. Voor een toelichting zie de  [Praktijkhandleiding\
+      \ BAG](https://imbag.github.io/praktijkhandleiding/artikelen/wat-is-het-verschil-tussen-actieve-voorkomens-actuele-voorkomens-en-huidige-voorkomens)."
   - name: Algemene informatie
     description: Het endpoint voor algemene informatie levert informatie op van de API.
   - name: Bronhouder
     description: Dit endpoint levert één of meer bronhouder(s).
   - name: Ligplaats
     description: "Dit endpoint levert één of meer (voorkomens van) ligplaats(en), met\
-    \ embedded resources en links."
+      \ embedded resources en links."
   - name: Nummeraanduiding
     description: "Dit endpoint levert één of meer (voorkomens van) nummeraanduiding(en),\
-    \ met embedded resources en links."
+      \ met embedded resources en links."
   - name: Openbare ruimte
     description: "Dit endpoint levert één of meer (voorkomens van) openbare ruimte(n),\
-    \ met embedded resources en links."
+      \ met embedded resources en links."
   - name: Pand
     description: "Dit endpoint levert één of meer (voorkomens van) pand(en), met embedded\
-    \ resources en links."
+      \ resources en links."
   - name: Standplaats
     description: "Dit endpoint levert één of meer (voorkomens van) standplaats(en),\
-    \ met embedded resources en links."
+      \ met embedded resources en links."
   - name: Verblijfsobject
     description: "Dit endpoint levert één of meer (voorkomens van) verblijfsobject(en),\
-    \ met embedded resources en links."
+      \ met embedded resources en links."
   - name: Woonplaats
     description: "Dit endpoint levert één of meer (voorkomens van) woonplaats(en), met\
-    \ embedded resources en links."
+      \ embedded resources en links."
 paths:
   /adresseerbareobjecten:
     get:
@@ -114,7 +114,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -125,13 +125,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -141,10 +141,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -195,12 +195,12 @@ paths:
         - name: bbox
           in: query
           description: "Rechthoek (bounding box) waarbinnen het object dat je zoekt\
-          \ valt.\nVoor een definitie van bbox, zie [OGC API Features specificatie\
-          \ - bbox definitie](https://docs.opengeospatial.org/is/17-069r3/17-069r3.html#ats_core_fc-bbox-definition).\n\
-          Met de content-crs header wordt aangegeven in welk CRS de coördinaten van\
-          \ de bbox zijn. \nCoördinaten worden als volgt opgegeven: linksonder x,\
-          \ linksonder y, rechtsboven x, rechtsboven y.\nDe oppervlakte van de bounding\
-          \ box mag maximaal 250.000 vierkante meter zijn.\n"
+            \ valt.\nVoor een definitie van bbox, zie [OGC API Features specificatie\
+            \ - bbox definitie](https://docs.opengeospatial.org/is/17-069r3/17-069r3.html#ats_core_fc-bbox-definition).\n\
+            Met de content-crs header wordt aangegeven in welk CRS de coördinaten van\
+            \ de bbox zijn. \nCoördinaten worden als volgt opgegeven: linksonder x,\
+            \ linksonder y, rechtsboven x, rechtsboven y.\nDe oppervlakte van de bounding\
+            \ box mag maximaal 250.000 vierkante meter zijn.\n"
           required: false
           style: form
           explode: false
@@ -226,13 +226,13 @@ paths:
         - name: oppervlakte
           in: query
           description: "Geef de minimale en maximale oppervlakte op waarbinnen je wilt\
-          \ zoeken (in m2).\nAlleen verblijfsobjecten hebben een oppervlakte en kunnen\
-          \ met deze parameter worden gevonden.\nLigplaatsen en standplaatsen hebben\
-          \ geen oppervlakte en kunnen met deze parameter niet worden gevonden.\n\
-          De oppervlakte van een verblijfsobject is een natuurlijk getal tussen 1\
-          \ (minimaal) en 999999 (maximaal).\nHet is niet toegestaan voor min een\
-          \ grotere waarde op te geven dan voor max.\nIs min > max dan treedt een\
-          \ foutmelding op.\nBv: oppervlakte[min]=100&oppervlakte[max]=200\n"
+            \ zoeken (in m2).\nAlleen verblijfsobjecten hebben een oppervlakte en kunnen\
+            \ met deze parameter worden gevonden.\nLigplaatsen en standplaatsen hebben\
+            \ geen oppervlakte en kunnen met deze parameter niet worden gevonden.\n\
+            De oppervlakte van een verblijfsobject is een natuurlijk getal tussen 1\
+            \ (minimaal) en 999999 (maximaal).\nHet is niet toegestaan voor min een\
+            \ grotere waarde op te geven dan voor max.\nIs min > max dan treedt een\
+            \ foutmelding op.\nBv: oppervlakte[min]=100&oppervlakte[max]=200\n"
           required: false
           style: deepObject
           explode: true
@@ -241,9 +241,9 @@ paths:
         - name: gebruiksdoelen
           in: query
           description: "De gebruiksdoelen van het verblijfsobject zoals in de vergunning\
-          \ is opgenomen of bij constatering is vastgesteld.\nAls een verblijfsobject\
-          \ één van de gebruiksdoelen in deze lijst heeft, dan wordt het verblijfsobject\
-          \ in het zoekresultaat meegenomen.\n"
+            \ is opgenomen of bij constatering is vastgesteld.\nAls een verblijfsobject\
+            \ één van de gebruiksdoelen in deze lijst heeft, dan wordt het verblijfsobject\
+            \ in het zoekresultaat meegenomen.\n"
           required: false
           style: form
           explode: true
@@ -255,7 +255,7 @@ paths:
         - name: type
           in: query
           description: "Geeft aan of het adresseerbaar object een ligplaats, standplaats\
-          \ of verblijfsobject is."
+            \ of verblijfsobject is."
           required: false
           style: form
           explode: true
@@ -510,7 +510,7 @@ paths:
         - name: adresseerbaarObjectIdentificatie
           in: path
           description: "De identificatie van een adresseerbaar object (ligplaats, standplaats\
-          \ \nof verblijfsobject) uit de BAG.\n"
+            \ \nof verblijfsobject) uit de BAG.\n"
           required: true
           style: simple
           explode: false
@@ -519,7 +519,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -530,13 +530,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -546,10 +546,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -823,7 +823,7 @@ paths:
         - name: adresseerbaarObjectIdentificatie
           in: path
           description: "De identificatie van een adresseerbaar object (ligplaats, standplaats\
-          \ \nof verblijfsobject) uit de BAG.\n"
+            \ \nof verblijfsobject) uit de BAG.\n"
           required: true
           style: simple
           explode: false
@@ -1110,7 +1110,7 @@ paths:
         - name: zoekresultaatIdentificatie
           in: query
           description: "De identificatie van een gekozen zoekresultaat uit de \nzoekResultatenHalCollectie\
-          \ verkregen bij een GET /adressen/zoek.\n"
+            \ verkregen bij een GET /adressen/zoek.\n"
           required: false
           style: form
           explode: true
@@ -1166,8 +1166,8 @@ paths:
         - name: exacteMatch
           in: query
           description: "Een indicatie of de resultaten van een zoekoperatie exact overeen\
-          \ \nmoeten komen met de zoekcriteria, zie \n[functionele specificatie exacte\
-          \ match](https://github.com/lvbag/BAG-API/blob/master/Features/exacte_match.feature).\n"
+            \ \nmoeten komen met de zoekcriteria, zie \n[functionele specificatie exacte\
+            \ match](https://github.com/lvbag/BAG-API/blob/master/Features/exacte_match.feature).\n"
           required: false
           style: form
           explode: true
@@ -1216,10 +1216,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -1249,7 +1249,7 @@ paths:
         - name: q
           in: query
           description: "Zoekterm op postcode, woonplaats, straatnaam, huisnummer, huisletter,\
-          \ \nhuisnummertoevoeging.\n"
+            \ \nhuisnummertoevoeging.\n"
           required: false
           style: form
           explode: true
@@ -1504,7 +1504,7 @@ paths:
         - name: zoek
           in: query
           description: "Zoekterm op postcode, woonplaats, straatnaam, huisnummer, huisletter,\
-          \ \nhuisnummertoevoeging.\n"
+            \ \nhuisnummertoevoeging.\n"
           required: true
           style: form
           explode: true
@@ -1732,10 +1732,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -2061,8 +2061,8 @@ paths:
         - name: exacteMatch
           in: query
           description: "Een indicatie of de resultaten van een zoekoperatie exact overeen\
-          \ \nmoeten komen met de zoekcriteria, zie \n[functionele specificatie exacte\
-          \ match](https://github.com/lvbag/BAG-API/blob/master/Features/exacte_match.feature).\n"
+            \ \nmoeten komen met de zoekcriteria, zie \n[functionele specificatie exacte\
+            \ match](https://github.com/lvbag/BAG-API/blob/master/Features/exacte_match.feature).\n"
           required: false
           style: form
           explode: true
@@ -2135,7 +2135,7 @@ paths:
         - name: q
           in: query
           description: "Zoekterm op postcode, woonplaats, straatnaam, huisnummer, huisletter,\
-          \ \nhuisnummertoevoeging.\n"
+            \ \nhuisnummertoevoeging.\n"
           required: false
           style: form
           explode: true
@@ -2651,7 +2651,7 @@ paths:
         - name: objectIdentificatie
           in: query
           description: "De identificatie van een object uit de BAG. Deze is 4 lang bij\
-          \ een \nwoonplaats en 16 lang bij de andere objecten.\n"
+            \ een \nwoonplaats en 16 lang bij de andere objecten.\n"
           required: false
           style: form
           explode: true
@@ -2662,7 +2662,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -2673,13 +2673,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -2907,7 +2907,7 @@ paths:
         - name: identificatie
           in: path
           description: "Een officiële code die aan een gemeente is toegekend en ontleend\
-          \ is \naan tabel 33.\n"
+            \ is \naan tabel 33.\n"
           required: true
           style: simple
           explode: false
@@ -2916,7 +2916,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -2927,13 +2927,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -3158,7 +3158,7 @@ paths:
         - name: identificatie
           in: path
           description: "Een officiële code die aan een gemeente is toegekend en ontleend\
-          \ is \naan tabel 33.\n"
+            \ is \naan tabel 33.\n"
           required: true
           style: simple
           explode: false
@@ -3449,7 +3449,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -3460,13 +3460,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -3487,10 +3487,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -3541,7 +3541,7 @@ paths:
         - name: point
           in: query
           description: "Punt conform OGC API Features standaard.\nMet de content-crs\
-          \ header wordt aangegeven in welk CRS de coördinaten van het punt is. \n"
+            \ header wordt aangegeven in welk CRS de coördinaten van het punt is. \n"
           required: false
           style: form
           explode: false
@@ -3555,12 +3555,12 @@ paths:
         - name: bbox
           in: query
           description: "Rechthoek (bounding box) waarbinnen het object dat je zoekt\
-          \ valt.\nVoor een definitie van bbox, zie [OGC API Features specificatie\
-          \ - bbox definitie](https://docs.opengeospatial.org/is/17-069r3/17-069r3.html#ats_core_fc-bbox-definition).\n\
-          Met de content-crs header wordt aangegeven in welk CRS de coördinaten van\
-          \ de bbox zijn. \nCoördinaten worden als volgt opgegeven: linksonder x,\
-          \ linksonder y, rechtsboven x, rechtsboven y.\nDe oppervlakte van de bounding\
-          \ box mag maximaal 250.000 vierkante meter zijn.\n"
+            \ valt.\nVoor een definitie van bbox, zie [OGC API Features specificatie\
+            \ - bbox definitie](https://docs.opengeospatial.org/is/17-069r3/17-069r3.html#ats_core_fc-bbox-definition).\n\
+            Met de content-crs header wordt aangegeven in welk CRS de coördinaten van\
+            \ de bbox zijn. \nCoördinaten worden als volgt opgegeven: linksonder x,\
+            \ linksonder y, rechtsboven x, rechtsboven y.\nDe oppervlakte van de bounding\
+            \ box mag maximaal 250.000 vierkante meter zijn.\n"
           required: false
           style: form
           explode: false
@@ -3842,7 +3842,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -3853,13 +3853,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -3880,10 +3880,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -4192,7 +4192,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -4203,13 +4203,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -4219,10 +4219,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -5153,8 +5153,8 @@ paths:
         - name: exacteMatch
           in: query
           description: "Een indicatie of de resultaten van een zoekoperatie exact overeen\
-          \ \nmoeten komen met de zoekcriteria, zie \n[functionele specificatie exacte\
-          \ match](https://github.com/lvbag/BAG-API/blob/master/Features/exacte_match.feature).\n"
+            \ \nmoeten komen met de zoekcriteria, zie \n[functionele specificatie exacte\
+            \ match](https://github.com/lvbag/BAG-API/blob/master/Features/exacte_match.feature).\n"
           required: false
           style: form
           explode: true
@@ -5206,7 +5206,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -5217,13 +5217,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -5254,10 +5254,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -5509,7 +5509,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -5520,13 +5520,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -5536,10 +5536,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -6370,7 +6370,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -6381,13 +6381,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -6418,10 +6418,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -6664,7 +6664,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -6675,13 +6675,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -6691,10 +6691,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -7475,7 +7475,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -7486,13 +7486,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -7555,7 +7555,7 @@ paths:
         - name: point
           in: query
           description: "Punt conform OGC API Features standaard.\nMet de content-crs\
-          \ header wordt aangegeven in welk CRS de coördinaten van het punt is. \n"
+            \ header wordt aangegeven in welk CRS de coördinaten van het punt is. \n"
           required: false
           style: form
           explode: false
@@ -7569,12 +7569,12 @@ paths:
         - name: bbox
           in: query
           description: "Rechthoek (bounding box) waarbinnen het object dat je zoekt\
-          \ valt.\nVoor een definitie van bbox, zie [OGC API Features specificatie\
-          \ - bbox definitie](https://docs.opengeospatial.org/is/17-069r3/17-069r3.html#ats_core_fc-bbox-definition).\n\
-          Met de content-crs header wordt aangegeven in welk CRS de coördinaten van\
-          \ de bbox zijn. \nCoördinaten worden als volgt opgegeven: linksonder x,\
-          \ linksonder y, rechtsboven x, rechtsboven y.\nDe oppervlakte van de bounding\
-          \ box mag maximaal 250.000 vierkante meter zijn.\n"
+            \ valt.\nVoor een definitie van bbox, zie [OGC API Features specificatie\
+            \ - bbox definitie](https://docs.opengeospatial.org/is/17-069r3/17-069r3.html#ats_core_fc-bbox-definition).\n\
+            Met de content-crs header wordt aangegeven in welk CRS de coördinaten van\
+            \ de bbox zijn. \nCoördinaten worden als volgt opgegeven: linksonder x,\
+            \ linksonder y, rechtsboven x, rechtsboven y.\nDe oppervlakte van de bounding\
+            \ box mag maximaal 250.000 vierkante meter zijn.\n"
           required: false
           style: form
           explode: false
@@ -7611,8 +7611,8 @@ paths:
         - name: bouwjaar
           in: query
           description: "Bouwjaar van het pand.\nGeeft het minimale en/of maximale bouwjaar\
-          \ aan van het pand waarnaar moet worden gezocht. \nEen bouwjaar is een natuurlijk\
-          \ getal tussen 0 (minimaal) en 9999 (maximaal).\nBv: bouwjaar[min]=1970&bouwjaar[max]=2010\n"
+            \ aan van het pand waarnaar moet worden gezocht. \nEen bouwjaar is een natuurlijk\
+            \ getal tussen 0 (minimaal) en 9999 (maximaal).\nBv: bouwjaar[min]=1970&bouwjaar[max]=2010\n"
           required: false
           style: deepObject
           explode: true
@@ -7916,7 +7916,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -7927,13 +7927,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -8269,7 +8269,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -8280,13 +8280,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -8875,7 +8875,7 @@ paths:
         - name: timestampRegistratieLv
           in: path
           description: "Een timestamp van het tijdstip waarop een voorkomen is geregistreerd\
-          \ \nin de LV BAG.\n"
+            \ \nin de LV BAG.\n"
           required: true
           style: simple
           explode: false
@@ -9158,7 +9158,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -9169,13 +9169,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -9196,10 +9196,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -9250,7 +9250,7 @@ paths:
         - name: point
           in: query
           description: "Punt conform OGC API Features standaard.\nMet de content-crs\
-          \ header wordt aangegeven in welk CRS de coördinaten van het punt is. \n"
+            \ header wordt aangegeven in welk CRS de coördinaten van het punt is. \n"
           required: false
           style: form
           explode: false
@@ -9264,12 +9264,12 @@ paths:
         - name: bbox
           in: query
           description: "Rechthoek (bounding box) waarbinnen het object dat je zoekt\
-          \ valt.\nVoor een definitie van bbox, zie [OGC API Features specificatie\
-          \ - bbox definitie](https://docs.opengeospatial.org/is/17-069r3/17-069r3.html#ats_core_fc-bbox-definition).\n\
-          Met de content-crs header wordt aangegeven in welk CRS de coördinaten van\
-          \ de bbox zijn. \nCoördinaten worden als volgt opgegeven: linksonder x,\
-          \ linksonder y, rechtsboven x, rechtsboven y.\nDe oppervlakte van de bounding\
-          \ box mag maximaal 250.000 vierkante meter zijn.\n"
+            \ valt.\nVoor een definitie van bbox, zie [OGC API Features specificatie\
+            \ - bbox definitie](https://docs.opengeospatial.org/is/17-069r3/17-069r3.html#ats_core_fc-bbox-definition).\n\
+            Met de content-crs header wordt aangegeven in welk CRS de coördinaten van\
+            \ de bbox zijn. \nCoördinaten worden als volgt opgegeven: linksonder x,\
+            \ linksonder y, rechtsboven x, rechtsboven y.\nDe oppervlakte van de bounding\
+            \ box mag maximaal 250.000 vierkante meter zijn.\n"
           required: false
           style: form
           explode: false
@@ -9551,7 +9551,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -9562,13 +9562,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -9589,10 +9589,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -9901,7 +9901,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -9912,13 +9912,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -9928,10 +9928,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -10521,7 +10521,7 @@ paths:
         - name: timestampRegistratieLv
           in: path
           description: "Een timestamp van het tijdstip waarop een voorkomen is geregistreerd\
-          \ \nin de LV BAG.\n"
+            \ \nin de LV BAG.\n"
           required: true
           style: simple
           explode: false
@@ -10825,7 +10825,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -10836,13 +10836,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -10852,10 +10852,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -10906,12 +10906,12 @@ paths:
         - name: bbox
           in: query
           description: "Rechthoek (bounding box) waarbinnen het object dat je zoekt\
-          \ valt.\nVoor een definitie van bbox, zie [OGC API Features specificatie\
-          \ - bbox definitie](https://docs.opengeospatial.org/is/17-069r3/17-069r3.html#ats_core_fc-bbox-definition).\n\
-          Met de content-crs header wordt aangegeven in welk CRS de coördinaten van\
-          \ de bbox zijn. \nCoördinaten worden als volgt opgegeven: linksonder x,\
-          \ linksonder y, rechtsboven x, rechtsboven y.\nDe oppervlakte van de bounding\
-          \ box mag maximaal 250.000 vierkante meter zijn.\n"
+            \ valt.\nVoor een definitie van bbox, zie [OGC API Features specificatie\
+            \ - bbox definitie](https://docs.opengeospatial.org/is/17-069r3/17-069r3.html#ats_core_fc-bbox-definition).\n\
+            Met de content-crs header wordt aangegeven in welk CRS de coördinaten van\
+            \ de bbox zijn. \nCoördinaten worden als volgt opgegeven: linksonder x,\
+            \ linksonder y, rechtsboven x, rechtsboven y.\nDe oppervlakte van de bounding\
+            \ box mag maximaal 250.000 vierkante meter zijn.\n"
           required: false
           style: form
           explode: false
@@ -10937,13 +10937,13 @@ paths:
         - name: oppervlakte
           in: query
           description: "Geef de minimale en maximale oppervlakte op waarbinnen je wilt\
-          \ zoeken (in m2).\nAlleen verblijfsobjecten hebben een oppervlakte en kunnen\
-          \ met deze parameter worden gevonden.\nLigplaatsen en standplaatsen hebben\
-          \ geen oppervlakte en kunnen met deze parameter niet worden gevonden.\n\
-          De oppervlakte van een verblijfsobject is een natuurlijk getal tussen 1\
-          \ (minimaal) en 999999 (maximaal).\nHet is niet toegestaan voor min een\
-          \ grotere waarde op te geven dan voor max.\nIs min > max dan treedt een\
-          \ foutmelding op.\nBv: oppervlakte[min]=100&oppervlakte[max]=200\n"
+            \ zoeken (in m2).\nAlleen verblijfsobjecten hebben een oppervlakte en kunnen\
+            \ met deze parameter worden gevonden.\nLigplaatsen en standplaatsen hebben\
+            \ geen oppervlakte en kunnen met deze parameter niet worden gevonden.\n\
+            De oppervlakte van een verblijfsobject is een natuurlijk getal tussen 1\
+            \ (minimaal) en 999999 (maximaal).\nHet is niet toegestaan voor min een\
+            \ grotere waarde op te geven dan voor max.\nIs min > max dan treedt een\
+            \ foutmelding op.\nBv: oppervlakte[min]=100&oppervlakte[max]=200\n"
           required: false
           style: deepObject
           explode: true
@@ -10952,9 +10952,9 @@ paths:
         - name: gebruiksdoelen
           in: query
           description: "De gebruiksdoelen van het verblijfsobject zoals in de vergunning\
-          \ is opgenomen of bij constatering is vastgesteld.\nAls een verblijfsobject\
-          \ één van de gebruiksdoelen in deze lijst heeft, dan wordt het verblijfsobject\
-          \ in het zoekresultaat meegenomen.\n"
+            \ is opgenomen of bij constatering is vastgesteld.\nAls een verblijfsobject\
+            \ één van de gebruiksdoelen in deze lijst heeft, dan wordt het verblijfsobject\
+            \ in het zoekresultaat meegenomen.\n"
           required: false
           style: form
           explode: true
@@ -11257,7 +11257,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -11268,13 +11268,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -11284,10 +11284,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -11876,7 +11876,7 @@ paths:
         - name: timestampRegistratieLv
           in: path
           description: "Een timestamp van het tijdstip waarop een voorkomen is geregistreerd\
-          \ \nin de LV BAG.\n"
+            \ \nin de LV BAG.\n"
           required: true
           style: simple
           explode: false
@@ -12170,7 +12170,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -12181,13 +12181,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -12208,10 +12208,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -12262,7 +12262,7 @@ paths:
         - name: point
           in: query
           description: "Punt conform OGC API Features standaard.\nMet de content-crs\
-          \ header wordt aangegeven in welk CRS de coördinaten van het punt is. \n"
+            \ header wordt aangegeven in welk CRS de coördinaten van het punt is. \n"
           required: false
           style: form
           explode: false
@@ -12276,12 +12276,12 @@ paths:
         - name: bbox
           in: query
           description: "Rechthoek (bounding box) waarbinnen het object dat je zoekt\
-          \ valt.\nVoor een definitie van bbox, zie [OGC API Features specificatie\
-          \ - bbox definitie](https://docs.opengeospatial.org/is/17-069r3/17-069r3.html#ats_core_fc-bbox-definition).\n\
-          Met de content-crs header wordt aangegeven in welk CRS de coördinaten van\
-          \ de bbox zijn. \nCoördinaten worden als volgt opgegeven: linksonder x,\
-          \ linksonder y, rechtsboven x, rechtsboven y.\nDe oppervlakte van de bounding\
-          \ box mag maximaal 250.000 vierkante meter zijn.\n"
+            \ valt.\nVoor een definitie van bbox, zie [OGC API Features specificatie\
+            \ - bbox definitie](https://docs.opengeospatial.org/is/17-069r3/17-069r3.html#ats_core_fc-bbox-definition).\n\
+            Met de content-crs header wordt aangegeven in welk CRS de coördinaten van\
+            \ de bbox zijn. \nCoördinaten worden als volgt opgegeven: linksonder x,\
+            \ linksonder y, rechtsboven x, rechtsboven y.\nDe oppervlakte van de bounding\
+            \ box mag maximaal 250.000 vierkante meter zijn.\n"
           required: false
           style: form
           explode: false
@@ -12544,7 +12544,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -12555,13 +12555,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -12582,10 +12582,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -12894,7 +12894,7 @@ paths:
         - name: geldigOp
           in: query
           description: "Filtert op objecten die geldig zijn op de opgegeven datum `JJJJ-MM-DD`\n\
-          Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            Deze parameter komt uit de API strategie, het hoofdstuk \n[Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -12905,13 +12905,13 @@ paths:
         - name: beschikbaarOp
           in: query
           description: "Filtert op objecten die beschikbaar zijn op de opgegeven datum\
-          \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
-          \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
-          \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
-          \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
-          \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
-          \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
-          [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
+            \ en tijd \n`YYYY-MM-DDThh:mm:ss.sss'. Hierin kunnen de seconden ':ss' en\
+            \ milliseconden \n'.sss' of alleen de milliseconden conform ISO 8601 specificatie\
+            \ worden \nweggelaten, in dat geval krijgen deze automatisch de waarde ':00'\
+            \ \nrespectievelijk '.000'. Indien er voor de milliseconden '.sss' meer\
+            \ dan 3 \ncijfers worden opgegeven, bv. '.12345', dan wordt dit afgekapt\
+            \ tot '.123'.\nDeze parameter komt uit de API strategie, het hoofdstuk \n\
+            [Temporal](https://docs.geostandaarden.nl/api/API-Strategie-ext/#temporal).\n"
           required: false
           style: form
           explode: true
@@ -12921,10 +12921,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -13231,10 +13231,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -13530,7 +13530,7 @@ paths:
         - name: timestampRegistratieLv
           in: path
           description: "Een timestamp van het tijdstip waarop een voorkomen is geregistreerd\
-          \ \nin de LV BAG.\n"
+            \ \nin de LV BAG.\n"
           required: true
           style: simple
           explode: false
@@ -13541,10 +13541,10 @@ paths:
         - name: expand
           in: query
           description: "Hier kan aangegeven worden welke gerelateerde resources meegeladen\
-          \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
-          \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
-          \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
-          \ gevolgd door de veldnaam, met daartussen een punt."
+            \ moeten worden. Resources en velden van resources die gewenst zijn kunnen\
+            \ in de expand parameter kommagescheiden worden opgegeven. Specifieke velden\
+            \ van resource kunnen worden opgegeven door het opgeven van de resource-naam\
+            \ gevolgd door de veldnaam, met daartussen een punt."
           required: false
           style: form
           explode: true
@@ -14090,13 +14090,13 @@ components:
                 pattern: "^-?([1-9][0-9]{3,}|0[0-9]{3})(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?$"
                 type: string
                 description: "De aanduiding van het jaar waarin een pand oorspronkelijk\
-                \ als \nbouwkundig gereed is of zal worden opgeleverd. Bij het initieel\
-                \ \nopvoeren van een PAND wordt door de gemeente een reële \ninschatting\
-                \ gemaakt van het waarschijnlijke bouwjaar van het \nPAND. Bij het\
-                \ bouwkundig gereed opleveren van het PAND wordt \ndeze waarde in\
-                \ voorkomende gevallen aangepast. Indien in latere \njaren wijzigingen\
-                \ aan een pand worden aangebracht, leidt dit \nniet tot wijziging\
-                \ van het bouwjaar.\n"
+                  \ als \nbouwkundig gereed is of zal worden opgeleverd. Bij het initieel\
+                  \ \nopvoeren van een PAND wordt door de gemeente een reële \ninschatting\
+                  \ gemaakt van het waarschijnlijke bouwjaar van het \nPAND. Bij het\
+                  \ bouwkundig gereed opleveren van het PAND wordt \ndeze waarde in\
+                  \ voorkomende gevallen aangepast. Indien in latere \njaren wijzigingen\
+                  \ aan een pand worden aangebracht, leidt dit \nniet tot wijziging\
+                  \ van het bouwjaar.\n"
                 example: "1991"
             pandStatussen:
               type: array
@@ -14150,11 +14150,11 @@ components:
             adresseerbaarObjectGeometrie:
               type: boolean
               description: "Een indicatie dat de geometrie van het aan een adres gerelateerde\
-              \ \nadresseerbare object in onderzoek is.\n"
+                \ \nadresseerbare object in onderzoek is.\n"
             adresseerbaarObjectStatus:
               type: boolean
               description: "Een indicatie dat de status van het aan een adres gerelateerde\
-              \ \nadresseerbare object in onderzoek is.\n"
+                \ \nadresseerbare object in onderzoek is.\n"
             adresseerbaarObjectheeftAlsHoofdadres:
               type: boolean
             adresseerbaarObjectheeftAlsNevenadres:
@@ -15135,8 +15135,8 @@ components:
               title: documentdatum
               type: string
               description: "De datum waarop het brondocument is vastgesteld, op basis\
-              \ waarvan een \nopname, mutatie of een verwijdering van gegevens ten\
-              \ aanzien van een \nobject heeft plaatsgevonden.\n"
+                \ waarvan een \nopname, mutatie of een verwijdering van gegevens ten\
+                \ aanzien van een \nobject heeft plaatsgevonden.\n"
               format: date
               example: 2011-12-30
             documentnummer:
@@ -15145,9 +15145,9 @@ components:
               minLength: 1
               type: string
               description: "De unieke aanduiding van het brondocument op basis waarvan\
-              \ een opname, \nmutatie of een verwijdering van gegevens ten aanzien\
-              \ van een woonplaats \nheeft plaatsgevonden, binnen een gemeente. Alle\
-              \ karakters uit de MES-1 \nkarakterset zijn toegestaan.\n"
+                \ een opname, \nmutatie of een verwijdering van gegevens ten aanzien\
+                \ van een woonplaats \nheeft plaatsgevonden, binnen een gemeente. Alle\
+                \ karakters uit de MES-1 \nkarakterset zijn toegestaan.\n"
               example: AVGEL30122011-07
             voorkomen:
               $ref: '#/components/schemas/VoorkomenLV'
@@ -15866,8 +15866,8 @@ components:
               title: documentdatum
               type: string
               description: "De datum waarop het brondocument is vastgesteld, op basis\
-              \ waarvan een opname, \nmutatie of een verwijdering van gegevens ten\
-              \ aanzien van een object heeft \nplaatsgevonden.\n"
+                \ waarvan een opname, \nmutatie of een verwijdering van gegevens ten\
+                \ aanzien van een object heeft \nplaatsgevonden.\n"
               format: date
               example: 2011-10-05
             documentnummer:
@@ -15876,9 +15876,9 @@ components:
               minLength: 1
               type: string
               description: "De unieke aanduiding van het brondocument op basis waarvan\
-              \ een opname, \nmutatie of een verwijdering van gegevens ten aanzien\
-              \ van een woonplaats \nheeft plaatsgevonden, binnen een gemeente. \n\
-              Alle karakters uit de MES-1 karakterset zijn toegestaan.\n"
+                \ een opname, \nmutatie of een verwijdering van gegevens ten aanzien\
+                \ van een woonplaats \nheeft plaatsgevonden, binnen een gemeente. \n\
+                Alle karakters uit de MES-1 karakterset zijn toegestaan.\n"
               example: AVGEL05102011-09
             voorkomen:
               $ref: '#/components/schemas/VoorkomenLV'
@@ -16192,8 +16192,8 @@ components:
               title: documentdatum
               type: string
               description: "De datum waarop het brondocument is vastgesteld, op basis\
-              \ waarvan een opname, mutatie of een verwijdering van gegevens ten aanzien\
-              \ van een object heeft plaatsgevonden.\n"
+                \ waarvan een opname, mutatie of een verwijdering van gegevens ten aanzien\
+                \ van een object heeft plaatsgevonden.\n"
               format: date
               example: 2019-11-22
             documentnummer:
@@ -16202,9 +16202,9 @@ components:
               minLength: 1
               type: string
               description: "De unieke aanduiding van het brondocument op basis waarvan\
-              \ een opname, mutatie of een verwijdering van gegevens ten aanzien van\
-              \ een woonplaats heeft plaatsgevonden, binnen een gemeente. Alle karakters\
-              \ uit de MES-1 karakterset zijn toegestaan.\n"
+                \ een opname, mutatie of een verwijdering van gegevens ten aanzien van\
+                \ een woonplaats heeft plaatsgevonden, binnen een gemeente. Alle karakters\
+                \ uit de MES-1 karakterset zijn toegestaan.\n"
               example: 19SZ2048
             voorkomen:
               $ref: '#/components/schemas/VoorkomenLV'
@@ -16295,9 +16295,9 @@ components:
               minItems: 1
               type: array
               description: "De panden (1 of meer) waarvan dit verblijfsobject deel uit\
-              \ maakt. Van deze panden: hiervan het voorkomen van pand die gevonden\
-              \ worden op basis van dezelfde tijdreisparameters als waarmee het verblijfsobject\
-              \ voorkomen gevonden is."
+                \ maakt. Van deze panden: hiervan het voorkomen van pand die gevonden\
+                \ worden op basis van dezelfde tijdreisparameters als waarmee het verblijfsobject\
+                \ voorkomen gevonden is."
               items:
                 $ref: '#/components/schemas/HalLink'
     VlakOfMultivlak:
