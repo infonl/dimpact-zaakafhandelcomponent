@@ -4,9 +4,9 @@
  */
 package net.atos.zac.app.ontkoppeldedocumenten.converter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.IntStream;
 
 import jakarta.inject.Inject;
 
@@ -46,11 +46,13 @@ public class RESTOntkoppeldDocumentConverter {
             final List<OntkoppeldDocument> documenten,
             final List<UUID> informatieobjectTypeUUIDs
     ) {
-        return IntStream.range(0, documenten.size())
-                .mapToObj(index -> convert(
-                        documenten.get(index),
-                        informatieobjectTypeUUIDs.get(index)
-                ))
-                .toList();
+        List<RESTOntkoppeldDocument> list = new ArrayList<>();
+        for (int index = 0; index < documenten.size(); index++) {
+            list.add(convert(
+                    documenten.get(index),
+                    informatieobjectTypeUUIDs.get(index)
+            ));
+        }
+        return list;
     }
 }

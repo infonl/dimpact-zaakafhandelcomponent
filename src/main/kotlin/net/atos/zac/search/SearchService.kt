@@ -32,7 +32,7 @@ import org.apache.solr.common.params.SimpleParams
 import org.eclipse.microprofile.config.ConfigProvider
 import java.io.IOException
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatter.ISO_INSTANT
 
 @ApplicationScoped
 @AllOpen
@@ -144,10 +144,10 @@ class SearchService @Inject constructor(
     private fun getFilterQueriesForDatumsParameters(zoekParameters: ZoekParameters): List<String> =
         zoekParameters.datums.map { (dateField, date) ->
             val from = date.van?.let {
-                DateTimeFormatter.ISO_INSTANT.format(it.atStartOfDay(ZoneId.systemDefault()))
+                ISO_INSTANT.format(it.atStartOfDay(ZoneId.systemDefault()))
             } ?: "*"
             val to = date.tot?.let {
-                DateTimeFormatter.ISO_INSTANT.format(it.atStartOfDay(ZoneId.systemDefault()))
+                ISO_INSTANT.format(it.atStartOfDay(ZoneId.systemDefault()))
             } ?: "*"
             "${dateField.veld}:[$from TO $to]"
         }

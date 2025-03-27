@@ -4,9 +4,9 @@
  */
 package net.atos.zac.app.inboxdocumenten.converter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.IntStream;
 
 import net.atos.zac.app.inboxdocumenten.model.RESTInboxDocument;
 import net.atos.zac.documenten.model.InboxDocument;
@@ -29,11 +29,13 @@ public class RESTInboxDocumentConverter {
             final List<InboxDocument> documenten,
             final List<UUID> informatieobjectTypeUUIDs
     ) {
-        return IntStream.range(0, documenten.size())
-                .mapToObj(index -> convert(
-                        documenten.get(index),
-                        informatieobjectTypeUUIDs.get(index)
-                ))
-                .toList();
+        List<RESTInboxDocument> list = new ArrayList<>();
+        for (int index = 0; index < documenten.size(); index++) {
+            list.add(convert(
+                    documenten.get(index),
+                    informatieobjectTypeUUIDs.get(index)
+            ));
+        }
+        return list;
     }
 }
