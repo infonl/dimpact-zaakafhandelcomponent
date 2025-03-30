@@ -558,7 +558,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web:
-    image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
+    image: maykinmedia/open-archiefbeheer:1.0.0-rc.0@sha256:3fff604d86ed0e87c5e4e8ce41e4fe3e68e9947bec26c5484467454804b51b16
     platform: linux/amd64
     environment: &web_env
       - ALLOWED_HOSTS="*"
@@ -585,9 +585,9 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - CELERY_LOGLEVEL=DEBUG
-      - REACT_APP_API_URL=http://localhost:8004
-      - REACT_APP_API_PATH=/api/v1
-      - REACT_APP_ZAAK_URL_TEMPLATE=https://localhost:8080/zaken/{identificatie}
+      - OAB_API_URL=http://localhost:8004
+      - OAB_API_PATH=/api/v1
+      - OAB_ZAAK_URL_TEMPLATE=https://localhost:8080/zaken/{identificatie}
       - REQUESTS_READ_TIMEOUT=5000
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
@@ -608,7 +608,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web-init:
-    image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
+    image: maykinmedia/open-archiefbeheer:1.0.0-rc.0@sha256:3fff604d86ed0e87c5e4e8ce41e4fe3e68e9947bec26c5484467454804b51b16
     platform: linux/amd64
     environment: *web_env
     command: /setup_configuration.sh
@@ -622,7 +622,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery:
-    image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
+    image: maykinmedia/open-archiefbeheer:1.0.0-rc.0@sha256:3fff604d86ed0e87c5e4e8ce41e4fe3e68e9947bec26c5484467454804b51b16
     platform: linux/amd64
     command: /celery_worker.sh
     environment: *web_env
@@ -638,7 +638,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery-beat:
-    image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
+    image: maykinmedia/open-archiefbeheer:1.0.0-rc.0@sha256:3fff604d86ed0e87c5e4e8ce41e4fe3e68e9947bec26c5484467454804b51b16
     platform: linux/amd64
     command: /celery_beat.sh
     environment: *web_env
@@ -648,7 +648,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginx@sha256:91734281c0ebfc6f1aea979cffeed5079cfe786228a71cc6f1f46a228cde6e34
+    image: nginx:1.27.4@sha256:124b44bfc9ccd1f3cedf4b592d4d1e8bddb78b51ec2ed5056c52d3692baebc19
     ports:
       - "8005:80"
     volumes:
