@@ -69,7 +69,7 @@ jobs:
           keep_files: true # retains files that are not part of the current publish
       - name: Notify Slack
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
-        uses: 8398a7/action-slack@28ba43ae48961b90635b50953d216767a6bea486 # v3.16.2
+        uses: 8398a7/action-slack@81cf33be7afd53f17fcd90faab001577731bf6dd # v3.17.0
         with:
           status: custom
           fields: workflow,job,status
