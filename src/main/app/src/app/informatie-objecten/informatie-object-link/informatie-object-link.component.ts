@@ -19,10 +19,6 @@ import { MatTableDataSource } from "@angular/material/table";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from "src/app/shared/confirm-dialog/confirm-dialog.component";
 import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
 import { AbstractFormControlField } from "src/app/shared/material-form-builder/model/abstract-form-control-field";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
@@ -120,15 +116,6 @@ export class InformatieObjectLinkComponent
   }
 
   selectCase(row: any) {
-    const msgKey =
-      this.action === "actie.document.koppelen"
-        ? "msg.document.koppelen.bevestigen"
-        : "msg.document.verplaatsen.bevestigen";
-    const msgSnackbarKey =
-      this.action === "actie.document.koppelen"
-        ? "msg.document.koppelen.uitgevoerd"
-        : "msg.document.verplaatsen.uitgevoerd";
-
     const linkDocumentDetails = {
       documentUUID:
         "uuid" in this.infoObject
@@ -143,29 +130,24 @@ export class InformatieObjectLinkComponent
       nieuweZaakID: row.identificatie,
     };
 
-    this.dialog
-      .open(ConfirmDialogComponent, {
-        data: new ConfirmDialogData(
-          {
-            key: msgKey,
-            args: {
-              document: linkDocumentDetails.documentTitel,
-              case: row.identificatie,
-            },
-          },
-          this.informatieObjectService.linkDocumentToCase(linkDocumentDetails),
-        ),
-      })
-      .afterClosed()
-      .subscribe((result) => {
-        if (result) {
+    const msgSnackbarKey =
+      this.action === "actie.document.koppelen"
+        ? "msg.document.koppelen.uitgevoerd"
+        : "msg.document.verplaatsen.uitgevoerd";
+
+    this.informatieObjectService
+      .linkDocumentToCase(linkDocumentDetails)
+      .pipe(takeUntil(this.ngDestroy))
+      .subscribe({
+        next: () => {
           this.utilService.openSnackbar(msgSnackbarKey);
           this.closeDrawer();
           this.informationObjectLinked.emit();
-        } else {
+        },
+        error: () => {
           this.loading = false;
           this.utilService.setLoading(false);
-        }
+        },
       });
   }
 
