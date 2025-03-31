@@ -27,11 +27,11 @@ import net.atos.zac.app.bag.model.RESTNummeraanduiding;
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte;
 import net.atos.zac.app.bag.model.RESTPand;
 import net.atos.zac.app.bag.model.RESTWoonplaats;
-import net.atos.zac.app.zaak.model.RestCoordinates;
-import net.atos.zac.app.zaak.model.RestGeometry;
 import nl.info.client.bag.model.generated.PointGeoJSON;
 import nl.info.client.bag.model.generated.PuntOfVlak;
 import nl.info.client.bag.model.generated.Surface;
+import nl.info.zac.app.zaak.model.RestCoordinates;
+import nl.info.zac.app.zaak.model.RestGeometry;
 
 public class RestBagConverter {
     public static Zaakobject convertToZaakobject(final RESTBAGObject restbagObject, final Zaak zaak) {

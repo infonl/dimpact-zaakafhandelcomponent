@@ -5,6 +5,7 @@
 
 package net.atos.zac.app.documentcreation.model
 
+import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import java.time.ZonedDateTime
 import java.util.UUID
 

@@ -94,7 +94,6 @@ import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.websocket.event.ScreenEvent
-import net.atos.zac.zaak.ZaakService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createMedewerker
@@ -121,6 +120,7 @@ import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.productaanvraag.createProductaanvraagDimpact
 import nl.info.zac.test.date.toDate
+import nl.info.zac.zaak.ZaakService
 import org.apache.http.HttpStatus
 import org.flowable.task.api.Task
 import java.io.ByteArrayInputStream

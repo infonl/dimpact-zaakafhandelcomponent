@@ -20,8 +20,6 @@ import net.atos.zac.documentcreation.model.createDocumentCreationAttendedRespons
 import net.atos.zac.documentcreation.model.createDocumentCreationDataAttended
 import net.atos.zac.identity.model.User
 import net.atos.zac.identity.model.getFullName
-import net.atos.zac.smartdocuments.SmartDocumentsService
-import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.client.smartdocuments.model.createFile
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.model.createZaak
@@ -29,6 +27,8 @@ import nl.info.client.zgw.model.createZaakInformatieobject
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.smartdocuments.SmartDocumentsService
+import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import java.net.URI
 import java.time.ZoneOffset
 import java.time.ZonedDateTime

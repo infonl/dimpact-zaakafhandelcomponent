@@ -37,7 +37,6 @@ import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.search.IndexingService
 import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.util.time.DateTimeConverterUtil
-import net.atos.zac.zaak.ZaakService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.model.createZaak
@@ -47,6 +46,7 @@ import nl.info.zac.admin.model.createHumanTaskParameters
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.zaak.ZaakService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI
 import java.time.LocalDate

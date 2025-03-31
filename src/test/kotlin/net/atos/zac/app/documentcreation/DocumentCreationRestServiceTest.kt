@@ -24,12 +24,13 @@ import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
-import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.zac.admin.model.createZaakafhandelParameters
+import nl.info.zac.app.documentcreation.DocumentCreationRestService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_SMARTDOCUMENTS_DISABLED
+import nl.info.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import java.net.URI
 import java.util.UUID
 
