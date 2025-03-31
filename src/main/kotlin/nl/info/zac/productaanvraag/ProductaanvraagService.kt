@@ -97,7 +97,7 @@ class ProductaanvraagService @Inject constructor(
                 }
             }
         } catch (runtimeException: RuntimeException) {
-            if (LOG.isDebugEnabled) {
+            if (LOG.isLoggable(Level.FINE)) {
                 // Add the exception to the log message to make it easier to debug
                 LOG.log(
                     Level.WARNING,

@@ -851,6 +851,31 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
     }
+    Given(
+        """
+        a productaanvraag-dimpact object registration object can't be read and throws a RuntimeException
+        """
+    ) {
+        val productAanvraagObjectUUID = UUID.randomUUID()
+        every { objectsClientService.readObject(productAanvraagObjectUUID) } throws RuntimeException("Failed")
+
+        When("the productaanvraag is handled") {
+            productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+            Then(
+                """
+                no exception is thrown, and no further actions are taken
+                """
+            ) {
+                verify(exactly = 0) {
+                    inboxProductaanvraagService.create(any())
+                    zgwApiService.createZaak(any())
+                    zrcClientService.createZaakobject(any())
+                    cmmnService.startCase(any(), any(), any(), any())
+                }
+            }
+        }
+    }
     Given("a list of bijlage URIs and a zaak URI") {
         val bijlageURIs = listOf(URI("dummyURI1"), URI("dummyURI2"))
         val enkelvoudigInformatieobjecten = listOf(
