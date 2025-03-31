@@ -111,7 +111,8 @@ export class InformatieObjectLinkComponent
           this.loading = false;
           this.utilService.setLoading(false);
         },
-        (error) => {
+        () => {
+          // error handling
           this.loading = false;
           this.utilService.setLoading(false);
         },
