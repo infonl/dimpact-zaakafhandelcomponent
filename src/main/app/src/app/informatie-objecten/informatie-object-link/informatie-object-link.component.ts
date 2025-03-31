@@ -26,10 +26,7 @@ import {
 import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
 import { AbstractFormControlField } from "src/app/shared/material-form-builder/model/abstract-form-control-field";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
-import {
-  DocumentKoppelbaarAanZaakListItem,
-  ZoekenService,
-} from "src/app/zoeken/zoeken.service";
+import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 
 @Component({
