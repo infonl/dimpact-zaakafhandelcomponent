@@ -69,16 +69,10 @@
             mat-icon-button
             color="primary"
             title="{{ 'actie.selecteren' | translate }}"
-            [disabled]="!row.documentKoppelbaar"
+            [disabled]="rowDisabled(row)"
             (click)="selectCase(row)"
           >
-            <mat-icon
-              [ngClass]="{
-                disabled:
-                  !row.documentKoppelbaar || row.identificatie === source,
-              }"
-              >link</mat-icon
-            >
+            <mat-icon [ngClass]="{ disabled: rowDisabled(row) }">link</mat-icon>
           </button>
         </td>
       </ng-container>
@@ -87,7 +81,7 @@
       <tr
         mat-row
         *matRowDef="let row; columns: caseColumns"
-        [ngClass]="{ disabled: !row.documentKoppelbaar }"
+        [ngClass]="{ disabled: rowDisabled(row) }"
       ></tr>
     </table>
     <p *ngIf="loading">{{ "msg.loading" | translate }}</p>

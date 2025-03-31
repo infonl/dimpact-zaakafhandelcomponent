@@ -253,6 +253,7 @@ export class ZaakDocumentenComponent
               .id("reden")
               .label("reden")
               .validators(Validators.required)
+              .maxlength(200)
               .build(),
           ],
           (results: Record<string, any>) =>

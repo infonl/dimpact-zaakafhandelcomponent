@@ -12,6 +12,7 @@ import { Resultaat } from "../shared/model/resultaat";
 import { ZoekObject } from "./model/zoek-object";
 import { ZoekParameters } from "./model/zoek-parameters";
 import { ZoekResultaat } from "./model/zoek-resultaat";
+import { GeneratedType } from "../shared/utils/generated-types";
 
 export type DocumentKoppelbaarAanZaakListItem = {
   documentKoppelbaar: boolean;
@@ -47,9 +48,9 @@ export class ZoekenService {
   listDocumentKoppelbareZaken(
     zaakIdentificator: string,
     informationObjectTypeUuid: string,
-  ): Observable<Resultaat<DocumentKoppelbaarAanZaakListItem>> {
+  ): Observable<Resultaat<GeneratedType<"RestZaakKoppelenZoekObject">>> {
     return this.http
-      .put<Resultaat<DocumentKoppelbaarAanZaakListItem>>(
+      .put<Resultaat<GeneratedType<"RestZaakKoppelenZoekObject">>>(
         `${this.basepath}/zaken`,
         {
           zaakIdentificator,

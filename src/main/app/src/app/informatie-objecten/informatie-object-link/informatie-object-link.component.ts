@@ -54,7 +54,7 @@ export class InformatieObjectLinkComponent
   isValid: boolean = false;
   loading: boolean = false;
 
-  cases = new MatTableDataSource<DocumentKoppelbaarAanZaakListItem>();
+  cases = new MatTableDataSource<GeneratedType<"RestZaakKoppelenZoekObject">>();
   totalCases: number = 0;
   caseColumns: string[] = [
     "identificatie",
@@ -174,6 +174,10 @@ export class InformatieObjectLinkComponent
   closeDrawer() {
     this.sideNav.close();
     this.reset();
+  }
+
+  rowDisabled(row: GeneratedType<"RestZaakKoppelenZoekObject">): boolean {
+    return !row.documentKoppelbaar || row.identificatie == this.source;
   }
 
   private reset() {
