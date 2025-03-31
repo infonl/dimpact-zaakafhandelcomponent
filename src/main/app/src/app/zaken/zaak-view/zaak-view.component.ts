@@ -66,12 +66,12 @@ import { IntakeAfrondenDialogComponent } from "../intake-afronden-dialog/intake-
 import { Zaak } from "../model/zaak";
 import { ZaakBetrokkene } from "../model/zaak-betrokkene";
 import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
+import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZaakKoppelenService } from "../zaak-koppelen/zaak-koppelen.service";
 import { ZaakOntkoppelenDialogComponent } from "../zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
 import { ZaakOpschortenDialogComponent } from "../zaak-opschorten-dialog/zaak-opschorten-dialog.component";
 import { ZaakVerlengenDialogComponent } from "../zaak-verlengen-dialog/zaak-verlengen-dialog.component";
 import { ZakenService } from "../zaken.service";
-import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 
 @Component({
   templateUrl: "./zaak-view.component.html",

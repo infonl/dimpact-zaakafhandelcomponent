@@ -13,11 +13,16 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
+import { MatDialog } from "@angular/material/dialog";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from "src/app/shared/confirm-dialog/confirm-dialog.component";
 import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
 import { AbstractFormControlField } from "src/app/shared/material-form-builder/model/abstract-form-control-field";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
@@ -26,11 +31,6 @@ import {
   ZoekenService,
 } from "src/app/zoeken/zoeken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from "src/app/shared/confirm-dialog/confirm-dialog.component";
-import { MatDialog } from "@angular/material/dialog";
 
 @Component({
   selector: "zac-informatie-object-link",
