@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.zaak.converter
+package nl.info.zac.app.zaak.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -13,10 +13,6 @@ import io.mockk.mockk
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.app.identity.converter.RestGroupConverter
 import net.atos.zac.app.identity.converter.RestUserConverter
-import net.atos.zac.app.zaak.model.createRestDecision
-import net.atos.zac.app.zaak.model.createRestGroup
-import net.atos.zac.app.zaak.model.createRestUser
-import net.atos.zac.app.zaak.model.createRestZaaktype
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.createZaakRechten
@@ -29,6 +25,10 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.app.zaak.model.createRestDecision
+import nl.info.zac.app.zaak.model.createRestGroup
+import nl.info.zac.app.zaak.model.createRestUser
+import nl.info.zac.app.zaak.model.createRestZaaktype
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.flowable.bpmn.BpmnService
 import java.util.Optional

@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2023 Lifely, 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.zaak
+package nl.info.zac.app.zaak
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -43,31 +43,6 @@ import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_
 import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.admin.model.ZaakbeeindigReden
 import net.atos.zac.app.decision.DecisionService
-import net.atos.zac.app.zaak.ZaakRestService.Companion.AANVULLENDE_INFORMATIE_TASK_NAME
-import net.atos.zac.app.zaak.converter.RestDecisionConverter
-import net.atos.zac.app.zaak.converter.RestZaakConverter
-import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
-import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
-import net.atos.zac.app.zaak.exception.CommunicationChannelNotFound
-import net.atos.zac.app.zaak.model.RESTReden
-import net.atos.zac.app.zaak.model.RESTZaakAfbrekenGegevens
-import net.atos.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
-import net.atos.zac.app.zaak.model.RelatieType
-import net.atos.zac.app.zaak.model.RestZaaktype
-import net.atos.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
-import net.atos.zac.app.zaak.model.createRESTGeometry
-import net.atos.zac.app.zaak.model.createRESTZaakAanmaakGegevens
-import net.atos.zac.app.zaak.model.createRESTZaakAssignmentData
-import net.atos.zac.app.zaak.model.createRESTZaakBetrokkeneGegevens
-import net.atos.zac.app.zaak.model.createRESTZakenVerdeelGegevens
-import net.atos.zac.app.zaak.model.createRestDocumentOntkoppelGegevens
-import net.atos.zac.app.zaak.model.createRestGroup
-import net.atos.zac.app.zaak.model.createRestZaak
-import net.atos.zac.app.zaak.model.createRestZaakLinkData
-import net.atos.zac.app.zaak.model.createRestZaakLocatieGegevens
-import net.atos.zac.app.zaak.model.createRestZaakRechten
-import net.atos.zac.app.zaak.model.createRestZaakUnlinkData
-import net.atos.zac.app.zaak.model.createRestZaaktype
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.documenten.model.OntkoppeldDocument
 import net.atos.zac.event.EventingService
@@ -111,6 +86,31 @@ import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.model.createZaakafhandelParameters
+import nl.info.zac.app.zaak.ZaakRestService.Companion.AANVULLENDE_INFORMATIE_TASK_NAME
+import nl.info.zac.app.zaak.converter.RestDecisionConverter
+import nl.info.zac.app.zaak.converter.RestZaakConverter
+import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
+import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
+import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
+import nl.info.zac.app.zaak.model.RESTReden
+import nl.info.zac.app.zaak.model.RESTZaakAfbrekenGegevens
+import nl.info.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
+import nl.info.zac.app.zaak.model.RelatieType
+import nl.info.zac.app.zaak.model.RestZaaktype
+import nl.info.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
+import nl.info.zac.app.zaak.model.createRESTGeometry
+import nl.info.zac.app.zaak.model.createRESTZaakAanmaakGegevens
+import nl.info.zac.app.zaak.model.createRESTZaakAssignmentData
+import nl.info.zac.app.zaak.model.createRESTZaakBetrokkeneGegevens
+import nl.info.zac.app.zaak.model.createRESTZakenVerdeelGegevens
+import nl.info.zac.app.zaak.model.createRestDocumentOntkoppelGegevens
+import nl.info.zac.app.zaak.model.createRestGroup
+import nl.info.zac.app.zaak.model.createRestZaak
+import nl.info.zac.app.zaak.model.createRestZaakLinkData
+import nl.info.zac.app.zaak.model.createRestZaakLocatieGegevens
+import nl.info.zac.app.zaak.model.createRestZaakRechten
+import nl.info.zac.app.zaak.model.createRestZaakUnlinkData
+import nl.info.zac.app.zaak.model.createRestZaaktype
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
@@ -128,6 +128,7 @@ import java.io.InputStream
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.text.get
 
 @Suppress("LongParameterList", "LargeClass")
 class ZaakRestServiceTest : BehaviorSpec({

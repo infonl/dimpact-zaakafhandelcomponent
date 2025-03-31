@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.documentcreation
+package nl.info.zac.app.documentcreation
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
@@ -14,7 +14,6 @@ import io.mockk.mockk
 import io.mockk.slot
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.app.documentcreation.model.createRestDocumentCreationAttendedData
 import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
 import net.atos.zac.documentcreation.model.createDocumentCreationAttendedResponse
@@ -28,7 +27,7 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.zac.admin.model.createZaakafhandelParameters
-import nl.info.zac.app.documentcreation.DocumentCreationRestService
+import nl.info.zac.app.documentcreation.model.createRestDocumentCreationAttendedData
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_SMARTDOCUMENTS_DISABLED
 import nl.info.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import java.net.URI
