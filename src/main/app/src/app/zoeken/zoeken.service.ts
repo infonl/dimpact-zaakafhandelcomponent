@@ -14,17 +14,12 @@ import { ZoekParameters } from "./model/zoek-parameters";
 import { ZoekResultaat } from "./model/zoek-resultaat";
 
 export type KoppelbareZaakListItem = {
-  foutmelding: string;
-  resultaten: Array<{
-    documentKoppelen: boolean;
-    id: string;
-    identificatie: string;
-    omschrijving: string;
-    toelichting: string;
-    type: string;
-  }>;
-  totaal: number;
-  filters: Record<string, unknown>;
+  documentKoppelbaar: boolean;
+  id: string;
+  identificatie: string;
+  omschrijving: string;
+  toelichting: string;
+  type: string;
 };
 
 @Injectable({

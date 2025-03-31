@@ -216,11 +216,6 @@ export class InboxDocumentenListComponent
 
   openDrawer(selectedInformationObject: OntkoppeldDocument) {
     this.selectedInformationObject = { ...selectedInformationObject };
-
-    console.log(
-      "this.selectedInformationObject",
-      this.selectedInformationObject,
-    );
     this.actionsSidenav.open();
   }
 
