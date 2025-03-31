@@ -97,11 +97,16 @@ class ProductaanvraagService @Inject constructor(
                 }
             }
         } catch (runtimeException: RuntimeException) {
-            LOG.log(
-                Level.WARNING,
-                "Failed to handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID",
-                runtimeException
-            )
+            if (LOG.isDebugEnabled) {
+                // Add the exception to the log message to make it easier to debug
+                LOG.log(
+                    Level.WARNING,
+                    "Failed to handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID",
+                    runtimeException
+                )
+            } else {
+                LOG.warning("Failed to handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID")
+            }
         }
     }
 
