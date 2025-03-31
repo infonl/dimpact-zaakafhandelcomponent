@@ -15,8 +15,6 @@ import net.atos.zac.documentcreation.converter.DocumentCreationDataConverter
 import net.atos.zac.documentcreation.model.DocumentCreationAttendedResponse
 import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
 import net.atos.zac.identity.model.getFullName
-import net.atos.zac.smartdocuments.SmartDocumentsService
-import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.util.MediaTypes
 import nl.info.client.smartdocuments.model.document.OutputFormat
 import nl.info.client.smartdocuments.model.document.Selection
@@ -24,6 +22,8 @@ import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.smartdocuments.model.document.Variables
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.smartdocuments.SmartDocumentsService
+import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI

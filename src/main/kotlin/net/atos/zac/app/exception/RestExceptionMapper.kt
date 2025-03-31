@@ -20,7 +20,6 @@ import net.atos.client.zgw.drc.exception.DrcRuntimeException
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
 import net.atos.zac.policy.exception.PolicyException
-import net.atos.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.client.brp.BrpClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.exception.BrcRuntimeException
@@ -42,6 +41,7 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZTC_CLIENT
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.log.log
+import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException

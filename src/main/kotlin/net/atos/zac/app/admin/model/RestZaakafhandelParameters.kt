@@ -4,8 +4,8 @@
  */
 package net.atos.zac.app.admin.model
 
-import net.atos.zac.app.zaak.model.RESTZaakStatusmailOptie
-import net.atos.zac.app.zaak.model.RestResultaattype
+import nl.info.zac.app.zaak.model.RESTZaakStatusmailOptie
+import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime

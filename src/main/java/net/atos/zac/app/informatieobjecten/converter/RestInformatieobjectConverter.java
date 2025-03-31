@@ -34,7 +34,6 @@ import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject;
 import net.atos.zac.app.policy.converter.RestRechtenConverter;
 import net.atos.zac.app.task.model.RestTaskDocumentData;
-import net.atos.zac.app.zaak.model.RelatieType;
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
 import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
 import net.atos.zac.identity.IdentityService;
@@ -47,6 +46,7 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLoc
 import nl.info.client.zgw.drc.model.generated.StatusEnum;
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
 import nl.info.client.zgw.ztc.ZtcClientService;
+import nl.info.zac.app.zaak.model.RelatieType;
 import nl.info.zac.authentication.LoggedInUser;
 import nl.info.zac.configuratie.ConfiguratieService;
 import nl.info.zac.configuratie.model.Taal;

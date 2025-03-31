@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.admin.model;
 
-import net.atos.zac.app.zaak.model.RestResultaattype;
+import nl.info.zac.app.zaak.model.RestResultaattype;
 
 public class RESTZaakbeeindigParameter {
 
