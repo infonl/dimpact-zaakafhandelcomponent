@@ -92,11 +92,10 @@ export class InformatieObjectLinkComponent
       this.reset();
       this.intro = this.translate.instant("informatieobject.koppelen.uitleg", {
         documentName:
+          changes.infoObject.currentValue?.identificatie ||
           changes.infoObject.currentValue?.documentID ||
           changes.infoObject.currentValue?.enkelvoudiginformatieobjectID,
       });
-
-      changes.infoObject.currentValue.documentID;
     }
   }
 
