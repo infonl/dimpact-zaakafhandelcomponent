@@ -121,7 +121,7 @@
       [sideNav]="actionsSidenav"
       [action]="'actie.document.verplaatsen'"
       [source]="zaak.identificatie"
-      (informationObjectLinked)="retriggerSearch()"
+      (informationObjectLinked)="updateDocumentList()"
     ></zac-informatie-object-link>
     <zac-zaakdata
       *ngSwitchCase="'actie.zaakdata.bekijken'"
@@ -907,6 +907,7 @@
       </div>
     </div>
     <zac-zaak-documenten
+      #zaakDocumentenComponent
       class="w100"
       [zaak]="zaak"
       (documentMoveToCase)="documentMoveToCase($event)"

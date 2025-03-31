@@ -223,7 +223,6 @@ export class OntkoppeldeDocumentenListComponent
   }
 
   retriggerSearch(): void {
-    console.log("Retriggering search");
     this.filterChange.emit();
   }
 

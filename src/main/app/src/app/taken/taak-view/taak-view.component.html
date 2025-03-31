@@ -230,8 +230,10 @@
       </div>
     </div>
     <zac-zaak-documenten
+      #zaakDocumentenComponent
       *ngIf="initialized"
       [zaak]="zaak"
+      (documentMoveToCase)="documentMoveToCase($event)"
     ></zac-zaak-documenten>
     <mat-card *ngIf="!initialized">
       <mat-card-header>

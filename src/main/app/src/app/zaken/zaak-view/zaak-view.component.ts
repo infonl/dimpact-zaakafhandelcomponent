@@ -71,6 +71,7 @@ import { ZaakOntkoppelenDialogComponent } from "../zaak-ontkoppelen/zaak-ontkopp
 import { ZaakOpschortenDialogComponent } from "../zaak-opschorten-dialog/zaak-opschorten-dialog.component";
 import { ZaakVerlengenDialogComponent } from "../zaak-verlengen-dialog/zaak-verlengen-dialog.component";
 import { ZakenService } from "../zaken.service";
+import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 
 @Component({
   templateUrl: "./zaak-view.component.html",
@@ -164,6 +165,8 @@ export class ZaakViewComponent
 
   @ViewChild("historieSort") historieSort: MatSort;
   @ViewChild("takenSort") takenSort: MatSort;
+  @ViewChild("zaakDocumentenComponent")
+  zaakDocumentenComponent!: ZaakDocumentenComponent;
 
   constructor(
     private takenService: TakenService,
@@ -287,6 +290,8 @@ export class ZaakViewComponent
       }
     };
     this.historie.sort = this.historieSort;
+
+    this.zaakDocumentenComponent.updateDocumentList();
   }
 
   ngOnDestroy(): void {
@@ -1249,6 +1254,10 @@ export class ZaakViewComponent
     this.activeSideAction = "actie.document.verplaatsen";
     this.documentToMove = $event;
     this.actionsSidenav.open();
+  }
+
+  updateDocumentList(): void {
+    this.zaakDocumentenComponent.updateDocumentList();
   }
 
   doIntrekking($event): void {

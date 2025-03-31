@@ -208,6 +208,10 @@ export class ZaakDocumentenComponent
     this.documentMoveToCase.emit(row);
   }
 
+  updateDocumentList(): void {
+    this.loadInformatieObjecten();
+  }
+
   documentOntkoppelen(
     informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject"> & {
       loading?: boolean;
