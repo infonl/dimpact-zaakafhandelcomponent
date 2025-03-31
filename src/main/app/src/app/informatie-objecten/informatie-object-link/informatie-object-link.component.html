@@ -24,7 +24,7 @@
   >
     {{ "actie.zoeken" | translate }}
   </button>
-  <button mat-flat-button (click)="wissen()">
+  <button mat-flat-button (click)="reset()">
     {{ "actie.wissen" | translate }}
   </button>
 
@@ -72,7 +72,11 @@
             [disabled]="!row.documentKoppelbaar"
             (click)="selectCase(row)"
           >
-            <mat-icon [ngClass]="{ disabled: !row.documentKoppelbaar }"
+            <mat-icon
+              [ngClass]="{
+                disabled:
+                  !row.documentKoppelbaar || row.identificatie === source,
+              }"
               >link</mat-icon
             >
           </button>

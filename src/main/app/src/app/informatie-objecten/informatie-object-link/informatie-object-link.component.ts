@@ -26,6 +26,11 @@ import {
   ZoekenService,
 } from "src/app/zoeken/zoeken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from "src/app/shared/confirm-dialog/confirm-dialog.component";
+import { MatDialog } from "@angular/material/dialog";
 
 @Component({
   selector: "zac-informatie-object-link",
@@ -64,6 +69,7 @@ export class InformatieObjectLinkComponent
   constructor(
     private zoekenService: ZoekenService,
     private informatieObjectService: InformatieObjectenService,
+    public dialog: MatDialog,
     private utilService: UtilService,
     private translate: TranslateService,
   ) {}
@@ -77,7 +83,7 @@ export class InformatieObjectLinkComponent
     this.caseSearchField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
-        this.isValid = value?.length > 2;
+        this.isValid = value?.length >= 2;
       });
   }
 
@@ -117,6 +123,15 @@ export class InformatieObjectLinkComponent
   }
 
   selectCase(row: any) {
+    const msgKey =
+      this.action === "actie.document.koppelen"
+        ? "msg.document.koppelen.bevestigen"
+        : "msg.document.verplaatsen.bevestigen";
+    const msgSnackbarKey =
+      this.action === "actie.document.koppelen"
+        ? "msg.document.koppelen.uitgevoerd"
+        : "msg.document.verplaatsen.uitgevoerd";
+
     const linkDocumentDetails = {
       documentUUID:
         "uuid" in this.infoObject
@@ -131,20 +146,30 @@ export class InformatieObjectLinkComponent
       nieuweZaakID: row.identificatie,
     };
 
-    this.informatieObjectService
-      .linkDocumentToCase(linkDocumentDetails)
-      .pipe(takeUntil(this.ngDestroy))
-      .subscribe(
-        () => {
-          this.utilService.openSnackbar("msg.document.verplaatsen.uitgevoerd");
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: new ConfirmDialogData(
+          {
+            key: msgKey,
+            args: {
+              document: linkDocumentDetails.documentTitel,
+              case: row.identificatie,
+            },
+          },
+          this.informatieObjectService.linkDocumentToCase(linkDocumentDetails),
+        ),
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) {
+          this.utilService.openSnackbar(msgSnackbarKey);
           this.closeDrawer();
           this.informationObjectLinked.emit();
-        },
-        (error) => {
+        } else {
           this.loading = false;
           this.utilService.setLoading(false);
-        },
-      );
+        }
+      });
   }
 
   closeDrawer() {
