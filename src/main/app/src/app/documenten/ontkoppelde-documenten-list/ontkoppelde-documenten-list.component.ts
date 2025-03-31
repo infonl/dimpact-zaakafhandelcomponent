@@ -14,6 +14,7 @@ import {
 import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSelectChange } from "@angular/material/select";
+import { MatSidenav } from "@angular/material/sidenav";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
@@ -49,6 +50,8 @@ export class OntkoppeldeDocumentenListComponent
   dataSource = new MatTableDataSource<OntkoppeldDocument>();
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
+
   displayedColumns: string[] = [
     "titel",
     "creatiedatum",
@@ -71,6 +74,7 @@ export class OntkoppeldeDocumentenListComponent
   filterOntkoppeldDoor: GeneratedType<"RestUser">[] = [];
   filterChange = new EventEmitter<void>();
   clearZoekopdracht = new EventEmitter<void>();
+  selectedInformationObject: OntkoppeldDocument | null = null;
 
   constructor(
     private ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
@@ -115,6 +119,11 @@ export class OntkoppeldeDocumentenListComponent
         this.filterOntkoppeldDoor = data.filterOntkoppeldDoor;
         this.dataSource.data = data.resultaten;
       });
+  }
+
+  openDrawer(selectedInformationObject: OntkoppeldDocument) {
+    this.selectedInformationObject = { ...selectedInformationObject };
+    this.actionsSidenav.open();
   }
 
   updateListParameters(): void {
@@ -211,6 +220,10 @@ export class OntkoppeldeDocumentenListComponent
     } else {
       this.filterChange.emit();
     }
+  }
+
+  retriggerSearch(): void {
+    this.filterChange.emit();
   }
 
   createDefaultParameters(): OntkoppeldDocumentListParameters {

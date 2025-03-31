@@ -66,6 +66,7 @@ import { IntakeAfrondenDialogComponent } from "../intake-afronden-dialog/intake-
 import { Zaak } from "../model/zaak";
 import { ZaakBetrokkene } from "../model/zaak-betrokkene";
 import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
+import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZaakKoppelenService } from "../zaak-koppelen/zaak-koppelen.service";
 import { ZaakOntkoppelenDialogComponent } from "../zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
 import { ZaakOpschortenDialogComponent } from "../zaak-opschorten-dialog/zaak-opschorten-dialog.component";
@@ -88,6 +89,7 @@ export class ZaakViewComponent
   menu: MenuItem[];
   activeSideAction: string | null = null;
   teWijzigenBesluit: GeneratedType<"RestDecision">;
+  documentToMove: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
   takenDataSource = new MatTableDataSource<ExpandableTableData<Taak>>();
   allTakenExpanded = false;
@@ -163,6 +165,8 @@ export class ZaakViewComponent
 
   @ViewChild("historieSort") historieSort: MatSort;
   @ViewChild("takenSort") takenSort: MatSort;
+  @ViewChild("zaakDocumentenComponent")
+  zaakDocumentenComponent!: ZaakDocumentenComponent;
 
   constructor(
     private takenService: TakenService,
@@ -286,6 +290,8 @@ export class ZaakViewComponent
       }
     };
     this.historie.sort = this.historieSort;
+
+    this.zaakDocumentenComponent.updateDocumentList();
   }
 
   ngOnDestroy(): void {
@@ -1240,6 +1246,18 @@ export class ZaakViewComponent
     this.activeSideAction = "actie.besluit.wijzigen";
     this.teWijzigenBesluit = $event;
     this.actionsSidenav.open();
+  }
+
+  documentMoveToCase(
+    $event: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>,
+  ): void {
+    this.activeSideAction = "actie.document.verplaatsen";
+    this.documentToMove = $event;
+    this.actionsSidenav.open();
+  }
+
+  updateDocumentList(): void {
+    this.zaakDocumentenComponent.updateDocumentList();
   }
 
   doIntrekking($event): void {

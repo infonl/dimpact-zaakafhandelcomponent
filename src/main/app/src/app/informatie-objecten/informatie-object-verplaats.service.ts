@@ -4,7 +4,6 @@
  */
 
 import { Injectable } from "@angular/core";
-import { Router } from "@angular/router";
 import { Subject } from "rxjs";
 import {
   ActionBarAction,
@@ -24,7 +23,6 @@ import { DocumentVerplaatsGegevens } from "./model/document-verplaats-gegevens";
 export class InformatieObjectVerplaatsService {
   constructor(
     private utilService: UtilService,
-    private router: Router,
     private informatieObjectService: InformatieObjectenService,
   ) {}
 
@@ -78,7 +76,7 @@ export class InformatieObjectVerplaatsService {
     verplaatsAction.asObservable().subscribe((url) => {
       const nieuweZaakID = url.split("/").pop();
       this.informatieObjectService
-        .postVerplaatsDocument(document, nieuweZaakID)
+        .linkDocumentToCase({ ...document, nieuweZaakID })
         .subscribe(() =>
           this.utilService.openSnackbar("msg.document.verplaatsen.uitgevoerd"),
         );

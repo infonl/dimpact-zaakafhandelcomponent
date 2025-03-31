@@ -7,10 +7,12 @@ import { SelectionModel } from "@angular/cdk/collections";
 import {
   AfterViewInit,
   Component,
+  EventEmitter,
   Input,
   OnChanges,
   OnDestroy,
   OnInit,
+  Output,
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
@@ -57,6 +59,9 @@ export class ZaakDocumentenComponent
 {
   readonly indicatiesLayout = IndicatiesLayout;
   @Input({ required: true }) zaak!: Zaak;
+  @Output() documentMoveToCase = new EventEmitter<
+    GeneratedType<"RestEnkelvoudigInformatieobject">
+  >();
 
   heeftGerelateerdeZaken = false;
   selectAll = false;
@@ -197,6 +202,16 @@ export class ZaakDocumentenComponent
     );
   }
 
+  emitDocumentMove(
+    row: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ): void {
+    this.documentMoveToCase.emit(row);
+  }
+
+  updateDocumentList(): void {
+    this.loadInformatieObjecten();
+  }
+
   documentOntkoppelen(
     informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject"> & {
       loading?: boolean;
@@ -238,6 +253,7 @@ export class ZaakDocumentenComponent
               .id("reden")
               .label("reden")
               .validators(Validators.required)
+              .maxlength(200)
               .build(),
           ],
           (results: Record<string, any>) =>

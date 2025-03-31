@@ -13,6 +13,7 @@ import { SharedModule } from "../shared/shared.module";
 import { InformatieObjectAddComponent } from "./informatie-object-add/informatie-object-add.component";
 import { InformatieObjectCreateAttendedComponent } from "./informatie-object-create-attended/informatie-object-create-attended.component";
 import { InformatieObjectEditComponent } from "./informatie-object-edit/informatie-object-edit.component";
+import { InformatieObjectLinkComponent } from "./informatie-object-link/informatie-object-link.component";
 import { InformatieObjectVerzendenComponent } from "./informatie-object-verzenden/informatie-object-verzenden.component";
 import { InformatieObjectViewComponent } from "./informatie-object-view/informatie-object-view.component";
 import { InformatieObjectenRoutingModule } from "./informatie-objecten-routing.module";
@@ -25,11 +26,13 @@ import { RouteReuseStrategyService } from "./route-reuse-strategy.service";
     InformatieObjectAddComponent,
     InformatieObjectCreateAttendedComponent,
     InformatieObjectVerzendenComponent,
+    InformatieObjectLinkComponent,
   ],
   exports: [
     InformatieObjectAddComponent,
     InformatieObjectCreateAttendedComponent,
     InformatieObjectVerzendenComponent,
+    InformatieObjectLinkComponent,
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: RouteReuseStrategyService },

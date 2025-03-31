@@ -13,6 +13,7 @@ import {
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
+import { MatSidenav } from "@angular/material/sidenav";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
@@ -34,6 +35,7 @@ import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { InboxDocumentenService } from "../inbox-documenten.service";
 import { InboxDocument } from "../model/inbox-document";
 import { InboxDocumentListParameters } from "../model/inbox-document-list-parameters";
+import { OntkoppeldDocument } from "../model/ontkoppeld-document";
 
 @Component({
   templateUrl: "./inbox-documenten-list.component.html",
@@ -48,6 +50,8 @@ export class InboxDocumentenListComponent
     new MatTableDataSource<InboxDocument>();
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
+
   displayedColumns: string[] = [
     "enkelvoudiginformatieobjectID",
     "creatiedatum",
@@ -63,6 +67,7 @@ export class InboxDocumentenListComponent
   listParameters: InboxDocumentListParameters;
   filterChange: EventEmitter<void> = new EventEmitter<void>();
   clearZoekopdracht: EventEmitter<void> = new EventEmitter<void>();
+  selectedInformationObject: OntkoppeldDocument | null = null;
 
   constructor(
     private inboxDocumentenService: InboxDocumentenService,
@@ -183,6 +188,10 @@ export class InboxDocumentenListComponent
     this.filterChange.emit();
   }
 
+  retriggerSearch(): void {
+    this.filterChange.emit();
+  }
+
   createDefaultParameters(): InboxDocumentListParameters {
     return new InboxDocumentListParameters("creatiedatum", "desc");
   }
@@ -203,6 +212,11 @@ export class InboxDocumentenListComponent
 
   getWerklijst(): Werklijst {
     return Werklijst.INBOX_DOCUMENTEN;
+  }
+
+  openDrawer(selectedInformationObject: OntkoppeldDocument) {
+    this.selectedInformationObject = { ...selectedInformationObject };
+    this.actionsSidenav.open();
   }
 
   ngOnDestroy(): void {
