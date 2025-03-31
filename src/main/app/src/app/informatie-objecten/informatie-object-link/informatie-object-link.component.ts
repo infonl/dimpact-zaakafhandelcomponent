@@ -27,7 +27,7 @@ import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form
 import { AbstractFormControlField } from "src/app/shared/material-form-builder/model/abstract-form-control-field";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
-  KoppelbareZaakListItem,
+  DocumentKoppelbaarAanZaakListItem,
   ZoekenService,
 } from "src/app/zoeken/zoeken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
@@ -54,7 +54,7 @@ export class InformatieObjectLinkComponent
   isValid: boolean = false;
   loading: boolean = false;
 
-  cases = new MatTableDataSource<KoppelbareZaakListItem>();
+  cases = new MatTableDataSource<DocumentKoppelbaarAanZaakListItem>();
   totalCases: number = 0;
   caseColumns: string[] = [
     "identificatie",
@@ -103,7 +103,7 @@ export class InformatieObjectLinkComponent
     this.loading = true;
     this.utilService.setLoading(true);
     this.zoekenService
-      .listKoppelbareZaken(
+      .listDocumentKoppelbareZaken(
         this.caseSearchField?.formControl.value,
         this.infoObject.informatieobjectTypeUUID,
       )

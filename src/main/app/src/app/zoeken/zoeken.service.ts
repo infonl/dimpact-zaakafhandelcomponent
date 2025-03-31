@@ -13,7 +13,7 @@ import { ZoekObject } from "./model/zoek-object";
 import { ZoekParameters } from "./model/zoek-parameters";
 import { ZoekResultaat } from "./model/zoek-resultaat";
 
-export type KoppelbareZaakListItem = {
+export type DocumentKoppelbaarAanZaakListItem = {
   documentKoppelbaar: boolean;
   id: string;
   identificatie: string;
@@ -44,17 +44,20 @@ export class ZoekenService {
       );
   }
 
-  listKoppelbareZaken(
+  listDocumentKoppelbareZaken(
     zaakIdentificator: string,
     informationObjectTypeUuid: string,
-  ): Observable<Resultaat<KoppelbareZaakListItem>> {
+  ): Observable<Resultaat<DocumentKoppelbaarAanZaakListItem>> {
     return this.http
-      .put<Resultaat<KoppelbareZaakListItem>>(`${this.basepath}/zaken`, {
-        zaakIdentificator,
-        informationObjectTypeUuid,
-        page: 0,
-        rows: 10,
-      })
+      .put<Resultaat<DocumentKoppelbaarAanZaakListItem>>(
+        `${this.basepath}/zaken`,
+        {
+          zaakIdentificator,
+          informationObjectTypeUuid,
+          page: 0,
+          rows: 10,
+        },
+      )
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
