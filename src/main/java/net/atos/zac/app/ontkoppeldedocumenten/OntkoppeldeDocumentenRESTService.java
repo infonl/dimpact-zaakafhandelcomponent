@@ -48,7 +48,6 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class OntkoppeldeDocumentenRESTService {
-
     private OntkoppeldeDocumentenService ontkoppeldeDocumentenService;
     private DrcClientService drcClientService;
     private ZrcClientService zrcClientService;
