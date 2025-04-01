@@ -46,6 +46,7 @@ import { ZakenService } from "../../zaken/zaken.service";
 import { Taak } from "../model/taak";
 import { TaakStatus } from "../model/taak-status.enum";
 import { TakenService } from "../taken.service";
+import { ZaakDocumentenComponent } from "src/app/zaken/zaak-documenten/zaak-documenten.component";
 
 @Component({
   templateUrl: "./taak-view.component.html",
@@ -59,6 +60,8 @@ export class TaakViewComponent
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
   @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
   @ViewChild("historieSort") historieSort!: MatSort;
+  @ViewChild("zaakDocumentenComponent")
+  zaakDocumentenComponent!: ZaakDocumentenComponent;
 
   taak: Taak;
   zaak: Zaak;
@@ -70,6 +73,7 @@ export class TaakViewComponent
 
   menu: MenuItem[] = [];
   activeSideAction: string | null = null;
+  documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
   historieSrc: MatTableDataSource<TaakHistorieRegel> =
     new MatTableDataSource<TaakHistorieRegel>();
@@ -502,6 +506,18 @@ export class TaakViewComponent
         this.reloadTaak();
       },
     );
+  }
+
+  documentMoveToCase(
+    $event: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>,
+  ): void {
+    this.activeSideAction = "actie.document.verplaatsen";
+    this.documentToMove = $event;
+    this.actionsSidenav.open();
+  }
+
+  updateZaakDocumentList(): void {
+    this.zaakDocumentenComponent.updateDocumentList();
   }
 
   /**
