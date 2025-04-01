@@ -175,7 +175,7 @@ jobs:
         run: ./gradlew -x processResources -x classes test --info
 
       - name: Publish unit test results
-        uses: EnricoMi/publish-unit-test-result-action@170bf24d20d201b842d7a52403b73ed297e6645b # v2.18.0
+        uses: EnricoMi/publish-unit-test-result-action@afb2984f4d89672b2f9d9c13ae23d53779671984 # v2.19.0
         if: ${{ !cancelled() }}
         with:
           check_name: unit-test-results
@@ -330,7 +330,7 @@ jobs:
           flags: integrationtests
 
       - name: Publish integration test results
-        uses: EnricoMi/publish-unit-test-result-action@170bf24d20d201b842d7a52403b73ed297e6645b # v2.18.0
+        uses: EnricoMi/publish-unit-test-result-action@afb2984f4d89672b2f9d9c13ae23d53779671984 # v2.19.0
         if: ${{ !cancelled() }}
         with:
           check_name: integration-test-results
