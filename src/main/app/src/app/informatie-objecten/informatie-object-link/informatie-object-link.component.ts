@@ -152,7 +152,10 @@ export class InformatieObjectLinkComponent
       .pipe(takeUntil(this.ngDestroy))
       .subscribe({
         next: () => {
-          this.utilService.openSnackbar(msgSnackbarKey);
+          this.utilService.openSnackbar(msgSnackbarKey, {
+            document: this.infoObject.titel,
+            case: linkDocumentDetails.nieuweZaakID,
+          });
           this.closeDrawer();
           this.informationObjectLinked.emit();
         },
