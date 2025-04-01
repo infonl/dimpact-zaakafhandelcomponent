@@ -725,7 +725,7 @@
   "msg.document.ontvangstdatum.hint": "The status will be changed to final when entering a receipt date!",
   "msg.document.toegevoegd.aan.zaak": "Document \"{{document}}\" has been added to the case",
   "msg.document.vergrendeld": "By {{gebruiker}}",
-  "msg.document.koppelen.uitgevoerd": "Ddocument \"{{document}}\" has been linked to case \"{{case}}\"",
+  "msg.document.koppelen.uitgevoerd": "Document \"{{document}}\" has been linked to case \"{{case}}\"",
   "msg.document.verplaatsen.uitgevoerd": "Document \"{{document}}\" has been moved to case \"{{case}}\"",
   "msg.document.verwijderen.bevestigen": "Delete document \"<i>{{document}}</i>\"?",
   "msg.inboxProductaanvraag.verwijderen.bevestigen": "Delete product request?",
