@@ -52,8 +52,8 @@ export class InformatieObjectLinkComponent
   isValid: boolean = false;
   loading: boolean = false;
 
-  documentAction: DocumentAction = DocumentAction.LINK;
-  rowIcon: string = "link";
+  documentAction: DocumentAction;
+  rowIcon: string;
 
   cases = new MatTableDataSource<GeneratedType<"RestZaakKoppelenZoekObject">>();
   totalCases: number = 0;
