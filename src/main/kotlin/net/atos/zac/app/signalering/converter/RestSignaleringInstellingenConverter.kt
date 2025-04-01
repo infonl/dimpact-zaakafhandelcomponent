@@ -6,11 +6,11 @@ package net.atos.zac.app.signalering.converter
 
 import jakarta.inject.Inject
 import net.atos.zac.app.signalering.model.RestSignaleringInstellingen
-import net.atos.zac.identity.model.Group
-import net.atos.zac.identity.model.User
-import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringTarget
+import nl.info.zac.identity.model.Group
+import nl.info.zac.identity.model.User
+import nl.info.zac.signalering.SignaleringService
 
 class RestSignaleringInstellingenConverter @Inject constructor(
     private var signaleringService: SignaleringService

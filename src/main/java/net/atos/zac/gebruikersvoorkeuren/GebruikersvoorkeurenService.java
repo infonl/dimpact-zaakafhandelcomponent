@@ -29,8 +29,8 @@ import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen;
 import net.atos.zac.gebruikersvoorkeuren.model.Werklijst;
 import net.atos.zac.gebruikersvoorkeuren.model.Zoekopdracht;
 import net.atos.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters;
-import net.atos.zac.signalering.SignaleringService;
 import net.atos.zac.signalering.model.SignaleringInstellingen;
+import nl.info.zac.signalering.SignaleringService;
 
 @ApplicationScoped
 @Transactional

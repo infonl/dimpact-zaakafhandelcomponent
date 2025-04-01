@@ -57,9 +57,6 @@ import net.atos.client.zgw.zrc.model.RolMedewerker;
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
 import net.atos.client.zgw.zrc.model.Status;
 import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.zac.identity.IdentityService;
-import net.atos.zac.identity.model.Group;
-import net.atos.zac.identity.model.UserKt;
 import net.atos.zac.mailtemplates.model.MailLink;
 import net.atos.zac.mailtemplates.model.MailTemplateVariabelen;
 import net.atos.zac.util.time.DateTimeConverterUtil;
@@ -77,6 +74,9 @@ import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.client.zgw.ztc.model.generated.StatusType;
 import nl.info.client.zgw.ztc.model.generated.ZaakType;
 import nl.info.zac.configuratie.ConfiguratieService;
+import nl.info.zac.identity.IdentityService;
+import nl.info.zac.identity.model.Group;
+import nl.info.zac.identity.model.UserKt;
 
 public class MailTemplateHelper {
     public static final Pattern PTAGS = Pattern.compile("</?p>", Pattern.CASE_INSENSITIVE);

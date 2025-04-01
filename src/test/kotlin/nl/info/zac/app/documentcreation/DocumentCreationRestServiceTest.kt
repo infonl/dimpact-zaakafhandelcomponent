@@ -14,9 +14,6 @@ import io.mockk.mockk
 import io.mockk.slot
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.documentcreation.DocumentCreationService
-import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
-import net.atos.zac.documentcreation.model.createDocumentCreationAttendedResponse
 import net.atos.zac.flowable.createTestTask
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
@@ -28,6 +25,9 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.app.documentcreation.model.createRestDocumentCreationAttendedData
+import nl.info.zac.documentcreation.DocumentCreationService
+import nl.info.zac.documentcreation.model.DocumentCreationDataAttended
+import nl.info.zac.documentcreation.model.createDocumentCreationAttendedResponse
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_SMARTDOCUMENTS_DISABLED
 import nl.info.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import java.net.URI

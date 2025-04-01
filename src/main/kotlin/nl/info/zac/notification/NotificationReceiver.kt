@@ -20,8 +20,6 @@ import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.search.IndexingService
-import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
@@ -32,6 +30,8 @@ import nl.info.zac.admin.ZaakafhandelParameterBeheerService
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.setFunctioneelGebruiker
 import nl.info.zac.productaanvraag.ProductaanvraagService
+import nl.info.zac.search.IndexingService
+import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.task.TaskService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor

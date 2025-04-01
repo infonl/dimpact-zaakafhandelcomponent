@@ -15,11 +15,11 @@ import jakarta.ws.rs.core.MediaType
 import net.atos.zac.app.admin.converter.RESTZaaktypeOverzichtConverter
 import net.atos.zac.app.admin.model.RESTBuildInformation
 import net.atos.zac.app.admin.model.RESTZaaktypeInrichtingscheck
-import net.atos.zac.healthcheck.HealthCheckService
-import net.atos.zac.healthcheck.model.ZaaktypeInrichtingscheck
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.healthcheck.HealthCheckService
+import nl.info.zac.healthcheck.model.ZaaktypeInrichtingscheck
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 

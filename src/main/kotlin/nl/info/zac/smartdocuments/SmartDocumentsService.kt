@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.UriBuilder
-import net.atos.zac.documentcreation.model.DocumentCreationAttendedResponse
 import net.atos.zac.util.MediaTypes
 import nl.info.client.smartdocuments.SmartDocumentsClient
 import nl.info.client.smartdocuments.model.document.Data
@@ -18,6 +17,7 @@ import nl.info.client.smartdocuments.model.document.File
 import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
