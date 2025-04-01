@@ -7,9 +7,9 @@
 package nl.info.zac.app.search.model
 
 import net.atos.zac.app.shared.RestPageParameters
-import net.atos.zac.search.model.ZoekParameters
-import net.atos.zac.search.model.ZoekVeld
-import net.atos.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.search.model.ZoekParameters
+import nl.info.zac.search.model.ZoekVeld
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
 

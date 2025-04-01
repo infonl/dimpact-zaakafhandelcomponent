@@ -8,15 +8,6 @@ package nl.info.zac.app.search.converter
 
 import jakarta.inject.Inject
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.search.model.FilterParameters
-import net.atos.zac.search.model.FilterResultaat
-import net.atos.zac.search.model.FilterVeld
-import net.atos.zac.search.model.ZoekResultaat
-import net.atos.zac.search.model.zoekobject.DocumentZoekObject
-import net.atos.zac.search.model.zoekobject.TaakZoekObject
-import net.atos.zac.search.model.zoekobject.ZaakZoekObject
-import net.atos.zac.search.model.zoekobject.ZoekObject
-import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.app.search.model.AbstractRestZoekObject
 import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
 import nl.info.zac.app.search.model.RestZaakZoekObject
@@ -25,6 +16,15 @@ import nl.info.zac.app.search.model.RestZoekResultaat
 import nl.info.zac.app.search.model.toRestDocumentZoekObject
 import nl.info.zac.app.search.model.toRestTaakZoekObject
 import nl.info.zac.app.search.model.toRestZaakZoekObject
+import nl.info.zac.search.model.FilterParameters
+import nl.info.zac.search.model.FilterResultaat
+import nl.info.zac.search.model.FilterVeld
+import nl.info.zac.search.model.ZoekResultaat
+import nl.info.zac.search.model.zoekobject.DocumentZoekObject
+import nl.info.zac.search.model.zoekobject.TaakZoekObject
+import nl.info.zac.search.model.zoekobject.ZaakZoekObject
+import nl.info.zac.search.model.zoekobject.ZoekObject
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 

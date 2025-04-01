@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag;
 import net.atos.zac.productaanvraag.model.InboxProductaanvraagListParameters;
 import net.atos.zac.productaanvraag.model.InboxProductaanvraagResultaat;
-import net.atos.zac.shared.model.SorteerRichting;
+import nl.info.zac.shared.model.SorteerRichting;
 
 @ApplicationScoped
 @Transactional

@@ -17,7 +17,6 @@ import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.policy.converter.RestRechtenConverter
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.search.model.ZaakIndicatie
 import net.atos.zac.util.time.PeriodUtil
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
@@ -35,6 +34,7 @@ import nl.info.zac.app.zaak.model.toRestGeometry
 import nl.info.zac.app.zaak.model.toRestZaakStatus
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.search.model.ZaakIndicatie
 import java.time.LocalDate
 import java.time.Period
 import java.util.EnumSet

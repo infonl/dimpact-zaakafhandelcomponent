@@ -13,8 +13,8 @@ import jakarta.inject.Inject;
 import net.atos.zac.app.identity.converter.RestUserConverter;
 import net.atos.zac.app.ontkoppeldedocumenten.model.RESTOntkoppeldDocument;
 import net.atos.zac.documenten.model.OntkoppeldDocument;
-import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
-import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
+import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
 
 public class RESTOntkoppeldDocumentConverter {
 
