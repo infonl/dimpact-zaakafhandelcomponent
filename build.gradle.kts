@@ -146,8 +146,6 @@ dependencies {
         exclude(group = "org.jboss.resteasy")
     }
 
-    swaggerUI(libs.swagger.ui)
-
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
     detektPlugins(libs.detekt.formatting)
 
@@ -283,12 +281,6 @@ smallryeOpenApi {
     // https://github.com/smallrye/smallrye-open-api/issues/2230
     duplicateOperationIdBehavior.set(DuplicateOperationIdBehavior.FAIL)
     outputFileTypeFilter.set("YAML")
-}
-
-swaggerSources {
-    register("zaakafhandelcomponent") {
-        setInputFile(file("$rootDir/build/generated/openapi/META-INF/openapi/openapi.yaml"))
-    }
 }
 
 configure<SpotlessExtension> {
@@ -469,8 +461,6 @@ tasks {
     getByName("spotlessJson").mustRunAfter("npmRunLint")
     getByName("spotlessLess").mustRunAfter("npmRunLint")
 
-    getByName("generateSwaggerUIZaakafhandelcomponent").setDependsOn(listOf("generateOpenApiSpec"))
-
     getByName("compileItestKotlin") {
         dependsOn("copyJacocoAgentForItest")
         mustRunAfter("buildDockerImage")
@@ -516,7 +506,7 @@ tasks {
     // specify a specific non-overlapping output directory per task so that
     // Gradle can cache the outputs for these tasks.
     withType<GenerateTask> {
-        group = "build"
+        group = BUILD_TASK_NAME
         generatorName.set("java")
         generateApiTests.set(false)
         generateApiDocumentation.set(false)
@@ -620,11 +610,9 @@ tasks {
         description = "Generates Java client code for the DRC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/drc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/drc/java")
-
         // this OpenAPI spec contains a schema validation error: `schema: null`
         // so we disable the schema validation for this spec until this is fixed in a future version of this spec
         validateSpec.set(false)
-
         modelPackage.set("nl.info.client.zgw.drc.model.generated")
     }
 
@@ -800,6 +788,20 @@ tasks {
         inputs.file(wildflyResources.file("configure-wildfly.cli"))
         inputs.file(wildflyResources.file("deploy-zaakafhandelcomponent.cli"))
         outputs.dir(layout.projectDirectory.dir("target"))
+    }
+
+    register<Exec>("generateZacApiDocs") {
+        description = "Generate ZAC HTML API documentation from OpenAPI spec."
+        dependsOn("generateOpenApiSpec")
+        group = DOCUMENTATION_GROUP
+        commandLine(
+            "npx",
+            "@redocly/cli",
+            "build-docs",
+            file("$rootDir/build/generated/openapi/META-INF/openapi/openapi.yaml"),
+            "-o",
+            file("build/generated/zac-api-docs/index.html")
+        )
     }
 
     register<Maven>("cleanMaven") {
