@@ -193,7 +193,6 @@
                     !row.isBesluitDocument &&
                     !row.relatieType
                   "
-                  [disabled]="isOntkoppelenDisabled(row)"
                   (click)="documentOntkoppelen(row)"
                 >
                   <mat-icon>link_off</mat-icon>
@@ -206,7 +205,6 @@
                     !row.isBesluitDocument &&
                     !row.relatieType
                   "
-                  [disabled]="isDocumentVerplaatsenDisabled(row)"
                   (click)="emitDocumentMove(row)"
                 >
                   <mat-icon>move_item</mat-icon>

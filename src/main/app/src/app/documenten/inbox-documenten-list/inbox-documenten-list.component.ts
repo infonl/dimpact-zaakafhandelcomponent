@@ -24,7 +24,6 @@ import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { Zoekopdracht } from "../../gebruikersvoorkeuren/model/zoekopdracht";
-import { InformatieObjectVerplaatsService } from "../../informatie-objecten/informatie-object-verplaats.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import {
   ConfirmDialogComponent,
@@ -75,7 +74,6 @@ export class InboxDocumentenListComponent
     private utilService: UtilService,
     public dialog: MatDialog,
     private translate: TranslateService,
-    private informatieObjectVerplaatsService: InformatieObjectVerplaatsService,
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
     public route: ActivatedRoute,
   ) {
@@ -129,18 +127,6 @@ export class InboxDocumentenListComponent
     return this.infoService.getDownloadURL(id.enkelvoudiginformatieobjectUUID);
   }
 
-  documentVerplaatsen(id: InboxDocument): void {
-    id["disabled"] = true;
-    this.infoService
-      .readEnkelvoudigInformatieobject(id.enkelvoudiginformatieobjectUUID)
-      .subscribe((i) => {
-        this.informatieObjectVerplaatsService.addTeVerplaatsenDocument(
-          i,
-          "inbox-documenten",
-        );
-      });
-  }
-
   documentVerwijderen(inboxDocument: InboxDocument): void {
     this.dialog
       .open(ConfirmDialogComponent, {
@@ -163,14 +149,6 @@ export class InboxDocumentenListComponent
       });
   }
 
-  isDocumentVerplaatsenDisabled(inboxDocument: InboxDocument): boolean {
-    return (
-      inboxDocument["disabled"] ||
-      this.informatieObjectVerplaatsService.isReedsTeVerplaatsen(
-        inboxDocument.enkelvoudiginformatieobjectUUID,
-      )
-    );
-  }
   filtersChanged(): void {
     this.paginator.pageIndex = 0;
     this.clearZoekopdracht.emit();
