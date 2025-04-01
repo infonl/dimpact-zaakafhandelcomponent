@@ -6,7 +6,7 @@
 <div class="sidenav-title">
   <h3>
     <mat-icon>link</mat-icon>
-    {{ action | translate }}
+    {{ actionLabel | translate }}
   </h3>
   <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
@@ -68,11 +68,13 @@
           <button
             mat-icon-button
             color="primary"
-            title="{{ 'actie.selecteren' | translate }}"
+            title="{{ actionLabel | translate }}"
             [disabled]="rowDisabled(row)"
             (click)="selectCase(row)"
           >
-            <mat-icon [ngClass]="{ disabled: rowDisabled(row) }">link</mat-icon>
+            <mat-icon [ngClass]="{ disabled: rowDisabled(row) }">{{
+              rowIcon
+            }}</mat-icon>
           </button>
         </td>
       </ng-container>

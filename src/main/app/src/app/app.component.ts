@@ -8,7 +8,6 @@ import { Title } from "@angular/platform-browser";
 import { TranslateService } from "@ngx-translate/core";
 import { UtilService } from "./core/service/util.service";
 import { IdentityService } from "./identity/identity.service";
-import { InformatieObjectVerplaatsService } from "./informatie-objecten/informatie-object-verplaats.service";
 import { SessionStorageUtil } from "./shared/storage/session-storage.util";
 import { ZaakKoppelenService } from "./zaken/zaak-koppelen/zaak-koppelen.service";
 
@@ -23,7 +22,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   constructor(
     private translate: TranslateService,
     private titleService: Title,
-    private informatieObjectVerplaatsService: InformatieObjectVerplaatsService,
     private zaakKoppelenService: ZaakKoppelenService,
     public utilService: UtilService,
     private identityService: IdentityService,
@@ -40,7 +38,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     if (!this.initialized) {
-      this.informatieObjectVerplaatsService.appInit();
       this.zaakKoppelenService.appInit();
       this.initialized = true;
     }

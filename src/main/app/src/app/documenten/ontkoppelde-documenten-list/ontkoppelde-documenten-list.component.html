@@ -8,7 +8,7 @@
     <zac-informatie-object-link
       [infoObject]="selectedInformationObject"
       [sideNav]="actionsSidenav"
-      [action]="'actie.document.koppelen'"
+      [actionLabel]="'actie.document.koppelen'"
       [source]="'ontkoppelde-documenten'"
       (informationObjectLinked)="retriggerSearch()"
     ></zac-informatie-object-link>
@@ -197,7 +197,6 @@
                 </mat-icon>
                 <button
                   mat-icon-button
-                  [disabled]="isDocumentVerplaatsenDisabled(row)"
                   (click)="openDrawer(row)"
                   class="col-4"
                   title="{{ 'actie.document.koppelen' | translate }}"
