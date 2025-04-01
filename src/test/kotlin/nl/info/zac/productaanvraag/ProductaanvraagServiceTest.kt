@@ -853,7 +853,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     }
     Given(
         """
-        a productaanvraag-dimpact object registration object can't be read and throws a RuntimeException
+        a productaanvraag-dimpact object registration object is not a productaanvraag type
         """
     ) {
         val productAanvraagObjectUUID = UUID.randomUUID()
