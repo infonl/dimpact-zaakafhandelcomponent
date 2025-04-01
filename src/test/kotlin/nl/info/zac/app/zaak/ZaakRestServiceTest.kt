@@ -389,7 +389,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
             } just runs
 
-            val returnedRestZaak = zaakRestService.assign(restZaakToekennenGegevens)
+            val returnedRestZaak = zaakRestService.assignZaak(restZaakToekennenGegevens)
 
             Then("the zaak is assigned both to the group and the user, and the zaken search index is updated") {
                 returnedRestZaak shouldBe restZaak
@@ -434,7 +434,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         When("the zaak is assigned to an unknown group") {
             shouldThrow<UserNotInGroupException> {
-                zaakRestService.assign(restZaakToekennenGegevensUnknownGroup)
+                zaakRestService.assignZaak(restZaakToekennenGegevensUnknownGroup)
             }
 
             Then("an exception is thrown") {}
@@ -481,7 +481,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
             } just runs
 
-            val returnedRestZaak = zaakRestService.assign(restZaakToekennenGegevens)
+            val returnedRestZaak = zaakRestService.assignZaak(restZaakToekennenGegevens)
 
             Then("the zaak is assigned both to the group and the user, and the zaken search index is updated") {
                 returnedRestZaak shouldBe restZaak
@@ -563,7 +563,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot)) } returns zaak
 
         When("the zaken are linked") {
-            zaakRestService.koppelZaak(restZaakLinkData)
+            zaakRestService.linkZaak(restZaakLinkData)
 
             Then("the two zaken are successfully linked") {
                 verify(exactly = 2) {
@@ -608,7 +608,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { eventingService.send(any<ScreenEvent>()) } just runs
 
         When("the zaken are linked") {
-            zaakRestService.koppelZaak(restZaakLinkData)
+            zaakRestService.linkZaak(restZaakLinkData)
 
             Then(
                 """
@@ -642,7 +642,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         When("the zaken are linked") {
             val exception = shouldThrow<PolicyException> {
-                zaakRestService.koppelZaak(restZakenVerdeelGegevens)
+                zaakRestService.linkZaak(restZakenVerdeelGegevens)
             }
 
             Then("a policy exception should be thrown") {
@@ -671,7 +671,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         } returns zaak
 
         When("the zaken are unlinked") {
-            zaakRestService.ontkoppelZaak(restZaakLinkData)
+            zaakRestService.unlinkZaak(restZaakLinkData)
 
             Then("the two zaken are successfully unlinked") {
                 verify(exactly = 1) {
@@ -928,7 +928,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { cmmnService.terminateCase(zaak.uuid) } returns Unit
 
         When("aborted with the hardcoded 'niet ontvankelijk' zaakbeeindigreden") {
-            zaakRestService.afbreken(
+            zaakRestService.terminateZaak(
                 zaak.uuid,
                 RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)
             )
@@ -976,7 +976,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { cmmnService.terminateCase(zaak.uuid) } returns Unit
 
         When("aborted with managed zaakbeeindigreden") {
-            zaakRestService.afbreken(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = "-2"))
+            zaakRestService.terminateZaak(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = "-2"))
 
             Then("it is ended with result") {
                 verify(exactly = 1) {
@@ -989,7 +989,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         When("aborted with invalid zaakbeeindigreden id") {
             val exception = shouldThrow<IllegalArgumentException> {
-                zaakRestService.afbreken(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = "not a number"))
+                zaakRestService.terminateZaak(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = "not a number"))
             }
 
             Then("it throws an error") {

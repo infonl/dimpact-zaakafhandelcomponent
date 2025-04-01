@@ -51,9 +51,6 @@ public class InboxDocumentenRESTService {
     private ZrcClientService zrcClientService;
 
     @Inject
-    private RESTInboxDocumentConverter inboxDocumentConverter;
-
-    @Inject
     private RESTInboxDocumentListParametersConverter listParametersConverter;
 
     @Inject
@@ -63,7 +60,7 @@ public class InboxDocumentenRESTService {
 
     @PUT
     @Path("")
-    public RESTResultaat<RESTInboxDocument> list(final RESTInboxDocumentListParameters restListParameters) {
+    public RESTResultaat<RESTInboxDocument> listInboxDocuments(final RESTInboxDocumentListParameters restListParameters) {
         PolicyService.assertPolicy(policyService.readWerklijstRechten().inbox());
         final InboxDocumentListParameters listParameters = listParametersConverter.convert(restListParameters);
         var inboxDocuments = inboxDocumentenService.list(listParameters);
@@ -75,14 +72,14 @@ public class InboxDocumentenRESTService {
                 )
         ).toList();
         return new RESTResultaat<>(
-                inboxDocumentConverter.convert(inboxDocuments, informationObjectTypeUUIDs),
+                RESTInboxDocumentConverter.convert(inboxDocuments, informationObjectTypeUUIDs),
                 inboxDocumentenService.count(listParameters)
         );
     }
 
     @DELETE
     @Path("{id}")
-    public void delete(@PathParam("id") final long id) {
+    public void deleteInboxDocument(@PathParam("id") final long id) {
         PolicyService.assertPolicy(policyService.readWerklijstRechten().inbox());
         final Optional<InboxDocument> inboxDocument = inboxDocumentenService.find(id);
         if (inboxDocument.isEmpty()) {

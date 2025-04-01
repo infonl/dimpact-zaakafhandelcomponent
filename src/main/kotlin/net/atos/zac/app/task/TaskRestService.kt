@@ -141,21 +141,6 @@ class TaskRestService @Inject constructor(
         }
     }
 
-    private fun addZaakdata(restTask: RestTask) = restTask.taakdata?.apply {
-        putAll(readFilteredZaakdata(restTask))
-    } ?: {
-        restTask.taakdata = readFilteredZaakdata(restTask).toMutableMap()
-    }
-
-    private fun readFilteredZaakdata(restTask: RestTask) =
-        zaakVariabelenService.readProcessZaakdata(restTask.zaakUuid)
-            .filterNot {
-                it.key.equals(ZaakVariabelenService.VAR_ZAAK_UUID) ||
-                    it.key.equals(
-                        ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
-                    )
-            }
-
     @PUT
     @Path("taakdata")
     fun updateTaskData(restTask: RestTask): RestTask {
@@ -180,7 +165,7 @@ class TaskRestService @Inject constructor(
 
     @PUT
     @Path("lijst/verdelen")
-    fun distributeFromList(@Valid restTaskDistributeData: RestTaskDistributeData) {
+    fun assignTasksFromList(@Valid restTaskDistributeData: RestTaskDistributeData) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
         CoroutineScope(dispatcher).launch {
@@ -194,7 +179,7 @@ class TaskRestService @Inject constructor(
 
     @PUT
     @Path("lijst/vrijgeven")
-    fun releaseFromList(@Valid restTaskReleaseData: RestTaskReleaseData) {
+    fun releaseTaskFromList(@Valid restTaskReleaseData: RestTaskReleaseData) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
         CoroutineScope(dispatcher).launch {
@@ -208,7 +193,7 @@ class TaskRestService @Inject constructor(
 
     @PATCH
     @Path("lijst/toekennen/mij")
-    fun assignToLoggedInUserFromList(
+    fun assignTaskToLoggedInUserFromList(
         restTaskAssignData: RestTaskAssignData
     ): RestTask {
         assertPolicy(policyService.readWerklijstRechten().zakenTaken)
@@ -219,7 +204,7 @@ class TaskRestService @Inject constructor(
 
     @PATCH
     @Path("toekennen")
-    fun assign(restTaskAssignData: RestTaskAssignData) {
+    fun assignTask(restTaskAssignData: RestTaskAssignData) {
         val task = flowableTaskService.readOpenTask(restTaskAssignData.taakId)
         assertPolicy(TaskUtil.isOpen(task) && policyService.readTaakRechten(task).toekennen)
         taskService.assignOrReleaseTask(
@@ -231,7 +216,7 @@ class TaskRestService @Inject constructor(
 
     @PATCH
     @Path("toekennen/mij")
-    fun assignToLoggedInUser(restTaskAssignData: RestTaskAssignData) =
+    fun assignTaskToLoggedInUser(restTaskAssignData: RestTaskAssignData) =
         assignLoggedInUserToTask(restTaskAssignData).let {
             restTaskConverter.convert(it)
         }
@@ -260,6 +245,21 @@ class TaskRestService @Inject constructor(
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
         }.let(restTaskConverter::convert)
     }
+
+    private fun addZaakdata(restTask: RestTask) = restTask.taakdata?.apply {
+        putAll(readFilteredZaakdata(restTask))
+    } ?: {
+        restTask.taakdata = readFilteredZaakdata(restTask).toMutableMap()
+    }
+
+    private fun readFilteredZaakdata(restTask: RestTask) =
+        zaakVariabelenService.readProcessZaakdata(restTask.zaakUuid)
+            .filterNot {
+                it.key.equals(ZaakVariabelenService.VAR_ZAAK_UUID) ||
+                        it.key.equals(
+                            ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
+                        )
+            }
 
     private fun processHardCodedFormTask(restTask: RestTask, zaak: Zaak): Task {
         val updatedTask = updateDescriptionAndDueDate(restTask)

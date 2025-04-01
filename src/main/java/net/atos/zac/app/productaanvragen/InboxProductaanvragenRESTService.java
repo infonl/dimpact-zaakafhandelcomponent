@@ -60,7 +60,7 @@ public class InboxProductaanvragenRESTService {
 
     @PUT
     @Path("")
-    public RESTResultaat<RESTInboxProductaanvraag> list(final RESTInboxProductaanvraagListParameters restListParameters) {
+    public RESTResultaat<RESTInboxProductaanvraag> listInboxProductaanvragen(final RESTInboxProductaanvraagListParameters restListParameters) {
         assertPolicy(policyService.readWerklijstRechten().inbox());
         final InboxProductaanvraagListParameters listParameters = listParametersConverter.convert(restListParameters);
         final InboxProductaanvraagResultaat resultaat = inboxProductaanvraagService.list(listParameters);
@@ -94,7 +94,7 @@ public class InboxProductaanvragenRESTService {
 
     @DELETE
     @Path("{id}")
-    public void delete(@PathParam("id") final long id) {
+    public void deleteInboxProductaanvraag(@PathParam("id") final long id) {
         PolicyService.assertPolicy(policyService.readWerklijstRechten().inboxProductaanvragenVerwijderen());
         inboxProductaanvraagService.delete(id);
     }

@@ -136,7 +136,7 @@ class TaskRestServiceTest : BehaviorSpec({
         When("the task is assigned with a user who has permission") {
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(toekennen = true)
 
-            taskRestService.assign(restTaakToekennenGegevens)
+            taskRestService.assignTask(restTaakToekennenGegevens)
 
             Then(
                 "the task is correctly assigned"
@@ -155,7 +155,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny()
 
             val exception = shouldThrow<PolicyException> {
-                taskRestService.assign(restTaakToekennenGegevens)
+                taskRestService.assignTask(restTaakToekennenGegevens)
             }
 
             Then("it throws exception with no message") { exception.message shouldBe null }
@@ -347,7 +347,7 @@ class TaskRestServiceTest : BehaviorSpec({
             } returns createWerklijstRechtenAllDeny(zakenTakenVerdelen = true)
 
             runTest(testDispatcher) {
-                taskRestService.distributeFromList(restTaakVerdelenGegevens)
+                taskRestService.assignTasksFromList(restTaakVerdelenGegevens)
             }
 
             Then("the tasks are assigned to the group and user") {
@@ -361,7 +361,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { policyService.readWerklijstRechten() } returns createWerklijstRechtenAllDeny()
 
             val exception = shouldThrow<PolicyException> {
-                taskRestService.distributeFromList(restTaakVerdelenGegevens)
+                taskRestService.assignTasksFromList(restTaakVerdelenGegevens)
             }
 
             Then("it throws exception with no message") { exception.message shouldBe null }
@@ -385,7 +385,7 @@ class TaskRestServiceTest : BehaviorSpec({
 
         When("the 'verdelen vanuit lijst' function is called") {
             runTest(testDispatcher) {
-                taskRestService.releaseFromList(restTaakVrijgevenGegevens)
+                taskRestService.releaseTaskFromList(restTaakVrijgevenGegevens)
             }
 
             Then("the tasks are assigned to the group and user") {

@@ -64,7 +64,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         } returns Optional.empty()
 
         When("the delete endpoint is called with that id") {
-            ontkoppeldeDocumentenRESTService.delete(id)
+            ontkoppeldeDocumentenRESTService.deleteDetachedDocument(id)
 
             Then("there are no exceptions") {
             }
@@ -90,7 +90,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         } just runs
 
         When("the delete endpoint is called with the id of that document") {
-            ontkoppeldeDocumentenRESTService.delete(document.id)
+            ontkoppeldeDocumentenRESTService.deleteDetachedDocument(document.id)
 
             Then("the document is deleted") {
                 verify(exactly = 1) {
@@ -116,7 +116,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         } throws ZgwErrorException(ZgwError(null, null, null, 400, null, null))
 
         When("the delete endpoint is called with the id of that document") {
-            val exception = shouldThrow<ZgwErrorException> { ontkoppeldeDocumentenRESTService.delete(document.id) }
+            val exception = shouldThrow<ZgwErrorException> { ontkoppeldeDocumentenRESTService.deleteDetachedDocument(document.id) }
 
             Then("the exception from OpenZaak is rethrown") {
                 exception.zgwError.status shouldBe 400
@@ -146,7 +146,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         } returns mutableListOf(zaakInformatieObject)
 
         When("the delete endpoint is called with the id of that document") {
-            val exception = shouldThrow<IllegalStateException> { ontkoppeldeDocumentenRESTService.delete(document.id) }
+            val exception = shouldThrow<IllegalStateException> { ontkoppeldeDocumentenRESTService.deleteDetachedDocument(document.id) }
 
             Then("the an IllegalStateException should be thrown") {
                 exception shouldNotBe null
@@ -182,7 +182,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         } just runs
 
         When("the delete endpoint is called with the id of that document") {
-            ontkoppeldeDocumentenRESTService.delete(document.id)
+            ontkoppeldeDocumentenRESTService.deleteDetachedDocument(document.id)
 
             Then("the document is deleted") {
                 verify(exactly = 1) {

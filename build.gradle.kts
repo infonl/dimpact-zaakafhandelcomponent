@@ -6,7 +6,8 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.github.gradle.node.npm.task.NpmTask
 import io.gitlab.arturbosch.detekt.Detekt
-import io.smallrye.openapi.api.OpenApiConfig
+import io.smallrye.openapi.api.OpenApiConfig.DuplicateOperationIdBehavior
+import io.smallrye.openapi.api.OpenApiConfig.OperationIdStrategy
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 import java.util.Locale
 
@@ -276,7 +277,11 @@ node {
 smallryeOpenApi {
     infoTitle.set("Zaakafhandelcomponent backend API")
     schemaFilename.set("META-INF/openapi/openapi")
-    operationIdStrategy.set(OpenApiConfig.OperationIdStrategy.METHOD)
+    operationIdStrategy.set(OperationIdStrategy.METHOD)
+    // note that the duplicateOperationIdBehavior property is not yet working, but we add it
+    // anyway, hoping that the following issue will be resolved in a future version of the plugin:
+    // https://github.com/smallrye/smallrye-open-api/issues/2230
+    duplicateOperationIdBehavior.set(DuplicateOperationIdBehavior.FAIL)
     outputFileTypeFilter.set("YAML")
 }
 

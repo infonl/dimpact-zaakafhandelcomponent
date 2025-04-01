@@ -116,7 +116,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     @GET
     @Path("informatieobject/versie/{uuid}/{version}")
-    fun readEnkelvoudigInformatieobject(
+    fun readEnkelvoudigInformatieobjectVersion(
         @PathParam("uuid") uuid: UUID,
         @PathParam("version") version: Int
     ): RestEnkelvoudigInformatieobject =
@@ -174,7 +174,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     @POST
     @Path("informatieobjecten/verzenden")
-    fun verzenden(gegevens: RESTDocumentVerzendGegevens) {
+    fun sendDocument(gegevens: RESTDocumentVerzendGegevens) {
         val informatieobjecten = gegevens.informatieobjecten
             .map(drcClientService::readEnkelvoudigInformatieobject)
             .toList()
@@ -300,11 +300,6 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         return webdavHelper.createRedirectURL(uuid, uriInfo).let(Response::ok).build()
     }
 
-    @GET
-    @Path("/informatieobject/{uuid}/download")
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    fun readFile(@PathParam("uuid") uuid: UUID): Response = readFile(uuid, null)
-
     @DELETE
     @Path("/informatieobject/{uuid}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
@@ -331,23 +326,13 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @GET
     @Path("/informatieobject/{uuid}/{version}/download")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    fun readFile(@PathParam("uuid") uuid: UUID?, @PathParam("version") version: Int?): Response {
-        val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(uuid)
-        assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden)
-        try {
-            val inhoud = version?.let {
-                drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, it)
-            } ?: drcClientService.downloadEnkelvoudigInformatieobject(uuid)
-            return Response.ok(inhoud)
-                .header(
-                    "Content-Disposition",
-                    """attachment; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
-                )
-                .build()
-        } catch (e: IOException) {
-            throw RuntimeException(e)
-        }
-    }
+    fun readFileWithVersion(@PathParam("uuid") uuid: UUID, @PathParam("version") version: Int): Response =
+        retrieveDocumentContent(uuid, version)
+
+    @GET
+    @Path("/informatieobject/{uuid}/download")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    fun readFile(@PathParam("uuid") uuid: UUID): Response = retrieveDocumentContent(uuid, null)
 
     @GET
     @Path("/informatieobject/{uuid}/{versie}/preview")
@@ -536,6 +521,24 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             }
         }
         return Response.ok().build()
+    }
+
+    private fun retrieveDocumentContent(uuid: UUID, version: Int?): Response {
+        val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(uuid)
+        assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden)
+        try {
+            val documentContent = version?.let {
+                drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version)
+            } ?: drcClientService.downloadEnkelvoudigInformatieobject(uuid)
+            return Response.ok(documentContent)
+                .header(
+                    "Content-Disposition",
+                    """attachment; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
+                )
+                .build()
+        } catch (ioException: IOException) {
+            throw RuntimeException(ioException)
+        }
     }
 
     private fun isVerzendenToegestaan(informatieobject: EnkelvoudigInformatieObject): Boolean =
