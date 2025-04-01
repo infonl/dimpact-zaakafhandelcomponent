@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.task
 
 import io.kotest.assertions.throwables.shouldThrow
@@ -51,7 +50,6 @@ import net.atos.zac.policy.output.createWerklijstRechtenAllDeny
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
-import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRequest
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.test.org.flowable.task.service.impl.persistence.entity.createHistoricTaskInstanceEntityImpl
@@ -199,7 +197,7 @@ class TaskRestServiceTest : BehaviorSpec({
             enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
                 enkelvoudigInformatieObjectUUID, dateTime.toLocalDate(), null
             )
-        } returns createEnkelvoudigInformatieObjectWithLockRequest()
+        } just Runs
         every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
         every { taakVariabelenService.setTaskinformation(task, null) } just runs
         every { flowableTaskService.completeTask(task) } returns historicTaskInstance

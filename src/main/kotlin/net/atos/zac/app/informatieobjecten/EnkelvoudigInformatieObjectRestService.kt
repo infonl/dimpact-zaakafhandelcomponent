@@ -30,8 +30,8 @@ import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeCon
 import net.atos.zac.app.informatieobjecten.converter.RestZaakInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerplaatsGegevens
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerwijderenGegevens
-import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerzendGegevens
 import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjectZoekParameters
+import net.atos.zac.app.informatieobjecten.model.RestDocumentVerzendGegevens
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject
@@ -174,20 +174,17 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     @POST
     @Path("informatieobjecten/verzenden")
-    fun sendDocument(gegevens: RESTDocumentVerzendGegevens) {
-        val informatieobjecten = gegevens.informatieobjecten
+    fun sendDocument(restDocumentVerzendGegevens: RestDocumentVerzendGegevens) {
+        val informatieobjecten = restDocumentVerzendGegevens.informatieobjecten
             .map(drcClientService::readEnkelvoudigInformatieobject)
-            .toList()
-        val zaak = zrcClientService.readZaak(gegevens.zaakUuid)
+        val zaak = zrcClientService.readZaak(restDocumentVerzendGegevens.zaakUuid)
         assertPolicy(policyService.readZaakRechten(zaak).wijzigen)
-        informatieobjecten.forEach {
-            assertPolicy(isVerzendenToegestaan(it))
-        }
+        informatieobjecten.forEach { assertPolicy(isVerzendenToegestaan(it)) }
         informatieobjecten.forEach {
             enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
                 it.url.extractUuid(),
-                gegevens.verzenddatum,
-                gegevens.toelichting
+                restDocumentVerzendGegevens.verzenddatum,
+                restDocumentVerzendGegevens.toelichting
             )
         }
     }

@@ -97,7 +97,7 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
         }
     }
 
-    fun verzendEnkelvoudigInformatieObject(uuid: UUID, verzenddatum: LocalDate?, toelichting: String?) =
+    fun verzendEnkelvoudigInformatieObject(uuid: UUID, verzenddatum: LocalDate?, toelichting: String?) {
         EnkelvoudigInformatieObjectWithLockRequest().apply {
             this.verzenddatum = verzenddatum
             updateEnkelvoudigInformatieObjectWithLockData(
@@ -106,6 +106,7 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
                 listOfNotNull(VERZEND_TOELICHTING_PREFIX, toelichting).joinToString(": ")
             )
         }
+    }
 
     fun ondertekenEnkelvoudigInformatieObject(uuid: UUID) {
         EnkelvoudigInformatieObjectWithLockRequest().apply {

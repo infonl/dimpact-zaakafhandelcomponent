@@ -7,6 +7,7 @@ package net.atos.zac.app.informatieobjecten
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -54,6 +55,10 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
     val taskId = "1234"
     val task = createTestTask()
 
+    beforeEach {
+        checkUnnecessaryStub()
+    }
+
     Given("Zaak, lock request and an open task") {
         every {
             zgwApiService.createZaakInformatieobjectForZaak(
@@ -99,7 +104,6 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
             )
         } returns zaakInformatieObject
         every { flowableTaskService.findOpenTask(taskId) } returns null
-        every { taakVariabelenService.setTaakdocumenten(task, any<List<UUID>>()) } just runs
 
         When("creating information object for a non-open task") {
             val exception = shouldThrow<TaskNotFoundException> {

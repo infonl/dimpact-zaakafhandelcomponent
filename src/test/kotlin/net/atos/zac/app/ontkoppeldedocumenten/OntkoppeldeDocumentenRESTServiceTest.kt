@@ -6,10 +6,10 @@
 package net.atos.zac.app.ontkoppeldedocumenten
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -40,7 +40,6 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
     val listParametersConverter = mockk<RESTOntkoppeldDocumentListParametersConverter>()
     val userConverter = mockk<RestUserConverter>()
     val policyService = mockk<PolicyService>()
-
     val ontkoppeldeDocumentenRESTService = OntkoppeldeDocumentenRESTService(
         ontkoppeldeDocumentenService,
         drcClientService,
@@ -51,7 +50,9 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         policyService
     )
 
-    isolationMode = IsolationMode.InstancePerTest
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given("an id that doesn't belong to a document in the database") {
         val id: Long = 1
