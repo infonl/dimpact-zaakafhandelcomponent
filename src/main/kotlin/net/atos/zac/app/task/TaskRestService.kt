@@ -256,9 +256,9 @@ class TaskRestService @Inject constructor(
         zaakVariabelenService.readProcessZaakdata(restTask.zaakUuid)
             .filterNot {
                 it.key.equals(ZaakVariabelenService.VAR_ZAAK_UUID) ||
-                        it.key.equals(
-                            ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
-                        )
+                    it.key.equals(
+                        ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
+                    )
             }
 
     private fun processHardCodedFormTask(restTask: RestTask, zaak: Zaak): Task {

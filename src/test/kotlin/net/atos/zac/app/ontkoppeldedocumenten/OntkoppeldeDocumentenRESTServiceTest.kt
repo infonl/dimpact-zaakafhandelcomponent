@@ -116,7 +116,8 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         } throws ZgwErrorException(ZgwError(null, null, null, 400, null, null))
 
         When("the delete endpoint is called with the id of that document") {
-            val exception = shouldThrow<ZgwErrorException> { ontkoppeldeDocumentenRESTService.deleteDetachedDocument(document.id) }
+            val exception =
+                shouldThrow<ZgwErrorException> { ontkoppeldeDocumentenRESTService.deleteDetachedDocument(document.id) }
 
             Then("the exception from OpenZaak is rethrown") {
                 exception.zgwError.status shouldBe 400
@@ -146,7 +147,12 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         } returns mutableListOf(zaakInformatieObject)
 
         When("the delete endpoint is called with the id of that document") {
-            val exception = shouldThrow<IllegalStateException> { ontkoppeldeDocumentenRESTService.deleteDetachedDocument(document.id) }
+            val exception =
+                shouldThrow<IllegalStateException> {
+                    ontkoppeldeDocumentenRESTService.deleteDetachedDocument(
+                        document.id
+                    )
+                }
 
             Then("the an IllegalStateException should be thrown") {
                 exception shouldNotBe null

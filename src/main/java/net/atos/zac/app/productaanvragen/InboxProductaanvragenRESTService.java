@@ -60,7 +60,9 @@ public class InboxProductaanvragenRESTService {
 
     @PUT
     @Path("")
-    public RESTResultaat<RESTInboxProductaanvraag> listInboxProductaanvragen(final RESTInboxProductaanvraagListParameters restListParameters) {
+    public RESTResultaat<RESTInboxProductaanvraag> listInboxProductaanvragen(
+            final RESTInboxProductaanvraagListParameters restListParameters
+    ) {
         assertPolicy(policyService.readWerklijstRechten().inbox());
         final InboxProductaanvraagListParameters listParameters = listParametersConverter.convert(restListParameters);
         final InboxProductaanvraagResultaat resultaat = inboxProductaanvraagService.list(listParameters);
