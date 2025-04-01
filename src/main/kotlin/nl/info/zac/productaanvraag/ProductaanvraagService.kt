@@ -87,22 +87,24 @@ class ProductaanvraagService @Inject constructor(
             "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
     }
 
-    @Suppress("TooGenericExceptionCaught")
     fun handleProductaanvraag(productaanvraagObjectUUID: UUID) {
-        try {
-            objectsClientService.readObject(productaanvraagObjectUUID).let {
-                if (isProductaanvraagDimpact(it)) {
-                    LOG.info { "Handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID" }
-                    handleProductaanvraagDimpact(it)
-                }
+        productaanvraagObjectUUID
+            .runCatching(objectsClientService::readObject)
+            .onFailure { LOG.fine("Unable to read object with UUID: $productaanvraagObjectUUID") }
+            .onSuccess { modelObject ->
+                modelObject
+                    .takeIf(::isProductaanvraagDimpact)
+                    ?.runCatching {
+                        LOG.info("Handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID")
+                        handleProductaanvraagDimpact(this)
+                    }?.onFailure {
+                        LOG.log(
+                            Level.WARNING,
+                            "Failed to handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID",
+                            it
+                        )
+                    }
             }
-        } catch (runtimeException: RuntimeException) {
-            LOG.log(
-                Level.WARNING,
-                "Failed to handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID",
-                runtimeException
-            )
-        }
     }
 
     fun getAanvraaggegevens(productaanvraagObject: ModelObject): Map<String, Any> =
