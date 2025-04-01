@@ -8,8 +8,8 @@ package net.atos.zac.signalering.model;
 import static net.atos.zac.signalering.model.SignaleringTarget.GROUP;
 import static net.atos.zac.signalering.model.SignaleringTarget.USER;
 
-import net.atos.zac.identity.model.Group;
-import net.atos.zac.identity.model.User;
+import nl.info.zac.identity.model.Group;
+import nl.info.zac.identity.model.User;
 
 public class SignaleringInstellingenZoekParameters {
     private final SignaleringTarget ownertype;

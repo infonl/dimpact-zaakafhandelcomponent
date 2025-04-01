@@ -12,7 +12,6 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.documentcreation.model.createData
 import nl.info.client.smartdocuments.SmartDocumentsClient
 import nl.info.client.smartdocuments.model.createAttendedResponse
 import nl.info.client.smartdocuments.model.createSmartDocument
@@ -22,6 +21,7 @@ import nl.info.client.smartdocuments.model.document.Variables
 import nl.info.client.smartdocuments.rest.DownloadedFile
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.documentcreation.model.createData
 import nl.info.zac.util.toBase64String
 import java.net.URI
 import java.util.Optional

@@ -7,7 +7,7 @@ package net.atos.zac.productaanvraag.model;
 
 import java.util.List;
 
-import net.atos.zac.shared.model.Resultaat;
+import nl.info.zac.shared.model.Resultaat;
 
 public class InboxProductaanvraagResultaat extends Resultaat<InboxProductaanvraag> {
 

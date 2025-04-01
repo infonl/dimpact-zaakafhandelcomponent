@@ -5,7 +5,7 @@
 
 package net.atos.client.util;
 
-import static net.atos.zac.identity.model.UserKt.getFullName;
+import static nl.info.zac.identity.model.UserKt.getFullName;
 
 import java.util.Date;
 import java.util.HashMap;

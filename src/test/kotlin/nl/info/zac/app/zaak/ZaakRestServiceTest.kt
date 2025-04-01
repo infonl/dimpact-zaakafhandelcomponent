@@ -49,14 +49,6 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.healthcheck.HealthCheckService
-import net.atos.zac.healthcheck.createZaaktypeInrichtingscheck
-import net.atos.zac.history.ZaakHistoryService
-import net.atos.zac.history.converter.ZaakHistoryLineConverter
-import net.atos.zac.identity.IdentityService
-import net.atos.zac.identity.exception.UserNotInGroupException
-import net.atos.zac.identity.model.createGroup
-import net.atos.zac.identity.model.createUser
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createOverigeRechtenAllDeny
@@ -64,10 +56,6 @@ import net.atos.zac.policy.output.createWerklijstRechten
 import net.atos.zac.policy.output.createZaakRechten
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
-import net.atos.zac.search.IndexingService
-import net.atos.zac.search.model.zoekobject.ZoekObjectType
-import net.atos.zac.shared.helper.SuspensionZaakHelper
-import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -117,8 +105,20 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
+import nl.info.zac.healthcheck.HealthCheckService
+import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
+import nl.info.zac.history.ZaakHistoryService
+import nl.info.zac.history.converter.ZaakHistoryLineConverter
+import nl.info.zac.identity.IdentityService
+import nl.info.zac.identity.exception.UserNotInGroupException
+import nl.info.zac.identity.model.createGroup
+import nl.info.zac.identity.model.createUser
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.productaanvraag.createProductaanvraagDimpact
+import nl.info.zac.search.IndexingService
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.shared.helper.SuspensionZaakHelper
+import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.test.date.toDate
 import nl.info.zac.zaak.ZaakService
 import org.apache.http.HttpStatus
@@ -128,7 +128,6 @@ import java.io.InputStream
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.text.get
 
 @Suppress("LongParameterList", "LargeClass")
 class ZaakRestServiceTest : BehaviorSpec({

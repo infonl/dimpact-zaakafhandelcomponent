@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.search.model
 
-import net.atos.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
 
 data class RestZaakKoppelenZoekObject(
     override val id: String? = null,

@@ -12,7 +12,7 @@ import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
-import net.atos.zac.documentcreation.DocumentCreationService
+import nl.info.zac.documentcreation.DocumentCreationService
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import nl.info.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroup

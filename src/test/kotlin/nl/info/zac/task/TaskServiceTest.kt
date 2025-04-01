@@ -24,12 +24,12 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
-import net.atos.zac.search.IndexingService
-import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import net.atos.zac.signalering.event.SignaleringEvent
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.search.IndexingService
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import org.flowable.task.api.Task
 
 class TaskServiceTest : BehaviorSpec({
