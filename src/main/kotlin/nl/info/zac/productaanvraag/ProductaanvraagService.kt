@@ -205,18 +205,17 @@ class ProductaanvraagService @Inject constructor(
                 if (initiatorAdded) {
                     LOG.warning(
                         "Multiple initiator betrokkenen found in productaanvraag for zaak '$zaak'. " +
-                                "Only the first one will be used."
+                            "Only the first one will be used."
                     )
                 } else {
                     addBetrokkene(betrokkene, ROLTYPE_OMSCHRIJVING_INITIATOR, zaak)
                 }
                 return true
             }
-
             ROLTYPE_OMSCHRIJVING_BEHANDELAAR -> {
                 LOG.warning(
                     "Betrokkene with role 'Behandelaar' is not supported in the mapping from a productaanvraag. " +
-                            "No betrokkene role created for zaak '$zaak'."
+                        "No betrokkene role created for zaak '$zaak'."
                 )
             }
 
@@ -237,43 +236,36 @@ class ProductaanvraagService @Inject constructor(
             Betrokkene.RolOmschrijvingGeneriek.ADVISEUR -> {
                 addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.ADVISEUR, zaak)
             }
-
             Betrokkene.RolOmschrijvingGeneriek.BELANGHEBBENDE -> {
                 addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.BELANGHEBBENDE, zaak)
             }
-
             Betrokkene.RolOmschrijvingGeneriek.BESLISSER -> {
                 addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.BESLISSER, zaak)
             }
-
             Betrokkene.RolOmschrijvingGeneriek.INITIATOR -> {
                 if (initiatorAdded) {
                     LOG.warning(
                         "Multiple initiator betrokkenen found in productaanvraag for zaak '$zaak'. " +
-                                "Only the first one will be used."
+                            "Only the first one will be used."
                     )
                 } else {
                     addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.INITIATOR, zaak)
                 }
                 return true
             }
-
             Betrokkene.RolOmschrijvingGeneriek.KLANTCONTACTER -> {
                 addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.KLANTCONTACTER, zaak)
             }
-
             Betrokkene.RolOmschrijvingGeneriek.MEDE_INITIATOR -> {
                 addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.MEDE_INITIATOR, zaak)
             }
-
             Betrokkene.RolOmschrijvingGeneriek.ZAAKCOORDINATOR -> {
                 addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.ZAAKCOORDINATOR, zaak)
             }
-
             else -> {
                 LOG.warning(
                     "Betrokkene with generic role '${betrokkene.rolOmschrijvingGeneriek}' is not supported in the " +
-                            "mapping from a productaanvraag. No role created for zaak '$zaak'."
+                        "mapping from a productaanvraag. No role created for zaak '$zaak'."
                 )
             }
         }
@@ -300,7 +292,7 @@ class ProductaanvraagService @Inject constructor(
             .firstOrNull()?.let { addRoles(betrokkene, it, zaak, roltypeOmschrijving) }
             ?: LOG.warning(
                 "Betrokkene with role '$roltypeOmschrijving' is not supported in the mapping from a " +
-                        "productaanvraag. No betrokkene role created for zaak '$zaak'."
+                    "productaanvraag. No betrokkene role created for zaak '$zaak'."
             )
     }
 
@@ -314,13 +306,12 @@ class ProductaanvraagService @Inject constructor(
         when {
             types.isEmpty() -> LOG.warning(
                 "No roltypen found for zaaktype '${zaak.zaaktype}' and ${prefix}roltype description " +
-                        "'$roltypeOmschrijving'. No betrokkene role created for zaak '$zaak'."
+                    "'$roltypeOmschrijving'. No betrokkene role created for zaak '$zaak'."
             )
-
             types.size > 1 -> LOG.warning(
                 "Multiple ${prefix}roltypen found for zaaktype '${zaak.zaaktype}', ${prefix}roltype description " +
-                        "'$roltypeOmschrijving' and zaak '$zaak'. " +
-                        "Using the first one (description: '${types.first().omschrijving}')."
+                    "'$roltypeOmschrijving' and zaak '$zaak'. " +
+                    "Using the first one (description: '${types.first().omschrijving}')."
             )
         }
     }
@@ -341,7 +332,6 @@ class ProductaanvraagService @Inject constructor(
                     zaak.url
                 )
             }
-
             betrokkene.vestigingsNummer != null -> {
                 addVestigingRole(
                     type,
@@ -349,11 +339,10 @@ class ProductaanvraagService @Inject constructor(
                     zaak.url
                 )
             }
-
             else -> {
                 LOG.warning(
                     "Betrokkene with ${prefix}roletype description `$roltypeOmschrijving` does not contain a BSN " +
-                            "or KVK vestigingsnummer. No betrokkene role created for zaak '$zaak'."
+                        "or KVK vestigingsnummer. No betrokkene role created for zaak '$zaak'."
                 )
             }
         }
@@ -439,17 +428,16 @@ class ProductaanvraagService @Inject constructor(
     private fun handleProductaanvraagDimpact(productaanvraagObject: ModelObject) {
         LOG.fine { "Start handling productaanvraag with object URL: ${productaanvraagObject.url}" }
         val productaanvraag = getProductaanvraag(productaanvraagObject)
-        val zaakafhandelparameters =
-            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
-                productaanvraag.type
-            )
+        val zaakafhandelparameters = zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+            productaanvraag.type
+        )
         if (zaakafhandelparameters.isNotEmpty()) {
             try {
                 if (zaakafhandelparameters.size > 1) {
                     LOG.warning(
                         "Multiple zaakafhandelparameters found for productaanvraag type '${productaanvraag.type}'. " +
-                                "Using the first one with zaaktype UUID: '${zaakafhandelparameters.first().zaakTypeUUID}' " +
-                                "and zaaktype omschrijving: '${zaakafhandelparameters.first().zaaktypeOmschrijving}'."
+                            "Using the first one with zaaktype UUID: '${zaakafhandelparameters.first().zaakTypeUUID}' " +
+                            "and zaaktype omschrijving: '${zaakafhandelparameters.first().zaaktypeOmschrijving}'."
                     )
                 }
                 val firstZaakafhandelparameters = zaakafhandelparameters.first()
@@ -478,8 +466,8 @@ class ProductaanvraagService @Inject constructor(
     private fun isProductaanvraagDimpact(productaanvraagObject: ModelObject) =
         productaanvraagObject.record.data.let {
             it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_BRON) &&
-                    it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_TYPE) &&
-                    it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS)
+                it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_TYPE) &&
+                it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS)
         }
 
     private fun pairProductaanvraagInfoWithZaak(
@@ -551,9 +539,9 @@ class ProductaanvraagService @Inject constructor(
 
     private fun generateZaakExplanationFromProductaanvraag(productaanvraag: ProductaanvraagDimpact): String =
         (
-                "Aangemaakt vanuit ${productaanvraag.bron.naam} met kenmerk '${productaanvraag.bron.kenmerk}'." +
-                        (productaanvraag.zaakgegevens?.toelichting?.let { " $it" } ?: "")
-                )
+            "Aangemaakt vanuit ${productaanvraag.bron.naam} met kenmerk '${productaanvraag.bron.kenmerk}'." +
+                (productaanvraag.zaakgegevens?.toelichting?.let { " $it" } ?: "")
+            )
             // truncate to maximum length allowed by the ZGW APIs
             .take(TOELICHTING_MAX_LENGTH)
 
