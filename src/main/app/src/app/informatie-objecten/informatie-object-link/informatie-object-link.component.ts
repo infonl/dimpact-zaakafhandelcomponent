@@ -52,12 +52,8 @@ export class InformatieObjectLinkComponent
   isValid: boolean = false;
   loading: boolean = false;
 
-  documentAction: DocumentAction =
-    this.actionLabel === DocumentAction.LINK
-      ? DocumentAction.LINK
-      : DocumentAction.MOVE;
-  rowIcon: string =
-    this.documentAction === DocumentAction.LINK ? "link" : "move_item";
+  documentAction: DocumentAction;
+  rowIcon: string;
 
   cases = new MatTableDataSource<GeneratedType<"RestZaakKoppelenZoekObject">>();
   totalCases: number = 0;
@@ -90,6 +86,14 @@ export class InformatieObjectLinkComponent
       .subscribe((value) => {
         this.isValid = value?.length >= 2;
       });
+
+    this.documentAction =
+      this.actionLabel === DocumentAction.LINK
+        ? DocumentAction.LINK
+        : DocumentAction.MOVE;
+
+    this.rowIcon =
+      this.documentAction === DocumentAction.LINK ? "link" : "move_item";
   }
 
   ngOnChanges(changes: SimpleChanges) {
