@@ -2,14 +2,15 @@
  * SPDX-FileCopyrightText: 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.informatieobjecten
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
@@ -22,6 +23,7 @@ import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeCon
 import net.atos.zac.app.informatieobjecten.converter.RestZaakInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
 import net.atos.zac.app.informatieobjecten.model.createRESTInformatieobjectZoekParameters
+import net.atos.zac.app.informatieobjecten.model.createRestDocumentVerzendGegevens
 import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
 import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
 import net.atos.zac.documenten.InboxDocumentenService
@@ -37,6 +39,7 @@ import net.atos.zac.webdav.WebdavHelper
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRequest
+import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobject
 import nl.info.client.zgw.shared.ZGWApiService
@@ -508,6 +511,78 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                         vertrouwelijkheidaanduiding shouldBe "BEPERKT_OPENBAAR"
                         concept shouldBe false
                     }
+                }
+            }
+        }
+    }
+    Given(
+        """
+            Valid REST document verzend gegevens with multiple informatieobjecten each with
+            a status 'DEFINITIEF' and a vertrouwelijkheidaanduiding not equal to 'CONFIDENTIEEL', 
+            'GEHEIM' or 'ZEER_GEHEIM' and without an ontvangstdatum and with formaat PDF           
+        """
+    ) {
+        val zaakUuid = UUID.randomUUID()
+        val zaak = createZaak(uuid = zaakUuid)
+        val enkelvoudigInformatieObjectUuids = listOf(UUID.randomUUID(), UUID.randomUUID())
+        val restDocumentVerzendGegevens = createRestDocumentVerzendGegevens(
+            zaakUuid = zaakUuid,
+            informatieobjecten = enkelvoudigInformatieObjectUuids
+        )
+        val enkelvoudigeInformatieobjecten = listOf(
+            createEnkelvoudigInformatieObject(
+                status = StatusEnum.DEFINITIEF,
+                vertrouwelijkheidaanduiding = nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum.OPENBAAR,
+                ontvangstdatum = null,
+                formaat = "application/pdf"
+            ),
+            createEnkelvoudigInformatieObject(
+                status = StatusEnum.DEFINITIEF,
+                vertrouwelijkheidaanduiding = nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum.ZAAKVERTROUWELIJK,
+                ontvangstdatum = null,
+                formaat = "application/pdf"
+            )
+        )
+        enkelvoudigInformatieObjectUuids.forEachIndexed { index, informatieObjectUuid ->
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(informatieObjectUuid)
+            } returns enkelvoudigeInformatieobjecten[index]
+        }
+        every { zrcClientService.readZaak(zaakUuid) } returns zaak
+        every { policyService.readZaakRechten(zaak).wijzigen } returns true
+        every {
+            enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(any(), any(), any())
+        } just Runs
+
+        When("sendDocument is called") {
+            enkelvoudigInformatieObjectRestService.sendDocument(restDocumentVerzendGegevens)
+
+            Then("all informatieobjecten are sent") {
+                verify(exactly = 2) {
+                    enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(any(), any(), any())
+                }
+            }
+        }
+    }
+    Given("Valid gegevens with an informatieobject that cannot be sent") {
+        val zaakUuid = UUID.randomUUID()
+        val zaak = createZaak(uuid = zaakUuid)
+        val enkelvoudigInformatieObjectUuids = listOf(UUID.randomUUID())
+        val restDocumentVerzendGegevens = createRestDocumentVerzendGegevens(
+            zaakUuid = zaakUuid,
+            informatieobjecten = enkelvoudigInformatieObjectUuids
+        )
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        every {
+            drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieObjectUuids[0])
+        } returns enkelvoudigInformatieObject
+        every { zrcClientService.readZaak(zaakUuid) } returns zaak
+        every { policyService.readZaakRechten(zaak).wijzigen } returns false
+
+        When("sendDocument is called") {
+            Then("an exception is thrown") {
+                shouldThrow<PolicyException> {
+                    enkelvoudigInformatieObjectRestService.sendDocument(restDocumentVerzendGegevens)
                 }
             }
         }

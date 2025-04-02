@@ -8,6 +8,7 @@ package net.atos.zac.app.klant
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.klant.KlantClientService
@@ -39,6 +40,10 @@ class KlantRestServiceTest : BehaviorSpec({
         ztcClientService,
         klantClientService
     )
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given(
         """

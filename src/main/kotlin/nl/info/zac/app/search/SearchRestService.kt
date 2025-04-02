@@ -50,7 +50,7 @@ class SearchRestService @Inject constructor(
 ) {
     @PUT
     @Path("list")
-    fun list(restZoekParameters: RestZoekParameters): RestZoekResultaat<out AbstractRestZoekObject?> {
+    fun listSearchResults(restZoekParameters: RestZoekParameters): RestZoekResultaat<out AbstractRestZoekObject> {
         when (restZoekParameters.type) {
             ZoekObjectType.ZAAK, ZoekObjectType.TAAK -> PolicyService.assertPolicy(
                 policyService.readWerklijstRechten().zakenTaken

@@ -532,7 +532,7 @@ class ZaakRestService @Inject constructor(
 
     @PATCH
     @Path("toekennen")
-    fun assign(@Valid toekennenGegevens: RestZaakAssignmentData): RestZaak {
+    fun assignZaak(@Valid toekennenGegevens: RestZaakAssignmentData): RestZaak {
         val zaak = zrcClientService.readZaak(toekennenGegevens.zaakUUID).also {
             assertPolicy(policyService.readZaakRechten(it).toekennen)
         }
@@ -569,7 +569,7 @@ class ZaakRestService @Inject constructor(
 
     @PUT
     @Path("lijst/toekennen/mij")
-    fun assignToLoggedInUserFromList(
+    fun assignZaakToLoggedInUserFromList(
         @Valid restZaakAssignmentToLoggedInUserData: RestZaakAssignmentToLoggedInUserData
     ): RestZaakOverzicht {
         assertPolicy(policyService.readWerklijstRechten().zakenTaken)
@@ -613,7 +613,7 @@ class ZaakRestService @Inject constructor(
      */
     @PUT
     @Path("lijst/vrijgeven")
-    fun releaseFromList(@Valid restZakenVrijgevenGegevens: RESTZakenVrijgevenGegevens) {
+    fun releaseZakenFromList(@Valid restZakenVrijgevenGegevens: RESTZakenVrijgevenGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
         CoroutineScope(dispatcher).launch {
@@ -627,7 +627,7 @@ class ZaakRestService @Inject constructor(
 
     @PATCH
     @Path("/zaak/{uuid}/afbreken")
-    fun afbreken(
+    fun terminateZaak(
         @PathParam("uuid") zaakUUID: UUID,
         afbrekenGegevens: RESTZaakAfbrekenGegevens
     ) {
@@ -647,11 +647,11 @@ class ZaakRestService @Inject constructor(
         )
         if (afbrekenGegevens.zaakbeeindigRedenId == INADMISSIBLE_TERMINATION_ID) {
             // Use the hardcoded "niet ontvankelijk" zaakbeeindigreden that we don't manage via ZaakafhandelParameters
-            zaakAfbreken(zaak, zaakafhandelParameters.nietOntvankelijkResultaattype, INADMISSIBLE_TERMINATION_REASON)
+            terminateZaak(zaak, zaakafhandelParameters.nietOntvankelijkResultaattype, INADMISSIBLE_TERMINATION_REASON)
         } else {
             afbrekenGegevens.zaakbeeindigRedenId.toLong().let { zaakbeeindigRedenId ->
                 zaakafhandelParameters.readZaakbeeindigParameter(zaakbeeindigRedenId).let {
-                    zaakAfbreken(zaak, it.resultaattype, it.zaakbeeindigReden.naam)
+                    terminateZaak(zaak, it.resultaattype, it.zaakbeeindigReden.naam)
                 }
             }
         }
@@ -660,7 +660,7 @@ class ZaakRestService @Inject constructor(
         cmmnService.terminateCase(zaakUUID)
     }
 
-    private fun zaakAfbreken(
+    private fun terminateZaak(
         zaak: Zaak,
         resultaattype: UUID,
         zaakbeeindigRedenNaam: String
@@ -671,7 +671,7 @@ class ZaakRestService @Inject constructor(
 
     @PATCH
     @Path("/zaak/{uuid}/heropenen")
-    fun heropenen(
+    fun reopenZaak(
         @PathParam("uuid") zaakUUID: UUID?,
         heropenenGegevens: RESTZaakHeropenenGegevens
     ) {
@@ -689,7 +689,7 @@ class ZaakRestService @Inject constructor(
 
     @PATCH
     @Path("/zaak/{uuid}/afsluiten")
-    fun afsluiten(
+    fun closeZaak(
         @PathParam("uuid") zaakUUID: UUID,
         afsluitenGegevens: RESTZaakAfsluitenGegevens
     ) {
@@ -706,7 +706,7 @@ class ZaakRestService @Inject constructor(
 
     @PATCH
     @Path("/zaak/koppel")
-    fun koppelZaak(restZaakLinkData: RestZaakLinkData) {
+    fun linkZaak(restZaakLinkData: RestZaakLinkData) {
         val zaak = zrcClientService.readZaak(restZaakLinkData.zaakUuid)
         val zaakToLinkTo = zrcClientService.readZaak(restZaakLinkData.teKoppelenZaakUuid)
         assertPolicy(zaak.isOpen == zaakToLinkTo.isOpen)
@@ -732,7 +732,7 @@ class ZaakRestService @Inject constructor(
 
     @PATCH
     @Path("/zaak/ontkoppel")
-    fun ontkoppelZaak(restZaakUnlinkData: RestZaakUnlinkData) {
+    fun unlinkZaak(restZaakUnlinkData: RestZaakUnlinkData) {
         val zaak = zrcClientService.readZaak(restZaakUnlinkData.zaakUuid)
         val linkedZaak = zrcClientService.readZaakByID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
         assertPolicy(policyService.readZaakRechten(zaak).wijzigen)
@@ -764,7 +764,7 @@ class ZaakRestService @Inject constructor(
 
     @PUT
     @Path("toekennen/mij")
-    fun toekennenAanIngelogdeMedewerker(
+    fun assignZaakToLoggedInUser(
         @Valid restZaakAssignmentToLoggedInUserData: RestZaakAssignmentToLoggedInUserData
     ): RestZaak = assignLoggedInUserToZaak(
         zaakUUID = restZaakAssignmentToLoggedInUserData.zaakUUID,
@@ -773,7 +773,7 @@ class ZaakRestService @Inject constructor(
 
     @GET
     @Path("zaak/{uuid}/historie")
-    fun listHistory(@PathParam("uuid") zaakUUID: UUID): List<HistoryLine> {
+    fun listZaakHistory(@PathParam("uuid") zaakUUID: UUID): List<HistoryLine> {
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen)
         return zaakHistoryService.getZaakHistory(zaakUUID)
     }
@@ -904,10 +904,12 @@ class ZaakRestService @Inject constructor(
 
     @GET
     @Path("resultaattypes/{zaaktypeUUID}")
-    fun listResultaattypes(
+    fun listResultaattypesForZaaktype(
         @PathParam("zaaktypeUUID") zaaktypeUUID: UUID
     ): List<RestResultaattype> {
-        assertPolicy(policyService.readWerklijstRechten().zakenTaken)
+        assertPolicy(
+            policyService.readWerklijstRechten().zakenTaken || policyService.readOverigeRechten().beheren
+        )
         return ztcClientService.readResultaattypen(
             ztcClientService.readZaaktype(zaaktypeUUID).url
         ).toRestResultaatTypes()
