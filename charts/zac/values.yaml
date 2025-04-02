@@ -255,6 +255,13 @@ tolerations: []
 # -- set affinity parameters
 affinity: {}
 
+# -- set initContainer parameters
+initContainer:
+  enabled: true
+  image:
+    repository: curlimages/curl
+    tag: 8.12.1
+
 # opa provision the opa deployment, prefilled resources values are the minimum recommended
 opa:
   enabled: true

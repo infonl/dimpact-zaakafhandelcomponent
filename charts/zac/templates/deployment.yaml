@@ -86,14 +86,16 @@ spec:
           {{- end }}
       {{- if .Values.opa.enabled }}
       {{- if not .Values.opa.sidecar }}
+      {{- if .Values.initContainer.enabled }}
       initContainers:
       - name: check-opa-ready
-        image: curlimages/curl:latest
+        image: {{ .Values.initContainer.image.repository }}:{{ .Values.initContainer.image.tag }}
         {{- if .Values.opa.url }}
         command: ['sh','-c','until curl {{ .Values.opa.url }};do echo waiting for opa;sleep 5;done;']
         {{- else }}
         command: ['sh','-c','until curl http://{{ include "zaakafhandelcomponent.opa.fullname" . }}:{{ .Values.opa.service.port }};do echo waiting for opa;sleep 5;done;']
         {{- end }}
+      {{- end }}
       {{- end }}
       {{- end }}
       {{- with .Values.nodeSelector }}
