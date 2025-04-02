@@ -39,10 +39,12 @@ C4Context
     Rel(Employee, ZAC, "Handles cases")
 
     Rel(OpenFormulieren, OpenNotificaties, "Uses", "ZGW Notificaties API")
-    Rel(OpenArchiefbeheer, OpenNotificaties, "Uses", "ZGW Notificaties API")
     Rel(OpenKlant, OpenNotificaties, "Uses", "ZGW Notificaties API")
     Rel(Objecten, OpenNotificaties, "Uses", "ZGW Notificaties API")
     Rel(OpenZaak, OpenNotificaties, "Uses", "ZGW Notificaties API")
+
+    Rel(OpenArchiefbeheer, OpenZaak, "Uses", "ZGW Documenten en Zaken API")
+
     Rel(OpenNotificaties, ZAC, "Uses", "ZGW Notificatie API for consumers")
 
     Rel(ZAC, OfficeConverter, "Uses", "OfficeConverter API")
@@ -59,7 +61,7 @@ C4Context
     Rel(ZAC, SmartDocuments, "Uses", "SmartDocuments API")
     Rel(ZAC, SMTPServer, "Uses", "SMTP Mail Server")
 
-    Rel(SmartDocuments, OpenZaak, "Uses", "ZGW Documenten en Zaken API")
+    Rel(SmartDocuments, ZAC, "Uses", "ZAC SmartDocuments Callback API")
 
     UpdateElementStyle(ZAC, $bgColor="red", $borderColor="red")
     UpdateElementStyle(BAG, $bgColor="grey", $borderColor="grey")
@@ -92,7 +94,7 @@ The following components are part of the broader context of ZAC (='PodiumD Zaak'
 | [Open Klant](https://github.com/maykinmedia/open-klant)                    | Manages 'customers' (= citizens in our context) and customer 'contact moments'. Implements both the ZWG Klantinteracties and Contactgegevens APIs. | Retrieve customer or company data and customer contact data (e.g. email address) of a citizen or company linked to a zaak. | <ul><li>[Klanten API](../../src/main/resources/api-specs/klanten/klanten-openapi.yaml)</li></ul>                                                                                                                                                                                                                                          |
 | [Open Notificaties](https://github.com/open-zaak/open-notificaties)        | The central messaging / system notification component. Implements the ZWG Notificaties APIs.                                                       | ZAC needs to get notified of changes in related to zaken from various other components.                                    | <ul><li>[Notificaties API for consumers](https://vng-realisatie.github.io/gemma-zaken/standaard/notificaties-consumer/)</li></ul>                                                                                                                                                                                                         |
 | [Open Zaak](https://github.com/open-zaak/open-zaak)                        | Manages zaken, zaaktypes, and all related items. Also stores documents.                                                                            | Used by ZAC to store and retrieve zaken, documents and related data.                                                       | <ul><li>[Besluiten API](../../src/main/resources/api-specs/zgw/brc-openapi.yaml)</li><li>[Documenten API](../../src/main/resources/api-specs/zgw/drc-openapi.yaml)</li><li>[Zaken API](../../src/main/resources/api-specs/zgw/zrc-openapi.yaml)</li><li>[Catalogi API](../../src/main/resources/api-specs/zgw/ztc-openapi.yaml)</li></ul> |
-| [Open Archiefbeheer](https://github.com/maykinmedia/open-archiefbeheer)    | Manages record destruction.                                                                                                                        | Will trigger record destruction via Notification.                                                                          |                                                                                                                                                                                                                                                                                                                                           |
+| [Open Archiefbeheer](https://github.com/maykinmedia/open-archiefbeheer)    | Manages archiving and record destruction.                                                                                                          | Will trigger record destruction in various registers, such as OpenZaak.                                                    |                                                                                                                                                                                                                                                                                                                                           |
 
 The 'APIs used' column indicates which APIs offered by the various components is used by ZAC to integrate with each component including which version of the API is used.
 Most APIs are defined using [OpenAPI](https://www.openapis.org/) definitions as part of the [Zaakgerichtwerken (ZGW) API specifications](https://vng-realisatie.github.io/gemma-zaken/standaard/).
