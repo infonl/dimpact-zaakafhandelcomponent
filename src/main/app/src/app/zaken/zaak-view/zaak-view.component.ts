@@ -89,7 +89,7 @@ export class ZaakViewComponent
   menu: MenuItem[];
   activeSideAction: string | null = null;
   teWijzigenBesluit: GeneratedType<"RestDecision">;
-  documentToMove: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
+  documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
   takenDataSource = new MatTableDataSource<ExpandableTableData<Taak>>();
   allTakenExpanded = false;
@@ -290,8 +290,6 @@ export class ZaakViewComponent
       }
     };
     this.historie.sort = this.historieSort;
-
-    this.zaakDocumentenComponent.updateDocumentList();
   }
 
   ngOnDestroy(): void {
@@ -1258,6 +1256,7 @@ export class ZaakViewComponent
 
   updateDocumentList(): void {
     this.zaakDocumentenComponent.updateDocumentList();
+    this.loadHistorie();
   }
 
   doIntrekking($event): void {

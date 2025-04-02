@@ -42,6 +42,14 @@
       [taak]="taak"
       (document)="updateTaakdocumenten($event)"
     ></zac-informatie-object-add>
+    <zac-informatie-object-link
+      *ngSwitchCase="'actie.document.verplaatsen'"
+      [actionLabel]="'actie.document.verplaatsen'"
+      [infoObject]="documentToMove"
+      [sideNav]="actionsSidenav"
+      [source]="zaak.identificatie"
+      (informationObjectLinked)="updateZaakDocumentList()"
+    ></zac-informatie-object-link>
   </mat-drawer>
   <mat-drawer-content>
     <div class="flex-row flex-wrap gap-10">
