@@ -11,10 +11,13 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.client.smartdocuments.model.createFile
+import nl.info.client.smartdocuments.model.document.Data
+import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobject
@@ -30,8 +33,10 @@ import nl.info.zac.identity.model.getFullName
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import java.net.URI
+import java.net.URLEncoder
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 class DocumentCreationServiceTest : BehaviorSpec({
@@ -57,14 +62,21 @@ class DocumentCreationServiceTest : BehaviorSpec({
     Given("Document creation data with a zaak and an information object type") {
         val zaakTypeUUID = UUID.randomUUID()
         val zaakTypeURI = URI("https://example.com/$zaakTypeUUID")
+        val zaak = createZaak(zaakTypeURI = zaakTypeURI)
+        val taskId = "dummyTaskId"
         val documentCreationData = createDocumentCreationDataAttended(
-            zaak = createZaak(zaakTypeURI = zaakTypeURI)
+            zaak = zaak,
+            taskId = taskId
         )
         val loggedInUser = createLoggedInUser()
         val data = createData()
         val documentCreationAttendedResponse = createDocumentCreationAttendedResponse()
         val fullName = "Full Name"
         val contextUrl = "https://example.com"
+        val templateGroupName = "dummyTemplateGroupName"
+        val templateName = "dummyTemplateName"
+        val dataSlot = slot<Data>()
+        val smartDocumentSlot = slot<SmartDocument>()
 
         every { loggedInUserInstance.get() } returns loggedInUser
         mockkStatic(User::getFullName)
@@ -76,13 +88,15 @@ class DocumentCreationServiceTest : BehaviorSpec({
                 documentCreationData.taskId
             )
         } returns data
-        every { smartDocumentsService.createDocumentAttended(any(), any()) } returns documentCreationAttendedResponse
+        every {
+            smartDocumentsService.createDocumentAttended(capture(dataSlot), capture(smartDocumentSlot))
+        } returns documentCreationAttendedResponse
         every {
             smartDocumentsTemplatesService.getTemplateGroupName(documentCreationData.templateGroupId)
-        } returns UUID.randomUUID().toString()
+        } returns templateGroupName
         every {
             smartDocumentsTemplatesService.getTemplateName(documentCreationData.templateId)
-        } returns UUID.randomUUID().toString()
+        } returns templateName
         every { configuratieService.readContextUrl() } returns contextUrl
 
         When("the 'create document attended' method is called") {
@@ -96,6 +110,26 @@ class DocumentCreationServiceTest : BehaviorSpec({
                 with(documentCreationResponse) {
                     redirectUrl shouldBe documentCreationAttendedResponse.redirectUrl
                     message shouldBe documentCreationAttendedResponse.message
+                }
+                with(smartDocumentSlot.captured) {
+                    selection.templateGroup shouldBe templateGroupName
+                    selection.template shouldBe templateName
+                    with(variables!!) {
+                        outputFormats.size shouldBe 1
+                        outputFormats[0].outputFormat shouldBe "docx"
+                        redirectMethod shouldBe "POST"
+                        redirectUrl shouldBe "$contextUrl/rest/document-creation/smartdocuments/callback" +
+                            "/zaak/${zaak.uuid}" +
+                            "/task/$taskId" +
+                            "?templateId=${URLEncoder.encode(documentCreationData.templateId, Charsets.UTF_8)}" +
+                            "&templateGroupId=${URLEncoder.encode(documentCreationData.templateGroupId, Charsets.UTF_8)}" +
+                            "&title=${URLEncoder.encode(documentCreationData.title, Charsets.UTF_8)}" +
+                            "&userName=${URLEncoder.encode(fullName, Charsets.UTF_8)}" +
+                            "&creationDate=${URLEncoder.encode(
+                                documentCreationData.creationDate.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
+                                Charsets.UTF_8
+                            )}"
+                    }
                 }
             }
         }

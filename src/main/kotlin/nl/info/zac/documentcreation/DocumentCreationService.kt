@@ -87,7 +87,11 @@ class DocumentCreationService @Inject constructor(
                 template = smartDocumentsTemplatesService.getTemplateName(creationDataUnattended.templateId)
             ),
             variables = Variables(
-                outputFormats = listOf(OutputFormat(MediaTypes.Application.MS_WORD_OPEN_XML.mediaType)),
+                // SmartDocuments use file extensions (without the leading `.`) instead of media types
+                // as the output format
+                outputFormats = listOf(
+                    OutputFormat(MediaTypes.Application.MS_WORD_OPEN_XML.extensions.first().drop(1))
+                ),
                 redirectMethod = REDIRECT_METHOD,
                 redirectUrl = documentCreationCallbackUrl(
                     creationDataUnattended.zaak.uuid,
