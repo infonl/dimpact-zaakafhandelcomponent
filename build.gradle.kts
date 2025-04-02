@@ -8,6 +8,8 @@ import com.github.gradle.node.npm.task.NpmTask
 import io.gitlab.arturbosch.detekt.Detekt
 import io.smallrye.openapi.api.OpenApiConfig.DuplicateOperationIdBehavior
 import io.smallrye.openapi.api.OpenApiConfig.OperationIdStrategy
+import org.gradle.api.plugins.JavaBasePlugin.BUILD_TASK_NAME
+import org.gradle.api.plugins.JavaBasePlugin.DOCUMENTATION_GROUP
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 import java.util.Locale
 
@@ -22,7 +24,6 @@ plugins {
     alias(libs.plugins.gradle.node)
     alias(libs.plugins.taskinfo)
     alias(libs.plugins.openapi)
-    alias(libs.plugins.swagger.generator)
     alias(libs.plugins.detekt)
     alias(libs.plugins.spotless)
     alias(libs.plugins.allopen)
