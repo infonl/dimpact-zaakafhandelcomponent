@@ -10,7 +10,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
@@ -28,8 +27,6 @@ import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter
 import nl.info.zac.documentcreation.model.createData
 import nl.info.zac.documentcreation.model.createDocumentCreationAttendedResponse
 import nl.info.zac.documentcreation.model.createDocumentCreationDataAttended
-import nl.info.zac.identity.model.User
-import nl.info.zac.identity.model.getFullName
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import java.net.URI
@@ -68,10 +65,12 @@ class DocumentCreationServiceTest : BehaviorSpec({
             zaak = zaak,
             taskId = taskId
         )
-        val loggedInUser = createLoggedInUser()
+        val userDisplayName = "dummyDisplayName"
+        val loggedInUser = createLoggedInUser(
+            displayName = userDisplayName
+        )
         val data = createData()
         val documentCreationAttendedResponse = createDocumentCreationAttendedResponse()
-        val fullName = "Full Name"
         val contextUrl = "https://example.com"
         val templateGroupName = "dummyTemplateGroupName"
         val templateName = "dummyTemplateName"
@@ -79,11 +78,9 @@ class DocumentCreationServiceTest : BehaviorSpec({
         val smartDocumentSlot = slot<SmartDocument>()
 
         every { loggedInUserInstance.get() } returns loggedInUser
-        mockkStatic(User::getFullName)
-        every { any<User>().getFullName() } returns fullName
         every {
             documentCreationDataConverter.createData(
-                loggedInUserInstance.get(),
+                loggedInUser,
                 documentCreationData.zaak,
                 documentCreationData.taskId
             )
@@ -124,7 +121,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
                             "?templateId=${URLEncoder.encode(documentCreationData.templateId, Charsets.UTF_8)}" +
                             "&templateGroupId=${URLEncoder.encode(documentCreationData.templateGroupId, Charsets.UTF_8)}" +
                             "&title=${URLEncoder.encode(documentCreationData.title, Charsets.UTF_8)}" +
-                            "&userName=${URLEncoder.encode(fullName, Charsets.UTF_8)}" +
+                            "&userName=${URLEncoder.encode(userDisplayName, Charsets.UTF_8)}" +
                             "&creationDate=${URLEncoder.encode(
                                 documentCreationData.creationDate.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
                                 Charsets.UTF_8

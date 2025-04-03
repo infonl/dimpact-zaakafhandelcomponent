@@ -12,7 +12,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
@@ -33,7 +32,6 @@ import net.atos.zac.app.shared.RestPageParameters
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.createTestTask
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.mailtemplates.model.createMailTemplate
 import net.atos.zac.signalering.model.Signalering
@@ -76,9 +74,6 @@ class SignaleringServiceTest : BehaviorSpec({
     val predicate = mockk<Predicate>()
     val order = mockk<Order>()
     val typedQuery = mockk<TypedQuery<Signalering>>()
-
-    mockkStatic(TaakVariabelenService::class)
-
     val signaleringService = SignaleringService(
         entityManager = entityManager,
         drcClientService = drcClientService,
