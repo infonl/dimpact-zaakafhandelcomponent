@@ -2,14 +2,18 @@
  * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package nl.info.zac.healthcheck.model
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 
 class ZaaktypeInrichtingscheckTest : BehaviorSpec({
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given("zaak type without one required status") {
         val zaaktypeInrichtingscheck = createZaaktypeInrichtingscheck(
