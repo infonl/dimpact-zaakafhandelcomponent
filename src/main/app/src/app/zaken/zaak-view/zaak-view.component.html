@@ -285,6 +285,35 @@
                     class="flex-item"
                   ></zac-static-text>
                 </div>
+                <div
+                  *ngIf="zaak.duurVerlenging || zaakOpschorting?.duurDagen"
+                  class="flex flex-row justify-start gap-10 remark"
+                >
+                  <div class="flex-col gap-5">
+                    <div
+                      class="flex-row items-center gap-5"
+                      *ngIf="zaakOpschorting?.duurDagen"
+                    >
+                      <mat-icon>pause</mat-icon>
+                      {{
+                        (zaakOpschorting?.duurDagen === 1
+                          ? "duurDagenOpschorting.enkelvoud"
+                          : "duurDagenOpschorting"
+                        ) | translate: { duur: zaakOpschorting?.duurDagen }
+                      }}
+                    </div>
+                    <div
+                      class="flex-row items-center gap-5"
+                      *ngIf="zaak.duurVerlenging"
+                    >
+                      <mat-icon>update</mat-icon>
+                      {{
+                        "duurVerlenging"
+                          | translate: { duur: zaak.duurVerlenging }
+                      }}
+                    </div>
+                  </div>
+                </div>
                 <div class="flex flex-row justify-start gap-10">
                   <zac-static-text
                     [label]="'vertrouwelijkheidaanduiding' | translate"
