@@ -486,8 +486,8 @@
       "clientRoles": {
         "zaakafhandelcomponent": [
           "domein_elk_zaaktype",
-          "behandelaar",
           "raadpleger",
+          "behandelaar",
           "coordinator",
           "recordmanager",
           "beheerder",
@@ -510,8 +510,8 @@
       "clientRoles": {
         "zaakafhandelcomponent": [
           "domein_elk_zaaktype",
-          "behandelaar",
           "raadpleger",
+          "behandelaar",
           "coordinator",
           "recordmanager",
           "beheerder",
@@ -534,8 +534,8 @@
       "clientRoles": {
         "zaakafhandelcomponent": [
           "domein_elk_zaaktype",
-          "behandelaar",
           "raadpleger",
+          "behandelaar",
           "coordinator",
           "recordmanager",
           "zaakafhandelcomponent_user"
@@ -557,8 +557,8 @@
       "clientRoles": {
         "zaakafhandelcomponent": [
           "domein_test_1",
-          "behandelaar",
           "raadpleger",
+          "behandelaar",
           "zaakafhandelcomponent_user"
         ]
       }
