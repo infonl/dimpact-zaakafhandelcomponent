@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2024 Lifely
 # SPDX-License-Identifier: EUPL-1.2+
 # 
-Feature: External Systems
+Feature: SmartDocuments
 
   Scenario: Employee wants to create a new document for a zaak Using the SmartDocuments wizard
     Given "Bob" is logged in to zac

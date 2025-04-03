@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2024 Lifely
 # SPDX-License-Identifier: EUPL-1.2+
 # 
-Feature: Persoon
+Feature: Personen
 
   Scenario: Bob wants to view a person
     Given "Bob" is logged in to zac
