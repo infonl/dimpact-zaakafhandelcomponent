@@ -9,6 +9,7 @@ package net.atos.zac.taak
 
 import data.net.atos.zac.rol.beheerder
 import data.net.atos.zac.rol.behandelaar
+import data.net.atos.zac.rol.raadpleger
 import data.net.atos.zac.rol.recordmanager
 import input.user
 import input.taak

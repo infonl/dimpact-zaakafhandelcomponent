@@ -10,6 +10,7 @@ package net.atos.zac.document
 import data.net.atos.zac.rol.behandelaar
 import data.net.atos.zac.rol.beheerder
 import data.net.atos.zac.rol.coordinator
+import data.net.atos.zac.rol.raadpleger
 import data.net.atos.zac.rol.recordmanager
 import input.user
 import input.document

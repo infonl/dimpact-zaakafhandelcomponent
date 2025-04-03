@@ -10,6 +10,7 @@ package net.atos.zac.overig
 import data.net.atos.zac.rol.behandelaar
 import data.net.atos.zac.rol.beheerder
 import data.net.atos.zac.rol.coordinator
+import data.net.atos.zac.rol.raadpleger
 import data.net.atos.zac.rol.recordmanager
 import input.user
 
