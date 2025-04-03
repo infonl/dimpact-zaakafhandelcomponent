@@ -5,7 +5,7 @@
 
 <div class="sidenav-title">
   <h3>
-    <mat-icon>link</mat-icon>
+    <mat-icon>{{ actionIcon }}</mat-icon>
     {{ actionLabel | translate }}
   </h3>
   <button mat-icon-button (click)="sideNav.close()">
@@ -73,7 +73,7 @@
             (click)="selectCase(row)"
           >
             <mat-icon [ngClass]="{ disabled: rowDisabled(row) }">{{
-              rowIcon
+              actionIcon
             }}</mat-icon>
           </button>
         </td>
