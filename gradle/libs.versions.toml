@@ -35,7 +35,7 @@ flyway = "11.5.0"
 apache-solr = "9.8.1"
 webdav-servlet = "1.2.144"
 htmlcleaner = "2.29"
-infinispan = "15.2.0.Final"
+infinispan = "15.2.1.Final"
 apache-httpclient = "4.5.14"
 reactive-streams = "1.0.4"
 
