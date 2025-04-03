@@ -42,7 +42,7 @@ inbox_productaanvragen_verwijderen if {
 
 default zaken_taken := false
 zaken_taken if {
-    behandelaar.rol in user_rollen
+    raadpleger.rol in user_rollen
 }
 
 default zaken_taken_verdelen := false

@@ -31,5 +31,5 @@ beheren if {
 
 default zoeken := false
 zoeken if {
-    behandelaar.rol in user.rollen
+    raadpleger.rol in user.rollen
 }

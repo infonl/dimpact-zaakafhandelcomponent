@@ -428,6 +428,14 @@
           "attributes": {}
         },
         {
+          "id": "66d9015c-aca0-4bc3-8059-402c475fdf51",
+          "name": "raadpleger",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
+          "attributes": {}
+        },
+        {
           "id": "a6cd8863-f81d-467b-931e-3495a14f3879",
           "name": "behandelaar",
           "composite": false,
@@ -479,6 +487,7 @@
         "zaakafhandelcomponent": [
           "domein_elk_zaaktype",
           "behandelaar",
+          "raadpleger",
           "coordinator",
           "recordmanager",
           "beheerder",
@@ -502,6 +511,7 @@
         "zaakafhandelcomponent": [
           "domein_elk_zaaktype",
           "behandelaar",
+          "raadpleger",
           "coordinator",
           "recordmanager",
           "beheerder",
@@ -525,6 +535,7 @@
         "zaakafhandelcomponent": [
           "domein_elk_zaaktype",
           "behandelaar",
+          "raadpleger",
           "coordinator",
           "recordmanager",
           "zaakafhandelcomponent_user"
@@ -547,6 +558,7 @@
         "zaakafhandelcomponent": [
           "domein_test_1",
           "behandelaar",
+          "raadpleger",
           "zaakafhandelcomponent_user"
         ]
       }

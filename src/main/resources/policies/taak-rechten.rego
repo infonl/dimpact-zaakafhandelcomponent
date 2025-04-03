@@ -31,7 +31,7 @@ zaaktype_allowed if {
 
 default lezen := false
 lezen if {
-    behandelaar.rol in user.rollen
+    raadpleger.rol in user.rollen
     zaaktype_allowed
 }
 

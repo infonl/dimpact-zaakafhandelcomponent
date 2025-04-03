@@ -44,7 +44,7 @@ test_beheren_with_wrong_role if {
 # zoeken
 ########
 test_zoeken_with_behandelaar_role if {
-    zoeken with input.user.rollen as [ "behandelaar" ]
+    zoeken with input.user.rollen as [ "raadpleger" ]
 }
 
 test_zoeken_with_unknown_role if {
