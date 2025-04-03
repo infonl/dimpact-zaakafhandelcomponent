@@ -3,7 +3,7 @@ A high-level component diagram of ZAC is shown below.
 
 ```mermaid
     C4Component
-    title Component diagram for Internet Banking System - API Application
+    title Component diagram Zaakafhandelcomponent (ZAC)
 
     Container(spa, "ZAC Frontend", "angular")
 
@@ -26,9 +26,12 @@ A high-level component diagram of ZAC is shown below.
         Component(opc, "Authorisation")
     }
 
-    ContainerDb(db, "ZAC Database")
-
+    Container_Boundary(dbb, "PostgreSQL") {
+        ContainerDb(db, "ZAC Database")
+    }
+    
     Rel(spa, filt, "Uses", "JSON/HTTPS")
     Rel(filt, kc, "Uses", "JSON/HTTPS")
     Rel(sign, opc, "Uses", "JSON/HTTPS")
+    Rel(app, db, "Uses", "JDBC")
 ```
