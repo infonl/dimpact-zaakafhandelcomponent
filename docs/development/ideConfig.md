@@ -53,9 +53,15 @@
 #### KVK integration
 The KVK integration of ZAC is based on the [KVK API](https://developers.kvk.nl/).
 By default, (depending on your environment variables; see below) ZAC integrates with the [KVK test environment](https://developers.kvk.nl/documentation/testing).
-If you run ZAC from IntelliJ this requires a number of certificates to be added to your local Java keystore.
+If you run ZAC from IntelliJ the [KVK certificates](../../certificates/kvk) need to be added to your local Java keystore.
 
 Please follow the instructions on: https://developers.kvk.nl/documentation/install-tls-certificate.
+
+#### SmartDocuments integration
+
+When running ZAC from IntelliJ, and if you wish to integrate with a real SmartDocuments environment 
+(using the SmartDocuments ZAC environment variables), you will need to add the 
+[SmartDocuments SSL certificate](../../certificates/smartdocuments) to your local Java keystore.
 
 #### Starting up ZAC
 
