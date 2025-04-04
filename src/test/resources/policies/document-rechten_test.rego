@@ -102,7 +102,7 @@ test_onvergrendeld_of_vergrendeld_door_user_vergrendeld_true_and_vergrendeld_doo
 #######
 test_lezen if {
     lezen
-        with input.user.rollen as ["behandelaar"]
+        with input.user.rollen as ["raadpleger"]
         with input.document.zaaktype as "type"
         with input.user.zaaktypen as ["firstType", "type"]
 }
@@ -612,7 +612,7 @@ test_ontkoppelen_wrong_role_fails if {
 ############
 test_downloaden if  {
     downloaden
-        with input.user.rollen as ["behandelaar"]
+        with input.user.rollen as ["raadpleger"]
 }
 
 test_ontkoppelen_missing_role_fails if {

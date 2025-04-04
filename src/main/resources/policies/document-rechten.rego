@@ -10,6 +10,7 @@ package net.atos.zac.document
 import data.net.atos.zac.rol.behandelaar
 import data.net.atos.zac.rol.beheerder
 import data.net.atos.zac.rol.coordinator
+import data.net.atos.zac.rol.raadpleger
 import data.net.atos.zac.rol.recordmanager
 import input.user
 import input.document
@@ -49,7 +50,7 @@ onvergrendeld_of_vergrendeld_door_user if {
 
 default lezen := false
 lezen if {
-    behandelaar.rol in user.rollen
+    raadpleger.rol in user.rollen
     zaaktype_allowed
 }
 
@@ -147,6 +148,6 @@ ontkoppelen if {
 
 default downloaden := false
 downloaden if {
-    behandelaar.rol in user.rollen
+    raadpleger.rol in user.rollen
     zaaktype_allowed
 }

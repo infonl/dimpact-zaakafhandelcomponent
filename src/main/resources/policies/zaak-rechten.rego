@@ -11,6 +11,7 @@ package net.atos.zac.zaak
 import data.net.atos.zac.rol.beheerder
 import data.net.atos.zac.rol.behandelaar
 import data.net.atos.zac.rol.coordinator
+import data.net.atos.zac.rol.raadpleger
 import data.net.atos.zac.rol.recordmanager
 import input.zaak
 import input.user
@@ -54,7 +55,7 @@ zaaktype_allowed if {
 
 default lezen := false
 lezen if {
-    behandelaar.rol in user.rollen
+    raadpleger.rol in user.rollen
     zaaktype_allowed
 }
 

@@ -60,7 +60,7 @@ test_zaaktype_allowed_zaak_zaaktype_not_in_user_zaaktypen_fails if {
 # lezen
 #######
 test_lezen if {
-    lezen with input.user.rollen as [ "behandelaar" ]
+    lezen with input.user.rollen as [ "raadpleger" ]
 }
 
 test_lezen_wrong_role_fails if {
