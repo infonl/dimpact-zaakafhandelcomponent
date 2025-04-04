@@ -5,8 +5,8 @@
 
 package net.atos.zac.mailtemplates.model;
 
-import net.atos.zac.mail.model.MailAdres;
 import net.atos.zac.mailtemplates.MailTemplateHelper;
+import nl.info.zac.mail.model.MailAdres;
 
 public class MailGegevens {
     private final MailAdres from;

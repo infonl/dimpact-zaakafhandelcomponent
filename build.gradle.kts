@@ -6,7 +6,10 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.github.gradle.node.npm.task.NpmTask
 import io.gitlab.arturbosch.detekt.Detekt
-import io.smallrye.openapi.api.OpenApiConfig
+import io.smallrye.openapi.api.OpenApiConfig.DuplicateOperationIdBehavior
+import io.smallrye.openapi.api.OpenApiConfig.OperationIdStrategy
+import org.gradle.api.plugins.JavaBasePlugin.BUILD_TASK_NAME
+import org.gradle.api.plugins.JavaBasePlugin.DOCUMENTATION_GROUP
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 import java.util.Locale
 
@@ -21,7 +24,6 @@ plugins {
     alias(libs.plugins.gradle.node)
     alias(libs.plugins.taskinfo)
     alias(libs.plugins.openapi)
-    alias(libs.plugins.swagger.generator)
     alias(libs.plugins.detekt)
     alias(libs.plugins.spotless)
     alias(libs.plugins.allopen)
@@ -144,8 +146,6 @@ dependencies {
         // and these transitive dependencies may cause conflicts with the RESTEasy version provided by WildFly
         exclude(group = "org.jboss.resteasy")
     }
-
-    swaggerUI(libs.swagger.ui)
 
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
     detektPlugins(libs.detekt.formatting)
@@ -276,14 +276,12 @@ node {
 smallryeOpenApi {
     infoTitle.set("Zaakafhandelcomponent backend API")
     schemaFilename.set("META-INF/openapi/openapi")
-    operationIdStrategy.set(OpenApiConfig.OperationIdStrategy.METHOD)
+    operationIdStrategy.set(OperationIdStrategy.METHOD)
+    // note that the duplicateOperationIdBehavior property is not yet working, but we add it
+    // anyway, hoping that the following issue will be resolved in a future version of the plugin:
+    // https://github.com/smallrye/smallrye-open-api/issues/2230
+    duplicateOperationIdBehavior.set(DuplicateOperationIdBehavior.FAIL)
     outputFileTypeFilter.set("YAML")
-}
-
-swaggerSources {
-    register("zaakafhandelcomponent") {
-        setInputFile(file("$rootDir/build/generated/openapi/META-INF/openapi/openapi.yaml"))
-    }
 }
 
 configure<SpotlessExtension> {
@@ -464,8 +462,6 @@ tasks {
     getByName("spotlessJson").mustRunAfter("npmRunLint")
     getByName("spotlessLess").mustRunAfter("npmRunLint")
 
-    getByName("generateSwaggerUIZaakafhandelcomponent").setDependsOn(listOf("generateOpenApiSpec"))
-
     getByName("compileItestKotlin") {
         dependsOn("copyJacocoAgentForItest")
         mustRunAfter("buildDockerImage")
@@ -511,7 +507,7 @@ tasks {
     // specify a specific non-overlapping output directory per task so that
     // Gradle can cache the outputs for these tasks.
     withType<GenerateTask> {
-        group = "build"
+        group = BUILD_TASK_NAME
         generatorName.set("java")
         generateApiTests.set(false)
         generateApiDocumentation.set(false)
@@ -615,11 +611,9 @@ tasks {
         description = "Generates Java client code for the DRC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/drc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/drc/java")
-
         // this OpenAPI spec contains a schema validation error: `schema: null`
         // so we disable the schema validation for this spec until this is fixed in a future version of this spec
         validateSpec.set(false)
-
         modelPackage.set("nl.info.client.zgw.drc.model.generated")
     }
 
@@ -795,6 +789,20 @@ tasks {
         inputs.file(wildflyResources.file("configure-wildfly.cli"))
         inputs.file(wildflyResources.file("deploy-zaakafhandelcomponent.cli"))
         outputs.dir(layout.projectDirectory.dir("target"))
+    }
+
+    register<Exec>("generateZacApiDocs") {
+        description = "Generate ZAC HTML API documentation from OpenAPI spec."
+        dependsOn("generateOpenApiSpec")
+        group = DOCUMENTATION_GROUP
+        commandLine(
+            "npx",
+            "@redocly/cli",
+            "build-docs",
+            file("$rootDir/build/generated/openapi/META-INF/openapi/openapi.yaml"),
+            "-o",
+            file("build/generated/zac-api-docs/index.html")
+        )
     }
 
     register<Maven>("cleanMaven") {

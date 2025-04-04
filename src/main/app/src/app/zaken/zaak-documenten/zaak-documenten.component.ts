@@ -30,7 +30,6 @@ import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
-import { InformatieObjectVerplaatsService } from "../../informatie-objecten/informatie-object-verplaats.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import {
   FileFormat,
@@ -99,7 +98,6 @@ export class ZaakDocumentenComponent
     private zakenService: ZakenService,
     private dialog: MatDialog,
     private translate: TranslateService,
-    private informatieObjectVerplaatsService: InformatieObjectVerplaatsService,
     private router: Router,
   ) {}
 
@@ -193,15 +191,6 @@ export class ZaakDocumentenComponent
       });
   }
 
-  documentVerplaatsen(
-    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
-  ): void {
-    this.informatieObjectVerplaatsService.addTeVerplaatsenDocument(
-      informatieobject,
-      this.zaak.identificatie,
-    );
-  }
-
   emitDocumentMove(
     row: GeneratedType<"RestEnkelvoudigInformatieobject">,
   ): void {
@@ -279,27 +268,6 @@ export class ZaakDocumentenComponent
             }
           });
       });
-  }
-
-  isDocumentVerplaatsenDisabled(
-    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
-  ): boolean {
-    return this.informatieObjectVerplaatsService.isReedsTeVerplaatsen(
-      informatieobject.uuid,
-    );
-  }
-
-  isOntkoppelenDisabled(
-    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject"> & {
-      loading?: boolean;
-    },
-  ): boolean {
-    return (
-      informatieobject["loading"] ||
-      this.informatieObjectVerplaatsService.isReedsTeVerplaatsen(
-        informatieobject.uuid,
-      )
-    );
   }
 
   isPreviewBeschikbaar(formaat: FileFormat): boolean {

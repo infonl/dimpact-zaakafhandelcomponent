@@ -11,7 +11,7 @@ import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.search.IndexingService
+import nl.info.zac.search.IndexingService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 

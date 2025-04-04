@@ -25,7 +25,7 @@
             "FixedValues": ""
           },
           "Variables": {
-            "OutputFormats": [ { "OutputFormat": "application/vnd.openxmlformats-officedocument.wordprocessingml.document" } ],
+            "OutputFormats": [ { "OutputFormat": "docx" } ],
             "RedirectMethod": "POST",
             "RedirectUrl": "${json-unit.any-string}"
           }

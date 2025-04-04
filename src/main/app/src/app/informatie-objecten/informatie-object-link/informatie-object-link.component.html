@@ -5,8 +5,8 @@
 
 <div class="sidenav-title">
   <h3>
-    <mat-icon>link</mat-icon>
-    {{ action | translate }}
+    <mat-icon>{{ actionIcon }}</mat-icon>
+    {{ actionLabel | translate }}
   </h3>
   <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
@@ -68,11 +68,13 @@
           <button
             mat-icon-button
             color="primary"
-            title="{{ 'actie.selecteren' | translate }}"
+            title="{{ actionLabel | translate }}"
             [disabled]="rowDisabled(row)"
             (click)="selectCase(row)"
           >
-            <mat-icon [ngClass]="{ disabled: rowDisabled(row) }">link</mat-icon>
+            <mat-icon [ngClass]="{ disabled: rowDisabled(row) }">{{
+              actionIcon
+            }}</mat-icon>
           </button>
         </td>
       </ng-container>
@@ -90,7 +92,8 @@
         foutmelding ? foutmelding : ("msg.geen.gegevens.gevonden" | translate)
       }}
     </p>
-    <p *ngIf="totalCases > 10 && !loading">
+    <p *ngIf="totalCases > 10 && !loading" class="feedback">
+      <mat-divider class="mat-divider-wrapper"></mat-divider>
       {{
         "Alleen de eerste 10 resultaten worden getoond. Scherp de zoekopdracht aan als het gewenste resultaat hier niet tussen staat."
           | translate

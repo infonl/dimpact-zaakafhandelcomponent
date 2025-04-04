@@ -5,8 +5,8 @@
 
 package net.atos.zac.productaanvraag.model;
 
-import net.atos.zac.search.model.DatumRange;
-import net.atos.zac.shared.model.ListParameters;
+import nl.info.zac.search.model.DatumRange;
+import nl.info.zac.shared.model.ListParameters;
 
 
 public class InboxProductaanvraagListParameters extends ListParameters {

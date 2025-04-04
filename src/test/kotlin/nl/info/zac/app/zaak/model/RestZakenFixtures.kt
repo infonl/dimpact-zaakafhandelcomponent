@@ -14,8 +14,8 @@ import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.policy.model.RestZaakRechten
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
-import net.atos.zac.search.model.ZaakIndicatie
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.zac.search.model.ZaakIndicatie
 import java.net.URI
 import java.time.LocalDate
 import java.util.EnumSet

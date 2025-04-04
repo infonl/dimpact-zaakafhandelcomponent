@@ -5,11 +5,11 @@
 
 package net.atos.zac.solr;
 
-import static net.atos.zac.search.IndexingService.SOLR_CORE;
 import static net.atos.zac.solr.FieldType.STRING;
 import static net.atos.zac.solr.SolrSchemaUpdateHelper.NAME;
 import static net.atos.zac.solr.SolrSchemaUpdateHelper.addField;
 import static net.atos.zac.solr.SolrSchemaUpdateHelper.deleteField;
+import static nl.info.zac.search.IndexingService.SOLR_CORE;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -38,8 +38,8 @@ import org.apache.solr.client.solrj.request.schema.SchemaRequest;
 import org.apache.solr.common.SolrException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import net.atos.zac.search.IndexingService;
-import net.atos.zac.search.model.zoekobject.ZoekObjectType;
+import nl.info.zac.search.IndexingService;
+import nl.info.zac.search.model.zoekobject.ZoekObjectType;
 
 @Singleton
 public class SolrDeployerService {

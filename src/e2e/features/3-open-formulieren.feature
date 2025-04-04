@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2024 Lifely
 # SPDX-License-Identifier: EUPL-1.2+
 # 
-Feature: Resident submits form in open-forms
+Feature: Open Formulieren
 
   @live-env-only
   Scenario: Resident fills in indienen-aansprakelijkheid-behandelen open-forms form

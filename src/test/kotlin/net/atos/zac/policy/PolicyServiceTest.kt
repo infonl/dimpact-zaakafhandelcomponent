@@ -15,16 +15,12 @@ import jakarta.enterprise.inject.Instance
 import net.atos.client.opa.model.RuleQuery
 import net.atos.client.opa.model.RuleResponse
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
-import net.atos.zac.enkelvoudiginformatieobject.model.createEnkelvoudigInformatieObjectLock
 import net.atos.zac.policy.input.DocumentInput
 import net.atos.zac.policy.input.UserInput
 import net.atos.zac.policy.input.ZaakInput
 import net.atos.zac.policy.output.createDocumentRechten
 import net.atos.zac.policy.output.createWerklijstRechten
 import net.atos.zac.policy.output.createZaakRechten
-import net.atos.zac.search.model.ZaakIndicatie
-import net.atos.zac.search.model.createZaakZoekObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.Ondertekening
 import nl.info.client.zgw.drc.model.generated.SoortEnum
@@ -37,6 +33,10 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.model.createEnkelvoudigInformatieObjectLock
+import nl.info.zac.search.model.ZaakIndicatie
+import nl.info.zac.search.model.createZaakZoekObject
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID

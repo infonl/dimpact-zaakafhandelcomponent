@@ -23,9 +23,6 @@ import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
 import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
 import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
 import net.atos.zac.app.task.model.createRestTaskDocumentData
-import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
-import net.atos.zac.identity.IdentityService
-import net.atos.zac.identity.model.getFullName
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.DocumentRechten
 import net.atos.zac.policy.output.createDocumentRechtenAllDeny
@@ -38,6 +35,9 @@ import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.identity.IdentityService
+import nl.info.zac.identity.model.getFullName
 import org.eclipse.jetty.http.HttpStatus
 import java.net.URI
 import java.time.LocalDate

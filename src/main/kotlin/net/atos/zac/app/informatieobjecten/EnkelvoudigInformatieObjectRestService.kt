@@ -30,8 +30,8 @@ import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeCon
 import net.atos.zac.app.informatieobjecten.converter.RestZaakInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerplaatsGegevens
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerwijderenGegevens
-import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerzendGegevens
 import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjectZoekParameters
+import net.atos.zac.app.informatieobjecten.model.RestDocumentVerzendGegevens
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject
@@ -39,10 +39,7 @@ import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype
 import net.atos.zac.app.informatieobjecten.model.RestZaakInformatieobject
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
-import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import net.atos.zac.event.EventingService
-import net.atos.zac.history.converter.ZaakHistoryLineConverter
-import net.atos.zac.history.model.HistoryLine
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.util.MediaTypes
@@ -59,6 +56,9 @@ import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.history.converter.ZaakHistoryLineConverter
+import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
@@ -116,7 +116,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     @GET
     @Path("informatieobject/versie/{uuid}/{version}")
-    fun readEnkelvoudigInformatieobject(
+    fun readEnkelvoudigInformatieobjectVersion(
         @PathParam("uuid") uuid: UUID,
         @PathParam("version") version: Int
     ): RestEnkelvoudigInformatieobject =
@@ -174,20 +174,17 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     @POST
     @Path("informatieobjecten/verzenden")
-    fun verzenden(gegevens: RESTDocumentVerzendGegevens) {
-        val informatieobjecten = gegevens.informatieobjecten
+    fun sendDocument(restDocumentVerzendGegevens: RestDocumentVerzendGegevens) {
+        val informatieobjecten = restDocumentVerzendGegevens.informatieobjecten
             .map(drcClientService::readEnkelvoudigInformatieobject)
-            .toList()
-        val zaak = zrcClientService.readZaak(gegevens.zaakUuid)
+        val zaak = zrcClientService.readZaak(restDocumentVerzendGegevens.zaakUuid)
         assertPolicy(policyService.readZaakRechten(zaak).wijzigen)
-        informatieobjecten.forEach {
-            assertPolicy(isVerzendenToegestaan(it))
-        }
+        informatieobjecten.forEach { assertPolicy(isVerzendenToegestaan(it)) }
         informatieobjecten.forEach {
             enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
                 it.url.extractUuid(),
-                gegevens.verzenddatum,
-                gegevens.toelichting
+                restDocumentVerzendGegevens.verzenddatum,
+                restDocumentVerzendGegevens.toelichting
             )
         }
     }
@@ -300,11 +297,6 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         return webdavHelper.createRedirectURL(uuid, uriInfo).let(Response::ok).build()
     }
 
-    @GET
-    @Path("/informatieobject/{uuid}/download")
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    fun readFile(@PathParam("uuid") uuid: UUID): Response = readFile(uuid, null)
-
     @DELETE
     @Path("/informatieobject/{uuid}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
@@ -331,23 +323,13 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @GET
     @Path("/informatieobject/{uuid}/{version}/download")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    fun readFile(@PathParam("uuid") uuid: UUID?, @PathParam("version") version: Int?): Response {
-        val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(uuid)
-        assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden)
-        try {
-            val inhoud = version?.let {
-                drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, it)
-            } ?: drcClientService.downloadEnkelvoudigInformatieobject(uuid)
-            return Response.ok(inhoud)
-                .header(
-                    "Content-Disposition",
-                    """attachment; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
-                )
-                .build()
-        } catch (e: IOException) {
-            throw RuntimeException(e)
-        }
-    }
+    fun readFileWithVersion(@PathParam("uuid") uuid: UUID, @PathParam("version") version: Int): Response =
+        retrieveDocumentContent(uuid, version)
+
+    @GET
+    @Path("/informatieobject/{uuid}/download")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    fun readFile(@PathParam("uuid") uuid: UUID): Response = retrieveDocumentContent(uuid, null)
 
     @GET
     @Path("/informatieobject/{uuid}/{versie}/preview")
@@ -536,6 +518,24 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             }
         }
         return Response.ok().build()
+    }
+
+    private fun retrieveDocumentContent(uuid: UUID, version: Int?): Response {
+        val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(uuid)
+        assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden)
+        try {
+            val documentContent = version?.let {
+                drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version)
+            } ?: drcClientService.downloadEnkelvoudigInformatieobject(uuid)
+            return Response.ok(documentContent)
+                .header(
+                    "Content-Disposition",
+                    """attachment; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
+                )
+                .build()
+        } catch (ioException: IOException) {
+            throw RuntimeException(ioException)
+        }
     }
 
     private fun isVerzendenToegestaan(informatieobject: EnkelvoudigInformatieObject): Boolean =

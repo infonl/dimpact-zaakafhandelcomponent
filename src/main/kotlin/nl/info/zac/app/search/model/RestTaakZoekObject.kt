@@ -8,9 +8,9 @@ import net.atos.zac.app.policy.converter.RestRechtenConverter
 import net.atos.zac.app.policy.model.RestTaakRechten
 import net.atos.zac.app.task.model.TaakStatus
 import net.atos.zac.policy.output.TaakRechten
-import net.atos.zac.search.model.zoekobject.TaakZoekObject
-import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate
+import nl.info.zac.search.model.zoekobject.TaakZoekObject
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import java.time.LocalDate
 
 data class RestTaakZoekObject(

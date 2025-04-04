@@ -49,14 +49,6 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.healthcheck.HealthCheckService
-import net.atos.zac.healthcheck.createZaaktypeInrichtingscheck
-import net.atos.zac.history.ZaakHistoryService
-import net.atos.zac.history.converter.ZaakHistoryLineConverter
-import net.atos.zac.identity.IdentityService
-import net.atos.zac.identity.exception.UserNotInGroupException
-import net.atos.zac.identity.model.createGroup
-import net.atos.zac.identity.model.createUser
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createOverigeRechtenAllDeny
@@ -64,10 +56,6 @@ import net.atos.zac.policy.output.createWerklijstRechten
 import net.atos.zac.policy.output.createZaakRechten
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
-import net.atos.zac.search.IndexingService
-import net.atos.zac.search.model.zoekobject.ZoekObjectType
-import net.atos.zac.shared.helper.SuspensionZaakHelper
-import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -117,8 +105,20 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
+import nl.info.zac.healthcheck.HealthCheckService
+import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
+import nl.info.zac.history.ZaakHistoryService
+import nl.info.zac.history.converter.ZaakHistoryLineConverter
+import nl.info.zac.identity.IdentityService
+import nl.info.zac.identity.exception.UserNotInGroupException
+import nl.info.zac.identity.model.createGroup
+import nl.info.zac.identity.model.createUser
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.productaanvraag.createProductaanvraagDimpact
+import nl.info.zac.search.IndexingService
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.shared.helper.SuspensionZaakHelper
+import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.test.date.toDate
 import nl.info.zac.zaak.ZaakService
 import org.apache.http.HttpStatus
@@ -128,7 +128,6 @@ import java.io.InputStream
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.text.get
 
 @Suppress("LongParameterList", "LargeClass")
 class ZaakRestServiceTest : BehaviorSpec({
@@ -390,7 +389,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
             } just runs
 
-            val returnedRestZaak = zaakRestService.assign(restZaakToekennenGegevens)
+            val returnedRestZaak = zaakRestService.assignZaak(restZaakToekennenGegevens)
 
             Then("the zaak is assigned both to the group and the user, and the zaken search index is updated") {
                 returnedRestZaak shouldBe restZaak
@@ -435,7 +434,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         When("the zaak is assigned to an unknown group") {
             shouldThrow<UserNotInGroupException> {
-                zaakRestService.assign(restZaakToekennenGegevensUnknownGroup)
+                zaakRestService.assignZaak(restZaakToekennenGegevensUnknownGroup)
             }
 
             Then("an exception is thrown") {}
@@ -482,7 +481,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
             } just runs
 
-            val returnedRestZaak = zaakRestService.assign(restZaakToekennenGegevens)
+            val returnedRestZaak = zaakRestService.assignZaak(restZaakToekennenGegevens)
 
             Then("the zaak is assigned both to the group and the user, and the zaken search index is updated") {
                 returnedRestZaak shouldBe restZaak
@@ -564,7 +563,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot)) } returns zaak
 
         When("the zaken are linked") {
-            zaakRestService.koppelZaak(restZaakLinkData)
+            zaakRestService.linkZaak(restZaakLinkData)
 
             Then("the two zaken are successfully linked") {
                 verify(exactly = 2) {
@@ -609,7 +608,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { eventingService.send(any<ScreenEvent>()) } just runs
 
         When("the zaken are linked") {
-            zaakRestService.koppelZaak(restZaakLinkData)
+            zaakRestService.linkZaak(restZaakLinkData)
 
             Then(
                 """
@@ -643,7 +642,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         When("the zaken are linked") {
             val exception = shouldThrow<PolicyException> {
-                zaakRestService.koppelZaak(restZakenVerdeelGegevens)
+                zaakRestService.linkZaak(restZakenVerdeelGegevens)
             }
 
             Then("a policy exception should be thrown") {
@@ -672,7 +671,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         } returns zaak
 
         When("the zaken are unlinked") {
-            zaakRestService.ontkoppelZaak(restZaakLinkData)
+            zaakRestService.unlinkZaak(restZaakLinkData)
 
             Then("the two zaken are successfully unlinked") {
                 verify(exactly = 1) {
@@ -929,7 +928,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { cmmnService.terminateCase(zaak.uuid) } returns Unit
 
         When("aborted with the hardcoded 'niet ontvankelijk' zaakbeeindigreden") {
-            zaakRestService.afbreken(
+            zaakRestService.terminateZaak(
                 zaak.uuid,
                 RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)
             )
@@ -977,7 +976,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { cmmnService.terminateCase(zaak.uuid) } returns Unit
 
         When("aborted with managed zaakbeeindigreden") {
-            zaakRestService.afbreken(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = "-2"))
+            zaakRestService.terminateZaak(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = "-2"))
 
             Then("it is ended with result") {
                 verify(exactly = 1) {
@@ -990,7 +989,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         When("aborted with invalid zaakbeeindigreden id") {
             val exception = shouldThrow<IllegalArgumentException> {
-                zaakRestService.afbreken(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = "not a number"))
+                zaakRestService.terminateZaak(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = "not a number"))
             }
 
             Then("it throws an error") {

@@ -16,11 +16,6 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.search.SearchService
-import net.atos.zac.search.model.ZoekResultaat
-import net.atos.zac.search.model.zoekobject.ZaakZoekObject
-import net.atos.zac.search.model.zoekobject.ZoekObject
-import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.search.converter.RestZoekParametersConverter
@@ -30,6 +25,11 @@ import nl.info.zac.app.search.model.RestZoekKoppelenParameters
 import nl.info.zac.app.search.model.RestZoekParameters
 import nl.info.zac.app.search.model.RestZoekResultaat
 import nl.info.zac.app.search.model.toZoekParameters
+import nl.info.zac.search.SearchService
+import nl.info.zac.search.model.ZoekResultaat
+import nl.info.zac.search.model.zoekobject.ZaakZoekObject
+import nl.info.zac.search.model.zoekobject.ZoekObject
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
@@ -50,7 +50,7 @@ class SearchRestService @Inject constructor(
 ) {
     @PUT
     @Path("list")
-    fun list(restZoekParameters: RestZoekParameters): RestZoekResultaat<out AbstractRestZoekObject?> {
+    fun listSearchResults(restZoekParameters: RestZoekParameters): RestZoekResultaat<out AbstractRestZoekObject> {
         when (restZoekParameters.type) {
             ZoekObjectType.ZAAK, ZoekObjectType.TAAK -> PolicyService.assertPolicy(
                 policyService.readWerklijstRechten().zakenTaken

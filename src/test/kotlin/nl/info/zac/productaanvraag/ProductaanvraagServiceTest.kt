@@ -27,7 +27,6 @@ import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.identity.IdentityService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -42,6 +41,7 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.identity.IdentityService
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.test.util.createRandomStringWithAlphanumericCharacters
 import java.net.URI
@@ -847,6 +847,31 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     type shouldBe productAanvraagType
                     initiatorID shouldBe null
                     aantalBijlagen shouldBe 0
+                }
+            }
+        }
+    }
+    Given(
+        """
+        a productaanvraag-dimpact object registration object is not a productaanvraag type
+        """
+    ) {
+        val productAanvraagObjectUUID = UUID.randomUUID()
+        every { objectsClientService.readObject(productAanvraagObjectUUID) } throws RuntimeException("Failed")
+
+        When("the productaanvraag is handled") {
+            productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+            Then(
+                """
+                no exception is thrown, and no further actions are taken
+                """
+            ) {
+                verify(exactly = 0) {
+                    inboxProductaanvraagService.create(any())
+                    zgwApiService.createZaak(any())
+                    zrcClientService.createZaakobject(any())
+                    cmmnService.startCase(any(), any(), any(), any())
                 }
             }
         }

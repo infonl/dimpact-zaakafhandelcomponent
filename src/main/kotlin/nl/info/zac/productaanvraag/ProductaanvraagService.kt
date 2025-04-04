@@ -27,7 +27,6 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.identity.IdentityService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
 import net.atos.zac.productaanvraag.util.BetalingStatusEnumJsonAdapter
@@ -43,6 +42,7 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
 import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.identity.IdentityService
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
@@ -87,22 +87,24 @@ class ProductaanvraagService @Inject constructor(
             "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
     }
 
-    @Suppress("TooGenericExceptionCaught")
     fun handleProductaanvraag(productaanvraagObjectUUID: UUID) {
-        try {
-            objectsClientService.readObject(productaanvraagObjectUUID).let {
-                if (isProductaanvraagDimpact(it)) {
-                    LOG.info { "Handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID" }
-                    handleProductaanvraagDimpact(it)
-                }
+        productaanvraagObjectUUID
+            .runCatching(objectsClientService::readObject)
+            .onFailure { LOG.fine("Unable to read object with UUID: $productaanvraagObjectUUID") }
+            .onSuccess { modelObject ->
+                modelObject
+                    .takeIf(::isProductaanvraagDimpact)
+                    ?.runCatching {
+                        LOG.info("Handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID")
+                        handleProductaanvraagDimpact(this)
+                    }?.onFailure {
+                        LOG.log(
+                            Level.WARNING,
+                            "Failed to handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID",
+                            it
+                        )
+                    }
             }
-        } catch (runtimeException: RuntimeException) {
-            LOG.log(
-                Level.WARNING,
-                "Failed to handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID",
-                runtimeException
-            )
-        }
     }
 
     fun getAanvraaggegevens(productaanvraagObject: ModelObject): Map<String, Any> =

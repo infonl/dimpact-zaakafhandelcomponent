@@ -7,6 +7,7 @@ package net.atos.zac.app.informatieobjecten
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -15,7 +16,6 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import net.atos.zac.flowable.createTestTask
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
@@ -27,6 +27,7 @@ import nl.info.client.zgw.model.createZaakInformatieobject
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import java.util.UUID
 
 class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
@@ -53,6 +54,10 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
     val zaakInformatieObject = createZaakInformatieobject()
     val taskId = "1234"
     val task = createTestTask()
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given("Zaak, lock request and an open task") {
         every {
@@ -99,7 +104,6 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
             )
         } returns zaakInformatieObject
         every { flowableTaskService.findOpenTask(taskId) } returns null
-        every { taakVariabelenService.setTaakdocumenten(task, any<List<UUID>>()) } just runs
 
         When("creating information object for a non-open task") {
             val exception = shouldThrow<TaskNotFoundException> {

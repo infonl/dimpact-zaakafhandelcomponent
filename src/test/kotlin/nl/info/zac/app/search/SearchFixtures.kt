@@ -6,18 +6,18 @@
  */
 package nl.info.zac.app.search
 
-import net.atos.zac.search.model.DatumRange
-import net.atos.zac.search.model.DatumVeld
-import net.atos.zac.search.model.FilterParameters
-import net.atos.zac.search.model.FilterVeld
-import net.atos.zac.search.model.SorteerVeld
-import net.atos.zac.search.model.ZoekParameters
-import net.atos.zac.search.model.ZoekResultaat
-import net.atos.zac.search.model.zoekobject.ZaakZoekObject
-import net.atos.zac.search.model.zoekobject.ZoekObjectType
-import net.atos.zac.shared.model.SorteerRichting
 import nl.info.zac.app.search.model.RestDatumRange
 import nl.info.zac.app.search.model.RestZoekParameters
+import nl.info.zac.search.model.DatumRange
+import nl.info.zac.search.model.DatumVeld
+import nl.info.zac.search.model.FilterParameters
+import nl.info.zac.search.model.FilterVeld
+import nl.info.zac.search.model.SorteerVeld
+import nl.info.zac.search.model.ZoekParameters
+import nl.info.zac.search.model.ZoekResultaat
+import nl.info.zac.search.model.zoekobject.ZaakZoekObject
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.shared.model.SorteerRichting
 import java.util.EnumMap
 import java.util.UUID
 

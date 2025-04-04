@@ -2,11 +2,11 @@
  * SPDX-FileCopyrightText: 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.task
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.ints.exactly
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
@@ -16,6 +16,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import jakarta.json.Json
 import jakarta.servlet.http.HttpSession
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -40,27 +41,27 @@ import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
 import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_VERZENDDATUM
+import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.flowable.util.TaskUtil.getTaakStatus
 import net.atos.zac.formulieren.FormulierRuntimeService
-import net.atos.zac.identity.model.getFullName
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createDocumentRechtenAllDeny
 import net.atos.zac.policy.output.createTaakRechtenAllDeny
 import net.atos.zac.policy.output.createWerklijstRechten
 import net.atos.zac.policy.output.createWerklijstRechtenAllDeny
-import net.atos.zac.search.IndexingService
-import net.atos.zac.shared.helper.SuspensionZaakHelper
-import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
-import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRequest
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.test.org.flowable.task.service.impl.persistence.entity.createHistoricTaskInstanceEntityImpl
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.identity.model.getFullName
+import nl.info.zac.search.IndexingService
+import nl.info.zac.shared.helper.SuspensionZaakHelper
+import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.task.TaskService
 import org.flowable.task.api.Task
 import org.flowable.task.api.history.HistoricTaskInstance
@@ -68,6 +69,7 @@ import java.net.URI
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
+import kotlin.io.reader
 
 class TaskRestServiceTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
@@ -136,7 +138,7 @@ class TaskRestServiceTest : BehaviorSpec({
         When("the task is assigned with a user who has permission") {
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(toekennen = true)
 
-            taskRestService.assign(restTaakToekennenGegevens)
+            taskRestService.assignTask(restTaakToekennenGegevens)
 
             Then(
                 "the task is correctly assigned"
@@ -155,7 +157,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny()
 
             val exception = shouldThrow<PolicyException> {
-                taskRestService.assign(restTaakToekennenGegevens)
+                taskRestService.assignTask(restTaakToekennenGegevens)
             }
 
             Then("it throws exception with no message") { exception.message shouldBe null }
@@ -199,7 +201,7 @@ class TaskRestServiceTest : BehaviorSpec({
             enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
                 enkelvoudigInformatieObjectUUID, dateTime.toLocalDate(), null
             )
-        } returns createEnkelvoudigInformatieObjectWithLockRequest()
+        } just Runs
         every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
         every { taakVariabelenService.setTaskinformation(task, null) } just runs
         every { flowableTaskService.completeTask(task) } returns historicTaskInstance
@@ -347,7 +349,7 @@ class TaskRestServiceTest : BehaviorSpec({
             } returns createWerklijstRechtenAllDeny(zakenTakenVerdelen = true)
 
             runTest(testDispatcher) {
-                taskRestService.distributeFromList(restTaakVerdelenGegevens)
+                taskRestService.assignTasksFromList(restTaakVerdelenGegevens)
             }
 
             Then("the tasks are assigned to the group and user") {
@@ -361,7 +363,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { policyService.readWerklijstRechten() } returns createWerklijstRechtenAllDeny()
 
             val exception = shouldThrow<PolicyException> {
-                taskRestService.distributeFromList(restTaakVerdelenGegevens)
+                taskRestService.assignTasksFromList(restTaakVerdelenGegevens)
             }
 
             Then("it throws exception with no message") { exception.message shouldBe null }
@@ -385,7 +387,7 @@ class TaskRestServiceTest : BehaviorSpec({
 
         When("the 'verdelen vanuit lijst' function is called") {
             runTest(testDispatcher) {
-                taskRestService.releaseFromList(restTaakVrijgevenGegevens)
+                taskRestService.releaseTaskFromList(restTaakVrijgevenGegevens)
             }
 
             Then("the tasks are assigned to the group and user") {
@@ -418,6 +420,58 @@ class TaskRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     taskService.listTasksForZaak(zaak.uuid)
                 }
+            }
+        }
+    }
+    Given("A valid task ID with an open task and a REST task with a form.io form") {
+        val taskId = "validTaskId"
+        val zaakUuid = UUID.randomUUID()
+        val taskInfo = createTestTask(
+            id = taskId,
+            caseVariables = mapOf(
+                "zaakUUID" to zaakUuid
+            )
+        )
+        val restTask = createRestTask(
+            id = taskId,
+            zaakUuid = zaakUuid,
+            formioFormulier = Json.createReader("{}".reader()).readObject()
+        )
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { signaleringService.deleteSignaleringen(any()) } just Runs
+        every { flowableTaskService.readTask(taskId) } returns taskInfo
+        every { policyService.readTaakRechten(taskInfo).lezen } returns true
+        every { restTaskConverter.convert(taskInfo) } returns restTask
+        every { formulierRuntimeService.renderFormioFormulier(restTask) } returns restTask.formioFormulier
+        every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns mapOf(
+            "dummyKey" to "dummyValue"
+        )
+
+        When("readTask is called") {
+            val result = taskRestService.readTask(taskId)
+
+            Then("signaleringen are deleted and the task is returned with rendered forms and added zaakdata") {
+                result shouldBe restTask
+                verify(exactly = 2) {
+                    signaleringService.deleteSignaleringen(any())
+                }
+                verify(exactly = 1) {
+                    formulierRuntimeService.renderFormioFormulier(restTask)
+                }
+            }
+        }
+    }
+    Given("An invalid task ID") {
+        val taskId = "invalidTaskId"
+        every { flowableTaskService.readTask(taskId) } throws TaskNotFoundException("Task not found")
+
+        When("readTask is called") {
+            val exception = shouldThrow<TaskNotFoundException> {
+                taskRestService.readTask(taskId)
+            }
+
+            Then("a TaskNotFoundException is thrown") {
+                exception.message shouldBe "Task not found"
             }
         }
     }

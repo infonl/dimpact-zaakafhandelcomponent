@@ -25,6 +25,11 @@ import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 
+enum DocumentAction {
+  LINK = "actie.document.koppelen",
+  MOVE = "actie.document.verplaatsen",
+}
+
 @Component({
   selector: "zac-informatie-object-link",
   templateUrl: "./informatie-object-link.component.html",
@@ -39,13 +44,16 @@ export class InformatieObjectLinkComponent
     | GeneratedType<"RestEnkelvoudigInformatieobject">;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Input({ required: true }) source!: string;
-  @Input({ required: true }) action!: string;
+  @Input({ required: true }) actionLabel!: string;
   @Output() informationObjectLinked = new EventEmitter<void>();
 
   intro: string = "";
   caseSearchField?: AbstractFormControlField;
   isValid: boolean = false;
   loading: boolean = false;
+
+  documentAction!: DocumentAction;
+  actionIcon!: string;
 
   cases = new MatTableDataSource<GeneratedType<"RestZaakKoppelenZoekObject">>();
   totalCases: number = 0;
@@ -78,6 +86,14 @@ export class InformatieObjectLinkComponent
       .subscribe((value) => {
         this.isValid = value?.length >= 2;
       });
+
+    this.documentAction =
+      this.actionLabel === DocumentAction.LINK
+        ? DocumentAction.LINK
+        : DocumentAction.MOVE;
+
+    this.actionIcon =
+      this.documentAction === DocumentAction.LINK ? "link" : "move_item";
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -131,7 +147,7 @@ export class InformatieObjectLinkComponent
     };
 
     const msgSnackbarKey =
-      this.action === "actie.document.koppelen"
+      this.documentAction === DocumentAction.LINK
         ? "msg.document.koppelen.uitgevoerd"
         : "msg.document.verplaatsen.uitgevoerd";
 
@@ -140,7 +156,10 @@ export class InformatieObjectLinkComponent
       .pipe(takeUntil(this.ngDestroy))
       .subscribe({
         next: () => {
-          this.utilService.openSnackbar(msgSnackbarKey);
+          this.utilService.openSnackbar(msgSnackbarKey, {
+            document: this.infoObject.titel,
+            case: linkDocumentDetails.nieuweZaakID,
+          });
           this.closeDrawer();
           this.informationObjectLinked.emit();
         },
