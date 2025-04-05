@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.28](https://img.shields.io/badge/Version-1.0.28-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
+![Version: 1.0.29](https://img.shields.io/badge/Version-1.0.29-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -158,7 +158,7 @@ helm install my-release zac/zaakafhandelcomponent
 | nginx.existingConfigmap | string | `nil` | mount existing nginx vhost config |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.27.4@sha256:840f33319fb642e32a15a1772400e017e1175891c98afdff3a47871c925cb0e9"` |  |
+| nginx.image.tag | string | `"1.27.4@sha256:7f5f11aecd21f0f95267396b8e0fb839312368fdaa51b15199d28f03d91ccdc3"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
