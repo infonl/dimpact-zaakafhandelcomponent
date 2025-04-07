@@ -560,7 +560,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web:
-    image: maykinmedia/open-archiefbeheer:1.0.0-rc.0@sha256:3fff604d86ed0e87c5e4e8ce41e4fe3e68e9947bec26c5484467454804b51b16
+    image: maykinmedia/open-archiefbeheer:1.0.0@sha256:e65152ebadea436fcb753f7408be527e6a2d2f99ada405e261626e1efdf1ae68
     platform: linux/amd64
     environment: &web_env
       - ALLOWED_HOSTS="*"
@@ -587,7 +587,7 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - CELERY_LOGLEVEL=DEBUG
-      - OAB_API_URL=http://localhost:8004
+      - OAB_PI_URL=http://localhost:8004
       - OAB_API_PATH=/api/v1
       - OAB_ZAAK_URL_TEMPLATE=https://localhost:8080/zaken/{identificatie}
       - REQUESTS_READ_TIMEOUT=5000
@@ -610,7 +610,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web-init:
-    image: maykinmedia/open-archiefbeheer:1.0.0-rc.0@sha256:3fff604d86ed0e87c5e4e8ce41e4fe3e68e9947bec26c5484467454804b51b16
+    image: maykinmedia/open-archiefbeheer:1.0.0@sha256:e65152ebadea436fcb753f7408be527e6a2d2f99ada405e261626e1efdf1ae68
     platform: linux/amd64
     environment: *web_env
     command: /setup_configuration.sh
@@ -624,7 +624,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery:
-    image: maykinmedia/open-archiefbeheer:1.0.0-rc.0@sha256:3fff604d86ed0e87c5e4e8ce41e4fe3e68e9947bec26c5484467454804b51b16
+    image: maykinmedia/open-archiefbeheer:1.0.0@sha256:e65152ebadea436fcb753f7408be527e6a2d2f99ada405e261626e1efdf1ae68
     platform: linux/amd64
     command: /celery_worker.sh
     environment: *web_env
@@ -640,7 +640,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery-beat:
-    image: maykinmedia/open-archiefbeheer:1.0.0-rc.0@sha256:3fff604d86ed0e87c5e4e8ce41e4fe3e68e9947bec26c5484467454804b51b16
+    image: maykinmedia/open-archiefbeheer:1.0.0@sha256:e65152ebadea436fcb753f7408be527e6a2d2f99ada405e261626e1efdf1ae68
     platform: linux/amd64
     command: /celery_beat.sh
     environment: *web_env
