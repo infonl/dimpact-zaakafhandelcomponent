@@ -16,10 +16,6 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.zac.app.task.model.createRestTaskAssignData
-import net.atos.zac.app.task.model.createRestTaskDistributeData
-import net.atos.zac.app.task.model.createRestTaskDistributeTask
-import net.atos.zac.app.task.model.createRestTaskReleaseData
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -27,6 +23,10 @@ import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.signalering.event.SignaleringEvent
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.zac.app.task.model.createRestTaskAssignData
+import nl.info.zac.app.task.model.createRestTaskDistributeData
+import nl.info.zac.app.task.model.createRestTaskDistributeTask
+import nl.info.zac.app.task.model.createRestTaskReleaseData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
