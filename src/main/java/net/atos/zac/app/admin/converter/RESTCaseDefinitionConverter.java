@@ -5,8 +5,8 @@
 
 package net.atos.zac.app.admin.converter;
 
-import static net.atos.zac.app.planitems.model.PlanItemType.HUMAN_TASK;
-import static net.atos.zac.app.planitems.model.PlanItemType.USER_EVENT_LISTENER;
+import static nl.info.zac.app.planitems.model.PlanItemType.HUMAN_TASK;
+import static nl.info.zac.app.planitems.model.PlanItemType.USER_EVENT_LISTENER;
 
 import jakarta.inject.Inject;
 

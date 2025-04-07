@@ -11,10 +11,11 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.app.shared.RestPageParameters
-import net.atos.zac.app.signalering.converter.RestSignaleringInstellingenConverter
-import net.atos.zac.app.signalering.exception.SignaleringException
 import net.atos.zac.signalering.model.SignaleringType
+import nl.info.zac.app.shared.RestPageParameters
+import nl.info.zac.app.signalering.SignaleringRestService
+import nl.info.zac.app.signalering.converter.RestSignaleringInstellingenConverter
+import nl.info.zac.app.signalering.exception.SignaleringException
 import nl.info.zac.app.zaak.model.createRESTZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.IdentityService

@@ -10,9 +10,9 @@ import java.util.UUID;
 
 import jakarta.inject.Inject;
 
-import net.atos.zac.app.identity.converter.RestUserConverter;
 import net.atos.zac.app.ontkoppeldedocumenten.model.RESTOntkoppeldDocument;
 import net.atos.zac.documenten.model.OntkoppeldDocument;
+import nl.info.zac.app.identity.converter.RestUserConverter;
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
 

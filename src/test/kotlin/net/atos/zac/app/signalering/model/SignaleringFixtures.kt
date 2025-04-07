@@ -5,6 +5,7 @@
 
 package net.atos.zac.app.signalering.model
 
+import nl.info.zac.app.signalering.model.RestSignaleringTaskSummary
 import java.time.ZonedDateTime
 
 fun createRestSignaleringTaskSummary(

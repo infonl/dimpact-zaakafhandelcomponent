@@ -5,9 +5,13 @@
 
 package net.atos.zac.app.planitems.model
 
-import net.atos.zac.app.identity.model.RestGroup
-import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.mail.model.RESTMailGegevens
+import nl.info.zac.app.identity.model.RestGroup
+import nl.info.zac.app.identity.model.RestUser
+import nl.info.zac.app.planitems.model.RESTHumanTaskData
+import nl.info.zac.app.planitems.model.RESTTaakStuurGegevens
+import nl.info.zac.app.planitems.model.RESTUserEventListenerData
+import nl.info.zac.app.planitems.model.UserEventListenerActie
 import nl.info.zac.app.zaak.model.createRestGroup
 import java.time.LocalDate
 import java.util.UUID

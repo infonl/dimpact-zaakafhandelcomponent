@@ -19,12 +19,13 @@ import net.atos.client.kvk.zoeken.model.createResultaatItem
 import net.atos.client.kvk.zoeken.model.createSBIActiviteit
 import net.atos.client.kvk.zoeken.model.createVestiging
 import net.atos.client.kvk.zoeken.model.createVestigingsAdres
-import net.atos.zac.app.klant.exception.VestigingNotFoundException
 import net.atos.zac.app.klant.model.personen.createRestListBedrijvenParameters
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
 import nl.info.client.brp.model.createPersoon
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.app.klant.KlantRestService
+import nl.info.zac.app.klant.exception.VestigingNotFoundException
 import java.util.Optional
 
 const val NON_BREAKING_SPACE = '\u00A0'.toString()

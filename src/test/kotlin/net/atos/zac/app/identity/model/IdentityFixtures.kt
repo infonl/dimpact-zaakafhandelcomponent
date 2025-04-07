@@ -5,6 +5,8 @@
 
 package net.atos.zac.app.identity.model
 
+import nl.info.zac.app.identity.model.RestUser
+
 fun createRESTUser(
     id: String = "dummyId",
     name: String = "dummyUserName"

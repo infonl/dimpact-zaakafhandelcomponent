@@ -32,8 +32,6 @@ import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.app.formulieren.model.FormulierData;
-import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService;
-import net.atos.zac.app.task.model.RestTask;
 import net.atos.zac.flowable.ZaakVariabelenService;
 import net.atos.zac.flowable.task.FlowableTaskService;
 import net.atos.zac.flowable.task.TaakVariabelenService;
@@ -42,6 +40,8 @@ import net.atos.zac.util.time.DateTimeConverterUtil;
 import nl.info.client.zgw.shared.ZGWApiService;
 import nl.info.zac.admin.ReferenceTableService;
 import nl.info.zac.admin.model.ReferenceTableValue;
+import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService;
+import nl.info.zac.app.task.model.RestTask;
 import nl.info.zac.identity.IdentityService;
 import nl.info.zac.shared.helper.SuspensionZaakHelper;
 

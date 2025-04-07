@@ -20,6 +20,8 @@ import nl.info.client.brp.model.generated.VerblijfadresBinnenland
 import nl.info.client.brp.model.generated.VerblijfadresBuitenland
 import nl.info.client.brp.model.generated.VerblijfplaatsBuitenland
 import nl.info.client.brp.model.generated.Waardetabel
+import nl.info.zac.app.klant.model.personen.RestPersoonIndicaties
+import nl.info.zac.app.klant.model.personen.toRestPersoon
 import java.util.EnumSet
 
 class RestPersoonTest : BehaviorSpec({

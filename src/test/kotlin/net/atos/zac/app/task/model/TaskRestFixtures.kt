@@ -6,9 +6,15 @@
 package net.atos.zac.app.task.model
 
 import jakarta.json.JsonObject
-import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype
 import net.atos.zac.app.informatieobjecten.model.createRestInformatieobjecttype
+import nl.info.zac.app.identity.model.RestUser
+import nl.info.zac.app.task.model.RestTask
+import nl.info.zac.app.task.model.RestTaskAssignData
+import nl.info.zac.app.task.model.RestTaskDistributeData
+import nl.info.zac.app.task.model.RestTaskDistributeTask
+import nl.info.zac.app.task.model.RestTaskDocumentData
+import nl.info.zac.app.task.model.RestTaskReleaseData
 import nl.info.zac.app.zaak.model.createRestUser
 import java.util.UUID
 

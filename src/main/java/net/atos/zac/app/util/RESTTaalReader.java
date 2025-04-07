@@ -18,7 +18,7 @@ import jakarta.ws.rs.ext.Provider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import net.atos.zac.app.configuratie.model.RestTaal;
+import nl.info.zac.app.configuratie.model.RestTaal;
 
 
 @Provider

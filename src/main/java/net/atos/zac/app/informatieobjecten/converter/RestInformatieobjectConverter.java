@@ -4,9 +4,9 @@
  */
 package net.atos.zac.app.informatieobjecten.converter;
 
-import static net.atos.zac.app.configuratie.model.RestTaalKt.toRestTaal;
-import static net.atos.zac.app.identity.model.RestUserKt.toRestUser;
 import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
+import static nl.info.zac.app.configuratie.model.RestTaalKt.toRestTaal;
+import static nl.info.zac.app.identity.model.RestUserKt.toRestUser;
 import static nl.info.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
 import static nl.info.zac.identity.model.UserKt.getFullName;
 import static nl.info.zac.util.Base64ConvertersKt.toBase64String;
@@ -33,7 +33,6 @@ import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObject
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject;
 import net.atos.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject;
 import net.atos.zac.app.policy.converter.RestRechtenConverter;
-import net.atos.zac.app.task.model.RestTaskDocumentData;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.policy.output.DocumentRechten;
 import nl.info.client.zgw.brc.BrcClientService;
@@ -43,6 +42,7 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLoc
 import nl.info.client.zgw.drc.model.generated.StatusEnum;
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
 import nl.info.client.zgw.ztc.ZtcClientService;
+import nl.info.zac.app.task.model.RestTaskDocumentData;
 import nl.info.zac.app.zaak.model.RelatieType;
 import nl.info.zac.authentication.LoggedInUser;
 import nl.info.zac.configuratie.ConfiguratieService;

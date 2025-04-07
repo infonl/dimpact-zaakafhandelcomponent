@@ -13,13 +13,13 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.client.smartdocuments.model.createFile
 import nl.info.client.smartdocuments.model.document.Data
 import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobject
+import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService

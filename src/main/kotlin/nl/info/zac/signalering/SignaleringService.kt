@@ -16,9 +16,6 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
-import net.atos.zac.app.shared.RestPageParameters
-import net.atos.zac.app.signalering.converter.toRestSignaleringTaakSummary
-import net.atos.zac.app.signalering.model.RestSignaleringTaskSummary
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
@@ -34,6 +31,9 @@ import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.util.ValidationUtil
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.zac.app.shared.RestPageParameters
+import nl.info.zac.app.signalering.converter.toRestSignaleringTaakSummary
+import nl.info.zac.app.signalering.model.RestSignaleringTaskSummary
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser

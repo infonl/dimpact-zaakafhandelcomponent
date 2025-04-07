@@ -5,16 +5,16 @@
 
 package nl.info.zac.app.zaak.model
 
-import net.atos.zac.app.admin.createRestZaakAfhandelParameters
 import net.atos.zac.app.bag.model.RESTBAGObject
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte
 import net.atos.zac.app.bag.model.RESTPand
-import net.atos.zac.app.identity.model.RestGroup
-import net.atos.zac.app.identity.model.RestUser
-import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.policy.model.RestZaakRechten
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.zac.app.admin.createRestZaakAfhandelParameters
+import nl.info.zac.app.identity.model.RestGroup
+import nl.info.zac.app.identity.model.RestUser
+import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.search.model.ZaakIndicatie
 import java.net.URI
 import java.time.LocalDate

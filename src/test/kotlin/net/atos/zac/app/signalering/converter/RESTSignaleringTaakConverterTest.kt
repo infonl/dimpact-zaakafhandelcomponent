@@ -9,6 +9,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import net.atos.zac.flowable.createTestTask
+import nl.info.zac.app.signalering.converter.toRestSignaleringTaakSummary
 import org.flowable.common.engine.api.scope.ScopeTypes.CMMN
 import java.time.Month
 import java.util.Calendar

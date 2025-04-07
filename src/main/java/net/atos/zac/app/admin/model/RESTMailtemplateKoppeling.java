@@ -5,6 +5,8 @@
 
 package net.atos.zac.app.admin.model;
 
+import nl.info.zac.app.admin.model.RestZaakafhandelParameters;
+
 public class RESTMailtemplateKoppeling {
 
     public Long id;
