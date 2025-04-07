@@ -271,7 +271,7 @@ Deze werklijst bevat alle lopende taken die op naam van de ingelogde gebruiker s
 
 Alle documenten die in de ZAC bij een zaak zijn ontkoppeld komen in deze werklijst terecht.
 
-Vanuit de werklijst kunnen de documenten met de klembordfunctionaliteit verplaatst worden naar een zaak. Dit kan door vanuit het overzicht op het verplaats icoon te klikken.
+Vanuit de werklijst kunnen de documenten met het 'Document koppelen' formulier verplaatst worden naar een zaak. Dit kan door vanuit het overzicht op het verplaats icoon te klikken.
 
 Het is ook mogelijk om een document te openen en daarna te verwijderen.
 
@@ -279,7 +279,7 @@ Het is ook mogelijk om een document te openen en daarna te verwijderen.
 
 Alle documenten die nog niet bij een zaak hebben gehoord, maar wel aan een zaak toegevoegd moeten worden zijn te vinden in de Inbox documenten.
 
-Vanuit de werklijst kunnen de documenten met de klembordfunctionaliteit verplaatst worden naar een zaak. Dit kan door vanuit het overzicht op het verplaats icoon te klikken. Met het prullenbak icoon kunnen de documenten verwijderd worden.
+Vanuit de werklijst kunnen de documenten met het 'Document koppelen' formulier verplaatst worden naar een zaak. Dit kan door vanuit het overzicht op het verplaats icoon te klikken. Met het prullenbak icoon kunnen de documenten verwijderd worden.
 
 Het is ook mogelijk om een document te openen en daarna acties op het document uit te voeren.
 
@@ -1267,7 +1267,7 @@ Bij ieder document kan het oog icoon gebuikt worden om de documentgegevenspagina
 
 ## Document verplaatsen
 
-Het kan gebeuren dat een document bij een verkeerde zaak wordt toegevoegd. Een document naar een andere zaak verplaatsen kan met het verplaats icoon. Hiermee wordt het document op een klembord gezet en kan in een andere zaak het document vanaf het klembord aan een andere zaak worden toegevoegd.
+Het kan gebeuren dat een document bij een verkeerde zaak wordt toegevoegd. Een document naar een andere zaak verplaatsen kan met het verplaats icoon.
 
 **Stappen**
 
