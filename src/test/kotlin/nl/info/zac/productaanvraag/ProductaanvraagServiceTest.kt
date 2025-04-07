@@ -25,11 +25,8 @@ import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documenten.InboxDocumentenService
-import net.atos.zac.flowable.bpmn.BpmnService
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.identity.IdentityService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -43,9 +40,12 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
 import nl.info.zac.admin.model.createZaakafhandelParameters
+import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.identity.IdentityService
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.test.util.createRandomStringWithAlphanumericCharacters
 import java.net.URI
+import java.time.LocalDate
 import java.util.UUID
 
 @Suppress("LargeClass")
@@ -61,22 +61,20 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     val inboxDocumentenService = mockk<InboxDocumentenService>()
     val inboxProductaanvraagService = mockk<InboxProductaanvraagService>()
     val cmmnService = mockk<CMMNService>()
-    val bpmnService = mockk<BpmnService>()
     val configuratieService = mockk<ConfiguratieService>()
     val productaanvraagService = ProductaanvraagService(
-        objectsClientService,
-        zgwApiService,
-        zrcClientService,
-        drcClientService,
-        ztcClientService,
-        identityService,
-        zaakafhandelParameterService,
-        zaakafhandelParameterBeheerService,
-        inboxDocumentenService,
-        inboxProductaanvraagService,
-        cmmnService,
-        bpmnService,
-        configuratieService
+        objectsClientService = objectsClientService,
+        zgwApiService = zgwApiService,
+        zrcClientService = zrcClientService,
+        drcClientService = drcClientService,
+        ztcClientService = ztcClientService,
+        identityService = identityService,
+        zaakafhandelParameterService = zaakafhandelParameterService,
+        zaakafhandelParameterBeheerService = zaakafhandelParameterBeheerService,
+        inboxDocumentenService = inboxDocumentenService,
+        inboxProductaanvraagService = inboxProductaanvraagService,
+        cmmnService = cmmnService,
+        configuratieService = configuratieService
     )
 
     beforeEach {
@@ -193,8 +191,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     }
     Given(
         """
-        a productaanvraag-dimpact object registration object containing zaakgegevens with a point geometry and 
-        a betrokkene with role initiator and type BSN as well as a betrokkene with role initiator and type vestiging
+        a productaanvraag-dimpact object registration object for which zaakafhandelparameters exist 
+        containing zaakgegevens with a point geometry and a betrokkene with role initiator and type BSN 
+        as well as a betrokkene with role initiator and type vestiging
         and a zaak description with has the maximum length allowed
         """
     ) {
@@ -213,6 +212,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val formulierBron = createBron()
         val coordinates = listOf(52.08968250760225, 5.114358701512936)
         val bsnNumber = "dummyBsnNumber"
+        val today = LocalDate.now()
         val productAanvraagORObject = createORObject(
             record = createObjectRecord(
                 data = mapOf(
@@ -238,7 +238,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                             "rolOmschrijvingGeneriek" to "initiator"
                         )
                     )
-                )
+                ),
+                startAt = today
             )
         )
         val rolTypeInitiator = createRolType(
@@ -284,6 +285,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 }
                 with(zaakToBeCreated.captured) {
                     zaaktype shouldBe zaakType.url
+                    startdatum shouldBe today
                     communicatiekanaalNaam shouldBe "E-formulier"
                     bronorganisatie shouldBe "123443210"
                     omschrijving shouldBe zaakDescription
@@ -311,7 +313,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     }
     Given(
         """
-        a productaanvraag-dimpact object registration object containing a betrokkene with role initiator and type vestiging
+        a productaanvraag-dimpact object registration object for which zaakafhandelparameters exist
+        containing a betrokkene with role initiator and type vestiging
         """
     ) {
         val productAanvraagObjectUUID = UUID.randomUUID()
@@ -399,8 +402,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     }
     Given(
         """
-        a productaanvraag-dimpact object registration object containing a betrokkene with role initiator 
-        but no supported initiator identification
+        a productaanvraag-dimpact object registration object for which zaakafhandelparameters exist
+        containing a betrokkene with role initiator but no supported initiator identification
         """
     ) {
         val productAanvraagObjectUUID = UUID.randomUUID()
@@ -478,7 +481,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     }
     Given(
         """
-        a productaanvraag-dimpact object registration object not containing any betrokkenen
+        a productaanvraag-dimpact object registration object for which zaakafhandelparameters exist 
+        not containing any betrokkenen
         """
     ) {
         val productAanvraagObjectUUID = UUID.randomUUID()
@@ -548,8 +552,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     }
     Given(
         """
-        a productaanvraag-dimpact object registration object containing a list of supported betrokkenen
-        including behandelaar but no initiator
+        a productaanvraag-dimpact object registration object for which zaakafhandelparameters exist
+        containing a list of supported betrokkenen including behandelaar but no initiator
         """
     ) {
         val productAanvraagObjectUUID = UUID.randomUUID()
@@ -776,7 +780,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             Then(
                 """
                 an inbox productaanvraag should be created and a zaak should not be created, 
-                and a CMMN case process should not be started
+                and no CMMN should be started
                 """
             ) {
                 verify(exactly = 0) {
@@ -790,12 +794,11 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     Given(
         """
         a productaanvraag-dimpact object registration object containing required data but
-        no betrokkenen and which contains a zaaktype for which no zaakafhandel parameters are configured 
+        no betrokkenen and which contains a zaaktype for which no zaakafhandelparameters are configured 
         and for which no zaaktype exists in the ZTC catalogus
         """
     ) {
         val productAanvraagObjectUUID = UUID.randomUUID()
-        val catalogusURI = URI("dummyCatalogusURI")
         val productAanvraagType = "productaanvraag"
         val zaakType = createZaakType()
         val createdZaak = createZaak()
@@ -818,8 +821,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         every {
             zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(productAanvraagType)
         } returns emptyList()
-        every { configuratieService.readDefaultCatalogusURI() } returns catalogusURI
-        every { ztcClientService.listZaaktypen(catalogusURI) } returns listOf(zaakType)
         every { inboxProductaanvraagService.create(capture(inboxProductaanvraagSlot)) } just runs
 
         When("the productaanvraag is handled") {
@@ -827,7 +828,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
             Then(
                 """
-                an inbox productaanvraag should be created, no zaak should be created and no CMMN case process should be started
+                an inbox productaanvraag should be created, 
+                no zaak should be created and no CMMN process should be started
                 """
             ) {
                 verify(exactly = 1) {
@@ -845,6 +847,31 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     type shouldBe productAanvraagType
                     initiatorID shouldBe null
                     aantalBijlagen shouldBe 0
+                }
+            }
+        }
+    }
+    Given(
+        """
+        a productaanvraag-dimpact object registration object is not a productaanvraag type
+        """
+    ) {
+        val productAanvraagObjectUUID = UUID.randomUUID()
+        every { objectsClientService.readObject(productAanvraagObjectUUID) } throws RuntimeException("Failed")
+
+        When("the productaanvraag is handled") {
+            productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+            Then(
+                """
+                no exception is thrown, and no further actions are taken
+                """
+            ) {
+                verify(exactly = 0) {
+                    inboxProductaanvraagService.create(any())
+                    zgwApiService.createZaak(any())
+                    zrcClientService.createZaakobject(any())
+                    cmmnService.startCase(any(), any(), any(), any())
                 }
             }
         }

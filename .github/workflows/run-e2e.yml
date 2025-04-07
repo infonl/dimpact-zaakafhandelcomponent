@@ -23,7 +23,7 @@ jobs:
         id: date
         run: echo "date=$(date +'%Y-%m-%d-%H-%M')" >> $GITHUB_OUTPUT
       - name: login to azure and allow pssessions
-        uses: azure/login@a65d910e8af852a8061c627c456678983e180302 # v2.2.0
+        uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
         with:
           creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
           enable-AzPSSession: true
@@ -53,7 +53,7 @@ jobs:
       - name: copy report to seperate folder
         if: always()
         run: "cd src/e2e && mv reports ${{ steps.date.outputs.date }} && mkdir reports && mv ${{ steps.date.outputs.date }} reports/"
-      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: playwright-report
@@ -69,7 +69,7 @@ jobs:
           keep_files: true # retains files that are not part of the current publish
       - name: Notify Slack
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
-        uses: 8398a7/action-slack@28ba43ae48961b90635b50953d216767a6bea486 # v3.16.2
+        uses: 8398a7/action-slack@1750b5085f3ec60384090fb7c52965ef822e869e # v3.18.0
         with:
           status: custom
           fields: workflow,job,status

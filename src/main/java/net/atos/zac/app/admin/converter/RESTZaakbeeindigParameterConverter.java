@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.admin.converter;
 
-import static net.atos.zac.app.zaak.model.RestResultaattypeKt.toRestResultaatType;
+import static nl.info.zac.app.zaak.model.RestResultaattypeKt.toRestResultaatType;
 
 import java.util.List;
 import java.util.Set;

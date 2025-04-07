@@ -89,7 +89,7 @@ VALUES
 );
 
 
--- RESULTTYPES (Resultaat type)
+-- RESULTAATTYPES
 
 -- For the first JSON object
 INSERT INTO catalogi_resultaattype

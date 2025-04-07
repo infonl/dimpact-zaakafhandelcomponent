@@ -9,10 +9,10 @@ import jakarta.json.bind.annotation.JsonbDateFormat
 import net.atos.zac.app.task.model.RestTaskHistoryLine
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.model.ValueChangeData
-import net.atos.zac.identity.IdentityService
-import net.atos.zac.identity.model.getFullName
 import net.atos.zac.util.JsonbUtil
 import net.atos.zac.util.time.DateTimeConverterUtil
+import nl.info.zac.identity.IdentityService
+import nl.info.zac.identity.model.getFullName
 import org.flowable.task.api.history.HistoricTaskLogEntry
 import org.flowable.task.api.history.HistoricTaskLogEntryType
 import java.util.Date

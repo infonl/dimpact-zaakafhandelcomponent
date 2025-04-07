@@ -4,8 +4,8 @@
  */
 package net.atos.zac.mailtemplates.model
 
-import net.atos.zac.mail.model.MailAdres
-import net.atos.zac.mail.model.createMailAdres
+import nl.info.zac.mail.model.MailAdres
+import nl.info.zac.mail.model.createMailAdres
 
 @Suppress("LongParameterList")
 fun createMailGegevens(

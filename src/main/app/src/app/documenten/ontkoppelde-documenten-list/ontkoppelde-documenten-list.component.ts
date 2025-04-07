@@ -14,6 +14,7 @@ import {
 import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSelectChange } from "@angular/material/select";
+import { MatSidenav } from "@angular/material/sidenav";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
@@ -23,7 +24,6 @@ import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { Zoekopdracht } from "../../gebruikersvoorkeuren/model/zoekopdracht";
-import { InformatieObjectVerplaatsService } from "../../informatie-objecten/informatie-object-verplaats.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import {
   ConfirmDialogComponent,
@@ -49,6 +49,8 @@ export class OntkoppeldeDocumentenListComponent
   dataSource = new MatTableDataSource<OntkoppeldDocument>();
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
+
   displayedColumns: string[] = [
     "titel",
     "creatiedatum",
@@ -71,13 +73,13 @@ export class OntkoppeldeDocumentenListComponent
   filterOntkoppeldDoor: GeneratedType<"RestUser">[] = [];
   filterChange = new EventEmitter<void>();
   clearZoekopdracht = new EventEmitter<void>();
+  selectedInformationObject: OntkoppeldDocument | null = null;
 
   constructor(
     private ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
     private infoService: InformatieObjectenService,
     private utilService: UtilService,
     public dialog: MatDialog,
-    private informatieObjectVerplaatsService: InformatieObjectVerplaatsService,
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
     public route: ActivatedRoute,
   ) {
@@ -117,6 +119,11 @@ export class OntkoppeldeDocumentenListComponent
       });
   }
 
+  openDrawer(selectedInformationObject: OntkoppeldDocument) {
+    this.selectedInformationObject = { ...selectedInformationObject };
+    this.actionsSidenav.open();
+  }
+
   updateListParameters(): void {
     this.listParameters.sort = this.sort.active;
     this.listParameters.order = this.sort.direction;
@@ -130,18 +137,6 @@ export class OntkoppeldeDocumentenListComponent
 
   getDownloadURL(od: OntkoppeldDocument): string {
     return this.infoService.getDownloadURL(od.documentUUID);
-  }
-
-  documentVerplaatsen(od: OntkoppeldDocument): void {
-    od["disabled"] = true;
-    this.infoService
-      .readEnkelvoudigInformatieobject(od.documentUUID)
-      .subscribe((i) => {
-        this.informatieObjectVerplaatsService.addTeVerplaatsenDocument(
-          i,
-          "ontkoppelde-documenten",
-        );
-      });
   }
 
   documentVerwijderen(od: OntkoppeldDocument): void {
@@ -164,15 +159,6 @@ export class OntkoppeldeDocumentenListComponent
           this.filterChange.emit();
         }
       });
-  }
-
-  isDocumentVerplaatsenDisabled(od: OntkoppeldDocument): boolean {
-    return (
-      od["disabled"] ||
-      this.informatieObjectVerplaatsService.isReedsTeVerplaatsen(
-        od.documentUUID,
-      )
-    );
   }
 
   filtersChanged(options: {
@@ -211,6 +197,10 @@ export class OntkoppeldeDocumentenListComponent
     } else {
       this.filterChange.emit();
     }
+  }
+
+  retriggerSearch(): void {
+    this.filterChange.emit();
   }
 
   createDefaultParameters(): OntkoppeldDocumentListParameters {

@@ -5,10 +5,11 @@
 
 package net.atos.zac.app.task.model
 
+import jakarta.json.JsonObject
 import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype
 import net.atos.zac.app.informatieobjecten.model.createRestInformatieobjecttype
-import net.atos.zac.app.zaak.model.createRestUser
+import nl.info.zac.app.zaak.model.createRestUser
 import java.util.UUID
 
 @Suppress("LongParameterList")
@@ -18,14 +19,16 @@ fun createRestTask(
     taakData: MutableMap<String, Any> = emptyMap<String, Any>().toMutableMap(),
     tabellen: MutableMap<String, List<String>> = emptyMap<String, List<String>>().toMutableMap(),
     zaakIdentificatie: String = "dummyZaakIndentificatie",
-    zaakUuid: UUID = UUID.randomUUID()
+    zaakUuid: UUID = UUID.randomUUID(),
+    formioFormulier: JsonObject? = null
 ) = RestTask(
     id = id,
     behandelaar = behandelaar,
     taakdata = taakData,
     tabellen = tabellen,
     zaakIdentificatie = zaakIdentificatie,
-    zaakUuid = zaakUuid
+    zaakUuid = zaakUuid,
+    formioFormulier = formioFormulier
 )
 
 fun createRestTaskDocumentData(

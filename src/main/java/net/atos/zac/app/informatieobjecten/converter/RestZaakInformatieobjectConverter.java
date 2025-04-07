@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
-import static net.atos.zac.app.zaak.model.RestZaakStatusKt.toRestZaakStatus;
+import static nl.info.zac.app.zaak.model.RestZaakStatusKt.toRestZaakStatus;
 
 import jakarta.inject.Inject;
 

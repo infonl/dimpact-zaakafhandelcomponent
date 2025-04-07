@@ -23,15 +23,15 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.createTestTask
-import net.atos.zac.search.IndexingService
-import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
-import net.atos.zac.task.TaskService
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
 import nl.info.zac.productaanvraag.ProductaanvraagService
+import nl.info.zac.search.IndexingService
+import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.task.TaskService
 import java.net.URI
 import java.util.UUID
 
@@ -303,6 +303,38 @@ class NotificationReceiverTest : BehaviorSpec({
                 verify(exactly = 1) {
                     indexingService.removeInformatieobject(informatieobjectUUID)
                     eventingService.send(any<ScreenEvent>())
+                }
+            }
+        }
+    }
+
+    Given("A test callback url notification") {
+        val notification = createNotificatie(
+            channel = Channel.TEST,
+            resource = Resource.TEST
+        )
+
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+
+        When("the notification is handled") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notification)
+
+            Then("a response is returned") {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+            }
+
+            And("no processing happens") {
+                verify(exactly = 0) {
+                    indexingService.removeInformatieobject(any())
+                    eventingService.send(any<ScreenEvent>())
+                    cmmnService.deleteCase(any())
+                    zaakVariabelenService.deleteAllCaseVariables(any())
+                    indexingService.removeZaak(any())
+                    indexingService.removeTaak(any())
+                    eventingService.send(any<ScreenEvent>())
+                    signaleringService.deleteSignaleringen(any())
+                    signaleringService.deleteSignaleringVerzonden(any())
                 }
             }
         }

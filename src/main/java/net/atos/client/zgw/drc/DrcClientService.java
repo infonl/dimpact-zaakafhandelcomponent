@@ -6,7 +6,7 @@
 package net.atos.client.zgw.drc;
 
 import static java.lang.String.format;
-import static net.atos.zac.configuratie.ConfiguratieService.ENV_VAR_ZGW_API_CLIENT_MP_REST_URL;
+import static nl.info.zac.configuratie.ConfiguratieService.ENV_VAR_ZGW_API_CLIENT_MP_REST_URL;
 
 import java.io.ByteArrayInputStream;
 import java.net.URI;
@@ -28,11 +28,11 @@ import net.atos.client.zgw.drc.model.Lock;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
-import net.atos.zac.configuratie.ConfiguratieService;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest;
 import nl.info.client.zgw.drc.model.generated.Gebruiksrechten;
+import nl.info.zac.configuratie.ConfiguratieService;
 
 
 @ApplicationScoped

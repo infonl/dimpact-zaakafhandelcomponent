@@ -8,7 +8,7 @@ package net.atos.zac.app.inboxdocumenten.converter;
 import net.atos.zac.app.inboxdocumenten.model.RESTInboxDocumentListParameters;
 import net.atos.zac.app.shared.RESTListParametersConverter;
 import net.atos.zac.documenten.model.InboxDocumentListParameters;
-import net.atos.zac.search.model.DatumRange;
+import nl.info.zac.search.model.DatumRange;
 
 public class RESTInboxDocumentListParametersConverter extends
                                                       RESTListParametersConverter<InboxDocumentListParameters, RESTInboxDocumentListParameters> {

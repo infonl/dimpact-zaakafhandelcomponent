@@ -62,7 +62,7 @@ test_inbox_productaanvragen_verwijderen_missing_role_fails if {
 # zaken_taken
 #############
 test_zaken_taken if {
-    zaken_taken with input.user.rollen as [ "behandelaar" ]
+    zaken_taken with input.user.rollen as [ "raadpleger" ]
 }
 
 test_zaken_taken_wrong_role_fails if {

@@ -20,12 +20,12 @@ import net.atos.zac.admin.model.ZaakafhandelParameters.ZAAKTYPE_OMSCHRIJVING
 import net.atos.zac.admin.model.ZaakafhandelParameters.ZAAKTYPE_UUID
 import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.admin.model.ZaakbeeindigReden
-import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.util.ValidationUtil
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI
@@ -92,12 +92,12 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
     }
 
     /**
-     * Finds the active zaakafhandelparameters for the specified productaanvraag type.
+     * Finds the active [ZaakafhandelParameters] for the specified productaanvraag type.
      * If multiple active zaakafhandelparameters are found, this indicates an
      * error in the configuration of zaakafhandelparameters.
      * There should be at most only one active zaakafhandelparameters for each productaanvraagtype.
      *
-     * @return the list of found zaakafhandelparameters
+     * @return the list of found [ZaakafhandelParameters] or an empty list if none are found
      */
     fun findActiveZaakafhandelparametersByProductaanvraagtype(
         productaanvraagType: String
