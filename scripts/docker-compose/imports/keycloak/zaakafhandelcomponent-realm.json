@@ -562,6 +562,26 @@
           "zaakafhandelcomponent_user"
         ]
       }
+    },
+    {
+      "id": "84802893-f2a9-4d67-b3e6-b1696f476201",
+      "name": "test-group-rp",
+      "path": "/test-group-rp",
+      "attributes": {
+        "description": [
+          "Test group which has access to raadplegers only"
+        ],
+        "email": [
+          "${ZAC_GROUP_RAADPLEGERS_1_EMAIL_ADDRESS}"
+        ]
+      },
+      "clientRoles": {
+        "zaakafhandelcomponent": [
+          "domein_test_1",
+          "raadpleger",
+          "zaakafhandelcomponent_user"
+        ]
+      }
     }
   ],
   "defaultRole": {
@@ -2559,7 +2579,7 @@
       "requiredActions" : [ ],
       "realmRoles" : [ "default-roles-zac" ],
       "notBefore" : 0,
-      "groups" : [ "/test-group-domein-test-1" ]
+      "groups" : [ "/test-group-rp" ]
     }
   ]
 }
