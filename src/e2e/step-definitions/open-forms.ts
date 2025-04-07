@@ -122,7 +122,7 @@ Given(
 
     const fileInput = await this.page.locator('input[type="file"]');
 
-    const filePath = path.join(__dirname, profile.documents.photo); // Path to the file to upload
+    const filePath = path.join(__dirname, profile.documents.photo);
     await fileInput.setInputFiles(filePath);
 
     const loader = await this.page.getByText("Bezig met uploaden...");
