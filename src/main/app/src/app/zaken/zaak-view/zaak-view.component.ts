@@ -863,8 +863,6 @@ export class ZaakViewComponent
       moment(this.zaakOpschorting?.vanafDatumTijd),
       "days",
     );
-    const duurVerkortingOpschorting: number =
-      werkelijkeOpschortDuur - this.zaakOpschorting.duurDagen;
 
     const dialogData = new DialogData(
       [
@@ -876,6 +874,9 @@ export class ZaakViewComponent
           .build(),
       ],
       (results: any[]) => {
+        const duurVerkortingOpschorting: number =
+          werkelijkeOpschortDuur - (this.zaakOpschorting?.duurDagen ?? 0);
+
         const zaakOpschortGegevens: GeneratedType<"RESTZaakOpschortGegevens"> =
           {
             indicatieOpschorting: false,
@@ -916,6 +917,7 @@ export class ZaakViewComponent
         if (result) {
           this.utilService.openSnackbar("msg.zaak.hervat");
           this.updateZaak();
+          this.loadOpschorting();
         }
       });
   }

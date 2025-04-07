@@ -53,7 +53,7 @@ export class ZaakIndicatiesComponent
             new Indicatie(
               indicatie,
               "pause",
-              this.getRedenOpschorting(),
+              `${this.translateService.instant("reden")}: ${this.getRedenOpschorting()}`,
             ).temporary(),
           );
           break;
@@ -86,7 +86,11 @@ export class ZaakIndicatiesComponent
           break;
         case ZaakIndicatie.VERLENGD:
           this.indicaties.push(
-            new Indicatie(indicatie, "update", this.getRedenVerlenging()),
+            new Indicatie(
+              indicatie,
+              "update",
+              `${this.translateService.instant("reden")}: ${this.getRedenVerlenging()}`,
+            ),
           );
           break;
       }
