@@ -7,10 +7,12 @@ import { SelectionModel } from "@angular/cdk/collections";
 import {
   AfterViewInit,
   Component,
+  EventEmitter,
   Input,
   OnChanges,
   OnDestroy,
   OnInit,
+  Output,
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
@@ -28,7 +30,6 @@ import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
-import { InformatieObjectVerplaatsService } from "../../informatie-objecten/informatie-object-verplaats.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import {
   FileFormat,
@@ -57,6 +58,9 @@ export class ZaakDocumentenComponent
 {
   readonly indicatiesLayout = IndicatiesLayout;
   @Input({ required: true }) zaak!: Zaak;
+  @Output() documentMoveToCase = new EventEmitter<
+    GeneratedType<"RestEnkelvoudigInformatieobject">
+  >();
 
   heeftGerelateerdeZaken = false;
   selectAll = false;
@@ -94,7 +98,6 @@ export class ZaakDocumentenComponent
     private zakenService: ZakenService,
     private dialog: MatDialog,
     private translate: TranslateService,
-    private informatieObjectVerplaatsService: InformatieObjectVerplaatsService,
     private router: Router,
   ) {}
 
@@ -188,13 +191,14 @@ export class ZaakDocumentenComponent
       });
   }
 
-  documentVerplaatsen(
-    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  emitDocumentMove(
+    row: GeneratedType<"RestEnkelvoudigInformatieobject">,
   ): void {
-    this.informatieObjectVerplaatsService.addTeVerplaatsenDocument(
-      informatieobject,
-      this.zaak.identificatie,
-    );
+    this.documentMoveToCase.emit(row);
+  }
+
+  updateDocumentList(): void {
+    this.loadInformatieObjecten();
   }
 
   documentOntkoppelen(
@@ -238,6 +242,7 @@ export class ZaakDocumentenComponent
               .id("reden")
               .label("reden")
               .validators(Validators.required)
+              .maxlength(200)
               .build(),
           ],
           (results: Record<string, any>) =>
@@ -263,27 +268,6 @@ export class ZaakDocumentenComponent
             }
           });
       });
-  }
-
-  isDocumentVerplaatsenDisabled(
-    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
-  ): boolean {
-    return this.informatieObjectVerplaatsService.isReedsTeVerplaatsen(
-      informatieobject.uuid,
-    );
-  }
-
-  isOntkoppelenDisabled(
-    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject"> & {
-      loading?: boolean;
-    },
-  ): boolean {
-    return (
-      informatieobject["loading"] ||
-      this.informatieObjectVerplaatsService.isReedsTeVerplaatsen(
-        informatieobject.uuid,
-      )
-    );
   }
 
   isPreviewBeschikbaar(formaat: FileFormat): boolean {

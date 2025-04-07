@@ -49,7 +49,6 @@ public class InboxProductaanvragenRESTService {
     @Inject
     private DrcClientService drcClientService;
 
-
     @Inject
     private PolicyService policyService;
 
@@ -57,19 +56,18 @@ public class InboxProductaanvragenRESTService {
     private InboxProductaanvraagService inboxProductaanvraagService;
 
     @Inject
-    private RESTInboxProductaanvraagConverter inboxProductaanvraagConverter;
-
-    @Inject
     private RESTInboxProductaanvraagListParametersConverter listParametersConverter;
 
     @PUT
     @Path("")
-    public RESTResultaat<RESTInboxProductaanvraag> list(final RESTInboxProductaanvraagListParameters restListParameters) {
+    public RESTResultaat<RESTInboxProductaanvraag> listInboxProductaanvragen(
+            final RESTInboxProductaanvraagListParameters restListParameters
+    ) {
         assertPolicy(policyService.readWerklijstRechten().inbox());
         final InboxProductaanvraagListParameters listParameters = listParametersConverter.convert(restListParameters);
         final InboxProductaanvraagResultaat resultaat = inboxProductaanvraagService.list(listParameters);
         final RESTInboxProductaanvraagResultaat restInboxProductaanvraagResultaat = new RESTInboxProductaanvraagResultaat(
-                inboxProductaanvraagConverter.convert(resultaat.getItems()), resultaat.getCount());
+                RESTInboxProductaanvraagConverter.convert(resultaat.getItems()), resultaat.getCount());
         final List<String> types = resultaat.getTypeFilter();
         if (CollectionUtils.isEmpty(types)) {
             if (restListParameters.type != null) {
@@ -98,7 +96,7 @@ public class InboxProductaanvragenRESTService {
 
     @DELETE
     @Path("{id}")
-    public void delete(@PathParam("id") final long id) {
+    public void deleteInboxProductaanvraag(@PathParam("id") final long id) {
         PolicyService.assertPolicy(policyService.readWerklijstRechten().inboxProductaanvragenVerwijderen());
         inboxProductaanvraagService.delete(id);
     }

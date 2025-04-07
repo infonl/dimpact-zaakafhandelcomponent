@@ -96,14 +96,14 @@ Be aware that you will need to set the ZAC environment variables according to yo
 
 ## Miscellaneous
 
-### Generating Swagger UI documentation for the ZAC backend API
+### Generating Redoc documentation for the ZAC backend API
 
-In order to generate the Swagger UI documentation for the ZAC backend API, use the following command:
+In order to generate API documentation for the ZAC backend API, use the following command:
 
 ```shell
-./gradlew generateSwaggerUI
+./gradlew generateZacApiDocs
 ```
 
-The Swagger UI documentation is generated in the `build/swagger-ui-zaakafhandelcomponent` folder.
+The ZAC API documentation is generated in the `build/generated/zac-api-docs` folder.
 
-This task is currently not run automatically as part of `./gradlew build`.
+Note that this task is not run automatically as part of `./gradlew build`.

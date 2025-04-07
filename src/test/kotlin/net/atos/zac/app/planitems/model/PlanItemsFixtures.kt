@@ -8,7 +8,7 @@ package net.atos.zac.app.planitems.model
 import net.atos.zac.app.identity.model.RestGroup
 import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.mail.model.RESTMailGegevens
-import net.atos.zac.app.zaak.model.createRestGroup
+import nl.info.zac.app.zaak.model.createRestGroup
 import java.time.LocalDate
 import java.util.UUID
 

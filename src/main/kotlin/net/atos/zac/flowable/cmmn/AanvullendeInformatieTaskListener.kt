@@ -5,9 +5,9 @@
 package net.atos.zac.flowable.cmmn
 
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.processengine.ProcessEngineLookupImpl
+import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import org.flowable.engine.delegate.TaskListener

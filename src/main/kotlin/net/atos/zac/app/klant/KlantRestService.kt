@@ -44,13 +44,13 @@ import net.atos.zac.app.klant.model.personen.toRechtsPersonen
 import net.atos.zac.app.klant.model.personen.toRestPersoon
 import net.atos.zac.app.klant.model.personen.toRestResultaat
 import net.atos.zac.app.shared.RESTResultaat
-import net.atos.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import org.hibernate.validator.constraints.Length
 import java.util.Objects
 import java.util.UUID

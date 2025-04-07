@@ -39,6 +39,7 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_BESLUIT_RESPONSE_DATE_INVALID_TYPE("msg.error.besluit.response.date.invalid"),
     ERROR_CODE_CASE_HAS_OPEN_SUBCASES("msg.error.case.has.open.subcases"),
     ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS("msg.error.case.has.locked.information.objects"),
+    ERROR_CODE_CASE_HAS_NO_COMMUNICATION_CHANNEL("msg.error.case.has.no.communication.channel"),
     ERROR_CODE_SEARCH_INDEXING("msg.error.search.indexing.exception"),
     ERROR_CODE_SEARCH_SEARCH("msg.error.search.search.exception"),
 

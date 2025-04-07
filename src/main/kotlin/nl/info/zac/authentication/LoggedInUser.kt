@@ -4,7 +4,7 @@
  */
 package nl.info.zac.authentication
 
-import net.atos.zac.identity.model.User
+import nl.info.zac.identity.model.User
 
 @Suppress("LongParameterList")
 class LoggedInUser(

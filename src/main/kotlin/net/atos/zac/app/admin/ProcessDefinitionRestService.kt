@@ -18,8 +18,8 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import net.atos.zac.app.admin.model.RestProcessDefinition
 import net.atos.zac.app.admin.model.RestProcessDefinitionContent
-import net.atos.zac.flowable.bpmn.BpmnService
 import net.atos.zac.policy.PolicyService
+import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.util.NoArgConstructor
 
 @Singleton

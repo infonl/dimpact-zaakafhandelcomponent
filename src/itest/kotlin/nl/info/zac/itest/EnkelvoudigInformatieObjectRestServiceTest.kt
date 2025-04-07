@@ -22,6 +22,8 @@ import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_A
 import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
+import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING
+import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
 import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_SIZE
@@ -160,7 +162,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("uuid", enkelvoudigInformatieObjectUUID)
                     .addFormDataPart("zaakUuid", zaakProductaanvraag1Uuid.toString())
-                    .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID)
+                    .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_FACTUUR_UUID)
                     .addFormDataPart("bestandsnaam", TEST_TXT_FILE_NAME)
                     .addFormDataPart("titel", DOCUMENT_UPDATED_FILE_TITLE)
                     .addFormDataPart("bestandsomvang", TEST_TXT_FILE_SIZE.toString())
@@ -202,7 +204,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     )
                     shouldContainJsonKeyValue(
                         "informatieobjectTypeOmschrijving",
-                        INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
+                        INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING
                     )
                     shouldContainJsonKey("informatieobjectTypeUUID")
                     shouldContainJsonKey("identificatie")
@@ -363,11 +365,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObject2UUID/"
             )
-            Then(
-                """
-                    the response should be OK and should contain information about the document converted to PDF
-                    """
-            ) {
+            Then("the response should be OK and should contain information about the document converted to PDF") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK
@@ -404,9 +402,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given(
-        "ZAC and all related Docker containers are running and a task exists"
-    ) {
+    Given("ZAC and all related Docker containers are running and a task exists") {
         When("the create enkelvoudig informatie object with file upload endpoint is called for the task") {
             val endpointUrl = "$ZAC_API_URI/informatieobjecten/informatieobject/" +
                 "$zaakProductaanvraag1Uuid/$task1ID?taakObject=true"

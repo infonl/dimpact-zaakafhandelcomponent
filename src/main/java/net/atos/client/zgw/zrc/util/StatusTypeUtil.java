@@ -4,8 +4,8 @@
  */
 package net.atos.client.zgw.zrc.util;
 
-import static net.atos.zac.configuratie.ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND;
-import static net.atos.zac.configuratie.ConfiguratieService.STATUSTYPE_OMSCHRIJVING_INTAKE;
+import static nl.info.zac.configuratie.ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND;
+import static nl.info.zac.configuratie.ConfiguratieService.STATUSTYPE_OMSCHRIJVING_INTAKE;
 
 import nl.info.client.zgw.ztc.model.generated.StatusType;
 

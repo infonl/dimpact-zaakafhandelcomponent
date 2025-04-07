@@ -5,7 +5,7 @@
 package net.atos.zac.app.identity.model
 
 import jakarta.validation.constraints.Size
-import net.atos.zac.identity.model.Group
+import nl.info.zac.identity.model.Group
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 

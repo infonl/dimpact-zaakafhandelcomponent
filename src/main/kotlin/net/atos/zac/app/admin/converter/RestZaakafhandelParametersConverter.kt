@@ -13,10 +13,10 @@ import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter.convertRESTZaa
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters
 import net.atos.zac.app.admin.model.RestSmartDocuments
 import net.atos.zac.app.admin.model.RestZaakafhandelParameters
-import net.atos.zac.app.zaak.model.RESTZaakStatusmailOptie
-import net.atos.zac.app.zaak.model.toRestResultaatType
-import net.atos.zac.smartdocuments.SmartDocumentsService
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.app.zaak.model.RESTZaakStatusmailOptie
+import nl.info.zac.app.zaak.model.toRestResultaatType
+import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 

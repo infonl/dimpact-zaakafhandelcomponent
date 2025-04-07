@@ -5,8 +5,8 @@
 
 package net.atos.zac.datatable;
 
-import net.atos.zac.shared.model.SorteerRichting;
-import net.atos.zac.shared.model.SorteerRichtingKt;
+import nl.info.zac.shared.model.SorteerRichting;
+import nl.info.zac.shared.model.SorteerRichtingKt;
 
 public class Sort {
 

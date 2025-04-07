@@ -10,8 +10,8 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.mockk
-import net.atos.zac.identity.IdentityService
 import nl.info.test.org.flowable.task.service.impl.persistence.entity.createHistoricTaskLogEntryEntityImpl
+import nl.info.zac.identity.IdentityService
 import org.flowable.task.api.history.HistoricTaskLogEntryType
 
 class RestTaskHistoryConverterTest : BehaviorSpec({

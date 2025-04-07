@@ -19,6 +19,8 @@ public class RESTOntkoppeldDocument {
 
     public String documentID;
 
+    public UUID informatieobjectTypeUUID;
+
     public String zaakID;
 
     public LocalDate creatiedatum;

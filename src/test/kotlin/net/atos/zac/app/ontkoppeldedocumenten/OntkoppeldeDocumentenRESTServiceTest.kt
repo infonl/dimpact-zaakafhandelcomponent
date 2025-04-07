@@ -6,10 +6,10 @@
 package net.atos.zac.app.ontkoppeldedocumenten
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -40,7 +40,6 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
     val listParametersConverter = mockk<RESTOntkoppeldDocumentListParametersConverter>()
     val userConverter = mockk<RestUserConverter>()
     val policyService = mockk<PolicyService>()
-
     val ontkoppeldeDocumentenRESTService = OntkoppeldeDocumentenRESTService(
         ontkoppeldeDocumentenService,
         drcClientService,
@@ -51,7 +50,9 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         policyService
     )
 
-    isolationMode = IsolationMode.InstancePerTest
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given("an id that doesn't belong to a document in the database") {
         val id: Long = 1
@@ -64,7 +65,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         } returns Optional.empty()
 
         When("the delete endpoint is called with that id") {
-            ontkoppeldeDocumentenRESTService.delete(id)
+            ontkoppeldeDocumentenRESTService.deleteDetachedDocument(id)
 
             Then("there are no exceptions") {
             }
@@ -90,7 +91,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         } just runs
 
         When("the delete endpoint is called with the id of that document") {
-            ontkoppeldeDocumentenRESTService.delete(document.id)
+            ontkoppeldeDocumentenRESTService.deleteDetachedDocument(document.id)
 
             Then("the document is deleted") {
                 verify(exactly = 1) {
@@ -116,7 +117,8 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         } throws ZgwErrorException(ZgwError(null, null, null, 400, null, null))
 
         When("the delete endpoint is called with the id of that document") {
-            val exception = shouldThrow<ZgwErrorException> { ontkoppeldeDocumentenRESTService.delete(document.id) }
+            val exception =
+                shouldThrow<ZgwErrorException> { ontkoppeldeDocumentenRESTService.deleteDetachedDocument(document.id) }
 
             Then("the exception from OpenZaak is rethrown") {
                 exception.zgwError.status shouldBe 400
@@ -146,7 +148,12 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         } returns mutableListOf(zaakInformatieObject)
 
         When("the delete endpoint is called with the id of that document") {
-            val exception = shouldThrow<IllegalStateException> { ontkoppeldeDocumentenRESTService.delete(document.id) }
+            val exception =
+                shouldThrow<IllegalStateException> {
+                    ontkoppeldeDocumentenRESTService.deleteDetachedDocument(
+                        document.id
+                    )
+                }
 
             Then("the an IllegalStateException should be thrown") {
                 exception shouldNotBe null
@@ -182,7 +189,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         } just runs
 
         When("the delete endpoint is called with the id of that document") {
-            ontkoppeldeDocumentenRESTService.delete(document.id)
+            ontkoppeldeDocumentenRESTService.deleteDetachedDocument(document.id)
 
             Then("the document is deleted") {
                 verify(exactly = 1) {

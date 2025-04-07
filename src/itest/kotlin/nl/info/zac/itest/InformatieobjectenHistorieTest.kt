@@ -21,6 +21,8 @@ import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_UPDATED_FILE_TITLE
+import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
+import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
@@ -96,6 +98,15 @@ class InformatieobjectenHistorieTest : BehaviorSpec({
                     "door": "$TEST_USER_1_NAME",
                     "nieuweWaarde": "$TEST_TXT_FILE_NAME",
                     "oudeWaarde": "$TEST_PDF_FILE_NAME",
+                    "toelichting": ""
+                  },
+                  {
+                    "actie": "GEWIJZIGD",
+                    "applicatie": "ZAC",
+                    "attribuutLabel": "documentType",
+                    "door": "$TEST_USER_1_NAME",
+                    "nieuweWaarde": "$INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING",
+                    "oudeWaarde": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
                     "toelichting": ""
                   },
                   {

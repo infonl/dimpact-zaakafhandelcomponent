@@ -1,18 +1,16 @@
 /*
- *
- *  * SPDX-FileCopyrightText: 2025 Lifely
- *  * SPDX-License-Identifier: EUPL-1.2+
- *
+ *  SPDX-FileCopyrightText: 2025 Lifely
+ *  SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.search.model
 
 import net.atos.zac.app.policy.converter.RestRechtenConverter
 import net.atos.zac.app.policy.model.RestDocumentRechten
 import net.atos.zac.policy.output.DocumentRechten
-import net.atos.zac.search.model.DocumentIndicatie
-import net.atos.zac.search.model.zoekobject.DocumentZoekObject
-import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate
+import nl.info.zac.search.model.DocumentIndicatie
+import nl.info.zac.search.model.zoekobject.DocumentZoekObject
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import java.time.LocalDate
 import java.util.EnumSet
 
