@@ -166,6 +166,8 @@ object ItestConfiguration {
     const val TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION = "Test group functional admins"
     const val TEST_GROUP_DOMEIN_TEST_1_ID = "test-group-domein-test-1"
     const val TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION = "Test group which has access to domein_test_1 only"
+    const val TEST_GROUP_RAADPLEGERS_ID = "test-group-rp"
+    const val TEST_GROUP_RAADPLEGERS_DESCRIPTION = "Test group which has access to raadplegers only"
     const val TEST_GROUP_RECORD_MANAGERS_ID = "test-group-rm"
     const val TEST_GROUP_RECORD_MANAGERS_DESCRIPTION = "Test group record managers"
 

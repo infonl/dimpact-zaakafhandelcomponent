@@ -2536,6 +2536,30 @@
       "realmRoles" : [ "default-roles-zac" ],
       "notBefore" : 0,
       "groups" : [ "/test-group-domein-test-1" ]
+    },
+    {
+      "id" : "63f88440-1fac-464e-88a8-28c3228045ae",
+      "username" : "raadpleger1",
+      "firstName" : "Test",
+      "lastName" : "Raadpleger1",
+      "email" : "${ZAC_RAADPLEGER_1_EMAIL_ADDRESS}",
+      "emailVerified" : true,
+      "createdTimestamp" : 1744010801635,
+      "enabled" : true,
+      "totp" : false,
+      "credentials" : [ {
+        "id" : "a70531cd-8b00-4fff-ae25-efe4ac821519",
+        "type" : "password",
+        "userLabel" : "My password",
+        "createdDate" : 1744010820325,
+        "secretData" : "{\"value\":\"U6EjWzWRRALZ/sDEHzAt4sO63LJ33n63pHNGKkhfXQ0=\",\"salt\":\"GH3F9ZRapgSearUu6GF+ug==\",\"additionalParameters\":{}}",
+        "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+      } ],
+      "disableableCredentialTypes" : [ ],
+      "requiredActions" : [ ],
+      "realmRoles" : [ "default-roles-zac" ],
+      "notBefore" : 0,
+      "groups" : [ "/test-group-domein-test-1" ]
     }
   ]
 }
