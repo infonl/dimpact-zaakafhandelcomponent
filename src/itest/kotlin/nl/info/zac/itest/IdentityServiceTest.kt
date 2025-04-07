@@ -17,10 +17,10 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_DOMEIN_TEST_1_DESC
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_DOMEIN_TEST_1_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_FUNCTIONAL_ADMINS_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_RAADPLEGERS_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_RAADPLEGERS_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_RECORD_MANAGERS_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_RECORD_MANAGERS_ID
+import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_1_ID
+import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
@@ -60,10 +60,6 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                     "id": "$TEST_GROUP_DOMEIN_TEST_1_ID",
                                     "naam": "$TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION"
-                                },
-                                {
-                                    "id": "$TEST_GROUP_RAADPLEGERS_ID",
-                                    "naam": "$TEST_GROUP_RAADPLEGERS_DESCRIPTION"
                                 }
                             ]
                 """.trimIndent()
@@ -82,6 +78,10 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                     "id": "$TEST_FUNCTIONAL_ADMIN_1_ID",
                                     "naam": "$TEST_FUNCTIONAL_ADMIN_1_NAME"
+                                },
+                                {
+                                    "id": "$TEST_RAADPLEGER_1_ID",
+                                    "naam": "$TEST_RAADPLEGER_1_NAME"
                                 },
                                 {
                                     "id": "$TEST_RECORD_MANAGER_1_USERNAME",
