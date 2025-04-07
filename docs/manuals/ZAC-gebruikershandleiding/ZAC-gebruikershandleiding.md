@@ -271,7 +271,7 @@ Deze werklijst bevat alle lopende taken die op naam van de ingelogde gebruiker s
 
 Alle documenten die in de ZAC bij een zaak zijn ontkoppeld komen in deze werklijst terecht.
 
-Vanuit de werklijst kunnen de documenten met het 'Document koppelen' formulier verplaatst worden naar een zaak. Dit kan door vanuit het overzicht op het verplaats icoon te klikken.
+Vanuit de werklijst kunnen de documenten met het 'Document koppelen' formulier gekoppeld worden aan een zaak. Dit kan door vanuit het overzicht op het koppel icoon te klikken.
 
 Het is ook mogelijk om een document te openen en daarna te verwijderen.
 
