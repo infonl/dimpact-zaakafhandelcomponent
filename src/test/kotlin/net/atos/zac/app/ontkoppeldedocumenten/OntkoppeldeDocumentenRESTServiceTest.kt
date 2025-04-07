@@ -20,7 +20,6 @@ import net.atos.client.zgw.shared.exception.ZgwErrorException
 import net.atos.client.zgw.shared.model.ZgwError
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.zac.app.identity.converter.RestUserConverter
 import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentConverter
 import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentListParametersConverter
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
@@ -28,6 +27,7 @@ import net.atos.zac.documenten.model.OntkoppeldDocument
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.createWerklijstRechten
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.zac.app.identity.converter.RestUserConverter
 import java.net.URI
 import java.util.Optional
 import java.util.UUID

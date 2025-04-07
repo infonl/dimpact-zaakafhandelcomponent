@@ -15,9 +15,9 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.zac.app.admin.model.RestFormioFormulier
-import net.atos.zac.app.admin.model.RestFormioFormulierContent
 import net.atos.zac.policy.PolicyService
+import nl.info.zac.app.admin.model.RestFormioFormulier
+import nl.info.zac.app.admin.model.RestFormioFormulierContent
 import nl.info.zac.formio.FormioService
 import nl.info.zac.util.NoArgConstructor
 

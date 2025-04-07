@@ -11,8 +11,8 @@ import java.util.UUID;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.FormParam;
 
-import net.atos.zac.app.configuratie.model.RestTaal;
 import nl.info.client.zgw.drc.model.generated.StatusEnum;
+import nl.info.zac.app.configuratie.model.RestTaal;
 
 public class RestEnkelvoudigInformatieObjectVersieGegevens extends RestEnkelvoudigInformatieFileUpload {
 

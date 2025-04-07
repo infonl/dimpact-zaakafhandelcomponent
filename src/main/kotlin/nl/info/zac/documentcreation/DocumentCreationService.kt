@@ -10,12 +10,12 @@ import jakarta.inject.Inject
 import jakarta.ws.rs.core.UriBuilder
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import net.atos.zac.util.MediaTypes
 import nl.info.client.smartdocuments.model.document.OutputFormat
 import nl.info.client.smartdocuments.model.document.Selection
 import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.smartdocuments.model.document.Variables
+import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter

@@ -21,12 +21,12 @@ import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolVestiging
 import net.atos.client.zgw.zrc.model.Vestiging
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.event.EventingService
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
+import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User

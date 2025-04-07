@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
-import net.atos.zac.app.identity.model.RestUser;
+import nl.info.zac.app.identity.model.RestUser;
 
 public class RESTOntkoppeldDocument {
 

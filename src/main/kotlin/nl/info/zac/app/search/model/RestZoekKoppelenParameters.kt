@@ -6,7 +6,7 @@
  */
 package nl.info.zac.app.search.model
 
-import net.atos.zac.app.shared.RestPageParameters
+import nl.info.zac.app.shared.RestPageParameters
 import nl.info.zac.search.model.ZoekParameters
 import nl.info.zac.search.model.ZoekVeld
 import nl.info.zac.search.model.zoekobject.ZoekObjectType

@@ -5,7 +5,7 @@
 package nl.info.zac.app.zaak.model
 
 import jakarta.validation.constraints.NotBlank
-import net.atos.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID

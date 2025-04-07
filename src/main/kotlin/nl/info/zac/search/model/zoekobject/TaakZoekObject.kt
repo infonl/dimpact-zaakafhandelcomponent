@@ -4,7 +4,7 @@
  */
 package nl.info.zac.search.model.zoekobject
 
-import net.atos.zac.app.task.model.TaakStatus
+import nl.info.zac.app.task.model.TaakStatus
 import nl.info.zac.util.NoArgConstructor
 import org.apache.solr.client.solrj.beans.Field
 import java.util.Date
