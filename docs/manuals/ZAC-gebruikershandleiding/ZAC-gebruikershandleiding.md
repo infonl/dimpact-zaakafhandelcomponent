@@ -279,7 +279,7 @@ Het is ook mogelijk om een document te openen en daarna te verwijderen.
 
 Alle documenten die nog niet bij een zaak hebben gehoord, maar wel aan een zaak toegevoegd moeten worden zijn te vinden in de Inbox documenten.
 
-Vanuit de werklijst kunnen de documenten met het 'Document koppelen' formulier verplaatst worden naar een zaak. Dit kan door vanuit het overzicht op het verplaats icoon te klikken. Met het prullenbak icoon kunnen de documenten verwijderd worden.
+Vanuit de werklijst kunnen de documenten met het 'Document koppelen' formulier gekoppeld worden aan een zaak. Dit kan door vanuit het overzicht op het koppel icoon te klikken.
 
 Het is ook mogelijk om een document te openen en daarna acties op het document uit te voeren.
 
