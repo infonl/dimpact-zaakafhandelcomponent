@@ -116,19 +116,25 @@ Given(
     await this.page.getByRole("button", { name: "Volgende" }).click();
 
     // Documents
-    const fileChooserPromise = this.page.waitForEvent("filechooser");
-    await this.page.getByRole("link", { name: "blader" }).first().click();
-    const fileChooser = await fileChooserPromise;
-    await fileChooser.setFiles(path.join(__dirname, profile.documents.photo));
+    await this.page
+      .locator("a[aria-label=\"selecteer een 'Foto'-bestand\"]")
+      .click();
+
+    const fileInput = await this.page.locator('input[type="file"]');
+
+    const filePath = path.join(__dirname, profile.documents.photo);
+    await fileInput.setInputFiles(filePath);
+
     const loader = await this.page.getByText("Bezig met uploaden...");
     await this.expect(loader).toHaveCount(0);
 
-    const fileChooserPromise2 = this.page.waitForEvent("filechooser");
-    await this.page.getByRole("link", { name: "blader" }).first().click();
-    const fileChooser2 = await fileChooserPromise2;
-    await fileChooser2.setFiles(
-      path.join(__dirname, profile.documents.invoice),
-    );
+    await this.page
+      .locator("a[aria-label=\"selecteer een 'Factuur of offerte'-bestand\"]")
+      .click();
+
+    const fileInput2 = await this.page.locator('input[type="file"]');
+    const filePath2 = path.join(__dirname, profile.documents.invoice);
+    await fileInput2.setInputFiles(filePath2);
     const loader2 = await this.page.getByText("Bezig met uploaden...");
     await this.expect(loader2).toHaveCount(0);
 
