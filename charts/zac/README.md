@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.30](https://img.shields.io/badge/Version-1.0.30-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
+![Version: 1.0.31](https://img.shields.io/badge/Version-1.0.31-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -272,7 +272,7 @@ helm install my-release zac/zaakafhandelcomponent
 | signaleringen.tolerations | list | `[]` |  |
 | smartDocuments.authentication | string | `""` | Authentication token |
 | smartDocuments.enabled | bool | `false` | Enable SmartDocuments integration for creating a new document |
-| smartDocuments.fixedUserName | string | `""` | Fixed username for authentication |
+| smartDocuments.fixedUserName | string | `""` | If this setting is set, then templates in SmartDocuments cannot use user-specific values. |
 | smartDocuments.url | string | `""` | URL to SmartDocuments instance. For example: https://partners.smartdocuments.com |
 | solr-operator.affinity | object | `{}` | affinity for solr-operator |
 | solr-operator.annotations | object | `{}` | annotations for solr-operator |
