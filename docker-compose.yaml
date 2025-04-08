@@ -587,7 +587,7 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - CELERY_LOGLEVEL=DEBUG
-      - OAB_PI_URL=http://localhost:8004
+      - OAB_API_URL=http://localhost:8004
       - OAB_API_PATH=/api/v1
       - OAB_ZAAK_URL_TEMPLATE=https://localhost:8080/zaken/{identificatie}
       - REQUESTS_READ_TIMEOUT=5000
