@@ -96,6 +96,8 @@ export class InformatieObjectenService {
       vertrouwelijkheidaanduiding: true,
       status: true,
       creatiedatum: formatDateForFormData,
+      ontvangstdatum: formatDateForFormData,
+      verzenddatum: formatDateForFormData,
       auteur: true,
       taal: true,
       beschrijving: true,
