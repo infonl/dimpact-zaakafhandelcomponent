@@ -35,7 +35,6 @@ class RestTaskHistoryConverter @Inject constructor(
         historicTaskLogEntries
             .map { convert(it) }
             .mapNotNull { it }
-            .toList()
 
     private fun convert(historicTaskLogEntry: HistoricTaskLogEntry): RestTaskHistoryLine? {
         val restTaakHistorieRegel = when (historicTaskLogEntry.type) {

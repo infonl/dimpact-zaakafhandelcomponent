@@ -34,7 +34,6 @@ class ZaakHistoryLineConverter @Inject constructor(
     fun convert(auditTrail: List<AuditTrailRegel>): List<HistoryLine> =
         auditTrail.sortedByDescending { it.aanmaakdatum }
             .flatMap { it.toRestHistorieRegelList() }
-            .toList()
 
     @Suppress("UNCHECKED_CAST")
     private fun AuditTrailRegel.toRestHistorieRegelList(): List<HistoryLine> =

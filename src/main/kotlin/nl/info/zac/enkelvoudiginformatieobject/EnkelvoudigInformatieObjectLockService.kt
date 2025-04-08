@@ -66,7 +66,6 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
     fun hasLockedInformatieobjecten(zaak: Zaak): Boolean {
         val informationObjectUUIDs = zrcClientService.listZaakinformatieobjecten(zaak)
             .map { it.informatieobject.extractUuid() }
-            .toList()
         if (informationObjectUUIDs.isEmpty()) {
             return false
         }

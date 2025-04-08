@@ -52,7 +52,6 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import org.hibernate.validator.constraints.Length
-import java.util.Objects
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
 
@@ -183,14 +182,8 @@ class KlantRestService @Inject constructor(
         // OpenKlant 2.1 pages start from 1 (not 0-based). Page 0 is considered invalid number
         val pageNumber = parameters.page!! + 1
         val betrokkenenWithKlantcontactList = klantClientService.listBetrokkenenByNumber(nummer, pageNumber)
-        val klantcontactListPage = betrokkenenWithKlantcontactList.toInitiatorAsUuidStringMap().let { map ->
-            betrokkenenWithKlantcontactList
-                .map { it.expand }
-                .filter { Objects.nonNull(it) }
-                .map { it.hadKlantcontact }
-                .map { it.toRestContactMoment(map) }
-                .toList()
-        }
+        val klantcontactListPage = betrokkenenWithKlantcontactList.mapNotNull { it.expand?.hadKlantcontact }
+            .map { it.toRestContactMoment(betrokkenenWithKlantcontactList.toInitiatorAsUuidStringMap()) }
         return RESTResultaat(klantcontactListPage, klantcontactListPage.size.toLong())
     }
 
