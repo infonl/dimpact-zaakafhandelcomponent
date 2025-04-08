@@ -13,7 +13,7 @@ As also documented in the [ZAC gebruikershandleiding](../manuals) ZAC supports t
 
 | Role           | Description                                                                                                                                |
 |:---------------|:-------------------------------------------------------------------------------------------------------------------------------------------|
-| Raadpleger     | Een raadpleger. Heeft de rechten om zaken, taken en documenten te raadplegen, zonder deze te wijzigen.
+| Raadpleger     | Een raadpleger. Heeft rechten om te lezen met zaken, taken en documenten.
 | Behandelaar    | Een zaakbehandelaar. Heeft alle rechten om met de werklijsten, zaken, taken en documenten te werken.                                       |
 | Coördinator    | Een zaakcoördinator of ook wel werkverdeler genoemd. Heeft rechten om vanuit werklijsten werk te verdelen en zaken en taken te raadplegen. |
 | Recordmanager  | Mag zaken en taken raadplegen en heeft aanvullende rechten op het gebied van documenten en beëindigde zaken.                               |
