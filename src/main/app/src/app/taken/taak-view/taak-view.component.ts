@@ -430,7 +430,7 @@ export class TaakViewComponent
   }
 
   onFormioFormChange(event: any) {
-    if (event.data) this.formioChangeData = event.data;
+    this.formioChangeData = event.data;
   }
 
   editToewijzing(event: any) {
