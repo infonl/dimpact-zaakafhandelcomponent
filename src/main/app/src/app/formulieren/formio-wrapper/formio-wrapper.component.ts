@@ -31,6 +31,7 @@ export class FormioWrapperComponent {
   }
 
   onChange(event: any) {
-    this.formChange.emit(event);
+    // Filter out form.io change events that do not contain data
+    if (event.data) this.formChange.emit(event);
   }
 }
