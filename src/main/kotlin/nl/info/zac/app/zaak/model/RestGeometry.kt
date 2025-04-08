@@ -46,7 +46,7 @@ private fun createPoint(restGeometry: RestGeometry) = Point(
 private fun createPolygon(restGeometry: RestGeometry) =
     Polygon(
         restGeometry.polygon?.map { polygon ->
-            polygon.map { Point2D(it.latitude, it.longitude) }.toList()
+            polygon.map { Point2D(it.latitude, it.longitude) }
         }
     )
 

@@ -154,7 +154,6 @@ class DecisionService @Inject constructor(
         val besluitInformatieobjecten = brcClientService.listBesluitInformatieobjecten(besluit.url)
         val currentDocumentUuids = besluitInformatieobjecten
             .map { it.informatieobject.extractUuid() }
-            .toList()
         val documentUuidsToRemove = CollectionUtils.subtract(currentDocumentUuids, newDocumentUuids)
         val documentUuidsToAdd = CollectionUtils.subtract(newDocumentUuids, currentDocumentUuids)
         documentUuidsToRemove.forEach { teVerwijderenInformatieobject ->

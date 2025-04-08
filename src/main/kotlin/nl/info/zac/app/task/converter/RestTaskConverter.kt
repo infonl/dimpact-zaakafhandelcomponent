@@ -90,7 +90,7 @@ class RestTaskConverter @Inject constructor(
             taakdocumenten = if (restTaakRechten.lezen) {
                 readTaskDocuments(
                     taskInfo
-                ).toList()
+                )
             } else {
                 null
             },
@@ -137,8 +137,7 @@ class RestTaskConverter @Inject constructor(
         restTask.formulierDefinitieId = humanTaskParameters.formulierDefinitieID
         humanTaskParameters.referentieTabellen.forEach {
             restTask.tabellen[it.veld] = it.tabel.values
-                .map { value -> value.name }
-                .toList()
+                .map { it.name }
         }
     }
 }

@@ -39,9 +39,7 @@ class ReferenceTableService @Inject constructor(
         }.firstOrNull()
 
     fun listReferenceTableValuesSorted(referenceTable: ReferenceTable) =
-        referenceTable.values
-            .sortedBy { it.sortOrder }
-            .toList()
+        referenceTable.values.sortedBy { it.sortOrder }
 
     fun listReferenceTables(): List<ReferenceTable> =
         entityManager.criteriaBuilder.let { criteriaBuilder ->
