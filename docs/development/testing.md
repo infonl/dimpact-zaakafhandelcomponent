@@ -152,6 +152,13 @@ breaks the build itself.
 For simple testing we use the ACT framework. Please refer to [scripts/github/README.md](../../scripts/github/README.md).
 This contains the details on how to run ACT tests.
 
+## OpenPolicy Agent Tests
+
+To run the OPA Tests you can use the following command:
+```shell
+docker run -it -v ./src/test/resources/policies:/home/tests -v ./src/main/resources/policies:/home/policies docker.io/openpolicyagent/opa:1.3.0 test /home/policies /home/tests
+```
+
 ## Manual tests
 
 ### Using Postman
