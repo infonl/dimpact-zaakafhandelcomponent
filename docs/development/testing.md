@@ -152,7 +152,7 @@ breaks the build itself.
 For simple testing we use the ACT framework. Please refer to [scripts/github/README.md](../../scripts/github/README.md).
 This contains the details on how to run ACT tests.
 
-## OpenPolicy Agent Tests
+## Open Policy Agent (OPA) Tests
 
 The tests are part of the integration tests profile and run automatically via Docker Compose. 
 
