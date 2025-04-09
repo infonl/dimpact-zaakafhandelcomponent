@@ -149,7 +149,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             }
             zoekParameters.besluittypeUUID?.let { besluittypeUuid ->
                 val besluittype = ztcClientService.readBesluittype(besluittypeUuid)
-                val compareList = besluittype.informatieobjecttypen.map { it.extractUuid() }.toList()
+                val compareList = besluittype.informatieobjecttypen.map { it.extractUuid() }
                 enkelvoudigInformatieobjectenVoorZaak = enkelvoudigInformatieobjectenVoorZaak.filter {
                     compareList.contains(it.informatieobjectTypeUUID)
                 }.toMutableList()
@@ -170,7 +170,6 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             .map(drcClientService::readEnkelvoudigInformatieobject)
             .filter(::isVerzendenToegestaan)
             .map { restInformatieobjectConverter.convertToREST(it, zaak) }
-            .toList()
     }
 
     @POST
@@ -461,8 +460,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         drcClientService.readEnkelvoudigInformatieobject(informatieobjectUuid)
             .apply { assertPolicy(policyService.readDocumentRechten(this).lezen) }
             .let(zrcClientService::listZaakinformatieobjecten)
-            .map { zaakInformatieobject -> zrcClientService.readZaak(zaakInformatieobject.zaak).identificatie }
-            .toList()
+            .map { zrcClientService.readZaak(it.zaak).identificatie }
 
     @POST
     @Path("/informatieobject/{uuid}/onderteken")
@@ -562,7 +560,6 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             .let { zaak ->
                 zrcClientService.listZaakinformatieobjecten(zaak)
                     .map { restInformatieobjectConverter.convertToREST(it, relatieType, zaak) }
-                    .toList()
             }
 
     private fun listGekoppeldeZaakInformatieObjectenVoorZaak(

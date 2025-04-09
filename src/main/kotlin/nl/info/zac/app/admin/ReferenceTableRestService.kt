@@ -50,7 +50,6 @@ class ReferenceTableRestService @Inject constructor(
         PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
         return referenceTableService.listReferenceTables()
             .map { it.toRestReferenceTable(false) }
-            .toList()
     }
 
     /**
@@ -131,7 +130,6 @@ class ReferenceTableRestService @Inject constructor(
         referenceTableService.readReferenceTable(Systeem.COMMUNICATIEKANAAL.name).values
     )
         .filter { communicationChannel -> includingEFormulier || communicationChannel != ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER }
-        .toList()
 
     @GET
     @Path("domein")
@@ -151,9 +149,7 @@ class ReferenceTableRestService @Inject constructor(
     }
 
     private fun getReferenceTableValueNames(referenceTableValues: List<ReferenceTableValue>) =
-        referenceTableValues
-            .map(ReferenceTableValue::name)
-            .toList()
+        referenceTableValues.map(ReferenceTableValue::name)
 
     fun ReferenceTable.updateExistingReferenceTable(
         restReferenceTableUpdate: RestReferenceTableUpdate

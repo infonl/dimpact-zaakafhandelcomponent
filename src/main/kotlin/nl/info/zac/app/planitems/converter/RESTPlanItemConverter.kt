@@ -25,7 +25,7 @@ class RESTPlanItemConverter @Inject constructor(
     fun convertPlanItems(planItems: List<PlanItemInstance>, zaak: Zaak): List<RESTPlanItem> =
         zaak.zaaktype.extractUuid().let { zaaktypeUUID ->
             zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID).let { zaakafhandelParameters ->
-                planItems.map { convertPlanItem(it, zaak.uuid, zaakafhandelParameters) }.toList()
+                planItems.map { convertPlanItem(it, zaak.uuid, zaakafhandelParameters) }
             }
         }
 
@@ -69,7 +69,7 @@ class RESTPlanItemConverter @Inject constructor(
                 actief = it.isActief
                 formulierDefinitie = FormulierDefinitie.valueOf(it.formulierDefinitieID)
                 it.referentieTabellen.forEach { rt ->
-                    tabellen[rt.veld] = rt.tabel.values.map(ReferenceTableValue::name).toList()
+                    tabellen[rt.veld] = rt.tabel.values.map(ReferenceTableValue::name)
                 }
                 groepId = it.groepID
                 if (it.doorlooptijd != null) {
