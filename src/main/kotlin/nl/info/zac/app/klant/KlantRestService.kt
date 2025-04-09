@@ -18,11 +18,12 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import net.atos.client.klant.KlantClientService
-import net.atos.client.klant.model.ExpandBetrokkene
 import net.atos.client.kvk.KvkClientService
 import net.atos.zac.app.shared.RESTResultaat
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
+import nl.info.client.klanten.model.generated.Betrokkene
+import nl.info.client.klanten.model.generated.ExpandBetrokkene
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.klant.exception.RechtspersoonNotFoundException
@@ -68,11 +69,6 @@ class KlantRestService @Inject constructor(
     val ztcClientService: ZtcClientService,
     val klantClientService: KlantClientService
 ) {
-    companion object {
-        const val TELEFOON_SOORT_DIGITAAL_ADRES = "telefoon"
-        const val EMAIL_SOORT_DIGITAAL_ADRES = "email"
-    }
-
     @GET
     @Path("persoon/{bsn}")
     fun readPersoon(
@@ -182,14 +178,14 @@ class KlantRestService @Inject constructor(
         // OpenKlant 2.1 pages start from 1 (not 0-based). Page 0 is considered invalid number
         val pageNumber = parameters.page!! + 1
         val betrokkenenWithKlantcontactList = klantClientService.listBetrokkenenByNumber(nummer, pageNumber)
-        val klantcontactListPage = betrokkenenWithKlantcontactList.mapNotNull { it.expand?.hadKlantcontact }
+        val klantcontactListPage = betrokkenenWithKlantcontactList.mapNotNull { it.hadKlantcontact }
             .map { it.toRestContactMoment(betrokkenenWithKlantcontactList.toInitiatorAsUuidStringMap()) }
         return RESTResultaat(klantcontactListPage, klantcontactListPage.size.toLong())
     }
 
     private fun ResultaatItem.isKoppelbaar() = this.vestigingsnummer != null || this.rsin != null
 
-    private fun List<ExpandBetrokkene>.toInitiatorAsUuidStringMap(): Map<UUID, String> =
+    private fun List<Betrokkene>.toInitiatorAsUuidStringMap(): Map<UUID, String> =
         this.filter { it.initiator }
-            .associate { it.expand.hadKlantcontact.uuid to it.volledigeNaam }
+            .associate { it.hadKlantcontact.uuid to it.volledigeNaam }
 }

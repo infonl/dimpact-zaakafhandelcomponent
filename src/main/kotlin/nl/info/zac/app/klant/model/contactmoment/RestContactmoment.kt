@@ -4,8 +4,8 @@
  */
 package nl.info.zac.app.klant.model.contactmoment
 
-import net.atos.client.klant.model.Actor
-import net.atos.client.klant.model.Klantcontact
+import nl.info.client.klanten.model.generated.Actor
+import nl.info.client.klanten.model.generated.Klantcontact
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
