@@ -589,12 +589,6 @@ tasks {
 
     register<GenerateTask>("generateKlantenClient") {
         description = "Generates Java client code for the Klanten API"
-        // disabled because (at least with our current settings) this results
-        // in uncompilable generated Java code
-        // this task was not enabled in the original Maven build either;
-        // these model files were added to the code base manually instead
-        isEnabled = false
-
         inputSpec.set("$rootDir/src/main/resources/api-specs/klanten/klanten-openapi.yaml")
         outputDir.set("$rootDir/src/generated/klanten/java")
         modelPackage.set("nl.info.client.klanten.model.generated")
