@@ -100,7 +100,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     this.initialZaakGeometry = this.zaak.zaakgeometrie;
 
     this.medewerkerGroepFormField = this.getMedewerkerGroupFormField(
-      !this.zaak.isOpen || !this.zaak.rechten.toekennen,
+      !this.zaak.rechten.toekennen,
       this.zaak?.groep.id,
       this.zaak?.behandelaar?.id,
     );
