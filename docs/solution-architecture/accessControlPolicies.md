@@ -25,9 +25,10 @@ Note that the ZAC authorisation architecture has been set up in such that a user
 next to their 'main' role in order to be able to work in ZAC.
 This means the following in practise:
 
-- A user with the 'Coordinator' role also needs to have the 'Behandelaar' role
-- A user with the 'Recordmanager' role also needs to have the 'Behandelaar' and 'Coordinator'  roles
-- A user with the 'Beheerder' role also needs to have the 'Behandelaar', 'Coordinator' and 'Recordmanager' roles
+- A user with the 'Behandelaar' role also needs to have the 'Raadpleger' role
+- A user with the 'Coordinator' role also needs to have the 'Raadpleger' and 'Behandelaar' role
+- A user with the 'Recordmanager' role also needs to have the 'Raadpleger', 'Behandelaar' and 'Coordinator'  roles
+- A user with the 'Beheerder' role also needs to have the 'Raadpleger', 'Behandelaar', 'Coordinator' and 'Recordmanager' roles
 
 ### System roles
 
