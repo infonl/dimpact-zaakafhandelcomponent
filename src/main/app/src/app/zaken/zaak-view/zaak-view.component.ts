@@ -83,12 +83,12 @@ export class ZaakViewComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   readonly indicatiesLayout = IndicatiesLayout;
-  zaak: Zaak;
-  zaakOpschorting: GeneratedType<"RESTZaakOpschorting">;
-  actiefPlanItem: PlanItem;
-  menu: MenuItem[];
+  zaak!: Zaak;
+  zaakOpschorting!: GeneratedType<"RESTZaakOpschorting">;
+  menu!: MenuItem[];
+  actiefPlanItem: PlanItem | null = null;
   activeSideAction: string | null = null;
-  teWijzigenBesluit: GeneratedType<"RestDecision">;
+  teWijzigenBesluit!: GeneratedType<"RestDecision">;
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
   takenDataSource = new MatTableDataSource<ExpandableTableData<Taak>>();
@@ -125,7 +125,7 @@ export class ZaakViewComponent
     "actions",
   ];
   bagObjectenDataSource = new MatTableDataSource<BAGObjectGegevens>();
-  gekoppeldeBagObjecten: BAGObject[];
+  gekoppeldeBagObjecten: BAGObject[] = [];
   bagObjectenColumns: string[] = [
     "identificatie",
     "type",
@@ -143,28 +143,20 @@ export class ZaakViewComponent
   editFormFields = new Map<string, any>();
   dateFieldIcon = new Map<string, TextIcon>();
   viewInitialized = false;
-  toolTipIcon = new TextIcon(
-    DateConditionals.provideFormControlValue(DateConditionals.always),
-    "info",
-    "toolTip_icon",
-    "",
-    "pointer",
-    true,
-  );
-  loggedInUser: GeneratedType<"RestLoggedInUser">;
+  loggedInUser!: GeneratedType<"RestLoggedInUser">;
 
-  private zaakListener: WebsocketListener;
-  private zaakRollenListener: WebsocketListener;
-  private zaakBesluitenListener: WebsocketListener;
-  private zaakTakenListener: WebsocketListener;
+  private zaakListener!: WebsocketListener;
+  private zaakRollenListener!: WebsocketListener;
+  private zaakBesluitenListener!: WebsocketListener;
+  private zaakTakenListener!: WebsocketListener;
   private datumPipe = new DatumPipe("nl");
 
-  @ViewChild("actionsSidenav") actionsSidenav: MatSidenav;
-  @ViewChild("menuSidenav") menuSidenav: MatSidenav;
-  @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
+  @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
+  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
+  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
 
-  @ViewChild("historieSort") historieSort: MatSort;
-  @ViewChild("takenSort") takenSort: MatSort;
+  @ViewChild("historieSort") historieSort!: MatSort;
+  @ViewChild("takenSort") takenSort!: MatSort;
   @ViewChild("zaakDocumentenComponent")
   zaakDocumentenComponent!: ZaakDocumentenComponent;
 
@@ -289,6 +281,7 @@ export class ZaakViewComponent
           return item[property];
       }
     };
+
     this.historie.sort = this.historieSort;
   }
 
