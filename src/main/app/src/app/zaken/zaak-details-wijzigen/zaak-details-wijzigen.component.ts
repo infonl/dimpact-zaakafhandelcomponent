@@ -48,19 +48,19 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
   formFields: Array<AbstractFormField[]> = [];
   formConfig: FormConfig;
 
-  private medewerkerGroepFormField: MedewerkerGroepFormField;
+  private medewerkerGroepFormField!: MedewerkerGroepFormField;
   private communicatiekanalen: Observable<string[]>;
-  private communicatiekanaalField: SelectFormField;
-  private startDatumField: DateFormField;
-  private einddatumGeplandField: DateFormField | InputFormField;
-  private uiterlijkeEinddatumAfdoeningField: DateFormField;
-  private vertrouwelijkheidaanduidingField: SelectFormField;
+  private communicatiekanaalField!: SelectFormField;
+  private startDatumField!: DateFormField;
+  private einddatumGeplandField!: DateFormField | InputFormField;
+  private uiterlijkeEinddatumAfdoeningField!: DateFormField;
+  private vertrouwelijkheidaanduidingField!: SelectFormField;
   private vertrouwelijkheidaanduidingenList: { label: string; value: string }[];
-  private omschrijving: TextareaFormField;
-  private toelichtingField: TextareaFormField;
+  private omschrijving!: TextareaFormField;
+  private toelichtingField!: TextareaFormField;
   reasonField: TextareaFormField;
   private ngDestroy = new Subject<void>();
-  private initialZaakGeometry: Geometry;
+  private initialZaakGeometry!: Geometry;
 
   constructor(
     private zakenService: ZakenService,
@@ -125,7 +125,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     this.einddatumGeplandField = this.createDateFormField(
       "einddatumGepland",
       this.zaak.einddatumGepland,
-      this.zaak.einddatumGepland &&
+      !!this.zaak.einddatumGepland &&
         (!this.zaak.rechten.wijzigen || this.zaak.isProcesGestuurd),
       [
         this.zaak.einddatumGepland
