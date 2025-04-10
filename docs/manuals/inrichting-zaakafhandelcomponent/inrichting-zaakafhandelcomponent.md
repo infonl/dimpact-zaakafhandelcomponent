@@ -69,7 +69,7 @@ Om de zaps te benaderen ga je door op het radar icoon te klikken naar de Beheer-
 Stappen:
 Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
 #### Gegevens
-In het tabblad ‘Gegevens’ worden de volgende aspecten ingericht:
+![image](images/zaps_gegevens.png)
 - CMMN model (v)| het zaakafhandelmodel waarmee de zaak wordt afgehandeld
 - Domein | om een zaaktype aan een specifiek domein toe te wijzen moet hier een domein gekozen worden. Als hier geen zeuze wordt gemaakt, dan valt dit zaaktype onder alle domeinen en zal door alle behandelaars die niet aan een specifiek domein zijn toegewezen worden gezien.
 - Groep (v)|  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
