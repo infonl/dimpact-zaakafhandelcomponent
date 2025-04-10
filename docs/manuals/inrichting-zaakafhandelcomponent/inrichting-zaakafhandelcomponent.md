@@ -275,16 +275,17 @@ Stappen:
 
 ## De functie van Domeinen
 
-Domeinen kunnen worden gebruikt om zaaktype en gebruikers aan elkaar te koppelen, waardoor je kunt zorgen dat deze gebruikers alleen deze zaaktypen kunnen behandelen.
-Bijvoorbeeld als je een domein wilt maken dat alle vergunningen omvat.
+Domeinen kunnen worden gebruikt om zaaktypen en gebruikers aan elkaar te koppelen, waardoor je kunt zorgen dat deze gebruikers alleen deze zaaktypen kunnen behandelen.
+Bijvoorbeeld als je een domein wilt maken dat alle vergunningen omvat, zodat je hier alle behandelaars die specifiek aan vergunningen werken in een stap al deze zaaktypen kan toewijzen.
 
 ## Domeinen inrichten en zaaktype / behandelaars toewijzen
 
-Om dit in ter ichten neem je de volgende stappen:
+Om de domein in te richten en toe te wijzen neem je de volgende stappen:
 1. In keyckloak:
 - maak een rol aan met een naam die beginnent met domein_ en een korte omschrijving van het domein, bijvoorbeeld domein_vergunningen
-- maak een groep aan met de functionele rol die de gebruikers moeten krijgen en de domein rol
+- maak een groep aan met de functionele rol die de gebruikers moeten krijgen en de juist aangemaakte domein rol
 - plaats de gebruikers die bij dit domein horen aan de groep toe
 2. In ZAC
-- maak in de referentietabel Domein een domein aan met exact dezlefde naam, in dit geval domein_vergunningen
+- maak in de referentietabel Domein een domein aan met exact dezelfde naam, in dit geval domein_vergunningen
 - open een zaaktype dat aan dit domein behoort in 'Zaakafhandel-parameters bewerken' en op de tab Gegevens kan je dan onder Domein je nieuw aangemaakte domein uit de referentietabel kiezen
+Na het opslaan is de domin opzet meteen in werking.
