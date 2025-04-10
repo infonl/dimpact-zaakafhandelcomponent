@@ -93,7 +93,7 @@ class IdentityServiceTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/identity/users"
             )
-            Then("'All 8 specific users are returned") {
+            Then("All 8 specific users are returned") {
                 response.isSuccessful shouldBe true
                 response.body!!.string() shouldEqualSpecifiedJsonIgnoringOrder """
                             [
