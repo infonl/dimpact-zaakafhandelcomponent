@@ -50,10 +50,10 @@ class IdentityServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/identity/groups"
             )
             Then(
-                "'test group a' and 'test group functional beheerders' are returned"
+                "'All 7 specific groups are returned"
             ) {
                 response.isSuccessful shouldBe true
-                response.body!!.string() shouldEqualJson """
+                response.body!!.string() shouldEqualSpecifiedJsonIgnoringOrder """
                             [
                                 {
                                     "id": "$TEST_GROUP_A_ID",
@@ -93,9 +93,9 @@ class IdentityServiceTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/identity/users"
             )
-            Then("'8 user are returned") {
+            Then("'All 8 specific users are returned") {
                 response.isSuccessful shouldBe true
-                response.body!!.string() shouldEqualJson """
+                response.body!!.string() shouldEqualSpecifiedJsonIgnoringOrder """
                             [
                                 {
                                     "id": "$TEST_BEHANDELAAR_1_USERNAME",
