@@ -56,28 +56,28 @@ class IdentityServiceTest : BehaviorSpec({
                 response.body!!.string() shouldEqualSpecifiedJsonIgnoringOrder """
                             [
                                 {
-                                    "id": "$TEST_GROUP_A_ID",
-                                    "naam": "$TEST_GROUP_A_DESCRIPTION"
+                                    "id": "$TEST_GROUP_FUNCTIONAL_ADMINS_ID",
+                                    "naam": "$TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION"
                                 },
                                 {
-                                    "id": "$TEST_GROUP_BEHANDELAARS_ID",
-                                    "naam": "$TEST_GROUP_BEHANDELAARS_DESCRIPTION"
+                                    "id": "$TEST_GROUP_RECORD_MANAGERS_ID",
+                                    "naam": "$TEST_GROUP_RECORD_MANAGERS_DESCRIPTION"
                                 },
                                 {
                                     "id": "$TEST_GROUP_COORDINATORS_ID",
                                     "naam": "$TEST_GROUP_COORDINATORS_DESCRIPTION"
                                 },
                                 {
-                                    "id": "$TEST_GROUP_FUNCTIONAL_ADMINS_ID",
-                                    "naam": "$TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION"
+                                    "id": "$TEST_GROUP_BEHANDELAARS_ID",
+                                    "naam": "$TEST_GROUP_BEHANDELAARS_DESCRIPTION"
                                 },
                                 {
                                     "id": "$TEST_GROUP_RAADPLEGERS_ID",
                                     "naam": "$TEST_GROUP_RAADPLEGERS_DESCRIPTION"
                                 },
                                 {
-                                    "id": "$TEST_GROUP_RECORD_MANAGERS_ID",
-                                    "naam": "$TEST_GROUP_RECORD_MANAGERS_DESCRIPTION"
+                                    "id": "$TEST_GROUP_A_ID",
+                                    "naam": "$TEST_GROUP_A_DESCRIPTION"
                                 },
                                 {
                                     "id": "$TEST_GROUP_DOMEIN_TEST_1_ID",
@@ -98,28 +98,24 @@ class IdentityServiceTest : BehaviorSpec({
                 response.body!!.string() shouldEqualSpecifiedJsonIgnoringOrder """
                             [
                                 {
-                                    "id": "$TEST_BEHANDELAAR_1_USERNAME",
-                                    "naam": "$TEST_BEHANDELAAR_1_NAME"
-                                },
-                                {
-                                    "id": "$TEST_COORDINATOR_1_USERNAME",
-                                    "naam": "$TEST_COORDINATOR_1_NAME"
-                                },
-                                {
                                     "id": "$TEST_FUNCTIONAL_ADMIN_1_ID",
                                     "naam": "$TEST_FUNCTIONAL_ADMIN_1_NAME"
-                                },
-                                {
-                                    "id": "$TEST_RAADPLEGER_1_ID",
-                                    "naam": "$TEST_RAADPLEGER_1_NAME"
                                 },
                                 {
                                     "id": "$TEST_RECORD_MANAGER_1_USERNAME",
                                     "naam": "$TEST_RECORD_MANAGER_1_NAME"
                                 },
                                 {
-                                    "id": "$TEST_USER_DOMEIN_TEST_1_ID",
-                                    "naam": "$TEST_USER_DOMEIN_TEST_1_NAME"
+                                    "id": "$TEST_COORDINATOR_1_USERNAME",
+                                    "naam": "$TEST_COORDINATOR_1_NAME"
+                                },
+                                {
+                                    "id": "$TEST_BEHANDELAAR_1_USERNAME",
+                                    "naam": "$TEST_BEHANDELAAR_1_NAME"
+                                },
+                                {
+                                    "id": "$TEST_RAADPLEGER_1_ID",
+                                    "naam": "$TEST_RAADPLEGER_1_NAME"
                                 },
                                 {
                                     "id": "$TEST_USER_1_USERNAME",
@@ -128,7 +124,11 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                     "id": "$TEST_USER_2_ID",
                                     "naam": "$TEST_USER_2_NAME"
-                                }                              
+                                },
+                                                                {
+                                    "id": "$TEST_USER_DOMEIN_TEST_1_ID",
+                                    "naam": "$TEST_USER_DOMEIN_TEST_1_NAME"
+                                }
                             ]
                 """.trimIndent()
             }
