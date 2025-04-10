@@ -98,24 +98,24 @@ class IdentityServiceTest : BehaviorSpec({
                 response.body!!.string() shouldEqualJson """
                             [
                                 {
-                                    "id": "$TEST_FUNCTIONAL_ADMIN_1_ID",
-                                    "naam": "$TEST_FUNCTIONAL_ADMIN_1_NAME"
-                                },
-                                {
-                                    "id": "$TEST_RECORD_MANAGER_1_USERNAME",
-                                    "naam": "$TEST_RECORD_MANAGER_1_NAME"
+                                    "id": "$TEST_BEHANDELAAR_1_USERNAME",
+                                    "naam": "$TEST_BEHANDELAAR_1_NAME"
                                 },
                                 {
                                     "id": "$TEST_COORDINATOR_1_USERNAME",
                                     "naam": "$TEST_COORDINATOR_1_NAME"
                                 },
                                 {
-                                    "id": "$TEST_BEHANDELAAR_1_USERNAME",
-                                    "naam": "$TEST_BEHANDELAAR_1_NAME"
+                                    "id": "$TEST_FUNCTIONAL_ADMIN_1_ID",
+                                    "naam": "$TEST_FUNCTIONAL_ADMIN_1_NAME"
                                 },
                                 {
                                     "id": "$TEST_RAADPLEGER_1_ID",
                                     "naam": "$TEST_RAADPLEGER_1_NAME"
+                                },
+                                {
+                                    "id": "$TEST_RECORD_MANAGER_1_USERNAME",
+                                    "naam": "$TEST_RECORD_MANAGER_1_NAME"
                                 },
                                 {
                                     "id": "$TEST_USER_DOMEIN_TEST_1_ID",
