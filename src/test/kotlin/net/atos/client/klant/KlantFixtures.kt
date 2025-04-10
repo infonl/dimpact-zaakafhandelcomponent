@@ -6,6 +6,7 @@
 package net.atos.client.klant
 
 import net.atos.client.klant.model.DigitaalAdres
+import net.atos.client.klant.model.SoortDigitaalAdresEnum
 import java.net.URI
 import java.util.UUID
 
@@ -16,12 +17,12 @@ fun createDigitalAddresses(
     createDigitalAddress(
         uri = URI("https://example.com/dummyUr"),
         address = phone,
-        soortDigitaalAdres = "telefoon"
+        soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER
     ),
     createDigitalAddress(
         uri = URI("https://example.com/dummyUri2"),
         address = email,
-        soortDigitaalAdres = "email"
+        soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL
     )
 )
 
@@ -29,7 +30,7 @@ fun createDigitalAddress(
     uuid: UUID = UUID.randomUUID(),
     uri: URI = URI("https://example.com/dummyUri"),
     address: String = "dummyAddress",
-    soortDigitaalAdres: String = "telefoon"
+    soortDigitaalAdres: SoortDigitaalAdresEnum = SoortDigitaalAdresEnum.TELEFOONNUMMER
 ) = DigitaalAdres(uuid, uri).apply {
     this.soortDigitaalAdres = soortDigitaalAdres
     this.adres = address
