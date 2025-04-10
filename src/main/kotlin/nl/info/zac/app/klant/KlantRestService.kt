@@ -180,7 +180,7 @@ class KlantRestService @Inject constructor(
         // OpenKlant 2.1 pages start from 1 (not 0-based). Page 0 is considered invalid number
         val pageNumber = parameters.page!! + 1
         val betrokkenenWithKlantcontactList = klantClientService.listBetrokkenenByNumber(nummer, pageNumber)
-        val klantcontactListPage = betrokkenenWithKlantcontactList.mapNotNull { it.hadKlantcontact }
+        val klantcontactListPage = betrokkenenWithKlantcontactList.mapNotNull { it.expand?.hadKlantcontact }
             .map { it.toRestContactMoment(betrokkenenWithKlantcontactList.toInitiatorAsUuidStringMap()) }
         return RESTResultaat(klantcontactListPage, klantcontactListPage.size.toLong())
     }
@@ -189,5 +189,5 @@ class KlantRestService @Inject constructor(
 
     private fun List<ExpandBetrokkene>.toInitiatorAsUuidStringMap(): Map<UUID, String> =
         this.filter { it.initiator }
-            .associate { it.hadKlantcontact.uuid to it.volledigeNaam }
+            .associate { it.expand.hadKlantcontact.uuid to it.volledigeNaam }
 }

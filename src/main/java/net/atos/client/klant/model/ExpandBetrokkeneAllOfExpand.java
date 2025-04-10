@@ -35,6 +35,9 @@ public class ExpandBetrokkeneAllOfExpand {
     @JsonbProperty("digitale_adressen")
     protected List<DigitaalAdres> digitaleAdressen = null;
 
+    @JsonbProperty("hadKlantcontact")
+    private Klantcontact hadKlantcontact;
+
     public ExpandBetrokkeneAllOfExpand() {
     }
 
@@ -54,6 +57,13 @@ public class ExpandBetrokkeneAllOfExpand {
         return digitaleAdressen;
     }
 
+    public Klantcontact getHadKlantcontact() {
+        return hadKlantcontact;
+    }
+
+    public void setHadKlantcontact(Klantcontact hadKlantcontact) {
+        this.hadKlantcontact = hadKlantcontact;
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -7,6 +7,8 @@
 
 package nl.info.zac.app.klant.model.personen
 
+import net.atos.client.klant.model.DigitaalAdres
+import net.atos.client.klant.model.SoortDigitaalAdresEnum
 import net.atos.zac.app.shared.RESTResultaat
 import net.atos.zac.util.StringUtil
 import net.atos.zac.util.StringUtil.ONBEKEND
@@ -31,8 +33,6 @@ import nl.info.client.brp.model.generated.ZoekMetNaamEnGemeenteVanInschrijvingRe
 import nl.info.client.brp.model.generated.ZoekMetNummeraanduidingIdentificatieResponse
 import nl.info.client.brp.model.generated.ZoekMetPostcodeEnHuisnummerResponse
 import nl.info.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse
-import nl.info.client.klanten.model.generated.DigitaalAdres
-import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.klant.model.klant.RestKlant
 import nl.info.zac.util.AllOpen
