@@ -288,4 +288,4 @@ Om het domein in te richten en toe te wijzen neem je de volgende stappen:
 2. In ZAC
 - maak in de referentietabel Domein een domein aan met exact dezelfde naam, in dit geval domein_vergunningen
 - open een zaaktype dat aan dit domein behoort in 'Zaakafhandel-parameters bewerken' en op de tab Gegevens kan je dan onder Domein je nieuw aangemaakte domein uit de referentietabel kiezen
-Na het opslaan is de domin opzet meteen in werking.
+Na het opslaan is de domin-opzet meteen in werking.
