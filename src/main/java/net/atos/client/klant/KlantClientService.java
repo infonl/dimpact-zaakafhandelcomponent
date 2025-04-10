@@ -11,10 +11,11 @@ import java.util.List;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
-import nl.info.client.klanten.model.generated.Betrokkene;
-import nl.info.client.klanten.model.generated.DigitaalAdres;
-import nl.info.client.klanten.model.generated.ExpandPartij;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+
+import net.atos.client.klant.model.DigitaalAdres;
+import net.atos.client.klant.model.ExpandBetrokkene;
+import net.atos.client.klant.model.ExpandPartij;
 
 @Singleton
 public class KlantClientService {
@@ -65,7 +66,7 @@ public class KlantClientService {
         return party.getExpand().getDigitaleAdressen();
     }
 
-    public List<Betrokkene> listBetrokkenenByNumber(final String number, final Integer page) {
+    public List<ExpandBetrokkene> listBetrokkenenByNumber(final String number, final Integer page) {
         ExpandPartij party = convertToSingleItem(
                 klantClient.partijenList(
                         null,

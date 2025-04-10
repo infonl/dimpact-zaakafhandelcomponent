@@ -18,12 +18,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import net.atos.client.klant.KlantClientService
+import net.atos.client.klant.model.ExpandBetrokkene
 import net.atos.client.kvk.KvkClientService
 import net.atos.zac.app.shared.RESTResultaat
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
-import nl.info.client.klanten.model.generated.Betrokkene
-import nl.info.client.klanten.model.generated.ExpandBetrokkene
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.klant.exception.RechtspersoonNotFoundException
@@ -74,7 +73,8 @@ class KlantRestService @Inject constructor(
     fun readPersoon(
         @PathParam("bsn") @Length(min = 8, max = 9) bsn: String
     ) = runBlocking {
-        // run the two client calls concurrently in a coroutine scope so we do not need to wait for the first call to complete
+        // run the two client calls concurrently in a coroutine scope,
+        // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
             val klantPersoonDigitalAddresses = async { klantClientService.findDigitalAddressesByNumber(bsn) }
             val brpPersoon = async { brpClientService.retrievePersoon(bsn) }
@@ -92,7 +92,8 @@ class KlantRestService @Inject constructor(
     fun readVestiging(
         @PathParam("vestigingsnummer") vestigingsnummer: String
     ) = runBlocking {
-        // run the two client calls concurrently in a coroutine scope so we do not need to wait for the first call to complete
+        // run the two client calls concurrently in a coroutine scope,
+        // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
             val klantVestigingDigitalAddresses =
                 async { klantClientService.findDigitalAddressesByNumber(vestigingsnummer) }
@@ -157,7 +158,8 @@ class KlantRestService @Inject constructor(
 
     @GET
     @Path("roltype")
-    fun listRoltypen(): List<RestRoltype> = ztcClientService.listRoltypen().sortedBy { it.omschrijving }.toRestRoltypes()
+    fun listRoltypen(): List<RestRoltype> =
+        ztcClientService.listRoltypen().sortedBy { it.omschrijving }.toRestRoltypes()
 
     @GET
     @Path("contactgegevens/{initiatorIdentificatie}")
@@ -185,7 +187,7 @@ class KlantRestService @Inject constructor(
 
     private fun ResultaatItem.isKoppelbaar() = this.vestigingsnummer != null || this.rsin != null
 
-    private fun List<Betrokkene>.toInitiatorAsUuidStringMap(): Map<UUID, String> =
+    private fun List<ExpandBetrokkene>.toInitiatorAsUuidStringMap(): Map<UUID, String> =
         this.filter { it.initiator }
             .associate { it.hadKlantcontact.uuid to it.volledigeNaam }
 }

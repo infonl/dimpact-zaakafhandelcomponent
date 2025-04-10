@@ -589,6 +589,11 @@ tasks {
 
     register<GenerateTask>("generateKlantenClient") {
         description = "Generates Java client code for the Klanten API"
+        // disabled because (at least with our current settings) this results
+        // in generated Java code that does not support full OpenKlanten API
+        // https://github.com/maykinmedia/open-klant/issues/216
+        isEnabled = false
+
         inputSpec.set("$rootDir/src/main/resources/api-specs/klanten/klanten-openapi.yaml")
         outputDir.set("$rootDir/src/generated/klanten/java")
         modelPackage.set("nl.info.client.klanten.model.generated")
