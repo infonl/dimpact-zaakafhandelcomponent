@@ -38,7 +38,7 @@ public class ExpandPartijAllOfExpand {
     /**
      * Digitaal adresen dat een partij verstrekte voor gebruik bij toekomstig contact met de gemeente.
      */
-    @JsonbProperty("digitale_adressen")
+    @JsonbProperty("digitaleAdressen")
     protected List<DigitaalAdres> digitaleAdressen = null;
 
     /**
