@@ -29,10 +29,10 @@ import jakarta.json.bind.annotation.JsonbProperty;
 public class PartijIdentificatorGroepType {
 
     @JsonbProperty("codeObjecttype")
-    protected Objecttype codeObjecttype;
+    protected String codeObjecttype;
 
     @JsonbProperty("codeSoortObjectId")
-    protected SoortObjectID codeSoortObjectId;
+    protected String codeSoortObjectId;
 
     /**
      * Waarde van de eigenschap die het object identificeert, bijvoorbeeld: '123456788'.
@@ -41,25 +41,25 @@ public class PartijIdentificatorGroepType {
     protected String objectId;
 
     @JsonbProperty("codeRegister")
-    protected Register codeRegister;
+    protected String codeRegister;
 
     /**
      * Get codeObjecttype
      * 
      * @return codeObjecttype
      **/
-    public Objecttype getCodeObjecttype() {
+    public String getCodeObjecttype() {
         return codeObjecttype;
     }
 
     /**
      * Set codeObjecttype
      */
-    public void setCodeObjecttype(Objecttype codeObjecttype) {
+    public void setCodeObjecttype(String codeObjecttype) {
         this.codeObjecttype = codeObjecttype;
     }
 
-    public PartijIdentificatorGroepType codeObjecttype(Objecttype codeObjecttype) {
+    public PartijIdentificatorGroepType codeObjecttype(String codeObjecttype) {
         this.codeObjecttype = codeObjecttype;
         return this;
     }
@@ -69,18 +69,18 @@ public class PartijIdentificatorGroepType {
      * 
      * @return codeSoortObjectId
      **/
-    public SoortObjectID getCodeSoortObjectId() {
+    public String getCodeSoortObjectId() {
         return codeSoortObjectId;
     }
 
     /**
      * Set codeSoortObjectId
      */
-    public void setCodeSoortObjectId(SoortObjectID codeSoortObjectId) {
+    public void setCodeSoortObjectId(String codeSoortObjectId) {
         this.codeSoortObjectId = codeSoortObjectId;
     }
 
-    public PartijIdentificatorGroepType codeSoortObjectId(SoortObjectID codeSoortObjectId) {
+    public PartijIdentificatorGroepType codeSoortObjectId(String codeSoortObjectId) {
         this.codeSoortObjectId = codeSoortObjectId;
         return this;
     }
@@ -111,18 +111,18 @@ public class PartijIdentificatorGroepType {
      * 
      * @return codeRegister
      **/
-    public Register getCodeRegister() {
+    public String getCodeRegister() {
         return codeRegister;
     }
 
     /**
      * Set codeRegister
      */
-    public void setCodeRegister(Register codeRegister) {
+    public void setCodeRegister(String codeRegister) {
         this.codeRegister = codeRegister;
     }
 
-    public PartijIdentificatorGroepType codeRegister(Register codeRegister) {
+    public PartijIdentificatorGroepType codeRegister(String codeRegister) {
         this.codeRegister = codeRegister;
         return this;
     }

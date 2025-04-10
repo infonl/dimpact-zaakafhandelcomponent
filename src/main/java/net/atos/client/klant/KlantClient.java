@@ -54,6 +54,7 @@ public interface KlantClient {
             @QueryParam("indicatieGeheimhouding") Boolean indicatieGeheimhouding,
             @QueryParam("nummer") String nummer,
             @QueryParam("page") Integer page,
+            @QueryParam("pageSize") Integer pageSize,
             @QueryParam("partijIdentificator__codeObjecttype") String partijIdentificatorCodeObjecttype,
             @QueryParam("partijIdentificator__codeRegister") String partijIdentificatorCodeRegister,
             @QueryParam("partijIdentificator__codeSoortObjectId") String partijIdentificatorCodeSoortObjectId,
