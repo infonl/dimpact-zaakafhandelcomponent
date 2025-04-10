@@ -15,8 +15,8 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
-import net.atos.zac.app.admin.model.RestReferenceTable
 import net.atos.zac.util.FlywayIntegrator
+import nl.info.zac.app.admin.model.RestReferenceTable
 import nl.info.zac.util.AllOpen
 
 @Entity

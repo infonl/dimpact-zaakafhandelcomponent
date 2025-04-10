@@ -8,8 +8,8 @@ import java.util.Map;
 
 import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.zac.app.task.model.RestTask;
 import net.atos.zac.flowable.ZaakVariabelenService;
+import nl.info.zac.app.task.model.RestTask;
 
 public class ResolveDefaultValueContext {
 

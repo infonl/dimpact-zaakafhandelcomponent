@@ -6,7 +6,7 @@ package nl.info.client.smartdocuments.model.document
 
 import jakarta.json.bind.annotation.JsonbDateFormat
 import jakarta.json.bind.annotation.JsonbProperty
-import net.atos.zac.documentcreation.converter.DocumentCreationDataConverter.Companion.DATE_FORMAT
+import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter.Companion.DATE_FORMAT
 import java.time.LocalDate
 
 data class AanvragerData(

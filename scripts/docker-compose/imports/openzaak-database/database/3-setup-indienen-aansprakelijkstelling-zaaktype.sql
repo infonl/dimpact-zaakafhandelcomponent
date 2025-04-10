@@ -89,7 +89,7 @@ VALUES
 );
 
 
--- RESULTTYPES (Resultaat type)
+-- RESULTAATTYPES
 
 -- For the first JSON object
 INSERT INTO catalogi_resultaattype
@@ -709,12 +709,9 @@ VALUES
 -- ZAC required the informatie objecttype `e-mail` to be present (note the case sensitivity). Also see the 'ConfiguratieService.java' class in the ZAC code base.
 -- the informatie objecttype `bijlage` is used in the flow of creating a zaak by ZAC from an incoming 'productaanvraag' notification
 
-
 -- Factuur
 INSERT INTO catalogi_informatieobjecttype (id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag, omschrijving_generiek_definitie, omschrijving_generiek_herkomst, omschrijving_generiek_hierarchie, omschrijving_generiek_informatieobjecttype, omschrijving_generiek_opmerking, trefwoord, informatieobjectcategorie)
 VALUES ((SELECT COALESCE(MAX(id),0) FROM catalogi_informatieobjecttype) + 1 , '2023-11-22', NULL, false, 'eca3ae33-c9f1-4136-a48a-47dc3f4aaaf5', 'factuur', 'openbaar', 1, '_etag', '', '', '', '', '', '{}', 'onbekend');
-
-
 
 -- Ontvangstbevestiging
 INSERT INTO catalogi_informatieobjecttype (id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag, omschrijving_generiek_definitie, omschrijving_generiek_herkomst, omschrijving_generiek_hierarchie, omschrijving_generiek_informatieobjecttype, omschrijving_generiek_opmerking, trefwoord, informatieobjectcategorie)
@@ -760,6 +757,7 @@ VALUES ((SELECT COALESCE(MAX(id),0) FROM catalogi_informatieobjecttype) + 1, '20
 INSERT INTO catalogi_informatieobjecttype (id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag, omschrijving_generiek_definitie, omschrijving_generiek_herkomst, omschrijving_generiek_hierarchie, omschrijving_generiek_informatieobjecttype, omschrijving_generiek_opmerking, trefwoord, informatieobjectcategorie)
 VALUES ((SELECT COALESCE(MAX(id),0) FROM catalogi_informatieobjecttype) + 1, '2023-11-22', NULL, false, '7397af15-44d1-4b0d-b7ea-22b20912ed80', 'besluit', 'openbaar', 1, '_etag', '', '', '', '', '', '{}', 'onbekend');
 
+
 -- ZAAKTYPEN INFORMATIEOBJECTTYPE
 -- e-mail
 INSERT INTO catalogi_zaaktypeinformatieobjecttype
@@ -769,7 +767,6 @@ VALUES
 (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = 'efc332f2-be3b-4bad-9e3c-49a6219c92ad'),
 NULL,
 (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'), '_etag');
-
 
 -- bijlage
 INSERT INTO catalogi_zaaktypeinformatieobjecttype
@@ -806,7 +803,6 @@ VALUES
 (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = 'd01b6502-6c9b-48a0-a5f2-9825a2128952'),
 NULL,
 (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'), '_etag');
-
 
 -- bewijs
 INSERT INTO catalogi_zaaktypeinformatieobjecttype

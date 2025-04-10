@@ -10,6 +10,7 @@ package net.atos.client.or.`object`.model
 import nl.info.client.or.objects.model.generated.ModelObject
 import nl.info.client.or.objects.model.generated.ObjectRecord
 import java.net.URI
+import java.time.LocalDate
 import java.util.UUID
 
 fun createORObject(
@@ -23,7 +24,9 @@ fun createORObject(
     }
 
 fun createObjectRecord(
-    data: Map<String, Any> = mapOf("dummyKey" to "dummyValue")
+    data: Map<String, Any> = mapOf("dummyKey" to "dummyValue"),
+    startAt: LocalDate? = null
 ) = ObjectRecord().apply {
     this.data = data
+    this.startAt = startAt
 }

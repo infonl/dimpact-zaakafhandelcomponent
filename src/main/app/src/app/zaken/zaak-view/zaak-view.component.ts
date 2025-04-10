@@ -66,6 +66,7 @@ import { IntakeAfrondenDialogComponent } from "../intake-afronden-dialog/intake-
 import { Zaak } from "../model/zaak";
 import { ZaakBetrokkene } from "../model/zaak-betrokkene";
 import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
+import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZaakKoppelenService } from "../zaak-koppelen/zaak-koppelen.service";
 import { ZaakOntkoppelenDialogComponent } from "../zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
 import { ZaakOpschortenDialogComponent } from "../zaak-opschorten-dialog/zaak-opschorten-dialog.component";
@@ -82,12 +83,13 @@ export class ZaakViewComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   readonly indicatiesLayout = IndicatiesLayout;
-  zaak: Zaak;
-  zaakOpschorting: GeneratedType<"RESTZaakOpschorting">;
-  actiefPlanItem: PlanItem;
-  menu: MenuItem[];
+  zaak!: Zaak;
+  zaakOpschorting!: GeneratedType<"RESTZaakOpschorting">;
+  menu!: MenuItem[];
+  actiefPlanItem: PlanItem | null = null;
   activeSideAction: string | null = null;
-  teWijzigenBesluit: GeneratedType<"RestDecision">;
+  teWijzigenBesluit!: GeneratedType<"RestDecision">;
+  documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
   takenDataSource = new MatTableDataSource<ExpandableTableData<Taak>>();
   allTakenExpanded = false;
@@ -123,7 +125,7 @@ export class ZaakViewComponent
     "actions",
   ];
   bagObjectenDataSource = new MatTableDataSource<BAGObjectGegevens>();
-  gekoppeldeBagObjecten: BAGObject[];
+  gekoppeldeBagObjecten: BAGObject[] = [];
   bagObjectenColumns: string[] = [
     "identificatie",
     "type",
@@ -141,28 +143,22 @@ export class ZaakViewComponent
   editFormFields = new Map<string, any>();
   dateFieldIcon = new Map<string, TextIcon>();
   viewInitialized = false;
-  toolTipIcon = new TextIcon(
-    DateConditionals.provideFormControlValue(DateConditionals.always),
-    "info",
-    "toolTip_icon",
-    "",
-    "pointer",
-    true,
-  );
-  loggedInUser: GeneratedType<"RestLoggedInUser">;
+  loggedInUser!: GeneratedType<"RestLoggedInUser">;
 
-  private zaakListener: WebsocketListener;
-  private zaakRollenListener: WebsocketListener;
-  private zaakBesluitenListener: WebsocketListener;
-  private zaakTakenListener: WebsocketListener;
+  private zaakListener!: WebsocketListener;
+  private zaakRollenListener!: WebsocketListener;
+  private zaakBesluitenListener!: WebsocketListener;
+  private zaakTakenListener!: WebsocketListener;
   private datumPipe = new DatumPipe("nl");
 
-  @ViewChild("actionsSidenav") actionsSidenav: MatSidenav;
-  @ViewChild("menuSidenav") menuSidenav: MatSidenav;
-  @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
+  @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
+  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
+  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
 
-  @ViewChild("historieSort") historieSort: MatSort;
-  @ViewChild("takenSort") takenSort: MatSort;
+  @ViewChild("historieSort") historieSort!: MatSort;
+  @ViewChild("takenSort") takenSort!: MatSort;
+  @ViewChild("zaakDocumentenComponent")
+  zaakDocumentenComponent!: ZaakDocumentenComponent;
 
   constructor(
     private takenService: TakenService,
@@ -285,6 +281,7 @@ export class ZaakViewComponent
           return item[property];
       }
     };
+
     this.historie.sort = this.historieSort;
   }
 
@@ -859,8 +856,6 @@ export class ZaakViewComponent
       moment(this.zaakOpschorting?.vanafDatumTijd),
       "days",
     );
-    const duurVerkortingOpschorting: number =
-      werkelijkeOpschortDuur - this.zaakOpschorting.duurDagen;
 
     const dialogData = new DialogData(
       [
@@ -872,6 +867,9 @@ export class ZaakViewComponent
           .build(),
       ],
       (results: any[]) => {
+        const duurVerkortingOpschorting: number =
+          werkelijkeOpschortDuur - (this.zaakOpschorting?.duurDagen ?? 0);
+
         const zaakOpschortGegevens: GeneratedType<"RESTZaakOpschortGegevens"> =
           {
             indicatieOpschorting: false,
@@ -912,6 +910,7 @@ export class ZaakViewComponent
         if (result) {
           this.utilService.openSnackbar("msg.zaak.hervat");
           this.updateZaak();
+          this.loadOpschorting();
         }
       });
   }
@@ -1240,6 +1239,19 @@ export class ZaakViewComponent
     this.activeSideAction = "actie.besluit.wijzigen";
     this.teWijzigenBesluit = $event;
     this.actionsSidenav.open();
+  }
+
+  documentMoveToCase(
+    $event: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>,
+  ): void {
+    this.activeSideAction = "actie.document.verplaatsen";
+    this.documentToMove = $event;
+    this.actionsSidenav.open();
+  }
+
+  updateDocumentList(): void {
+    this.zaakDocumentenComponent.updateDocumentList();
+    this.loadHistorie();
   }
 
   doIntrekking($event): void {

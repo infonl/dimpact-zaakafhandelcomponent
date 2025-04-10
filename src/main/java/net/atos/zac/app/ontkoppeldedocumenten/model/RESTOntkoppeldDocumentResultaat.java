@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.atos.zac.app.identity.model.RestUser;
 import net.atos.zac.app.shared.RESTResultaat;
+import nl.info.zac.app.identity.model.RestUser;
 
 public class RESTOntkoppeldDocumentResultaat extends RESTResultaat<RESTOntkoppeldDocument> {
 

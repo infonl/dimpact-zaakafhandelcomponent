@@ -24,10 +24,12 @@ services:
       - ZAC_RECORD_MANAGER_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RECORD_MANAGER_1_EMAIL_ADDRESS:-recordmanager1@example.com}
       - ZAC_FUNCTIONAL_ADMIN_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_FUNCTIONAL_ADMIN_1_EMAIL_ADDRESS:-functionaladmin1@example.com}
       - ZAC_TEST_USER_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS:-testuser-domein-test-1@example.com}
+      - ZAC_RAADPLEGER_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RAADPLEGER_1_EMAIL_ADDRESS:-raadpleger1@example.com}
       - ZAC_GROUP_A_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_A_EMAIL_ADDRESS:-test-group-a@example.com}
       - ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS:-test-group-functioneel-beheerders@example.com}
       - ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS:-test-group-record-managers@example.com}
       - ZAC_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS:-test-group-domein-test-1@example.com}
+      - ZAC_GROUP_RAADPLEGERS_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RAADPLEGERS_1_EMAIL_ADDRESS:-test-group-raadplegers@example.com}
     volumes:
       - ./scripts/docker-compose/imports/keycloak:/opt/keycloak/data/import
     command:
@@ -39,7 +41,7 @@ services:
       - "--health-enabled=true"
 
   keycloak-database:
-    image: docker.io/postgres:17.4@sha256:1c47b7139517eeb5e9747882983297a745517c3d70d2451e376f9fd5cc7cf1ef
+    image: docker.io/postgres:17.4@sha256:7f29c02ba9eeff4de9a9f414d803faa0e6fe5e8d15ebe217e3e418c82e652b35
     ports:
       - "54326:5432"
     healthcheck:
@@ -56,7 +58,7 @@ services:
       - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
 
   zac-database:
-    image: docker.io/postgres:17.4@sha256:1c47b7139517eeb5e9747882983297a745517c3d70d2451e376f9fd5cc7cf1ef
+    image: docker.io/postgres:17.4@sha256:7f29c02ba9eeff4de9a9f414d803faa0e6fe5e8d15ebe217e3e418c82e652b35
     ports:
       - "54320:5432"
     healthcheck:
@@ -162,7 +164,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   redis:
-    image: redis:7.4.1@sha256:ea96c435dc17b011f54c6a883c3c45e7726242b075de61c6fe40a10ae6ae0f83
+    image: redis:7.4.1@sha256:bb142a9c18ac18a16713c1491d779697b4e107c22a97266616099d288237ef47
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -243,7 +245,7 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:1.2.0-static@sha256:2636af0937bf7c5ab7f79271399c53c45d4b4d2af8a2b9cc43f65c6598b49064
+    image: docker.io/openpolicyagent/opa:1.3.0-static@sha256:44f0f4b1c09260eaf5e24fc3931fe10f80cffd13054ef3ef62cef775d5cbd272
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
@@ -257,7 +259,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: docker.io/postgres:17.4@sha256:1c47b7139517eeb5e9747882983297a745517c3d70d2451e376f9fd5cc7cf1ef
+    image: docker.io/postgres:17.4@sha256:7f29c02ba9eeff4de9a9f414d803faa0e6fe5e8d15ebe217e3e418c82e652b35
     ports:
       - "54325:5432"
     healthcheck:
@@ -336,7 +338,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:1.2.0@sha256:96f7ee5dbcc634853c55e0fc6090fe421d8c853da967ee0246f98bd186e2083f
+    image: docker.io/openpolicyagent/opa:1.3.0@sha256:e02dc1957f7a4195f0724762269dfe3309f13344629e0c926316a7cf72233af5
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -352,7 +354,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.121.0@sha256:5fdfd70f8e54b0dfb1ce3f403978a56054aba49a2922b6b118bb30d301812cde
+    image: docker.io/otel/opentelemetry-collector:0.123.0@sha256:e5e4a13f0ea98e7ca1d1d809be040180540146888d0d764abd4e1277cba87350
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -366,7 +368,7 @@ services:
 
   # Observability traces data store
   tempo:
-    image: docker.io/grafana/tempo:2.7.1@sha256:4443be217c396b065ee34845534199c36fdba4dc619cb96550e228d73fba6e69
+    image: docker.io/grafana/tempo:2.7.2@sha256:4b0277a9b572a4b1fa43b01468e58911ec214dd69d033f2cd476596d14de9fe3
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml
@@ -393,7 +395,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: docker.io/grafana/grafana:11.5.2@sha256:8b37a2f028f164ce7b9889e1765b9d6ee23fec80f871d156fbf436d6198d32b7
+    image: docker.io/grafana/grafana:11.6.0@sha256:62d2b9d20a19714ebfe48d1bb405086081bc602aa053e28cf6d73c7537640dfb
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -431,7 +433,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.0.7-alpine@sha256:da3287900b84c368fde75b6d5d0d3154208d25d8a7a6cfab1da4854e83bc9501
+    image: rabbitmq:4.0.8-alpine@sha256:a3b2aa541cfcc430832090fa83eb8451ff121db27d0b01d9aedc2c66734d7eca
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 30s
@@ -558,7 +560,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web:
-    image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
+    image: maykinmedia/open-archiefbeheer:1.0.0@sha256:e65152ebadea436fcb753f7408be527e6a2d2f99ada405e261626e1efdf1ae68
     platform: linux/amd64
     environment: &web_env
       - ALLOWED_HOSTS="*"
@@ -585,9 +587,9 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - CELERY_LOGLEVEL=DEBUG
-      - REACT_APP_API_URL=http://localhost:8004
-      - REACT_APP_API_PATH=/api/v1
-      - REACT_APP_ZAAK_URL_TEMPLATE=https://localhost:8080/zaken/{identificatie}
+      - OAB_API_URL=http://localhost:8004
+      - OAB_API_PATH=/api/v1
+      - OAB_ZAAK_URL_TEMPLATE=https://localhost:8080/zaken/{identificatie}
       - REQUESTS_READ_TIMEOUT=5000
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
@@ -608,7 +610,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web-init:
-    image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
+    image: maykinmedia/open-archiefbeheer:1.0.0@sha256:e65152ebadea436fcb753f7408be527e6a2d2f99ada405e261626e1efdf1ae68
     platform: linux/amd64
     environment: *web_env
     command: /setup_configuration.sh
@@ -622,7 +624,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery:
-    image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
+    image: maykinmedia/open-archiefbeheer:1.0.0@sha256:e65152ebadea436fcb753f7408be527e6a2d2f99ada405e261626e1efdf1ae68
     platform: linux/amd64
     command: /celery_worker.sh
     environment: *web_env
@@ -638,7 +640,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery-beat:
-    image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
+    image: maykinmedia/open-archiefbeheer:1.0.0@sha256:e65152ebadea436fcb753f7408be527e6a2d2f99ada405e261626e1efdf1ae68
     platform: linux/amd64
     command: /celery_beat.sh
     environment: *web_env
@@ -648,7 +650,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginx@sha256:91734281c0ebfc6f1aea979cffeed5079cfe786228a71cc6f1f46a228cde6e34
+    image: nginx:1.27.4@sha256:124b44bfc9ccd1f3cedf4b592d4d1e8bddb78b51ec2ed5056c52d3692baebc19
     ports:
       - "8005:80"
     volumes:
@@ -671,7 +673,6 @@ services:
       - BAG_API_KEY=${BAG_API_KEY:-dummyBagApiKey}
       - BRP_API_CLIENT_MP_REST_URL=http://brp-personen-mock:5010/haalcentraal/api/brp
       - BRON_ORGANISATIE_RSIN=${BRON_ORGANISATIE_RSIN:-123443210}
-      - BRP_API_KEY=dummyKey # not used when using the BRP proxy
       - CONTEXT_URL=http://localhost:8080
       - DB_HOST=zac-database
       - DB_NAME=zac

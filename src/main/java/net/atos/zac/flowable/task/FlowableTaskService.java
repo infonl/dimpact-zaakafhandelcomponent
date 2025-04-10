@@ -32,10 +32,10 @@ import org.flowable.task.api.TaskInfo;
 import org.flowable.task.api.history.HistoricTaskInstance;
 import org.flowable.task.api.history.HistoricTaskLogEntry;
 
-import net.atos.zac.app.task.model.TaakSortering;
 import net.atos.zac.flowable.task.exception.TaskNotFoundException;
 import net.atos.zac.flowable.task.model.ValueChangeData;
-import net.atos.zac.shared.model.SorteerRichting;
+import nl.info.zac.app.task.model.TaakSortering;
+import nl.info.zac.shared.model.SorteerRichting;
 
 @ApplicationScoped
 @Transactional

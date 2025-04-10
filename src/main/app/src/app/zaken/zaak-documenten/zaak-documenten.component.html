@@ -193,7 +193,6 @@
                     !row.isBesluitDocument &&
                     !row.relatieType
                   "
-                  [disabled]="isOntkoppelenDisabled(row)"
                   (click)="documentOntkoppelen(row)"
                 >
                   <mat-icon>link_off</mat-icon>
@@ -206,10 +205,9 @@
                     !row.isBesluitDocument &&
                     !row.relatieType
                   "
-                  [disabled]="isDocumentVerplaatsenDisabled(row)"
-                  (click)="documentVerplaatsen(row)"
+                  (click)="emitDocumentMove(row)"
                 >
-                  <mat-icon>content_cut</mat-icon>
+                  <mat-icon>move_item</mat-icon>
                   <span>{{ "actie.document.verplaatsen" | translate }}</span>
                 </button>
                 <a mat-menu-item [href]="getDownloadURL(row)">

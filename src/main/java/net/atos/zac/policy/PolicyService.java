@@ -7,11 +7,11 @@ package net.atos.zac.policy;
 
 import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
 import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake;
-import static net.atos.zac.enkelvoudiginformatieobject.util.EnkelvoudigInformatieObjectCheckersKt.isSigned;
 import static net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving;
 import static net.atos.zac.flowable.util.TaskUtil.isOpen;
 import static nl.info.client.zgw.drc.model.generated.StatusEnum.DEFINITIEF;
 import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
+import static nl.info.zac.enkelvoudiginformatieobject.util.EnkelvoudigInformatieObjectCheckersKt.isSigned;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
@@ -24,8 +24,6 @@ import org.flowable.task.api.TaskInfo;
 import net.atos.client.opa.model.RuleQuery;
 import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
-import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
 import net.atos.zac.policy.exception.PolicyException;
 import net.atos.zac.policy.input.DocumentData;
 import net.atos.zac.policy.input.DocumentInput;
@@ -39,16 +37,18 @@ import net.atos.zac.policy.output.OverigeRechten;
 import net.atos.zac.policy.output.TaakRechten;
 import net.atos.zac.policy.output.WerklijstRechten;
 import net.atos.zac.policy.output.ZaakRechten;
-import net.atos.zac.search.model.DocumentIndicatie;
-import net.atos.zac.search.model.ZaakIndicatie;
-import net.atos.zac.search.model.zoekobject.DocumentZoekObject;
-import net.atos.zac.search.model.zoekobject.TaakZoekObject;
-import net.atos.zac.search.model.zoekobject.ZaakZoekObject;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.client.zgw.ztc.model.generated.StatusType;
 import nl.info.client.zgw.ztc.model.generated.ZaakType;
 import nl.info.zac.authentication.LoggedInUser;
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
+import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
+import nl.info.zac.search.model.DocumentIndicatie;
+import nl.info.zac.search.model.ZaakIndicatie;
+import nl.info.zac.search.model.zoekobject.DocumentZoekObject;
+import nl.info.zac.search.model.zoekobject.TaakZoekObject;
+import nl.info.zac.search.model.zoekobject.ZaakZoekObject;
 
 @ApplicationScoped
 public class PolicyService {

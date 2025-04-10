@@ -271,7 +271,7 @@ Deze werklijst bevat alle lopende taken die op naam van de ingelogde gebruiker s
 
 Alle documenten die in de ZAC bij een zaak zijn ontkoppeld komen in deze werklijst terecht.
 
-Vanuit de werklijst kunnen de documenten met de klembordfunctionaliteit verplaatst worden naar een zaak. Dit kan door vanuit het overzicht op het schaar icoon te klikken.
+Vanuit de werklijst kunnen de documenten met het 'Document koppelen' formulier gekoppeld worden aan een zaak. Dit kan door vanuit het overzicht op het koppel icoon te klikken.
 
 Het is ook mogelijk om een document te openen en daarna te verwijderen.
 
@@ -279,7 +279,7 @@ Het is ook mogelijk om een document te openen en daarna te verwijderen.
 
 Alle documenten die nog niet bij een zaak hebben gehoord, maar wel aan een zaak toegevoegd moeten worden zijn te vinden in de Inbox documenten.
 
-Vanuit de werklijst kunnen de documenten met de klembordfunctionaliteit verplaatst worden naar een zaak. Dit kan door vanuit het overzicht op het schaar icoon te klikken. Met het prullenbak icoon kunnen de documenten verwijderd worden.
+Vanuit de werklijst kunnen de documenten met het 'Document koppelen' formulier gekoppeld worden aan een zaak. Dit kan door vanuit het overzicht op het koppel icoon te klikken.
 
 Het is ook mogelijk om een document te openen en daarna acties op het document uit te voeren.
 
@@ -1267,16 +1267,14 @@ Bij ieder document kan het oog icoon gebuikt worden om de documentgegevenspagina
 
 ## Document verplaatsen
 
-Het kan gebeuren dat een document bij een verkeerde zaak wordt toegevoegd. Een document naar een andere zaak verplaatsen kan met het schaar icoon. Hiermee wordt het document op een klembord gezet en kan in een andere zaak het document vanaf het klembord aan een andere zaak worden toegevoegd.
+Het kan gebeuren dat een document bij een verkeerde zaak wordt toegevoegd. Een document naar een andere zaak verplaatsen kan met het verplaats icoon.
 
 **Stappen**
 
-1 In het documentenoverzicht klik je bij het document dat je wilt verplaatsen op de drie puntjes en vervolgens op het schaar icoon. Het klembord verschijnt nu onder in beeld met het document erop geplaatst. Om het plaatsen of het klembord te annuleren klik je op het kruis.
+1 In het documentenoverzicht klik je bij het document dat je wilt verplaatsen op de drie puntjes en vervolgens op het verplaats icoon. Een formulier opent met de mogelijkheid om op zaaknummer te zoeken. 
+2 Na het zoeken kan het koppelen aan een andere zaak kan gedaan worden door op de verplaatsknop aan de rechterzijde van een gevonden zaak te klikken. De zaken waar niet aan gekoppeld kan worden zullen in grijs getoond worden en kunnen niet gekozen worden. Om te annuleren kan je op het kruis rechtsboven klikken.
 ![Document verplaatsen](./images/document-verplaatsen.png)
-
-2 Open de zaak waar je het document aan wilt toevoegen. Het verplaatsen icoon bij het document is nu actief.
-
-3 Klik op het document verplaatsen icoon om de actie uit te voeren
+![Document verplaatsen](./images/document-verplaatsen-2.png)
 
 ## Document ontkoppelen
 

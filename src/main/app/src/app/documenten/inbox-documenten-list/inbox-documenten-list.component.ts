@@ -13,6 +13,7 @@ import {
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
+import { MatSidenav } from "@angular/material/sidenav";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
@@ -23,7 +24,6 @@ import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { Zoekopdracht } from "../../gebruikersvoorkeuren/model/zoekopdracht";
-import { InformatieObjectVerplaatsService } from "../../informatie-objecten/informatie-object-verplaats.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import {
   ConfirmDialogComponent,
@@ -34,6 +34,7 @@ import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { InboxDocumentenService } from "../inbox-documenten.service";
 import { InboxDocument } from "../model/inbox-document";
 import { InboxDocumentListParameters } from "../model/inbox-document-list-parameters";
+import { OntkoppeldDocument } from "../model/ontkoppeld-document";
 
 @Component({
   templateUrl: "./inbox-documenten-list.component.html",
@@ -48,6 +49,8 @@ export class InboxDocumentenListComponent
     new MatTableDataSource<InboxDocument>();
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
+
   displayedColumns: string[] = [
     "enkelvoudiginformatieobjectID",
     "creatiedatum",
@@ -63,6 +66,7 @@ export class InboxDocumentenListComponent
   listParameters: InboxDocumentListParameters;
   filterChange: EventEmitter<void> = new EventEmitter<void>();
   clearZoekopdracht: EventEmitter<void> = new EventEmitter<void>();
+  selectedInformationObject: OntkoppeldDocument | null = null;
 
   constructor(
     private inboxDocumentenService: InboxDocumentenService,
@@ -70,7 +74,6 @@ export class InboxDocumentenListComponent
     private utilService: UtilService,
     public dialog: MatDialog,
     private translate: TranslateService,
-    private informatieObjectVerplaatsService: InformatieObjectVerplaatsService,
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
     public route: ActivatedRoute,
   ) {
@@ -124,18 +127,6 @@ export class InboxDocumentenListComponent
     return this.infoService.getDownloadURL(id.enkelvoudiginformatieobjectUUID);
   }
 
-  documentVerplaatsen(id: InboxDocument): void {
-    id["disabled"] = true;
-    this.infoService
-      .readEnkelvoudigInformatieobject(id.enkelvoudiginformatieobjectUUID)
-      .subscribe((i) => {
-        this.informatieObjectVerplaatsService.addTeVerplaatsenDocument(
-          i,
-          "inbox-documenten",
-        );
-      });
-  }
-
   documentVerwijderen(inboxDocument: InboxDocument): void {
     this.dialog
       .open(ConfirmDialogComponent, {
@@ -158,14 +149,6 @@ export class InboxDocumentenListComponent
       });
   }
 
-  isDocumentVerplaatsenDisabled(inboxDocument: InboxDocument): boolean {
-    return (
-      inboxDocument["disabled"] ||
-      this.informatieObjectVerplaatsService.isReedsTeVerplaatsen(
-        inboxDocument.enkelvoudiginformatieobjectUUID,
-      )
-    );
-  }
   filtersChanged(): void {
     this.paginator.pageIndex = 0;
     this.clearZoekopdracht.emit();
@@ -180,6 +163,10 @@ export class InboxDocumentenListComponent
     this.sort.active = this.listParameters.sort;
     this.sort.direction = this.listParameters.order;
     this.paginator.pageIndex = 0;
+    this.filterChange.emit();
+  }
+
+  retriggerSearch(): void {
     this.filterChange.emit();
   }
 
@@ -203,6 +190,11 @@ export class InboxDocumentenListComponent
 
   getWerklijst(): Werklijst {
     return Werklijst.INBOX_DOCUMENTEN;
+  }
+
+  openDrawer(selectedInformationObject: OntkoppeldDocument) {
+    this.selectedInformationObject = { ...selectedInformationObject };
+    this.actionsSidenav.open();
   }
 
   ngOnDestroy(): void {

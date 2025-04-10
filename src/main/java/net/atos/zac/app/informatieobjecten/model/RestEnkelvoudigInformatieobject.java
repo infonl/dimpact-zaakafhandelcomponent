@@ -13,10 +13,10 @@ import java.util.UUID;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.FormParam;
 
-import net.atos.zac.app.identity.model.RestUser;
 import net.atos.zac.app.policy.model.RestDocumentRechten;
-import net.atos.zac.search.model.DocumentIndicatie;
 import nl.info.client.zgw.drc.model.generated.StatusEnum;
+import nl.info.zac.app.identity.model.RestUser;
+import nl.info.zac.search.model.DocumentIndicatie;
 
 /**
  * Representation of an 'enkelvoudig informatieobject' (e.g. a document) in the ZAC REST API.

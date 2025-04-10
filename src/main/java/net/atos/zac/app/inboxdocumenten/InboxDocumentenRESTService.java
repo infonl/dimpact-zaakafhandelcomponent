@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.inboxdocumenten;
 
 import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
@@ -52,9 +51,6 @@ public class InboxDocumentenRESTService {
     private ZrcClientService zrcClientService;
 
     @Inject
-    private RESTInboxDocumentConverter inboxDocumentConverter;
-
-    @Inject
     private RESTInboxDocumentListParametersConverter listParametersConverter;
 
     @Inject
@@ -64,16 +60,26 @@ public class InboxDocumentenRESTService {
 
     @PUT
     @Path("")
-    public RESTResultaat<RESTInboxDocument> list(final RESTInboxDocumentListParameters restListParameters) {
+    public RESTResultaat<RESTInboxDocument> listInboxDocuments(final RESTInboxDocumentListParameters restListParameters) {
         PolicyService.assertPolicy(policyService.readWerklijstRechten().inbox());
         final InboxDocumentListParameters listParameters = listParametersConverter.convert(restListParameters);
-        return new RESTResultaat<>(inboxDocumentConverter.convert(
-                inboxDocumentenService.list(listParameters)), inboxDocumentenService.count(listParameters));
+        var inboxDocuments = inboxDocumentenService.list(listParameters);
+        var informationObjectTypeUUIDs = inboxDocuments.stream().map(
+                inboxDocument -> extractUuid(
+                        drcClientService
+                                .readEnkelvoudigInformatieobject(inboxDocument.getEnkelvoudiginformatieobjectUUID())
+                                .getInformatieobjecttype()
+                )
+        ).toList();
+        return new RESTResultaat<>(
+                RESTInboxDocumentConverter.convert(inboxDocuments, informationObjectTypeUUIDs),
+                inboxDocumentenService.count(listParameters)
+        );
     }
 
     @DELETE
     @Path("{id}")
-    public void delete(@PathParam("id") final long id) {
+    public void deleteInboxDocument(@PathParam("id") final long id) {
         PolicyService.assertPolicy(policyService.readWerklijstRechten().inbox());
         final Optional<InboxDocument> inboxDocument = inboxDocumentenService.find(id);
         if (inboxDocument.isEmpty()) {

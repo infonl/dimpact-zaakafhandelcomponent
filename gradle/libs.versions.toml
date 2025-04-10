@@ -1,23 +1,21 @@
 [versions]
-kotlin = "2.1.10"
-kotlinx-coroutines = "1.10.1"
+kotlin = "2.1.20"
+kotlinx-coroutines = "1.10.2"
 nodejs = "20.17.0"
 jsonschema2pojo = "1.2.2"
 kotlin-csv = "1.10.0"
-openapi = "4.0.8"
+openapi = "4.0.9"
 openapi-generator = "7.12.0"
-opentelemetry = "1.48.0"
+opentelemetry = "1.49.0"
 opentelemetry-instrumentation = "2.14.0"
 node-gradle = "7.1.0"
 taskinfo = "2.2.0"
-swagger-generator = "2.19.2"
 detekt = "1.23.8"
 spotless = "6.25.0"
 spotless-eclipse-formatter = "4.21"
 spotless-prettier-base = "3.4.2"
 spotless-prettier-organize-imports = "4.1.0"
-microprofile-rest-client = "3.0"
-jacoco = "0.8.12"
+jacoco = "0.8.13"
 glassfish-expressly = "5.0.0"
 keycloak = "25.0.6"
 
@@ -30,15 +28,14 @@ flowable = "7.1.0"
 slf4j = "2.0.17"
 auth0-java-jwt = "4.5.0"
 javax-cache = "1.1.1"
-google-guava = "33.4.0-jre"
+google-guava = "33.4.7-jre"
 itextpdf = "9.1.0"
 itextpdf-html2pdf = "6.1.0"
-flyway = "11.4.0"
+flyway = "11.7.0"
 apache-solr = "9.8.1"
-webdav-servlet = "1.2.141"
+webdav-servlet = "1.2.147"
 htmlcleaner = "2.29"
-swagger = "5.20.1"
-infinispan = "15.1.7.Final"
+infinispan = "15.2.1.Final"
 apache-httpclient = "4.5.14"
 reactive-streams = "1.0.4"
 
@@ -68,18 +65,15 @@ eclipse-yasson = "3.0.4"
 
 kotest-runner-junit5 = "5.9.1"
 kotest-assertions-json = "5.9.1"
-mockk = "1.13.17"
+mockk = "1.14.0"
 
 testcontainers = "1.20.6"
 
 json-json = "20250107"
 slf4j-simple = "2.0.17"
 
-github-kotlin-logging = "7.0.5"
+github-kotlin-logging = "7.0.6"
 okhttp = "4.12.0"
-
-os-detector = "1.7.3"
-undercouch-download = "5.6.0"
 
 [libraries]
 apache-commons-lang = { group = "org.apache.commons", name = "commons-lang3", version.ref = "apache-commons-lang" }
@@ -106,9 +100,7 @@ apache-solr = { group = "org.apache.solr", name = "solr-solrj", version.ref = "a
 webdav-servlet = { group = "nl.info.webdav", name = "webdav-servlet", version.ref = "webdav-servlet" }
 htmlcleaner = { group = "net.sourceforge.htmlcleaner", name = "htmlcleaner", version.ref = "htmlcleaner" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
-kotlin-csv-jvm = { group = "com.github.doyaaaaaken", name = "kotlin-csv-jvm", version.ref = "kotlin-csv" }
-
-swagger-ui = { group = "org.webjars", name = "swagger-ui", version.ref = "swagger" }
+kotlin-csv-jvm = { group = "com.jsoizo", name = "kotlin-csv-jvm", version.ref = "kotlin-csv" }
 
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
 
@@ -177,8 +169,5 @@ openapi = { id = "io.smallrye.openapi", version.ref = "openapi" }
 openapi-generator = { id = "org.openapi.generator", version.ref = "openapi-generator" }
 gradle-node = { id = "com.github.node-gradle.node", version.ref = "node-gradle" }
 taskinfo = { id = "org.barfuin.gradle.taskinfo", version.ref = "taskinfo" }
-swagger-generator = { id = "org.hidetake.swagger.generator", version.ref = "swagger-generator" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
-osdetector = { id = "com.google.osdetector", version.ref = "os-detector" }
-undercouch-download = { id = "de.undercouch.download", version.ref = "undercouch-download" }

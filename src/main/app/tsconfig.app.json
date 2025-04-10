@@ -4,10 +4,10 @@
     "outDir": "./out-tsc/app",
     "types": [],
     "allowSyntheticDefaultImports": true,
-    "strict": false // Allows for the app to still build while we fixing all TS issues
+    "strict": false
   },
   "angularCompilerOptions": {
-    "strictTemplates": false // Allows for the app to still build while we fixing all TS issues
+    "strictTemplates": false
   },
   "files": ["src/main.ts", "src/polyfills.ts"],
   "include": ["src/**/*.d.ts"],

@@ -8,7 +8,7 @@ package net.atos.zac.app.ontkoppeldedocumenten.converter;
 import net.atos.zac.app.ontkoppeldedocumenten.model.RESTOntkoppeldDocumentListParameters;
 import net.atos.zac.app.shared.RESTListParametersConverter;
 import net.atos.zac.documenten.model.OntkoppeldDocumentListParameters;
-import net.atos.zac.search.model.DatumRange;
+import nl.info.zac.search.model.DatumRange;
 
 public class RESTOntkoppeldDocumentListParametersConverter extends
                                                            RESTListParametersConverter<OntkoppeldDocumentListParameters, RESTOntkoppeldDocumentListParameters> {

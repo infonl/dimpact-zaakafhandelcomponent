@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.19](https://img.shields.io/badge/Version-1.0.19-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
+![Version: 1.0.32](https://img.shields.io/badge/Version-1.0.32-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,9 +14,9 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @bitnami | solr | 9.5.5 |
+| @bitnami | solr | 9.6.1 |
 | @opentelemetry | opentelemetry-collector | 0.104.0 |
-| @solr | solr-operator | 0.9.0 |
+| @solr | solr-operator | 0.9.1 |
 
 ## Usage
 
@@ -57,6 +57,9 @@ helm install my-release zac/zaakafhandelcomponent
 | bagApi.apiKey | string | `""` |  |
 | bagApi.url | string | `""` |  |
 | brpApi.apiKey | string | `""` |  |
+| brpApi.protocollering.doelbinding | string | `"BRPACT-Totaal"` | Doelbinding for BRP Protocollering |
+| brpApi.protocollering.originOin | string | `""` | If specified, enables the BRP Protocollering |
+| brpApi.protocollering.verwerking | string | `"zaakafhandelcomponent"` | Verwerking for BRP Protocollering |
 | brpApi.url | string | `""` |  |
 | catalogusDomein | string | `"ALG"` | OpenZaak Catalogus Domein |
 | contextUrl | string | `""` | External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com) |
@@ -81,6 +84,7 @@ helm install my-release zac/zaakafhandelcomponent
 | ingress.hosts[0].paths[0].path | string | `"/"` |  |
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` |  |
 | ingress.tls | list | `[]` |  |
+| initContainer | object | `{"enabled":true,"image":{"repository":"curlimages/curl","tag":"8.13.0@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd"}}` | set initContainer parameters |
 | keycloak.adminClient.id | string | `""` | Keycloak ZAC admin client name |
 | keycloak.adminClient.secret | string | `""` | Keycloak ZAC admin client secret |
 | klantinteractiesApi.token | string | `""` |  |
@@ -154,7 +158,7 @@ helm install my-release zac/zaakafhandelcomponent
 | nginx.existingConfigmap | string | `nil` | mount existing nginx vhost config |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.27.4@sha256:840f33319fb642e32a15a1772400e017e1175891c98afdff3a47871c925cb0e9"` |  |
+| nginx.image.tag | string | `"1.27.4@sha256:7f5f11aecd21f0f95267396b8e0fb839312368fdaa51b15199d28f03d91ccdc3"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -203,7 +207,7 @@ helm install my-release zac/zaakafhandelcomponent
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.2.0-static@sha256:2636af0937bf7c5ab7f79271399c53c45d4b4d2af8a2b9cc43f65c6598b49064"` |  |
+| opa.image.tag | string | `"1.3.0-static@sha256:44f0f4b1c09260eaf5e24fc3931fe10f80cffd13054ef3ef62cef775d5cbd272"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` | set url if the opa url cannot be automatically determined and is not run as a sidecar. the opa url should be the url the openpolicyagent can be reached on from ZAC ( for example: http://release-opa.default.svc.cluster.local:8181 ) url: "" |
 | opa.nodeSelector | object | `{}` |  |
@@ -256,7 +260,7 @@ helm install my-release zac/zaakafhandelcomponent
 | signaleringen.failedJobsHistoryLimit | int | `3` |  |
 | signaleringen.image.pullPolicy | string | `"IfNotPresent"` |  |
 | signaleringen.image.repository | string | `"curlimages/curl"` |  |
-| signaleringen.image.tag | string | `"8.12.1@sha256:94e9e444bcba979c2ea12e27ae39bee4cd10bc7041a472c4727a558e213744e6"` |  |
+| signaleringen.image.tag | string | `"8.13.0@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd"` |  |
 | signaleringen.imagePullSecrets | list | `[]` |  |
 | signaleringen.nodeSelector | object | `{}` |  |
 | signaleringen.podSecurityContext | object | `{}` |  |
@@ -268,7 +272,7 @@ helm install my-release zac/zaakafhandelcomponent
 | signaleringen.tolerations | list | `[]` |  |
 | smartDocuments.authentication | string | `""` | Authentication token |
 | smartDocuments.enabled | bool | `false` | Enable SmartDocuments integration for creating a new document |
-| smartDocuments.fixedUserName | string | `""` | Fixed username for authentication |
+| smartDocuments.fixedUserName | string | `""` | If this setting is set, then templates in SmartDocuments cannot use user-specific values. |
 | smartDocuments.url | string | `""` | URL to SmartDocuments instance. For example: https://partners.smartdocuments.com |
 | solr-operator.affinity | object | `{}` | affinity for solr-operator |
 | solr-operator.annotations | object | `{}` | annotations for solr-operator |
@@ -276,14 +280,14 @@ helm install my-release zac/zaakafhandelcomponent
 | solr-operator.fullnameOverride | string | `"solr-operator"` | set fullname for solr-operator |
 | solr-operator.image.pullPolicy | string | `"IfNotPresent"` | solr-operator imagePullPolicy |
 | solr-operator.image.repository | string | `"apache/solr-operator"` | solr-operator repository |
-| solr-operator.image.tag | string | `"v0.8.1@sha256:eccb92c2dbc468de0fcdcd41b0430d918ae0598bafbb94b7afb8e234a3ade47e"` | solr-operator tag |
+| solr-operator.image.tag | string | `"v0.9.1@sha256:4db34508137f185d3cad03c7cf7c2b5d6533fb590822effcde9125cff5a90aa2"` | solr-operator tag |
 | solr-operator.metrics.enabled | bool | `true` | enable to have solr-operator metric endpoints |
 | solr-operator.nodeSelector | object | `{}` | nodeSelector for solr-operator |
 | solr-operator.solr.affinity | object | `{}` | affinity for solr in solrcloud |
 | solr-operator.solr.annotations | object | `{}` | annotations for solr in solrcloud |
 | solr-operator.solr.busyBoxImage.pullPolicy | string | `"IfNotPresent"` | solr busybox image imagePullPolicy |
 | solr-operator.solr.busyBoxImage.repository | string | `"library/busybox"` | solr busybox image reposity |
-| solr-operator.solr.busyBoxImage.tag | string | `"1.37.0-glibc@sha256:04c3917ae1ad16d8be9702176a1e1ecd3cfe6b374a274bd52382c001b4ecd088"` | solr busybox image tag |
+| solr-operator.solr.busyBoxImage.tag | string | `"1.37.0-glibc@sha256:45fb3214fa75ede765da7fa85a18a96d0973c26d84dac49b1af23923e627a219"` | solr busybox image tag |
 | solr-operator.solr.enabled | bool | `true` | enable configuration of a solrcloud |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
@@ -294,7 +298,7 @@ helm install my-release zac/zaakafhandelcomponent
 | solr-operator.solr.jobs.createZacCore | bool | `true` | enable createZacCore to have a curl statement generate the zac core in the provided solrcloud if it does not exist yet |
 | solr-operator.solr.jobs.image.pullPolicy | string | `"IfNotPresent"` | solr jobs imagePullPolicy |
 | solr-operator.solr.jobs.image.repository | string | `"curlimages/curl"` | solr jobs repository |
-| solr-operator.solr.jobs.image.tag | string | `"8.12.1@sha256:94e9e444bcba979c2ea12e27ae39bee4cd10bc7041a472c4727a558e213744e6"` | solr jobs tag |
+| solr-operator.solr.jobs.image.tag | string | `"8.13.0@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd"` | solr jobs tag |
 | solr-operator.solr.jobs.nodeSelector | object | `{}` | nodeSelector for jobs |
 | solr-operator.solr.jobs.tolerations | list | `[]` | tolerations for jobs |
 | solr-operator.solr.logLevel | string | `"INFO"` | solr loglevel |

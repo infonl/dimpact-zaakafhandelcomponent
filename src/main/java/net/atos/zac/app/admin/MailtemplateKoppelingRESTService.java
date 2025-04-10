@@ -23,9 +23,9 @@ import jakarta.ws.rs.core.MediaType;
 import net.atos.zac.admin.MailTemplateKoppelingenService;
 import net.atos.zac.admin.model.MailtemplateKoppeling;
 import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter;
-import net.atos.zac.app.admin.converter.RestZaakafhandelParametersConverter;
 import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling;
 import net.atos.zac.policy.PolicyService;
+import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter;
 
 @Singleton
 @Path("beheer/mailtemplatekoppeling")

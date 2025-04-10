@@ -14,8 +14,7 @@ import net.atos.zac.admin.model.HumanTaskParameters;
 import net.atos.zac.app.admin.model.RESTHumanTaskParameters;
 import net.atos.zac.app.admin.model.RESTPlanItemDefinition;
 import net.atos.zac.app.admin.model.RestHumanTaskReferenceTable;
-import net.atos.zac.app.planitems.converter.FormulierKoppelingConverterKt;
-
+import nl.info.zac.app.planitems.converter.FormulierKoppelingConverterKt;
 
 public class RESTHumanTaskParametersConverter {
 

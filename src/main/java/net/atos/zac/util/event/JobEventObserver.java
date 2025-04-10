@@ -14,7 +14,7 @@ import jakarta.enterprise.event.ObservesAsync;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
-import net.atos.zac.signalering.ZaakTaskDueDateEmailNotificationService;
+import nl.info.zac.signalering.ZaakTaskDueDateEmailNotificationService;
 
 /**
  * This bean listens for job events and handles them by calling the corresponding service.

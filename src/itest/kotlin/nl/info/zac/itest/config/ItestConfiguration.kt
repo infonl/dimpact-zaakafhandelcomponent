@@ -4,6 +4,7 @@
  */
 package nl.info.zac.itest.config
 
+import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Month
@@ -47,6 +48,7 @@ object ItestConfiguration {
     const val BETROKKENE_IDENTIFICATION_TYPE_BSN = "BSN"
     const val BETROKKENE_IDENTIFACTION_TYPE_VESTIGING = "VN"
     const val BETROKKENE_ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
+    const val BPMN_TEST_PROCESS = "bpmnTestProcess.bpmn"
     const val BRON_ORGANISATIE = "123443210"
     const val CONFIG_MAX_FILE_SIZE_IN_MB = 80L
     const val CONFIG_GEMEENTE_CODE = "9999"
@@ -57,6 +59,8 @@ object ItestConfiguration {
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING = "bijlage"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
+    const val INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING = "factuur"
+    const val INFORMATIE_OBJECT_TYPE_FACTUUR_UUID = "eca3ae33-c9f1-4136-a48a-47dc3f4aaaf5"
     const val INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING = "e-mail"
     const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
     const val KEYCLOAK_HEALTH_READY_URL = "http://localhost:9001/health/ready"
@@ -96,7 +100,7 @@ object ItestConfiguration {
     const val ROLTYPE_NAME_MEDEAANVRAGER = "Medeaanvrager"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
     const val ROLTYPE_UUID_MEDEAANVRAGER = "b14cf056-0480-4060-a376-1dd522a50431"
-    const val ROLTYPE_COUNT = 16
+    const val ROLTYPE_COUNT = 24
     const val SCREEN_EVENT_TYPE_TAKEN_VERDELEN = "TAKEN_VERDELEN"
     const val SCREEN_EVENT_TYPE_TAKEN_VRIJGEVEN = "TAKEN_VRIJGEVEN"
     const val SCREEN_EVENT_TYPE_ZAKEN_VERDELEN = "ZAKEN_VERDELEN"
@@ -156,12 +160,16 @@ object ItestConfiguration {
     const val TEST_RECORD_MANAGER_1_NAME = "Test Recordmanager1"
     const val TEST_FUNCTIONAL_ADMIN_1_ID = "functioneelbeheerder1"
     const val TEST_FUNCTIONAL_ADMIN_1_NAME = "Test Functioneelbeheerder1"
+    const val TEST_RAADPLEGER_1_ID = "raadpleger1"
+    const val TEST_RAADPLEGER_1_NAME = "Test Raadpleger1"
     const val TEST_GROUP_A_ID = "test-group-a"
     const val TEST_GROUP_A_DESCRIPTION = "Test group A"
     const val TEST_GROUP_FUNCTIONAL_ADMINS_ID = "test-group-fb"
     const val TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION = "Test group functional admins"
     const val TEST_GROUP_DOMEIN_TEST_1_ID = "test-group-domein-test-1"
     const val TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION = "Test group which has access to domein_test_1 only"
+    const val TEST_GROUP_RAADPLEGERS_ID = "test-group-rp"
+    const val TEST_GROUP_RAADPLEGERS_DESCRIPTION = "Test group which has access to raadplegers only"
     const val TEST_GROUP_RECORD_MANAGERS_ID = "test-group-rm"
     const val TEST_GROUP_RECORD_MANAGERS_DESCRIPTION = "Test group record managers"
 
@@ -288,12 +296,14 @@ object ItestConfiguration {
      */
     const val ZAC_MANAGEMENT_URI = "http://localhost:$ZAC_MANAGEMENT_PORT"
     const val ZAC_HEALTH_READY_URL = "$ZAC_MANAGEMENT_URI/health/ready"
+    const val ZAAKTYPE_BPMN_TEST_IDENTIFICATIE = "bpmn-test-zaaktype"
+    const val ZAAKTYPE_BPMN_TEST_DESCRIPTION = "BPMN test zaaktype"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE = "melding-evenement-organiseren-behandelen"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION = "Melding evenement organiseren behandelen"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_REFERENTIEPROCES = "melding klein evenement"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_IDENTIFICATIE =
         "indienen-aansprakelijkstelling-door-derden-behandelen"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN = "indienen-aansprakelijkstelling-behandelen"
+    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE = "indienen-aansprakelijkstelling-behandelen"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION =
         "Indienen aansprakelijkstelling door derden behandelen"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BELANGHEBBENDE = "3bb6928b-76de-4716-ac5f-fa3d7d6eca36"
@@ -341,9 +351,11 @@ object ItestConfiguration {
     val DATE_TIME_2024_01_01: ZonedDateTime = DATE_2024_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
     val DATE_TIME_2024_01_31: ZonedDateTime = DATE_2024_01_31.atStartOfDay(TimeZone.getDefault().toZoneId())
 
+    val ZAAKTYPE_BPMN_TEST_UUID: UUID = UUID.fromString("26076928-ce07-4d5d-8638-c2d276f6caca")
     val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
     val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID: UUID =
         UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
+
     val START_DATE: LocalDateTime = LocalDateTime.now()
 
     /**

@@ -6,8 +6,8 @@
 package net.atos.zac.app.admin.model;
 
 import net.atos.zac.admin.model.FormulierDefinitie;
-import net.atos.zac.app.planitems.converter.FormulierKoppelingConverterKt;
-import net.atos.zac.app.planitems.model.PlanItemType;
+import nl.info.zac.app.planitems.converter.FormulierKoppelingConverterKt;
+import nl.info.zac.app.planitems.model.PlanItemType;
 
 public class RESTPlanItemDefinition {
 

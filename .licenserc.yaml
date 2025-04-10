@@ -31,6 +31,8 @@ header:
     # SPDX license headers cannot be added to JSON files so we ignore them
     # there are ways to link licensing information to JSON files however; see e.g. https://reuse.software/faq/
     - '**/**.json'
+    # SPDX license headers cannot be added to BPMN (XML) files so we ignore them
+    - '**/*.bpmn'
     - '**/**.txt'
     - '**/dist'
     - 'gradlew'

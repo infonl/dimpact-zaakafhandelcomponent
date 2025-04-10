@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.ontkoppeldedocumenten;
 
 import static net.atos.zac.policy.PolicyService.assertPolicy;
@@ -30,7 +29,6 @@ import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.shared.exception.ZgwErrorException;
 import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
-import net.atos.zac.app.identity.converter.RestUserConverter;
 import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentConverter;
 import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentListParametersConverter;
 import net.atos.zac.app.ontkoppeldedocumenten.model.RESTOntkoppeldDocument;
@@ -43,13 +41,13 @@ import net.atos.zac.documenten.model.OntkoppeldDocumentListParameters;
 import net.atos.zac.documenten.model.OntkoppeldeDocumentenResultaat;
 import net.atos.zac.policy.PolicyService;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import nl.info.zac.app.identity.converter.RestUserConverter;
 
 @Singleton
 @Path("ontkoppeldedocumenten")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class OntkoppeldeDocumentenRESTService {
-
     private OntkoppeldeDocumentenService ontkoppeldeDocumentenService;
     private DrcClientService drcClientService;
     private ZrcClientService zrcClientService;
@@ -88,12 +86,22 @@ public class OntkoppeldeDocumentenRESTService {
 
     @PUT
     @Path("")
-    public RESTResultaat<RESTOntkoppeldDocument> list(final RESTOntkoppeldDocumentListParameters restListParameters) {
+    public RESTResultaat<RESTOntkoppeldDocument> listDetachedDocuments(final RESTOntkoppeldDocumentListParameters restListParameters) {
         assertPolicy(policyService.readWerklijstRechten().inbox());
         final OntkoppeldDocumentListParameters listParameters = listParametersConverter.convert(restListParameters);
         final OntkoppeldeDocumentenResultaat resultaat = ontkoppeldeDocumentenService.getResultaat(listParameters);
+        var ontkoppeldeDocumenten = resultaat.getItems();
+        var informationObjectTypeUUIDs = ontkoppeldeDocumenten.stream().map(
+                ontkoppeldeDocument -> extractUuid(
+                        drcClientService
+                                .readEnkelvoudigInformatieobject(ontkoppeldeDocument.getDocumentUUID())
+                                .getInformatieobjecttype()
+                )
+        ).toList();
         final RESTOntkoppeldDocumentResultaat restOntkoppeldDocumentResultaat = new RESTOntkoppeldDocumentResultaat(
-                ontkoppeldDocumentConverter.convert(resultaat.getItems()), resultaat.getCount());
+                ontkoppeldDocumentConverter.convert(ontkoppeldeDocumenten, informationObjectTypeUUIDs),
+                resultaat.getCount()
+        );
         final List<String> ontkoppeldDoor = resultaat.getOntkoppeldDoorFilter();
         if (CollectionUtils.isEmpty(ontkoppeldDoor)) {
             if (restListParameters.ontkoppeldDoor != null) {
@@ -107,7 +115,7 @@ public class OntkoppeldeDocumentenRESTService {
 
     @DELETE
     @Path("{id}")
-    public void delete(@PathParam("id") final long id) {
+    public void deleteDetachedDocument(@PathParam("id") final long id) {
         assertPolicy(policyService.readWerklijstRechten().ontkoppeldeDocumentenVerwijderen());
         final Optional<OntkoppeldDocument> ontkoppeldDocument = ontkoppeldeDocumentenService.find(id);
         if (ontkoppeldDocument.isEmpty()) {

@@ -20,19 +20,19 @@ import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.search.IndexingService
-import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
-import net.atos.zac.task.TaskService
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.setFunctioneelGebruiker
 import nl.info.zac.productaanvraag.ProductaanvraagService
+import nl.info.zac.search.IndexingService
+import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.task.TaskService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -189,7 +189,10 @@ class NotificationReceiver @Inject constructor(
         try {
             // in case of a 'zaak destroy' notification remove any existing zaak
             // and task signaleringen for this zaak
-            if (notification.channel == Channel.ZAKEN && notification.resource == Resource.ZAAK && notification.action == Action.DELETE) {
+            if (notification.channel == Channel.ZAKEN &&
+                notification.resource == Resource.ZAAK &&
+                notification.action == Action.DELETE
+            ) {
                 deleteSignaleringenForZaak(notification.resourceUrl.extractUuid())
             }
             // send signalering events for this notification
@@ -259,6 +262,11 @@ class NotificationReceiver @Inject constructor(
 
     @Suppress("TooGenericExceptionCaught")
     private fun handleInboxDocuments(notification: Notification) {
+        // Used by "Abonnementen" functionality in OpenNotificaties to check if callback URL is active
+        if (notification.channel == Channel.TEST) {
+            LOG.info("Received test callback URL status notification")
+            return
+        }
         try {
             if (notification.action == Action.CREATE) {
                 val enkelvoudigInformatieobjectUuid = notification.resourceUrl.extractUuid()

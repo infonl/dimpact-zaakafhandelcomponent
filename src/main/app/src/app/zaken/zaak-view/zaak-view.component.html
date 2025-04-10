@@ -4,17 +4,17 @@
   -->
 
 <mat-drawer-container
-  class="inner-sidenav-container"
   #sideNavContainer
+  class="inner-sidenav-container"
   [class]="sideNaveMode"
   xmlns="http://www.w3.org/1999/html"
 >
   <mat-drawer
     #menuSidenav
-    [mode]="sideNaveMode"
     position="start"
     opened="true"
     disableClose="true"
+    [mode]="sideNaveMode"
   >
     <zac-side-nav
       (mode)="menuModeChanged($event)"
@@ -28,8 +28,8 @@
     mode="over"
     position="end"
     [ngSwitch]="activeSideAction"
-    (closedStart)="activeSideAction = null"
     class="zaak-actions-drawer"
+    (closedStart)="activeSideAction = null"
   >
     <zac-klant-koppel
       *ngSwitchCase="'actie.initiator.toevoegen'"
@@ -115,6 +115,14 @@
       [besluit]="teWijzigenBesluit"
       [zaak]="zaak"
     ></zac-besluit-edit>
+    <zac-informatie-object-link
+      *ngSwitchCase="'actie.document.verplaatsen'"
+      [actionLabel]="'actie.document.verplaatsen'"
+      [infoObject]="documentToMove"
+      [sideNav]="actionsSidenav"
+      [source]="zaak.identificatie"
+      (informationObjectLinked)="updateDocumentList()"
+    ></zac-informatie-object-link>
     <zac-zaakdata
       *ngSwitchCase="'actie.zaakdata.bekijken'"
       [readonly]="true"
@@ -277,6 +285,35 @@
                     class="flex-item"
                   ></zac-static-text>
                 </div>
+                <div
+                  *ngIf="zaak.duurVerlenging || zaakOpschorting?.duurDagen"
+                  class="flex flex-row justify-start gap-10 remark"
+                >
+                  <div class="flex-col gap-5">
+                    <div
+                      class="flex-row items-center gap-5"
+                      *ngIf="zaakOpschorting?.duurDagen"
+                    >
+                      <mat-icon>pause</mat-icon>
+                      {{
+                        (zaakOpschorting?.duurDagen === 1
+                          ? "duurDagenOpschorting.enkelvoud"
+                          : "duurDagenOpschorting"
+                        ) | translate: { duur: zaakOpschorting?.duurDagen }
+                      }}
+                    </div>
+                    <div
+                      class="flex-row items-center gap-5"
+                      *ngIf="zaak.duurVerlenging"
+                    >
+                      <mat-icon>update</mat-icon>
+                      {{
+                        "duurVerlenging"
+                          | translate: { duur: zaak.duurVerlenging }
+                      }}
+                    </div>
+                  </div>
+                </div>
                 <div class="flex flex-row justify-start gap-10">
                   <zac-static-text
                     [label]="'vertrouwelijkheidaanduiding' | translate"
@@ -375,9 +412,9 @@
               <div id="historie_tab" class="table-wrapper historie-table">
                 <table
                   mat-table
-                  [dataSource]="historie"
                   matSort
                   #historieSort="matSort"
+                  [dataSource]="historie"
                 >
                   <ng-container matColumnDef="datum">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>
@@ -734,10 +771,10 @@
             <div class="table-wrapper">
               <table
                 mat-table
-                [dataSource]="takenDataSource"
                 matSort
                 multiTemplateDataRows
                 #takenSort="matSort"
+                [dataSource]="takenDataSource"
               >
                 <ng-container matColumnDef="collapse">
                   <th mat-header-cell *matHeaderCellDef>
@@ -898,7 +935,12 @@
         </mat-card>
       </div>
     </div>
-    <zac-zaak-documenten class="w100" [zaak]="zaak"></zac-zaak-documenten>
+    <zac-zaak-documenten
+      #zaakDocumentenComponent
+      class="w100"
+      [zaak]="zaak"
+      (documentMoveToCase)="documentMoveToCase($event)"
+    ></zac-zaak-documenten>
 
     <zac-notities [uuid]="zaak.uuid" [type]="notitieType"></zac-notities>
   </mat-drawer-content>
