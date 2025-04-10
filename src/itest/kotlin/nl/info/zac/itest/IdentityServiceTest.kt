@@ -56,33 +56,33 @@ class IdentityServiceTest : BehaviorSpec({
                 response.body!!.string() shouldEqualJson """
                             [
                                 {
-                                    "id": "$TEST_GROUP_FUNCTIONAL_ADMINS_ID",
-                                    "naam": "$TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION"
-                                },
+                                    "id": "$TEST_GROUP_A_ID",
+                                    "naam": "$TEST_GROUP_A_DESCRIPTION"
+                                }
                                 {
-                                    "id": "$TEST_GROUP_RECORD_MANAGERS_ID",
-                                    "naam": "$TEST_GROUP_RECORD_MANAGERS_DESCRIPTION"
+                                    "id": "$TEST_GROUP_BEHANDELAARS_ID",
+                                    "naam": "$TEST_GROUP_BEHANDELAARS_DESCRIPTION"
                                 },
                                 {
                                     "id": "$TEST_GROUP_COORDINATORS_ID",
                                     "naam": "$TEST_GROUP_COORDINATORS_DESCRIPTION"
                                 },
                                 {
-                                    "id": "$TEST_GROUP_BEHANDELAARS_ID",
-                                    "naam": "$TEST_GROUP_BEHANDELAARS_DESCRIPTION"
+                                    "id": "$TEST_GROUP_FUNCTIONAL_ADMINS_ID",
+                                    "naam": "$TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION"
                                 },
                                 {
                                     "id": "$TEST_GROUP_RAADPLEGERS_ID",
                                     "naam": "$TEST_GROUP_RAADPLEGERS_DESCRIPTION"
                                 },
                                 {
-                                    "id": "$TEST_GROUP_DOMEIN_TEST_1_ID",
-                                    "naam": "$TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION"
+                                    "id": "$TEST_GROUP_RECORD_MANAGERS_ID",
+                                    "naam": "$TEST_GROUP_RECORD_MANAGERS_DESCRIPTION"
                                 },
                                 {
-                                    "id": "$TEST_GROUP_A_ID",
-                                    "naam": "$TEST_GROUP_A_DESCRIPTION"
-                                },
+                                    "id": "$TEST_GROUP_DOMEIN_TEST_1_ID",
+                                    "naam": "$TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION"
+                                }
                             ]
                 """.trimIndent()
             }
