@@ -58,7 +58,7 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                     "id": "$TEST_GROUP_A_ID",
                                     "naam": "$TEST_GROUP_A_DESCRIPTION"
-                                }
+                                },
                                 {
                                     "id": "$TEST_GROUP_BEHANDELAARS_ID",
                                     "naam": "$TEST_GROUP_BEHANDELAARS_DESCRIPTION"
