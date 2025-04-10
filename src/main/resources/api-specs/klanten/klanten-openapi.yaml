@@ -4086,8 +4086,7 @@ components:
                   items:
                     $ref: '#/components/schemas/CategorieRelatie'
                   readOnly: true
-                  description: 'De Categorie relaties van een partij: Let op: Dit attribuut
-                  is EXPERIMENTEEL.'
+                  description: 'De Categorie relaties van een partij: Let op: Dit attribuut is EXPERIMENTEEL.'
     GeautomatiseerdeActor:
       type: object
       properties:
