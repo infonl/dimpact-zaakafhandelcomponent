@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 /**
  * klantinteracties
  * **Warning: Difference between `PUT` and `PATCH`** Both `PUT` and `PATCH` methods can be used to update the fields in a resource, but
