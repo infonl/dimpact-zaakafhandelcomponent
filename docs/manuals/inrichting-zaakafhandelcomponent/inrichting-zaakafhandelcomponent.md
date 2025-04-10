@@ -1,3 +1,47 @@
+# Inrichting Zaakafhandelcomponent
+# Inhoud
+
+[*Inrichting Zaakafhandelcomponent*](#inrichting-zaakafhandelcomponent)
+- [Zaakafhandelcomponent](#zaakafhandelcomponent)
+- [Beheerinstellingen](#beheerinstellingen)
+
+[*Zaakafhandel-parameters*](#zaakafhandel-parameters)
+- [Werking van de zaakafhandel-parameters](#werking-van-de-zaakafhandel-parameters)
+- [Inrichten van een zaaktype](#inrichten-van-een-zaaktype)
+ [*Gegevens*](#gegevens)
+ [*Taakgegevens*](#taakgegevens)
+ [*Actiegegevens*](#actiegegevens)
+ [*Mailgegevens*](#mailgegevens)
+ [*Zaakbeëindig gegevens*](#zaakbeëindig-gegevens)
+ [*Smartdocuments*](#smartdocuments)
+
+
+[*Referentietabellen*](#referentietabellen)
+- [Referentietabel bewerken](#referentietabel-bewerken)
+
+[*Mailafzenders*](#mailafzenders)
+- [Werking van de mailafzenders](#werking-van-de-mailafzenders)
+- [Mailafzender bewerken](#mailafzender-bewerken)
+- [Mailafzender aan de referentietabel toevoegen](#mailafzender-aan-de-referentietabel-toevoegen)
+
+[*Mailtemplates*](#mailtemplates)
+- [Werking van de mailtemplates](#werking-van-de-mailtemplates)
+- [Mailtemplate bewerken](#mailtemplate-bewerken)
+- [Mailtemplate aanmaken](#mailtemplate-aanmaken)
+
+[*Inrichtingscheck*](#inrichtingscheck)
+- [Zaaktypecatalogus synchronisatie](#zaaktypecatalogus-synchronisatie)
+- [Zaaktype inrichtingscheck](#zaaktype-inrichtingscheck)
+- [Roltypen](#roltypen)
+
+[*Signaleringen*](#signaleringen)
+- [Werking van de signaleringen](#werking-van-de-signaleringen)
+- [Groepsignalering inschakelen](#groepsignalering-inschakelen)
+
+[*Domeinen*](#domeinen)
+- [De functie van Domeinen](#de-functie-van-domeinen)
+- [Domeinen inrichten en zaaktype / behandelaars toewijzen](#domeinen-inrichten-en-zaaktype--behandelaars-toewijzen)
+
 ## Inrichting Zaakafhandelcomponent 
 
 ### Zaakafhandelcomponent
@@ -23,9 +67,11 @@ Om de zaps te benaderen ga je door op het radar icoon te klikken naar de Beheer-
 !Klik op het bolletje links van het zaaktype kolom om snel te filteren op geldig en niet geldig!
 
 Stappen:
-1. Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
-2. In het tabblad ‘Algemene gegevens’ worden de volgende aspecten ingericht:
+Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
+#### Gegevens
+![image](images/zaps_gegevens.png)
 - CMMN model (v)| het zaakafhandelmodel waarmee de zaak wordt afgehandeld
+- Domein | om een zaaktype aan een specifiek domein toe te wijzen moet hier een domein gekozen worden. Als hier geen zeuze wordt gemaakt, dan valt dit zaaktype onder alle domeinen en zal door alle behandelaars die niet aan een specifiek domein zijn toegewezen worden gezien.
 - Groep (v)|  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
 - Behandelaar |  de behandelaar waar een nieuwe zaak na het aanmaken initieel op gezet wordt
 - Streefdatum waarschuwingsvenster | het aantal kalenderdagen voordat de streefdatum van de zaak wordt bereikt dat bepaalt:
@@ -37,19 +83,21 @@ Stappen:
   - wanneer de signalering ‘Mijn zaak nadert de fatale datum’ wordt verstuurd
   - wanneer een zaak in de dashboardkaart ‘Mijn binnenkort verlopende zaken’ verschijnt
 - Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
-3. Klik op de knop Volgende om naar het volgende tabblad ‘Taakgegevens’ te gaan. Hier worden alle beschikbare taken van het CMMN-model getoond. Standaard staan alle taken aan maar het is mogelijk om een taak via het schuifje uit te zetten waardoor deze tijdens de zaakbehandeling niet beschikbaar is.
+#### Taakgegevens
+1. Klik op de knop Volgende om naar het volgende tabblad ‘Taakgegevens’ te gaan. Hier worden alle beschikbare taken van het CMMN-model getoond. Standaard staan alle taken aan maar het is mogelijk om een taak via het schuifje uit te zetten waardoor deze tijdens de zaakbehandeling niet beschikbaar is.
 ![image](images/2f75ad61-aae6-4aa5-b94e-cb0bba651aae.png)
 
  
-4. Klik op een taak om de instellingen te openen. Iedere taak heeft standaard 3 instellingen:
+2. Klik op een taak om de instellingen te openen. Iedere taak heeft standaard 3 instellingen:
   - Formulierdefinitie (v) | welk formulier voor het taakbehandelformulier wordt gebruikt
   - Groep | de groep die standaard bij taaktoewijzing wordt ingevuld als een gebruiker de taak start
   - Doorlooptijd | bepaalt de fatale datum van de taak
 In sommige taakbehandelformulieren komen keuzelijsten voor waarvan de opties via een referentietabel aangepast kunnen worden. Welke referentietabel in dat taakbehandelformulier gebruikt wordt is dan te zien bij de instelling ‘Referentietabel voor ...’. Om de opties aan te passen kun je later naar de menukeuze ‘Referentietabellen’ gaan en daar de juiste tabel te kiezen, dit wordt elders in deze handleiding omschreven. Het is ook mogelijk om zelf een referentietabel aan te maken en deze in het taakbehandelformulier te gebruiken. Na het aanmaken van de tabel kan deze in de lijst bij de instelling ‘Referentietabel voor ...’ gekozen worden.
 ![image](images/208073572-dbe3e168-91ff-4a42-9c03-dea7824e348a.png)
-
-5. Ga verder naar het tabblad ‘Actie gegevens’. Bij de acties waarmee een gebruiker een fase afrondt is het mogelijk om een toelichting te tonen, denk aan een herinnering aan een belangrijke handeling die in die fase moete zijn uitgevoerd. Klik op een fase om de toelichting in het veld in te vullen.
-6. Ga verder naar ‘Mailgegevens’. Tijdens de zaakbehandeling gebruikt de ZAC een aantal e-mails dat verstuurd wordt, voornamelijk aan de klant. Sommige van deze mails worden verplicht verstuurd en anderen zijn optioneel. De beschikbare opties bij alle mails kunnen in 'Mailgegevens' ingesteld worden. 
+#### Actiegegevens
+Ga verder naar het tabblad ‘Actiegegevens’. Bij de acties waarmee een gebruiker een fase afrondt is het mogelijk om een toelichting te tonen, denk aan een herinnering aan een belangrijke handeling die in die fase moete zijn uitgevoerd. Klik op een fase om de toelichting in het veld in te vullen.
+#### Mailgegevens
+1. Ga verder naar ‘Mailgegevens’. Tijdens de zaakbehandeling gebruikt de ZAC een aantal e-mails dat verstuurd wordt, voornamelijk aan de klant. Sommige van deze mails worden verplicht verstuurd en anderen zijn optioneel. De beschikbare opties bij alle mails kunnen in 'Mailgegevens' ingesteld worden. 
 - Voor de statusmails kan bepaald worden of deze beschikbaar zijn en wat de standaard geselecteerde keuze is:
   - Statusmail intake fase (v) | bepaalt of bij het afronden van de fase ‘Intake’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
   - Statusmail afronden fase (v) | bepaalt of bij het afronden van de fase ‘In behandeling’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
@@ -57,15 +105,17 @@ In sommige taakbehandelformulieren komen keuzelijsten voor waarvan de opties via
   ![image](images/84bfa621-a433-43ff-bd79-0f65ef3a2eda.png)
 
 - Bij het verzenden van een mail kan de behandelaar kiezen wat de afzender van de e-mail wordt. De keuzes die de behandelaar te zien krijgt zijn, is in dit tabblad in te stellen en gelden voor alle mails. Een mail heeft altijd de opties e-mailadres van de gemeente en het e-mailadres van de medewerker (de ingelogde gebruiker). Deze opties kunnen worden aangevuld met meer mailafzenders. Daarnaast kan een van deze opties als standaard ingevulde mailafzender worden ingesteld. Verder kan bij iedere mailafzender een eigen 'Antwoord aan' e-mailadres worden ingesteld, als dit niet wordt ingesteld dan is deze gelijk aan de afzender. Een uitgebreide beschrijving van de mailafzenders is in het hoofdstuk Mailafzenders te vinden.
-7. Stel de lijst van mogelijke mailafzenders op en kies de 'Antwoord aan' bij iedere mailafzender. Selecteer daarna welke mailafzender als default wordt getoond aan de behandelaar.
+2. Stel de lijst van mogelijke mailafzenders op en kies de 'Antwoord aan' bij iedere mailafzender. Selecteer daarna welke mailafzender als default wordt getoond aan de behandelaar.
 - Iedere e-mail heeft een eigen template dat de standaard inhoud van het bericht en het onderwerp bepaalt. In dit overzicht stel je in welke e-mail welke mailtemplate gebruikt. Iedere e-mail heeft een standaard mailtemplate. Om deze te bekijken of te bewerken kun je later naar naar de menukeuze ‘Mailtemplates’ gaan. Het is ook mogelijk om zelf een mailtemplate aan te maken en deze in een van de e-mails te gebruiken. Na het aanmaken van de template kan deze in de lijst bij de instelling ‘mailtemplate’ gekozen worden. Open een e-mail door er op te klikken en stel bij iedere e-mail het gewenste template in.
-8. Ga verder naar ‘Zaakbeëindig gegevens’.  In dit tabblad kan voor een aantal situaties waarin de zaak wordt beëindigd het resultaat dat de zaak krijgt bepaald worden. De mogelijke resultaten zijn ingesteld bij het zaaktype. Stel voor de volgende situaties het resultaat in:
+#### Zaakbeëindig gegevens
+Ga verder naar ‘Zaakbeëindig gegevens’.  In dit tabblad kan voor een aantal situaties waarin de zaak wordt beëindigd het resultaat dat de zaak krijgt bepaald worden. De mogelijke resultaten zijn ingesteld bij het zaaktype. Stel voor de volgende situaties het resultaat in:
   - Zaak is niet ontvankelijk (v) | bepaalt het resultaat wanneer een gebruiker bij de actie ‘Intake afronden’ deze optie kiest.
   - Verzoek is bij verkeerde organisatie ingediend | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt. 
   - Verzoek is door initiator ingetrokken | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
   - Zaak is een duplicaat | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
     ![image](images/33fc1158-0ada-4fea-a491-fc1e6e9935a0.png)
-9. Ga verder naar 'SmartDocuments'. Hier kunt u het documenttype selecteren dat door elk sjabloon moet worden verwerkt.
+#### Smartdocuments
+1. Ga verder naar 'SmartDocuments'. Hier kunt u het documenttype selecteren dat door elk sjabloon moet worden verwerkt.
   - SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen
   - Elk SmartDocuments-sjabloon moet de plug-in "RedirectURL" ingeschakeld hebben.
   - SmartDocuments inschakelen voor het huidige zaaktype (stap 1)
@@ -74,7 +124,7 @@ In sommige taakbehandelformulieren komen keuzelijsten voor waarvan de opties via
   - De configuratie opslaan (stap 4) 
 ![image](images/f744cc21-04a4-4457-827a-1e6807c019b2.png)
   - Het documenttype deselecteren kan door het vinkje te verwijderen of in de dropdown "Geen documenttype" te selecteren.
-10. Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
+2. Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
 
 ## Referentietabellen
 
@@ -84,7 +134,7 @@ ZAC kent de volgende systeemreferentietabellen:
 - ADVIES | bevat de mogelijk waarde voor de keuzelijst ‘Advies’ die gebruikt wordt bij het afronden van de taak ‘Intern advies’
 - AFZENDER | bevat de mogelijke afzenders van een e-mail; zie sectie 'Mailafzenders' voor meer details
 - COMMUNICATIEKANAAL | bevat de mogelijke waarden voor de keuzelijst ‘Communicatiekanaal’ die gebruikt wordt bij het aanmaken of aanpassen van een zaak
-- DOMEIN | bevat de mogelijke domeinen die gebruikt worden in de zaakafhandelparameters
+- DOMEIN | bevat de mogelijke domeinen die gebruikt kunnen worden in de zaakafhandelparameters
 - SERVER_ERROR_ERROR_PAGINA_TEKST | bevat (optionele) tekstparagrafen die getoond worden bij foutmeldingen voor 'server errors' (technische fouten afkomstig van de server of onderliggende systemen). Door een volgende waarde toe te voegen, zal deze onder de al bestaande waarde(s) worden getoond bij de foutmelding. 
 Dit kunnen bijvoorbeeld doorverwijzingen zijn naar een functioneelbeheerafdeling van de gemeente. Bijvoorbeeld: "Neem s.v.p. contact op met ...".  
 
@@ -220,3 +270,22 @@ Stappen:
 2. Kies de groep uit de keuzelijst die je wilt instellen
 3. Schakel een signalering per e-mail in door deze aan te vinken
 ![image](images/208075964-091b65fc-96f5-4351-be74-2aa0eb28b13b.png)
+
+# Domeinen
+
+## De functie van Domeinen
+
+Domeinen kunnen worden gebruikt om zaaktypen en gebruikers aan elkaar te koppelen, waardoor je kunt zorgen dat deze gebruikers alleen deze zaaktypen kunnen behandelen.
+Bijvoorbeeld als je een domein wilt maken dat alle vergunningen omvat, zodat je hier alle behandelaars die specifiek aan vergunningen werken in een stap al deze zaaktypen kan toewijzen.
+
+## Domeinen inrichten en zaaktype / behandelaars toewijzen
+
+Om het domein in te richten en toe te wijzen neem je de volgende stappen:
+1. In keyckloak:
+- maak een rol aan met een naam die beginnent met domein_ en een korte omschrijving van het domein, bijvoorbeeld domein_vergunningen
+- maak een groep aan met de functionele rol die de gebruikers moeten krijgen en de juist aangemaakte domein rol
+- plaats de gebruikers die bij dit domein horen aan de groep toe
+2. In ZAC
+- maak in de referentietabel Domein een domein aan met exact dezelfde naam, in dit geval domein_vergunningen
+- open een zaaktype dat aan dit domein behoort in 'Zaakafhandel-parameters bewerken' en op de tab Gegevens kan je dan onder Domein je nieuw aangemaakte domein uit de referentietabel kiezen
+Na het opslaan is de domein-opzet meteen in werking.

@@ -75,6 +75,12 @@ default toekennen := false
 toekennen if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
+    zaak.open
+}
+
+toekennen if {
+    recordmanager.rol in user.rollen
+    zaaktype_allowed
 }
 
 default behandelen := false

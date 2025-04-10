@@ -102,8 +102,21 @@ test_wijzigen_missing_role_fails if {
 ###########
 # toekennen
 ###########
-test_toekennen if {
-    toekennen with input.user.rollen as [ "behandelaar" ]
+test_toekennen_behandelaar if {
+    toekennen
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_toekennen_behandelaar_zaak_closed_fails if {
+    not toekennen
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_toekennen_recordmanager if {
+    wijzigen
+        with input.user.rollen as [ "recordmanager" ]
 }
 
 test_toekennen_wrong_role_fails if {

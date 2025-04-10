@@ -4,17 +4,17 @@
   -->
 
 <mat-drawer-container
-  class="inner-sidenav-container"
   #sideNavContainer
+  class="inner-sidenav-container"
   [class]="sideNaveMode"
   xmlns="http://www.w3.org/1999/html"
 >
   <mat-drawer
     #menuSidenav
-    [mode]="sideNaveMode"
     position="start"
     opened="true"
     disableClose="true"
+    [mode]="sideNaveMode"
   >
     <zac-side-nav
       (mode)="menuModeChanged($event)"
@@ -28,8 +28,8 @@
     mode="over"
     position="end"
     [ngSwitch]="activeSideAction"
-    (closedStart)="activeSideAction = null"
     class="zaak-actions-drawer"
+    (closedStart)="activeSideAction = null"
   >
     <zac-klant-koppel
       *ngSwitchCase="'actie.initiator.toevoegen'"
@@ -412,9 +412,9 @@
               <div id="historie_tab" class="table-wrapper historie-table">
                 <table
                   mat-table
-                  [dataSource]="historie"
                   matSort
                   #historieSort="matSort"
+                  [dataSource]="historie"
                 >
                   <ng-container matColumnDef="datum">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>
@@ -771,10 +771,10 @@
             <div class="table-wrapper">
               <table
                 mat-table
-                [dataSource]="takenDataSource"
                 matSort
                 multiTemplateDataRows
                 #takenSort="matSort"
+                [dataSource]="takenDataSource"
               >
                 <ng-container matColumnDef="collapse">
                   <th mat-header-cell *matHeaderCellDef>

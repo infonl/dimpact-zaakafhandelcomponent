@@ -9,10 +9,18 @@ import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
+import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_ID
+import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_COORDINATORS_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_COORDINATORS_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_DOMEIN_TEST_1_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION
@@ -42,15 +50,11 @@ class IdentityServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/identity/groups"
             )
             Then(
-                "'test group a' and 'test group functional beheerders' are returned"
+                "'All 7 specific groups are returned"
             ) {
                 response.isSuccessful shouldBe true
-                response.body!!.string() shouldEqualJson """
+                response.body!!.string() shouldEqualSpecifiedJsonIgnoringOrder """
                             [
-                                {
-                                    "id": "$TEST_GROUP_A_ID",
-                                    "naam": "$TEST_GROUP_A_DESCRIPTION"
-                                },
                                 {
                                     "id": "$TEST_GROUP_FUNCTIONAL_ADMINS_ID",
                                     "naam": "$TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION"
@@ -60,12 +64,24 @@ class IdentityServiceTest : BehaviorSpec({
                                     "naam": "$TEST_GROUP_RECORD_MANAGERS_DESCRIPTION"
                                 },
                                 {
-                                    "id": "$TEST_GROUP_DOMEIN_TEST_1_ID",
-                                    "naam": "$TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION"
+                                    "id": "$TEST_GROUP_COORDINATORS_ID",
+                                    "naam": "$TEST_GROUP_COORDINATORS_DESCRIPTION"
+                                },
+                                {
+                                    "id": "$TEST_GROUP_BEHANDELAARS_ID",
+                                    "naam": "$TEST_GROUP_BEHANDELAARS_DESCRIPTION"
                                 },
                                 {
                                     "id": "$TEST_GROUP_RAADPLEGERS_ID",
                                     "naam": "$TEST_GROUP_RAADPLEGERS_DESCRIPTION"
+                                },
+                                {
+                                    "id": "$TEST_GROUP_A_ID",
+                                    "naam": "$TEST_GROUP_A_DESCRIPTION"
+                                },
+                                {
+                                    "id": "$TEST_GROUP_DOMEIN_TEST_1_ID",
+                                    "naam": "$TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION"
                                 }
                             ]
                 """.trimIndent()
@@ -77,25 +93,29 @@ class IdentityServiceTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/identity/users"
             )
-            Then("'test user 1' and 'test user 2' are returned") {
+            Then("All 8 specific users are returned") {
                 response.isSuccessful shouldBe true
-                response.body!!.string() shouldEqualJson """
+                response.body!!.string() shouldEqualSpecifiedJsonIgnoringOrder """
                             [
                                 {
                                     "id": "$TEST_FUNCTIONAL_ADMIN_1_ID",
                                     "naam": "$TEST_FUNCTIONAL_ADMIN_1_NAME"
                                 },
                                 {
-                                    "id": "$TEST_RAADPLEGER_1_ID",
-                                    "naam": "$TEST_RAADPLEGER_1_NAME"
-                                },
-                                {
                                     "id": "$TEST_RECORD_MANAGER_1_USERNAME",
                                     "naam": "$TEST_RECORD_MANAGER_1_NAME"
                                 },
                                 {
-                                    "id": "$TEST_USER_DOMEIN_TEST_1_ID",
-                                    "naam": "$TEST_USER_DOMEIN_TEST_1_NAME"
+                                    "id": "$TEST_COORDINATOR_1_USERNAME",
+                                    "naam": "$TEST_COORDINATOR_1_NAME"
+                                },
+                                {
+                                    "id": "$TEST_BEHANDELAAR_1_USERNAME",
+                                    "naam": "$TEST_BEHANDELAAR_1_NAME"
+                                },
+                                {
+                                    "id": "$TEST_RAADPLEGER_1_ID",
+                                    "naam": "$TEST_RAADPLEGER_1_NAME"
                                 },
                                 {
                                     "id": "$TEST_USER_1_USERNAME",
@@ -104,7 +124,11 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                     "id": "$TEST_USER_2_ID",
                                     "naam": "$TEST_USER_2_NAME"
-                                }                              
+                                },
+                                                                {
+                                    "id": "$TEST_USER_DOMEIN_TEST_1_ID",
+                                    "naam": "$TEST_USER_DOMEIN_TEST_1_NAME"
+                                }
                             ]
                 """.trimIndent()
             }
