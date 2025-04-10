@@ -280,7 +280,7 @@ Bijvoorbeeld als je een domein wilt maken dat alle vergunningen omvat, zodat je 
 
 ## Domeinen inrichten en zaaktype / behandelaars toewijzen
 
-Om de domein in te richten en toe te wijzen neem je de volgende stappen:
+Om het domein in te richten en toe te wijzen neem je de volgende stappen:
 1. In keyckloak:
 - maak een rol aan met een naam die beginnent met domein_ en een korte omschrijving van het domein, bijvoorbeeld domein_vergunningen
 - maak een groep aan met de functionele rol die de gebruikers moeten krijgen en de juist aangemaakte domein rol
