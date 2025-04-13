@@ -139,11 +139,11 @@ class UtilRestService @Inject constructor(
             )
         )
 
-    private fun ztcClientCaches() = getServiceCacheDetails(ZTC, ztcClientService)
+    private fun ztcClientCaches() = getSeriviceCacheDetails(ZTC, ztcClientService)
 
-    private fun zaakafhandelParameterServiceCaches() = getServiceCacheDetails(ZHPS, zaakafhandelParameterService)
+    private fun zaakafhandelParameterServiceCaches() = getSeriviceCacheDetails(ZHPS, zaakafhandelParameterService)
 
-    private fun getServiceCacheDetails(prefix: String, caching: Caching): String {
+    private fun getSeriviceCacheDetails(prefix: String, caching: Caching): String {
         val statistics = caching.cacheStatistics()
         val sizes = caching.cacheSizes()
         val totalLoadTimeRegExp = Regex("totalLoadTime=\\d+")
