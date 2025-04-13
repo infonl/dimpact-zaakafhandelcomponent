@@ -7,18 +7,22 @@ package nl.info.zac.app.util
 import com.github.benmanes.caffeine.cache.stats.CacheStats
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.string.shouldContain
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.zac.admin.ZaakafhandelParameterService
 import nl.info.client.zgw.ztc.ZtcClientService
 
 class UtilRestServiceTest : BehaviorSpec({
-
     val ztcClientService = mockk<ZtcClientService>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
+    val utilRESTService = UtilRestService(ztcClientService, zaakafhandelParameterService)
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given("caches are empty") {
-        val utilRESTService = UtilRestService(ztcClientService, zaakafhandelParameterService)
 
         every { ztcClientService.cacheStatistics() } returns mapOf(
             "ztc-cache1" to CacheStats.empty()
@@ -46,8 +50,6 @@ class UtilRestServiceTest : BehaviorSpec({
     }
 
     Given("util endpoint") {
-        val utilRESTService = UtilRestService(ztcClientService, zaakafhandelParameterService)
-
         When("index is requested") {
             val indexResponse = utilRESTService.index()
 
