@@ -58,7 +58,7 @@ class ZtcClientService @Inject constructor(
     private val configuratieService: ConfiguratieService
 ) : Caching {
     companion object {
-        const val MAX_CACHE_SIZE: Long = 20
+        const val MAX_CACHE_SIZE: Long = 1_000
         const val EXPIRATION_TIME_HOURS: Long = 1
 
         private val CACHES = mutableMapOf<String, Cache<*, *>>()
