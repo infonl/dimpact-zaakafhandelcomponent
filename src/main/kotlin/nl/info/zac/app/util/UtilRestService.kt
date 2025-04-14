@@ -144,11 +144,11 @@ class UtilRestService @Inject constructor(
     private fun zaakafhandelParameterServiceCaches() = getSeriviceCacheDetails(ZHPS, zaakafhandelParameterService)
 
     private fun getSeriviceCacheDetails(prefix: String, caching: Caching): String {
-        val statistics = caching.cacheStatistics()
-        val sizes = caching.cacheSizes()
+        val cacheStatistics = caching.cacheStatistics()
+        val estimatedCacheSizes = caching.estimatedCacheSizes()
         val totalLoadTimeRegExp = Regex("totalLoadTime=\\d+")
         return prefix + ul(
-            statistics.entries.map { (key, value) ->
+            cacheStatistics.entries.map { (key, value) ->
                 // replace totalLoadTime substring with human-readable value
                 val totalLoadTimeHumanReadable = value
                     .totalLoadTime()
@@ -158,7 +158,7 @@ class UtilRestService @Inject constructor(
                     <p>
                     ${b(key)}
                     ${ul(value.toString().replace(totalLoadTimeRegExp, "totalLoadTime=$totalLoadTimeHumanReadable"))}
-                    ${ul("${sizes[key]} objects")}
+                    ${ul("Estimated cache size: ${estimatedCacheSizes[key]}")}
                     </p>
                 """.trimIndent()
             }

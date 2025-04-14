@@ -28,13 +28,13 @@ class UtilRestServiceTest : BehaviorSpec({
         every { ztcClientService.cacheStatistics() } returns mapOf(
             "ztc-cache1" to CacheStats.empty()
         )
-        every { ztcClientService.cacheSizes() } returns mapOf(
+        every { ztcClientService.estimatedCacheSizes() } returns mapOf(
             "ztc-cache1" to 0
         )
         every { zaakafhandelParameterService.cacheStatistics() } returns mapOf(
             "zafhPS-cache1" to CacheStats.empty()
         )
-        every { zaakafhandelParameterService.cacheSizes() } returns mapOf(
+        every { zaakafhandelParameterService.estimatedCacheSizes() } returns mapOf(
             "zafhPS-cache1" to 0
         )
 
@@ -45,7 +45,7 @@ class UtilRestServiceTest : BehaviorSpec({
                 response shouldContain "ztc-cache1"
                 response shouldContain "zafhPS-cache1"
                 response shouldContain "hitCount=0"
-                response shouldContain "0 objects"
+                response shouldContain "Estimated cache size: 0"
             }
         }
     }
