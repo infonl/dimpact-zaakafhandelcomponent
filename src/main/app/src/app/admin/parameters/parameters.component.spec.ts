@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ParametersComponent } from "./parameters.component";
-import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
-import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
-import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-list-parameters";
-import { DatumRange } from "src/app/zoeken/model/datum-range";
 import { MatSelectChange } from "@angular/material/select";
+import { DatumRange } from "src/app/zoeken/model/datum-range";
+import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
+import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
+import { ParametersComponent } from "./parameters.component";
+import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-list-parameters";
 
 describe("ParametersComponent applyFilter", () => {
   const filterTestCases = [
