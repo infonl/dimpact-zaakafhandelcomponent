@@ -9,30 +9,30 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_FORM
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import java.io.File
 
 @Order(TEST_SPEC_ORDER_INITIAL)
-class ProcessDefinitionRestServiceTest : BehaviorSpec({
+class FormioFormulierenRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given("No existing BPMN process definitions") {
-        When("the integration test BPMN process definition is created from our BPMN test process file") {
-            val bpmnTestProcessFileContent = Thread.currentThread().contextClassLoader.getResource(
-                BPMN_TEST_PROCESS
+    Given("No existing Form.IO forms") {
+        When("the integration test form is uploaded") {
+            val formIoFileContent = Thread.currentThread().contextClassLoader.getResource(
+                BPMN_TEST_FORM
             )?.let {
                 File(it.path)
             }!!.readText(Charsets.UTF_8).replace("\"", "\\\"").replace("\n", "\\n")
             val response = itestHttpClient.performJSONPostRequest(
-                url = "$ZAC_API_URI/process-definitions",
+                url = "$ZAC_API_URI/formio-formulieren",
                 requestBodyAsString = """
                 {
-                    "filename": "$BPMN_TEST_PROCESS",
-                    "content": "$bpmnTestProcessFileContent"
+                    "filename": "$BPMN_TEST_FORM",
+                    "content": "$formIoFileContent"
                 }
                 """.trimIndent()
             )
@@ -42,24 +42,26 @@ class ProcessDefinitionRestServiceTest : BehaviorSpec({
                 response.isSuccessful shouldBe true
             }
         }
-        When("the process definitions are retrieved") {
+
+        When("the form.io forms are retrieved") {
             val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/process-definitions"
+                "$ZAC_API_URI/formio-formulieren"
             )
-            Then("the response contains the BPMN process definition that was just created") {
+            Then("the response contains the form.io form that was just created") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
-                 [  
-                  {
-                    "key": "bpmnProcessDefinition",
-                    "name": "BPMN process definition",
-                    "version": 1
-                  }
-                ]  
+                [
+                    {
+                        "id": 1,
+                        "name": "testForm",
+                        "title": "First name form"
+                    }
+                ]
                 """.trimIndent()
             }
         }
     }
+
 })
