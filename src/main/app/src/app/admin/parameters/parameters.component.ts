@@ -28,18 +28,18 @@ export class ParametersComponent
   extends AdminComponent
   implements OnInit, AfterViewInit
 {
-  @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
-  @ViewChild("menuSidenav") menuSidenav: MatSidenav;
-  @ViewChild("parametersSort") parametersSort: MatSort;
+  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
+  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
+  @ViewChild("parametersSort") parametersSort!: MatSort;
 
-  filterParameters: ZaakafhandelParametersListParameters;
+  filterParameters!: ZaakafhandelParametersListParameters;
   parameters = new MatTableDataSource<ZaakafhandelParameters>();
   loading = false;
 
   private storedParameterFilters = "parameterFilters";
 
-  zaaktypes: Zaaktype[];
-  caseDefinitions: CaseDefinition[];
+  zaaktypes: Zaaktype[] = [];
+  caseDefinitions: CaseDefinition[] = [];
 
   constructor(
     public utilService: UtilService,
@@ -152,15 +152,19 @@ export class ParametersComponent
   }
 
   applyFilter(options?: {
-    event?: MatSelectChange | ToggleSwitchOptions;
-    filter?: keyof typeof this.filterParameters;
+    event: ToggleSwitchOptions | MatSelectChange | string | number | undefined;
+    filter?: keyof ZaakafhandelParametersListParameters;
   }): void {
+    console.log("applyFilter typeof", options?.event);
     if (options) {
       const value =
         typeof options.event === "object"
           ? options.event?.value
           : options.event;
-      this.filterParameters[options.filter] = value as never;
+
+      if (options.filter) {
+        this.filterParameters[options.filter] = value as never;
+      }
     }
 
     this.parameters.filter = JSON.stringify(this.filterParameters);
