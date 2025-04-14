@@ -109,9 +109,9 @@ class UtilRestService @Inject constructor(
                 ul(
                     listOf(
                         "free: ${fileSize(freeMemory, decimals = 2)} ($freeMemory bytes)",
-                        "used : ${fileSize(totalMemory - freeMemory)} (${totalMemory - freeMemory} bytes)",
-                        "total: ${fileSize(totalMemory)} ($totalMemory bytes)",
-                        "max  : ${fileSize(maxMemory)} ($maxMemory bytes)"
+                        "used : ${fileSize(totalMemory - freeMemory, decimals = 2)} (${totalMemory - freeMemory} bytes)",
+                        "total: ${fileSize(totalMemory, decimals = 2)} ($totalMemory bytes)",
+                        "max  : ${fileSize(maxMemory, decimals = 2)} ($maxMemory bytes)"
                     )
                 )
         )

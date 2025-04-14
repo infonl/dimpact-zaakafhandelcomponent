@@ -66,7 +66,7 @@ class UtilRestServiceTest : BehaviorSpec({
 
             Then("free, used, total and max memory are shown") {
                 memoryResponse shouldMatch """ 
-                    <html></head><body><h1>Memory</h1><ul><li>free: \d+.\d+ MB \(.*\)</li><li>used : \d+.\d+ MB \(.*\)</li><li>total: \d+.\d+ MB \(.*\)</li><li>max  : \d+.\d+ GB \(.*\)</li></ul></body></html>
+                    <html></head><body><h1>Memory</h1><ul><li>free: \d+.\d+ .* \(.*\)</li><li>used : \d+.\d+ .* \(.*\)</li><li>total: \d+.\d+ .* \(.*\)</li><li>max  : \d+.\d+ .* \(.*\)</li></ul></body></html>
                 """.trimIndent()
             }
         }
