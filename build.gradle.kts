@@ -592,6 +592,7 @@ tasks {
         // disabled because (at least with our current settings) this results
         // in generated Java code that does not support full OpenKlanten API
         // https://github.com/maykinmedia/open-klant/issues/216
+        // https://github.com/maykinmedia/open-klant/issues/396
         isEnabled = false
 
         inputSpec.set("$rootDir/src/main/resources/api-specs/klanten/klanten-openapi.yaml")
