@@ -7,6 +7,7 @@ package nl.info.zac.app.util
 import com.github.benmanes.caffeine.cache.stats.CacheStats
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldMatch
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -27,13 +28,13 @@ class UtilRestServiceTest : BehaviorSpec({
         every { ztcClientService.cacheStatistics() } returns mapOf(
             "ztc-cache1" to CacheStats.empty()
         )
-        every { ztcClientService.cacheSizes() } returns mapOf(
+        every { ztcClientService.estimatedCacheSizes() } returns mapOf(
             "ztc-cache1" to 0
         )
         every { zaakafhandelParameterService.cacheStatistics() } returns mapOf(
             "zafhPS-cache1" to CacheStats.empty()
         )
-        every { zaakafhandelParameterService.cacheSizes() } returns mapOf(
+        every { zaakafhandelParameterService.estimatedCacheSizes() } returns mapOf(
             "zafhPS-cache1" to 0
         )
 
@@ -44,7 +45,7 @@ class UtilRestServiceTest : BehaviorSpec({
                 response shouldContain "ztc-cache1"
                 response shouldContain "zafhPS-cache1"
                 response shouldContain "hitCount=0"
-                response shouldContain "0 objects"
+                response shouldContain "Estimated cache size: 0"
             }
         }
     }
@@ -64,10 +65,9 @@ class UtilRestServiceTest : BehaviorSpec({
             val memoryResponse = utilRESTService.memory()
 
             Then("free, used, total and max memory are shown") {
-                memoryResponse shouldContain "free"
-                memoryResponse shouldContain "used"
-                memoryResponse shouldContain "total"
-                memoryResponse shouldContain "max"
+                memoryResponse shouldMatch """ 
+                    <html></head><body><h1>Memory</h1><ul><li>free: \d+.\d+ .* \(.*\)</li><li>used : \d+.\d+ .* \(.*\)</li><li>total: \d+.\d+ .* \(.*\)</li><li>max  : \d+.\d+ .* \(.*\)</li></ul></body></html>
+                """.trimIndent()
             }
         }
     }

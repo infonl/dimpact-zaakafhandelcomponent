@@ -101,7 +101,7 @@ public class ZaakafhandelParameterService implements Caching {
     }
 
     @Override
-    public Map<String, Long> cacheSizes() {
+    public Map<String, Long> estimatedCacheSizes() {
         return CACHES.entrySet()
                 .stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, cache -> cache.getValue().estimatedSize()));

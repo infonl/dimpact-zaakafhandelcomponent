@@ -15,7 +15,7 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.apache.commons.io.FileUtils.byteCountToDisplaySize
+import nl.jacobras.humanreadable.HumanReadable.fileSize
 import org.apache.commons.text.StringEscapeUtils
 import java.lang.Runtime.getRuntime
 import kotlin.time.DurationUnit
@@ -108,10 +108,10 @@ class UtilRestService @Inject constructor(
             h(1, "Memory") +
                 ul(
                     listOf(
-                        "free: ${byteCountToDisplaySize(freeMemory)} ($freeMemory bytes)",
-                        "used : ${byteCountToDisplaySize(totalMemory - freeMemory)} (${totalMemory - freeMemory} bytes)",
-                        "total: ${byteCountToDisplaySize(totalMemory)} ($totalMemory bytes)",
-                        "max  : ${byteCountToDisplaySize(maxMemory)} ($maxMemory bytes)"
+                        "free: ${fileSize(freeMemory, decimals = 2)} ($freeMemory bytes)",
+                        "used : ${fileSize(totalMemory - freeMemory, decimals = 2)} (${totalMemory - freeMemory} bytes)",
+                        "total: ${fileSize(totalMemory, decimals = 2)} ($totalMemory bytes)",
+                        "max  : ${fileSize(maxMemory, decimals = 2)} ($maxMemory bytes)"
                     )
                 )
         )
@@ -144,11 +144,11 @@ class UtilRestService @Inject constructor(
     private fun zaakafhandelParameterServiceCaches() = getSeriviceCacheDetails(ZHPS, zaakafhandelParameterService)
 
     private fun getSeriviceCacheDetails(prefix: String, caching: Caching): String {
-        val statistics = caching.cacheStatistics()
-        val sizes = caching.cacheSizes()
+        val cacheStatistics = caching.cacheStatistics()
+        val estimatedCacheSizes = caching.estimatedCacheSizes()
         val totalLoadTimeRegExp = Regex("totalLoadTime=\\d+")
         return prefix + ul(
-            statistics.entries.map { (key, value) ->
+            cacheStatistics.entries.map { (key, value) ->
                 // replace totalLoadTime substring with human-readable value
                 val totalLoadTimeHumanReadable = value
                     .totalLoadTime()
@@ -158,7 +158,7 @@ class UtilRestService @Inject constructor(
                     <p>
                     ${b(key)}
                     ${ul(value.toString().replace(totalLoadTimeRegExp, "totalLoadTime=$totalLoadTimeHumanReadable"))}
-                    ${ul("${sizes[key]} objects")}
+                    ${ul("Estimated cache size: ${estimatedCacheSizes[key]}")}
                     </p>
                 """.trimIndent()
             }

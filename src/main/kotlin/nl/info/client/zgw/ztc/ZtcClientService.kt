@@ -447,7 +447,7 @@ class ZtcClientService @Inject constructor(
     override fun cacheStatistics(): Map<String, CacheStats> =
         CACHES.mapValuesTo(mutableMapOf<String, CacheStats>()) { it.value.stats() }
 
-    override fun cacheSizes(): Map<String, Long> =
+    override fun estimatedCacheSizes(): Map<String, Long> =
         CACHES.mapValuesTo(mutableMapOf()) { it.value.estimatedSize() }
 
     private fun createInvocationBuilder(uri: URI) =
