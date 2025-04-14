@@ -589,7 +589,7 @@ tasks {
 
     register<GenerateTask>("generateKlantenClient") {
         description = "Generates Java client code for the Klanten API"
-        // disabled because the generated Java code that does not generate working OpenKlanten client
+        // disabled because the generated Java code that is not a working OpenKlanten client
         isEnabled = false
 
         // To generate a new version of the client:
