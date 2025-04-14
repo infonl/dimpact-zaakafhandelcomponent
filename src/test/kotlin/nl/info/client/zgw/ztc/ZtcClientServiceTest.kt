@@ -13,6 +13,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
+import nl.info.client.zgw.ztc.ZtcClientService.Companion.MAX_CACHE_SIZE
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.configuratie.ConfiguratieService
 import java.net.URI
@@ -86,8 +87,8 @@ class ZtcClientServiceTest : BehaviorSpec({
             }
         }
 
-        When("reading lots of zaak types") {
-            (1..101).forEach {
+        When("reading more zaak types than the cache can hold") {
+            (1..MAX_CACHE_SIZE + 1).forEach {
                 val generatedUUID = UUID.randomUUID()
                 every {
                     ztcClient.zaaktypeRead(generatedUUID)
@@ -99,8 +100,8 @@ class ZtcClientServiceTest : BehaviorSpec({
                 eventually(5.seconds) {
                     with(ztcClientService.cacheStatistics()["ZTC UUID -> ZaakType"]) {
                         this?.hitCount() shouldBe 0
-                        this?.missCount() shouldBe 102
-                        this?.evictionCount() shouldBe 82
+                        this?.missCount() shouldBe MAX_CACHE_SIZE + 2
+                        this?.evictionCount() shouldBe 2
                     }
                 }
             }
