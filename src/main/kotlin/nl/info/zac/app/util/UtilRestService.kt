@@ -15,7 +15,7 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.apache.commons.io.FileUtils.byteCountToDisplaySize
+import nl.jacobras.humanreadable.HumanReadable.fileSize
 import org.apache.commons.text.StringEscapeUtils
 import java.lang.Runtime.getRuntime
 import kotlin.time.DurationUnit
@@ -108,10 +108,10 @@ class UtilRestService @Inject constructor(
             h(1, "Memory") +
                 ul(
                     listOf(
-                        "free: ${byteCountToDisplaySize(freeMemory)} ($freeMemory bytes)",
-                        "used : ${byteCountToDisplaySize(totalMemory - freeMemory)} (${totalMemory - freeMemory} bytes)",
-                        "total: ${byteCountToDisplaySize(totalMemory)} ($totalMemory bytes)",
-                        "max  : ${byteCountToDisplaySize(maxMemory)} ($maxMemory bytes)"
+                        "free: ${fileSize(freeMemory, decimals = 2)} ($freeMemory bytes)",
+                        "used : ${fileSize(totalMemory - freeMemory)} (${totalMemory - freeMemory} bytes)",
+                        "total: ${fileSize(totalMemory)} ($totalMemory bytes)",
+                        "max  : ${fileSize(maxMemory)} ($maxMemory bytes)"
                     )
                 )
         )

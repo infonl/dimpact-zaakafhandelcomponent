@@ -7,6 +7,7 @@ package nl.info.zac.app.util
 import com.github.benmanes.caffeine.cache.stats.CacheStats
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldMatch
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -64,10 +65,9 @@ class UtilRestServiceTest : BehaviorSpec({
             val memoryResponse = utilRESTService.memory()
 
             Then("free, used, total and max memory are shown") {
-                memoryResponse shouldContain "free"
-                memoryResponse shouldContain "used"
-                memoryResponse shouldContain "total"
-                memoryResponse shouldContain "max"
+                memoryResponse shouldMatch """ 
+                    <html></head><body><h1>Memory</h1><ul><li>free: \d+.\d+ MB \(.*\)</li><li>used : \d+.\d+ MB \(.*\)</li><li>total: \d+.\d+ MB \(.*\)</li><li>max  : \d+.\d+ GB \(.*\)</li></ul></body></html>
+                """.trimIndent()
             }
         }
     }

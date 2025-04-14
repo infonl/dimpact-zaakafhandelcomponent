@@ -146,6 +146,7 @@ dependencies {
         // and these transitive dependencies may cause conflicts with the RESTEasy version provided by WildFly
         exclude(group = "org.jboss.resteasy")
     }
+    implementation(libs.jacobras.human.readable)
 
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
     detektPlugins(libs.detekt.formatting)
