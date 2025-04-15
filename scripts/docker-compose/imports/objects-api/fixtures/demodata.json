@@ -951,6 +951,7 @@
         "model": "token.tokenauth",
         "pk": 1,
         "fields": {
+            "identifier": "openzaak",
             "token": "cd63e158f3aca276ef284e3033d020a22899c728",
             "contact_person": "openzaak",
             "email": "test@example.com",
@@ -965,6 +966,7 @@
         "model": "token.tokenauth",
         "pk": 2,
         "fields": {
+            "identifier": "zaakafhandelcomponent",
             "token": "dummyZacObjectsToken",
             "contact_person": "zac",
             "email": "test@example.com",
@@ -979,6 +981,7 @@
         "model": "token.tokenauth",
         "pk": 3,
         "fields": {
+            "identifier": "openformulieren",
             "token": "d667fec15cd7db980730dd843836604e638d1295",
             "contact_person": "openformulieren",
             "email": "openformulieren@example.com",
@@ -1083,7 +1086,8 @@
         "model": "zgw_consumers.service",
         "pk": 2,
         "fields": {
-            "label": "Notificaties",
+            "label": "Open Notificaties",
+            "slug": "open-notificaties",
             "api_type": "nrc",
             "api_root": "http://open-notificaties:8000/api/v1/",
             "client_id": "objectsapi",
