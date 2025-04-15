@@ -1,7 +1,7 @@
 {
   "display": "wizard",
   "name": "testForm",
-  "title": "First name form",
+  "title": "User details",
   "settings": {
     "pdf": {
       "id": "1ec0f8ee-6685-5d98-a847-26f67b67d6f0",
@@ -10,8 +10,8 @@
   },
   "components": [
     {
-      "title": "testPage",
-      "label": "testPage",
+      "title": "Name",
+      "label": "nameDetails",
       "type": "panel",
       "key": "testPage",
       "components": [

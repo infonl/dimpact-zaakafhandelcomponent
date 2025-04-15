@@ -48,7 +48,7 @@ object ItestConfiguration {
     const val BETROKKENE_IDENTIFICATION_TYPE_BSN = "BSN"
     const val BETROKKENE_IDENTIFACTION_TYPE_VESTIGING = "VN"
     const val BETROKKENE_ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
-    const val BPMN_TEST_PROCESS = "bpmn/testProcess.bpmn"
+    const val BPMN_TEST_PROCESS = "bpmn/itProcessDefinition.bpmn"
     const val BPMN_TEST_FORM = "bpmn/testForm.json"
     const val BRON_ORGANISATIE = "123443210"
     const val CONFIG_MAX_FILE_SIZE_IN_MB = 80L
@@ -312,7 +312,8 @@ object ItestConfiguration {
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_REFERENTIEPROCES = "melding klein evenement"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_IDENTIFICATIE =
         "indienen-aansprakelijkstelling-door-derden-behandelen"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE = "indienen-aansprakelijkstelling-behandelen"
+    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE =
+        "indienen-aansprakelijkstelling-behandelen"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION =
         "Indienen aansprakelijkstelling door derden behandelen"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BELANGHEBBENDE = "3bb6928b-76de-4716-ac5f-fa3d7d6eca36"
