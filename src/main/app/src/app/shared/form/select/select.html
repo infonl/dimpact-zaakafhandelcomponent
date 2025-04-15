@@ -19,13 +19,13 @@
     [formControlName]="key"
   >
     <mat-select-trigger>
-      {{ getOptionDisplayValue(control?.value) | translate }}
+      {{ displayWith(control?.value) | translate }}
     </mat-select-trigger>
     <mat-option [value]="" *ngIf="!isRequired()">
       {{ (label ?? key) + ".-geen-" | translate }}
     </mat-option>
     <mat-option *ngFor="let option of options" [value]="option">
-      {{ getOptionDisplayValue(option) | translate }}
+      {{ displayWith(option) | translate }}
       <div class="suffix" *ngIf="suffix">
         {{ suffix | translate }}
       </div>

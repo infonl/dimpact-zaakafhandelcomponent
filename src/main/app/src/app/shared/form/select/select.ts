@@ -43,7 +43,7 @@ export class ZacSelect<
 
   // Needs to be an arrow function in order to de-link the reference to `this`
   // when used in the template `[displayWith]="displayWith"`
-  protected getOptionDisplayValue = (option?: Option) => {
+  protected displayWith = (option?: Option | null) => {
     if (!option) return null;
 
     switch (typeof this.optionDisplayValue) {

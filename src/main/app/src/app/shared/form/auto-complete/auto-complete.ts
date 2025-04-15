@@ -34,7 +34,7 @@ export class ZacAutoComplete<
 
   protected control?: AbstractControl<Option | null>;
 
-  private toFilterOptions: Option[] = [];
+  private availableOptions: Option[] = [];
   protected filteredOptions: Option[] = [];
 
   constructor(private readonly translateService: TranslateService) {}
@@ -45,9 +45,9 @@ export class ZacAutoComplete<
     this.setOptions(this.options);
 
     this.control.valueChanges.subscribe((value) => {
-      this.filteredOptions = this.toFilterOptions.filter((option) => {
+      this.filteredOptions = this.availableOptions.filter((option) => {
         return (
-          (value && this.getOptionDisplayValue(option)?.includes(value)) ?? true
+          (value && this.displayWith(option)?.includes(value)) ?? true
         );
       });
     });
@@ -62,12 +62,12 @@ export class ZacAutoComplete<
   reset() {
     this.control?.reset();
     this.control?.setValue(null, { emitModelToViewChange: true });
-    this.filteredOptions = this.toFilterOptions;
+    this.filteredOptions = this.availableOptions;
   }
 
   // Needs to be an arrow function in order to de-link the reference to `this`
   // when used in the template `[displayWith]="displayWith"`
-  protected getOptionDisplayValue = (option?: Option) => {
+  protected displayWith = (option?: Option | null) => {
     if (!option) return null;
 
     switch (typeof this.optionDisplayValue) {
@@ -84,6 +84,6 @@ export class ZacAutoComplete<
     FormHelper.getErrorMessage(this.control, this.translateService);
 
   private setOptions(input: Array<Option>) {
-    this.toFilterOptions = this.filteredOptions = input;
+    this.availableOptions = this.filteredOptions = input;
   }
 }
