@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Atos
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -45,12 +45,12 @@
                     [compareWith]="compareZaaktype"
                     [value]="filterParameters.zaaktype"
                     (selectionChange)="
-                      applyFilter({ event: $event, filter: 'caseDefinition' })
+                      applyFilter({ event: $event, filter: 'zaaktype' })
                     "
                     id="zaaktype_filter"
-                    placeholder="{{ 'zaaktype.-kies-' | translate }}"
+                    placeholder="{{ 'filter.-alle-' | translate }}"
                   >
-                    <mat-option>{{ "zaaktype.-kies-" | translate }}</mat-option>
+                    <mat-option>{{ "filter.-alle-" | translate }}</mat-option>
                     <mat-option
                       *ngFor="let value of zaaktypes"
                       [value]="value"
@@ -73,9 +73,9 @@
                       applyFilter({ event: $event, filter: 'caseDefinition' })
                     "
                     id="caseDefinition_filter"
-                    placeholder="{{ 'model.-kies-' | translate }}"
+                    placeholder="{{ 'filter.-alle-' | translate }}"
                   >
-                    <mat-option>{{ "model.-kies-" | translate }}</mat-option>
+                    <mat-option>{{ "filter.-alle-" | translate }}</mat-option>
                     <mat-option
                       *ngFor="let value of caseDefinitions"
                       [value]="value"
