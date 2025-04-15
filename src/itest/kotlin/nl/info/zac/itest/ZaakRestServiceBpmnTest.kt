@@ -90,7 +90,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                 }
             }
 
-            Then("the zaak should still be open and without result") {
+            And("the zaak should still be open and without result") {
                 zacClient.retrieveZaak(zaakUUID).use { response ->
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
