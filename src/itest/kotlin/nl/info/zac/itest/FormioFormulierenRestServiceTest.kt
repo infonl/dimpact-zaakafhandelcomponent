@@ -20,7 +20,7 @@ class FormioFormulierenRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given("No existing Form.IO forms") {
+    Given("No existing Form.io forms") {
         When("the integration test form is uploaded") {
             val formIoFileContent = Thread.currentThread().contextClassLoader.getResource(
                 BPMN_TEST_FORM_RESOURCE_PATH
@@ -43,7 +43,7 @@ class FormioFormulierenRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the form.io forms are retrieved") {
+        When("the Form.io forms are retrieved") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/formio-formulieren"
             )
