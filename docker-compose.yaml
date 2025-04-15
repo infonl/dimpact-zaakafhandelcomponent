@@ -368,6 +368,8 @@ services:
       - "4317:4317" # OTLP gRPC receiver
       - "4318:4318" # OTLP http receiver
       - "55679:55679" # zpages extension
+    depends_on:
+      - tempo
     profiles: [ "metrics" ]
 
   # Observability traces data store
@@ -386,7 +388,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: docker.io/prom/prometheus:v3.2.1@sha256:6927e0919a144aa7616fd0137d4816816d42f6b816de3af269ab065250859a62
+    image: docker.io/prom/prometheus:v3.3.0@sha256:339ce86a59413be18d0e445472891d022725b4803fab609069110205e79fb2f1
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -437,7 +439,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.0.8-alpine@sha256:a3b2aa541cfcc430832090fa83eb8451ff121db27d0b01d9aedc2c66734d7eca
+    image: rabbitmq:4.0.9-alpine@sha256:7fd0a03ac9772b701248b3550fcef46ce486cd501133b1819d83772ec76c902f
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 30s
