@@ -171,7 +171,7 @@ export class ZaakCreateComponent {
     if (!caseType) return;
 
     const {
-      zaakafhandelparameters: { defaultGroepId, defaultBehandelaarId },
+      zaakafhandelparameters: { defaultGroepId },
       vertrouwelijkheidaanduiding,
     } = caseType;
 

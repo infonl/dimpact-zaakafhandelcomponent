@@ -37,10 +37,10 @@
   </button>
   <mat-autocomplete
     #auto="matAutocomplete"
-    [displayWith]="getOptionDisplayValue"
+    [displayWith]="displayWith"
   >
     <mat-option *ngFor="let option of filteredOptions" [value]="option">
-      {{ getOptionDisplayValue(option) | translate }}
+      {{ displayWith(option) | translate }}
     </mat-option>
   </mat-autocomplete>
   <mat-error>{{ getErrorMessage() }}</mat-error>
