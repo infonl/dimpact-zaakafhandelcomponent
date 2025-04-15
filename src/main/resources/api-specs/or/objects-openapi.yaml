@@ -2,7 +2,7 @@ openapi: 3.0.3
 # Lifely: manually fixed an issue in this spec; see 'Lifely' below
 info:
   title: Objects API
-  version: 2.4.3 (v2)
+  version: 2.4.4 (v2)
   description: |
     An API to manage Objects.
 
@@ -90,51 +90,12 @@ paths:
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
         - in: query
-          name: data_attr
-          schema:
-            type: string
-          description: |
-            Only include objects that have attributes with certain values.
-            
-            A valid parameter value has the form `key__operator__value`.
-            `key` is the attribute name, `operator` is the comparison operator to be used and `value` is the attribute value.
-            Note: Values can be string, numeric, or dates (ISO format; YYYY-MM-DD).
-            
-            Valid operator values are:
-            * `exact` - equal to
-            * `gt` - greater than
-            * `gte` - greater than or equal to
-            * `lt` - lower than
-            * `lte` - lower than or equal to
-            * `icontains` - case-insensitive partial match
-            * `in` - in a list of values separated by `|`
-            
-            `value` may not contain double underscore or comma characters.
-            `key` may not contain comma characters and includes double underscore only if it indicates nested attributes.
-            
-            
-            
-            Example: in order to display only objects with `height` equal to 100, query `data_attr=height__exact__100`
-            should be used. If `height` is nested inside `dimensions` attribute, query should look like
-            `data_attr=dimensions__height__exact__100`
-            
-            This filter is very similar to the old `data_attrs` filter, but it has two differences:
-            
-            * `value` may contain commas
-            * only one filtering expression is allowed
-            
-            If you want to use several filtering expressions, just use this `data_attr` several times in the query string.
-            Example: `data_attr=height__exact__100&data_attr=naam__icontains__boom`
-          explode: true
-        - in: query
           name: data_attrs
           schema:
             type: string
           description: |
-            **DEPRECATED: Use 'data_attr' instead**.
             Only include objects that have attributes with certain values.
             Data filtering expressions are comma-separated and are structured as follows:
-            
             A valid parameter value has the form `key__operator__value`.
             `key` is the attribute name, `operator` is the comparison operator to be used and `value` is the attribute value.
             Note: Values can be string, numeric, or dates (ISO format; YYYY-MM-DD).
@@ -151,15 +112,9 @@ paths:
             `value` may not contain double underscore or comma characters.
             `key` may not contain comma characters and includes double underscore only if it indicates nested attributes.
             
-            
-            
             Example: in order to display only objects with `height` equal to 100, query `data_attrs=height__exact__100`
             should be used. If `height` is nested inside `dimensions` attribute, query should look like
             `data_attrs=dimensions__height__exact__100`
-            
-            `value` may not contain comma, since commas are used as separator between filtering expressions.
-            If you want to use commas in `value` you can use `data_attr` query parameter.
-          deprecated: true
         - in: query
           name: data_icontains
           schema:
@@ -666,10 +621,8 @@ paths:
                     data_attrs:
                       type: string
                       description: |
-                        **DEPRECATED: Use 'data_attr' instead**.
                         Only include objects that have attributes with certain values.
                         Data filtering expressions are comma-separated and are structured as follows:
-                        
                         A valid parameter value has the form `key__operator__value`.
                         `key` is the attribute name, `operator` is the comparison operator to be used and `value` is the attribute value.
                         Note: Values can be string, numeric, or dates (ISO format; YYYY-MM-DD).
@@ -685,49 +638,10 @@ paths:
                         
                         `value` may not contain double underscore or comma characters.
                         `key` may not contain comma characters and includes double underscore only if it indicates nested attributes.
-                        
-                        
                         
                         Example: in order to display only objects with `height` equal to 100, query `data_attrs=height__exact__100`
                         should be used. If `height` is nested inside `dimensions` attribute, query should look like
                         `data_attrs=dimensions__height__exact__100`
-                        
-                        `value` may not contain comma, since commas are used as separator between filtering expressions.
-                        If you want to use commas in `value` you can use `data_attr` query parameter.
-                    data_attr:
-                      type: string
-                      description: |
-                        Only include objects that have attributes with certain values.
-                        
-                        A valid parameter value has the form `key__operator__value`.
-                        `key` is the attribute name, `operator` is the comparison operator to be used and `value` is the attribute value.
-                        Note: Values can be string, numeric, or dates (ISO format; YYYY-MM-DD).
-                        
-                        Valid operator values are:
-                        * `exact` - equal to
-                        * `gt` - greater than
-                        * `gte` - greater than or equal to
-                        * `lt` - lower than
-                        * `lte` - lower than or equal to
-                        * `icontains` - case-insensitive partial match
-                        * `in` - in a list of values separated by `|`
-                        
-                        `value` may not contain double underscore or comma characters.
-                        `key` may not contain comma characters and includes double underscore only if it indicates nested attributes.
-                        
-                        
-                        
-                        Example: in order to display only objects with `height` equal to 100, query `data_attr=height__exact__100`
-                        should be used. If `height` is nested inside `dimensions` attribute, query should look like
-                        `data_attr=dimensions__height__exact__100`
-                        
-                        This filter is very similar to the old `data_attrs` filter, but it has two differences:
-                        
-                        * `value` may contain commas
-                        * only one filtering expression is allowed
-                        
-                        If you want to use several filtering expressions, just use this `data_attr` several times in the query string.
-                        Example: `data_attr=height__exact__100&data_attr=naam__icontains__boom`
                     date:
                       type: string
                       format: date
@@ -801,8 +715,6 @@ paths:
 components:
   schemas:
     GeoJSONGeometry:
-      title: GeoJSONGeometry
-      type: object
       oneOf:
         - $ref: '#/components/schemas/Point'
         - $ref: '#/components/schemas/MultiPoint'
@@ -813,6 +725,14 @@ components:
         - $ref: '#/components/schemas/GeometryCollection'
       discriminator:
         propertyName: type
+        mapping:
+          Point: '#/components/schemas/Point'
+          MultiPoint: '#/components/schemas/MultiPoint'
+          LineString: '#/components/schemas/LineString'
+          MultiLineString: '#/components/schemas/MultiLineString'
+          Polygon: '#/components/schemas/Polygon'
+          MultiPolygon: '#/components/schemas/MultiPolygon'
+          GeometryCollection: '#/components/schemas/GeometryCollection'
     GeoWithin:
       type: object
       properties:
@@ -828,8 +748,7 @@ components:
         url: https://tools.ietf.org/html/rfc7946#section-3.1
       properties:
         type:
-          allOf:
-            - $ref: '#/components/schemas/TypeEnum'
+          type: string
           description: The geometry type
     GeometryCollection:
       type: object
@@ -982,11 +901,11 @@ components:
         url:
           type: string
           format: uri
-          readOnly: true
           minLength: 1
           maxLength: 1000
           description: URL reference to this object. This is the unique identification
             and location of this object.
+          readOnly: true
         uuid:
           type: string
           format: uuid
@@ -1142,11 +1061,11 @@ components:
         url:
           type: string
           format: uri
-          readOnly: true
           minLength: 1
           maxLength: 1000
           description: URL reference to this object. This is the unique identification
             and location of this object.
+          readOnly: true
         uuid:
           type: string
           format: uuid
@@ -1227,28 +1146,16 @@ components:
                 type: array
                 items:
                   $ref: '#/components/schemas/Point2D'
-    TypeEnum:
-      type: string
-      enum:
-        - Point
-        - MultiPoint
-        - LineString
-        - MultiLineString
-        - Polygon
-        - MultiPolygon
-        - Feature
-        - FeatureCollection
-        - GeometryCollection
   securitySchemes:
     tokenAuth:
       type: apiKey
       in: header
       name: Authorization
       description: Token-based authentication with required prefix "Token"
-servers:
-  - url: /api/v2
 tags:
   - name: objects
   - name: permissions
 externalDocs:
   url: https://objects-and-objecttypes-api.readthedocs.io/
+servers:
+  - url: /api/v2
