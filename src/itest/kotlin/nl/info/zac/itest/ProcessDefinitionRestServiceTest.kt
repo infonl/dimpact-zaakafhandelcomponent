@@ -9,7 +9,7 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
@@ -23,7 +23,7 @@ class ProcessDefinitionRestServiceTest : BehaviorSpec({
     Given("No existing BPMN process definitions") {
         When("the integration test BPMN process definition is created from our BPMN test process file") {
             val bpmnTestProcessFileContent = Thread.currentThread().contextClassLoader.getResource(
-                BPMN_TEST_PROCESS
+                BPMN_TEST_PROCESS_RESOURCE_PATH
             )?.let {
                 File(it.path)
             }!!.readText(Charsets.UTF_8).replace("\"", "\\\"").replace("\n", "\\n")
@@ -31,7 +31,7 @@ class ProcessDefinitionRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/process-definitions",
                 requestBodyAsString = """
                 {
-                    "filename": "$BPMN_TEST_PROCESS",
+                    "filename": "$BPMN_TEST_PROCESS_RESOURCE_PATH",
                     "content": "$bpmnTestProcessFileContent"
                 }
                 """.trimIndent()
@@ -53,8 +53,8 @@ class ProcessDefinitionRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                  [  
                   {
-                    "key": "bpmnProcessDefinition",
-                    "name": "BPMN process definition",
+                    "key": "itProcessDefinition",
+                    "name": "Integration Tests BPMN Process Definition",
                     "version": 1
                   }
                 ]  

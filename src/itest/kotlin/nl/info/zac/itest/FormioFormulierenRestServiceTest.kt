@@ -9,7 +9,7 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_FORM
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
@@ -23,7 +23,7 @@ class FormioFormulierenRestServiceTest : BehaviorSpec({
     Given("No existing Form.IO forms") {
         When("the integration test form is uploaded") {
             val formIoFileContent = Thread.currentThread().contextClassLoader.getResource(
-                BPMN_TEST_FORM
+                BPMN_TEST_FORM_RESOURCE_PATH
             )?.let {
                 File(it.path)
             }!!.readText(Charsets.UTF_8).replace("\"", "\\\"").replace("\n", "\\n")
@@ -31,7 +31,7 @@ class FormioFormulierenRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/formio-formulieren",
                 requestBodyAsString = """
                 {
-                    "filename": "$BPMN_TEST_FORM",
+                    "filename": "$BPMN_TEST_FORM_RESOURCE_PATH",
                     "content": "$formIoFileContent"
                 }
                 """.trimIndent()
@@ -56,12 +56,11 @@ class FormioFormulierenRestServiceTest : BehaviorSpec({
                     {
                         "id": 1,
                         "name": "testForm",
-                        "title": "First name form"
+                        "title": "User details"
                     }
                 ]
                 """.trimIndent()
             }
         }
     }
-
 })

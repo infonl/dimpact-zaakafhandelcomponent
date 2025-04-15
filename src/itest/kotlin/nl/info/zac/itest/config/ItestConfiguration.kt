@@ -48,8 +48,9 @@ object ItestConfiguration {
     const val BETROKKENE_IDENTIFICATION_TYPE_BSN = "BSN"
     const val BETROKKENE_IDENTIFACTION_TYPE_VESTIGING = "VN"
     const val BETROKKENE_ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
-    const val BPMN_TEST_PROCESS = "bpmn/itProcessDefinition.bpmn"
-    const val BPMN_TEST_FORM = "bpmn/testForm.json"
+    const val BPMN_TEST_PROCESS_ID = "itProcessDefinition"
+    const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_ID.bpmn"
+    const val BPMN_TEST_FORM_RESOURCE_PATH = "bpmn/testForm.json"
     const val BRON_ORGANISATIE = "123443210"
     const val CONFIG_MAX_FILE_SIZE_IN_MB = 80L
     const val CONFIG_GEMEENTE_CODE = "9999"
@@ -113,14 +114,15 @@ object ItestConfiguration {
     const val TEST_INFORMATIE_OBJECT_TYPE_1_UUID = "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
 
     const val TEST_SPEC_ORDER_INITIAL = 0
-    const val TEST_SPEC_ORDER_AFTER_ZAAK_CREATED = 1
-    const val TEST_SPEC_ORDER_AFTER_TASK_CREATED = 2
-    const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 3
-    const val TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED = 4
-    const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 5
-    const val TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED = 6
-    const val TEST_SPEC_ORDER_AFTER_REINDEXING = 7
-    const val TEST_SPEC_ORDER_AFTER_SEARCH = 8
+    const val TEST_SPEC_ORDER_AFTER_INITIALIZATION = 1
+    const val TEST_SPEC_ORDER_AFTER_ZAAK_CREATED = 2
+    const val TEST_SPEC_ORDER_AFTER_TASK_CREATED = 3
+    const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 4
+    const val TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED = 5
+    const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 6
+    const val TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED = 7
+    const val TEST_SPEC_ORDER_AFTER_REINDEXING = 8
+    const val TEST_SPEC_ORDER_AFTER_SEARCH = 9
 
     const val TOTAL_COUNT_ZAKEN = 10
     const val TOTAL_COUNT_ZAKEN_AFGEROND = 2
