@@ -155,7 +155,7 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
                 bpmnRuntimeService
                     .createProcessInstanceQuery()
                     .processInstanceBusinessKey(zaakUUID.toString())
-                    .singleResult();
+                    .singleResult()
             } returns processInstance
             every { processInstance.id } returns processInstanceId
             every { bpmnRuntimeService.setVariables(processInstanceId, processVariables) } just runs
@@ -181,7 +181,7 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
                 bpmnRuntimeService
                     .createProcessInstanceQuery()
                     .processInstanceBusinessKey(zaakUUID.toString())
-                    .singleResult();
+                    .singleResult()
             } returns processInstance
             every { processInstance.id } returns processInstanceId
             every { bpmnRuntimeService.setVariable(processInstanceId, "verwachteDagenOpgeschort", 1) } just runs
@@ -201,13 +201,13 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
                 cmmnRuntimeService
                     .createCaseInstanceQuery()
                     .caseInstanceBusinessKey(zaakUUID.toString())
-                    .singleResult();
+                    .singleResult()
             } returns null
             every {
                 bpmnRuntimeService
                     .createProcessInstanceQuery()
                     .processInstanceBusinessKey(zaakUUID.toString())
-                    .singleResult();
+                    .singleResult()
             } returns processInstance
             every { processInstance.id } returns processInstanceId
             every { bpmnRuntimeService.removeVariable(processInstanceId, "verwachteDagenOpgeschort") } just runs
@@ -280,9 +280,8 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
             bpmnRuntimeService
                 .createProcessInstanceQuery()
                 .processInstanceBusinessKey(zaakUUID.toString())
-                .singleResult();
+                .singleResult()
         } returns null
-
 
         When("zaak data is set") {
             every {
@@ -306,7 +305,7 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
                 cmmnRuntimeService
                     .createCaseInstanceQuery()
                     .variableValueEquals(ZaakVariabelenService.VAR_ZAAK_UUID, zaakUUID)
-                    .singleResult();
+                    .singleResult()
             } returns null
 
             val exception = shouldThrow<RuntimeException> {
@@ -325,11 +324,10 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
                     .caseInstanceBusinessKey(zaakUUID.toString())
                     .singleResult()
             } returns null
-            
+
             zaakVariabelenService.removeVerwachteDagenOpgeschort(zaakUUID)
 
             Then("no exception should be thrown") {}
         }
     }
-
 })
