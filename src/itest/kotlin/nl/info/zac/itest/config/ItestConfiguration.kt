@@ -312,8 +312,6 @@ object ItestConfiguration {
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE = "melding-evenement-organiseren-behandelen"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION = "Melding evenement organiseren behandelen"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_REFERENTIEPROCES = "melding klein evenement"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_IDENTIFICATIE =
-        "indienen-aansprakelijkstelling-door-derden-behandelen"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE =
         "indienen-aansprakelijkstelling-behandelen"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION =
