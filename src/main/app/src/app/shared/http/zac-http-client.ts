@@ -24,17 +24,15 @@ type PathsWithMethod<Paths, PathnameMethod extends HttpMethod> = {
 type Response<
   P extends keyof Paths,
   type extends "get" | "post" | "put" | "delete" | "patch",
-> = FetchResponse<
-  type extends infer T
-    ? T extends type
-      ? T extends keyof Paths[P]
-        ? Paths[P][T]
-        : unknown
-      : never
-    : never,
-  Record<string, unknown>,
-  "application/json"
->["data"];
+> = NonNullable<
+  FetchResponse<
+    Paths[P][type] extends Record<string | number, any>
+      ? Paths[P][type]
+      : never,
+    Record<string, unknown>,
+    "application/json"
+  >["data"]
+>;
 
 @Injectable({
   providedIn: "root",

@@ -5,7 +5,7 @@
 
 import { Injectable } from "@angular/core";
 
-import { of } from "rxjs";
+import { Observable, of } from "rxjs";
 import { catchError, tap } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ZacHttpClient } from "../shared/http/zac-http-client";

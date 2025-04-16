@@ -70,11 +70,11 @@
       >
       <section class="row">
         <zac-auto-complete
-          class="col"
           key="groep"
-          optionDisplayValue="naam"
+          class="col"
           [form]="form"
           [options]="groups"
+          [optionDisplayValue]="'naam'"
         >
           <mat-label>{{ "actie.zaak.toekennen.groep" | translate }}</mat-label>
         </zac-auto-complete>
