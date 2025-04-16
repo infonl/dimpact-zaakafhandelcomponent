@@ -26,7 +26,6 @@ import { ZaakBetrokkeneGegevens } from "./model/zaak-betrokkene-gegevens";
 import { ZaakHeropenenGegevens } from "./model/zaak-heropenen-gegevens";
 import { ZaakLocatieGegevens } from "./model/zaak-locatie-gegevens";
 import { ZaakToekennenGegevens } from "./model/zaak-toekennen-gegevens";
-import { Zaaktype } from "./model/zaaktype";
 import { ZakenVerdeelGegevens } from "./model/zaken-verdeel-gegevens";
 
 @Injectable({
@@ -133,9 +132,9 @@ export class ZakenService {
       );
   }
 
-  listZaaktypes(): Observable<Zaaktype[]> {
-    return this.http
-      .get<Zaaktype[]>(`${this.basepath}/zaaktypes`)
+  listZaaktypes() {
+    return this.zacHttpClient
+      .GET("/rest/zaken/zaaktypes")
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
