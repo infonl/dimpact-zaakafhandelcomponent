@@ -13,9 +13,7 @@ import { MatAutocompleteHarness } from "@angular/material/autocomplete/testing";
 import { MatHint, MatLabel } from "@angular/material/form-field";
 import { MatIcon } from "@angular/material/icon";
 import { MatSidenavModule } from "@angular/material/sidenav";
-import {
-  NoopAnimationsModule,
-} from "@angular/platform-browser/animations";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
@@ -31,7 +29,6 @@ import { ZaakStatusmailOptie } from "../model/zaak-statusmail-optie";
 import { Zaaktype } from "../model/zaaktype";
 import { ZakenService } from "../zaken.service";
 import { ZaakCreateComponent } from "./zaak-create.component";
-import {load} from "ol/Image";
 
 describe(ZaakCreateComponent.name, () => {
   let loader: HarnessLoader;
@@ -117,15 +114,14 @@ describe(ZaakCreateComponent.name, () => {
   });
 
   describe(ZaakCreateComponent.prototype.caseTypeSelected.name, () => {
-
     it(`should set the default group`, async () => {
-      const caseType = await loader.getHarness(MatAutocompleteHarness)
+      const caseType = await loader.getHarness(MatAutocompleteHarness);
 
       // It is impossible to test an auto-complete field with the test harness
       // https://stackoverflow.com/a/57569268
-      await caseType.enterText("test")
+      await caseType.enterText("test");
 
-      expect(true).toBeTruthy() // TODO validate that we can use the `MatAutocompleteHarness` to write this test
+      expect(true).toBeTruthy(); // TODO validate that we can use the `MatAutocompleteHarness` to write this test
     });
 
     it.todo(`should set the default case worker`);

@@ -4,15 +4,10 @@
  *
  */
 
-import {
-  Component,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-} from "@angular/core";
+import { Component, Input, OnInit } from "@angular/core";
 import { AbstractControl, FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
+import { Observable } from "rxjs";
 import { FormHelper } from "../helpers";
 
 @Component({
@@ -20,16 +15,17 @@ import { FormHelper } from "../helpers";
   templateUrl: "./auto-complete.html",
 })
 export class ZacAutoComplete<
-    Form extends Record<string, AbstractControl>,
-    Key extends keyof Form,
-    Option extends Form[Key]["value"],
-    OptionDisplayValue extends keyof Option | ((option: Option) => string),
-  >
-  implements OnInit, OnChanges
+  Form extends Record<string, AbstractControl>,
+  Key extends keyof Form,
+  Option extends Form[Key]["value"],
+  OptionDisplayValue extends keyof Option | ((option: Option) => string),
+> implements OnInit
 {
   @Input({ required: true }) key!: Key;
   @Input({ required: true }) form!: FormGroup<Form>;
-  @Input({ required: true }) options!: Array<Option>;
+  @Input({ required: true }) options!:
+    | Array<Option>
+    | Observable<Array<Option>>;
   @Input() optionDisplayValue?: OptionDisplayValue;
 
   protected control?: AbstractControl<Option | null>;
@@ -46,17 +42,9 @@ export class ZacAutoComplete<
 
     this.control.valueChanges.subscribe((value) => {
       this.filteredOptions = this.availableOptions.filter((option) => {
-        return (
-          (value && this.displayWith(option)?.includes(value)) ?? true
-        );
+        return (value && this.displayWith(option)?.includes(value)) ?? true;
       });
     });
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if ("options" in changes) {
-      this.setOptions(changes["options"].currentValue);
-    }
   }
 
   reset() {
@@ -83,7 +71,11 @@ export class ZacAutoComplete<
   protected getErrorMessage = () =>
     FormHelper.getErrorMessage(this.control, this.translateService);
 
-  private setOptions(input: Array<Option>) {
+  private setOptions(input: Array<Option> | Observable<Array<Option>>) {
+    if (input instanceof Observable) {
+      input.subscribe((options) => this.setOptions(options));
+      return;
+    }
     this.availableOptions = this.filteredOptions = input;
   }
 }

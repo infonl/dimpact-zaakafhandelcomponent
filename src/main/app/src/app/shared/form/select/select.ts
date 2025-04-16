@@ -7,6 +7,7 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { AbstractControl, FormGroup, Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
+import { Observable } from "rxjs";
 import { FormHelper } from "../helpers";
 
 @Component({
@@ -23,7 +24,9 @@ export class ZacSelect<
 {
   @Input({ required: true }) key!: Key;
   @Input({ required: true }) form!: FormGroup<Form>;
-  @Input({ required: true }) options!: Array<Option>;
+  @Input({ required: true }) options!:
+    | Array<Option>
+    | Observable<Array<Option>>;
   @Input() optionDisplayValue?: OptionDisplayValue;
   @Input() compare?: Compare;
   @Input() label?: string;
@@ -34,11 +37,14 @@ export class ZacSelect<
   @Input() suffix?: string;
 
   protected control?: AbstractControl<Option | null>;
+  protected availableOptions: Option[] = [];
 
   constructor(private readonly translateService: TranslateService) {}
 
   ngOnInit() {
     this.control = this.form.get(String(this.key))!;
+
+    this.setOptions(this.options);
   }
 
   // Needs to be an arrow function in order to de-link the reference to `this`
@@ -68,4 +74,12 @@ export class ZacSelect<
 
   protected getErrorMessage = () =>
     FormHelper.getErrorMessage(this.control, this.translateService);
+
+  private setOptions(input: Array<Option> | Observable<Array<Option>>) {
+    if (input instanceof Observable) {
+      input.subscribe((options) => this.setOptions(options));
+      return;
+    }
+    this.availableOptions = input;
+  }
 }

@@ -44,7 +44,7 @@ export class ZacInput<
     this.max = FormHelper.getValidatorValue("max", this.control);
 
     if (Number.isFinite(this.min) || Number.isInteger(this.max)) {
-      this.type = 'number'
+      this.type = "number";
     }
   }
 
