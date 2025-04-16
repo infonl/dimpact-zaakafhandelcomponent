@@ -173,7 +173,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   objecten-api.local:
-    image: docker.io/maykinmedia/objects-api:2.4.4@sha256:2980ce1b62c4ae9575003a694c700e06d0ed77a55e8214a4984aded2d9e7d8c4
+    image: docker.io/maykinmedia/objects-api:3.0.3@sha256:64e6e8286034f7723b04cde7a4016f9ca7df061ea5d7161c0b3654ee8271a1a5
     platform: linux/amd64
     ports:
       - "8010:8000"
@@ -219,7 +219,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   objecten-api-import:
-    image: docker.io/maykinmedia/objects-api:2.4.4@sha256:2980ce1b62c4ae9575003a694c700e06d0ed77a55e8214a4984aded2d9e7d8c4
+    image: docker.io/maykinmedia/objects-api:3.0.3@sha256:64e6e8286034f7723b04cde7a4016f9ca7df061ea5d7161c0b3654ee8271a1a5
     platform: linux/amd64
     environment: *objects-env
     # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
