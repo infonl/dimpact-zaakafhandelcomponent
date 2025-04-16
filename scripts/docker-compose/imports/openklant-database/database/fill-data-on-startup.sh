@@ -3,7 +3,7 @@
 # The number of expected records in the django_migrations table after Open Klant has finished with the database
 # migration scripts.
 # Note that this is expected to change in future versions of Open Klant, so this value should be updated accordingly.
-DJANGO_MIGRATIONS_TABLE_RECORDS_COUNT=138
+DJANGO_MIGRATIONS_TABLE_RECORDS_COUNT=171
 
 echo ">>>> Waiting until Open Klant has initialized the database <<<<"
 useradd openklant

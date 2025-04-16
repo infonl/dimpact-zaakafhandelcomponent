@@ -68,17 +68,13 @@ class KlantRestService @Inject constructor(
     val ztcClientService: ZtcClientService,
     val klantClientService: KlantClientService
 ) {
-    companion object {
-        const val TELEFOON_SOORT_DIGITAAL_ADRES = "telefoon"
-        const val EMAIL_SOORT_DIGITAAL_ADRES = "email"
-    }
-
     @GET
     @Path("persoon/{bsn}")
     fun readPersoon(
         @PathParam("bsn") @Length(min = 8, max = 9) bsn: String
     ) = runBlocking {
-        // run the two client calls concurrently in a coroutine scope so we do not need to wait for the first call to complete
+        // run the two client calls concurrently in a coroutine scope,
+        // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
             val klantPersoonDigitalAddresses = async { klantClientService.findDigitalAddressesByNumber(bsn) }
             val brpPersoon = async { brpClientService.retrievePersoon(bsn) }
@@ -96,7 +92,8 @@ class KlantRestService @Inject constructor(
     fun readVestiging(
         @PathParam("vestigingsnummer") vestigingsnummer: String
     ) = runBlocking {
-        // run the two client calls concurrently in a coroutine scope so we do not need to wait for the first call to complete
+        // run the two client calls concurrently in a coroutine scope,
+        // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
             val klantVestigingDigitalAddresses =
                 async { klantClientService.findDigitalAddressesByNumber(vestigingsnummer) }
@@ -161,7 +158,8 @@ class KlantRestService @Inject constructor(
 
     @GET
     @Path("roltype")
-    fun listRoltypen(): List<RestRoltype> = ztcClientService.listRoltypen().sortedBy { it.omschrijving }.toRestRoltypes()
+    fun listRoltypen(): List<RestRoltype> =
+        ztcClientService.listRoltypen().sortedBy { it.omschrijving }.toRestRoltypes()
 
     @GET
     @Path("contactgegevens/{initiatorIdentificatie}")
