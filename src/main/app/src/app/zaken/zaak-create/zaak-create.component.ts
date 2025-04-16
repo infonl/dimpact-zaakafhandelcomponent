@@ -42,9 +42,9 @@ export class ZaakCreateComponent {
 
   private readonly inboxProductaanvraag: InboxProductaanvraag;
 
-  protected groups: GeneratedType<"RestGroup">[] = [];
+  protected groups = this.identityService.listGroups();
   protected users: GeneratedType<"RestUser">[] = [];
-  protected caseTypes: Zaaktype[] = [];
+  protected caseTypes = this.zakenService.listZaaktypes();
   protected communicationChannels: string[] = [];
   protected confidentialityNotices = this.utilService.getEnumAsSelectList(
     "vertrouwelijkheidaanduiding",
@@ -54,9 +54,7 @@ export class ZaakCreateComponent {
   protected readonly form = this.formBuilder.group({
     zaaktype: new FormControl<Zaaktype | null>(null, [Validators.required]),
     initiator: new FormControl<Klant | null | undefined>(null),
-    startdatum: new FormControl<moment.Moment | null>(null, [
-      Validators.required,
-    ]),
+    startdatum: new FormControl(moment(), [Validators.required]),
     bagObjecten: new FormControl<BAGObject[]>([]),
     groep: new FormControl<GeneratedType<"RestGroup"> | null | undefined>(
       null,
@@ -84,7 +82,7 @@ export class ZaakCreateComponent {
     private readonly translateService: TranslateService,
     private readonly utilService: UtilService,
     private readonly formBuilder: FormBuilder,
-    identityService: IdentityService,
+    private identityService: IdentityService,
     protected readonly navigationService: NavigationService,
   ) {
     utilService.setTitle("title.zaak.aanmaken");
@@ -92,12 +90,6 @@ export class ZaakCreateComponent {
       router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
     this.form.controls.behandelaar.disable();
 
-    zakenService.listZaaktypes().subscribe((caseTypes) => {
-      this.caseTypes = caseTypes;
-    });
-    identityService.listGroups().subscribe((groups) => {
-      this.groups = groups ?? [];
-    });
     referentieTabelService
       .listCommunicatiekanalen(Boolean(this.inboxProductaanvraag))
       .subscribe((channels) => {
@@ -175,9 +167,11 @@ export class ZaakCreateComponent {
       vertrouwelijkheidaanduiding,
     } = caseType;
 
-    this.form.controls.groep.setValue(
-      this.groups.find(({ id }) => id === defaultGroepId),
-    );
+    this.groups.subscribe((groups) => {
+      this.form.controls.groep.setValue(
+        groups?.find(({ id }) => id === defaultGroepId),
+      );
+    });
 
     this.form.controls.vertrouwelijkheidaanduiding.setValue(
       this.confidentialityNotices.find(

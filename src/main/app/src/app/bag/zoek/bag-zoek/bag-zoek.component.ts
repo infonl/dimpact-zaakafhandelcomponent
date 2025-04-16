@@ -10,7 +10,7 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { FormControl, Validators } from "@angular/forms";
 import { MatDrawer, MatSidenav } from "@angular/material/sidenav";
 import { MatTable, MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
@@ -28,15 +28,17 @@ import { ListAdressenParameters } from "../../model/list-adressen-parameters";
 })
 export class BagZoekComponent {
   @Output() bagObject = new EventEmitter<BAGObject>();
-  @Input() gekoppeldeBagObjecten: BAGObject[] | FormControl<BAGObject[] | null>;
-  @Input() sideNav: MatSidenav | MatDrawer;
-  @ViewChild(MatTable) table: MatTable<BAGObject>;
+  @Input() gekoppeldeBagObjecten:
+    | BAGObject[]
+    | FormControl<BAGObject[] | null> = [];
+  @Input({ required: true }) sideNav!: MatSidenav | MatDrawer;
+  @ViewChild(MatTable) table!: MatTable<BAGObject>;
   BAGObjecttype = BAGObjecttype;
   trefwoorden = new FormControl("", [Validators.maxLength(255)]);
-  bagObjecten: MatTableDataSource<BAGObject> =
-    new MatTableDataSource<BAGObject>();
+  bagObjecten = new MatTableDataSource<
+    (BAGObject | Adres) & { expanded?: boolean; child?: boolean }
+  >();
   loading = false;
-  formGroup: FormGroup;
   columns: string[] = ["expand", "id", "type", "omschrijving", "acties"];
 
   constructor(
@@ -85,7 +87,7 @@ export class BagZoekComponent {
     return false;
   }
 
-  expand(bagObject) {
+  expand(bagObject: (BAGObject | Adres) & { expanded: boolean }) {
     this.bagObjecten.data = this.bagObjecten.data.filter(
       (b) => b["child"] !== true,
     );
@@ -97,7 +99,10 @@ export class BagZoekComponent {
     this.bagObjecten.data.forEach((b) => (b["expanded"] = false));
     bagObject.expanded = true;
 
-    const childeren: BAGObject[] = [];
+    const childeren: ((BAGObject | Adres) & {
+      expanded?: boolean;
+      child?: boolean;
+    })[] = [];
     if (bagObject.bagObjectType === BAGObjecttype.ADRES) {
       const adres: Adres = bagObject as Adres;
       if (adres.nummeraanduiding) {
