@@ -3,14 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  Component,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  SimpleChanges,
-} from "@angular/core";
+import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { MatDrawer } from "@angular/material/sidenav";
 import { Subject, takeUntil } from "rxjs";
 import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
@@ -22,7 +15,7 @@ import { Zaak } from "../model/zaak";
   templateUrl: "./zaak-link.component.html",
   styleUrls: ["./zaak-link.component.less"],
 })
-export class ZaakLinkComponent implements OnInit, OnChanges, OnDestroy {
+export class ZaakLinkComponent implements OnInit, OnDestroy {
   @Input({ required: true }) zaak!: Zaak; // GeneratedType<"RestZaak">;
   @Input({ required: true }) sideNav!: MatDrawer;
 
@@ -47,8 +40,6 @@ export class ZaakLinkComponent implements OnInit, OnChanges, OnDestroy {
         this.isValid = value?.length >= 2;
       });
   }
-
-  ngOnChanges(changes: SimpleChanges) {}
 
   searchCases() {}
 
