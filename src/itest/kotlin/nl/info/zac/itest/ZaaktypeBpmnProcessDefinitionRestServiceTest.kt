@@ -22,13 +22,8 @@ class ZaaktypeBpmnProcessDefinitionRestServiceTest : BehaviorSpec({
     Given("No existing zaaktype to BPMN process definition mappings") {
         When("a mapping is created") {
             val response = itestHttpClient.performJSONPostRequest(
-                url = "$ZAC_API_URI/zaaktype-bpmn-process-definition",
-                requestBodyAsString = """
-                {
-                    "zaaktypeUuid": "$ZAAKTYPE_BPMN_TEST_UUID",
-                    "bpmnProcessDefinitionKey": "$BPMN_TEST_PROCESS_ID"
-                }
-                """.trimIndent()
+                url = "$ZAC_API_URI/bpmn-process-definition/$BPMN_TEST_PROCESS_ID/connect",
+                requestBodyAsString = """{ "zaaktypeUuid": "$ZAAKTYPE_BPMN_TEST_UUID" }"""
             )
 
             Then("the response is successful") {

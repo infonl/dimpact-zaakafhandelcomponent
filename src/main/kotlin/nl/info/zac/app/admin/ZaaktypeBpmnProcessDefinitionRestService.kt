@@ -7,9 +7,11 @@ package nl.info.zac.app.admin
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.validation.Valid
+import jakarta.validation.constraints.NotEmpty
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
+import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
@@ -21,7 +23,7 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
 @Singleton
-@Path("zaaktype-bpmn-process-definition")
+@Path("bpmn-process-definition")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @AllOpen
@@ -31,14 +33,16 @@ class ZaaktypeBpmnProcessDefinitionRestService @Inject constructor(
     private val policyService: PolicyService
 ) {
     @POST
-    fun connectZaaktypeWithProcessDefinition(
+    @Path("{processDefinitionKey}/connect")
+    fun connectWithZaaktype(
+        @NotEmpty @PathParam("processDefinitionKey") processDefinitionKey: String,
         @Valid restZaaktypeBpmnProcessDefinition: RestZaaktypeBpmnProcessDefinition
     ): Response {
         PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
         zaaktypeBpmnProcessDefinitionService.createZaaktypeBpmnProcessDefinition(
             ZaaktypeBpmnProcessDefinition().apply {
                 zaaktypeUuid = restZaaktypeBpmnProcessDefinition.zaaktypeUuid
-                bpmnProcessDefinitionKey = restZaaktypeBpmnProcessDefinition.bpmnProcessDefinitionKey
+                bpmnProcessDefinitionKey = processDefinitionKey
             }
         )
         return Response.created(null).build()
