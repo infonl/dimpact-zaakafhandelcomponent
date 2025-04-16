@@ -1,0 +1,19 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 Lifely
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<div class="sidenav-title">
+  <h3>
+    <mat-icon>account_tree</mat-icon>
+    {{ "actie.zaak.koppelen" | translate }}
+  </h3>
+  <button mat-icon-button (click)="sideNav.close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<div class="form" *ngIf="zaak">
+  <div class="table-wrapper">form content here</div>
+  <div class="table-wrapper">found cases table here</div>
+</div>

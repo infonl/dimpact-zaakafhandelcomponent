@@ -534,6 +534,7 @@ export class ZaakViewComponent
           );
         }
       }
+
       if (this.zaak.rechten.wijzigen) {
         this.menu.push(
           new ButtonMenuItem(
@@ -541,6 +542,15 @@ export class ZaakViewComponent
             () => {
               this.zaakKoppelenService.addTeKoppelenZaak(this.zaak);
             },
+            "account_tree",
+          ),
+        );
+      }
+      if (this.zaak.rechten.wijzigen && document.cookie.includes("koppelen")) {
+        this.menu.push(
+          new ButtonMenuItem(
+            "actie.zaak.koppelen - NEW",
+            () => this.actionsSidenav.open(),
             "account_tree",
           ),
         );
