@@ -7,6 +7,7 @@ package nl.info.zac.identity
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.inject.Named
+import net.atos.zac.admin.ZaakafhandelParameterService
 import nl.info.zac.identity.exception.GroupNotFoundException
 import nl.info.zac.identity.exception.UserNotFoundException
 import nl.info.zac.identity.exception.UserNotInGroupException
@@ -18,6 +19,7 @@ import nl.info.zac.identity.model.toUser
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.keycloak.admin.client.resource.RealmResource
+import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
@@ -25,7 +27,8 @@ import org.keycloak.admin.client.resource.RealmResource
 @Suppress("TooManyFunctions")
 class IdentityService @Inject constructor(
     @Named("keycloakZacRealmResource")
-    private val keycloakZacRealmResource: RealmResource
+    private val keycloakZacRealmResource: RealmResource,
+    private val zaakafhandelParameterService: ZaakafhandelParameterService
 ) {
     fun listUsers(): List<User> = keycloakZacRealmResource.users()
         .list()
@@ -36,6 +39,20 @@ class IdentityService @Inject constructor(
         // retrieve groups with 'full representation' or else the group attributes will not be filled
         .groups("", 0, Integer.MAX_VALUE, false)
         .map { it.toGroup() }
+        .sortedBy { it.name }
+
+    /**
+     * Returns the list of groups that have access to the given zaaktype UUID based on the ZAC domain roles of this group.
+     */
+    fun listGroupsForZaaktypeUuid(zaaktypeUuid: UUID): List<Group> = keycloakZacRealmResource.groups()
+        // retrieve groups with 'full representation' or else the group attributes will not be filled
+        .groups("", 0, Integer.MAX_VALUE, false)
+        .map { it.toGroup() }
+        .filter {
+            it.zacDomainRoles.contains(
+                zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid).domein
+            )
+        }
         .sortedBy { it.name }
 
     fun readUser(userId: String): User = keycloakZacRealmResource.users()
