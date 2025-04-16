@@ -32,7 +32,7 @@ import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAAK_ROLLEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
+import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_INITIALIZATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
@@ -57,9 +57,10 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
 /**
- * This test creates a zaak and a document (the form data PDF) which we use in other tests, and therefore we run this test first.
+ * This test creates a zaak and a document (the form data PDF) which we use in other tests,
+ * and therefore we run this test right after initialization.
  */
-@Order(TEST_SPEC_ORDER_INITIAL)
+@Order(TEST_SPEC_ORDER_AFTER_INITIALIZATION)
 class NotificationsTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
