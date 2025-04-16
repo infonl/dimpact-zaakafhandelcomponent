@@ -104,7 +104,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "<= 3.0.3",
+      "allowedVersions": "< 3.1.0",
       "description": ["Pinned by the next Dimpact PodiumD release"]
     },
     {
