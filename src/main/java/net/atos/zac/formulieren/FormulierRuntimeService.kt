@@ -2,279 +2,326 @@
  * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.formulieren;
+package net.atos.zac.formulieren
 
-import static jakarta.json.JsonValue.ValueType.STRING;
-import static java.time.format.DateTimeFormatter.ofPattern;
-import static java.time.temporal.ChronoUnit.DAYS;
-import static net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate;
-import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
-import static nl.info.zac.identity.model.UserKt.getFullName;
-import static org.apache.commons.lang3.StringUtils.*;
+import jakarta.inject.Inject
+import jakarta.json.Json
+import jakarta.json.JsonArray
+import jakarta.json.JsonObject
+import jakarta.json.JsonString
+import jakarta.json.JsonValue
+import net.atos.client.zgw.drc.DrcClientService
+import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.model.RolMedewerker
+import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
+import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.zac.app.formulieren.model.FormulierData
+import net.atos.zac.app.formulieren.model.RESTFormulierVeldDefinitie
+import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.task.FlowableTaskService
+import net.atos.zac.flowable.task.TaakVariabelenService
+import net.atos.zac.formulieren.model.FormulierVeldtype
+import net.atos.zac.util.time.DateTimeConverterUtil
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.util.extractUuid
+import nl.info.zac.admin.ReferenceTableService
+import nl.info.zac.admin.model.ReferenceTableValue
+import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
+import nl.info.zac.app.task.model.RestTask
+import nl.info.zac.identity.IdentityService
+import nl.info.zac.identity.model.getFullName
+import nl.info.zac.shared.helper.SuspensionZaakHelper
+import org.apache.commons.lang3.BooleanUtils
+import org.apache.commons.lang3.StringUtils
+import org.flowable.task.api.Task
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.util.Arrays
+import java.util.Optional
+import java.util.UUID
+import java.util.function.Consumer
+import java.util.function.Function
+import java.util.stream.Collectors
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import jakarta.inject.Inject;
-import jakarta.json.*;
-
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.flowable.task.api.Task;
-
-import net.atos.client.zgw.drc.DrcClientService;
-import net.atos.client.zgw.zrc.ZrcClientService;
-import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.zac.app.formulieren.model.FormulierData;
-import net.atos.zac.flowable.ZaakVariabelenService;
-import net.atos.zac.flowable.task.FlowableTaskService;
-import net.atos.zac.flowable.task.TaakVariabelenService;
-import net.atos.zac.formulieren.model.FormulierVeldtype;
-import net.atos.zac.util.time.DateTimeConverterUtil;
-import nl.info.client.zgw.shared.ZGWApiService;
-import nl.info.zac.admin.ReferenceTableService;
-import nl.info.zac.admin.model.ReferenceTableValue;
-import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService;
-import nl.info.zac.app.task.model.RestTask;
-import nl.info.zac.identity.IdentityService;
-import nl.info.zac.shared.helper.SuspensionZaakHelper;
-
-public class FormulierRuntimeService {
-
-    private static final DateTimeFormatter DATUM_FORMAAT = ofPattern("dd-MM-yyy");
-
-    private static final String REDEN_ZAAK_HERVATTEN = "Zaak hervat vanuit proces";
-
-    private static final String REFERENCE_TABLE_SEPARATOR = ";";
-
-    private static final String DOCUMENT_SEPARATOR = ";";
-
-    private static final String FORMIO_DEFAULT_VALUE = "defaultValue";
-
-    private static final String FORMIO_TITLE = "title";
-
-    private static final String AANTAL_DAGEN_VANAF_HEDEN_FORMAAT = "^[+-]\\d{1,4}$";
+class FormulierRuntimeService {
+    @Inject
+    private val zgwApiService: ZGWApiService? = null
 
     @Inject
-    private ZGWApiService zgwApiService;
+    private val zrcClientService: ZrcClientService? = null
 
     @Inject
-    private ZrcClientService zrcClientService;
+    private val zaakVariabelenService: ZaakVariabelenService? = null
 
     @Inject
-    private ZaakVariabelenService zaakVariabelenService;
+    private val identityService: IdentityService? = null
 
     @Inject
-    private IdentityService identityService;
+    private val referenceTableService: ReferenceTableService? = null
 
     @Inject
-    private ReferenceTableService referenceTableService;
+    private val suspensionZaakHelper: SuspensionZaakHelper? = null
 
     @Inject
-    private SuspensionZaakHelper suspensionZaakHelper;
+    private val drcClientService: DrcClientService? = null
 
     @Inject
-    private DrcClientService drcClientService;
+    private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService? = null
 
     @Inject
-    private EnkelvoudigInformatieObjectUpdateService enkelvoudigInformatieObjectUpdateService;
+    private val taakVariabelenService: TaakVariabelenService? = null
 
     @Inject
-    private TaakVariabelenService taakVariabelenService;
+    private val flowableTaskService: FlowableTaskService? = null
 
-    @Inject
-    private FlowableTaskService flowableTaskService;
-
-    public void renderFormulierDefinitie(final RestTask restTask) {
-        final ResolveDefaultValueContext resolveDefaultValueContext = new ResolveDefaultValueContext(restTask, zrcClientService,
-                zaakVariabelenService);
-        restTask.getFormulierDefinitie().veldDefinities.forEach(veldDefinitie -> {
-            if (isNotBlank(veldDefinitie.defaultWaarde)) {
-                veldDefinitie.defaultWaarde = resolveDefaultValue(veldDefinitie.defaultWaarde, resolveDefaultValueContext);
-                veldDefinitie.defaultWaarde = formatDefaultValue(veldDefinitie.defaultWaarde, veldDefinitie.veldtype);
+    fun renderFormulierDefinitie(restTask: RestTask) {
+        val resolveDefaultValueContext = ResolveDefaultValueContext(
+            restTask, zrcClientService,
+            zaakVariabelenService
+        )
+        restTask.formulierDefinitie!!.veldDefinities.forEach(Consumer { veldDefinitie: RESTFormulierVeldDefinitie? ->
+            if (StringUtils.isNotBlank(veldDefinitie!!.defaultWaarde)) {
+                veldDefinitie.defaultWaarde =
+                    resolveDefaultValue(veldDefinitie.defaultWaarde, resolveDefaultValueContext)
+                veldDefinitie.defaultWaarde =
+                    formatDefaultValue(veldDefinitie.defaultWaarde, veldDefinitie.veldtype)
             }
-            veldDefinitie.meerkeuzeOpties = resolveMultipleChoiceOptions(veldDefinitie.meerkeuzeOpties);
-        });
+            veldDefinitie.meerkeuzeOpties = resolveMultipleChoiceOptions(veldDefinitie.meerkeuzeOpties)
+        })
     }
 
-    public JsonObject renderFormioFormulier(final RestTask restTask) {
-        return copyJsonObject(restTask.getFormioFormulier(),
-                new ResolveDefaultValueContext(restTask, zrcClientService, zaakVariabelenService));
+    fun renderFormioFormulier(restTask: RestTask): JsonObject? {
+        return copyJsonObject(
+            restTask.formioFormulier!!,
+            ResolveDefaultValueContext(restTask, zrcClientService, zaakVariabelenService)
+        )
     }
 
-    public Task submit(final RestTask restTask, Task task, final Zaak zaak) {
-        taakVariabelenService.setTaskinformation(task, restTask.getTaakinformatie());
-        taakVariabelenService.setTaskData(task, restTask.getTaakdata());
+    fun submit(restTask: RestTask, task: Task, zaak: Zaak): Task {
+        var task = task
+        taakVariabelenService!!.setTaskinformation(task, restTask.taakinformatie)
+        taakVariabelenService.setTaskData(task, restTask.taakdata)
 
-        final var formulierData = new FormulierData(restTask.getTaakdata());
+        val formulierData = FormulierData(restTask.taakdata)
 
         if (formulierData.toelichting != null || formulierData.taakFataleDatum != null) {
             if (formulierData.toelichting != null) {
-                task.setDescription(formulierData.toelichting);
+                task.setDescription(formulierData.toelichting)
             }
             if (formulierData.taakFataleDatum != null) {
-                task.setDueDate(DateTimeConverterUtil.convertToDate(formulierData.taakFataleDatum));
+                task.setDueDate(DateTimeConverterUtil.convertToDate(formulierData.taakFataleDatum))
             }
-            task = flowableTaskService.updateTask(task);
+            task = flowableTaskService!!.updateTask(task)
         }
         if (formulierData.zaakOpschorten && !zaak.isOpgeschort()) {
-            suspensionZaakHelper.suspendZaak(
-                    zaak,
-                    DAYS.between(LocalDate.now(), convertToLocalDate(task.getDueDate())),
-                    restTask.getFormulierDefinitie() != null ?
-                            restTask.getFormulierDefinitie().naam :
-                            restTask.getFormioFormulier().getString(FORMIO_TITLE));
+            suspensionZaakHelper!!.suspendZaak(
+                zaak,
+                ChronoUnit.DAYS.between(LocalDate.now(), DateTimeConverterUtil.convertToLocalDate(task.getDueDate())),
+                if (restTask.formulierDefinitie != null) restTask.formulierDefinitie!!.naam else restTask.formioFormulier!!.getString(
+                    FORMIO_TITLE
+                )
+            )
         }
         if (formulierData.zaakHervatten && zaak.isOpgeschort()) {
-            suspensionZaakHelper.resumeZaak(zaak, REDEN_ZAAK_HERVATTEN);
+            suspensionZaakHelper!!.resumeZaak(zaak, REDEN_ZAAK_HERVATTEN)
         }
-        markDocumentAsSent(formulierData);
-        markDocumentAsSigned(formulierData);
+        markDocumentAsSent(formulierData)
+        markDocumentAsSigned(formulierData)
 
-        final Map<String, Object> zaakVariablen = zaakVariabelenService.readProcessZaakdata(zaak.getUuid());
-        zaakVariablen.putAll(formulierData.zaakVariabelen);
-        zaakVariabelenService.setZaakdata(zaak.getUuid(), zaakVariablen);
+        val zaakVariablen = zaakVariabelenService!!.readProcessZaakdata(zaak.getUuid())
+        zaakVariablen.putAll(formulierData.zaakVariabelen)
+        zaakVariabelenService.setZaakdata(zaak.getUuid(), zaakVariablen)
 
-        return task;
+        return task
     }
 
-    private JsonObject copyJsonObject(
-            final JsonObject jsonObject,
-            final ResolveDefaultValueContext resolveDefaultValueContext
-    ) {
-        final var objectBuilder = Json.createObjectBuilder();
-        jsonObject.entrySet().forEach(stringJsonValueEntry -> objectBuilder.add(stringJsonValueEntry.getKey(),
-                copyJsonObjectValue(stringJsonValueEntry, resolveDefaultValueContext)));
-        return objectBuilder.build();
+    private fun copyJsonObject(
+        jsonObject: JsonObject,
+        resolveDefaultValueContext: ResolveDefaultValueContext
+    ): JsonObject? {
+        val objectBuilder = Json.createObjectBuilder()
+        jsonObject.entries.forEach(Consumer { stringJsonValueEntry: MutableMap.MutableEntry<String?, JsonValue?>? ->
+            objectBuilder.add(
+                stringJsonValueEntry!!.key,
+                copyJsonObjectValue(stringJsonValueEntry, resolveDefaultValueContext)
+            )
+        })
+        return objectBuilder.build()
     }
 
-    private JsonValue copyJsonObjectValue(
-            final Map.Entry<String, JsonValue> stringJsonValueEntry,
-            final ResolveDefaultValueContext resolveDefaultValueContext
-    ) {
-        return stringJsonValueEntry.getValue().getValueType() == STRING &&
-               stringJsonValueEntry.getKey().equals(FORMIO_DEFAULT_VALUE) ?
-                       Json.createValue(resolveDefaultValue(((JsonString) stringJsonValueEntry.getValue()).getString(),
-                               resolveDefaultValueContext)) :
-                       copyJsonValue(stringJsonValueEntry.getValue(), resolveDefaultValueContext);
+    private fun copyJsonObjectValue(
+        stringJsonValueEntry: MutableMap.MutableEntry<String?, JsonValue?>,
+        resolveDefaultValueContext: ResolveDefaultValueContext
+    ): JsonValue? {
+        return if (stringJsonValueEntry.value!!.getValueType() == JsonValue.ValueType.STRING &&
+            stringJsonValueEntry.key == FORMIO_DEFAULT_VALUE
+        ) Json.createValue(
+            resolveDefaultValue(
+                (stringJsonValueEntry.value as JsonString).getString(),
+                resolveDefaultValueContext
+            )
+        ) else copyJsonValue(stringJsonValueEntry.value!!, resolveDefaultValueContext)
     }
 
-    private JsonValue copyJsonValue(
-            final JsonValue jsonValue,
-            final ResolveDefaultValueContext resolveDefaultValueContext
-    ) {
-        return switch (jsonValue.getValueType()) {
-            case ARRAY -> copyJsonArray(jsonValue.asJsonArray(), resolveDefaultValueContext);
-            case OBJECT -> copyJsonObject(jsonValue.asJsonObject(), resolveDefaultValueContext);
-            default -> jsonValue;
-        };
+    private fun copyJsonValue(
+        jsonValue: JsonValue,
+        resolveDefaultValueContext: ResolveDefaultValueContext
+    ): JsonValue? {
+        return when (jsonValue.getValueType()) {
+            JsonValue.ValueType.ARRAY -> copyJsonArray(jsonValue.asJsonArray(), resolveDefaultValueContext)
+            JsonValue.ValueType.OBJECT -> copyJsonObject(jsonValue.asJsonObject(), resolveDefaultValueContext)
+            else -> jsonValue
+        }
     }
 
-    private JsonArray copyJsonArray(
-            final JsonArray jsonArray,
-            final ResolveDefaultValueContext resolveDefaultValueContext
-    ) {
-        final var arrayBuilder = Json.createArrayBuilder();
-        jsonArray.forEach(jsonValue -> arrayBuilder.add(copyJsonValue(jsonValue, resolveDefaultValueContext)));
-        return arrayBuilder.build();
+    private fun copyJsonArray(
+        jsonArray: JsonArray,
+        resolveDefaultValueContext: ResolveDefaultValueContext
+    ): JsonArray? {
+        val arrayBuilder = Json.createArrayBuilder()
+        jsonArray.forEach(Consumer { jsonValue: JsonValue? ->
+            arrayBuilder.add(
+                copyJsonValue(
+                    jsonValue!!,
+                    resolveDefaultValueContext
+                )
+            )
+        })
+        return arrayBuilder.build()
     }
 
-    private String resolveDefaultValue(final String defaultValue, final ResolveDefaultValueContext context) {
-        return switch (defaultValue) {
-            case "TAAK:STARTDATUM" -> context.getTask().getCreatiedatumTijd().format(DATUM_FORMAAT);
-            case "TAAK:FATALE_DATUM" -> context.getTask().getFataledatum().format(DATUM_FORMAAT);
-            case "TAAK:GROEP" -> context.getTask().getGroep() != null ? context.getTask().getGroep().getNaam() : null;
-            case "TAAK:BEHANDELAAR" -> context.getTask().getBehandelaar() != null ? context.getTask().getBehandelaar().getNaam() : null;
-            case "ZAAK:STARTDATUM" -> context.getZaak().getStartdatum().format(DATUM_FORMAAT);
-            case "ZAAK:FATALE_DATUM" -> context.getZaak().getUiterlijkeEinddatumAfdoening().format(DATUM_FORMAAT);
-            case "ZAAK:STREEFDATUM" -> context.getZaak().getEinddatumGepland().format(DATUM_FORMAAT);
-            case "ZAAK:GROEP" -> getGroepForZaakDefaultValue(context.getZaak());
-            case "ZAAK:BEHANDELAAR" -> getBehandelaarForZaakDefaultValue(context.getZaak());
-            default -> defaultValue.startsWith(":") ?
-                    context.getZaakData().getOrDefault(defaultValue.substring(1), "").toString() :
-                    defaultValue;
-        };
+    private fun resolveDefaultValue(defaultValue: String, context: ResolveDefaultValueContext): String? {
+        return when (defaultValue) {
+            "TAAK:STARTDATUM" -> context.getTask().creatiedatumTijd!!.format(DATUM_FORMAAT)
+            "TAAK:FATALE_DATUM" -> context.getTask().fataledatum!!.format(DATUM_FORMAAT)
+            "TAAK:GROEP" -> if (context.getTask().groep != null) context.getTask().groep!!.naam else null
+            "TAAK:BEHANDELAAR" -> if (context.getTask().behandelaar != null) context.getTask().behandelaar!!.naam else null
+            "ZAAK:STARTDATUM" -> context.getZaak().getStartdatum().format(DATUM_FORMAAT)
+            "ZAAK:FATALE_DATUM" -> context.getZaak().getUiterlijkeEinddatumAfdoening().format(DATUM_FORMAAT)
+            "ZAAK:STREEFDATUM" -> context.getZaak().getEinddatumGepland().format(DATUM_FORMAAT)
+            "ZAAK:GROEP" -> getGroepForZaakDefaultValue(context.getZaak())
+            "ZAAK:BEHANDELAAR" -> getBehandelaarForZaakDefaultValue(context.getZaak())
+            else -> if (defaultValue.startsWith(":")) context.getZaakData().getOrDefault(defaultValue.substring(1), "")
+                .toString() else defaultValue
+        }
     }
 
-    private String getGroepForZaakDefaultValue(final Zaak zaak) {
-        return Optional.ofNullable(zgwApiService.findGroepForZaak(zaak))
-                .map(groep -> identityService.readGroup(groep.getBetrokkeneIdentificatie().getIdentificatie()).getName())
-                .orElse(null);
+    private fun getGroepForZaakDefaultValue(zaak: Zaak): String? {
+        return Optional.ofNullable<RolOrganisatorischeEenheid?>(zgwApiService!!.findGroepForZaak(zaak))
+            .map<String?>(Function { groep: RolOrganisatorischeEenheid? ->
+                identityService!!.readGroup(
+                    groep!!.getBetrokkeneIdentificatie().getIdentificatie()
+                ).name
+            })
+            .orElse(null)
     }
 
-    private String getBehandelaarForZaakDefaultValue(final Zaak zaak) {
-        return Optional.ofNullable(zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak))
-                .map(behandelaar -> getFullName(identityService.readUser(behandelaar.getIdentificatienummer())))
-                .orElse(null);
+    private fun getBehandelaarForZaakDefaultValue(zaak: Zaak): String? {
+        return Optional.ofNullable<RolMedewerker?>(zgwApiService!!.findBehandelaarMedewerkerRoleForZaak(zaak))
+            .map<String?>(Function { behandelaar: RolMedewerker? ->
+                identityService!!.readUser(behandelaar!!.getIdentificatienummer()).getFullName()
+            })
+            .orElse(null)
     }
 
-    private String formatDefaultValue(final String defaultWaarde, final FormulierVeldtype veldtype) {
-        return switch (veldtype) {
-            case CHECKBOX -> formatCheckboxDefaultValue(defaultWaarde);
-            case DATUM -> formatDatumDefaultValue(defaultWaarde);
-            default -> defaultWaarde;
-        };
+    private fun formatDefaultValue(defaultWaarde: String, veldtype: FormulierVeldtype): String? {
+        return when (veldtype) {
+            FormulierVeldtype.CHECKBOX -> formatCheckboxDefaultValue(defaultWaarde)
+            FormulierVeldtype.DATUM -> formatDatumDefaultValue(defaultWaarde)
+            else -> defaultWaarde
+        }
     }
 
-    private String formatCheckboxDefaultValue(final String defaultWaarde) {
-        return (StringUtils.equalsIgnoreCase("ja", defaultWaarde) ||
-                StringUtils.equalsIgnoreCase("true", defaultWaarde) ||
-                StringUtils.equals("1", defaultWaarde)) ? BooleanUtils.TRUE : BooleanUtils.FALSE;
+    private fun formatCheckboxDefaultValue(defaultWaarde: String?): String {
+        return if (StringUtils.equalsIgnoreCase("ja", defaultWaarde) ||
+            StringUtils.equalsIgnoreCase("true", defaultWaarde) ||
+            StringUtils.equals("1", defaultWaarde)
+        ) BooleanUtils.TRUE else BooleanUtils.FALSE
     }
 
-    private String formatDatumDefaultValue(final String defaultWaarde) {
-        if (defaultWaarde.matches(AANTAL_DAGEN_VANAF_HEDEN_FORMAAT)) {
-            int dagen = Integer.parseInt(substring(defaultWaarde, 1));
+    private fun formatDatumDefaultValue(defaultWaarde: String): String {
+        if (defaultWaarde.matches(AANTAL_DAGEN_VANAF_HEDEN_FORMAAT.toRegex())) {
+            val dagen = StringUtils.substring(defaultWaarde, 1).toInt()
             if (defaultWaarde.startsWith("+")) {
-                return LocalDate.now().plusDays(dagen).format(DATUM_FORMAAT);
+                return LocalDate.now().plusDays(dagen.toLong()).format(DATUM_FORMAAT)
             } else {
-                return LocalDate.now().minusDays(dagen).format(DATUM_FORMAAT);
+                return LocalDate.now().minusDays(dagen.toLong()).format(DATUM_FORMAAT)
             }
         } else {
-            return defaultWaarde;
+            return defaultWaarde
         }
     }
 
-    private String resolveMultipleChoiceOptions(final String meerkeuzeOpties) {
-        final var referenceTableCode = substringAfter(meerkeuzeOpties, "REF:");
-        if (isNotBlank(referenceTableCode)) {
-            final var referenceTable = referenceTableService.readReferenceTable(referenceTableCode);
-            return referenceTable.getValues()
-                    .stream()
-                    .sorted(Comparator.comparingInt(ReferenceTableValue::getSortOrder))
-                    .map(ReferenceTableValue::getName)
-                    .collect(Collectors.joining(REFERENCE_TABLE_SEPARATOR));
+    private fun resolveMultipleChoiceOptions(meerkeuzeOpties: String?): String? {
+        val referenceTableCode = StringUtils.substringAfter(meerkeuzeOpties, "REF:")
+        if (StringUtils.isNotBlank(referenceTableCode)) {
+            val referenceTable = referenceTableService!!.readReferenceTable(referenceTableCode!!)
+            return referenceTable.values
+                .stream()
+                .sorted(Comparator.comparingInt<ReferenceTableValue>(ReferenceTableValue::sortOrder))
+                .map<String?>(ReferenceTableValue::name)
+                .collect(Collectors.joining(REFERENCE_TABLE_SEPARATOR))
         } else {
-            return meerkeuzeOpties;
+            return meerkeuzeOpties
         }
     }
 
-    private void markDocumentAsSent(final FormulierData formulierData) {
+    private fun markDocumentAsSent(formulierData: FormulierData) {
         if (formulierData.documentenVerzenden != null) {
-            Arrays.stream(formulierData.documentenVerzenden.split(DOCUMENT_SEPARATOR))
-                    .map(UUID::fromString)
-                    .map(drcClientService::readEnkelvoudigInformatieobject)
-                    .forEach(enkelvoudigInformatieObject -> enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
-                            extractUuid(enkelvoudigInformatieObject.getUrl()),
-                            formulierData.documentenVerzendenDatum,
-                            formulierData.toelichting));
+            Arrays.stream<String>(
+                formulierData.documentenVerzenden.split(DOCUMENT_SEPARATOR.toRegex()).dropLastWhile { it.isEmpty() }
+                    .toTypedArray())
+                .map<UUID?> { name: String? -> UUID.fromString(name) }
+                .map<EnkelvoudigInformatieObject?> { uuid: UUID? ->
+                    drcClientService!!.readEnkelvoudigInformatieobject(
+                        uuid
+                    )
+                }
+                .forEach { enkelvoudigInformatieObject: EnkelvoudigInformatieObject? ->
+                    enkelvoudigInformatieObjectUpdateService!!.verzendEnkelvoudigInformatieObject(
+                        enkelvoudigInformatieObject!!.getUrl().extractUuid(),
+                        formulierData.documentenVerzendenDatum,
+                        formulierData.toelichting
+                    )
+                }
         }
     }
 
-    private void markDocumentAsSigned(final FormulierData formulierData) {
+    private fun markDocumentAsSigned(formulierData: FormulierData) {
         if (formulierData.documentenOndertekenen != null) {
-            Arrays.stream(formulierData.documentenOndertekenen.split(DOCUMENT_SEPARATOR))
-                    .map(UUID::fromString)
-                    .map(drcClientService::readEnkelvoudigInformatieobject)
-                    .filter(enkelvoudigInformatieobject -> enkelvoudigInformatieobject.getOndertekening() == null)
-                    .forEach(enkelvoudigInformatieobject -> enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
-                            extractUuid(enkelvoudigInformatieobject.getUrl())));
+            Arrays.stream<String>(
+                formulierData.documentenOndertekenen.split(DOCUMENT_SEPARATOR.toRegex()).dropLastWhile { it.isEmpty() }
+                    .toTypedArray())
+                .map<UUID?> { name: String? -> UUID.fromString(name) }
+                .map<EnkelvoudigInformatieObject?> { uuid: UUID? ->
+                    drcClientService!!.readEnkelvoudigInformatieobject(
+                        uuid
+                    )
+                }
+                .filter { enkelvoudigInformatieobject: EnkelvoudigInformatieObject? -> enkelvoudigInformatieobject!!.getOndertekening() == null }
+                .forEach { enkelvoudigInformatieobject: EnkelvoudigInformatieObject? ->
+                    enkelvoudigInformatieObjectUpdateService!!.ondertekenEnkelvoudigInformatieObject(
+                        enkelvoudigInformatieobject!!.getUrl().extractUuid()
+                    )
+                }
         }
+    }
+
+    companion object {
+        private val DATUM_FORMAAT: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyy")
+
+        private const val REDEN_ZAAK_HERVATTEN = "Zaak hervat vanuit proces"
+
+        private const val REFERENCE_TABLE_SEPARATOR = ";"
+
+        private const val DOCUMENT_SEPARATOR = ";"
+
+        private const val FORMIO_DEFAULT_VALUE = "defaultValue"
+
+        private const val FORMIO_TITLE = "title"
+
+        private const val AANTAL_DAGEN_VANAF_HEDEN_FORMAAT = "^[+-]\\d{1,4}$"
     }
 }

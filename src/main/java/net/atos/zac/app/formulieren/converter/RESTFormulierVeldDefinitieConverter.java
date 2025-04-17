@@ -19,36 +19,36 @@ public class RESTFormulierVeldDefinitieConverter {
 
     public static RESTFormulierVeldDefinitie convert(final FormulierVeldDefinitie veldDefinitie) {
         final RESTFormulierVeldDefinitie restVeldDefinitie = new RESTFormulierVeldDefinitie();
-        restVeldDefinitie.id = veldDefinitie.getId();
-        restVeldDefinitie.systeemnaam = veldDefinitie.getSysteemnaam();
-        restVeldDefinitie.volgorde = veldDefinitie.getVolgorde();
-        restVeldDefinitie.label = veldDefinitie.getLabel();
-        restVeldDefinitie.veldtype = veldDefinitie.getVeldtype();
+        restVeldDefinitie.id = veldDefinitie.id;
+        restVeldDefinitie.systeemnaam = veldDefinitie.systeemnaam;
+        restVeldDefinitie.volgorde = veldDefinitie.volgorde;
+        restVeldDefinitie.label = veldDefinitie.label;
+        restVeldDefinitie.veldtype = veldDefinitie.veldtype;
         restVeldDefinitie.verplicht = veldDefinitie.isVerplicht();
-        restVeldDefinitie.beschrijving = veldDefinitie.getBeschrijving();
-        restVeldDefinitie.helptekst = veldDefinitie.getHelptekst();
-        restVeldDefinitie.defaultWaarde = veldDefinitie.getDefaultWaarde();
-        restVeldDefinitie.meerkeuzeOpties = veldDefinitie.getMeerkeuzeOpties();
-        if (StringUtils.isNotBlank(veldDefinitie.getValidaties())) {
-            restVeldDefinitie.validaties = List.of(StringUtils.split(veldDefinitie.getValidaties(), VALIDATIES_SEPARATOR));
+        restVeldDefinitie.beschrijving = veldDefinitie.beschrijving;
+        restVeldDefinitie.helptekst = veldDefinitie.helptekst;
+        restVeldDefinitie.defaultWaarde = veldDefinitie.defaultWaarde;
+        restVeldDefinitie.meerkeuzeOpties = veldDefinitie.meerkeuzeOpties;
+        if (StringUtils.isNotBlank(veldDefinitie.validaties)) {
+            restVeldDefinitie.validaties = List.of(StringUtils.split(veldDefinitie.validaties, VALIDATIES_SEPARATOR));
         }
         return restVeldDefinitie;
     }
 
     public static FormulierVeldDefinitie convert(final RESTFormulierVeldDefinitie restVeldDefinitie) {
         final FormulierVeldDefinitie veldDefinitie = new FormulierVeldDefinitie();
-        veldDefinitie.setId(restVeldDefinitie.id);
-        veldDefinitie.setSysteemnaam(restVeldDefinitie.systeemnaam);
-        veldDefinitie.setVolgorde(restVeldDefinitie.volgorde);
-        veldDefinitie.setLabel(restVeldDefinitie.label);
-        veldDefinitie.setVeldtype(restVeldDefinitie.veldtype);
+        veldDefinitie.id = restVeldDefinitie.id;
+        veldDefinitie.systeemnaam = restVeldDefinitie.systeemnaam;
+        veldDefinitie.volgorde = restVeldDefinitie.volgorde;
+        veldDefinitie.label = restVeldDefinitie.label;
+        veldDefinitie.veldtype = restVeldDefinitie.veldtype;
         veldDefinitie.setVerplicht(restVeldDefinitie.verplicht);
-        veldDefinitie.setBeschrijving(restVeldDefinitie.beschrijving);
-        veldDefinitie.setHelptekst(restVeldDefinitie.helptekst);
-        veldDefinitie.setDefaultWaarde(restVeldDefinitie.defaultWaarde);
-        veldDefinitie.setMeerkeuzeOpties(restVeldDefinitie.meerkeuzeOpties);
+        veldDefinitie.beschrijving = restVeldDefinitie.beschrijving;
+        veldDefinitie.helptekst = restVeldDefinitie.helptekst;
+        veldDefinitie.defaultWaarde = restVeldDefinitie.defaultWaarde;
+        veldDefinitie.meerkeuzeOpties = restVeldDefinitie.meerkeuzeOpties;
         if (CollectionUtils.isNotEmpty(restVeldDefinitie.validaties)) {
-            veldDefinitie.setValidaties(String.join(VALIDATIES_SEPARATOR, restVeldDefinitie.validaties));
+            veldDefinitie.validaties = String.join(VALIDATIES_SEPARATOR, restVeldDefinitie.validaties);
         }
         return veldDefinitie;
     }

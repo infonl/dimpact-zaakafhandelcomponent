@@ -17,13 +17,13 @@ public class RESTFormulierDefinitieConverter {
             boolean inclusiefVelden
     ) {
         final RESTFormulierDefinitie restFormulierDefinitie = new RESTFormulierDefinitie();
-        restFormulierDefinitie.id = formulierDefinitie.getId();
-        restFormulierDefinitie.beschrijving = formulierDefinitie.getBeschrijving();
-        restFormulierDefinitie.naam = formulierDefinitie.getNaam();
-        restFormulierDefinitie.creatiedatum = formulierDefinitie.getCreatiedatum();
-        restFormulierDefinitie.wijzigingsdatum = formulierDefinitie.getWijzigingsdatum();
-        restFormulierDefinitie.uitleg = formulierDefinitie.getUitleg();
-        restFormulierDefinitie.systeemnaam = formulierDefinitie.getSysteemnaam();
+        restFormulierDefinitie.id = formulierDefinitie.id;
+        restFormulierDefinitie.beschrijving = formulierDefinitie.beschrijving;
+        restFormulierDefinitie.naam = formulierDefinitie.naam;
+        restFormulierDefinitie.creatiedatum = formulierDefinitie.creatiedatum;
+        restFormulierDefinitie.wijzigingsdatum = formulierDefinitie.wijzigingsdatum;
+        restFormulierDefinitie.uitleg = formulierDefinitie.uitleg;
+        restFormulierDefinitie.systeemnaam = formulierDefinitie.systeemnaam;
         if (inclusiefVelden) {
             restFormulierDefinitie.veldDefinities = formulierDefinitie.getVeldDefinities().stream()
                     .sorted(Comparator.comparingInt(FormulierVeldDefinitie::getVolgorde))
@@ -41,11 +41,11 @@ public class RESTFormulierDefinitieConverter {
             final RESTFormulierDefinitie restFormulierDefinitie,
             final FormulierDefinitie formulierDefinitie
     ) {
-        formulierDefinitie.setId(restFormulierDefinitie.id);
-        formulierDefinitie.setNaam(restFormulierDefinitie.naam);
-        formulierDefinitie.setSysteemnaam(restFormulierDefinitie.systeemnaam);
-        formulierDefinitie.setBeschrijving(restFormulierDefinitie.beschrijving);
-        formulierDefinitie.setUitleg(restFormulierDefinitie.uitleg);
+        formulierDefinitie.id = restFormulierDefinitie.id;
+        formulierDefinitie.naam = restFormulierDefinitie.naam;
+        formulierDefinitie.systeemnaam = restFormulierDefinitie.systeemnaam;
+        formulierDefinitie.beschrijving = restFormulierDefinitie.beschrijving;
+        formulierDefinitie.uitleg = restFormulierDefinitie.uitleg;
         formulierDefinitie.setVeldDefinities(restFormulierDefinitie.veldDefinities.stream()
                 .map(RESTFormulierVeldDefinitieConverter::convert)
                 .toList());
