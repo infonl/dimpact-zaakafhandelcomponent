@@ -66,13 +66,13 @@ class NotificationsTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
     Given("""ZAC and all related Docker containers are running""") {
-        When(""""the notificaties endpoint is called with dummy payload without authentication header""") {
+        When(""""the notificaties endpoint is called with fake payload without authentication header""") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/notificaties",
                 headers = Headers.headersOf("Content-Type", "application/json"),
                 requestBodyAsString = JSONObject(
                     mapOf(
-                        "dummy" to "dummy"
+                        "fake" to "fake"
                     )
                 ).toString()
             )
@@ -253,7 +253,7 @@ class NotificationsTest : BehaviorSpec({
     ) {
         When(
             """the notificaties endpoint is called with a 'create zaaktype' payload with a 
-                    dummy resourceUrl that does not start with the 'ZGW_API_CLIENT_MP_REST_URL' environment variable"""
+                    fake resourceUrl that does not start with the 'ZGW_API_CLIENT_MP_REST_URL' environment variable"""
         ) {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "${ZAC_API_URI}/notificaties",
@@ -269,8 +269,8 @@ class NotificationsTest : BehaviorSpec({
                     mapOf(
                         "kanaal" to "zaaktypen",
                         "resource" to "zaaktype",
-                        "resourceUrl" to "http://example.com/dummyResourceUrl",
-                        "hoofdObject" to "http://example.com/dummyResourceUrl",
+                        "resourceUrl" to "http://example.com/fakeResourceUrl",
+                        "hoofdObject" to "http://example.com/fakeResourceUrl",
                         "actie" to "create",
                         "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                     )
@@ -287,7 +287,7 @@ class NotificationsTest : BehaviorSpec({
                     "zac",
                     Wait.forLogMessage(
                         ".* Failed to handle notification 'null ZAAKTYPE CREATE' .*" +
-                            "java.lang.RuntimeException: URI 'http://example.com/dummyResourceUrl' does not " +
+                            "java.lang.RuntimeException: URI 'http://example.com/fakeResourceUrl' does not " +
                             "start with value for environment variable 'ZGW_API_CLIENT_MP_REST_URL': '$OPEN_ZAAK_BASE_URI/' .*",
                         1
                     ).withStartupTimeout(30.seconds.toJavaDuration())

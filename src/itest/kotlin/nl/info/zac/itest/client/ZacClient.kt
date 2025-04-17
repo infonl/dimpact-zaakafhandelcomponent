@@ -218,7 +218,7 @@ class ZacClient {
         groupId: String,
         groupName: String,
         behandelaarId: String? = null,
-        description: String? = "dummyOmschrijving",
+        description: String? = "fakeOmschrijving",
         toelichting: String? = null,
         startDate: ZonedDateTime,
         communicatiekanaal: String? = COMMUNICATIEKANAAL_TEST_1,

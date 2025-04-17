@@ -45,7 +45,7 @@ import kotlin.collections.get
 class SearchServiceTest : BehaviorSpec({
     // add static mocking for config provider because the IndexeerService class
     // references the config provider statically
-    val solrUrl = "http://localhost/dummySolrUrl"
+    val solrUrl = "http://localhost/fakeSolrUrl"
     mockkStatic(ConfigProvider::class)
     every {
         ConfigProvider.getConfig().getValue("solr.url", String::class.java)
@@ -63,11 +63,11 @@ class SearchServiceTest : BehaviorSpec({
     }
 
     Given("A logged-in user authorised for all zaaktypes and two objects of type ZAAK in the search index") {
-        val zaakDescriptionSearchField = "dummyZaakDescription"
-        val behandelaarFilterValue1 = "dummyBehandelaarFilterValue1"
-        val behandelaarFilterValue2 = "dummyBehandelaarFilterValue2"
-        val zaakType1 = "dummyZaaktype1"
-        val zaakType2 = "dummyZaaktype2"
+        val zaakDescriptionSearchField = "fakeZaakDescription"
+        val behandelaarFilterValue1 = "fakeBehandelaarFilterValue1"
+        val behandelaarFilterValue2 = "fakeBehandelaarFilterValue2"
+        val zaakType1 = "fakeZaaktype1"
+        val zaakType2 = "fakeZaaktype2"
         val queryResponse = mockk<QueryResponse>()
         val solrDocumentList = mockk<SolrDocumentList>()
         val solrDocument1 = mockk<SolrDocument>()
@@ -160,7 +160,7 @@ class SearchServiceTest : BehaviorSpec({
         }
     }
     Given("A logged-in user authorised for a zaaktype and one object of type TAAK in the search index") {
-        val zaakType1 = "dummyZaaktype1"
+        val zaakType1 = "fakeZaaktype1"
         val queryResponse = mockk<QueryResponse>()
         val solrDocumentList = mockk<SolrDocumentList>()
         val solrDocument1 = mockk<SolrDocument>()
@@ -239,7 +239,7 @@ class SearchServiceTest : BehaviorSpec({
         }
     }
     Given("A logged-in user authorised for a zaaktype and one object of type DOCUMENT in the search index") {
-        val zaakType1 = "dummyZaaktype1"
+        val zaakType1 = "fakeZaaktype1"
         val queryResponse = mockk<QueryResponse>()
         val solrDocumentList = mockk<SolrDocumentList>()
         val solrDocument1 = mockk<SolrDocument>()

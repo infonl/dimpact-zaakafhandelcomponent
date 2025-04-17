@@ -238,7 +238,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                     {       
                         "naam": "Updated server error error pagina tekst",
-                        "waarden":[{"naam":"dummyServerErrorErrorPageText"}]
+                        "waarden":[{"naam":"fakeServerErrorErrorPageText"}]
                     }
                 """.trimIndent()
             )
@@ -254,7 +254,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                             "naam": "Updated server error error pagina tekst",
                             "systeem": true,
                             "aantalWaarden": 1,
-                            "waarden": [{"naam": "dummyServerErrorErrorPageText", "systemValue": false}]
+                            "waarden": [{"naam": "fakeServerErrorErrorPageText", "systemValue": false}]
                         }
                         """.trimIndent()
                     )
@@ -274,7 +274,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 response.isSuccessful shouldBe true
                 with(JSONArray(responseBody)) {
                     length() shouldBe 1
-                    shouldContainInOrder(listOf("dummyServerErrorErrorPageText"))
+                    shouldContainInOrder(listOf("fakeServerErrorErrorPageText"))
                 }
             }
         }
@@ -320,15 +320,15 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             }
         }
         When("a new reference table is added") {
-            val referenceTableCode = "dummyReferenceTableCode1"
-            val referenceTableName = "dummyReferenceTableName1"
+            val referenceTableCode = "fakeReferenceTableCode1"
+            val referenceTableName = "fakeReferenceTableName1"
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/referentietabellen",
                 requestBodyAsString = """
                     {       
                     "code": "$referenceTableCode",
                     "naam": "$referenceTableName",
-                    "waarden":[{"naam":"dummyReferenceTableValue1"}, {"naam":"dummyReferenceTableValue2"}]
+                    "waarden":[{"naam":"fakeReferenceTableValue1"}, {"naam":"fakeReferenceTableValue2"}]
                     }
                 """.trimIndent()
             )
@@ -345,8 +345,8 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                             "systeem": false,
                             "aantalWaarden": 2,
                             "waarden": [
-                                {"naam": "dummyReferenceTableValue1", "systemValue": false},
-                                {"naam": "dummyReferenceTableValue2", "systemValue": false}
+                                {"naam": "fakeReferenceTableValue1", "systemValue": false},
+                                {"naam": "fakeReferenceTableValue2", "systemValue": false}
                             ]
                         }
                         """.trimIndent()

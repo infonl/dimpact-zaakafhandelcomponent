@@ -14,7 +14,7 @@ import { FoutAfhandelingService } from "./fout-afhandeling.service";
 
 describe("FoutAfhandelingService", () => {
   let service: FoutAfhandelingService;
-  const translatedErrorMessage = "dummyTranslatedErrorMessage";
+  const translatedErrorMessage = "fakeTranslatedErrorMessage";
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -45,17 +45,17 @@ describe("FoutAfhandelingService", () => {
   });
 
   it("should return an observable error message when openFoutDialog is called", async () => {
-    const errorText = "dummyErrorMessage";
+    const errorText = "fakeErrorMessage";
     const error$ = service.openFoutDialog(errorText);
     const errorMessage = await firstValueFrom(error$).catch((r) => r);
     expect(errorMessage).toEqual(errorText);
   });
 
   it("should return an observable error message when httpErrorAfhandelen is called with a server error", async () => {
-    const exceptionMessage = "dummyException";
+    const exceptionMessage = "fakeException";
     const errorResponse = new HttpErrorResponse({
       error: {
-        message: "dummyServerErrorMessage",
+        message: "fakeServerErrorMessage",
         exception: exceptionMessage,
       },
       status: 500,
@@ -68,7 +68,7 @@ describe("FoutAfhandelingService", () => {
   });
 
   it("should return an observable error message when httpErrorAfhandelen is called with a 400 error", async () => {
-    const message = "dummyBadRequestMessage";
+    const message = "fakeBadRequestMessage";
     const errorResponse = new HttpErrorResponse({
       error: {
         message: message,

@@ -119,7 +119,7 @@ class RestDecisionConverterTest : BehaviorSpec({
                     }
                     datum shouldBe besluit.datum
                     ingangsdatum shouldBe besluit.datum
-                    toelichting shouldBe "dummyReason"
+                    toelichting shouldBe "fakeReason"
                     vervaldatum shouldBe besluit.vervaldatum
                     vervalreden shouldBe besluit.vervalreden
                     publicationDate shouldBe besluit.publicatiedatum

@@ -31,7 +31,7 @@ class ZaakRestServiceExtensionTest : BehaviorSpec({
 
         When("the zaak is extended") {
             val daysExtended = 3
-            val reason = "dummyReason"
+            val reason = "fakeReason"
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraag1Uuid/verlenging",
                 requestBodyAsString = """

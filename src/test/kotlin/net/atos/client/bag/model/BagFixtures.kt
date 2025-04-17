@@ -11,10 +11,10 @@ import nl.info.client.bag.model.generated.HalLink
 @Suppress("LongParameterList")
 fun createAdresIOHal(
     huisnummer: Int = 123,
-    huisletter: String = "dummyHuisletter",
-    huisnummertoevoeging: String = "dummyHuisnummertoevoeging",
-    postcode: String = "dummyPostcode",
-    woonplaatsNaam: String = "dummyWoonplaatsNaam",
+    huisletter: String = "fakeHuisletter",
+    huisnummertoevoeging: String = "fakeHuisnummertoevoeging",
+    postcode: String = "fakePostcode",
+    woonplaatsNaam: String = "fakeWoonplaatsNaam",
     links: AdresIOLinks = createAdresIOLinks()
 ) = AdresIOHal().apply {
     this.huisnummer = huisnummer
@@ -32,7 +32,7 @@ fun createAdresIOLinks(
 }
 
 fun createHalLink(
-    href: String = "dummyHref"
+    href: String = "fakeHref"
 ) = HalLink().apply {
     this.href = href
 }

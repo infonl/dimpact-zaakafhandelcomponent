@@ -91,11 +91,11 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     "type" to type,
                     "aanvraaggegevens" to mapOf(
                         "formStep1" to mapOf(
-                            "dummyKey1" to "dummyValue1",
-                            "dummyKey2" to "dummyValue2"
+                            "fakeKey1" to "fakeValue1",
+                            "fakeKey2" to "fakeValue2"
                         ),
                         "formStep2" to mapOf(
-                            "dummyKey3" to "dummyValue3"
+                            "fakeKey3" to "fakeValue3"
                         )
                     )
                 )
@@ -106,9 +106,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
             Then("all key-value pairs in the aanvraaggegevens are returned") {
                 with(formData) {
-                    this["dummyKey1"] shouldBe "dummyValue1"
-                    this["dummyKey2"] shouldBe "dummyValue2"
-                    this["dummyKey3"] shouldBe "dummyValue3"
+                    this["fakeKey1"] shouldBe "fakeValue1"
+                    this["fakeKey2"] shouldBe "fakeValue2"
+                    this["fakeKey3"] shouldBe "fakeValue3"
                 }
             }
         }
@@ -117,9 +117,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     Given("a productaanvraag-dimpact object registration object with zaakgegevens") {
         val type = "productaanvraag"
         val bron = createBron()
-        val zaakIdentificatie = "dummyZaakIdentificatie"
-        val zaakOmschrijving = "dummyOmschrijving"
-        val zaakToelichting = "dummyToelichting"
+        val zaakIdentificatie = "fakeZaakIdentificatie"
+        val zaakOmschrijving = "fakeOmschrijving"
+        val zaakToelichting = "fakeToelichting"
         val coordinates = listOf(52.08968250760225, 5.114358701512936)
         val orObject = createORObject(
             record = createObjectRecord(
@@ -200,7 +200,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val productAanvraagObjectUUID = UUID.randomUUID()
         val zaakTypeUUID = UUID.randomUUID()
         val productAanvraagType = "productaanvraag"
-        val zaakDescription = "dummyDescription"
+        val zaakDescription = "fakeDescription"
         val zaakExplanation = createRandomStringWithAlphanumericCharacters(1000)
         val zaakType = createZaakType()
         val createdZaak = createZaak()
@@ -211,7 +211,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         )
         val formulierBron = createBron()
         val coordinates = listOf(52.08968250760225, 5.114358701512936)
-        val bsnNumber = "dummyBsnNumber"
+        val bsnNumber = "fakeBsnNumber"
         val today = LocalDate.now()
         val productAanvraagORObject = createORObject(
             record = createObjectRecord(
@@ -219,7 +219,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     "bron" to formulierBron,
                     "type" to productAanvraagType,
                     // aanvraaggegevens must contain at least one key with a map value
-                    "aanvraaggegevens" to mapOf("dummyKey" to mapOf("dummySubKey" to "dummyValue")),
+                    "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue")),
                     "zaakgegevens" to mapOf(
                         "geometry" to mapOf(
                             "type" to "Point",
@@ -234,7 +234,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                             "roltypeOmschrijving" to "Initiator"
                         ),
                         mapOf(
-                            "vestigingsNummer" to "dummyVestigingsNummer",
+                            "vestigingsNummer" to "fakeVestigingsNummer",
                             "rolOmschrijvingGeneriek" to "initiator"
                         )
                     )
@@ -328,14 +328,14 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             zaaktypeUUID = zaakTypeUUID,
         )
         val formulierBron = createBron()
-        val vestigingsNummer = "dummyVestigingsNummer"
+        val vestigingsNummer = "fakeVestigingsNummer"
         val productAanvraagORObject = createORObject(
             record = createObjectRecord(
                 data = mapOf(
                     "bron" to formulierBron,
                     "type" to productAanvraagType,
                     // aanvraaggegevens must contain at least one key with a map value
-                    "aanvraaggegevens" to mapOf("dummyKey" to mapOf("dummySubKey" to "dummyValue")),
+                    "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue")),
                     "betrokkenen" to listOf(
                         mapOf(
                             "vestigingsNummer" to vestigingsNummer,
@@ -423,7 +423,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     "bron" to formulierBron,
                     "type" to productAanvraagType,
                     // aanvraaggegevens must contain at least one key with a map value
-                    "aanvraaggegevens" to mapOf("dummyKey" to mapOf("dummySubKey" to "dummyValue")),
+                    "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue")),
                     "betrokkenen" to listOf(
                         mapOf(
                             "unsupportedIdentification" to "1234",
@@ -502,7 +502,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     "bron" to formulierBron,
                     "type" to productAanvraagType,
                     // aanvraaggegevens must contain at least one key with a map value
-                    "aanvraaggegevens" to mapOf("dummyKey" to mapOf("dummySubKey" to "dummyValue"))
+                    "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue"))
                 )
             )
         )
@@ -567,15 +567,15 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             zaaktypeUUID = zaakTypeUUID
         )
         val formulierBron = createBron()
-        val adviseurBsn1 = "dummyBsn1"
-        val behandelaarBsn = "dummyBsn3"
-        val beslisserBsn = "dummyBsn4"
-        val klantcontacterBsn = "dummyBsn5"
-        val medeInitiatorBsn = "dummyBsn6"
-        val belanghebbendeVestigingsnummer1 = "dummyVestigingsNummer1"
-        val belanghebbendeVestigingsnummer2 = "dummyVestigingsNummer2"
-        val beslisserVestigingsnummer = "dummyVestigingsNummer3"
-        val zaakcoordinatorVestigingsnummer = "dummyVestigingsNummer4"
+        val adviseurBsn1 = "fakeBsn1"
+        val behandelaarBsn = "fakeBsn3"
+        val beslisserBsn = "fakeBsn4"
+        val klantcontacterBsn = "fakeBsn5"
+        val medeInitiatorBsn = "fakeBsn6"
+        val belanghebbendeVestigingsnummer1 = "fakeVestigingsNummer1"
+        val belanghebbendeVestigingsnummer2 = "fakeVestigingsNummer2"
+        val beslisserVestigingsnummer = "fakeVestigingsNummer3"
+        val zaakcoordinatorVestigingsnummer = "fakeVestigingsNummer4"
         val rolTypeBelanghebbende = createRolType(
             zaakTypeUri = zaakType.url,
             omschrijvingGeneriek = OmschrijvingGeneriekEnum.BELANGHEBBENDE
@@ -606,7 +606,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     "bron" to formulierBron,
                     "type" to productAanvraagType,
                     // aanvraaggegevens must contain at least one key with a map value
-                    "aanvraaggegevens" to mapOf("dummyKey" to mapOf("dummySubKey" to "dummyValue")),
+                    "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue")),
                     "betrokkenen" to listOf(
                         mapOf(
                             "inpBsn" to adviseurBsn1,
@@ -810,7 +810,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     "bron" to formulierBron,
                     "type" to productAanvraagType,
                     // aanvraaggegevens must contain at least one key with a map value
-                    "aanvraaggegevens" to mapOf("dummyKey" to mapOf("dummySubKey" to "dummyValue"))
+                    "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue"))
                 )
             ),
             uuid = productAanvraagObjectUUID
@@ -877,13 +877,13 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         }
     }
     Given("a list of bijlage URIs and a zaak URI") {
-        val bijlageURIs = listOf(URI("dummyURI1"), URI("dummyURI2"))
+        val bijlageURIs = listOf(URI("fakeURI1"), URI("fakeURI2"))
         val enkelvoudigInformatieobjecten = listOf(
             createEnkelvoudigInformatieObject(),
             createEnkelvoudigInformatieObject()
         )
         val zaakInformatieobjecten = listOf(createZaakInformatieobject(), createZaakInformatieobject())
-        val zaakUrl = URI("dummyZaakUrl")
+        val zaakUrl = URI("fakeZaakUrl")
         val createdZaakInformatieobjectSlot = slot<ZaakInformatieobject>()
         val beschrijving = "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
         bijlageURIs.forEachIndexed { index, uri ->

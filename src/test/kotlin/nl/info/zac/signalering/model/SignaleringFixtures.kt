@@ -55,7 +55,7 @@ fun createSignaleringInstellingen(
         this.subjecttype = SignaleringSubject.ZAAK
     },
     ownerType: SignaleringTarget = SignaleringTarget.USER,
-    ownerId: String = "dummyMedewerker",
+    ownerId: String = "fakeMedewerker",
     isDashboard: Boolean = true,
     isMail: Boolean = true,
 ) =
@@ -71,7 +71,7 @@ fun createSignaleringInstellingen(
 
 fun createSignaleringZoekParameters(
     signaleringSubject: SignaleringSubject = SignaleringSubject.ZAAK,
-    subject: String = "dummySubject"
+    subject: String = "fakeSubject"
 ) = SignaleringZoekParameters(
     signaleringSubject,
     subject

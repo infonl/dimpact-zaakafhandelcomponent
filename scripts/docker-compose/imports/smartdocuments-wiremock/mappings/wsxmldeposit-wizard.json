@@ -10,7 +10,7 @@
         "equalTo": "application/json"
       },
       "Authorization": {
-        "equalTo": "Basic dummySmartDocumentsAuthentication"
+        "equalTo": "Basic fakeSmartDocumentsAuthentication"
       },
       "Username": {
         "equalTo": "testuser1"
@@ -50,13 +50,13 @@
             "communicatiekanaal": "E-formulier",
             "groep": "Test group A",
             "identificatie": "ZAAK-1970-0000000001",
-            "omschrijving": "dummyZaakOmschrijving",
+            "omschrijving": "fakeZaakOmschrijving",
             "registratiedatum": "${json-unit.any-string}",
             "startdatum": "01-01-1970",
             "status": "Wacht op aanvullende informatie",
-            "toelichting": "Aangemaakt vanuit open-forms met kenmerk 'f8534f13-0669-4d4d-a364-6b6c4ad3d243'. dummyZaakToelichting",
+            "toelichting": "Aangemaakt vanuit open-forms met kenmerk 'f8534f13-0669-4d4d-a364-6b6c4ad3d243'. fakeZaakToelichting",
             "uiterlijkeEinddatumAfdoening": "${json-unit.any-string}",
-            "verlengingReden" : "dummyReason",
+            "verlengingReden" : "fakeReason",
             "vertrouwelijkheidaanduiding": "openbaar",
             "zaaktype": "Melding evenement organiseren behandelen"
           }
@@ -67,7 +67,7 @@
   },
   "response": {
     "status": 200,
-    "body": "{\"ticket\": \"dummySmartdocumentsTicketID\"}",
+    "body": "{\"ticket\": \"fakeSmartdocumentsTicketID\"}",
     "headers": {
       "Content-Type": "application/json"
     }

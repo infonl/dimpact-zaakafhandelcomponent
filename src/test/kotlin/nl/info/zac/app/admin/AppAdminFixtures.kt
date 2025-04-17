@@ -17,7 +17,7 @@ import java.util.UUID
 
 fun createRestFormioFormulierContent(
     filename: String = "testForm.json",
-    content: String = """{ "dummyKey": "dummyValue" }"""
+    content: String = """{ "fakeKey": "fakeValue" }"""
 ) = RestFormioFormulierContent(
     filename = filename,
     content = content
@@ -26,8 +26,8 @@ fun createRestFormioFormulierContent(
 @Suppress("LongParameterList")
 fun createRestReferenceTable(
     id: Long = 1L,
-    code: String = "dummyCode",
-    naam: String = "dummyName",
+    code: String = "fakeCode",
+    naam: String = "fakeName",
     systeem: Boolean = false,
     aantalWaarden: Int = 2,
     waarden: List<RestReferenceTableValue> = listOf(
@@ -45,7 +45,7 @@ fun createRestReferenceTable(
 
 fun createRestReferenceTableUpdate(
     code: String? = null,
-    naam: String = "dummyUpdatedName",
+    naam: String = "fakeUpdatedName",
     waarden: List<RestReferenceTableValue> = listOf(
         createRestReferenceTableValue(),
         createRestReferenceTableValue()
@@ -58,7 +58,7 @@ fun createRestReferenceTableUpdate(
 
 fun createRestReferenceTableValue(
     id: Long = 1234L,
-    name: String = "dummyWaarde1",
+    name: String = "fakeWaarde1",
     isSystemValue: Boolean = false
 ) = RestReferenceTableValue(
     id = id,
@@ -69,7 +69,7 @@ fun createRestReferenceTableValue(
 @Suppress("LongParameterList")
 fun createRestZaakAfhandelParameters(
     id: Long? = 1234L,
-    domein: String = "dummyDomein",
+    domein: String = "fakeDomein",
     restZaaktypeOverzicht: RESTZaaktypeOverzicht = createRestZaaktypeOverzicht(),
     productaanvraagtype: String? = null,
     defaultGroupId: String? = null,
@@ -90,9 +90,9 @@ fun createRestZaakAfhandelParameters(
 @Suppress("LongParameterList")
 fun createRestZaaktypeOverzicht(
     uuid: UUID = UUID.randomUUID(),
-    identificatie: String = "dummyIdentificatie",
-    doel: String = "dummyDoel",
-    omschrijving: String = "dummyOmschrijving",
+    identificatie: String = "fakeIdentificatie",
+    doel: String = "fakeDoel",
+    omschrijving: String = "fakeOmschrijving",
     servicenorm: Boolean = false,
     versiedatum: LocalDate = LocalDate.now(),
     beginGeldigheid: LocalDate = LocalDate.now(),
