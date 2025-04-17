@@ -17,7 +17,7 @@ import data.net.atos.zac.werklijst.zaken_taken_verdelen
 # inbox
 #######
 test_inbox if {
-    inbox with input.user.rollen as [ "behandelaar" ]
+    inbox with input.user.rollen as [ "coordinator" ]
 }
 
 test_inbox_wrong_role_fails if {
