@@ -57,6 +57,8 @@ object ItestConfiguration {
     const val CONFIG_GEMEENTE_NAAM = "FakeZacGemeente"
     const val COMMUNICATIEKANAAL_TEST_1 = "fakeCommunicatiekanaal1"
     const val COMMUNICATIEKANAAL_TEST_2 = "fakeCommunicatiekanaal2"
+    const val DOMEIN_OVERIG = "domein_overig"
+    const val DOMEIN_TEST_1 = "domein_test_1"
     const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING = "bijlage"
