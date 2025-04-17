@@ -13,7 +13,6 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
-import { MatDialog } from "@angular/material/dialog";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { TranslateService } from "@ngx-translate/core";
@@ -70,7 +69,6 @@ export class InformatieObjectLinkComponent
   constructor(
     private zoekenService: ZoekenService,
     private informatieObjectService: InformatieObjectenService,
-    public dialog: MatDialog,
     private utilService: UtilService,
     private translate: TranslateService,
   ) {}
@@ -100,7 +98,7 @@ export class InformatieObjectLinkComponent
     if (changes.infoObject && changes.infoObject.currentValue) {
       this.reset();
       this.intro = this.translate.instant("informatieobject.koppelen.uitleg", {
-        documentName:
+        documentID:
           changes.infoObject.currentValue?.identificatie ||
           changes.infoObject.currentValue?.documentID ||
           changes.infoObject.currentValue?.enkelvoudiginformatieobjectID,
