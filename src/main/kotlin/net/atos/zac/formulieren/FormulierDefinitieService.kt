@@ -22,63 +22,60 @@ import java.time.ZonedDateTime
 class FormulierDefinitieService @Inject constructor(
     private val entityManager: EntityManager
 ) {
-    fun listFormulierDefinities(): MutableList<FormulierDefinitie?> {
-        val builder = entityManager.getCriteriaBuilder()
-        val query = builder.createQuery<FormulierDefinitie?>(FormulierDefinitie::class.java)
-        val root = query.from<FormulierDefinitie?>(FormulierDefinitie::class.java)
+    fun listFormulierDefinities(): List<FormulierDefinitie> {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(FormulierDefinitie::class.java)
+        val root = query.from(FormulierDefinitie::class.java)
         query.orderBy(builder.asc(root.get<Any?>("naam")))
         query.select(root)
-        return entityManager.createQuery<FormulierDefinitie?>(query).getResultList()
+        return entityManager.createQuery(query).getResultList()
     }
 
     fun readFormulierDefinitie(id: Long?) =
-        entityManager.find<FormulierDefinitie?>(FormulierDefinitie::class.java, id)
+        entityManager.find(FormulierDefinitie::class.java, id)
             ?: throw RuntimeException(
                 "${FormulierDefinitie::class.java.simpleName} with id=$id not found"
             )
 
-    fun readFormulierDefinitie(systeemnaam: String?) =
+    fun readFormulierDefinitie(systeemnaam: String) =
         findFormulierDefinitie(systeemnaam)
             ?: throw RuntimeException(
                 "${FormulierDefinitie::class.java.simpleName} with code='$systeemnaam' not found"
             )
 
-    fun findFormulierDefinitie(systeemnaam: String?): FormulierDefinitie? {
+    fun findFormulierDefinitie(systeemnaam: String): FormulierDefinitie? {
         val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery<FormulierDefinitie?>(FormulierDefinitie::class.java)
-        val root = query.from<FormulierDefinitie?>(FormulierDefinitie::class.java)
+        val query = builder.createQuery(FormulierDefinitie::class.java)
+        val root = query.from(FormulierDefinitie::class.java)
         query.select(root).where(builder.equal(root.get<Any?>("systeemnaam"), systeemnaam))
-        val resultList = entityManager.createQuery<FormulierDefinitie?>(query).getResultList()
+        val resultList = entityManager.createQuery(query).getResultList()
         return if (resultList.isEmpty()) null else resultList.first()
     }
 
-    fun createFormulierDefinitie(formulierDefinitie: FormulierDefinitie): FormulierDefinitie? {
+    fun createFormulierDefinitie(formulierDefinitie: FormulierDefinitie): FormulierDefinitie {
         val now = ZonedDateTime.now()
         formulierDefinitie.creatiedatum = now
         formulierDefinitie.wijzigingsdatum = now
         ValidationUtil.valideerObject(formulierDefinitie)
-        findFormulierDefinitie(formulierDefinitie.systeemnaam)?.let {
-            if (it.id != formulierDefinitie.id) {
-                throw RuntimeException(
-                    "Er bestaat al een formulier definitie met systeemnaam '${formulierDefinitie.systeemnaam}'"
-                )
+        formulierDefinitie.systeemnaam?.let { systemName ->
+            findFormulierDefinitie(systemName)?.let {
+                if (it.id != formulierDefinitie.id) {
+                    throw RuntimeException("Er bestaat al een formulier definitie met systeemnaam '$systemName'")
+                }
             }
         }
-        return entityManager.merge<FormulierDefinitie?>(formulierDefinitie)
+        return entityManager.merge(formulierDefinitie)
     }
 
-    fun updateFormulierDefinitie(formulierDefinitie: FormulierDefinitie): FormulierDefinitie? {
+    fun updateFormulierDefinitie(formulierDefinitie: FormulierDefinitie): FormulierDefinitie {
         val bestaandeDefinitie = readFormulierDefinitie(formulierDefinitie.id)
         formulierDefinitie.systeemnaam = bestaandeDefinitie.systeemnaam
         formulierDefinitie.creatiedatum = bestaandeDefinitie.creatiedatum
         formulierDefinitie.wijzigingsdatum = ZonedDateTime.now()
         ValidationUtil.valideerObject(formulierDefinitie)
-        return entityManager.merge<FormulierDefinitie?>(formulierDefinitie)
+        return entityManager.merge(formulierDefinitie)
     }
 
     fun deleteFormulierDefinitie(id: Long) =
-        // controleren op gebruik
-        entityManager.remove(
-            entityManager.find<FormulierDefinitie?>(FormulierDefinitie::class.java, id)
-        )
+        entityManager.remove(entityManager.find(FormulierDefinitie::class.java, id))
 }

@@ -14,6 +14,7 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.formulieren.model.FormulierData
+import net.atos.zac.app.formulieren.model.RESTFormulierVeldDefinitie
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
@@ -33,7 +34,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.UUID
-import java.util.stream.Collectors
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class FormulierRuntimeService @Inject constructor(
@@ -66,17 +66,31 @@ class FormulierRuntimeService @Inject constructor(
 
     fun renderFormulierDefinitie(restTask: RestTask) =
         restTask.formulierDefinitie?.run {
-            veldDefinities.forEach {
-                if (it.defaultWaarde.isNotBlank()) {
-                    it.defaultWaarde = resolveDefaultValue(
-                        it.defaultWaarde,
-                        ResolveDefaultValueContext(restTask, zrcClientService, zaakVariabelenService)
-                    )
-                    it.defaultWaarde = formatDefaultValue(it.defaultWaarde, it.veldtype)
+            veldDefinities.forEach { fieldDefinition ->
+                fieldDefinition.defaultWaarde?.let { defaultValue ->
+                    setDefaultValue(defaultValue, fieldDefinition, restTask)
                 }
-                it.meerkeuzeOpties = resolveMultipleChoiceOptions(it.meerkeuzeOpties)
             }
         }
+
+    private fun setDefaultValue(
+        defaultValue: String,
+        fieldDefinition: RESTFormulierVeldDefinitie,
+        restTask: RestTask
+    ) {
+        if (defaultValue.isNotBlank()) {
+            fieldDefinition.defaultWaarde = resolveDefaultValue(
+                defaultValue,
+                ResolveDefaultValueContext(restTask, zrcClientService, zaakVariabelenService)
+            )
+            fieldDefinition.veldtype?.let {
+                fieldDefinition.defaultWaarde = formatDefaultValue(defaultValue, it)
+            }
+        }
+        fieldDefinition.meerkeuzeOpties?.let {
+            fieldDefinition.meerkeuzeOpties = resolveMultipleChoiceOptions(it)
+        }
+    }
 
     fun renderFormioFormulier(restTask: RestTask) =
         restTask.formioFormulier?.let {
@@ -88,7 +102,7 @@ class FormulierRuntimeService @Inject constructor(
         taakVariabelenService.setTaskinformation(task, restTask.taakinformatie)
         taakVariabelenService.setTaskData(task, restTask.taakdata)
 
-        val formulierData = FormulierData(restTask.taakdata)
+        val formulierData = FormulierData(restTask.taakdata ?: emptyMap())
 
         if (formulierData.toelichting != null || formulierData.taakFataleDatum != null) {
             if (formulierData.toelichting != null) {
@@ -178,11 +192,11 @@ class FormulierRuntimeService @Inject constructor(
             "TAAK:FATALE_DATUM" -> context.task.fataledatum?.format(DATUM_FORMAAT)
             "TAAK:GROEP" -> context.task.groep?.naam
             "TAAK:BEHANDELAAR" -> context.task.behandelaar?.naam
-            "ZAAK:STARTDATUM" -> context.zaak?.startdatum?.format(DATUM_FORMAAT)
-            "ZAAK:FATALE_DATUM" -> context.zaak?.uiterlijkeEinddatumAfdoening?.format(DATUM_FORMAAT)
-            "ZAAK:STREEFDATUM" -> context.zaak?.einddatumGepland?.format(DATUM_FORMAAT)
-            "ZAAK:GROEP" -> context.zaak?.let { getGroepForZaakDefaultValue(it) }
-            "ZAAK:BEHANDELAAR" -> context.zaak?.let { getBehandelaarForZaakDefaultValue(it) }
+            "ZAAK:STARTDATUM" -> context.zaak.startdatum?.format(DATUM_FORMAAT)
+            "ZAAK:FATALE_DATUM" -> context.zaak.uiterlijkeEinddatumAfdoening?.format(DATUM_FORMAAT)
+            "ZAAK:STREEFDATUM" -> context.zaak.einddatumGepland?.format(DATUM_FORMAAT)
+            "ZAAK:GROEP" -> getGroepForZaakDefaultValue(context.zaak)
+            "ZAAK:BEHANDELAAR" -> getBehandelaarForZaakDefaultValue(context.zaak)
             else ->
                 if (defaultValue.startsWith(":")) {
                     context.zaakData?.getOrDefault(defaultValue.substring(1), "").toString()
@@ -238,23 +252,23 @@ class FormulierRuntimeService @Inject constructor(
         }
     }
 
-    private fun resolveMultipleChoiceOptions(meerkeuzeOpties: String): String? {
-        val referenceTableCode = meerkeuzeOpties.substringAfter("REF:")
-        if (referenceTableCode.isNotBlank()) {
-            val referenceTable = referenceTableService.readReferenceTable(referenceTableCode)
-            return referenceTable.values
-                .stream()
-                .sorted(Comparator.comparingInt(ReferenceTableValue::sortOrder))
-                .map(ReferenceTableValue::name)
-                .collect(Collectors.joining(REFERENCE_TABLE_SEPARATOR))
-        } else {
-            return meerkeuzeOpties
+    private fun resolveMultipleChoiceOptions(multipleChoiceOptions: String) =
+        multipleChoiceOptions.substringAfter("REF:").let { referenceTableCode ->
+            if (referenceTableCode.isNotBlank()) {
+                referenceTableService.readReferenceTable(referenceTableCode).let { referenceTableValue ->
+                    referenceTableValue.values
+                        .sortedWith(Comparator.comparingInt(ReferenceTableValue::sortOrder))
+                        .joinToString(REFERENCE_TABLE_SEPARATOR) { it.name }
+                }
+            } else {
+                multipleChoiceOptions
+            }
         }
-    }
 
     private fun markDocumentAsSent(formulierData: FormulierData) =
-        formulierData.documentenVerzenden?.let { documentenVerzenden ->
-            documentenVerzenden.split(DOCUMENT_SEPARATOR.toRegex()).dropLastWhile { it.isEmpty() }
+        formulierData.documentenVerzenden?.let { documentsToMark ->
+            documentsToMark.split(DOCUMENT_SEPARATOR.toRegex())
+                .dropLastWhile { it.isEmpty() }
                 .map { UUID.fromString(it) }
                 .map { drcClientService.readEnkelvoudigInformatieobject(it) }
                 .forEach {

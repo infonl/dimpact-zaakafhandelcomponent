@@ -37,10 +37,12 @@ class FormulierDefinitie {
     var id: Long? = null
 
     @Column(name = "systeemnaam", nullable = false, unique = true)
-    var systeemnaam: @NotBlank String? = null
+    @field:NotBlank
+    var systeemnaam: String? = null
 
     @Column(name = "naam", nullable = false)
-    var naam: @NotBlank String? = null
+    @field:NotBlank
+    var naam: String? = null
 
     @Column(name = "beschrijving")
     var beschrijving: String? = null
@@ -60,23 +62,17 @@ class FormulierDefinitie {
         fetch = FetchType.EAGER,
         orphanRemoval = true
     )
-    private var veldDefinities: MutableSet<FormulierVeldDefinitie?>? = null
+    private var veldDefinities: MutableSet<FormulierVeldDefinitie> = mutableSetOf()
 
-    fun getVeldDefinities(): MutableSet<FormulierVeldDefinitie?> {
-        return (if (veldDefinities != null) veldDefinities else mutableSetOf<FormulierVeldDefinitie?>())!!
-    }
+    fun getVeldDefinities() = veldDefinities
 
-    fun setVeldDefinities(veldDefinities: MutableCollection<FormulierVeldDefinitie>) {
-        if (this.veldDefinities == null) {
-            this.veldDefinities = HashSet<FormulierVeldDefinitie?>()
-        } else {
-            this.veldDefinities!!.clear()
-        }
+    fun setVeldDefinities(veldDefinities: Collection<FormulierVeldDefinitie>) {
+        this.veldDefinities.clear()
         veldDefinities.forEach { addVeldDefinitie(it) }
     }
 
     private fun addVeldDefinitie(veldDefinitie: FormulierVeldDefinitie) {
         veldDefinitie.formulierDefinitie = this
-        veldDefinities!!.add(veldDefinitie)
+        veldDefinities.add(veldDefinitie)
     }
 }

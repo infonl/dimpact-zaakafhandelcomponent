@@ -7,7 +7,7 @@ package nl.info.zac.app.task.converter
 import jakarta.inject.Inject
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.HumanTaskParameters
-import net.atos.zac.app.formulieren.converter.RESTFormulierDefinitieConverter
+import net.atos.zac.app.formulieren.converter.toRESTFormulierDefinitie
 import net.atos.zac.app.policy.converter.RestRechtenConverter
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskData
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
@@ -35,7 +35,6 @@ class RestTaskConverter @Inject constructor(
     private val medewerkerConverter: RestUserConverter,
     private val policyService: PolicyService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
-    private val formulierDefinitieConverter: RESTFormulierDefinitieConverter,
     private val formulierDefinitieService: FormulierDefinitieService,
     private val formioService: FormioService,
 ) {
@@ -105,7 +104,7 @@ class RestTaskConverter @Inject constructor(
         } else {
             formulierDefinitieService.findFormulierDefinitie(taskInfo.formKey).let {
                 if (it != null) {
-                    restTask.formulierDefinitie = formulierDefinitieConverter.convert(it, true)
+                    restTask.formulierDefinitie = it.toRESTFormulierDefinitie(true)
                 } else {
                     restTask.formioFormulier = formioService.readFormioFormulier(taskInfo.formKey)
                 }

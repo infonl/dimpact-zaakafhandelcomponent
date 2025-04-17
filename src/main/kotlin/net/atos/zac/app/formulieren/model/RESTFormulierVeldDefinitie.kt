@@ -27,5 +27,5 @@ class RESTFormulierVeldDefinitie {
 
     var meerkeuzeOpties: String? = null
 
-    var validaties: MutableList<String?>? = null
+    var validaties: List<String>? = null
 }

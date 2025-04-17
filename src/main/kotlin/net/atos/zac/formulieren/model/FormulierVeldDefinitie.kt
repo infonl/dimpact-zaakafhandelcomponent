@@ -40,20 +40,25 @@ class FormulierVeldDefinitie {
 
     @ManyToOne
     @JoinColumn(name = "id_formulier_definitie", referencedColumnName = "id_formulier_definitie")
-    var formulierDefinitie: @NotNull FormulierDefinitie? = null
+    @field:NotNull
+    var formulierDefinitie: FormulierDefinitie? = null
 
     @Column(name = "systeemnaam", nullable = false, unique = true)
-    var systeemnaam: @NotBlank String? = null
+    @field:NotBlank
+    var systeemnaam: String? = null
 
     @Column(name = "volgorde", nullable = false)
-    var volgorde: @PositiveOrZero Int = 0
+    @field:PositiveOrZero
+    var volgorde: Int = 0
 
     @Column(name = "label", nullable = false)
-    var label: @NotBlank String? = null
+    @field:NotBlank
+    var label: String? = null
 
     @Column(name = "veldtype", nullable = false)
     @Enumerated(EnumType.STRING)
-    var veldtype: @NotNull FormulierVeldtype? = null
+    @field:NotNull
+    var veldtype: FormulierVeldtype? = null
 
     @Column(name = "beschrijving")
     var beschrijving: String? = null

@@ -21,5 +21,5 @@ class RESTFormulierDefinitie {
 
     var wijzigingsdatum: ZonedDateTime? = null
 
-    var veldDefinities: MutableList<RESTFormulierVeldDefinitie?>? = null
+    var veldDefinities: List<RESTFormulierVeldDefinitie> = emptyList()
 }
