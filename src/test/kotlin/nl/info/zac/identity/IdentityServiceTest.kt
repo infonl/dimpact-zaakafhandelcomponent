@@ -12,21 +12,22 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.model.ZaakafhandelParameters
 import nl.info.test.org.keycloak.representations.idm.createGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createUserRepresentation
 import nl.info.zac.identity.exception.GroupNotFoundException
 import nl.info.zac.identity.exception.UserNotFoundException
 import nl.info.zac.identity.exception.UserNotInGroupException
-import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.getFullName
 import org.keycloak.admin.client.resource.RealmResource
-import java.util.UUID
 
 class IdentityServiceTest : BehaviorSpec({
     val realmResource = mockk<RealmResource>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
-    val identityService = IdentityService(realmResource, zaakafhandelParameterService)
+    val identityService = IdentityService(
+        keycloakZacRealmResource = realmResource,
+        zaakafhandelParameterService = zaakafhandelParameterService,
+        zacKeycloakClientId = "fakeZacKeycloakClientId"
+    )
 
     beforeEach {
         checkUnnecessaryStub()

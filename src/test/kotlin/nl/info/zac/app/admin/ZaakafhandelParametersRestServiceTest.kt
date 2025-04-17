@@ -49,7 +49,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val policyService = mockk<PolicyService>()
     val realmResource = mockk<RealmResource>()
-    val identityService = IdentityService(realmResource)
+    val identityService = mockk<IdentityService>()
 
     val zaakafhandelParametersRestService = ZaakafhandelParametersRestService(
         ztcClientService = ztcClientService,
