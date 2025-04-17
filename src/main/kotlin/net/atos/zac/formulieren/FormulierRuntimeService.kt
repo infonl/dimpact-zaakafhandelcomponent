@@ -62,6 +62,10 @@ class FormulierRuntimeService @Inject constructor(
         private const val FORMIO_TITLE = "title"
 
         private const val AANTAL_DAGEN_VANAF_HEDEN_FORMAAT = "^[+-]\\d{1,4}$"
+
+        private const val DEFAULT_VALUE_JA = "ja"
+        private const val DEFAULT_VALUE_TRUE = "true"
+        private const val DEFAULT_VALUE_ONE = "1"
     }
 
     fun renderFormulierDefinitie(restTask: RestTask) =
@@ -151,8 +155,8 @@ class FormulierRuntimeService @Inject constructor(
     private fun copyJsonObjectValue(
         stringJsonValueEntry: MutableMap.MutableEntry<String, JsonValue>,
         resolveDefaultValueContext: ResolveDefaultValueContext
-    ): JsonValue? {
-        return if (stringJsonValueEntry.value.valueType == JsonValue.ValueType.STRING &&
+    ) =
+        if (stringJsonValueEntry.value.valueType == JsonValue.ValueType.STRING &&
             stringJsonValueEntry.key == FORMIO_DEFAULT_VALUE
         ) {
             Json.createValue(
@@ -164,18 +168,16 @@ class FormulierRuntimeService @Inject constructor(
         } else {
             copyJsonValue(stringJsonValueEntry.value, resolveDefaultValueContext)
         }
-    }
 
     private fun copyJsonValue(
         jsonValue: JsonValue,
         resolveDefaultValueContext: ResolveDefaultValueContext
-    ): JsonValue? {
-        return when (jsonValue.valueType) {
+    ): JsonValue =
+        when (jsonValue.valueType) {
             JsonValue.ValueType.ARRAY -> copyJsonArray(jsonValue.asJsonArray(), resolveDefaultValueContext)
             JsonValue.ValueType.OBJECT -> copyJsonObject(jsonValue.asJsonObject(), resolveDefaultValueContext)
             else -> jsonValue
         }
-    }
 
     private fun copyJsonArray(
         jsonArray: JsonArray,
@@ -186,8 +188,8 @@ class FormulierRuntimeService @Inject constructor(
             arrayBuilder.build()
         }
 
-    private fun resolveDefaultValue(defaultValue: String, context: ResolveDefaultValueContext): String? {
-        return when (defaultValue) {
+    private fun resolveDefaultValue(defaultValue: String, context: ResolveDefaultValueContext): String? =
+        when (defaultValue) {
             "TAAK:STARTDATUM" -> context.task.creatiedatumTijd?.format(DATUM_FORMAAT)
             "TAAK:FATALE_DATUM" -> context.task.fataledatum?.format(DATUM_FORMAAT)
             "TAAK:GROEP" -> context.task.groep?.naam
@@ -204,7 +206,6 @@ class FormulierRuntimeService @Inject constructor(
                     defaultValue
                 }
         }
-    }
 
     private fun getGroepForZaakDefaultValue(zaak: Zaak) =
         zgwApiService.findGroepForZaak(zaak).let { group ->
@@ -220,37 +221,34 @@ class FormulierRuntimeService @Inject constructor(
             }
         }
 
-    private fun formatDefaultValue(defaultWaarde: String, veldtype: FormulierVeldtype): String? {
-        return when (veldtype) {
+    private fun formatDefaultValue(defaultWaarde: String, veldtype: FormulierVeldtype) =
+        when (veldtype) {
             FormulierVeldtype.CHECKBOX -> formatCheckboxDefaultValue(defaultWaarde)
             FormulierVeldtype.DATUM -> formatDatumDefaultValue(defaultWaarde)
             else -> defaultWaarde
         }
-    }
 
-    private fun formatCheckboxDefaultValue(defaultWaarde: String?): String {
-        return if ("ja".equals(defaultWaarde, ignoreCase = true) ||
-            "true".equals(defaultWaarde, ignoreCase = true) ||
-            "1".equals(defaultWaarde, ignoreCase = true)
+    private fun formatCheckboxDefaultValue(defaultWaarde: String?) =
+        if (DEFAULT_VALUE_JA.equals(defaultWaarde, ignoreCase = true) ||
+            DEFAULT_VALUE_TRUE.equals(defaultWaarde, ignoreCase = true) ||
+            DEFAULT_VALUE_ONE.equals(defaultWaarde, ignoreCase = true)
         ) {
             true.toString()
         } else {
             false.toString()
         }
-    }
 
-    private fun formatDatumDefaultValue(defaultWaarde: String): String {
+    private fun formatDatumDefaultValue(defaultWaarde: String) =
         if (defaultWaarde.matches(AANTAL_DAGEN_VANAF_HEDEN_FORMAAT.toRegex())) {
             val dagen = defaultWaarde.substring(1).toInt()
-            return if (defaultWaarde.startsWith("+")) {
+            if (defaultWaarde.startsWith("+")) {
                 LocalDate.now().plusDays(dagen.toLong()).format(DATUM_FORMAAT)
             } else {
                 LocalDate.now().minusDays(dagen.toLong()).format(DATUM_FORMAAT)
             }
         } else {
-            return defaultWaarde
+            defaultWaarde
         }
-    }
 
     private fun resolveMultipleChoiceOptions(multipleChoiceOptions: String) =
         multipleChoiceOptions.substringAfter("REF:").let { referenceTableCode ->
