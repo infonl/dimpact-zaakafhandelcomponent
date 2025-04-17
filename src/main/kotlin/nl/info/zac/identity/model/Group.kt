@@ -6,7 +6,6 @@ package nl.info.zac.identity.model
 
 import org.keycloak.representations.idm.GroupRepresentation
 
-
 data class Group(
     val id: String,
 
