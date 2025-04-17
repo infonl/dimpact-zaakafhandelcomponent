@@ -19,7 +19,7 @@ The project uses both Gradle and Maven for building:
 
 #### Basic Build Commands
 
-```bash
+```shell
 # Full build including frontend and WildFly bootable JAR
 ./gradlew build
 
