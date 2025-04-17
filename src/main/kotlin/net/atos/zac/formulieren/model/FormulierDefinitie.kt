@@ -16,8 +16,9 @@ import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
 import net.atos.zac.util.FlywayIntegrator
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
-import java.util.function.Consumer
 
 @Entity
 @Table(schema = FlywayIntegrator.SCHEMA, name = "formulier_definitie")
@@ -27,34 +28,29 @@ import java.util.function.Consumer
     sequenceName = "sq_formulier_definitie",
     allocationSize = 1
 )
+@AllOpen
+@NoArgConstructor
 class FormulierDefinitie {
-    @JvmField
     @Id
     @GeneratedValue(generator = "sq_formulier_definitie", strategy = GenerationType.SEQUENCE)
     @Column(name = "id_formulier_definitie")
     var id: Long? = null
 
-    @JvmField
     @Column(name = "systeemnaam", nullable = false, unique = true)
     var systeemnaam: @NotBlank String? = null
 
-    @JvmField
     @Column(name = "naam", nullable = false)
     var naam: @NotBlank String? = null
 
-    @JvmField
     @Column(name = "beschrijving")
     var beschrijving: String? = null
 
-    @JvmField
     @Column(name = "uitleg")
     var uitleg: String? = null
 
-    @JvmField
     @Column(name = "creatiedatum", nullable = false)
     var creatiedatum: ZonedDateTime? = null
 
-    @JvmField
     @Column(name = "wijzigingsdatum", nullable = false)
     var wijzigingsdatum: ZonedDateTime? = null
 
@@ -66,22 +62,21 @@ class FormulierDefinitie {
     )
     private var veldDefinities: MutableSet<FormulierVeldDefinitie?>? = null
 
-
     fun getVeldDefinities(): MutableSet<FormulierVeldDefinitie?> {
-        return (if (veldDefinities != null) veldDefinities else kotlin.collections.mutableSetOf<net.atos.zac.formulieren.model.FormulierVeldDefinitie?>())!!
+        return (if (veldDefinities != null) veldDefinities else mutableSetOf<FormulierVeldDefinitie?>())!!
     }
 
-    fun setVeldDefinities(veldDefinities: MutableCollection<FormulierVeldDefinitie?>) {
+    fun setVeldDefinities(veldDefinities: MutableCollection<FormulierVeldDefinitie>) {
         if (this.veldDefinities == null) {
             this.veldDefinities = HashSet<FormulierVeldDefinitie?>()
         } else {
             this.veldDefinities!!.clear()
         }
-        veldDefinities.forEach(Consumer { veldDefinitie: FormulierVeldDefinitie? -> this.addVeldDefinitie(veldDefinitie!!) })
+        veldDefinities.forEach { addVeldDefinitie(it) }
     }
 
     private fun addVeldDefinitie(veldDefinitie: FormulierVeldDefinitie) {
-        veldDefinitie.setFormulierDefinitie(this)
+        veldDefinitie.formulierDefinitie = this
         veldDefinities!!.add(veldDefinitie)
     }
 }

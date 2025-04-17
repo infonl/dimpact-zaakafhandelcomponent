@@ -103,14 +103,13 @@ class RestTaskConverter @Inject constructor(
                 taskInfo.taskDefinitionKey
             )
         } else {
-            formulierDefinitieService.findFormulierDefinitie(taskInfo.formKey).ifPresentOrElse(
-                {
+            formulierDefinitieService.findFormulierDefinitie(taskInfo.formKey).let {
+                if (it != null) {
                     restTask.formulierDefinitie = formulierDefinitieConverter.convert(it, true)
-                },
-                {
+                } else {
                     restTask.formioFormulier = formioService.readFormioFormulier(taskInfo.formKey)
                 }
-            )
+            }
         }
         return restTask
     }
@@ -135,8 +134,8 @@ class RestTaskConverter @Inject constructor(
         humanTaskParameters: HumanTaskParameters
     ) {
         restTask.formulierDefinitieId = humanTaskParameters.formulierDefinitieID
-        humanTaskParameters.referentieTabellen.forEach {
-            restTask.tabellen[it.veld] = it.tabel.values
+        humanTaskParameters.referentieTabellen.forEach { humanTaskReferentieTabel ->
+            restTask.tabellen[humanTaskReferentieTabel.veld] = humanTaskReferentieTabel.tabel.values
                 .map { it.name }
         }
     }

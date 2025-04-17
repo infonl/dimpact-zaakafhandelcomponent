@@ -19,6 +19,8 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.PositiveOrZero
 import net.atos.zac.util.FlywayIntegrator
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
 @Entity
 @Table(schema = FlywayIntegrator.SCHEMA, name = "formulier_veld_definitie")
@@ -28,8 +30,9 @@ import net.atos.zac.util.FlywayIntegrator
     sequenceName = "sq_formulier_veld_definitie",
     allocationSize = 1
 )
+@AllOpen
+@NoArgConstructor
 class FormulierVeldDefinitie {
-    @JvmField
     @Id
     @GeneratedValue(generator = "sq_formulier_veld_definitie", strategy = GenerationType.SEQUENCE)
     @Column(name = "id_formulier_veld_definitie")
@@ -39,43 +42,34 @@ class FormulierVeldDefinitie {
     @JoinColumn(name = "id_formulier_definitie", referencedColumnName = "id_formulier_definitie")
     var formulierDefinitie: @NotNull FormulierDefinitie? = null
 
-    @JvmField
     @Column(name = "systeemnaam", nullable = false, unique = true)
     var systeemnaam: @NotBlank String? = null
 
-    @JvmField
     @Column(name = "volgorde", nullable = false)
     var volgorde: @PositiveOrZero Int = 0
 
-    @JvmField
     @Column(name = "label", nullable = false)
     var label: @NotBlank String? = null
 
-    @JvmField
     @Column(name = "veldtype", nullable = false)
     @Enumerated(EnumType.STRING)
     var veldtype: @NotNull FormulierVeldtype? = null
 
-    @JvmField
     @Column(name = "beschrijving")
     var beschrijving: String? = null
 
-    @JvmField
     @Column(name = "helptekst")
     var helptekst: String? = null
 
     @Column(name = "verplicht")
     var isVerplicht: Boolean = false
 
-    @JvmField
     @Column(name = "default_waarde")
     var defaultWaarde: String? = null
 
-    @JvmField
     @Column(name = "meerkeuze_opties")
     var meerkeuzeOpties: String? = null
 
-    @JvmField
     @Column(name = "validaties")
     var validaties: String? = null
 }

@@ -14,21 +14,6 @@ class ResolveDefaultValueContext(
     private val zrcClientService: ZrcClientService,
     private val zaakVariabelenService: ZaakVariabelenService
 ) {
-    var zaak: Zaak? = null
-        get() {
-            if (field == null) {
-                field = zrcClientService.readZaak(task.zaakUuid)
-            }
-            return field
-        }
-        private set
-
-    var zaakData: MutableMap<String?, Any?>? = null
-        get() {
-            if (field == null) {
-                field = zaakVariabelenService.readProcessZaakdata(task.zaakUuid)
-            }
-            return field
-        }
-        private set
+    var zaak: Zaak = zrcClientService.readZaak(task.zaakUuid)
+    var zaakData = zaakVariabelenService.readProcessZaakdata(task.zaakUuid)
 }
