@@ -27,13 +27,22 @@ data class Group(
     )
 }
 
+/**
+ * Converts a [GroupRepresentation] to a [Group], mapping the Keycloak
+ * group name, group description, and Keycloak ZAC client roles.
+ * Somewhat confusingly, we map the Keycloak group name to our group id,
+ * and the Keycloak group description attribute (if any) to our group name.
+ * The Keycloak group id is a UUID and is not of interest to us.
+ * The Keycloak group name is the unique group name in the ZAC Keycloak realm,
+ * and we treat this as the group id in our system.
+ *
+ * @param keycloakClientId The client ID of the Keycloak client.
+ * @return A [Group] object representing the group.
+ */
 fun GroupRepresentation.toGroup(keycloakClientId: String): Group =
-    // Confusingly the terms `group name` and `group description` are used in the Keycloak admin UI,
-    // however in the Keycloak API these are called `id` and `name` respectively.
     Group(
         id = name,
         name = attributes?.get("description")?.singleOrNull() ?: name,
         email = attributes?.get("email")?.singleOrNull(),
-        // also map the client roles for the ZAC Keycloak client
         zacClientRoles = clientRoles[keycloakClientId].orEmpty()
     )
