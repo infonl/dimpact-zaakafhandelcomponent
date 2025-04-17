@@ -132,7 +132,7 @@ services:
       - "8001:8000"
     volumes:
       - ./scripts/docker-compose/imports/openzaak/zac-scripts:/zac-scripts
-      - ./scripts/docker-compose/imports/openzaak/uploads/dummy-test-document.pdf:/dummy-test-document.pdf
+      - ./scripts/docker-compose/imports/openzaak/uploads/fake-test-document.pdf:/fake-test-document.pdf
     command: ["/zac-scripts/copy-test-pdf-and-start-openzaak.sh"]
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
@@ -676,7 +676,7 @@ services:
       - AUTH_SECRET=keycloakZaakafhandelcomponentClientSecret
       - AUTH_SERVER=http://keycloak:8080
       - BAG_API_CLIENT_MP_REST_URL=${BAG_API_CLIENT_MP_REST_URL:-https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/}
-      - BAG_API_KEY=${BAG_API_KEY:-dummyBagApiKey}
+      - BAG_API_KEY=${BAG_API_KEY:-fakeBagApiKey}
       - BRP_API_CLIENT_MP_REST_URL=http://brp-personen-mock:5010/haalcentraal/api/brp
       - BRON_ORGANISATIE_RSIN=${BRON_ORGANISATIE_RSIN:-123443210}
       - CONTEXT_URL=http://localhost:8080
@@ -687,27 +687,27 @@ services:
       - FEATURE_FLAG_BPMN_SUPPORT=${FEATURE_FLAG_BPMN_SUPPORT:-false}
       - GEMEENTE_CODE=${GEMEENTE_CODE:-9999}
       - GEMEENTE_MAIL=${GEMEENTE_MAIL:-gemeente-zac-test@example.com}
-      - GEMEENTE_NAAM=${GEMEENTE_NAAM:-DummyZacGemeente}
+      - GEMEENTE_NAAM=${GEMEENTE_NAAM:-FakeZacGemeente}
       - KLANTINTERACTIES_API_CLIENT_MP_REST_URL=http://openklant.local:8000
-      - KLANTINTERACTIES_API_TOKEN=dummyToken
+      - KLANTINTERACTIES_API_TOKEN=fakeToken
       - KEYCLOAK_ADMIN_CLIENT_ID=zaakafhandelcomponent-admin-client
       - KEYCLOAK_ADMIN_CLIENT_SECRET=zaakafhandelcomponentAdminClientSecret
-      - KVK_API_CLIENT_MP_REST_URL=${KVK_API_CLIENT_MP_REST_URL:-dummyKvkApiUrl}
-      - KVK_API_KEY=${KVK_API_KEY:-dummyKvkApiKey}
+      - KVK_API_CLIENT_MP_REST_URL=${KVK_API_CLIENT_MP_REST_URL:-fakeKvkApiUrl}
+      - KVK_API_KEY=${KVK_API_KEY:-fakeKvkApiKey}
       - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://office-converter:8080
       - OBJECTS_API_CLIENT_MP_REST_URL=http://objecten-api.local:8000
-      - OBJECTS_API_TOKEN=dummyZacObjectsToken
+      - OBJECTS_API_TOKEN=fakeZacObjectsToken
       - OPA_API_CLIENT_MP_REST_URL=http://opa:8181
-      - OPEN_FORMS_URL=http://localhost:9999 # dummy for now
+      - OPEN_FORMS_URL=http://localhost:9999 # fake for now
       - OPEN_NOTIFICATIONS_API_SECRET_KEY=openNotificatiesApiSecretKey
       - SMARTDOCUMENTS_ENABLED=${SMARTDOCUMENTS_ENABLED:-false}
-      - SMARTDOCUMENTS_AUTHENTICATION=${SMARTDOCUMENTS_AUTHENTICATION:-dummySmartDocumentsAuthentication}
+      - SMARTDOCUMENTS_AUTHENTICATION=${SMARTDOCUMENTS_AUTHENTICATION:-fakeSmartDocumentsAuthentication}
       - SMARTDOCUMENTS_CLIENT_MP_REST_URL=${SMARTDOCUMENTS_CLIENT_MP_REST_URL:-http://smartdocuments-wiremock:8080}
       - SMARTDOCUMENTS_FIXED_USER_NAME=${SMARTDOCUMENTS_FIXED_USER_NAME:-}
       - SMTP_SERVER=${SMTP_SERVER:-in-v3.mailjet.com}
       - SMTP_PORT=${SMTP_PORT:-587}
-      - SMTP_USERNAME=${SMTP_USERNAME:-dummyMailjetApiKey}
-      - SMTP_PASSWORD=${SMTP_PASSWORD:-dummyMailjetApiSecretKey}
+      - SMTP_USERNAME=${SMTP_USERNAME:-fakeMailjetApiKey}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-fakeMailjetApiSecretKey}
       - SIGNALERINGEN_DELETE_OLDER_THAN_DAYS=${SIGNALERINGEN_DELETE_OLDER_THAN_DAYS:-14}
       - SOLR_URL=http://solr:8983
       # Turn off the Open Telemetry sampler by default because it is not always needed

@@ -81,7 +81,7 @@ class BpmnServiceTest : BehaviorSpec({
     }
 
     Given("A zaak and zaakdata and a zaaktype with a 'referentieproces'") {
-        val referentieProcesName = "dummyReferentieProces"
+        val referentieProcesName = "fakeReferentieProces"
         val zaakTypeUUID = UUID.randomUUID()
         val zaakUUID = UUID.randomUUID()
         val zaakType = createZaakType(
@@ -92,7 +92,7 @@ class BpmnServiceTest : BehaviorSpec({
             zaakTypeURI = zaakType.url,
             uuid = zaakUUID
         )
-        val zaakData = mapOf<String, Any>("dummyKey" to "dummyValue")
+        val zaakData = mapOf<String, Any>("fakeKey" to "fakeValue")
         val processInstanceBuilder = mockk<ProcessInstanceBuilder>()
         val processInstance = mockk<ProcessInstance>()
         every {
@@ -150,7 +150,7 @@ class BpmnServiceTest : BehaviorSpec({
     }
 
     Given("A valid process definition key with an existing process definition") {
-        val processDefinitionKey = "dummyProcessDefinitionKey"
+        val processDefinitionKey = "fakeProcessDefinitionKey"
         val processDefinition = createProcessDefinition()
         every { bpmnService.findProcessDefinitionByprocessDefinitionKey(processDefinitionKey) } returns processDefinition
 
@@ -164,7 +164,7 @@ class BpmnServiceTest : BehaviorSpec({
     }
 
     Given("An invalid process definition key with no existing process definition") {
-        val processDefinitionKey = "dummyProcessDefinitionKey"
+        val processDefinitionKey = "fakeProcessDefinitionKey"
         every { bpmnService.findProcessDefinitionByprocessDefinitionKey(processDefinitionKey) } returns null
 
         When("reading the process definition by process definition key") {

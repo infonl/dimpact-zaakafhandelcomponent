@@ -28,9 +28,9 @@ class ReferenceTableServiceTest : BehaviorSpec({
         val referenceTableID = 1234L
         val referenceTable = createReferenceTable(
             values = mutableListOf(
-                createReferenceTableValue(id = 1, name = "dummyValue1", sortOrder = 1),
-                createReferenceTableValue(id = 2, name = "dummyValue2", sortOrder = 0),
-                createReferenceTableValue(id = 3, name = "dummyValue2", sortOrder = 2)
+                createReferenceTableValue(id = 1, name = "fakeValue1", sortOrder = 1),
+                createReferenceTableValue(id = 2, name = "fakeValue2", sortOrder = 0),
+                createReferenceTableValue(id = 3, name = "fakeValue2", sortOrder = 2)
             )
         )
         every { entityManager.find(ReferenceTable::class.java, referenceTableID) } returns referenceTable

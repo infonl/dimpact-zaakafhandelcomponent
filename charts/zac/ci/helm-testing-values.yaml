@@ -36,7 +36,7 @@ keycloak:
 # gemeente Configuration gemeente
 gemeente:
   code: "9999"
-  naam: "DummyZacGemeente"
+  naam: "FakeZacGemeente"
   mail: "gemeente-zac-test@example.com"
 
 # -- Email sending connection. SPF record needs to be properly setup in DNS
@@ -47,9 +47,9 @@ mail:
     # -- SMTP server port: 587 for TLS, port 25 for relaying. Required
     port: "587"
     # -- SMTP server username if authentication is required. Optional
-    username: "dummyMailjetApiKey"
+    username: "fakeMailjetApiKey"
     # -- SMTP server password if authentication is required. Optional
-    password: "dummyMailjetApiSecretKey"
+    password: "fakeMailjetApiSecretKey"
 
 # zgwApis Configuration of ZGW API's provider (Open Zaak)
 zgwApis:
@@ -64,7 +64,7 @@ notificationsSecretKey: "openNotificatiesApiSecretKey"
 # klantenApi Configuration of Klanten API provider (Open Klant)
 klantinteractiesApi:
   url: "http://openklant.local:8000"  # http://open-klant.internal/klantinteracties
-  token: "dummyToken"
+  token: "fakeToken"
 
 # featureFlags defines supported feature flags and their default values
 featureFlags:
@@ -73,22 +73,22 @@ featureFlags:
 # objectenApi Configuration of the Objecten API provider (Overige Registraties)
 objectenApi:
   url: "http://objecten-api.local:8000"  # http://objecten.internal
-  token: "dummyZacObjectsToken"
+  token: "fakeZacObjectsToken"
 
 # brpApi Configuration of the BRP Api provider (Haal Centraal)
 brpApi:
   url: "http://brp-personen-mock:5010/haalcentraal/api/brp"  # https://www.haalcentraal.nl/haalcentraal
-  apiKey: "dummyKey"
+  apiKey: "fakeKey"
 
 # kvkApi Configuration of the KVK API provider (KVK)
 kvkApi:
-  url: "http://dummyKvkApiUrl.mock"  # https://developers.kvk.nl/test
-  apiKey: "dummyKvkApiKey"
+  url: "http://fakeKvkApiUrl.mock"  # https://developers.kvk.nl/test
+  apiKey: "fakeKvkApiKey"
 
 # bagApi Configuration of the BAG API provider (Kadaster)
 bagApi:
   url: "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/"  # https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2
-  apiKey: "dummyBagApiKey"
+  apiKey: "fakeBagApiKey"
 
 # openForms Configuration of the Open Forms URL
 openForms:
@@ -100,9 +100,9 @@ smartDocuments:
   # -- URL to SmartDocuments instance. For example: https://partners.smartdocuments.com
   url: "http://smartdocuments-wiremock:8080"
   # -- Authentication token
-  authentication: "dummySmartDocumentsAuthentication"
+  authentication: "fakeSmartDocumentsAuthentication"
   # -- Fixed username for authentication
-  fixedUserName: "dummy"
+  fixedUserName: "fake"
 
 # signaleringen Configuration of the signaleren job
 signaleringen:
@@ -663,10 +663,10 @@ nginx:
 organizations:
   verantwoordelijke:
     # -- The RSIN of the Non-natural person - the organization that is ultimately responsible for handling a zaak or establishing a decision. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
-    rsin: "dummy"
+    rsin: "fake"
   bron:
     # -- The RSIN of the Non-natural person - the organization that created the zaak. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
-    rsin: "dummy"
+    rsin: "fake"
 
 # -- OpenZaak Catalogus Domein
 catalogusDomein: ALG

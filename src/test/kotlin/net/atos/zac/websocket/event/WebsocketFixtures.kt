@@ -19,8 +19,8 @@ fun createScreenEvent(
     )
 
 fun createScreenEventId(
-    resource: String = "dummyResource",
-    detail: String = "dummyDetail"
+    resource: String = "fakeResource",
+    detail: String = "fakeDetail"
 ) =
     ScreenEventId(
         resource,

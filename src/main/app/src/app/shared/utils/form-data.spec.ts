@@ -16,14 +16,14 @@ describe("createFormData", () => {
   });
 
   it("should preserve key and value for Blobs if no mapping is specified", () => {
-    const file = new File([], "dummy");
+    const file = new File([], "fake");
     const formData = createFormData({ key: file }, { key: true });
     const entries = Array.from(formData);
     expect(entries).toHaveLength(1);
     const [key, value] = entries[0];
     expect(key).toBe("key");
     expect(value).toBe(file);
-    expect((<File>value).name).toBe("dummy");
+    expect((<File>value).name).toBe("fake");
   });
 
   it("should preserve key and value for empty strings", () => {

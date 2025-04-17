@@ -135,7 +135,7 @@ class TaskRestServiceTest : BehaviorSpec({
                         "taken":[{"taakId":"$task1ID","zaakUuid":"$zaakProductaanvraag1Uuid"}],
                          "groepId":"$TEST_GROUP_A_ID",
                         "behandelaarGebruikersnaam":"$TEST_USER_2_ID",
-                        "reden":"dummyTasksAssignReason",
+                        "reden":"fakeTasksAssignReason",
                         "screenEventResourceId":"$uniqueResourceId"
                         }
                 """.trimIndent()
@@ -184,7 +184,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/taken/lijst/vrijgeven",
                 requestBodyAsString = """{
                         "taken":[{"taakId":"$task1ID","zaakUuid":"$zaakProductaanvraag1Uuid"}],
-                        "reden":"dummyTasksReleaseReason",
+                        "reden":"fakeTasksReleaseReason",
                         "screenEventResourceId":"$uniqueResourceId"
                         }
                 """.trimIndent()

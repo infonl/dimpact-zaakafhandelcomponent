@@ -41,7 +41,7 @@ object ItestConfiguration {
     /**
      * Fake additional allowed file types just for testing purposes.
      */
-    const val ADDITIONAL_ALLOWED_FILE_TYPES = "dummyFileExtension1,dummyFileExtension2"
+    const val ADDITIONAL_ALLOWED_FILE_TYPES = "fakeFileExtension1,fakeFileExtension2"
     const val BAG_MOCK_BASE_URI = "http://bag-wiremock.local:8080"
     const val BAG_TEST_ADRES_1_IDENTIFICATION = "0363200003761447"
     const val BETROKKENE_TYPE_NATUURLIJK_PERSOON = "NATUURLIJK_PERSOON"
@@ -54,11 +54,9 @@ object ItestConfiguration {
     const val BRON_ORGANISATIE = "123443210"
     const val CONFIG_MAX_FILE_SIZE_IN_MB = 80L
     const val CONFIG_GEMEENTE_CODE = "9999"
-    const val CONFIG_GEMEENTE_NAAM = "DummyZacGemeente"
-    const val COMMUNICATIEKANAAL_TEST_1 = "dummyCommunicatiekanaal1"
-    const val COMMUNICATIEKANAAL_TEST_2 = "dummyCommunicatiekanaal2"
-    const val DOMEIN_OVERIG = "domein_overig"
-    const val DOMEIN_TEST_1 = "domein_test_1"
+    const val CONFIG_GEMEENTE_NAAM = "FakeZacGemeente"
+    const val COMMUNICATIEKANAAL_TEST_1 = "fakeCommunicatiekanaal1"
+    const val COMMUNICATIEKANAAL_TEST_2 = "fakeCommunicatiekanaal2"
     const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING = "bijlage"
@@ -145,11 +143,11 @@ object ItestConfiguration {
         "Street # 38 & House # 10, Baghdad, Park Al-Sadoum, Hay Al-Nidhal 103, Irak"
     const val TEST_PERSON_2_BSN = "999992958"
     const val TEST_PERSON_3_BSN = "999991838"
-    const val TEST_PDF_FILE_NAME = "dümmyTestDocument.pdf"
+    const val TEST_PDF_FILE_NAME = "fäkeTestDocument.pdf"
     const val TEST_PDF_FILE_SIZE = 9268
     const val TEST_TXT_FILE_NAME = "tëstTextDocument.txt"
     const val TEST_TXT_CONVERTED_TO_PDF_FILE_NAME = "tëstTextDocument.pdf"
-    const val TEST_TXT_FILE_SIZE = 63
+    const val TEST_TXT_FILE_SIZE = 62
     const val TEST_USER_1_USERNAME = "testuser1"
     const val TEST_USER_1_PASSWORD = "testuser1"
     const val TEST_USER_1_EMAIL = "testuser1@example.com"
@@ -190,7 +188,7 @@ object ItestConfiguration {
     /**
      * Constants used in the Informatieobjecten tests
      */
-    const val DOCUMENT_FILE_TITLE = "dummyTitel"
+    const val DOCUMENT_FILE_TITLE = "fakeTitel"
     const val DOCUMENT_UPDATED_FILE_TITLE = "updated title with Špëcîål characters"
     const val DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK = "ZAAKVERTROUWELIJK"
     const val DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR = "OPENBAAR"
@@ -204,19 +202,19 @@ object ItestConfiguration {
     /**
      * Constants used in the KVK WireMock template response
      */
-    const val TEST_KVK_ADRES_1 = "dummyStraatnaam1"
-    const val TEST_KVK_EERSTE_HANDELSNAAM_1 = "dummyEersteHandelsnaam1"
-    const val TEST_KVK_NAAM_1 = "dummyNaam1"
+    const val TEST_KVK_ADRES_1 = "fakeStraatnaam1"
+    const val TEST_KVK_EERSTE_HANDELSNAAM_1 = "fakeEersteHandelsnaam1"
+    const val TEST_KVK_NAAM_1 = "fakeNaam1"
     const val TEST_KVK_NUMMER_1 = "12345678"
-    const val TEST_KVK_PLAATS_1 = "dummyPlaats1"
+    const val TEST_KVK_PLAATS_1 = "fakePlaats1"
     const val TEST_KVK_RSIN_1 = "123456789"
     const val TEST_KVK_VESTIGINGSNUMMER_1 = "000012345678"
     const val TEST_KVK_VESTIGINGSTYPE_HOOFDVESTIGING = "HOOFDVESTIGING"
     const val TEST_KVK_VESTIGING1_TOTAAL_WERKZAME_PERSONEN = 3
     const val TEST_KVK_VESTIGING1_VOLTIJD_WERKZAME_PERSONEN = 2
-    const val TEST_KVK_VESTIGING1_HOOFDACTIVITEIT = "dummysbiOmschrijving1"
-    const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT1 = "dummysbiOmschrijving2"
-    const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT2 = "dummysbiOmschrijving3"
+    const val TEST_KVK_VESTIGING1_HOOFDACTIVITEIT = "fakesbiOmschrijving1"
+    const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT1 = "fakesbiOmschrijving2"
+    const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT2 = "fakesbiOmschrijving3"
 
     const val SMART_DOCUMENTS_MOCK_BASE_URI = "http://smartdocuments-wiremock:8080"
 
@@ -242,16 +240,16 @@ object ItestConfiguration {
     const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_ID = "273C2707E5A844699B653C87ACFD618E"
     const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_NAME = "group 2 template 2"
 
-    const val SMART_DOCUMENTS_FILE_ID = "dummyFileId"
+    const val SMART_DOCUMENTS_FILE_ID = "fakeFileId"
     const val SMART_DOCUMENTS_FILE_TITLE = "Smart Documents file"
 
     const val SMTP_SERVER_PORT = 25
     const val TAAK_1_FATAL_DATE = "1970-01-17"
     const val VERANTWOORDELIJKE_ORGANISATIE = "316245124"
     const val VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING"
-    const val ZAAK_DESCRIPTION_1 = "dummyZaakDescription1"
-    const val ZAAK_DESCRIPTION_2 = "dummyZaakDescription2"
-    const val ZAAK_EXPLANATION_1 = "dummyZaakExplanation1"
+    const val ZAAK_DESCRIPTION_1 = "fakeZaakDescription1"
+    const val ZAAK_DESCRIPTION_2 = "fakeZaakDescription2"
+    const val ZAAK_EXPLANATION_1 = "fakeZaakExplanation1"
 
     /**
      * First zaak created from a productaanvraag.
@@ -261,8 +259,8 @@ object ItestConfiguration {
     const val ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION = "ZAAK-1970-0000000001"
     const val ZAAK_PRODUCTAANVRAAG_1_START_DATE = "1970-01-01"
     const val ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING = "1970-01-15"
-    const val ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING = "dummyZaakOmschrijving"
-    const val ZAAK_PRODUCTAANVRAAG_1_TOELICHTING = "dummyZaakToelichting"
+    const val ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING = "fakeZaakOmschrijving"
+    const val ZAAK_PRODUCTAANVRAAG_1_TOELICHTING = "fakeZaakToelichting"
 
     /**
      * Second zaak created from a productaanvraag.
@@ -271,8 +269,8 @@ object ItestConfiguration {
      */
     const val ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION = "ZAAK-1999-0000000001"
     const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_CREATION_DATE = "2023-10-30"
-    const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_TITEL = "Dummy test document"
-    const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_FILE_NAME = "dummy-test-document.pdf"
+    const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_TITEL = "Fake test document"
+    const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_FILE_NAME = "fake-test-document.pdf"
 
     /**
      * First 'manually' created zaak using the ZAC API.

@@ -39,7 +39,7 @@ fun createRestDecisionCreateData(
     zaakUuid: UUID = UUID.randomUUID(),
     resultaattypeUuid: UUID = UUID.randomUUID(),
     besluittypeUuid: UUID = UUID.randomUUID(),
-    toelichting: String = "dummyToelichting",
+    toelichting: String = "fakeToelichting",
     ingangsdatum: LocalDate = LocalDate.of(2023, 9, 14),
     vervaldatum: LocalDate = LocalDate.of(2023, 10, 5),
     publicationDate: LocalDate? = null,
@@ -62,13 +62,13 @@ fun createRestDecisionCreateData(
 fun createRestDecisionChangeData(
     besluitUUID: UUID = UUID.randomUUID(),
     resultTypeUUID: UUID = UUID.randomUUID(),
-    description: String = "besluitDummyDescription",
+    description: String = "besluitFakeDescription",
     effectiveDate: LocalDate = LocalDate.of(2023, 9, 14),
     expirationDate: LocalDate = LocalDate.of(2023, 11, 14),
     publicationDate: LocalDate = LocalDate.of(2023, 10, 14),
     lastResponseDate: LocalDate = LocalDate.of(2023, 11, 1),
     informationObjects: List<UUID> = listOf(UUID.randomUUID()),
-    reason: String = "dummyReason"
+    reason: String = "fakeReason"
 ) = RestDecisionChangeData(
     besluitUuid = besluitUUID,
     resultaattypeUuid = resultTypeUUID,
@@ -92,8 +92,8 @@ fun createRESTGeometry(
 )
 
 fun createRestGroup(
-    id: String = "dummyId",
-    name: String = "dummyName",
+    id: String = "fakeId",
+    name: String = "fakeName",
 ) = RestGroup(
     id = id,
     naam = name
@@ -118,8 +118,8 @@ fun createRESTOpenbareRuimte() = RESTOpenbareRuimte()
 fun createRESTPand() = RESTPand()
 
 fun createRestUser(
-    id: String = "dummyId",
-    name: String = "dummyName",
+    id: String = "fakeId",
+    name: String = "fakeName",
 ) = RestUser(
     id = id,
     naam = name
@@ -135,7 +135,7 @@ fun createRestZaak(
     uuid: UUID = UUID.randomUUID(),
     rechten: RestZaakRechten = createRestZaakRechten(),
     einddatumGepland: LocalDate? = LocalDate.of(2023, 10, 10),
-    communicatiekanaal: String? = "dummyCommunicatiekanaal",
+    communicatiekanaal: String? = "fakeCommunicatiekanaal",
 ) = RestZaak(
     uuid = uuid,
     identificatie = "ZA2023001",
@@ -202,9 +202,9 @@ fun createRESTZaakAanmaakGegevens(
 fun createRESTZaakBetrokkeneGegevens(
     zaakUUID: UUID = UUID.randomUUID(),
     roltypeUUID: UUID = UUID.randomUUID(),
-    roltoelichting: String = "dummyRoltoelichting",
+    roltoelichting: String = "fakeRoltoelichting",
     betrokkeneIdentificatieType: IdentificatieType = IdentificatieType.BSN,
-    betrokkeneIdentificatie: String = "dummyBetrokkeneIdentificatie"
+    betrokkeneIdentificatie: String = "fakeBetrokkeneIdentificatie"
 ) = RESTZaakBetrokkeneGegevens(
     zaakUUID = zaakUUID,
     roltypeUUID = roltypeUUID,
@@ -217,9 +217,9 @@ fun createRESTZaakKenmerk() = RESTZaakKenmerk("Sample kenmerk", "Sample bron")
 
 fun createRESTZaakAssignmentData(
     zaakUUID: UUID = UUID.randomUUID(),
-    groepId: String = "dummyGroupId",
-    behandelaarGebruikersnaam: String = "dummyBehandelaarGebruikersnaam",
-    reden: String = "dummyReden"
+    groepId: String = "fakeGroupId",
+    behandelaarGebruikersnaam: String = "fakeBehandelaarGebruikersnaam",
+    reden: String = "fakeReden"
 ) = RestZaakAssignmentData(
     zaakUUID = zaakUUID,
     groupId = groepId,
@@ -229,7 +229,7 @@ fun createRESTZaakAssignmentData(
 
 fun createRESTZakenVerdeelGegevens(
     uuids: List<UUID> = emptyList(),
-    groepId: String = "dummyGroupId",
+    groepId: String = "fakeGroupId",
     behandelaarGebruikersnaam: String? = null,
     reden: String? = null,
     screenEventResourceId: String? = null
@@ -255,9 +255,9 @@ fun createRestZaakLinkData(
 
 fun createRestZaakUnlinkData(
     zaakUuid: UUID = UUID.randomUUID(),
-    gekoppeldeZaakIdentificatie: String = "dummyIdentificatie",
+    gekoppeldeZaakIdentificatie: String = "fakeIdentificatie",
     relationType: RelatieType,
-    reason: String = "dummyReason"
+    reason: String = "fakeReason"
 ) = RestZaakUnlinkData(
     zaakUuid = zaakUuid,
     gekoppeldeZaakIdentificatie = gekoppeldeZaakIdentificatie,
@@ -274,8 +274,8 @@ fun createRestZaakRechten(
 fun createRestZaakResultaat() = RestZaakResultaat()
 
 fun createRestZaakStatus(
-    naam: String = "dummyName",
-    toelichting: String = "dummyToelichting"
+    naam: String = "fakeName",
+    toelichting: String = "fakeToelichting"
 ) = RestZaakStatus(
     naam = naam,
     toelichting = toelichting
@@ -283,7 +283,7 @@ fun createRestZaakStatus(
 
 fun createRestZaaktype() = RestZaaktype(
     uuid = UUID.randomUUID(),
-    identificatie = "dummyIdentificatie",
+    identificatie = "fakeIdentificatie",
     doel = "Sample Doel",
     omschrijving = ZAAK_TYPE_1_OMSCHRIJVING,
     referentieproces = "Sample Referentieproces",
@@ -315,7 +315,7 @@ fun createRESTZaakOverzicht(
 
 fun createRestZaakLocatieGegevens(
     restGeometry: RestGeometry? = createRESTGeometry(),
-    reason: String = "dummyReden"
+    reason: String = "fakeReden"
 ) = RestZaakLocatieGegevens(
     geometrie = restGeometry,
     reden = reason
@@ -332,7 +332,7 @@ fun createRestCoordinates(
 fun createRestDocumentOntkoppelGegevens(
     zaakUUID: UUID = UUID.randomUUID(),
     documentUUID: UUID = UUID.randomUUID(),
-    reden: String = "dummyReason“"
+    reden: String = "fakeReason“"
 ) = RESTDocumentOntkoppelGegevens(
     zaakUUID = zaakUUID,
     documentUUID = documentUUID,
