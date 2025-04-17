@@ -61,6 +61,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
   reasonField: TextareaFormField;
   private ngDestroy = new Subject<void>();
   private initialZaakGeometry!: Geometry;
+  private dateChangesDisabled = false;
 
   constructor(
     private zakenService: ZakenService,
@@ -99,6 +100,11 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
   ngOnInit() {
     this.initialZaakGeometry = this.zaak.zaakgeometrie;
 
+    this.dateChangesDisabled =
+      this.zaak.isProcesGestuurd ||
+      !this.zaak.isOpen ||
+      !this.zaak.rechten.wijzigen;
+
     this.medewerkerGroepFormField = this.getMedewerkerGroupFormField(
       !this.zaak.rechten.toekennen,
       this.zaak?.groep.id,
@@ -118,15 +124,14 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     this.startDatumField = this.createDateFormField(
       "startdatum",
       this.zaak.startdatum,
-      !this.zaak.rechten.wijzigen || this.zaak.isProcesGestuurd,
+      this.dateChangesDisabled,
       [Validators.required, (control) => this.validateStartDatum(control)],
     );
 
     this.einddatumGeplandField = this.createDateFormField(
       "einddatumGepland",
       this.zaak.einddatumGepland,
-      !!this.zaak.einddatumGepland &&
-        (!this.zaak.rechten.wijzigen || this.zaak.isProcesGestuurd),
+      !this.zaak.einddatumGepland || this.dateChangesDisabled,
       [
         this.zaak.einddatumGepland
           ? Validators.required
@@ -138,7 +143,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     this.uiterlijkeEinddatumAfdoeningField = this.createDateFormField(
       "uiterlijkeEinddatumAfdoening",
       this.zaak.uiterlijkeEinddatumAfdoening,
-      !this.zaak.rechten.wijzigen || this.zaak.isProcesGestuurd,
+      this.dateChangesDisabled,
       [
         Validators.required,
         (control) => this.validateUiterlijkeEinddatumAfdoening(control),
