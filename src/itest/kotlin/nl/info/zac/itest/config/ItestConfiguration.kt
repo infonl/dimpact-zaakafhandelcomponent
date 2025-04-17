@@ -39,7 +39,7 @@ object ItestConfiguration {
     const val ACTIE_ZAAK_AFHANDELEN = "ZAAK_AFHANDELEN"
 
     /**
-     * Dummy additional allowed file types just for testing purposes.
+     * Fake additional allowed file types just for testing purposes.
      */
     const val ADDITIONAL_ALLOWED_FILE_TYPES = "dummyFileExtension1,dummyFileExtension2"
     const val BAG_MOCK_BASE_URI = "http://bag-wiremock.local:8080"
@@ -57,6 +57,8 @@ object ItestConfiguration {
     const val CONFIG_GEMEENTE_NAAM = "DummyZacGemeente"
     const val COMMUNICATIEKANAAL_TEST_1 = "dummyCommunicatiekanaal1"
     const val COMMUNICATIEKANAAL_TEST_2 = "dummyCommunicatiekanaal2"
+    const val DOMEIN_OVERIG = "domein_overig"
+    const val DOMEIN_TEST_1 = "domein_test_1"
     const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING = "bijlage"
@@ -98,6 +100,7 @@ object ItestConfiguration {
     const val REFERENCE_TABLE_DOMEIN_NAME = "Domein"
     const val REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_CODE = "SERVER_ERROR_ERROR_PAGINA_TEKST"
     const val REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_NAME = "Server error error pagina tekst"
+    const val RESULTAAT_TYPE_GEWEIGERD_UUID = "dd2bcd87-ed7e-4b23-a8e3-ea7fe7ef00c6"
     const val ROLTYPE_NAME_BELANGHEBBENDE = "Belanghebbende"
     const val ROLTYPE_NAME_MEDEAANVRAGER = "Medeaanvrager"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
@@ -110,19 +113,19 @@ object ItestConfiguration {
     const val SCREEN_EVENT_TYPE_ZAAK_ROLLEN = "ZAAK_ROLLEN"
 
     const val TEST_GEMEENTE_EMAIL_ADDRESS = "gemeente-zac-test@example.com"
-
     const val TEST_INFORMATIE_OBJECT_TYPE_1_UUID = "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
 
     const val TEST_SPEC_ORDER_INITIAL = 0
-    const val TEST_SPEC_ORDER_AFTER_INITIALIZATION = 1
-    const val TEST_SPEC_ORDER_AFTER_ZAAK_CREATED = 2
-    const val TEST_SPEC_ORDER_AFTER_TASK_CREATED = 3
-    const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 4
-    const val TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED = 5
-    const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 6
-    const val TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED = 7
-    const val TEST_SPEC_ORDER_AFTER_REINDEXING = 8
-    const val TEST_SPEC_ORDER_AFTER_SEARCH = 9
+    const val TEST_SPEC_ORDER_AFTER_REFERENCE_TABLES_UPDATED = 1
+    const val TEST_SPEC_ORDER_AFTER_INITIALIZATION = 2
+    const val TEST_SPEC_ORDER_AFTER_ZAAK_CREATED = 3
+    const val TEST_SPEC_ORDER_AFTER_TASK_CREATED = 4
+    const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 5
+    const val TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED = 6
+    const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 7
+    const val TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED = 8
+    const val TEST_SPEC_ORDER_AFTER_REINDEXING = 9
+    const val TEST_SPEC_ORDER_AFTER_SEARCH = 10
 
     const val TOTAL_COUNT_ZAKEN = 10
     const val TOTAL_COUNT_ZAKEN_AFGEROND = 2
@@ -154,7 +157,7 @@ object ItestConfiguration {
     const val TEST_USER_2_ID = "testuser2"
 
     /**
-     * Test user 2 does not have a first name so their full name should be equal to their last name.
+     * Test user 2 does not have a first name, so their full name should be equal to their last name.
      */
     const val TEST_USER_2_NAME = "User2"
     const val TEST_USER_DOMEIN_TEST_1_ID = "testuserdomeintest1"
@@ -267,8 +270,6 @@ object ItestConfiguration {
      * 'ZAAK-YYYY-SEQUENCE_NUMBER' where the year is taken from the start date of the zaak.
      */
     const val ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION = "ZAAK-1999-0000000001"
-    const val ZAAK_PRODUCTAANVRAAG_2_START_DATE = "1999-01-01"
-    const val ZAAK_PRODUCTAANVRAAG_2_UITERLIJKE_EINDDATUM_AFDOENING = "1999-01-15"
     const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_CREATION_DATE = "2023-10-30"
     const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_TITEL = "Dummy test document"
     const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_FILE_NAME = "dummy-test-document.pdf"
@@ -277,7 +278,6 @@ object ItestConfiguration {
      * First 'manually' created zaak using the ZAC API.
      */
     const val ZAAK_MANUAL_1_IDENTIFICATION = "ZAAK-2020-0000000001"
-    const val ZAAK_MANUAL_2_IDENTIFICATION = "ZAAK-2000-0000000001"
 
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
 
@@ -312,8 +312,6 @@ object ItestConfiguration {
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE = "melding-evenement-organiseren-behandelen"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION = "Melding evenement organiseren behandelen"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_REFERENTIEPROCES = "melding klein evenement"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_IDENTIFICATIE =
-        "indienen-aansprakelijkstelling-door-derden-behandelen"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE =
         "indienen-aansprakelijkstelling-behandelen"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION =
