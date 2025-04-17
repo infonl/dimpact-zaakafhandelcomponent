@@ -2,35 +2,30 @@
  * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.formulieren.model
 
-package net.atos.zac.app.formulieren.model;
+import net.atos.zac.formulieren.model.FormulierVeldtype
 
-import java.util.List;
+class RESTFormulierVeldDefinitie {
+    var id: Long? = null
 
-import net.atos.zac.formulieren.model.FormulierVeldtype;
+    var systeemnaam: String? = null
 
-public class RESTFormulierVeldDefinitie {
+    var volgorde: Int = 0
 
-    public Long id;
+    var label: String? = null
 
-    public String systeemnaam;
+    var veldtype: FormulierVeldtype? = null
 
-    public int volgorde;
+    var beschrijving: String? = null
 
-    public String label;
+    var helptekst: String? = null
 
-    public FormulierVeldtype veldtype;
+    var verplicht: Boolean = false
 
-    public String beschrijving;
+    var defaultWaarde: String? = null
 
-    public String helptekst;
+    var meerkeuzeOpties: String? = null
 
-    public boolean verplicht;
-
-    public String defaultWaarde;
-
-    public String meerkeuzeOpties;
-
-    public List<String> validaties;
-
+    var validaties: MutableList<String?>? = null
 }

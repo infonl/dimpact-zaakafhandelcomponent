@@ -2,27 +2,24 @@
  * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.formulieren.model
 
-package net.atos.zac.app.formulieren.model;
+import java.time.ZonedDateTime
 
-import java.time.ZonedDateTime;
-import java.util.List;
+class RESTFormulierDefinitie {
+    var id: Long? = null
 
-public class RESTFormulierDefinitie {
+    var systeemnaam: String? = null
 
-    public Long id;
+    var naam: String? = null
 
-    public String systeemnaam;
+    var beschrijving: String? = null
 
-    public String naam;
+    var uitleg: String? = null
 
-    public String beschrijving;
+    var creatiedatum: ZonedDateTime? = null
 
-    public String uitleg;
+    var wijzigingsdatum: ZonedDateTime? = null
 
-    public ZonedDateTime creatiedatum;
-
-    public ZonedDateTime wijzigingsdatum;
-
-    public List<RESTFormulierVeldDefinitie> veldDefinities;
+    var veldDefinities: MutableList<RESTFormulierVeldDefinitie?>? = null
 }
