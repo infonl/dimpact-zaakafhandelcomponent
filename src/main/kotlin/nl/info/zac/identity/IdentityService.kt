@@ -44,16 +44,16 @@ class IdentityService @Inject constructor(
     /**
      * Returns the list of groups that have access to the given zaaktype UUID based on the ZAC domain roles of this group.
      */
-    fun listGroupsForZaaktypeUuid(zaaktypeUuid: UUID): List<Group> = keycloakZacRealmResource.groups()
+    fun listGroupsForZaaktypeUuid(zaaktypeUuid: UUID): List<Group> {
         // retrieve groups with 'full representation' or else the group attributes will not be filled
-        .groups("", 0, Integer.MAX_VALUE, false)
-        .map { it.toGroup() }
-        .filter {
-            it.zacDomainRoles.contains(
-                zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid).domein
-            )
-        }
-        .sortedBy { it.name }
+        val groups = keycloakZacRealmResource.groups()
+            .groups("", 0, Integer.MAX_VALUE, false)
+            .map { it.toGroup() }
+        val domein = zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid).domein
+        return groups
+            .filter { domein == null || it.zacDomainRoles.contains(domein) }
+            .sortedBy { it.name }
+    }
 
     fun readUser(userId: String): User = keycloakZacRealmResource.users()
         .searchByUsername(userId, true)
