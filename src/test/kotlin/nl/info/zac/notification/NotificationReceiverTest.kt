@@ -35,7 +35,7 @@ import nl.info.zac.task.TaskService
 import java.net.URI
 import java.util.UUID
 
-const val SECRET = "dummySecret"
+const val SECRET = "fakeSecret"
 
 class NotificationReceiverTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
@@ -77,8 +77,8 @@ class NotificationReceiverTest : BehaviorSpec({
         val productaanvraagObjectUUID = UUID.randomUUID()
         val productTypeUUID = UUID.randomUUID()
         val notificatie = createNotificatie(
-            resourceUrl = URI("http://example.com/dummyproductaanvraag/$productaanvraagObjectUUID"),
-            properties = mutableMapOf("objectType" to "http://example.com/dummyproducttype/$productTypeUUID")
+            resourceUrl = URI("http://example.com/fakeproductaanvraag/$productaanvraagObjectUUID"),
+            properties = mutableMapOf("objectType" to "http://example.com/fakeproducttype/$productTypeUUID")
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
@@ -103,7 +103,7 @@ class NotificationReceiverTest : BehaviorSpec({
         "a request containing a authorization header and a zaaktype create notificatie"
     ) {
         val zaaktypeUUID = UUID.randomUUID()
-        val zaaktypeUri = URI("http://example.com/dummyzaaktype/$zaaktypeUUID")
+        val zaaktypeUri = URI("http://example.com/fakezaaktype/$zaaktypeUUID")
         val notificatie = createNotificatie(
             resource = Resource.ZAAKTYPE,
             resourceUrl = zaaktypeUri
@@ -130,7 +130,7 @@ class NotificationReceiverTest : BehaviorSpec({
         "a request containing a authorization header and a zaaktype update notificatie"
     ) {
         val zaaktypeUUID = UUID.randomUUID()
-        val zaaktypeUri = URI("http://example.com/dummyzaaktype/$zaaktypeUUID")
+        val zaaktypeUri = URI("http://example.com/fakezaaktype/$zaaktypeUUID")
         val notificatie = createNotificatie(
             resource = Resource.ZAAKTYPE,
             resourceUrl = zaaktypeUri,
@@ -157,7 +157,7 @@ class NotificationReceiverTest : BehaviorSpec({
         "A request without a authorization header and a zaaktype update notificatie"
     ) {
         val zaaktypeUUID = UUID.randomUUID()
-        val zaaktypeUri = URI("http://example.com/dummyzaaktype/$zaaktypeUUID")
+        val zaaktypeUri = URI("http://example.com/fakezaaktype/$zaaktypeUUID")
         val notificatie = createNotificatie(
             resource = Resource.ZAAKTYPE,
             resourceUrl = zaaktypeUri,
@@ -185,14 +185,14 @@ class NotificationReceiverTest : BehaviorSpec({
         """.trimIndent()
     ) {
         val zaakUUID = UUID.randomUUID()
-        val zaakUri = URI("http://example.com/dummyzaak/$zaakUUID")
+        val zaakUri = URI("http://example.com/fakezaak/$zaakUUID")
         val notificatie = createNotificatie(
             channel = Channel.ZAKEN,
             resource = Resource.ZAAK,
             resourceUrl = zaakUri,
             action = Action.DELETE
         )
-        val taskId = "dummyTaskId"
+        val taskId = "fakeTaskId"
         val tasks = listOf(createTestTask(id = taskId))
         val signaleringZoekParametersSlot = mutableListOf<SignaleringZoekParameters>()
         val signaleringVerzondenZoekParameters = mutableListOf<SignaleringVerzondenZoekParameters>()
@@ -251,7 +251,7 @@ class NotificationReceiverTest : BehaviorSpec({
     }
     Given("A 'create informatieobject' notification") {
         val informatieobjectUUID = UUID.randomUUID()
-        val informatieobjectURI = URI("http://example.com/dummyzaak/$informatieobjectUUID")
+        val informatieobjectURI = URI("http://example.com/fakezaak/$informatieobjectUUID")
         val notificatie = createNotificatie(
             channel = Channel.INFORMATIEOBJECTEN,
             resource = Resource.INFORMATIEOBJECT,
@@ -283,7 +283,7 @@ class NotificationReceiverTest : BehaviorSpec({
     }
     Given("A 'destroy informatieobject' notification") {
         val informatieobjectUUID = UUID.randomUUID()
-        val informatieobjectURI = URI("http://example.com/dummyzaak/$informatieobjectUUID")
+        val informatieobjectURI = URI("http://example.com/fakezaak/$informatieobjectUUID")
         val notificatie = createNotificatie(
             channel = Channel.INFORMATIEOBJECTEN,
             resource = Resource.INFORMATIEOBJECT,

@@ -56,8 +56,8 @@ public class WebdavStore implements IWebdavStore {
 
     private final EnkelvoudigInformatieObjectUpdateService enkelvoudigInformatieObjectUpdateService;
 
-    // De dummy parameter is nodig omdat de constructie waarmee deze class wordt geinstantieerd deze parameter verwacht
-    public WebdavStore(final File ignoredDummy) {
+    // De fake parameter is nodig omdat de constructie waarmee deze class wordt geinstantieerd deze parameter verwacht
+    public WebdavStore(final File ignoredFake) {
         webdavHelper = CDI.current().select(WebdavHelper.class).get();
         drcClientService = CDI.current().select(DrcClientService.class).get();
         enkelvoudigInformatieObjectUpdateService = CDI.current().select(EnkelvoudigInformatieObjectUpdateService.class).get();

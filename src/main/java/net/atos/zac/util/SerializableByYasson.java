@@ -10,7 +10,7 @@ package net.atos.zac.util;
  * https://github.com/eclipse-ee4j/yasson/issues/599.
  * Details of the workaround: https://github.com/smallrye/smallrye-graphql/issues/1819#issuecomment-1549588537
  * The workaround is:
- * "T needs to implement an interface or extends an abstract class. A dummy is fine, it is not added to the schema.
+ * "T needs to implement an interface or extends an abstract class. A fake is fine, it is not added to the schema.
  * For java this means that T can not be a record, in kotlin a data class is possible."
  */
 public interface SerializableByYasson {

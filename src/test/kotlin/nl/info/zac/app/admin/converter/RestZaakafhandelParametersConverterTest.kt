@@ -88,7 +88,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     intakeMail shouldBe null
                     afrondenMail shouldBe null
                     productaanvraagtype shouldBe null
-                    domein shouldBe "dummyDomein"
+                    domein shouldBe "fakeDomein"
                     valide shouldBe false
                     humanTaskParameters shouldBe emptyList()
                     userEventListenerParameters shouldBe emptyList()
@@ -125,7 +125,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                 with(zaakafhandelParameters) {
                     id shouldBe restZaakafhandelParameters.id
                     zaakTypeUUID shouldBe restZaakafhandelParameters.zaaktype.uuid
-                    zaaktypeOmschrijving shouldBe "dummyOmschrijving"
+                    zaaktypeOmschrijving shouldBe "fakeOmschrijving"
                     caseDefinitionID shouldBe null
                     groepID shouldBe null
                     gebruikersnaamMedewerker shouldBe null
@@ -136,7 +136,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     intakeMail shouldBe null
                     afrondenMail shouldBe null
                     productaanvraagtype shouldBe null
-                    domein shouldBe "dummyDomein"
+                    domein shouldBe "fakeDomein"
                     isSmartDocumentsIngeschakeld shouldBe false
                 }
             }

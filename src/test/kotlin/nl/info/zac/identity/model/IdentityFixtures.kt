@@ -6,9 +6,9 @@
 package nl.info.zac.identity.model
 
 fun createGroup(
-    id: String = "dummyId",
-    name: String = "dummyName",
-    email: String = "dummy-group@example.com"
+    id: String = "fakeId",
+    name: String = "fakeName",
+    email: String = "fake-group@example.com"
 ) = Group(
     id,
     name,
@@ -16,11 +16,11 @@ fun createGroup(
 )
 
 fun createUser(
-    id: String = "dummyId",
-    firstName: String = "dummyFirstName",
-    lastName: String = "dummyLastName",
-    fullName: String = "dummyFullName",
-    email: String = "dummy@example.com"
+    id: String = "fakeId",
+    firstName: String = "fakeFirstName",
+    lastName: String = "fakeLastName",
+    fullName: String = "fakeFullName",
+    email: String = "fake@example.com"
 ) = User(
     id,
     firstName,

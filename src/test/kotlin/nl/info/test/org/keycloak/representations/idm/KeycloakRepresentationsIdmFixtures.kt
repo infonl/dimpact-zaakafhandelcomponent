@@ -11,10 +11,10 @@ import java.util.UUID
 
 fun createUserRepresentation(
     id: String = UUID.randomUUID().toString(),
-    username: String = "dummyUsername",
-    firstName: String? = "dummyFirstName",
-    lastName: String? = "dummyLastName",
-    email: String = "dummy@example.com"
+    username: String = "fakeUsername",
+    firstName: String? = "fakeFirstName",
+    lastName: String? = "fakeLastName",
+    email: String = "fake@example.com"
 ) = UserRepresentation().apply {
     this.id = id
     this.username = username
@@ -24,9 +24,9 @@ fun createUserRepresentation(
 }
 
 fun createGroupRepresentation(
-    id: String = "dummyGroupId",
-    name: String = "dummyGroupName",
-    attributes: Map<String, List<String>> = mapOf("dummyKey" to listOf("dummyValue"))
+    id: String = "fakeGroupId",
+    name: String = "fakeGroupName",
+    attributes: Map<String, List<String>> = mapOf("fakeKey" to listOf("fakeValue"))
 ) = GroupRepresentation().apply {
     this.id = id
     this.name = name

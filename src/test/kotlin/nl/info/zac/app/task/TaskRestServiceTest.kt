@@ -187,7 +187,7 @@ class TaskRestServiceTest : BehaviorSpec({
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(uuid = enkelvoudigInformatieObjectUUID)
 
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { task.assignee } returns "dummyAssignee"
+        every { task.assignee } returns "fakeAssignee"
         every { task.description = restTaak.toelichting } just runs
         every { task.dueDate = any() } just runs
         every { flowableTaskService.readOpenTask(restTaak.id) } returns task
@@ -241,8 +241,8 @@ class TaskRestServiceTest : BehaviorSpec({
             id = loggedInUser.id,
             name = loggedInUser.getFullName()
         )
-        val restTaakDataKey = "dummyKey"
-        val restTaakDataValue = "dummyValue"
+        val restTaakDataKey = "fakeKey"
+        val restTaakDataValue = "fakeValue"
         val signatureUUID = UUID.randomUUID()
         val restTaakData = mutableMapOf<String, Any>(
             restTaakDataKey to restTaakDataValue,
@@ -255,7 +255,7 @@ class TaskRestServiceTest : BehaviorSpec({
         val restTaakConverted = createRestTask(
             behandelaar = restUser
         )
-        every { task.assignee } returns "dummyAssignee"
+        every { task.assignee } returns "fakeAssignee"
         every { flowableTaskService.readOpenTask(restTaak.id) } returns task
         every { flowableTaskService.updateTask(task) } returns task
         every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
@@ -329,7 +329,7 @@ class TaskRestServiceTest : BehaviorSpec({
         }
     }
     Given("REST taak verdeelgegevens to assign two tasks asynchronously") {
-        val screenEventResourceId = "dummyScreenEventResourceId"
+        val screenEventResourceId = "fakeScreenEventResourceId"
         val restTaakVerdelenGegevens = createRestTaskDistributeData(
             taken = listOf(
                 createRestTaskDistributeTask(),
@@ -369,7 +369,7 @@ class TaskRestServiceTest : BehaviorSpec({
         }
     }
     Given("REST taak vrijgeven gegevens to release two tasks asynchronously") {
-        val screenEventResourceId = "dummyScreenEventResourceId"
+        val screenEventResourceId = "fakeScreenEventResourceId"
         val restTaakVrijgevenGegevens = createRestTaskReleaseData(
             taken = listOf(
                 createRestTaskDistributeTask(),
@@ -399,12 +399,12 @@ class TaskRestServiceTest : BehaviorSpec({
     Given("Two Flowable tasks for a zaak") {
         val zaak = createZaak()
         val tasks = listOf(
-            createTestTask(id = "dummyId1"),
-            createTestTask(id = "dummyId2")
+            createTestTask(id = "fakeId1"),
+            createTestTask(id = "fakeId2")
         )
         val restTasks = listOf(
-            createRestTask(id = "dummyId1"),
-            createRestTask(id = "dummyId2")
+            createRestTask(id = "fakeId1"),
+            createRestTask(id = "fakeId2")
         )
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak).lezen } returns true
@@ -443,7 +443,7 @@ class TaskRestServiceTest : BehaviorSpec({
         every { restTaskConverter.convert(taskInfo) } returns restTask
         every { formulierRuntimeService.renderFormioFormulier(restTask) } returns restTask.formioFormulier
         every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns mapOf(
-            "dummyKey" to "dummyValue"
+            "fakeKey" to "fakeValue"
         )
 
         When("readTask is called") {

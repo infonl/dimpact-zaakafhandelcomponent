@@ -14,7 +14,7 @@ import java.util.UUID
 
 @Suppress("LongParameterList")
 fun createRESTHumanTaskData(
-    planItemInstanceId: String = "dummyPlanItemInstanceId",
+    planItemInstanceId: String = "fakePlanItemInstanceId",
     groep: RestGroup = createRestGroup(),
     medewerker: RestUser? = null,
     fataledatum: LocalDate? = null,

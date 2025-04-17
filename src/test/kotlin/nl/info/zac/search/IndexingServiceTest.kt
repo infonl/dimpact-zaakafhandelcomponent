@@ -42,7 +42,7 @@ import java.util.UUID
 class IndexingServiceTest : BehaviorSpec({
     // add static mocking for config provider because the IndexeerService class
     // references the config provider statically
-    val solrUrl = "http://localhost/dummySolrUrl"
+    val solrUrl = "http://localhost/fakeSolrUrl"
     mockkStatic(ConfigProvider::class)
     every {
         ConfigProvider.getConfig().getValue("solr.url", String::class.java)

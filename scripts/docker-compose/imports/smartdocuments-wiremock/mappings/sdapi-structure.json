@@ -7,7 +7,7 @@
         "equalTo": "application/json"
       },
       "Authorization": {
-        "equalTo": "Basic dummySmartDocumentsAuthentication"
+        "equalTo": "Basic fakeSmartDocumentsAuthentication"
       },
       "Username": {
         "equalTo": "testuser1"

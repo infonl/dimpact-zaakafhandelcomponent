@@ -24,15 +24,15 @@ import nl.info.client.smartdocuments.model.template.User
 import java.util.UUID
 
 fun createAttendedResponse(
-    ticket: String = "dummyTicket",
+    ticket: String = "fakeTicket",
 ) = AttendedResponse().apply {
     this.ticket = ticket
 }
 
 fun createFile(
-    fileName: String = "dummyFileName",
+    fileName: String = "fakeFileName",
     document: Document = createDocument(),
-    outputFormat: String = "dummyOutputFormat",
+    outputFormat: String = "fakeOutputFormat",
 ) = File(
     fileName = fileName,
     document = document,
@@ -40,7 +40,7 @@ fun createFile(
 )
 
 fun createDocument(
-    data: String = "dummyDocumentData"
+    data: String = "fakeDocumentData"
 ) = Document(
     data = data
 )
@@ -146,8 +146,8 @@ fun createSmartDocument(
 )
 
 fun createSelection(
-    templateGroup: String = "dummyTemplateGroup",
-    template: String = "dummyTemplate"
+    templateGroup: String = "fakeTemplateGroup",
+    template: String = "fakeTemplate"
 ) = Selection(
     templateGroup = templateGroup,
     template = template

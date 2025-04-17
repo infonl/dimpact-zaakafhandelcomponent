@@ -45,12 +45,12 @@ class MailTemplateHelperTest : BehaviorSpec({
         val zaakType = createZaakType()
         val zaak = createZaak(
             zaakTypeURI = zaakType.url,
-            status = URI("https://example.com/dummyStatus"),
+            status = URI("https://example.com/fakeStatus"),
             startDate = LocalDate.of(2021, 10, 12)
         )
         val zaakStatus = createZaakStatus()
-        val statusType = createStatusType(omschrijving = "dummyStatusTypeDescription")
-        val zaakTonenURL = URI("https://example.com/dummyURL")
+        val statusType = createStatusType(omschrijving = "fakeStatusTypeDescription")
+        val zaakTonenURL = URI("https://example.com/fakeURL")
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
         every { configuratieService.zaakTonenUrl(zaak.identificatie) } returns zaakTonenURL
         every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
@@ -58,12 +58,12 @@ class MailTemplateHelperTest : BehaviorSpec({
 
         When("I call the getMailTemplate method") {
             val resolvedText = mailTemplateHelper.resolveVariabelen(
-                "dummyText, {ZAAK_NUMMER}, {ZAAK_URL}, {ZAAK_TYPE}, {ZAAK_STATUS}, {ZAAK_STARTDATUM}",
+                "fakeText, {ZAAK_NUMMER}, {ZAAK_URL}, {ZAAK_TYPE}, {ZAAK_STATUS}, {ZAAK_STARTDATUM}",
                 zaak
             )
 
             Then("I should get the correct mail template") {
-                resolvedText shouldBe "dummyText, ${zaak.identificatie}, $zaakTonenURL, ${zaakType.omschrijving}, " +
+                resolvedText shouldBe "fakeText, ${zaak.identificatie}, $zaakTonenURL, ${zaakType.omschrijving}, " +
                     "${statusType.omschrijving}, 12-10-2021"
             }
         }

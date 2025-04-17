@@ -12,10 +12,10 @@ import java.util.UUID
 fun createRestDocumentCreationAttendedData(
     zaakUuid: UUID = UUID.randomUUID(),
     taskId: String? = null,
-    smartDocumentsTemplateGroupId: String = "dummyGroupId",
-    smartDocumentsTemplateId: String = "dummyTtemplateId",
-    title: String = "dummyTitle",
-    author: String = "dummyAuthor",
+    smartDocumentsTemplateGroupId: String = "fakeGroupId",
+    smartDocumentsTemplateId: String = "fakeTtemplateId",
+    title: String = "fakeTitle",
+    author: String = "fakeAuthor",
     creationDate: ZonedDateTime = ZonedDateTime.now()
 ) = RestDocumentCreationAttendedData(
     zaakUuid = zaakUuid,

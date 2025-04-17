@@ -59,11 +59,11 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         val zaakTypeUUID2 = UUID.randomUUID()
         val zaakType1 = createZaakType(
             uri = URI("https://example.com/zaaktypes/$zaakTypeUUID1"),
-            omschrijving = "dummyZaakTypeOmschrijving1"
+            omschrijving = "fakeZaakTypeOmschrijving1"
         )
         val zaakType2 = createZaakType(
             uri = URI("https://example.com/zaaktypes/$zaakTypeUUID2"),
-            omschrijving = "dummyZaakTypeOmschrijving2"
+            omschrijving = "fakeZaakTypeOmschrijving2"
         )
         val zaakTypen = listOf(zaakType1, zaakType2)
         val zaakAfhandelParameters1 = createZaakafhandelParameters(
@@ -73,7 +73,7 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         val zaakAfhandelParameters2 = createZaakafhandelParameters(
             zaaktypeUUID = zaakTypeUUID2
         )
-        val assigneeName = "dummyAssignee"
+        val assigneeName = "fakeAssignee"
         val zaakVerlopendSignaleringType = SignaleringType().apply {
             type = SignaleringType.Type.ZAAK_VERLOPEND
             subjecttype = SignaleringSubject.ZAAK
@@ -125,19 +125,19 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         val zaakTypeUUID2 = UUID.randomUUID()
         val zaakType1 = createZaakType(
             uri = URI("https://example.com/zaaktypes/$zaakTypeUUID1"),
-            omschrijving = "dummyZaakTypeOmschrijving1"
+            omschrijving = "fakeZaakTypeOmschrijving1"
         )
         val zaakType2 = createZaakType(
             uri = URI("https://example.com/zaaktypes/$zaakTypeUUID2"),
-            omschrijving = "dummyZaakTypeOmschrijving2"
+            omschrijving = "fakeZaakTypeOmschrijving2"
         )
         val zaakTypen = listOf(zaakType1, zaakType2)
         val zaakAfhandelParameters1 = createZaakafhandelParameters(zaaktypeUUID = zaakTypeUUID1)
         val zaakAfhandelParameters2 = createZaakafhandelParameters(zaaktypeUUID = zaakTypeUUID2)
-        val assigneeName = "dummyAssignee"
+        val assigneeName = "fakeAssignee"
         val openTask = mockk<Task>()
         every { openTask.assignee } returns assigneeName
-        every { openTask.id } returns "dummyTaskId"
+        every { openTask.id } returns "fakeTaskId"
         val taakVerlopenSignaleringType = SignaleringType().apply {
             type = SignaleringType.Type.TAAK_VERLOPEN
             subjecttype = SignaleringSubject.TAAK

@@ -38,10 +38,10 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
     Given("Two communication channels including E-formulier") {
         val referenceTable = createReferenceTable(
             id = 1L,
-            code = "dummyCode",
-            name = "dummyName"
+            code = "fakeCode",
+            name = "fakeName"
         )
-        val referenceValue1 = "dummyValue1"
+        val referenceValue1 = "fakeValue1"
         val referenceValue2 = "E-formulier"
         val referenceTableValue1 = createReferenceTableValue(
             id = 1L,
@@ -83,11 +83,11 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
     Given("Two server error page texts") {
         val referenceTable = createReferenceTable(
             id = 1L,
-            code = "dummyCode",
-            name = "dummyName"
+            code = "fakeCode",
+            name = "fakeName"
         )
-        val referenceValue1 = "dummyValue1"
-        val referenceValue2 = "dummyValue2"
+        val referenceValue1 = "fakeValue1"
+        val referenceValue2 = "fakeValue2"
         val referenceTableValue1 = createReferenceTableValue(
             id = 1L,
             name = referenceValue1,
@@ -129,13 +129,13 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
 
         When("the reference table is updated with two new values and a new name") {
             val restReferenceTableUpdate = createRestReferenceTableUpdate(
-                naam = "dummyUpdatedName",
+                naam = "fakeUpdatedName",
                 waarden = listOf(
                     createRestReferenceTableValue(
-                        name = "dummyValue1"
+                        name = "fakeValue1"
                     ),
                     createRestReferenceTableValue(
-                        name = "dummyValue2"
+                        name = "fakeValue2"
                     )
                 )
             )
@@ -161,11 +161,11 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 }
                 with(updatedReferenceTableSlot.captured) {
                     code shouldBe referenceTable.code
-                    name shouldBe "dummyUpdatedName"
+                    name shouldBe "fakeUpdatedName"
                     isSystemReferenceTable shouldBe referenceTable.isSystemReferenceTable
                     values.size shouldBe 2
-                    values[0].name shouldBe "dummyValue1"
-                    values[1].name shouldBe "dummyValue2"
+                    values[0].name shouldBe "fakeValue1"
+                    values[1].name shouldBe "fakeValue2"
                 }
             }
         }
@@ -175,11 +175,11 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         val referenceTable = createReferenceTable(
             values = mutableListOf(
                 createReferenceTableValue(
-                    name = "dummyValue1",
+                    name = "fakeValue1",
                     isSystemValue = true
                 ),
                 createReferenceTableValue(
-                    name = "dummyValue2",
+                    name = "fakeValue2",
                     isSystemValue = false
                 )
             )
@@ -189,14 +189,14 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
 
         When("the reference table is updated with two new values not including the existing system value") {
             val restReferenceTableUpdate = createRestReferenceTableUpdate(
-                naam = "dummyUpdatedName",
+                naam = "fakeUpdatedName",
                 waarden = listOf(
                     createRestReferenceTableValue(
-                        name = "dummyValue3",
+                        name = "fakeValue3",
                         isSystemValue = false
                     ),
                     createRestReferenceTableValue(
-                        name = "dummyValue4",
+                        name = "fakeValue4",
                         isSystemValue = false
                     )
                 )

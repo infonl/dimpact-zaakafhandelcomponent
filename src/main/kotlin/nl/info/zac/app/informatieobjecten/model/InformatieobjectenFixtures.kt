@@ -12,7 +12,7 @@ fun createRestDocumentVerzendGegevens(
     zaakUuid: UUID = UUID.randomUUID(),
     verzenddatum: LocalDate = LocalDate.now(),
     informatieobjecten: List<UUID> = listOf(UUID.randomUUID()),
-    toelichting: String = "dummyToelichting",
+    toelichting: String = "fakeToelichting",
 ) = RestDocumentVerzendGegevens().apply {
     this.zaakUuid = zaakUuid
     this.verzenddatum = verzenddatum

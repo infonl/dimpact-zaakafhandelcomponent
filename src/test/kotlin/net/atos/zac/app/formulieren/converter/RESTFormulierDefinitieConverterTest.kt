@@ -23,32 +23,32 @@ class RESTFormulierDefinitieConverterTest : BehaviorSpec({
             Then("correct object is returned") {
                 with(restFormulierVeldDefinitie) {
                     id shouldBe 1L
-                    systeemnaam shouldBe "Dummy system name"
-                    naam shouldBe "Dummy name"
-                    beschrijving shouldBe "Dummy description"
-                    uitleg shouldBe "Dummy explanation"
+                    systeemnaam shouldBe "Fake system name"
+                    naam shouldBe "Fake name"
+                    beschrijving shouldBe "Fake description"
+                    uitleg shouldBe "Fake explanation"
                     creatiedatum shouldBe formulierDefinitie.creatiedatum
                     wijzigingsdatum shouldBe formulierDefinitie.wijzigingsdatum
                     veldDefinities.size shouldBe 2
                     with(veldDefinities[0]) {
                         id shouldBe 1L
-                        systeemnaam shouldBe "Dummy system name"
-                        beschrijving shouldBe "Dummy description"
+                        systeemnaam shouldBe "Fake system name"
+                        beschrijving shouldBe "Fake description"
                         veldtype shouldBe FormulierVeldtype.TEKST_VELD
                         verplicht shouldBe false
-                        defaultWaarde shouldBe "Dummy value"
-                        meerkeuzeOpties shouldBe "Dummy multi-options"
-                        validaties shouldBe listOf("Dummy validation 1", "Dummy validation 2")
+                        defaultWaarde shouldBe "Fake value"
+                        meerkeuzeOpties shouldBe "Fake multi-options"
+                        validaties shouldBe listOf("Fake validation 1", "Fake validation 2")
                     }
                     with(veldDefinities[1]) {
                         id shouldBe 1L
-                        systeemnaam shouldBe "Dummy system name"
-                        beschrijving shouldBe "Dummy description"
+                        systeemnaam shouldBe "Fake system name"
+                        beschrijving shouldBe "Fake description"
                         veldtype shouldBe FormulierVeldtype.TEKST_VELD
                         verplicht shouldBe false
-                        defaultWaarde shouldBe "Dummy value"
-                        meerkeuzeOpties shouldBe "Dummy multi-options"
-                        validaties shouldBe listOf("Dummy validation 1", "Dummy validation 2")
+                        defaultWaarde shouldBe "Fake value"
+                        meerkeuzeOpties shouldBe "Fake multi-options"
+                        validaties shouldBe listOf("Fake validation 1", "Fake validation 2")
                     }
                 }
             }
@@ -60,10 +60,10 @@ class RESTFormulierDefinitieConverterTest : BehaviorSpec({
             Then("correct object is returned") {
                 with(restFormulierVeldDefinitie) {
                     id shouldBe 1L
-                    systeemnaam shouldBe "Dummy system name"
-                    naam shouldBe "Dummy name"
-                    beschrijving shouldBe "Dummy description"
-                    uitleg shouldBe "Dummy explanation"
+                    systeemnaam shouldBe "Fake system name"
+                    naam shouldBe "Fake name"
+                    beschrijving shouldBe "Fake description"
+                    uitleg shouldBe "Fake explanation"
                     creatiedatum shouldBe formulierDefinitie.creatiedatum
                     wijzigingsdatum shouldBe formulierDefinitie.wijzigingsdatum
                     veldDefinities shouldBe null
@@ -82,32 +82,32 @@ class RESTFormulierDefinitieConverterTest : BehaviorSpec({
             Then("the correct object is built") {
                 with(formulierDefinitie) {
                     id shouldBe 1L
-                    systeemnaam shouldBe "Dummy system name"
-                    naam shouldBe "Dummy name"
-                    beschrijving shouldBe "Dummy description"
-                    uitleg shouldBe "Dummy explanation"
+                    systeemnaam shouldBe "Fake system name"
+                    naam shouldBe "Fake name"
+                    beschrijving shouldBe "Fake description"
+                    uitleg shouldBe "Fake explanation"
                     creatiedatum shouldBe formulierDefinitie.creatiedatum
                     wijzigingsdatum shouldBe formulierDefinitie.wijzigingsdatum
                     veldDefinities.size shouldBe 2
                     with(veldDefinities.first()) {
                         id shouldBe 1L
-                        systeemnaam shouldBe "Dummy system name"
-                        beschrijving shouldBe "Dummy description"
+                        systeemnaam shouldBe "Fake system name"
+                        beschrijving shouldBe "Fake description"
                         veldtype shouldBe FormulierVeldtype.TEKST_VELD
                         isVerplicht shouldBe false
-                        defaultWaarde shouldBe "Dummy value"
-                        meerkeuzeOpties shouldBe "Dummy multi-options"
-                        validaties shouldBe "Dummy validation 1;Dummy validation 2"
+                        defaultWaarde shouldBe "Fake value"
+                        meerkeuzeOpties shouldBe "Fake multi-options"
+                        validaties shouldBe "Fake validation 1;Fake validation 2"
                     }
                     with(veldDefinities.last()) {
                         id shouldBe 1L
-                        systeemnaam shouldBe "Dummy system name"
-                        beschrijving shouldBe "Dummy description"
+                        systeemnaam shouldBe "Fake system name"
+                        beschrijving shouldBe "Fake description"
                         veldtype shouldBe FormulierVeldtype.TEKST_VELD
                         isVerplicht shouldBe false
-                        defaultWaarde shouldBe "Dummy value"
-                        meerkeuzeOpties shouldBe "Dummy multi-options"
-                        validaties shouldBe "Dummy validation 1;Dummy validation 2"
+                        defaultWaarde shouldBe "Fake value"
+                        meerkeuzeOpties shouldBe "Fake multi-options"
+                        validaties shouldBe "Fake validation 1;Fake validation 2"
                     }
                 }
             }

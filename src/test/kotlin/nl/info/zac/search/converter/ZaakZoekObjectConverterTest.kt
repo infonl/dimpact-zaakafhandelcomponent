@@ -68,15 +68,15 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
             zaakTypeURI = zaakType.url
         )
         val rolInitiator = createRolNatuurlijkPersoon(
-            rolType = createRolType(omschrijving = "dummy_role_initiator")
+            rolType = createRolType(omschrijving = "fake_role_initiator")
         )
         val rolAdviseur = createRolNatuurlijkPersoon(
-            rolType = createRolType(omschrijving = "dummy_role_adviseur"),
-            natuurlijkPersoon = createNatuurlijkPersoon(bsn = "dummyBsnAdviseur")
+            rolType = createRolType(omschrijving = "fake_role_adviseur"),
+            natuurlijkPersoon = createNatuurlijkPersoon(bsn = "fakeBsnAdviseur")
         )
         val rolBelanghebbende = createRolNatuurlijkPersoon(
-            rolType = createRolType(omschrijving = "dummy_role_belanghebbende"),
-            natuurlijkPersoon = createNatuurlijkPersoon(bsn = "dummyBsnBelanghebbende")
+            rolType = createRolType(omschrijving = "fake_role_belanghebbende"),
+            natuurlijkPersoon = createNatuurlijkPersoon(bsn = "fakeBsnBelanghebbende")
 
         )
         val rollenZaak = listOf(rolAdviseur, rolBelanghebbende)
@@ -147,15 +147,15 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
             status = URI("status")
         )
         val rolInitiator = createRolNatuurlijkPersoon(
-            rolType = createRolType(omschrijving = "dummy_role_initiator")
+            rolType = createRolType(omschrijving = "fake_role_initiator")
         )
         val rolAdviseur = createRolNatuurlijkPersoon(
-            rolType = createRolType(omschrijving = "dummy_role_adviseur"),
-            natuurlijkPersoon = createNatuurlijkPersoon(bsn = "dummyBsnAdviseur")
+            rolType = createRolType(omschrijving = "fake_role_adviseur"),
+            natuurlijkPersoon = createNatuurlijkPersoon(bsn = "fakeBsnAdviseur")
         )
         val rolBelanghebbende = createRolNatuurlijkPersoon(
-            rolType = createRolType(omschrijving = "dummy_role_belanghebbende"),
-            natuurlijkPersoon = createNatuurlijkPersoon(bsn = "dummyBsnBelanghebbende")
+            rolType = createRolType(omschrijving = "fake_role_belanghebbende"),
+            natuurlijkPersoon = createNatuurlijkPersoon(bsn = "fakeBsnBelanghebbende")
 
         )
         val rollenZaak = listOf(rolAdviseur, rolBelanghebbende)

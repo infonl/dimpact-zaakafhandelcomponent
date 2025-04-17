@@ -87,7 +87,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                     "planItemInstanceId": "$humanTaskItemAanvullendeInformatieId",
                     "taakStuurGegevens": {"sendMail":false},
                     "medewerker":null,"groep":{"id":"$TEST_GROUP_A_ID","naam":"$TEST_GROUP_A_DESCRIPTION"},
-                    "taakdata": { "dummyTestKey": "dummyTestValue" }
+                    "taakdata": { "fakeTestKey": "fakeTestValue" }
                 }
             """.trimIndent()
         ).run {

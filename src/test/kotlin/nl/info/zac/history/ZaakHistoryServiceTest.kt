@@ -95,16 +95,16 @@ class ZaakHistoryServiceTest : BehaviorSpec({
                 nieuw = mapOf(
                     "roltype" to rolTypeUri,
                     "roltoelichting" to "",
-                    "omschrijving" to "dummyOmschrijving",
+                    "omschrijving" to "fakeOmschrijving",
                     "betrokkeneIdentificatie" to mapOf(
-                        "achternaam" to "dummyAchternaam",
-                        "identificatie" to "dummyIdentificatie",
-                        "voorletters" to "dummyVoorletters"
+                        "achternaam" to "fakeAchternaam",
+                        "identificatie" to "fakeIdentificatie",
+                        "voorletters" to "fakeVoorletters"
                     ),
                     "betrokkeneType" to "medewerker",
                     "zaak" to "https://example.com/zaak",
-                    "identificatienummer" to "dummyIdentificatie",
-                    "naam" to "dummyVoorletters dummyAchternaam",
+                    "identificatienummer" to "fakeIdentificatie",
+                    "naam" to "fakeVoorletters fakeAchternaam",
                     "omschrijvingGeneriek" to "initiator"
                 )
             }
@@ -120,7 +120,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
                 with(historyLines.first()) {
                     attribuutLabel shouldBe rolType.omschrijving
                     oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "dummyVoorletters dummyAchternaam"
+                    nieuweWaarde shouldBe "fakeVoorletters fakeAchternaam"
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
@@ -299,7 +299,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
                     "zaak" to "https://example.com/zaak",
                     "object" to "https://example.com/object",
                     "objectType" to "adres",
-                    "objectTypeOverige" to "dummyObjectTypeOverige",
+                    "objectTypeOverige" to "fakeObjectTypeOverige",
                     "relatieomschrijving" to "relation description",
                     "objectIdentificatie" to mapOf(
                         "identificatie" to "identity"

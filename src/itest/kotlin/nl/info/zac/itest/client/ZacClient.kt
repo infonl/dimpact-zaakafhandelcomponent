@@ -21,7 +21,8 @@ class ZacClient {
         zaakTypeIdentificatie: String,
         zaakTypeUuid: UUID,
         zaakTypeDescription: String,
-        productaanvraagType: String
+        productaanvraagType: String,
+        domein: String? = null
     ): Response {
         logger.info {
             "Creating zaakafhandelparameters in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
@@ -186,8 +187,8 @@ class ZacClient {
                     "type": "USER_EVENT_LISTENER"
                   }
                 ]
-              },
-              "domein": null,
+              },             
+              "domein": ${domein?.let { "\"$it\"" }},
               "defaultGroepId": "test-group-a",
               "defaultBehandelaarId": null,
               "einddatumGeplandWaarschuwing": null,
@@ -217,7 +218,7 @@ class ZacClient {
         groupId: String,
         groupName: String,
         behandelaarId: String? = null,
-        description: String? = "dummyOmschrijving",
+        description: String? = "fakeOmschrijving",
         toelichting: String? = null,
         startDate: ZonedDateTime,
         communicatiekanaal: String? = COMMUNICATIEKANAAL_TEST_1,

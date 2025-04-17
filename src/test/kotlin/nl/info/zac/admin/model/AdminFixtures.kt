@@ -30,7 +30,7 @@ fun createHumanTaskReferentieTabel(
     id: Long = 1234L,
     referenceTable: ReferenceTable = createReferenceTable(),
     humanTaskParameters: HumanTaskParameters = createHumanTaskParameters(),
-    field: String = "dummyField",
+    field: String = "fakeField",
 ) = HumanTaskReferentieTabel().apply {
     this.id = id
     this.tabel = referenceTable
@@ -40,8 +40,8 @@ fun createHumanTaskReferentieTabel(
 
 fun createReferenceTable(
     id: Long = 1234L,
-    code: String = "dummyCode",
-    name: String = "dummyReferentieTabel",
+    code: String = "fakeCode",
+    name: String = "fakeReferentieTabel",
     isSystemReferenceTable: Boolean = false,
     values: MutableList<ReferenceTableValue> = mutableListOf(createReferenceTableValue())
 ) = ReferenceTable().apply {
@@ -54,7 +54,7 @@ fun createReferenceTable(
 
 fun createReferenceTableValue(
     id: Long = 1234L,
-    name: String = "dummyReferentieTabelWaarde",
+    name: String = "fakeReferentieTabelWaarde",
     sortOrder: Int = 1,
     isSystemValue: Boolean = false
 ) = ReferenceTableValue().apply {
@@ -68,14 +68,14 @@ fun createReferenceTableValue(
 fun createZaakafhandelParameters(
     id: Long? = 1234L,
     creationDate: ZonedDateTime = ZonedDateTime.now(),
-    domein: String = "dummyDomein",
+    domein: String = "fakeDomein",
     zaaktypeUUID: UUID = UUID.randomUUID(),
-    zaaktypeOmschrijving: String = "dummyZaaktypeOmschrijving",
+    zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
     einddatumGeplandWaarschuwing: Int? = null,
     productaanvraagtype: String? = null,
     nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
     zaakbeeindigParameters: Set<ZaakbeeindigParameter>? = emptySet(),
-    caseDefinitionId: String = "dummyCaseDefinitionId"
+    caseDefinitionId: String = "fakeCaseDefinitionId"
 ) =
     ZaakafhandelParameters().apply {
         this.id = id
@@ -113,9 +113,9 @@ fun createMailTemplate(
     mail: Mail = Mail.ZAAK_ALGEMEEN
 ) = MailTemplate().apply {
     this.id = 1234L
-    mailTemplateNaam = "dummyName"
-    onderwerp = "dummyOnderwerp"
-    body = "dummyBody"
+    mailTemplateNaam = "fakeName"
+    onderwerp = "fakeOnderwerp"
+    body = "fakeBody"
     this.mail = mail
 }
 

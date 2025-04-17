@@ -403,7 +403,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_2",
                             "omschrijving": "$ZAAK_DESCRIPTION_1"
                         },
-                        "reden": "dummyReason"
+                        "reden": "fakeReason"
                     }
                 """.trimIndent()
             )
@@ -425,7 +425,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     {
                         "zaakUUID": "$zaakProductaanvraag1Uuid",
                         "groepId": "$TEST_GROUP_A_ID",
-                        "reden": "dummyReason"
+                        "reden": "fakeReason"
                     }
                 """.trimIndent()
             )
@@ -456,7 +456,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     {
                         "zaakUUID": "$zaak2UUID",
                         "roltypeUUID": "$ROLTYPE_UUID_MEDEAANVRAGER",
-                        "roltoelichting": "dummyToelichting",
+                        "roltoelichting": "fakeToelichting",
                         "betrokkeneIdentificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_BSN",
                         "betrokkeneIdentificatie": "$TEST_PERSON_HENDRIKA_JANSE_BSN"
                     }
@@ -483,7 +483,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                                 },
                                 "type": "Point"
                             },
-                            "reden": "dummyReason"
+                            "reden": "fakeReason"
                         }
                 """.trimIndent()
             )
@@ -515,7 +515,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             "uiterlijkeEinddatumAfdoening": "$fatalDateNew",
                             "omschrijving": "changedDescription"
                         },
-                        "reden": "dummyReason"
+                        "reden": "fakeReason"
                     }
                 """.trimIndent()
             )
@@ -574,7 +574,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                         {
                             "geometrie": null,
-                            "reden": "dummyReason"
+                            "reden": "fakeReason"
                         }
                 """.trimIndent()
             )
@@ -602,7 +602,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     getJSONObject(0).apply {
                         getString("rolid") shouldNotBe null
                         getString("roltype") shouldBe ROLTYPE_NAME_MEDEAANVRAGER
-                        getString("roltoelichting") shouldBe "dummyToelichting"
+                        getString("roltoelichting") shouldBe "fakeToelichting"
                         getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
                         getString("identificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
                     }
@@ -657,7 +657,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     "\"uuids\":[\"$zaakProductaanvraag1Uuid\", \"$zaak2UUID\"],\n" +
                     "\"groepId\":\"$TEST_GROUP_A_ID\",\n" +
                     "\"behandelaarGebruikersnaam\":\"$TEST_USER_2_ID\",\n" +
-                    "\"reden\":\"dummyLijstVerdelenReason\",\n" +
+                    "\"reden\":\"fakeLijstVerdelenReason\",\n" +
                     "\"screenEventResourceId\":\"$uniqueResourceId\"\n" +
                     "}"
             )
@@ -701,7 +701,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 requestBodyAsString = "{\n" +
                     "\"zaakUUID\":\"$zaakProductaanvraag1Uuid\",\n" +
                     "\"behandelaarGebruikersnaam\":\"$TEST_USER_1_USERNAME\",\n" +
-                    "\"reden\":\"dummyAssignToMeFromListReason\"\n" +
+                    "\"reden\":\"fakeAssignToMeFromListReason\"\n" +
                     "}"
             )
             Then(
@@ -759,7 +759,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                     {
                         "uuids":["$zaakProductaanvraag1Uuid", "$zaak2UUID"],
-                        "reden":"dummyLijstVrijgevenReason",
+                        "reden":"fakeLijstVrijgevenReason",
                         "screenEventResourceId":"$uniqueResourceId"
                     }
                     """

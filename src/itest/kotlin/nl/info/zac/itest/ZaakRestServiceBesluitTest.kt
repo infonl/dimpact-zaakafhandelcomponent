@@ -114,7 +114,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                     "zaakUuid":"$zaakUUID",
                     "resultaattypeUuid":"$resultaatType1Uuid",
                     "besluittypeUuid":"$besluitType1Uuid",
-                    "toelichting":"dummyToelichting",
+                    "toelichting":"fakeToelichting",
                     "ingangsdatum":"$today",
                     "vervaldatum":"$tomorrow",
                     "publicationDate": "$publicationDate",
@@ -137,7 +137,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                     besluiten.shouldHaveSize(1)
                     besluiten.getJSONObject(0).run {
                         getString("uuid") shouldNotBe null
-                        getString("toelichting") shouldBe "dummyToelichting"
+                        getString("toelichting") shouldBe "fakeToelichting"
                         getString("ingangsdatum") shouldBe today.toString()
                         getString("vervaldatum") shouldBe tomorrow.toString()
                         getString("publicationDate") shouldBe publicationDate.toString()
@@ -160,7 +160,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             val fatalDate = LocalDate.now().plusDays(2)
             val newPublicationDate = LocalDate.now().plusMonths(3)
             val newResponseDate = LocalDate.now().plusMonths(4)
-            val updateReason = "dummyBesluitUpdateToelichting"
+            val updateReason = "fakeBesluitUpdateToelichting"
             itestHttpClient.performPutRequest(
                 "$ZAC_API_URI/zaken/besluit",
                 requestBodyAsString = """
@@ -218,7 +218,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                 requestBodyAsString = """
             {
                 "besluitUuid":"$besluitUuid",
-                "reden":"dummyReason",
+                "reden":"fakeReason",
                 "vervalreden":"ingetrokken_belanghebbende"
             }
                 """.trimIndent()
@@ -228,7 +228,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                 response.code shouldBe HTTP_STATUS_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue("isIngetrokken", true)
-                    shouldContainJsonKeyValue("toelichting", "dummyBesluitUpdateToelichting")
+                    shouldContainJsonKeyValue("toelichting", "fakeBesluitUpdateToelichting")
                     shouldContainJsonKeyValue("vervalreden", "ingetrokken_belanghebbende")
                 }
             }
@@ -244,7 +244,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                     besluiten.shouldHaveSize(1)
                     with(besluiten.getJSONObject(0).toString()) {
                         shouldContainJsonKeyValue("isIngetrokken", true)
-                        shouldContainJsonKeyValue("toelichting", "dummyBesluitUpdateToelichting")
+                        shouldContainJsonKeyValue("toelichting", "fakeBesluitUpdateToelichting")
                         shouldContainJsonKeyValue("vervalreden", "ingetrokken_belanghebbende")
                     }
                 }

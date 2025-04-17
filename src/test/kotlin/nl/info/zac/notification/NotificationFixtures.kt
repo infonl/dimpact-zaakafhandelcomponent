@@ -14,11 +14,11 @@ fun createNotificatie(
     channel: Channel = Channel.OBJECTEN,
     creationDateTime: ZonedDateTime = ZonedDateTime.now(),
     properties: MutableMap<String, String> = mutableMapOf(
-        "objectType" to "http://example.com/dummyproducttype/${UUID.randomUUID()}"
+        "objectType" to "http://example.com/fakeproducttype/${UUID.randomUUID()}"
     ),
     resource: Resource = Resource.OBJECT,
     action: Action = Action.CREATE,
-    resourceUrl: URI = URI("http://example.com/dummyresourceurl"),
+    resourceUrl: URI = URI("http://example.com/fakeresourceurl"),
     mainResourceUrl: URI = resourceUrl
 ) = Notification(
     channel = channel,

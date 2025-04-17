@@ -88,7 +88,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         zaakService
     )
 
-    val planItemInstanceId = "dummyPlanItemInstanceId"
+    val planItemInstanceId = "fakePlanItemInstanceId"
     val planItemInstance = mockk<PlanItemInstance>()
     val zaakTypeUUID = UUID.randomUUID()
     val zaakafhandelParameters = createZaakafhandelParameters(
@@ -102,7 +102,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
     Given("Valid REST human task data without a fatal date") {
         val restHumanTaskData = createRESTHumanTaskData(
             planItemInstanceId = planItemInstanceId,
-            taakdata = mapOf("dummyKey" to "dummyValue"),
+            taakdata = mapOf("fakeKey" to "fakeValue"),
             fataledatum = null
         )
         val taskDataSlot = slot<Map<String, String>>()
@@ -140,7 +140,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                 }
             }
             with(taskDataSlot.captured) {
-                get("dummyKey") shouldBe "dummyValue"
+                get("fakeKey") shouldBe "fakeValue"
             }
         }
 
@@ -158,7 +158,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         val restHumanTaskData = createRESTHumanTaskData(
             planItemInstanceId = planItemInstanceId,
             taakdata = mapOf(
-                "dummyKey" to "dummyValue",
+                "fakeKey" to "fakeValue",
                 "zaakOpschorten" to "true"
             ),
             fataledatum = LocalDate.now().plusDays(1)
@@ -206,7 +206,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         val restHumanTaskData = createRESTHumanTaskData(
             planItemInstanceId = planItemInstanceId,
             taakdata = mapOf(
-                "dummyKey" to "dummyValue"
+                "fakeKey" to "fakeValue"
             ),
             fataledatum = LocalDate.now().plusDays(3)
         )
@@ -236,7 +236,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         val restHumanTaskData = createRESTHumanTaskData(
             planItemInstanceId = planItemInstanceId,
             taakdata = mapOf(
-                "dummyKey" to "dummyValue"
+                "fakeKey" to "fakeValue"
             )
         )
         val zaak = createZaak(
@@ -290,7 +290,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         val restHumanTaskData = createRESTHumanTaskData(
             planItemInstanceId = additionalInfoPlanItemInstanceId,
             taakdata = mapOf(
-                "dummyKey" to "dummyValue"
+                "fakeKey" to "fakeValue"
             ),
             fataledatum = LocalDate.now().plusDays(numberOfDays)
         )

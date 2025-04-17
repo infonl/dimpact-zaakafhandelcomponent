@@ -9,8 +9,8 @@ import nl.info.zac.formio.model.FormioFormulier
 fun createFormioFormulier(
     id: Long = 124L,
     name: String = "testForm",
-    title: String = "dummyTitle",
-    content: String = """{ "dummyKey": "dummyValue" }"""
+    title: String = "fakeTitle",
+    content: String = """{ "fakeKey": "fakeValue" }"""
 ) = FormioFormulier().apply {
     this.id = id
     this.name = name

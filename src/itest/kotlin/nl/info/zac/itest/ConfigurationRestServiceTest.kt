@@ -112,7 +112,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJson """
-                    [ "dummyFileExtension1", "dummyFileExtension2"]
+                    [ "fakeFileExtension1", "fakeFileExtension2"]
                 """.trimIndent()
             }
         }

@@ -12,7 +12,7 @@ fun createHistoricTaskInstanceEntityImpl() = HistoricTaskInstanceEntityImpl()
 
 fun createHistoricTaskLogEntryEntityImpl(
     type: HistoricTaskLogEntryType = HistoricTaskLogEntryType.USER_TASK_CREATED,
-    data: String = "{\"dummyKey\":\"dummyValue\"}"
+    data: String = "{\"fakeKey\":\"fakeValue\"}"
 ) = HistoricTaskLogEntryEntityImpl().apply {
     this.type = type.toString()
     this.data = data

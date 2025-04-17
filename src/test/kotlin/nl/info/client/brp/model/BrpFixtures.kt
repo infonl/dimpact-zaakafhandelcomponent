@@ -107,8 +107,8 @@ fun createVerblijfadresBinnenland(
 }
 
 fun createWaardeTabel(
-    code: String = "dummyCode",
-    omschrijving: String = "dummyOmschrijving"
+    code: String = "fakeCode",
+    omschrijving: String = "fakeOmschrijving"
 ) = Waardetabel().apply {
     this.code = code
     this.omschrijving = omschrijving

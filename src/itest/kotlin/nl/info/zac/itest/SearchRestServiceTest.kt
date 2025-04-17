@@ -425,7 +425,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     {
                       "documentKoppelbaar": true,
                       "identificatie": "ZAAK-2000-0000000006",
-                      "omschrijving": "dummyOmschrijving",
+                      "omschrijving": "fakeOmschrijving",
                       "statustypeOmschrijving": "Afgerond",
                       "toelichting": "null",
                       "type": "ZAAK",
@@ -434,7 +434,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     {
                       "documentKoppelbaar": true,
                       "identificatie": "ZAAK-2000-0000000005",
-                      "omschrijving": "dummyOmschrijving",
+                      "omschrijving": "fakeOmschrijving",
                       "statustypeOmschrijving": "Afgerond",
                       "toelichting": "null",
                       "type": "ZAAK",
@@ -443,7 +443,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     {
                       "documentKoppelbaar": true,
                       "identificatie": "ZAAK-2000-0000000004",
-                      "omschrijving": "dummyOmschrijving",
+                      "omschrijving": "fakeOmschrijving",
                       "statustypeOmschrijving": "In behandeling",
                       "toelichting": "null",
                       "type": "ZAAK",
@@ -503,7 +503,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     {
                       "documentKoppelbaar": false,
                       "identificatie": "ZAAK-2000-0000000006",
-                      "omschrijving": "dummyOmschrijving",
+                      "omschrijving": "fakeOmschrijving",
                       "statustypeOmschrijving": "Afgerond",
                       "toelichting": "null",
                       "type": "ZAAK",
@@ -512,7 +512,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     {
                       "documentKoppelbaar": false,
                       "identificatie": "ZAAK-2000-0000000005",
-                      "omschrijving": "dummyOmschrijving",
+                      "omschrijving": "fakeOmschrijving",
                       "statustypeOmschrijving": "Afgerond",
                       "toelichting": "null",
                       "type": "ZAAK",
@@ -521,7 +521,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     {
                       "documentKoppelbaar": false,
                       "identificatie": "ZAAK-2000-0000000004",
-                      "omschrijving": "dummyOmschrijving",
+                      "omschrijving": "fakeOmschrijving",
                       "statustypeOmschrijving": "In behandeling",
                       "toelichting": "null",
                       "type": "ZAAK",
@@ -741,7 +741,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     "alleenOpenstaandeZaken": false,
                     "alleenAfgeslotenZaken": false,
                     "alleenMijnTaken": false,
-                    "zoeken": { "DOCUMENT_TITEL": "Dummy test document" },
+                    "zoeken": { "DOCUMENT_TITEL": "Fake test document" },
                     "filters": {},
                     "datums": {},
                     "rows": 10,

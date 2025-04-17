@@ -153,9 +153,9 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject(
             vertrouwelijkheidaanduiding = "vertrouwelijk",
             creatieDatum = LocalDate.now(),
-            auteur = "dummyAuteur",
-            taal = "dummyTaal",
-            bestandsNaam = "dummyBestandsNaam"
+            auteur = "fakeAuteur",
+            taal = "fakeTaal",
+            bestandsNaam = "fakeBestandsNaam"
         )
         val restFileUpload = createRESTFileUpload()
         val providedInformatieObjectType = createInformatieObjectType()
@@ -221,7 +221,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             Then("the provided data is converted correctly") {
                 with(restEnkelvoudigInformatieObject) {
                     uuid shouldBe expectedUUID
-                    informatieobjectTypeOmschrijving shouldBe "dummyOmschrijving"
+                    informatieobjectTypeOmschrijving shouldBe "fakeOmschrijving"
                     informatieobjectTypeUUID shouldBe expectedUUID
                     informatieobjectTypeUUID shouldBe expectedUUID
                     versie shouldBe 1234

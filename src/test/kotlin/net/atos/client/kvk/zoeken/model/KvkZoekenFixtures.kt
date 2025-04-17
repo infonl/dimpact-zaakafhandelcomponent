@@ -15,11 +15,11 @@ import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 @Suppress("LongParameterList")
 fun createAdresWithBinnenlandsAdres(
     huisnummer: Int = 1234,
-    huisletter: String = "dummyHuisletter",
-    plaats: String = "dummyPlaats",
+    huisletter: String = "fakeHuisletter",
+    plaats: String = "fakePlaats",
     postbusnummer: Int = 5678,
-    postcode: String = "dummyPostcode",
-    straatnaam: String = "dummyStraatnaam",
+    postcode: String = "fakePostcode",
+    straatnaam: String = "fakeStraatnaam",
     type: AdresType = AdresType.BEZOEKADRES
 ) = Adres().apply {
     this.binnenlandsAdres = BinnenlandsAdres().apply {
@@ -36,11 +36,11 @@ fun createAdresWithBinnenlandsAdres(
 @Suppress("LongParameterList")
 fun createResultaatItem(
     adres: Adres = createAdresWithBinnenlandsAdres(),
-    naam: String = "dummyNaam",
-    kvkNummer: String? = "dummyKvkNummer",
-    rsin: String? = "dummyRsin",
+    naam: String = "fakeNaam",
+    kvkNummer: String? = "fakeKvkNummer",
+    rsin: String? = "fakeRsin",
     type: String = "nevenvestiging",
-    vestingsnummer: String? = "dummyVestigingsnummer",
+    vestingsnummer: String? = "fakeVestigingsnummer",
 ) = ResultaatItem().apply {
     this.adres = adres
     this.naam = naam
@@ -51,8 +51,8 @@ fun createResultaatItem(
 }
 
 fun createSBIActiviteit(
-    sbiCode: String = "dummySbiCode",
-    sbiOmschrijving: String = "dummySbiOmschrijving",
+    sbiCode: String = "fakeSbiCode",
+    sbiOmschrijving: String = "fakeSbiOmschrijving",
     indHoofdactiviteit: String = "ja",
 ) = SBIActiviteit().apply {
     this.sbiCode = sbiCode
@@ -62,21 +62,21 @@ fun createSBIActiviteit(
 
 @Suppress("LongParameterList")
 fun createVestiging(
-    vestigingsnummer: String = "dummyVestigingsnummer",
-    kvkNumber: String = "dummyKvkNummer",
-    eersteHandelsNaam: String = "dummyEersteHandelsNaam",
+    vestigingsnummer: String = "fakeVestigingsnummer",
+    kvkNumber: String = "fakeKvkNummer",
+    eersteHandelsNaam: String = "fakeEersteHandelsNaam",
     voltijdWerkzamePersonen: Int? = 10,
     deeltijdWerkzamePersonen: Int? = 5,
     totaalWerkzamePersonen: Int? = 15,
     sbiActiviteiten: List<SBIActiviteit>? = listOf(
         createSBIActiviteit(
-            sbiCode = "dummySbiCode1",
-            sbiOmschrijving = "dummySbiOmschrijving1",
+            sbiCode = "fakeSbiCode1",
+            sbiOmschrijving = "fakeSbiOmschrijving1",
             indHoofdactiviteit = "ja"
         ),
         createSBIActiviteit(
-            sbiCode = "dummySbiCode2",
-            sbiOmschrijving = "dummySbiOmschrijving2",
+            sbiCode = "fakeSbiCode2",
+            sbiOmschrijving = "fakeSbiOmschrijving2",
             indHoofdactiviteit = "nee"
         )
     ),
@@ -93,9 +93,9 @@ fun createVestiging(
 }
 
 fun createVestigingsAdres(
-    type: String = "dummyType",
+    type: String = "fakeType",
     indAfgeschermd: String = "nee",
-    volledigAdres: String = "dummyVolledigAdres"
+    volledigAdres: String = "fakeVolledigAdres"
 ) = nl.info.client.kvk.vestigingsprofiel.model.generated.Adres().apply {
     this.type = type
     this.indAfgeschermd = indAfgeschermd

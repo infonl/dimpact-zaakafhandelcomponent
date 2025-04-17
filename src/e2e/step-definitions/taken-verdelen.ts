@@ -40,7 +40,7 @@ When(
     const expectedLabel = "Taak toekennen aan groep";
     await this.page.getByLabel(expectedLabel).click();
     await this.page.getByRole("option", { name: "test gr" }).first().click();
-    await this.page.getByLabel("Reden").fill("Dummy reason");
+    await this.page.getByLabel("Reden").fill("Fake reason");
     await this.page.getByRole("button", { name: /Verdelen/ }).click();
   },
 );
@@ -49,7 +49,7 @@ When(
   "{string} releases the taken",
   async function (this: CustomWorld, s: string) {
     await this.page.getByTitle("Vrijgeven").click();
-    await this.page.getByLabel("Reden").fill("Dummy reason");
+    await this.page.getByLabel("Reden").fill("Fake reason");
     await this.page.getByRole("button", { name: /Vrijgeven/ }).click();
   },
 );

@@ -18,7 +18,7 @@ permissions:
   contents: read
 
 env:
-  JAVA_VERSION: "21.0.6"
+  JAVA_VERSION: "21.0.7"
 
 # Only allow a single concurrent run per branch. Cancel in-progress runs on multiple pushes when not on main branch.  
 concurrency:

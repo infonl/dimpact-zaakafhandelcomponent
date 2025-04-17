@@ -54,7 +54,7 @@ class CMMNServiceTest : BehaviorSpec({
         val zaakafhandelparameters = createZaakafhandelParameters(
             zaaktypeUUID = zaakTypeUUID
         )
-        val zaakData = mapOf("dummyKey" to "dummyValue")
+        val zaakData = mapOf("fakeKey" to "fakeValue")
         val caseInstanceBuilder = mockk<CaseInstanceBuilder>()
         val caseInstance = mockk<CaseInstance>()
 
@@ -83,7 +83,7 @@ class CMMNServiceTest : BehaviorSpec({
     }
     Given("A CMMN case which has been started for a certain zaak") {
         val zaakUUID = UUID.randomUUID()
-        val caseInstanceID = "dummyCaseInstanceID"
+        val caseInstanceID = "fakeCaseInstanceID"
         val caseInstance = mockk<CaseInstance>()
         every {
             cmmnRuntimeService.createCaseInstanceQuery()
@@ -105,7 +105,7 @@ class CMMNServiceTest : BehaviorSpec({
     }
     Given("A CMMN case for a certain zaak UUID") {
         val zaakUUID = UUID.randomUUID()
-        val caseInstanceID = "dummyCaseInstanceID"
+        val caseInstanceID = "fakeCaseInstanceID"
         val caseInstance = mockk<CaseInstance>()
         every {
             cmmnRuntimeService.createCaseInstanceQuery()

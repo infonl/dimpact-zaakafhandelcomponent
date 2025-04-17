@@ -24,9 +24,9 @@ fun createRestEnkelvoudigInformatieobject(
     auteur: String? = null,
     taal: String? = null,
     informatieobjectTypeUUID: UUID = UUID.randomUUID(),
-    file: ByteArray = "dummyFile".toByteArray(),
-    bestandsNaam: String = "dummyFilename",
-    formaat: String = "dummyType",
+    file: ByteArray = "fakeFile".toByteArray(),
+    bestandsNaam: String = "fakeFilename",
+    formaat: String = "fakeType",
     indicatieGebruiksrecht: Boolean? = null
 ) = RestEnkelvoudigInformatieobject().apply {
     this.uuid = uuid
@@ -43,10 +43,10 @@ fun createRestEnkelvoudigInformatieobject(
 }
 
 fun createRESTFileUpload(
-    file: ByteArray = "dummyFile".toByteArray(),
+    file: ByteArray = "fakeFile".toByteArray(),
     fileSize: Long = 123L,
-    filename: String = "dummyFilename",
-    type: String = "dummyType"
+    filename: String = "fakeFilename",
+    type: String = "fakeType"
 ) = RESTFileUpload().apply {
     this.file = file
     this.filename = filename
@@ -56,7 +56,7 @@ fun createRESTFileUpload(
 
 fun createRestInformatieobjecttype(
     uuid: UUID = UUID.randomUUID(),
-    omschrijving: String = "dummyOmschrijving",
+    omschrijving: String = "fakeOmschrijving",
     vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name,
     concept: Boolean = false
 ) = RestInformatieobjecttype().apply {
@@ -70,9 +70,9 @@ fun createRestInformatieobjecttype(
 fun createRestEnkelvoudigInformatieObjectVersieGegevens(
     uuid: UUID = UUID.randomUUID(),
     zaakUuid: UUID = UUID.randomUUID(),
-    bestandsnaam: String = "dummyFile.txt",
-    file: ByteArray = "dummyFile".toByteArray(),
-    formaat: String = "dummyType",
+    bestandsnaam: String = "fakeFile.txt",
+    file: ByteArray = "fakeFile".toByteArray(),
+    formaat: String = "fakeType",
     informatieobjectTypeUUID: UUID = UUID.randomUUID(),
     vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name
 ) = RestEnkelvoudigInformatieObjectVersieGegevens().apply {

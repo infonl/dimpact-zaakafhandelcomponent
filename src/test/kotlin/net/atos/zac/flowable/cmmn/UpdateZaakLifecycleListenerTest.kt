@@ -37,7 +37,7 @@ class UpdateZaakLifecycleListenerTest : BehaviorSpec({
     ) {
         val zaak = createZaak()
         val zaakStatus = createZaakStatus()
-        every { expression.getValue(delegatePlanItemInstance) } returns "dummyStatus"
+        every { expression.getValue(delegatePlanItemInstance) } returns "fakeStatus"
         every { FlowableHelper.getInstance() } returns flowableHelper
         every { flowableHelper.zaakVariabelenService } returns zaakVariabelenService
         every { flowableHelper.zrcClientService } returns zrcClientService

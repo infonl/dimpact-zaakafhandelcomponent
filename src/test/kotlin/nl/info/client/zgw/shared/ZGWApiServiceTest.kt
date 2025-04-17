@@ -43,7 +43,7 @@ class ZGWApiServiceTest : BehaviorSpec({
         drcClientService
     )
     val resultaatTypeUUID = UUID.randomUUID()
-    val reason = "dummyReason"
+    val reason = "fakeReason"
 
     beforeEach {
         checkUnnecessaryStub()
@@ -110,9 +110,9 @@ class ZGWApiServiceTest : BehaviorSpec({
         }
     }
     Given("A zaak with an existing result") {
-        val dummyResultaat = URI("https://example.com/${UUID.randomUUID()}")
+        val fakeResultaat = URI("https://example.com/${UUID.randomUUID()}")
         val zaak = createZaak(
-            resultaat = dummyResultaat
+            resultaat = fakeResultaat
         )
         val resultaat = createResultaat()
         val resultaatSlot = slot<Resultaat>()

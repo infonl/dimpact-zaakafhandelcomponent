@@ -113,7 +113,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                         "zaakUuid": "$zaak1UUID",
                         "gekoppeldeZaakIdentificatie": "$zaak2Identificatie",
                         "relatieType": "DEELZAAK",
-                        "reden": "dummyReason"
+                        "reden": "fakeReason"
                     }
                 """.trimIndent()
             )

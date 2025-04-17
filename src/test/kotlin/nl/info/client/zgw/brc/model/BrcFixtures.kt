@@ -12,18 +12,18 @@ import java.util.UUID
 
 @Suppress("LongParameterList")
 fun createBesluit(
-    identificatie: String = "dummyIdentificatie",
-    verantwoordelijkeOrganisatie: String = "dummyVerantwoordelijkeOrganisatie",
+    identificatie: String = "fakeIdentificatie",
+    verantwoordelijkeOrganisatie: String = "fakeVerantwoordelijkeOrganisatie",
     besluittypeUri: URI = URI("http://localhost/besluittype/${UUID.randomUUID()}"),
     zaakUri: URI = URI("http://localhost/zaak/${UUID.randomUUID()}"),
     date: LocalDate = LocalDate.now(),
-    reason: String = "dummyReason",
+    reason: String = "fakeReason",
     startDate: LocalDate = LocalDate.now(),
     fatalDate: LocalDate = LocalDate.now().plusDays(1),
     publicationDate: LocalDate? = null,
     reactionDate: LocalDate? = null,
     url: URI = URI("http://localhost/besluit/${UUID.randomUUID()}"),
-    vervalredenWeergave: String = "dummyVervalredenWeergave"
+    vervalredenWeergave: String = "fakeVervalredenWeergave"
 ) = Besluit(url, vervalredenWeergave).apply {
     this.identificatie = identificatie
     this.verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie

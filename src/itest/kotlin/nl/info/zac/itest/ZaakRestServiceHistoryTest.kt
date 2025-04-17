@@ -62,21 +62,21 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "zaakinformatieobject",
                     "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "dummyTitel",
+                    "nieuweWaarde": "fakeTitel",
                     "toelichting": ""
                   },
                   {
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "zaakinformatieobject",
                     "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "dummyTitel",
+                    "nieuweWaarde": "fakeTitel",
                     "toelichting": ""
                   },
                   {
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "zaakinformatieobject",
                     "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "dummyTitel",
+                    "nieuweWaarde": "fakeTitel",
                     "toelichting": ""
                   },
                   {
@@ -84,28 +84,28 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                     "attribuutLabel": "Behandelaar",
                     "door": "Functionele gebruiker",
                     "oudeWaarde": "$TEST_USER_1_NAME",
-                    "toelichting": "dummyLijstVrijgevenReason"
+                    "toelichting": "fakeLijstVrijgevenReason"
                   },
                   {
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "Behandelaar",
                     "door": "$TEST_USER_1_NAME",
                     "nieuweWaarde": "$TEST_USER_1_NAME",
-                    "toelichting": "dummyAssignToMeFromListReason"
+                    "toelichting": "fakeAssignToMeFromListReason"
                   },
                   {
                     "actie": "ONTKOPPELD",
                     "attribuutLabel": "Behandelaar",
                     "door": "$TEST_USER_1_NAME",
                     "oudeWaarde": "$TEST_USER_2_NAME",
-                    "toelichting": "dummyAssignToMeFromListReason"
+                    "toelichting": "fakeAssignToMeFromListReason"
                   },
                   {
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "Behandelaar",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "$TEST_USER_2_NAME",
-                    "toelichting": "dummyLijstVerdelenReason"
+                    "toelichting": "fakeLijstVerdelenReason"
                   },
                   {
                     "actie": "GEWIJZIGD",

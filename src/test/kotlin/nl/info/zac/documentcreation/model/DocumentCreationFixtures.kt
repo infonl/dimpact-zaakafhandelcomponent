@@ -17,11 +17,11 @@ import java.net.URI
 import java.time.ZonedDateTime
 
 fun createAanvragerData(
-    naam: String = "dummyNaam",
-    straat: String = "dummyStraat",
-    huisnummer: String = "dummyHuisnummer",
-    postcode: String = "dummyPostcode",
-    woonplaats: String = "dummyWoonplaats",
+    naam: String = "fakeNaam",
+    straat: String = "fakeStraat",
+    huisnummer: String = "fakeHuisnummer",
+    postcode: String = "fakePostcode",
+    woonplaats: String = "fakeWoonplaats",
 ) = AanvragerData(
     naam = naam,
     straat = straat,
@@ -47,7 +47,7 @@ fun createData(
 @Suppress("LongParameterList")
 fun createDocumentCreationDataAttended(
     zaak: Zaak = createZaak(),
-    taskId: String = "dummyTaskId",
+    taskId: String = "fakeTaskId",
     templateGroupId: String = "1",
     templateId: String = "2",
     title: String = "title",
@@ -63,41 +63,41 @@ fun createDocumentCreationDataAttended(
 
 fun createDocumentCreationAttendedResponse(
     message: String = "success",
-    redirectUri: URI = URI.create("https://example.com/dummyRedirectURI")
+    redirectUri: URI = URI.create("https://example.com/fakeRedirectURI")
 ) = DocumentCreationAttendedResponse(
     message = message,
     redirectUrl = redirectUri
 )
 
 fun createGebruikerData(
-    id: String = "dummyId",
-    naam: String = "dummyNaam"
+    id: String = "fakeId",
+    naam: String = "fakeNaam"
 ) = GebruikerData(
     id = id,
     naam = naam
 )
 
 fun createStartformulierData(
-    productAanvraagtype: String = "dummyProductAanvraagtype",
-    data: Map<String, Any> = mapOf("dummyKey" to "dummyValue")
+    productAanvraagtype: String = "fakeProductAanvraagtype",
+    data: Map<String, Any> = mapOf("fakeKey" to "fakeValue")
 ) = StartformulierData(
     productAanvraagtype = productAanvraagtype,
     data = data
 )
 
 fun createTaskData(
-    naam: String = "dummyNaam",
-    behandelaar: String = "dummyBehandelaar"
+    naam: String = "fakeNaam",
+    behandelaar: String = "fakeBehandelaar"
 ) = TaskData(
     naam = naam,
     behandelaar = behandelaar
 )
 
 fun createZaakData(
-    zaaktype: String = "dummyZaakType",
-    identificatie: String = "dummyIdentificatie",
-    omschrijving: String = "dummyOmschrijving",
-    toelichting: String = "dummyToelichting",
+    zaaktype: String = "fakeZaakType",
+    identificatie: String = "fakeIdentificatie",
+    omschrijving: String = "fakeOmschrijving",
+    toelichting: String = "fakeToelichting",
 ) = ZaakData(
     zaaktype = zaaktype,
     identificatie = identificatie,

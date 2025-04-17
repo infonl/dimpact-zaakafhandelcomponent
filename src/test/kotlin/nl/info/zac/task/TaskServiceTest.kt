@@ -44,15 +44,15 @@ class TaskServiceTest : BehaviorSpec({
         indexingService = indexingService,
         eventingService = eventingService,
     )
-    val taskId1 = "dummyTaskId1"
-    val taskId2 = "dummyTaskId2"
+    val taskId1 = "fakeTaskId1"
+    val taskId2 = "fakeTaskId2"
 
     beforeEach {
         checkUnnecessaryStub()
     }
 
     Given("A task that has not yet been assigned to a specific group and user") {
-        val taskId = "dummyTaskId"
+        val taskId = "fakeTaskId"
         val restTaakToekennenGegevens = createRestTaskAssignData(taakId = taskId, behandelaarId = null)
         val task = mockk<Task>()
         val updatedTaskAfterAssigningGroup = mockk<Task>()
@@ -108,15 +108,15 @@ class TaskServiceTest : BehaviorSpec({
     }
 
     Given("A task has already been assigned to a user") {
-        val taskId = "dummyTaskId"
+        val taskId = "fakeTaskId"
         val restTaakToekennenGegevens = createRestTaskAssignData(behandelaarId = null, taakId = taskId)
         val task = mockk<Task>()
         val updatedTaskAfterAssigningUser = mockk<Task>()
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val screenEventSlot = mutableListOf<ScreenEvent>()
 
-        every { loggedInUser.id } returns "dummyLoggedInUserId"
-        every { task.assignee } returns "dummyCurrentAssignee"
+        every { loggedInUser.id } returns "fakeLoggedInUserId"
+        every { task.assignee } returns "fakeCurrentAssignee"
         every { task.id } returns taskId
         every { updatedTaskAfterAssigningUser.id } returns taskId
         every {
@@ -173,7 +173,7 @@ class TaskServiceTest : BehaviorSpec({
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val screenEventSlot = mutableListOf<ScreenEvent>()
 
-        every { loggedInUser.id } returns "dummyLoggedInUserId"
+        every { loggedInUser.id } returns "fakeLoggedInUserId"
         every { task1.id } returns taskId1
         every { task2.id } returns taskId2
         every { updatedTask1AfterAssigningUser.id } returns taskId1
@@ -246,7 +246,7 @@ class TaskServiceTest : BehaviorSpec({
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val screenEventSlot = mutableListOf<ScreenEvent>()
 
-        every { loggedInUser.id } returns "dummyLoggedInUserId"
+        every { loggedInUser.id } returns "fakeLoggedInUserId"
         every { task1.id } returns taskId1
         every { task2.id } returns taskId2
         every { updatedTaskAfterRelease1.id } returns restTaakVerdelenTaken[0].taakId
@@ -429,13 +429,13 @@ class TaskServiceTest : BehaviorSpec({
         val releasedTask1 = mockk<Task>()
         val releasedTask2 = mockk<Task>()
 
-        every { loggedInUser.id } returns "dummyLoggedInUserId"
+        every { loggedInUser.id } returns "fakeLoggedInUserId"
         every { task1.id } returns taskId1
         every { task2.id } returns taskId2
         every { releasedTask1.id } returns taskId1
         every { releasedTask2.id } returns taskId1
-        every { task1.assignee } returns "dummyAssignee1"
-        every { task2.assignee } returns "dummyAssignee2"
+        every { task1.assignee } returns "fakeAssignee1"
+        every { task2.assignee } returns "fakeAssignee2"
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId) } returns task1
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } returns task2
         every {
@@ -495,12 +495,12 @@ class TaskServiceTest : BehaviorSpec({
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val releasedTask1 = mockk<Task>()
 
-        every { loggedInUser.id } returns "dummyLoggedInUserId"
+        every { loggedInUser.id } returns "fakeLoggedInUserId"
         every { task1.id } returns taskId1
         every { releasedTask1.id } returns taskId1
-        every { task1.assignee } returns "dummyAssignee1"
+        every { task1.assignee } returns "fakeAssignee1"
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId) } returns task1
-        every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } throws RuntimeException("dummyError")
+        every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } throws RuntimeException("fakeError")
         every {
             flowableTaskService.assignTaskToGroup(any(), any(), any())
         } returns task1
@@ -531,7 +531,7 @@ class TaskServiceTest : BehaviorSpec({
                     the search index is still updated and the TAKEN_VERDELEN screen event is still sent
                     """
             ) {
-                exception.message shouldBe "dummyError"
+                exception.message shouldBe "fakeError"
                 verify(exactly = 1) {
                     indexingService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
                     flowableTaskService.assignTaskToGroup(any(), any(), any())
@@ -566,7 +566,7 @@ class TaskServiceTest : BehaviorSpec({
         val screenEventSlot = mutableListOf<ScreenEvent>()
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
 
-        every { loggedInUser.id } returns "dummyLoggedInUserId"
+        every { loggedInUser.id } returns "fakeLoggedInUserId"
         every { task2.id } returns taskId2
         every {
             flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId)
@@ -624,11 +624,11 @@ class TaskServiceTest : BehaviorSpec({
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val releasedTask1 = mockk<Task>()
 
-        every { loggedInUser.id } returns "dummyLoggedInUserId"
+        every { loggedInUser.id } returns "fakeLoggedInUserId"
         every { task1.id } returns taskId1
         every { releasedTask1.id } returns taskId1
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId) } returns task1
-        every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } throws RuntimeException("dummyError")
+        every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } throws RuntimeException("fakeError")
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { flowableTaskService.releaseTask(task1, restTaakVerdelenGegevens.reden) } returns releasedTask1
@@ -656,7 +656,7 @@ class TaskServiceTest : BehaviorSpec({
                     the search index is still updated and the TAKEN_VERDELEN screen event is still sent
                     """
             ) {
-                exception.message shouldBe "dummyError"
+                exception.message shouldBe "fakeError"
                 verify(exactly = 1) {
                     indexingService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
                     flowableTaskService.releaseTask(any(), any())

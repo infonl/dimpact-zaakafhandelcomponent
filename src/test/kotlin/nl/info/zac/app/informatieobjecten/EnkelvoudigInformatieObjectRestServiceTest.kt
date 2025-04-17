@@ -102,7 +102,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
     Given("an enkelvoudig informatieobject has been uploaded, and the zaak is open") {
         val zaak = createZaak()
-        val documentReferentieId = "dummyDocumentReferentieId"
+        val documentReferentieId = "fakeDocumentReferentieId"
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
         val responseRestEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
         val restFileUpload = createRESTFileUpload()
@@ -160,7 +160,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     zaak,
                     enkelvoudigInformatieObjectData
                 )
-            } throws RuntimeException("dummy exception")
+            } throws RuntimeException("fake exception")
 
             shouldThrow<RuntimeException> {
                 enkelvoudigInformatieObjectRestService.createEnkelvoudigInformatieobjectAndUploadFile(
@@ -229,7 +229,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val closedZaak = createZaak(
             archiefnominatie = Archiefnominatie.VERNIETIGEN
         )
-        val documentReferentieId = "dummyDocumentReferentieId"
+        val documentReferentieId = "fakeDocumentReferentieId"
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
         val responseRestEnkelvoudigInformatieobject =
             createRestEnkelvoudigInformatieobject()
@@ -473,13 +473,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val informatieObjectTypes = listOf(
             createInformatieObjectType(
                 uri = URI("http://example.com/catalogus/$informatieObjectTypeUUID1"),
-                omschrijving = "dummyOmschrijving1",
+                omschrijving = "fakeOmschrijving1",
                 vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR,
                 concept = true
             ),
             createInformatieObjectType(
                 uri = URI("http://example.com/catalogus/$informatieObjectTypeUUID2"),
-                omschrijving = "dummyOmschrijving2",
+                omschrijving = "fakeOmschrijving2",
                 vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.BEPERKT_OPENBAAR,
                 concept = false
             )
@@ -502,13 +502,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 with(returnedRestInformatieobjecttypes) {
                     with(this[0]) {
                         uuid shouldBe informatieObjectTypeUUID1
-                        omschrijving shouldBe "dummyOmschrijving1"
+                        omschrijving shouldBe "fakeOmschrijving1"
                         vertrouwelijkheidaanduiding shouldBe "OPENBAAR"
                         concept shouldBe true
                     }
                     with(this[1]) {
                         uuid shouldBe informatieObjectTypeUUID2
-                        omschrijving shouldBe "dummyOmschrijving2"
+                        omschrijving shouldBe "fakeOmschrijving2"
                         vertrouwelijkheidaanduiding shouldBe "BEPERKT_OPENBAAR"
                         concept shouldBe false
                     }

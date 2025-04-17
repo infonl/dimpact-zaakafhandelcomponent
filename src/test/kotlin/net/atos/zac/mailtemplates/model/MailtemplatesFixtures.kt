@@ -12,8 +12,8 @@ fun createMailGegevens(
     from: MailAdres = createMailAdres(),
     to: MailAdres = createMailAdres(),
     replyTo: MailAdres = createMailAdres(),
-    subject: String? = "dummySubject",
-    body: String = "dummyBody",
+    subject: String? = "fakeSubject",
+    body: String = "fakeBody",
     attachments: String? = null,
     createDocumentFromMail: Boolean = false
 ) = MailGegevens(
@@ -29,9 +29,9 @@ fun createMailGegevens(
 @Suppress("LongParameterList")
 fun createMailTemplate(
     id: Long = 1234L,
-    name: String = "dummyName",
-    onderwerp: String = "dummyOnderwerp",
-    body: String = "dummyBody",
+    name: String = "fakeName",
+    onderwerp: String = "fakeOnderwerp",
+    body: String = "fakeBody",
     mail: Mail = Mail.SIGNALERING_TAAK_OP_NAAM,
     isDefaultMailTemplate: Boolean = true
 ) = MailTemplate().apply {

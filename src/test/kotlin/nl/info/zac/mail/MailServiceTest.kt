@@ -64,7 +64,7 @@ class MailServiceTest : BehaviorSpec({
         val zaak = createZaak()
         val zaakType = createZaakType(
             informatieObjectTypen = listOf(
-                URI("dummyInformatieObjectType1")
+                URI("fakeInformatieObjectType1")
             )
         )
         val mailGegevens = createMailGegevens(
@@ -79,29 +79,29 @@ class MailServiceTest : BehaviorSpec({
         val zaakInformatieobject = createZaakInformatieobject()
         val resolvedSubject = "resolvedSubject"
 
-        every { mailTemplateHelper.resolveVariabelen(mailGegevens.subject) } returns "dummyResolvedString1"
+        every { mailTemplateHelper.resolveVariabelen(mailGegevens.subject) } returns "fakeResolvedString1"
         every {
-            mailTemplateHelper.resolveVariabelen("dummyResolvedString1", zaak)
-        } returns "dummyResolvedString2"
+            mailTemplateHelper.resolveVariabelen("fakeResolvedString1", zaak)
+        } returns "fakeResolvedString2"
         every {
-            mailTemplateHelper.resolveVariabelen("dummyResolvedString2", bronnen.document)
-        } returns "dummyResolvedString3"
+            mailTemplateHelper.resolveVariabelen("fakeResolvedString2", bronnen.document)
+        } returns "fakeResolvedString3"
         every {
-            mailTemplateHelper.resolveVariabelen("dummyResolvedString3", bronnen.taskInfo)
+            mailTemplateHelper.resolveVariabelen("fakeResolvedString3", bronnen.taskInfo)
         } returns resolvedSubject
-        every { mailTemplateHelper.resolveVariabelen(mailGegevens.body) } returns "dummyResolvedBody2"
+        every { mailTemplateHelper.resolveVariabelen(mailGegevens.body) } returns "fakeResolvedBody2"
         every {
-            mailTemplateHelper.resolveVariabelen("dummyResolvedBody2", zaak)
-        } returns "dummyResolvedBody3"
+            mailTemplateHelper.resolveVariabelen("fakeResolvedBody2", zaak)
+        } returns "fakeResolvedBody3"
         every {
-            mailTemplateHelper.resolveVariabelen("dummyResolvedBody3", bronnen.document)
-        } returns "dummyResolvedBody4"
+            mailTemplateHelper.resolveVariabelen("fakeResolvedBody3", bronnen.document)
+        } returns "fakeResolvedBody4"
         every {
-            mailTemplateHelper.resolveVariabelen("dummyResolvedBody4", bronnen.taskInfo)
-        } returns "dummyResolvedBody5"
+            mailTemplateHelper.resolveVariabelen("fakeResolvedBody4", bronnen.taskInfo)
+        } returns "fakeResolvedBody5"
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
         every {
-            ztcClientService.readInformatieobjecttype(URI("dummyInformatieObjectType1"))
+            ztcClientService.readInformatieobjecttype(URI("fakeInformatieObjectType1"))
         } returns informatieObjectType
         every { loggedInUserInstance.get() } returns user
         every {
@@ -140,7 +140,7 @@ class MailServiceTest : BehaviorSpec({
                     getHeader("Reply-To") shouldBe null
                     with((content as MimeMultipart).getBodyPart(0).dataHandler) {
                         contentType shouldBe "text/html; charset=UTF-8"
-                        content shouldBe "dummyResolvedBody5"
+                        content shouldBe "fakeResolvedBody5"
                     }
                 }
             }
@@ -156,26 +156,26 @@ class MailServiceTest : BehaviorSpec({
         val resolvedSubject = "resolvedSubject"
         val resolvedBody = "resolvedBody"
 
-        every { mailTemplateHelper.resolveVariabelen(mailGegevens.subject) } returns "dummyResolvedString1"
+        every { mailTemplateHelper.resolveVariabelen(mailGegevens.subject) } returns "fakeResolvedString1"
 
         every {
-            mailTemplateHelper.resolveVariabelen("dummyResolvedString1", null as Zaak?)
-        } returns "dummyResolvedString1"
+            mailTemplateHelper.resolveVariabelen("fakeResolvedString1", null as Zaak?)
+        } returns "fakeResolvedString1"
         every {
-            mailTemplateHelper.resolveVariabelen("dummyResolvedString1", null as EnkelvoudigInformatieObject?)
-        } returns "dummyResolvedString1"
+            mailTemplateHelper.resolveVariabelen("fakeResolvedString1", null as EnkelvoudigInformatieObject?)
+        } returns "fakeResolvedString1"
         every {
-            mailTemplateHelper.resolveVariabelen("dummyResolvedString1", task)
+            mailTemplateHelper.resolveVariabelen("fakeResolvedString1", task)
         } returns resolvedSubject
-        every { mailTemplateHelper.resolveVariabelen(mailGegevens.body) } returns "dummyResolvedBody2"
+        every { mailTemplateHelper.resolveVariabelen(mailGegevens.body) } returns "fakeResolvedBody2"
         every {
-            mailTemplateHelper.resolveVariabelen("dummyResolvedBody2", null as Zaak?)
-        } returns "dummyResolvedBody2"
+            mailTemplateHelper.resolveVariabelen("fakeResolvedBody2", null as Zaak?)
+        } returns "fakeResolvedBody2"
         every {
-            mailTemplateHelper.resolveVariabelen("dummyResolvedBody2", null as EnkelvoudigInformatieObject?)
-        } returns "dummyResolvedBody2"
+            mailTemplateHelper.resolveVariabelen("fakeResolvedBody2", null as EnkelvoudigInformatieObject?)
+        } returns "fakeResolvedBody2"
         every {
-            mailTemplateHelper.resolveVariabelen("dummyResolvedBody2", task)
+            mailTemplateHelper.resolveVariabelen("fakeResolvedBody2", task)
         } returns resolvedBody
 
         mockkObject(MailService.Companion)

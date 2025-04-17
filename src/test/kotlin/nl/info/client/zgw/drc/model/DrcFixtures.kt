@@ -29,7 +29,7 @@ fun createEnkelvoudigInformatieObject(
     vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum? = VertrouwelijkheidaanduidingEnum.CONFIDENTIEEL,
     status: StatusEnum = StatusEnum.IN_BEWERKING,
     ontvangstdatum: LocalDate? = null,
-    formaat: String = "dummyformaat"
+    formaat: String = "fakeformaat"
 ) = EnkelvoudigInformatieObject(
     url,
     versie,
@@ -49,8 +49,8 @@ fun createEnkelvoudigInformatieObjectCreateLockRequest(
     url: URI = URI("http://example.com/${UUID.randomUUID()}"),
     bronorganisatie: String = "123456789",
     creatiedatum: LocalDate = LocalDate.now(),
-    titel: String = "dummyTitle",
-    inhoud: String = "dummyContent"
+    titel: String = "fakeTitle",
+    inhoud: String = "fakeContent"
 ) = EnkelvoudigInformatieObjectCreateLockRequest().apply {
     this.link = url
     this.bronorganisatie = bronorganisatie
@@ -63,8 +63,8 @@ fun createEnkelvoudigInformatieObjectWithLockRequest(
     url: URI = URI("http://example.com/${UUID.randomUUID()}"),
     bronorganisatie: String = "123456789",
     creatiedatum: LocalDate = LocalDate.now(),
-    titel: String = "dummyTitle",
-    inhoud: String = "dummyContent"
+    titel: String = "fakeTitle",
+    inhoud: String = "fakeContent"
 ) = EnkelvoudigInformatieObjectWithLockRequest().apply {
     this.link = url
     this.bronorganisatie = bronorganisatie

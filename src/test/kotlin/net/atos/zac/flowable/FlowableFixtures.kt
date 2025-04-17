@@ -12,17 +12,17 @@ import java.util.Date
 
 @Suppress("LongParameterList")
 fun createTestPlanItemInstance(
-    id: String = "dummyId",
-    name: String = "dummyName",
-    state: String = "dummyState",
-    caseDefinitionId: String = "dummyCaseDefinitionId",
-    derivedCaseDefinitionId: String = "dummyDerivedCaseDefinitionId",
-    caseInstanceId: String = "dummyCaseInstanceId",
-    stageInstanceId: String = "dummyStageInstanceId",
+    id: String = "fakeId",
+    name: String = "fakeName",
+    state: String = "fakeState",
+    caseDefinitionId: String = "fakeCaseDefinitionId",
+    derivedCaseDefinitionId: String = "fakeDerivedCaseDefinitionId",
+    caseInstanceId: String = "fakeCaseInstanceId",
+    stageInstanceId: String = "fakeStageInstanceId",
     isStage: Boolean = false,
-    elementId: String = "dummyElementId",
-    planItemDefinitionId: String = "dummyPlanItemDefinitionId",
-    planItemDefinitionType: String = "dummyPlanItemDefinitionType",
+    elementId: String = "fakeElementId",
+    planItemDefinitionId: String = "fakePlanItemDefinitionId",
+    planItemDefinitionType: String = "fakePlanItemDefinitionType",
 ) = TestPlanItemInstance(
     id,
     name,
@@ -39,9 +39,9 @@ fun createTestPlanItemInstance(
 
 @Suppress("LongParameterList")
 fun createTestTask(
-    id: String = "dummyId",
-    name: String = "dummyName",
-    description: String = "dummyDescription",
+    id: String = "fakeId",
+    name: String = "fakeName",
+    description: String = "fakeDescription",
     priority: Int = 0,
     owner: String? = null,
     assignee: String? = null,
@@ -65,13 +65,13 @@ fun createTestTask(
     taskLocalVariables: Map<String, Any> = emptyMap(),
     processVariables: Map<String, Any> = emptyMap(),
     identityLinks: List<IdentityLinkInfo> = emptyList(),
-    state: String = "dummyState",
+    state: String = "fakeState",
     inProgressStartTime: Date = Date(),
-    inProgressStartedBy: String = "dummyInProgressStartedBy",
+    inProgressStartedBy: String = "fakeInProgressStartedBy",
     claimTime: Date = Date(),
-    claimedBy: String = "dummyClaimedBy",
+    claimedBy: String = "fakeClaimedBy",
     suspendedTime: Date = Date(),
-    suspendedBy: String = "dummySuspendedBy",
+    suspendedBy: String = "fakeSuspendedBy",
     inProgressStartDueDate: Date = Date(),
     caseVariables: Map<String, Any>? = null
 ) = TestTask(

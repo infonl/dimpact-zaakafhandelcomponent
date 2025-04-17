@@ -13,12 +13,12 @@ import java.time.ZonedDateTime
 fun createFormulierDefinitie(): FormulierDefinitie =
     FormulierDefinitie().apply {
         id = 1L
-        beschrijving = "Dummy description"
-        naam = "Dummy name"
+        beschrijving = "Fake description"
+        naam = "Fake name"
         creatiedatum = ZonedDateTime.now()
         wijzigingsdatum = ZonedDateTime.now()
-        uitleg = "Dummy explanation"
-        systeemnaam = "Dummy system name"
+        uitleg = "Fake explanation"
+        systeemnaam = "Fake system name"
         setVeldDefinities(
             setOf(
                 createFormulierVeldDefinitie(this, 1),
@@ -33,25 +33,25 @@ fun createFormulierVeldDefinitie(
 ): FormulierVeldDefinitie =
     FormulierVeldDefinitie().apply {
         id = 1L
-        systeemnaam = "Dummy system name"
+        systeemnaam = "Fake system name"
         this.volgorde = volgorde
-        label = "Dummy label"
+        label = "Fake label"
         veldtype = FormulierVeldtype.TEKST_VELD
-        beschrijving = "Dummy description"
-        helptekst = "Dummy help text"
-        defaultWaarde = "Dummy value"
-        meerkeuzeOpties = "Dummy multi-options"
-        validaties = "Dummy validation 1;Dummy validation 2"
+        beschrijving = "Fake description"
+        helptekst = "Fake help text"
+        defaultWaarde = "Fake value"
+        meerkeuzeOpties = "Fake multi-options"
+        validaties = "Fake validation 1;Fake validation 2"
         this.formulierDefinitie = formulierDefinitie
     }
 
 fun createRESTFormulierDefinitie(): RESTFormulierDefinitie =
     RESTFormulierDefinitie().apply {
         id = 1L
-        systeemnaam = "Dummy system name"
-        naam = "Dummy name"
-        beschrijving = "Dummy description"
-        uitleg = "Dummy explanation"
+        systeemnaam = "Fake system name"
+        naam = "Fake name"
+        beschrijving = "Fake description"
+        uitleg = "Fake explanation"
         creatiedatum = ZonedDateTime.now()
         wijzigingsdatum = ZonedDateTime.now()
         veldDefinities = listOf(
@@ -65,14 +65,14 @@ fun createRESTFormulierVeldDefinitie(
 ): RESTFormulierVeldDefinitie =
     RESTFormulierVeldDefinitie().apply {
         id = 1L
-        systeemnaam = "Dummy system name"
+        systeemnaam = "Fake system name"
         this.volgorde = volgorde
-        label = "Dummy label"
+        label = "Fake label"
         veldtype = FormulierVeldtype.TEKST_VELD
-        beschrijving = "Dummy description"
-        helptekst = "Dummy help text"
+        beschrijving = "Fake description"
+        helptekst = "Fake help text"
         verplicht = false
-        defaultWaarde = "Dummy value"
-        meerkeuzeOpties = "Dummy multi-options"
-        validaties = listOf("Dummy validation 1", "Dummy validation 2")
+        defaultWaarde = "Fake value"
+        meerkeuzeOpties = "Fake multi-options"
+        validaties = listOf("Fake validation 1", "Fake validation 2")
     }

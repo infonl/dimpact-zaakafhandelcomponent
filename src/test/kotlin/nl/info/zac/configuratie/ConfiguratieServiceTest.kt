@@ -24,7 +24,7 @@ class ConfiguratieServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val catalogus = mockk<Catalogus>()
 
-    val additionalAllowedFileTypes = Optional.of("dummyFileType1,dummyFileType2")
+    val additionalAllowedFileTypes = Optional.of("fakeFileType1,fakeFileType2")
     val zgwApiClientMpRestUrl = "https://example.com:1111"
     val contextUrl = "https://example.com:2222"
     val gemeenteCode = "gemeenteCode"
@@ -89,7 +89,7 @@ class ConfiguratieServiceTest : BehaviorSpec({
             val fileTypes = configurationService.readAdditionalAllowedFileTypes()
 
             Then("Correct list is returned") {
-                fileTypes shouldBe listOf("dummyFileType1", "dummyFileType2")
+                fileTypes shouldBe listOf("fakeFileType1", "fakeFileType2")
             }
         }
     }

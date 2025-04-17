@@ -128,7 +128,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
             and with a productaanvraagtype that is not already in use by another zaaktype
             """
     ) {
-        val productaanvraagtype = "dummyProductaanvraagtype"
+        val productaanvraagtype = "fakeProductaanvraagtype"
         val restZaakafhandelParameters = createRestZaakAfhandelParameters(
             id = null,
             productaanvraagtype = productaanvraagtype
@@ -184,11 +184,11 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
             and with a productaanvraagtype that is already in use by another zaaktype
             """
     ) {
-        val productaanvraagtype = "dummyProductaanvraagtype"
+        val productaanvraagtype = "fakeProductaanvraagtype"
         val restZaakafhandelParameters = createRestZaakAfhandelParameters(
             id = null,
             productaanvraagtype = productaanvraagtype,
-            restZaaktypeOverzicht = createRestZaaktypeOverzicht(omschrijving = "dummyZaaktypeOmschrijving2")
+            restZaaktypeOverzicht = createRestZaaktypeOverzicht(omschrijving = "fakeZaaktypeOmschrijving2")
         )
         val zaakafhandelParameters = createZaakafhandelParameters(
             id = null
@@ -196,7 +196,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         val activeZaakafhandelParametersForThisProductaanvraagtype = createZaakafhandelParameters(
             id = 1234L,
             productaanvraagtype = productaanvraagtype,
-            zaaktypeOmschrijving = "dummyZaaktypeOmschrijving1"
+            zaaktypeOmschrijving = "fakeZaaktypeOmschrijving1"
         )
         every { policyService.readOverigeRechten().beheren } returns true
         every {
