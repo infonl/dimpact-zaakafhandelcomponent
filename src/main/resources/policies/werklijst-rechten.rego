@@ -28,7 +28,7 @@ werklijst_rechten := {
 
 default inbox := false
 inbox if {
-    behandelaar.rol in user_rollen
+    coordinator.rol in user_rollen
 }
 
 default ontkoppelde_documenten_verwijderen := false
