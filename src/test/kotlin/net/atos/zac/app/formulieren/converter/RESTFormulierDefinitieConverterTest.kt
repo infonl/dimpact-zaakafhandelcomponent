@@ -15,10 +15,9 @@ class RESTFormulierDefinitieConverterTest : BehaviorSpec({
 
     Given("Formulier definition") {
         val formulierDefinitie = createFormulierDefinitie()
-        val restFormulierDefinitieConverter = RESTFormulierDefinitieConverter()
 
         When("converted to REST representation including fields") {
-            val restFormulierVeldDefinitie = restFormulierDefinitieConverter.convert(formulierDefinitie, true)
+            val restFormulierVeldDefinitie = formulierDefinitie.toRESTFormulierDefinitie(true)
 
             Then("correct object is returned") {
                 with(restFormulierVeldDefinitie) {
@@ -55,7 +54,7 @@ class RESTFormulierDefinitieConverterTest : BehaviorSpec({
         }
 
         When("converted to REST representation excluding fields") {
-            val restFormulierVeldDefinitie = restFormulierDefinitieConverter.convert(formulierDefinitie, false)
+            val restFormulierVeldDefinitie = formulierDefinitie.toRESTFormulierDefinitie(false)
 
             Then("correct object is returned") {
                 with(restFormulierVeldDefinitie) {
@@ -66,7 +65,7 @@ class RESTFormulierDefinitieConverterTest : BehaviorSpec({
                     uitleg shouldBe "Fake explanation"
                     creatiedatum shouldBe formulierDefinitie.creatiedatum
                     wijzigingsdatum shouldBe formulierDefinitie.wijzigingsdatum
-                    veldDefinities shouldBe null
+                    veldDefinities.size shouldBe 0
                 }
             }
         }
@@ -74,10 +73,9 @@ class RESTFormulierDefinitieConverterTest : BehaviorSpec({
 
     Given("REST representation of Formulier") {
         val restFormulierDefinition = createRESTFormulierDefinitie()
-        val restFormulierDefinitieConverter = RESTFormulierDefinitieConverter()
 
         When("converted to Formulier definition") {
-            val formulierDefinitie = restFormulierDefinitieConverter.convert(restFormulierDefinition)
+            val formulierDefinitie = restFormulierDefinition.toFormulierDefinitie()
 
             Then("the correct object is built") {
                 with(formulierDefinitie) {
@@ -88,8 +86,8 @@ class RESTFormulierDefinitieConverterTest : BehaviorSpec({
                     uitleg shouldBe "Fake explanation"
                     creatiedatum shouldBe formulierDefinitie.creatiedatum
                     wijzigingsdatum shouldBe formulierDefinitie.wijzigingsdatum
-                    veldDefinities.size shouldBe 2
-                    with(veldDefinities.first()) {
+                    getVeldDefinities().size shouldBe 2
+                    with(getVeldDefinities().first()) {
                         id shouldBe 1L
                         systeemnaam shouldBe "Fake system name"
                         beschrijving shouldBe "Fake description"
@@ -99,7 +97,7 @@ class RESTFormulierDefinitieConverterTest : BehaviorSpec({
                         meerkeuzeOpties shouldBe "Fake multi-options"
                         validaties shouldBe "Fake validation 1;Fake validation 2"
                     }
-                    with(veldDefinities.last()) {
+                    with(getVeldDefinities().last()) {
                         id shouldBe 1L
                         systeemnaam shouldBe "Fake system name"
                         beschrijving shouldBe "Fake description"
