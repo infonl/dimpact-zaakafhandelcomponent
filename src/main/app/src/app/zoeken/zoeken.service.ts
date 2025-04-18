@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -55,6 +55,25 @@ export class ZoekenService {
         {
           zaakIdentificator,
           informationObjectTypeUuid,
+          page: 0,
+          rows: 10,
+        },
+      )
+      .pipe(
+        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+      );
+  }
+
+  listZaakKoppelbareZaken(
+    zaakIdentificator: string,
+    linkType: string,
+  ): Observable<Resultaat<GeneratedType<"RestZaakKoppelenZoekObject">>> {
+    return this.http
+      .put<Resultaat<GeneratedType<"RestZaakKoppelenZoekObject">>>(
+        `${this.basepath}/zaken`,
+        {
+          zaakIdentificator,
+          linkType,
           page: 0,
           rows: 10,
         },
