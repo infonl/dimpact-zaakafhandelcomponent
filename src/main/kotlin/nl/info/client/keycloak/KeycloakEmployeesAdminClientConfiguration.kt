@@ -24,14 +24,14 @@ class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
     @ConfigProperty(name = "AUTH_SERVER")
     private val keycloakUrl: String,
 
-    @ConfigProperty(name = "KEYCLOAK_ADMIN_CLIENT_ID")
-    private val clientId: String,
-
-    @ConfigProperty(name = "KEYCLOAK_ADMIN_CLIENT_SECRET")
-    private val clientSecret: String,
-
     @ConfigProperty(name = "AUTH_REALM")
     private val realmName: String,
+
+    @ConfigProperty(name = "KEYCLOAK_ADMIN_CLIENT_ID")
+    private val zacAdminClientId: String,
+
+    @ConfigProperty(name = "KEYCLOAK_ADMIN_CLIENT_SECRET")
+    private val zacAdminClientSecret: String
 ) {
     companion object {
         private val LOG = Logger.getLogger(KeycloakEmployeesAdminClientConfiguration::class.java.name)
@@ -42,14 +42,14 @@ class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
     fun build(): RealmResource {
         LOG.info(
             "Building Keycloak admin client using: url: '$keycloakUrl', realm: '$realmName', " +
-                "client id: '$clientId', client secret: '*******'"
+                "client id: '$zacAdminClientId', client secret: '*******'"
         )
         return KeycloakBuilder.builder()
             .serverUrl(keycloakUrl)
             .realm(realmName)
             .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
-            .clientId(clientId)
-            .clientSecret(clientSecret)
+            .clientId(zacAdminClientId)
+            .clientSecret(zacAdminClientSecret)
             .build()
             .realm(realmName)
     }

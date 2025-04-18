@@ -27,8 +27,8 @@ class UserPrincipalFilter @Inject constructor(
 ) : Filter {
     companion object {
         private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
-        private const val ROL_DOMEIN_ELK_ZAAKTYPE = "domein_elk_zaaktype"
         private const val GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership"
+        const val ROL_DOMEIN_ELK_ZAAKTYPE = "domein_elk_zaaktype"
     }
 
     override fun doFilter(

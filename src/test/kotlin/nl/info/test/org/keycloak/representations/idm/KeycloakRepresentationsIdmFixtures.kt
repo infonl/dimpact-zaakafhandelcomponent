@@ -26,9 +26,11 @@ fun createUserRepresentation(
 fun createGroupRepresentation(
     id: String = "fakeGroupId",
     name: String = "fakeGroupName",
-    attributes: Map<String, List<String>> = mapOf("fakeKey" to listOf("fakeValue"))
+    attributes: Map<String, List<String>> = mapOf("fakeKey" to listOf("fakeValue")),
+    clientRoles: Map<String, List<String>> = emptyMap()
 ) = GroupRepresentation().apply {
     this.id = id
     this.name = name
     this.attributes = attributes
+    this.clientRoles = clientRoles
 }

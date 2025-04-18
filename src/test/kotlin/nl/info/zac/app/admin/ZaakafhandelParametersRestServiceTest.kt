@@ -28,13 +28,9 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_USER_NOT_IN_GROUP
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
-import org.keycloak.admin.client.resource.RealmResource
-import org.keycloak.admin.client.resource.UserResource
-import org.keycloak.admin.client.resource.UsersResource
-import org.keycloak.representations.idm.GroupRepresentation
-import org.keycloak.representations.idm.UserRepresentation
 import java.util.UUID
 
 class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
@@ -48,9 +44,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
     val caseDefinitionConverter = mockk<RESTCaseDefinitionConverter>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val policyService = mockk<PolicyService>()
-    val realmResource = mockk<RealmResource>()
-    val identityService = IdentityService(realmResource)
-
+    val identityService = mockk<IdentityService>()
     val zaakafhandelParametersRestService = ZaakafhandelParametersRestService(
         ztcClientService = ztcClientService,
         configuratieService = configuratieService,
@@ -245,30 +239,20 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A behandelaar is set") {
-        When("the behandelaar is not part of the behandelaar group") {
-            every { policyService.readOverigeRechten().beheren } returns true
+    Given("A behandelaar is set but the behandelaar is not part of the behandelaar group") {
+        val zaakafhandelParameters = createZaakafhandelParameters(id = null)
+        val behandelaarId = "fakeBehandelaarId"
+        val behandelaarGroupId = "fakeBehandelaarGroupId"
+        every { policyService.readOverigeRechten().beheren } returns true
+        every {
+            identityService.checkIfUserIsInGroup(behandelaarId, behandelaarGroupId)
+        } throws UserNotInGroupException()
 
-            val userId = "1"
-            val userResources = mockk<UsersResource>()
-            every { userResources.searchByUsername(any(), true) } returns listOf(
-                mockk<UserRepresentation> {
-                    every { id } returns userId
-                }
-            )
-            every { userResources.get(userId) } returns mockk<UserResource> {
-                every { groups() } returns emptyList<GroupRepresentation>()
-            }
-            every { realmResource.users() } returns userResources
-
+        When("zaakafhandelparameters are created") {
             val restZaakafhandelParameters = createRestZaakAfhandelParameters(
-                defaultBehandelaarId = "defaultBehandelaarId",
-                defaultGroupId = "defaultGroupId"
+                defaultBehandelaarId = behandelaarId,
+                defaultGroupId = behandelaarGroupId
             )
-            val zaakafhandelParameters = createZaakafhandelParameters(
-                id = null
-            )
-
             val exception = shouldThrow<InputValidationFailedException> {
                 zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
                     restZaakafhandelParameters

@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package nl.info.zac.identity
 
 import io.kotest.assertions.throwables.shouldThrow
@@ -11,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import net.atos.zac.admin.ZaakafhandelParameterService
 import nl.info.test.org.keycloak.representations.idm.createGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createUserRepresentation
 import nl.info.zac.identity.exception.GroupNotFoundException
@@ -18,10 +18,17 @@ import nl.info.zac.identity.exception.UserNotFoundException
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.getFullName
 import org.keycloak.admin.client.resource.RealmResource
+import java.util.UUID
 
 class IdentityServiceTest : BehaviorSpec({
+    val zacKeycloakClientId = "fakeZacKeycloakClientId"
     val realmResource = mockk<RealmResource>()
-    val identityService = IdentityService(realmResource)
+    val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
+    val identityService = IdentityService(
+        keycloakZacRealmResource = realmResource,
+        zaakafhandelParameterService = zaakafhandelParameterService,
+        zacKeycloakClientId = zacKeycloakClientId
+    )
 
     beforeEach {
         checkUnnecessaryStub()
@@ -276,6 +283,85 @@ class IdentityServiceTest : BehaviorSpec({
             }
 
             Then("an exception is thrown") {}
+        }
+    }
+
+    Given(
+        """
+            One Keycloak group with a ZAC client role that is equal to the domein role configured in the 
+            zaakafhandelparameters for a zaaktype uuid, and another Keycloak group with a different ZAC client role.
+        """.trimIndent()
+    ) {
+        val zaaktypeUuid = UUID.randomUUID()
+        val domeinRole = "fakeDomeinRole"
+        val groupRepresentation1 = createGroupRepresentation(
+            name = "fakeGroupName1",
+            attributes = mapOf("description" to listOf("fakeGroupDescription1")),
+            clientRoles = mapOf(zacKeycloakClientId to listOf(domeinRole))
+        )
+        val groupRepresentation2 = createGroupRepresentation(
+            name = "fakeGroupName2",
+            clientRoles = mapOf(zacKeycloakClientId to listOf("otherRole"))
+        )
+        every {
+            realmResource.groups().groups("", 0, Integer.MAX_VALUE, false)
+        } returns listOf(groupRepresentation1, groupRepresentation2)
+        every { zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid).domein } returns domeinRole
+
+        When("groups for the zaaktype UUID are listed") {
+            val groups = identityService.listGroupsForZaaktypeUuid(zaaktypeUuid)
+
+            Then("only groups with matching domain roles are returned") {
+                groups.size shouldBe 1
+                with(groups[0]) {
+                    id shouldBe "fakeGroupName1"
+                    name shouldBe "fakeGroupDescription1"
+                    zacClientRoles shouldBe listOf(domeinRole)
+                }
+            }
+        }
+    }
+
+    Given("Zaaktype UUID with domain allowing all zaaktypes") {
+        val zaaktypeUuid = UUID.randomUUID()
+        val groupRepresentation1 = createGroupRepresentation(
+            name = "fakeGroupId1",
+            clientRoles = mapOf(zacKeycloakClientId to listOf("fakeDomeinRole1")),
+        )
+        val groupRepresentation2 = createGroupRepresentation(
+            name = "fakeGroupId2",
+            clientRoles = mapOf(zacKeycloakClientId to listOf("fakeDomeinRole2")),
+        )
+        every {
+            realmResource.groups().groups("", 0, Integer.MAX_VALUE, false)
+        } returns listOf(groupRepresentation1, groupRepresentation2)
+        every {
+            zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid).domein
+        } returns "domein_elk_zaaktype"
+
+        When("groups for the zaaktype UUID are listed") {
+            val groups = identityService.listGroupsForZaaktypeUuid(zaaktypeUuid)
+
+            Then("all groups are returned, sorted by name") {
+                groups.size shouldBe 2
+                groups[0].id shouldBe "fakeGroupId1"
+                groups[1].id shouldBe "fakeGroupId2"
+            }
+        }
+    }
+
+    Given("Zaaktype UUID with empty group list") {
+        val zaaktypeUuid = UUID.randomUUID()
+        val domain = "anyDomain"
+        every { realmResource.groups().groups("", 0, Integer.MAX_VALUE, false) } returns emptyList()
+        every { zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid).domein } returns domain
+
+        When("groups for the zaaktype UUID are listed") {
+            val groups = identityService.listGroupsForZaaktypeUuid(zaaktypeUuid)
+
+            Then("no groups are returned") {
+                groups.size shouldBe 0
+            }
         }
     }
 })
