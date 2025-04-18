@@ -10,7 +10,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
-import { ZaakLinkTypes } from "src/app/informatie-objecten/model/zaak-koppel-type.enum";
+import { ZaakKoppelTypes } from "src/app/informatie-objecten/model/zaak-koppel-type.enum";
 import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
 import { SelectFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/select/select-form-field-builder";
 import { AbstractFormControlField } from "src/app/shared/material-form-builder/model/abstract-form-control-field";
@@ -59,7 +59,7 @@ export class ZaakLinkComponent implements OnInit, OnDestroy {
 
     this.caseLinkingOptionsList = this.utilService.getEnumAsSelectList(
       "zaak.koppelen.link.type",
-      ZaakLinkTypes,
+      ZaakKoppelTypes,
     );
 
     this.selectLinkTypeField = new SelectFormFieldBuilder()

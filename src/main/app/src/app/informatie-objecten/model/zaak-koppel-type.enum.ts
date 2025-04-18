@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-export enum ZaakLinkTypes {
+export enum ZaakKoppelTypes {
   "deelzaak" = "DEELZAAK",
   "hoofdzaak" = "HOOFDZAAK",
   // "gerelateerd" = "GERELATEERD",
