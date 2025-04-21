@@ -380,7 +380,7 @@ services:
       - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml
     ports:
       - "14268"  # jaeger ingest
-      - "3200"   # tempo
+      - "3200:3200"   # tempo
       - "4317"  # otlp grpc
       - "4318"  # otlp http
       - "9411"   # zipkin
@@ -403,7 +403,7 @@ services:
   grafana:
     image: docker.io/grafana/grafana:11.6.0@sha256:62d2b9d20a19714ebfe48d1bb405086081bc602aa053e28cf6d73c7537640dfb
     volumes:
-      - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/docker
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
     environment:
       - GF_AUTH_ANONYMOUS_ENABLED=true
@@ -573,7 +573,7 @@ services:
       # We should be able to switch off 2FA with:
       # - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.dev
       # - DISABLE_2FA=true
-      # However the above config errors with `ModuleNotFoundError: No module named 'debug_toolbar'`
+      # However, the above config errors with `ModuleNotFoundError: No module named 'debug_toolbar'`
       - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.docker
       - SECRET_KEY=${SECRET_KEY:-oabSecretKey}
       - DB_NAME=openarchiefbeheer
@@ -710,8 +710,8 @@ services:
       - SMTP_PASSWORD=${SMTP_PASSWORD:-fakeMailjetApiSecretKey}
       - SIGNALERINGEN_DELETE_OLDER_THAN_DAYS=${SIGNALERINGEN_DELETE_OLDER_THAN_DAYS:-14}
       - SOLR_URL=http://solr:8983
-      # Turn off the Open Telemetry sampler by default because it is not always needed
-      # Typically when using the Docker Compose profile 'metrics' you want to turn this on
+      # Turn off the Open Telemetry sampler by default because it is not always necessary.
+      # Typically, when using the Docker Compose profile 'metrics' you want to set this to 'on'.
       - SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=${SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE:-off}
       - SUBSYSTEM_OPENTELEMETRY__ENDPOINT=http://otel-collector:4317
       - VERANTWOORDELIJKE_ORGANISATIE_RSIN=${VERANTWOORDELIJKE_ORGANISATIE_RSIN:-316245124}
