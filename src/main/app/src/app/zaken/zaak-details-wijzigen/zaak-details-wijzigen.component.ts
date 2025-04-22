@@ -47,6 +47,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
 
   formFields: Array<AbstractFormField[]> = [];
   formConfig: FormConfig;
+  reasonField: TextareaFormField;
 
   private medewerkerGroepFormField!: MedewerkerGroepFormField;
   private communicatiekanalen: Observable<string[]>;
@@ -58,10 +59,9 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
   private vertrouwelijkheidaanduidingenList: { label: string; value: string }[];
   private omschrijving!: TextareaFormField;
   private toelichtingField!: TextareaFormField;
-  reasonField: TextareaFormField;
   private ngDestroy = new Subject<void>();
   private initialZaakGeometry!: Geometry;
-  private dateChangesDisabled = false;
+  private dateChangesALlowed = false;
 
   constructor(
     private zakenService: ZakenService,
@@ -100,10 +100,10 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
   ngOnInit() {
     this.initialZaakGeometry = this.zaak.zaakgeometrie;
 
-    this.dateChangesDisabled =
-      this.zaak.isProcesGestuurd ||
-      !this.zaak.isOpen ||
-      !this.zaak.rechten.wijzigen;
+    this.dateChangesALlowed =
+      !this.zaak.isProcesGestuurd &&
+      this.zaak.isOpen &&
+      this.zaak.rechten.wijzigen;
 
     this.medewerkerGroepFormField = this.getMedewerkerGroupFormField(
       !this.zaak.rechten.toekennen,
@@ -124,14 +124,14 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     this.startDatumField = this.createDateFormField(
       "startdatum",
       this.zaak.startdatum,
-      this.dateChangesDisabled,
+      this.dateChangesALlowed,
       [Validators.required, (control) => this.validateStartDatum(control)],
     );
 
     this.einddatumGeplandField = this.createDateFormField(
       "einddatumGepland",
       this.zaak.einddatumGepland,
-      !this.zaak.einddatumGepland || this.dateChangesDisabled,
+      !!this.zaak.einddatumGepland && this.dateChangesALlowed,
       [
         this.zaak.einddatumGepland
           ? Validators.required
@@ -143,7 +143,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     this.uiterlijkeEinddatumAfdoeningField = this.createDateFormField(
       "uiterlijkeEinddatumAfdoening",
       this.zaak.uiterlijkeEinddatumAfdoening,
-      this.dateChangesDisabled,
+      this.dateChangesALlowed,
       [
         Validators.required,
         (control) => this.validateUiterlijkeEinddatumAfdoening(control),
@@ -235,14 +235,14 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
   private createDateFormField(
     id: string,
     value: any,
-    disabled: boolean,
+    enabled: boolean,
     validators: ValidatorFn[],
   ): DateFormField {
     return new DateFormFieldBuilder(value)
       .id(id)
       .label(id)
       .validators(...validators)
-      .disabled(disabled)
+      .disabled(!enabled)
       .build();
   }
 
