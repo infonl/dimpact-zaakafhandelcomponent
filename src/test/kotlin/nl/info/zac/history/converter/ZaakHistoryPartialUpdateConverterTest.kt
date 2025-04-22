@@ -21,7 +21,7 @@ import java.util.UUID
 
 class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
-    val userName = "dummyUserName"
+    val userName = "fakeUserName"
     val description = "description"
     val zaakHistoryPartialUpdateConverter = ZaakHistoryPartialUpdateConverter(zrcClientService)
 
@@ -51,16 +51,16 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
                 nieuw = mapOf(
                     "roltype" to rolTypeUri,
                     "roltoelichting" to "",
-                    "omschrijving" to "dummyOmschrijving",
+                    "omschrijving" to "fakeOmschrijving",
                     "betrokkeneIdentificatie" to mapOf(
-                        "achternaam" to "dummyAchternaam",
-                        "identificatie" to "dummyIdentificatie",
-                        "voorletters" to "dummyVoorletters"
+                        "achternaam" to "fakeAchternaam",
+                        "identificatie" to "fakeIdentificatie",
+                        "voorletters" to "fakeVoorletters"
                     ),
                     "betrokkeneType" to "medewerker",
                     "zaak" to "https://example.com/zaak",
-                    "identificatienummer" to "dummyIdentificatie",
-                    "naam" to "dummyVoorletters dummyAchternaam",
+                    "identificatienummer" to "fakeIdentificatie",
+                    "naam" to "fakeVoorletters fakeAchternaam",
                     "omschrijvingGeneriek" to "initiator"
                 )
             }
@@ -76,7 +76,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
                     BigDecimal("5.363728969647492")
                 )
             ),
-            "dummyKey" to "dummyValue"
+            "fakeKey" to "fakeValue"
         )
 
         When("history is requested") {
@@ -125,9 +125,9 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
                     datumTijd shouldBe creationDate
                     door shouldBe userName
                     toelichting shouldBe description
-                    attribuutLabel shouldBe "dummyKey"
+                    attribuutLabel shouldBe "fakeKey"
                     oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "dummyValue"
+                    nieuweWaarde shouldBe "fakeValue"
                 }
             }
         }

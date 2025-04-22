@@ -24,9 +24,9 @@ import java.util.UUID
 @Suppress("LongParameterList")
 fun createRESTZoekParameters(
     type: ZoekObjectType = ZoekObjectType.ZAAK,
-    zoeken: Map<String, String> = mapOf("dummyKey" to "dummyValue"),
+    zoeken: Map<String, String> = mapOf("fakeKey" to "fakeValue"),
     filters: Map<FilterVeld, FilterParameters> = mapOf(
-        FilterVeld.BEHANDELAAR to FilterParameters(listOf("dummyFilterValue"), false)
+        FilterVeld.BEHANDELAAR to FilterParameters(listOf("fakeFilterValue"), false)
     ),
     datums: Map<DatumVeld, RestDatumRange> = mapOf(
         DatumVeld.STARTDATUM to RestDatumRange()
@@ -57,7 +57,7 @@ fun createRESTZoekParameters(
 fun createZaakZoekObject(
     uuid: UUID = UUID.randomUUID(),
     type: ZoekObjectType = ZoekObjectType.ZAAK,
-    behandelaarGebruikersnaam: String = "dummyBehandelaarGebruikersnaam"
+    behandelaarGebruikersnaam: String = "fakeBehandelaarGebruikersnaam"
 ) = ZaakZoekObject(
     id = uuid.toString(),
     type = type.name

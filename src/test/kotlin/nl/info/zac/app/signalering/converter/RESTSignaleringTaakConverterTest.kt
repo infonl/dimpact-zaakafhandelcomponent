@@ -19,7 +19,7 @@ class RESTSignaleringTaakConverterTest : BehaviorSpec({
     }
 
     Given("A task of scope type CMMN with a zaakIdentificatie and zaaktypeOmschrijving") {
-        val zaakIdentificatie = "dummyZzaakIdentificatie"
+        val zaakIdentificatie = "fakeZzaakIdentificatie"
         val zaaktypeOmschrijving = "my-zaaktype-omschrijving"
         val cal = Calendar.getInstance()
         cal[Calendar.YEAR] = 1988

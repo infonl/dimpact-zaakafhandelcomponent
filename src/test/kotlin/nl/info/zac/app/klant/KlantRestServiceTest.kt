@@ -50,14 +50,14 @@ class KlantRestServiceTest : BehaviorSpec({
         a vestiging for which a company exists in the KVK client and for which a customer exists in the klanten client
         """
     ) {
-        val vestigingsnummer = "dummyVestigingsnummer"
+        val vestigingsnummer = "fakeVestigingsnummer"
         val adres = createAdresWithBinnenlandsAdres()
         val kvkResultaatItem = createResultaatItem(
             adres = adres,
             type = "nevenvestiging",
             vestingsnummer = vestigingsnummer
         )
-        val digitalAddressesList = createDigitalAddresses("+123-456-789", "dummy@example.com")
+        val digitalAddressesList = createDigitalAddresses("+123-456-789", "fake@example.com")
         every {
             kvkClientService.findVestiging(vestigingsnummer)
         } returns Optional.of(kvkResultaatItem)
@@ -80,7 +80,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     rsin shouldBe kvkResultaatItem.rsin
                     type shouldBe "NEVENVESTIGING"
                     telefoonnummer shouldBe "+123-456-789"
-                    emailadres shouldBe "dummy@example.com"
+                    emailadres shouldBe "fake@example.com"
                 }
             }
         }
@@ -90,7 +90,7 @@ class KlantRestServiceTest : BehaviorSpec({
         a vestiging for which a company exists in the KVK client but for which no customer exists in the klanten client
         """
     ) {
-        val vestigingsnummer = "dummyVestigingsnummer"
+        val vestigingsnummer = "fakeVestigingsnummer"
         val adres = createAdresWithBinnenlandsAdres()
         val kvkResultaatItem = createResultaatItem(
             adres = adres,
@@ -123,7 +123,7 @@ class KlantRestServiceTest : BehaviorSpec({
         a vestiging which does not exist in the KVK client nor in in the klanten client
         """
     ) {
-        val vestigingsnummer = "dummyVestigingsnummer"
+        val vestigingsnummer = "fakeVestigingsnummer"
         every {
             kvkClientService.findVestiging(vestigingsnummer)
         } returns Optional.empty()
@@ -219,31 +219,31 @@ class KlantRestServiceTest : BehaviorSpec({
         val vestiging = createVestiging(
             sbiActiviteiten = listOf(
                 createSBIActiviteit(
-                    sbiCode = "dummySbiCode1",
-                    sbiOmschrijving = "dummySbiOmschrijving1",
+                    sbiCode = "fakeSbiCode1",
+                    sbiOmschrijving = "fakeSbiOmschrijving1",
                     indHoofdactiviteit = "nee"
                 ),
                 createSBIActiviteit(
-                    sbiCode = "dummySbiCode2",
-                    sbiOmschrijving = "dummySbiOmschrijving2",
+                    sbiCode = "fakeSbiCode2",
+                    sbiOmschrijving = "fakeSbiOmschrijving2",
                     indHoofdactiviteit = "ja"
                 ),
                 createSBIActiviteit(
-                    sbiCode = "dummySbiCode3",
-                    sbiOmschrijving = "dummySbiOmschrijving3",
+                    sbiCode = "fakeSbiCode3",
+                    sbiOmschrijving = "fakeSbiOmschrijving3",
                     indHoofdactiviteit = "nee"
                 )
             ),
             adressen = listOf(
                 createVestigingsAdres(
-                    type = "dummyType1",
+                    type = "fakeType1",
                     indAfgeschermd = "nee",
-                    volledigAdres = "dummyVolledigAdres1"
+                    volledigAdres = "fakeVolledigAdres1"
                 ),
                 createVestigingsAdres(
-                    type = "dummyType2",
+                    type = "fakeType2",
                     indAfgeschermd = "ja",
-                    volledigAdres = "dummyVolledigAdres2"
+                    volledigAdres = "fakeVolledigAdres2"
                 )
             )
         )
@@ -262,19 +262,19 @@ class KlantRestServiceTest : BehaviorSpec({
                     this.deeltijdWerkzamePersonen shouldBe vestiging.deeltijdWerkzamePersonen
                     this.voltijdWerkzamePersonen shouldBe vestiging.voltijdWerkzamePersonen
                     // the SBI activiteiten list is the list of descriptions of the non-hoofd activiteiten
-                    this.sbiActiviteiten shouldBe listOf("dummySbiOmschrijving1", "dummySbiOmschrijving3")
-                    this.sbiHoofdActiviteit shouldBe "dummySbiOmschrijving2"
+                    this.sbiActiviteiten shouldBe listOf("fakeSbiOmschrijving1", "fakeSbiOmschrijving3")
+                    this.sbiHoofdActiviteit shouldBe "fakeSbiOmschrijving2"
                     with(this.adressen!!) {
                         size shouldBe 2
                         with(this[0]) {
-                            type shouldBe "dummyType1"
+                            type shouldBe "fakeType1"
                             afgeschermd shouldBe false
-                            volledigAdres shouldBe "dummyVolledigAdres1"
+                            volledigAdres shouldBe "fakeVolledigAdres1"
                         }
                         with(this[1]) {
-                            type shouldBe "dummyType2"
+                            type shouldBe "fakeType2"
                             afgeschermd shouldBe true
-                            volledigAdres shouldBe "dummyVolledigAdres2"
+                            volledigAdres shouldBe "fakeVolledigAdres2"
                         }
                     }
                 }
@@ -313,10 +313,10 @@ class KlantRestServiceTest : BehaviorSpec({
     Given("A KVK company with a KVK number and a vestigings number") {
         val restListBedrijvenParameters = createRestListBedrijvenParameters()
         val resultaatItem = createResultaatItem(
-            naam = "dummyName",
-            kvkNummer = "dummyKvkNummer",
-            type = "dummyType",
-            vestingsnummer = "dummyVestigingsnummer",
+            naam = "fakeName",
+            kvkNummer = "fakeKvkNummer",
+            type = "fakeType",
+            vestingsnummer = "fakeVestigingsnummer",
             rsin = null
         )
         every { kvkClientService.list(any()).resultaten } returns listOf(resultaatItem)
@@ -327,11 +327,11 @@ class KlantRestServiceTest : BehaviorSpec({
             Then("the result should contain the expected company") {
                 result.resultaten.size shouldBe 1
                 with(result.resultaten.first()) {
-                    this.naam shouldBe "dummyName"
-                    this.kvkNummer shouldBe "dummyKvkNummer"
+                    this.naam shouldBe "fakeName"
+                    this.kvkNummer shouldBe "fakeKvkNummer"
                     // the type should be converted to uppercase in the response
-                    this.type shouldBe "DUMMYTYPE"
-                    this.vestigingsnummer shouldBe "dummyVestigingsnummer"
+                    this.type shouldBe "FAKETYPE"
+                    this.vestigingsnummer shouldBe "fakeVestigingsnummer"
                 }
             }
         }
@@ -339,10 +339,10 @@ class KlantRestServiceTest : BehaviorSpec({
     Given("A KVK company without a vestigings number and without a RSIN") {
         val restListBedrijvenParameters = createRestListBedrijvenParameters()
         val resultaatItem = createResultaatItem(
-            naam = "dummyName",
-            kvkNummer = "dummyKvkNummer",
+            naam = "fakeName",
+            kvkNummer = "fakeKvkNummer",
             rsin = null,
-            type = "dummyType",
+            type = "fakeType",
             vestingsnummer = null
         )
         every { kvkClientService.list(any()).resultaten } returns listOf(resultaatItem)

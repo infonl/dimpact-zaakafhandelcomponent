@@ -55,7 +55,7 @@ class RestExceptionMapperTest : BehaviorSpec({
     }
 
     Given("A runtime exception") {
-        val exceptionMessage = "DummyRuntimeException"
+        val exceptionMessage = "FakeRuntimeException"
         val exception = RuntimeException(exceptionMessage)
 
         When("the exception is mapped to a response") {
@@ -68,7 +68,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         }
     }
     Given("A BRC runtime exception") {
-        val exceptionMessage = "DummyRuntimeException"
+        val exceptionMessage = "FakeRuntimeException"
         val exception = BrcRuntimeException(exceptionMessage)
 
         When("the exception is mapped to a response") {
@@ -81,7 +81,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         }
     }
     Given("A DRC runtime exception") {
-        val exceptionMessage = "DummyRuntimeException"
+        val exceptionMessage = "FakeRuntimeException"
         val exception = DrcRuntimeException(exceptionMessage)
 
         When("the exception is mapped to a response") {
@@ -94,7 +94,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         }
     }
     Given("A ZRC runtime exception") {
-        val exceptionMessage = "DummyRuntimeException"
+        val exceptionMessage = "FakeRuntimeException"
         val exception = ZrcRuntimeException(exceptionMessage)
 
         When("the exception is mapped to a response") {
@@ -107,7 +107,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         }
     }
     Given("A ZGW runtime exception") {
-        val exceptionMessage = "DummyRuntimeException"
+        val exceptionMessage = "FakeRuntimeException"
         val exception = ZgwRuntimeException(exceptionMessage)
 
         When("the exception is mapped to a response") {
@@ -120,7 +120,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         }
     }
     Given("A ZTC runtime exception") {
-        val exceptionMessage = "DummyRuntimeException"
+        val exceptionMessage = "FakeRuntimeException"
         val exception = ZtcRuntimeException(exceptionMessage)
 
         When("the exception is mapped to a response") {
@@ -138,7 +138,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         and which contains the BAG client service class name in the stacktrace
         """
     ) {
-        val exceptionMessage = "DummyProcessingException"
+        val exceptionMessage = "FakeProcessingException"
         val exception = ProcessingException(
             exceptionMessage,
             HttpHostConnectException(
@@ -162,7 +162,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         and which contains the BRC client service class name in the stacktrace
         """
     ) {
-        val exceptionMessage = "DummyProcessingException"
+        val exceptionMessage = "FakeProcessingException"
         val exception = ProcessingException(
             exceptionMessage,
             HttpHostConnectException(
@@ -186,7 +186,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         and which contains the Klanten client service class name in the stacktrace
         """
     ) {
-        val exceptionMessage = "DummyProcessingException"
+        val exceptionMessage = "FakeProcessingException"
         val exception = ProcessingException(
             exceptionMessage,
             HttpHostConnectException(
@@ -210,7 +210,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         and which contains the Objecten client service class name in the stacktrace
         """
     ) {
-        val exceptionMessage = "DummyProcessingException"
+        val exceptionMessage = "FakeProcessingException"
         val exception = ProcessingException(
             exceptionMessage,
             HttpHostConnectException(
@@ -234,7 +234,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         which contains the ZTC client service class name in the stacktrace
         """
     ) {
-        val exceptionMessage = "DummyProcessingException"
+        val exceptionMessage = "FakeProcessingException"
         val exception = ProcessingException(
             exceptionMessage,
             UnknownHostException("Something terrible happened in the ${ZtcClientService::class.simpleName}!")
@@ -255,7 +255,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         as cause but which does contain a mapped client service class name in the stacktrace
         """
     ) {
-        val exceptionMessage = "DummyProcessingException"
+        val exceptionMessage = "FakeProcessingException"
         val exception = ProcessingException(
             exceptionMessage,
             RuntimeException("Something terrible happened in the ${ZtcClientService::class.simpleName}!")
@@ -275,7 +275,7 @@ class RestExceptionMapperTest : BehaviorSpec({
     Given("An input validation exception with an error code and a message") {
         val exception = InputValidationFailedException(
             errorCode = ERROR_CODE_BAG_CLIENT,
-            message = "dummyErrorMessage"
+            message = "fakeErrorMessage"
         )
 
         When("the exception is mapped to a response") {
@@ -298,7 +298,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                     log(
                         any(),
                         Level.FINE,
-                        "dummyErrorMessage",
+                        "fakeErrorMessage",
                         exception
                     )
                 }
@@ -396,7 +396,7 @@ class RestExceptionMapperTest : BehaviorSpec({
     Given("A ZAC runtime exception") {
         val errorCode = mockk<ErrorCode>()
         val exception = ServerErrorException(errorCode, "error")
-        every { errorCode.value } returns "dummyErrorCodeValue"
+        every { errorCode.value } returns "fakeErrorCodeValue"
 
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
@@ -404,7 +404,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             Then("it should return the expected error code and no exception message and log the exception") {
                 checkResponse(
                     response = response,
-                    errorMessage = "dummyErrorCodeValue",
+                    errorMessage = "fakeErrorCodeValue",
                     expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
                 )
                 verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }

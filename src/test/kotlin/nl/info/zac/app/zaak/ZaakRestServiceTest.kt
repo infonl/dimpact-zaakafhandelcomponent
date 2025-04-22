@@ -204,7 +204,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     Given("zaak input data is provided") {
         val group = createGroup()
-        val formulierData = mapOf(Pair("dummyKey", "dummyValue"))
+        val formulierData = mapOf(Pair("fakeKey", "fakeValue"))
         val objectRegistratieObject = createORObject()
         val productaanvraagDimpact = createProductaanvraagDimpact()
         val restZaak = createRestZaak()
@@ -519,7 +519,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             uuids = zaakUUIDs,
             groepId = group.id,
             behandelaarGebruikersnaam = user.id,
-            reden = "dummyReason"
+            reden = "fakeReason"
         )
         every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
         every { zaakService.assignZaken(any(), any(), any(), any(), any()) } just runs
@@ -658,7 +658,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             zaakUuid = zaak.uuid,
             gekoppeldeZaakIdentificatie = gekoppeldeZaak.identificatie,
             relationType = RelatieType.VERVOLG,
-            reason = "dummyUnlinkReason"
+            reason = "fakeUnlinkReason"
         )
         val patchZaakUUIDSlot = slot<UUID>()
         val patchZaakSlot = slot<Zaak>()
@@ -667,7 +667,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
         every { policyService.readZaakRechten(gekoppeldeZaak) } returns createZaakRechten()
         every {
-            zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot), "dummyUnlinkReason")
+            zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot), "fakeUnlinkReason")
         } returns zaak
 
         When("the zaken are unlinked") {
@@ -700,7 +700,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { zrcClientService.patchZaak(zaak.uuid, patchedZaak, changeDescription) } returns patchedZaak
         every { flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns listOf(task, task, task)
         every { task.dueDate } returns zaak.uiterlijkeEinddatumAfdoening.toDate()
-        every { task.name } returnsMany listOf("dummyTask", AANVULLENDE_INFORMATIE_TASK_NAME, "another task")
+        every { task.name } returnsMany listOf("fakeTask", AANVULLENDE_INFORMATIE_TASK_NAME, "another task")
         every { task.dueDate = newZaakFinalDate.toDate() } just runs
         every { flowableTaskService.updateTask(task) } returns task
         every { task.id } returns "id"
@@ -789,7 +789,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     Given("An existing zaak") {
         val zaak = createZaak()
         val restGeometry = createRESTGeometry()
-        val reason = "dummyReason"
+        val reason = "fakeReason"
         val restZaakLocatieGegevens = createRestZaakLocatieGegevens(
             restGeometry = restGeometry,
             reason = reason
@@ -823,7 +823,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     Given("An existing zaak with a zaak location") {
         val zaak = createZaak()
-        val reason = "dummyReasonForDeletion"
+        val reason = "fakeReasonForDeletion"
         val restZaakLocatieGegevens = createRestZaakLocatieGegevens(
             restGeometry = null,
             reason = reason
@@ -894,12 +894,12 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { restZaakConverter.toRestZaak(zaak) } returns restZaak
 
         When("the initiator is deleted") {
-            val updatedRestZaak = zaakRestService.deleteInitiator(zaak.uuid, RESTReden("dummy reason"))
+            val updatedRestZaak = zaakRestService.deleteInitiator(zaak.uuid, RESTReden("fake reason"))
 
             Then("the initiator should be removed from the zaak") {
                 updatedRestZaak shouldBe restZaak
                 verify(exactly = 1) {
-                    zrcClientService.deleteRol(rolMedewerker, "dummy reason")
+                    zrcClientService.deleteRol(rolMedewerker, "fake reason")
                 }
             }
         }
@@ -1003,7 +1003,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         and which are valid on the current date
         """
     ) {
-        val defaultCatalogueURI = URI("http://example.com/dummyCatalogue")
+        val defaultCatalogueURI = URI("http://example.com/fakeCatalogue")
         val now = LocalDate.now()
         val zaaktypes = listOf(
             createZaakType(
@@ -1053,7 +1053,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         and which are valid on the current date and of which the first zaaktype has valid zaakafhandelparameters
         """
     ) {
-        val defaultCatalogueURI = URI("http://example.com/dummyCatalogue")
+        val defaultCatalogueURI = URI("http://example.com/fakeCatalogue")
         val now = LocalDate.now()
         val zaakType1UUID = UUID.randomUUID()
         val zaakType2UUID = UUID.randomUUID()
@@ -1155,7 +1155,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     Given("An existing BPMN process diagram for a given zaak UUID") {
         val uuid = UUID.randomUUID()
-        every { bpmnService.getProcessDiagram(uuid) } returns ByteArrayInputStream("dummyDiagram".toByteArray())
+        every { bpmnService.getProcessDiagram(uuid) } returns ByteArrayInputStream("fakeDiagram".toByteArray())
 
         When("the process diagram is requested") {
             val response = zaakRestService.downloadProcessDiagram(uuid)
@@ -1166,7 +1166,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 with(response) {
                     status shouldBe HttpStatus.SC_OK
                     headers["Content-Disposition"]!![0] shouldBe """attachment; filename="procesdiagram.gif"""".trimIndent()
-                    (entity as InputStream).bufferedReader().use { it.readText() } shouldBe "dummyDiagram"
+                    (entity as InputStream).bufferedReader().use { it.readText() } shouldBe "fakeDiagram"
                 }
             }
         }
@@ -1184,7 +1184,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         val restOntkoppelGegevens = createRestDocumentOntkoppelGegevens(
             zaakUUID = zaakUUID,
             documentUUID = informatieobjectUUID,
-            reden = "veryDummyReason"
+            reden = "veryFakeReason"
         )
         every { zrcClientService.readZaak(zaakUUID) } returns zaak
         every { drcClientService.readEnkelvoudigInformatieobject(informatieobjectUUID) } returns enkelvoudiginformatieobject
@@ -1194,11 +1194,11 @@ class ZaakRestServiceTest : BehaviorSpec({
         } returns listOf(zaakinformatiebject)
         every { zrcClientService.listZaakinformatieobjecten(enkelvoudiginformatieobject) } returns emptyList()
         every {
-            zrcClientService.deleteZaakInformatieobject(zaakinformatiebject.uuid, "veryDummyReason", "Ontkoppeld")
+            zrcClientService.deleteZaakInformatieobject(zaakinformatiebject.uuid, "veryFakeReason", "Ontkoppeld")
         } just Runs
         every { indexingService.removeInformatieobject(informatieobjectUUID) } just Runs
         every {
-            ontkoppeldeDocumentenService.create(enkelvoudiginformatieobject, zaak, "veryDummyReason")
+            ontkoppeldeDocumentenService.create(enkelvoudiginformatieobject, zaak, "veryFakeReason")
         } returns mockk<OntkoppeldDocument>()
 
         When("a request is done to unlink the zaakinformatieobject from the zaak") {
@@ -1213,11 +1213,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.deleteZaakInformatieobject(
                         zaakinformatiebject.uuid,
-                        "veryDummyReason",
+                        "veryFakeReason",
                         "Ontkoppeld"
                     )
                     indexingService.removeInformatieobject(informatieobjectUUID)
-                    ontkoppeldeDocumentenService.create(enkelvoudiginformatieobject, zaak, "veryDummyReason")
+                    ontkoppeldeDocumentenService.create(enkelvoudiginformatieobject, zaak, "veryFakeReason")
                 }
             }
         }

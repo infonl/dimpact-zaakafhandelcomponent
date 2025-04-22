@@ -12,6 +12,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import net.atos.zac.util.FlywayIntegrator
 import nl.info.zac.util.AllOpen
 import java.util.UUID
@@ -30,7 +31,7 @@ class ZaaktypeBpmnProcessDefinition {
     @GeneratedValue(generator = "sq_zaaktype_bpmn_process_definition", strategy = GenerationType.SEQUENCE)
     var id: Long = 0
 
-    @NotBlank
+    @NotNull
     @Column(name = "zaaktype_uuid")
     lateinit var zaaktypeUuid: UUID
 

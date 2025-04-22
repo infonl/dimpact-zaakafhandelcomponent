@@ -29,7 +29,7 @@ class FlowableTaskServiceTest : BehaviorSpec({
     )
 
     Given("An open task") {
-        val taskId = "dummyTaskId"
+        val taskId = "fakeTaskId"
         val task = mockk<Task>()
 
         every {
@@ -51,7 +51,7 @@ class FlowableTaskServiceTest : BehaviorSpec({
         }
     }
     Given("An closed task") {
-        val taskId = "dummyTaskId"
+        val taskId = "fakeTaskId"
 
         every {
             taskService.createTaskQuery()
@@ -74,7 +74,7 @@ class FlowableTaskServiceTest : BehaviorSpec({
         }
     }
     Given("A historic task") {
-        val taskId = "dummyTaskId"
+        val taskId = "fakeTaskId"
         val historicTaskInstance = mockk<HistoricTaskInstance>()
 
         every {
@@ -96,7 +96,7 @@ class FlowableTaskServiceTest : BehaviorSpec({
         }
     }
     Given("No historic task for the given task id") {
-        val taskId = "dummyTaskId"
+        val taskId = "fakeTaskId"
 
         every {
             historyService.createHistoricTaskInstanceQuery()

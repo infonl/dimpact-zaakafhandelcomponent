@@ -135,10 +135,10 @@ class SignaleringServiceTest : BehaviorSpec({
             ),
             zaak = null
         )
-        val gemeenteMailAdres = createMailAdres("dummy-gemeente@example.com")
+        val gemeenteMailAdres = createMailAdres("fake-gemeente@example.com")
         val signaleringMail = SignaleringTarget.Mail("testName", "test@example.com")
         val mailTemplate = createMailTemplate()
-        val mailBody = "dummyMailBody"
+        val mailBody = "fakeMailBody"
         val mailGegevensSlot = slot<MailGegevens>()
         every { signaleringenMailHelper.getTargetMail(signalering) } returns signaleringMail
         every { mailService.getGemeenteMailAdres() } returns gemeenteMailAdres

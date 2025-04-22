@@ -34,9 +34,9 @@ import java.time.ZonedDateTime
 import java.util.UUID
 
 fun createMedewerker(
-    identificatie: String = "dummyIdentificatie",
-    achternaam: String = "dummyAchternaam",
-    voorletters: String = "dummyVoorletters",
+    identificatie: String = "fakeIdentificatie",
+    achternaam: String = "fakeAchternaam",
+    voorletters: String = "fakeVoorletters",
     voorvoegselAchternaam: String? = null
 ) = Medewerker().apply {
     this.identificatie = identificatie
@@ -45,19 +45,19 @@ fun createMedewerker(
     this.voorvoegselAchternaam = voorvoegselAchternaam
 }
 
-fun createNatuurlijkPersoon(bsn: String = "dummyBsn") = NatuurlijkPersoon(bsn)
+fun createNatuurlijkPersoon(bsn: String = "fakeBsn") = NatuurlijkPersoon(bsn)
 
 fun createObjectOpenbareRuimte(
-    identificatie: String = "dummyIdentificatie",
-    openbareRuimteNaam: String = "dummyopenbareRuimteNaam",
-    plaatsNaam: String = "dummyPlaatsNaam"
+    identificatie: String = "fakeIdentificatie",
+    openbareRuimteNaam: String = "fakeopenbareRuimteNaam",
+    plaatsNaam: String = "fakePlaatsNaam"
 ) = ObjectOpenbareRuimte(
     identificatie,
     openbareRuimteNaam,
     plaatsNaam
 )
 
-fun createObjectPand(identificatie: String = "dummyIdentificatie") = ObjectPand(identificatie)
+fun createObjectPand(identificatie: String = "fakeIdentificatie") = ObjectPand(identificatie)
 
 fun createOpschorting(
     reden: String? = null,
@@ -68,8 +68,8 @@ fun createOpschorting(
 }
 
 fun createOrganisatorischeEenheid(
-    identificatie: String = "dummyIdentificatie",
-    naam: String = "dummyNaam"
+    identificatie: String = "fakeIdentificatie",
+    naam: String = "fakeNaam"
 ) = OrganisatorischeEenheid().apply {
     this.identificatie = identificatie
     this.naam = naam
@@ -101,7 +101,7 @@ fun createResultaat(
 fun createRolMedewerker(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(),
-    roltoelichting: String = "dummyToelichting",
+    roltoelichting: String = "fakeToelichting",
     betrokkeneIdentificatie: Medewerker? = createMedewerker()
 ) = RolMedewerker(
     zaakURI,
@@ -113,7 +113,7 @@ fun createRolMedewerker(
 fun createRolNatuurlijkPersoon(
     zaaktypeURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(zaakTypeUri = zaaktypeURI),
-    toelichting: String = "dummyToelichting",
+    toelichting: String = "fakeToelichting",
     natuurlijkPersoon: NatuurlijkPersoon = createNatuurlijkPersoon()
 ) = RolNatuurlijkPersoon(
     zaaktypeURI,
@@ -125,7 +125,7 @@ fun createRolNatuurlijkPersoon(
 fun createRolOrganisatorischeEenheid(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(),
-    toelichting: String = "dummyToelichting",
+    toelichting: String = "fakeToelichting",
     organisatorischeEenheid: OrganisatorischeEenheid = createOrganisatorischeEenheid()
 ) = RolOrganisatorischeEenheid(
     zaakURI,
@@ -138,13 +138,13 @@ fun createRolOrganisatorischeEenheid(
 fun createZaak(
     zaakTypeURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     startDate: LocalDate = LocalDate.now(),
-    bronOrganisatie: String = "dummyBronOrganisatie",
-    verantwoordelijkeOrganisatie: String = "dummyVerantwoordelijkeOrganisatie",
+    bronOrganisatie: String = "fakeBronOrganisatie",
+    verantwoordelijkeOrganisatie: String = "fakeVerantwoordelijkeOrganisatie",
     // an archiefnominatie which is not null means that the zaak is closed
     archiefnominatie: Archiefnominatie? = null,
     opschorting: Opschorting? = null,
     einddatumGepland: LocalDate? = null,
-    identificatie: String = "dummyIdentificatie",
+    identificatie: String = "fakeIdentificatie",
     registratiedatum: LocalDate = LocalDate.now(),
     resultaat: URI? = null,
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.now().plusDays(1),
@@ -153,7 +153,7 @@ fun createZaak(
     verlenging: Verlenging? = null,
     deelzaken: Set<URI>? = null,
     uuid: UUID = UUID.randomUUID(),
-    omschrijving: String = "dummyOmschrijving"
+    omschrijving: String = "fakeOmschrijving"
 ) = Zaak(
     zaakTypeURI,
     startDate,
@@ -225,6 +225,6 @@ fun createZaakStatus(
 ) = Status(uri, uuid, zaak, statustype, datumStatusGezet)
 
 fun createVerlenging(
-    reden: String = "dummyReden",
+    reden: String = "fakeReden",
     duur: Period = Period.ZERO
 ) = Verlenging(reden, duur)

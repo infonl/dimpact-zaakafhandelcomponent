@@ -81,7 +81,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val rol = createRolNatuurlijkPersoon()
         val restZaakType = createRestZaaktype()
         val zaakrechten = createZaakRechten()
-        val zaakdata = mapOf("dummyKey" to "dummyValue")
+        val zaakdata = mapOf("fakeKey" to "fakeValue")
 
         with(ztcClientService) {
             every { readZaaktype(zaak.zaaktype) } returns zaakType
