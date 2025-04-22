@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2024 Dimpact
+ * SPDX-FileCopyrightText: 2021 Dimpact, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.task.converter
@@ -7,7 +7,7 @@ package nl.info.zac.app.task.converter
 import jakarta.inject.Inject
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.HumanTaskParameters
-import net.atos.zac.app.formulieren.converter.RESTFormulierDefinitieConverter
+import net.atos.zac.app.formulieren.converter.toRESTFormulierDefinitie
 import net.atos.zac.app.policy.converter.RestRechtenConverter
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskData
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
@@ -35,7 +35,6 @@ class RestTaskConverter @Inject constructor(
     private val medewerkerConverter: RestUserConverter,
     private val policyService: PolicyService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
-    private val formulierDefinitieConverter: RESTFormulierDefinitieConverter,
     private val formulierDefinitieService: FormulierDefinitieService,
     private val formioService: FormioService,
 ) {
@@ -103,14 +102,13 @@ class RestTaskConverter @Inject constructor(
                 taskInfo.taskDefinitionKey
             )
         } else {
-            formulierDefinitieService.findFormulierDefinitie(taskInfo.formKey).ifPresentOrElse(
-                {
-                    restTask.formulierDefinitie = formulierDefinitieConverter.convert(it, true)
-                },
-                {
+            formulierDefinitieService.findFormulierDefinitie(taskInfo.formKey).let {
+                if (it != null) {
+                    restTask.formulierDefinitie = it.toRESTFormulierDefinitie(true)
+                } else {
                     restTask.formioFormulier = formioService.readFormioFormulier(taskInfo.formKey)
                 }
-            )
+            }
         }
         return restTask
     }
@@ -135,8 +133,8 @@ class RestTaskConverter @Inject constructor(
         humanTaskParameters: HumanTaskParameters
     ) {
         restTask.formulierDefinitieId = humanTaskParameters.formulierDefinitieID
-        humanTaskParameters.referentieTabellen.forEach {
-            restTask.tabellen[it.veld] = it.tabel.values
+        humanTaskParameters.referentieTabellen.forEach { humanTaskReferentieTabel ->
+            restTask.tabellen[humanTaskReferentieTabel.veld] = humanTaskReferentieTabel.tabel.values
                 .map { it.name }
         }
     }
