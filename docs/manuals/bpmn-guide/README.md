@@ -1,7 +1,12 @@
-# BPMN guide
+# BPMN guide (BETA)
+
+:fire: The functionality described below is still "Beta". Beta software may contain errors or inaccuracies and may not function as well as regular releases.
 
 ## ZAC and BPMN
-ZAC uses [Flowable](https://www.flowable.com/) to support BPMN processes. Forms that provide input for the BPMN processes are implemented using the [Forms.io](https://forms.io/) framework.  
+ZAC uses [Flowable](https://www.flowable.com/) to support BPMN processes. Forms that provide input for the BPMN processes are implemented using the [Forms.io](https://forms.io/) framework.
+
+### Feature flag
+By default, BPMN support in ZAC is disabled in K8s and enabled in local Docker Compose environment. This is controlled by the `FEATURE_FLAG_BPMN_SUPPORT` environment variable, that accepts `true` or `false` values.
 
 ## BPMN process
 To create a BPMN process definition, you can:
@@ -19,7 +24,7 @@ If you are ready to try the new process definition, export/save it as BPMN file.
 1. Open ZAC
 2. Go to the "Beheer-instellingen"
 3. Open "BPMN Process definities"
-4. Click on the plus sign to open File selection dialog
+4. Click on the plus sign to open a file selection dialog
 5. Select the BPM process file
 
 ![image](./images/1036ca6b-d39e-429e-9356-80005807fc9c.png)
@@ -31,7 +36,7 @@ To create a Form.io form, please use the Form.io [Builder](https://formio.github
 1. Open ZAC
 2. Go to the "Beheer-instellingen"
 3. Open "Form.io formulieren"
-4. Click on the plus sign to open File selection dialog
+4. Click on the plus sign to open a file selection dialog
 5. Select the Form.io form
 
 ### Validation
