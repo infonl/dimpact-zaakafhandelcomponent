@@ -712,7 +712,7 @@ services:
       - SOLR_URL=http://solr:8983
       # Turn off the Open Telemetry by default because it is not always necessary.
       # Typically, when using the Docker Compose profile 'metrics' you want to set this to 'false'.
-      - OTEL_SDK_DISABLED=${SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE:-true}
+      - OTEL_SDK_DISABLED=${OTEL_SDK_DISABLED:-true}
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
       - VERANTWOORDELIJKE_ORGANISATIE_RSIN=${VERANTWOORDELIJKE_ORGANISATIE_RSIN:-316245124}
       - ZGW_API_CLIENT_MP_REST_URL=http://openzaak.local:8000/
