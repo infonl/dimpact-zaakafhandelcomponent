@@ -17,8 +17,8 @@ If you are ready to try the new process definition, export/save it as BPMN file.
 
 ### Upload
 1. Open ZAC
-2. Go to the Beheer-instellingen
-3. Open BPMN Process definities
+2. Go to the "Beheer-instellingen"
+3. Open "BPMN Process definities"
 4. Click on the plus sign to open File selection dialog
 5. Select the BPM proceess file
 
