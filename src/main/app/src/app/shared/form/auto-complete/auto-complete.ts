@@ -4,10 +4,17 @@
  *
  */
 
-import { Component, Input, OnInit } from "@angular/core";
+import {
+  Component,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChanges,
+} from "@angular/core";
 import { AbstractControl, FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { Observable } from "rxjs";
+import { Observable, Subject, takeUntil } from "rxjs";
 import { FormHelper } from "../helpers";
 
 @Component({
@@ -15,13 +22,14 @@ import { FormHelper } from "../helpers";
   templateUrl: "./auto-complete.html",
 })
 export class ZacAutoComplete<
-  Form extends Record<string, AbstractControl>,
-  Key extends keyof Form,
-  Option extends Form[Key]["value"],
-  OptionDisplayValue extends keyof Option | ((option: Option) => string),
-> implements OnInit
+    Form extends Record<string, AbstractControl>,
+    Key extends keyof Form,
+    Option extends Form[Key]["value"],
+    OptionDisplayValue extends keyof Option | ((option: Option) => string),
+  >
+  implements OnInit, OnChanges, OnDestroy
 {
-  @Input({ required: true }) key!: Key;
+  @Input({ required: true }) key!: Key & string;
   @Input({ required: true }) form!: FormGroup<Form>;
   @Input({ required: true }) options!:
     | Array<Option>
@@ -33,6 +41,8 @@ export class ZacAutoComplete<
   private availableOptions: Option[] = [];
   protected filteredOptions: Option[] = [];
 
+  private destroy$ = new Subject();
+
   constructor(private readonly translateService: TranslateService) {}
 
   ngOnInit() {
@@ -42,9 +52,21 @@ export class ZacAutoComplete<
 
     this.control.valueChanges.subscribe((value) => {
       this.filteredOptions = this.availableOptions.filter((option) => {
-        return (value && this.displayWith(option)?.includes(value)) ?? true;
+        if (!value) return true;
+        return this.displayWith(option).toLowerCase().includes(value);
       });
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if ("options" in changes) {
+      this.setOptions(this.options);
+    }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 
   reset() {
@@ -56,7 +78,7 @@ export class ZacAutoComplete<
   // Needs to be an arrow function in order to de-link the reference to `this`
   // when used in the template `[displayWith]="displayWith"`
   protected displayWith = (option?: Option | null) => {
-    if (!option) return null;
+    if (!option) return "";
 
     switch (typeof this.optionDisplayValue) {
       case "undefined":
@@ -73,7 +95,9 @@ export class ZacAutoComplete<
 
   private setOptions(input: Array<Option> | Observable<Array<Option>>) {
     if (input instanceof Observable) {
-      input.subscribe((options) => this.setOptions(options));
+      input
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((options) => this.setOptions(options));
       return;
     }
     this.availableOptions = this.filteredOptions = input;

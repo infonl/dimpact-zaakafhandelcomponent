@@ -20,7 +20,7 @@ export class ZacInput<
   DisplayValue extends keyof Option | ((option: Option) => string),
 > implements OnInit
 {
-  @Input({ required: true }) key!: Key;
+  @Input({ required: true }) key!: Key & string;
   @Input({ required: true }) form!: FormGroup<Form>;
   @Input({ transform: booleanAttribute }) readonly = false;
   @Input() type: "text" | "number" = "text";

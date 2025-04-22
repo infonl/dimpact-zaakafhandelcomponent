@@ -24,7 +24,7 @@ export class ZacTextarea<
   Key extends keyof Form,
 > implements OnInit
 {
-  @Input({ required: true }) key!: Key;
+  @Input({ required: true }) key!: Key & string;
   @Input({ required: true }) form!: FormGroup<Form>;
   @Input({ transform: numberAttribute }) minRows = 5;
   @Input({ transform: numberAttribute }) maxRows = 15;
