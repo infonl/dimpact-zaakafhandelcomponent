@@ -20,7 +20,7 @@ If you are ready to try the new process definition, export/save it as BPMN file.
 2. Go to the "Beheer-instellingen"
 3. Open "BPMN Process definities"
 4. Click on the plus sign to open File selection dialog
-5. Select the BPM proceess file
+5. Select the BPM process file
 
 ![image](./images/1036ca6b-d39e-429e-9356-80005807fc9c.png)
 
