@@ -13,7 +13,6 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
-import { MatDialog } from "@angular/material/dialog";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { TranslateService } from "@ngx-translate/core";
@@ -47,17 +46,19 @@ export class InformatieObjectLinkComponent
   @Input({ required: true }) actionLabel!: string;
   @Output() informationObjectLinked = new EventEmitter<void>();
 
-  intro: string = "";
-  caseSearchField?: AbstractFormControlField;
-  isValid: boolean = false;
-  loading: boolean = false;
+  public intro: string = "";
+  public caseSearchField?: AbstractFormControlField;
+  public isValid = false;
+  public loading = false;
 
-  documentAction!: DocumentAction;
-  actionIcon!: string;
+  public documentAction!: DocumentAction;
+  public actionIcon!: string;
 
-  cases = new MatTableDataSource<GeneratedType<"RestZaakKoppelenZoekObject">>();
-  totalCases: number = 0;
-  caseColumns: string[] = [
+  public cases = new MatTableDataSource<
+    GeneratedType<"RestZaakKoppelenZoekObject">
+  >();
+  public totalCases: number = 0;
+  public caseColumns: string[] = [
     "identificatie",
     "zaaktypeOmschrijving",
     "statustypeOmschrijving",
@@ -70,7 +71,6 @@ export class InformatieObjectLinkComponent
   constructor(
     private zoekenService: ZoekenService,
     private informatieObjectService: InformatieObjectenService,
-    public dialog: MatDialog,
     private utilService: UtilService,
     private translate: TranslateService,
   ) {}
@@ -100,7 +100,7 @@ export class InformatieObjectLinkComponent
     if (changes.infoObject && changes.infoObject.currentValue) {
       this.reset();
       this.intro = this.translate.instant("informatieobject.koppelen.uitleg", {
-        documentName:
+        documentID:
           changes.infoObject.currentValue?.identificatie ||
           changes.infoObject.currentValue?.documentID ||
           changes.infoObject.currentValue?.enkelvoudiginformatieobjectID,
