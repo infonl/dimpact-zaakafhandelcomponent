@@ -58,7 +58,6 @@
                         <layer>microprofile-fault-tolerance</layer>
                         <layer>microprofile-rest-client</layer>
                         <layer>microprofile-telemetry</layer>
-                        <layer>opentelemetry</layer>
                         <layer>postgresql-driver</layer>
                         <layer>cloud-server</layer>
                     </layers>

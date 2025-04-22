@@ -5,9 +5,6 @@ receivers:
         endpoint: 0.0.0.0:4317
 
 exporters:
-  # uncomment for local debugging only; do not enable in production
-  #debug:
-  #  verbosity: detailed
   otlp:
     endpoint: tempo:4317
     tls:

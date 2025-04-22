@@ -35,14 +35,16 @@ data-source add \
 /subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=read-timeout,value=0)
 /subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=write-timeout,value=0)
 
-# This sets the max post size accepted by the RESTEasy framework in WildFly
-# NOTE: This needs to set higher than our max file size setting in ZAC because of the way RESTEasy handles file uploads. This value corresponds with 120MB using the Base 2 format.
-/subsystem=microprofile-config-smallrye/config-source=props:add(properties={"dev.resteasy.entity.file.threshold" = "125829120B"})
-
-# We turn off the Open Telemetry sampler here so that by default no traces are sent to an Open Telemetry Collector
-# since there might be a collector available in the ZAC deployment environment.
-# Using a corresponding environment variable `SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE` we can then turn this back on when needed.
-/subsystem=opentelemetry/:write-attribute(name=sampler-type,value=off)
+/subsystem=microprofile-config-smallrye/config-source=props:add(properties={ \
+    # This sets the max post size accepted by the RESTEasy framework in WildFly
+    # NOTE: This needs to set higher than our max file size setting in ZAC because of the way RESTEasy handles file uploads. This value corresponds with 120MB using the Base 2 format.
+    "dev.resteasy.entity.file.threshold" = "125829120B", \
+    # We currently only export traces to the Open Telemetry Collector and not logs or metrics.
+    "otel.traces.exporter" = "otlp", \
+    "otel.metrics.exporter" = "none", \
+    "otel.logs.exporter" = "none", \
+    "otel.service.name" = "zac" \
+})
 
 # Create custom ZAC mail session
 /subsystem=mail/mail-session=zac:add(jndi-name=java:jboss/mail/zac,debug=false)
