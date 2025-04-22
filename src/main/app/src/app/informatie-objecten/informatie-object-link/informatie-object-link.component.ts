@@ -46,17 +46,19 @@ export class InformatieObjectLinkComponent
   @Input({ required: true }) actionLabel!: string;
   @Output() informationObjectLinked = new EventEmitter<void>();
 
-  intro: string = "";
-  caseSearchField?: AbstractFormControlField;
-  isValid: boolean = false;
-  loading: boolean = false;
+  public intro: string = "";
+  public caseSearchField?: AbstractFormControlField;
+  public isValid = false;
+  public loading = false;
 
-  documentAction!: DocumentAction;
-  actionIcon!: string;
+  public documentAction!: DocumentAction;
+  public actionIcon!: string;
 
-  cases = new MatTableDataSource<GeneratedType<"RestZaakKoppelenZoekObject">>();
-  totalCases: number = 0;
-  caseColumns: string[] = [
+  public cases = new MatTableDataSource<
+    GeneratedType<"RestZaakKoppelenZoekObject">
+  >();
+  public totalCases: number = 0;
+  public caseColumns: string[] = [
     "identificatie",
     "zaaktypeOmschrijving",
     "statustypeOmschrijving",

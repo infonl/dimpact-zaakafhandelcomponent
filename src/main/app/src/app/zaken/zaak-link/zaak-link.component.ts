@@ -10,13 +10,20 @@ import { MatTableDataSource } from "@angular/material/table";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
-import { ZaakKoppelTypes } from "src/app/informatie-objecten/model/zaak-koppel-type.enum";
 import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
 import { SelectFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/select/select-form-field-builder";
 import { AbstractFormControlField } from "src/app/shared/material-form-builder/model/abstract-form-control-field";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { Zaak } from "../model/zaak";
+
+/*
+ enum/type below should come from our GeneratedType 
+*/
+enum ZaakKoppelTypes {
+  "deelzaak" = "DEELZAAK",
+  "hoofdzaak" = "HOOFDZAAK",
+}
 
 @Component({
   selector: "zac-zaak-link",
@@ -27,16 +34,17 @@ export class ZaakLinkComponent implements OnInit, OnDestroy {
   @Input({ required: true }) zaak!: Zaak; // GeneratedType<"RestZaak">;
   @Input({ required: true }) sideNav!: MatDrawer;
 
-  private caseLinkingOptionsList!: { label: string; value: string }[];
-  intro: string = "";
-  selectLinkTypeField?: AbstractFormControlField;
-  caseSearchField?: AbstractFormControlField;
-  isValid: boolean = false;
-  loading: boolean = false;
+  public intro: string = "";
+  public selectLinkTypeField?: AbstractFormControlField;
+  public caseSearchField?: AbstractFormControlField;
+  public isValid = false;
+  public loading = false;
 
-  cases = new MatTableDataSource<GeneratedType<"RestZaakKoppelenZoekObject">>();
-  totalCases: number = 0;
-  caseColumns: string[] = [
+  public cases = new MatTableDataSource<
+    GeneratedType<"RestZaakKoppelenZoekObject">
+  >();
+  public totalCases: number = 0;
+  public caseColumns: string[] = [
     "identificatie",
     "zaaktypeOmschrijving",
     "statustypeOmschrijving",
@@ -44,6 +52,7 @@ export class ZaakLinkComponent implements OnInit, OnDestroy {
     "acties",
   ];
 
+  private caseLinkingOptionsList!: { label: string; value: string }[];
   private ngDestroy = new Subject<void>();
 
   constructor(
@@ -133,7 +142,9 @@ export class ZaakLinkComponent implements OnInit, OnDestroy {
       );
   }
 
-  selectCase() {}
+  selectCase(row: any) {
+    console.log("Selected case: ", row);
+  }
 
   closeDrawer() {
     this.sideNav.close();
