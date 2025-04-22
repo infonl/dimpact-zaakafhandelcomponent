@@ -27,7 +27,7 @@
       <section class="row">
         <zac-auto-complete
           key="zaaktype"
-          class="col"
+          class="col-12 col-md-6"
           [form]="form"
           [options]="caseTypes"
           [optionDisplayValue]="'omschrijving'"
@@ -39,7 +39,7 @@
         <zac-input
           key="initiator"
           [form]="form"
-          class="col"
+          class="col-12 col-md-6"
           [displayValue]="'naam'"
           (click)="openSideNav('actie.initiator.toevoegen')"
         >
@@ -49,12 +49,13 @@
         </zac-input>
       </section>
       <section class="row">
-        <zac-date class="col" key="startdatum" [form]="form"> </zac-date>
+        <zac-date class="col-12 col-md-6" key="startdatum" [form]="form">
+        </zac-date>
         <zac-input
           key="bagObjecten"
           [form]="form"
           readonly
-          class="col"
+          class="col-12 col-md-6"
           [displayValue]="bagDisplayValue"
           (click)="openSideNav('actie.bagObject.toevoegen')"
         >
@@ -71,7 +72,7 @@
       <section class="row">
         <zac-auto-complete
           key="groep"
-          class="col"
+          class="col-12 col-md-6"
           [form]="form"
           [options]="groups"
           [optionDisplayValue]="'naam'"
@@ -79,7 +80,7 @@
           <mat-label>{{ "actie.zaak.toekennen.groep" | translate }}</mat-label>
         </zac-auto-complete>
         <zac-auto-complete
-          class="col"
+          class="col-12 col-md-6"
           key="behandelaar"
           optionDisplayValue="naam"
           [form]="form"
@@ -97,7 +98,7 @@
       </legend>
       <section class="row">
         <zac-select
-          class="col"
+          class="col-12 col-md-6"
           label="communicatiekanaal"
           key="communicatiekanaal"
           [form]="form"
@@ -105,7 +106,7 @@
         >
         </zac-select>
         <zac-select
-          class="col"
+          class="col-12 col-md-6"
           key="vertrouwelijkheidaanduiding"
           optionDisplayValue="label"
           [form]="form"
