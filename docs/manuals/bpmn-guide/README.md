@@ -1,6 +1,6 @@
 # BPMN guide (BETA)
 
-:fire: The functionality described below is still "Beta". Beta software may contain errors or inaccuracies and may not function as well as regular releases.
+:fire: The functionality described below is still "Beta". Beta software may contain errors or inaccuracies and may not function as well as regular releases. :fire:
 
 ## ZAC and BPMN
 ZAC uses [Flowable](https://www.flowable.com/) to support BPMN processes. Forms that provide input for the BPMN processes are implemented using the [Forms.io](https://forms.io/) framework.
@@ -42,7 +42,7 @@ To create a Form.io form, please use the Form.io [Builder](https://formio.github
 ### Validation
 Form.io offers validation of the data entered in the form. 
 
-For example, the emails can be validated by specifying:
+For example, the emails can be validated by specifying `validate` and `type` keys:
 ```json
 {
   "label": "E-mail sender",
@@ -55,4 +55,3 @@ For example, the emails can be validated by specifying:
   }
 }
 ```
-:warning: Notice the `validate` and `type` keys.
