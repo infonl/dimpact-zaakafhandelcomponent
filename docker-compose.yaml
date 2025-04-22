@@ -710,7 +710,7 @@ services:
       - SMTP_PASSWORD=${SMTP_PASSWORD:-fakeMailjetApiSecretKey}
       - SIGNALERINGEN_DELETE_OLDER_THAN_DAYS=${SIGNALERINGEN_DELETE_OLDER_THAN_DAYS:-14}
       - SOLR_URL=http://solr:8983
-      # Turn off the Open Telemetry by default because it is not always necessary.
+      # Turn off the MicroProfile Open Telemetry subsystem by default because it is not always necessary.
       # Typically, when using the Docker Compose profile 'metrics' you want to set this to 'false'.
       - OTEL_SDK_DISABLED=${OTEL_SDK_DISABLED:-true}
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
