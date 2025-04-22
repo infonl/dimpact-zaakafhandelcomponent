@@ -11,7 +11,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainInOrder
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_OVERIG
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_ADVIES_CODE
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_ADVIES_NAME
@@ -37,7 +36,6 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
     var communicationChannelReferenceTableId = 0
     var domeinReferenceTableId = 0
     var serverErrorTextErrorReferenceTableId = 0
-    var domeinOverigReferenceTableFieldId = 0
 
     Given("Default reference table data is provisioned on startup") {
         When("the reference tables are listed") {
@@ -76,7 +74,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                                 "code": "$REFERENCE_TABLE_DOMEIN_CODE", 
                                 "naam": "$REFERENCE_TABLE_DOMEIN_NAME", 
                                 "systeem": true, 
-                                "aantalWaarden": 1
+                                "aantalWaarden": 0
                             },
                             {
                                 "code": "$REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_CODE", 
@@ -175,7 +173,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/referentietabellen/$domeinReferenceTableId"
             )
             Then(
-                """the provisioned default communicatiekanalen are returned including 'E-formulier'"""
+                """no domeinen should be returned because none are provisioned"""
             ) {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
@@ -188,18 +186,12 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                             "naam": "$REFERENCE_TABLE_DOMEIN_NAME",
                             "id" : $domeinReferenceTableId,
                             "systeem": true,
-                            "aantalWaarden": 1,
-                            "waarden": [
-                                { "naam": "$DOMEIN_OVERIG", "systemValue": true }                      
-                            ]
+                            "aantalWaarden": 0,
+                            "waarden": []
                         }
                         """.trimIndent()
                     )
                 }
-                domeinOverigReferenceTableFieldId = JSONObject(responseBody)
-                    .getJSONArray("waarden")
-                    .getJSONObject(0)
-                    .getInt("id")
             }
         }
         When("the get domeinen endpoint is called") {
@@ -213,8 +205,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 with(JSONArray(responseBody)) {
-                    length() shouldBe 1
-                    get(0) shouldBe DOMEIN_OVERIG
+                    length() shouldBe 0
                 }
             }
         }
@@ -288,12 +279,8 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                         "id" : $domeinReferenceTableId,
                         "naam" : "$REFERENCE_TABLE_DOMEIN_NAME",
                         "systeem" : true,
-                        "waarden":
-                            [
-                                { "id" : $domeinOverigReferenceTableFieldId, "naam" : "$DOMEIN_OVERIG", "systemValue" : true },
-                                { "naam" : "$DOMEIN_TEST_1" }
-                            ]
-                        }
+                        "waarden": []
+                    }
                 """.trimIndent()
             )
             Then("the response should be 'ok'") {
@@ -307,9 +294,8 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                             "code": "$REFERENCE_TABLE_DOMEIN_CODE",
                             "naam": "$REFERENCE_TABLE_DOMEIN_NAME",
                             "systeem": true,
-                            "aantalWaarden": 2,
+                            "aantalWaarden": 1,
                             "waarden": [
-                                { "naam": "$DOMEIN_OVERIG", "systemValue": true },
                                 { "naam": "$DOMEIN_TEST_1", "systemValue": false }                               
                             ]
                         }
