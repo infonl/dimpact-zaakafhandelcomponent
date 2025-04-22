@@ -16,11 +16,15 @@ import data.net.atos.zac.werklijst.zaken_taken_verdelen
 #######
 # inbox
 #######
+test_inbox_wrong_role_fails if {
+    not inbox with input.user.rollen as [ "behandelaar" ]
+}
+
 test_inbox if {
     inbox with input.user.rollen as [ "coordinator" ]
 }
 
-test_inbox_wrong_role_fails if {
+test_inbox_functional_role_fails if {
     not inbox with input.user.rollen as [ "functioneel" ]
 }
 
@@ -31,11 +35,15 @@ test_inbox_missing_role_fails if {
 ####################################
 # ontkoppelde_documenten_verwijderen
 ####################################
+test_ontkoppelde_documenten_verwijderen_wrong_role_fails if {
+    not ontkoppelde_documenten_verwijderen with input.user.rollen as [ "coordinator" ]
+}
+
 test_ontkoppelde_documenten_verwijderen if {
     ontkoppelde_documenten_verwijderen with input.user.rollen as [ "recordmanager" ]
 }
 
-test_ontkoppelde_documenten_verwijderen_wrong_role_fails if {
+test_ontkoppelde_documenten_verwijderen_functional_role_fails if {
     not ontkoppelde_documenten_verwijderen with input.user.rollen as [ "functioneel" ]
 }
 
@@ -46,11 +54,15 @@ test_ontkoppelde_documenten_verwijderen_missing_role_fails if {
 ####################################
 # inbox_productaanvragen_verwijderen
 ####################################
+test_inbox_productaanvragen_verwijderen_wrong_role_fails if {
+    not inbox_productaanvragen_verwijderen with input.user.rollen as [ "coordinator" ]
+}
+
 test_inbox_productaanvragen_verwijderen if {
     inbox_productaanvragen_verwijderen with input.user.rollen as [ "recordmanager" ]
 }
 
-test_inbox_productaanvragen_verwijderen_wrong_role_fails if {
+test_inbox_productaanvragen_verwijderen_functional_role_fails if {
     not inbox_productaanvragen_verwijderen with input.user.rollen as [ "functioneel" ]
 }
 
@@ -65,7 +77,7 @@ test_zaken_taken if {
     zaken_taken with input.user.rollen as [ "raadpleger" ]
 }
 
-test_zaken_taken_wrong_role_fails if {
+test_zaken_taken_functional_role_fails if {
     not zaken_taken with input.user.rollen as [ "functioneel" ]
 }
 
@@ -76,11 +88,15 @@ test_zaken_taken_missing_role_fails if {
 ######################
 # zaken_taken_verdelen
 ######################
+test_zaken_taken_verdelen_wrong_role_fails if {
+    not zaken_taken_verdelen with input.user.rollen as [ "behandelaar" ]
+}
+
 test_zaken_taken_verdelen if {
     zaken_taken_verdelen with input.user.rollen as [ "coordinator" ]
 }
 
-test_zaken_taken_verdelen_wrong_role_fails if {
+test_zaken_taken_verdelen_functional_role_fails if {
     not zaken_taken_verdelen with input.user.rollen as [ "functioneel" ]
 }
 
@@ -91,11 +107,15 @@ test_zaken_taken_verdelen_missing_role_fails if {
 ######################
 # zaken_taken_exporteren
 ######################
+test_zaken_taken_exporteren_wrong_role_fails if {
+    not zaken_taken_exporteren with input.user.rollen as [ "recordmanager" ]
+}
+
 test_zaken_taken_exporteren if {
     zaken_taken_exporteren with input.user.rollen as [ "beheerder" ]
 }
 
-test_zaken_taken_exporteren_wrong_role_fails if {
+test_zaken_taken_exporteren_functional_role_fails if {
     not zaken_taken_exporteren with input.user.rollen as [ "functioneel" ]
 }
 
