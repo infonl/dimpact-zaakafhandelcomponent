@@ -294,7 +294,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                             "code": "$REFERENCE_TABLE_DOMEIN_CODE",
                             "naam": "$REFERENCE_TABLE_DOMEIN_NAME",
                             "systeem": true,
-                            "aantalWaarden": 1,
+                            "aantalWaarden": 0,
                             "waarden": [
                                 { "naam": "$DOMEIN_TEST_1", "systemValue": false }                               
                             ]
