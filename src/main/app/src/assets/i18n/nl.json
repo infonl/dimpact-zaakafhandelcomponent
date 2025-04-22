@@ -561,7 +561,7 @@
   "zaak.koppelen.label.-kies-": "-- Kies een soort koppeling --",
   "zaak.koppelen.link.type.HOOFDZAAK": "Hoofdzaak koppelen aan deelzaak",
   "zaak.koppelen.link.type.DEELZAAK": "Deelzaak koppelen aan hoofdzaak",
-  "zaak.koppelen.link.type.GERELATEERD": "",
+  "zaak.koppelen.link.type.GERELATEERD": "Deze zaak relateren aan andere zaak",
   "zaak.koppelen.uitleg": "Koppel zaak '{{ zaakID }}' aan een andere zaak",
   " 6 ": ">>--> KNOPPEN & MENU'S <--<<",
   "actie.aanmaken": "Aanmaken",
