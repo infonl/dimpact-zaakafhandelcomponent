@@ -99,30 +99,30 @@ export class BagZoekComponent {
     this.bagObjecten.data.forEach((b) => (b["expanded"] = false));
     bagObject.expanded = true;
 
-    const childeren: ((BAGObject | Adres) & {
+    const children: ((BAGObject | Adres) & {
       expanded?: boolean;
       child?: boolean;
     })[] = [];
     if (bagObject.bagObjectType === BAGObjecttype.ADRES) {
       const adres: Adres = bagObject as Adres;
       if (adres.nummeraanduiding) {
-        childeren.push(adres.nummeraanduiding);
+        children.push(adres.nummeraanduiding);
       }
       if (adres.openbareRuimte) {
-        childeren.push(adres.openbareRuimte);
+        children.push(adres.openbareRuimte);
       }
       if (adres.woonplaats) {
-        childeren.push(adres.woonplaats);
+        children.push(adres.woonplaats);
       }
       if (adres.panden?.length) {
-        adres.panden.forEach((p) => childeren.push(p));
+        adres.panden.forEach((p) => children.push(p));
       }
     }
-    childeren.forEach((d) => (d["child"] = true));
+    children.forEach((d) => (d["child"] = true));
     this.bagObjecten.data.splice(
       this.bagObjecten.data.indexOf(bagObject) + 1,
       0,
-      ...childeren,
+      ...children,
     );
     this.table.renderRows();
   }
