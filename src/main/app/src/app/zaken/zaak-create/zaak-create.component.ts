@@ -26,7 +26,6 @@ import {
   BSN_LENGTH,
   VESTIGINGSNUMMER_LENGTH,
 } from "../../shared/utils/constants";
-import { Zaaktype } from "../model/zaaktype";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -52,7 +51,9 @@ export class ZaakCreateComponent {
   );
 
   protected readonly form = this.formBuilder.group({
-    zaaktype: new FormControl<Zaaktype | null>(null, [Validators.required]),
+    zaaktype: new FormControl<GeneratedType<"RestZaaktype"> | null>(null, [
+      Validators.required,
+    ]),
     initiator: new FormControl<Klant | null | undefined>(null),
     startdatum: new FormControl(moment(), [Validators.required]),
     bagObjecten: new FormControl<BAGObject[]>([]),
@@ -119,7 +120,7 @@ export class ZaakCreateComponent {
             ({ id }) =>
               id ===
               this.form.controls.zaaktype.value?.zaakafhandelparameters
-                .defaultBehandelaarId,
+                ?.defaultBehandelaarId,
           ),
         );
       });
@@ -159,17 +160,14 @@ export class ZaakCreateComponent {
     await this.actionsSidenav.close();
   }
 
-  caseTypeSelected(caseType?: Zaaktype | null): void {
+  caseTypeSelected(caseType?: GeneratedType<"RestZaaktype"> | null): void {
     if (!caseType) return;
 
-    const {
-      zaakafhandelparameters: { defaultGroepId },
-      vertrouwelijkheidaanduiding,
-    } = caseType;
+    const { zaakafhandelparameters, vertrouwelijkheidaanduiding } = caseType;
 
     this.groups.subscribe((groups) => {
       this.form.controls.groep.setValue(
-        groups?.find(({ id }) => id === defaultGroepId),
+        groups?.find(({ id }) => id === zaakafhandelparameters?.defaultGroepId),
       );
     });
 

@@ -21,9 +21,9 @@
   </mat-sidenav>
   <form [formGroup]="form" (ngSubmit)="formSubmit(form)">
     <fieldset>
-      <label
-        ><h1>{{ "actie.zaak.aanmaken" | translate }}</h1></label
-      >
+      <legend>
+        <h1>{{ "actie.zaak.aanmaken" | translate }}</h1>
+      </legend>
       <section class="row">
         <zac-auto-complete
           key="zaaktype"
@@ -65,9 +65,9 @@
       </section>
     </fieldset>
     <fieldset>
-      <label
-        ><h2>{{ "gegevens.toekennen" | translate }}</h2></label
-      >
+      <legend>
+        <h2>{{ "gegevens.toekennen" | translate }}</h2>
+      </legend>
       <section class="row">
         <zac-auto-complete
           key="groep"
@@ -92,9 +92,9 @@
       </section>
     </fieldset>
     <fieldset>
-      <label
-        ><h2>{{ "gegevens.overig" | translate }}</h2></label
-      >
+      <legend>
+        <h2>{{ "gegevens.overig" | translate }}</h2>
+      </legend>
       <section class="row">
         <zac-select
           class="col"
