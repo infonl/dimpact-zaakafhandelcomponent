@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2024 Dimpact
+ * SPDX-FileCopyrightText: 2021 Dimpact, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.task.converter
