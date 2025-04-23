@@ -35,10 +35,7 @@
   >
     <mat-icon>clear</mat-icon>
   </button>
-  <mat-autocomplete
-    #auto="matAutocomplete"
-    [displayWith]="displayWith"
-  >
+  <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayWith">
     <mat-option *ngFor="let option of filteredOptions" [value]="option">
       {{ displayWith(option) | translate }}
     </mat-option>
