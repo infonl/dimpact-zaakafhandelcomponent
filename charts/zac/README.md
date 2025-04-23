@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.34](https://img.shields.io/badge/Version-1.0.34-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
+![Version: 1.0.35](https://img.shields.io/badge/Version-1.0.35-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -39,6 +39,10 @@ And install zac:
 ```
 helm install my-release zac/zaakafhandelcomponent
 ```
+
+## Changes to the helm chart
+
+The Github workflow will perform helm-linting and will bump the version if needed. This `README.md` file is generated automatically as well.
 
 ## Values
 
