@@ -18,15 +18,13 @@ import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
-import { CaseDefinition } from "../../admin/model/case-definition";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { NavigationService } from "../../shared/navigation/navigation.service";
-import { ZaakStatusmailOptie } from "../model/zaak-statusmail-optie";
-import { Zaaktype } from "../model/zaaktype";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 import { ZaakCreateComponent } from "./zaak-create.component";
 
@@ -35,31 +33,6 @@ describe(ZaakCreateComponent.name, () => {
 
   let identityService: IdentityService;
   let zakenService: ZakenService;
-
-  const zaakType = new Zaaktype();
-  zaakType.zaakafhandelparameters = {
-    defaultBehandelaarId: "default-behandelaar",
-    defaultGroepId: "default-group",
-    einddatumGeplandWaarschuwing: 10,
-    zaaktype: zaakType,
-    afrondenMail: ZaakStatusmailOptie.BESCHIKBAAR_AAN,
-    caseDefinition: new CaseDefinition(),
-    creatiedatum: new Date().toJSON(),
-    domein: "test",
-    humanTaskParameters: [],
-    intakeMail: ZaakStatusmailOptie.BESCHIKBAAR_AAN,
-    mailtemplateKoppelingen: [],
-    productaanvraagtype: "",
-    uiterlijkeEinddatumAfdoeningWaarschuwing: 10,
-    valide: true,
-    userEventListenerParameters: [],
-    zaakAfzenders: [],
-    zaakbeeindigParameters: [],
-    smartDocuments: {},
-    zaakNietOntvankelijkResultaattype: {
-      id: "1",
-    },
-  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -98,11 +71,11 @@ describe(ZaakCreateComponent.name, () => {
     zakenService = TestBed.inject(ZakenService);
     jest.spyOn(zakenService, "listZaaktypes").mockReturnValue(
       of([
-        fromPartial<Zaaktype>({
+        fromPartial<GeneratedType<"RestZaaktype">>({
           uuid: "test-zaaktype-1",
           omschrijving: "test-description-1",
         }),
-        fromPartial<Zaaktype>({
+        fromPartial<GeneratedType<"RestZaaktype">>({
           uuid: "test-zaaktype-2",
           omschrijving: "test-description-2",
         }),
