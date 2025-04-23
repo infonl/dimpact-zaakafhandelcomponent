@@ -274,12 +274,12 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/referentietabellen/$domeinReferenceTableId",
                 requestBodyAsString = """
                   {
-                        "aantalWaarden" : 1,
+                        "aantalWaarden" : 0,
                         "code" : "$REFERENCE_TABLE_DOMEIN_CODE",
                         "id" : $domeinReferenceTableId,
                         "naam" : "$REFERENCE_TABLE_DOMEIN_NAME",
                         "systeem" : true,
-                        "waarden": []
+                        "waarden": [ { "naam" : "$DOMEIN_TEST_1" } ]
                     }
                 """.trimIndent()
             )
@@ -294,7 +294,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                             "code": "$REFERENCE_TABLE_DOMEIN_CODE",
                             "naam": "$REFERENCE_TABLE_DOMEIN_NAME",
                             "systeem": true,
-                            "aantalWaarden": 0,
+                            "aantalWaarden": 1,
                             "waarden": [
                                 { "naam": "$DOMEIN_TEST_1", "systemValue": false }                               
                             ]
