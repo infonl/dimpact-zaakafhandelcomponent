@@ -27,14 +27,13 @@ export class ZoekParameters implements ZoekFilters {
   rows = 25;
   page = 0;
 
-  static heeftActieveFilters(zoekFilters: any): boolean {
-    console.log(zoekFilters);
+  static heeftActieveFilters(zoekFilters: Record<string, unknown>) {
     if (zoekFilters.zoeken) {
       return Object.values(zoekFilters.zoeken).some(Boolean);
     }
     if (zoekFilters.filters) {
       return Object.values(zoekFilters.filters).some(
-        (filter) => (filter as any)?.values?.length,
+        (filter) => filter?.values?.length,
       );
     }
     if (zoekFilters.datums) {

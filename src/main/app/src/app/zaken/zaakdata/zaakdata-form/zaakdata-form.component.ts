@@ -13,11 +13,9 @@ import { FormArray, FormControl, FormGroup } from "@angular/forms";
 })
 export class ZaakdataFormComponent {
   @Input() formItem: any;
-  @Input() label: string;
+  @Input({ required: true }) label!: string;
 
-  constructor() {}
-
-  getType(): "GROUP" | "CONTROL" | "ARRAY" {
+  getType() {
     if (this.formItem instanceof FormControl) {
       return "CONTROL";
     }

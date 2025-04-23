@@ -20,9 +20,8 @@ import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
 import { forkJoin } from "rxjs";
 import { map, tap } from "rxjs/operators";
-import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
-import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
+import { ZaakbeeindigReden } from "../../admin/model/zaakbeeindig-reden";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
 import { BAGObject } from "../../bag/model/bagobject";
@@ -94,9 +93,9 @@ export class ZaakViewComponent
   takenDataSource = new MatTableDataSource<ExpandableTableData<Taak>>();
   allTakenExpanded = false;
   toonAfgerondeTaken = new FormControl(false);
-  takenFilter: any = {};
+  takenFilter: Record<string, unknown> = {};
   takenLoading = false;
-  takenColumnsToDisplay: string[] = [
+  takenColumnsToDisplay = [
     "naam",
     "status",
     "creatiedatumTijd",
@@ -104,10 +103,10 @@ export class ZaakViewComponent
     "groep",
     "behandelaar",
     "id",
-  ];
+  ] as const;
 
   historie = new MatTableDataSource<HistorieRegel>();
-  historieColumns: string[] = [
+  historieColumns = [
     "datum",
     "gebruiker",
     "wijziging",
@@ -115,32 +114,31 @@ export class ZaakViewComponent
     "oudeWaarde",
     "nieuweWaarde",
     "toelichting",
-  ];
+  ] as const;
   betrokkenen = new MatTableDataSource<ZaakBetrokkene>();
-  betrokkenenColumns: string[] = [
+  betrokkenenColumns = [
     "roltype",
     "betrokkenegegevens",
     "betrokkeneidentificatie",
     "roltoelichting",
     "actions",
-  ];
+  ] as const;
   bagObjectenDataSource = new MatTableDataSource<BAGObjectGegevens>();
   gekoppeldeBagObjecten: BAGObject[] = [];
-  bagObjectenColumns: string[] = [
+  bagObjectenColumns = [
     "identificatie",
     "type",
     "omschrijving",
     "actions",
-  ];
-  gerelateerdeZaakColumns: string[] = [
+  ] as const;
+  gerelateerdeZaakColumns = [
     "identificatie",
     "zaaktypeOmschrijving",
     "statustypeOmschrijving",
     "startdatum",
     "relatieType",
-  ];
+  ] as const;
   notitieType = NotitieType.ZAAK;
-  editFormFields = new Map<string, any>();
   dateFieldIcon = new Map<string, TextIcon>();
   viewInitialized = false;
   loggedInUser!: GeneratedType<"RestLoggedInUser">;
@@ -174,8 +172,6 @@ export class ZaakViewComponent
     private translate: TranslateService,
     private zaakKoppelenService: ZaakKoppelenService,
     private bagService: BAGService,
-    private referentieTabelService: ReferentieTabelService,
-    private vertrouwelijkaanduidingToTranslationKeyPipe: VertrouwelijkaanduidingToTranslationKeyPipe,
   ) {
     super();
   }
@@ -673,10 +669,7 @@ export class ZaakViewComponent
       });
   }
 
-  createUserEventListenerDialog(planItem: PlanItem): {
-    dialogComponent: any;
-    dialogData: any;
-  } {
+  createUserEventListenerDialog(planItem: PlanItem) {
     switch (planItem.userEventListenerActie) {
       case UserEventListenerActie.IntakeAfronden:
         return this.createUserEventListenerIntakeAfrondenDialog(planItem);
@@ -689,20 +682,14 @@ export class ZaakViewComponent
     }
   }
 
-  createUserEventListenerIntakeAfrondenDialog(planItem: PlanItem): {
-    dialogComponent: any;
-    dialogData: any;
-  } {
+  createUserEventListenerIntakeAfrondenDialog(planItem: PlanItem) {
     return {
       dialogComponent: IntakeAfrondenDialogComponent,
       dialogData: { zaak: this.zaak, planItem: planItem },
     };
   }
 
-  createUserEventListenerZaakAfhandelenDialog(planItem: PlanItem): {
-    dialogComponent: any;
-    dialogData: any;
-  } {
+  createUserEventListenerZaakAfhandelenDialog(planItem: PlanItem) {
     return {
       dialogComponent: ZaakAfhandelenDialogComponent,
       dialogData: { zaak: this.zaak, planItem: planItem },
@@ -711,7 +698,7 @@ export class ZaakViewComponent
 
   private openZaakAfbrekenDialog(): void {
     this.actionsSidenav.close();
-    const dialogData = new DialogData(
+    const dialogData = new DialogData<unknown, { reden: ZaakbeeindigReden }>(
       [
         new SelectFormFieldBuilder()
           .id("reden")
@@ -725,9 +712,9 @@ export class ZaakViewComponent
           .validators(Validators.required)
           .build(),
       ],
-      (results: any[]) =>
+      ({ reden }) =>
         this.zakenService
-          .afbreken(this.zaak.uuid, results["reden"])
+          .afbreken(this.zaak.uuid, reden)
           .pipe(
             tap(() => this.websocketService.suspendListener(this.zaakListener)),
           ),
@@ -749,7 +736,7 @@ export class ZaakViewComponent
   }
 
   private openZaakHeropenenDialog(): void {
-    const dialogData = new DialogData(
+    const dialogData = new DialogData<unknown, { reden: string }>(
       [
         new InputFormFieldBuilder()
           .id("reden")
@@ -758,9 +745,9 @@ export class ZaakViewComponent
           .maxlength(100)
           .build(),
       ],
-      (results: any[]) =>
+      ({ reden }) =>
         this.zakenService
-          .heropenen(this.zaak.uuid, results["reden"])
+          .heropenen(this.zaak.uuid, reden)
           .pipe(
             tap(() => this.websocketService.suspendListener(this.zaakListener)),
           ),
@@ -783,7 +770,10 @@ export class ZaakViewComponent
 
   private openZaakAfsluitenDialog(): void {
     this.actionsSidenav.close();
-    const dialogData = new DialogData(
+    const dialogData = new DialogData<
+      unknown,
+      { toelichting: string; resultaattype: GeneratedType<"RestResultaattype"> }
+    >(
       [
         new SelectFormFieldBuilder()
           .id("resultaattype")
@@ -800,13 +790,9 @@ export class ZaakViewComponent
           .maxlength(80)
           .build(),
       ],
-      (results: any[]) =>
+      ({ toelichting, resultaattype: { id } }) =>
         this.zakenService
-          .afsluiten(
-            this.zaak.uuid,
-            results["toelichting"],
-            results["resultaattype"].id,
-          )
+          .afsluiten(this.zaak.uuid, toelichting, id)
           .pipe(
             tap(() => this.websocketService.suspendListener(this.zaakListener)),
           ),
@@ -867,7 +853,10 @@ export class ZaakViewComponent
       "days",
     );
 
-    const dialogData = new DialogData(
+    const dialogData = new DialogData<
+      unknown,
+      { redenOpschortingField?: string }
+    >(
       [
         new InputFormFieldBuilder()
           .id("redenOpschortingField")
@@ -876,7 +865,7 @@ export class ZaakViewComponent
           .maxlength(200)
           .build(),
       ],
-      (results: any[]) => {
+      ({ redenOpschortingField }) => {
         const duurVerkortingOpschorting: number =
           werkelijkeOpschortDuur - (this.zaakOpschorting?.duurDagen ?? 0);
 
@@ -889,7 +878,7 @@ export class ZaakViewComponent
             )
               .add(duurVerkortingOpschorting, "days")
               .format("YYYY-MM-DD"),
-            redenOpschorting: results["redenOpschortingField"],
+            redenOpschorting: redenOpschortingField,
           };
 
         if (this.zaak.einddatumGepland) {
@@ -1026,7 +1015,7 @@ export class ZaakViewComponent
       taak.status !== TaakStatus.Afgerond &&
       taak.rechten.toekennen &&
       this.loggedInUser.id !== taak.behandelaar?.id &&
-      this.loggedInUser.groupIds.indexOf(taak.groep.id) >= 0
+      (this.loggedInUser.groupIds ?? []).indexOf(taak.groep.id) >= 0
     );
   }
 
@@ -1051,7 +1040,7 @@ export class ZaakViewComponent
     this.websocketService.suspendListener(this.zaakRollenListener);
     this.dialog
       .open(DialogComponent, {
-        data: new DialogData(
+        data: new DialogData<unknown, { reden: string }>(
           [
             new TextareaFormFieldBuilder()
               .id("reden")
@@ -1059,8 +1048,7 @@ export class ZaakViewComponent
               .validators(Validators.required)
               .build(),
           ],
-          (results: any[]) =>
-            this.zakenService.deleteInitiator(this.zaak, results["reden"]),
+          ({ reden }) => this.zakenService.deleteInitiator(this.zaak, reden),
           this.translate.instant("msg.initiator.ontkoppelen.bevestigen"),
         ),
       })
@@ -1103,7 +1091,7 @@ export class ZaakViewComponent
       betrokkene.roltype + " " + betrokkene.identificatie;
     this.dialog
       .open(DialogComponent, {
-        data: new DialogData(
+        data: new DialogData<unknown, { reden: string }>(
           [
             new TextareaFormFieldBuilder()
               .id("reden")
@@ -1111,11 +1099,8 @@ export class ZaakViewComponent
               .validators(Validators.required)
               .build(),
           ],
-          (results: any[]) =>
-            this.zakenService.deleteBetrokkene(
-              betrokkene.rolid,
-              results["reden"],
-            ),
+          ({ reden }) =>
+            this.zakenService.deleteBetrokkene(betrokkene.rolid, reden),
           this.translate.instant("msg.betrokkene.ontkoppelen.bevestigen", {
             betrokkene: betrokkeneIdentificatie,
           }),
@@ -1149,7 +1134,7 @@ export class ZaakViewComponent
       });
   }
 
-  assignTaakToMe(taak: Taak, $event) {
+  assignTaakToMe(taak: Taak, $event: MouseEvent) {
     $event.stopPropagation();
 
     this.websocketService.suspendListener(this.zaakTakenListener);
@@ -1245,7 +1230,7 @@ export class ZaakViewComponent
     this.sluitSidenav();
   }
 
-  besluitWijzigen($event): void {
+  besluitWijzigen($event: GeneratedType<"RestDecision">): void {
     this.activeSideAction = "actie.besluit.wijzigen";
     this.teWijzigenBesluit = $event;
     this.actionsSidenav.open();
@@ -1276,7 +1261,9 @@ export class ZaakViewComponent
     });
   }
 
-  betrokkeneGegevensOphalen(betrokkene: ZaakBetrokkene): void {
+  betrokkeneGegevensOphalen(
+    betrokkene: ZaakBetrokkene & { gegevens?: string | null },
+  ): void {
     betrokkene["gegevens"] = "LOADING";
     switch (betrokkene.type) {
       case "NATUURLIJK_PERSOON":
@@ -1320,19 +1307,21 @@ export class ZaakViewComponent
       .label("reden")
       .validators(Validators.required)
       .build();
-    const dialogData = new DialogData([reden], (results: any[]) =>
-      this.bagService
-        .delete(
-          new BAGObjectGegevens(
-            this.zaak.uuid,
-            bagObject,
-            bagObjectGegevens.uuid,
-            results["reden"],
+    const dialogData = new DialogData<unknown, { reden: string }>(
+      [reden],
+      ({ reden }) =>
+        this.bagService
+          .delete(
+            new BAGObjectGegevens(
+              this.zaak.uuid,
+              bagObject,
+              bagObjectGegevens.uuid,
+              reden,
+            ),
+          )
+          .pipe(
+            tap(() => this.websocketService.suspendListener(this.zaakListener)),
           ),
-        )
-        .pipe(
-          tap(() => this.websocketService.suspendListener(this.zaakListener)),
-        ),
     );
 
     dialogData.uitleg = this.translate.instant(

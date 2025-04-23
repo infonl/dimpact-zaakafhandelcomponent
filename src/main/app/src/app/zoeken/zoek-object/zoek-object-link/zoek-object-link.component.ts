@@ -41,7 +41,7 @@ export class ZoekObjectLinkComponent {
     }
   }
 
-  getLink(): any[] {
+  getLink() {
     switch (this.zoekObject.type) {
       case ZoekObjectType.ZAAK:
         return ["/zaken/", (this.zoekObject as ZaakZoekObject).identificatie];
