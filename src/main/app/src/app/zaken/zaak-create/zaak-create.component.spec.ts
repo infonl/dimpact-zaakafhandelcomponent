@@ -4,12 +4,9 @@
  *
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { MatAutocompleteHarness } from "@angular/material/autocomplete/testing";
 import { MatHint, MatLabel } from "@angular/material/form-field";
 import { MatIcon } from "@angular/material/icon";
 import { MatSidenavModule } from "@angular/material/sidenav";
@@ -29,8 +26,6 @@ import { ZakenService } from "../zaken.service";
 import { ZaakCreateComponent } from "./zaak-create.component";
 
 describe(ZaakCreateComponent.name, () => {
-  let loader: HarnessLoader;
-
   let identityService: IdentityService;
   let zakenService: ZakenService;
 
@@ -81,21 +76,11 @@ describe(ZaakCreateComponent.name, () => {
         }),
       ]),
     );
-
-    const fixture = TestBed.createComponent(ZaakCreateComponent);
-    loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
   describe(ZaakCreateComponent.prototype.caseTypeSelected.name, () => {
-    it(`should set the default group`, async () => {
-      const caseType = await loader.getHarness(MatAutocompleteHarness);
-
-      // It is impossible to test an auto-complete field with the test harness
-      // https://stackoverflow.com/a/57569268
-      await caseType.enterText("test");
-
-      expect(true).toBeTruthy(); // TODO validate that we can use the `MatAutocompleteHarness` to write this test
-    });
+    // TODO validate that we can use the `MatAutocompleteHarness` to write this test
+    it.todo(`should set the default group`);
 
     it.todo(`should set the default case worker`);
 
