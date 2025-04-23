@@ -30,7 +30,9 @@ If you are ready to try the new process definition, export/save it as BPMN file.
 ![image](./images/1036ca6b-d39e-429e-9356-80005807fc9c.png)
 
 ## Form.io form
-To create a Form.io form, please use the Form.io [Builder](https://formio.github.io/formio.js/app/builder).
+To create a Form.io form:
+* use the Form.io [Builder](https://formio.github.io/formio.js/app/builder)
+* upload our integration tests [form](../../../src/itest/resources/bpmn/testForm.json)
 
 ### Upload
 1. Open ZAC
