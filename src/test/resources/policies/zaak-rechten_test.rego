@@ -191,15 +191,21 @@ test_bekijken_zaakdata_missing_role_fails if {
 # wijzigen_doorlooptijd
 #######################
 test_wijzigen_doorlooptijd if {
-    wijzigen_doorlooptijd with input.user.rollen as [ "behandelaar" ]
+    wijzigen_doorlooptijd
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
 }
 
 test_wijzigen_doorlooptijd_wrong_role_fails if {
-    not wijzigen_doorlooptijd with input.user.rollen as [ "functioneel" ]
+    not wijzigen_doorlooptijd
+        with input.user.rollen as [ "functioneel" ]
+        with input.zaak.open as true
 }
 
 test_wijzigen_doorlooptijd_missing_role_fails if {
-    not wijzigen_doorlooptijd with input.user.key as "value"
+    not wijzigen_doorlooptijd
+        with input.user.key as "value"
+        with input.zaak.open as true
 }
 
 test_wijzigen_doorlooptijd_zaak_closed_fails if {
