@@ -143,7 +143,7 @@ signaleringen:
 
 # Overrides for opentelemetry
 # opentelemetry_zaakafhandelcomponent:
-#   sampler_type: "-off"
+#   disabled: "-true"
 #   endpoint: "http://otel-collector:4317"
 
 

@@ -57,7 +57,7 @@
                         <layer>microprofile-health</layer>
                         <layer>microprofile-fault-tolerance</layer>
                         <layer>microprofile-rest-client</layer>
-                        <layer>opentelemetry</layer>
+                        <layer>microprofile-telemetry</layer>
                         <layer>postgresql-driver</layer>
                         <layer>cloud-server</layer>
                     </layers>
