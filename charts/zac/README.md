@@ -40,6 +40,10 @@ And install zac:
 helm install my-release zac/zaakafhandelcomponent
 ```
 
+## Changes to the helm chart
+
+The Github workflow will perform helm-linting and will bump the version if needed. This `README.md` file is generated automatically as well.
+
 ## Values
 
 | Key | Type | Default | Description |
