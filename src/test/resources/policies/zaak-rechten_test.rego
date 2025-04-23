@@ -202,6 +202,12 @@ test_wijzigen_doorlooptijd_missing_role_fails if {
     not wijzigen_doorlooptijd with input.user.key as "value"
 }
 
+test_wijzigen_doorlooptijd_zaak_closed_fails if {
+    not wijzigen_doorlooptijd
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
 ###########
 # verlengen
 ###########
