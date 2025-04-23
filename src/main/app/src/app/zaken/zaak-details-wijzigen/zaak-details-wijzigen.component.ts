@@ -371,7 +371,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     this.patchBehandelaar(zaak, reason);
 
     this.patchLocation(reason).subscribe(() => {
-      // To prevent a race condition we need to first update the `zaakgeometrie` and then the other fields
+      // To prevent a race condition, we need to first update the `zaakgeometrie` and then the other fields
       subscriptions.push(
         this.zakenService
           .updateZaak(this.zaak.uuid, { zaak, reden: reason })
