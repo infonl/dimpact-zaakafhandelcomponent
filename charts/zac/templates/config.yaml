@@ -57,7 +57,7 @@ data:
   SMTP_PORT: {{ .Values.mail.smtp.port | quote }}
   SMTP_SERVER: {{ .Values.mail.smtp.server }}
   {{- if index .Values "opentelemetry-collector" "enabled" }}
-  OTEL_SDK_DISABLED: {{ ((.Values.opentelemetry_zaakafhandelcomponent).disabled) | default "true" | quote }}
+  OTEL_SDK_DISABLED: {{ printf "false" }}
   OTEL_EXPORTER_OTLP_ENDPOINT: {{ ((.Values.opentelemetry_zaakafhandelcomponent).endpoint) | default (printf "http://%s-opentelemetry-collector:4317" .Release.Name) }}
   {{- end }}
   {{- if .Values.smartDocuments.enabled }}

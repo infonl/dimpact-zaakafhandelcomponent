@@ -141,7 +141,7 @@ signaleringen:
   securityContext: {}
   tolerations: []
 
-# Overrides for opentelemetry
+# ZAC OpenTelemetry configuration. Only read when opentelemetry-collector is enabled
 # opentelemetry_zaakafhandelcomponent:
 #   disabled: "-true"
 #   endpoint: "http://otel-collector:4317"
