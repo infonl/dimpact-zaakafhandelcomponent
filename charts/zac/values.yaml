@@ -553,7 +553,9 @@ opentelemetry-collector:
   mode: deployment
   replicaCount: 1
   image:
-    repository: "otel/opentelemetry-collector-contrib"
+    repository: otel/opentelemetry-collector-contrib
+    pullPolicy: IfNotPresent
+    tag: "0.123.0@sha256:e39311df1f3d941923c00da79ac7ba6269124a870ee87e3c3ad24d60f8aee4d2"
   presets:
     clusterMetrics:
       enabled: false
