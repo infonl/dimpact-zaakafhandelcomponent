@@ -24,6 +24,37 @@
           "key": "firstName",
           "type": "textfield",
           "input": true
+        },
+        {
+          "title": "Document",
+          "collapsible": false,
+          "key": "document",
+          "type": "panel",
+          "label": "Panel",
+          "input": false,
+          "tableView": false,
+          "components": [
+            {
+              "label": "Template",
+              "widget": "html5",
+              "tableView": true,
+              "validateWhenHidden": false,
+              "key": "documentTemplate",
+              "type": "select",
+              "input": true
+            },
+            {
+              "label": "Create document",
+              "action": "event",
+              "showValidations": false,
+              "block": true,
+              "tableView": false,
+              "key": "createDocument",
+              "type": "button",
+              "event": "createDocument",
+              "input": true
+            }
+          ]
         }
       ],
       "input": false,

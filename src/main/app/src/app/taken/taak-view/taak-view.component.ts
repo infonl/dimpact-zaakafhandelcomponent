@@ -532,8 +532,8 @@ export class TaakViewComponent
     this.zaak = zaak;
   }
 
-  openDocumentCreateDrawer(event: string) {
-    console.log("TASK: open drawer");
+  onDocumentCreate(event: any) {
+    console.log("TASK: open drawer %o", event);
     this.activeSideAction = "actie.document.maken";
     this.actionsSidenav.open();
   }

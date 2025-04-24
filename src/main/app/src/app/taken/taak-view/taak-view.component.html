@@ -80,7 +80,7 @@
               [readOnly]="isReadonly()"
               (formSubmit)="onFormioFormSubmit($event)"
               (formChange)="onFormioFormChange($event)"
-              (openDocumentCreateDrawerEvent)="openDocumentCreateDrawer($event)"
+              (createDocument)="onDocumentCreate($event)"
             ></zac-formio-wrapper>
             <mat-progress-bar
               *ngIf="!formulier && !formulierDefinitie && !formioFormulier"
