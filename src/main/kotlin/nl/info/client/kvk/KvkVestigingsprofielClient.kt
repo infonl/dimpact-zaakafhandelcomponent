@@ -23,7 +23,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 @RegisterProvider(KvkRuntimeExceptionMapper::class)
 @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON)
 @Path("api/v1/vestigingsprofielen")
-interface VestigingsprofielClient {
+interface KvkVestigingsprofielClient {
     /**
      * Voor een specifieke vestiging informatie opvragen.
      */

@@ -7,8 +7,9 @@ package nl.info.client.kvk.model
 import jakarta.ws.rs.QueryParam
 import java.math.BigDecimal
 
-
-class KvkZoekenParameters {
+// Would like to use a data class here but unfortunately cannot get that to work with the JAX-RS @BeanParam annotation
+// which we use in the KVK clients.
+class KvkSearchParameters {
     @QueryParam("huisnummer")
     var huisnummer: String? = null
 
@@ -22,7 +23,7 @@ class KvkZoekenParameters {
     var naam: String? = null
 
     @QueryParam("pagina")
-    var pagina: BigDecimal? = null
+    var page: BigDecimal? = null
 
     @QueryParam("plaats")
     var plaats: String? = null
@@ -31,7 +32,7 @@ class KvkZoekenParameters {
     var postcode: String? = null
 
     @QueryParam("aantal")
-    var resultatenPerPagina: BigDecimal? = null
+    var resultsPerPage: BigDecimal? = null
 
     @QueryParam("rsin")
     var rsin: String? = null

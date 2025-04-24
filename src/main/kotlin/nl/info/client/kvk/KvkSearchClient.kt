@@ -11,7 +11,7 @@ import jakarta.ws.rs.Produces
 import net.atos.zac.util.MediaTypes
 import nl.info.client.kvk.exception.KvkClientNoResultResponseExceptionMapper
 import nl.info.client.kvk.exception.KvkRuntimeExceptionMapper
-import nl.info.client.kvk.model.KvkZoekenParameters
+import nl.info.client.kvk.model.KvkSearchParameters
 import nl.info.client.kvk.util.KvkClientHeadersFactory
 import nl.info.client.kvk.zoeken.model.generated.Resultaat
 import org.eclipse.microprofile.faulttolerance.Timeout
@@ -27,7 +27,7 @@ import java.time.temporal.ChronoUnit
 @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON)
 @Path("api/v2/zoeken")
 @Timeout(unit = ChronoUnit.SECONDS, value = 5)
-interface ZoekenClient {
+interface KvkSearchClient {
     /**
      * Voor een bedrijf zoeken naar basisinformatie.
      *
@@ -35,5 +35,5 @@ interface ZoekenClient {
      * Er wordt max. 1000 resultaten getoond.
      */
     @GET
-    fun getResults(@BeanParam zoekenParameters: KvkZoekenParameters): Resultaat
+    fun getResults(@BeanParam kvkSearchParameters: KvkSearchParameters): Resultaat
 }

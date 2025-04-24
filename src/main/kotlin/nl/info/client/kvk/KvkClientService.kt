@@ -7,7 +7,7 @@ package nl.info.client.kvk
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import nl.info.client.kvk.exception.KvkClientNoResultException
-import nl.info.client.kvk.model.KvkZoekenParameters
+import nl.info.client.kvk.model.KvkSearchParameters
 import nl.info.client.kvk.vestigingsprofiel.model.generated.Vestiging
 import nl.info.client.kvk.zoeken.model.generated.Resultaat
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
@@ -22,17 +22,17 @@ import java.util.logging.Logger
 @NoArgConstructor
 @AllOpen
 class KvkClientService @Inject constructor(
-    @RestClient private val zoekenClient: ZoekenClient,
-    @RestClient private val vestigingsprofielClient: VestigingsprofielClient
+    @RestClient private val kvkSearchClient: KvkSearchClient,
+    @RestClient private val kvkVestigingsprofielClient: KvkVestigingsprofielClient
 ) {
     companion object {
         private val LOG = Logger.getLogger(KvkClientService::class.java.getName())
     }
 
     @Suppress("TooGenericExceptionCaught")
-    fun list(parameters: KvkZoekenParameters): Resultaat {
+    fun search(kvkSearchParameters: KvkSearchParameters): Resultaat {
         try {
-            return zoekenClient.getResults(parameters)
+            return kvkSearchClient.getResults(kvkSearchParameters)
         } catch (_: KvkClientNoResultException) {
             // Nothing to report
         } catch (exception: RuntimeException) {
@@ -45,20 +45,26 @@ class KvkClientService @Inject constructor(
     }
 
     fun findVestigingsprofiel(vestigingsnummer: String): Optional<Vestiging> =
-        Optional.of<Vestiging>(vestigingsprofielClient.getVestigingByVestigingsnummer(vestigingsnummer, false))
+        Optional.of<Vestiging>(kvkVestigingsprofielClient.getVestigingByVestigingsnummer(vestigingsnummer, false))
 
-    fun findVestiging(vestigingsnummer: String): Optional<ResultaatItem> {
-        val zoekParameters = KvkZoekenParameters()
-        zoekParameters.vestigingsnummer = vestigingsnummer
-        return convertToSingleItem(list(zoekParameters))
-    }
+    fun findVestiging(vestigingsnummer: String): Optional<ResultaatItem> =
+        convertToSingleItem(
+            search(
+                KvkSearchParameters().apply {
+                    this.vestigingsnummer = vestigingsnummer
+                }
+            )
+        )
 
-    fun findRechtspersoon(rsin: String): Optional<ResultaatItem> {
-        val zoekParameters = KvkZoekenParameters()
-        zoekParameters.type = "rechtspersoon"
-        zoekParameters.rsin = rsin
-        return convertToSingleItem(list(zoekParameters))
-    }
+    fun findRechtspersoon(rsin: String): Optional<ResultaatItem> =
+        convertToSingleItem(
+            search(
+                KvkSearchParameters().apply {
+                    this.type = "rechtspersoon"
+                    this.rsin = rsin
+                }
+            )
+        )
 
     private fun convertToSingleItem(resultaat: Resultaat): Optional<ResultaatItem> =
         when (resultaat.totaal) {

@@ -146,7 +146,7 @@ class KlantRestService @Inject constructor(
     @PUT
     @Path("bedrijven")
     fun listBedrijven(restListBedrijvenParameters: RestListBedrijvenParameters): RESTResultaat<RestBedrijf> =
-        kvkClientService.list(restListBedrijvenParameters.toKvkZoekenParameters()).resultaten
+        kvkClientService.search(restListBedrijvenParameters.toKvkZoekenParameters()).resultaten
             .filter { it.isKoppelbaar() }
             .map { it.toRestBedrijf() }
             .toRestResultaat()

@@ -319,7 +319,7 @@ class KlantRestServiceTest : BehaviorSpec({
             vestingsnummer = "fakeVestigingsnummer",
             rsin = null
         )
-        every { kvkClientService.list(any()).resultaten } returns listOf(resultaatItem)
+        every { kvkClientService.search(any()).resultaten } returns listOf(resultaatItem)
 
         When("the listBedrijven function is called") {
             val result = klantRestService.listBedrijven(restListBedrijvenParameters)
@@ -345,7 +345,7 @@ class KlantRestServiceTest : BehaviorSpec({
             type = "fakeType",
             vestingsnummer = null
         )
-        every { kvkClientService.list(any()).resultaten } returns listOf(resultaatItem)
+        every { kvkClientService.search(any()).resultaten } returns listOf(resultaatItem)
 
         When("the listBedrijven function is called") {
             val result = klantRestService.listBedrijven(restListBedrijvenParameters)
