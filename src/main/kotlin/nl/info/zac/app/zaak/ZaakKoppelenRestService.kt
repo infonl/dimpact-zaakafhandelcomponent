@@ -29,10 +29,10 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
 
+@Path("zaken/zaak")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
-@Suppress("TooManyFunctions", "LargeClass", "LongParameterList")
 @NoArgConstructor
 @AllOpen
 class ZaakKoppelenRestService @Inject constructor(
@@ -42,7 +42,7 @@ class ZaakKoppelenRestService @Inject constructor(
 ) {
 
     @GET
-    @Path("zaken/zaak/{zaakUuid}/gekoppelde-zaken/zoek-koppelbare-zaken")
+    @Path("{zaakUuid}/gekoppelde-zaken/zoek-koppelbare-zaken")
     fun findLinkableZaken(
         @PathParam("zaakUuid") zaakUuid: UUID,
         @QueryParam("zaakIdentifier") zaakIdentifier: String,
@@ -55,7 +55,7 @@ class ZaakKoppelenRestService @Inject constructor(
         .let { searchService.zoek(it) }
         .let { zoekResultaat ->
             zoekResultaat.items
-                .map { convertTo(it as ZaakZoekObject, true) }
+                .map { (it as ZaakZoekObject).toRestZaakKoppelenZoekObject( true) }
                 .let { RestZoekResultaat(it, zoekResultaat.count) }
         }
 
@@ -73,13 +73,14 @@ class ZaakKoppelenRestService @Inject constructor(
         addFilter(FilterVeld.ZAAK_IDENTIFICATIE, FilterParameters(listOf(zaak.identificatie), true))
     }
 
-    private fun convertTo(zoekResultaat: ZaakZoekObject, linkable: Boolean) =
-        RestZaakKoppelenZoekObject(
-            id = zoekResultaat.identificatie,
-            type = ZoekObjectType.ZAAK,
-            identificatie = zoekResultaat.identificatie,
-            omschrijving = zoekResultaat.omschrijving,
-            statustypeOmschrijving = zoekResultaat.statustypeOmschrijving,
-            documentKoppelbaar = linkable,
-        )
 }
+
+private fun ZaakZoekObject.toRestZaakKoppelenZoekObject(linkable: Boolean) =
+    RestZaakKoppelenZoekObject(
+        id = identificatie,
+        type = ZoekObjectType.ZAAK,
+        identificatie = identificatie,
+        omschrijving = omschrijving,
+        statustypeOmschrijving = statustypeOmschrijving,
+        documentKoppelbaar = linkable,
+    )
