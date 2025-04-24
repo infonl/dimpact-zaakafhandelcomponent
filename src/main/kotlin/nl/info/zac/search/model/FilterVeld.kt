@@ -11,6 +11,7 @@ enum class FilterVeld(val veld: String) {
     GROEP("groepNaam"),
     TOEGEKEND("isToegekend"),
 
+    ZAAK_IDENTIFICATIE("zaak_identificatie"),
     ZAAK_STATUS("zaak_statustypeOmschrijving"),
     ZAAK_ZAAKTYPE("zaak_zaaktypeOmschrijving"),
     ZAAK_ZAAKTYPE_UUID("zaak_zaaktypeUuid"),
