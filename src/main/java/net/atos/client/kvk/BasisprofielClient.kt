@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.client.kvk
@@ -38,16 +38,21 @@ interface BasisprofielClient {
      */
     @GET
     fun getBasisprofielByKvkNummer(
-        @PathParam("kvkNummer") kvkNummer: String?,
-        @QueryParam("geoData") @DefaultValue("false") geoData: Boolean?
-    ): Basisprofiel?
+        @PathParam("kvkNummer") kvkNummer: String,
+        @QueryParam("geoData") @DefaultValue("false") geoData: Boolean
+    ): Basisprofiel
 
     /**
      * Voor een specifiek bedrijf eigenaar informatie opvragen.
      */
     @GET
     @Path("/eigenaar")
-    fun getEigenaar(@PathParam("kvkNummer") kvkNummer: String?, @QueryParam("geoData") @DefaultValue("false") geoData: Boolean?): Eigenaar?
+    fun getEigenaar(
+        @PathParam(
+            "kvkNummer"
+        ) kvkNummer: String,
+        @QueryParam("geoData") @DefaultValue("false") geoData: Boolean
+    ): Eigenaar
 
     /**
      * Voor een specifiek bedrijf hoofdvestigingsinformatie opvragen.
@@ -55,14 +60,14 @@ interface BasisprofielClient {
     @GET
     @Path("/hoofdvestiging")
     fun getHoofdvestiging(
-        @PathParam("kvkNummer") kvkNummer: String?,
-        @QueryParam("geoData") @DefaultValue("false") geoData: Boolean?
-    ): Vestiging?
+        @PathParam("kvkNummer") kvkNummer: String,
+        @QueryParam("geoData") @DefaultValue("false") geoData: Boolean
+    ): Vestiging
 
     /**
      * Voor een specifiek bedrijf een lijst met vestigingen opvragen.
      */
     @GET
     @Path("/vestigingen")
-    fun getVestigingen(@PathParam("kvkNummer") kvkNummer: String?): VestigingList?
+    fun getVestigingen(@PathParam("kvkNummer") kvkNummer: String): VestigingList
 }

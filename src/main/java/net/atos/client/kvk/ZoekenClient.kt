@@ -35,5 +35,5 @@ interface ZoekenClient {
      * Er wordt max. 1000 resultaten getoond.
      */
     @GET
-    fun getResults(@BeanParam zoekenParameters: KvkZoekenParameters?): Resultaat?
+    fun getResults(@BeanParam zoekenParameters: KvkZoekenParameters): Resultaat
 }
