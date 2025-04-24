@@ -7,6 +7,7 @@ package net.atos.client.kvk;
 
 import java.util.Collections;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -48,20 +49,13 @@ public class KvkClientService {
         } catch (final KvkClientNoResultException exception) {
             // Nothing to report
         } catch (final RuntimeException exception) {
-            LOG.warning(() -> ("Failed to search for company information using the KVK API: %s").formatted(exception));
+            LOG.log(Level.SEVERE, "Failed to search for company information using the KVK API", exception);
         }
         return createEmptyResultaat();
     }
 
     public Optional<Vestiging> findVestigingsprofiel(final String vestigingsnummer) {
         return Optional.of(vestigingsprofielClient.getVestigingByVestigingsnummer(vestigingsnummer, false));
-    }
-
-    public Optional<ResultaatItem> findHoofdvestiging(final String kvkNummer) {
-        final KvkZoekenParameters zoekParameters = new KvkZoekenParameters();
-        zoekParameters.setType("hoofdvestiging");
-        zoekParameters.setKvkNummer(kvkNummer);
-        return convertToSingleItem(list(zoekParameters));
     }
 
     public Optional<ResultaatItem> findVestiging(final String vestigingsnummer) {
@@ -90,16 +84,5 @@ public class KvkClientService {
         resultaat.setTotaal(0);
         resultaat.setResultaten(Collections.emptyList());
         return resultaat;
-    }
-
-    private Resultaat handleListAsync(final Resultaat resultaat, final Throwable exception) {
-        if (resultaat != null) {
-            return resultaat;
-        } else {
-            if (!(exception instanceof KvkClientNoResultException)) {
-                LOG.warning(() -> "Error while calling listAsync: %s".formatted(exception.getMessage()));
-            }
-            return createEmptyResultaat();
-        }
     }
 }
