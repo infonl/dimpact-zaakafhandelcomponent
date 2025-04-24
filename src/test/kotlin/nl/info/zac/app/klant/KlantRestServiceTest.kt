@@ -17,11 +17,11 @@ import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
 import nl.info.client.brp.model.createPersoon
 import nl.info.client.kvk.KvkClientService
-import nl.info.client.model.createAdresWithBinnenlandsAdres
-import nl.info.client.model.createResultaatItem
-import nl.info.client.model.createSBIActiviteit
-import nl.info.client.model.createVestiging
-import nl.info.client.model.createVestigingsAdres
+import nl.info.client.kvk.model.createAdresWithBinnenlandsAdres
+import nl.info.client.kvk.model.createResultaatItem
+import nl.info.client.kvk.model.createSBIActiviteit
+import nl.info.client.kvk.model.createVestiging
+import nl.info.client.kvk.model.createVestigingsAdres
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.klant.exception.VestigingNotFoundException
 import nl.info.zac.app.klant.model.personen.createRestListBedrijvenParameters
