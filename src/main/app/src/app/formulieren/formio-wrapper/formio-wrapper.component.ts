@@ -25,7 +25,6 @@ export class FormioWrapperComponent {
   @Input() submission: any;
   @Input() options: FormioOptions;
   @Input() readOnly: boolean;
-  @Input() sideNav!: MatDrawer;
   @Output() formSubmit = new EventEmitter<any>();
   @Output() formChange = new EventEmitter<any>();
 
