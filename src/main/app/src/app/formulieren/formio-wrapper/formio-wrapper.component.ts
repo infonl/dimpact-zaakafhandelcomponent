@@ -8,9 +8,11 @@ import {
   EventEmitter,
   Input,
   Output,
+  ViewChild,
   ViewEncapsulation,
 } from "@angular/core";
-import { FormioOptions } from "@formio/angular";
+import { MatDrawer } from "@angular/material/sidenav";
+import { FormioComponent, FormioOptions } from "@formio/angular";
 
 @Component({
   selector: "zac-formio-wrapper",
@@ -23,8 +25,33 @@ export class FormioWrapperComponent {
   @Input() submission: any;
   @Input() options: FormioOptions;
   @Input() readOnly: boolean;
+  @Input() sideNav!: MatDrawer;
   @Output() formSubmit = new EventEmitter<any>();
   @Output() formChange = new EventEmitter<any>();
+
+  @Output() customEvent = new EventEmitter<string>();
+
+  @ViewChild(FormioComponent, { static: false }) formioComp!: FormioComponent;
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      if (this.formioComp && this.formioComp.formio) {
+        const formioElement = this.formioComp.formio.element;
+
+        // Select button by 'name' attribute (alternative: use 'ref' if needed)
+        const button = formioElement.querySelector(
+          'button[name="data[openDrawer]"]',
+        );
+
+        if (button) {
+          button.addEventListener("click", () => {
+            console.log("Button clicked!");
+            this.customEvent.emit("openDrawer");
+          });
+        }
+      }
+    }, 1000);
+  }
 
   onSubmit(event: any) {
     this.formSubmit.emit(event);
@@ -32,6 +59,7 @@ export class FormioWrapperComponent {
 
   onChange(event: any) {
     // Filter out form.io change events that do not contain data
+    console.log("custom event", event);
     if (event.data) this.formChange.emit(event);
   }
 }

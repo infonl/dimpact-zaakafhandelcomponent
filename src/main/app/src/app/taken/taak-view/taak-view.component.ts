@@ -531,4 +531,15 @@ export class TaakViewComponent
     zaak.zaaktype.omschrijving = taak.zaaktypeOmschrijving;
     this.zaak = zaak;
   }
+
+  openDrawer() {
+    console.log("TASK: open drawer");
+    this.activeSideAction = "actie.document.maken";
+    this.actionsSidenav.open();
+  }
+
+  handleCustomEvent(event: string) {
+    console.log("Handled custom event:", event);
+    this.openDrawer();
+  }
 }
