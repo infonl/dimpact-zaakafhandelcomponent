@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.kvk.util
+package nl.info.client.kvk.util
 
 import jakarta.ws.rs.core.MultivaluedMap
 import org.eclipse.microprofile.config.ConfigProvider

@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.klant.model.bedrijven
 
-import net.atos.client.kvk.model.KvkZoekenParameters
+import nl.info.client.kvk.model.KvkZoekenParameters
 
 data class RestListBedrijvenParameters(
     var kvkNummer: String? = null,

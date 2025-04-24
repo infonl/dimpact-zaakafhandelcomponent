@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2023 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.kvk
+package nl.info.client.kvk
 
 import jakarta.ws.rs.DefaultValue
 import jakarta.ws.rs.GET
@@ -10,9 +10,9 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
-import net.atos.client.kvk.exception.KvkRuntimeExceptionMapper
-import net.atos.client.kvk.util.KvkClientHeadersFactory
 import net.atos.zac.util.MediaTypes
+import nl.info.client.kvk.exception.KvkRuntimeExceptionMapper
+import nl.info.client.kvk.util.KvkClientHeadersFactory
 import nl.info.client.kvk.vestigingsprofiel.model.generated.Vestiging
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider

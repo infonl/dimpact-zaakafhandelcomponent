@@ -2,17 +2,17 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.kvk
+package nl.info.client.kvk
 
 import jakarta.ws.rs.BeanParam
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
-import net.atos.client.kvk.exception.KvkClientNoResultResponseExceptionMapper
-import net.atos.client.kvk.exception.KvkRuntimeExceptionMapper
-import net.atos.client.kvk.model.KvkZoekenParameters
-import net.atos.client.kvk.util.KvkClientHeadersFactory
 import net.atos.zac.util.MediaTypes
+import nl.info.client.kvk.exception.KvkClientNoResultResponseExceptionMapper
+import nl.info.client.kvk.exception.KvkRuntimeExceptionMapper
+import nl.info.client.kvk.model.KvkZoekenParameters
+import nl.info.client.kvk.util.KvkClientHeadersFactory
 import nl.info.client.kvk.zoeken.model.generated.Resultaat
 import org.eclipse.microprofile.faulttolerance.Timeout
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders

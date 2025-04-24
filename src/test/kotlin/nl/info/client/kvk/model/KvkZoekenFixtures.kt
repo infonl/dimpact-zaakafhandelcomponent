@@ -2,8 +2,7 @@
  * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
-package net.atos.client.kvk.zoeken.model
+package nl.info.client.kvk.model
 
 import nl.info.client.kvk.vestigingsprofiel.model.generated.SBIActiviteit
 import nl.info.client.kvk.vestigingsprofiel.model.generated.Vestiging

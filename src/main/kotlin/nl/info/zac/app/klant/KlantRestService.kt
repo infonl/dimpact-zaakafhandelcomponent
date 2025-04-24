@@ -19,10 +19,10 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import net.atos.client.klant.KlantClientService
 import net.atos.client.klant.model.ExpandBetrokkene
-import net.atos.client.kvk.KvkClientService
 import net.atos.zac.app.shared.RESTResultaat
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
+import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.klant.exception.RechtspersoonNotFoundException
