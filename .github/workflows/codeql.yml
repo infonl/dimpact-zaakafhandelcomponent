@@ -43,7 +43,7 @@ jobs:
               - '**'
               - '!**/*.md'
               - '!**/*.pdf'          
-              - '!yaml/**'          
+              - '!charts/**'          
               - '!docs/**'          
               - '!*.sh'
               - '!.github/CODEOWNERS'
