@@ -167,6 +167,16 @@
     },
     {
       "matchPackageNames": [
+        "otel/opentelemetry-collector-contrib"
+      ],
+      "matchDatasources": [
+        "helm"
+      ],
+      "allowedVersions": "<= 0.123.0",
+      "description": ["Pinned until https://github.com/open-telemetry/community/issues/2641 is solved"]
+    },
+    {
+      "matchPackageNames": [
         "ghcr.io/infonl/zaakafhandelcomponent"
       ],
       "matchDatasources": [
