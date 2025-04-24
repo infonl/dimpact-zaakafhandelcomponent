@@ -30,12 +30,13 @@ export class FormioWrapperComponent {
 
   @Output() openDocumentCreateDrawerEvent = new EventEmitter<string>();
 
-  @ViewChild(FormioComponent, { static: false }) formioComp!: FormioComponent;
+  @ViewChild(FormioComponent, { static: false })
+  formioComponent!: FormioComponent;
 
   ngAfterViewInit() {
     setTimeout(() => {
-      if (this.formioComp && this.formioComp.formio) {
-        const formioElement = this.formioComp.formio.element;
+      if (this.formioComponent && this.formioComponent.formio) {
+        const formioElement = this.formioComponent.formio.element;
 
         // Select button by 'name' attribute (alternative: use 'ref' if needed)
         const button = formioElement.querySelector(
