@@ -29,7 +29,7 @@ export class FormioWrapperComponent {
   @Output() formSubmit = new EventEmitter<any>();
   @Output() formChange = new EventEmitter<any>();
 
-  @Output() customEvent = new EventEmitter<string>();
+  @Output() openDocumentCreateDrawerEvent = new EventEmitter<string>();
 
   @ViewChild(FormioComponent, { static: false }) formioComp!: FormioComponent;
 
@@ -46,7 +46,7 @@ export class FormioWrapperComponent {
         if (button) {
           button.addEventListener("click", () => {
             console.log("Button clicked!");
-            this.customEvent.emit("openDrawer");
+            this.openDocumentCreateDrawerEvent.emit("openDrawer");
           });
         }
       }
