@@ -52,10 +52,10 @@ class ZaakKoppelenRestService @Inject constructor(
     ) = zrcClientService.readZaak(zaakUuid)
         .also { PolicyService.assertPolicy(policyService.readZaakRechten(it).koppelen()) }
         .let { buildZoekParameters(it, zaakIdentifier, linkType, page, rows) }
-        .let { searchService.zoek(it) }
+        .let(searchService::zoek)
         .let { zoekResultaat ->
             zoekResultaat.items
-                .map { (it as ZaakZoekObject).toRestZaakKoppelenZoekObject( true) }
+                .map { (it as ZaakZoekObject).toRestZaakKoppelenZoekObject(true) }
                 .let { RestZoekResultaat(it, zoekResultaat.count) }
         }
 
@@ -72,7 +72,6 @@ class ZaakKoppelenRestService @Inject constructor(
         addZoekVeld(ZoekVeld.ZAAK_IDENTIFICATIE, zaakIdentifier)
         addFilter(FilterVeld.ZAAK_IDENTIFICATIE, FilterParameters(listOf(zaak.identificatie), true))
     }
-
 }
 
 private fun ZaakZoekObject.toRestZaakKoppelenZoekObject(linkable: Boolean) =

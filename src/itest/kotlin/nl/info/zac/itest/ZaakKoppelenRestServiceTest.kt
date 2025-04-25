@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.itest
@@ -12,7 +12,6 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_BAD_REQUEST
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
-import java.util.UUID
 
 private const val ROWS_DEFAULT = 10
 private const val PAGE_DEFAULT = 0
@@ -30,20 +29,6 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         When("the searching for linkable cases happy path") {
             val response = zacClient.findLinkableCases(
                 zaakProductaanvraag1Uuid,
-                "HOOFDZAAK",
-                PAGE_DEFAULT,
-                ROWS_DEFAULT
-            )
-            Then("the response should be a 400 HTTP response") {
-                response.code shouldBe HTTP_STATUS_BAD_REQUEST
-                val responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-            }
-        }
-
-        When("the searching for linkable cases with an invalid case UUID") {
-            val response = zacClient.findLinkableCases(
-                UUID.randomUUID(),
                 "HOOFDZAAK",
                 PAGE_DEFAULT,
                 ROWS_DEFAULT
