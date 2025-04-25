@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.39](https://img.shields.io/badge/Version-1.0.39-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
+![Version: 1.0.44](https://img.shields.io/badge/Version-1.0.44-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -15,7 +15,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | Repository | Name | Version |
 |------------|------|---------|
 | @bitnami | solr | 9.6.1 |
-| @opentelemetry | opentelemetry-collector | 0.117.3 |
+| @opentelemetry | opentelemetry-collector | 0.122.2 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -234,7 +234,9 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opentelemetry-collector.config.service.pipelines.metrics | object | `{}` |  |
 | opentelemetry-collector.config.service.pipelines.traces.receivers[0] | string | `"otlp"` |  |
 | opentelemetry-collector.enabled | bool | `false` |  |
+| opentelemetry-collector.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opentelemetry-collector.image.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
+| opentelemetry-collector.image.tag | string | `"0.123.0@sha256:e39311df1f3d941923c00da79ac7ba6269124a870ee87e3c3ad24d60f8aee4d2"` |  |
 | opentelemetry-collector.mode | string | `"deployment"` |  |
 | opentelemetry-collector.ports.jaeger-compact.enabled | bool | `false` |  |
 | opentelemetry-collector.ports.jaeger-grpc.enabled | bool | `false` |  |

@@ -202,6 +202,8 @@ class ZGWApiService @Inject constructor(
         val newInformatieObjectData = drcClientService.createEnkelvoudigInformatieobject(
             enkelvoudigInformatieObjectCreateLockRequest
         )
+        // Gebruiksrechten are required for every created zaak-informatieobject or else
+        // the zaak in question can no longer be aborted or closed (OpenZaak will return a 400 error on aborting or closing in that case).
         val gebruiksrechten = Gebruiksrechten().apply {
             informatieobject = newInformatieObjectData.url
             startdatum = convertToDateTime(newInformatieObjectData.creatiedatum).toOffsetDateTime()
