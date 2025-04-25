@@ -11,7 +11,10 @@ import io.smallrye.openapi.api.OpenApiConfig.OperationIdStrategy
 import org.gradle.api.plugins.JavaBasePlugin.BUILD_TASK_NAME
 import org.gradle.api.plugins.JavaBasePlugin.DOCUMENTATION_GROUP
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+import java.net.HttpURLConnection
+import java.net.URI
 import java.util.Locale
+
 
 plugins {
     java
@@ -91,9 +94,7 @@ fun Directory.toProjectRelativePath() = toString().replace("${layout.projectDire
 // For consistency, the layout of some known paths are determined here, and below as relative paths.
 // This means that we can use these and are less likely to make mistakes when using them
 val srcGenerated = layout.projectDirectory.dir("src/generated")
-val generatedPath = srcGenerated.toProjectRelativePath()
 val srcResources = layout.projectDirectory.dir("src/main/resources")
-val resourcesPath = srcResources.toProjectRelativePath()
 val srcApp = layout.projectDirectory.dir("src/main/app")
 val appPath = srcApp.toProjectRelativePath()
 val srcE2e = layout.projectDirectory.dir("src/e2e")
@@ -263,8 +264,35 @@ kotlin {
 }
 
 node {
+    fun isNodeVersionAvailable(version: String): Boolean {
+        val url = URI("https://nodejs.org/dist/v$version/").toURL()
+        val connection = url.openConnection() as HttpURLConnection
+        connection.requestMethod = "HEAD"
+        return connection.responseCode == HttpURLConnection.HTTP_OK
+    }
+
+    fun getLatestAvailableVersion(version: String): String {
+        val baseVersion = version.substringBeforeLast('.')
+        var patchVersion = version.substringAfterLast('.').toInt()
+        while (patchVersion >= 0) {
+            val currentVersion = "$baseVersion.$patchVersion"
+            if (isNodeVersionAvailable(currentVersion)) {
+                return currentVersion
+            }
+            patchVersion--
+        }
+        error("No available version found for base version $baseVersion")
+    }
+
+    fun packageJsonNodeJs(): String {
+        val regex = """"@types/node":\s*"(\d+\.\d+\.\d+)"""".toRegex()
+        val packageJson = file("$srcApp/package.json").readText()
+        val matchResult = regex.find(packageJson)
+        return matchResult?.groups?.get(1)?.value ?: error("Node version not found")
+    }
+
     download.set(true)
-    version.set(libs.versions.nodejs.get())
+    version.set(packageJsonNodeJs().let(::getLatestAvailableVersion))
     distBaseUrl.set("https://nodejs.org/dist")
     nodeProjectDir.set(srcApp.asFile)
     if (System.getenv("CI") != null) {
@@ -458,10 +486,10 @@ tasks {
     // run all spotless frontend tasks after the frontend linting task because
     // the linting task has as it's output the frontend source files which are
     // input for the spotless tasks
-    getByName("spotlessApp").mustRunAfter("npmRunLint")
-    getByName("spotlessHtml").mustRunAfter("npmRunLint")
-    getByName("spotlessJson").mustRunAfter("npmRunLint")
-    getByName("spotlessLess").mustRunAfter("npmRunLint")
+    getByName("spotlessApp").dependsOn("npmRunBuild").mustRunAfter("npmRunLint")
+    getByName("spotlessHtml").dependsOn("npmRunBuild").mustRunAfter("npmRunLint")
+    getByName("spotlessJson").dependsOn("npmRunBuild").mustRunAfter("npmRunLint")
+    getByName("spotlessLess").dependsOn("npmRunBuild").mustRunAfter("npmRunLint")
 
     getByName("compileItestKotlin") {
         dependsOn("copyJacocoAgentForItest")
