@@ -294,10 +294,12 @@ verlengen_doorlooptijd if {
 
 default wijzigen_locatie := false
 wijzigen_locatie if {
-    wijzigen
+    behandelaar.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
 }
 
 wijzigen_locatie if {
-    wijzigen
     recordmanager.rol in user.rollen
+    zaaktype_allowed
 }
