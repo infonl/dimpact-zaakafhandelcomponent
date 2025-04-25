@@ -190,6 +190,6 @@ class KlantRestService @Inject constructor(
     private fun ResultaatItem.isKoppelbaar() = this.vestigingsnummer != null || this.rsin != null
 
     private fun List<ExpandBetrokkene>.toInitiatorAsUuidStringMap(): Map<UUID, String> =
-        this.filter { it.initiator }
+        this.filter { it.initiator && it.expand != null && it.expand.hadKlantcontact != null }
             .associate { it.expand.hadKlantcontact.uuid to it.volledigeNaam }
 }
