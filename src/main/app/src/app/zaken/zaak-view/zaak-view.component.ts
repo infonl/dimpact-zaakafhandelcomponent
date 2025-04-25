@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { ComponentType } from "@angular/cdk/portal";
 import {
   AfterViewInit,
   Component,
@@ -650,7 +651,7 @@ export class ZaakViewComponent
     const userEventListenerDialog =
       this.createUserEventListenerDialog(planItem);
     this.dialog
-      .open(userEventListenerDialog.dialogComponent, {
+      .open(userEventListenerDialog.dialogComponent as ComponentType<unknown>, {
         data: userEventListenerDialog.dialogData,
       })
       .afterClosed()
@@ -1154,6 +1155,7 @@ export class ZaakViewComponent
       this.takenFilter["status"] = "AFGEROND";
     }
 
+    // @ts-expect-error TODO this throwing a ts error, functionality needs to be checked
     this.takenDataSource.filter = this.takenFilter;
     SessionStorageUtil.setItem(
       "toonAfgerondeTaken",
