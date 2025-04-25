@@ -5,6 +5,7 @@
 
 /* You can add global styles to this file, and also import other style files */
 @import "variables";
+@import "bootstrap/dist/css/bootstrap-grid.min.css";
 
 html,
 body {
@@ -84,7 +85,7 @@ button.mat-mdc-button-base {
   scale: 75%;
 }
 
-.container {
+.main-container {
   height: 100%;
 }
 
@@ -508,4 +509,38 @@ mat-hint {
 
 .mdc-dialog__container .mdc-dialog__title::before {
   content: none;
+}
+
+h1 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+h2 {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+h3 {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+h4,
+h5,
+h6 {
+  font-size: 14px;
+  font-weight: initial;
+}
+
+form fieldset {
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// Overwrite the bootstrap grid `row` class
+table tr.row {
+  display: table-row;
 }

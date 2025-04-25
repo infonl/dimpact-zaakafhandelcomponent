@@ -13,6 +13,12 @@ import { UtilService } from "../../../core/service/util.service";
 import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { SelectFormFieldBuilder } from "../../../shared/material-form-builder/form-components/select/select-form-field-builder";
 import { AbstractFormControlField } from "../../../shared/material-form-builder/model/abstract-form-control-field";
+import {
+  BSN_LENGTH,
+  KVK_LENGTH,
+  POSTAL_CODE_LENGTH,
+  VESTIGINGSNUMMER_LENGTH,
+} from "../../../shared/utils/constants";
 import { CustomValidators } from "../../../shared/validators/customValidators";
 import { KlantenService } from "../../klanten.service";
 import { Bedrijf } from "../../model/bedrijven/bedrijf";
@@ -72,25 +78,25 @@ export class BedrijfZoekComponent implements OnInit {
       .id("kvknummer")
       .label("kvknummer")
       .validators(CustomValidators.kvk)
-      .maxlength(8)
+      .maxlength(KVK_LENGTH)
       .build();
     this.vestigingsnummerFormField = new InputFormFieldBuilder()
       .id("vestigingsnummer")
       .label("vestigingsnummer")
       .validators(CustomValidators.vestigingsnummer)
-      .maxlength(12)
+      .maxlength(VESTIGINGSNUMMER_LENGTH)
       .build();
     this.rsinFormField = new InputFormFieldBuilder()
       .id("rsin")
       .label("rsin")
       .validators(CustomValidators.rsin)
-      .maxlength(9)
+      .maxlength(BSN_LENGTH)
       .build();
     this.postcodeFormField = new InputFormFieldBuilder()
       .id("postcode")
       .label("postcode")
       .validators(CustomValidators.postcode)
-      .maxlength(7)
+      .maxlength(POSTAL_CODE_LENGTH)
       .build();
     this.typeFormField = new SelectFormFieldBuilder()
       .id("type")

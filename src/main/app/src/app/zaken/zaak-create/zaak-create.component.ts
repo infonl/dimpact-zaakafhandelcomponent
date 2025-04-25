@@ -1,388 +1,229 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2024 Dimpact
+ * SPDX-FileCopyrightText: 2021 - 2024 Dimpact, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnDestroy, ViewChild } from "@angular/core";
-import { FormGroup, Validators } from "@angular/forms";
+import { Component, ViewChild } from "@angular/core";
+import { FormBuilder, FormControl, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
-import { Observable, Subject, of } from "rxjs";
-import { catchError, filter, takeUntil } from "rxjs/operators";
+import { Observable, of } from "rxjs";
+import { catchError } from "rxjs/operators";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { BAGObject } from "../../bag/model/bagobject";
 import { UtilService } from "../../core/service/util.service";
+import { IdentityService } from "../../identity/identity.service";
 import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { KlantenService } from "../../klanten/klanten.service";
+import { Bedrijf } from "../../klanten/model/bedrijven/bedrijf";
 import { Klant } from "../../klanten/model/klanten/klant";
 import { InboxProductaanvraag } from "../../productaanvragen/model/inbox-productaanvraag";
-import { ActionIcon } from "../../shared/edit/action-icon";
-import { AutocompleteFormFieldBuilder } from "../../shared/material-form-builder/form-components/autocomplete/autocomplete-form-field-builder";
-import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
-import { HeadingLevel } from "../../shared/material-form-builder/form-components/heading/heading-form-field";
-import { HeadingFormFieldBuilder } from "../../shared/material-form-builder/form-components/heading/heading-form-field-builder";
-import { InputFormField } from "../../shared/material-form-builder/form-components/input/input-form-field";
-import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
-import { MedewerkerGroepFormField } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-form-field";
-import { SelectFormField } from "../../shared/material-form-builder/form-components/select/select-form-field";
-import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
-import { TextareaFormField } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field";
-import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
-import { FormComponent } from "../../shared/material-form-builder/form/form/form.component";
-import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { FieldType } from "../../shared/material-form-builder/model/field-type.enum";
-import { FormConfig } from "../../shared/material-form-builder/model/form-config";
-import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { NavigationService } from "../../shared/navigation/navigation.service";
-import { OrderUtil } from "../../shared/order/order-util";
-import { Zaak } from "../model/zaak";
-import { ZaakAanmaakGegevens } from "../model/zaak-aanmaak-gegevens";
-import { Zaaktype } from "../model/zaaktype";
+import {
+  BSN_LENGTH,
+  VESTIGINGSNUMMER_LENGTH,
+} from "../../shared/utils/constants";
 import { ZakenService } from "../zaken.service";
 
 @Component({
   selector: "zac-zaak-create",
   templateUrl: "./zaak-create.component.html",
 })
-export class ZaakCreateComponent implements OnDestroy {
-  createZaakFields: Array<AbstractFormField[]>;
-  bagObjecten: BAGObject[] = [];
-  formConfig: FormConfig;
-  @ViewChild("actionsSideNav") actionsSidenav!: MatSidenav;
-  @ViewChild("mfbForm") mfbForm!: FormComponent;
-  activeSideAction: string | null = null;
-  private initiatorField: InputFormField;
-  private toelichtingField: TextareaFormField;
-  private bagObjectenField: InputFormField;
-  private medewerkerGroepFormField: MedewerkerGroepFormField;
-  private vertrouwelijkheidaanduidingField: SelectFormField;
-  private vertrouwelijkheidaanduidingen: { label: string; value: string }[];
-  private ngDestroy = new Subject<void>();
-  private initiatorToevoegenIcon = new ActionIcon(
-    "person",
-    "actie.initiator.toevoegen",
-    new Subject<void>(),
-  );
-  private bagObjectenToevoegenIcon = new ActionIcon(
-    "gps_fixed",
-    "actie.bagObject.toevoegen",
-    new Subject<void>(),
-  );
-  private initiator: Klant | null = null;
+export class ZaakCreateComponent {
+  static DEFAULT_CHANNEL = "E-formulier";
+
+  @ViewChild(MatSidenav) protected readonly actionsSidenav!: MatSidenav;
+
+  protected activeSideAction: string | null = null;
+
   private readonly inboxProductaanvraag: InboxProductaanvraag;
-  private communicatiekanalen: Observable<string[]>;
-  private communicatiekanaalField: SelectFormField;
+
+  protected groups = this.identityService.listGroups();
+  protected users: GeneratedType<"RestUser">[] = [];
+  protected caseTypes = this.zakenService.listZaaktypes();
+  protected communicationChannels: string[] = [];
+  protected confidentialityNotices = this.utilService.getEnumAsSelectList(
+    "vertrouwelijkheidaanduiding",
+    Vertrouwelijkheidaanduiding,
+  );
+
+  protected readonly form = this.formBuilder.group({
+    zaaktype: new FormControl<GeneratedType<"RestZaaktype"> | null>(null, [
+      Validators.required,
+    ]),
+    initiator: new FormControl<Klant | null | undefined>(null),
+    startdatum: new FormControl(moment(), [Validators.required]),
+    bagObjecten: new FormControl<BAGObject[]>([]),
+    groep: new FormControl<GeneratedType<"RestGroup"> | null | undefined>(
+      null,
+      [Validators.required],
+    ),
+    behandelaar: new FormControl<GeneratedType<"RestUser"> | null | undefined>(
+      null,
+    ),
+    communicatiekanaal: new FormControl("", [Validators.required]),
+    vertrouwelijkheidaanduiding: new FormControl<
+      (typeof this.confidentialityNotices)[number] | null | undefined
+    >(null, [Validators.required]),
+    omschrijving: new FormControl("", [
+      Validators.maxLength(80),
+      Validators.required,
+    ]),
+    toelichting: new FormControl("", [Validators.maxLength(1000)]),
+  });
 
   constructor(
-    private zakenService: ZakenService,
-    private router: Router,
-    private navigation: NavigationService,
-    private klantenService: KlantenService,
-    private referentieTabelService: ReferentieTabelService,
-    private translateService: TranslateService,
-    private utilService: UtilService,
+    private readonly zakenService: ZakenService,
+    private readonly router: Router,
+    private readonly klantenService: KlantenService,
+    referentieTabelService: ReferentieTabelService,
+    private readonly translateService: TranslateService,
+    private readonly utilService: UtilService,
+    private readonly formBuilder: FormBuilder,
+    private identityService: IdentityService,
+    protected readonly navigationService: NavigationService,
   ) {
+    utilService.setTitle("title.zaak.aanmaken");
     this.inboxProductaanvraag =
-      this.router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
+      router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
+    this.form.controls.behandelaar.disable();
 
-    this.utilService.setTitle("title.zaak.aanmaken");
+    referentieTabelService
+      .listCommunicatiekanalen(Boolean(this.inboxProductaanvraag))
+      .subscribe((channels) => {
+        this.communicationChannels = channels;
 
-    this.formConfig = new FormConfigBuilder()
-      .saveText("actie.aanmaken")
-      .cancelText("actie.annuleren")
-      .build();
-    this.communicatiekanalen =
-      this.referentieTabelService.listCommunicatiekanalen(
-        this.inboxProductaanvraag != null,
-      );
-    this.vertrouwelijkheidaanduidingen = this.utilService.getEnumAsSelectList(
-      "vertrouwelijkheidaanduiding",
-      Vertrouwelijkheidaanduiding,
-    );
-
-    const titel = new HeadingFormFieldBuilder()
-      .id("aanmakenZaak")
-      .label("actie.zaak.aanmaken")
-      .level(HeadingLevel.H1)
-      .build();
-
-    const toekennenGegevensTitel = new HeadingFormFieldBuilder()
-      .id("toekennengegevens")
-      .label("gegevens.toekennen")
-      .level(HeadingLevel.H2)
-      .build();
-
-    const overigeGegevensTitel = new HeadingFormFieldBuilder()
-      .id("overigegegevens")
-      .label("gegevens.overig")
-      .level(HeadingLevel.H2)
-      .build();
-
-    const zaaktype = new AutocompleteFormFieldBuilder()
-      .id("zaaktype")
-      .label("zaaktype")
-      .validators(Validators.required)
-      .optionLabel("omschrijving")
-      .options(this.zakenService.listZaaktypes())
-      .hint("zaps.step.algemeen.zaaktype.hint")
-      .build();
-
-    zaaktype.formControl.valueChanges
-      .pipe(
-        filter((zt) => typeof zt !== "string"),
-        takeUntil(this.ngDestroy),
-      )
-      .subscribe((v) => this.zaaktypeGeselecteerd(v));
-
-    const startdatum = new DateFormFieldBuilder(moment())
-      .id("startdatum")
-      .label("startdatum")
-      .validators(Validators.required)
-      .build();
-
-    this.medewerkerGroepFormField = this.getMedewerkerGroupFormField();
-    this.initiatorField = new InputFormFieldBuilder()
-      .id("initiatorIdentificatie")
-      .icon(this.initiatorToevoegenIcon)
-      .externalInput()
-      .label("initiator")
-      .build();
-
-    this.communicatiekanaalField = new SelectFormFieldBuilder()
-      .id("communicatiekanaal")
-      .label("communicatiekanaal")
-      .options(this.communicatiekanalen)
-      .validators(Validators.required)
-      .build();
-
-    this.vertrouwelijkheidaanduidingField = new SelectFormFieldBuilder()
-      .id("vertrouwelijkheidaanduiding")
-      .label("vertrouwelijkheidaanduiding")
-      .optionLabel("label")
-      .options(this.vertrouwelijkheidaanduidingen)
-      .optionsOrder(OrderUtil.orderAsIs())
-      .validators(Validators.required)
-      .build();
-
-    const omschrijving = new InputFormFieldBuilder()
-      .id("omschrijving")
-      .label("omschrijving")
-      .maxlength(80)
-      .validators(Validators.required)
-      .build();
-    this.toelichtingField = new TextareaFormFieldBuilder()
-      .id("toelichting")
-      .label("toelichting")
-      .maxlength(1000)
-      .build();
-
-    this.bagObjectenField = new InputFormFieldBuilder()
-      .id("bagObjecten")
-      .icon(this.bagObjectenToevoegenIcon)
-      .externalInput()
-      .label("bagObjecten")
-      .build();
-
-    this.initiatorField.clicked.subscribe(
-      this.iconNext("actie.initiator.toevoegen"),
-    );
-    this.initiatorField.onClear.subscribe(() => {
-      this.initiator = null;
-      this.initiatorField.reset();
-    });
-
-    this.bagObjectenField.clicked.subscribe(
-      this.iconNext("actie.bagObject.toevoegen"),
-    );
-    this.bagObjectenField.onClear.subscribe(() => {
-      this.bagObjecten = [];
-      this.bagObjectenField.reset();
-    });
-
-    this.createZaakFields = [
-      [titel],
-      [zaaktype, this.initiatorField],
-      [startdatum, this.bagObjectenField],
-      [toekennenGegevensTitel],
-      [this.medewerkerGroepFormField],
-      [overigeGegevensTitel],
-      [this.communicatiekanaalField, this.vertrouwelijkheidaanduidingField],
-      [omschrijving],
-      [this.toelichtingField],
-    ];
-
-    if (this.inboxProductaanvraag) {
-      this.verwerkInboxProductaanvraagGegevens();
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.ngDestroy.next();
-    this.ngDestroy.complete();
-  }
-
-  onFormSubmit(formGroup: FormGroup): void {
-    if (formGroup) {
-      const zaak: Zaak = new Zaak();
-      Object.keys(formGroup.controls).forEach((key) => {
-        switch (key) {
-          case "vertrouwelijkheidaanduiding":
-            zaak[key] = formGroup.controls[key].value?.value;
-            break;
-          case "initiatorIdentificatie":
-            if (this.initiator != null) {
-              zaak["initiatorIdentificatieType"] =
-                this.initiator.identificatieType;
-              zaak[key] = this.initiator.identificatie;
-            }
-            break;
-          case "bagObjecten":
-            // skip
-            break;
-          case "toekenning":
-            if (this.medewerkerGroepFormField.formControl.value.medewerker) {
-              zaak.behandelaar =
-                this.medewerkerGroepFormField.formControl.value.medewerker;
-            }
-            if (this.medewerkerGroepFormField.formControl.value.groep) {
-              zaak.groep =
-                this.medewerkerGroepFormField.formControl.value.groep;
-            }
-            break;
-          default:
-            zaak[key] = formGroup.controls[key].value;
-            break;
+        if (channels.includes(ZaakCreateComponent.DEFAULT_CHANNEL)) {
+          this.form.controls.communicatiekanaal.setValue(
+            ZaakCreateComponent.DEFAULT_CHANNEL,
+          );
         }
       });
-      this.zakenService
-        .createZaak(
-          new ZaakAanmaakGegevens(
-            zaak,
-            this.inboxProductaanvraag,
-            this.bagObjecten,
-          ),
-        )
-        .pipe(
-          catchError(() => {
-            this.mfbForm.reset();
-            return of();
-          }),
-        )
-        .subscribe((newZaak) => {
-          this.router.navigate(["/zaken/", newZaak.identificatie]);
-        });
-    } else {
-      this.navigation.back();
-    }
-  }
 
-  initiatorGeselecteerd(initiator: Klant): void {
-    this.initiator = initiator;
-    this.initiatorField.formControl.setValue(initiator?.naam);
-    this.actionsSidenav.close();
-  }
-
-  getMedewerkerGroupFormField(
-    groupId?: string,
-    employeeId?: string,
-  ): MedewerkerGroepFormField {
-    return new MedewerkerGroepFieldBuilder(
-      groupId
-        ? ({ id: groupId, naam: "" } as GeneratedType<"RestGroup">)
-        : undefined,
-      employeeId
-        ? ({ id: employeeId, naam: "" } as GeneratedType<"RestUser">)
-        : undefined,
-    )
-      .id("toekenning")
-      .groepLabel("actie.zaak.toekennen.groep")
-      .groepRequired()
-      .medewerkerLabel("actie.zaak.toekennen.medewerker")
-      .build();
-  }
-
-  zaaktypeGeselecteerd(zaaktype?: Zaaktype): void {
-    if (!zaaktype) {
-      return;
-    }
-
-    this.medewerkerGroepFormField = this.getMedewerkerGroupFormField(
-      zaaktype.zaakafhandelparameters.defaultGroepId,
-      zaaktype.zaakafhandelparameters.defaultBehandelaarId,
+    this.form.controls.zaaktype.valueChanges.subscribe((caseType) =>
+      this.caseTypeSelected(caseType),
     );
-    const index = this.createZaakFields.findIndex((formRow) =>
-      formRow.find(
-        (formField) => formField.fieldType === FieldType.MEDEWERKER_GROEP,
-      ),
-    );
-    this.createZaakFields[index] = [this.medewerkerGroepFormField];
-
-    // update reference of the array to apply changes
-    this.createZaakFields = [...this.createZaakFields];
-
-    this.vertrouwelijkheidaanduidingField.formControl.setValue(
-      this.vertrouwelijkheidaanduidingen.find(
-        (o) => o.value === zaaktype.vertrouwelijkheidaanduiding,
-      ),
-    );
-  }
-
-  private iconNext(action: string) {
-    return () => {
-      this.activeSideAction = action;
-      this.actionsSidenav.open();
-    };
-  }
-
-  private verwerkInboxProductaanvraagGegevens(): void {
-    const bsnLength = 9;
-    const vestigingsnummerLength = 12;
-    const defaultToelichting =
-      "Vanuit productaanvraag van type " + this.inboxProductaanvraag.type;
-    if (this.inboxProductaanvraag.initiatorID) {
-      if (this.inboxProductaanvraag.initiatorID.length === bsnLength) {
-        this.initiatorField.formControl.setValue(
-          this.inboxProductaanvraag.initiatorID,
-        );
-        this.klantenService
-          .readPersoon(this.inboxProductaanvraag.initiatorID)
-          .subscribe((initiator) => {
-            this.initiator = initiator as Klant;
-            this.initiatorField.formControl.setValue(initiator.naam);
-          });
-      } else if (
-        this.inboxProductaanvraag.initiatorID.length === vestigingsnummerLength
-      ) {
-        this.initiatorField.formControl.setValue(
-          this.inboxProductaanvraag.initiatorID,
-        );
-        this.klantenService
-          .readVestiging(this.inboxProductaanvraag.initiatorID)
-          .subscribe((initiator) => {
-            this.initiator = initiator;
-            this.initiatorField.formControl.setValue(initiator.naam);
-          });
+    this.form.controls.groep.valueChanges.subscribe((value) => {
+      if (!value) {
+        this.form.controls.behandelaar.setValue(null);
+        this.form.controls.behandelaar.disable();
+        return;
       }
-    }
-    this.toelichtingField.formControl.setValue(defaultToelichting);
+      identityService.listUsersInGroup(value.id).subscribe((users) => {
+        this.users = users ?? [];
+        this.form.controls.behandelaar.enable();
+        this.form.controls.behandelaar.setValue(
+          this.users.find(
+            ({ id }) =>
+              id ===
+              this.form.controls.zaaktype.value?.zaakafhandelparameters
+                ?.defaultBehandelaarId,
+          ),
+        );
+      });
+    });
+
+    this.handleProductRequest(this.inboxProductaanvraag);
   }
 
-  bagGeselecteerd(): void {
-    this.bagObjectenField.formControl.setValue(
-      this.bagObjecten.map((b) => b.omschrijving).join(" | "),
-    );
-    if (this.bagObjectenField.formControl.value.length > 100) {
-      this.translateService
-        .get("msg.aantal.bagObjecten.geselecteerd", {
-          aantal: this.bagObjecten.length,
-        })
-        .subscribe((v) => {
-          this.bagObjectenField.formControl.setValue(v);
-        });
-    }
+  formSubmit(form: typeof this.form): void {
+    const { bagObjecten, initiator, vertrouwelijkheidaanduiding, ...zaak } =
+      form.value;
+
+    this.zakenService
+      .createZaak({
+        zaak: {
+          ...zaak,
+          initiatorIdentificatie: initiator?.identificatie,
+          initiatorIdentificatieType: initiator?.identificatieType,
+          vertrouwelijkheidaanduiding: vertrouwelijkheidaanduiding?.value,
+        } as any as GeneratedType<"RESTZaakAanmaakGegevens">["zaak"],
+        bagObjecten: bagObjecten,
+        inboxProductaanvraag: this.inboxProductaanvraag,
+      })
+      .pipe(
+        catchError(() => {
+          this.form.reset();
+          return of();
+        }),
+      )
+      .subscribe((zaak) =>
+        this.router.navigate(["/zaken/", zaak?.identificatie]),
+      );
   }
+
+  async initiatorSelected(user: Klant) {
+    this.form.controls.initiator.setValue(user);
+    await this.actionsSidenav.close();
+  }
+
+  caseTypeSelected(caseType?: GeneratedType<"RestZaaktype"> | null): void {
+    if (!caseType) return;
+
+    const { zaakafhandelparameters, vertrouwelijkheidaanduiding } = caseType;
+
+    this.groups.subscribe((groups) => {
+      this.form.controls.groep.setValue(
+        groups?.find(({ id }) => id === zaakafhandelparameters?.defaultGroepId),
+      );
+    });
+
+    this.form.controls.vertrouwelijkheidaanduiding.setValue(
+      this.confidentialityNotices.find(
+        ({ value }) => value === vertrouwelijkheidaanduiding,
+      ),
+    );
+  }
+
+  protected async openSideNav(action: string) {
+    this.activeSideAction = action;
+    await this.actionsSidenav.open();
+  }
+
+  private handleProductRequest(productRequest?: InboxProductaanvraag) {
+    if (!productRequest?.initiatorID) return;
+
+    this.form.controls.toelichting.setValue(
+      `Vanuit productaanvraag van type ${productRequest.type}`,
+    );
+
+    let observable:
+      | Observable<GeneratedType<"RestPersoon"> | Bedrijf>
+      | undefined = undefined;
+
+    const { initiatorID } = productRequest;
+    switch (initiatorID.length) {
+      case BSN_LENGTH:
+        observable = this.klantenService.readPersoon(initiatorID);
+        break;
+      case VESTIGINGSNUMMER_LENGTH:
+        observable = this.klantenService.readVestiging(initiatorID);
+        break;
+    }
+
+    observable?.subscribe((result) => {
+      this.form.controls.initiator.setValue(result as Klant);
+    });
+  }
+
+  protected bagDisplayValue(bagObjects: BAGObject[]) {
+    const value = bagObjects
+      .map(({ omschrijving }) => omschrijving)
+      .join(" | ");
+
+    if (value.length <= 100) return value;
+
+    return this.translateService.instant(
+      "msg.aantal.bagObjecten.geselecteerd",
+      {
+        aantal: bagObjects.length,
+      },
+    );
+  }
+
+  // This is required for the `zac-bag-zoek` to work as expected
+  protected bagObjectSelected() {}
 }
