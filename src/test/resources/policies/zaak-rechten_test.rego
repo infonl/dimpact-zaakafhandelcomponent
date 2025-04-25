@@ -745,3 +745,32 @@ test_verlengen_doorlooptijd_wrong_role_fails if {
 test_verlengen_doorlooptijd_missing_role_fails if {
     not verlengen_doorlooptijd with input.user.key as "value"
 }
+
+########################
+# wijzigen_locatie
+########################
+test_wijzigen_locatie if {
+    wijzigen_locatie
+        with input.zaaktype_allowed as true
+        with input.zaak.open as true
+}
+
+test_wijzigen_locatie_zaak_closed_fails if {
+    not wijzigen_locatie
+        with input.zaaktype_allowed as true
+        with input.zaak.open as false
+}
+
+test_wijzigen_locatie_close_case_recordmanager if {
+    wijzigen_locatie
+        with input.zaaktype_allowed as true
+        with input.user.rollen as [ "recordmanager" ]
+        with input.zaak.open as false
+}
+
+test_wijzigen_locatie_wrong_role_fails if {
+    not wijzigen_locatie
+        with input.zaaktype_allowed as true
+        with input.user.rollen as [ "functioneel" ]
+        with input.zaak.open as false
+}

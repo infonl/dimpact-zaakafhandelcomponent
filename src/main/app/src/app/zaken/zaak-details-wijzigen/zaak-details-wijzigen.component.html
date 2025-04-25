@@ -30,14 +30,17 @@
         ></mfb-form>
       </div>
     </mat-tab>
-    <mat-tab label="{{ 'locatie' | translate }}">
+    <mat-tab
+      label="{{ 'locatie' | translate }}"
+      [disabled]="!zaak.rechten.wijzigenLocatie"
+    >
       <ng-template mat-tab-label>
         <mat-icon>place</mat-icon>
         {{ "locatie" | translate }}
       </ng-template>
       <zac-locatie-zoek
         [currentLocation]="zaak.zaakgeometrie"
-        [readonly]="!zaak.isOpen || !zaak.rechten.wijzigen"
+        [readonly]="!zaak.rechten.wijzigenLocatie"
         [reasonControl]="reasonField.formControl"
         (locatie)="saveFromMapView()"
         (locationChanged)="locationChanged($event)"
