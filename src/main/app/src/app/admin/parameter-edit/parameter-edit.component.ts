@@ -743,7 +743,7 @@ export class ParameterEditComponent
     }
   }
 
-  getBeschikbareMailtemplates(mailtemplate: MailtemplateKoppelingMail): any {
+  getBeschikbareMailtemplates(mailtemplate: MailtemplateKoppelingMail) {
     return this.mailtemplates.filter(
       (template) => template.mail === mailtemplate,
     );

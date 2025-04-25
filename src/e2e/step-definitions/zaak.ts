@@ -20,8 +20,8 @@ const TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER = "0612345678";
 
 async function checkZaakAssignment(
   this: CustomWorld,
-  zaakNumber: any,
-  userProfile: any,
+  zaakNumber: number,
+  userProfile: unknown,
 ) {
   await this.expect(
     this.page
@@ -288,7 +288,7 @@ Then(
 
     const pdf = require("pdf-parse");
     const dataBuffer = fs.readFileSync("./ExportData/" + suggestedFileName);
-    await pdf(dataBuffer).then(function (data: any) {
+    await pdf(dataBuffer).then((data: { text: string }) => {
       fs.writeFileSync("./ExportData/actual.txt", data.text);
     });
 

@@ -24,6 +24,7 @@ import * as geom from "ol/geom.js";
 import * as ol from "ol/index.js";
 import * as interaction from "ol/interaction.js";
 import * as layer from "ol/layer.js";
+import BaseLayer from "ol/layer/Base";
 import * as proj from "ol/proj.js";
 import * as source from "ol/source.js";
 import * as style from "ol/style.js";
@@ -75,7 +76,7 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
   // Default Center, middle of the Netherlands
   private readonly DEFAULT_CENTER: number[] = [631711.827985, 6856275.890632];
 
-  private layers: any[];
+  private layers: BaseLayer[] = [];
 
   private defaultStyle: style.Style = new style.Style({
     fill: new style.Fill({
@@ -103,7 +104,7 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.initialLocation = this.currentLocation;
     const projection = proj.get(this.EPSG3857);
-    const projectionExtent = projection.getExtent();
+    const projectionExtent = projection?.getExtent();
     const size = extent.getWidth(projectionExtent) / 256;
     const resolutions = new Array(this.EXTENT_MATRIX);
     const matrixIds = new Array(this.EXTENT_MATRIX);
@@ -203,7 +204,7 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  private searchAddresses(query): void {
+  private searchAddresses(query: string): void {
     if (query) {
       this.locationService.addressSuggest(query).subscribe((data) => {
         this.searchResults = data.response.docs;

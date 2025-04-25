@@ -46,14 +46,14 @@ export class ZaakdataComponent implements OnInit {
     });
   }
 
-  buildForm(data: Record<string, any>, formData: FormGroup): FormGroup {
+  buildForm(data: Record<string, unknown>, formData: FormGroup): FormGroup {
     for (const [k, v] of Object.entries(data)) {
       formData.addControl(k, this.getControl(v, this.isProcesVariabele(k)));
     }
     return formData;
   }
 
-  buildArray(values: [], proces: boolean): FormArray {
+  buildArray(values: unknown[], proces: boolean): FormArray {
     if (!values?.length) {
       return this.formBuilder.array([[]]);
     }
@@ -62,15 +62,21 @@ export class ZaakdataComponent implements OnInit {
     );
   }
 
-  getControl(value: any, proces: boolean): AbstractControl {
+  getControl(value: unknown, proces: boolean): AbstractControl {
     if (this.isValue(value)) {
       return new FormControl({ value: value, disabled: proces });
     } else if (this.isFile(value)) {
-      return new FormControl({ value: value["originalName"], disabled: true });
-    } else if (this.isArray(value)) {
+      return new FormControl({
+        value: (value as File)["originalName"],
+        disabled: true,
+      });
+    } else if (Array.isArray(value)) {
       return this.buildArray(value, proces);
     } else if (this.isObject(value)) {
-      return this.buildForm(value, this.formBuilder.group({}));
+      return this.buildForm(
+        value as Record<string, unknown>,
+        this.formBuilder.group({}),
+      );
     }
 
     return new FormControl({ value: value, disabled: proces });
@@ -80,24 +86,24 @@ export class ZaakdataComponent implements OnInit {
     return this.procesVariabelen.includes(key);
   }
 
-  isFile(data?: File): boolean {
+  isFile(data?: unknown) {
     if (!data) {
+      return false;
+    }
+
+    if (typeof data !== "object") {
       return false;
     }
 
     return "originalName" in data;
   }
 
-  isArray(data: unknown): boolean {
-    return Array.isArray(data);
-  }
-
-  isObject(data: unknown): boolean {
+  isObject(data: unknown) {
     return typeof data === "object" && !Array.isArray(data) && data !== null;
   }
 
-  isValue(data: unknown): boolean {
-    return !this.isObject(data) && !this.isArray(data);
+  isValue(data: unknown) {
+    return !this.isObject(data) && !Array.isArray(data);
   }
 
   opslaan(): void {
@@ -109,19 +115,22 @@ export class ZaakdataComponent implements OnInit {
     });
   }
 
-  mergeDeep(dest: Record<string, any>, src: Record<string, any>): void {
+  mergeDeep(dest: Record<string, unknown>, src: Record<string, unknown>): void {
     Object.keys(src).forEach((key) => {
       if (key === "__proto__" || key === "constructor") return;
       const destVal = dest[key];
       const srcVal = src[key];
-      if (this.isArray(destVal) && this.isArray(srcVal)) {
+      if (Array.isArray(destVal) && Array.isArray(srcVal)) {
         dest[key] = destVal.concat(...srcVal);
       } else if (
         key in dest &&
         this.isObject(destVal) &&
         this.isObject(srcVal)
       ) {
-        this.mergeDeep(destVal, srcVal);
+        this.mergeDeep(
+          destVal as Record<string, unknown>,
+          srcVal as Record<string, unknown>,
+        );
       } else {
         dest[key] = srcVal;
       }

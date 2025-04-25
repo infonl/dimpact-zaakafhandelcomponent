@@ -71,7 +71,7 @@ Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
 #### Gegevens
 ![image](images/zaps_gegevens.png)
 - CMMN model (v)| het zaakafhandelmodel waarmee de zaak wordt afgehandeld
-- Domein | om een zaaktype aan een specifiek domein toe te wijzen moet hier een domein gekozen worden. Als hier geen zeuze wordt gemaakt, dan valt dit zaaktype onder alle domeinen en zal door alle behandelaars die niet aan een specifiek domein zijn toegewezen worden gezien.
+- Domein | om een zaaktype aan een specifiek domein toe te wijzen moet hier een domein gekozen worden. Als hier geen keuze wordt gemaakt, dan valt dit zaaktype onder alle domeinen en zal door alle behandelaars die niet aan een specifiek domein zijn toegewezen worden gezien.
 - Groep (v)|  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
 - Behandelaar |  de behandelaar waar een nieuwe zaak na het aanmaken initieel op gezet wordt
 - Streefdatum waarschuwingsvenster | het aantal kalenderdagen voordat de streefdatum van de zaak wordt bereikt dat bepaalt:

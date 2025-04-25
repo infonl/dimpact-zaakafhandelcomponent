@@ -9,7 +9,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.kvk.KvkClientService
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.zrc.ZrcClientService
@@ -19,6 +18,7 @@ import nl.info.client.brp.model.createAdres
 import nl.info.client.brp.model.createAdressering
 import nl.info.client.brp.model.createPersoon
 import nl.info.client.brp.model.generated.Adres
+import nl.info.client.kvk.KvkClientService
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid

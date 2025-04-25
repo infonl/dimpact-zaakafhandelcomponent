@@ -168,7 +168,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   redis:
-    image: redis:7.4.1@sha256:bb142a9c18ac18a16713c1491d779697b4e107c22a97266616099d288237ef47
+    image: redis:7.4.3@sha256:8bc666424ef252009ed34b0432564cabbd4094cd2ce7829306cb1f5ee69170be
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -306,7 +306,7 @@ services:
         condition: service_started
 
   smartdocuments-wiremock:
-    image: docker.io/wiremock/wiremock:3.12.1@sha256:be850ea239193d9497b264115e7071f1f2605bbff05b41f1fa22799904b2e019
+    image: docker.io/wiremock/wiremock:3.13.0@sha256:8d9a0330e4de2f9e2035fc290df0a370ac7c2a92072a6c8752a42597310edb09
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
@@ -317,7 +317,7 @@ services:
     profiles: [ "itest" ]
 
   kvk-wiremock:
-    image: docker.io/wiremock/wiremock:3.12.1@sha256:be850ea239193d9497b264115e7071f1f2605bbff05b41f1fa22799904b2e019
+    image: docker.io/wiremock/wiremock:3.13.0@sha256:8d9a0330e4de2f9e2035fc290df0a370ac7c2a92072a6c8752a42597310edb09
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/kvk-wiremock/mappings:/home/wiremock/mappings
@@ -330,7 +330,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   bag-wiremock.local:
-    image: docker.io/wiremock/wiremock:3.12.1@sha256:be850ea239193d9497b264115e7071f1f2605bbff05b41f1fa22799904b2e019
+    image: docker.io/wiremock/wiremock:3.13.0@sha256:8d9a0330e4de2f9e2035fc290df0a370ac7c2a92072a6c8752a42597310edb09
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/bag-wiremock/mappings:/home/wiremock/mappings
@@ -401,7 +401,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: docker.io/grafana/grafana:11.6.0@sha256:62d2b9d20a19714ebfe48d1bb405086081bc602aa053e28cf6d73c7537640dfb
+    image: docker.io/grafana/grafana:11.6.1@sha256:52c3e20686b860c6dc1f623811565773cf51eefa378817a4896dfc863c3c82c8
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -656,7 +656,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginx:1.27.5@sha256:5ed8fcc66f4ed123c1b2560ed708dc148755b6e4cbd8b943fab094f2c6bfa91e
+    image: nginx:1.28.0@sha256:9334faa48d730571746a7baab46d62896cb685502bc29d270c4495e26fc78afd
     ports:
       - "8005:80"
     volumes:
