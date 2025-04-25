@@ -651,7 +651,7 @@ export class ZaakViewComponent
     const userEventListenerDialog =
       this.createUserEventListenerDialog(planItem);
     this.dialog
-      .open(userEventListenerDialog.dialogComponent as ComponentType<unknown>, {
+      .open(userEventListenerDialog.dialogComponent, {
         data: userEventListenerDialog.dialogData,
       })
       .afterClosed()
@@ -670,7 +670,10 @@ export class ZaakViewComponent
       });
   }
 
-  createUserEventListenerDialog(planItem: PlanItem) {
+  createUserEventListenerDialog(planItem: PlanItem): {
+    dialogComponent: ComponentType<unknown>;
+    dialogData: { zaak: Zaak; planItem: PlanItem };
+  } {
     switch (planItem.userEventListenerActie) {
       case UserEventListenerActie.IntakeAfronden:
         return this.createUserEventListenerIntakeAfrondenDialog(planItem);
