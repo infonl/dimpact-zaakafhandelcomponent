@@ -49,7 +49,6 @@ import org.flowable.identitylink.api.IdentityLinkInfo;
 import org.flowable.identitylink.api.IdentityLinkType;
 import org.flowable.task.api.TaskInfo;
 
-import net.atos.client.kvk.KvkClientService;
 import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.BetrokkeneType;
 import net.atos.client.zgw.zrc.model.Rol;
@@ -66,6 +65,7 @@ import nl.info.client.brp.model.generated.Persoon;
 import nl.info.client.brp.model.generated.VerblijfadresBinnenland;
 import nl.info.client.brp.model.generated.VerblijfadresBuitenland;
 import nl.info.client.brp.model.generated.VerblijfplaatsBuitenland;
+import nl.info.client.kvk.KvkClientService;
 import nl.info.client.kvk.zoeken.model.generated.BinnenlandsAdres;
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;

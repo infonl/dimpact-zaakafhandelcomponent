@@ -13,15 +13,15 @@ import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.klant.KlantClientService
 import net.atos.client.klant.createDigitalAddresses
-import net.atos.client.kvk.KvkClientService
-import net.atos.client.kvk.zoeken.model.createAdresWithBinnenlandsAdres
-import net.atos.client.kvk.zoeken.model.createResultaatItem
-import net.atos.client.kvk.zoeken.model.createSBIActiviteit
-import net.atos.client.kvk.zoeken.model.createVestiging
-import net.atos.client.kvk.zoeken.model.createVestigingsAdres
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
 import nl.info.client.brp.model.createPersoon
+import nl.info.client.kvk.KvkClientService
+import nl.info.client.kvk.model.createAdresWithBinnenlandsAdres
+import nl.info.client.kvk.model.createResultaatItem
+import nl.info.client.kvk.model.createSBIActiviteit
+import nl.info.client.kvk.model.createVestiging
+import nl.info.client.kvk.model.createVestigingsAdres
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.klant.exception.VestigingNotFoundException
 import nl.info.zac.app.klant.model.personen.createRestListBedrijvenParameters
@@ -319,7 +319,7 @@ class KlantRestServiceTest : BehaviorSpec({
             vestingsnummer = "fakeVestigingsnummer",
             rsin = null
         )
-        every { kvkClientService.list(any()).resultaten } returns listOf(resultaatItem)
+        every { kvkClientService.search(any()).resultaten } returns listOf(resultaatItem)
 
         When("the listBedrijven function is called") {
             val result = klantRestService.listBedrijven(restListBedrijvenParameters)
@@ -345,7 +345,7 @@ class KlantRestServiceTest : BehaviorSpec({
             type = "fakeType",
             vestingsnummer = null
         )
-        every { kvkClientService.list(any()).resultaten } returns listOf(resultaatItem)
+        every { kvkClientService.search(any()).resultaten } returns listOf(resultaatItem)
 
         When("the listBedrijven function is called") {
             val result = klantRestService.listBedrijven(restListBedrijvenParameters)
