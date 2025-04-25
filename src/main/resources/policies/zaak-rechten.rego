@@ -43,7 +43,7 @@ zaak_rechten := {
     "starten_taak": starten_taak,
     "vastleggen_besluit": vastleggen_besluit,
     "verlengen_doorlooptijd": verlengen_doorlooptijd,
-    "wijzigen_locatie": wijzigen_locatie
+    "wijzigen_locatie": wijzigen_locatie,
 }
 
 default zaaktype_allowed := false
@@ -294,12 +294,10 @@ verlengen_doorlooptijd if {
 
 default wijzigen_locatie := false
 wijzigen_locatie if {
-    behandelaar.rol in user.rollen
-    zaaktype_allowed
-    zaak.open
+    wijzigen
 }
 
 wijzigen_locatie if {
+    wijzigen
     recordmanager.rol in user.rollen
-    zaaktype_allowed
 }
