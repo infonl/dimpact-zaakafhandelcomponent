@@ -13,7 +13,7 @@ import { FormArray, FormControl, FormGroup } from "@angular/forms";
 })
 export class ZaakdataFormComponent {
   @Input() formItem: any;
-  @Input({ required: true }) label!: string;
+  @Input() label?: string;
 
   getType() {
     if (this.formItem instanceof FormControl) {
