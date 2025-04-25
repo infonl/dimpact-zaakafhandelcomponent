@@ -111,6 +111,7 @@ default wijzigen_doorlooptijd := false
 wijzigen_doorlooptijd if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
+    zaak.open
 }
 
 default verlengen := false

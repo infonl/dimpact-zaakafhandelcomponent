@@ -315,10 +315,13 @@ class ZaakRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUUID)
         with(policyService.readZaakRechten(zaak)) {
             assertPolicy(wijzigen)
-            if (zaak.einddatumGepland != restZaakEditMetRedenGegevens.zaak.einddatumGepland ||
+            if (
+                zaak.startdatum != restZaakEditMetRedenGegevens.zaak.startdatum ||
+                zaak.einddatumGepland != restZaakEditMetRedenGegevens.zaak.einddatumGepland ||
                 zaak.uiterlijkeEinddatumAfdoening != restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening
             ) {
                 assertPolicy(verlengenDoorlooptijd)
+                assertPolicy(wijzigenDoorlooptijd)
             }
         }
         restZaakEditMetRedenGegevens.zaak.run {
