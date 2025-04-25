@@ -53,7 +53,9 @@ export class ZacAutoComplete<
     this.control.valueChanges.subscribe((value) => {
       this.filteredOptions = this.availableOptions.filter((option) => {
         if (!value) return true;
-        return this.displayWith(option).toLowerCase().includes(value.toLowerCase());
+        return this.displayWith(option)
+          .toLowerCase()
+          .includes(value.toLowerCase());
       });
     });
   }
