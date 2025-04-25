@@ -11,6 +11,7 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTable } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
+import moment from "moment";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
@@ -103,7 +104,7 @@ export class ZakenMijnComponent
     this.table.dataSource = this.dataSource;
   }
 
-  isAfterDate(datum: any): boolean {
+  isAfterDate(datum: Date | moment.Moment | string): boolean {
     return DateConditionals.isExceeded(datum);
   }
 

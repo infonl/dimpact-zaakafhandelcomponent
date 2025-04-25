@@ -15,6 +15,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { Subscription } from "rxjs";
 import { InboxDocumentListParameters } from "../../documenten/model/inbox-document-list-parameters";
 import { OntkoppeldDocumentListParameters } from "../../documenten/model/ontkoppeld-document-list-parameters";
+import { DatumRange } from "../../zoeken/model/datum-range";
 import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
 import { Werklijst } from "../model/werklijst";
@@ -129,6 +130,9 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   }
 }
 
-export interface ZoekFilters {
+export type ZoekFilters = {
   readonly filtersType: string;
-}
+  zoeken?: Record<string, unknown>;
+  filters?: Record<string, undefined | { values: Array<unknown> }>;
+  datums?: Record<string, DatumRange>;
+};

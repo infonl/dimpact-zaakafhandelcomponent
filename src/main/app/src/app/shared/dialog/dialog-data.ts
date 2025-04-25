@@ -6,14 +6,14 @@
 import { Observable } from "rxjs";
 import { AbstractFormField } from "../material-form-builder/model/abstract-form-field";
 
-export class DialogData<T = unknown> {
+export class DialogData<Value = unknown, Result = unknown> {
   public confirmButtonActionKey = "actie.ja";
-  public cancelButtonActionKey = "actie.annuleren";
-  public value: T = null as T;
+  public cancelButtonActionKey: string | null = "actie.annuleren";
+  public value: Value = null as Value;
 
   constructor(
     public formFields: AbstractFormField[],
-    public fn?: (results: any[]) => Observable<any>,
+    public fn?: (result: Result) => Observable<unknown>,
     public melding?: string,
     public uitleg?: string,
   ) {}
