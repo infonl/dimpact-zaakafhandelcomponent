@@ -6,6 +6,7 @@
 import {
   AfterViewInit,
   Component,
+  OnDestroy,
   OnInit,
   signal,
   ViewChild,
@@ -49,7 +50,7 @@ import { TakenWerkvoorraadDatasource } from "./taken-werkvoorraad-datasource";
 })
 export class TakenWerkvoorraadComponent
   extends WerklijstComponent
-  implements AfterViewInit, OnInit
+  implements AfterViewInit, OnInit, OnDestroy
 {
   selection = new SelectionModel<TaakZoekObject>(true, []);
   dataSource: TakenWerkvoorraadDatasource;

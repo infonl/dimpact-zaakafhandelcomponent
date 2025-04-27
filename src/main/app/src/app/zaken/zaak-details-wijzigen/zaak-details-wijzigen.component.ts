@@ -234,7 +234,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
 
   private createDateFormField(
     id: string,
-    value: any,
+    value: string,
     enabled: boolean,
     validators: ValidatorFn[],
   ): DateFormField {
@@ -353,14 +353,15 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     this.reasonField.formControl.enable();
   }
 
-  private createZaakPatch(update: Record<string, any>) {
+  private createZaakPatch(update: Record<string, unknown>) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { assignment, reason, ...updates } = update;
 
     return {
       ...updates,
-      groep: assignment.groep,
-      behandelaar: assignment.medewerker,
+      groep: (assignment as { groep: GeneratedType<"RestGroup"> }).groep,
+      behandelaar: (assignment as { medewerker: GeneratedType<"RestUser"> })
+        .medewerker,
     } satisfies Partial<Zaak>;
   }
 

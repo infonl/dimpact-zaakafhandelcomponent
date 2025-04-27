@@ -140,7 +140,7 @@ export class ZaakCreateComponent {
           initiatorIdentificatie: initiator?.identificatie,
           initiatorIdentificatieType: initiator?.identificatieType,
           vertrouwelijkheidaanduiding: vertrouwelijkheidaanduiding?.value,
-        } as any as GeneratedType<"RESTZaakAanmaakGegevens">["zaak"],
+        } as unknown as GeneratedType<"RESTZaakAanmaakGegevens">["zaak"],
         bagObjecten: bagObjecten,
         inboxProductaanvraag: this.inboxProductaanvraag,
       })

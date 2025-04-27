@@ -236,7 +236,7 @@ export class ZaakDocumentenComponent
             { document: informatieobject.titel },
           );
         }
-        const dialogData = new DialogData(
+        const dialogData = new DialogData<unknown, { reden?: string }>(
           [
             new TextareaFormFieldBuilder()
               .id("reden")
@@ -245,11 +245,11 @@ export class ZaakDocumentenComponent
               .maxlength(200)
               .build(),
           ],
-          (results: Record<string, any>) =>
+          ({ reden }) =>
             this.zakenService.ontkoppelInformatieObject({
               zaakUUID: this.zaak.uuid,
               documentUUID: informatieobject.uuid,
-              reden: results?.reden,
+              reden: reden,
             }),
           melding,
         );

@@ -52,7 +52,7 @@ export class BesluitViewComponent implements OnInit, OnChanges {
   @Input({ required: true }) result!: GeneratedType<"RestZaakResultaat">;
   @Input({ required: true }) readonly!: boolean;
   @Output() besluitWijzigen = new EventEmitter<GeneratedType<"RestDecision">>();
-  @Output() doIntrekking = new EventEmitter<any>();
+  @Output() doIntrekking = new EventEmitter();
   readonly indicatiesLayout = IndicatiesLayout;
   histories: Record<string, MatTableDataSource<HistorieRegel>> = {};
 
@@ -139,7 +139,7 @@ export class BesluitViewComponent implements OnInit, OnChanges {
         this.maakToelichtingField(),
         this.maakMessageField(besluit),
       ],
-      (results: any[]) => this.saveIntrekking(results),
+      (results) => this.saveIntrekking(results),
       this.translate.instant("msg.besluit.intrekken"),
     );
     dialogData.confirmButtonActionKey = "actie.besluit.intrekken";
@@ -148,7 +148,7 @@ export class BesluitViewComponent implements OnInit, OnChanges {
     });
   }
 
-  saveIntrekking(results: any[]): Observable<null> {
+  saveIntrekking(results: unknown): Observable<null> {
     this.doIntrekking.emit(results);
     return of(null);
   }
