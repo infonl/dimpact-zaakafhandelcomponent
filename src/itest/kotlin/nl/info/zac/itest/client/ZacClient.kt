@@ -283,7 +283,7 @@ class ZacClient {
             .joinToString("&")
             .let { if (it.isNotEmpty()) "?$it" else "" }
         return itestHttpClient.performGetRequest(
-            url = "$ZAC_API_URI/zaken/zaak/$zaakUUID/gekoppelde-zaken/zoek-koppelbare-zaken$queryParams"
+            url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakUUID/zoek-koppelbare-zaken$queryParams"
         )
     }
 }

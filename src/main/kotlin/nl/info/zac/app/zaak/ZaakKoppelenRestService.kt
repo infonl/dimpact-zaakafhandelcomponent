@@ -29,7 +29,7 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
 
-@Path("zaken/zaak")
+@Path("zaken/gekoppelde-zaken")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
@@ -42,7 +42,7 @@ class ZaakKoppelenRestService @Inject constructor(
 ) {
 
     @GET
-    @Path("{zaakUuid}/gekoppelde-zaken/zoek-koppelbare-zaken")
+    @Path("{zaakUuid}/zoek-koppelbare-zaken")
     fun findLinkableZaken(
         @PathParam("zaakUuid") zaakUuid: UUID,
         @QueryParam("zaakIdentifier") zaakIdentifier: String,
