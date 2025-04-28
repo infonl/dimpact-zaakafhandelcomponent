@@ -8,6 +8,7 @@
 package nl.info.zac.app.klant.model.personen
 
 import net.atos.client.klant.model.DigitaalAdres
+import net.atos.client.klant.model.SoortDigitaalAdresEnum
 import net.atos.zac.app.shared.RESTResultaat
 import net.atos.zac.util.StringUtil
 import net.atos.zac.util.StringUtil.ONBEKEND
@@ -32,8 +33,6 @@ import nl.info.client.brp.model.generated.ZoekMetNaamEnGemeenteVanInschrijvingRe
 import nl.info.client.brp.model.generated.ZoekMetNummeraanduidingIdentificatieResponse
 import nl.info.client.brp.model.generated.ZoekMetPostcodeEnHuisnummerResponse
 import nl.info.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse
-import nl.info.zac.app.klant.KlantRestService.Companion.EMAIL_SOORT_DIGITAAL_ADRES
-import nl.info.zac.app.klant.KlantRestService.Companion.TELEFOON_SOORT_DIGITAAL_ADRES
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.klant.model.klant.RestKlant
 import nl.info.zac.util.AllOpen
@@ -50,8 +49,8 @@ data class RestPersoon(
     var geslacht: String? = null,
     var geboortedatum: String? = null,
     var verblijfplaats: String? = null,
-    override var emailadres: String? = null,
     override var naam: String? = null,
+    override var emailadres: String? = null,
     override var telefoonnummer: String? = null,
     val indicaties: EnumSet<RestPersoonIndicaties> = EnumSet.noneOf(RestPersoonIndicaties::class.java),
 ) : RestKlant() {
@@ -152,8 +151,9 @@ fun List<DigitaalAdres>.toRestPersoon(): RestPersoon {
     val restPersoon = RestPersoon()
     for (digitalAdress in this) {
         when (digitalAdress.soortDigitaalAdres) {
-            TELEFOON_SOORT_DIGITAAL_ADRES -> restPersoon.telefoonnummer = digitalAdress.adres
-            EMAIL_SOORT_DIGITAAL_ADRES -> restPersoon.emailadres = digitalAdress.adres
+            SoortDigitaalAdresEnum.TELEFOONNUMMER -> restPersoon.telefoonnummer = digitalAdress.adres
+            SoortDigitaalAdresEnum.EMAIL -> restPersoon.emailadres = digitalAdress.adres
+            SoortDigitaalAdresEnum.OVERIG -> null // not supported in ZAC
         }
     }
     return restPersoon
