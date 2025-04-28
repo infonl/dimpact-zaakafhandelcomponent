@@ -156,9 +156,12 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         }
 
         When("list template names for a nested level group is called") {
-            val templateNames = smartDocumentsService.listTemplateNames(listOf(
-                "Dimpact", "Indienen aansprakelijkstelling door derden behandelen"
-            ))
+            val templateNames = smartDocumentsService.listTemplateNames(
+                listOf(
+                    "Dimpact",
+                    "Indienen aansprakelijkstelling door derden behandelen"
+                )
+            )
 
             Then("it should return a list of template names") {
                 templateNames shouldBe listOf("Data Test", "OpenZaakTest")
@@ -172,7 +175,6 @@ class SmartDocumentsServiceTest : BehaviorSpec({
                 templateNames shouldBe null
             }
         }
-
     }
 
     Given("SmartDocuments is disabled") {

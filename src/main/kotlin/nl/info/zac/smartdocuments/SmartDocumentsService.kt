@@ -15,8 +15,6 @@ import nl.info.client.smartdocuments.model.document.Deposit
 import nl.info.client.smartdocuments.model.document.Document
 import nl.info.client.smartdocuments.model.document.File
 import nl.info.client.smartdocuments.model.document.SmartDocument
-import nl.info.client.smartdocuments.model.template.SmartDocumentsResponseTemplateGroup
-import nl.info.client.smartdocuments.model.template.SmartDocumentsResponseTemplatesStructure
 import nl.info.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
 import nl.info.client.smartdocuments.model.template.group
 import nl.info.zac.authentication.LoggedInUser
