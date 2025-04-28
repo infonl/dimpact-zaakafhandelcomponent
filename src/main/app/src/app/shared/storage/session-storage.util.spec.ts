@@ -6,16 +6,16 @@
 import { TestBed } from "@angular/core/testing";
 import { SessionStorageUtil } from "./session-storage.util";
 const localStorageMock = (() => {
-  let store = {};
+  let store: Record<string, unknown> = {};
 
   return {
-    getItem(key) {
+    getItem(key: string) {
       return store[key] || null;
     },
-    setItem(key, value) {
-      store[key] = value.toString();
+    setItem(key:string, value: unknown) {
+      store[key] = String(value);
     },
-    removeItem(key) {
+    removeItem(key: string) {
       delete store[key];
     },
     clear() {

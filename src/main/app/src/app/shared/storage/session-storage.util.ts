@@ -5,7 +5,7 @@
 
 export class SessionStorageUtil {
   static getItem<ANY>(key: string, defaultValue?: ANY): ANY {
-    let item = JSON.parse(sessionStorage.getItem(key) ?? "");
+    let item = JSON.parse(String(sessionStorage.getItem(key)));
     if (defaultValue && !item) {
       // Kopieren om referentie te breken
       item = JSON.parse(JSON.stringify(defaultValue));
