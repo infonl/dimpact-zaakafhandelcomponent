@@ -34,6 +34,7 @@ import data.net.atos.zac.zaak.toevoegen_bag_object
 import data.net.atos.zac.zaak.starten_taak
 import data.net.atos.zac.zaak.vastleggen_besluit
 import data.net.atos.zac.zaak.verlengen_doorlooptijd
+import data.net.atos.zac.zaak.wijzigen_locatie
 
 
 ##################
