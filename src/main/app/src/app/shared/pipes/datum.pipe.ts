@@ -6,13 +6,25 @@
 import { Inject, LOCALE_ID, Pipe, PipeTransform } from "@angular/core";
 import moment from "moment";
 
-type DateFormat = readonly ["shortDate", "mediumDate", "longDate", "short", "medium", "long", "full", "fullDate"]
+type DateFormat = readonly [
+  "shortDate",
+  "mediumDate",
+  "longDate",
+  "short",
+  "medium",
+  "long",
+  "full",
+  "fullDate",
+];
 
 @Pipe({ name: "datum" })
 export class DatumPipe implements PipeTransform {
   constructor(@Inject(LOCALE_ID) public locale: string) {}
 
-  transform(value?: Date | moment.Moment | string, dateFormat?: DateFormat[number]) {
+  transform(
+    value?: Date | moment.Moment | string,
+    dateFormat?: DateFormat[number],
+  ) {
     if (value) {
       const m: moment.Moment = moment(value, moment.ISO_8601).locale(
         this.locale,
@@ -32,24 +44,24 @@ export class DatumPipe implements PipeTransform {
   // angular date format mappen op moment formaat
   getFormat(dateFormat: DateFormat[number]) {
     switch (dateFormat) {
-        case "shortDate":
-            return "L";
-        case "mediumDate":
-            return "ll";
-        case "longDate":
-            return "LL";
-        case "short":
-            return "L LT";
-        case "medium":
-            return "ll LT";
-        case "long":
-            return "LL LT";
-        case "full":
-            return "LLLL";
-        case "fullDate":
-            return "dddd, LL";
-        default:
-            return dateFormat;
+      case "shortDate":
+        return "L";
+      case "mediumDate":
+        return "ll";
+      case "longDate":
+        return "LL";
+      case "short":
+        return "L LT";
+      case "medium":
+        return "ll LT";
+      case "long":
+        return "LL LT";
+      case "full":
+        return "LLLL";
+      case "fullDate":
+        return "dddd, LL";
+      default:
+        return dateFormat;
     }
   }
 }

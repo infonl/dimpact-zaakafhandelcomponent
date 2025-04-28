@@ -12,7 +12,7 @@ const localStorageMock = (() => {
     getItem(key: string) {
       return store[key] || null;
     },
-    setItem(key:string, value: unknown) {
+    setItem(key: string, value: unknown) {
       store[key] = String(value);
     },
     removeItem(key: string) {
