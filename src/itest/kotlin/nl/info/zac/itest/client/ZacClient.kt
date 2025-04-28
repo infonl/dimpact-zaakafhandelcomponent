@@ -271,7 +271,7 @@ class ZacClient {
 
     fun findLinkableCases(
         zaakUUID: UUID,
-        zaakIdentifier: String,
+        zoekZaakIdentifier: String,
         linkType: String? = null,
         page: Int? = null,
         rows: Int? = null
@@ -280,7 +280,7 @@ class ZacClient {
             "Find linkable zaken for zaak with UUID: $zaakUUID"
         }
         val queryParams = mapOf<String, Any?>(
-            "zaakIdentifier" to zaakIdentifier,
+            "zoekZaakIdentifier" to zoekZaakIdentifier,
             "linkType" to linkType,
             "rows" to rows,
             "page" to page

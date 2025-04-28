@@ -48,13 +48,13 @@ class ZaakKoppelenRestService @Inject constructor(
     @Path("{zaakUuid}/zoek-koppelbare-zaken")
     fun findLinkableZaken(
         @PathParam("zaakUuid") zaakUuid: UUID,
-        @QueryParam("zaakIdentifier") zaakIdentifier: String,
+        @QueryParam("zoekZaakIdentifier") zoekZaakIdentifier: String,
         @QueryParam("linkType") linkType: String,
         @QueryParam("page") page: Int = 0,
         @QueryParam("rows") rows: Int = 10
     ) = zrcClientService.readZaak(zaakUuid)
         .also { PolicyService.assertPolicy(policyService.readZaakRechten(it).koppelen) }
-        .let { Pair(it, buildZoekParameters(it, zaakIdentifier, linkType, page, rows)) }
+        .let { Pair(it, buildZoekParameters(it, zoekZaakIdentifier, linkType, page, rows)) }
         .let { Pair(it.first, searchService.zoek(it.second)) }
         .let { pair ->
             val fromZaakAndZaaktype = Pair(pair.first, ztcClientService.readZaaktype(pair.first.zaaktype))
@@ -76,14 +76,14 @@ class ZaakKoppelenRestService @Inject constructor(
     @Suppress("UnusedParameter")
     private fun buildZoekParameters(
         zaak: Zaak,
-        zaakIdentifier: String,
+        zoekZaakIdentifier: String,
         linkType: String,
         pageNo: Int,
         rowsNo: Int
     ) = ZoekParameters(ZoekObjectType.ZAAK).apply {
         start = pageNo * rowsNo
         rows = rowsNo
-        addZoekVeld(ZoekVeld.ZAAK_IDENTIFICATIE, zaakIdentifier)
+        addZoekVeld(ZoekVeld.ZAAK_IDENTIFICATIE, zoekZaakIdentifier)
         addFilter(FilterVeld.ZAAK_IDENTIFICATIE, FilterParameters(listOf(zaak.identificatie), true))
     }
 }
