@@ -50,7 +50,7 @@ class BrcClientServiceTest : BehaviorSpec({
         val besluit = createBesluit(
             url = URI("http://localhost/besluit/$besluitUuid")
         )
-        val updateReason = "dummyReason"
+        val updateReason = "fakeReason"
         val returnedBesluit = createBesluit()
         every { zgwClientHeadersFactory.setAuditToelichting(updateReason) } just Runs
         every { brcClient.besluitUpdate(besluitUuid, besluit) } returns returnedBesluit

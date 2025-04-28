@@ -140,7 +140,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             itestHttpClient.performPatchRequest(
                 "$ZAC_API_URI/zaken/zaak/$zaakUUID/heropenen",
                 requestBodyAsString = """
-                    {"reden":"dummyReason"}
+                    {"reden":"fakeReason"}
                 """.trimIndent()
             ).run {
                 code shouldBe HTTP_STATUS_NO_CONTENT
@@ -169,7 +169,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaken/zaak/$zaakUUID/afsluiten",
                 requestBodyAsString = """
                     {
-                    "reden":"dummyReason",
+                    "reden":"fakeReason",
                     "resultaattypeUuid":"$resultaatTypeUuid"
                     }
                 """.trimIndent()

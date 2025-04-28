@@ -11,7 +11,9 @@ data class Group(
 
     val name: String,
 
-    val email: String? = null
+    val email: String? = null,
+
+    val zacClientRoles: List<String> = emptyList()
 ) {
     /**
      * Constructor for creating an unknown Group, a group with a given group id which is not known in the identity system.
@@ -24,11 +26,22 @@ data class Group(
     )
 }
 
-fun GroupRepresentation.toGroup(): Group =
+/**
+ * Converts a [GroupRepresentation] to a [Group], mapping the Keycloak
+ * group name, group description, and Keycloak ZAC client roles.
+ * Somewhat confusingly, we map the Keycloak group name to our group id,
+ * and the Keycloak group description attribute (if any) to our group name.
+ * The Keycloak group id is a UUID and is not of interest to us.
+ * The Keycloak group name is the unique group name in the ZAC Keycloak realm,
+ * and we treat this as the group id in our system.
+ *
+ * @param keycloakClientId The client ID of the Keycloak client.
+ * @return A [Group] object representing the group.
+ */
+fun GroupRepresentation.toGroup(keycloakClientId: String): Group =
     Group(
-        // better to rename 'id' field as 'name' and 'name' field as 'description'
         id = name,
-        // maybe we want a separate description field in the Group class
-        name = attributes?.get("description")?.single()?.toString() ?: name,
-        email = attributes?.get("email")?.single().toString()
+        name = attributes?.get("description")?.singleOrNull() ?: name,
+        email = attributes?.get("email")?.singleOrNull(),
+        zacClientRoles = clientRoles[keycloakClientId].orEmpty()
     )

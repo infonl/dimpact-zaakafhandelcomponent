@@ -39,22 +39,25 @@ object ItestConfiguration {
     const val ACTIE_ZAAK_AFHANDELEN = "ZAAK_AFHANDELEN"
 
     /**
-     * Dummy additional allowed file types just for testing purposes.
+     * Fake additional allowed file types just for testing purposes.
      */
-    const val ADDITIONAL_ALLOWED_FILE_TYPES = "dummyFileExtension1,dummyFileExtension2"
+    const val ADDITIONAL_ALLOWED_FILE_TYPES = "fakeFileExtension1,fakeFileExtension2"
     const val BAG_MOCK_BASE_URI = "http://bag-wiremock.local:8080"
     const val BAG_TEST_ADRES_1_IDENTIFICATION = "0363200003761447"
     const val BETROKKENE_TYPE_NATUURLIJK_PERSOON = "NATUURLIJK_PERSOON"
     const val BETROKKENE_IDENTIFICATION_TYPE_BSN = "BSN"
     const val BETROKKENE_IDENTIFACTION_TYPE_VESTIGING = "VN"
     const val BETROKKENE_ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
-    const val BPMN_TEST_PROCESS = "bpmnTestProcess.bpmn"
+    const val BPMN_TEST_PROCESS_ID = "itProcessDefinition"
+    const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_ID.bpmn"
+    const val BPMN_TEST_FORM_RESOURCE_PATH = "bpmn/testForm.json"
     const val BRON_ORGANISATIE = "123443210"
     const val CONFIG_MAX_FILE_SIZE_IN_MB = 80L
     const val CONFIG_GEMEENTE_CODE = "9999"
-    const val CONFIG_GEMEENTE_NAAM = "DummyZacGemeente"
-    const val COMMUNICATIEKANAAL_TEST_1 = "dummyCommunicatiekanaal1"
-    const val COMMUNICATIEKANAAL_TEST_2 = "dummyCommunicatiekanaal2"
+    const val CONFIG_GEMEENTE_NAAM = "FakeZacGemeente"
+    const val COMMUNICATIEKANAAL_TEST_1 = "fakeCommunicatiekanaal1"
+    const val COMMUNICATIEKANAAL_TEST_2 = "fakeCommunicatiekanaal2"
+    const val DOMEIN_TEST_1 = "domein_test_1"
     const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING = "bijlage"
@@ -96,6 +99,7 @@ object ItestConfiguration {
     const val REFERENCE_TABLE_DOMEIN_NAME = "Domein"
     const val REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_CODE = "SERVER_ERROR_ERROR_PAGINA_TEKST"
     const val REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_NAME = "Server error error pagina tekst"
+    const val RESULTAAT_TYPE_GEWEIGERD_UUID = "dd2bcd87-ed7e-4b23-a8e3-ea7fe7ef00c6"
     const val ROLTYPE_NAME_BELANGHEBBENDE = "Belanghebbende"
     const val ROLTYPE_NAME_MEDEAANVRAGER = "Medeaanvrager"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
@@ -108,18 +112,19 @@ object ItestConfiguration {
     const val SCREEN_EVENT_TYPE_ZAAK_ROLLEN = "ZAAK_ROLLEN"
 
     const val TEST_GEMEENTE_EMAIL_ADDRESS = "gemeente-zac-test@example.com"
-
     const val TEST_INFORMATIE_OBJECT_TYPE_1_UUID = "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
 
     const val TEST_SPEC_ORDER_INITIAL = 0
-    const val TEST_SPEC_ORDER_AFTER_ZAAK_CREATED = 1
-    const val TEST_SPEC_ORDER_AFTER_TASK_CREATED = 2
-    const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 3
-    const val TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED = 4
-    const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 5
-    const val TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED = 6
-    const val TEST_SPEC_ORDER_AFTER_REINDEXING = 7
-    const val TEST_SPEC_ORDER_AFTER_SEARCH = 8
+    const val TEST_SPEC_ORDER_AFTER_REFERENCE_TABLES_UPDATED = 1
+    const val TEST_SPEC_ORDER_AFTER_INITIALIZATION = 2
+    const val TEST_SPEC_ORDER_AFTER_ZAAK_CREATED = 3
+    const val TEST_SPEC_ORDER_AFTER_TASK_CREATED = 4
+    const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 5
+    const val TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED = 6
+    const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 7
+    const val TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED = 8
+    const val TEST_SPEC_ORDER_AFTER_REINDEXING = 9
+    const val TEST_SPEC_ORDER_AFTER_SEARCH = 10
 
     const val TOTAL_COUNT_ZAKEN = 10
     const val TOTAL_COUNT_ZAKEN_AFGEROND = 2
@@ -139,11 +144,11 @@ object ItestConfiguration {
         "Street # 38 & House # 10, Baghdad, Park Al-Sadoum, Hay Al-Nidhal 103, Irak"
     const val TEST_PERSON_2_BSN = "999992958"
     const val TEST_PERSON_3_BSN = "999991838"
-    const val TEST_PDF_FILE_NAME = "dümmyTestDocument.pdf"
+    const val TEST_PDF_FILE_NAME = "fäkeTestDocument.pdf"
     const val TEST_PDF_FILE_SIZE = 9268
     const val TEST_TXT_FILE_NAME = "tëstTextDocument.txt"
     const val TEST_TXT_CONVERTED_TO_PDF_FILE_NAME = "tëstTextDocument.pdf"
-    const val TEST_TXT_FILE_SIZE = 63
+    const val TEST_TXT_FILE_SIZE = 62
     const val TEST_USER_1_USERNAME = "testuser1"
     const val TEST_USER_1_PASSWORD = "testuser1"
     const val TEST_USER_1_EMAIL = "testuser1@example.com"
@@ -151,7 +156,7 @@ object ItestConfiguration {
     const val TEST_USER_2_ID = "testuser2"
 
     /**
-     * Test user 2 does not have a first name so their full name should be equal to their last name.
+     * Test user 2 does not have a first name, so their full name should be equal to their last name.
      */
     const val TEST_USER_2_NAME = "User2"
     const val TEST_USER_DOMEIN_TEST_1_ID = "testuserdomeintest1"
@@ -180,11 +185,44 @@ object ItestConfiguration {
     const val TEST_GROUP_RAADPLEGERS_DESCRIPTION = "Test group Raadplegers"
     const val TEST_GROUP_DOMEIN_TEST_1_ID = "test-group-domein-test-1"
     const val TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION = "Test group which has access to domein_test_1 only"
+    const val TEST_GROUPS_ALL =
+        """
+            [
+                {
+                    "id": "$TEST_GROUP_FUNCTIONAL_ADMINS_ID",
+                    "naam": "$TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION"
+                },
+                {
+                    "id": "$TEST_GROUP_RECORD_MANAGERS_ID",
+                    "naam": "$TEST_GROUP_RECORD_MANAGERS_DESCRIPTION"
+                },
+                {
+                    "id": "$TEST_GROUP_COORDINATORS_ID",
+                    "naam": "$TEST_GROUP_COORDINATORS_DESCRIPTION"
+                },
+                {
+                    "id": "$TEST_GROUP_BEHANDELAARS_ID",
+                    "naam": "$TEST_GROUP_BEHANDELAARS_DESCRIPTION"
+                },
+                {
+                    "id": "$TEST_GROUP_RAADPLEGERS_ID",
+                    "naam": "$TEST_GROUP_RAADPLEGERS_DESCRIPTION"
+                },
+                {
+                    "id": "$TEST_GROUP_A_ID",
+                    "naam": "$TEST_GROUP_A_DESCRIPTION"
+                },
+                {
+                    "id": "$TEST_GROUP_DOMEIN_TEST_1_ID",
+                    "naam": "$TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION"
+                }
+            ]
+        """
 
     /**
      * Constants used in the Informatieobjecten tests
      */
-    const val DOCUMENT_FILE_TITLE = "dummyTitel"
+    const val DOCUMENT_FILE_TITLE = "fakeTitel"
     const val DOCUMENT_UPDATED_FILE_TITLE = "updated title with Špëcîål characters"
     const val DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK = "ZAAKVERTROUWELIJK"
     const val DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR = "OPENBAAR"
@@ -198,19 +236,19 @@ object ItestConfiguration {
     /**
      * Constants used in the KVK WireMock template response
      */
-    const val TEST_KVK_ADRES_1 = "dummyStraatnaam1"
-    const val TEST_KVK_EERSTE_HANDELSNAAM_1 = "dummyEersteHandelsnaam1"
-    const val TEST_KVK_NAAM_1 = "dummyNaam1"
+    const val TEST_KVK_ADRES_1 = "fakeStraatnaam1"
+    const val TEST_KVK_EERSTE_HANDELSNAAM_1 = "fakeEersteHandelsnaam1"
+    const val TEST_KVK_NAAM_1 = "fakeNaam1"
     const val TEST_KVK_NUMMER_1 = "12345678"
-    const val TEST_KVK_PLAATS_1 = "dummyPlaats1"
+    const val TEST_KVK_PLAATS_1 = "fakePlaats1"
     const val TEST_KVK_RSIN_1 = "123456789"
     const val TEST_KVK_VESTIGINGSNUMMER_1 = "000012345678"
     const val TEST_KVK_VESTIGINGSTYPE_HOOFDVESTIGING = "HOOFDVESTIGING"
     const val TEST_KVK_VESTIGING1_TOTAAL_WERKZAME_PERSONEN = 3
     const val TEST_KVK_VESTIGING1_VOLTIJD_WERKZAME_PERSONEN = 2
-    const val TEST_KVK_VESTIGING1_HOOFDACTIVITEIT = "dummysbiOmschrijving1"
-    const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT1 = "dummysbiOmschrijving2"
-    const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT2 = "dummysbiOmschrijving3"
+    const val TEST_KVK_VESTIGING1_HOOFDACTIVITEIT = "fakesbiOmschrijving1"
+    const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT1 = "fakesbiOmschrijving2"
+    const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT2 = "fakesbiOmschrijving3"
 
     const val SMART_DOCUMENTS_MOCK_BASE_URI = "http://smartdocuments-wiremock:8080"
 
@@ -236,16 +274,16 @@ object ItestConfiguration {
     const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_ID = "273C2707E5A844699B653C87ACFD618E"
     const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_NAME = "group 2 template 2"
 
-    const val SMART_DOCUMENTS_FILE_ID = "dummyFileId"
+    const val SMART_DOCUMENTS_FILE_ID = "fakeFileId"
     const val SMART_DOCUMENTS_FILE_TITLE = "Smart Documents file"
 
     const val SMTP_SERVER_PORT = 25
     const val TAAK_1_FATAL_DATE = "1970-01-17"
     const val VERANTWOORDELIJKE_ORGANISATIE = "316245124"
     const val VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING"
-    const val ZAAK_DESCRIPTION_1 = "dummyZaakDescription1"
-    const val ZAAK_DESCRIPTION_2 = "dummyZaakDescription2"
-    const val ZAAK_EXPLANATION_1 = "dummyZaakExplanation1"
+    const val ZAAK_DESCRIPTION_1 = "fakeZaakDescription1"
+    const val ZAAK_DESCRIPTION_2 = "fakeZaakDescription2"
+    const val ZAAK_EXPLANATION_1 = "fakeZaakExplanation1"
 
     /**
      * First zaak created from a productaanvraag.
@@ -255,8 +293,8 @@ object ItestConfiguration {
     const val ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION = "ZAAK-1970-0000000001"
     const val ZAAK_PRODUCTAANVRAAG_1_START_DATE = "1970-01-01"
     const val ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING = "1970-01-15"
-    const val ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING = "dummyZaakOmschrijving"
-    const val ZAAK_PRODUCTAANVRAAG_1_TOELICHTING = "dummyZaakToelichting"
+    const val ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING = "fakeZaakOmschrijving"
+    const val ZAAK_PRODUCTAANVRAAG_1_TOELICHTING = "fakeZaakToelichting"
 
     /**
      * Second zaak created from a productaanvraag.
@@ -264,17 +302,14 @@ object ItestConfiguration {
      * 'ZAAK-YYYY-SEQUENCE_NUMBER' where the year is taken from the start date of the zaak.
      */
     const val ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION = "ZAAK-1999-0000000001"
-    const val ZAAK_PRODUCTAANVRAAG_2_START_DATE = "1999-01-01"
-    const val ZAAK_PRODUCTAANVRAAG_2_UITERLIJKE_EINDDATUM_AFDOENING = "1999-01-15"
     const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_CREATION_DATE = "2023-10-30"
-    const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_TITEL = "Dummy test document"
-    const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_FILE_NAME = "dummy-test-document.pdf"
+    const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_TITEL = "Fake test document"
+    const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_FILE_NAME = "fake-test-document.pdf"
 
     /**
      * First 'manually' created zaak using the ZAC API.
      */
     const val ZAAK_MANUAL_1_IDENTIFICATION = "ZAAK-2020-0000000001"
-    const val ZAAK_MANUAL_2_IDENTIFICATION = "ZAAK-2000-0000000001"
 
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
 
@@ -309,9 +344,8 @@ object ItestConfiguration {
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE = "melding-evenement-organiseren-behandelen"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION = "Melding evenement organiseren behandelen"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_REFERENTIEPROCES = "melding klein evenement"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_IDENTIFICATIE =
-        "indienen-aansprakelijkstelling-door-derden-behandelen"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE = "indienen-aansprakelijkstelling-behandelen"
+    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE =
+        "indienen-aansprakelijkstelling-behandelen"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION =
         "Indienen aansprakelijkstelling door derden behandelen"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BELANGHEBBENDE = "3bb6928b-76de-4716-ac5f-fa3d7d6eca36"

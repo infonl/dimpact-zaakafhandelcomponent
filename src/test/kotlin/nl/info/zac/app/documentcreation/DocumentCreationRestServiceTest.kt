@@ -55,7 +55,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         val zaak = createZaak(
             zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
         )
-        val taskId = "dummyTaskId"
+        val taskId = "fakeTaskId"
         val task = createTestTask()
         val restDocumentCreationAttendedData = createRestDocumentCreationAttendedData(
             zaakUuid = zaak.uuid,
@@ -126,7 +126,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             }
 
             Then("it throws exception with message that mentions the task id") {
-                exception.message shouldBe "No open task found with task id: 'dummyTaskId'"
+                exception.message shouldBe "No open task found with task id: 'fakeTaskId'"
             }
         }
 

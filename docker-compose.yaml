@@ -132,7 +132,7 @@ services:
       - "8001:8000"
     volumes:
       - ./scripts/docker-compose/imports/openzaak/zac-scripts:/zac-scripts
-      - ./scripts/docker-compose/imports/openzaak/uploads/dummy-test-document.pdf:/dummy-test-document.pdf
+      - ./scripts/docker-compose/imports/openzaak/uploads/fake-test-document.pdf:/fake-test-document.pdf
     command: ["/zac-scripts/copy-test-pdf-and-start-openzaak.sh"]
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
@@ -168,12 +168,12 @@ services:
     profiles: [ "opennotificaties" ]
 
   redis:
-    image: redis:7.4.1@sha256:bb142a9c18ac18a16713c1491d779697b4e107c22a97266616099d288237ef47
+    image: redis:7.4.3@sha256:8bc666424ef252009ed34b0432564cabbd4094cd2ce7829306cb1f5ee69170be
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   objecten-api.local:
-    image: docker.io/maykinmedia/objects-api:2.4.4@sha256:2980ce1b62c4ae9575003a694c700e06d0ed77a55e8214a4984aded2d9e7d8c4
+    image: docker.io/maykinmedia/objects-api:3.0.3@sha256:64e6e8286034f7723b04cde7a4016f9ca7df061ea5d7161c0b3654ee8271a1a5
     platform: linux/amd64
     ports:
       - "8010:8000"
@@ -219,7 +219,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   objecten-api-import:
-    image: docker.io/maykinmedia/objects-api:2.4.4@sha256:2980ce1b62c4ae9575003a694c700e06d0ed77a55e8214a4984aded2d9e7d8c4
+    image: docker.io/maykinmedia/objects-api:3.0.3@sha256:64e6e8286034f7723b04cde7a4016f9ca7df061ea5d7161c0b3654ee8271a1a5
     platform: linux/amd64
     environment: *objects-env
     # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
@@ -306,7 +306,7 @@ services:
         condition: service_started
 
   smartdocuments-wiremock:
-    image: docker.io/wiremock/wiremock:3.12.1@sha256:be850ea239193d9497b264115e7071f1f2605bbff05b41f1fa22799904b2e019
+    image: docker.io/wiremock/wiremock:3.13.0@sha256:8d9a0330e4de2f9e2035fc290df0a370ac7c2a92072a6c8752a42597310edb09
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
@@ -317,7 +317,7 @@ services:
     profiles: [ "itest" ]
 
   kvk-wiremock:
-    image: docker.io/wiremock/wiremock:3.12.1@sha256:be850ea239193d9497b264115e7071f1f2605bbff05b41f1fa22799904b2e019
+    image: docker.io/wiremock/wiremock:3.13.0@sha256:8d9a0330e4de2f9e2035fc290df0a370ac7c2a92072a6c8752a42597310edb09
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/kvk-wiremock/mappings:/home/wiremock/mappings
@@ -330,7 +330,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   bag-wiremock.local:
-    image: docker.io/wiremock/wiremock:3.12.1@sha256:be850ea239193d9497b264115e7071f1f2605bbff05b41f1fa22799904b2e019
+    image: docker.io/wiremock/wiremock:3.13.0@sha256:8d9a0330e4de2f9e2035fc290df0a370ac7c2a92072a6c8752a42597310edb09
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/bag-wiremock/mappings:/home/wiremock/mappings
@@ -351,7 +351,7 @@ services:
 
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
-    image: ghcr.io/eugenmayer/kontextwork-converter:1.7.2@sha256:475b52be29912d5cf3c2751003833f4fe70f44167275aed9b401c768ff91f093
+    image: ghcr.io/eugenmayer/kontextwork-converter:1.8.0@sha256:48da70902307f27ad92a27ddf5875310464fd4d4a2f53ce53e1a6f9b3b4c3355
     platform: linux/amd64
     ports:
       - "8083:8080"
@@ -368,6 +368,8 @@ services:
       - "4317:4317" # OTLP gRPC receiver
       - "4318:4318" # OTLP http receiver
       - "55679:55679" # zpages extension
+    depends_on:
+      - tempo
     profiles: [ "metrics" ]
 
   # Observability traces data store
@@ -378,7 +380,7 @@ services:
       - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml
     ports:
       - "14268"  # jaeger ingest
-      - "3200"   # tempo
+      - "3200:3200"   # tempo
       - "4317"  # otlp grpc
       - "4318"  # otlp http
       - "9411"   # zipkin
@@ -386,7 +388,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: docker.io/prom/prometheus:v3.2.1@sha256:6927e0919a144aa7616fd0137d4816816d42f6b816de3af269ab065250859a62
+    image: docker.io/prom/prometheus:v3.3.0@sha256:339ce86a59413be18d0e445472891d022725b4803fab609069110205e79fb2f1
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -399,7 +401,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: docker.io/grafana/grafana:11.6.0@sha256:62d2b9d20a19714ebfe48d1bb405086081bc602aa053e28cf6d73c7537640dfb
+    image: docker.io/grafana/grafana:11.6.1@sha256:52c3e20686b860c6dc1f623811565773cf51eefa378817a4896dfc863c3c82c8
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -437,7 +439,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.0.8-alpine@sha256:a3b2aa541cfcc430832090fa83eb8451ff121db27d0b01d9aedc2c66734d7eca
+    image: rabbitmq:4.1.0-alpine@sha256:fc69c2116e0b9098c43d7a12815aaa5e52b18de705d0d62d6b9a6e460ae4128f
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 30s
@@ -571,7 +573,7 @@ services:
       # We should be able to switch off 2FA with:
       # - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.dev
       # - DISABLE_2FA=true
-      # However the above config errors with `ModuleNotFoundError: No module named 'debug_toolbar'`
+      # However, the above config errors with `ModuleNotFoundError: No module named 'debug_toolbar'`
       - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.docker
       - SECRET_KEY=${SECRET_KEY:-oabSecretKey}
       - DB_NAME=openarchiefbeheer
@@ -654,7 +656,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginx:1.27.4@sha256:124b44bfc9ccd1f3cedf4b592d4d1e8bddb78b51ec2ed5056c52d3692baebc19
+    image: nginx:1.28.0@sha256:9334faa48d730571746a7baab46d62896cb685502bc29d270c4495e26fc78afd
     ports:
       - "8005:80"
     volumes:
@@ -674,7 +676,7 @@ services:
       - AUTH_SECRET=keycloakZaakafhandelcomponentClientSecret
       - AUTH_SERVER=http://keycloak:8080
       - BAG_API_CLIENT_MP_REST_URL=${BAG_API_CLIENT_MP_REST_URL:-https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/}
-      - BAG_API_KEY=${BAG_API_KEY:-dummyBagApiKey}
+      - BAG_API_KEY=${BAG_API_KEY:-fakeBagApiKey}
       - BRP_API_CLIENT_MP_REST_URL=http://brp-personen-mock:5010/haalcentraal/api/brp
       - BRON_ORGANISATIE_RSIN=${BRON_ORGANISATIE_RSIN:-123443210}
       - CONTEXT_URL=http://localhost:8080
@@ -685,33 +687,33 @@ services:
       - FEATURE_FLAG_BPMN_SUPPORT=${FEATURE_FLAG_BPMN_SUPPORT:-false}
       - GEMEENTE_CODE=${GEMEENTE_CODE:-9999}
       - GEMEENTE_MAIL=${GEMEENTE_MAIL:-gemeente-zac-test@example.com}
-      - GEMEENTE_NAAM=${GEMEENTE_NAAM:-DummyZacGemeente}
+      - GEMEENTE_NAAM=${GEMEENTE_NAAM:-FakeZacGemeente}
       - KLANTINTERACTIES_API_CLIENT_MP_REST_URL=http://openklant.local:8000
-      - KLANTINTERACTIES_API_TOKEN=dummyToken
+      - KLANTINTERACTIES_API_TOKEN=fakeToken
       - KEYCLOAK_ADMIN_CLIENT_ID=zaakafhandelcomponent-admin-client
       - KEYCLOAK_ADMIN_CLIENT_SECRET=zaakafhandelcomponentAdminClientSecret
-      - KVK_API_CLIENT_MP_REST_URL=${KVK_API_CLIENT_MP_REST_URL:-dummyKvkApiUrl}
-      - KVK_API_KEY=${KVK_API_KEY:-dummyKvkApiKey}
+      - KVK_API_CLIENT_MP_REST_URL=${KVK_API_CLIENT_MP_REST_URL:-fakeKvkApiUrl}
+      - KVK_API_KEY=${KVK_API_KEY:-fakeKvkApiKey}
       - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://office-converter:8080
       - OBJECTS_API_CLIENT_MP_REST_URL=http://objecten-api.local:8000
-      - OBJECTS_API_TOKEN=dummyZacObjectsToken
+      - OBJECTS_API_TOKEN=fakeZacObjectsToken
       - OPA_API_CLIENT_MP_REST_URL=http://opa:8181
-      - OPEN_FORMS_URL=http://localhost:9999 # dummy for now
+      - OPEN_FORMS_URL=http://localhost:9999 # fake for now
       - OPEN_NOTIFICATIONS_API_SECRET_KEY=openNotificatiesApiSecretKey
       - SMARTDOCUMENTS_ENABLED=${SMARTDOCUMENTS_ENABLED:-false}
-      - SMARTDOCUMENTS_AUTHENTICATION=${SMARTDOCUMENTS_AUTHENTICATION:-dummySmartDocumentsAuthentication}
+      - SMARTDOCUMENTS_AUTHENTICATION=${SMARTDOCUMENTS_AUTHENTICATION:-fakeSmartDocumentsAuthentication}
       - SMARTDOCUMENTS_CLIENT_MP_REST_URL=${SMARTDOCUMENTS_CLIENT_MP_REST_URL:-http://smartdocuments-wiremock:8080}
       - SMARTDOCUMENTS_FIXED_USER_NAME=${SMARTDOCUMENTS_FIXED_USER_NAME:-}
       - SMTP_SERVER=${SMTP_SERVER:-in-v3.mailjet.com}
       - SMTP_PORT=${SMTP_PORT:-587}
-      - SMTP_USERNAME=${SMTP_USERNAME:-dummyMailjetApiKey}
-      - SMTP_PASSWORD=${SMTP_PASSWORD:-dummyMailjetApiSecretKey}
+      - SMTP_USERNAME=${SMTP_USERNAME:-fakeMailjetApiKey}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-fakeMailjetApiSecretKey}
       - SIGNALERINGEN_DELETE_OLDER_THAN_DAYS=${SIGNALERINGEN_DELETE_OLDER_THAN_DAYS:-14}
       - SOLR_URL=http://solr:8983
-      # Turn off the Open Telemetry sampler by default because it is not always needed
-      # Typically when using the Docker Compose profile 'metrics' you want to turn this on
-      - SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=${SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE:-off}
-      - SUBSYSTEM_OPENTELEMETRY__ENDPOINT=http://otel-collector:4317
+      # Turn off the MicroProfile Open Telemetry subsystem by default because it is not always necessary.
+      # Typically, when using the Docker Compose profile 'metrics' you want to set this to 'false'.
+      - OTEL_SDK_DISABLED=${OTEL_SDK_DISABLED:-true}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
       - VERANTWOORDELIJKE_ORGANISATIE_RSIN=${VERANTWOORDELIJKE_ORGANISATIE_RSIN:-316245124}
       - ZGW_API_CLIENT_MP_REST_URL=http://openzaak.local:8000/
       - ZGW_API_CLIENTID=zac_client

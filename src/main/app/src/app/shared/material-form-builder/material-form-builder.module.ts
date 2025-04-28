@@ -42,6 +42,11 @@ import { TranslateModule } from "@ngx-translate/core";
 import { NgxEditorModule } from "ngx-editor";
 import { FileDragAndDropDirective } from "../directives/file-drag-and-drop.directive";
 import { DocumentIconComponent } from "../document-icon/document-icon.component";
+import { ZacAutoComplete } from "../form/auto-complete/auto-complete";
+import { ZacDate } from "../form/date/date";
+import { ZacInput } from "../form/input/input";
+import { ZacSelect } from "../form/select/select";
+import { ZacTextarea } from "../form/textarea/textarea";
 import { InformatieObjectIndicatiesComponent } from "../indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { EnhanceMatErrorDirective } from "../material/mat-zac-error";
 import { CapitalizeFirstLetterPipe } from "../pipes/capitalizeFirstLetter.pipe";
@@ -103,6 +108,11 @@ import {
     MessageComponent,
     EnhanceMatErrorDirective,
     CapitalizeFirstLetterPipe,
+    ZacAutoComplete,
+    ZacDate,
+    ZacSelect,
+    ZacInput,
+    ZacTextarea,
   ],
   exports: [
     FileDragAndDropDirective,
@@ -125,6 +135,12 @@ import {
     RadioComponent,
     ParagraphComponent,
     MessageComponent,
+    ZacAutoComplete,
+    ZacDate,
+    ZacSelect,
+    ZacInput,
+    ZacTextarea,
+    CapitalizeFirstLetterPipe,
   ],
   imports: [
     FileDragAndDropDirective,
@@ -165,16 +181,25 @@ import {
       provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS,
       useValue: {
         strict: false,
+        parse: {
+          dateInput: "yyyy-MM-DD",
+        },
+        display: {
+          dateInput: "yyyy-MM-DD",
+          monthYearLabel: "MMMM YYYY",
+          dateA11yLabel: "LL",
+          monthYearA11yLabel: "MMMM YYYY",
+        },
       },
     },
     {
       provide: MAT_DATE_FORMATS,
       useValue: {
         parse: {
-          dateInput: "DD-MM-YYYY",
+          dateInput: "yyyy-MM-DD",
         },
         display: {
-          dateInput: "DD-MM-YYYY",
+          dateInput: "yyyy-MM-DD",
           monthYearLabel: "MMMM YYYY",
           dateA11yLabel: "LL",
           monthYearA11yLabel: "MMMM YYYY",

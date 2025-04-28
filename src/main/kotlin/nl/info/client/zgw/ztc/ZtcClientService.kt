@@ -58,12 +58,11 @@ class ZtcClientService @Inject constructor(
     private val configuratieService: ConfiguratieService
 ) : Caching {
     companion object {
+        const val MAX_CACHE_SIZE: Long = 1_000
+        const val EXPIRATION_TIME_HOURS: Long = 1
+
         private val CACHES = mutableMapOf<String, Cache<*, *>>()
-
         private val LOG = Logger.getLogger(ZtcClientService::class.java.name)
-        private const val MAX_CACHE_SIZE: Long = 20
-        private const val EXPIRATION_TIME_HOURS: Long = 1
-
         private fun <K, V> createCache(name: String, size: Long = MAX_CACHE_SIZE): Cache<K & Any, V> {
             val cache: Cache<K & Any, V> = Caffeine.newBuilder()
                 .maximumSize(size)
@@ -448,7 +447,7 @@ class ZtcClientService @Inject constructor(
     override fun cacheStatistics(): Map<String, CacheStats> =
         CACHES.mapValuesTo(mutableMapOf<String, CacheStats>()) { it.value.stats() }
 
-    override fun cacheSizes(): Map<String, Long> =
+    override fun estimatedCacheSizes(): Map<String, Long> =
         CACHES.mapValuesTo(mutableMapOf()) { it.value.estimatedSize() }
 
     private fun createInvocationBuilder(uri: URI) =

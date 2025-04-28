@@ -13,7 +13,7 @@ class MailAdresTest : BehaviorSpec({
 
     Given("a valid email address") {
         When("constructing and object") {
-            MailAdres("valid@email.address", "dummyName")
+            MailAdres("valid@email.address", "fakeName")
             Then("it should succeed") {}
         }
     }

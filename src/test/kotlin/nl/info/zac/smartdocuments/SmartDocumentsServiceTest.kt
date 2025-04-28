@@ -27,9 +27,9 @@ import java.net.URI
 import java.util.Optional
 
 class SmartDocumentsServiceTest : BehaviorSpec({
-    val smartDocumentsURL = "https://example.com/dummySmartDocumentsURL"
-    val authenticationToken = "dummyAuthenticationToken"
-    val fixedUserName = Optional.of("dummyFixedUserName")
+    val smartDocumentsURL = "https://example.com/fakeSmartDocumentsURL"
+    val authenticationToken = "fakeAuthenticationToken"
+    val fixedUserName = Optional.of("fakeFixedUserName")
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val smartDocumentsClient = mockk<Instance<SmartDocumentsClient>>()
 

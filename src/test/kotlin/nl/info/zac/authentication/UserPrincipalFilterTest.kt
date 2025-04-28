@@ -51,7 +51,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             a user principal with the same id as the logged-in user in the HTTP session
             """
     ) {
-        val userId = "dummyId"
+        val userId = "fakeId"
         val loggedInUser = createLoggedInUser(
             id = userId
         )
@@ -81,18 +81,18 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 a user principal with a different id as the logged-in user
                 """
     ) {
-        val userId = "dummyId"
+        val userId = "fakeId"
         val loggedInUser = createLoggedInUser(
             id = userId
         )
         val roles = arrayListOf(
-            "dummyRole1"
+            "fakeRole1"
         )
         val zaakafhandelParameters = listOf(createZaakafhandelParameters())
         val newHttpSession = mockk<HttpSession>()
         every { httpServletRequest.userPrincipal } returns oidcPrincipal
         every { httpServletRequest.getSession(true) } returns httpSession andThen newHttpSession
-        every { httpServletRequest.servletContext.contextPath } returns "dummyContextPath"
+        every { httpServletRequest.servletContext.contextPath } returns "fakeContextPath"
         every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
         every { httpSession.invalidate() } just runs
         every { filterChain.doFilter(any(), any()) } just runs
@@ -101,11 +101,11 @@ class UserPrincipalFilterTest : BehaviorSpec({
         every { oidcSecurityContext.token } returns accessToken
         every { accessToken.rolesClaim } returns roles
         every { accessToken.rolesClaim } returns roles
-        every { accessToken.preferredUsername } returns "dummyUserName"
-        every { accessToken.givenName } returns "dummyGivenName"
-        every { accessToken.familyName } returns "dummyFamilyName"
-        every { accessToken.name } returns "dummyFullName"
-        every { accessToken.email } returns "dummyemail@example.com"
+        every { accessToken.preferredUsername } returns "fakeUserName"
+        every { accessToken.givenName } returns "fakeGivenName"
+        every { accessToken.familyName } returns "fakeFamilyName"
+        every { accessToken.name } returns "fakeFullName"
+        every { accessToken.email } returns "fakeemail@example.com"
         every { accessToken.getStringListClaimValue("group_membership") } returns emptyList()
         every { zaakafhandelParameterService.listZaakafhandelParameters() } returns zaakafhandelParameters
         every { newHttpSession.setAttribute(any(), any()) } just runs
@@ -133,37 +133,37 @@ class UserPrincipalFilterTest : BehaviorSpec({
             the currently active zaakafhandelparameters
             """
     ) {
-        val userName = "dummyUserName"
-        val givenName = "dummyGivenName"
-        val familyName = "dummyFamilyName"
-        val fullName = "dummyFullName"
-        val email = "dummy@example.com"
-        val domein1 = "dummyDomein1"
+        val userName = "fakeUserName"
+        val givenName = "fakeGivenName"
+        val familyName = "fakeFamilyName"
+        val fullName = "fakeFullName"
+        val email = "fake@example.com"
+        val domein1 = "fakeDomein1"
         val groups = arrayListOf(
-            "dummyGroup1",
-            "dummyGroup2"
+            "fakeGroup1",
+            "fakeGroup2"
         )
         val roles = arrayListOf(
-            "dummyRole1",
-            "dummyRole2",
+            "fakeRole1",
+            "fakeRole2",
             domein1
         )
         val zaakafhandelParameters = listOf(
             createZaakafhandelParameters(
                 domein = domein1,
-                zaaktypeOmschrijving = "dummyZaaktypeOmschrijving1"
+                zaaktypeOmschrijving = "fakeZaaktypeOmschrijving1"
             ),
             // zaakafhandelparameters for an old version of zaaktype2
             createZaakafhandelParameters(
                 creationDate = ZonedDateTime.now().minusDays(1),
                 domein = domein1,
-                zaaktypeOmschrijving = "dummyZaaktypeOmschrijving2"
+                zaaktypeOmschrijving = "fakeZaaktypeOmschrijving2"
             ),
             // zaakafhandelparameters for the current version of zaaktype2
             createZaakafhandelParameters(
                 creationDate = ZonedDateTime.now(),
-                domein = "dummyDomein2",
-                zaaktypeOmschrijving = "dummyZaaktypeOmschrijving2"
+                domein = "fakeDomein2",
+                zaaktypeOmschrijving = "fakeZaaktypeOmschrijving2"
             )
         )
         val loggedInUserSlot = slot<LoggedInUser>()
@@ -207,7 +207,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     this.email shouldBe email
                     this.roles shouldContainAll roles
                     this.groupIds shouldContainAll groups
-                    this.geautoriseerdeZaaktypen shouldContainExactly listOf("dummyZaaktypeOmschrijving1")
+                    this.geautoriseerdeZaaktypen shouldContainExactly listOf("fakeZaaktypeOmschrijving1")
                 }
             }
         }
@@ -218,16 +218,16 @@ class UserPrincipalFilterTest : BehaviorSpec({
             that contains user information including a role 'domein_elk_zaaktype'
             """
     ) {
-        val userName = "dummyUserName"
-        val givenName = "dummyGivenName"
-        val familyName = "dummyFamilyName"
-        val fullName = "dummyFullName"
-        val email = "dummy@example.com"
+        val userName = "fakeUserName"
+        val givenName = "fakeGivenName"
+        val familyName = "fakeFamilyName"
+        val fullName = "fakeFullName"
+        val email = "fake@example.com"
         val groups = arrayListOf(
-            "dummyGroup1",
+            "fakeGroup1",
         )
         val roles = arrayListOf(
-            "dummyRole1",
+            "fakeRole1",
             "domein_elk_zaaktype"
         )
         val loggedInUserSlot = slot<LoggedInUser>()

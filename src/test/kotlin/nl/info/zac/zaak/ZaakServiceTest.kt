@@ -55,8 +55,8 @@ class ZaakServiceTest : BehaviorSpec({
         ztcClientService = ztcClientService,
         lockService = lockService,
     )
-    val explanation = "dummyExplanation"
-    val screenEventResourceId = "dummyResourceId"
+    val explanation = "fakeExplanation"
+    val screenEventResourceId = "fakeResourceId"
     val zaken = listOf(
         createZaak(),
         createZaak()
@@ -238,7 +238,7 @@ class ZaakServiceTest : BehaviorSpec({
             """
     ) {
         every { zrcClientService.readZaak(zaken[0].uuid) } returns zaken[0]
-        every { zrcClientService.readZaak(zaken[1].uuid) } throws RuntimeException("dummyRuntimeException")
+        every { zrcClientService.readZaak(zaken[1].uuid) } throws RuntimeException("fakeRuntimeException")
         When(
             """the assign zaken function is called with a group
                 and a screen event resource id"""
@@ -317,7 +317,7 @@ class ZaakServiceTest : BehaviorSpec({
             zaakService.addBetrokkeneToZaak(
                 roleTypeUUID = roleTypeUUID,
                 identificationType = IdentificatieType.BSN,
-                identification = "dummyBSN",
+                identification = "fakeBSN",
                 zaak = zaak,
                 explanation = explanation
             )
@@ -346,7 +346,7 @@ class ZaakServiceTest : BehaviorSpec({
             omschrijvingGeneriek = OmschrijvingGeneriekEnum.BELANGHEBBENDE,
             uri = URI("https://example.com/roltype/$roleTypeUUID")
         )
-        val identification = "dummyBSN"
+        val identification = "fakeBSN"
         val roleAdviseur = createRolNatuurlijkPersoon(
             zaaktypeURI = zaak.zaaktype,
             rolType = roleTypeAdviseur,
@@ -387,7 +387,7 @@ class ZaakServiceTest : BehaviorSpec({
             omschrijvingGeneriek = OmschrijvingGeneriekEnum.ADVISEUR,
             uri = URI("https://example.com/roltype/$roleTypeUUID")
         )
-        val identification = "dummyBSN"
+        val identification = "fakeBSN"
         val roleAdviseur = createRolNatuurlijkPersoon(
             zaaktypeURI = zaak.zaaktype,
             rolType = roleTypeAdviseur,
@@ -408,7 +408,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
 
             Then("an exception is thrown and the betrokkene is not added to the zaak again") {
-                exception.message shouldBe "Betrokkene with type 'BSN' and identification 'dummyBSN' " +
+                exception.message shouldBe "Betrokkene with type 'BSN' and identification 'fakeBSN' " +
                     "was already added to the zaak with UUID '${zaak.uuid}'. Ignoring."
                 verify(exactly = 0) {
                     zrcClientService.createRol(any(), any())

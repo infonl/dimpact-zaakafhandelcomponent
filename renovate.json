@@ -104,7 +104,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "<= 2.4.4",
+      "allowedVersions": "< 3.1.0",
       "description": ["Pinned by the next Dimpact PodiumD release"]
     },
     {
@@ -163,9 +163,17 @@
       ],
       "matchDatasources": [
         "helm"
+      ]
+    },
+    {
+      "matchPackageNames": [
+        "otel/opentelemetry-collector-contrib"
       ],
-      "allowedVersions": "<= 0.104.0",
-      "description": ["Pinned - next version(s) have breaking changes - https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/33896 - story created"]
+      "matchDatasources": [
+        "helm"
+      ],
+      "allowedVersions": "<= 0.123.0",
+      "description": ["Pinned until https://github.com/open-telemetry/community/issues/2641 is solved"]
     },
     {
       "matchPackageNames": [

@@ -1,0 +1,29 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 Lifely
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  ~
+  -->
+
+<mat-form-field [formGroup]="form" class="full-width" appearance="fill">
+  <mat-label>
+    <ng-content select="mat-label">
+      {{ key | translate | capitalizeFirstLetter }}
+    </ng-content>
+  </mat-label>
+  <input
+    type="date"
+    matInput
+    autocomplete="off"
+    [min]="min"
+    [max]="max"
+    [formControlName]="key"
+    [matDatepicker]="date"
+  />
+  <span *ngIf="showAmountOfDays" matSuffix>{{ control?.value | dagen }}</span>
+  <mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
+  <mat-datepicker #date></mat-datepicker>
+  <mat-error>{{ getErrorMessage() }}</mat-error>
+  <mat-hint>
+    <ng-content select="mat-hint"></ng-content>
+  </mat-hint>
+</mat-form-field>

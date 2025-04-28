@@ -5,8 +5,8 @@
 package nl.info.zac.mail.model
 
 fun createMailAdres(
-    email: String = "dummy@example.com",
-    name: String = "dummyName"
+    email: String = "fake@example.com",
+    name: String = "fakeName"
 ) = MailAdres(
     email,
     name

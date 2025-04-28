@@ -10,7 +10,7 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { FormControl, Validators } from "@angular/forms";
 import { MatDrawer, MatSidenav } from "@angular/material/sidenav";
 import { MatTable, MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
@@ -28,15 +28,17 @@ import { ListAdressenParameters } from "../../model/list-adressen-parameters";
 })
 export class BagZoekComponent {
   @Output() bagObject = new EventEmitter<BAGObject>();
-  @Input() gekoppeldeBagObjecten: BAGObject[];
-  @Input() sideNav: MatSidenav | MatDrawer;
-  @ViewChild(MatTable) table: MatTable<BAGObject>;
+  @Input() gekoppeldeBagObjecten:
+    | BAGObject[]
+    | FormControl<BAGObject[] | null> = [];
+  @Input({ required: true }) sideNav!: MatSidenav | MatDrawer;
+  @ViewChild(MatTable) table!: MatTable<BAGObject>;
   BAGObjecttype = BAGObjecttype;
   trefwoorden = new FormControl("", [Validators.maxLength(255)]);
-  bagObjecten: MatTableDataSource<BAGObject> =
-    new MatTableDataSource<BAGObject>();
+  bagObjecten = new MatTableDataSource<
+    (BAGObject | Adres) & { expanded?: boolean; child?: boolean }
+  >();
   loading = false;
-  formGroup: FormGroup;
   columns: string[] = ["expand", "id", "type", "omschrijving", "acties"];
 
   constructor(
@@ -61,7 +63,14 @@ export class BagZoekComponent {
   }
 
   selectBagObject(bagObject: BAGObject): void {
-    this.gekoppeldeBagObjecten.push(bagObject);
+    if (this.gekoppeldeBagObjecten instanceof FormControl) {
+      this.gekoppeldeBagObjecten.setValue([
+        ...(this.gekoppeldeBagObjecten.value ?? []),
+        bagObject,
+      ]);
+    } else {
+      this.gekoppeldeBagObjecten.push(bagObject);
+    }
     this.bagObject.emit(bagObject);
   }
 
@@ -78,7 +87,7 @@ export class BagZoekComponent {
     return false;
   }
 
-  expand(bagObject) {
+  expand(bagObject: (BAGObject | Adres) & { expanded: boolean }) {
     this.bagObjecten.data = this.bagObjecten.data.filter(
       (b) => b["child"] !== true,
     );
@@ -90,40 +99,44 @@ export class BagZoekComponent {
     this.bagObjecten.data.forEach((b) => (b["expanded"] = false));
     bagObject.expanded = true;
 
-    const childeren: BAGObject[] = [];
+    const children: ((BAGObject | Adres) & {
+      expanded?: boolean;
+      child?: boolean;
+    })[] = [];
     if (bagObject.bagObjectType === BAGObjecttype.ADRES) {
       const adres: Adres = bagObject as Adres;
       if (adres.nummeraanduiding) {
-        childeren.push(adres.nummeraanduiding);
+        children.push(adres.nummeraanduiding);
       }
       if (adres.openbareRuimte) {
-        childeren.push(adres.openbareRuimte);
+        children.push(adres.openbareRuimte);
       }
       if (adres.woonplaats) {
-        childeren.push(adres.woonplaats);
+        children.push(adres.woonplaats);
       }
       if (adres.panden?.length) {
-        adres.panden.forEach((p) => childeren.push(p));
+        adres.panden.forEach((p) => children.push(p));
       }
     }
-    childeren.forEach((d) => (d["child"] = true));
+    children.forEach((d) => (d["child"] = true));
     this.bagObjecten.data.splice(
       this.bagObjecten.data.indexOf(bagObject) + 1,
       0,
-      ...childeren,
+      ...children,
     );
     this.table.renderRows();
   }
 
   reedsGekoppeld(row: BAGObject): boolean {
-    if (this.gekoppeldeBagObjecten?.length) {
-      return this.gekoppeldeBagObjecten.some(
-        (b) =>
-          b.identificatie === row.identificatie &&
-          b.bagObjectType === row.bagObjectType,
-      );
-    }
-    return false;
+    const objects =
+      this.gekoppeldeBagObjecten instanceof FormControl
+        ? (this.gekoppeldeBagObjecten.value ?? [])
+        : this.gekoppeldeBagObjecten;
+    return objects.some(
+      (b) =>
+        b.identificatie === row.identificatie &&
+        b.bagObjectType === row.bagObjectType,
+    );
   }
 
   openBagTonenPagina(bagObject: BAGObject): void {

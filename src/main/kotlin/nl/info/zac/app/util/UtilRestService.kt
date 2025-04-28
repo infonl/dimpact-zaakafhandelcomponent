@@ -15,7 +15,11 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.jacobras.humanreadable.HumanReadable.fileSize
 import org.apache.commons.text.StringEscapeUtils
+import java.lang.Runtime.getRuntime
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 @Path("util")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -27,6 +31,26 @@ class UtilRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService
 ) {
+    companion object {
+        private val ZTC: String = h(2, "ztcClientService")
+        private val ZHPS: String = h(2, "zaakafhandelParameterService")
+
+        private fun links(url: List<String>) = ul(url.map { a("/rest/util/$it", it) })
+
+        private fun body(utils: List<String>) = body(utils.joinToString())
+
+        private fun body(utils: String) = "<html></head><body>$utils</body></html>"
+
+        private fun b(value: String) = "<b>" + StringEscapeUtils.escapeHtml4(value) + "</b>"
+
+        private fun h(i: Int, label: String) = "<h$i>$label</h$i>"
+
+        private fun ul(content: String) = "<ul>$content</ul>"
+
+        private fun ul(li: List<String>) = ul(li.joinToString("</li><li>", "<li>", "</li>"))
+
+        private fun a(url: String, label: String) = "<a href=\"$url\">$label</a>"
+    }
 
     @GET
     fun index() =
@@ -58,23 +82,6 @@ class UtilRestService @Inject constructor(
     fun zhpsCaches(): String =
         body(zaakafhandelParameterServiceCaches())
 
-    private fun ztcClientCaches() =
-        getSeriviceCacheDetails(ZTC, ztcClientService)
-
-    private fun zaakafhandelParameterServiceCaches() =
-        getSeriviceCacheDetails(ZHPS, zaakafhandelParameterService)
-
-    private fun getSeriviceCacheDetails(prefix: String, caching: Caching) =
-        caching.cacheStatistics().let { statistics ->
-            caching.cacheSizes().let { sizes ->
-                prefix + ul(
-                    statistics.keys.map {
-                        "${b(it)} ${ul(statistics.get(it))} ${ul(sizes.get(it).toString() + " objects")}<p/>"
-                    }
-                )
-            }
-        }
-
     @GET
     @Path("cache/clear")
     fun clearCaches(): String =
@@ -89,6 +96,26 @@ class UtilRestService @Inject constructor(
     @Path("cache/zhps/clear")
     fun clearAllZaakafhandelParameterServiceCaches() =
         body(clearAllZhpsCaches())
+
+    @GET
+    @Path("memory")
+    fun memory(): String {
+        val runtime = getRuntime()
+        val freeMemory = runtime.freeMemory()
+        val totalMemory = runtime.totalMemory()
+        val maxMemory = runtime.maxMemory()
+        return body(
+            h(1, "Memory") +
+                ul(
+                    listOf(
+                        "free: ${fileSize(freeMemory, decimals = 2)} ($freeMemory bytes)",
+                        "used : ${fileSize(totalMemory - freeMemory, decimals = 2)} (${totalMemory - freeMemory} bytes)",
+                        "total: ${fileSize(totalMemory, decimals = 2)} ($totalMemory bytes)",
+                        "max  : ${fileSize(maxMemory, decimals = 2)} ($maxMemory bytes)"
+                    )
+                )
+        )
+    }
 
     private fun clearZtcClientCaches() =
         ZTC + ul(
@@ -112,43 +139,29 @@ class UtilRestService @Inject constructor(
             )
         )
 
-    @GET
-    @Path("memory")
-    fun memory() =
-        Runtime.getRuntime().freeMemory().let { freeMemory ->
-            Runtime.getRuntime().totalMemory().let { totalMemory ->
-                body(
-                    h(1, "Memory") +
-                        ul(
-                            listOf(
-                                "free: $freeMemory bytes",
-                                "used : ${totalMemory - freeMemory} bytes",
-                                "total: $totalMemory bytes",
-                                "max  : ${Runtime.getRuntime().maxMemory()} bytes"
-                            )
-                        )
-                )
+    private fun ztcClientCaches() = getSeriviceCacheDetails(ZTC, ztcClientService)
+
+    private fun zaakafhandelParameterServiceCaches() = getSeriviceCacheDetails(ZHPS, zaakafhandelParameterService)
+
+    private fun getSeriviceCacheDetails(prefix: String, caching: Caching): String {
+        val cacheStatistics = caching.cacheStatistics()
+        val estimatedCacheSizes = caching.estimatedCacheSizes()
+        val totalLoadTimeRegExp = Regex("totalLoadTime=\\d+")
+        return prefix + ul(
+            cacheStatistics.entries.map { (key, value) ->
+                // replace totalLoadTime substring with human-readable value
+                val totalLoadTimeHumanReadable = value
+                    .totalLoadTime()
+                    .toDuration(DurationUnit.NANOSECONDS)
+                    .toString()
+                """
+                    <p>
+                    ${b(key)}
+                    ${ul(value.toString().replace(totalLoadTimeRegExp, "totalLoadTime=$totalLoadTimeHumanReadable"))}
+                    ${ul("Estimated cache size: ${estimatedCacheSizes[key]}")}
+                    </p>
+                """.trimIndent()
             }
-        }
-
-    companion object {
-        private val ZTC: String = h(2, "ztcClientService")
-        private val ZHPS: String = h(2, "zaakafhandelParameterService")
-
-        private fun links(url: List<String>) = ul(url.map { a("/rest/util/$it", it) })
-
-        private fun body(utils: List<String>) = body(utils.joinToString())
-
-        private fun body(utils: String) = "<html></head><body>$utils</body></html>"
-
-        private fun b(value: String) = "<b>" + StringEscapeUtils.escapeHtml4(value) + "</b>"
-
-        private fun h(i: Int, label: String) = "<h$i>$label</h$i>"
-
-        private fun ul(content: Any?) = "<ul>$content</ul>"
-
-        private fun ul(li: List<String>) = ul(li.joinToString("</li><li>", "<li>", "</li>"))
-
-        private fun a(url: String, label: String) = "<a href=\"$url\">$label</a>"
+        )
     }
 }

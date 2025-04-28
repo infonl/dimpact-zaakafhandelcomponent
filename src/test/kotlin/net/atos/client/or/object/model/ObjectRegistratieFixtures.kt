@@ -24,7 +24,7 @@ fun createORObject(
     }
 
 fun createObjectRecord(
-    data: Map<String, Any> = mapOf("dummyKey" to "dummyValue"),
+    data: Map<String, Any> = mapOf("fakeKey" to "fakeValue"),
     startAt: LocalDate? = null
 ) = ObjectRecord().apply {
     this.data = data

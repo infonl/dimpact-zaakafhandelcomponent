@@ -15,58 +15,57 @@ class RESTFormulierDefinitieConverterTest : BehaviorSpec({
 
     Given("Formulier definition") {
         val formulierDefinitie = createFormulierDefinitie()
-        val restFormulierDefinitieConverter = RESTFormulierDefinitieConverter()
 
         When("converted to REST representation including fields") {
-            val restFormulierVeldDefinitie = restFormulierDefinitieConverter.convert(formulierDefinitie, true)
+            val restFormulierVeldDefinitie = formulierDefinitie.toRESTFormulierDefinitie(true)
 
             Then("correct object is returned") {
                 with(restFormulierVeldDefinitie) {
                     id shouldBe 1L
-                    systeemnaam shouldBe "Dummy system name"
-                    naam shouldBe "Dummy name"
-                    beschrijving shouldBe "Dummy description"
-                    uitleg shouldBe "Dummy explanation"
+                    systeemnaam shouldBe "Fake system name"
+                    naam shouldBe "Fake name"
+                    beschrijving shouldBe "Fake description"
+                    uitleg shouldBe "Fake explanation"
                     creatiedatum shouldBe formulierDefinitie.creatiedatum
                     wijzigingsdatum shouldBe formulierDefinitie.wijzigingsdatum
                     veldDefinities.size shouldBe 2
                     with(veldDefinities[0]) {
                         id shouldBe 1L
-                        systeemnaam shouldBe "Dummy system name"
-                        beschrijving shouldBe "Dummy description"
+                        systeemnaam shouldBe "Fake system name"
+                        beschrijving shouldBe "Fake description"
                         veldtype shouldBe FormulierVeldtype.TEKST_VELD
                         verplicht shouldBe false
-                        defaultWaarde shouldBe "Dummy value"
-                        meerkeuzeOpties shouldBe "Dummy multi-options"
-                        validaties shouldBe listOf("Dummy validation 1", "Dummy validation 2")
+                        defaultWaarde shouldBe "Fake value"
+                        meerkeuzeOpties shouldBe "Fake multi-options"
+                        validaties shouldBe listOf("Fake validation 1", "Fake validation 2")
                     }
                     with(veldDefinities[1]) {
                         id shouldBe 1L
-                        systeemnaam shouldBe "Dummy system name"
-                        beschrijving shouldBe "Dummy description"
+                        systeemnaam shouldBe "Fake system name"
+                        beschrijving shouldBe "Fake description"
                         veldtype shouldBe FormulierVeldtype.TEKST_VELD
                         verplicht shouldBe false
-                        defaultWaarde shouldBe "Dummy value"
-                        meerkeuzeOpties shouldBe "Dummy multi-options"
-                        validaties shouldBe listOf("Dummy validation 1", "Dummy validation 2")
+                        defaultWaarde shouldBe "Fake value"
+                        meerkeuzeOpties shouldBe "Fake multi-options"
+                        validaties shouldBe listOf("Fake validation 1", "Fake validation 2")
                     }
                 }
             }
         }
 
         When("converted to REST representation excluding fields") {
-            val restFormulierVeldDefinitie = restFormulierDefinitieConverter.convert(formulierDefinitie, false)
+            val restFormulierVeldDefinitie = formulierDefinitie.toRESTFormulierDefinitie(false)
 
             Then("correct object is returned") {
                 with(restFormulierVeldDefinitie) {
                     id shouldBe 1L
-                    systeemnaam shouldBe "Dummy system name"
-                    naam shouldBe "Dummy name"
-                    beschrijving shouldBe "Dummy description"
-                    uitleg shouldBe "Dummy explanation"
+                    systeemnaam shouldBe "Fake system name"
+                    naam shouldBe "Fake name"
+                    beschrijving shouldBe "Fake description"
+                    uitleg shouldBe "Fake explanation"
                     creatiedatum shouldBe formulierDefinitie.creatiedatum
                     wijzigingsdatum shouldBe formulierDefinitie.wijzigingsdatum
-                    veldDefinities shouldBe null
+                    veldDefinities.size shouldBe 0
                 }
             }
         }
@@ -74,40 +73,39 @@ class RESTFormulierDefinitieConverterTest : BehaviorSpec({
 
     Given("REST representation of Formulier") {
         val restFormulierDefinition = createRESTFormulierDefinitie()
-        val restFormulierDefinitieConverter = RESTFormulierDefinitieConverter()
 
         When("converted to Formulier definition") {
-            val formulierDefinitie = restFormulierDefinitieConverter.convert(restFormulierDefinition)
+            val formulierDefinitie = restFormulierDefinition.toFormulierDefinitie()
 
             Then("the correct object is built") {
                 with(formulierDefinitie) {
                     id shouldBe 1L
-                    systeemnaam shouldBe "Dummy system name"
-                    naam shouldBe "Dummy name"
-                    beschrijving shouldBe "Dummy description"
-                    uitleg shouldBe "Dummy explanation"
+                    systeemnaam shouldBe "Fake system name"
+                    naam shouldBe "Fake name"
+                    beschrijving shouldBe "Fake description"
+                    uitleg shouldBe "Fake explanation"
                     creatiedatum shouldBe formulierDefinitie.creatiedatum
                     wijzigingsdatum shouldBe formulierDefinitie.wijzigingsdatum
-                    veldDefinities.size shouldBe 2
-                    with(veldDefinities.first()) {
+                    getVeldDefinities().size shouldBe 2
+                    with(getVeldDefinities().first()) {
                         id shouldBe 1L
-                        systeemnaam shouldBe "Dummy system name"
-                        beschrijving shouldBe "Dummy description"
+                        systeemnaam shouldBe "Fake system name"
+                        beschrijving shouldBe "Fake description"
                         veldtype shouldBe FormulierVeldtype.TEKST_VELD
                         isVerplicht shouldBe false
-                        defaultWaarde shouldBe "Dummy value"
-                        meerkeuzeOpties shouldBe "Dummy multi-options"
-                        validaties shouldBe "Dummy validation 1;Dummy validation 2"
+                        defaultWaarde shouldBe "Fake value"
+                        meerkeuzeOpties shouldBe "Fake multi-options"
+                        validaties shouldBe "Fake validation 1;Fake validation 2"
                     }
-                    with(veldDefinities.last()) {
+                    with(getVeldDefinities().last()) {
                         id shouldBe 1L
-                        systeemnaam shouldBe "Dummy system name"
-                        beschrijving shouldBe "Dummy description"
+                        systeemnaam shouldBe "Fake system name"
+                        beschrijving shouldBe "Fake description"
                         veldtype shouldBe FormulierVeldtype.TEKST_VELD
                         isVerplicht shouldBe false
-                        defaultWaarde shouldBe "Dummy value"
-                        meerkeuzeOpties shouldBe "Dummy multi-options"
-                        validaties shouldBe "Dummy validation 1;Dummy validation 2"
+                        defaultWaarde shouldBe "Fake value"
+                        meerkeuzeOpties shouldBe "Fake multi-options"
+                        validaties shouldBe "Fake validation 1;Fake validation 2"
                     }
                 }
             }

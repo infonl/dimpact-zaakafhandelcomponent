@@ -13,8 +13,8 @@ import { CaseDefinition } from "../model/case-definition";
 export class ZaakafhandelParametersListParameters extends ListParameters {
   valide: ToggleSwitchOptions = ToggleSwitchOptions.INDETERMINATE;
   geldig: ToggleSwitchOptions = ToggleSwitchOptions.INDETERMINATE;
-  zaaktype: Zaaktype = null;
-  caseDefinition: CaseDefinition = null;
+  zaaktype: Partial<Zaaktype> | null = null;
+  caseDefinition: Partial<CaseDefinition> | null = null;
   beginGeldigheid = new DatumRange();
   eindeGeldigheid = new DatumRange();
 

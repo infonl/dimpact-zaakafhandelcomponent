@@ -23,6 +23,7 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.util.UUID
 
 @Singleton
 @Path("identity")
@@ -37,6 +38,11 @@ class IdentityRestService @Inject constructor(
     @GET
     @Path("groups")
     fun listGroups(): List<RestGroup> = identityService.listGroups().toRestGroups()
+
+    @GET
+    @Path("groups/zaaktype/{zaaktypeUuid}")
+    fun listGroupsForZaaktypeUuid(@PathParam("zaaktypeUuid") zaaktypeUuid: UUID): List<RestGroup> =
+        identityService.listGroupsForZaaktypeUuid(zaaktypeUuid).toRestGroups()
 
     @GET
     @Path("groups/{groupId}/users")

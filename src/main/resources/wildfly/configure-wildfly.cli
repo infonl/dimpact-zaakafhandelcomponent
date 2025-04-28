@@ -35,22 +35,24 @@ data-source add \
 /subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=read-timeout,value=0)
 /subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=write-timeout,value=0)
 
-# This sets the max post size accepted by the RESTEasy framework in WildFly
-# NOTE: This needs to set higher than our max file size setting in ZAC because of the way RESTEasy handles file uploads. This value corresponds with 120MB using the Base 2 format.
-/subsystem=microprofile-config-smallrye/config-source=props:add(properties={"dev.resteasy.entity.file.threshold" = "125829120B"})
-
-# We turn off the Open Telemetry sampler here so that by default no traces are sent to an Open Telemetry Collector
-# since there might be a collector available in the ZAC deployment environment.
-# Using a corresponding environment variable `SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE` we can then turn this back on when needed.
-/subsystem=opentelemetry/:write-attribute(name=sampler-type,value=off)
+/subsystem=microprofile-config-smallrye/config-source=props:add(properties={ \
+    # This sets the max post size accepted by the RESTEasy framework in WildFly
+    # NOTE: This needs to set higher than our max file size setting in ZAC because of the way RESTEasy handles file uploads. This value corresponds with 120MB using the Base 2 format.
+    "dev.resteasy.entity.file.threshold" = "125829120B", \
+    # We currently only export traces to the Open Telemetry Collector and not logs or metrics.
+    "otel.traces.exporter" = "otlp", \
+    "otel.metrics.exporter" = "none", \
+    "otel.logs.exporter" = "none", \
+    "otel.service.name" = "zac" \
+})
 
 # Create custom ZAC mail session
 /subsystem=mail/mail-session=zac:add(jndi-name=java:jboss/mail/zac,debug=false)
 /socket-binding-group=standard-sockets/remote-destination-outbound-socket-binding=zac-smtp-binding:add(host=${env.SMTP_SERVER},port=${env.SMTP_PORT})
-# Use dummy credentials as defaults, to properly configure the mail session. Without credentials (or with empty string for user/password):
+# Use fake credentials as defaults, to properly configure the mail session. Without credentials (or with empty string for user/password):
 #    - Weld fails to instantiate the mail session and satisfy the @Resource dependency in MailService
 #    - mail Transport we use throws AuthenticationFailedException because of insufficient configuration
-/subsystem=mail/mail-session=zac/server=smtp:add(outbound-socket-binding-ref=zac-smtp-binding,username=${env.SMTP_USERNAME:dummyDefaultUsername},password=${env.SMTP_PASSWORD:dummyDefaultPassword})
+/subsystem=mail/mail-session=zac/server=smtp:add(outbound-socket-binding-ref=zac-smtp-binding,username=${env.SMTP_USERNAME:fakeDefaultUsername},password=${env.SMTP_PASSWORD:fakeDefaultPassword})
 
 # To set the log level to DEBUG (default is INFO) uncomment the following lines.
 # Note that this will result in _a lot_ of logging including SessionRegistry sessionRegistry security sensitive data

@@ -44,14 +44,14 @@ class SuspensionZaakHelperTest : BehaviorSpec({
 
     Given("a zaak that is open and not yet postponed and does not have an planned end date") {
         val numberOfDaysPostponed = 123L
-        val postPonementReason = "dummyReason"
+        val postPonementReason = "fakeReason"
         val zaak = createZaak(
             opschorting = createOpschorting(reden = null),
             einddatumGepland = null,
             uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1)
         )
         val postponedZaak = createZaak(
-            opschorting = createOpschorting(reden = "dummyReason"),
+            opschorting = createOpschorting(reden = "fakeReason"),
             einddatumGepland = null,
             uiterlijkeEinddatumAfdoening = LocalDate.now()
                 .plusDays(1 + numberOfDaysPostponed)
@@ -126,10 +126,10 @@ class SuspensionZaakHelperTest : BehaviorSpec({
     }
 
     Given("a zaak that is postponed and does not have an planned end date") {
-        val reasonResumed = "dummyResumeReason"
+        val reasonResumed = "fakeResumeReason"
         val zaak = createZaak(
             opschorting = createOpschorting(
-                reden = "dummyPostponementReason",
+                reden = "fakePostponementReason",
                 indicatie = true
             ),
             einddatumGepland = null,

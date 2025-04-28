@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.32](https://img.shields.io/badge/Version-1.0.32-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
+![Version: 1.0.46](https://img.shields.io/badge/Version-1.0.46-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -15,7 +15,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | Repository | Name | Version |
 |------------|------|---------|
 | @bitnami | solr | 9.6.1 |
-| @opentelemetry | opentelemetry-collector | 0.104.0 |
+| @opentelemetry | opentelemetry-collector | 0.122.3 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -39,6 +39,10 @@ And install zac:
 ```
 helm install my-release zac/zaakafhandelcomponent
 ```
+
+## Changes to the helm chart
+
+The Github workflow will perform helm-linting and will bump the version if needed. This `README.md` file is generated automatically as well.
 
 ## Values
 
@@ -158,7 +162,7 @@ helm install my-release zac/zaakafhandelcomponent
 | nginx.existingConfigmap | string | `nil` | mount existing nginx vhost config |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.27.4@sha256:7f5f11aecd21f0f95267396b8e0fb839312368fdaa51b15199d28f03d91ccdc3"` |  |
+| nginx.image.tag | string | `"1.28.0@sha256:3e5f030818c3782a35b6f621458a21f3e526a35267b2b4505d225684d5eac7c4"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -188,7 +192,7 @@ helm install my-release zac/zaakafhandelcomponent
 | office_converter.enabled | bool | `true` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
 | office_converter.image.repository | string | `"ghcr.io/eugenmayer/kontextwork-converter"` |  |
-| office_converter.image.tag | string | `"1.7.2@sha256:475b52be29912d5cf3c2751003833f4fe70f44167275aed9b401c768ff91f093"` |  |
+| office_converter.image.tag | string | `"1.8.0@sha256:48da70902307f27ad92a27ddf5875310464fd4d4a2f53ce53e1a6f9b3b4c3355"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
@@ -230,7 +234,9 @@ helm install my-release zac/zaakafhandelcomponent
 | opentelemetry-collector.config.service.pipelines.metrics | object | `{}` |  |
 | opentelemetry-collector.config.service.pipelines.traces.receivers[0] | string | `"otlp"` |  |
 | opentelemetry-collector.enabled | bool | `false` |  |
+| opentelemetry-collector.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opentelemetry-collector.image.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
+| opentelemetry-collector.image.tag | string | `"0.123.0@sha256:e39311df1f3d941923c00da79ac7ba6269124a870ee87e3c3ad24d60f8aee4d2"` |  |
 | opentelemetry-collector.mode | string | `"deployment"` |  |
 | opentelemetry-collector.ports.jaeger-compact.enabled | bool | `false` |  |
 | opentelemetry-collector.ports.jaeger-grpc.enabled | bool | `false` |  |

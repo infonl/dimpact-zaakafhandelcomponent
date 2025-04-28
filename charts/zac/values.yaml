@@ -141,9 +141,9 @@ signaleringen:
   securityContext: {}
   tolerations: []
 
-# Overrides for opentelemetry
+# ZAC OpenTelemetry configuration. Only read when opentelemetry-collector is enabled
 # opentelemetry_zaakafhandelcomponent:
-#   sampler_type: "-off"
+#   disabled: "-true"
 #   endpoint: "http://otel-collector:4317"
 
 
@@ -516,7 +516,7 @@ office_converter:
   # url: ""
   image:
     repository: ghcr.io/eugenmayer/kontextwork-converter
-    tag: "1.7.2@sha256:475b52be29912d5cf3c2751003833f4fe70f44167275aed9b401c768ff91f093"
+    tag: "1.8.0@sha256:48da70902307f27ad92a27ddf5875310464fd4d4a2f53ce53e1a6f9b3b4c3355"
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1
@@ -553,7 +553,9 @@ opentelemetry-collector:
   mode: deployment
   replicaCount: 1
   image:
-    repository: "otel/opentelemetry-collector-contrib"
+    repository: otel/opentelemetry-collector-contrib
+    pullPolicy: IfNotPresent
+    tag: "0.123.0@sha256:e39311df1f3d941923c00da79ac7ba6269124a870ee87e3c3ad24d60f8aee4d2"
   presets:
     clusterMetrics:
       enabled: false
@@ -584,7 +586,7 @@ nginx:
   image:
     repository: nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.27.4@sha256:7f5f11aecd21f0f95267396b8e0fb839312368fdaa51b15199d28f03d91ccdc3
+    tag: 1.28.0@sha256:3e5f030818c3782a35b6f621458a21f3e526a35267b2b4505d225684d5eac7c4
   service:
     type: ClusterIP
     port: 80

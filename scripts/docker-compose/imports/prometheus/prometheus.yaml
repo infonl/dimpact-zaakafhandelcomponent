@@ -4,6 +4,10 @@ global:
 
 scrape_configs:
   - job_name: 'prometheus'
+    # Specify a fallback scrape protocol because the WildFly metrics endpoint
+    # currently does not seem to specify a Content-Type header resulting in the following errors in the Prometheus logs:
+    # "non-compliant scrape target sending blank Content-Type and no fallback_scrape_protocol specified for target"
+    fallback_scrape_protocol: 'PrometheusText1.0.0'
     static_configs:
       # listen to the ZAC/WildFly management port exposed on localhost
       - targets: [ 'host.docker.internal:9990' ]

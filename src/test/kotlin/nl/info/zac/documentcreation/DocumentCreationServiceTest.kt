@@ -60,20 +60,20 @@ class DocumentCreationServiceTest : BehaviorSpec({
         val zaakTypeUUID = UUID.randomUUID()
         val zaakTypeURI = URI("https://example.com/$zaakTypeUUID")
         val zaak = createZaak(zaakTypeURI = zaakTypeURI)
-        val taskId = "dummyTaskId"
+        val taskId = "fakeTaskId"
         val documentCreationData = createDocumentCreationDataAttended(
             zaak = zaak,
             taskId = taskId
         )
-        val userDisplayName = "dummyDisplayName"
+        val userDisplayName = "fakeDisplayName"
         val loggedInUser = createLoggedInUser(
             displayName = userDisplayName
         )
         val data = createData()
         val documentCreationAttendedResponse = createDocumentCreationAttendedResponse()
         val contextUrl = "https://example.com"
-        val templateGroupName = "dummyTemplateGroupName"
-        val templateName = "dummyTemplateName"
+        val templateGroupName = "fakeTemplateGroupName"
+        val templateName = "fakeTemplateName"
         val dataSlot = slot<Data>()
         val smartDocumentSlot = slot<SmartDocument>()
 

@@ -5,7 +5,6 @@
 package nl.info.zac.documentcreation.converter
 
 import jakarta.inject.Inject
-import net.atos.client.kvk.KvkClientService
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
@@ -21,6 +20,7 @@ import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.generated.Adres
 import nl.info.client.brp.model.generated.Persoon
 import nl.info.client.brp.model.generated.VerblijfadresBinnenland
+import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.client.smartdocuments.model.document.AanvragerData
 import nl.info.client.smartdocuments.model.document.Data

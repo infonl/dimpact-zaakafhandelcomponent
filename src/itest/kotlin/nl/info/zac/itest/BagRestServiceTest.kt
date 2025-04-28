@@ -37,7 +37,7 @@ class BagRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/bag/adres",
                 requestBodyAsString = """
-                        { "trefwoorden": "dummy search text"}
+                        { "trefwoorden": "fake search text"}
                 """.trimIndent()
             )
             Then(

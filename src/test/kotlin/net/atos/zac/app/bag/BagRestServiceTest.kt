@@ -30,20 +30,20 @@ class BagRestServiceTest : BehaviorSpec({
     Given("Two addresses") {
         val listAdressenParameters = createRESTListAdressenParameters(
             bagObjectType = BAGObjectType.ADRES,
-            trefwoorden = "dummyText1, dummyText2",
-            postcode = "dummyPostcode",
+            trefwoorden = "fakeText1, fakeText2",
+            postcode = "fakePostcode",
             huisnummer = 123
         )
         val addresses = listOf(
             createAdresIOHal(
                 huisnummer = 1,
-                postcode = "dummyPostcode1",
-                woonplaatsNaam = "dummyWoonplaatsNaam2"
+                postcode = "fakePostcode1",
+                woonplaatsNaam = "fakeWoonplaatsNaam2"
             ),
             createAdresIOHal(
                 huisnummer = 2,
-                postcode = "dummyPostcode1",
-                woonplaatsNaam = "dummyWoonplaatsNaam2"
+                postcode = "fakePostcode1",
+                woonplaatsNaam = "fakeWoonplaatsNaam2"
             )
         )
         val bevraagAdressenParametersSlot = slot<BevraagAdressenParameters>()
@@ -68,7 +68,7 @@ class BagRestServiceTest : BehaviorSpec({
                 // The method under test probably needs refactoring..
                 with(bevraagAdressenParametersSlot.captured) {
                     expand shouldBe "nummeraanduiding,openbareRuimte,panden,woonplaats"
-                    q shouldBe "dummyText1, dummyText2"
+                    q shouldBe "fakeText1, fakeText2"
                     postcode shouldBe null
                     huisnummer shouldBe null
                 }
@@ -77,7 +77,7 @@ class BagRestServiceTest : BehaviorSpec({
     }
 
     Given("A BAG object of type address ") {
-        val bagObjectId = "dummyBagObjectId"
+        val bagObjectId = "fakeBagObjectId"
         val bagAddress = createAdresIOHal()
         every { bagClientService.readAdres(bagObjectId) } returns bagAddress
 
