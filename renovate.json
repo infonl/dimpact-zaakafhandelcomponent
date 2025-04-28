@@ -231,6 +231,16 @@
       ],
       "versioning": "loose",
       "allowedVersions": "/jre-ubi9-minimal$/"
+    },
+    {
+      "matchPackageNames": [
+        "GrantBirki/json-yaml-validate"
+      ],
+      "matchDatasources": [
+        "github-tags"
+      ],
+      "allowedVersions": "<= 3.2.1",
+      "description": ["Pinned until https://github.com/GrantBirki/json-yaml-validate/issues/86 is fixed"]
     }
   ]
 }
