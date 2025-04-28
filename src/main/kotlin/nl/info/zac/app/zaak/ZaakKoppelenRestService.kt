@@ -16,6 +16,8 @@ import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.policy.PolicyService
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
 import nl.info.zac.app.search.model.RestZoekResultaat
 import nl.info.zac.search.SearchService
@@ -38,7 +40,8 @@ import java.util.UUID
 class ZaakKoppelenRestService @Inject constructor(
     private val policyService: PolicyService,
     private val searchService: SearchService,
-    private val zrcClientService: ZrcClientService
+    private val zrcClientService: ZrcClientService,
+    private val ztcClientService: ZtcClientService
 ) {
 
     @GET
@@ -50,14 +53,25 @@ class ZaakKoppelenRestService @Inject constructor(
         @QueryParam("page") page: Int = 0,
         @QueryParam("rows") rows: Int = 10
     ) = zrcClientService.readZaak(zaakUuid)
-        .also { PolicyService.assertPolicy(policyService.readZaakRechten(it).koppelen()) }
-        .let { buildZoekParameters(it, zaakIdentifier, linkType, page, rows) }
-        .let(searchService::zoek)
-        .let { zoekResultaat ->
-            zoekResultaat.items
-                .map { (it as ZaakZoekObject).toRestZaakKoppelenZoekObject(true) }
-                .let { RestZoekResultaat(it, zoekResultaat.count) }
+        .also { PolicyService.assertPolicy(policyService.readZaakRechten(it).koppelen) }
+        .let { Pair(it, buildZoekParameters(it, zaakIdentifier, linkType, page, rows)) }
+        .let { Pair(it.first, searchService.zoek(it.second)) }
+        .let { pair ->
+            val fromZaakAndZaaktype = Pair(pair.first, ztcClientService.readZaaktype(pair.first.zaaktype))
+            pair.second.items
+                .map {
+                    val zaakZoekObject = it as ZaakZoekObject
+                    zaakZoekObject.toRestZaakKoppelenZoekObject(isLinkable(fromZaakAndZaaktype, zaakZoekObject))
+                }
+                .let { RestZoekResultaat(it, pair.second.count) }
         }
+
+    private fun isLinkable(
+        fromZaakAndZaaktype: Pair<Zaak, ZaakType>,
+        zaakZoekObject: ZaakZoekObject
+    ): Boolean = fromZaakAndZaaktype.second.deelzaaktypen.any { uri ->
+        uri.toString().contains(zaakZoekObject.zaaktypeUuid!!)
+    }
 
     @Suppress("UnusedParameter")
     private fun buildZoekParameters(

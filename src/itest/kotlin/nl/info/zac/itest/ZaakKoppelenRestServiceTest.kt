@@ -9,7 +9,7 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_BAD_REQUEST
+import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 
@@ -29,12 +29,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         When("the searching for linkable cases happy path") {
             val response = zacClient.findLinkableCases(
                 zaakProductaanvraag1Uuid,
+                "ZAAC_2000345",
                 "HOOFDZAAK",
                 PAGE_DEFAULT,
                 ROWS_DEFAULT
             )
-            Then("the response should be a 400 HTTP response") {
-                response.code shouldBe HTTP_STATUS_BAD_REQUEST
+            Then("the response should be a 200 HTTP response") {
+                response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
             }
