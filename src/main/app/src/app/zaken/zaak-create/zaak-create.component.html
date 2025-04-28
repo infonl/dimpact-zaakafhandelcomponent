@@ -1,17 +1,12 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Atos
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
-<mat-sidenav-container autosize>
-  <mat-sidenav
-    #actionsSideNav
-    mode="over"
-    position="end"
-    [ngSwitch]="activeSideAction"
-  >
+<mat-sidenav-container>
+  <mat-sidenav position="end" [ngSwitch]="activeSideAction">
     <zac-klant-koppel
       *ngSwitchCase="'actie.initiator.toevoegen'"
-      (klantGegevens)="initiatorGeselecteerd($event.klant)"
+      (klantGegevens)="initiatorSelected($event.klant)"
       [sideNav]="actionsSidenav"
       [initiator]="true"
       [allowBedrijf]="true"
@@ -19,20 +14,125 @@
     ></zac-klant-koppel>
     <zac-bag-zoek
       *ngSwitchCase="'actie.bagObject.toevoegen'"
-      [gekoppeldeBagObjecten]="bagObjecten"
+      [gekoppeldeBagObjecten]="form.controls.bagObjecten"
+      (bagObject)="bagObjectSelected()"
       [sideNav]="actionsSidenav"
-      (bagObject)="bagGeselecteerd($event)"
     ></zac-bag-zoek>
   </mat-sidenav>
-  <div class="content" class="zaak-create-form">
-    <div class="form">
-      <mfb-form
-        #mfbForm
-        *ngIf="createZaakFields"
-        (formSubmit)="onFormSubmit($event)"
-        [formFields]="createZaakFields"
-        [config]="formConfig"
-      ></mfb-form>
-    </div>
-  </div>
+  <form [formGroup]="form" (ngSubmit)="formSubmit(form)">
+    <fieldset>
+      <legend>
+        <h1>{{ "actie.zaak.aanmaken" | translate }}</h1>
+      </legend>
+      <section class="row">
+        <zac-auto-complete
+          key="zaaktype"
+          class="col-12 col-md-6"
+          [form]="form"
+          [options]="caseTypes"
+          [optionDisplayValue]="'omschrijving'"
+        >
+          <mat-hint>{{
+            "zaps.step.algemeen.zaaktype.hint" | translate
+          }}</mat-hint>
+        </zac-auto-complete>
+        <zac-input
+          key="initiator"
+          [form]="form"
+          class="col-12 col-md-6"
+          [displayValue]="'naam'"
+          (click)="openSideNav('actie.initiator.toevoegen')"
+        >
+          <button mat-icon-button matSuffix type="button">
+            <mat-icon>person</mat-icon>
+          </button>
+        </zac-input>
+      </section>
+      <section class="row">
+        <zac-date class="col-12 col-md-6" key="startdatum" [form]="form">
+        </zac-date>
+        <zac-input
+          key="bagObjecten"
+          [form]="form"
+          readonly
+          class="col-12 col-md-6"
+          [displayValue]="bagDisplayValue"
+          (click)="openSideNav('actie.bagObject.toevoegen')"
+        >
+          <button type="button" mat-icon-button matSuffix>
+            <mat-icon>gps_fixed</mat-icon>
+          </button>
+        </zac-input>
+      </section>
+    </fieldset>
+    <fieldset>
+      <legend>
+        <h2>{{ "gegevens.toekennen" | translate }}</h2>
+      </legend>
+      <section class="row">
+        <zac-auto-complete
+          key="groep"
+          class="col-12 col-md-6"
+          [form]="form"
+          [options]="groups"
+          [optionDisplayValue]="'naam'"
+        >
+          <mat-label>{{ "actie.zaak.toekennen.groep" | translate }}</mat-label>
+        </zac-auto-complete>
+        <zac-auto-complete
+          class="col-12 col-md-6"
+          key="behandelaar"
+          optionDisplayValue="naam"
+          [form]="form"
+          [options]="users"
+        >
+          <mat-label>{{
+            "actie.zaak.toekennen.medewerker" | translate
+          }}</mat-label>
+        </zac-auto-complete>
+      </section>
+    </fieldset>
+    <fieldset>
+      <legend>
+        <h2>{{ "gegevens.overig" | translate }}</h2>
+      </legend>
+      <section class="row">
+        <zac-select
+          class="col-12 col-md-6"
+          label="communicatiekanaal"
+          key="communicatiekanaal"
+          [form]="form"
+          [options]="communicationChannels"
+        >
+        </zac-select>
+        <zac-select
+          class="col-12 col-md-6"
+          key="vertrouwelijkheidaanduiding"
+          optionDisplayValue="label"
+          [form]="form"
+          [options]="confidentialityNotices"
+        >
+        </zac-select>
+      </section>
+      <zac-input key="omschrijving" [form]="form"> </zac-input>
+      <zac-textarea key="toelichting" [form]="form"></zac-textarea>
+    </fieldset>
+    <fieldset class="flex-row">
+      <button
+        mat-raised-button
+        type="submit"
+        color="primary"
+        [disabled]="!form.valid"
+      >
+        {{ "actie.aanmaken" | translate }}
+      </button>
+      <button
+        type="button"
+        mat-raised-button
+        (click)="navigationService.back()"
+      >
+        {{ "actie.annuleren" | translate }}
+      </button>
+    </fieldset>
+  </form>
 </mat-sidenav-container>

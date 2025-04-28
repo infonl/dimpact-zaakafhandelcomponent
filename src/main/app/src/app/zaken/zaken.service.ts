@@ -14,11 +14,11 @@ import { Klant } from "../klanten/model/klanten/klant";
 import { Roltype } from "../klanten/model/klanten/roltype";
 import { TableRequest } from "../shared/dynamic-table/datasource/table-request";
 import { HistorieRegel } from "../shared/historie/model/historie-regel";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { ZaakZoekObject } from "../zoeken/model/zaken/zaak-zoek-object";
 import { Geometry } from "./model/geometry";
 import { Zaak } from "./model/zaak";
-import { ZaakAanmaakGegevens } from "./model/zaak-aanmaak-gegevens";
 import { ZaakAfbrekenGegevens } from "./model/zaak-afbreken-gegevens";
 import { ZaakAfsluitenGegevens } from "./model/zaak-afsluiten-gegevens";
 import { ZaakBetrokkene } from "./model/zaak-betrokkene";
@@ -26,7 +26,6 @@ import { ZaakBetrokkeneGegevens } from "./model/zaak-betrokkene-gegevens";
 import { ZaakHeropenenGegevens } from "./model/zaak-heropenen-gegevens";
 import { ZaakLocatieGegevens } from "./model/zaak-locatie-gegevens";
 import { ZaakToekennenGegevens } from "./model/zaak-toekennen-gegevens";
-import { Zaaktype } from "./model/zaaktype";
 import { ZakenVerdeelGegevens } from "./model/zaken-verdeel-gegevens";
 
 @Injectable({
@@ -36,6 +35,7 @@ export class ZakenService {
   constructor(
     private http: HttpClient,
     private foutAfhandelingService: FoutAfhandelingService,
+    private readonly zacHttpClient: ZacHttpClient,
   ) {}
 
   private basepath = "/rest/zaken";
@@ -60,9 +60,9 @@ export class ZakenService {
       );
   }
 
-  createZaak(zaakAanmaakgegevens: ZaakAanmaakGegevens): Observable<Zaak> {
-    return this.http
-      .post<Zaak>(`${this.basepath}/zaak`, zaakAanmaakgegevens)
+  createZaak(data: GeneratedType<"RESTZaakAanmaakGegevens">) {
+    return this.zacHttpClient
+      .POST("/rest/zaken/zaak", data)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -132,9 +132,9 @@ export class ZakenService {
       );
   }
 
-  listZaaktypes(): Observable<Zaaktype[]> {
-    return this.http
-      .get<Zaaktype[]>(`${this.basepath}/zaaktypes`)
+  listZaaktypes() {
+    return this.zacHttpClient
+      .GET("/rest/zaken/zaaktypes")
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
