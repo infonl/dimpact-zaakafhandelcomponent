@@ -1,9 +1,15 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
 
 import { detailExpand } from "../../shared/animations/animations";
 
@@ -34,7 +40,7 @@ import { TakenMijnDatasource } from "./taken-mijn-datasource";
 })
 export class TakenMijnComponent
   extends WerklijstComponent
-  implements AfterViewInit, OnInit
+  implements AfterViewInit, OnInit, OnDestroy
 {
   dataSource: TakenMijnDatasource;
   @ViewChild(MatPaginator) paginator: MatPaginator;

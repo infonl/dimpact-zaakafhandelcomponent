@@ -142,7 +142,7 @@ export class ZaakLinkComponent implements OnInit, OnDestroy {
       );
   }
 
-  selectCase(row: any) {
+  selectCase(row: unknown) {
     console.log("Selected case: ", row);
   }
 
