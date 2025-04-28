@@ -103,8 +103,9 @@ export class DocumentenFormulierVeldComponent implements OnInit {
   getDocumentenVariable(): Observable<
     GeneratedType<"RestEnkelvoudigInformatieobject">[]
   > {
-    const uuids: string =
-      this.zaak.zaakdata[this.veldDefinitie.meerkeuzeOpties];
+    const uuids = String(
+      this.zaak.zaakdata[this.veldDefinitie.meerkeuzeOpties],
+    );
     if (uuids) {
       const zoekparameters = new InformatieobjectZoekParameters();
       zoekparameters.informatieobjectUUIDs = uuids.split(";");
