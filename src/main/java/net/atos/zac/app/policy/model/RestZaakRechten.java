@@ -42,4 +42,6 @@ public class RestZaakRechten {
     public boolean creeerenDocument;
 
     public boolean versturenEmail;
+
+    public boolean wijzigenLocatie;
 }

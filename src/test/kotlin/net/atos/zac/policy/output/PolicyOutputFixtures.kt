@@ -82,13 +82,14 @@ fun createZaakRechten(
     toevoegenBagObject: Boolean = true,
     startenTaak: Boolean = true,
     vastleggenBesluit: Boolean = true,
-    verlengenDoorlooptijd: Boolean = true
+    verlengenDoorlooptijd: Boolean = true,
+    wijzigenLocatie: Boolean = true
 ) = ZaakRechten(
     lezen, wijzigen, toekennen, behandelen, afbreken, heropenen, bekijkenZaakdata, wijzigenDoorlooptijd,
     verlengen, opschorten, hervatten, creeerenDocument, toevoegenDocument, koppelen, versturenEmail,
     versturenOntvangstbevestiging, toevoegenInitiatorPersoon, toevoegenInitiatorBedrijf, verwijderenInitiator,
     toevoegenBetrokkenePersoon, toevoegenBetrokkeneBedrijf, verwijderenBetrokkene, toevoegenBagObject, startenTaak,
-    vastleggenBesluit, verlengenDoorlooptijd
+    vastleggenBesluit, verlengenDoorlooptijd, wijzigenLocatie
 )
 
 @Suppress("LongParameterList")

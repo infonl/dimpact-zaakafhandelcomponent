@@ -22,4 +22,5 @@ export class ZaakRechten {
   verwijderenInitiator = false;
   creeerenDocument = false;
   versturenEmail = false;
+  wijzigenLocatie = false;
 }
