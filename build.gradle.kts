@@ -618,11 +618,18 @@ tasks {
 
     register<GenerateTask>("generateKlantenClient") {
         description = "Generates Java client code for the Klanten API"
-        // disabled because (at least with our current settings) this results
-        // in uncompilable generated Java code
-        // this task was not enabled in the original Maven build either;
-        // these model files were added to the code base manually instead
+        // disabled because the generated Java code is not a working OpenKlanten client
         isEnabled = false
+
+        // To generate a new version of the client:
+        //
+        // 1. Modify OpenAPI definition to add empty enum value where `oneOf` construct is used
+        // 2. Copy the generated client from `src/generated/klanten` to `src/main/java/net/atos/client/klant/model`
+        // 3. Change in `ExpandPartijAllOfExpand`
+        //    a) jsob property name from `digitale_adressen` to `digitaleAdressen`
+        //       (see https://github.com/maykinmedia/open-klant/issues/396)
+        //    b) `Betrokkene` usage to `ExpandBetrokkene`
+        //       (see https://github.com/maykinmedia/open-klant/issues/216)
 
         inputSpec.set("$rootDir/src/main/resources/api-specs/klanten/klanten-openapi.yaml")
         outputDir.set("$rootDir/src/generated/klanten/java")

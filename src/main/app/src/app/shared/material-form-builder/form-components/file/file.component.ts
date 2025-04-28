@@ -17,7 +17,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { Observable, Subscription } from "rxjs";
+import { Subscription } from "rxjs";
 import { FoutAfhandelingService } from "../../../../fout-afhandeling/fout-afhandeling.service";
 import { FormComponent } from "../../model/form-component";
 import { FileFormField } from "./file-form-field";
@@ -76,7 +76,7 @@ export class FileComponent extends FormComponent implements OnInit {
       }
 
       this.subscription = this.createRequest(file).subscribe({
-        next: (event: HttpEvent<any>) => {
+        next: (event: HttpEvent<unknown>) => {
           switch (event.type) {
             case HttpEventType.Sent:
               this.status = UploadStatus.BEZIG;
@@ -84,7 +84,9 @@ export class FileComponent extends FormComponent implements OnInit {
             case HttpEventType.ResponseHeader:
               break;
             case HttpEventType.UploadProgress:
-              this.progress = Math.round((event.loaded / event.total) * 100);
+              this.progress = Math.round(
+                (event.loaded / (event.total ?? event.loaded)) * 100,
+              );
               this.updateInput(`${file.name} | ${this.progress}%`);
               break;
             case HttpEventType.Response:
@@ -104,7 +106,7 @@ export class FileComponent extends FormComponent implements OnInit {
         },
       });
     } else {
-      this.updateInput(null);
+      this.updateInput("");
     }
   }
 
@@ -117,12 +119,12 @@ export class FileComponent extends FormComponent implements OnInit {
     }
     this.status = UploadStatus.SELECTEER_BESTAND;
     this.fileInput.nativeElement.value = null;
-    this.updateInput(null);
+    this.updateInput("");
   }
 
-  createRequest(file: File): Observable<any> {
+  createRequest(file: File) {
     this.updateInput(file.name);
-    const formData: FormData = new FormData();
+    const formData = new FormData();
     formData.append("filename", file.name);
     formData.append("filesize", file.size.toString());
     formData.append("type", file.type);

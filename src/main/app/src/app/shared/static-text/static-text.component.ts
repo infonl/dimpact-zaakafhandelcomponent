@@ -19,9 +19,9 @@ import { TextIcon } from "../edit/text-icon";
   templateUrl: "./static-text.component.html",
   styleUrls: ["./static-text.component.less"],
 })
-export class StaticTextComponent implements OnInit, OnChanges {
+export class StaticTextComponent<T = unknown> implements OnInit, OnChanges {
   @Input() label?: string;
-  @Input() value?: any;
+  @Input() value?: T;
   @Input() icon?: TextIcon;
   @Input() maxLength?: number;
   @Output() iconClicked = new EventEmitter<void>();
