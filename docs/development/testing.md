@@ -161,6 +161,8 @@ To have a single run of the OPA Tests you can use the following command:
 docker run -it -v ./src/test/resources/policies:/home/tests -v ./src/main/resources/policies:/home/policies docker.io/openpolicyagent/opa:1.3.0 test /home/policies /home/tests
 ```
 
+There are several useful flags that can be used to develop and debug [tests with OPA](https://www.openpolicyagent.org/docs/latest/policy-testing/).
+
 ## Manual tests
 
 ### Using Postman
