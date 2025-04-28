@@ -15,8 +15,9 @@ export class DatumPipe implements PipeTransform {
       const m: moment.Moment = moment(value, moment.ISO_8601).locale(
         this.locale,
       );
-      if (m.isValid() && dateFormat) {
-        return m.format(this.getFormat(dateFormat)).replace(/-/g, "\u2011");
+      if (m.isValid()) {
+        const format = dateFormat ? this.getFormat(dateFormat) : "L";
+        return m.format(format).replace(/-/g, "\u2011");
         // Format dates with hard non-breaking hyphens, because the normal soft hyphens in a date will be seen
         // by the browser as a point where a new line can be started if necessary. Replacing soft hyphens with
         // hard hyphens prevents that meaning that the date will either remain on the same line or moved as a
