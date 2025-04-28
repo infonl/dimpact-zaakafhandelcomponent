@@ -6,17 +6,19 @@
 import { Inject, LOCALE_ID, Pipe, PipeTransform } from "@angular/core";
 import moment from "moment";
 
+type DateFormat = readonly ["shortDate", "mediumDate", "longDate", "short", "medium", "long", "full", "fullDate"]
+
 @Pipe({ name: "datum" })
 export class DatumPipe implements PipeTransform {
   constructor(@Inject(LOCALE_ID) public locale: string) {}
 
-  transform(value?: Date | moment.Moment | string, dateFormat?: string) {
+  transform(value?: Date | moment.Moment | string, dateFormat?: DateFormat[number]) {
     if (value) {
       const m: moment.Moment = moment(value, moment.ISO_8601).locale(
         this.locale,
       );
       if (m.isValid()) {
-        const format = dateFormat ? this.getFormat(dateFormat) : "L";
+        const format = dateFormat ? this.getFormat(dateFormat) : "shortDate";
         return m.format(format).replace(/-/g, "\u2011");
         // Format dates with hard non-breaking hyphens, because the normal soft hyphens in a date will be seen
         // by the browser as a point where a new line can be started if necessary. Replacing soft hyphens with
@@ -28,24 +30,26 @@ export class DatumPipe implements PipeTransform {
   }
 
   // angular date format mappen op moment formaat
-  getFormat(dateFormat: string): string {
-    if (!dateFormat || dateFormat === "shortDate") {
-      return "L";
-    } else if (dateFormat === "mediumDate") {
-      return "ll";
-    } else if (dateFormat === "longDate") {
-      return "LL";
-    } else if (dateFormat === "short") {
-      return "L LT";
-    } else if (dateFormat === "medium") {
-      return "ll LT";
-    } else if (dateFormat === "long") {
-      return "LL LT";
-    } else if (dateFormat === "full") {
-      return "LLLL";
-    } else if (dateFormat === "fullDate") {
-      return "dddd, LL";
+  getFormat(dateFormat: DateFormat[number]) {
+    switch (dateFormat) {
+        case "shortDate":
+            return "L";
+        case "mediumDate":
+            return "ll";
+        case "longDate":
+            return "LL";
+        case "short":
+            return "L LT";
+        case "medium":
+            return "ll LT";
+        case "long":
+            return "LL LT";
+        case "full":
+            return "LLLL";
+        case "fullDate":
+            return "dddd, LL";
+        default:
+            return dateFormat;
     }
-    return dateFormat;
   }
 }
