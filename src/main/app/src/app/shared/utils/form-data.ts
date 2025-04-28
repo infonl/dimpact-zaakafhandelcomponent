@@ -25,7 +25,7 @@ function parseFormValue(v: unknown) {
   return v.toString();
 }
 
-export function createFormData<T extends Record<string, any>>(
+export function createFormData<T extends Record<string, unknown>>(
   obj: T,
   mapper: FormDataMapper<T>,
 ): FormData {

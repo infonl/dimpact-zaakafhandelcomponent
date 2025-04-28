@@ -23,7 +23,7 @@ export class AutocompleteComponent
   data: AutocompleteFormField;
 
   options: Record<string, string>[];
-  filteredOptions: Observable<any[]>;
+  filteredOptions: Observable<unknown[]>;
   optionsChanged$: Subscription;
 
   constructor(public translate: TranslateService) {
@@ -69,11 +69,11 @@ export class AutocompleteComponent
     });
   }
 
-  displayFn = (obj: any): string => {
+  displayFn = (obj: unknown): string => {
     return obj?.[this.data.optionLabel] ?? obj;
   };
 
-  private _filter(filter: string): any[] {
+  private _filter(filter: string): unknown[] {
     const filterValue = filter.toLowerCase();
 
     return this.options.filter((option) => {
@@ -81,7 +81,7 @@ export class AutocompleteComponent
     });
   }
 
-  isEditing(): boolean {
+  isEditing() {
     return Boolean(this.data.formControl.value);
   }
 

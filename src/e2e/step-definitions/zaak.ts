@@ -21,7 +21,7 @@ const TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER = "0612345678";
 async function checkZaakAssignment(
   this: CustomWorld,
   zaakNumber: number,
-  userProfile: unknown,
+  userProfile: { group: string; username: string },
 ) {
   await this.expect(
     this.page

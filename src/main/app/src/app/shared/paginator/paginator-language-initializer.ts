@@ -12,7 +12,7 @@ export function paginatorLanguageInitializerFactory(
   injector: Injector,
 ) {
   return () =>
-    new Promise<any>((resolve: any) => {
+    new Promise((resolve) => {
       const locationInitialized = injector.get(
         LOCATION_INITIALIZED,
         Promise.resolve(null),
