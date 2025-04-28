@@ -128,7 +128,7 @@ export class ZacHttpClient {
 
   private replacePathParams(
     urlTemplate: string,
-    pathParams: Record<string, string | number | boolean>,
+    pathParams: Record<string, string | number | boolean | null>,
   ) {
     let url = urlTemplate;
 
@@ -149,8 +149,13 @@ export class ZacHttpClient {
     return url;
   }
 
-  private prepareUrl(url: string, pathParams?: any) {
-    if (pathParams) {
+  private prepareUrl(
+    url: string,
+    pathParams?: {
+      path?: Record<string, string | number | boolean | null>;
+    },
+  ) {
+    if (pathParams?.path) {
       return this.replacePathParams(url, pathParams.path);
     }
 

@@ -17,7 +17,7 @@ describe(CustomValidators.name, () => {
     });
   });
 
-  const createControl = (value: any): AbstractControl =>
+  const createControl = (value: unknown): AbstractControl =>
     ({
       value,
       errors: null,
@@ -100,7 +100,7 @@ describe(CustomValidators.name, () => {
   );
 
   describe("error messages", () => {
-    const createControl = (value: any): AbstractControl =>
+    const createControl = (value: unknown): AbstractControl =>
       new FormControl(value);
 
     it.each([
