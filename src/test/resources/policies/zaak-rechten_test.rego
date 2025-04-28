@@ -34,7 +34,7 @@ import data.net.atos.zac.zaak.toevoegen_bag_object
 import data.net.atos.zac.zaak.starten_taak
 import data.net.atos.zac.zaak.vastleggen_besluit
 import data.net.atos.zac.zaak.verlengen_doorlooptijd
-
+import data.net.atos.zac.zaak.wijzigen_locatie
 
 ##################
 # zaaktype_allowed
@@ -751,26 +751,24 @@ test_verlengen_doorlooptijd_missing_role_fails if {
 ########################
 test_wijzigen_locatie if {
     wijzigen_locatie
-        with input.zaaktype_allowed as true
+        with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as true
 }
 
 test_wijzigen_locatie_zaak_closed_fails if {
     not wijzigen_locatie
-        with input.zaaktype_allowed as true
+        with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as false
 }
 
 test_wijzigen_locatie_close_case_recordmanager if {
     wijzigen_locatie
-        with input.zaaktype_allowed as true
         with input.user.rollen as [ "recordmanager" ]
         with input.zaak.open as false
 }
 
 test_wijzigen_locatie_wrong_role_fails if {
     not wijzigen_locatie
-        with input.zaaktype_allowed as true
         with input.user.rollen as [ "functioneel" ]
         with input.zaak.open as false
 }

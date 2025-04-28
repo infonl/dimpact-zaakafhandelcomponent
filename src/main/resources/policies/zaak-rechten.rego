@@ -43,7 +43,7 @@ zaak_rechten := {
     "starten_taak": starten_taak,
     "vastleggen_besluit": vastleggen_besluit,
     "verlengen_doorlooptijd": verlengen_doorlooptijd,
-    "wijzigen_locatie": wijzigen_locatie,
+    "wijzigen_locatie": wijzigen_locatie
 }
 
 default zaaktype_allowed := false
