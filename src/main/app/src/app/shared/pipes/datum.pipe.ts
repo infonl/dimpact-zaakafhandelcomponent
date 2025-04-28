@@ -25,23 +25,22 @@ export class DatumPipe implements PipeTransform {
     value?: Date | moment.Moment | string,
     dateFormat?: DateFormat[number],
   ) {
-    if (value) {
-      const m: moment.Moment = moment(value, moment.ISO_8601).locale(
-        this.locale,
-      );
-      if (m.isValid()) {
-        const format = dateFormat ? this.getFormat(dateFormat) : "shortDate";
-        return m.format(format).replace(/-/g, "\u2011");
-        // Format dates with hard non-breaking hyphens, because the normal soft hyphens in a date will be seen
-        // by the browser as a point where a new line can be started if necessary. Replacing soft hyphens with
-        // hard hyphens prevents that meaning that the date will either remain on the same line or moved as a
-        // whole to the next line.
-      }
-    }
-    return value;
+    if (!value) return value;
+
+    const localeDate = moment(value, moment.ISO_8601).locale(this.locale);
+
+    if (!localeDate.isValid()) return value;
+
+    const format = this.getFormat(dateFormat ?? "shortDate");
+
+    // Format dates with hard non-breaking hyphens, because the normal soft hyphens in a date will be seen
+    // by the browser as a point where a new line can be started if necessary. Replacing soft hyphens with
+    // hard hyphens prevents that meaning that the date will either remain on the same line or moved as a
+    // whole to the next line.
+    return localeDate.format(format).replace(/-/g, "\u2011");
   }
 
-  // angular date format mappen op moment formaat
+  // mapping angular format to moment format
   getFormat(dateFormat: DateFormat[number]) {
     switch (dateFormat) {
       case "shortDate":
@@ -61,7 +60,7 @@ export class DatumPipe implements PipeTransform {
       case "fullDate":
         return "dddd, LL";
       default:
-        return dateFormat;
+        return "L";
     }
   }
 }
