@@ -397,7 +397,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     return this.zakenService.updateZaakLocatie(
       this.zaak.uuid,
       reason,
-      this.zaak.zaakgeometrie,
+      this.zaak.zaakgeometrie as unknown as GeneratedType<"RestGeometry">,
     );
   }
 

@@ -17,14 +17,12 @@ import { HistorieRegel } from "../shared/historie/model/historie-regel";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { ZaakZoekObject } from "../zoeken/model/zaken/zaak-zoek-object";
-import { Geometry } from "./model/geometry";
 import { Zaak } from "./model/zaak";
 import { ZaakAfbrekenGegevens } from "./model/zaak-afbreken-gegevens";
 import { ZaakAfsluitenGegevens } from "./model/zaak-afsluiten-gegevens";
 import { ZaakBetrokkene } from "./model/zaak-betrokkene";
 import { ZaakBetrokkeneGegevens } from "./model/zaak-betrokkene-gegevens";
 import { ZaakHeropenenGegevens } from "./model/zaak-heropenen-gegevens";
-import { ZaakLocatieGegevens } from "./model/zaak-locatie-gegevens";
 import { ZaakToekennenGegevens } from "./model/zaak-toekennen-gegevens";
 import { ZakenVerdeelGegevens } from "./model/zaken-verdeel-gegevens";
 
@@ -264,13 +262,14 @@ export class ZakenService {
 
   updateZaakLocatie(
     uuid: string,
-    reden: string,
-    locatie?: Geometry,
-  ): Observable<Zaak> {
-    return this.http
-      .patch<Zaak>(
-        `${this.basepath}/${uuid}/zaaklocatie`,
-        new ZaakLocatieGegevens(locatie, reden),
+    reden = "",
+    geometrie?: GeneratedType<"RestGeometry">,
+  ) {
+    return this.zacHttpClient
+      .PATCH(
+        "/rest/zaken/{uuid}/zaaklocatie",
+        { geometrie, reden },
+        { pathParams: { path: { uuid } } },
       )
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),

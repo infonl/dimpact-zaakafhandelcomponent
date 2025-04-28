@@ -354,7 +354,7 @@ class ZaakRestService @Inject constructor(
         @PathParam("uuid") zaakUUID: UUID,
         restZaakLocatieGegevens: RestZaakLocatieGegevens
     ): RestZaak {
-        assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).wijzigen)
+        assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).wijzigenLocatie)
         val zaakPatch = Zaak().apply {
             zaakgeometrie = restZaakLocatieGegevens.geometrie?.toGeometry() ?: GeometryToBeDeleted()
         }

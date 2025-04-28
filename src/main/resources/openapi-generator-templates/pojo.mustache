@@ -65,10 +65,16 @@ public class {{classname}} {{#parent}}extends {{{.}}}{{/parent}}{{#vendorExtensi
 {{{vendorExtensions.x-field-extra-annotation}}}
 {{/vendorExtensions.x-field-extra-annotation}}
 {{#isContainer}}
-  private {{{datatypeWithEnum}}} {{name}}{{#required}} = {{{defaultValue}}}{{/required}}{{^required}} = null{{/required}};
+  {{! Lifely/INFO: the use of allOf in combination with readOnly fields in the parent class results in uncompilable code }}
+  {{! see: https://github.com/OpenAPITools/openapi-generator/issues/16374 }}
+  {{! as workaround we simply set the visibility of all fields in pojo's to 'protected' instead of 'private' }}
+  protected {{{datatypeWithEnum}}} {{name}}{{#required}} = {{{defaultValue}}}{{/required}}{{^required}} = null{{/required}};
 {{/isContainer}}
 {{^isContainer}}
-  private {{{datatypeWithEnum}}} {{name}}{{#defaultValue}} = {{{.}}}{{/defaultValue}};
+  {{! Lifely/INFO: the use of allOf in combination with readOnly fields in the parent class results in uncompilable code }}
+  {{! see: https://github.com/OpenAPITools/openapi-generator/issues/16374 }}
+  {{! as workaround we simply set the visibility of all fields in pojo's to 'protected' instead of 'private' }}
+  protected {{{datatypeWithEnum}}} {{name}}{{#defaultValue}} = {{{.}}}{{/defaultValue}};
 {{/isContainer}}
   {{/vars}}
 {{#vendorExtensions.x-has-readonly-properties}}{{^withXml}}

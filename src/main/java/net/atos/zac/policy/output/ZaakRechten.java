@@ -36,7 +36,8 @@ public record ZaakRechten(
                           boolean toevoegenBagObject,
                           boolean startenTaak,
                           boolean vastleggenBesluit,
-                          boolean verlengenDoorlooptijd
+                          boolean verlengenDoorlooptijd,
+                          boolean wijzigenLocatie
 ) implements SerializableByYasson {
 
     @JsonbCreator
@@ -66,7 +67,8 @@ public record ZaakRechten(
             @JsonbProperty("toevoegen_bag_object") final boolean toevoegenBagObject,
             @JsonbProperty("starten_taak") final boolean startenTaak,
             @JsonbProperty("vastleggen_besluit") final boolean vastleggenBesluit,
-            @JsonbProperty("verlengen_doorlooptijd") final boolean verlengenDoorlooptijd
+            @JsonbProperty("verlengen_doorlooptijd") final boolean verlengenDoorlooptijd,
+            @JsonbProperty("wijzigen_locatie") final boolean wijzigenLocatie
     ) {
         this.lezen = lezen;
         this.wijzigen = wijzigen;
@@ -94,5 +96,6 @@ public record ZaakRechten(
         this.startenTaak = startenTaak;
         this.vastleggenBesluit = vastleggenBesluit;
         this.verlengenDoorlooptijd = verlengenDoorlooptijd;
+        this.wijzigenLocatie = wijzigenLocatie;
     }
 }
