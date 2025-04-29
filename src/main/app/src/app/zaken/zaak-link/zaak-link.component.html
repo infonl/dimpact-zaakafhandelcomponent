@@ -3,15 +3,14 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div class="sidenav-title">
-  <h3>
-    <mat-icon>account_tree</mat-icon>
-    {{ "actie.zaak.koppelen" | translate }}
-  </h3>
+<mat-toolbar role="heading" class="gap-16">
+  <mat-icon>account_tree</mat-icon>
+  <h3 class="flex-grow-1">{{ "actie.zaak.koppelen" | translate }}</h3>
   <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
   </button>
-</div>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
 <div class="form" *ngIf="zaak">
   <p>{{ intro }}</p>
