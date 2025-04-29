@@ -6,25 +6,21 @@
 import { Inject, LOCALE_ID, Pipe, PipeTransform } from "@angular/core";
 import moment from "moment";
 
-type DateFormat = readonly [
-  "shortDate",
-  "mediumDate",
-  "longDate",
-  "short",
-  "medium",
-  "long",
-  "full",
-  "fullDate",
-];
+type DateFormat =
+  | "shortDate"
+  | "mediumDate"
+  | "longDate"
+  | "short"
+  | "medium"
+  | "long"
+  | "full"
+  | "fullDate";
 
 @Pipe({ name: "datum" })
 export class DatumPipe implements PipeTransform {
   constructor(@Inject(LOCALE_ID) public locale: string) {}
 
-  transform(
-    value?: Date | moment.Moment | string,
-    dateFormat?: DateFormat[number],
-  ) {
+  transform(value?: Date | moment.Moment | string, dateFormat?: DateFormat) {
     if (!value) return value;
 
     const localeDate = moment(value, moment.ISO_8601).locale(this.locale);
@@ -41,7 +37,7 @@ export class DatumPipe implements PipeTransform {
   }
 
   // mapping angular format to moment format
-  getFormat(dateFormat: DateFormat[number]) {
+  getFormat(dateFormat: DateFormat) {
     switch (dateFormat) {
       case "shortDate":
         return "L";
