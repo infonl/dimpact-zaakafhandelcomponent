@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.search.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 
 data class RestZaakKoppelenZoekObject(
@@ -14,5 +15,6 @@ data class RestZaakKoppelenZoekObject(
     val toelichting: String? = null,
     val zaaktypeOmschrijving: String? = null,
     val statustypeOmschrijving: String? = null,
-    val documentKoppelbaar: Boolean = false
+    @get:JsonbProperty("isKoppelbaar")
+    val isKoppelbaar: Boolean = false
 ) : AbstractRestZoekObject(id, type, identificatie)

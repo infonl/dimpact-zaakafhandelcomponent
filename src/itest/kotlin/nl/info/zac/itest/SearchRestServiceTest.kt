@@ -405,7 +405,7 @@ class SearchRestServiceTest : BehaviorSpec({
                   "foutmelding": "",
                   "resultaten": [
                     {
-                      "documentKoppelbaar": true,
+                      "isKoppelbaar": true,
                       "identificatie": "ZAAK-2024-0000000001",
                       "omschrijving": "$ZAAK_DESCRIPTION_1",
                       "statustypeOmschrijving": "Wacht op aanvullende informatie",
@@ -414,7 +414,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                     },
                     {
-                      "documentKoppelbaar": false,
+                      "isKoppelbaar": false,
                       "identificatie": "$ZAAK_MANUAL_1_IDENTIFICATION",
                       "omschrijving": "changedDescription",
                       "statustypeOmschrijving": "Intake",
@@ -423,7 +423,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                     },
                     {
-                      "documentKoppelbaar": true,
+                      "isKoppelbaar": true,
                       "identificatie": "ZAAK-2000-0000000006",
                       "omschrijving": "fakeOmschrijving",
                       "statustypeOmschrijving": "Afgerond",
@@ -432,7 +432,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                     },
                     {
-                      "documentKoppelbaar": true,
+                      "isKoppelbaar": true,
                       "identificatie": "ZAAK-2000-0000000005",
                       "omschrijving": "fakeOmschrijving",
                       "statustypeOmschrijving": "Afgerond",
@@ -441,7 +441,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                     },
                     {
-                      "documentKoppelbaar": true,
+                      "isKoppelbaar": true,
                       "identificatie": "ZAAK-2000-0000000004",
                       "omschrijving": "fakeOmschrijving",
                       "statustypeOmschrijving": "In behandeling",
@@ -483,7 +483,7 @@ class SearchRestServiceTest : BehaviorSpec({
                   "foutmelding": "",
                   "resultaten": [
                     {
-                      "documentKoppelbaar": false,
+                      "isKoppelbaar": false,
                       "identificatie": "ZAAK-2024-0000000001",
                       "omschrijving": "$ZAAK_DESCRIPTION_1",
                       "statustypeOmschrijving": "Wacht op aanvullende informatie",
@@ -492,7 +492,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                     },
                     {
-                      "documentKoppelbaar": false,
+                      "isKoppelbaar": false,
                       "identificatie": "$ZAAK_MANUAL_1_IDENTIFICATION",
                       "omschrijving": "changedDescription",
                       "statustypeOmschrijving": "Intake",
@@ -501,7 +501,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                     },
                     {
-                      "documentKoppelbaar": false,
+                      "isKoppelbaar": false,
                       "identificatie": "ZAAK-2000-0000000006",
                       "omschrijving": "fakeOmschrijving",
                       "statustypeOmschrijving": "Afgerond",
@@ -510,7 +510,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                     },
                     {
-                      "documentKoppelbaar": false,
+                      "isKoppelbaar": false,
                       "identificatie": "ZAAK-2000-0000000005",
                       "omschrijving": "fakeOmschrijving",
                       "statustypeOmschrijving": "Afgerond",
@@ -519,7 +519,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                     },
                     {
-                      "documentKoppelbaar": false,
+                      "isKoppelbaar": false,
                       "identificatie": "ZAAK-2000-0000000004",
                       "omschrijving": "fakeOmschrijving",
                       "statustypeOmschrijving": "In behandeling",
