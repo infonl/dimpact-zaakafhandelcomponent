@@ -565,6 +565,8 @@
   "zaak.koppelen.link.type.DEELZAAK": "Deelzaak koppelen aan hoofdzaak",
   "zaak.koppelen.link.type.GERELATEERD": "Deze zaak relateren aan andere zaak",
   "zaak.koppelen.uitleg": "Koppel zaak '{{ zaakID }}' aan een andere zaak",
+  "zaak.koppelen.hint.hoofdzaak-aan-deelzaak": "De zaak die je hier zoekt wordt de deelzaak",
+  "zaak.koppelen.hint.deelzaak-aan-hoofdzaak": "De zaak die je hier zoekt wordt de hoofdzaak",
   " 6 ": ">>--> KNOPPEN & MENU'S <--<<",
   "actie.aanmaken": "Aanmaken",
   "actie.admin": "Beheer-instellingen",

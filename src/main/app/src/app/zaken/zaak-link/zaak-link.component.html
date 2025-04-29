@@ -16,27 +16,29 @@
 <form [formGroup]="form" (ngSubmit)="searchCases()">
   <fieldset>
     <legend>
-      <h1>
+      <p>
         {{ "zaak.koppelen.uitleg" | translate: { zaakID: zaak.identificatie } }}
-      </h1>
+      </p>
     </legend>
     <zac-select
       [form]="form"
-      key="linkType"
+      key="caseRelation"
       label="zaak.koppelen.label"
-      [options]="caseLinkingOptionsList"
+      [options]="caseRelationOptionsList"
       [optionDisplayValue]="'label'"
     ></zac-select>
     <zac-input [form]="form" label="zaak.identificatie" key="caseToSearchFor">
       <mat-hint
         *ngIf="
-          form.controls.linkType.value?.value === ZaakRelatietype.HOOFDZAAK
+          form.controls.caseRelation.value?.value === ZaakRelatietype.HOOFDZAAK
         "
-        >hoofdzaak hint</mat-hint
+        >{{ "zaak.koppelen.hint.hoofdzaak-aan-deelzaak" | translate }}</mat-hint
       >
       <mat-hint
-        *ngIf="form.controls.linkType.value?.value === ZaakRelatietype.DEELZAAK"
-        >deelzaak hint</mat-hint
+        *ngIf="
+          form.controls.caseRelation.value?.value === ZaakRelatietype.DEELZAAK
+        "
+        >{{ "zaak.koppelen.hint.deelzaak-aan-hoofdzaak" | translate }}</mat-hint
       >
     </zac-input>
   </fieldset>

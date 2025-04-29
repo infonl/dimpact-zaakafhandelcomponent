@@ -8,7 +8,6 @@ import {
   EventEmitter,
   Input,
   OnDestroy,
-  OnInit,
   Output,
 } from "@angular/core";
 import { FormBuilder, FormControl, Validators } from "@angular/forms";
@@ -32,7 +31,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaak-link.component.html",
   styleUrls: ["./zaak-link.component.less"],
 })
-export class ZaakLinkComponent implements OnInit, OnDestroy {
+export class ZaakLinkComponent implements OnDestroy {
   @Input({ required: true }) zaak!: Zaak; // GeneratedType<"RestZaak">;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Output() zaakLinked = new EventEmitter();
@@ -52,7 +51,7 @@ export class ZaakLinkComponent implements OnInit, OnDestroy {
     "acties",
   ] as const;
 
-  protected caseLinkingOptionsList = [
+  protected caseRelationOptionsList = [
     {
       label: `zaak.koppelen.link.type.${ZaakRelatietype.HOOFDZAAK}`,
       value: ZaakRelatietype.HOOFDZAAK,
@@ -63,17 +62,17 @@ export class ZaakLinkComponent implements OnInit, OnDestroy {
     },
   ];
 
-  private ngDestroy = new Subject<void>();
-
   protected readonly form = this.formBuilder.group({
-    linkType: new FormControl<
-      (typeof this.caseLinkingOptionsList)[number] | null
+    caseRelation: new FormControl<
+      (typeof this.caseRelationOptionsList)[number] | null
     >(null, [Validators.required]),
     caseToSearchFor: new FormControl<string>("", [
       Validators.required,
       Validators.minLength(2),
     ]),
   });
+
+  private ngDestroy = new Subject<void>();
 
   constructor(
     private zoekenService: ZoekenService,
@@ -84,18 +83,12 @@ export class ZaakLinkComponent implements OnInit, OnDestroy {
   ) {
     this.form.controls.caseToSearchFor.disable();
 
-    this.form.controls.linkType.valueChanges
+    this.form.controls.caseRelation.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe(() => {
         this.form.controls.caseToSearchFor.reset();
         this.form.controls.caseToSearchFor.enable();
       });
-  }
-
-  ngOnInit() {
-    this.intro = this.translate.instant("zaak.koppelen.uitleg", {
-      zaakID: this.zaak.identificatie,
-    });
   }
 
   protected searchCases() {
@@ -105,7 +98,7 @@ export class ZaakLinkComponent implements OnInit, OnDestroy {
       .findLinkableZaken(
         this.zaak.uuid,
         this.form.controls.caseToSearchFor.value!, // TODO: check if this is correct
-        this.form.controls.linkType.value!.value!,
+        this.form.controls.caseRelation.value!.value!,
       )
       .subscribe(
         (result) => {
@@ -124,12 +117,12 @@ export class ZaakLinkComponent implements OnInit, OnDestroy {
 
   protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
     console.log("Selected case: ", row);
-    if (!row.id || !this.form.controls.linkType.value?.value) return;
+    if (!row.id || !this.form.controls.caseRelation.value?.value) return;
 
     const caseLinkDetails: GeneratedType<"RestZaakLinkData"> = {
       zaakUuid: this.zaak.uuid,
       teKoppelenZaakUuid: row.id,
-      relatieType: this.form.controls.linkType.value.value,
+      relatieType: this.form.controls.caseRelation.value.value,
     };
 
     this.zakenService.koppelZaak(caseLinkDetails).subscribe({

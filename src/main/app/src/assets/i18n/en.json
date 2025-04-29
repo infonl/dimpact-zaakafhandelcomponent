@@ -565,6 +565,8 @@
   "zaak.koppelen.link.type.DEELZAAK": "Subcase link to main case",
   "zaak.koppelen.link.type.RELATED": "Relate this case to another case",
   "zaak.koppelen.uitleg": "Link case '{{ zaakID }}' to another case",
+  "zaak.koppelen.hint.hoofdzaak-aan-deelzaak": "The case you are searching for here will become the subcase",
+  "zaak.koppelen.hint.deelzaak-aan-hoofdzaak": "The case you are searching for here will become the main case",
   " 6 ": ">>--> KNOPPEN & MENU'S <--<<",
   "actie.aanmaken": "Create",
   "actie.admin": "Admin settings",
