@@ -26,11 +26,10 @@
     <mat-icon>search</mat-icon>
   </button>
   <button
-    *ngIf="control?.value"
+    *ngIf="!control?.disabled && control?.value"
     mat-icon-button
     matSuffix
     (click)="reset()"
-    [disabled]="control?.disabled"
     type="button"
   >
     <mat-icon>clear</mat-icon>
