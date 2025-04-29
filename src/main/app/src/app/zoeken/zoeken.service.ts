@@ -8,13 +8,13 @@ import { Injectable } from "@angular/core";
 import { Observable, Subject } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { Resultaat } from "../shared/model/resultaat";
 import { GeneratedType } from "../shared/utils/generated-types";
+import { ZaakKoppelGegevens } from "../zaken/model/zaak-koppel-gegevens";
 import { ZoekObject } from "./model/zoek-object";
 import { ZoekParameters } from "./model/zoek-parameters";
 import { ZoekResultaat } from "./model/zoek-resultaat";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { ZaakKoppelGegevens } from "../zaken/model/zaak-koppel-gegevens";
 
 export type DocumentKoppelbaarAanZaakListItem = {
   documentKoppelbaar: boolean;
