@@ -81,7 +81,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
             val templateNames = smartDocumentsTemplatesService.listGroupTemplateNames(listOf("no such group"))
 
             Then("it should return a list of template names") {
-                templateNames shouldBe null
+                templateNames shouldBe emptyList()
             }
         }
 
@@ -91,7 +91,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
             )
 
             Then("it should return a list of template names") {
-                templateNames shouldBe null
+                templateNames shouldBe emptyList()
             }
         }
     }
@@ -263,6 +263,16 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
 
             Then("it returns an empty set") {
                 templates shouldBe emptySet()
+            }
+        }
+
+        When("template names are listed") {
+            val templateNames = smartDocumentsTemplatesService.listGroupTemplateNames(
+                listOf("Dimpact")
+            )
+
+            Then("it should return a list of template names") {
+                templateNames shouldBe emptyList()
             }
         }
 
