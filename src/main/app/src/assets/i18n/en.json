@@ -876,6 +876,7 @@
   "msg.zaak.opgeschort": "Case has been suspended.",
   "msg.zaak.hervat": "Case has resumed.",
   "msg.zaak.verlengd": "Case has been extended.",
+  "msg.zaak.gekoppeld": "Case has been linked to {{ case }}.",
   "msg.zaak.ontkoppelen.bevestigen": "Unlink case",
   "msg.zaak.ontkoppelen.uitgevoerd": "Case is unlinked",
   "msg.zaak.koppelen.niet.toegestaan": "Linking is not possible.",
