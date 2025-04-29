@@ -20,6 +20,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
 import nl.info.zac.app.search.model.RestZoekResultaat
+import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.FilterParameters
 import nl.info.zac.search.model.FilterVeld
@@ -32,6 +33,7 @@ import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.lang.UnsupportedOperationException
 import java.util.UUID
 
 @Path("zaken/gekoppelde-zaken")
@@ -53,7 +55,7 @@ class ZaakKoppelenRestService @Inject constructor(
     fun findLinkableZaken(
         @PathParam("zaakUuid") zaakUuid: UUID,
         @QueryParam("zoekZaakIdentifier") zoekZaakIdentifier: String,
-        @QueryParam("linkType") linkType: String,
+        @QueryParam("linkType") linkType: RelatieType,
         @QueryParam("page") page: Int = 0,
         @QueryParam("rows") rows: Int = 10
     ): RestZoekResultaat<RestZaakKoppelenZoekObject> {
@@ -98,7 +100,7 @@ class ZaakKoppelenRestService @Inject constructor(
         zaakLinkRight: Boolean,
         zaak: Zaak,
         zaakType: ZaakType,
-        linkType: String
+        linkType: RelatieType
     ): RestZoekResultaat<RestZaakKoppelenZoekObject> =
         RestZoekResultaat(
             searchResults.items.map {
@@ -121,7 +123,7 @@ class ZaakKoppelenRestService @Inject constructor(
         sourceZaak: Zaak,
         sourceZaakType: ZaakType,
         targetZaak: ZaakZoekObject,
-        linkType: String
+        linkType: RelatieType
     ) = zaakLinkRight &&
         sourceZaak.isOpen &&
         targetZaak.isOpen() &&
@@ -132,12 +134,12 @@ class ZaakKoppelenRestService @Inject constructor(
 
     private fun ZaakZoekObject.hasLinkRights() = policyService.readZaakRechten(this).koppelen
 
-    private fun ZaakZoekObject.isLinkableTo(sourceZaakType: ZaakType, linkType: String) =
-        when (ZaakIndicatie.valueOf(linkType)) {
-            ZaakIndicatie.HOOFDZAAK -> !this.isIndicatie(ZaakIndicatie.HOOFDZAAK)
-            ZaakIndicatie.DEELZAAK -> this.zaaktypeUuid?.let { uuid ->
+    private fun ZaakZoekObject.isLinkableTo(sourceZaakType: ZaakType, linkType: RelatieType) =
+        when (linkType) {
+            RelatieType.HOOFDZAAK -> !this.isIndicatie(ZaakIndicatie.HOOFDZAAK)
+            RelatieType.DEELZAAK -> this.zaaktypeUuid?.let { uuid ->
                 sourceZaakType.deelzaaktypen.any { it.toString().contains(uuid) }
             } ?: false
-            else -> throw IllegalArgumentException("Invalid link type: $linkType")
+            else -> throw UnsupportedOperationException("Unsupported link type: $linkType")
         }
 }
