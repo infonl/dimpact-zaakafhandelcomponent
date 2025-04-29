@@ -9,7 +9,6 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
@@ -35,10 +34,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         When("searching for a HOOFDZAAK linkable zaken") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakProductaanvraag1Uuid/zoek-koppelbare-zaken" +
-                        "?zoekZaakIdentifier=$ZOEK_ZAAK_IDENTIFIER" +
-                        "&linkType=HOOFDZAAK" +
-                        "&rows=$ROWS_DEFAULT" +
-                        "&page=$PAGE_DEFAULT"
+                    "?zoekZaakIdentifier=$ZOEK_ZAAK_IDENTIFIER" +
+                    "&linkType=HOOFDZAAK" +
+                    "&rows=$ROWS_DEFAULT" +
+                    "&page=$PAGE_DEFAULT"
             )
 
             Then("the response should be a 200 HTTP response") {
@@ -122,10 +121,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         When("searching for a DEELZAAK linkable zaken") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakProductaanvraag1Uuid/zoek-koppelbare-zaken" +
-                        "?zoekZaakIdentifier=$ZOEK_ZAAK_IDENTIFIER" +
-                        "&linkType=DEELZAAK" +
-                        "&rows=$ROWS_DEFAULT" +
-                        "&page=$PAGE_DEFAULT"
+                    "?zoekZaakIdentifier=$ZOEK_ZAAK_IDENTIFIER" +
+                    "&linkType=DEELZAAK" +
+                    "&rows=$ROWS_DEFAULT" +
+                    "&page=$PAGE_DEFAULT"
             )
 
             Then("the response should be a 200 HTTP response") {
@@ -205,6 +204,5 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             }
         }
-
     }
 })
