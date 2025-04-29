@@ -13,10 +13,11 @@ import { ZakenService } from "../zaken.service";
 
 @Component({
   templateUrl: "zaak-ontkoppelen-dialog.component.html",
+  styleUrls: ["zaak-ontkoppelen-dialog.component.less"],
 })
 export class ZaakOntkoppelenDialogComponent implements OnInit {
-  redenFormField: AbstractFormField;
-  loading: boolean;
+  redenFormField!: AbstractFormField;
+  loading = false;
 
   constructor(
     public dialogRef: MatDialogRef<ZaakOntkoppelenDialogComponent>,
