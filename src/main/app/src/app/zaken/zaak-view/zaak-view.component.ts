@@ -1210,6 +1210,11 @@ export class ZaakViewComponent
     this.updateZaak();
   }
 
+  zaakLinked(): void {
+    this.sluitSidenav();
+    this.updateZaak();
+  }
+
   startZaakOntkoppelenDialog(
     gerelateerdeZaak: GeneratedType<"RestGerelateerdeZaak">,
   ): void {
@@ -1227,6 +1232,7 @@ export class ZaakViewComponent
         this.activeSideAction = null;
         if (result) {
           this.utilService.openSnackbar("msg.zaak.ontkoppelen.uitgevoerd");
+          this.updateZaak();
         }
       });
   }

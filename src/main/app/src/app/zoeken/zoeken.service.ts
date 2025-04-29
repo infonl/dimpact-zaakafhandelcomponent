@@ -13,6 +13,8 @@ import { GeneratedType } from "../shared/utils/generated-types";
 import { ZoekObject } from "./model/zoek-object";
 import { ZoekParameters } from "./model/zoek-parameters";
 import { ZoekResultaat } from "./model/zoek-resultaat";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { ZaakKoppelGegevens } from "../zaken/model/zaak-koppel-gegevens";
 
 export type DocumentKoppelbaarAanZaakListItem = {
   documentKoppelbaar: boolean;
@@ -34,6 +36,7 @@ export class ZoekenService {
 
   constructor(
     private http: HttpClient,
+    private zacHttp: ZacHttpClient,
     private foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
@@ -65,8 +68,9 @@ export class ZoekenService {
   }
 
   listZaakKoppelbareZaken(
+    zaakUuid: string,
     zaakIdentificator: string,
-    linkType: string,
+    linkType: ZaakKoppelGegevens,
   ): Observable<Resultaat<GeneratedType<"RestZaakKoppelenZoekObject">>> {
     return this.http
       .put<Resultaat<GeneratedType<"RestZaakKoppelenZoekObject">>>(
@@ -78,6 +82,28 @@ export class ZoekenService {
           rows: 10,
         },
       )
+      .pipe(
+        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+      );
+  }
+
+  findLinkableZaken(
+    zaakUuid: string,
+    zoekZaakIdentifier: string,
+    linkType: string,
+  ) {
+    return this.zacHttp
+      .GET("/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken", {
+        pathParams: {
+          path: {
+            zaakUuid,
+          },
+          query: {
+            zoekZaakIdentifier,
+            linkType,
+          },
+        },
+      })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

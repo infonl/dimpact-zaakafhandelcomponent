@@ -160,7 +160,7 @@ export class InformatieObjectLinkComponent
             document: this.infoObject.titel,
             case: linkDocumentDetails.nieuweZaakID,
           });
-          this.closeDrawer();
+          this.close();
           this.informationObjectLinked.emit();
         },
         error: () => {
@@ -170,13 +170,13 @@ export class InformatieObjectLinkComponent
       });
   }
 
-  closeDrawer() {
+  close() {
     this.sideNav.close();
     this.reset();
   }
 
   rowDisabled(row: GeneratedType<"RestZaakKoppelenZoekObject">): boolean {
-    return !row.documentKoppelbaar || row.identificatie == this.source;
+    return !row.documentKoppelbaar || row.identificatie === this.source;
   }
 
   private reset() {
