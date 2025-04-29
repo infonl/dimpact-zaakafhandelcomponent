@@ -26,21 +26,19 @@
       label="zaak.koppelen.label"
       [options]="caseLinkingOptionsList"
       [optionDisplayValue]="'label'"
-    >
+    ></zac-select>
+    <zac-input [form]="form" label="zaak.identificatie" key="caseToSearchFor">
       <mat-hint
-        *ngIf="form.controls.linkType.value?.value === ZaakRelatietype.HOOFDZAAK"
+        *ngIf="
+          form.controls.linkType.value?.value === ZaakRelatietype.HOOFDZAAK
+        "
         >hoofdzaak hint</mat-hint
       >
       <mat-hint
         *ngIf="form.controls.linkType.value?.value === ZaakRelatietype.DEELZAAK"
         >deelzaak hint</mat-hint
       >
-    </zac-select>
-    <zac-input
-      [form]="form"
-      label="zaak.identificatie"
-      key="caseToSearchFor"
-    ></zac-input>
+    </zac-input>
   </fieldset>
   <fieldset class="flex-row">
     <button
