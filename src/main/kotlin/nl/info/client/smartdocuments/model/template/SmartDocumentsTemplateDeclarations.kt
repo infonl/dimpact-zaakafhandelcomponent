@@ -77,14 +77,3 @@ data class SmartDocumentsResponseUsersStructure(
     var userGroups: List<SmartDocumentsResponseUserGroup>,
     var accessible: Boolean
 )
-
-fun List<SmartDocumentsResponseTemplateGroup>?.group(groupName: String) =
-    this?.find { it.name == groupName }
-
-fun List<SmartDocumentsResponseTemplateGroup>?.group(groupNames: List<String>): SmartDocumentsResponseTemplateGroup? {
-    var groups = this
-    groupNames.take(groupNames.size - 1).forEach { groupName ->
-        groups = groups?.group(groupName)?.templateGroups
-    }
-    return groups?.group(groupNames.last())
-}

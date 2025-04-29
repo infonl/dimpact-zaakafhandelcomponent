@@ -44,6 +44,7 @@ import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
+import nl.info.zac.smartdocuments.rest.RestSmartDocumentsPath
 import nl.info.zac.smartdocuments.rest.RestSmartDocumentsTemplateGroup
 import nl.info.zac.smartdocuments.rest.isSubsetOf
 import nl.info.zac.util.AllOpen
@@ -251,6 +252,15 @@ class ZaakafhandelParametersRestService @Inject constructor(
     fun listTemplates(): Set<RestSmartDocumentsTemplateGroup> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return smartDocumentsTemplatesService.listTemplates()
+    }
+
+    @PUT
+    @Path("document-templates")
+    fun listGroupTemplates(
+        path: RestSmartDocumentsPath
+    ): List<String> {
+        assertPolicy(policyService.readOverigeRechten().beheren)
+        return smartDocumentsTemplatesService.listGroupTemplateNames(path.groups)
     }
 
     @GET

@@ -146,44 +146,6 @@ class SmartDocumentsServiceTest : BehaviorSpec({
                 }
             }
         }
-
-        When("list template names for a first-level group is called") {
-            val templateNames = smartDocumentsService.listTemplateNames(listOf("Dimpact"))
-
-            Then("it should return a list of template names") {
-                templateNames shouldBe listOf("Aanvullende informatie nieuw", "Aanvullende informatie oud")
-            }
-        }
-
-        When("list template names for a nested level group is called") {
-            val templateNames = smartDocumentsService.listTemplateNames(
-                listOf(
-                    "Dimpact",
-                    "Indienen aansprakelijkstelling door derden behandelen"
-                )
-            )
-
-            Then("it should return a list of template names") {
-                templateNames shouldBe listOf("Data Test", "OpenZaakTest")
-            }
-        }
-
-        When("list template names for a non-existent first-level group is called") {
-            val templateNames = smartDocumentsService.listTemplateNames(listOf("no such group"))
-
-            Then("it should return a list of template names") {
-                templateNames shouldBe null
-            }
-        }
-
-        When("list template names for a non-existent nested group is called") {
-            val templateNames = smartDocumentsService.listTemplateNames(listOf("Dimpact", "no such group"))
-
-            Then("it should return a list of template names") {
-                templateNames shouldBe null
-            }
-        }
-
     }
 
     Given("SmartDocuments is disabled") {

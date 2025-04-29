@@ -51,52 +51,9 @@ class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
-                with(responseBody) {
-                    shouldContainJsonKeyValue("$[0].id", SMART_DOCUMENTS_ROOT_GROUP_ID)
-                    shouldContainJsonKeyValue("$[0].name", SMART_DOCUMENTS_ROOT_GROUP_NAME)
-
-                    shouldContainJsonKeyValue("$[0].templates[0].id", SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID)
-                    shouldContainJsonKeyValue("$[0].templates[0].name", SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME)
-                    shouldContainJsonKeyValue("$[0].templates[1].id", SMART_DOCUMENTS_ROOT_TEMPLATE_2_ID)
-                    shouldContainJsonKeyValue("$[0].templates[1].name", SMART_DOCUMENTS_ROOT_TEMPLATE_2_NAME)
-
-                    shouldContainJsonKeyValue("$[0].groups[0].id", SMART_DOCUMENTS_GROUP_1_ID)
-                    shouldContainJsonKeyValue("$[0].groups[0].name", SMART_DOCUMENTS_GROUP_1_NAME)
-                    shouldContainJsonKeyValue("$[0].groups[0].templates[0].id", SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_ID)
-                    shouldContainJsonKeyValue(
-                        "$[0].groups[0].templates[0].name",
-                        SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_NAME
-                    )
-                    shouldContainJsonKeyValue("$[0].groups[0].templates[1].id", SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_ID)
-                    shouldContainJsonKeyValue(
-                        "$[0].groups[0].templates[1].name",
-                        SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_NAME
-                    )
-
-                    shouldContainJsonKeyValue("$[0].groups[1].id", SMART_DOCUMENTS_GROUP_2_ID)
-                    shouldContainJsonKeyValue("$[0].groups[1].name", SMART_DOCUMENTS_GROUP_2_NAME)
-                    shouldContainJsonKeyValue("$[0].groups[1].templates[0].id", SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_ID)
-                    shouldContainJsonKeyValue(
-                        "$[0].groups[1].templates[0].name",
-                        SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_NAME
-                    )
-                    shouldContainJsonKeyValue("$[0].groups[1].templates[1].id", SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_ID)
-                    shouldContainJsonKeyValue(
-                        "$[0].groups[1].templates[1].name",
-                        SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_NAME
-                    )
-                }
-            }
-        }
-
-        When("the create mapping endpoint is called with correct payload") {
-            val smartDocumentsZaakafhandelParametersUrl = "$ZAC_API_URI/zaakafhandelparameters/" +
-                "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/document-templates"
-            val restTemplateGroups = """
+                responseBody shouldEqualJsonIgnoringOrder """
                 [
                   {
-                    "id": "$SMART_DOCUMENTS_ROOT_GROUP_ID",
-                    "name": "$SMART_DOCUMENTS_ROOT_GROUP_NAME",
                     "groups": [
                       {
                         "groups": [],
@@ -105,13 +62,11 @@ class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
                         "templates": [
                           {
                             "id": "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_ID",
-                            "name": "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_NAME",
-                            "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
+                            "name": "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_NAME"
                           },
                           {
                             "id": "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_ID",
-                            "name": "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_NAME",
-                            "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
+                            "name": "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_NAME"
                           }
                         ]
                       },
@@ -122,31 +77,111 @@ class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
                         "templates": [
                           {
                             "id": "$SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_ID",
-                            "name": "$SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_NAME",
-                            "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
+                            "name": "$SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_NAME"
                           },
                           {
                             "id": "$SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_ID",
-                            "name": "$SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_NAME",
-                            "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
+                            "name": "$SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_NAME"
                           }
                         ]
                       }
                     ],
+                    "id": "$SMART_DOCUMENTS_ROOT_GROUP_ID",
+                    "name": "$SMART_DOCUMENTS_ROOT_GROUP_NAME",
                     "templates": [
                       {
                         "id": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID",
-                        "name": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME",
-                        "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
+                        "name": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME"
                       },
                       {
                         "id": "$SMART_DOCUMENTS_ROOT_TEMPLATE_2_ID",
-                        "name": "$SMART_DOCUMENTS_ROOT_TEMPLATE_2_NAME",
-                        "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
+                        "name": "$SMART_DOCUMENTS_ROOT_TEMPLATE_2_NAME"
                       }
                     ]
                   }
                 ]
+                """.trimIndent()
+            }
+        }
+
+        When("the list SmartDocuments template names endpoint is called") {
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/zaakafhandelparameters/document-templates",
+                requestBodyAsString = """
+                {
+                    "groups": [ "$SMART_DOCUMENTS_ROOT_GROUP_NAME", "$SMART_DOCUMENTS_GROUP_1_NAME" ]
+                }
+                """.trimIndent()
+            )
+
+            Then("the response should be ok") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+                responseBody shouldEqualJsonIgnoringOrder """
+                [ "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_NAME", "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_NAME" ]                    
+                """.trimIndent()
+            }
+        }
+
+        When("the create mapping endpoint is called with correct payload") {
+            val smartDocumentsZaakafhandelParametersUrl = "$ZAC_API_URI/zaakafhandelparameters/" +
+                "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/document-templates"
+            val restTemplateGroups = """
+            [
+              {
+                "id": "$SMART_DOCUMENTS_ROOT_GROUP_ID",
+                "name": "$SMART_DOCUMENTS_ROOT_GROUP_NAME",
+                "groups": [
+                  {
+                    "groups": [],
+                    "id": "$SMART_DOCUMENTS_GROUP_1_ID",
+                    "name": "$SMART_DOCUMENTS_GROUP_1_NAME",
+                    "templates": [
+                      {
+                        "id": "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_ID",
+                        "name": "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_NAME",
+                        "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
+                      },
+                      {
+                        "id": "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_ID",
+                        "name": "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_NAME",
+                        "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
+                      }
+                    ]
+                  },
+                  {
+                    "groups": [],
+                    "id": "$SMART_DOCUMENTS_GROUP_2_ID",
+                    "name": "$SMART_DOCUMENTS_GROUP_2_NAME",
+                    "templates": [
+                      {
+                        "id": "$SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_ID",
+                        "name": "$SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_NAME",
+                        "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
+                      },
+                      {
+                        "id": "$SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_ID",
+                        "name": "$SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_NAME",
+                        "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
+                      }
+                    ]
+                  }
+                ],
+                "templates": [
+                  {
+                    "id": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID",
+                    "name": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME",
+                    "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
+                  },
+                  {
+                    "id": "$SMART_DOCUMENTS_ROOT_TEMPLATE_2_ID",
+                    "name": "$SMART_DOCUMENTS_ROOT_TEMPLATE_2_NAME",
+                    "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
+                  }
+                ]
+              }
+            ]
             """.trimIndent()
             val storeResponse = itestHttpClient.performJSONPostRequest(
                 url = smartDocumentsZaakafhandelParametersUrl,
@@ -173,33 +208,33 @@ class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
             val smartDocumentsZaakafhandelParametersUrl = "$ZAC_API_URI/zaakafhandelparameters/" +
                 "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/document-templates"
             val restTemplateGroups = """
-                [
+            [
+              {
+                "id": "$SMART_DOCUMENTS_ROOT_GROUP_ID",
+                "name": "$SMART_DOCUMENTS_ROOT_GROUP_NAME",
+                "groups": [
                   {
-                    "id": "$SMART_DOCUMENTS_ROOT_GROUP_ID",
-                    "name": "$SMART_DOCUMENTS_ROOT_GROUP_NAME",
-                    "groups": [
-                      {
-                        "groups": [],
-                        "id": "$SMART_DOCUMENTS_GROUP_1_ID",
-                        "name": "group A",
-                        "templates": [
-                          {
-                            "id": "4",
-                            "name": "group A template 1",
-                            "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
-                          }
-                        ]
-                      }
-                    ],
+                    "groups": [],
+                    "id": "$SMART_DOCUMENTS_GROUP_1_ID",
+                    "name": "group A",
                     "templates": [
                       {
-                        "id": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID",
-                        "name": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME",
+                        "id": "4",
+                        "name": "group A template 1",
                         "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
                       }
                     ]
                   }
+                ],
+                "templates": [
+                  {
+                    "id": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID",
+                    "name": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME",
+                    "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
+                  }
                 ]
+              }
+            ]
             """.trimIndent()
             val storeResponse = itestHttpClient.performJSONPostRequest(
                 url = smartDocumentsZaakafhandelParametersUrl,

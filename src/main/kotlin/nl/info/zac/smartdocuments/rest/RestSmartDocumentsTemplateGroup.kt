@@ -49,3 +49,14 @@ private fun convertTemplateGroupResponseToRest(
         groups = group.templateGroups?.map { convertTemplateGroupResponseToRest(it) }?.toSet(),
         templates = group.templates?.map { RestSmartDocumentsTemplate(it.id, it.name) }?.toSet()
     )
+
+fun Set<RestSmartDocumentsTemplateGroup>?.group(groupName: String) =
+    this?.find { it.name == groupName }
+
+fun Set<RestSmartDocumentsTemplateGroup>?.group(groupNames: List<String>): RestSmartDocumentsTemplateGroup? {
+    var groups = this
+    groupNames.take(groupNames.size - 1).forEach { groupName ->
+        groups = groups?.group(groupName)?.groups
+    }
+    return groups?.group(groupNames.last())
+}

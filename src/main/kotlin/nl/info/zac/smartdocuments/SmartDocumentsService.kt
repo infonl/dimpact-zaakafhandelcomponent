@@ -16,7 +16,6 @@ import nl.info.client.smartdocuments.model.document.Document
 import nl.info.client.smartdocuments.model.document.File
 import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
-import nl.info.client.smartdocuments.model.template.group
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
 import nl.info.zac.util.AllOpen
@@ -110,15 +109,6 @@ class SmartDocumentsService @Inject constructor(
             authenticationToken = "Basic ${authenticationToken.get()}",
             userName = fixedUserName.orElse(loggedInUserInstance.get().id)
         )
-
-    /**
-     * Lists all SmartDocuments template names for a template group.
-     *
-     * @return A structure describing templates and groups
-     */
-    fun listTemplateNames(groupNames: List<String>) =
-        listTemplates().documentsStructure.templatesStructure.templateGroups
-            .group(groupNames)?.templates?.map { it.name }
 
     /**
      * Download generated document

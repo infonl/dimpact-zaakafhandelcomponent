@@ -15,6 +15,7 @@ import net.atos.zac.admin.model.ZaakafhandelParameters
 import nl.info.zac.documentcreation.DocumentCreationService
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
+import nl.info.zac.smartdocuments.rest.group
 import nl.info.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroup
 import nl.info.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroupSet
 import nl.info.zac.smartdocuments.rest.toSmartDocumentsTemplateGroupSet
@@ -46,6 +47,18 @@ class SmartDocumentsTemplatesService @Inject constructor(
             smartDocumentsService.listTemplates().toRestSmartDocumentsTemplateGroupSet()
         } else {
             emptySet()
+        }
+
+    /**
+     * Lists all SmartDocuments template names for a template group.
+     *
+     * @return A list of template names in the group
+     */
+    fun listGroupTemplateNames(groupNames: List<String>) =
+        if (smartDocumentsService.isEnabled()) {
+            listTemplates().group(groupNames)?.templates?.map { it.name } ?: emptyList()
+        } else {
+            emptyList()
         }
 
     /**
