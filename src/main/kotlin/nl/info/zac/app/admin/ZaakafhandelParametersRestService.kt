@@ -256,7 +256,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
 
     @PUT
     @Path("document-templates")
-    fun listGroupTemplates(
+    fun listGroupTemplateNames(
         path: RestSmartDocumentsPath
     ): List<String> {
         assertPolicy(policyService.readOverigeRechten().beheren)
