@@ -26,11 +26,18 @@ import { SubscriptionMessage } from "./model/subscription-message";
 import { SubscriptionType } from "./model/subscription-type";
 import { WebsocketListener } from "./model/websocket-listener";
 
+type SocketMessage = {
+  opcode: Opcode;
+  objectType: ObjectType;
+  objectId: ScreenEventId;
+  timestamp?: number;
+}
+
 @Injectable({
   providedIn: "root",
 })
 export class WebsocketService implements OnDestroy {
-  // This must be bigger then the SECONDS_TO_DELAY defined in ScreenEventObserver.java
+  // This must be bigger than the SECONDS_TO_DELAY defined in ScreenEventObserver.java
   private static DEFAULT_SUSPENSION_TIMEOUT = 5; // seconds
 
   private readonly PROTOCOL: string = window.location.protocol.replace(
@@ -46,7 +53,7 @@ export class WebsocketService implements OnDestroy {
   private readonly URL: string =
     this.PROTOCOL + "//" + this.HOST + "/websocket";
 
-  private connection$: WebSocketSubject<unknown> | null = null;
+  private connection$: WebSocketSubject<SocketMessage | SubscriptionMessage> | null = null;
 
   private destroyed$ = new Subject<void>();
 
@@ -80,14 +87,14 @@ export class WebsocketService implements OnDestroy {
     );
   }
 
-  private receive(websocket: string) {
-    this.open(websocket).pipe(takeUntil(this.destroyed$)).subscribe({
-      next: this.onMessage,
+  private receive(url: string) {
+    this.open(url).pipe(takeUntil(this.destroyed$)).subscribe({
+      next: message => this.onMessage(message as SocketMessage),
       error: this.onError,
     });
   }
 
-  private send(data: unknown) {
+  private send(data: SubscriptionMessage) {
     if (this.connection$) {
       this.connection$.next(data);
     } else {
@@ -103,7 +110,7 @@ export class WebsocketService implements OnDestroy {
     }
   }
 
-  private onMessage = (message: ScreenEvent) => {
+  private onMessage = (message: SocketMessage) => {
     // message is a JSON representation of ScreenEvent.java
     const event = new ScreenEvent(
       message.opcode,
@@ -225,7 +232,7 @@ export class WebsocketService implements OnDestroy {
   ): Observable<T> {
     /**
      * In the unlikely scenario that the back end never responds with an event,
-     * we want to eventually cleanup the websocket connection to prevent memory leaks
+     * we want to eventually clean up the websocket connection to prevent memory leaks
      * The back end process can take quite a while, so we chose a timeout of one hour.
      */
     const ARBITRARY_ONE_HOUR_TIMEOUT_TO_PREVENT_MEMORY_LEAKS_IN_EDGE_CASES =
