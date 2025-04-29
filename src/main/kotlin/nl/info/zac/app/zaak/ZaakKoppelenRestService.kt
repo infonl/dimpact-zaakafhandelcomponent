@@ -16,14 +16,20 @@ import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.policy.PolicyService
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
 import nl.info.zac.app.search.model.RestZoekResultaat
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.FilterParameters
 import nl.info.zac.search.model.FilterVeld
+import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.ZoekParameters
+import nl.info.zac.search.model.ZoekResultaat
 import nl.info.zac.search.model.ZoekVeld
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
+import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -38,7 +44,8 @@ import java.util.UUID
 class ZaakKoppelenRestService @Inject constructor(
     private val policyService: PolicyService,
     private val searchService: SearchService,
-    private val zrcClientService: ZrcClientService
+    private val zrcClientService: ZrcClientService,
+    private val ztcClientService: ZtcClientService,
 ) {
 
     @GET
@@ -52,38 +59,18 @@ class ZaakKoppelenRestService @Inject constructor(
         @QueryParam("rows") rows: Int = 10
     ): RestZoekResultaat<RestZaakKoppelenZoekObject> {
         val zaak = zrcClientService.readZaak(zaakUuid)
-        val zaakKoppelen = policyService.readZaakRechten(zaak).koppelen
-        val zoekParams = buildZoekParameters(zaak, zoekZaakIdentifier, page, rows)
-        val zoekResult = searchService.zoek(zoekParams)
+        val zaakType = ztcClientService.readZaaktype(zaak.zaaktype)
+        val zaakLinkRight = policyService.readZaakRechten(zaak).koppelen
+        val searchParameters = buildZoekParameters(zaak, zoekZaakIdentifier, page, rows)
 
-        val resultaten = zoekResult.items.map {
-            val zaakZoekObject = it as ZaakZoekObject
-            zaakZoekObject.toRestZaakKoppelenZoekObject(
-                linkable = isLinkable(zaakKoppelen, zaak, zaakZoekObject)
-            )
-        }
-        return RestZoekResultaat(resultaten, zoekResult.count)
+        return filterSearchResults(
+            searchService.zoek(searchParameters),
+            zaakLinkRight,
+            zaak,
+            zaakType,
+            linkType
+        )
     }
-
-    private fun isLinkable(
-        zaakKoppelen: Boolean,
-        zaak: Zaak,
-        zaakZoekObject: ZaakZoekObject
-    ) = zaakKoppelen && isZaakOpen(zaak, zaakZoekObject) && hasKoppelRecht(zaakZoekObject) &&
-        isDeelZaakTypeMatch(zaak, zaakZoekObject)
-
-    private fun isZaakOpen(
-        zaak: Zaak,
-        zaakZoekObject: ZaakZoekObject
-    ) = zaak.isOpen == (zaakZoekObject.archiefNominatie == null)
-
-    private fun hasKoppelRecht(zaakZoekObject: ZaakZoekObject) =
-        policyService.readZaakRechten(zaakZoekObject).koppelen
-
-    private fun isDeelZaakTypeMatch(
-        zaak: Zaak,
-        zaakZoekObject: ZaakZoekObject
-    ) = zaak.zaaktype.toString().contains(zaakZoekObject.zaaktypeUuid!!)
 
     private fun buildZoekParameters(
         zaak: Zaak,
@@ -106,4 +93,66 @@ class ZaakKoppelenRestService @Inject constructor(
             statustypeOmschrijving = statustypeOmschrijving,
             isKoppelbaar = linkable,
         )
+
+    private fun filterSearchResults(
+        searchResults: ZoekResultaat<out ZoekObject>,
+        zaakLinkRight: Boolean,
+        zaak: Zaak,
+        zaakType: ZaakType,
+        linkType: String
+    ): RestZoekResultaat<RestZaakKoppelenZoekObject> =
+        RestZoekResultaat(
+            searchResults.items.map {
+                val zaakZoekObject = it as ZaakZoekObject
+                zaakZoekObject.toRestZaakKoppelenZoekObject(
+                    isLinkable(
+                        zaakLinkRight = zaakLinkRight,
+                        sourceZaak = zaak,
+                        sourceZaakType = zaakType,
+                        targetZaak = zaakZoekObject,
+                        linkType = linkType
+                    )
+                )
+            },
+            searchResults.count
+        )
+
+    private fun isLinkable(
+        zaakLinkRight: Boolean,
+        sourceZaak: Zaak,
+        sourceZaakType: ZaakType,
+        targetZaak: ZaakZoekObject,
+        linkType: String
+    ) = zaakLinkRight &&
+        sourceZaak.isOpen &&
+        targetZaak.isOpen() &&
+        targetZaak.hasLinkRights() &&
+        targetZaak.hasEqualZaakType(sourceZaak) &&
+        targetZaak.isLinkableTo(sourceZaakType, linkType)
+
+    private fun ZaakZoekObject.isOpen() =
+        this.archiefNominatie == null
+
+    private fun ZaakZoekObject.hasLinkRights() =
+        policyService.readZaakRechten(this).koppelen
+
+    private fun ZaakZoekObject.hasEqualZaakType(zaak: Zaak) =
+        zaak.zaaktype.extractUuid() == UUID.fromString(this.zaaktypeUuid)
+
+    private fun ZaakZoekObject.isLinkableTo(sourceZaakType: ZaakType, linkType: String): Boolean {
+        val wantedLinkType = ZaakIndicatie.valueOf(linkType)
+        val sourceDeelzaaktypen = sourceZaakType.deelzaaktypen
+
+        return when (wantedLinkType) {
+            ZaakIndicatie.HOOFDZAAK -> {
+                !this.isIndicatie(ZaakIndicatie.HOOFDZAAK)
+            }
+            ZaakIndicatie.DEELZAAK -> {
+                this.zaaktypeUuid?.let { uuid ->
+                    sourceDeelzaaktypen.any { it.toString().contains(uuid) }
+                } ?: false
+            }
+            else -> throw IllegalArgumentException("Invalid link type: $wantedLinkType")
+        }
+    }
 }
