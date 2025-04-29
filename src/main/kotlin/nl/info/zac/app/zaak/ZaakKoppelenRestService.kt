@@ -16,7 +16,6 @@ import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.policy.PolicyService
-import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
@@ -127,32 +126,18 @@ class ZaakKoppelenRestService @Inject constructor(
         sourceZaak.isOpen &&
         targetZaak.isOpen() &&
         targetZaak.hasLinkRights() &&
-        targetZaak.hasEqualZaakType(sourceZaak) &&
         targetZaak.isLinkableTo(sourceZaakType, linkType)
 
-    private fun ZaakZoekObject.isOpen() =
-        this.archiefNominatie == null
+    private fun ZaakZoekObject.isOpen() = this.archiefNominatie == null
 
-    private fun ZaakZoekObject.hasLinkRights() =
-        policyService.readZaakRechten(this).koppelen
+    private fun ZaakZoekObject.hasLinkRights() = policyService.readZaakRechten(this).koppelen
 
-    private fun ZaakZoekObject.hasEqualZaakType(zaak: Zaak) =
-        zaak.zaaktype.extractUuid() == UUID.fromString(this.zaaktypeUuid)
-
-    private fun ZaakZoekObject.isLinkableTo(sourceZaakType: ZaakType, linkType: String): Boolean {
-        val wantedLinkType = ZaakIndicatie.valueOf(linkType)
-        val sourceDeelzaaktypen = sourceZaakType.deelzaaktypen
-
-        return when (wantedLinkType) {
-            ZaakIndicatie.HOOFDZAAK -> {
-                !this.isIndicatie(ZaakIndicatie.HOOFDZAAK)
-            }
-            ZaakIndicatie.DEELZAAK -> {
-                this.zaaktypeUuid?.let { uuid ->
-                    sourceDeelzaaktypen.any { it.toString().contains(uuid) }
-                } ?: false
-            }
-            else -> throw IllegalArgumentException("Invalid link type: $wantedLinkType")
+    private fun ZaakZoekObject.isLinkableTo(sourceZaakType: ZaakType, linkType: String) =
+        when (ZaakIndicatie.valueOf(linkType)) {
+            ZaakIndicatie.HOOFDZAAK -> !this.isIndicatie(ZaakIndicatie.HOOFDZAAK)
+            ZaakIndicatie.DEELZAAK -> this.zaaktypeUuid?.let { uuid ->
+                sourceZaakType.deelzaaktypen.any { it.toString().contains(uuid) }
+            } ?: false
+            else -> throw IllegalArgumentException("Invalid link type: $linkType")
         }
-    }
 }
