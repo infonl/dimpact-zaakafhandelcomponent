@@ -1,17 +1,18 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Atos
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2025 Lifey
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div class="sidenav-title">
-  <h3>
-    <mat-icon>assignment</mat-icon>
+<mat-toolbar role="heading" class="gap-16">
+  <mat-icon>assignment</mat-icon>
+  <span class="flex-grow-1">
     {{ "title.taak.starten" | translate: { taak: planItem.naam } }}
-  </h3>
+  </span>
   <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
   </button>
-</div>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
 <div class="form">
   <mfb-form
