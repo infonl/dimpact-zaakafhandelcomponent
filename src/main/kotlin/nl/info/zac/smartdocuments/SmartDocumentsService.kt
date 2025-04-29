@@ -102,7 +102,7 @@ class SmartDocumentsService @Inject constructor(
     /**
      * Lists all SmartDocuments templates groups and templates available for the current user.
      *
-     * @return A list of template names for the group
+     * @return A structure describing templates and groups
      */
     fun listTemplates(): SmartDocumentsTemplatesResponse =
         smartDocumentsClient.get().listTemplates(

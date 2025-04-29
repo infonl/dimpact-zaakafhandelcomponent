@@ -86,7 +86,9 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         }
 
         When("list template names for a non-existent nested group is called") {
-            val templateNames = smartDocumentsTemplatesService.listGroupTemplateNames(listOf("Dimpact", "no such group"))
+            val templateNames = smartDocumentsTemplatesService.listGroupTemplateNames(
+                listOf("Dimpact", "no such group")
+            )
 
             Then("it should return a list of template names") {
                 templateNames shouldBe null
