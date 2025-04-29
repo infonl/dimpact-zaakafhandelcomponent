@@ -7,6 +7,8 @@ package net.atos.zac.util;
 
 import java.time.LocalDateTime;
 
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -34,6 +36,7 @@ public class OpenZaakReadinessHealthCheck implements HealthCheck {
     }
 
     @Override
+    @WithSpan(value = "GET OpenZaakReadinessHealthCheck")
     public HealthCheckResponse call() {
         try {
             ztcClientService.listCatalogus(CATALOGUS_LIST_PARAMETERS);
