@@ -46,7 +46,7 @@ export class WebsocketService implements OnDestroy {
   private readonly URL: string =
     this.PROTOCOL + "//" + this.HOST + "/websocket";
 
-  private connection$: WebSocketSubject<any>;
+  private connection$: WebSocketSubject<unknown> | null = null;
 
   private destroyed$ = new Subject<void>();
 
@@ -67,7 +67,7 @@ export class WebsocketService implements OnDestroy {
     this.close();
   }
 
-  private open(url: string): Observable<any> {
+  private open(url: string) {
     return of(url).pipe(
       switchMap((openUrl) => {
         if (!this.connection$) {
@@ -87,7 +87,7 @@ export class WebsocketService implements OnDestroy {
     });
   }
 
-  private send(data: any) {
+  private send(data: unknown) {
     if (this.connection$) {
       this.connection$.next(data);
     } else {
@@ -103,9 +103,9 @@ export class WebsocketService implements OnDestroy {
     }
   }
 
-  private onMessage = (message: any) => {
+  private onMessage = (message: ScreenEvent) => {
     // message is a JSON representation of ScreenEvent.java
-    const event: ScreenEvent = new ScreenEvent(
+    const event = new ScreenEvent(
       message.opcode,
       message.objectType,
       message.objectId,
@@ -132,7 +132,7 @@ export class WebsocketService implements OnDestroy {
     }
   }
 
-  private onError = (error: any) => {
+  private onError = (error: unknown) => {
     console.error("Websocket error:");
     console.error(error);
   };
@@ -142,13 +142,13 @@ export class WebsocketService implements OnDestroy {
     objectType: ObjectType,
     objectId: string,
     callback: EventCallback,
-  ): WebsocketListener {
-    const event: ScreenEvent = new ScreenEvent(
+  ) {
+    const event = new ScreenEvent(
       opcode,
       objectType,
       new ScreenEventId(objectId),
     );
-    const listener: WebsocketListener = this.addCallback(event, callback);
+    const listener = this.addCallback(event, callback);
     this.send(new SubscriptionMessage(SubscriptionType.CREATE, event));
     console.debug("listener added: " + listener.key);
     return listener;
@@ -159,7 +159,7 @@ export class WebsocketService implements OnDestroy {
     objectType: ObjectType,
     objectId: string,
     callback: EventCallback,
-  ): WebsocketListener {
+  ) {
     return this.addListener(opcode, objectType, objectId, (event) => {
       forkJoin({
         msgPart1: this.translate.get(
@@ -250,10 +250,7 @@ export class WebsocketService implements OnDestroy {
     );
   }
 
-  private addCallback(
-    event: ScreenEvent,
-    callback: EventCallback,
-  ): WebsocketListener {
+  private addCallback(event: ScreenEvent, callback: EventCallback) {
     const listener: WebsocketListener = new WebsocketListener(event, callback);
     const callbacks: EventCallback[] = this.getCallbacks(event.key);
     callbacks[listener.id] = callback;
