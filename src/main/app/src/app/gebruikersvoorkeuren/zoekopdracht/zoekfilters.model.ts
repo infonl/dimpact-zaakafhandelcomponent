@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2025 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { DatumRange } from "../../zoeken/model/datum-range";
 
