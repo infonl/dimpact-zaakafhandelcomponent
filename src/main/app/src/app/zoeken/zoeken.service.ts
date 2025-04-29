@@ -11,10 +11,10 @@ import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.ser
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { Resultaat } from "../shared/model/resultaat";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { ZaakKoppelGegevens } from "../zaken/model/zaak-koppel-gegevens";
 import { ZoekObject } from "./model/zoek-object";
 import { ZoekParameters } from "./model/zoek-parameters";
 import { ZoekResultaat } from "./model/zoek-resultaat";
+import {ZaakRelatietype} from "../zaken/model/zaak-relatietype";
 
 export type DocumentKoppelbaarAanZaakListItem = {
   documentKoppelbaar: boolean;
@@ -70,7 +70,7 @@ export class ZoekenService {
   listZaakKoppelbareZaken(
     zaakUuid: string,
     zaakIdentificator: string,
-    linkType: ZaakKoppelGegevens,
+    linkType: ZaakRelatietype,
   ): Observable<Resultaat<GeneratedType<"RestZaakKoppelenZoekObject">>> {
     return this.http
       .put<Resultaat<GeneratedType<"RestZaakKoppelenZoekObject">>>(
@@ -90,7 +90,7 @@ export class ZoekenService {
   findLinkableZaken(
     zaakUuid: string,
     zoekZaakIdentifier: string,
-    linkType: string,
+    linkType: ZaakRelatietype,
   ) {
     return this.zacHttp
       .GET("/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken", {
@@ -100,7 +100,7 @@ export class ZoekenService {
           },
           query: {
             zoekZaakIdentifier,
-            linkType,
+            linkType, // TODO: `linkType` is not correctly generated in the interface
           },
         },
       })

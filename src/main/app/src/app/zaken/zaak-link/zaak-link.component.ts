@@ -11,15 +11,12 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { Validators } from "@angular/forms";
+import { FormBuilder, FormControl, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
-import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
-import { SelectFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/select/select-form-field-builder";
-import { AbstractFormControlField } from "src/app/shared/material-form-builder/model/abstract-form-control-field";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { Zaak } from "../model/zaak";
@@ -40,101 +37,80 @@ export class ZaakLinkComponent implements OnInit, OnDestroy {
   @Input({ required: true }) sideNav!: MatDrawer;
   @Output() zaakLinked = new EventEmitter();
 
-  public intro: string = "";
-  public selectLinkTypeField?: AbstractFormControlField;
-  public caseSearchField?: AbstractFormControlField;
-  public isValid = false;
+  public intro = "";
   public loading = false;
 
   public cases = new MatTableDataSource<
     GeneratedType<"RestZaakKoppelenZoekObject">
   >();
-  public totalCases: number = 0;
-  public caseColumns: string[] = [
+  public totalCases = 0;
+  public caseColumns = [
     "identificatie",
     "zaaktypeOmschrijving",
     "statustypeOmschrijving",
     "omschrijving",
     "acties",
+  ] as const;
+
+  protected caseLinkingOptionsList = [
+    {
+      label: `zaak.koppelen.link.type.${ZaakRelatietype.HOOFDZAAK}`,
+      value: ZaakRelatietype.HOOFDZAAK,
+    },
+    {
+      label: `zaak.koppelen.link.type.${ZaakRelatietype.DEELZAAK}`,
+      value: ZaakRelatietype.DEELZAAK,
+    },
   ];
 
-  private caseLinkingOptionsList!: { label: string; value: string }[];
   private ngDestroy = new Subject<void>();
+
+  protected readonly form = this.formBuilder.group({
+    linkType: new FormControl<
+      (typeof this.caseLinkingOptionsList)[number] | null
+    >(null, [Validators.required]),
+    caseToSearchFor: new FormControl<string>("", [
+      Validators.required,
+      Validators.minLength(2),
+    ]),
+  });
 
   constructor(
     private zoekenService: ZoekenService,
     private zakenService: ZakenService,
     private translate: TranslateService,
     private utilService: UtilService,
-  ) {}
+    private readonly formBuilder: FormBuilder,
+  ) {
+    this.form.controls.caseToSearchFor.disable();
+
+    this.form.controls.linkType.valueChanges
+      .pipe(takeUntil(this.ngDestroy))
+      .subscribe(() => {
+        this.form.controls.caseToSearchFor.reset();
+        this.form.controls.caseToSearchFor.enable();
+      });
+  }
 
   ngOnInit() {
     this.intro = this.translate.instant("zaak.koppelen.uitleg", {
       zaakID: this.zaak.identificatie,
     });
-
-    this.caseLinkingOptionsList = [
-      { label: "HOOFDZAAK", value: ZaakRelatietype.HOOFDZAAK },
-      { label: "DEELZAAK", value: ZaakRelatietype.DEELZAAK },
-    ];
-
-    this.selectLinkTypeField = new SelectFormFieldBuilder()
-      .id("linkType")
-      .label("zaak.koppelen.label")
-      .optionValue("value")
-      .optionLabel("label")
-      .options(this.caseLinkingOptionsList)
-      .validators(Validators.required)
-      .build();
-
-    this.caseSearchField = new InputFormFieldBuilder()
-      .id("zaak")
-      .label("zaak.identificatie")
-      .validators(Validators.required)
-      .disabled(true)
-      .build();
-
-    this.selectLinkTypeField.formControl.valueChanges
-      .pipe(takeUntil(this.ngDestroy))
-      .subscribe((value) => {
-        if (!this.caseSearchField) return;
-
-        this.caseSearchField.formControl.setValue("");
-        switch (value) {
-          case ZaakRelatietype.HOOFDZAAK:
-            this.caseSearchField.formControl.enable();
-            // set hint text here
-            break;
-          case ZaakRelatietype.DEELZAAK:
-            this.caseSearchField.formControl.enable();
-            // set hint text here
-            break;
-          default:
-            this.caseSearchField.formControl.disable();
-            break;
-        }
-      });
-
-    this.caseSearchField.formControl.valueChanges
-      .pipe(takeUntil(this.ngDestroy))
-      .subscribe((value) => {
-        this.isValid = value?.length >= 2;
-      });
   }
 
-  searchCases() {
+  protected searchCases() {
     this.loading = true;
     this.utilService.setLoading(true);
     this.zoekenService
-      .listZaakKoppelbareZaken(
+      .findLinkableZaken(
         this.zaak.uuid,
-        this.caseSearchField?.formControl.value,
-        this.selectLinkTypeField?.formControl.value,
+        this.form.controls.caseToSearchFor.value!, // TODO: check if this is correct
+        this.form.controls.linkType.value!.value!,
       )
       .subscribe(
         (result) => {
           this.cases.data = result.resultaten;
-          this.totalCases = result.totaal;
+          this.totalCases = result.totaal ?? 0;
           this.loading = false;
           this.utilService.setLoading(false);
         },
@@ -146,14 +122,14 @@ export class ZaakLinkComponent implements OnInit, OnDestroy {
       );
   }
 
-  selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
+  protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
     console.log("Selected case: ", row);
-    if (!row.id || !this.selectLinkTypeField) return;
+    if (!row.id || !this.form.controls.linkType.value?.value) return;
 
     const caseLinkDetails: GeneratedType<"RestZaakLinkData"> = {
       zaakUuid: this.zaak.uuid,
       teKoppelenZaakUuid: row.id,
-      relatieType: this.selectLinkTypeField.formControl.value,
+      relatieType: this.form.controls.linkType.value.value,
     };
 
     this.zakenService.koppelZaak(caseLinkDetails).subscribe({
@@ -171,24 +147,23 @@ export class ZaakLinkComponent implements OnInit, OnDestroy {
     });
   }
 
-  rowDisabled(row: GeneratedType<"RestZaakKoppelenZoekObject">): boolean {
+  protected rowDisabled(
+    row: GeneratedType<"RestZaakKoppelenZoekObject">,
+  ): boolean {
     return (
       !row.documentKoppelbaar || row.identificatie === this.zaak.identificatie
     );
   }
 
-  close() {
-    this.sideNav.close();
+  protected close() {
+    void this.sideNav.close();
     this.reset();
   }
 
-  private reset() {
-    this.selectLinkTypeField?.formControl.setValue("");
-    this.caseSearchField?.formControl.setValue("");
-    this.caseSearchField?.formControl.disable();
+  protected reset() {
+    this.form.reset();
     this.cases.data = [];
     this.totalCases = 0;
-    this.isValid = false;
     this.loading = false;
     this.utilService.setLoading(false);
   }
@@ -197,4 +172,6 @@ export class ZaakLinkComponent implements OnInit, OnDestroy {
     this.ngDestroy.next();
     this.ngDestroy.complete();
   }
+
+  protected readonly ZaakRelatietype = ZaakRelatietype;
 }
