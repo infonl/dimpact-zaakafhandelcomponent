@@ -7,7 +7,6 @@ package net.atos.zac.util;
 
 import java.time.LocalDateTime;
 
-import io.opentelemetry.instrumentation.annotations.WithSpan;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
