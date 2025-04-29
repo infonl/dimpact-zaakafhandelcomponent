@@ -31,7 +31,7 @@ type SocketMessage = {
   objectType: ObjectType;
   objectId: ScreenEventId;
   timestamp?: number;
-}
+};
 
 @Injectable({
   providedIn: "root",
@@ -53,7 +53,9 @@ export class WebsocketService implements OnDestroy {
   private readonly URL: string =
     this.PROTOCOL + "//" + this.HOST + "/websocket";
 
-  private connection$: WebSocketSubject<SocketMessage | SubscriptionMessage> | null = null;
+  private connection$: WebSocketSubject<
+    SocketMessage | SubscriptionMessage
+  > | null = null;
 
   private destroyed$ = new Subject<void>();
 
@@ -88,10 +90,12 @@ export class WebsocketService implements OnDestroy {
   }
 
   private receive(url: string) {
-    this.open(url).pipe(takeUntil(this.destroyed$)).subscribe({
-      next: message => this.onMessage(message as SocketMessage),
-      error: this.onError,
-    });
+    this.open(url)
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe({
+        next: (message) => this.onMessage(message as SocketMessage),
+        error: this.onError,
+      });
   }
 
   private send(data: SubscriptionMessage) {
