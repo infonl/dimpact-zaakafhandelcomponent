@@ -14,7 +14,7 @@ import { GeneratedType } from "../shared/utils/generated-types";
 import { ZoekObject } from "./model/zoek-object";
 import { ZoekParameters } from "./model/zoek-parameters";
 import { ZoekResultaat } from "./model/zoek-resultaat";
-import {ZaakRelatietype} from "../zaken/model/zaak-relatietype";
+import { ZaakRelatietype } from "../zaken/model/zaak-relatietype";
 
 export type DocumentKoppelbaarAanZaakListItem = {
   documentKoppelbaar: boolean;
@@ -90,7 +90,7 @@ export class ZoekenService {
   findLinkableZaken(
     zaakUuid: string,
     zoekZaakIdentifier: string,
-    linkType: ZaakRelatietype,
+    relatieType: ZaakRelatietype, // TODO: `ZaakRelatietype` needs to be generated in the interface
   ) {
     return this.zacHttp
       .GET("/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken", {
@@ -100,7 +100,7 @@ export class ZoekenService {
           },
           query: {
             zoekZaakIdentifier,
-            linkType, // TODO: `linkType` is not correctly generated in the interface
+            linkType: relatieType,
           },
         },
       })

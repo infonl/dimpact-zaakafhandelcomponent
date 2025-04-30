@@ -22,7 +22,7 @@
     </legend>
     <zac-select
       [form]="form"
-      key="caseRelation"
+      key="caseRelationType"
       label="zaak.koppelen.label"
       [options]="caseRelationOptionsList"
       [optionDisplayValue]="'label'"
@@ -30,13 +30,15 @@
     <zac-input [form]="form" label="zaak.identificatie" key="caseToSearchFor">
       <mat-hint
         *ngIf="
-          form.controls.caseRelation.value?.value === ZaakRelatietype.HOOFDZAAK
+          form.controls.caseRelationType.value?.value ===
+          ZaakRelatietype.HOOFDZAAK
         "
         >{{ "zaak.koppelen.hint.hoofdzaak-aan-deelzaak" | translate }}</mat-hint
       >
       <mat-hint
         *ngIf="
-          form.controls.caseRelation.value?.value === ZaakRelatietype.DEELZAAK
+          form.controls.caseRelationType.value?.value ===
+          ZaakRelatietype.DEELZAAK
         "
         >{{ "zaak.koppelen.hint.deelzaak-aan-hoofdzaak" | translate }}</mat-hint
       >

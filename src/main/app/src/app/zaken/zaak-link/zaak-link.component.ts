@@ -63,7 +63,7 @@ export class ZaakLinkComponent implements OnDestroy {
   ];
 
   protected readonly form = this.formBuilder.group({
-    caseRelation: new FormControl<
+    caseRelationType: new FormControl<
       (typeof this.caseRelationOptionsList)[number] | null
     >(null, [Validators.required]),
     caseToSearchFor: new FormControl<string>("", [
@@ -83,22 +83,34 @@ export class ZaakLinkComponent implements OnDestroy {
   ) {
     this.form.controls.caseToSearchFor.disable();
 
-    this.form.controls.caseRelation.valueChanges
+    this.form.controls.caseRelationType.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe(() => {
         this.form.controls.caseToSearchFor.reset();
         this.form.controls.caseToSearchFor.enable();
+        this.clearSearchResult();
+      });
+
+    this.form.controls.caseToSearchFor.valueChanges
+      .pipe(takeUntil(this.ngDestroy))
+      .subscribe(() => {
+        if (
+          this.cases.data?.length > 0 &&
+          this.form.controls.caseToSearchFor.value === null
+        )
+          this.clearSearchResult();
       });
   }
 
   protected searchCases() {
     this.loading = true;
     this.utilService.setLoading(true);
+
     this.zoekenService
       .findLinkableZaken(
         this.zaak.uuid,
         this.form.controls.caseToSearchFor.value!, // TODO: check if this is correct
-        this.form.controls.caseRelation.value!.value!,
+        this.form.controls.caseRelationType.value!.value!,
       )
       .subscribe(
         (result) => {
@@ -116,13 +128,12 @@ export class ZaakLinkComponent implements OnDestroy {
   }
 
   protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
-    console.log("Selected case: ", row);
-    if (!row.id || !this.form.controls.caseRelation.value?.value) return;
+    if (!row.id || !this.form.controls.caseRelationType.value?.value) return;
 
     const caseLinkDetails: GeneratedType<"RestZaakLinkData"> = {
       zaakUuid: this.zaak.uuid,
       teKoppelenZaakUuid: row.id,
-      relatieType: this.form.controls.caseRelation.value.value,
+      relatieType: this.form.controls.caseRelationType.value.value,
     };
 
     this.zakenService.koppelZaak(caseLinkDetails).subscribe({
@@ -155,6 +166,10 @@ export class ZaakLinkComponent implements OnDestroy {
 
   protected reset() {
     this.form.reset();
+    this.clearSearchResult();
+  }
+
+  protected clearSearchResult() {
     this.cases.data = [];
     this.totalCases = 0;
     this.loading = false;
