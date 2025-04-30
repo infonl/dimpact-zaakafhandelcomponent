@@ -3,15 +3,14 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div class="sidenav-title">
-  <h3>
-    <mat-icon>{{ actionIcon }}</mat-icon>
-    {{ actionLabel | translate }}
-  </h3>
-  <button mat-icon-button (click)="close()">
+<mat-toolbar role="heading" class="gap-16">
+  <mat-icon>{{ actionIcon }}</mat-icon>
+  <span class="flex-grow-1">{{ actionLabel | translate }}</span>
+  <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
   </button>
-</div>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
 <div class="form" *ngIf="infoObject">
   <p>{{ intro }}</p>
