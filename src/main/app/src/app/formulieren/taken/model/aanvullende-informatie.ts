@@ -17,7 +17,6 @@ import { InformatieobjectZoekParameters } from "../../../informatie-objecten/mod
 import { KlantenService } from "../../../klanten/klanten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
 import { ActionIcon } from "../../../shared/edit/action-icon";
-import { ZaakIndicatie } from "../../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { CheckboxFormFieldBuilder } from "../../../shared/material-form-builder/form-components/checkbox/checkbox-form-field-builder";
 import { DateFormFieldBuilder } from "../../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { DividerFormFieldBuilder } from "../../../shared/material-form-builder/form-components/divider/divider-form-field-builder";
