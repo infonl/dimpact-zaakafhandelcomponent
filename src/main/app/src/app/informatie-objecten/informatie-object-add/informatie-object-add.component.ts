@@ -57,7 +57,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
     public utilService: UtilService,
     private configuratieService: ConfiguratieService,
     private translateService: TranslateService,
-    private identityService: IdentityService,
+    private identityService: IdentityService
   ) {}
 
   formConfig: FormConfig;
@@ -67,13 +67,13 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
   // last iteration is always active
 
   readonly activeIteration$ = this.formIterations$.pipe(
-    map((iterations) => iterations.slice(-1)[0]),
+    map((iterations) => iterations.slice(-1)[0])
   );
 
   fields$ = combineLatest([this.loggedInUser$]).pipe(
     map(([loggedInUser]) => this.getInputs({ loggedInUser })),
     tap((inputs) => this.setSubscriptions(inputs)),
-    map((inputs) => this.getFormLayout(inputs)),
+    map((inputs) => this.getFormLayout(inputs))
   );
 
   private informatieobjectStatussen: { label: string; value: string }[];
@@ -89,13 +89,13 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
 
     const vertrouwelijkheidsAanduidingen = this.utilService.getEnumAsSelectList(
       "vertrouwelijkheidaanduiding",
-      Vertrouwelijkheidaanduiding,
+      Vertrouwelijkheidaanduiding
     );
     this.informatieobjectStatussen =
       this.utilService.getEnumAsSelectListExceptFor(
         "informatieobject.status",
         InformatieobjectStatus,
-        [InformatieobjectStatus.GEARCHIVEERD],
+        [InformatieobjectStatus.GEARCHIVEERD]
       );
 
     const titel = new InputFormFieldBuilder()
@@ -117,7 +117,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
       .validators(Validators.required)
       .maxFileSizeMB(this.configuratieService.readMaxFileSizeMB())
       .additionalAllowedFileTypes(
-        this.configuratieService.readAdditionalAllowedFileTypes(),
+        this.configuratieService.readAdditionalAllowedFileTypes()
       )
       .build();
 
@@ -128,7 +128,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
       .build();
 
     const taal = new SelectFormFieldBuilder(
-      this.configuratieService.readDefaultTaal(),
+      this.configuratieService.readDefaultTaal()
     )
       .id("taal")
       .label("taal")
@@ -139,7 +139,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
       .build();
 
     this.status = new SelectFormFieldBuilder(
-      this.isAfgehandeld() ? this.getStatusDefinitief() : null,
+      this.isAfgehandeld() ? this.getStatusDefinitief() : null
     )
       .id("status")
       .label("status")
@@ -154,11 +154,11 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
       .options(
         this.zaak
           ? this.informatieObjectenService.listInformatieobjecttypesForZaak(
-              this.zaak.uuid,
+              this.zaak.uuid
             )
           : this.informatieObjectenService.listInformatieobjecttypesForZaak(
-              this.taak.zaakUuid,
-            ),
+              this.taak.zaakUuid
+            )
       )
       .optionLabel("omschrijving")
       .validators(Validators.required)
@@ -262,11 +262,11 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
         if (value) {
           vertrouwelijk.formControl.setValue(
             vertrouwelijkheidsAanduidingen.find(
-              (option) => option.value === value.vertrouwelijkheidaanduiding,
-            ),
+              (option) => option.value === value.vertrouwelijkheidaanduiding
+            )
           );
         }
-      }),
+      })
     );
 
     this.subscriptions.push(
@@ -281,7 +281,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
           }
           verzendDatum.formControl.enable();
         }
-      }),
+      })
     );
 
     this.subscriptions.push(
@@ -291,13 +291,15 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
         } else if (!value && ontvangstDatum.formControl.disabled) {
           ontvangstDatum.formControl.enable();
         }
-      }),
+      })
     );
 
     this.subscriptions.push(
       inhoudField.formControl.valueChanges.subscribe((file: File) => {
-        titel.formControl.setValue(file?.name?.replace(/\.[^/.]+$/, "") || "");
-      }),
+        var fileName = file?.name?.replace(/\.[^/.]+$/, "") || "";
+        fileName = fileName.substring(0, 100);
+        titel.formControl.setValue(fileName);
+      })
     );
   }
 
@@ -311,8 +313,8 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
         option.value ===
         this.utilService.getEnumKeyByValue(
           InformatieobjectStatus,
-          InformatieobjectStatus.DEFINITIEF,
-        ),
+          InformatieobjectStatus.DEFINITIEF
+        )
     );
   }
 
@@ -357,7 +359,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
           this.zaak ? this.zaak.uuid : this.taak.zaakUuid,
           this.zaak ? this.zaak.uuid : this.taak.id,
           infoObject,
-          !!this.taak,
+          !!this.taak
         )
         .subscribe((document) => {
           this.document.emit(document);
