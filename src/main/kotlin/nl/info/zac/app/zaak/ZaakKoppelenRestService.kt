@@ -109,13 +109,17 @@ class ZaakKoppelenRestService @Inject constructor(
         sourceZaak: Zaak,
         targetZaak: ZaakZoekObject,
         relationType: RelatieType
-    ) = targetZaak.hasSameState(sourceZaak) &&
-        sourceZaak.hasLinkRights() &&
-        targetZaak.hasLinkRights() &&
-        targetZaak.isLinkableTo(sourceZaak, relationType)
+    ) =
+        (areBothOpen(sourceZaak, targetZaak) || areBothClosed(sourceZaak, targetZaak)) &&
+            sourceZaak.hasLinkRights() &&
+            targetZaak.hasLinkRights() &&
+            targetZaak.isLinkableTo(sourceZaak, relationType)
 
-    private fun ZaakZoekObject.hasSameState(sourceZaak: Zaak) =
-        (sourceZaak.isOpen && this.archiefNominatie == null) || (!sourceZaak.isOpen && this.archiefNominatie != null)
+    private fun areBothOpen(sourceZaak: Zaak, targetZaak: ZaakZoekObject) =
+        sourceZaak.isOpen && targetZaak.archiefNominatie == null
+
+    private fun areBothClosed(sourceZaak: Zaak, targetZaak: ZaakZoekObject) =
+        !sourceZaak.isOpen && targetZaak.archiefNominatie != null
 
     private fun ZaakZoekObject.hasLinkRights() = policyService.readZaakRechten(this).koppelen
 
