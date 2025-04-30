@@ -292,8 +292,9 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
 
     this.subscriptions.push(
       inhoudField.formControl.valueChanges.subscribe((file: File) => {
-        const fileName = file?.name?.replace(/\.[^/.]+$/, "").substring(0, 100) ?? "";
-        titel.formControl.setValue(fileName)
+        const fileName =
+          file?.name?.replace(/\.[^/.]+$/, "").substring(0, 100) ?? "";
+        titel.formControl.setValue(fileName);
       }),
     );
   }
