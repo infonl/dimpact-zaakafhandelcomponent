@@ -56,7 +56,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
      */
     fun listGroupTemplateNames(groupNames: List<String>) =
         if (smartDocumentsService.isEnabled()) {
-            listTemplates().group(groupNames)?.templates?.map { it.name } ?: emptyList()
+            listTemplates().group(groupNames).templates?.map { it.name } ?: emptyList()
         } else {
             emptyList()
         }

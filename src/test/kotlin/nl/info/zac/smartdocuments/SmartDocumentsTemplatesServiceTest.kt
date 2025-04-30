@@ -78,20 +78,24 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         }
 
         When("list template names for a non-existent first-level group is called") {
-            val templateNames = smartDocumentsTemplatesService.listGroupTemplateNames(listOf("no such group"))
+            val exception = shouldThrow<IllegalArgumentException> {
+                smartDocumentsTemplatesService.listGroupTemplateNames(listOf("no such group"))
+            }
 
             Then("it should return a list of template names") {
-                templateNames shouldBe emptyList()
+                exception.message shouldContain "no such group"
             }
         }
 
         When("list template names for a non-existent nested group is called") {
-            val templateNames = smartDocumentsTemplatesService.listGroupTemplateNames(
-                listOf("Dimpact", "no such group")
-            )
+            val exception = shouldThrow<IllegalArgumentException> {
+                smartDocumentsTemplatesService.listGroupTemplateNames(
+                    listOf("Dimpact", "no such group")
+                )
+            }
 
             Then("it should return a list of template names") {
-                templateNames shouldBe emptyList()
+                exception.message shouldContain "Dimpact, no such group"
             }
         }
     }
