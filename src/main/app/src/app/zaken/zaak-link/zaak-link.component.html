@@ -44,7 +44,7 @@
       >
     </zac-input>
   </fieldset>
-  <fieldset class="flex-row">
+  <fieldset class="flex-row gap-5 button-row">
     <button
       mat-raised-button
       color="primary"
@@ -120,6 +120,7 @@
       [ngClass]="{ disabled: rowDisabled(row) }"
     ></tr>
   </table>
+
   <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
   <p *ngIf="!loading && cases.data.length == 0">
     {{ foutmelding ? foutmelding : ("msg.geen.gegevens.gevonden" | translate) }}
