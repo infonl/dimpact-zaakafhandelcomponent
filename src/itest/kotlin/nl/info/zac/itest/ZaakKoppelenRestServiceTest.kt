@@ -11,9 +11,7 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2020_01_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2024_01_IDENTIFICATION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
@@ -54,7 +52,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     "&page=$PAGE_DEFAULT"
             )
 
-            Then("the response should contain the list of zaken for the requested koppeltype and zaakidentifier with for every zaak a boolean flag that indicates whether the zaak is linkable or not") {
+            Then("returns list of zaken each with a linkable flag") {
                 response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
@@ -121,7 +119,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     "&page=$PAGE_DEFAULT"
             )
 
-            Then("the response should contain the list of zaken for the requested koppeltype and zaakidentifier with for every zaak a boolean flag that indicates whether the zaak is linkable or not") {
+            Then("returns list of zaken each with a linkable flag") {
                 response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
