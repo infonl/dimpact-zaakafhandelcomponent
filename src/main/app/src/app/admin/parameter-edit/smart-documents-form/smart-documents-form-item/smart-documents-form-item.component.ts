@@ -8,7 +8,6 @@ import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
-// import { EventEmitter } from "stream";
 
 @Component({
   selector: "smart-documents-form-item",
@@ -16,8 +15,10 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   styleUrls: ["./smart-documents-form-item.component.less"],
 })
 export class SmartDocumentsFormItemComponent implements OnInit {
-  @Input() node: any;
-  @Input() informationObjectTypes: GeneratedType<"RestInformatieobjecttype">[];
+  @Input({ required: true })
+  node!: GeneratedType<"RestMappedSmartDocumentsTemplate">;
+  @Input({ required: true })
+  informationObjectTypes!: GeneratedType<"RestInformatieobjecttype">[];
   @Output() selectionChange = new EventEmitter<
     GeneratedType<"RestMappedSmartDocumentsTemplate">
   >();
@@ -25,7 +26,7 @@ export class SmartDocumentsFormItemComponent implements OnInit {
   confidentiality = new FormControl({ value: "", disabled: true });
   checkbox = new FormControl({ value: false, disabled: false });
 
-  previousInformatieObjectTypeUUID: string;
+  previousInformatieObjectTypeUUID: string | undefined = undefined;
 
   constructor(private readonly translateService: TranslateService) {}
 
@@ -55,7 +56,7 @@ export class SmartDocumentsFormItemComponent implements OnInit {
     );
 
     this.updateCheckbox(
-      informatieObjectTypeUUID && informatieObjectTypeUUID !== "",
+      Boolean(informatieObjectTypeUUID && informatieObjectTypeUUID !== ""),
     );
 
     if (
