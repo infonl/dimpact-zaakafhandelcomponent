@@ -22,9 +22,12 @@ When(
   "Employee {string} clicks on Create Document button for the new zaak",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
-  await this.page.getByRole("button", { name: /Document maken/i }).click();
+    await this.page.getByRole("button", { name: /Document maken/i }).click();
 
-    await this.page.getByRole("heading", { name: "Document maken", }).waitFor({ state: "visible" });
+    await this.page
+      .getByRole("heading", { name: "Document maken" })
+      .waitFor({ state: "visible" });
+  },
 );
 
 When(
