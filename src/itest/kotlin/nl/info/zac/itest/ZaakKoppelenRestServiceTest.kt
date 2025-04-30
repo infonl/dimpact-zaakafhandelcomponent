@@ -150,7 +150,6 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                   "foutmelding": "",
                   "resultaten": [
                     {
-                      "id": "e89e21e7-0374-4262-adb5-d69d948bc623",
                       "identificatie": "$ZAAK_MANUAL_2024_01_IDENTIFICATION",
                       "isKoppelbaar": true,
                       "omschrijving": "fakeZaakDescription1",
