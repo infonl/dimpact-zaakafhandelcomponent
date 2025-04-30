@@ -109,8 +109,8 @@ export class ZaakLinkComponent implements OnDestroy {
     this.zoekenService
       .findLinkableZaken(
         this.zaak.uuid,
-        this.form.controls.caseToSearchFor.value ?? "",
-        this.form.controls.caseRelationType.value!.value ?? "",
+        this.form.controls.caseToSearchFor.value!,
+        this.form.controls.caseRelationType.value!.value!,
       )
       .subscribe(
         (result) => {

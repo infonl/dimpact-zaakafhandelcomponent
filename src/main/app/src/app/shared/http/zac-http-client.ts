@@ -167,7 +167,8 @@ export class ZacHttpClient {
           queryParams.append(key, value.toString());
         }
       }
-      url += `?${queryParams.toString()}`;
+      const delimiter = url.includes("?") ? "&" : "?";
+      url += `${delimiter}${queryParams.toString()}`;
     }
 
     return url;
