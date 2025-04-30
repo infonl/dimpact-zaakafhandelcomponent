@@ -357,10 +357,6 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
     if (this.readonly) {
       return this.getDataElement(this.fields.ZAAK_HERVATTEN);
     }
-    return (
-      this.zaak.indicaties.find(
-        (indicatie) => indicatie === ZaakIndicatie.OPSCHORTING,
-      ) && this.zaak.rechten.behandelen
-    );
+    return this.zaak.isOpgeschort && this.zaak.rechten.behandelen;
   }
 }
