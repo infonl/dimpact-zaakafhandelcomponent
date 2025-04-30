@@ -1,17 +1,16 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div class="sidenav-title">
-  <h3>
-    <mat-icon>mail</mat-icon>
-    {{ "actie.mail.versturen" | translate }}
-  </h3>
+<mat-toolbar role="heading" class="gap-16">
+  <mat-icon>mail</mat-icon>
+  <span class="flex-grow-1">{{ "actie.mail.versturen" | translate }}</span>
   <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
   </button>
-</div>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
 <div class="form">
   <mfb-form

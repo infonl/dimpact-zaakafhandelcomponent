@@ -154,7 +154,9 @@ When(
       .click();
     await this.page.getByText("close").click();
 
-    const group = this.page.getByPlaceholder("kies een groep");
+    const group = this.page.getByRole("combobox", {
+      name: "Zaak toekennen aan groep",
+    });
     await group.fill("test gr");
     await group.focus();
     await this.page.getByRole("listbox").first().click();

@@ -4,7 +4,7 @@
  */
 
 import { SortDirection } from "@angular/material/sort";
-import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
+import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
 import { ListParameters } from "../../shared/model/list-parameters";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { DatumRange } from "../../zoeken/model/datum-range";
@@ -15,7 +15,7 @@ export class OntkoppeldDocumentListParameters
 {
   readonly filtersType = "OntkoppeldDocumentListParameters";
   zaakID: string;
-  ontkoppeldDoor: GeneratedType<"RestUser">;
+  ontkoppeldDoor: GeneratedType<"RestUser"> | string;
   ontkoppeldOp = new DatumRange();
   creatiedatum = new DatumRange();
   titel: string;
@@ -25,7 +25,7 @@ export class OntkoppeldDocumentListParameters
     super(sort, order);
   }
 
-  static heeftActieveFilters(zoekFilters: any): boolean {
+  static heeftActieveFilters(zoekFilters: ZoekFilters): boolean {
     if (zoekFilters.zaakID != null) {
       return true;
     }

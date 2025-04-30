@@ -268,4 +268,28 @@ class ZacClient {
             url = "${ZAC_API_URI}/zaken/zaak/$zaakUUID"
         )
     }
+
+    fun findLinkableCases(
+        zaakUUID: UUID,
+        zoekZaakIdentifier: String,
+        linkType: String? = null,
+        page: Int? = null,
+        rows: Int? = null
+    ): Response {
+        logger.info {
+            "Find linkable zaken for zaak with UUID: $zaakUUID"
+        }
+        val queryParams = mapOf<String, Any?>(
+            "zoekZaakIdentifier" to zoekZaakIdentifier,
+            "linkType" to linkType,
+            "rows" to rows,
+            "page" to page
+        )
+            .mapNotNull { if (it.value != null) "${it.key}=${it.value}" else null }
+            .joinToString("&")
+            .let { if (it.isNotEmpty()) "?$it" else "" }
+        return itestHttpClient.performGetRequest(
+            url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakUUID/zoek-koppelbare-zaken$queryParams"
+        )
+    }
 }
