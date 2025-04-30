@@ -22,7 +22,7 @@ import java.util.UUID
 
 private const val ROWS_DEFAULT = 10
 private const val PAGE_DEFAULT = 0
-private const val ZOEK_ZAAK_IDENTIFIER = "ZAAK-"
+private const val ZOEK_ZAAK_IDENTIFIER = "ZAAK-2000"
 
 /**
  * This test assumes a zaak has been created in a previously run test.
@@ -45,7 +45,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("searching for a HOOFDZAAK linkable zaken for indienen-aansprakelijkstelling-behandelen zaak") {
+        When("searching for a HOOFDZAAK linkable zaken with 'ZAAK-2000' zaak identifier") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakUUID/zoek-koppelbare-zaken" +
                     "?zoekZaakIdentifier=$ZOEK_ZAAK_IDENTIFIER" +
@@ -54,7 +54,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     "&page=$PAGE_DEFAULT"
             )
 
-            Then("the response should be a 200 HTTP response") {
+            Then("the response should contain the list of zaken for the requested koppeltype and zaakidentifier with for every zaak a boolean flag that indicates whether the zaak is linkable or not") {
                 response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
@@ -62,13 +62,6 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 {
                   "foutmelding": "",
                   "resultaten": [
-                    {
-                      "identificatie": "$ZAAK_MANUAL_2020_01_IDENTIFICATION",
-                      "isKoppelbaar": true,
-                      "omschrijving": "changedDescription",
-                      "statustypeOmschrijving": "Intake",
-                      "type": "ZAAK"
-                    },
                     {
                       "identificatie": "ZAAK-2000-0000000006",
                       "isKoppelbaar": false,
@@ -110,29 +103,16 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "omschrijving": "fakeOmschrijving",
                       "statustypeOmschrijving": "Intake",
                       "type": "ZAAK"
-                    },
-                    {
-                      "identificatie": "ZAAK-1999-0000000001",
-                      "isKoppelbaar": true,
-                      "statustypeOmschrijving": "Intake",
-                      "type": "ZAAK"
-                    },
-                    {
-                      "identificatie": "$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
-                      "isKoppelbaar": true,
-                      "omschrijving": "fakeZaakOmschrijving",
-                      "statustypeOmschrijving": "Intake",
-                      "type": "ZAAK"
                     }
                   ],
-                  "totaal": 9,
+                  "totaal": 6,
                   "filters": {}
                 }
                 """.trimIndent()
             }
         }
 
-        When("searching for a DEELZAAK linkable zaken for melding-evenement-organiseren-behandelen zaak") {
+        When("searching for a DEELZAAK linkable zaken with 'ZAAK-2000' zaak identifier") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakProductaanvraag1Uuid/zoek-koppelbare-zaken" +
                     "?zoekZaakIdentifier=$ZOEK_ZAAK_IDENTIFIER" +
@@ -141,7 +121,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     "&page=$PAGE_DEFAULT"
             )
 
-            Then("the response should be a 200 HTTP response") {
+            Then("the response should contain the list of zaken for the requested koppeltype and zaakidentifier with for every zaak a boolean flag that indicates whether the zaak is linkable or not") {
                 response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
@@ -150,27 +130,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                   "foutmelding": "",
                   "resultaten": [
                     {
-                      "identificatie": "$ZAAK_MANUAL_2024_01_IDENTIFICATION",
-                      "isKoppelbaar": true,
-                      "omschrijving": "fakeZaakDescription1",
-                      "statustypeOmschrijving": "Wacht op aanvullende informatie",
-                      "type": "ZAAK"
-                    },
-                    {
-                      "identificatie": "$ZAAK_MANUAL_2020_01_IDENTIFICATION",
-                      "isKoppelbaar": false,
-                      "omschrijving": "changedDescription",
-                      "statustypeOmschrijving": "Intake",
-                      "type": "ZAAK"
-                    },
-                    {
                       "identificatie": "ZAAK-2000-0000000006",
                       "isKoppelbaar": false,
                       "omschrijving": "fakeOmschrijving",
                       "statustypeOmschrijving": "Afgerond",
                       "type": "ZAAK"
                     },
-                    {
+                    { 
                       "identificatie": "ZAAK-2000-0000000005",
                       "isKoppelbaar": false,
                       "omschrijving": "fakeOmschrijving",
@@ -204,15 +170,9 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "omschrijving": "fakeOmschrijving",
                       "statustypeOmschrijving": "Intake",
                       "type": "ZAAK"
-                    },
-                    {
-                      "identificatie": "ZAAK-1999-0000000001",
-                      "isKoppelbaar": false,
-                      "statustypeOmschrijving": "Intake",
-                      "type": "ZAAK"
                     }
                   ],
-                  "totaal": 9,
+                  "totaal": 6,
                   "filters": {}
                 }
                 """.trimIndent()
