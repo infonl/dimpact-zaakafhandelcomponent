@@ -232,9 +232,9 @@ class ZaakafhandelParametersRestService @Inject constructor(
             }
 
     /**
-     * Retrieve all possible replytos
+     * Retrieve all possible reply-tos
      *
-     * @return sorted list of replytos
+     * @return sorted list of reply-tos
      */
     @GET
     @Path("replyTo")
@@ -248,15 +248,15 @@ class ZaakafhandelParametersRestService @Inject constructor(
         }
 
     @GET
-    @Path("document-templates")
-    fun listTemplates(): Set<RestSmartDocumentsTemplateGroup> {
+    @Path("smartdocuments-templates")
+    fun listSmartDocumentsTemplates(): Set<RestSmartDocumentsTemplateGroup> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return smartDocumentsTemplatesService.listTemplates()
     }
 
     @PUT
-    @Path("document-templates")
-    fun listGroupTemplateNames(
+    @Path("smartdocuments-group-template-names")
+    fun listSmartDocumentsGroupTemplateNames(
         path: RestSmartDocumentsPath
     ): List<String> {
         assertPolicy(policyService.readOverigeRechten().beheren)
@@ -264,15 +264,15 @@ class ZaakafhandelParametersRestService @Inject constructor(
     }
 
     @GET
-    @Path("{zaakafhandelUUID}/document-templates")
-    fun getTemplatesMapping(
+    @Path("{zaakafhandelUUID}/smartdocuments-templates-mapping")
+    fun getSmartDocumentsTemplatesMapping(
         @PathParam("zaakafhandelUUID") zaakafhandelParameterUUID: UUID
     ): Set<RestMappedSmartDocumentsTemplateGroup> =
         smartDocumentsTemplatesService.getTemplatesMapping(zaakafhandelParameterUUID)
 
     @POST
-    @Path("{zaakafhandelUUID}/document-templates")
-    fun storeTemplatesMapping(
+    @Path("{zaakafhandelUUID}/smartdocuments-templates-mapping")
+    fun storeSmartDocumentsTemplatesMapping(
         @PathParam("zaakafhandelUUID") zaakafhandelParameterUUID: UUID,
         restTemplateGroups: Set<RestMappedSmartDocumentsTemplateGroup>
     ) {

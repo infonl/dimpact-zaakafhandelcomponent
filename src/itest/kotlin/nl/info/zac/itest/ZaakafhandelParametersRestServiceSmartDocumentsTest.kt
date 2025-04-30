@@ -43,7 +43,7 @@ class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
     Given("ZAC Docker container is running and zaakafhandelparameters have been created") {
         When("the list SmartDocuments templates endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaakafhandelparameters/document-templates"
+                url = "$ZAC_API_URI/zaakafhandelparameters/smartdocuments-templates"
             )
 
             Then("the response should be ok") {
@@ -105,7 +105,7 @@ class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
 
         When("the list SmartDocuments template names endpoint is called") {
             val response = itestHttpClient.performPutRequest(
-                url = "$ZAC_API_URI/zaakafhandelparameters/document-templates",
+                url = "$ZAC_API_URI/zaakafhandelparameters/smartdocuments-group-template-names",
                 requestBodyAsString = """
                 {
                     "groups": [ "$SMART_DOCUMENTS_ROOT_GROUP_NAME", "$SMART_DOCUMENTS_GROUP_1_NAME" ]
@@ -125,7 +125,7 @@ class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
 
         When("the create mapping endpoint is called with correct payload") {
             val smartDocumentsZaakafhandelParametersUrl = "$ZAC_API_URI/zaakafhandelparameters/" +
-                "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/document-templates"
+                "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/smartdocuments-templates-mapping"
             val restTemplateGroups = """
             [
               {
@@ -205,7 +205,7 @@ class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
 
         When("the create mapping endpoint is called with invalid payload") {
             val smartDocumentsZaakafhandelParametersUrl = "$ZAC_API_URI/zaakafhandelparameters/" +
-                "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/document-templates"
+                "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/smartdocuments-templates-mapping"
             val restTemplateGroups = """
             [
               {
