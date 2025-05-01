@@ -82,12 +82,16 @@ class DocumentZoekObjectConverter @Inject constructor(
                 ondertekeningDatum = convertToDate(ondertekening.datum)
                 setIndicatie(DocumentIndicatie.ONDERTEKEND, true)
             }
-            setIndicatie(DocumentIndicatie.VERGRENDELD, informatieobject.locked)
-            setIndicatie(DocumentIndicatie.GEBRUIKSRECHT, informatieobject.indicatieGebruiksrecht)
-            setIndicatie(
-                DocumentIndicatie.BESLUIT,
-                brcClientService.isInformatieObjectGekoppeldAanBesluit(informatieobject.url)
-            )
+            informatieobject.locked?.let { setIndicatie(DocumentIndicatie.VERGRENDELD, it) }
+            informatieobject.indicatieGebruiksrecht?.let {
+                setIndicatie(DocumentIndicatie.GEBRUIKSRECHT, it)
+            }
+            informatieobject.url?.let {
+                setIndicatie(
+                    DocumentIndicatie.BESLUIT,
+                    brcClientService.isInformatieObjectGekoppeldAanBesluit(it)
+                )
+            }
             setIndicatie(DocumentIndicatie.VERZONDEN, informatieobject.verzenddatum != null)
             if (informatieobject.locked) {
                 enkelvoudigInformatieObjectLockService.readLock(informatieobjectUUID).userId?.let {
