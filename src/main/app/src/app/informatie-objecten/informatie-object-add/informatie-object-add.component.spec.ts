@@ -13,10 +13,10 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { FormComponent } from "src/app/shared/material-form-builder/form/form/form.component";
+import { Taak } from "src/app/taken/model/taak";
 import { IdentityService } from "../../identity/identity.service";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { InformatieObjectAddComponent } from "./informatie-object-add.component";
-import { Taak } from "src/app/taken/model/taak";
 
 describe(InformatieObjectAddComponent.name, () => {
   let component: InformatieObjectAddComponent;
