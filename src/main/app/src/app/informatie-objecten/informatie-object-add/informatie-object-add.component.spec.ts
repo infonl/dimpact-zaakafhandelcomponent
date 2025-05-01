@@ -17,7 +17,6 @@ import { IdentityService } from "../../identity/identity.service";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { InformatieObjectAddComponent } from "./informatie-object-add.component";
 import { Taak } from "src/app/taken/model/taak";
-import { MatDividerModule } from "@angular/material/divider";
 
 describe(InformatieObjectAddComponent.name, () => {
   let component: InformatieObjectAddComponent;
