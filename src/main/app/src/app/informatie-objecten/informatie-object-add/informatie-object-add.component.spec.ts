@@ -17,7 +17,7 @@ import { IdentityService } from "../../identity/identity.service";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { InformatieObjectAddComponent } from "./informatie-object-add.component";
 import { Taak } from "src/app/taken/model/taak";
-import { MatDivider, MatDividerModule } from "@angular/material/divider";
+import { MatDividerModule } from "@angular/material/divider";
 
 describe(InformatieObjectAddComponent.name, () => {
   let component: InformatieObjectAddComponent;
@@ -33,7 +33,6 @@ describe(InformatieObjectAddComponent.name, () => {
         MatIconModule,
         TranslateModule.forRoot(),
         VertrouwelijkaanduidingToTranslationKeyPipe,
-        MatDividerModule
       ],
       providers: [
         provideHttpClient(),
@@ -82,12 +81,10 @@ describe(InformatieObjectAddComponent.name, () => {
     }));
 
     it("should return taak's zaakUuid when zaak is not set", () => {
-        component.zaak = undefined;
-        component.taak = { zaakUuid: "expected-uuid", id: "t-id" } as Taak;
-      
-        expect(component["getZaakUuid"]()).toBe("expected-uuid");
-      });
-      
-  });
+      component.zaak = undefined;
+      component.taak = { zaakUuid: "expected-uuid", id: "t-id" } as Taak;
 
+      expect(component["getZaakUuid"]()).toBe("expected-uuid");
+    });
+  });
 });
