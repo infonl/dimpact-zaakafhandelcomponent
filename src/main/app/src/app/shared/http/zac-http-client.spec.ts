@@ -72,7 +72,7 @@ describe(ZacHttpClient.name, () => {
       zacHttpClient
         .GET("/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken", {
           pathParams: {
-            query: { zaakIdentifier: "test", relatieType: "test" },
+            query: { zoekZaakIdentifier: "test", relationType: "HOOFDZAAK" },
             path: { zaakUuid: "123" },
           },
         })
@@ -81,7 +81,7 @@ describe(ZacHttpClient.name, () => {
         });
 
       const req = httpTestingController.expectOne(
-        "/rest/zaken/gekoppelde-zaken/123/zoek-koppelbare-zaken?zaakIdentifier=test&relatieType=test",
+        "/rest/zaken/gekoppelde-zaken/123/zoek-koppelbare-zaken?zaakIdentifier=test&relatieType=HOOFDZAAK",
       );
       expect(req.request.method).toEqual("GET");
       req.flush(null);
