@@ -8,11 +8,12 @@ set -e
 
 help()
 {
-   echo "Sends request(s) to ZAC to reindex zaak, taak and/or document data in Solr. By default all zaak, taak and document data is reindexed."
+   echo "Sends request(s) to ZAC to reindex zaak, taak and/or document data in Solr. By default all zaak, taak and document data is re-indexed. Note that the ZAC endpoint used requires API key authentication."
    echo
-   echo "Syntax: $0 [-u|d|t|z|h]"
+   echo "Syntax: $0 [-u|k|d|t|z|h]"
    echo "options:"
-   echo "-u     Base ZAC URL, defaults to 'http://localhost:8080'."
+   echo "-u     Base ZAC URL. Defaults to 'http://localhost:8080'."
+   echo "-k     ZAC internal endpoints API key. Defaults to 'fakeZacInternalEndpointsApiKey'."
    echo "-d     Reindex document data only."
    echo "-t     Reindex taak data only."
    echo "-z     Reindex zaak data only."
@@ -27,6 +28,7 @@ echoerr() {
 }
 
 zacBaseURL="http://localhost:8080"
+zacInternalEndpointsApiKey="fakeZacInternalEndpointsApiKey"
 reindexDocuments=true
 reindexTasks=true
 reindexZaken=true
@@ -35,6 +37,9 @@ while getopts 'u:dtzh' OPTION; do
   case $OPTION in
     u)
       zacBaseURL=$OPTARG
+      ;;
+    k)
+      zacInternalEndpointsApiKey=$OPTARG
       ;;
     d)
       reindexDocuments=true
@@ -63,15 +68,15 @@ done
 
 if [ "$reindexDocuments" = true ] ; then
     echo "Sending request to ZAC to reindex document data in Solr using ZAC base URL: '$zacBaseURL'."
-    curl ${zacBaseURL}/rest/internal/indexeren/herindexeren/DOCUMENT
+    curl -v -H "X-API-KEY: ${zacInternalEndpointsApiKey}" ${zacBaseURL}/rest/internal/indexeren/herindexeren/DOCUMENT
 fi
 if [ "$reindexTasks" = true ] ; then
     echo "Sending request to ZAC to reindex task data in Solr using ZAC base URL: '$zacBaseURL'."
-    curl ${zacBaseURL}/rest/internal/indexeren/herindexeren/TAAK
+    curl -v -H "X-API-KEY: ${zacInternalEndpointsApiKey}" ${zacBaseURL}/rest/internal/indexeren/herindexeren/TAAK
 fi
 if [ "$reindexZaken" = true ] ; then
     echo "Sending request to ZAC to reindex zaak data in Solr using ZAC base URL: '$zacBaseURL'."
-    curl ${zacBaseURL}/rest/internal/indexeren/herindexeren/ZAAK
+    curl -v -H "X-API-KEY: ${zacInternalEndpointsApiKey}" ${zacBaseURL}/rest/internal/indexeren/herindexeren/ZAAK
 fi
 echo "Finished reindexing data."
 

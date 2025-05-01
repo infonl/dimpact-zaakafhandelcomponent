@@ -281,6 +281,7 @@ object ItestConfiguration {
     const val TAAK_1_FATAL_DATE = "1970-01-17"
     const val VERANTWOORDELIJKE_ORGANISATIE = "316245124"
     const val VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING"
+    const val ZAC_INTERNAL_ENDPOINTS_API_KEY = "zacItestInternalEndpointsApiKey"
     const val ZAAK_DESCRIPTION_1 = "fakeZaakDescription1"
     const val ZAAK_DESCRIPTION_2 = "fakeZaakDescription2"
     const val ZAAK_EXPLANATION_1 = "fakeZaakExplanation1"
