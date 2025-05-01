@@ -6,7 +6,7 @@
 
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, TestBed } from "@angular/core/testing";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
@@ -16,6 +16,8 @@ import { FormComponent } from "src/app/shared/material-form-builder/form/form/fo
 import { IdentityService } from "../../identity/identity.service";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { InformatieObjectAddComponent } from "./informatie-object-add.component";
+import { Taak } from "src/app/taken/model/taak";
+import { MatDivider, MatDividerModule } from "@angular/material/divider";
 
 describe(InformatieObjectAddComponent.name, () => {
   let component: InformatieObjectAddComponent;
@@ -31,6 +33,7 @@ describe(InformatieObjectAddComponent.name, () => {
         MatIconModule,
         TranslateModule.forRoot(),
         VertrouwelijkaanduidingToTranslationKeyPipe,
+        MatDividerModule
       ],
       providers: [
         provideHttpClient(),
@@ -52,7 +55,7 @@ describe(InformatieObjectAddComponent.name, () => {
   });
 
   describe("When the form is submitted", () => {
-    it("should cap the title to 100 characters", () => {
+    it("should cap the title to 100 characters", fakeAsync(() => {
       const longFileName = "a".repeat(110) + ".pdf";
       const mockFile = new File(["dummy content"], longFileName, {
         type: "application/pdf",
@@ -76,6 +79,15 @@ describe(InformatieObjectAddComponent.name, () => {
         expect(titelControl?.value).toBe(expectedTitle);
         expect(titelControl?.value.length).toBeLessThanOrEqual(100);
       });
-    });
+    }));
+
+    it("should return taak's zaakUuid when zaak is not set", () => {
+        component.zaak = undefined;
+        component.taak = { zaakUuid: "expected-uuid", id: "t-id" } as Taak;
+      
+        expect(component["getZaakUuid"]()).toBe("expected-uuid");
+      });
+      
   });
+
 });
