@@ -24,6 +24,7 @@ import nl.info.zac.itest.config.ItestConfiguration.SMTP_SERVER_PORT
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_HEALTH_READY_URL
+import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import okhttp3.Headers
 import org.json.JSONObject
 import org.slf4j.Logger
@@ -68,7 +69,8 @@ class ProjectConfig : AbstractProjectConfig() {
             " -Xms1024m" +
             " -Xmx1024m" +
             " -jar zaakafhandelcomponent.jar",
-        "ZAC_DOCKER_IMAGE" to zacDockerImage
+        "ZAC_DOCKER_IMAGE" to zacDockerImage,
+        "ZAC_INTERNAL_ENDPOINTS_API_KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
     )
 
     override suspend fun beforeProject() {
