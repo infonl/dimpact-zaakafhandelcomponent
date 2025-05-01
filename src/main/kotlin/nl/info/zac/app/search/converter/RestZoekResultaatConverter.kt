@@ -89,6 +89,6 @@ class RestZoekResultaatConverter @Inject constructor(
             toelichting = restZaakZoekObject.toelichting,
             zaaktypeOmschrijving = restZaakZoekObject.zaaktypeOmschrijving,
             statustypeOmschrijving = restZaakZoekObject.statustypeOmschrijving,
-            documentKoppelbaar = documentLinkable
+            isKoppelbaar = documentLinkable
         )
 }
