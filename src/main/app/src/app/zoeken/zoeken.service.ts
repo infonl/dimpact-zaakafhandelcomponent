@@ -90,7 +90,7 @@ export class ZoekenService {
   findLinkableZaken(
     zaakUuid: string,
     zoekZaakIdentifier: string,
-    relatieType: ZaakRelatietype, // TODO: `ZaakRelatietype` needs to be generated in the interface
+    relationType: ZaakRelatietype, // TODO: `ZaakRelatietype` needs to be generated in the interface
   ) {
     return this.zacHttp
       .GET("/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken", {
@@ -100,7 +100,7 @@ export class ZoekenService {
           },
           query: {
             zoekZaakIdentifier,
-            linkType: relatieType,
+            relationType,
           },
         },
       })

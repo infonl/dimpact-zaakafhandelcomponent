@@ -154,9 +154,7 @@ export class ZaakLinkComponent implements OnDestroy {
   protected rowDisabled(
     row: GeneratedType<"RestZaakKoppelenZoekObject">,
   ): boolean {
-    return (
-      !row.documentKoppelbaar || row.identificatie === this.zaak.identificatie
-    );
+    return !row.isKoppelbaar || row.identificatie === this.zaak.identificatie;
   }
 
   protected close() {
