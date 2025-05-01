@@ -20,7 +20,7 @@ import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
 import { TranslateHttpLoader } from "@ngx-translate/http-loader";
 import {
   QueryClient,
-  provideAngularQuery,
+  provideTanStackQuery,
 } from "@tanstack/angular-query-experimental";
 import { AdminModule } from "./admin/admin.module";
 import { AppRoutingModule } from "./app-routing.module";
@@ -77,7 +77,7 @@ const httpLoaderFactory = (http: HttpClient) =>
   providers: [
     { provide: APP_BASE_HREF, useValue: "/" },
     { provide: LocationStrategy, useClass: PathLocationStrategy },
-    provideAngularQuery(new QueryClient()),
+    provideTanStackQuery(new QueryClient()),
     provideHttpClient(withInterceptorsFromDi()),
   ],
 })
