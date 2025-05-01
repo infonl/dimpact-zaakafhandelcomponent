@@ -81,7 +81,7 @@ describe(ZacHttpClient.name, () => {
         });
 
       const req = httpTestingController.expectOne(
-        "/rest/zaken/gekoppelde-zaken/123/zoek-koppelbare-zaken?zaakIdentifier=test&relatieType=HOOFDZAAK",
+        "/rest/zaken/gekoppelde-zaken/123/zoek-koppelbare-zaken?zoekZaakIdentifier=test&relationType=HOOFDZAAK",
       );
       expect(req.request.method).toEqual("GET");
       req.flush(null);
