@@ -25,8 +25,10 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import okhttp3.Headers
+import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.ZoneId
@@ -108,6 +110,10 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
         // reindex so that the new zaak gets added to the Solr index
         itestHttpClient.performGetRequest(
             url = "$ZAC_API_URI/internal/indexeren/herindexeren/ZAAK",
+            headers = mapOf(
+                "Content-Type" to "application/json",
+                "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
+            ).toHeaders(),
             addAuthorizationHeader = false
         ).run {
             logger.info { "Response: ${body!!.string()}" }
