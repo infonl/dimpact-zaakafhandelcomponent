@@ -24,7 +24,11 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 
-@Path("admin/signaleringen")
+/**
+ * Internal REST service to send signaleringen and delete old signaleringen.
+ * Not intended to be called by the ZAC frontend but rather by a system cron job or similar.
+ */
+@Path("internal/signaleringen")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @AllOpen
