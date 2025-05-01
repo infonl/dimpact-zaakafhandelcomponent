@@ -51,30 +51,31 @@ describe(InformatieObjectAddComponent.name, () => {
       .mockReturnValue(of({ id: "1234", naam: "Test User" }));
   });
 
+  describe("When the form is submitted", () => {
+    it("should cap the title to 100 characters", () => {
+      const longFileName = "a".repeat(110) + ".pdf";
+      const mockFile = new File(["dummy content"], longFileName, {
+        type: "application/pdf",
+      });
 
-    describe("When the form is submitted", () => {
-        it("should cap the title to 100 characters", () => {
-            const longFileName = "a".repeat(110) + ".pdf";
-            const mockFile = new File(["dummy content"], longFileName, {
-              type: "application/pdf",
-            });
-          
-            component.fields$.subscribe(() => {
-              fixture.detectChanges();
-          
-              const bestandControl = component.form.formGroup.get("bestand");
-              const titelControl = component.form.formGroup.get("titel");
-          
-              expect(bestandControl).toBeDefined();
-              expect(titelControl).toBeDefined();
+      component.fields$.subscribe(() => {
+        fixture.detectChanges();
 
-              bestandControl?.setValue(mockFile);
+        const bestandControl = component.form.formGroup.get("bestand");
+        const titelControl = component.form.formGroup.get("titel");
 
-              const expectedTitle = longFileName.replace(/\.[^/.]+$/, "").substring(0, 100);
-          
-              expect(titelControl?.value).toBe(expectedTitle);
-              expect(titelControl?.value.length).toBeLessThanOrEqual(100);
-            });
-          });
+        expect(bestandControl).toBeDefined();
+        expect(titelControl).toBeDefined();
+
+        bestandControl?.setValue(mockFile);
+
+        const expectedTitle = longFileName
+          .replace(/\.[^/.]+$/, "")
+          .substring(0, 100);
+
+        expect(titelControl?.value).toBe(expectedTitle);
+        expect(titelControl?.value.length).toBeLessThanOrEqual(100);
+      });
     });
+  });
 });
