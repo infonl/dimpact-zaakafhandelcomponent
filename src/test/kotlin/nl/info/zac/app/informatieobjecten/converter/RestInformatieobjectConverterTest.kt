@@ -225,7 +225,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
                     informatieobjectTypeUUID shouldBe expectedUUID
                     informatieobjectTypeUUID shouldBe expectedUUID
                     versie shouldBe 1234
-                    bestandsomvang shouldBe 0
+                    bestandsomvang shouldBe 1234
                     vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.ZEER_GEHEIM.name
                 }
             }
