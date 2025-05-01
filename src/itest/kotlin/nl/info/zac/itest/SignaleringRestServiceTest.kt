@@ -319,7 +319,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
     ) {
         When("signaleringen older than 0 days are deleted") {
             val response = itestHttpClient.performDeleteRequest(
-                "$ZAC_API_URI/admin/signaleringen/delete-old"
+                "$ZAC_API_URI/internal/signaleringen/delete-old"
             )
             val responseBody = response.body!!.string()
             logger.info { "Response: $responseBody" }

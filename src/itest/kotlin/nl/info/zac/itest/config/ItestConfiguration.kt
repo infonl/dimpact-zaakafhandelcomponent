@@ -306,16 +306,14 @@ object ItestConfiguration {
     const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_TITEL = "Fake test document"
     const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_FILE_NAME = "fake-test-document.pdf"
 
-    /**
-     * First 'manually' created zaak using the ZAC API.
-     */
-    const val ZAAK_MANUAL_1_IDENTIFICATION = "ZAAK-2020-0000000001"
+    const val ZAAK_MANUAL_2020_01_IDENTIFICATION = "ZAAK-2020-0000000001"
+    const val ZAAK_MANUAL_2024_01_IDENTIFICATION = "ZAAK-2024-0000000001"
 
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
 
     /**
      * The default ZAC Docker image used when running the integration tests locally.
-     * When running the tests in our GitHub pipeline a different Docker image specific for the pipeline is used.
+     * When running the tests in our GitHub pipeline, a different Docker image specific for the pipeline is used.
      */
     const val ZAC_DEFAULT_DOCKER_IMAGE = "ghcr.io/infonl/zaakafhandelcomponent:dev"
 

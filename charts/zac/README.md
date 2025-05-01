@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.47](https://img.shields.io/badge/Version-1.0.47-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
+![Version: 1.0.50](https://img.shields.io/badge/Version-1.0.50-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -15,7 +15,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | Repository | Name | Version |
 |------------|------|---------|
 | @bitnami | solr | 9.6.1 |
-| @opentelemetry | opentelemetry-collector | 0.122.4 |
+| @opentelemetry | opentelemetry-collector | 0.122.5 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -297,7 +297,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.enabled | bool | `true` | enable configuration of a solrcloud |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
-| solr-operator.solr.image.tag | string | `"9.8.1@sha256:16983468366aaf62417bb6a2a4b703b486b199b8461192df131455071c263916"` | solr image tag |
+| solr-operator.solr.image.tag | string | `"9.8.1@sha256:05332e172bd3335eb36f2477e22cecae99f1f8e3b1bc4d1c148cb5373f1abaae"` | solr image tag |
 | solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` | solr memory settings |
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |
