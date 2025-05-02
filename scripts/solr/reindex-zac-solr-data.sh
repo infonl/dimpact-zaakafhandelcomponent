@@ -33,7 +33,7 @@ reindexDocuments=true
 reindexTasks=true
 reindexZaken=true
 
-while getopts 'u:dtzh' OPTION; do
+while getopts 'u:k:dzh' OPTION; do
   case $OPTION in
     u)
       zacBaseURL=$OPTARG
