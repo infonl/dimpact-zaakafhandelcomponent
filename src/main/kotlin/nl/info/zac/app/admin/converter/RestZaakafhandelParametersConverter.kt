@@ -18,6 +18,7 @@ import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter.convertRESTZaa
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters
 import net.atos.zac.app.admin.converter.RESTZaaktypeOverzichtConverter
+import net.atos.zac.app.admin.converter.RestBetrokkeneKoppelingenConverter
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
@@ -36,7 +37,8 @@ class RestZaakafhandelParametersConverter @Inject constructor(
     val humanTaskParametersConverter: RESTHumanTaskParametersConverter,
     val ztcClientService: ZtcClientService,
     val zaakafhandelParameterService: ZaakafhandelParameterService,
-    val smartDocumentsService: SmartDocumentsService
+    val smartDocumentsService: SmartDocumentsService,
+    val restBetrokkeneKoppelingenConverter: RestBetrokkeneKoppelingenConverter
 ) {
     fun toRestZaakafhandelParameters(
         zaakafhandelParameters: ZaakafhandelParameters,
@@ -64,6 +66,9 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             smartDocuments = RestSmartDocuments(
                 enabledGlobally = smartDocumentsService.isEnabled(),
                 enabledForZaaktype = zaakafhandelParameters.isSmartDocumentsIngeschakeld
+            ),
+            betrokkeneKoppelingen = restBetrokkeneKoppelingenConverter.convert(
+                zaakafhandelParameters.betrokkeneKoppelingen
             )
         )
         restZaakafhandelParameters.caseDefinition?.takeIf { inclusiefRelaties }?.let { caseDefinition ->
@@ -118,6 +123,9 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             gebruikersnaamMedewerker = restZaakafhandelParameters.defaultBehandelaarId
             einddatumGeplandWaarschuwing = restZaakafhandelParameters.einddatumGeplandWaarschuwing
             isSmartDocumentsIngeschakeld = restZaakafhandelParameters.smartDocuments.enabledForZaaktype
+            betrokkeneKoppelingen = restBetrokkeneKoppelingenConverter.convert(
+                restZaakafhandelParameters.betrokkeneKoppelingen
+            )
         }.also {
             it.setHumanTaskParametersCollection(
                 humanTaskParametersConverter.convertRESTHumanTaskParameters(
