@@ -82,16 +82,16 @@ class DocumentZoekObjectConverter @Inject constructor(
                 ondertekeningDatum = convertToDate(ondertekening.datum)
                 setIndicatie(DocumentIndicatie.ONDERTEKEND, true)
             }
-            informatieobject.locked?.let { setIndicatie(DocumentIndicatie.VERGRENDELD, it) }
+            setIndicatie(DocumentIndicatie.VERGRENDELD, informatieobject.locked)
+            // indicatieGebruiksRecht may be `null` according to the ZGW API specification,
+            // where a null value indicates that it is not known yet
             informatieobject.indicatieGebruiksrecht?.let {
                 setIndicatie(DocumentIndicatie.GEBRUIKSRECHT, it)
             }
-            informatieobject.url?.let {
-                setIndicatie(
-                    DocumentIndicatie.BESLUIT,
-                    brcClientService.isInformatieObjectGekoppeldAanBesluit(it)
-                )
-            }
+            setIndicatie(
+                DocumentIndicatie.BESLUIT,
+                brcClientService.isInformatieObjectGekoppeldAanBesluit(informatieobject.url)
+            )
             setIndicatie(DocumentIndicatie.VERZONDEN, informatieobject.verzenddatum != null)
             if (informatieobject.locked) {
                 enkelvoudigInformatieObjectLockService.readLock(informatieobjectUUID).userId?.let {
