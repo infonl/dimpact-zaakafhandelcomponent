@@ -74,6 +74,7 @@ data:
   {{- end }}
   TZ: Europe/Amsterdam
   VERANTWOORDELIJKE_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.verantwoordelijke.rsin entry required!" .Values.organizations.verantwoordelijke.rsin | quote }}
+  ZAC_INTERNAL_ENDPOINTS_API_KEY: {{ required "Valid .Values.zacInternalEndpointsApiKey entry required!" .Values.zacInternalEndpointsApiKey }}
   ZGW_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.zgwApis.url entry required!" .Values.zgwApis.url }}
   ZGW_API_CLIENTID: {{ required "Valid .Values.zgwApis.clientId entry required!" .Values.zgwApis.clientId }}
   ZGW_API_URL_EXTERN: {{ required "Valid .Values.zgwApis.urlExtern entry required!" .Values.zgwApis.urlExtern }}
