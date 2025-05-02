@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024-2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -20,20 +20,21 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
     TranslateModule,
   ],
   template: `
-    <div class="sidenav-title">
-      <h3>
-        <mat-icon>person_add_alt_1</mat-icon>
+    <mat-toolbar role="heading" class="gap-16">
+      <mat-icon>person_add_alt_1</mat-icon>
+      <span class="flex-grow-1">
         {{
           (initiator
             ? "actie.initiator.toevoegen"
             : "actie.betrokkene.toevoegen"
           ) | translate
         }}
-      </h3>
+      </span>
       <button mat-icon-button (click)="sideNav.close()">
         <mat-icon>close</mat-icon>
       </button>
-    </div>
+    </mat-toolbar>
+    <mat-divider></mat-divider>
 
     <!--Initiator-->
     <mat-tab-group mat-stretch-tabs="false" *ngIf="initiator">
@@ -86,8 +87,6 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
     </mat-tab-group>
   `,
   standalone: true,
-
-  styleUrls: ["./klant-koppel.component.less"],
 })
 export class KlantKoppelComponent {
   @Input() initiator = false;

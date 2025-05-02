@@ -10,7 +10,9 @@ export declare type ConditionalFn = (control: FormControl) => boolean;
 
 type Funcs = (typeof DateConditionals)["isExceeded"];
 
-type ShiftTuple<T extends any[]> = T extends [T[0], ...infer R] ? R : never;
+type ShiftTuple<T extends Array<unknown>> = T extends [T[0], ...infer R]
+  ? R
+  : never;
 
 export class DateConditionals {
   static provideFormControlValue<

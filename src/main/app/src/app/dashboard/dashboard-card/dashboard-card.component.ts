@@ -38,7 +38,7 @@ export abstract class DashboardCardComponent<T>
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<T> = new MatTableDataSource<T>();
 
-  protected reload: Observable<any>;
+  protected reload: Observable<unknown> | null = null;
   private reloader: Subscription;
 
   abstract columns: string[];
@@ -76,13 +76,13 @@ export abstract class DashboardCardComponent<T>
     this.dataSource.sort = this.sort;
   };
 
-  protected refreshTimed(seconds: number): Observable<number> {
+  protected refreshTimed(seconds: number) {
     return interval(seconds * 1000);
   }
 
   protected refreshOnSignalering(
     signaleringType: GeneratedType<"RestSignaleringInstellingen">["type"],
-  ): Observable<void> {
+  ) {
     const reload$ = new Subject<void>();
     this.identityService.readLoggedInUser().subscribe((medewerker) => {
       this.websocketService.addListener(

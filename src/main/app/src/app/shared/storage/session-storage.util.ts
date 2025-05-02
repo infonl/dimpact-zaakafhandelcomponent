@@ -5,7 +5,7 @@
 
 export class SessionStorageUtil {
   static getItem<ANY>(key: string, defaultValue?: ANY): ANY {
-    let item = JSON.parse(sessionStorage.getItem(key));
+    let item = JSON.parse(String(sessionStorage.getItem(key)));
     if (defaultValue && !item) {
       // Kopieren om referentie te breken
       item = JSON.parse(JSON.stringify(defaultValue));
@@ -14,16 +14,16 @@ export class SessionStorageUtil {
     return item;
   }
 
-  static setItem<ANY>(key: string, value: ANY): ANY {
+  static setItem<ANY>(key: string, value: ANY) {
     sessionStorage.setItem(key, JSON.stringify(value));
     return value;
   }
 
-  static removeItem(key: string): any {
+  static removeItem(key: string) {
     sessionStorage.removeItem(key);
   }
 
-  static clearSessionStorage(): void {
+  static clearSessionStorage() {
     sessionStorage.clear();
   }
 }

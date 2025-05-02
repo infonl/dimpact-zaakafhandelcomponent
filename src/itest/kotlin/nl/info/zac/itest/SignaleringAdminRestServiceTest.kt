@@ -104,7 +104,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
 
         When("the admin endpoint to send signaleringen is called") {
             val sendSignaleringenResponse = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/admin/signaleringen/send-signaleringen",
+                url = "$ZAC_API_URI/internal/signaleringen/send-signaleringen",
                 headers = Headers.headersOf(
                     "Content-Type",
                     "application/json"

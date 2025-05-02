@@ -3,15 +3,14 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div class="sidenav-title">
-  <h3>
-    <mat-icon>difference</mat-icon>
-    {{ "actie.nieuwe.versie.toevoegen" | translate }}
-  </h3>
+<mat-toolbar role="heading" class="gap-16">
+  <mat-icon>add_circle</mat-icon>
+  <h3 class="flex-grow-1">{{ "actie.nieuwe.versie.toevoegen" | translate }}</h3>
   <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
   </button>
-</div>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
 <div class="form">
   <mfb-form

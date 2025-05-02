@@ -29,6 +29,7 @@ describe("Vertrouwelijkaanduiding-to-translation-pipe", () => {
   it("should throw error when any other strings are provided", () => {
     const pipe = new VertrouwelijkaanduidingToTranslationKeyPipe();
 
+    // @ts-expect-error force error state
     expect(() => pipe.transform("not a key")).toThrow(
       "Unexpected vertrouwelijkheidaanduiding: not a key",
     );

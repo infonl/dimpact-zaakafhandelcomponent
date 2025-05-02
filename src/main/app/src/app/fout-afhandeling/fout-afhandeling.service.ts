@@ -98,8 +98,8 @@ export class FoutAfhandelingService {
     return throwError(() => `${error}: ${details}`);
   }
 
-  public log(melding): (error: HttpErrorResponse) => Observable<any> {
-    return (error: any): Observable<never> => {
+  public log(melding: string) {
+    return (error: unknown) => {
       console.error(error); // log to console instead
       this.utilService.openSnackbarError(melding);
       return throwError(error);

@@ -176,7 +176,7 @@ export class InformatieObjectLinkComponent
   }
 
   rowDisabled(row: GeneratedType<"RestZaakKoppelenZoekObject">): boolean {
-    return !row.documentKoppelbaar || row.identificatie == this.source;
+    return !row.isKoppelbaar || row.identificatie == this.source;
   }
 
   private reset() {

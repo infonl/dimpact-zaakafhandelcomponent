@@ -1,11 +1,11 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2023 Atos
+  ~ SPDX-FileCopyrightText: 2023 Atos, 2025 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div class="sidenav-title">
-  <h3>
-    <mat-icon>folder_copy</mat-icon>
+<mat-toolbar role="heading" class="gap-16">
+  <mat-icon>folder_copy</mat-icon>
+  <h3 class="flex-grow-1">
     {{
       (readonly ? "actie.zaakdata.bekijken" : "actie.zaakdata.wijzigen")
         | translate
@@ -14,11 +14,12 @@
   <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
   </button>
-</div>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
 <zac-zaakdata-form class="zaak-data-form" [formItem]="form"></zac-zaakdata-form>
 
-<div class="button-group" *ngIf="!readonly">
+<div class="pl-3" *ngIf="!readonly">
   <button
     mat-raised-button
     [disabled]="bezigMetOpslaan"

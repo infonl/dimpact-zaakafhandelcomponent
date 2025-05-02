@@ -1,17 +1,16 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Atos
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div class="sidenav-title">
-  <h3>
-    <mat-icon>upload_file</mat-icon>
-    {{ "actie.document.toevoegen" | translate }}
-  </h3>
+<mat-toolbar role="heading" class="gap-16">
+  <mat-icon>upload_file</mat-icon>
+  <span class="flex-grow-1">{{ "actie.document.toevoegen" | translate }}</span>
   <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
   </button>
-</div>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
 <div class="form">
   <!-- we use a for loop here to mount a completely new form here when there is a new iteration -->

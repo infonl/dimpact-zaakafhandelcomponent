@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.46](https://img.shields.io/badge/Version-1.0.46-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
+![Version: 1.0.52](https://img.shields.io/badge/Version-1.0.52-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -15,7 +15,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | Repository | Name | Version |
 |------------|------|---------|
 | @bitnami | solr | 9.6.1 |
-| @opentelemetry | opentelemetry-collector | 0.122.3 |
+| @opentelemetry | opentelemetry-collector | 0.122.5 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -185,7 +185,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.service.type | string | `"ClusterIP"` |  |
 | nginx.useXForwardedHost | bool | `false` |  |
 | nodeSelector | object | `{}` | set node selector parameters |
-| notificationsSecretKey | string | `""` | Configuration of the notifications receiving endpoint. |
+| notificationsSecretKey | string | `""` |  |
 | objectenApi.token | string | `""` |  |
 | objectenApi.url | string | `""` |  |
 | office_converter.affinity | object | `{}` |  |
@@ -211,7 +211,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.3.0-static@sha256:44f0f4b1c09260eaf5e24fc3931fe10f80cffd13054ef3ef62cef775d5cbd272"` |  |
+| opa.image.tag | string | `"1.4.0-static@sha256:170df2abdc056e42ec1c9be6a23bdbf08fbc398b8993dd75931e50f6bde8a984"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` | set url if the opa url cannot be automatically determined and is not run as a sidecar. the opa url should be the url the openpolicyagent can be reached on from ZAC ( for example: http://release-opa.default.svc.cluster.local:8181 ) url: "" |
 | opa.nodeSelector | object | `{}` |  |
@@ -297,7 +297,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.enabled | bool | `true` | enable configuration of a solrcloud |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
-| solr-operator.solr.image.tag | string | `"9.8.1@sha256:16983468366aaf62417bb6a2a4b703b486b199b8461192df131455071c263916"` | solr image tag |
+| solr-operator.solr.image.tag | string | `"9.8.1@sha256:05332e172bd3335eb36f2477e22cecae99f1f8e3b1bc4d1c148cb5373f1abaae"` | solr image tag |
 | solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` | solr memory settings |
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |
@@ -366,6 +366,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr.service.ports.http | int | `80` |  |
 | solr.zookeeper.enabled | bool | `false` |  |
 | tolerations | list | `[]` | set toleration parameters |
+| zacInternalEndpointsApiKey | string | `""` |  |
 | zgwApis.clientId | string | `""` |  |
 | zgwApis.secret | string | `""` |  |
 | zgwApis.url | string | `""` |  |

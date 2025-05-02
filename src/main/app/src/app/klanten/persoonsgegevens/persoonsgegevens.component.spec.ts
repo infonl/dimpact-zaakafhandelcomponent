@@ -13,7 +13,7 @@ import { KlantenService } from "../klanten.service";
 import { PersoonsgegevensComponent } from "./persoonsgegevens.component";
 
 const mockTranslateService = {
-  get(key: any): any {
+  get(key: unknown) {
     return of(key);
   },
   onTranslationChange: of({}),
@@ -29,7 +29,7 @@ const testPerson: GeneratedType<"RestPersoon"> = {
 describe("PersoonsgegevensComponent", () => {
   let component: PersoonsgegevensComponent;
   let fixture: ComponentFixture<PersoonsgegevensComponent>;
-  let klantenServiceMock: any;
+  let klantenServiceMock: Partial<KlantenService>;
 
   beforeEach(async () => {
     klantenServiceMock = {
@@ -47,7 +47,7 @@ describe("PersoonsgegevensComponent", () => {
 
     fixture = TestBed.createComponent(PersoonsgegevensComponent);
     component = fixture.componentInstance;
-    component.bsn = new Input(testPerson.bsn);
+    component.bsn = new Input(testPerson.bsn ?? undefined);
     fixture.detectChanges();
   });
 

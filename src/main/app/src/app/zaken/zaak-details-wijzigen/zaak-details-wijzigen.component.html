@@ -3,15 +3,14 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div class="sidenav-title">
-  <h3>
-    <mat-icon>edit</mat-icon>
-    {{ "actie.zaak.wijzigen" | translate }}
-  </h3>
-  <button mat-icon-button (click)="exit()">
+<mat-toolbar role="heading" class="gap-16">
+  <mat-icon>edit</mat-icon>
+  <span class="flex-grow-1">{{ "actie.zaak.wijzigen" | translate }}</span>
+  <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
   </button>
-</div>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
 <div>
   <mat-tab-group mat-stretch-tabs="false">

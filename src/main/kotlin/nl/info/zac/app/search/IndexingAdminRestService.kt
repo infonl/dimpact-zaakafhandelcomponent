@@ -12,15 +12,15 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import nl.info.zac.authentication.InternalEndpoint
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
 /**
- * Internal REST service for indexing, not meant to be called by the ZAC frontend.
- * Note that the endpoints in this service are currently not protected by any security mechanism.
- * See the 'web.xml' file for details.
+ * Internal REST service to reindex data in ZAC's Solr search engine on demand.
+ * Not meant to be called by the ZAC frontend.
  */
 @Singleton
 @Path("internal/indexeren")
@@ -28,6 +28,7 @@ import nl.info.zac.util.NoArgConstructor
 @Produces(MediaType.APPLICATION_JSON)
 @NoArgConstructor
 @AllOpen
+@InternalEndpoint
 class IndexingAdminRestService @Inject constructor(
     private val indexingService: IndexingService
 ) {

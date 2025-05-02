@@ -188,7 +188,8 @@ export class InformatieObjectEditComponent
     const vertrouwelijk = new SelectFormFieldBuilder({
       label: this.translateService.instant(
         this.vertrouwelijkaanduidingToTranslationKeyPipe.transform(
-          this.infoObject.vertrouwelijkheidaanduiding,
+          this.infoObject
+            .vertrouwelijkheidaanduiding as GeneratedType<"VertrouwelijkheidaanduidingEnum">, // TODO: `RestEnkelvoudigInformatieObjectVersieGegevens` has the wrong `vertrouwelijkheidaanduiding` type
         ),
       ),
       value: this.infoObject.vertrouwelijkheidaanduiding,

@@ -53,7 +53,8 @@ export class InformatieObjectIndicatiesComponent
     const indicaties = this.documentZoekObject
       ? this.documentZoekObject.indicaties
       : this.document.indicaties;
-    indicaties.forEach((indicatie: InformatieobjectIndicatie) => {
+
+    indicaties?.forEach((indicatie) => {
       switch (indicatie) {
         case InformatieobjectIndicatie.VERGRENDELD:
           this.indicaties.push(
@@ -92,7 +93,7 @@ export class InformatieObjectIndicatiesComponent
             new Indicatie(
               indicatie,
               "local_post_office",
-              this.getVerzondenToelichting(),
+              this.getVerzondenToelichting()?.toString() ?? "",
             ),
           );
           break;
@@ -116,7 +117,7 @@ export class InformatieObjectIndicatiesComponent
     }
   }
 
-  private getVerzondenToelichting(): string {
+  private getVerzondenToelichting() {
     if (this.documentZoekObject) {
       return this.datumPipe.transform(this.documentZoekObject.verzenddatum);
     } else {

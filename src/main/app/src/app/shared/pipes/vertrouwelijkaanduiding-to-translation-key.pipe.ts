@@ -4,7 +4,7 @@
  */
 
 import { Pipe, PipeTransform } from "@angular/core";
-import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
+import { GeneratedType } from "../utils/generated-types";
 
 @Pipe({
   name: "vertrouwelijkaanduidingToTranslationKey",
@@ -24,14 +24,12 @@ export class VertrouwelijkaanduidingToTranslationKeyPipe
     "ZEER_GEHEIM",
   ] as const;
 
-  transform(
-    value: string | (typeof this.expectedKeys)[0],
-  ): `vertrouwelijkheidaanduiding.${Vertrouwelijkheidaanduiding}` {
-    if (!this.expectedKeys.includes(value as any)) {
+  transform(value?: GeneratedType<"VertrouwelijkheidaanduidingEnum">) {
+    if (!value || !this.expectedKeys.includes(value)) {
       throw new Error(`Unexpected vertrouwelijkheidaanduiding: ${value}`);
     }
-    const expectedKey = value as (typeof this.expectedKeys)[number];
-    return `vertrouwelijkheidaanduiding.${expectedKey}`;
+
+    return `vertrouwelijkheidaanduiding.${value}`;
   }
 
   toUpperCase<T extends string>(v: T): Uppercase<T> {

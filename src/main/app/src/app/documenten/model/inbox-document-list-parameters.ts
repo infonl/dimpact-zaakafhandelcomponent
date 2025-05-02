@@ -4,7 +4,7 @@
  */
 
 import { SortDirection } from "@angular/material/sort";
-import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
+import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
 import { ListParameters } from "../../shared/model/list-parameters";
 import { DatumRange } from "../../zoeken/model/datum-range";
 
@@ -21,7 +21,7 @@ export class InboxDocumentListParameters
     super(sort, order);
   }
 
-  static heeftActieveFilters(zoekFilters: any): boolean {
+  static heeftActieveFilters(zoekFilters: ZoekFilters): boolean {
     if (zoekFilters.identificatie != null) {
       return true;
     }

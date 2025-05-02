@@ -15,12 +15,12 @@ import { MatDialog } from "@angular/material/dialog";
 import { Subscription } from "rxjs";
 import { InboxDocumentListParameters } from "../../documenten/model/inbox-document-list-parameters";
 import { OntkoppeldDocumentListParameters } from "../../documenten/model/ontkoppeld-document-list-parameters";
-import { DatumRange } from "../../zoeken/model/datum-range";
 import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
 import { Werklijst } from "../model/werklijst";
 import { Zoekopdracht } from "../model/zoekopdracht";
 import { ZoekopdrachtSaveDialogComponent } from "../zoekopdracht-save-dialog/zoekopdracht-save-dialog.component";
+import { ZoekFilters } from "./zoekfilters.model";
 
 @Component({
   selector: "zac-zoekopdracht",
@@ -129,10 +129,3 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     }
   }
 }
-
-export type ZoekFilters = {
-  readonly filtersType: string;
-  zoeken?: Record<string, unknown>;
-  filters?: Record<string, undefined | { values: Array<unknown> }>;
-  datums?: Record<string, DatumRange>;
-};

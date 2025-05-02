@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
+import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
 import { DatumRange } from "./datum-range";
 import { DatumVeld } from "./datum-veld";
 import { FilterParameters } from "./filter-parameters";
@@ -27,11 +27,7 @@ export class ZoekParameters implements ZoekFilters {
   rows = 25;
   page = 0;
 
-  static heeftActieveFilters(zoekFilters: {
-    zoeken?: Record<string, unknown>;
-    filters?: Record<string, undefined | { values: Array<unknown> }>;
-    datums?: Record<string, DatumRange>;
-  }) {
+  static heeftActieveFilters(zoekFilters: ZoekFilters) {
     if (zoekFilters.zoeken) {
       return Object.values(zoekFilters.zoeken).some(Boolean);
     }

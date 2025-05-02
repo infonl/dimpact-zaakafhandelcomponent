@@ -52,7 +52,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEM
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_2
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_EXPLANATION_1
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_1_IDENTIFICATION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2020_01_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Betrokkene1Uuid
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
@@ -107,7 +107,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "id": "$TEST_GROUP_A_ID",
                         "naam": "$TEST_GROUP_A_DESCRIPTION"
                       },
-                      "identificatie": "$ZAAK_MANUAL_1_IDENTIFICATION",
+                      "identificatie": "$ZAAK_MANUAL_2020_01_IDENTIFICATION",
                       "indicaties": [],
                       "isBesluittypeAanwezig": false,
                       "isDeelzaak": false,
@@ -149,7 +149,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "verantwoordelijkeOrganisatie": "$VERANTWOORDELIJKE_ORGANISATIE",
                       "vertrouwelijkheidaanduiding": "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
                       "zaakdata": {
-                        "zaakIdentificatie": "$ZAAK_MANUAL_1_IDENTIFICATION",
+                        "zaakIdentificatie": "$ZAAK_MANUAL_2020_01_IDENTIFICATION",
                         "initiator": null,
                         "zaaktypeUUID": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
                         "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
@@ -361,7 +361,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
                     with(JSONObject(responseBody)) {
-                        getString("identificatie") shouldBe ZAAK_MANUAL_1_IDENTIFICATION
+                        getString("identificatie") shouldBe ZAAK_MANUAL_2020_01_IDENTIFICATION
                         getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
                     }
                 }
@@ -535,7 +535,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "id": "$TEST_GROUP_A_ID",
                         "naam": "$TEST_GROUP_A_DESCRIPTION"
                       },
-                      "identificatie": "$ZAAK_MANUAL_1_IDENTIFICATION",
+                      "identificatie": "$ZAAK_MANUAL_2020_01_IDENTIFICATION",
                       "indicaties": [],
                       "isBesluittypeAanwezig": false,
                       "isDeelzaak": false,

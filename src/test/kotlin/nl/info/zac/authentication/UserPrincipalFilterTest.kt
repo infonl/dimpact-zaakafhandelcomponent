@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package nl.info.zac.authentication
 
 import io.kotest.core.spec.style.BehaviorSpec

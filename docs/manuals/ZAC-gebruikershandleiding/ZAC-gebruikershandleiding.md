@@ -163,6 +163,8 @@ Zodra een werklijst, zaak, taak of document geopend is, dan verschijnt deze in h
 
 De beschikbaarheid van functionaliteit voor een gebruiker in het ZAC is verbonden aan rechten. Er wordt momenteel gewerkt met drie rollen voor gebruikers, hieronder volgt een korte omschrijving. Deze rollen zijn nog in ontwikkeling. Het komt dus voor dat functionaliteit, zoals beschreven in deze handleiding, niet beschikbaar voor jou is omdat een rol niet aan jou is toegewezen.
 
+Raadpleger: heeft rechten om zaken, taken en documenten te raadplegen, maar niet om deze te wijzigen.
+
 Behandelaar: heeft alle rechten om met de werklijsten, zaken, taken en documenten te werken. Er zijn enkele beperkingen op het gebied van werk verdelen, definitieve documenten en beëindigde zaken.
 
 Coördinator: heeft rechten om vanuit werklijsten werk te verdelen en zaken en taken te raadplegen

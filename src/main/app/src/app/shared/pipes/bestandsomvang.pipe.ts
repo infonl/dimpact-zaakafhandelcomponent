@@ -10,7 +10,7 @@ import { KB_IN_BYTES, MB_IN_BYTES } from "../utils/constants";
 export class BestandsomvangPipe implements PipeTransform {
   constructor(@Inject(LOCALE_ID) public locale: string) {}
 
-  transform(value: number): any {
+  transform(value: number) {
     if (value) {
       const stringValue =
         value / MB_IN_BYTES < 1

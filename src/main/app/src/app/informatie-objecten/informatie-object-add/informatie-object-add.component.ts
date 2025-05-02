@@ -43,14 +43,14 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
   styleUrls: ["./informatie-object-add.component.less"],
 })
 export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
-  @Input() zaak: Zaak;
-  @Input() taak: Taak;
-  @Input() sideNav: MatDrawer;
+  @Input() zaak?: Zaak;
+  @Input() taak?: Taak;
+  @Input() sideNav!: MatDrawer;
   @Output() document = new EventEmitter<
     GeneratedType<"RestEnkelvoudigInformatieobject">
   >();
 
-  @ViewChild(FormComponent) form: FormComponent;
+  @ViewChild(FormComponent) form!: FormComponent;
 
   constructor(
     private informatieObjectenService: InformatieObjectenService,
@@ -60,7 +60,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
     private identityService: IdentityService,
   ) {}
 
-  formConfig: FormConfig;
+  formConfig?: FormConfig;
   loggedInUser$ = this.identityService.readLoggedInUser();
   // first iteration is always 0
   formIterations$ = new BehaviorSubject([0]);
@@ -76,8 +76,8 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
     map((inputs) => this.getFormLayout(inputs)),
   );
 
-  private informatieobjectStatussen: { label: string; value: string }[];
-  private status: SelectFormField;
+  private informatieobjectStatussen!: { label: string; value: string }[];
+  private status!: SelectFormField;
   private subscriptions: Subscription[] = [];
 
   private getInputs(deps: { loggedInUser: GeneratedType<"RestLoggedInUser"> }) {
@@ -152,13 +152,9 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
       .id("informatieobjectTypeUUID")
       .label("informatieobjectType")
       .options(
-        this.zaak
-          ? this.informatieObjectenService.listInformatieobjecttypesForZaak(
-              this.zaak.uuid,
-            )
-          : this.informatieObjectenService.listInformatieobjecttypesForZaak(
-              this.taak.zaakUuid,
-            ),
+        this.informatieObjectenService.listInformatieobjecttypesForZaak(
+          this.getZaakUuid(),
+        ),
       )
       .optionLabel("omschrijving")
       .validators(Validators.required)
@@ -296,9 +292,15 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
 
     this.subscriptions.push(
       inhoudField.formControl.valueChanges.subscribe((file: File) => {
-        titel.formControl.setValue(file?.name?.replace(/\.[^/.]+$/, "") || "");
+        const fileName =
+          file?.name?.replace(/\.[^/.]+$/, "").substring(0, 100) ?? "";
+        titel.formControl.setValue(fileName);
       }),
     );
+  }
+
+  private getZaakUuid(): string {
+    return this.zaak ? this.zaak.uuid : this.taak!.zaakUuid;
   }
 
   private isAfgehandeld(): boolean {
@@ -354,15 +356,15 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
 
       this.informatieObjectenService
         .createEnkelvoudigInformatieobject(
-          this.zaak ? this.zaak.uuid : this.taak.zaakUuid,
-          this.zaak ? this.zaak.uuid : this.taak.id,
+          this.getZaakUuid(),
+          this.zaak ? this.zaak.uuid : this.taak!.id,
           infoObject,
           !!this.taak,
         )
         .subscribe((document) => {
           this.document.emit(document);
           const iterations = this.formIterations$.getValue();
-          if (formGroup.get("nogmaals").value) {
+          if (formGroup.get("nogmaals")?.value) {
             this.formIterations$.next([
               ...iterations,
               iterations.slice(-1)[0] + 1,

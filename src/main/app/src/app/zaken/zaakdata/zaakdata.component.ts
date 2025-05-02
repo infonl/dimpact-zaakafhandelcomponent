@@ -18,7 +18,6 @@ import { ZakenService } from "../zaken.service";
 @Component({
   selector: "zac-zaakdata",
   templateUrl: "./zaakdata.component.html",
-  styleUrls: ["./zaakdata.component.less"],
 })
 export class ZaakdataComponent implements OnInit {
   @Input({ required: true }) zaak!: Zaak;
