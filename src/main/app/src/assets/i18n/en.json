@@ -258,6 +258,7 @@
   "redenStart": "Reason start",
   "redenNietOntvankelijk": "Reason not admissible",
   "zaakOntvankelijk": "Is this case admissible?",
+  "zaakIsNietOntvankelijk": "Case is not admissible",
   "afhandeling": "Handling",
   "systeemnaam": "System name",
   "toolbar.profiel": "Profile",
