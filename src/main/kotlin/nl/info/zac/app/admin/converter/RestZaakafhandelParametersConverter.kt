@@ -20,6 +20,7 @@ import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.conve
 import net.atos.zac.app.admin.converter.RESTZaaktypeOverzichtConverter
 import net.atos.zac.app.admin.converter.RestBetrokkeneKoppelingenConverter
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.zaak.model.RESTZaakStatusmailOptie
@@ -67,9 +68,10 @@ class RestZaakafhandelParametersConverter @Inject constructor(
                 enabledGlobally = smartDocumentsService.isEnabled(),
                 enabledForZaaktype = zaakafhandelParameters.isSmartDocumentsIngeschakeld
             ),
-            betrokkeneKoppelingen = restBetrokkeneKoppelingenConverter.convert(
-                zaakafhandelParameters.betrokkeneKoppelingen
-            )
+            betrokkeneKoppelingen = RestBetrokkeneKoppelingen()
+//            betrokkeneKoppelingen = zaakafhandelParameters.betrokkeneKoppelingen?.let {
+//                restBetrokkeneKoppelingenConverter.convert(it)
+//            } ?: RestBetrokkeneKoppelingen(),
         )
         restZaakafhandelParameters.caseDefinition?.takeIf { inclusiefRelaties }?.let { caseDefinition ->
             zaakafhandelParameters.nietOntvankelijkResultaattype?.let {
@@ -123,9 +125,6 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             gebruikersnaamMedewerker = restZaakafhandelParameters.defaultBehandelaarId
             einddatumGeplandWaarschuwing = restZaakafhandelParameters.einddatumGeplandWaarschuwing
             isSmartDocumentsIngeschakeld = restZaakafhandelParameters.smartDocuments.enabledForZaaktype
-            betrokkeneKoppelingen = restBetrokkeneKoppelingenConverter.convert(
-                restZaakafhandelParameters.betrokkeneKoppelingen
-            )
         }.also {
             it.setHumanTaskParametersCollection(
                 humanTaskParametersConverter.convertRESTHumanTaskParameters(
@@ -149,6 +148,9 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             )
             it.setZaakAfzenders(
                 convertRESTZaakAfzenders(restZaakafhandelParameters.zaakAfzenders)
+            )
+            it.betrokkeneKoppelingen = restBetrokkeneKoppelingenConverter.convert(
+                restZaakafhandelParameters.betrokkeneKoppelingen, it
             )
         }
 }

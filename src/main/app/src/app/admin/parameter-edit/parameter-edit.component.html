@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos
+  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos, 2025 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -181,7 +181,7 @@
             <mat-accordion>
               <mat-expansion-panel
                 *ngFor="let humanTaskParameter of humanTaskParameters"
-                [formGroupName]="humanTaskParameter.planItemDefinition.id"
+                [formGroupName]="humanTaskParameter.planItemDefinition?.id"
                 class="flex-col"
                 hideToggle
               >
@@ -684,7 +684,7 @@
                   "
                 ></tr>
               </table>
-              <p *ngIf="zaakbeeindigParameters.length == 0">
+              <p *ngIf="zaakbeeindigParameters.length === 0">
                 {{ "msg.geen.gegevens.gevonden" | translate }}
               </p>
             </div>
@@ -712,8 +712,28 @@
         [stepControl]="smartDocumentsEnabledForm"
         [hasError]="!isSmartDocumentsStepValid"
       >
-        <ng-template matStepLabel>SmartDocuments</ng-template>
+        <ng-template matStepLabel>{{
+          "gegevens.koppelingen" | translate
+        }}</ng-template>
         <ng-template matStepContent>
+          <form class="flex-col gap-12" [formGroup]="betrokkeneKoppelingen">
+            <div class="flex-row items-center gap-8">
+              <mat-slide-toggle
+                formControlName="brpKoppelen"
+                (click)="$event.stopPropagation()"
+                color="primary"
+              ></mat-slide-toggle>
+              <p>{{ "gegevens.koppelen.brp" | translate }}</p>
+            </div>
+            <div class="flex-row items-center gap-8">
+              <mat-slide-toggle
+                formControlName="kvkKoppelen"
+                (click)="$event.stopPropagation()"
+                color="primary"
+              ></mat-slide-toggle>
+              <p>{{ "gegevens.koppelen.kvk" | translate }}</p>
+            </div>
+          </form>
           <form [formGroup]="smartDocumentsEnabledForm" class="flex-col">
             <div class="flex-row items-center">
               <h2 class="flex-1">

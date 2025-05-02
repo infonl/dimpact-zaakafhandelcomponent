@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024-2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -13,10 +13,10 @@ import { UtilService } from "../../core/service/util.service";
 import { ClientMatcher } from "../../shared/dynamic-table/filter/clientMatcher";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { Zaaktype } from "../../zaken/model/zaaktype";
 import { AdminComponent } from "../admin/admin.component";
 import { CaseDefinition } from "../model/case-definition";
-import { ZaakafhandelParameters } from "../model/zaakafhandel-parameters";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-list-parameters";
 
@@ -33,7 +33,9 @@ export class ParametersComponent
   @ViewChild("parametersSort") parametersSort!: MatSort;
 
   filterParameters!: ZaakafhandelParametersListParameters;
-  parameters = new MatTableDataSource<ZaakafhandelParameters>();
+  parameters = new MatTableDataSource<
+    GeneratedType<"RestZaakafhandelParameters">
+  >();
   loading = false;
 
   private storedParameterFilters = "parameterFilters";
@@ -90,7 +92,7 @@ export class ParametersComponent
         match =
           match &&
           ClientMatcher.matchBoolean(
-            data.valide,
+            Boolean(data.valide),
             parsedFilter.valide === ToggleSwitchOptions.CHECKED,
           );
       }
@@ -99,7 +101,7 @@ export class ParametersComponent
         match =
           match &&
           ClientMatcher.matchBoolean(
-            data.zaaktype.nuGeldig,
+            Boolean(data.zaaktype.nuGeldig),
             parsedFilter.geldig === ToggleSwitchOptions.CHECKED,
           );
       }
@@ -130,7 +132,7 @@ export class ParametersComponent
         match =
           match &&
           ClientMatcher.matchDatum(
-            data.zaaktype.beginGeldigheid,
+            data.zaaktype.beginGeldigheid ?? "",
             parsedFilter.beginGeldigheid,
           );
       }
@@ -142,7 +144,7 @@ export class ParametersComponent
         match =
           match &&
           ClientMatcher.matchDatum(
-            data.zaaktype.eindeGeldigheid,
+            data.zaaktype.eindeGeldigheid ?? "",
             parsedFilter.eindeGeldigheid,
           );
       }

@@ -8,6 +8,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { Mail } from "./model/mail";
 import { Mailtemplate } from "./model/mailtemplate";
 import { MailtemplateVariabele } from "./model/mailtemplate-variabele";
@@ -39,9 +40,9 @@ export class MailtemplateBeheerService {
       );
   }
 
-  listKoppelbareMailtemplates(): Observable<Mailtemplate[]> {
+  listKoppelbareMailtemplates() {
     return this.http
-      .get<Mailtemplate[]>(`${this.basepath}/koppelbaar`)
+      .get<GeneratedType<"RESTMailtemplate">[]>(`${this.basepath}/koppelbaar`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

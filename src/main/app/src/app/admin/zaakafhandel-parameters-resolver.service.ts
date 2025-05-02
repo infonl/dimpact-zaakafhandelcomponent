@@ -1,12 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
-import { Observable } from "rxjs";
-import { ZaakafhandelParameters } from "./model/zaakafhandel-parameters";
 import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service";
 
 @Injectable({
@@ -15,7 +13,7 @@ import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service
 export class ZaakafhandelParametersResolver {
   constructor(private adminService: ZaakafhandelParametersService) {}
 
-  resolve(route: ActivatedRouteSnapshot): Observable<ZaakafhandelParameters> {
+  resolve(route: ActivatedRouteSnapshot) {
     const uuid = route.paramMap.get("uuid");
 
     if (!uuid) {
