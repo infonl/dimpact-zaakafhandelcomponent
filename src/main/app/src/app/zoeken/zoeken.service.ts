@@ -67,26 +67,6 @@ export class ZoekenService {
       );
   }
 
-  listZaakKoppelbareZaken(
-    zaakUuid: string,
-    zaakIdentificator: string,
-    linkType: ZaakRelatietype,
-  ): Observable<Resultaat<GeneratedType<"RestZaakKoppelenZoekObject">>> {
-    return this.http
-      .put<Resultaat<GeneratedType<"RestZaakKoppelenZoekObject">>>(
-        `${this.basepath}/zaken`,
-        {
-          zaakIdentificator,
-          linkType,
-          page: 0,
-          rows: 10,
-        },
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
-  }
-
   findLinkableZaken(
     zaakUuid: string,
     zoekZaakIdentifier: string,

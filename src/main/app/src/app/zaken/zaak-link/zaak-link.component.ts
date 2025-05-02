@@ -36,9 +36,6 @@ export class ZaakLinkComponent implements OnDestroy {
   @Input({ required: true }) sideNav!: MatDrawer;
   @Output() zaakLinked = new EventEmitter();
 
-  public intro = "";
-  public loading = false;
-
   public cases = new MatTableDataSource<
     GeneratedType<"RestZaakKoppelenZoekObject">
   >();
@@ -50,6 +47,7 @@ export class ZaakLinkComponent implements OnDestroy {
     "omschrijving",
     "acties",
   ] as const;
+  public loading = false;
 
   protected caseRelationOptionsList = [
     {
@@ -115,7 +113,7 @@ export class ZaakLinkComponent implements OnDestroy {
       .subscribe(
         (result) => {
           this.cases.data = result.resultaten;
-          this.totalCases = result.totaal ?? 0;
+          this.totalCases = result.totaal;
           this.loading = false;
           this.utilService.setLoading(false);
         },

@@ -882,6 +882,7 @@
   "msg.zaak.ontkoppelen.bevestigen": "Zaak ontkoppelen",
   "msg.zaak.ontkoppelen.uitgevoerd": "Zaak is ontkoppeld",
   "msg.zaak.koppelen.niet.toegestaan": "Er is geen koppeling mogelijk.",
+  "msg.zaak.koppelem.meer-dan-10-gevonden": "Alleen de eerste 10 resultaten worden getoond. Scherp de zoekopdracht aan als het gewenste resultaat hier niet tussen staat.",
   "msg.zaak.relatie": "Van zaak {{identificatie}}",
   "msg.zaak.relaties": "Van {{aantal}} zaken",
   "msg.zaak.toegekend": "De zaak is toegekend aan {{behandelaar}}",
