@@ -53,15 +53,27 @@ export class ParameterEditComponent
   extends AdminComponent
   implements OnInit, OnDestroy, AfterViewInit
 {
-  @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
-  @ViewChild("menuSidenav") menuSidenav: MatSidenav;
+  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
+  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
 
   @ViewChild("smartDocumentsFormRef")
   smartDocsFormGroup!: SmartDocumentsFormComponent;
 
   isSmartDocumentsStepValid: boolean = true;
 
-  parameters: GeneratedType<"RestZaakafhandelParameters">;
+  parameters: GeneratedType<"RestZaakafhandelParameters"> = {
+    humanTaskParameters: [],
+    mailtemplateKoppelingen: [],
+    zaakbeeindigParameters: [],
+    smartDocuments: {
+      enabledGlobally: false,
+      enabledForZaaktype: false,
+    },
+    zaakAfzenders: [],
+    userEventListenerParameters: [],
+    zaaktype: {},
+  };
+
   humanTaskParameters: GeneratedType<"RESTHumanTaskParameters">[] = [];
   userEventListenerParameters: GeneratedType<"RESTUserEventListenerParameter">[] =
     [];
@@ -76,12 +88,32 @@ export class ParameterEditComponent
   mailtemplateKoppelingen =
     MailtemplateKoppelingMailUtil.getBeschikbareMailtemplateKoppelingen();
 
-  algemeenFormGroup: FormGroup;
-  humanTasksFormGroup: FormGroup;
-  userEventListenersFormGroup: FormGroup;
-  mailFormGroup: FormGroup;
-  zaakbeeindigFormGroup: FormGroup;
-  smartDocumentsEnabledForm: FormGroup;
+  algemeenFormGroup = new FormGroup<{
+    caseDefinition: FormControl;
+    domein: FormControl;
+    defaultGroepId: FormControl;
+    defaultBehandelaarId: FormControl;
+    einddatumGeplandWaarschuwing: FormControl;
+    uiterlijkeEinddatumAfdoeningWaarschuwing: FormControl;
+    productaanvraagtype: FormControl;
+  }>(
+    // @ts-expect-error TODO: init formGroup with correct type
+    {},
+  );
+  humanTasksFormGroup = new FormGroup({});
+  userEventListenersFormGroup = new FormGroup({});
+  mailFormGroup = new FormGroup<{
+    intakeMail: FormControl;
+    afrondenMail: FormControl;
+  }>(
+    // @ts-expect-error TODO: init formGroup with correct type
+    {},
+  );
+
+  zaakbeeindigFormGroup = new FormGroup({});
+  smartDocumentsEnabledForm = new FormGroup({
+    enabledForZaaktype: new FormControl<boolean | undefined>(false),
+  });
   betrokkeneKoppelingen = new FormGroup({
     brpKoppelen: new FormControl(false),
     kvkKoppelen: new FormControl(false),
@@ -91,7 +123,7 @@ export class ParameterEditComponent
 
   caseDefinitions: GeneratedType<"RESTCaseDefinition">[] = [];
   domeinen: string[] = [];
-  groepen: GeneratedType<"RestGroup">[];
+  groepen: GeneratedType<"RestGroup">[] = [];
   medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
   resultaattypes: GeneratedType<"RestResultaattype">[] = [];
   referentieTabellen: ReferentieTabel[] = [];
@@ -238,9 +270,9 @@ export class ParameterEditComponent
   getMailtemplateKoppelingControl(
     koppeling: MailtemplateKoppelingMail,
     field: string,
-  ): FormControl {
-    const formGroup = this.mailFormGroup.get(koppeling) as FormGroup;
-    return formGroup.get(field) as FormControl;
+  ) {
+    const formGroup = this.mailFormGroup.get(koppeling);
+    return formGroup?.get(field);
   }
 
   createForm() {
@@ -262,7 +294,7 @@ export class ParameterEditComponent
     this.createMailForm();
     this.createZaakbeeindigForm();
     this.createSmartDocumentsEnabledForm();
-    this.setMedewerkersForGroup(this.parameters.defaultGroepId);
+    this.setMedewerkersForGroup(this.parameters.defaultGroepId ?? "");
 
     this.subscriptions$.push(
       this.algemeenFormGroup.controls.defaultGroepId.valueChanges.subscribe(
@@ -301,10 +333,13 @@ export class ParameterEditComponent
       });
   }
 
-  isHumanTaskParameterValid(humanTaskParameter: GeneratedType<"RESTHumanTaskParameters">): boolean {
+  isHumanTaskParameterValid(
+    humanTaskParameter: GeneratedType<"RESTHumanTaskParameters">,
+  ): boolean {
     return (
-      this.humanTasksFormGroup.get(humanTaskParameter.planItemDefinition?.id ?? "")
-        ?.status === "VALID"
+      this.humanTasksFormGroup.get(
+        humanTaskParameter.planItemDefinition?.id ?? "",
+      )?.status === "VALID"
     );
   }
 
@@ -376,7 +411,10 @@ export class ParameterEditComponent
       const formGroup = this.formBuilder.group({
         toelichting: [parameter.toelichting],
       });
-      this.userEventListenersFormGroup.addControl(parameter.id, formGroup);
+      this.userEventListenersFormGroup.addControl(
+        parameter.id ?? "",
+        formGroup,
+      );
     });
   }
 
@@ -393,6 +431,7 @@ export class ParameterEditComponent
       const formGroup = this.formBuilder.group({
         mailtemplate: mailtemplate?.id,
       });
+      // @ts-expect-error TODO: add proper type to formGroup
       this.mailFormGroup.addControl(beschikbareKoppeling, formGroup);
     });
     this.initZaakAfzenders();
@@ -414,7 +453,9 @@ export class ParameterEditComponent
     });
   }
 
-  isZaaknietontvankelijkParameter(parameter): boolean {
+  isZaaknietontvankelijkParameter(
+    parameter: GeneratedType<"RESTZaakbeeindigParameter">,
+  ) {
     return ZaaknietontvankelijkReden.is(parameter.zaakbeeindigReden);
   }
 
@@ -461,16 +502,13 @@ export class ParameterEditComponent
   updateZaakbeeindigForm(
     parameter: GeneratedType<"RESTZaakbeeindigParameter">,
   ) {
-    const control: FormControl = this.getZaakbeeindigControl(
-      parameter,
-      "beeindigResultaat",
-    );
+    const control = this.getZaakbeeindigControl(parameter, "beeindigResultaat");
     if (this.selection.isSelected(parameter)) {
-      control.addValidators([Validators.required]);
+      control?.addValidators([Validators.required]);
     } else {
-      control.clearValidators();
+      control?.clearValidators();
     }
-    control.updateValueAndValidity({ emitEvent: false });
+    control?.updateValueAndValidity({ emitEvent: false });
   }
 
   changeSelection(
@@ -545,6 +583,7 @@ export class ParameterEditComponent
   private addZaakAfzenderControl(
     zaakAfzender: GeneratedType<"RESTZaakAfzender">,
   ) {
+    // @ts-expect-error TODO: add proper type to `mailFormGroup`
     this.mailFormGroup.addControl(
       "afzender" + (zaakAfzender as { index: number }).index + "__replyTo",
       new FormControl(zaakAfzender.replyTo),
@@ -554,10 +593,8 @@ export class ParameterEditComponent
   getZaakAfzenderControl(
     zaakAfzender: GeneratedType<"RESTZaakAfzender"> & { index?: number },
     field: string,
-  ): FormControl {
-    return this.mailFormGroup.get(
-      `afzender${zaakAfzender.index}__${field}`,
-    ) as FormControl;
+  ) {
+    return this.mailFormGroup.get(`afzender${zaakAfzender.index}__${field}`);
   }
 
   private initAfzenders() {
@@ -589,10 +626,10 @@ export class ParameterEditComponent
   getZaakbeeindigControl(
     parameter: GeneratedType<"RESTZaakbeeindigParameter">,
     field: string,
-  ): FormControl {
+  ) {
     return this.zaakbeeindigFormGroup.get(
       `${parameter.zaakbeeindigReden?.id}__${field}`,
-    ) as FormControl;
+    );
   }
 
   isValid(): boolean {
@@ -623,13 +660,14 @@ export class ParameterEditComponent
       ).value;
       const bestaandeHumanTaskParameter =
         this.parameters.humanTaskParameters.find(
-          (htp) => htp.planItemDefinition.id === param.planItemDefinition.id,
+          ({ planItemDefinition }) =>
+            planItemDefinition?.id === param.planItemDefinition?.id,
         );
       const bestaandeReferentietabellen = bestaandeHumanTaskParameter
         ? bestaandeHumanTaskParameter.referentieTabellen
         : [];
       param.referentieTabellen = [];
-      this.getVeldDefinities(param.formulierDefinitieId ?? "").forEach(
+      this.getVeldDefinities(param.formulierDefinitieId ?? "")?.forEach(
         (value) => {
           const bestaandeHumanTaskReferentieTabel =
             bestaandeReferentietabellen?.find((o) => o.veld === value.naam);
@@ -649,7 +687,7 @@ export class ParameterEditComponent
     this.parameters.humanTaskParameters = this.humanTaskParameters;
     this.userEventListenerParameters.forEach((param) => {
       param.toelichting = this.userEventListenersFormGroup
-        ?.get(param.id)
+        ?.get(param.id ?? "")
         ?.get("toelichting")?.value;
     });
     this.parameters.userEventListenerParameters =
@@ -681,26 +719,40 @@ export class ParameterEditComponent
     this.selection.selected.forEach((param) => {
       if (this.isZaaknietontvankelijkParameter(param)) {
         this.parameters.zaakNietOntvankelijkResultaattype =
-          this.getZaakbeeindigControl(param, "beeindigResultaat").value;
+          this.getZaakbeeindigControl(param, "beeindigResultaat")?.value;
       } else {
         param.resultaattype = this.getZaakbeeindigControl(
           param,
           "beeindigResultaat",
-        ).value;
+        )?.value;
         this.parameters.zaakbeeindigParameters.push(param);
       }
     });
 
     const index: string[] = [];
     for (const afzender of this.parameters.zaakAfzenders) {
-      index[(afzender as { index: number }).index] = afzender.mail;
-      afzender.replyTo = this.getZaakAfzenderControl(afzender, "replyTo").value;
+      if (afzender.mail) {
+        index[(afzender as { index: number }).index] = afzender.mail;
+      }
+      afzender.replyTo = this.getZaakAfzenderControl(
+        afzender,
+        "replyTo",
+      )?.value;
     }
 
-    this.parameters.smartDocuments.enabledForZaaktype =
-      this.smartDocumentsEnabledForm.value.enabledForZaaktype;
+    this.parameters.smartDocuments.enabledForZaaktype = Boolean(
+      this.smartDocumentsEnabledForm.value.enabledForZaaktype,
+    );
 
-    this.parameters.betrokkeneKoppelingen = this.betrokkeneKoppelingen.value;
+    this.parameters.betrokkeneKoppelingen = {
+      kvkKoppelen: Boolean(
+        this.betrokkeneKoppelingen.controls.kvkKoppelen.value,
+      ),
+      brpKoppelen: Boolean(
+        this.betrokkeneKoppelingen.controls.brpKoppelen.value,
+      ),
+    };
+
     this.zaakafhandelParametersService
       .updateZaakafhandelparameters(this.parameters)
       .subscribe(
