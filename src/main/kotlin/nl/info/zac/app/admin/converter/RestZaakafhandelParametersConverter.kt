@@ -18,6 +18,7 @@ import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter.convertRESTZaa
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters
 import net.atos.zac.app.admin.converter.RESTZaaktypeOverzichtConverter
+import net.atos.zac.app.admin.converter.RestBetrokkeneKoppelingenConverter
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.RestSmartDocuments
@@ -124,6 +125,9 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             gebruikersnaamMedewerker = restZaakafhandelParameters.defaultBehandelaarId
             einddatumGeplandWaarschuwing = restZaakafhandelParameters.einddatumGeplandWaarschuwing
             isSmartDocumentsIngeschakeld = restZaakafhandelParameters.smartDocuments.enabledForZaaktype
+            betrokkeneKoppelingen = restBetrokkeneKoppelingenConverter.convert(
+                restZaakafhandelParameters.betrokkeneKoppelingen
+            )
         }.also {
             it.setHumanTaskParametersCollection(
                 humanTaskParametersConverter.convertRESTHumanTaskParameters(
