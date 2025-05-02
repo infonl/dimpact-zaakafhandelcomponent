@@ -66,17 +66,17 @@ export class ParametersComponent
     this.parameters.sortingDataAccessor = (item, property) => {
       switch (property) {
         case "omschrijving":
-          return item.zaaktype.omschrijving;
+          return String(item.zaaktype.omschrijving);
         case "model":
-          return item.caseDefinition?.naam;
+          return String(item.caseDefinition?.naam);
         case "geldig":
-          return item.zaaktype.nuGeldig;
+          return Number(item.zaaktype.nuGeldig);
         case "beginGeldigheid":
-          return item.zaaktype.beginGeldigheid;
+          return String(item.zaaktype.beginGeldigheid);
         case "eindeGeldigheid":
-          return item.zaaktype.eindeGeldigheid;
+          return String(item.zaaktype.eindeGeldigheid);
         default:
-          return item[property];
+          return String(item[property as keyof typeof item]);
       }
     };
 
@@ -111,7 +111,7 @@ export class ParametersComponent
           match &&
           ClientMatcher.matchObject(
             data.zaaktype,
-            parsedFilter.zaaktype,
+            parsedFilter.zaaktype as GeneratedType<"RESTZaaktypeOverzicht">,
             "identificatie",
           );
       }
