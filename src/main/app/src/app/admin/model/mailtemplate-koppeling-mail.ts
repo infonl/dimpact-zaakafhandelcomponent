@@ -14,7 +14,7 @@ export enum MailtemplateKoppelingMail {
 }
 
 export class MailtemplateKoppelingMailUtil {
-  static getBeschikbareMailtemplateKoppelingen(): MailtemplateKoppelingMail[] {
+  static getBeschikbareMailtemplateKoppelingen() {
     return [
       MailtemplateKoppelingMail.ZAAK_ONTVANKELIJK,
       MailtemplateKoppelingMail.ZAAK_NIET_ONTVANKELIJK,

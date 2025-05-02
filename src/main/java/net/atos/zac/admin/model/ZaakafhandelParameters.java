@@ -330,7 +330,9 @@ public class ZaakafhandelParameters {
         this.smartDocumentsIngeschakeld = smartDocumentsIngeschakeld;
     }
 
-    public BetrokkeneKoppelingen getBetrokkeneKoppelingen() { return betrokkeneKoppelingen; }
+    public BetrokkeneKoppelingen getBetrokkeneKoppelingen() {
+        return betrokkeneKoppelingen;
+    }
 
     public void setBetrokkeneKoppelingen(BetrokkeneKoppelingen betrokkeneKoppelingen) {
         this.betrokkeneKoppelingen = betrokkeneKoppelingen;

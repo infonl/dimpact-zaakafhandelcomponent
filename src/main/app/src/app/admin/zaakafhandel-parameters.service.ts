@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024-2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -8,11 +8,11 @@ import { Injectable } from "@angular/core";
 import { Observable, throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { CaseDefinition } from "./model/case-definition";
 import { FormulierDefinitie } from "./model/formulier-definitie";
 import { ReplyTo } from "./model/replyto";
-import { ZaakafhandelParameters } from "./model/zaakafhandel-parameters";
 import { ZaakbeeindigReden } from "./model/zaakbeeindig-reden";
 
 @Injectable({
@@ -22,23 +22,24 @@ export class ZaakafhandelParametersService {
   constructor(
     private http: HttpClient,
     private foutAfhandelingService: FoutAfhandelingService,
+    private readonly zacHttpClient: ZacHttpClient,
   ) {}
 
   private basepath = "/rest/zaakafhandelparameters";
 
-  listZaakafhandelParameters(): Observable<ZaakafhandelParameters[]> {
+  listZaakafhandelParameters() {
     return this.http
-      .get<ZaakafhandelParameters[]>(`${this.basepath}`)
+      .get<GeneratedType<"RestZaakafhandelParameters">[]>(`${this.basepath}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
-  readZaakafhandelparameters(
-    zaaktypeUuid: string,
-  ): Observable<ZaakafhandelParameters> {
+  readZaakafhandelparameters(zaaktypeUuid: string) {
     return this.http
-      .get<ZaakafhandelParameters>(`${this.basepath}/${zaaktypeUuid}`)
+      .get<
+        GeneratedType<"RestZaakafhandelParameters">
+      >(`${this.basepath}/${zaaktypeUuid}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -74,9 +75,11 @@ export class ZaakafhandelParametersService {
       );
   }
 
-  listCaseDefinitions(): Observable<CaseDefinition[]> {
+  listCaseDefinitions() {
     return this.http
-      .get<CaseDefinition[]>(`${this.basepath}/case-definitions`)
+      .get<
+        GeneratedType<"RESTCaseDefinition">[]
+      >(`${this.basepath}/case-definitions`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -91,10 +94,10 @@ export class ZaakafhandelParametersService {
   }
 
   updateZaakafhandelparameters(
-    zaakafhandelparameters: ZaakafhandelParameters,
-  ): Observable<ZaakafhandelParameters> {
-    return this.http
-      .put<ZaakafhandelParameters>(`${this.basepath}`, zaakafhandelparameters)
+    zaakafhandelparameters: GeneratedType<"RestZaakafhandelParameters">,
+  ) {
+    return this.zacHttpClient
+      .PUT("/rest/zaakafhandelparameters", zaakafhandelparameters)
       .pipe(
         catchError((err) => {
           this.foutAfhandelingService.foutAfhandelen(err);
