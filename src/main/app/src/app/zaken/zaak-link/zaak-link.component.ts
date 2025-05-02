@@ -53,12 +53,12 @@ export class ZaakLinkComponent implements OnDestroy {
 
   protected caseRelationOptionsList = [
     {
-      label: `zaak.koppelen.link.type.${ZaakRelatietype.HOOFDZAAK}`,
-      value: ZaakRelatietype.HOOFDZAAK,
-    },
-    {
       label: `zaak.koppelen.link.type.${ZaakRelatietype.DEELZAAK}`,
       value: ZaakRelatietype.DEELZAAK,
+    },
+    {
+      label: `zaak.koppelen.link.type.${ZaakRelatietype.HOOFDZAAK}`,
+      value: ZaakRelatietype.HOOFDZAAK,
     },
   ];
 
