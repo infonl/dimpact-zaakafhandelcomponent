@@ -26,7 +26,7 @@ open class BetrokkeneKoppelingen(
     @OneToOne
     @JoinColumn(name = "id_zaakafhandelparameters", referencedColumnName = "id_zaakafhandelparameters")
     @NotNull
-    var zaakafhandelParameters: ZaakafhandelParameters? = null,
+    var zaakafhandelParameters: ZaakafhandelParameters,
 
     @Column(name = "brpKoppelen")
     var brpKoppelen: Boolean = false,
