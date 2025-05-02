@@ -125,9 +125,6 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             gebruikersnaamMedewerker = restZaakafhandelParameters.defaultBehandelaarId
             einddatumGeplandWaarschuwing = restZaakafhandelParameters.einddatumGeplandWaarschuwing
             isSmartDocumentsIngeschakeld = restZaakafhandelParameters.smartDocuments.enabledForZaaktype
-            betrokkeneKoppelingen = restBetrokkeneKoppelingenConverter.convert(
-                restZaakafhandelParameters.betrokkeneKoppelingen
-            )
         }.also {
             it.setHumanTaskParametersCollection(
                 humanTaskParametersConverter.convertRESTHumanTaskParameters(
