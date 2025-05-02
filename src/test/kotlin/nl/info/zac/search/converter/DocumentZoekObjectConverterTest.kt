@@ -50,7 +50,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
             An enkelvoudig informatieobject with no indicatiegebruiksrecht, no archiefnominatie 
             and a related zaakinformatieobject for a zaak
         """
-        ) {
+    ) {
         val documentUUID = UUID.randomUUID()
         val zaaktypeUUID = UUID.randomUUID()
         val informatieObjectType = createInformatieObjectType()
@@ -98,7 +98,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
             An enkelvoudig informatieobject with an 'indicatie gebruiksrecht', an archiefnominatie
             and a related zaakinformatieobject for a zaak
             """
-        ) {
+    ) {
         val documentUUID = UUID.randomUUID()
         val zaaktypeUUID = UUID.randomUUID()
         val informatieObjectType = createInformatieObjectType()
