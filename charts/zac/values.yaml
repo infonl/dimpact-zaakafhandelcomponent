@@ -58,7 +58,7 @@ zgwApis:
   clientId: ""
   secret: ""
 
-# -- Configuration of the notifications receiving endpoint.
+# API key for the ZGW Notificaties Consumer API - ZAC integration; also needs to be configured in Open Notificaties
 notificationsSecretKey: ""
 
 # klantenApi Configuration of Klanten API provider (Open Klant)
@@ -87,19 +87,22 @@ brpApi:
     # -- Verwerking for BRP Protocollering
     verwerking: "zaakafhandelcomponent"
 
-# kvkApi Configuration of the KVK API provider (KVK)
+# Configuration of the KVK API provider (KVK)
 kvkApi:
   url: ""  # https://developers.kvk.nl/test
   apiKey: ""
 
-# bagApi Configuration of the BAG API provider (Kadaster)
+# Configuration of the BAG API provider (Kadaster)
 bagApi:
   url: ""  # https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2
   apiKey: ""
 
-# openForms Configuration of the Open Forms URL
+# Open Formulieren configuration of the Open Forms URL
 openForms:
   url: ""  # https://open-forms.example.com
+
+# API key for authentication of internal ZAC endpoints
+zacInternalEndpointsApiKey: ""
 
 smartDocuments:
   # -- Enable SmartDocuments integration for creating a new document
