@@ -122,9 +122,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakProductaanvraag1Uuid/zoek-koppelbare-zaken" +
                     "?zoekZaakIdentifier=$ZOEK_ZAAK_IDENTIFIER" +
-                    "&relationType=DEELZAAK" +
-                    "&rows=$ROWS_DEFAULT" +
-                    "&page=$PAGE_DEFAULT"
+                    "&relationType=DEELZAAK"
             )
 
             Then("returns list of zaken each with a linkable flag") {
