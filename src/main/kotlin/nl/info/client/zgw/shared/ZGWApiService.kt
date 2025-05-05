@@ -269,13 +269,18 @@ class ZGWApiService @Inject constructor(
             it as RolMedewerker
         }
 
-    fun findInitiatorRoleForZaak(zaak: Zaak): Rol<*>? =
-        ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
-            // there should be only one initiator role type,
-            // but in case there are multiple, we take the first one
-            .firstOrNull()?.let {
-                zrcClientService.listRollen(RolListParameters(zaak.url, it.url)).getSingleResult().getOrNull()
-            }
+    fun findInitiatorRoleForZaak(zaak: Zaak): Rol<*>? {
+        val roleTypes = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
+        if (roleTypes.size > 1) {
+            LOG.warning("Multiple initiator role types found for zaaktype: '${zaak.zaaktype}', using the first one.")
+        }
+        val rolType = roleTypes.firstOrNull() ?: return null
+        val roles = zrcClientService.listRollen(RolListParameters(zaak.url, rolType.url)).results
+        if (roles.size > 1) {
+            error("More then one initiator role found for zaak with UUID: '${zaak.uuid}' (count: ${roles.size})")
+        }
+        return roles.firstOrNull()
+    }
 
     private fun findBehandelaarRoleForZaak(
         zaak: Zaak,
