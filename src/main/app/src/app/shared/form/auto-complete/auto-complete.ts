@@ -52,7 +52,8 @@ export class ZacAutoComplete<
       this.filteredOptions = this.availableOptions.filter((option) => {
         if (!value) return true;
 
-        const valueToFilter = typeof value === "string" ? value : this.displayWith(value);
+        const valueToFilter =
+          typeof value === "string" ? value : this.displayWith(value);
 
         return this.displayWith(option)
           .toLowerCase()
@@ -97,7 +98,7 @@ export class ZacAutoComplete<
     FormHelper.getErrorMessage(this.control, this.translateService);
 
   private setOptions(input: Array<Option> | null) {
-    if(!input) return;
+    if (!input) return;
 
     this.availableOptions = this.filteredOptions = input;
   }

@@ -35,10 +35,10 @@
     <mat-icon>clear</mat-icon>
   </button>
   <span matSuffix>
-      <ng-content>
-        <ng-content select="button"></ng-content>
-        <ng-content select="mat-icon"></ng-content>
-      </ng-content>
+    <ng-content>
+      <ng-content select="button"></ng-content>
+      <ng-content select="mat-icon"></ng-content>
+    </ng-content>
   </span>
   <mat-error>{{ getErrorMessage() }}</mat-error>
   <mat-hint>

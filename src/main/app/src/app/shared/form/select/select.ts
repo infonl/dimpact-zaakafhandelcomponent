@@ -12,14 +12,14 @@ import {
   OnInit,
   SimpleChanges,
 } from "@angular/core";
-import {AbstractControl, FormGroup, Validators} from "@angular/forms";
+import { AbstractControl, FormGroup, Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { FormHelper } from "../helpers";
 
 @Component({
   selector: "zac-select",
-  templateUrl: "./select.html"
+  templateUrl: "./select.html",
 })
 export class ZacSelect<
     Form extends Record<string, AbstractControl>,
@@ -34,7 +34,7 @@ export class ZacSelect<
   @Input({ required: true }) form!: FormGroup<Form>;
   @Input({ required: true }) options!: Array<Option> | null;
   @Input() optionDisplayValue?: OptionDisplayValue;
-  @Input() optionDisplayValuePrefix = ""
+  @Input() optionDisplayValuePrefix = "";
   @Input() compare?: Compare;
   @Input() label?: string;
   /**
@@ -96,11 +96,11 @@ export class ZacSelect<
     FormHelper.getErrorMessage(this.control, this.translateService);
 
   protected get placeholder() {
-    return this.isRequired() ? `-kies-` : "-geen-"
+    return this.isRequired() ? `-kies-` : "-geen-";
   }
 
   private setOptions(input: Array<Option> | null) {
-    if (!input) return
+    if (!input) return;
 
     this.availableOptions = input;
   }
