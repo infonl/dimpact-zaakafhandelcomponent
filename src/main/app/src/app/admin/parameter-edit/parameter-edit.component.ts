@@ -40,7 +40,6 @@ import {
 } from "../model/mailtemplate-koppeling-mail";
 import { ReferentieTabel } from "../model/referentie-tabel";
 import { ReplyTo } from "../model/replyto";
-import { ZaaknietontvankelijkReden } from "../model/zaaknietontvankelijk-reden";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
@@ -88,26 +87,24 @@ export class ParameterEditComponent
   mailtemplateKoppelingen =
     MailtemplateKoppelingMailUtil.getBeschikbareMailtemplateKoppelingen();
 
-  algemeenFormGroup = new FormGroup<{
-    caseDefinition: FormControl;
-    domein: FormControl;
-    defaultGroepId: FormControl;
-    defaultBehandelaarId: FormControl;
-    einddatumGeplandWaarschuwing: FormControl;
-    uiterlijkeEinddatumAfdoeningWaarschuwing: FormControl;
-    productaanvraagtype: FormControl;
-  }>(
-    // @ts-expect-error TODO: init formGroup with correct type
-    {},
+  algemeenFormGroup = new FormGroup(
+    {
+      caseDefinition: new FormControl(),
+        domein: new FormControl(),
+        defaultGroepId: new FormControl(),
+        defaultBehandelaarId: new FormControl(),
+        einddatumGeplandWaarschuwing: new FormControl(),
+        uiterlijkeEinddatumAfdoeningWaarschuwing: new FormControl(),
+        productaanvraagtype: new FormControl(),
+    },
   );
   humanTasksFormGroup = new FormGroup({});
   userEventListenersFormGroup = new FormGroup({});
-  mailFormGroup = new FormGroup<{
-    intakeMail: FormControl;
-    afrondenMail: FormControl;
-  }>(
-    // @ts-expect-error TODO: init formGroup with correct type
-    {},
+  mailFormGroup = new FormGroup(
+    {
+        intakeMail: new FormControl(),
+        afrondenMail: new FormControl(),
+    },
   );
 
   zaakbeeindigFormGroup = new FormGroup({});
@@ -140,8 +137,8 @@ export class ParameterEditComponent
     public configuratieService: ConfiguratieService,
     private identityService: IdentityService,
     private route: ActivatedRoute,
-    private referentieTabelService: ReferentieTabelService,
-    private mailtemplateBeheerService: MailtemplateBeheerService,
+    referentieTabelService: ReferentieTabelService,
+    mailtemplateBeheerService: MailtemplateBeheerService,
     private formBuilder: FormBuilder,
     private cdr: ChangeDetectorRef,
   ) {
@@ -294,7 +291,7 @@ export class ParameterEditComponent
     this.createMailForm();
     this.createZaakbeeindigForm();
     this.createSmartDocumentsEnabledForm();
-    this.setMedewerkersForGroup(this.parameters.defaultGroepId ?? "");
+    this.setMedewerkersForGroup(this.parameters.defaultGroepId);
 
     this.subscriptions$.push(
       this.algemeenFormGroup.controls.defaultGroepId.valueChanges.subscribe(
@@ -325,7 +322,9 @@ export class ParameterEditComponent
     );
   }
 
-  private setMedewerkersForGroup(groepId: string) {
+  private setMedewerkersForGroup(groepId?: string | null) {
+    if(!groepId) return
+
     return this.identityService
       .listUsersInGroup(groepId)
       .subscribe((medewerkers) => {
@@ -456,7 +455,7 @@ export class ParameterEditComponent
   isZaaknietontvankelijkParameter(
     parameter: GeneratedType<"RESTZaakbeeindigParameter">,
   ) {
-    return ZaaknietontvankelijkReden.is(parameter.zaakbeeindigReden);
+    return parameter.zaakbeeindigReden === undefined
   }
 
   private addZaakbeeindigParameter(
