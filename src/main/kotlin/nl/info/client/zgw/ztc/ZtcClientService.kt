@@ -9,12 +9,9 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.stats.CacheStats
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import jakarta.ws.rs.core.HttpHeaders
-import jakarta.ws.rs.core.MediaType
-import net.atos.client.util.JAXRSClientFactory
 import net.atos.client.zgw.shared.cache.Caching
 import net.atos.client.zgw.shared.model.Results
-import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
+import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.exception.CatalogusNotFoundException
 import nl.info.client.zgw.ztc.exception.RoltypeNotFoundException
 import nl.info.client.zgw.ztc.model.BesluittypeListParameters
@@ -34,7 +31,6 @@ import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.client.zgw.ztc.model.generated.ZaakTypeInformatieObjectType
-import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
@@ -53,9 +49,7 @@ import java.util.logging.Logger
 @Suppress("TooManyFunctions")
 class ZtcClientService @Inject constructor(
     @RestClient
-    private val ztcClient: ZtcClient,
-    private val zgwClientHeadersFactory: ZGWClientHeadersFactory,
-    private val configuratieService: ConfiguratieService
+    private val ztcClient: ZtcClient
 ) : Caching {
     companion object {
         const val MAX_CACHE_SIZE: Long = 1_000
@@ -81,30 +75,19 @@ class ZtcClientService @Inject constructor(
         private val uuidToZaakTypeCache: Cache<UUID, ZaakType> = createCache("UUID -> ZaakType")
         private val uriToZaakTypeCache: Cache<URI, ZaakType> = createCache("URI -> ZaakType")
         private val uriToZaakTypeListCache: Cache<URI, List<ZaakType>> = createCache("URI -> List<ZaakType>")
-
-        private val uriToStatusTypeCache: Cache<URI, StatusType> = createCache("URI -> StatusType")
         private val uuidToStatusTypeCache: Cache<UUID, StatusType> = createCache("UUID -> StatusType")
         private val uriToStatusTypeListCache: Cache<URI, List<StatusType>> = createCache("URI -> List<StatusType>")
-
         private val uriToZaakTypeInformatieObjectTypeListCache: Cache<URI, List<ZaakTypeInformatieObjectType>> =
             createCache("URI -> List<ZaakTypeInformatieObjectType")
-
-        private val uriToInformatieObjectTypeCache: Cache<URI, InformatieObjectType> =
-            createCache("URI -> InformatieObjectType")
         private val uuidToInformatieObjectTypeCache: Cache<UUID, InformatieObjectType> =
             createCache("UUID -> InformatieObjectType")
         private val uriToInformatieObjectTypeListCache: Cache<URI, List<InformatieObjectType>> =
             createCache("URI -> List<InformatieObjectType>")
-
-        private val uriToResultaatTypeCache: Cache<URI, ResultaatType> = createCache("URI -> ResultaatType")
         private val uuidToResultaatTypeCache: Cache<UUID, ResultaatType> = createCache("UUID -> ResultaatType")
         private val uriToResultaatTypeListCache: Cache<URI, List<ResultaatType>> =
             createCache("URI -> List<ResultaatType>")
-
-        private val uriToBesluitTypeCache: Cache<URI, BesluitType> = createCache("URI -> BesluitType")
         private val uuidToBesluitTypeCache: Cache<UUID, BesluitType> = createCache("UUID -> BesluitType")
         private val uriToBesluitTypeListCache: Cache<URI, List<BesluitType>> = createCache("URI -> List<BesluitType>")
-
         private val uriOmschrijvingEnumToRolTypeCache: Cache<String, List<RolType>> =
             createCache("URI & OmschrijvingEnumT -> RolType")
         private val uriOmschrijvingGeneriekEnumToRolTypeCache: Cache<String, List<RolType>> =
@@ -142,9 +125,7 @@ class ZtcClientService @Inject constructor(
      * @param zaaktypeURI URI of [ZaakType].
      * @return [ZaakType]. Never 'null'!
      */
-    fun readZaaktype(zaaktypeURI: URI): ZaakType = uriToZaakTypeCache.get(zaaktypeURI) {
-        createInvocationBuilder(zaaktypeURI).get(ZaakType::class.java)
-    }
+    fun readZaaktype(zaaktypeURI: URI): ZaakType = readZaaktype(zaaktypeURI.extractUuid())
 
     /**
      * Read [ZaakType] via UUID.
@@ -174,9 +155,7 @@ class ZtcClientService @Inject constructor(
      * @param statustypeURI URI of [StatusType].
      * @return [StatusType]. Never 'null'!
      */
-    fun readStatustype(statustypeURI: URI): StatusType = uriToStatusTypeCache.get(statustypeURI) {
-        createInvocationBuilder(statustypeURI).get(StatusType::class.java)
-    }
+    fun readStatustype(statustypeURI: URI): StatusType = readStatustype(statustypeURI.extractUuid())
 
     /**
      * Read [StatusType] via its UUID.
@@ -230,9 +209,7 @@ class ZtcClientService @Inject constructor(
      * @param resultaattypeURI URI of [ResultaatType].
      * @return [ResultaatType]. Never 'null'!
      */
-    fun readResultaattype(resultaattypeURI: URI): ResultaatType = uriToResultaatTypeCache.get(resultaattypeURI) {
-        createInvocationBuilder(resultaattypeURI).get(ResultaatType::class.java)
-    }
+    fun readResultaattype(resultaattypeURI: URI): ResultaatType = readResultaattype(resultaattypeURI.extractUuid())
 
     /**
      * Read [BesluitType] via its URI.
@@ -241,9 +218,7 @@ class ZtcClientService @Inject constructor(
      * @param besluittypeURI URI of [BesluitType].
      * @return [BesluitType]. Never 'null'!
      */
-    fun readBesluittype(besluittypeURI: URI): BesluitType = uriToBesluitTypeCache.get(besluittypeURI) {
-        createInvocationBuilder(besluittypeURI).get(BesluitType::class.java)
-    }
+    fun readBesluittype(besluittypeURI: URI): BesluitType = readBesluittype(besluittypeURI.extractUuid())
 
     /**
      * Read [BesluitType] via its UUID.
@@ -374,9 +349,7 @@ class ZtcClientService @Inject constructor(
      * @return [InformatieObjectType]. Never 'null'!
      */
     fun readInformatieobjecttype(informatieobjecttypeURI: URI): InformatieObjectType =
-        uriToInformatieObjectTypeCache.get(informatieobjecttypeURI) {
-            createInvocationBuilder(informatieobjecttypeURI).get(InformatieObjectType::class.java)
-        }
+        readInformatieobjecttype(informatieobjecttypeURI.extractUuid())
 
     /**
      * Read [InformatieObjectType] via its UUID.
@@ -398,21 +371,18 @@ class ZtcClientService @Inject constructor(
     }
 
     fun clearStatustypeCache(): String {
-        uriToStatusTypeCache.invalidateAll()
         uuidToStatusTypeCache.invalidateAll()
         uriToStatusTypeListCache.invalidateAll()
         return cleared(Caching.ZTC_STATUSTYPE)
     }
 
     fun clearResultaattypeCache(): String {
-        uriToResultaatTypeCache.invalidateAll()
         uuidToResultaatTypeCache.invalidateAll()
         uriToResultaatTypeListCache.invalidateAll()
         return cleared(Caching.ZTC_RESULTAATTYPE)
     }
 
     fun clearInformatieobjecttypeCache(): String {
-        uriToInformatieObjectTypeCache.invalidateAll()
         uuidToInformatieObjectTypeCache.invalidateAll()
         uriToInformatieObjectTypeListCache.invalidateAll()
         return cleared(Caching.ZTC_INFORMATIEOBJECTTYPE)
@@ -424,7 +394,6 @@ class ZtcClientService @Inject constructor(
     }
 
     fun clearBesluittypeCache(): String {
-        uriToBesluitTypeCache.invalidateAll()
         uuidToBesluitTypeCache.invalidateAll()
         uriToBesluitTypeListCache.invalidateAll()
         return cleared(Caching.ZTC_BESLUITTYPE)
@@ -449,17 +418,4 @@ class ZtcClientService @Inject constructor(
 
     override fun estimatedCacheSizes(): Map<String, Long> =
         CACHES.mapValuesTo(mutableMapOf()) { it.value.estimatedSize() }
-
-    private fun createInvocationBuilder(uri: URI) =
-        // for security reasons check if the provided URI starts with the value of the
-        // environment variable that we use to configure the ztcClient
-        uri.toString().startsWith(configuratieService.readZgwApiClientMpRestUrl()).let {
-            JAXRSClientFactory.getOrCreateClient().target(uri)
-                .request(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, zgwClientHeadersFactory.generateJWTToken())
-        } ?: throw IllegalStateException(
-            "URI '$uri' does not start with value for environment variable " +
-                "'${ConfiguratieService.ENV_VAR_ZGW_API_CLIENT_MP_REST_URL}': " +
-                "'${configuratieService.readZgwApiClientMpRestUrl()}'"
-        )
 }

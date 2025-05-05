@@ -130,9 +130,17 @@ public interface ZrcClient {
     @Path("statussen")
     Status statusCreate(final Status status);
 
+    @GET
+    @Path("statussen/{status_uuid}")
+    Status statusRead(@PathParam("status_uuid") final UUID statusUUID);
+
     @POST
     @Path("resultaten")
     Resultaat resultaatCreate(final Resultaat resultaat);
+
+    @GET
+    @Path("resultaten/{uuid}")
+    Resultaat resultaatRead(@PathParam("uuid") final UUID resultaatUUID);
 
     @PUT
     @Path("resultaten/{uuid}")

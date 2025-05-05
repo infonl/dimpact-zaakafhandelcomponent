@@ -8,7 +8,7 @@ package net.atos.zac.websocket.event;
 import static net.atos.zac.event.Opcode.DELETED;
 import static net.atos.zac.event.Opcode.SKIPPED;
 import static net.atos.zac.event.Opcode.UPDATED;
-import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
+import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 
 import java.net.URI;
 import java.util.EnumSet;

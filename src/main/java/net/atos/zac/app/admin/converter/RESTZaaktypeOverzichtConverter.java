@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.admin.converter;
 
-import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
+import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 import static nl.info.client.zgw.ztc.model.extensions.ZaakTypeExtensionsKt.isNuGeldig;
 import static nl.info.client.zgw.ztc.model.extensions.ZaakTypeExtensionsKt.isServicenormBeschikbaar;
 
