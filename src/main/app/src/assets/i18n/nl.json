@@ -506,6 +506,7 @@
   "mailtemplate.variabele.ZAAK_URL": "De zaakafhandelcomponent-URL van de zaak.",
   "planitem.INTAKE_AFRONDEN": "Intake afronden",
   "planitem.INTAKE_AFRONDEN.toelichting": "Deze zaak zal als niet ontvankelijk wordt bevonden, en zal direct worden afgehandeld.",
+  "planitem.INTAKE_AFRONDEN.toelichting.opgeshort": "Deze actie is niet mogelijk omdat de zaak momenteel is opgeschort. De zaak moet eerst hervat worden.",
   "planitem.ZAAK_AFHANDELEN": "Zaak afhandelen",
   "statusmail.optie.BESCHIKBAAR_AAN": "Beschikbaar en standaard aan",
   "statusmail.optie.BESCHIKBAAR_UIT": "Beschikbaar en standaard uit",
