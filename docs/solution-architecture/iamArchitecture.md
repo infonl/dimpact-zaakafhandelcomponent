@@ -37,3 +37,14 @@ The following components are part of the ZAC IAM architecture:
 | [Keycloak](https://www.keycloak.org/)       | Open Source Identity and Access Management product. | ZAC uses Keycloak for authentication and authorization. ZAC authenticates to Keycloak using OIDC (OpenID Connect). ZAC also uses Keycloak to retrieve users and groups, for example to be able to assign zaken. |
 
 For details about the OPA access control policies and roles used by ZAC please see: [access control policies](accessControlPolicies.md).
+
+## Internal endpoints
+
+ZAC exposes some 'internal' endpoints (on `/rest/internal/*`) which are not called by the ZAC user interface but rather by other components in the ZAC architecture,
+such as Kubernetes cron jobs or scripts which can be run manually.
+
+Because in these system integrations there is no end-user available, these endpoints are secured using a simple built-in API key mechanism. This works as follows:
+- The API key is a simple string which needs to be passed with all internal HTTP(S) requests in the `X-API-KEY` HTTP header.
+- If the API key is not provided the internal endpoint will return a 401 Unauthorized response.
+- On deployment ZAC needs to be configured with a value for this API key. This value is also used to configure specific ZAC Kubernetes cron jobs that use these 
+internal endpoints. Please see the [ZAC Helm Chart](../../charts/zac) for details.
