@@ -18,159 +18,136 @@
     <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
   </mat-sidenav>
   <mat-sidenav-content class="flex-col gap-20">
-    <mat-stepper
-      orientation="horizontal"
-      [linear]="!algemeenFormGroup.valid"
-      *ngIf="algemeenFormGroup"
-    >
-      <mat-step [stepControl]="algemeenFormGroup">
+    <mat-stepper orientation="horizontal" [linear]="!form.valid">
+      <mat-step [stepControl]="form.controls.general">
         <ng-template matStepLabel>{{
           "gegevens.algemeen" | translate
         }}</ng-template>
-        <form [formGroup]="algemeenFormGroup" class="flex-col">
-          <div class="flex-row flex-wrap gap-20">
-            <zac-static-text
-              class="w33 w100-md"
-              [label]="'zaaktypeOmschrijving' | translate"
-              [value]="parameters.zaaktype.omschrijving"
-            ></zac-static-text>
-            <zac-static-text
-              class="w33 w100-md"
-              [label]="'doel' | translate"
-              [value]="parameters.zaaktype.doel"
-            ></zac-static-text>
-          </div>
-          <div class="flex-row flex-wrap gap-20">
-            <zac-static-text
-              class="w33 w100-md"
-              [label]="'identificatie' | translate"
-              [value]="parameters.zaaktype.identificatie"
-            ></zac-static-text>
-            <zac-static-text
-              class="w33 w100-md"
-              [label]="'uuid' | translate"
-              [value]="parameters.zaaktype.uuid"
-            ></zac-static-text>
-          </div>
-          <div class="flex-row flex-wrap gap-20">
-            <mat-form-field class="w33 w100-md" floatLabel="always">
-              <mat-label>{{ "caseDefinition" | translate }}</mat-label>
-              <mat-select
-                placeholder="{{ 'model.-kies-' | translate }}"
-                (selectionChange)="caseDefinitionChanged($event)"
-                formControlName="caseDefinition"
-                [compareWith]="compareObject"
-              >
-                <mat-option *ngFor="let cd of caseDefinitions" [value]="cd">{{
-                  cd.naam
-                }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field class="w33 w100-md" floatLabel="always">
-              <mat-label>{{ "domein" | translate }}</mat-label>
-              <mat-select
-                placeholder="{{ 'domein.-geen-' | translate }}"
-                formControlName="domein"
-                [compareWith]="compareObject"
-              >
-                <mat-option [value]="">{{
-                  "domein.-geen-" | translate
-                }}</mat-option>
-                <mat-option *ngFor="let domein of domeinen" [value]="domein">{{
-                  domein
-                }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-          <div class="flex-row flex-wrap gap-20">
-            <mat-form-field class="w33 w100-md" floatLabel="always">
-              <mat-label>{{ "groep" | translate }}</mat-label>
-              <mat-select
-                placeholder="{{ 'groep.-kies-' | translate }}"
-                formControlName="defaultGroepId"
-                [compareWith]="compareObject"
-              >
-                <mat-option *ngFor="let groep of groepen" [value]="groep.id">{{
-                  groep.naam
-                }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field class="w33 w100-md" floatLabel="always">
-              <mat-label>{{ "behandelaar" | translate }}</mat-label>
-              <mat-select
-                placeholder="{{ 'behandelaar.-geen-' | translate }}"
-                formControlName="defaultBehandelaarId"
-                [compareWith]="compareObject"
-              >
-                <mat-option [value]="">{{
-                  "behandelaar.-geen-" | translate
-                }}</mat-option>
-                <mat-option *ngFor="let b of medewerkers" [value]="b.id">{{
-                  b.naam
-                }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-          <div class="flex-row flex-wrap gap-20">
-            <mat-form-field
-              *ngIf="parameters.zaaktype.servicenorm"
-              class="w33 w100-md"
-              floatLabel="always"
-            >
-              <mat-label>{{
-                "einddatumGeplandWaarschuwing" | translate
-              }}</mat-label>
-              <input
-                matInput
-                type="number"
-                [attr.inputmode]="'numeric'"
-                min="0"
-                max="31"
-                formControlName="einddatumGeplandWaarschuwing"
-              />
-              <span matSuffix>{{ "kalenderdagen" | translate }}</span>
-            </mat-form-field>
-            <mat-form-field class="w33 w100-md" floatLabel="always">
-              <mat-label>{{
-                "uiterlijkeEinddatumAfdoeningWaarschuwing" | translate
-              }}</mat-label>
-              <input
-                matInput
-                type="number"
-                min="0"
-                max="31"
-                formControlName="uiterlijkeEinddatumAfdoeningWaarschuwing"
-              />
-              <span matSuffix>{{ "kalenderdagen" | translate }}</span>
-            </mat-form-field>
-          </div>
-          <div class="flex-row flex-wrap gap-20">
-            <mat-form-field class="w33 w100-md" floatLabel="always">
-              <mat-label>{{ "productaanvraagtype" | translate }}</mat-label>
-              <input matInput formControlName="productaanvraagtype" />
-            </mat-form-field>
-          </div>
+        <ng-template matStepContent>
+          <form [formGroup]="form.controls.general" class="flex-col">
+            <fieldset>
+              <section class="row">
+                <zac-static-text
+                  class="col-12 col-md-6"
+                  [label]="'zaaktypeOmschrijving' | translate"
+                  [value]="parameters.zaaktype.omschrijving"
+                ></zac-static-text>
+                <zac-static-text
+                  class="col-12 col-md-6"
+                  [label]="'doel' | translate"
+                  [value]="parameters.zaaktype.doel"
+                ></zac-static-text>
+              </section>
+              <section class="row">
+                <zac-static-text
+                  class="col-12 col-md-6"
+                  [label]="'identificatie' | translate"
+                  [value]="parameters.zaaktype.identificatie"
+                ></zac-static-text>
+                <zac-static-text
+                  class="col-12 col-md-6"
+                  [label]="'uuid' | translate"
+                  [value]="parameters.zaaktype.uuid"
+                ></zac-static-text>
+              </section>
+            </fieldset>
+            <fieldset>
+              <section class="row">
+                <zac-select
+                  [form]="form.controls.general"
+                  key="caseDefinition"
+                  class="col-12 col-md-6"
+                  [options]="caseDefinitions$ | async"
+                  optionDisplayValue="naam"
+                ></zac-select>
+                <zac-select
+                  [form]="form.controls.general"
+                  key="domain"
+                  class="col-12 col-md-6"
+                  [options]="domains$ | async"
+                ></zac-select>
+              </section>
+              <section class="row">
+                <zac-auto-complete
+                  key="defaultGroup"
+                  class="col-12 col-md-6"
+                  [form]="form.controls.general"
+                  [options]="groups$ | async"
+                  optionDisplayValue="naam"
+                >
+                  <mat-label>{{ "groep" | translate }}</mat-label>
+                </zac-auto-complete>
+                <zac-auto-complete
+                  class="col-12 col-md-6"
+                  key="defaultCaseWorker"
+                  optionDisplayValue="naam"
+                  [form]="form.controls.general"
+                  [options]="users"
+                >
+                  <mat-label>{{ "behandelaar" | translate }}</mat-label>
+                </zac-auto-complete>
+              </section>
+              <section class="row">
+                <div
+                  class="col-12 col-md-6"
+                  *ngIf="!parameters.zaaktype.servicenorm"
+                >
+                  <!-- spacer -->
+                </div>
+                <zac-input
+                  *ngIf="parameters.zaaktype.servicenorm"
+                  class="col-12 col-md-6"
+                  key="einddatumGeplandWaarschuwing"
+                  [form]="form.controls.general"
+                  type="number"
+                >
+                  <mat-label>{{
+                    "einddatumGeplandWaarschuwing" | translate
+                  }}</mat-label>
+                  <span matSuffix>{{ "kalenderdagen" | translate }}</span>
+                </zac-input>
+                <zac-input
+                  class="col-12 col-md-6"
+                  key="uiterlijkeEinddatumAfdoeningWaarschuwing"
+                  [form]="form.controls.general"
+                  type="number"
+                >
+                  <mat-label>{{
+                    "uiterlijkeEinddatumAfdoeningWaarschuwing" | translate
+                  }}</mat-label>
+                  <span matSuffix>{{ "kalenderdagen" | translate }}</span>
+                </zac-input>
+              </section>
+              <section class="row">
+                <zac-input
+                  class="col-12 col-md-6"
+                  key="productaanvraagtype"
+                  [form]="form.controls.general"
+                ></zac-input>
+              </section>
+            </fieldset>
 
-          <div class="flex-row flex-wrap gap-5">
-            <mat-icon color="warn">warning</mat-icon>
-            <small>{{
-              "msg.zaakafhandelparameters.waarschuwing" | translate
-            }}</small>
-          </div>
-          <div class="button-group flex-row flex-wrap">
-            <button mat-raised-button matStepperNext>
-              {{ "actie.volgende" | translate }}
-            </button>
-            <button
-              mat-raised-button
-              color="primary"
-              [disabled]="!isValid() || loading"
-              (click)="opslaan()"
-            >
-              {{ "actie.opslaan" | translate }}
-            </button>
-          </div>
-        </form>
+            <div class="flex-row flex-wrap gap-5">
+              <mat-icon color="warn">warning</mat-icon>
+              <small>{{
+                "msg.zaakafhandelparameters.waarschuwing" | translate
+              }}</small>
+            </div>
+            <div class="button-group flex-row flex-wrap">
+              <button mat-raised-button matStepperNext>
+                {{ "actie.volgende" | translate }}
+              </button>
+              <button
+                mat-raised-button
+                color="primary"
+                [disabled]="!isValid() || loading"
+                (click)="opslaan()"
+              >
+                {{ "actie.opslaan" | translate }}
+              </button>
+            </div>
+          </form>
+        </ng-template>
       </mat-step>
       <mat-step [stepControl]="humanTasksFormGroup">
         <ng-template matStepLabel>{{
@@ -262,7 +239,7 @@
                         "groep.-geen-" | translate
                       }}</mat-option>
                       <mat-option
-                        *ngFor="let groep of groepen"
+                        *ngFor="let groep of groups$ | async"
                         [value]="groep.id"
                         >{{ groep.naam }}</mat-option
                       >
@@ -775,5 +752,8 @@
         </ng-template>
       </mat-step>
     </mat-stepper>
+      <section>
+
+      </section>
   </mat-sidenav-content>
 </mat-sidenav-container>

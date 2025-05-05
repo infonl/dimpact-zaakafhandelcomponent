@@ -76,10 +76,8 @@ export class ZaakafhandelParametersService {
   }
 
   listCaseDefinitions() {
-    return this.http
-      .get<
-        GeneratedType<"RESTCaseDefinition">[]
-      >(`${this.basepath}/case-definitions`)
+    return this.zacHttpClient
+      .GET("/rest/zaakafhandelparameters/case-definitions")
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

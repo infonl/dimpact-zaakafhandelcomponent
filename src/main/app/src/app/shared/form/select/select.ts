@@ -14,12 +14,12 @@ import {
 } from "@angular/core";
 import { AbstractControl, FormGroup, Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { Observable, Subject, takeUntil } from "rxjs";
+import { Subject } from "rxjs";
 import { FormHelper } from "../helpers";
 
 @Component({
   selector: "zac-select",
-  templateUrl: "./select.html",
+  templateUrl: "./select.html"
 })
 export class ZacSelect<
     Form extends Record<string, AbstractControl>,
@@ -32,9 +32,7 @@ export class ZacSelect<
 {
   @Input({ required: true }) key!: Key & string;
   @Input({ required: true }) form!: FormGroup<Form>;
-  @Input({ required: true }) options!:
-    | Array<Option>
-    | Observable<Array<Option>>;
+  @Input({ required: true }) options!: Array<Option> | null;
   @Input() optionDisplayValue?: OptionDisplayValue;
   @Input() compare?: Compare;
   @Input() label?: string;
@@ -101,13 +99,9 @@ export class ZacSelect<
     return this.isRequired() ? `${key}.-kies-` : `${key}.-geen-`;
   }
 
-  private setOptions(input: Array<Option> | Observable<Array<Option>>) {
-    if (input instanceof Observable) {
-      input.pipe(takeUntil(this.destroy$)).subscribe((options) => {
-        this.setOptions(options);
-      });
-      return;
-    }
+  private setOptions(input: Array<Option> | null) {
+    if (!input) return
+
     this.availableOptions = input;
   }
 }

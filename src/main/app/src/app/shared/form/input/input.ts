@@ -25,8 +25,8 @@ export class ZacInput<
   @Input({ transform: booleanAttribute }) readonly = false;
   @Input() type: "text" | "number" = "text";
   /**
-   * When a `displayValue` is declared the `input` will be hidden, and it will use an overlay for the value.
-   * The input will also be put in an `readonly` mode.
+   * When a `displayValue` is declared, the `input` will be hidden, and it will use an overlay for the value.
+   * The input will also be put in a `readonly` mode.
    */
   @Input() displayValue?: DisplayValue;
 

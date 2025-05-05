@@ -29,7 +29,7 @@
           key="zaaktype"
           class="col-12 col-md-6"
           [form]="form"
-          [options]="caseTypes"
+          [options]="caseTypes | async"
           [optionDisplayValue]="'omschrijving'"
         >
           <mat-hint>{{
@@ -74,7 +74,7 @@
           key="groep"
           class="col-12 col-md-6"
           [form]="form"
-          [options]="groups"
+          [options]="groups | async"
           [optionDisplayValue]="'naam'"
         >
           <mat-label>{{ "actie.zaak.toekennen.groep" | translate }}</mat-label>
