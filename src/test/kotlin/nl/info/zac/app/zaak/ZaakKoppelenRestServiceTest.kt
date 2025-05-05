@@ -65,14 +65,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         val zaakZoekObject1 = createZaakZoekObject(
             uuidAsString = zaakZoekUuid,
             type = ZoekObjectType.ZAAK,
-            zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING
-        ).apply {
-            identificatie = zoekZaakIdentifier
-            omschrijving = OMSCHRIJVING
-            statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING
-            zaaktypeUuid = zaakZoekObjectTypeUuid1
+            zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
+            identificatie = zoekZaakIdentifier,
+            omschrijving = OMSCHRIJVING,
+            statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
+            zaaktypeUuid = zaakZoekObjectTypeUuid1,
             archiefNominatie = Archiefnominatie.BLIJVEND_BEWAREN.toString()
-        }
+        )
 
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject1), 1)
 
