@@ -8,8 +8,10 @@ import { Injectable } from "@angular/core";
 import { Observable, Subject } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { Resultaat } from "../shared/model/resultaat";
 import { GeneratedType } from "../shared/utils/generated-types";
+import { ZaakRelatietype } from "../zaken/model/zaak-relatietype";
 import { ZoekObject } from "./model/zoek-object";
 import { ZoekParameters } from "./model/zoek-parameters";
 import { ZoekResultaat } from "./model/zoek-resultaat";
@@ -34,6 +36,7 @@ export class ZoekenService {
 
   constructor(
     private http: HttpClient,
+    private zacHttp: ZacHttpClient,
     private foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
@@ -64,20 +67,23 @@ export class ZoekenService {
       );
   }
 
-  listZaakKoppelbareZaken(
-    zaakIdentificator: string,
-    linkType: string,
-  ): Observable<Resultaat<GeneratedType<"RestZaakKoppelenZoekObject">>> {
-    return this.http
-      .put<Resultaat<GeneratedType<"RestZaakKoppelenZoekObject">>>(
-        `${this.basepath}/zaken`,
-        {
-          zaakIdentificator,
-          linkType,
-          page: 0,
-          rows: 10,
+  findLinkableZaken(
+    zaakUuid: string,
+    zoekZaakIdentifier: string,
+    relationType: ZaakRelatietype, // TODO: `ZaakRelatietype` needs to be generated in the interface
+  ) {
+    return this.zacHttp
+      .GET("/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken", {
+        pathParams: {
+          path: {
+            zaakUuid,
+          },
+          query: {
+            zoekZaakIdentifier,
+            relationType,
+          },
         },
-      )
+      })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

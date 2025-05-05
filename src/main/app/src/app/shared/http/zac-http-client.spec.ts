@@ -18,7 +18,7 @@ import {
 } from "@angular/common/http";
 import { Paths, ZacHttpClient } from "./zac-http-client";
 
-describe("HttpClientTesting", () => {
+describe(ZacHttpClient.name, () => {
   let zacHttpClient: ZacHttpClient;
   let httpTestingController: HttpTestingController;
 
@@ -34,130 +34,162 @@ describe("HttpClientTesting", () => {
     zacHttpClient = TestBed.inject(ZacHttpClient);
     httpTestingController = TestBed.inject(HttpTestingController);
   });
+
   afterEach(() => {
     httpTestingController.verify();
   });
 
-  it("Http get works with all expected types", (done) => {
-    const testData: Paths["/rest/bag/zaak/{zaakUuid}"]["get"]["responses"]["200"]["content"]["application/json"] =
-      [
+  describe(ZacHttpClient.prototype.GET.name, () => {
+    it("Replaces the path params", (done) => {
+      const testData: Paths["/rest/bag/zaak/{zaakUuid}"]["get"]["responses"]["200"]["content"]["application/json"] =
+        [
+          {
+            uuid: "123",
+            // etc.
+          },
+        ];
+
+      zacHttpClient
+        .GET("/rest/bag/zaak/{zaakUuid}", {
+          pathParams: { path: { zaakUuid: "123" } },
+        })
+        .subscribe((data) => {
+          expectType<
+            Paths["/rest/bag/zaak/{zaakUuid}"]["get"]["responses"]["200"]["content"]["application/json"]
+          >(data);
+
+          expect(data).toEqual(testData);
+          done();
+        });
+
+      const req = httpTestingController.expectOne("/rest/bag/zaak/123");
+      expect(req.request.method).toEqual("GET");
+      req.flush(testData);
+      httpTestingController.verify();
+    });
+
+    it("adds the query params", (done) => {
+      zacHttpClient
+        .GET("/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken", {
+          pathParams: {
+            query: { zoekZaakIdentifier: "test", relationType: "HOOFDZAAK" },
+            path: { zaakUuid: "123" },
+          },
+        })
+        .subscribe(() => {
+          done();
+        });
+
+      const req = httpTestingController.expectOne(
+        "/rest/zaken/gekoppelde-zaken/123/zoek-koppelbare-zaken?zoekZaakIdentifier=test&relationType=HOOFDZAAK",
+      );
+      expect(req.request.method).toEqual("GET");
+      req.flush(null);
+      httpTestingController.verify();
+    });
+  });
+
+  describe(ZacHttpClient.prototype.POST.name, () => {
+    it("Http post works with all expected types", (done) => {
+      const testData: Paths["/rest/informatieobjecten/informatieobject/{uuid}/convert"]["post"]["responses"]["200"] =
         {
-          uuid: "123",
-          // etc.
-        },
-      ];
+          headers: {},
+          content: undefined as never,
+        };
 
-    zacHttpClient
-      .GET("/rest/bag/zaak/{zaakUuid}", {
-        pathParams: { path: { zaakUuid: "123" } },
-      })
-      .subscribe((data) => {
-        expectType<
-          Paths["/rest/bag/zaak/{zaakUuid}"]["get"]["responses"]["200"]["content"]["application/json"]
-        >(data);
+      zacHttpClient
+        .POST(
+          "/rest/informatieobjecten/informatieobject/{uuid}/convert",
+          undefined as never,
+          {
+            pathParams: { query: { zaak: "123" }, path: { uuid: "123" } },
+          },
+        )
+        .subscribe((data) => {
+          expectType<
+            Paths["/rest/informatieobjecten/informatieobject/{uuid}/convert"]["post"]["responses"]["200"]["content"]["application/json"]
+          >(data);
 
-        expect(data).toEqual(testData);
-        done();
-      });
-    const req = httpTestingController.expectOne("/rest/bag/zaak/123");
-    expect(req.request.method).toEqual("GET");
-    req.flush(testData);
-    httpTestingController.verify();
+          expect(data).toEqual(testData);
+          done();
+        });
+      const req = httpTestingController.expectOne(
+        "/rest/informatieobjecten/informatieobject/123/convert?zaak=123",
+      );
+      expect(req.request.method).toEqual("POST");
+      req.flush(testData);
+      httpTestingController.verify();
+    });
   });
 
-  it("Http post works with all expected types", (done) => {
-    const testData: Paths["/rest/informatieobjecten/informatieobject/{uuid}/convert"]["post"]["responses"]["200"] =
-      {
-        headers: {},
-        content: undefined as never,
-      };
+  describe(ZacHttpClient.prototype.PUT.name, () => {
+    it("Http PUT works with all expected types", (done) => {
+      const path =
+        "/rest/gebruikersvoorkeuren/aantal-per-pagina/{werklijst}/{aantal}" as const;
+      zacHttpClient
+        .PUT(path, {} as never, {
+          pathParams: { path: { aantal: 2, werklijst: "AFGEHANDELDE_ZAKEN" } },
+        })
+        .subscribe((data) => {
+          expectType<Paths[typeof path]["put"]["responses"]["204"]["content"]>(
+            data,
+          );
+          expect(data).toBe(true);
+          done();
+        });
+      const req = httpTestingController.expectOne(
+        "/rest/gebruikersvoorkeuren/aantal-per-pagina/AFGEHANDELDE_ZAKEN/2",
+      );
+      expect(req.request.method).toEqual("PUT");
+      req.flush(true);
+      httpTestingController.verify();
+    });
 
-    zacHttpClient
-      .POST(
-        "/rest/informatieobjecten/informatieobject/{uuid}/convert",
-        undefined as never,
-        {
-          pathParams: { query: { zaak: "123" }, path: { uuid: "123" } },
-        },
-      )
-      .subscribe((data) => {
-        expectType<
-          Paths["/rest/informatieobjecten/informatieobject/{uuid}/convert"]["post"]["responses"]["200"]["content"]["application/json"]
-        >(data);
-
-        expect(data).toEqual(testData);
-        done();
-      });
-    const req = httpTestingController.expectOne(
-      "/rest/informatieobjecten/informatieobject/123/convert",
-    );
-    expect(req.request.method).toEqual("POST");
-    req.flush(testData);
-    httpTestingController.verify();
+    it("Http PUT works with all expected types", (done) => {
+      const path = "/rest/zaken/{uuid}/zaaklocatie" as const;
+      const testData: Partial<
+        Paths[typeof path]["patch"]["responses"]["200"]["content"]["application/json"]
+      > = { uuid: "123" };
+      zacHttpClient
+        .PATCH(path, {} as never, {
+          pathParams: { path: { uuid: "123" } },
+        })
+        .subscribe((data) => {
+          expectType<
+            Paths[typeof path]["patch"]["responses"]["200"]["content"]["application/json"]
+          >(data);
+          expect(data).toEqual(testData);
+          done();
+        });
+      const req = httpTestingController.expectOne(
+        "/rest/zaken/123/zaaklocatie",
+      );
+      expect(req.request.method).toEqual("PATCH");
+      req.flush(testData);
+      httpTestingController.verify();
+    });
   });
 
-  it("Http delete works with all expected types", (done) => {
-    const path = "/rest/gebruikersvoorkeuren/zoekopdracht/{id}" as const;
-    zacHttpClient
-      .DELETE(path, {
-        pathParams: { path: { id: 123 } },
-      })
-      .subscribe((data) => {
-        expectType<Paths[typeof path]["delete"]["responses"]["204"]["content"]>(
-          data,
-        );
-        expect(data).toBe(true);
-        done();
-      });
-    const req = httpTestingController.expectOne(
-      "/rest/gebruikersvoorkeuren/zoekopdracht/123",
-    );
-    expect(req.request.method).toEqual("DELETE");
-    req.flush(true);
-    httpTestingController.verify();
-  });
-
-  it("Http PUT works with all expected types", (done) => {
-    const path =
-      "/rest/gebruikersvoorkeuren/aantal-per-pagina/{werklijst}/{aantal}" as const;
-    zacHttpClient
-      .PUT(path, {} as never, {
-        pathParams: { path: { aantal: 2, werklijst: "AFGEHANDELDE_ZAKEN" } },
-      })
-      .subscribe((data) => {
-        expectType<Paths[typeof path]["put"]["responses"]["204"]["content"]>(
-          data,
-        );
-        expect(data).toBe(true);
-        done();
-      });
-    const req = httpTestingController.expectOne(
-      "/rest/gebruikersvoorkeuren/aantal-per-pagina/AFGEHANDELDE_ZAKEN/2",
-    );
-    expect(req.request.method).toEqual("PUT");
-    req.flush(true);
-    httpTestingController.verify();
-  });
-
-  it("Http PUT works with all expected types", (done) => {
-    const path = "/rest/zaken/{uuid}/zaaklocatie" as const;
-    const testData: Partial<
-      Paths[typeof path]["patch"]["responses"]["200"]["content"]["application/json"]
-    > = { uuid: "123" };
-    zacHttpClient
-      .PATCH(path, {} as never, {
-        pathParams: { path: { uuid: "123" } },
-      })
-      .subscribe((data) => {
-        expectType<
-          Paths[typeof path]["patch"]["responses"]["200"]["content"]["application/json"]
-        >(data);
-        expect(data).toEqual(testData);
-        done();
-      });
-    const req = httpTestingController.expectOne("/rest/zaken/123/zaaklocatie");
-    expect(req.request.method).toEqual("PATCH");
-    req.flush(testData);
-    httpTestingController.verify();
+  describe(ZacHttpClient.prototype.DELETE.name, () => {
+    it("Http delete works with all expected types", (done) => {
+      const path = "/rest/gebruikersvoorkeuren/zoekopdracht/{id}" as const;
+      zacHttpClient
+        .DELETE(path, {
+          pathParams: { path: { id: 123 } },
+        })
+        .subscribe((data) => {
+          expectType<
+            Paths[typeof path]["delete"]["responses"]["204"]["content"]
+          >(data);
+          expect(data).toBe(true);
+          done();
+        });
+      const req = httpTestingController.expectOne(
+        "/rest/gebruikersvoorkeuren/zoekopdracht/123",
+      );
+      expect(req.request.method).toEqual("DELETE");
+      req.flush(true);
+      httpTestingController.verify();
+    });
   });
 });

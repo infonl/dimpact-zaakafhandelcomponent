@@ -3,129 +3,112 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
-import { Validators } from "@angular/forms";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  Output,
+} from "@angular/core";
+import { FormBuilder, FormControl, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
-import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
-import { SelectFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/select/select-form-field-builder";
-import { AbstractFormControlField } from "src/app/shared/material-form-builder/model/abstract-form-control-field";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { Zaak } from "../model/zaak";
+import { ZaakRelatietype } from "../model/zaak-relatietype";
+import { ZakenService } from "../zaken.service";
 
 /*
  enum/type below should come from our GeneratedType 
 */
-enum ZaakKoppelTypes {
-  "deelzaak" = "DEELZAAK",
-  "hoofdzaak" = "HOOFDZAAK",
-}
 
 @Component({
   selector: "zac-zaak-link",
   templateUrl: "./zaak-link.component.html",
   styleUrls: ["./zaak-link.component.less"],
 })
-export class ZaakLinkComponent implements OnInit, OnDestroy {
+export class ZaakLinkComponent implements OnDestroy {
   @Input({ required: true }) zaak!: Zaak; // GeneratedType<"RestZaak">;
   @Input({ required: true }) sideNav!: MatDrawer;
-
-  public intro: string = "";
-  public selectLinkTypeField?: AbstractFormControlField;
-  public caseSearchField?: AbstractFormControlField;
-  public isValid = false;
-  public loading = false;
+  @Output() zaakLinked = new EventEmitter();
 
   public cases = new MatTableDataSource<
     GeneratedType<"RestZaakKoppelenZoekObject">
   >();
-  public totalCases: number = 0;
-  public caseColumns: string[] = [
+  public totalCases = 0;
+  public caseColumns = [
     "identificatie",
     "zaaktypeOmschrijving",
     "statustypeOmschrijving",
     "omschrijving",
     "acties",
+  ] as const;
+  public loading = false;
+
+  protected caseRelationOptionsList = [
+    {
+      label: `zaak.koppelen.link.type.${ZaakRelatietype.DEELZAAK}`,
+      value: ZaakRelatietype.DEELZAAK,
+    },
+    {
+      label: `zaak.koppelen.link.type.${ZaakRelatietype.HOOFDZAAK}`,
+      value: ZaakRelatietype.HOOFDZAAK,
+    },
   ];
 
-  private caseLinkingOptionsList!: { label: string; value: string }[];
+  protected readonly form = this.formBuilder.group({
+    caseRelationType: new FormControl<
+      (typeof this.caseRelationOptionsList)[number] | null
+    >(null, [Validators.required]),
+    caseToSearchFor: new FormControl<string>("", [
+      Validators.required,
+      Validators.minLength(2),
+    ]),
+  });
+
   private ngDestroy = new Subject<void>();
 
   constructor(
-    private translate: TranslateService,
     private zoekenService: ZoekenService,
+    private zakenService: ZakenService,
+    private translate: TranslateService,
     private utilService: UtilService,
-  ) {}
+    private readonly formBuilder: FormBuilder,
+  ) {
+    this.form.controls.caseToSearchFor.disable();
 
-  ngOnInit() {
-    this.intro = this.translate.instant("zaak.koppelen.uitleg", {
-      zaakID: this.zaak.identificatie,
-    });
-
-    this.caseLinkingOptionsList = this.utilService.getEnumAsSelectList(
-      "zaak.koppelen.link.type",
-      ZaakKoppelTypes,
-    );
-
-    this.selectLinkTypeField = new SelectFormFieldBuilder()
-      .id("linkType")
-      .label("zaak.koppelen.label")
-      .options(this.caseLinkingOptionsList)
-      .optionValue("value")
-      .optionLabel("label")
-      .validators(Validators.required)
-      .build();
-
-    this.caseSearchField = new InputFormFieldBuilder()
-      .id("zaak")
-      .label("zaak.identificatie")
-      .validators(Validators.required)
-      .disabled(true)
-      .build();
-
-    this.selectLinkTypeField.formControl.valueChanges
+    this.form.controls.caseRelationType.valueChanges
       .pipe(takeUntil(this.ngDestroy))
-      .subscribe((value) => {
-        if (!this.caseSearchField) return;
-
-        this.caseSearchField.formControl.setValue("");
-        switch (value) {
-          case "hoofdzaak":
-            this.caseSearchField.formControl.enable();
-            this.caseSearchField.hint.label = this.translate.instant(
-              "zaak.link.hoofdzaak.hint",
-            );
-            break;
-          case "deelzaak":
-            this.caseSearchField.formControl.enable();
-            this.caseSearchField.hint.label = this.translate.instant(
-              "zaak.link.deelzaak.hint",
-            );
-            break;
-          default:
-            this.caseSearchField.formControl.disable();
-            break;
-        }
+      .subscribe(() => {
+        this.form.controls.caseToSearchFor.reset();
+        this.form.controls.caseToSearchFor.enable();
+        this.clearSearchResult();
       });
 
-    this.caseSearchField.formControl.valueChanges
+    this.form.controls.caseToSearchFor.valueChanges
       .pipe(takeUntil(this.ngDestroy))
-      .subscribe((value) => {
-        this.isValid = value?.length >= 2;
+      .subscribe(() => {
+        if (
+          this.cases.data?.length > 0 &&
+          this.form.controls.caseToSearchFor.value === null
+        )
+          this.clearSearchResult();
       });
   }
 
-  searchCases() {
+  protected searchCases() {
     this.loading = true;
     this.utilService.setLoading(true);
+
     this.zoekenService
-      .listZaakKoppelbareZaken(
-        this.caseSearchField?.formControl.value,
-        this.selectLinkTypeField?.formControl.value,
+      .findLinkableZaken(
+        this.zaak.uuid,
+        this.form.controls.caseToSearchFor.value!,
+        this.form.controls.caseRelationType.value!.value!,
       )
       .subscribe(
         (result) => {
@@ -142,22 +125,49 @@ export class ZaakLinkComponent implements OnInit, OnDestroy {
       );
   }
 
-  selectCase(row: unknown) {
-    console.log("Selected case: ", row);
+  protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
+    if (!row.id || !this.form.controls.caseRelationType.value?.value) return;
+
+    const caseLinkDetails: GeneratedType<"RestZaakLinkData"> = {
+      zaakUuid: this.zaak.uuid,
+      teKoppelenZaakUuid: row.id,
+      relatieType: this.form.controls.caseRelationType.value.value,
+    };
+
+    this.zakenService.koppelZaak(caseLinkDetails).subscribe({
+      next: () => {
+        this.utilService.openSnackbar("msg.zaak.gekoppeld", {
+          case: row.identificatie,
+        });
+        this.zaakLinked.emit();
+        this.close();
+      },
+      error: () => {
+        this.loading = false;
+        this.utilService.setLoading(false);
+      },
+    });
   }
 
-  closeDrawer() {
-    this.sideNav.close();
+  protected rowDisabled(
+    row: GeneratedType<"RestZaakKoppelenZoekObject">,
+  ): boolean {
+    return !row.isKoppelbaar || row.identificatie === this.zaak.identificatie;
+  }
+
+  protected close() {
+    void this.sideNav.close();
     this.reset();
   }
 
-  private reset() {
-    this.selectLinkTypeField?.formControl.setValue("");
-    this.caseSearchField?.formControl.setValue("");
-    this.caseSearchField?.formControl.disable();
+  protected reset() {
+    this.form.reset();
+    this.clearSearchResult();
+  }
+
+  protected clearSearchResult() {
     this.cases.data = [];
     this.totalCases = 0;
-    this.isValid = false;
     this.loading = false;
     this.utilService.setLoading(false);
   }
@@ -166,4 +176,6 @@ export class ZaakLinkComponent implements OnInit, OnDestroy {
     this.ngDestroy.next();
     this.ngDestroy.complete();
   }
+
+  protected readonly ZaakRelatietype = ZaakRelatietype;
 }
