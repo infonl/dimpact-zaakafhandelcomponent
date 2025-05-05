@@ -66,7 +66,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "identificatie": "ZAAK-2000-0000000006",
                       "isKoppelbaar": false,
                       "omschrijving": "fakeOmschrijving",
-                      "zaaktypeOmschrijving": "${ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION}",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
                       "statustypeOmschrijving": "Afgerond",
                       "type": "ZAAK"
                     },
@@ -118,7 +118,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("searching for a DEELZAAK linkable zaken with 'ZAAK-2000' zaak identifier") {
+        When(
+            "searching for a DEELZAAK linkable zaken with 'ZAAK-2000' zaak identifier but without the 'rows' " +
+                "and 'page' request parameters"
+        ) {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakProductaanvraag1Uuid/zoek-koppelbare-zaken" +
                     "?zoekZaakIdentifier=$ZOEK_ZAAK_IDENTIFIER" +
@@ -137,7 +140,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "identificatie": "ZAAK-2000-0000000006",
                       "isKoppelbaar": false,
                       "omschrijving": "fakeOmschrijving",
-                      "zaaktypeOmschrijving": "${ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION}",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
                       "statustypeOmschrijving": "Afgerond",
                       "type": "ZAAK"
                     },

@@ -18,7 +18,8 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.ZoekResultaat
-import nl.info.zac.search.model.zoekobject.ZaakZoekObject
+import nl.info.zac.search.model.createZaakZoekObject
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import java.net.URI
 import java.util.UUID
 
@@ -61,13 +62,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             zaakTypeURI = zaakTypeURI
         )
 
-        val zaakZoekObject1 = ZaakZoekObject(
-            id = zaakZoekUuid,
-            type = "ZAAK"
+        val zaakZoekObject1 = createZaakZoekObject(
+            uuidAsString = zaakZoekUuid,
+            type = ZoekObjectType.ZAAK,
+            zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING
         ).apply {
             identificatie = zoekZaakIdentifier
             omschrijving = OMSCHRIJVING
-            zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING
             statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING
             zaaktypeUuid = zaakZoekObjectTypeUuid1
             archiefNominatie = Archiefnominatie.BLIJVEND_BEWAREN.toString()
