@@ -366,7 +366,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr.service.ports.http | int | `80` |  |
 | solr.zookeeper.enabled | bool | `false` |  |
 | tolerations | list | `[]` | set toleration parameters |
-| zacInternalEndpointsApiKey | string | `""` |  |
+| zacInternalEndpointsApiKey | string | `""` | API key for authentication of internal ZAC endpoints |
 | zgwApis.clientId | string | `""` |  |
 | zgwApis.secret | string | `""` |  |
 | zgwApis.url | string | `""` |  |
