@@ -86,7 +86,7 @@ export class MedewerkerGroepComponent
 
   initGroepen(): void {
     this.identityService
-      .listGroups()
+      .listGroupsForZaakType("ZAAK-2025-0000000004")
       .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam"))))
       .subscribe((groepen) => {
         this.groepen = groepen;

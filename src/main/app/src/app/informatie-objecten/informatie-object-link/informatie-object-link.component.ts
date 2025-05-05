@@ -175,9 +175,9 @@ export class InformatieObjectLinkComponent
     this.reset();
   }
 
-  rowDisabled(row: GeneratedType<"RestZaakKoppelenZoekObject">): boolean {
-    return !row.isKoppelbaar || row.identificatie == this.source;
-  }
+  // rowDisabled(row: GeneratedType<"RestZaakKoppelenZoekObject">): boolean {
+  //   return !row.isKoppelbaar || row.identificatie == this.source;
+  // }
 
   private reset() {
     this.caseSearchField?.formControl.reset();
