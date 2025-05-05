@@ -51,9 +51,12 @@ export class ZacAutoComplete<
     this.control.valueChanges.subscribe((value) => {
       this.filteredOptions = this.availableOptions.filter((option) => {
         if (!value) return true;
+
+        const valueToFilter = typeof value === "string" ? value : this.displayWith(value);
+
         return this.displayWith(option)
           .toLowerCase()
-          .includes(value.toLowerCase());
+          .includes(valueToFilter.toLowerCase());
       });
     });
   }
@@ -75,7 +78,7 @@ export class ZacAutoComplete<
     this.filteredOptions = this.availableOptions;
   }
 
-  // Needs to be an arrow function in order to de-link the reference to `this`
+  // Needs to be an arrow function to de-link the reference to `this`
   // when used in the template `[displayWith]="displayWith"`
   protected displayWith = (option?: Option | null) => {
     if (!option) return "";

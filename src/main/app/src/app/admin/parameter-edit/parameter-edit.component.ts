@@ -19,7 +19,6 @@ import {
   Validators,
 } from "@angular/forms";
 import { MatCheckboxChange } from "@angular/material/checkbox";
-import { MatSelectChange } from "@angular/material/select";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
@@ -31,8 +30,6 @@ import { Api } from "../../shared/utils/generated-types";
 import { ZaakStatusmailOptie } from "../../zaken/model/zaak-statusmail-optie";
 import { AdminComponent } from "../admin/admin.component";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
-import { FormulierDefinitie } from "../model/formulier-definitie";
-import { FormulierVeldDefinitie } from "../model/formulier-veld-definitie";
 import { HumanTaskReferentieTabel } from "../model/human-task-referentie-tabel";
 import {
   MailtemplateKoppelingMail,
@@ -73,14 +70,47 @@ export class ParameterEditComponent
     zaaktype: {},
   };
 
-  humanTaskParameters: Api<"RESTHumanTaskParameters">[] = [];
-  userEventListenerParameters: Api<"RESTUserEventListenerParameter">[] = [];
   zaakbeeindigParameters: Api<"RESTZaakbeeindigParameter">[] = [];
   selection = new SelectionModel<Api<"RESTZaakbeeindigParameter">>(true);
   zaakAfzenders: string[] = [];
   zaakAfzendersDataSource = new MatTableDataSource<Api<"RESTZaakAfzender">>();
   mailtemplateKoppelingen =
     MailtemplateKoppelingMailUtil.getBeschikbareMailtemplateKoppelingen();
+
+  zaakbeeindigFormGroup = new FormGroup({});
+  smartDocumentsEnabledForm = new FormGroup({
+    enabledForZaaktype: new FormControl<boolean | undefined>(false),
+  });
+  betrokkeneKoppelingen = new FormGroup({
+    brpKoppelen: new FormControl(false),
+    kvkKoppelen: new FormControl(false),
+  });
+
+  resultaattypes: Api<"RestResultaattype">[] = [];
+  referentieTabellen: ReferentieTabel[] = [];
+  zaakbeeindigRedenen: Api<"RESTZaakbeeindigReden">[] = [];
+  mailtemplates: Api<"RESTMailtemplate">[] = [];
+  replyTos: ReplyTo[] = [];
+  loading = false;
+  subscriptions$: Subscription[] = [];
+
+  // Refactored
+  protected caseDefinitions$ =
+    this.zaakafhandelParametersService.listCaseDefinitions();
+  protected domains$ = this.referentieTabelService.listDomeinen();
+  protected groups$ = this.identityService.listGroups();
+  protected formulierDefinities$ =
+    this.zaakafhandelParametersService.listFormulierDefinities();
+
+  protected users: Api<"RestUser">[] = [];
+  protected humanTaskParameters: Api<"RESTHumanTaskParameters">[] = [];
+  protected userEventListenerParameters: Api<"RESTUserEventListenerParameter">[] =
+    [];
+
+  protected mailOpties = this.utilService.getEnumAsSelectList(
+    "statusmail.optie",
+    ZaakStatusmailOptie,
+  );
 
   protected form = this.formBuilder.group({
     general: this.formBuilder.group({
@@ -95,52 +125,31 @@ export class ParameterEditComponent
       einddatumGeplandWaarschuwing: new FormControl<number | null>(null, [
         Validators.min(0),
         Validators.max(31),
+        Validators.pattern("^[0-9]*$"),
       ]),
       uiterlijkeEinddatumAfdoeningWaarschuwing: new FormControl<number | null>(
         null,
-        [Validators.min(0)],
+        [Validators.min(0), Validators.pattern("^[0-9]*$")],
       ),
       productaanvraagtype: new FormControl<string | null>(""),
     }),
+    humanTaskParameters: this.formBuilder.group<
+      Record<string, ReturnType<typeof this.createHumanTaskFormGroup>>
+    >({}),
+    userEventListenerParameters: this.formBuilder.group<
+      Record<string, FormGroup>
+    >({}),
+    mailtemplateKoppelingen: this.formBuilder.group({
+      intakeMail: new FormControl<(typeof this.mailOpties)[number] | null>(
+        null,
+        [Validators.required],
+      ),
+      afrondenMail: new FormControl<(typeof this.mailOpties)[number] | null>(
+        null,
+        [Validators.required],
+      ),
+    }),
   });
-
-  humanTasksFormGroup = new FormGroup({});
-  userEventListenersFormGroup = new FormGroup({});
-  mailFormGroup = new FormGroup({
-    intakeMail: new FormControl(),
-    afrondenMail: new FormControl(),
-  });
-
-  zaakbeeindigFormGroup = new FormGroup({});
-  smartDocumentsEnabledForm = new FormGroup({
-    enabledForZaaktype: new FormControl<boolean | undefined>(false),
-  });
-  betrokkeneKoppelingen = new FormGroup({
-    brpKoppelen: new FormControl(false),
-    kvkKoppelen: new FormControl(false),
-  });
-
-  mailOpties = this.utilService.getEnumAsSelectList(
-    "statusmail.optie",
-    ZaakStatusmailOptie,
-  );
-
-  resultaattypes: Api<"RestResultaattype">[] = [];
-  referentieTabellen: ReferentieTabel[] = [];
-  formulierDefinities: FormulierDefinitie[] = [];
-  zaakbeeindigRedenen: Api<"RESTZaakbeeindigReden">[] = [];
-  mailtemplates: Api<"RESTMailtemplate">[] = [];
-  replyTos: ReplyTo[] = [];
-  loading = false;
-  subscriptions$: Subscription[] = [];
-
-  // Refactored
-  protected caseDefinitions$ =
-    this.zaakafhandelParametersService.listCaseDefinitions();
-  protected domains$ = this.referentieTabelService.listDomeinen();
-  protected groups$ = this.identityService.listGroups();
-
-  protected users: Api<"RestUser">[] = [];
 
   constructor(
     public readonly utilService: UtilService,
@@ -166,9 +175,7 @@ export class ParameterEditComponent
 
         this.form.controls.general.controls.defaultCaseWorker.enable();
 
-        this.identityService.listUsersInGroup(group.id).subscribe((users) => {
-          this.users = users;
-        });
+        this.setUsersForGroup(group.id);
       },
     );
 
@@ -176,12 +183,18 @@ export class ParameterEditComponent
       (caseDefinition) => {
         if (!caseDefinition) return;
 
-        void this.readHumanTaskParameters(caseDefinition);
-        void this.readUserEventListenerParameters(caseDefinition);
+        this.readHumanTaskParameters(caseDefinition);
+        this.readUserEventListenerParameters(caseDefinition);
       },
     );
 
     this.route.data.subscribe((data) => {
+      const parameters = data.parameters as Api<"RestZaakafhandelParameters">;
+
+      this.humanTaskParameters = parameters.humanTaskParameters;
+      this.userEventListenerParameters = parameters.userEventListenerParameters;
+
+      // TODO: refactor do remove `this.parameters` and use `this.form` instead
       this.parameters = data.parameters;
       this.parameters.intakeMail = this.parameters.intakeMail
         ? this.parameters.intakeMail
@@ -189,12 +202,8 @@ export class ParameterEditComponent
       this.parameters.afrondenMail = this.parameters.afrondenMail
         ? this.parameters.afrondenMail
         : ZaakStatusmailOptie.BESCHIKBAAR_UIT;
-      this.userEventListenerParameters =
-        this.parameters.userEventListenerParameters;
-      this.humanTaskParameters = this.parameters.humanTaskParameters;
 
       forkJoin([
-        zaakafhandelParametersService.listFormulierDefinities(),
         referentieTabelService.listReferentieTabellen(),
         referentieTabelService.listAfzenders(),
         zaakafhandelParametersService.listReplyTos(),
@@ -205,7 +214,6 @@ export class ParameterEditComponent
         ),
       ]).subscribe(
         ([
-          formulierDefinities,
           referentieTabellen,
           afzenders,
           replyTos,
@@ -213,7 +221,6 @@ export class ParameterEditComponent
           mailtemplates,
           resultaattypes,
         ]) => {
-          this.formulierDefinities = formulierDefinities;
           this.referentieTabellen = referentieTabellen;
           this.zaakbeeindigRedenen = zaakbeeindigRedenen;
           this.mailtemplates = mailtemplates;
@@ -244,58 +251,60 @@ export class ParameterEditComponent
     }
   }
 
-  private async readHumanTaskParameters(
-    caseDefinition: Api<"RESTCaseDefinition">,
-  ) {
+  private readHumanTaskParameters(caseDefinition: Api<"RESTCaseDefinition">) {
     this.humanTaskParameters = [];
-    const caseDefinitions = await this.caseDefinitions$.toPromise();
-    caseDefinitions
-      ?.find(({ key }) => key === caseDefinition?.key)
-      ?.humanTaskDefinitions?.forEach((humanTaskDefinition) => {
-        this.humanTaskParameters.push({
-          planItemDefinition: humanTaskDefinition,
-          defaultGroepId: this.parameters.defaultGroepId ?? undefined,
-          formulierDefinitieId: humanTaskDefinition.defaultFormulierDefinitie,
-          referentieTabellen: [],
-          actief: true,
+    this.caseDefinitions$.toPromise().then((caseDefinitions) => {
+      caseDefinitions
+        ?.find(({ key }) => key === caseDefinition?.key)
+        ?.humanTaskDefinitions?.forEach((humanTaskDefinition) => {
+          this.humanTaskParameters.push({
+            planItemDefinition: humanTaskDefinition,
+            defaultGroepId:
+              this.form.controls.general.controls.defaultGroup.value?.id,
+            formulierDefinitieId: humanTaskDefinition.defaultFormulierDefinitie,
+            referentieTabellen: [],
+            actief: true,
+          });
         });
-      });
-    this.createHumanTasksForm();
+      this.createHumanTasksForm();
+    });
   }
 
-  private async readUserEventListenerParameters(
+  private readUserEventListenerParameters(
     caseDefinition: Api<"RESTCaseDefinition">,
   ) {
     this.userEventListenerParameters = [];
-    const caseDefinitions = await this.caseDefinitions$.toPromise();
-    caseDefinitions
-      ?.find(({ key }) => key === caseDefinition?.key)
-      ?.userEventListenerDefinitions?.forEach(({ id, naam }) => {
-        this.userEventListenerParameters.push({ id, naam });
-      });
-    this.createUserEventListenerForm();
+    this.caseDefinitions$.toPromise().then((caseDefinitions) => {
+      caseDefinitions
+        ?.find(({ key }) => key === caseDefinition?.key)
+        ?.userEventListenerDefinitions?.forEach(({ id, naam }) => {
+          this.userEventListenerParameters.push({ id, naam });
+        });
+      this.createUserEventListenerForm();
+    });
   }
 
   getHumanTaskControl(
     parameter: Api<"RESTHumanTaskParameters">,
     field: string,
-  ): FormControl {
-    const formGroup = this.humanTasksFormGroup.get(
-      parameter.planItemDefinition?.id ?? "",
-    ) as FormGroup;
-    return formGroup.get(field) as FormControl;
+  ) {
+    return this.form.controls.humanTaskParameters
+      .get(parameter.planItemDefinition?.id ?? "")
+      ?.get(field) as FormControl;
   }
 
   getMailtemplateKoppelingControl(
     koppeling: MailtemplateKoppelingMail,
     field: string,
   ) {
-    const formGroup = this.mailFormGroup.get(koppeling);
-    return formGroup?.get(field);
+    return this.form.controls.mailtemplateKoppelingen
+      .get(koppeling)
+      ?.get(field);
   }
 
   createForm() {
     console.log(this.parameters);
+    // TODO set form fields from parameters
     // this.form.controls.general.setValue(this.parameters as any)
     // this.algemeenFormGroup = this.formBuilder.group({
     //   caseDefinition: [this.parameters.caseDefinition, [Validators.required]],
@@ -315,109 +324,125 @@ export class ParameterEditComponent
     this.createMailForm();
     this.createZaakbeeindigForm();
     this.createSmartDocumentsEnabledForm();
-    this.setMedewerkersForGroup(this.parameters.defaultGroepId);
+    this.setUsersForGroup(this.parameters.defaultGroepId);
   }
 
-  private setMedewerkersForGroup(groepId?: string | null) {
-    if (!groepId) return;
+  private setUsersForGroup(groupId?: string | null) {
+    if (!groupId) return;
 
-    return this.identityService
-      .listUsersInGroup(groepId)
-      .subscribe((medewerkers) => {
-        this.users = medewerkers;
-      });
-  }
-
-  isHumanTaskParameterValid(
-    humanTaskParameter: Api<"RESTHumanTaskParameters">,
-  ): boolean {
-    return (
-      this.humanTasksFormGroup.get(
-        humanTaskParameter.planItemDefinition?.id ?? "",
-      )?.status === "VALID"
-    );
+    return this.identityService.listUsersInGroup(groupId).subscribe((users) => {
+      this.users = users;
+    });
   }
 
   private createHumanTasksForm() {
-    this.humanTasksFormGroup = this.formBuilder.group({});
     this.humanTaskParameters.forEach((parameter) => {
-      this.humanTasksFormGroup.addControl(
+      this.form.controls.humanTaskParameters.addControl(
         parameter.planItemDefinition?.id ?? "",
-        this.getHumanTaskFormGroup(parameter),
+        this.createHumanTaskFormGroup(parameter),
       );
     });
   }
 
-  private getHumanTaskFormGroup(
+  private createHumanTaskFormGroup(
     humanTaskParameters: Api<"RESTHumanTaskParameters">,
-  ): FormGroup {
-    const humanTaskFormGroup: FormGroup = this.formBuilder.group({
-      formulierDefinitie: [
-        humanTaskParameters.formulierDefinitieId,
-        [Validators.required],
-      ],
+  ) {
+    const formulierDefinitie =
+      new FormControl<Api<"RESTTaakFormulierDefinitie"> | null>(null, [
+        Validators.required,
+      ]);
+
+    const humanTaskFormGroup = this.formBuilder.group({
+      formulierDefinitie,
       defaultGroep: [humanTaskParameters.defaultGroepId],
-      doorlooptijd: [humanTaskParameters.doorlooptijd, [Validators.min(0)]],
+      doorlooptijd: [
+        humanTaskParameters.doorlooptijd,
+        [
+          Validators.min(0),
+          Validators.max(Number.MAX_SAFE_INTEGER),
+          Validators.pattern(/^[0-9]*$/),
+        ],
+      ],
       actief: [humanTaskParameters.actief],
     });
 
-    if (humanTaskParameters.formulierDefinitieId) {
-      for (const veld of this.getVeldDefinities(
-        humanTaskParameters.formulierDefinitieId,
-      ) ?? []) {
-        humanTaskFormGroup.addControl(
-          "referentieTabel" + veld.naam,
-          this.formBuilder.control(
-            this.getReferentieTabel(humanTaskParameters, veld),
-            Validators.required,
-          ),
-        );
-      }
-    }
+    //
+    // this.addVeldDefinities(
+    //     humanTaskFormGroup,
+    //     humanTaskParameters,
+    //     await this.getVeldDefinities(humanTaskParameters.formulierDefinitieId),
+    // )
 
-    const doorlooptijdControl = humanTaskFormGroup.get("doorlooptijd");
-    if (doorlooptijdControl) {
-      this.subscriptions$.push(
-        doorlooptijdControl.valueChanges.subscribe((value) => {
-          doorlooptijdControl.setValue(this.sanitizeNumericInput(value), {
-            emitEvent: false,
-          });
-        }),
+    // TODO: check if value changes when value is set from the first time
+    formulierDefinitie.valueChanges.subscribe((definitie) => {
+      if (!definitie) return;
+
+      console.log(definitie);
+
+      // TODO: Remove fields again when the form is changed
+      this.addVeldDefinities(
+        humanTaskFormGroup,
+        humanTaskParameters,
+        definitie.veldDefinities,
       );
-    }
+    });
 
     return humanTaskFormGroup;
   }
 
+  private addVeldDefinities(
+    humanTaskFormGroup: FormGroup,
+    humanTaskParameters: Api<"RESTHumanTaskParameters">,
+    veldDefinities?: Api<"RESTTaakFormulierVeldDefinitie">[],
+  ) {
+    veldDefinities?.forEach((veld) => {
+      (humanTaskFormGroup as FormGroup).addControl(
+        "referentieTabel" + veld.naam,
+        this.formBuilder.control(
+          this.getReferentieTabel(humanTaskParameters, veld),
+          Validators.required,
+        ),
+      );
+    });
+  }
+
   private getReferentieTabel(
     humanTaskParameters: Api<"RESTHumanTaskParameters">,
-    veld: FormulierVeldDefinitie,
+    veld: Api<"RESTTaakFormulierVeldDefinitie">,
   ) {
     const humanTaskReferentieTabel =
-      humanTaskParameters.referentieTabellen?.find((r) => (r.veld = veld.naam));
-    return humanTaskReferentieTabel != null
-      ? humanTaskReferentieTabel.tabel
-      : this.referentieTabellen.find((r) => (r.code = veld.naam));
+      humanTaskParameters.referentieTabellen?.find(
+        (tabel) => (tabel.veld = veld.naam),
+      )?.tabel;
+    return (
+      humanTaskReferentieTabel ??
+      this.referentieTabellen.find(({ code }) => code === veld.naam)
+    );
   }
 
   private createUserEventListenerForm() {
-    this.userEventListenersFormGroup = this.formBuilder.group({});
     this.userEventListenerParameters.forEach((parameter) => {
-      const formGroup = this.formBuilder.group({
-        toelichting: [parameter.toelichting],
-      });
-      this.userEventListenersFormGroup.addControl(
+      this.form.controls.userEventListenerParameters.addControl(
         parameter.id ?? "",
-        formGroup,
+        this.formBuilder.group({
+          toelichting: new FormControl(parameter.toelichting, [
+            Validators.maxLength(1000),
+          ]),
+        }),
       );
     });
   }
 
   private createMailForm() {
-    this.mailFormGroup = this.formBuilder.group({
-      intakeMail: [this.parameters.intakeMail, [Validators.required]],
-      afrondenMail: [this.parameters.afrondenMail, [Validators.required]],
+    this.form.controls.mailtemplateKoppelingen.controls.intakeMail.setValue({
+      label: `statusmail.optie.${this.parameters.intakeMail}`,
+      value: this.parameters.intakeMail!,
     });
+    this.form.controls.mailtemplateKoppelingen.controls.afrondenMail.setValue({
+      label: `statusmail.optie.${this.parameters.afrondenMail}`,
+      value: this.parameters.afrondenMail!,
+    });
+
     this.mailtemplateKoppelingen.forEach((beschikbareKoppeling) => {
       const mailtemplate = this.parameters.mailtemplateKoppelingen.find(
         (mailtemplateKoppeling) =>
@@ -426,8 +451,11 @@ export class ParameterEditComponent
       const formGroup = this.formBuilder.group({
         mailtemplate: mailtemplate?.id,
       });
-      // @ts-expect-error TODO: add proper type to formGroup
-      this.mailFormGroup.addControl(beschikbareKoppeling, formGroup);
+      // @ts-expect-error TODO: ts issue
+      this.form.controls.mailtemplateKoppelingen.addControl(
+        beschikbareKoppeling,
+        formGroup,
+      );
     });
     this.initZaakAfzenders();
   }
@@ -569,8 +597,8 @@ export class ParameterEditComponent
   }
 
   private addZaakAfzenderControl(zaakAfzender: Api<"RESTZaakAfzender">) {
-    // @ts-expect-error TODO: add proper type to `mailFormGroup`
-    this.mailFormGroup.addControl(
+    // @ts-expect-error TODO: ts issue
+    this.form.controls.mailtemplateKoppelingen.addControl(
       "afzender" + (zaakAfzender as { index: number }).index + "__replyTo",
       new FormControl(zaakAfzender.replyTo),
     );
@@ -580,7 +608,9 @@ export class ParameterEditComponent
     zaakAfzender: Api<"RESTZaakAfzender"> & { index?: number },
     field: string,
   ) {
-    return this.mailFormGroup.get(`afzender${zaakAfzender.index}__${field}`);
+    return this.form.controls.mailtemplateKoppelingen.get(
+      `afzender${zaakAfzender.index}__${field}`,
+    );
   }
 
   private initAfzenders() {
@@ -621,67 +651,67 @@ export class ParameterEditComponent
   isValid(): boolean {
     return (
       this.form.valid &&
-      this.humanTasksFormGroup.valid &&
       this.zaakbeeindigFormGroup.valid &&
       this.isSmartDocumentsStepValid
     );
   }
 
-  opslaan(): void {
+  opslaan() {
     this.loading = true;
     // Object.assign(this.parameters, this.algemeenFormGroup.value);
     this.humanTaskParameters.forEach((param) => {
       param.formulierDefinitieId = this.getHumanTaskControl(
         param,
         "formulierDefinitie",
-      ).value;
+      )?.value;
       param.defaultGroepId = this.getHumanTaskControl(
         param,
         "defaultGroep",
-      ).value;
-      param.actief = this.getHumanTaskControl(param, "actief").value;
+      )?.value;
+      param.actief = this.getHumanTaskControl(param, "actief")?.value;
       param.doorlooptijd = this.getHumanTaskControl(
         param,
         "doorlooptijd",
-      ).value;
+      )?.value;
       const bestaandeHumanTaskParameter =
         this.parameters.humanTaskParameters.find(
           ({ planItemDefinition }) =>
             planItemDefinition?.id === param.planItemDefinition?.id,
         );
-      const bestaandeReferentietabellen = bestaandeHumanTaskParameter
-        ? bestaandeHumanTaskParameter.referentieTabellen
-        : [];
+      const bestaandeReferentietabellen =
+        bestaandeHumanTaskParameter?.referentieTabellen ?? [];
       param.referentieTabellen = [];
-      this.getVeldDefinities(param.formulierDefinitieId ?? "")?.forEach(
-        (value) => {
-          const bestaandeHumanTaskReferentieTabel =
-            bestaandeReferentietabellen?.find((o) => o.veld === value.naam);
-          const tabel =
-            bestaandeHumanTaskReferentieTabel != null
-              ? bestaandeHumanTaskReferentieTabel
-              : new HumanTaskReferentieTabel();
-          tabel.veld = value.naam;
-          tabel.tabel = this.getHumanTaskControl(
-            param,
-            "referentieTabel" + tabel.veld,
-          ).value;
-          param.referentieTabellen?.push(tabel);
-        },
-      );
+      const veldDefinities = this.getVeldDefinities(param.formulierDefinitieId);
+      veldDefinities.forEach((value) => {
+        const bestaandeHumanTaskReferentieTabel =
+          bestaandeReferentietabellen?.find(
+            (o) => o.veld === (value as any).naam,
+          );
+        const tabel =
+          bestaandeHumanTaskReferentieTabel != null
+            ? bestaandeHumanTaskReferentieTabel
+            : new HumanTaskReferentieTabel();
+        tabel.veld = (value as any).naam;
+        tabel.tabel = this.getHumanTaskControl(
+          param,
+          "referentieTabel" + tabel.veld,
+        )?.value;
+        param.referentieTabellen?.push(tabel);
+      });
     });
     this.parameters.humanTaskParameters = this.humanTaskParameters;
     this.userEventListenerParameters.forEach((param) => {
-      param.toelichting = this.userEventListenersFormGroup
+      param.toelichting = this.form.controls.userEventListenerParameters
         ?.get(param.id ?? "")
         ?.get("toelichting")?.value;
     });
     this.parameters.userEventListenerParameters =
       this.userEventListenerParameters;
 
-    this.parameters.intakeMail = this.mailFormGroup.get("intakeMail")?.value;
-    this.parameters.afrondenMail =
-      this.mailFormGroup.get("afrondenMail")?.value;
+    this.parameters.intakeMail = this.form.controls.mailtemplateKoppelingen
+      .controls.intakeMail?.value?.value as ZaakStatusmailOptie;
+    this.parameters.afrondenMail = this.form.controls.mailtemplateKoppelingen
+      .controls.afrondenMail?.value?.value as ZaakStatusmailOptie;
 
     const parameterMailtemplateKoppelingen: Api<"RESTMailtemplateKoppeling">[] =
       [];
@@ -690,7 +720,9 @@ export class ParameterEditComponent
         mailtemplate: this.mailtemplates.find(
           (mailtemplate) =>
             mailtemplate.id ===
-            this.mailFormGroup.get(koppeling)?.get("mailtemplate")?.value,
+            this.form.controls.mailtemplateKoppelingen
+              .get(koppeling)
+              ?.get("mailtemplate")?.value,
         ),
       };
 
@@ -775,24 +807,12 @@ export class ParameterEditComponent
 
   compareObject = (a: unknown, b: unknown) => this.utilService.compare(a, b);
 
-  formulierDefinitieChanged(
-    $event: MatSelectChange,
-    humanTaskParameter: Api<"RESTHumanTaskParameters">,
-  ): void {
-    humanTaskParameter.formulierDefinitieId = $event.value;
-    this.humanTasksFormGroup.setControl(
-      humanTaskParameter.planItemDefinition?.id ?? "",
-      this.getHumanTaskFormGroup(humanTaskParameter),
-    );
-  }
-
-  getVeldDefinities(formulierDefinitieId: string) {
-    if (formulierDefinitieId) {
-      return this.formulierDefinities.find((f) => f.id === formulierDefinitieId)
-        ?.veldDefinities;
-    } else {
-      return [];
-    }
+  getVeldDefinities(formulierDefinitieId?: string) {
+    console.log(formulierDefinitieId);
+    return [];
+    // const formulierDefinities = await this.formulierDefinities$.toPromise()
+    //   return [].find(({id}) => id === formulierDefinitieId)
+    //       ?.veldDefinities ?? []
   }
 
   getBeschikbareMailtemplates(mailtemplate: MailtemplateKoppelingMail) {
@@ -801,7 +821,27 @@ export class ParameterEditComponent
     );
   }
 
-  sanitizeNumericInput(value: number) {
-    return parseInt(value?.toString(), 10);
+  protected humanTaskFormGroup(
+    humanTaskParameters: Api<"RESTHumanTaskParameters">,
+  ) {
+    return this.form.controls.humanTaskParameters.get(
+      humanTaskParameters.planItemDefinition?.id ?? "",
+    ) as FormGroup<{
+      formulierDefinitie: FormControl<Api<"RESTTaakFormulierDefinitie"> | null>;
+      defaultGroep: FormControl<Api<"RestGroup"> | null>;
+      doorlooptijd: FormControl<number | null>;
+      referentieTabellen: FormControl<HumanTaskReferentieTabel[] | null>;
+      actief: FormControl<boolean | null>;
+    }>;
+  }
+
+  protected userEventListenerFormGroup(
+    userEventListenerParameters: Api<"RESTUserEventListenerParameter">,
+  ) {
+    return this.form.controls.userEventListenerParameters.get(
+      userEventListenerParameters.id ?? "",
+    ) as FormGroup<{
+      toelichting: FormControl<string | null>;
+    }>;
   }
 }

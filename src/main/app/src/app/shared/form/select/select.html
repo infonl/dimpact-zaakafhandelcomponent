@@ -7,7 +7,7 @@
 <mat-form-field [formGroup]="form" class="full-width" appearance="fill">
   <mat-label>
     <ng-content select="mat-label">
-      {{ label ?? key | translate | capitalizeFirstLetter }}
+      {{ (label ?? key) | translate |    capitalizeFirstLetter }}
     </ng-content>
   </mat-label>
   <mat-select
@@ -16,13 +16,13 @@
     [formControlName]="key"
   >
     <mat-select-trigger>
-      {{ displayWith(control?.value) | translate }}
+      {{ (optionDisplayValuePrefix + displayWith(control?.value)) | translate }}
     </mat-select-trigger>
     <mat-option [value]="" *ngIf="!isRequired()">
-      {{ (label ?? key) + ".-geen-" | translate }}
+      {{ "-geen-" | translate }}
     </mat-option>
     <mat-option *ngFor="let option of availableOptions" [value]="option">
-      {{ displayWith(option) | translate }}
+      {{ (optionDisplayValuePrefix + displayWith(option)) | translate }}
       <div class="suffix" *ngIf="suffix">
         {{ suffix | translate }}
       </div>

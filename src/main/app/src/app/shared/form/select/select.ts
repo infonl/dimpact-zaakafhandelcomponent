@@ -12,7 +12,7 @@ import {
   OnInit,
   SimpleChanges,
 } from "@angular/core";
-import { AbstractControl, FormGroup, Validators } from "@angular/forms";
+import {AbstractControl, FormGroup, Validators} from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { FormHelper } from "../helpers";
@@ -34,6 +34,7 @@ export class ZacSelect<
   @Input({ required: true }) form!: FormGroup<Form>;
   @Input({ required: true }) options!: Array<Option> | null;
   @Input() optionDisplayValue?: OptionDisplayValue;
+  @Input() optionDisplayValuePrefix = ""
   @Input() compare?: Compare;
   @Input() label?: string;
   /**
@@ -95,8 +96,7 @@ export class ZacSelect<
     FormHelper.getErrorMessage(this.control, this.translateService);
 
   protected get placeholder() {
-    const key = this.label ?? this.key;
-    return this.isRequired() ? `${key}.-kies-` : `${key}.-geen-`;
+    return this.isRequired() ? `-kies-` : "-geen-"
   }
 
   private setOptions(input: Array<Option> | null) {

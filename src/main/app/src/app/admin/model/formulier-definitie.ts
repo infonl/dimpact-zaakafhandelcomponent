@@ -1,14 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
-import { FormulierVeldDefinitie } from "./formulier-veld-definitie";
-
-export class FormulierDefinitie {
-  id: FormulierDefinitieID;
-  veldDefinities: FormulierVeldDefinitie[];
-}
 
 export type FormulierDefinitieID =
   | "DEFAULT_TAAKFORMULIER"

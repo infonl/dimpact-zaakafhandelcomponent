@@ -18,7 +18,8 @@
     <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
   </mat-sidenav>
   <mat-sidenav-content class="flex-col gap-20">
-    <mat-stepper orientation="horizontal" [linear]="!form.valid">
+    <!--      <mat-stepper orientation="horizontal" [linear]="!form.valid">-->
+    <mat-stepper orientation="horizontal">
       <mat-step [stepControl]="form.controls.general">
         <ng-template matStepLabel>{{
           "gegevens.algemeen" | translate
@@ -149,12 +150,12 @@
           </form>
         </ng-template>
       </mat-step>
-      <mat-step [stepControl]="humanTasksFormGroup">
+      <mat-step [stepControl]="form.controls.humanTaskParameters">
         <ng-template matStepLabel>{{
           "gegevens.humantasks" | translate
         }}</ng-template>
         <ng-template matStepContent>
-          <form [formGroup]="humanTasksFormGroup" class="flex-col">
+          <form [formGroup]="form.controls.humanTaskParameters">
             <mat-accordion>
               <mat-expansion-panel
                 *ngFor="let humanTaskParameter of humanTaskParameters"
@@ -168,14 +169,14 @@
                   <mat-panel-title>
                     <mat-icon
                       outlined
-                      *ngIf="isHumanTaskParameterValid(humanTaskParameter)"
+                      *ngIf="humanTaskFormGroup(humanTaskParameter).valid"
                       color="primary"
                     >
                       check_circle
                     </mat-icon>
                     <mat-icon
                       outlined
-                      *ngIf="!isHumanTaskParameterValid(humanTaskParameter)"
+                      *ngIf="humanTaskFormGroup(humanTaskParameter).invalid"
                       color="warn"
                     >
                       error
@@ -185,7 +186,7 @@
                         disabled: !getHumanTaskControl(
                           humanTaskParameter,
                           'actief'
-                        ).value,
+                        )?.value,
                       }"
                     >
                       {{ humanTaskParameter.planItemDefinition?.naam }}
@@ -197,69 +198,31 @@
                     color="primary"
                   ></mat-slide-toggle>
                 </mat-expansion-panel-header>
-                <div class="flex-row flex-wrap">
-                  <mat-form-field class="w33 w100-md" floatLabel="always">
-                    <mat-label>{{
-                      "formulierDefinitie" | translate
-                    }}</mat-label>
-                    <mat-select
-                      placeholder="{{
-                        'formulierDefinitie.-kies-' | translate
-                      }}"
-                      (selectionChange)="
-                        formulierDefinitieChanged($event, humanTaskParameter)
-                      "
-                      [formControl]="
-                        getHumanTaskControl(
-                          humanTaskParameter,
-                          'formulierDefinitie'
-                        )
-                      "
-                      [compareWith]="compareObject"
-                    >
-                      <mat-option
-                        *ngFor="let formDef of formulierDefinities"
-                        [value]="formDef.id"
-                        >{{
-                          "formulierDefinitie." + formDef.id | translate
-                        }}</mat-option
-                      >
-                    </mat-select>
-                  </mat-form-field>
-                </div>
-                <div class="flex-row flex-wrap">
-                  <mat-form-field class="w33 w100-md" floatLabel="always">
-                    <mat-label>{{ "groep" | translate }}</mat-label>
-                    <mat-select
-                      placeholder="{{ 'groep.-geen-' | translate }}"
-                      formControlName="defaultGroep"
-                      [compareWith]="compareObject"
-                    >
-                      <mat-option [value]="">{{
-                        "groep.-geen-" | translate
-                      }}</mat-option>
-                      <mat-option
-                        *ngFor="let groep of groups$ | async"
-                        [value]="groep.id"
-                        >{{ groep.naam }}</mat-option
-                      >
-                    </mat-select>
-                  </mat-form-field>
-                </div>
-                <div class="flex-row flex-wrap">
-                  <mat-form-field class="w33 w100-md" floatLabel="always">
-                    <mat-label>{{ "doorlooptijd" | translate }}</mat-label>
-                    <input
-                      matInput
-                      type="number"
-                      [attr.inputmode]="'numeric'"
-                      min="0"
-                      max="2147483647"
-                      formControlName="doorlooptijd"
-                    />
-                    <span matSuffix>{{ "kalenderdagen" | translate }}</span>
-                  </mat-form-field>
-                </div>
+                <zac-select
+                  [form]="humanTaskFormGroup(humanTaskParameter)"
+                  [options]="formulierDefinities$ | async"
+                  optionDisplayValue="id"
+                  optionDisplayValuePrefix="formulierDefinitie."
+                  key="formulierDefinitie"
+                >
+                </zac-select>
+                <zac-select
+                  [form]="humanTaskFormGroup(humanTaskParameter)"
+                  [options]="groups$ | async"
+                  optionDisplayValue="naam"
+                  key="defaultGroep"
+                >
+                  <mat-label>{{ "groep" | translate }}</mat-label>
+                </zac-select>
+                <zac-input
+                  [form]="humanTaskFormGroup(humanTaskParameter)"
+                  key="doorlooptijd"
+                  type="number"
+                >
+                  <span matSuffix>{{
+                    "kalenderdagen" | translate
+                  }}</span> </zac-input
+                >>
                 <div
                   class="flex-row flex-wrap"
                   *ngFor="
@@ -307,34 +270,33 @@
         </ng-template>
       </mat-step>
       <mat-step
-        [stepControl]="userEventListenersFormGroup"
-        [hasError]="userEventListenersFormGroup.invalid"
+        [stepControl]="form.controls.userEventListenerParameters"
+        [hasError]="form.controls.userEventListenerParameters.invalid"
       >
         <ng-template matStepLabel>{{
           "gegevens.acties" | translate
         }}</ng-template>
         <ng-template matStepContent>
-          <form [formGroup]="userEventListenersFormGroup" class="flex-col">
+          <form [formGroup]="form.controls.userEventListenerParameters">
             <mat-accordion>
               <mat-expansion-panel
-                [formGroupName]="actieParameter.id"
-                class="flex-col"
-                *ngFor="let actieParameter of userEventListenerParameters"
+                *ngFor="
+                  let userEventListenerParameter of userEventListenerParameters
+                "
+                [formGroupName]="userEventListenerParameter.id ?? ''"
               >
                 <mat-expansion-panel-header>
-                  <mat-panel-title> {{ actieParameter.naam }} </mat-panel-title>
+                  <mat-panel-title>
+                    {{ userEventListenerParameter.naam }}
+                  </mat-panel-title>
                 </mat-expansion-panel-header>
-                <div class="flex-row flex-wrap">
-                  <mat-form-field class="w33 w100-md" floatLabel="always">
-                    <mat-label>{{ "toelichting" | translate }}</mat-label>
-                    <textarea
-                      matInput
-                      class="toelichting"
-                      formControlName="toelichting"
-                      maxlength="1000"
-                    ></textarea>
-                  </mat-form-field>
-                </div>
+                <zac-textarea
+                  [form]="
+                    userEventListenerFormGroup(userEventListenerParameter)
+                  "
+                  key="toelichting"
+                >
+                </zac-textarea>
               </mat-expansion-panel>
             </mat-accordion>
             <div class="button-group flex-row flex-wrap">
@@ -357,54 +319,40 @@
         </ng-template>
       </mat-step>
       <mat-step
-        [stepControl]="mailFormGroup"
-        [hasError]="mailFormGroup.invalid"
+        [stepControl]="form.controls.mailtemplateKoppelingen"
+        [hasError]="form.controls.mailtemplateKoppelingen.invalid"
       >
         <ng-template matStepLabel>{{
           "gegevens.mail" | translate
         }}</ng-template>
         <ng-template matStepContent>
-          <form [formGroup]="mailFormGroup" class="flex-col">
+          <form [formGroup]="form.controls.mailtemplateKoppelingen">
             <mat-card>
-              <mat-card-content class="flex-col">
-                <div class="flex-row flex-wrap gap-20">
-                  <mat-form-field
-                    class="flex-1 w33 w100-md"
-                    floatLabel="always"
+              <mat-card-content>
+                <section class="row">
+                  <zac-select
+                    [form]="form.controls.mailtemplateKoppelingen"
+                    key="intakeMail"
+                    class="col-12 col-md-6"
+                    [options]="mailOpties"
+                    optionDisplayValue="label"
                   >
                     <mat-label>{{
                       "statusmail.type.intake" | translate
                     }}</mat-label>
-                    <mat-select
-                      formControlName="intakeMail"
-                      [compareWith]="compareObject"
-                    >
-                      <mat-option
-                        *ngFor="let b of mailOpties"
-                        [value]="b.value"
-                        >{{ b.label | translate }}</mat-option
-                      >
-                    </mat-select>
-                  </mat-form-field>
-                  <mat-form-field
-                    class="flex-1 w33 w100-md"
-                    floatLabel="always"
+                  </zac-select>
+                  <zac-select
+                    [form]="form.controls.mailtemplateKoppelingen"
+                    key="afrondenMail"
+                    class="col-12 col-md-6"
+                    [options]="mailOpties"
+                    optionDisplayValue="label"
                   >
                     <mat-label>{{
                       "statusmail.type.afronden" | translate
                     }}</mat-label>
-                    <mat-select
-                      formControlName="afrondenMail"
-                      [compareWith]="compareObject"
-                    >
-                      <mat-option
-                        *ngFor="let b of mailOpties"
-                        [value]="b.value"
-                        >{{ b.label | translate }}</mat-option
-                      >
-                    </mat-select>
-                  </mat-form-field>
-                </div>
+                  </zac-select>
+                </section>
               </mat-card-content>
             </mat-card>
             <mat-card>
@@ -752,8 +700,5 @@
         </ng-template>
       </mat-step>
     </mat-stepper>
-      <section>
-
-      </section>
   </mat-sidenav-content>
 </mat-sidenav-container>

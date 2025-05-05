@@ -11,7 +11,6 @@ import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.ser
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { CaseDefinition } from "./model/case-definition";
-import { FormulierDefinitie } from "./model/formulier-definitie";
 import { ReplyTo } from "./model/replyto";
 import { ZaakbeeindigReden } from "./model/zaakbeeindig-reden";
 
@@ -104,12 +103,10 @@ export class ZaakafhandelParametersService {
       );
   }
 
-  listFormulierDefinities(): Observable<FormulierDefinitie[]> {
-    return this.http
-      .get<FormulierDefinitie[]>(`${this.basepath}/formulierdefinities`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listFormulierDefinities() {
+  return this.zacHttpClient.GET("/rest/zaakafhandelparameters/formulierdefinities").pipe(
+    catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+    );
   }
 
   listReplyTos(): Observable<ReplyTo[]> {
