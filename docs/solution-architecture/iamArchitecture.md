@@ -44,6 +44,7 @@ ZAC exposes some 'internal' endpoints (on `/rest/internal/*`) which are not call
 such as Kubernetes cron jobs or scripts which can be run manually.
 
 Because in these system integrations there is no end-user available, these endpoints are secured using a simple built-in API key mechanism. This works as follows:
+
 - The API key is a simple string which needs to be passed with all internal HTTP(S) requests in the `X-API-KEY` HTTP header.
 - If the API key is not provided the internal endpoint will return a 401 Unauthorized response.
 - On deployment ZAC needs to be configured with a value for this API key. This value is also used to configure specific ZAC Kubernetes cron jobs that use these 
