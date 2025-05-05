@@ -27,18 +27,20 @@ export class ZaakafhandelParametersService {
   private basepath = "/rest/zaakafhandelparameters";
 
   listZaakafhandelParameters() {
-    return this.http
-      .get<GeneratedType<"RestZaakafhandelParameters">[]>(`${this.basepath}`)
+    return this.zacHttpClient
+      .GET("/rest/zaakafhandelparameters")
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
-  readZaakafhandelparameters(zaaktypeUuid: string) {
-    return this.http
-      .get<
-        GeneratedType<"RestZaakafhandelParameters">
-      >(`${this.basepath}/${zaaktypeUuid}`)
+  readZaakafhandelparameters(zaaktypeUUID: string) {
+    return this.zacHttpClient
+      .GET("/rest/zaakafhandelparameters/{zaaktypeUUID}", {
+        pathParams: {
+          path: { zaaktypeUUID },
+        },
+      })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -104,9 +106,11 @@ export class ZaakafhandelParametersService {
   }
 
   listFormulierDefinities() {
-  return this.zacHttpClient.GET("/rest/zaakafhandelparameters/formulierdefinities").pipe(
-    catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-    );
+    return this.zacHttpClient
+      .GET("/rest/zaakafhandelparameters/formulierdefinities")
+      .pipe(
+        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+      );
   }
 
   listReplyTos(): Observable<ReplyTo[]> {
