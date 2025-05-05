@@ -104,6 +104,7 @@ smartDocuments:
   # -- Fixed username for authentication
   fixedUserName: "fake"
 
+# -- API key for authentication of internal ZAC endpoints
 zacInternalEndpointsApiKey: "fakeZacInternalEndpointsApiKey"
 
 # signaleringen Configuration of the signaleren job
