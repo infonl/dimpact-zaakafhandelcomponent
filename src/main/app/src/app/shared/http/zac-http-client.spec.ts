@@ -38,9 +38,59 @@ describe("HttpClientTesting", () => {
     httpTestingController.verify();
   });
 
-  it("Http get works with all expected types", (done) => {
-    const testData: Paths["/rest/bag/zaak/{zaakUuid}"]["get"]["responses"]["200"]["content"]["application/json"] =
-      [
+  describe(ZacHttpClient.prototype.GET.name, () => {
+    it("Replaces the path params", (done) => {
+      const testData: Paths["/rest/bag/zaak/{zaakUuid}"]["get"]["responses"]["200"]["content"]["application/json"] =
+        [
+          {
+            uuid: "123",
+            // etc.
+          },
+        ];
+
+      zacHttpClient
+        .GET("/rest/bag/zaak/{zaakUuid}", {
+          pathParams: { path: { zaakUuid: "123" } },
+        })
+        .subscribe((data) => {
+          expectType<
+            Paths["/rest/bag/zaak/{zaakUuid}"]["get"]["responses"]["200"]["content"]["application/json"]
+          >(data);
+
+          expect(data).toEqual(testData);
+          done();
+        });
+
+      const req = httpTestingController.expectOne("/rest/bag/zaak/123");
+      expect(req.request.method).toEqual("GET");
+      req.flush(testData);
+      httpTestingController.verify();
+    });
+
+    it("adds the query params", (done) => {
+      zacHttpClient
+        .GET("/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken", {
+          pathParams: {
+            query: { zoekZaakIdentifier: "test", linkType: "test" },
+            path: { zaakUuid: "123" },
+          },
+        })
+        .subscribe(() => {
+          done();
+        });
+
+      const req = httpTestingController.expectOne(
+        "/rest/zaken/gekoppelde-zaken/123/zoek-koppelbare-zaken?zoekZaakIdentifier=test&linkType=test",
+      );
+      expect(req.request.method).toEqual("GET");
+      req.flush(null);
+      httpTestingController.verify();
+    });
+  });
+
+  describe(ZacHttpClient.prototype.POST.name, () => {
+    it("Http post works with all expected types", (done) => {
+      const testData: Paths["/rest/informatieobjecten/informatieobject/{uuid}/convert"]["post"]["responses"]["200"] =
         {
           uuid: "123",
           // etc.

@@ -142,8 +142,34 @@ export class ZaakLinkComponent implements OnInit, OnDestroy {
       );
   }
 
-  selectCase(row: unknown) {
-    console.log("Selected case: ", row);
+  selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
+    if (!row?.id || !this.selectLinkTypeField) return;
+
+    const caseLinkDetails: GeneratedType<"RestZaakLinkData"> = {
+      zaakUuid: this.zaak.uuid,
+      teKoppelenZaakUuid: row.id,
+      relatieType: this.selectLinkTypeField.formControl.value,
+    };
+
+    this.zakenService.koppelZaak(caseLinkDetails).subscribe({
+      next: () => {
+        this.utilService.openSnackbar("msg.zaak.gekoppeld", {
+          case: row.identificatie,
+        });
+        // this.zaakLinked.emit();
+        // this.closeDrawer();
+      },
+      error: () => {
+        this.loading = false;
+        this.utilService.setLoading(false);
+      },
+    });
+  }
+
+  rowDisabled(row: GeneratedType<"RestZaakKoppelenZoekObject">): boolean {
+    return !(
+      !row.documentKoppelbaar || row.identificatie === this.zaak.identificatie
+    );
   }
 
   closeDrawer() {
