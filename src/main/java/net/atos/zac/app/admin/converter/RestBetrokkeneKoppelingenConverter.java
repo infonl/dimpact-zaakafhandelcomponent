@@ -23,12 +23,11 @@ public final class RestBetrokkeneKoppelingenConverter {
             final RestBetrokkeneKoppelingen restBetrokkeneKoppelingen,
             final ZaakafhandelParameters zaakafhandelParameters
     ) {
-        final BetrokkeneKoppelingen betrokkeneKoppelingen = new BetrokkeneKoppelingen(
-                restBetrokkeneKoppelingen.getId(),
-                zaakafhandelParameters,
-                restBetrokkeneKoppelingen.getBrpKoppelen(),
-                restBetrokkeneKoppelingen.getKvkKoppelen()
-        );
+        final BetrokkeneKoppelingen betrokkeneKoppelingen = new BetrokkeneKoppelingen();
+        betrokkeneKoppelingen.setId(restBetrokkeneKoppelingen.getId());
+        betrokkeneKoppelingen.setKvkKoppelen(restBetrokkeneKoppelingen.getKvkKoppelen());
+        betrokkeneKoppelingen.setBrpKoppelen(restBetrokkeneKoppelingen.getBrpKoppelen());
+        betrokkeneKoppelingen.setZaakafhandelParameters(zaakafhandelParameters);
 
         return betrokkeneKoppelingen;
     }

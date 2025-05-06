@@ -215,6 +215,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         mapZaakbeeindigGegevens(previousZaakafhandelparameters, zaakafhandelParameters, zaaktype)
         mapMailtemplateKoppelingen(previousZaakafhandelparameters, zaakafhandelParameters)
         mapZaakAfzenders(previousZaakafhandelparameters, zaakafhandelParameters)
+        mapBetrokkeneKoppelingen(previousZaakafhandelparameters, zaakafhandelParameters)
     }
 
     private fun currentZaakafhandelParameters(zaaktypeUuid: UUID): ZaakafhandelParameters {
@@ -374,4 +375,13 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             zaakafhandelParameters = newZaakafhandelParameters
         }
     }.let(newZaakafhandelParameters::setZaakAfzenders)
+
+    private fun mapBetrokkeneKoppelingen(
+        previousZaakafhandelParameters: ZaakafhandelParameters,
+        newZaakafhandelParameters: ZaakafhandelParameters
+    ) = newZaakafhandelParameters.betrokkeneKoppelingen.apply {
+        brpKoppelen = previousZaakafhandelParameters.betrokkeneKoppelingen.brpKoppelen
+        kvkKoppelen = previousZaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen
+        zaakafhandelParameters = newZaakafhandelParameters
+    }
 }
