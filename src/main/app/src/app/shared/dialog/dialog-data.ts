@@ -7,7 +7,6 @@ import { Observable } from "rxjs";
 import { AbstractFormField } from "../material-form-builder/model/abstract-form-field";
 
 export class DialogData<Value = unknown, Result = unknown> {
-  public dialogIconName? = "";
   public confirmButtonActionKey = "actie.ja";
   public cancelButtonActionKey: string | null = "actie.annuleren";
   public value: Value = null as Value;
