@@ -348,7 +348,7 @@ class ZaakServiceTest : BehaviorSpec({
         )
         val identification = "fakeBSN"
         val roleAdviseur = createRolNatuurlijkPersoon(
-            zaakURI = zaak.zaaktype,
+            zaakURI = zaak.url,
             rolType = roleTypeAdviseur,
             natuurlijkPersoon = createNatuurlijkPersoon(bsn = identification)
         )
