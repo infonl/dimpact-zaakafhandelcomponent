@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.58](https://img.shields.io/badge/Version-1.0.58-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
+![Version: 1.0.59](https://img.shields.io/badge/Version-1.0.59-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -48,57 +48,42 @@ The Github workflow will perform helm-linting and will bump the version if neede
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| additionalAllowedFileTypes | string | `nil` | An optional list of additional file extensions that can be uploaded |
 | affinity | object | `{}` | set affinity parameters |
-| auth.clientId | string | `""` | Client ID and secret as defined in the realm |
-| auth.realm | string | `""` |  |
-| auth.secret | string | `""` |  |
-| auth.server | string | `""` |  |
-| autoscaling.enabled | bool | `false` |  |
-| autoscaling.maxReplicas | int | `100` |  |
-| autoscaling.minReplicas | int | `1` |  |
-| autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
-| backendConfig.enabled | bool | `false` |  |
-| bagApi.apiKey | string | `""` |  |
-| bagApi.url | string | `""` |  |
+| auth | object | `{"clientId":"","realm":"","secret":"","server":""}` | Configuration for the Keycloak OpenID Connect integration |
+| auth.clientId | string | `""` | Client ID and secret as defined in the Keycloak ZAC realm |
+| autoscaling | object | `{"enabled":false,"maxReplicas":100,"minReplicas":1,"targetCPUUtilizationPercentage":80}` | autoscaling parameters |
+| backendConfig | object | `{"enabled":false}` | currently not in use, specify backend in ingress instead |
+| bagApi | object | `{"apiKey":"","url":""}` | Integration with the BAG API provider (Kadaster) |
 | brpApi.apiKey | string | `""` |  |
 | brpApi.protocollering.doelbinding | string | `"BRPACT-Totaal"` | Doelbinding for BRP Protocollering |
 | brpApi.protocollering.originOin | string | `""` | If specified, enables the BRP Protocollering |
 | brpApi.protocollering.verwerking | string | `"zaakafhandelcomponent"` | Verwerking for BRP Protocollering |
 | brpApi.url | string | `""` |  |
-| catalogusDomein | string | `"ALG"` | OpenZaak Catalogus Domein |
+| catalogusDomein | string | `"ALG"` | ZAC OpenZaak Catalogus Domein |
 | contextUrl | string | `""` | External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com) |
-| db.host | string | `""` |  |
-| db.name | string | `""` |  |
-| db.password | string | `""` |  |
-| db.user | string | `""` |  |
+| db | object | `{"host":"","name":"","password":"","user":""}` | Configuration of the ZAC database connection |
+| db.host | string | `""` | database.internal or 1.2.3.4 |
 | extraDeploy | list | `[]` | Extra objects to deploy (value evaluated as a template) |
-| featureFlags.bpmnSupport | bool | `false` |  |
+| featureFlags | object | `{"bpmnSupport":false}` | Supported feature flags |
+| featureFlags.bpmnSupport | bool | `false` | turns BPMN support on or off |
 | fullnameOverride | string | `""` | fullname to use |
-| gemeente.code | string | `""` |  |
-| gemeente.mail | string | `""` |  |
-| gemeente.naam | string | `""` |  |
+| gemeente | object | `{"code":"","mail":"","naam":""}` | Council specific configuration |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/infonl/zaakafhandelcomponent"` |  |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | specifies image pull secrets |
-| ingress.annotations | object | `{}` |  |
-| ingress.className | string | `""` |  |
-| ingress.enabled | bool | `false` |  |
-| ingress.hosts[0].host | string | `"chart-example.local"` |  |
-| ingress.hosts[0].paths[0].path | string | `"/"` |  |
-| ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` |  |
-| ingress.tls | list | `[]` |  |
+| ingress | object | `{"annotations":{},"className":"","enabled":false,"hosts":[{"host":"chart-example.local","paths":[{"path":"/","pathType":"ImplementationSpecific"}]}],"tls":[]}` | ingress specifications |
 | initContainer | object | `{"enabled":true,"image":{"repository":"curlimages/curl","tag":"8.13.0@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd"}}` | set initContainer parameters |
+| keycloak | object | `{"adminClient":{"id":"","secret":""}}` | Configuration of the ZAC admin client in Keycloak |
 | keycloak.adminClient.id | string | `""` | Keycloak ZAC admin client name |
 | keycloak.adminClient.secret | string | `""` | Keycloak ZAC admin client secret |
-| klantinteractiesApi.token | string | `""` |  |
-| klantinteractiesApi.url | string | `""` |  |
-| kvkApi.apiKey | string | `""` |  |
-| kvkApi.url | string | `""` |  |
-| mail | object | `{"smtp":{"password":"","port":"587","server":"","username":""}}` | Email sending connection. SPF record needs to be properly setup in DNS |
+| klantinteractiesApi | object | `{"token":"","url":""}` | Integration with the Klantinteracties API provider (OpenKlant) |
+| kvkApi | object | `{"apiKey":"","url":""}` | Integration with the KVK API provider (KVK) |
+| mail | object | `{"smtp":{"password":"","port":"587","server":"","username":""}}` | SMTP provider configuration. SPF record needs to be properly set up in DNS |
 | mail.smtp.password | string | `""` | SMTP server password if authentication is required. Optional |
 | mail.smtp.port | string | `"587"` | SMTP server port: 587 for TLS, port 25 for relaying. Required |
-| mail.smtp.server | string | `""` | SMTP server host (for example localhost or in-v3.mailjet.com). Required |
+| mail.smtp.server | string | `""` | SMTP server host (for example, localhost or in-v3.mailjet.com). Required |
 | mail.smtp.username | string | `""` | SMTP server username if authentication is required. Optional |
 | maxFileSizeMB | int | `80` | Maximum size (in Mega Bytes) of files that can be uploaded. |
 | nameOverride | string | `""` | name to use |
@@ -185,101 +170,40 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.service.type | string | `"ClusterIP"` |  |
 | nginx.useXForwardedHost | bool | `false` |  |
 | nodeSelector | object | `{}` | set node selector parameters |
-| notificationsSecretKey | string | `""` |  |
-| objectenApi.token | string | `""` |  |
-| objectenApi.url | string | `""` |  |
-| office_converter.affinity | object | `{}` |  |
-| office_converter.enabled | bool | `true` |  |
-| office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
-| office_converter.image.repository | string | `"ghcr.io/eugenmayer/kontextwork-converter"` |  |
-| office_converter.image.tag | string | `"1.8.0@sha256:48da70902307f27ad92a27ddf5875310464fd4d4a2f53ce53e1a6f9b3b4c3355"` |  |
-| office_converter.imagePullSecrets | list | `[]` |  |
-| office_converter.name | string | `"office-converter"` |  |
-| office_converter.nodeSelector | object | `{}` |  |
-| office_converter.podAnnotations | object | `{}` |  |
-| office_converter.podSecurityContext | object | `{}` |  |
-| office_converter.replicas | int | `1` |  |
-| office_converter.resources.requests.cpu | string | `"100m"` |  |
-| office_converter.resources.requests.memory | string | `"512Mi"` |  |
-| office_converter.securityContext | object | `{}` |  |
-| office_converter.service.annotations | object | `{}` |  |
-| office_converter.service.port | int | `80` |  |
-| office_converter.service.type | string | `"ClusterIP"` |  |
-| office_converter.tolerations | list | `[]` |  |
-| opa.affinity | object | `{}` |  |
-| opa.autoscaling.enabled | bool | `false` |  |
-| opa.enabled | bool | `true` |  |
-| opa.image.pullPolicy | string | `"IfNotPresent"` |  |
-| opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.4.2-static@sha256:3c995dc8a59f6ddfd92eb7404d2f7ff9fe71cd025d9251199957a8a6afbfd76e"` |  |
-| opa.imagePullSecrets | list | `[]` |  |
+| notificationsSecretKey | string | `""` | API key for the ZGW Notificaties Consumer API integration; also needs to be configured in Open Notificaties |
+| objectenApi | object | `{"token":"","url":""}` | Integration with the Objecten API provider |
+| office_converter | object | `{"affinity":{},"enabled":true,"image":{"pullPolicy":"IfNotPresent","repository":"ghcr.io/eugenmayer/kontextwork-converter","tag":"1.8.0@sha256:48da70902307f27ad92a27ddf5875310464fd4d4a2f53ce53e1a6f9b3b4c3355"},"imagePullSecrets":[],"name":"office-converter","nodeSelector":{},"podAnnotations":{},"podSecurityContext":{},"replicas":1,"resources":{"requests":{"cpu":"100m","memory":"512Mi"}},"securityContext":{},"service":{"annotations":{},"port":80,"type":"ClusterIP"},"tolerations":[]}` | office_converter configuration. Prefilled resources values are the minimum recommended |
+| opa | object | `{"affinity":{},"autoscaling":{"enabled":false},"enabled":true,"image":{"pullPolicy":"IfNotPresent","repository":"openpolicyagent/opa","tag":"1.4.0-static@sha256:8eb5ef478f757fabba76dfdafb58ab85667c151415b4f3689d9f05acc635d8ea"},"imagePullSecrets":[],"name":"opa","nodeSelector":{},"podAnnotations":{},"podSecurityContext":{},"replicas":1,"resources":{"requests":{"cpu":"10m","memory":"20Mi"}},"securityContext":{},"service":{"annotations":{},"port":8181,"type":"ClusterIP"},"sidecar":false,"tolerations":[]}` | Open Policy Agent (OPA) configuration, prefilled resources values are the minimum recommended |
 | opa.name | string | `"opa"` | set url if the opa url cannot be automatically determined and is not run as a sidecar. the opa url should be the url the openpolicyagent can be reached on from ZAC ( for example: http://release-opa.default.svc.cluster.local:8181 ) url: "" |
-| opa.nodeSelector | object | `{}` |  |
-| opa.podAnnotations | object | `{}` |  |
-| opa.podSecurityContext | object | `{}` |  |
-| opa.replicas | int | `1` |  |
-| opa.resources.requests.cpu | string | `"10m"` |  |
-| opa.resources.requests.memory | string | `"20Mi"` |  |
-| opa.securityContext | object | `{}` |  |
-| opa.service.annotations | object | `{}` |  |
-| opa.service.port | int | `8181` |  |
-| opa.service.type | string | `"ClusterIP"` |  |
 | opa.sidecar | bool | `false` | set sidecar to true to run the opa service together with the zac pod |
-| opa.tolerations | list | `[]` |  |
-| openForms.url | string | `""` |  |
-| opentelemetry-collector.config.receivers.jaeger | object | `{}` |  |
-| opentelemetry-collector.config.receivers.prometheus | object | `{}` |  |
-| opentelemetry-collector.config.receivers.zipkin | object | `{}` |  |
-| opentelemetry-collector.config.service.pipelines.logs | object | `{}` |  |
-| opentelemetry-collector.config.service.pipelines.metrics | object | `{}` |  |
-| opentelemetry-collector.config.service.pipelines.traces.receivers[0] | string | `"otlp"` |  |
-| opentelemetry-collector.enabled | bool | `false` |  |
-| opentelemetry-collector.image.pullPolicy | string | `"IfNotPresent"` |  |
-| opentelemetry-collector.image.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
-| opentelemetry-collector.image.tag | string | `"0.123.0@sha256:e39311df1f3d941923c00da79ac7ba6269124a870ee87e3c3ad24d60f8aee4d2"` |  |
-| opentelemetry-collector.mode | string | `"deployment"` |  |
-| opentelemetry-collector.ports.jaeger-compact.enabled | bool | `false` |  |
-| opentelemetry-collector.ports.jaeger-grpc.enabled | bool | `false` |  |
-| opentelemetry-collector.ports.jaeger-thrift.enabled | bool | `false` |  |
-| opentelemetry-collector.ports.zipkin.enabled | bool | `false` |  |
-| opentelemetry-collector.presets.clusterMetrics.enabled | bool | `false` |  |
-| opentelemetry-collector.replicaCount | int | `1` |  |
+| openForms | object | `{"url":""}` | Integration with Open Formulieren. Not used at the moment. |
+| opentelemetry-collector | object | `{"config":{"receivers":{"jaeger":{},"prometheus":{},"zipkin":{}},"service":{"pipelines":{"logs":{},"metrics":{},"traces":{"receivers":["otlp"]}}}},"enabled":false,"image":{"pullPolicy":"IfNotPresent","repository":"otel/opentelemetry-collector-contrib","tag":"0.123.0@sha256:e39311df1f3d941923c00da79ac7ba6269124a870ee87e3c3ad24d60f8aee4d2"},"mode":"deployment","ports":{"jaeger-compact":{"enabled":false},"jaeger-grpc":{"enabled":false},"jaeger-thrift":{"enabled":false},"zipkin":{"enabled":false}},"presets":{"clusterMetrics":{"enabled":false}},"replicaCount":1}` | opentelemetry-collector enable to use the included helm chart and settings to work with zac |
+| opentelemetry_zaakafhandelcomponent | object | `{"disabled":"-true","endpoint":""}` | OpenTelemetry configuration. Only read when opentelemetry-collector is enabled |
+| opentelemetry_zaakafhandelcomponent.endpoint | string | `""` | OpenTelemetry collector URL. For example: http://opentelemetry-collector.default.svc.cluster.local:4317 |
 | organizations.bron.rsin | string | `""` | The RSIN of the Non-natural person - the organization that created the zaak. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef |
 | organizations.verantwoordelijke.rsin | string | `""` | The RSIN of the Non-natural person - the organization that is ultimately responsible for handling a zaak or establishing a decision. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef |
 | podAnnotations | object | `{}` | pod specific annotations |
 | podSecurityContext | object | `{}` | pod specific security context |
 | remoteDebug | bool | `false` | Enable Java remote debugging |
-| replicaCount | int | `1` | the number of replicas to run |
-| resources.requests.cpu | string | `"100m"` |  |
-| resources.requests.memory | string | `"1Gi"` |  |
-| securityContext | object | `{}` |  |
-| service.annotations | object | `{}` |  |
-| service.port | int | `80` |  |
-| service.type | string | `"ClusterIP"` |  |
+| replicaCount | int | `1` | The number of replicas to run |
+| resources | object | `{"requests":{"cpu":"100m","memory":"1Gi"}}` | specify resource limits and requests if needed, prefilled values are the minimum recommended |
+| securityContext | object | `{}` | generic security context |
+| service | object | `{"annotations":{},"port":80,"type":"ClusterIP"}` | service specifications |
+| serviceAccount | object | `{"annotations":{},"create":true,"name":""}` | serviceAccount service account parameters |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
 | serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
-| signaleringen.affinity | object | `{}` |  |
-| signaleringen.concurrencyPolicy | string | `"Forbid"` |  |
+| signaleringen | object | `{"affinity":{},"concurrencyPolicy":"Forbid","deleteOldSignaleringenSchedule":"0 3 * * *","deleteOlderThanDays":"14","failedJobsHistoryLimit":3,"image":{"pullPolicy":"IfNotPresent","repository":"curlimages/curl","tag":"8.13.0@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd"},"imagePullSecrets":[],"nodeSelector":{},"podSecurityContext":{},"resources":{},"restartPolicy":"Never","securityContext":{},"sendZaakSignaleringenSchedule":"0 2 * * *","successfulJobsHistoryLimit":1,"tolerations":[]}` | Signaleringen cronjob configuration |
 | signaleringen.deleteOldSignaleringenSchedule | string | `"0 3 * * *"` | Schedule of the 'delete old signaleringen' send job in CRON job format |
 | signaleringen.deleteOlderThanDays | string | `"14"` | Delete any signaleringen older than this number of days when the corresponding admin endpoint is called. |
-| signaleringen.failedJobsHistoryLimit | int | `3` |  |
-| signaleringen.image.pullPolicy | string | `"IfNotPresent"` |  |
-| signaleringen.image.repository | string | `"curlimages/curl"` |  |
-| signaleringen.image.tag | string | `"8.13.0@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd"` |  |
-| signaleringen.imagePullSecrets | list | `[]` |  |
-| signaleringen.nodeSelector | object | `{}` |  |
-| signaleringen.podSecurityContext | object | `{}` |  |
-| signaleringen.resources | object | `{}` |  |
-| signaleringen.restartPolicy | string | `"Never"` |  |
-| signaleringen.securityContext | object | `{}` |  |
 | signaleringen.sendZaakSignaleringenSchedule | string | `"0 2 * * *"` | Schedule of the signaleringen send zaken job in CRON job format |
 | signaleringen.successfulJobsHistoryLimit | int | `1` | k8s settings for the signaleren jobs |
-| signaleringen.tolerations | list | `[]` |  |
 | smartDocuments.authentication | string | `""` | Authentication token |
 | smartDocuments.enabled | bool | `false` | Enable SmartDocuments integration for creating a new document |
 | smartDocuments.fixedUserName | string | `""` | If this setting is set, then templates in SmartDocuments cannot use user-specific values. |
 | smartDocuments.url | string | `""` | URL to SmartDocuments instance. For example: https://partners.smartdocuments.com |
+| solr | object | `{"auth":{"enabled":false},"cloudBootstrap":false,"cloudEnabled":false,"collectionReplicas":1,"coreNames":["zac"],"customLivenessProbe":{"failureThreshold":6,"httpGet":{"path":"/solr/zac/admin/ping","port":"http"},"initialDelaySeconds":40,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":15},"customReadinessProbe":{"failureThreshold":6,"httpGet":{"path":"/solr/zac/admin/ping","port":"http"},"initialDelaySeconds":60,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":15},"enabled":false,"extraEnvVars":[{"name":"ZK_CREATE_CHROOT","value":"true"}],"persistence":{"size":"1Gi"},"replicaCount":1,"service":{"ports":{"http":80}},"zookeeper":{"enabled":false}}` | Solr enable to use the included solr helm chart to provision a solr to use with zac |
+| solr-operator | object | `{"affinity":{},"annotations":{},"enabled":false,"fullnameOverride":"solr-operator","image":{"pullPolicy":"IfNotPresent","repository":"apache/solr-operator","tag":"v0.9.1@sha256:4db34508137f185d3cad03c7cf7c2b5d6533fb590822effcde9125cff5a90aa2"},"metrics":{"enabled":true},"nodeSelector":{},"solr":{"affinity":{},"annotations":{},"busyBoxImage":{"pullPolicy":"IfNotPresent","repository":"library/busybox","tag":"1.37.0-glibc@sha256:47ac99f1ae0afb8d83d8cd8aac5461be8103cac932f2631b5acce9122236adb1"},"enabled":true,"image":{"pullPolicy":"IfNotPresent","repository":"library/solr","tag":"9.8.1@sha256:05332e172bd3335eb36f2477e22cecae99f1f8e3b1bc4d1c148cb5373f1abaae"},"javaMem":"-Xms512m -Xmx768m","jobs":{"affinity":{},"annotations":{},"createZacCore":true,"image":{"pullPolicy":"IfNotPresent","repository":"curlimages/curl","tag":"8.13.0@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd"},"nodeSelector":{},"tolerations":[]},"logLevel":"INFO","nodeSelector":{},"replicas":3,"storage":{"reclaimPolicy":"Delete","size":"1Gi","storageClassName":"managed-csi"},"tolerations":[]},"tolerations":[],"watchNamespaces":"default","zookeeper-operator":{"affinity":{},"annotations":{},"fullnameOverride":"zookeeper-operator","hooks":{"image":{"pullPolicy":"IfNotPresent","repository":"lachlanevenson/k8s-kubectl","tag":"v1.25.4@sha256:af5cea3f2e40138df90660c0c073d8b1506fb76c8602a9f48aceb5f4fb052ddc"}},"image":{"pullPolicy":"IfNotPresent","repository":"pravega/zookeeper-operator","tag":"0.2.15@sha256:b2bc4042fdd8fea6613b04f2f602ba4aff1201e79ba35cd0e2df9f3327111b0e"},"nodeSelector":{},"tolerations":[],"watchNamespace":"default","zookeeper":{"affinity":{},"annotations":{},"image":{"pullPolicy":"IfNotPresent","repository":"pravega/zookeeper","tag":"0.2.15@sha256:c498ebfb76a66f038075e2fa6148528d74d31ca1664f3257fdf82ee779eec9c8"},"nodeSelector":{},"replicas":3,"storage":{"reclaimPolicy":"Delete","size":"1Gi","storageClassName":"managed-csi"},"tolerations":[]}}}` | requires the installation of the solr-operator crds: kubectl create -f https://solr.apache.org/operator/downloads/crds/v0.8.1/all-with-dependencies.yaml |
 | solr-operator.affinity | object | `{}` | affinity for solr-operator |
 | solr-operator.annotations | object | `{}` | annotations for solr-operator |
 | solr-operator.enabled | bool | `false` | set enabled to actually use the solr-operator helm chart |
@@ -339,38 +263,10 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.zookeeper-operator.zookeeper.storage.size | string | `"1Gi"` | zookeeper storage size |
 | solr-operator.zookeeper-operator.zookeeper.storage.storageClassName | string | `"managed-csi"` | zookeeper storageClassName |
 | solr-operator.zookeeper-operator.zookeeper.tolerations | list | `[]` | tolerations for zookeeper |
-| solr.auth.enabled | bool | `false` |  |
-| solr.cloudBootstrap | bool | `false` |  |
-| solr.cloudEnabled | bool | `false` |  |
-| solr.collectionReplicas | int | `1` |  |
-| solr.coreNames[0] | string | `"zac"` |  |
-| solr.customLivenessProbe.failureThreshold | int | `6` |  |
-| solr.customLivenessProbe.httpGet.path | string | `"/solr/zac/admin/ping"` |  |
-| solr.customLivenessProbe.httpGet.port | string | `"http"` |  |
-| solr.customLivenessProbe.initialDelaySeconds | int | `40` |  |
-| solr.customLivenessProbe.periodSeconds | int | `10` |  |
-| solr.customLivenessProbe.successThreshold | int | `1` |  |
-| solr.customLivenessProbe.timeoutSeconds | int | `15` |  |
-| solr.customReadinessProbe.failureThreshold | int | `6` |  |
-| solr.customReadinessProbe.httpGet.path | string | `"/solr/zac/admin/ping"` |  |
-| solr.customReadinessProbe.httpGet.port | string | `"http"` |  |
-| solr.customReadinessProbe.initialDelaySeconds | int | `60` |  |
-| solr.customReadinessProbe.periodSeconds | int | `10` |  |
-| solr.customReadinessProbe.successThreshold | int | `1` |  |
-| solr.customReadinessProbe.timeoutSeconds | int | `15` |  |
 | solr.enabled | bool | `false` | set enabled to true to provision bitnami solr version with the zac core |
-| solr.extraEnvVars[0].name | string | `"ZK_CREATE_CHROOT"` |  |
-| solr.extraEnvVars[0].value | string | `"true"` |  |
-| solr.persistence.size | string | `"1Gi"` |  |
-| solr.replicaCount | int | `1` |  |
-| solr.service.ports.http | int | `80` |  |
-| solr.zookeeper.enabled | bool | `false` |  |
 | tolerations | list | `[]` | set toleration parameters |
 | zacInternalEndpointsApiKey | string | `""` | API key for authentication of internal ZAC endpoints |
-| zgwApis.clientId | string | `""` |  |
-| zgwApis.secret | string | `""` |  |
-| zgwApis.url | string | `""` |  |
-| zgwApis.urlExtern | string | `""` |  |
+| zgwApis | object | `{"clientId":"","secret":"","url":"","urlExtern":""}` | ZGW API configuration for integration with the ZGW APIs provider (OpenZaak) |
 
 ----------------------------------------------
 Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)
