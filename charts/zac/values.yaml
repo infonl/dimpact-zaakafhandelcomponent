@@ -101,7 +101,7 @@ bagApi:
 openForms:
   url: ""  # https://open-forms.example.com
 
-# API key for authentication of internal ZAC endpoints
+# -- API key for authentication of internal ZAC endpoints
 zacInternalEndpointsApiKey: ""
 
 smartDocuments:
