@@ -13,6 +13,7 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.app.admin.converter.RESTZaaktypeOverzichtConverter
+import net.atos.zac.policy.PolicyService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.admin.model.RESTBuildInformation
@@ -31,14 +32,17 @@ import java.time.ZonedDateTime
 class HealthCheckRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val configuratieService: ConfiguratieService,
-    private val healthCheckService: HealthCheckService
+    private val healthCheckService: HealthCheckService,
+    private val policyService: PolicyService
 ) {
     @GET
     @Path("zaaktypes")
-    fun listZaaktypeInrichtingschecks() =
-        listZaaktypes().map {
+    fun listZaaktypeInrichtingschecks(): List<RESTZaaktypeInrichtingscheck> {
+        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        return listZaaktypes().map {
             convertToREST(healthCheckService.controleerZaaktype(it.url))
         }
+    }
 
     @GET
     @Path("bestaat-communicatiekanaal-eformulier")
