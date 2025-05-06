@@ -31,7 +31,8 @@ spec:
               resources: 
                 {{- toYaml .Values.signaleringen.resources | nindent 16 }}
               args:
-                - {{ printf "-H 'X-API-KEY: %s'" .Values.zacInternalEndpointsApiKey }}
+                - -H
+                - 'X-API-KEY: {{ .Values.zacInternalEndpointsApiKey }}'
                 - {{ printf "http://%s.%s/rest/internal/signaleringen/send-signaleringen" (include "zaakafhandelcomponent.fullname" .) .Release.Namespace }}
           {{- with .Values.signaleringen.nodeSelector }}
           nodeSelector:
