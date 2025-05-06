@@ -77,7 +77,7 @@ export class ZaakKoppelenService {
       () => this.isDisabled(zaak.identificatie),
     );
 
-    // Prevent the OLD handling/diolog from being opened (other code should still be preserved for the time being)
+    // Prevent the OLD handling/dialog from being opened (other code should still be preserved for the time being)
     // Commented out code below triggers showing the action bar
     //
     // this.utilService.addAction(action);
