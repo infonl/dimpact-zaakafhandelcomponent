@@ -12,19 +12,25 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.policy.PolicyService
 import nl.info.client.zgw.ztc.ZtcClientService
 
 class UtilRestServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
-    val utilRESTService = UtilRestService(ztcClientService, zaakafhandelParameterService)
+    val policyService = mockk<PolicyService>()
+    val utilRESTService = UtilRestService(
+        ztcClientService = ztcClientService,
+        zaakafhandelParameterService = zaakafhandelParameterService,
+        policyService = policyService
+    )
 
     beforeEach {
         checkUnnecessaryStub()
     }
 
     Given("caches are empty") {
-
+        every { policyService.readOverigeRechten().beheren } returns true
         every { ztcClientService.cacheStatistics() } returns mapOf(
             "ztc-cache1" to CacheStats.empty()
         )
@@ -51,6 +57,8 @@ class UtilRestServiceTest : BehaviorSpec({
     }
 
     Given("util endpoint") {
+        every { policyService.readOverigeRechten().beheren } returns true
+
         When("index is requested") {
             val indexResponse = utilRESTService.index()
 
