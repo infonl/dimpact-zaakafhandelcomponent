@@ -1209,7 +1209,7 @@ class ZaakRestService @Inject constructor(
 
     private fun assertCanAddInitiator(zaak: RestZaak) {
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-            zaak.uuid
+            zaak.zaaktype.uuid
         )
 
         zaak.initiatorIdentificatieType?.let {

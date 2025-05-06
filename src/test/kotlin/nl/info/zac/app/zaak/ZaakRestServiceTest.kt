@@ -1218,29 +1218,31 @@ class ZaakRestServiceTest : BehaviorSpec({
         val zaakUUID = UUID.randomUUID()
 
         When("This is not allowed in the zaak afhandel parameters") {
-            var betrokkeneKoppelingen = createBetrokkeneKoppelingen(
+            val betrokkeneKoppelingen = createBetrokkeneKoppelingen(
                 brpKoppelen = false,
                 zaakafhandelParameters = createZaakafhandelParameters()
             )
             val zaakafhandelParameters = createZaakafhandelParameters(betrokkeneKoppelingen = betrokkeneKoppelingen)
             val zaakType = createZaakType()
 
-            every { ztcClientService.readZaaktype(zaakType.url) } returns zaakType
+            val zaak = createRestZaak(uuid = zaakUUID, initiatorIdentificatieType = IdentificatieType.BSN)
+            val zaakAanmaakGegevens = createRESTZaakAanmaakGegevens(zaak = zaak)
+
+            every { ztcClientService.readZaaktype(zaak.zaaktype.uuid) } returns zaakType
             every {
-                zaakafhandelParameterService.readZaakafhandelParameters(zaakType.url.extractUuid())
+                zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.uuid)
             } returns zaakafhandelParameters
 
-            Then("An error should be thrown") {
-                val zaak = createRestZaak(uuid = zaakUUID, initiatorIdentificatieType = IdentificatieType.BSN)
-                val zaakAanmaakGegevens = createRESTZaakAanmaakGegevens(zaak = zaak)
+            val exception = shouldThrow<InitiatorNotAllowed> {
+                zaakRestService.createZaak(zaakAanmaakGegevens)
+            }
 
-                val exception = shouldThrow<InitiatorNotAllowed> {
-                    zaakRestService.createZaak(zaakAanmaakGegevens)
-                }
+            Then("An error should be thrown") {
                 exception.errorCode shouldBe ErrorCode.ERROR_CODE_CASE_INITIATOR_NOT_ALLOWED
             }
         }
     }
+
 
     Given("A zaak with a zaakinformatieobject where the corresponding informatieobject is only linked to this zaak") {
         val zaakUUID = UUID.randomUUID()
