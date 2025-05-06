@@ -68,6 +68,7 @@ import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
+import nl.info.zac.app.zaak.exception.InitiatorNotAllowed
 import nl.info.zac.app.zaak.model.RESTDocumentOntkoppelGegevens
 import nl.info.zac.app.zaak.model.RESTReden
 import nl.info.zac.app.zaak.model.RESTZaakAanmaakGegevens
@@ -252,6 +253,9 @@ class ZaakRestService @Inject constructor(
         val restZaak = restZaakAanmaakGegevens.zaak
         val zaaktypeUUID = restZaak.zaaktype.uuid
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUUID)
+
+        assertCanAddInitiator(restZaak)
+
         // make sure to use the omschrijving of the zaaktype that was retrieved to perform
         // authorisation on zaaktype
         assertPolicy(
@@ -313,6 +317,9 @@ class ZaakRestService @Inject constructor(
         restZaakEditMetRedenGegevens: RESTZaakEditMetRedenGegevens
     ): RestZaak {
         val zaak = zrcClientService.readZaak(zaakUUID)
+
+        assertCanAddInitiator(restZaakEditMetRedenGegevens.zaak)
+
         with(policyService.readZaakRechten(zaak)) {
             assertPolicy(wijzigen)
             if (
@@ -1199,4 +1206,19 @@ class ZaakRestService @Inject constructor(
     }
 
     private fun speciaalMail(mail: String): Speciaal? = if (!mail.contains("@")) Speciaal.valueOf(mail) else null
+
+    private fun assertCanAddInitiator(zaak: RestZaak) {
+        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
+            zaak.uuid
+        )
+
+        zaak.initiatorIdentificatieType?.let {
+            if (it.isKvK() && !zaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen) {
+                throw InitiatorNotAllowed()
+            }
+            if (it.isBsn() && !zaakafhandelParameters.betrokkeneKoppelingen.brpKoppelen) {
+                throw InitiatorNotAllowed()
+            }
+        }
+    }
 }

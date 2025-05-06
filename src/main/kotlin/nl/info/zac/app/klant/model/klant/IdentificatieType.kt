@@ -7,5 +7,8 @@ package nl.info.zac.app.klant.model.klant
 enum class IdentificatieType {
     BSN,
     VN,
-    RSIN
+    RSIN;
+
+    fun isBsn(): Boolean = this == BSN
+    fun isKvK(): Boolean = this == RSIN || this == VN
 }

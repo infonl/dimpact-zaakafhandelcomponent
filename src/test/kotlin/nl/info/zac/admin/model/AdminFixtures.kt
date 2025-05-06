@@ -76,7 +76,8 @@ fun createZaakafhandelParameters(
     productaanvraagtype: String? = null,
     nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
     zaakbeeindigParameters: Set<ZaakbeeindigParameter>? = emptySet(),
-    caseDefinitionId: String = "fakeCaseDefinitionId"
+    caseDefinitionId: String = "fakeCaseDefinitionId",
+    betrokkeneKoppelingen: BetrokkeneKoppelingen? = null
 ) =
     ZaakafhandelParameters().apply {
         this.id = id

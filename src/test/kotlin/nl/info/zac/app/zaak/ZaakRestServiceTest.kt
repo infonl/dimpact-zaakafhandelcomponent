@@ -73,13 +73,16 @@ import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.model.createZaakafhandelParameters
+import nl.info.zac.app.admin.createBetrokkeneKoppelingen
 import nl.info.zac.app.decision.DecisionService
+import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.AANVULLENDE_INFORMATIE_TASK_NAME
 import nl.info.zac.app.zaak.converter.RestDecisionConverter
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
+import nl.info.zac.app.zaak.exception.InitiatorNotAllowed
 import nl.info.zac.app.zaak.model.RESTReden
 import nl.info.zac.app.zaak.model.RESTZaakAfbrekenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
@@ -102,6 +105,7 @@ import nl.info.zac.app.zaak.model.createRestZaaktype
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
@@ -1206,6 +1210,34 @@ class ZaakRestServiceTest : BehaviorSpec({
                     headers["Content-Disposition"]!![0] shouldBe """attachment; filename="procesdiagram.gif"""".trimIndent()
                     (entity as InputStream).bufferedReader().use { it.readText() } shouldBe "fakeDiagram"
                 }
+            }
+        }
+    }
+
+    Given("A initiator is posted on a zaak create with an initiator") {
+        val zaakUUID = UUID.randomUUID()
+
+        When("This is not allowed in the zaak afhandel parameters") {
+            var betrokkeneKoppelingen = createBetrokkeneKoppelingen(
+                brpKoppelen = false,
+                zaakafhandelParameters = createZaakafhandelParameters()
+            )
+            val zaakafhandelParameters = createZaakafhandelParameters(betrokkeneKoppelingen = betrokkeneKoppelingen)
+            val zaakType = createZaakType()
+
+            every { ztcClientService.readZaaktype(zaakType.url) } returns zaakType
+            every {
+                zaakafhandelParameterService.readZaakafhandelParameters(zaakType.url.extractUuid())
+            } returns zaakafhandelParameters
+
+            Then("An error should be thrown") {
+                val zaak = createRestZaak(uuid = zaakUUID, initiatorIdentificatieType = IdentificatieType.BSN)
+                val zaakAanmaakGegevens = createRESTZaakAanmaakGegevens(zaak = zaak)
+
+                val exception = shouldThrow<InitiatorNotAllowed> {
+                    zaakRestService.createZaak(zaakAanmaakGegevens)
+                }
+                exception.errorCode shouldBe ErrorCode.ERROR_CODE_CASE_INITIATOR_NOT_ALLOWED
             }
         }
     }
