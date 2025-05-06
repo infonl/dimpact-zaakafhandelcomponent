@@ -3,6 +3,33 @@ entries:
   zaakafhandelcomponent:
   - apiVersion: v2
     appVersion: "3.0"
+    created: "2025-05-06T07:45:35.335678035Z"
+    dependencies:
+    - condition: opentelemetry-collector.enabled
+      name: opentelemetry-collector
+      repository: '@opentelemetry'
+      version: 0.122.5
+    - condition: solr.enabled
+      name: solr
+      repository: '@bitnami'
+      version: 9.6.1
+    - condition: solr-operator.enabled
+      name: solr-operator
+      repository: '@solr'
+      version: 0.9.1
+    description: A Helm chart for installing Zaakafhandelcomponent
+    digest: 56b3dfcbcae06e919bc3e8256344c5f9ef7b07d93653599b4918de84eb9adcae
+    icon: https://raw.githubusercontent.com/infonl/dimpact-zaakafhandelcomponent/49f8dee60948282b546ebdfdc5cff6f8bbef0305/docs/manuals/ZAC-gebruikershandleiding/images/pic.svg
+    maintainers:
+    - email: teamdimpact@info.nl
+      name: Team Dimpact, INFO
+      url: https://github.com/infonl/dimpact-zaakafhandelcomponent/discussions
+    name: zaakafhandelcomponent
+    urls:
+    - https://github.com/infonl/dimpact-zaakafhandelcomponent/releases/download/zaakafhandelcomponent-1.0.57/zaakafhandelcomponent-1.0.57.tgz
+    version: 1.0.57
+  - apiVersion: v2
+    appVersion: "3.0"
     created: "2025-05-05T08:22:01.09354252Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
@@ -2056,4 +2083,4 @@ entries:
     urls:
     - https://github.com/infonl/dimpact-zaakafhandelcomponent/releases/download/zaakafhandelcomponent-0.4.0/zaakafhandelcomponent-0.4.0.tgz
     version: 0.4.0
-generated: "2025-05-05T08:22:01.093720382Z"
+generated: "2025-05-06T07:45:35.335897624Z"
