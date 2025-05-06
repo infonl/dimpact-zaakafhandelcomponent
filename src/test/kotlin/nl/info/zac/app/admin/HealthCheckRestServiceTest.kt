@@ -100,6 +100,7 @@ class HealthCheckRestServiceTest: BehaviorSpec ({
     }
 
     Given("Communicatiekanaal EFormulier exists") {
+        every { policyService.readOverigeRechten().beheren } returns true
         every { healthCheckService.bestaatCommunicatiekanaalEformulier() } returns true
 
         When("the check for the existence of the EFormulier communication channel is performed") {

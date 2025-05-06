@@ -46,8 +46,10 @@ class HealthCheckRestService @Inject constructor(
 
     @GET
     @Path("bestaat-communicatiekanaal-eformulier")
-    fun readBestaatCommunicatiekanaalEformulier() =
-        healthCheckService.bestaatCommunicatiekanaalEformulier()
+    fun readBestaatCommunicatiekanaalEformulier(): Boolean {
+        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        return healthCheckService.bestaatCommunicatiekanaalEformulier()
+    }
 
     @DELETE
     @Path("ztc-cache")
