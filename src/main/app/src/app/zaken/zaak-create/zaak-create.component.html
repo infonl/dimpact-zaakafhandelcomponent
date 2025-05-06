@@ -37,6 +37,12 @@
           }}</mat-hint>
         </zac-auto-complete>
         <zac-input
+          *ngIf="
+            form.controls.zaaktype.value?.zaakafhandelparameters
+              ?.betrokkeneKoppelingen?.brpKoppelen ||
+            form.controls.zaaktype.value?.zaakafhandelparameters
+              ?.betrokkeneKoppelingen?.kvkKoppelen
+          "
           key="initiator"
           [form]="form"
           class="col-12 col-md-6"

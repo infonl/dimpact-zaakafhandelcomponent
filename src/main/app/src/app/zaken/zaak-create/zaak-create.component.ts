@@ -176,6 +176,13 @@ export class ZaakCreateComponent {
         ({ value }) => value === vertrouwelijkheidaanduiding,
       ),
     );
+
+    if (
+      !caseType.zaakafhandelparameters?.betrokkeneKoppelingen?.kvkKoppelen &&
+      !caseType.zaakafhandelparameters?.betrokkeneKoppelingen?.kvkKoppelen
+    ) {
+      this.form.controls.initiator.setValue(null);
+    }
   }
 
   protected async openSideNav(action: string) {
