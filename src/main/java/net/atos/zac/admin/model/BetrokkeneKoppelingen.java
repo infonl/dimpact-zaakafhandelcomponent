@@ -7,15 +7,13 @@ package net.atos.zac.admin.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+
 import net.atos.zac.util.FlywayIntegrator;
 
 @Entity
 @Table(schema = FlywayIntegrator.SCHEMA, name = "betrokkene_koppelingen")
 @SequenceGenerator(
-        schema = FlywayIntegrator.SCHEMA,
-        name = "sq_betrokkene_koppelingen",
-        sequenceName = "sq_betrokkene_koppelingen",
-        allocationSize = 1
+        schema = FlywayIntegrator.SCHEMA, name = "sq_betrokkene_koppelingen", sequenceName = "sq_betrokkene_koppelingen", allocationSize = 1
 )
 public class BetrokkeneKoppelingen {
 

@@ -439,10 +439,14 @@ export class ParameterEditComponent
   }
 
   createBetrokkeneKoppelingenForm() {
-    console.log(this.parameters)
+    console.log(this.parameters);
     this.betrokkeneKoppelingen = this.formBuilder.group({
-      kvkKoppelen: [this.parameters.betrokkeneKoppelingen?.kvkKoppelen ?? false],
-      brpKoppelen: [this.parameters.betrokkeneKoppelingen?.brpKoppelen ?? false],
+      kvkKoppelen: [
+        this.parameters.betrokkeneKoppelingen?.kvkKoppelen ?? false,
+      ],
+      brpKoppelen: [
+        this.parameters.betrokkeneKoppelingen?.brpKoppelen ?? false,
+      ],
     });
   }
 
