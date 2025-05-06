@@ -54,6 +54,7 @@ class RestTaskConverter @Inject constructor(
             zaakIdentificatie = readZaakIdentificatie(taskInfo),
             rechten = restTaakRechten,
             zaaktypeOmschrijving = if (restTaakRechten.lezen) zaaktypeOmschrijving else null,
+            zaaktypeUUID = readZaaktypeUUID(taskInfo),
             toelichting = if (restTaakRechten.lezen) taskInfo.description else null,
             creatiedatumTijd = if (restTaakRechten.lezen) {
                 DateTimeConverterUtil.convertToZonedDateTime(taskInfo.createTime)
