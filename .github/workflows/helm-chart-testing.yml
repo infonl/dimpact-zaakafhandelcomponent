@@ -108,7 +108,7 @@ jobs:
         uses: helm/kind-action@a1b0e391336a6ee6713a0583f8c6240d70863de3 # v1.12.0
 
       - name: Run chart-testing (install. Dry-run only for now until we implement helm install with all dependencies)
-        run: ct install --debug --helm-extra-args="--dry-run=server --debug" --target-branch ${{ github.event.repository.default_branch }}
+        run: ct install --debug --helm-extra-set-args="--dry-run=server --debug" --target-branch ${{ github.event.repository.default_branch }}
 
   bump-chart:
     runs-on: ubuntu-24.04
