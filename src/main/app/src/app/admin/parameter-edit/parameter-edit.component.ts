@@ -282,6 +282,7 @@ export class ParameterEditComponent
     this.createMailForm();
     this.createZaakbeeindigForm();
     this.createSmartDocumentsEnabledForm();
+    this.createBetrokkeneKoppelingenForm();
     this.setMedewerkersForGroup(this.parameters.defaultGroepId);
 
     this.subscriptions$.push(
@@ -435,6 +436,14 @@ export class ParameterEditComponent
     for (const reden of this.zaakbeeindigRedenen) {
       this.addZaakbeeindigParameter(this.getZaakbeeindigParameter(reden));
     }
+  }
+
+  createBetrokkeneKoppelingenForm() {
+    console.log(this.parameters)
+    this.betrokkeneKoppelingen = this.formBuilder.group({
+      kvkKoppelen: [this.parameters.betrokkeneKoppelingen?.kvkKoppelen ?? false],
+      brpKoppelen: [this.parameters.betrokkeneKoppelingen?.brpKoppelen ?? false],
+    });
   }
 
   createSmartDocumentsEnabledForm() {

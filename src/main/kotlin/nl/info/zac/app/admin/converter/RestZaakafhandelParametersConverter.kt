@@ -68,10 +68,9 @@ class RestZaakafhandelParametersConverter @Inject constructor(
                 enabledGlobally = smartDocumentsService.isEnabled(),
                 enabledForZaaktype = zaakafhandelParameters.isSmartDocumentsIngeschakeld
             ),
-            betrokkeneKoppelingen = RestBetrokkeneKoppelingen()
-//            betrokkeneKoppelingen = zaakafhandelParameters.betrokkeneKoppelingen?.let {
-//                restBetrokkeneKoppelingenConverter.convert(it)
-//            } ?: RestBetrokkeneKoppelingen(),
+            betrokkeneKoppelingen = zaakafhandelParameters.betrokkeneKoppelingen?.let {
+                restBetrokkeneKoppelingenConverter.convert(it)
+            } ?: RestBetrokkeneKoppelingen(),
         )
         restZaakafhandelParameters.caseDefinition?.takeIf { inclusiefRelaties }?.let { caseDefinition ->
             zaakafhandelParameters.nietOntvankelijkResultaattype?.let {
