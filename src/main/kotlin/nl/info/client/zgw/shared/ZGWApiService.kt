@@ -38,7 +38,6 @@ import java.time.Period
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Logger
-import kotlin.jvm.optionals.getOrNull
 
 /**
  * Service class for ZGW API's.
@@ -269,23 +268,46 @@ class ZGWApiService @Inject constructor(
             it as RolMedewerker
         }
 
-    fun findInitiatorRoleForZaak(zaak: Zaak): Rol<*>? =
-        ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
-            // there should be only one initiator role type,
-            // but in case there are multiple, we take the first one
-            .firstOrNull()?.let {
-                zrcClientService.listRollen(RolListParameters(zaak.url, it.url)).getSingleResult().getOrNull()
+    fun findInitiatorRoleForZaak(zaak: Zaak): Rol<*>? {
+        val roleTypes = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR).also {
+            if (it.size > 1) {
+                LOG.warning(
+                    "Multiple initiator role types found for zaaktype: '${zaak.zaaktype}', using the first one."
+                )
             }
+        }
+        return roleTypes.firstOrNull()?.let { rolType ->
+            val roles = zrcClientService.listRollen(RolListParameters(zaak.url, rolType.url)).results.also {
+                check(it.size <= 1) {
+                    "More than one initiator role found for zaak with UUID: '${zaak.uuid}' (count: ${it.size})"
+                }
+            }
+            roles.firstOrNull()
+        }
+    }
 
     private fun findBehandelaarRoleForZaak(
         zaak: Zaak,
         betrokkeneType: BetrokkeneType
-    ): Rol<*>? = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
-        // there should be one and only one 'behandelaar' role type
-        // but in case there are multiple, we take the first one
-        .firstOrNull()?.let {
-            zrcClientService.listRollen(RolListParameters(zaak.url, it.url, betrokkeneType)).singleResult.getOrNull()
+    ): Rol<*>? {
+        val roleTypes = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR).also {
+            if (it.size > 1) {
+                LOG.warning(
+                    "Multiple behandelaar role types found for zaaktype: '${zaak.zaaktype}', using the first one."
+                )
+            }
         }
+        return roleTypes.firstOrNull()?.let { roleType ->
+            val roles = zrcClientService.listRollen(
+                RolListParameters(zaak.url, roleType.url, betrokkeneType)
+            ).results.also {
+                check(it.size <= 1) {
+                    "More than one behandelaar role found for zaak with UUID: '${zaak.uuid}' (count: ${it.size})"
+                }
+            }
+            roles.firstOrNull()
+        }
+    }
 
     private fun createStatusForZaak(zaakURI: URI, statustypeURI: URI, toelichting: String?): Status {
         val status = Status(zaakURI, statustypeURI, ZonedDateTime.now())

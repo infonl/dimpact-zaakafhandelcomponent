@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.56](https://img.shields.io/badge/Version-1.0.56-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
+![Version: 1.0.57](https://img.shields.io/badge/Version-1.0.57-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -366,7 +366,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr.service.ports.http | int | `80` |  |
 | solr.zookeeper.enabled | bool | `false` |  |
 | tolerations | list | `[]` | set toleration parameters |
-| zacInternalEndpointsApiKey | string | `""` |  |
+| zacInternalEndpointsApiKey | string | `""` | API key for authentication of internal ZAC endpoints |
 | zgwApis.clientId | string | `""` |  |
 | zgwApis.secret | string | `""` |  |
 | zgwApis.url | string | `""` |  |

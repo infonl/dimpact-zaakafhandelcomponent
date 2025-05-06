@@ -104,6 +104,9 @@ smartDocuments:
   # -- Fixed username for authentication
   fixedUserName: "fake"
 
+# -- API key for authentication of internal ZAC endpoints
+zacInternalEndpointsApiKey: "fakeZacInternalEndpointsApiKey"
+
 # signaleringen Configuration of the signaleren job
 signaleringen:
   # -- Delete any signaleringen older than this number of days when the corresponding admin endpoint is called.
