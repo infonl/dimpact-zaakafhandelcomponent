@@ -10,9 +10,14 @@ import { SharedModule } from "../shared/shared.module";
 import { FoutDialogComponent } from "./dialog/fout-dialog.component";
 import { FoutAfhandelingRoutingModule } from "./fout-afhandeling-routing.module";
 import { FoutAfhandelingComponent } from "./fout-afhandeling.component";
+import { ActieOnmogelijkDialogComponent } from "./dialog/actie-onmogelijk-dialog.component";
 
 @NgModule({
-  declarations: [FoutAfhandelingComponent, FoutDialogComponent],
+  declarations: [
+    FoutAfhandelingComponent,
+    FoutDialogComponent,
+    ActieOnmogelijkDialogComponent,
+  ],
   exports: [FoutAfhandelingComponent],
   imports: [SharedModule, MatExpansionModule, FoutAfhandelingRoutingModule],
 })

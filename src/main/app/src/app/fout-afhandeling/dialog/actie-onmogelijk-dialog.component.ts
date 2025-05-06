@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -7,12 +7,12 @@ import { Component, Inject } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 
 @Component({
-  templateUrl: "fout-dialog.component.html",
+  templateUrl: "actie-onmogelijk-dialog.component.html",
   styleUrls: ["./dialog.component.less"],
 })
-export class FoutDialogComponent {
+export class ActieOnmogelijkDialogComponent {
   constructor(
-    public dialogRef: MatDialogRef<FoutDialogComponent>,
+    public dialogRef: MatDialogRef<ActieOnmogelijkDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: string,
   ) {}
 
