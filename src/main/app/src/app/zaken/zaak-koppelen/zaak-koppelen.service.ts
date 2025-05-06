@@ -88,7 +88,7 @@ export class ZaakKoppelenService {
     zaakKoppelGegevens.bronZaakUuid = zaak.uuid;
     zaakKoppelGegevens.doelZaakIdentificatie = nieuwZaakID;
 
-    // Prevent the OLD handling/diolog from being opened (other code should still be preserved for the time being)
+    // Prevent the OLD handling/dialog from being opened (other code should still be preserved for the time being)
     // Commented out code below trigger the actual linking dialog
     //
     // this.dialog.open(ZaakKoppelenDialogComponent, {
