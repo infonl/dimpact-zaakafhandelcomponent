@@ -36,16 +36,16 @@
       [sideNav]="actionsSidenav"
       (klantGegevens)="initiatorGeselecteerd($event.klant)"
       [initiator]="true"
-      [allowBedrijf]="zaak.rechten.toevoegenInitiatorBedrijf"
-      [allowPersoon]="zaak.rechten.toevoegenInitiatorPersoon"
+      [allowBedrijf]="!!zaak.rechten.toevoegenInitiatorBedrijf"
+      [allowPersoon]="!!zaak.rechten.toevoegenInitiatorPersoon"
     ></zac-klant-koppel>
     <zac-klant-koppel
       *ngSwitchCase="'actie.betrokkene.toevoegen'"
       (klantGegevens)="betrokkeneGeselecteerd($event)"
       [sideNav]="actionsSidenav"
       [zaaktypeUUID]="zaak.zaaktype.uuid"
-      [allowBedrijf]="zaak.rechten.toevoegenBetrokkeneBedrijf"
-      [allowPersoon]="zaak.rechten.toevoegenBetrokkenePersoon"
+      [allowBedrijf]="!!zaak.rechten.toevoegenBetrokkeneBedrijf"
+      [allowPersoon]="!!zaak.rechten.toevoegenBetrokkenePersoon"
     ></zac-klant-koppel>
     <zac-bag-zoek
       *ngSwitchCase="'actie.bagObject.toevoegen'"
@@ -142,8 +142,10 @@
         class="w100 flex-1"
         *ngIf="!zaak.initiatorIdentificatieType"
         [toevoegenToegestaan]="
-          zaak.rechten.toevoegenInitiatorPersoon ||
-          zaak.rechten.toevoegenInitiatorBedrijf
+          !!(
+            zaak.rechten.toevoegenInitiatorPersoon ||
+            zaak.rechten.toevoegenInitiatorBedrijf
+          )
         "
         (add)="addOrEditZaakInitiator()"
       >
@@ -351,7 +353,7 @@
               </div>
             </mat-tab>
 
-            <mat-tab *ngIf="zaak.gerelateerdeZaken.length > 0">
+            <mat-tab *ngIf="zaak.gerelateerdeZaken?.length">
               <ng-template mat-tab-label>
                 <mat-icon>account_tree</mat-icon>
                 {{ "gerelateerdeZaken" | translate }}</ng-template

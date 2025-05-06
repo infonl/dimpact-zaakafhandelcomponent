@@ -10,7 +10,7 @@ import { ProcessFormulierenService } from "../../formulieren/process/process-for
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { Zaak } from "../../zaken/model/zaak";
+import { Api } from "../../shared/utils/generated-types";
 import { PlanItem } from "../model/plan-item";
 import { ProcessTaskData } from "../model/process-task-data";
 import { PlanItemsService } from "../plan-items.service";
@@ -25,7 +25,7 @@ export class ProcessTaskDoComponent implements OnInit {
   formConfig: FormConfig;
   private formulier: AbstractProcessFormulier;
   @Input() planItem: PlanItem;
-  @Input() zaak: Zaak;
+  @Input() zaak: Api<"RestZaak">;
   @Output() done = new EventEmitter<void>();
 
   constructor(

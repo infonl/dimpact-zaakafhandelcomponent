@@ -38,7 +38,7 @@ import {
   LocationService,
   SuggestResult,
 } from "../../../shared/location/location.service";
-import { Geometry } from "../../model/geometry";
+import { Api } from "../../../shared/utils/generated-types";
 import { GeometryGegevens } from "../../model/geometry-gegevens";
 import { GeometryType } from "../../model/geometryType";
 
@@ -48,18 +48,20 @@ import { GeometryType } from "../../model/geometryType";
   styleUrls: ["./locatie-zoek.component.less"],
 })
 export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
-  @Input({ required: true }) currentLocation!: Geometry;
+  @Input({ required: true }) currentLocation!: Api<"RestGeometry">;
   @Input() readonly = false;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Input({ required: true }) reasonControl!: FormControl<string>;
   @Output() locatie = new EventEmitter<GeometryGegevens>();
-  @Output() locationChanged = new EventEmitter<Geometry | undefined>();
+  @Output() locationChanged = new EventEmitter<
+    Api<"RestGeometry"> | undefined
+  >();
   @ViewChild("openLayersMap", { static: true }) openLayersMapRef: ElementRef;
-  markerLocatie: Geometry;
+  markerLocatie?: Api<"RestGeometry">;
   nearestAddress: AddressResult;
   searchControl = new FormControl();
   searchResults: SuggestResult[] = [];
-  initialLocation: Geometry;
+  initialLocation: Api<"RestGeometry">;
 
   private unsubscribe$: Subject<void> = new Subject<void>();
 
@@ -177,7 +179,7 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (!this.readonly) {
       this.map.on("click", (event) => {
-        const coordinate: Array<number> = proj.transform(
+        const coordinate = proj.transform(
           event.coordinate,
           "EPSG:3857",
           "EPSG:4326",
@@ -232,13 +234,15 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
     this.setLocation();
   }
 
-  private setLocation(geometry?: Geometry, fromSearch = true) {
+  private setLocation(geometry?: Api<"RestGeometry">, fromSearch = true) {
     this.markerLocatie = geometry;
     this.clearPreviousMarker();
     this.searchControl.reset();
 
     switch (geometry?.type) {
       case GeometryType.POINT: {
+        if (!geometry?.point) return;
+
         const coordinate = LocationUtil.pointToCoordinate(geometry.point);
         this.addMarker(coordinate);
         if (fromSearch) {
@@ -298,6 +302,8 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
 
   save(): void {
     this.initialLocation = this.currentLocation;
+    if (!this.markerLocatie) return;
+
     this.locatie.next(
       new GeometryGegevens(this.markerLocatie, this.reasonControl.value),
     );

@@ -31,8 +31,7 @@ import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/for
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { GeneratedType } from "../../shared/utils/generated-types";
-import { Zaak } from "../model/zaak";
+import { Api, GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -43,7 +42,7 @@ import { ZakenService } from "../zaken.service";
 export class BesluitEditComponent implements OnDestroy, OnInit {
   formConfig: FormConfig;
   @Input({ required: true }) besluit!: GeneratedType<"RestDecision">;
-  @Input({ required: true }) zaak!: Zaak;
+  @Input({ required: true }) zaak!: Api<"RestZaak">;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Output() besluitGewijzigd = new EventEmitter<boolean>();
 

@@ -30,9 +30,7 @@ import { AbstractFormField } from "src/app/shared/material-form-builder/model/ab
 import { FormConfig } from "src/app/shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "src/app/shared/material-form-builder/model/form-config-builder";
 import { OrderUtil } from "src/app/shared/order/order-util";
-import { GeneratedType } from "src/app/shared/utils/generated-types";
-import { Geometry } from "../model/geometry";
-import { Zaak } from "../model/zaak";
+import { Api, GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -41,7 +39,7 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./zaak-details-wijzigen.component.less"],
 })
 export class CaseDetailsEditComponent implements OnDestroy, OnInit {
-  @Input({ required: true }) zaak!: Zaak; // GeneratedType<"RestZaak">;
+  @Input({ required: true }) zaak!: Api<"RestZaak">;
   @Input({ required: true }) loggedInUser!: GeneratedType<"RestLoggedInUser">;
   @Input({ required: true }) sideNav!: MatDrawer;
 
@@ -60,7 +58,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
   private omschrijving!: TextareaFormField;
   private toelichtingField!: TextareaFormField;
   private ngDestroy = new Subject<void>();
-  private initialZaakGeometry!: Geometry;
+  private initialZaakGeometry?: GeneratedType<"RestGeometry"> | null = null;
   private dateChangesALlowed = false;
 
   constructor(
@@ -100,14 +98,15 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
   ngOnInit() {
     this.initialZaakGeometry = this.zaak.zaakgeometrie;
 
-    this.dateChangesALlowed =
+    this.dateChangesALlowed = Boolean(
       !this.zaak.isProcesGestuurd &&
-      this.zaak.rechten.wijzigen &&
-      this.zaak.rechten.wijzigenDoorlooptijd;
+        this.zaak.rechten.wijzigen &&
+        this.zaak.rechten.wijzigenDoorlooptijd,
+    );
 
     this.medewerkerGroepFormField = this.getMedewerkerGroupFormField(
       !this.zaak.rechten.toekennen,
-      this.zaak?.groep.id,
+      this.zaak?.groep?.id,
       this.zaak?.behandelaar?.id,
     );
 
@@ -123,14 +122,13 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
 
     this.startDatumField = this.createDateFormField(
       "startdatum",
-      this.zaak.startdatum,
       this.dateChangesALlowed,
       [Validators.required, (control) => this.validateStartDatum(control)],
+      this.zaak.startdatum,
     );
 
     this.einddatumGeplandField = this.createDateFormField(
       "einddatumGepland",
-      this.zaak.einddatumGepland,
       !!this.zaak.einddatumGepland && this.dateChangesALlowed,
       [
         this.zaak.einddatumGepland
@@ -138,21 +136,23 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
           : Validators.nullValidator,
         (control) => this.validateEinddatumGepland(control),
       ],
+      this.zaak.einddatumGepland,
     );
 
     this.uiterlijkeEinddatumAfdoeningField = this.createDateFormField(
       "uiterlijkeEinddatumAfdoening",
-      this.zaak.uiterlijkeEinddatumAfdoening,
       this.dateChangesALlowed,
       [
         Validators.required,
         (control) => this.validateUiterlijkeEinddatumAfdoening(control),
       ],
+      this.zaak.uiterlijkeEinddatumAfdoening,
     );
 
     this.vertrouwelijkheidaanduidingField = new SelectFormFieldBuilder(
       this.vertrouwelijkheidaanduidingenList.find(
-        (o) => o.value === this.zaak.vertrouwelijkheidaanduiding.toLowerCase(),
+        ({ value }) =>
+          value === this.zaak.vertrouwelijkheidaanduiding?.toLowerCase(),
       ),
     )
       .id("vertrouwelijkheidaanduiding")
@@ -234,9 +234,9 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
 
   private createDateFormField(
     id: string,
-    value: string,
     enabled: boolean,
     validators: ValidatorFn[],
+    value?: string | null,
   ): DateFormField {
     return new DateFormFieldBuilder(value)
       .id(id)
@@ -348,7 +348,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     void this.updateZaak(this.createZaakPatch(updates));
   }
 
-  locationChanged(update?: Geometry) {
+  locationChanged(update?: Api<"RestGeometry">) {
     this.zaak.zaakgeometrie = update;
     this.reasonField.formControl.enable();
   }
@@ -362,10 +362,10 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
       groep: (assignment as { groep: GeneratedType<"RestGroup"> }).groep,
       behandelaar: (assignment as { medewerker: GeneratedType<"RestUser"> })
         .medewerker,
-    } satisfies Partial<Zaak>;
+    } satisfies Partial<Api<"RestZaak">>;
   }
 
-  private async updateZaak(zaak: Partial<Zaak>) {
+  private async updateZaak(zaak: Partial<Api<"RestZaak">>) {
     const reason = this.reasonField.formControl.value;
     const subscriptions: Subscription[] = [];
 
@@ -401,7 +401,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     );
   }
 
-  private patchBehandelaar(zaak: Partial<Zaak>, reason?: string) {
+  private patchBehandelaar(zaak: Partial<Api<"RestZaak">>, reason?: string) {
     if (
       zaak.behandelaar?.id === this.zaak.behandelaar?.id &&
       zaak.groep?.id === this.zaak.groep?.id

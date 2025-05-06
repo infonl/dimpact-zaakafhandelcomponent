@@ -5,10 +5,10 @@
 
 import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { Zaak } from "../../../zaken/model/zaak";
 import { ZaakRelatietype } from "../../../zaken/model/zaak-relatietype";
 import { ZaakZoekObject } from "../../../zoeken/model/zaken/zaak-zoek-object";
 import { Indicatie } from "../../model/indicatie";
+import { Api } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
 
 export enum ZaakIndicatie {
@@ -29,7 +29,7 @@ export class ZaakIndicatiesComponent
   implements OnChanges
 {
   @Input() zaakZoekObject: ZaakZoekObject;
-  @Input() zaak: Zaak;
+  @Input() zaak: Api<"RestZaak">;
 
   constructor(private translateService: TranslateService) {
     super();

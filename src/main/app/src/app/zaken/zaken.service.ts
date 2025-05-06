@@ -70,12 +70,21 @@ export class ZakenService {
   updateZaak(
     uuid: string,
     update: {
-      zaak: Omit<Partial<Zaak>, "zaakgeometrie" | "behandelaar">;
+      zaak: Omit<Partial<Api<"RestZaak">>, "zaakgeometrie" | "behandelaar">;
       reden?: string;
     },
   ) {
-    return this.http
-      .patch<Zaak>(`${this.basepath}/zaak/${uuid}`, update)
+    return this.zacHttpClient
+      .PATCH(
+        "/rest/zaken/zaak/{uuid}",
+        {
+          zaak: update.zaak as Api<"RestZaak">,
+          reden: update.reden ?? "",
+        },
+        {
+          pathParams: { path: { uuid } },
+        },
+      )
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -139,9 +148,9 @@ export class ZakenService {
       );
   }
 
-  updateZaakdata(zaak: Zaak): Observable<Zaak> {
-    return this.http
-      .put<Zaak>(`${this.basepath}/zaakdata`, zaak)
+  updateZaakdata(zaak: Api<"RestZaak">) {
+    return this.zacHttpClient
+      .PUT("/rest/zaken/zaakdata", zaak)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

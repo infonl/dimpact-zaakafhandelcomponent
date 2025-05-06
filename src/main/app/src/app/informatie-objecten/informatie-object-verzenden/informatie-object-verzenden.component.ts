@@ -29,7 +29,7 @@ import { FormComponent } from "../../shared/material-form-builder/form/form/form
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { Zaak } from "../../zaken/model/zaak";
+import { Api } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { DocumentVerzendGegevens } from "../model/document-verzend-gegevens";
 
@@ -41,7 +41,7 @@ import { DocumentVerzendGegevens } from "../model/document-verzend-gegevens";
 export class InformatieObjectVerzendenComponent
   implements OnInit, OnChanges, OnDestroy
 {
-  @Input() zaak: Zaak;
+  @Input() zaak: Api<"RestZaak">;
   @Input() sideNav: MatDrawer;
   @Output() documentSent = new EventEmitter<void>();
 

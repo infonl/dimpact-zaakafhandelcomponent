@@ -22,10 +22,9 @@ import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { GeneratedType } from "../../shared/utils/generated-types";
+import { Api, GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { TakenService } from "../../taken/taken.service";
-import { Zaak } from "../../zaken/model/zaak";
 import { ZakenService } from "../../zaken/zaken.service";
 import { MailService } from "../mail.service";
 
@@ -38,7 +37,7 @@ export class OntvangstbevestigingComponent implements OnInit {
   formConfig: FormConfig;
   fields: Array<AbstractFormField[]>;
   @Input() sideNav: MatDrawer;
-  @Input() zaak: Zaak;
+  @Input() zaak: Api<"RestZaak">;
   @Output() ontvangstBevestigd = new EventEmitter<boolean>();
 
   constructor(

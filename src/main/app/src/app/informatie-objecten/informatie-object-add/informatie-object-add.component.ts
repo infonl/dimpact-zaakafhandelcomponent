@@ -30,9 +30,8 @@ import { FormComponent } from "../../shared/material-form-builder/form/form/form
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { OrderUtil } from "../../shared/order/order-util";
-import { GeneratedType } from "../../shared/utils/generated-types";
+import { Api, GeneratedType } from "../../shared/utils/generated-types";
 import { Taak } from "../../taken/model/taak";
-import { Zaak } from "../../zaken/model/zaak";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
@@ -43,7 +42,7 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
   styleUrls: ["./informatie-object-add.component.less"],
 })
 export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
-  @Input() zaak?: Zaak;
+  @Input() zaak?: Api<"RestZaak">;
   @Input() taak?: Taak;
   @Input() sideNav!: MatDrawer;
   @Output() document = new EventEmitter<
@@ -303,8 +302,8 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
     return this.zaak ? this.zaak.uuid : this.taak!.zaakUuid;
   }
 
-  private isAfgehandeld(): boolean {
-    return this.zaak && !this.zaak.isOpen;
+  private isAfgehandeld() {
+    return !this.zaak?.isOpen;
   }
 
   private getStatusDefinitief(): { label: string; value: string } {
