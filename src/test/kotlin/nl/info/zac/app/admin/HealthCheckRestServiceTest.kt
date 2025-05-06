@@ -60,7 +60,9 @@ class HealthCheckRestServiceTest : BehaviorSpec({
         When("listZaaktypeInrichtingschecks is called") {
             val result = healthCheckRestService.listZaaktypeInrichtingschecks()
 
-            Then("it should return a list of RESTZaaktypeInrichtingscheck objects where the first is valid and the second is invalid") {
+            Then(
+                "it should return a list of RESTZaaktypeInrichtingscheck objects where the first is valid and the second is invalid"
+            ) {
                 result.size shouldBe 2
                 with(result[0]) {
                     zaaktype.identificatie shouldBe zaaktypen[0].identificatie
