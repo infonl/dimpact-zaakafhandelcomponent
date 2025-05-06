@@ -165,7 +165,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         mapPreviousZaakafhandelparametersData(zaakafhandelParameters, zaaktype, previousZaakafhandelparameters)
         storeZaakafhandelParameters(zaakafhandelParameters)
 
-        // ZaakafhandelParameters and SmartDocumentsTemplates have circular relations. To solve this we update
+        // ZaakafhandelParameters and SmartDocumentsTemplates have circular relations. To solve this, we update
         // already existing ZaakafhandelParameters with SmartDocuments settings
         previousZaakafhandelparameters.zaakTypeUUID?.let { previousZaakafhandelparametersUuid ->
             mapSmartDocuments(previousZaakafhandelparametersUuid, zaakafhandelParameters.zaakTypeUUID)

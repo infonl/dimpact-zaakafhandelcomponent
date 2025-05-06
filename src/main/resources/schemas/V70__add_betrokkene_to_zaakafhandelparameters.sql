@@ -15,6 +15,8 @@ CREATE TABLE ${schema}.betrokkene_koppelingen (
          MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+CREATE SEQUENCE ${schema}.sq_betrokkene_koppelingen START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+
 -- Add values to the new table for existing zaakafhandelparameters
 INSERT INTO ${schema}.betrokkene_koppelingen (id_zaakafhandelparameters, brpKoppelen, kvkKoppelen)
 SELECT
