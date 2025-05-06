@@ -57,7 +57,7 @@ class UtilRestService @Inject constructor(
 
     @GET
     fun index(): String {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        checkBeherenPolicy()
         return body(
             h(1, "Util") +
                 h(2, "Caches") +
@@ -71,7 +71,7 @@ class UtilRestService @Inject constructor(
     @GET
     @Path("cache")
     fun caches(): String {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        checkBeherenPolicy()
         return body(
             listOf(
                 ztcClientCaches(),
@@ -83,42 +83,42 @@ class UtilRestService @Inject constructor(
     @GET
     @Path("cache/ztc")
     fun ztcCaches(): String {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        checkBeherenPolicy()
         return body(ztcClientCaches())
     }
 
     @GET
     @Path("cache/zhps")
     fun zhpsCaches(): String {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        checkBeherenPolicy()
         return body(zaakafhandelParameterServiceCaches())
     }
 
     @GET
     @Path("cache/clear")
     fun clearCaches(): String {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        checkBeherenPolicy()
         return body(listOf(clearZtcClientCaches(), clearAllZhpsCaches()))
     }
 
     @GET
     @Path("cache/ztc/clear")
     fun clearAllZtcClientCaches(): String {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        checkBeherenPolicy()
         return body(clearZtcClientCaches())
     }
 
     @GET
     @Path("cache/zhps/clear")
     fun clearAllZaakafhandelParameterServiceCaches(): String {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        checkBeherenPolicy()
         return body(clearAllZhpsCaches())
     }
 
     @GET
     @Path("memory")
     fun memory(): String {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        checkBeherenPolicy()
         val runtime = getRuntime()
         val freeMemory = runtime.freeMemory()
         val totalMemory = runtime.totalMemory()
@@ -135,6 +135,8 @@ class UtilRestService @Inject constructor(
                 )
         )
     }
+
+    private fun checkBeherenPolicy() = assertPolicy(policyService.readOverigeRechten().beheren)
 
     private fun clearZtcClientCaches() =
         ZTC + ul(

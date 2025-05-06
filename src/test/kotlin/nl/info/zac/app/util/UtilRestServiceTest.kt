@@ -5,7 +5,10 @@
 package nl.info.zac.app.util
 
 import com.github.benmanes.caffeine.cache.stats.CacheStats
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldMatch
 import io.mockk.checkUnnecessaryStub
@@ -13,6 +16,7 @@ import io.mockk.every
 import io.mockk.mockk
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.policy.PolicyService
+import net.atos.zac.policy.exception.PolicyException
 import nl.info.client.zgw.ztc.ZtcClientService
 
 class UtilRestServiceTest : BehaviorSpec({
@@ -56,7 +60,7 @@ class UtilRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("util endpoint") {
+    Given("A user with 'beheren' permissions") {
         every { policyService.readOverigeRechten().beheren } returns true
 
         When("index is requested") {
@@ -76,6 +80,30 @@ class UtilRestServiceTest : BehaviorSpec({
                 memoryResponse shouldMatch """ 
                     <html></head><body><h1>Memory</h1><ul><li>free: \d+.\d+ .* \(.*\)</li><li>used : \d+.\d+ .* \(.*\)</li><li>total: \d+.\d+ .* \(.*\)</li><li>max  : \d+.\d+ .* \(.*\)</li></ul></body></html>
                 """.trimIndent()
+            }
+        }
+    }
+
+    Given("A user without 'beheren' permissions") {
+        every { policyService.readOverigeRechten().beheren } returns false
+
+        When("index is requested") {
+            val exception = shouldThrow<PolicyException> {
+                utilRESTService.index()
+            }
+
+            Then("it should throw an exception") {
+                exception shouldNotBe null
+            }
+        }
+
+        When("memory info is requested") {
+            val exception = shouldThrow<PolicyException> {
+                utilRESTService.memory()
+            }
+
+            Then("it should throw an exception") {
+                exception shouldNotBe null
             }
         }
     }
