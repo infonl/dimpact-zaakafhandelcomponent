@@ -250,9 +250,8 @@ export class TaakViewComponent
     groepComponent.data = {
       custom: () =>
         this.identityService
-          .listGroups()
+          .listGroupsForZaakType(this.zaak.zaaktype.uuid)
           .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam"))))
-          .toPromise(),
     };
   }
 
