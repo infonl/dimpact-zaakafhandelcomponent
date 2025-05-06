@@ -119,7 +119,6 @@ class MailRestServiceTest : BehaviorSpec({
                   "informatieobjectTypeOmschrijving" : "e-mail",
                   "informatieobjectTypeUUID" : "$TEST_INFORMATIE_OBJECT_TYPE_1_UUID",
                   "isBesluitDocument" : false,
-                  "link" : "",
                   "rechten" : {
                     "lezen" : true,
                     "ondertekenen" : true,

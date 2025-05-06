@@ -129,7 +129,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                           "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
                           "informatieobjectTypeUUID" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID",
                           "isBesluitDocument" : false,
-                          "link" : "",
                           "rechten" : {
                             "lezen" : true,
                             "ondertekenen" : true,
@@ -325,7 +324,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                       "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
                       "informatieobjectTypeUUID" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID",
                       "isBesluitDocument" : false,
-                      "link" : "",
                       "rechten" : {
                         "lezen" : true,
                         "ondertekenen" : true,

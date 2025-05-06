@@ -29,7 +29,9 @@ fun createEnkelvoudigInformatieObject(
     vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum? = VertrouwelijkheidaanduidingEnum.CONFIDENTIEEL,
     status: StatusEnum = StatusEnum.IN_BEWERKING,
     ontvangstdatum: LocalDate? = null,
-    formaat: String = "fakeformaat"
+    formaat: String = "fakeformaat",
+    informatieObjectType: URI = URI("http://example.com/informatieobjecttype/${UUID.randomUUID()}"),
+    bestandsomvang: Int = 1234,
 ) = EnkelvoudigInformatieObject(
     url,
     versie,
@@ -43,6 +45,8 @@ fun createEnkelvoudigInformatieObject(
     this.status = status
     this.ontvangstdatum = ontvangstdatum
     this.formaat = formaat
+    this.informatieobjecttype = informatieObjectType
+    this.bestandsomvang = bestandsomvang
 }
 
 fun createEnkelvoudigInformatieObjectCreateLockRequest(

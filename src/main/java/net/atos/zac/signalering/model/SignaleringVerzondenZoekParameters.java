@@ -10,7 +10,7 @@ import static net.atos.zac.signalering.model.SignaleringSubject.TAAK;
 import static net.atos.zac.signalering.model.SignaleringSubject.ZAAK;
 import static net.atos.zac.signalering.model.SignaleringTarget.GROUP;
 import static net.atos.zac.signalering.model.SignaleringTarget.USER;
-import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
+import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 
 import java.util.Arrays;
 import java.util.Collections;

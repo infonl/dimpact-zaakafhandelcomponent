@@ -10,7 +10,7 @@ import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake;
 import static net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving;
 import static net.atos.zac.flowable.util.TaskUtil.isOpen;
 import static nl.info.client.zgw.drc.model.generated.StatusEnum.DEFINITIEF;
-import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
+import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 import static nl.info.zac.enkelvoudiginformatieobject.util.EnkelvoudigInformatieObjectCheckersKt.isSigned;
 
 import jakarta.enterprise.context.ApplicationScoped;

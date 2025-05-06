@@ -29,6 +29,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHR
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_START_DATE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Headers
+import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDateTime
@@ -319,7 +320,12 @@ class SignaleringRestServiceTest : BehaviorSpec({
     ) {
         When("signaleringen older than 0 days are deleted") {
             val response = itestHttpClient.performDeleteRequest(
-                "$ZAC_API_URI/internal/signaleringen/delete-old"
+                url = "$ZAC_API_URI/internal/signaleringen/delete-old",
+                headers = mapOf(
+                    "Content-Type" to "application/json",
+                    "X-API-KEY" to ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
+                ).toHeaders(),
+                addAuthorizationHeader = false
             )
             val responseBody = response.body!!.string()
             logger.info { "Response: $responseBody" }

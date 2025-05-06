@@ -26,6 +26,10 @@ class SecurityUtil @Inject constructor(
          */
         const val LOGGED_IN_USER_SESSION_ATTRIBUTE = "logged-in-user"
 
+        /**
+         * Internal-only 'system user' which is used for internal ZAC API request not originating from an actual user.
+         * Requests to these internal API calls are typically initiated from external systems or cron jobs.
+         */
         val FUNCTIONEEL_GEBRUIKER = LoggedInUser(
             "FG",
             "",
@@ -60,7 +64,7 @@ fun getLoggedInUser(httpSession: HttpSession?): LoggedInUser? =
         FUNCTIONEEL_GEBRUIKER // No session in async context!
     }
 
-fun setLoggedInUser(httpSession: HttpSession, loggedInUser: LoggedInUser?) {
+fun setLoggedInUser(httpSession: HttpSession, loggedInUser: LoggedInUser) {
     httpSession.setAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE, loggedInUser)
 }
 

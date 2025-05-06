@@ -4,9 +4,8 @@
  */
 package net.atos.client.zgw.zrc;
 
-import static java.lang.String.format;
-import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
-import static nl.info.zac.configuratie.ConfiguratieService.ENV_VAR_ZGW_API_CLIENT_MP_REST_URL;
+import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
+import static nl.info.client.zgw.util.ZgwUriUtilsKt.validateZgwApiUri;
 
 import java.net.URI;
 import java.util.Collection;
@@ -17,9 +16,6 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.UriBuilder;
 
 import org.apache.commons.lang3.StringUtils;
@@ -28,13 +24,8 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.atos.client.util.JAXRSClientFactory;
-import net.atos.client.zgw.shared.exception.ZgwErrorExceptionMapper;
-import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper;
 import net.atos.client.zgw.shared.model.Results;
-import net.atos.client.zgw.shared.util.JsonbConfiguration;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
-import net.atos.client.zgw.zrc.exception.ZrcResponseExceptionMapper;
 import net.atos.client.zgw.zrc.model.BetrokkeneType;
 import net.atos.client.zgw.zrc.model.Rol;
 import net.atos.client.zgw.zrc.model.RolListParameters;
@@ -49,7 +40,6 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel;
 import nl.info.client.zgw.zrc.model.generated.Resultaat;
-import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap;
 import nl.info.zac.configuratie.ConfiguratieService;
 
 /**
@@ -195,9 +185,9 @@ public class ZrcClientService {
      * @return {@link Zaak}. Never NULL!
      */
     public Zaak readZaak(final URI zaakURI) {
-        return createInvocationBuilder(zaakURI).get(Zaak.class);
+        validateZgwApiUri(zaakURI, configuratieService.readZgwApiClientMpRestUrl());
+        return readZaak(extractUuid(zaakURI));
     }
-
 
     /**
      * Read {@link ZaakInformatieobject} via its UUID.
@@ -246,7 +236,8 @@ public class ZrcClientService {
      * @return {@link Rol}. Never NULL!
      */
     public Rol<?> readRol(final URI rolURI) {
-        return createInvocationBuilder(rolURI).get(Rol.class);
+        validateZgwApiUri(rolURI, configuratieService.readZgwApiClientMpRestUrl());
+        return readRol(extractUuid(rolURI));
     }
 
     /**
@@ -268,18 +259,8 @@ public class ZrcClientService {
      * @return {@link Resultaat}. Never 'null'!
      */
     public Resultaat readResultaat(final URI resultaatURI) {
-        return createInvocationBuilder(resultaatURI).get(Resultaat.class);
-    }
-
-    /**
-     * Read {@link ZaakEigenschap} via its URI.
-     * Throws a RuntimeException if the {@link ZaakEigenschap} can not be read.
-     *
-     * @param zaakeigenschapURI URI of {@link ZaakEigenschap}.
-     * @return {@link ZaakEigenschap}. Never 'null'!
-     */
-    public ZaakEigenschap readZaakeigenschap(final URI zaakeigenschapURI) {
-        return createInvocationBuilder(zaakeigenschapURI).get(ZaakEigenschap.class);
+        validateZgwApiUri(resultaatURI, configuratieService.readZgwApiClientMpRestUrl());
+        return zrcClient.resultaatRead(extractUuid(resultaatURI));
     }
 
     /**
@@ -290,7 +271,8 @@ public class ZrcClientService {
      * @return {@link Status}. Never 'null'!
      */
     public Status readStatus(final URI statusURI) {
-        return createInvocationBuilder(statusURI).get(Status.class);
+        validateZgwApiUri(statusURI, configuratieService.readZgwApiClientMpRestUrl());
+        return zrcClient.statusRead(extractUuid(statusURI));
     }
 
     /**
@@ -527,29 +509,5 @@ public class ZrcClientService {
                 .filter(nieuw -> currentRollen.stream()
                         .noneMatch(nieuw::equalBetrokkeneRol))
                 .forEach(rol -> createRol(rol, toelichting));
-    }
-
-    private Invocation.Builder createInvocationBuilder(final URI uri) {
-        // for security reasons check if the provided URI starts with the value of the
-        // environment variable that we use to configure the ztcClient
-        if (!uri.toString().startsWith(configuratieService.readZgwApiClientMpRestUrl())) {
-            throw new IllegalStateException(format(
-                    "URI '%s' does not start with value for environment variable " +
-                                                   "'%s': '%s'",
-                    uri,
-                    ENV_VAR_ZGW_API_CLIENT_MP_REST_URL,
-                    configuratieService.readZgwApiClientMpRestUrl()
-            ));
-        }
-
-        return JAXRSClientFactory.getOrCreateClient().target(uri)
-                .register(ZgwErrorExceptionMapper.class)
-                .register(ZgwValidationErrorResponseExceptionMapper.class)
-                .register(ZrcResponseExceptionMapper.class)
-                .register(JsonbConfiguration.class)
-                .request(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, zgwClientHeadersFactory.generateJWTToken())
-                .header(ZrcClient.ACCEPT_CRS, ZrcClient.ACCEPT_CRS_VALUE)
-                .header(ZrcClient.CONTENT_CRS, ZrcClient.ACCEPT_CRS_VALUE);
     }
 }

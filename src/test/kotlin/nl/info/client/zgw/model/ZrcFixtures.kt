@@ -111,12 +111,12 @@ fun createRolMedewerker(
 )
 
 fun createRolNatuurlijkPersoon(
-    zaaktypeURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
-    rolType: RolType = createRolType(zaakTypeUri = zaaktypeURI),
+    zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    rolType: RolType = createRolType(zaakTypeUri = zaakURI),
     toelichting: String = "fakeToelichting",
     natuurlijkPersoon: NatuurlijkPersoon = createNatuurlijkPersoon()
 ) = RolNatuurlijkPersoon(
-    zaaktypeURI,
+    zaakURI,
     rolType,
     toelichting,
     natuurlijkPersoon

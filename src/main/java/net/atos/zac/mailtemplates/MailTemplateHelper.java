@@ -31,7 +31,7 @@ import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.ZAAK_TOELI
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.ZAAK_TYPE;
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.ZAAK_URL;
 import static net.atos.zac.util.StringUtil.joinNonBlankWith;
-import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
+import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;

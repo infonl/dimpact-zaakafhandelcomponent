@@ -36,6 +36,8 @@ spec:
                 {{- toYaml .Values.signaleringen.resources | nindent 16 }}
               args:
                 - -X DELETE
+                - -H
+                - 'X-API-KEY: {{ .Values.zacInternalEndpointsApiKey }}'
                 - {{ printf "http://%s.%s/rest/internal/signaleringen/delete-old" (include "zaakafhandelcomponent.fullname" .) .Release.Namespace }}
           {{- with .Values.signaleringen.nodeSelector }}
           nodeSelector:

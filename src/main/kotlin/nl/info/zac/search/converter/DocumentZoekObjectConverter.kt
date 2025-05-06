@@ -83,7 +83,11 @@ class DocumentZoekObjectConverter @Inject constructor(
                 setIndicatie(DocumentIndicatie.ONDERTEKEND, true)
             }
             setIndicatie(DocumentIndicatie.VERGRENDELD, informatieobject.locked)
-            setIndicatie(DocumentIndicatie.GEBRUIKSRECHT, informatieobject.indicatieGebruiksrecht)
+            // indicatieGebruiksRecht may be `null` according to the ZGW API specification,
+            // where a null value indicates that it is not known yet
+            informatieobject.indicatieGebruiksrecht?.let {
+                setIndicatie(DocumentIndicatie.GEBRUIKSRECHT, it)
+            }
             setIndicatie(
                 DocumentIndicatie.BESLUIT,
                 brcClientService.isInformatieObjectGekoppeldAanBesluit(informatieobject.url)

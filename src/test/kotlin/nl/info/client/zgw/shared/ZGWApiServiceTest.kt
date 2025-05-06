@@ -4,6 +4,7 @@
  */
 package nl.info.client.zgw.shared
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -21,6 +22,7 @@ import net.atos.client.zgw.zrc.model.RolListParameters
 import net.atos.client.zgw.zrc.model.Zaak
 import nl.info.client.zgw.model.createResultaat
 import nl.info.client.zgw.model.createRolMedewerker
+import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.model.generated.Resultaat
@@ -226,6 +228,26 @@ class ZGWApiServiceTest : BehaviorSpec({
             }
         }
     }
+    Given("A zaak with multiple behandelaar medewerker roles") {
+        val zaak = createZaak()
+        val rolMedewerker = createRolMedewerker(zaakURI = zaak.url)
+        every {
+            ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+        } returns listOf(createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR))
+        every {
+            zrcClientService.listRollen(any<RolListParameters>())
+        } returns Results(listOf(rolMedewerker, rolMedewerker), 2)
+
+        When("the behandelaar medewerker rol is requested") {
+            val exception = shouldThrow<IllegalStateException> {
+                zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+            }
+
+            Then("an exception should be thrown") {
+                exception.message shouldBe "More than one behandelaar role found for zaak with UUID: '${zaak.uuid}' (count: 2)"
+            }
+        }
+    }
     Given("A zaak with a group") {
         val zaak = createZaak()
         val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid(zaakURI = zaak.url)
@@ -278,7 +300,7 @@ class ZGWApiServiceTest : BehaviorSpec({
     }
     Given("A zaak with an initiator") {
         val zaak = createZaak()
-        val rolMedewerker = createRolMedewerker(zaakURI = zaak.url)
+        val rolMedewerker = createRolNatuurlijkPersoon(zaakURI = zaak.url)
         every {
             ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
         } returns listOf(createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR))
@@ -309,6 +331,24 @@ class ZGWApiServiceTest : BehaviorSpec({
 
             Then("the initiator should be returned") {
                 initiator shouldBe null
+            }
+        }
+    }
+    Given("A zaak with multiple initiator roles") {
+        val zaak = createZaak()
+        val rolMedewerker = createRolNatuurlijkPersoon(zaakURI = zaak.url)
+        every {
+            ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
+        } returns listOf(createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR))
+        every {
+            zrcClientService.listRollen(any<RolListParameters>())
+        } returns Results(listOf(rolMedewerker, rolMedewerker), 2)
+
+        When("the initiator is requested") {
+            val exception = shouldThrow<IllegalStateException> { zgwApiService.findInitiatorRoleForZaak(zaak) }
+
+            Then("an exception should be thrown") {
+                exception.message shouldBe "More than one initiator role found for zaak with UUID: '${zaak.uuid}' (count: 2)"
             }
         }
     }

@@ -7,6 +7,7 @@ package nl.info.zac.app.zaak
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.DefaultValue
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
@@ -55,8 +56,8 @@ class ZaakKoppelenRestService @Inject constructor(
         @PathParam("zaakUuid") zaakUuid: UUID,
         @QueryParam("zoekZaakIdentifier") zoekZaakIdentifier: String,
         @QueryParam("relationType") relationType: RelatieType,
-        @QueryParam("page") page: Int = 0,
-        @QueryParam("rows") rows: Int = 10
+        @QueryParam("page") @DefaultValue("0") page: Int,
+        @QueryParam("rows") @DefaultValue("10") rows: Int
     ) =
         zrcClientService.readZaak(zaakUuid).let { zaak ->
             filterSearchResults(
@@ -86,6 +87,7 @@ class ZaakKoppelenRestService @Inject constructor(
             type = ZoekObjectType.ZAAK,
             identificatie = identificatie,
             omschrijving = omschrijving,
+            zaaktypeOmschrijving = zaaktypeOmschrijving,
             statustypeOmschrijving = statustypeOmschrijving,
             isKoppelbaar = linkable,
         )

@@ -28,9 +28,11 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import nl.info.zac.itest.config.ItestConfiguration.zaakManual2Identification
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import okhttp3.Headers
+import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.format.DateTimeFormatter
@@ -102,14 +104,13 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         val doHumanTaskPlanItemResponseBody = doHumanTaskPlanItemResponse.body!!.string()
         logger.info { "Start task response: $doHumanTaskPlanItemResponseBody" }
 
-        When("the admin endpoint to send signaleringen is called") {
+        When("The internal endpoint to send signaleringen is called with a valid API key") {
             val sendSignaleringenResponse = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/internal/signaleringen/send-signaleringen",
-                headers = Headers.headersOf(
-                    "Content-Type",
-                    "application/json"
-                ),
-                // the endpoint is a system / admin endpoint currently not requiring any authentication
+                headers = mapOf(
+                    "Content-Type" to "application/json",
+                    "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
+                ).toHeaders(),
                 addAuthorizationHeader = false
             )
 

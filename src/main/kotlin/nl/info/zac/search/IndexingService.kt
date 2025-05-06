@@ -342,6 +342,8 @@ class IndexingService @Inject constructor(
             throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, jaxbException)
         } catch (processingException: ProcessingException) {
             throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, processingException)
+        } catch (illegalStateException: IllegalStateException) {
+            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, illegalStateException)
         }
     }
 

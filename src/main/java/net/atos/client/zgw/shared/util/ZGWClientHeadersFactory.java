@@ -51,10 +51,6 @@ public class ZGWClientHeadersFactory implements ClientHeadersFactory {
         }
     }
 
-    public String generateJWTToken() {
-        return JWTTokenGenerator.generate(clientId, secret, loggedInUserInstance.get());
-    }
-
     public void setAuditToelichting(final String toelichting) {
         final LoggedInUser loggedInUser = loggedInUserInstance.get();
         if (loggedInUser != null) {

@@ -47,6 +47,86 @@
     </security-role>
 
     <security-constraint>
+        <display-name>Deny all HTTP methods on '/rest/notificaties' except POST</display-name>
+        <web-resource-collection>
+            <web-resource-name>notificaties</web-resource-name>
+            <description>For handling certain notifications according to the ZGW Notificaties Consumer API</description>
+            <url-pattern>/rest/notificaties</url-pattern>
+            <http-method-omission>POST</http-method-omission>
+        </web-resource-collection>
+        <auth-constraint/>
+    </security-constraint>
+
+    <security-constraint>
+        <display-name>Deny all HTTP methods on '/rest/internal' accept GET and DELETE</display-name>
+        <web-resource-collection>
+            <web-resource-name>internal</web-resource-name>
+            <description>Internal endpoints, invoked not from the ZAC user interface but from other services. These resources are secured using a custom API key authentication mechanism</description>
+            <url-pattern>/rest/internal/*</url-pattern>
+            <http-method-omission>GET</http-method-omission>
+            <http-method-omission>DELETE</http-method-omission>
+        </web-resource-collection>
+        <auth-constraint/>
+    </security-constraint>
+
+    <security-constraint>
+        <display-name>Deny all HTTP methods on '/websocket' except GET</display-name>
+        <web-resource-collection>
+            <web-resource-name>websocket</web-resource-name>
+            <description>Endpoint to manage websocket connections from end-user web browsers. These resources are secured for the logged-in user in the HTTP session. See the WebSocketServerEndPoint class for details.</description>
+            <url-pattern>/websocket</url-pattern>
+            <http-method-omission>GET</http-method-omission>
+        </web-resource-collection>
+        <auth-constraint/>
+    </security-constraint>
+
+    <security-constraint>
+        <display-name>Deny all HTTP methods on '/webdav/*' except GET</display-name>
+        <web-resource-collection>
+            <web-resource-name>webdav</web-resource-name>
+            <description>WebDAV endpoints offering functionality for synchronizing Microsoft Office documents with Microsoft Office Desktop Apps. These resources are secured using a custom authentication token mechanism. See the WebdavHelper class for details.</description>
+            <description>For allowing WebDAV</description>
+            <url-pattern>/webdav/*</url-pattern>
+            <http-method-omission>GET</http-method-omission>
+        </web-resource-collection>
+        <auth-constraint/>
+    </security-constraint>
+
+    <security-constraint>
+        <display-name>Deny all HTTP methods on '/rest/document-creation/smartdocuments/callback/*' except POST</display-name>
+        <web-resource-collection>
+            <web-resource-name>smartdocuments-document-creation</web-resource-name>
+            <description>SmartDocuments create document callback endpoint</description>
+            <url-pattern>/rest/document-creation/smartdocuments/callback/*</url-pattern>
+            <http-method-omission>POST</http-method-omission>
+        </web-resource-collection>
+        <auth-constraint/>
+    </security-constraint>
+
+    <security-constraint>
+        <display-name>Deny all HTTP methods on '/static/smart-documents-result.html' except GET</display-name>
+        <web-resource-collection>
+            <web-resource-name>smartdocuments-wizard-result-page</web-resource-name>
+            <description>SmartDocuments wizard result page</description>
+            <url-pattern>/static/smart-documents-result.html</url-pattern>
+            <http-method-omission>GET</http-method-omission>
+        </web-resource-collection>
+        <auth-constraint/>
+    </security-constraint>
+
+    <security-constraint>
+        <display-name>Deny all HTTP methods on '/assets/*' except GET</display-name>
+        <web-resource-collection>
+            <web-resource-name>assets</web-resource-name>
+            <description>Fonts, translation bundles, CSS</description>
+            <url-pattern>/assets/*</url-pattern>
+            <http-method-omission>GET</http-method-omission>
+        </web-resource-collection>
+        <auth-constraint/>
+    </security-constraint>
+
+    <security-constraint>
+        <display-name>Require the 'zaakafhandelcomponent_user' role for all other endpoints</display-name>
         <web-resource-collection>
             <web-resource-name>zaakafhandelcomponent</web-resource-name>
             <url-pattern>/*</url-pattern>
@@ -54,68 +134,6 @@
         <auth-constraint>
             <role-name>zaakafhandelcomponent_user</role-name>
         </auth-constraint>
-    </security-constraint>
-
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>notificaties</web-resource-name>
-            <description>For allowing the reception of zaak notificaties</description>
-            <url-pattern>/rest/notificaties</url-pattern>
-            <http-method>POST</http-method>
-        </web-resource-collection>
-    </security-constraint>
-
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>internal</web-resource-name>
-            <url-pattern>/rest/internal/*</url-pattern>
-            <http-method>GET</http-method>
-        </web-resource-collection>
-    </security-constraint>
-
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>websocket</web-resource-name>
-            <description>The authentication check happens in WebSocketServerEndPoint</description>
-            <url-pattern>/websocket</url-pattern>
-            <http-method>GET</http-method>
-        </web-resource-collection>
-    </security-constraint>
-
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>webdav</web-resource-name>
-            <description>For allowing WebDAV</description>
-            <url-pattern>/webdav/*</url-pattern>
-            <http-method>GET</http-method>
-        </web-resource-collection>
-    </security-constraint>
-
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>sd-document-creation</web-resource-name>
-            <description>SmartDocuments Create Document callback</description>
-            <url-pattern>/rest/document-creation/smartdocuments/callback/*</url-pattern>
-            <http-method>POST</http-method>
-        </web-resource-collection>
-    </security-constraint>
-
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>sd-wizard-result-page</web-resource-name>
-            <description>SmartDocuments wizard result page</description>
-            <url-pattern>/static/smart-documents-result.html</url-pattern>
-            <http-method>GET</http-method>
-        </web-resource-collection>
-    </security-constraint>
-
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>assets</web-resource-name>
-            <description>Fonts, translation bundles, CSS</description>
-            <url-pattern>/assets/*</url-pattern>
-            <http-method>GET</http-method>
-        </web-resource-collection>
     </security-constraint>
 
     <login-config>

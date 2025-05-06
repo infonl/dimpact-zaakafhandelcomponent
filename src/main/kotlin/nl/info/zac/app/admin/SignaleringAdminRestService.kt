@@ -18,6 +18,7 @@ import net.atos.zac.util.event.JobEvent
 import net.atos.zac.util.event.JobId
 import nl.info.zac.app.admin.model.RESTDeletedSignaleringenResponse
 import nl.info.zac.authentication.ActiveSession
+import nl.info.zac.authentication.InternalEndpoint
 import nl.info.zac.authentication.setFunctioneelGebruiker
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.util.AllOpen
@@ -33,6 +34,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty
 @Produces(MediaType.APPLICATION_JSON)
 @AllOpen
 @NoArgConstructor
+@InternalEndpoint
 class SignaleringAdminRestService @Inject constructor(
     private val signaleringService: SignaleringService,
     private val eventingService: EventingService,

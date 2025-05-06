@@ -153,10 +153,22 @@ export class ZacHttpClient {
     url: string,
     pathParams?: {
       path?: Record<string, string | number | boolean | null>;
+      query?: Record<string, string | number | boolean | null>;
     },
   ) {
     if (pathParams?.path) {
-      return this.replacePathParams(url, pathParams.path);
+      url = this.replacePathParams(url, pathParams.path);
+    }
+
+    if (pathParams?.query) {
+      const queryParams = new URLSearchParams();
+      for (const [key, value] of Object.entries(pathParams.query)) {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, value.toString());
+        }
+      }
+      const delimiter = url.includes("?") ? "&" : "?";
+      url += `${delimiter}${queryParams.toString()}`;
     }
 
     return url;

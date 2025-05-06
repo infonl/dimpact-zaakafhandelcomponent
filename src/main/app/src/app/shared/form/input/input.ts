@@ -24,6 +24,7 @@ export class ZacInput<
   @Input({ required: true }) form!: FormGroup<Form>;
   @Input({ transform: booleanAttribute }) readonly = false;
   @Input() type: "text" | "number" = "text";
+  @Input() label?: string;
   /**
    * When a `displayValue` is declared the `input` will be hidden, and it will use an overlay for the value.
    * The input will also be put in an `readonly` mode.

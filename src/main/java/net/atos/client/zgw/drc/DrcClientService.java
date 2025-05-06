@@ -5,8 +5,8 @@
 
 package net.atos.client.zgw.drc;
 
-import static java.lang.String.format;
-import static nl.info.zac.configuratie.ConfiguratieService.ENV_VAR_ZGW_API_CLIENT_MP_REST_URL;
+import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
+import static nl.info.client.zgw.util.ZgwUriUtilsKt.validateZgwApiUri;
 
 import java.io.ByteArrayInputStream;
 import java.net.URI;
@@ -15,14 +15,10 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import net.atos.client.util.JAXRSClientFactory;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters;
 import net.atos.client.zgw.drc.model.Lock;
 import net.atos.client.zgw.shared.model.Results;
@@ -60,6 +56,18 @@ public class DrcClientService {
     }
 
     /**
+     * Read {@link EnkelvoudigInformatieObject} via its URI.
+     * Throws a RuntimeException if the {@link EnkelvoudigInformatieObject} can not be read.
+     *
+     * @param enkelvoudigInformatieobjectURI URI of the {@link EnkelvoudigInformatieObject}.
+     * @return {@link EnkelvoudigInformatieObject}. Never 'null'!
+     */
+    public EnkelvoudigInformatieObject readEnkelvoudigInformatieobject(final URI enkelvoudigInformatieobjectURI) {
+        validateZgwApiUri(enkelvoudigInformatieobjectURI, configuratieService.readZgwApiClientMpRestUrl());
+        return readEnkelvoudigInformatieobject(extractUuid(enkelvoudigInformatieobjectURI));
+    }
+
+    /**
      * Read {@link EnkelvoudigInformatieObject} via its UUID and version.
      * Throws a RuntimeException if the {@link EnkelvoudigInformatieObject} can not be read.
      *
@@ -84,17 +92,6 @@ public class DrcClientService {
         drcClient.enkelvoudigInformatieobjectDelete(uuid);
     }
 
-    /**
-     * Read {@link EnkelvoudigInformatieObject} via its URI.
-     * Throws a RuntimeException if the {@link EnkelvoudigInformatieObject} can not be read.
-     *
-     * @param enkelvoudigInformatieobjectURI URI of the {@link EnkelvoudigInformatieObject}.
-     * @return {@link EnkelvoudigInformatieObject}. Never 'null'!
-     */
-    public EnkelvoudigInformatieObject readEnkelvoudigInformatieobject(final URI enkelvoudigInformatieobjectURI) {
-        return createInvocationBuilder(enkelvoudigInformatieobjectURI).get(EnkelvoudigInformatieObject.class);
-    }
-
     public EnkelvoudigInformatieObject updateEnkelvoudigInformatieobject(
             final UUID uuid,
             final EnkelvoudigInformatieObjectWithLockRequest enkelvoudigInformatieObjectWithLockRequest,
@@ -112,7 +109,7 @@ public class DrcClientService {
      * @param enkelvoudigInformatieobjectUUID {@link EnkelvoudigInformatieObject}
      */
     public String lockEnkelvoudigInformatieobject(final UUID enkelvoudigInformatieobjectUUID) {
-        // If the EnkelvoudigInformatieobject is already locked a ValidationException is thrown.
+        // If the EnkelvoudigInformatieobject is already locked, a ValidationException is thrown.
         return drcClient.enkelvoudigInformatieobjectLock(enkelvoudigInformatieobjectUUID, new Lock()).getLock();
     }
 
@@ -195,22 +192,5 @@ public class DrcClientService {
 
     public void createGebruiksrechten(final Gebruiksrechten gebruiksrechten) {
         drcClient.gebruiksrechtenCreate(gebruiksrechten);
-    }
-
-    private Invocation.Builder createInvocationBuilder(final URI uri) {
-        // for security reasons check if the provided URI starts with the value of the
-        // environment variable that we use to configure the ztcClient
-        if (!uri.toString().startsWith(configuratieService.readZgwApiClientMpRestUrl())) {
-            throw new IllegalStateException(format(
-                    "URI '%s' does not start with value for environment variable '%s': '%s'",
-                    uri,
-                    ENV_VAR_ZGW_API_CLIENT_MP_REST_URL,
-                    configuratieService.readZgwApiClientMpRestUrl()
-            ));
-        }
-
-        return JAXRSClientFactory.getOrCreateClient().target(uri)
-                .request(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, zgwClientHeadersFactory.generateJWTToken());
     }
 }

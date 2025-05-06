@@ -12,10 +12,8 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
 import nl.info.client.zgw.ztc.ZtcClientService.Companion.MAX_CACHE_SIZE
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.configuratie.ConfiguratieService
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -23,12 +21,8 @@ import kotlin.time.Duration.Companion.seconds
 
 class ZtcClientServiceTest : BehaviorSpec({
     val ztcClient = mockk<ZtcClient>()
-    val zgwClientHeadersFactory = mockk<ZGWClientHeadersFactory>()
-    val configuratieService = mockk<ConfiguratieService>()
     val ztcClientService = ZtcClientService(
-        ztcClient = ztcClient,
-        zgwClientHeadersFactory = zgwClientHeadersFactory,
-        configuratieService = configuratieService,
+        ztcClient = ztcClient
     )
     val initialUUID = UUID.randomUUID()
     val expectedZaakType = createZaakType()
@@ -88,7 +82,7 @@ class ZtcClientServiceTest : BehaviorSpec({
         }
 
         When("reading more zaak types than the cache can hold") {
-            (1..MAX_CACHE_SIZE + 1).forEach {
+            (1..MAX_CACHE_SIZE + 1).forEach { _ ->
                 val generatedUUID = UUID.randomUUID()
                 every {
                     ztcClient.zaaktypeRead(generatedUUID)

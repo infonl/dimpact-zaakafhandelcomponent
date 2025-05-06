@@ -4,7 +4,7 @@
  */
 package net.atos.zac.app.mailtemplate;
 
-import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
+import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 
 import java.util.UUID;
 
