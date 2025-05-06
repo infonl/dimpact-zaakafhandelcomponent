@@ -7,7 +7,9 @@ package nl.info.zac.healthcheck
 
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.healthcheck.model.BuildInformation
 import nl.info.zac.healthcheck.model.ZaaktypeInrichtingscheck
+import java.time.ZonedDateTime
 
 @Suppress("LongParameterList")
 fun createZaaktypeInrichtingscheck(
@@ -40,3 +42,15 @@ fun createZaaktypeInrichtingscheck(
     isZaakafhandelParametersValide = zaakafhandelParametersValide
     isBesluittypeAanwezig = besluittypeAanwezig
 }
+
+fun createBuildInformation(
+    commit: String = "fakeCommit",
+    buildId: String = "fakeBuildId",
+    buildDatumTijd: ZonedDateTime = ZonedDateTime.now(),
+    versienummer: String = "fakeVersion",
+) = BuildInformation(
+    commit = commit,
+    buildId = buildId,
+    buildDateTime = buildDatumTijd,
+    versionNumber = versienummer
+)
