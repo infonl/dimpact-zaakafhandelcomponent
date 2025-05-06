@@ -5,13 +5,12 @@
 
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable, throwError } from "rxjs";
+import {Observable, of, throwError} from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { GeneratedType } from "../shared/utils/generated-types";
+import { Api } from "../shared/utils/generated-types";
 import { CaseDefinition } from "./model/case-definition";
-import { ReplyTo } from "./model/replyto";
 import { ZaakbeeindigReden } from "./model/zaakbeeindig-reden";
 
 @Injectable({
@@ -69,7 +68,7 @@ export class ZaakafhandelParametersService {
   listResultaattypes(zaaktypeUuid: string) {
     return this.http
       .get<
-        GeneratedType<"RestResultaattype">[]
+        Api<"RestResultaattype">[]
       >(`${this.basepath}/resultaattypes/${zaaktypeUuid}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
@@ -93,7 +92,7 @@ export class ZaakafhandelParametersService {
   }
 
   updateZaakafhandelparameters(
-    zaakafhandelparameters: GeneratedType<"RestZaakafhandelParameters">,
+    zaakafhandelparameters: Api<"RestZaakafhandelParameters">,
   ) {
     return this.zacHttpClient
       .PUT("/rest/zaakafhandelparameters", zaakafhandelparameters)
@@ -113,9 +112,52 @@ export class ZaakafhandelParametersService {
       );
   }
 
-  listReplyTos(): Observable<ReplyTo[]> {
-    return this.http
-      .get<ReplyTo[]>(`${this.basepath}/replyTo`)
+  listReplyTos() {
+    return of([
+      {
+        "mail": "GEMEENTE",
+        "speciaal": true
+      },
+      {
+        "mail": "MEDEWERKER",
+        "speciaal": true
+      },
+      {
+        "mail": "Nieuwe waarde",
+        "speciaal": false
+      },
+      {
+        "mail": "Nieuwe waarde 2",
+        "speciaal": false
+      },
+      {
+        "mail": "Noreply@groningen.nl",
+        "speciaal": false
+      },
+      {
+        "mail": "behandelaar@team-dimpact.info.nl",
+        "speciaal": false
+      },
+      {
+        "mail": "commonground@groningen.nl",
+        "speciaal": false
+      },
+      {
+        "mail": "hilbrand.hurtak@groningen.nl",
+        "speciaal": false
+      },
+      {
+        "mail": "hop@info.nl",
+        "speciaal": false
+      },
+      {
+        "mail": "karin.masselink@dimpact.nl",
+        "speciaal": false
+      }
+    ])
+
+    return this.zacHttpClient
+      .GET("/rest/zaakafhandelparameters/replyTo")
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

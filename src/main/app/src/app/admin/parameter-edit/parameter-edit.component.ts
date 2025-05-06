@@ -36,10 +36,10 @@ import {
   MailtemplateKoppelingMailUtil,
 } from "../model/mailtemplate-koppeling-mail";
 import { ReferentieTabel } from "../model/referentie-tabel";
-import { ReplyTo } from "../model/replyto";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
+import {MatSort} from "@angular/material/sort";
 
 @Component({
   templateUrl: "./parameter-edit.component.html",
@@ -72,7 +72,6 @@ export class ParameterEditComponent
 
   zaakbeeindigParameters: Api<"RESTZaakbeeindigParameter">[] = [];
   selection = new SelectionModel<Api<"RESTZaakbeeindigParameter">>(true);
-  zaakAfzenders: string[] = [];
   zaakAfzendersDataSource = new MatTableDataSource<Api<"RESTZaakAfzender">>();
   mailtemplateKoppelingen =
     MailtemplateKoppelingMailUtil.getBeschikbareMailtemplateKoppelingen();
@@ -90,7 +89,6 @@ export class ParameterEditComponent
   referentieTabellen: ReferentieTabel[] = [];
   zaakbeeindigRedenen: Api<"RESTZaakbeeindigReden">[] = [];
   mailtemplates: Api<"RESTMailtemplate">[] = [];
-  replyTos: ReplyTo[] = [];
   loading = false;
   subscriptions$: Subscription[] = [];
 
@@ -101,11 +99,15 @@ export class ParameterEditComponent
   protected groups$ = this.identityService.listGroups();
   protected formulierDefinities$ =
     this.zaakafhandelParametersService.listFormulierDefinities();
+  protected replyTos$ = this.zaakafhandelParametersService.listReplyTos()
 
   protected users: Api<"RestUser">[] = [];
   protected humanTaskParameters: Api<"RESTHumanTaskParameters">[] = [];
   protected userEventListenerParameters: Api<"RESTUserEventListenerParameter">[] =
     [];
+  private allZaakAfzenders: string[] = []
+  protected zaakAfzenders: string[] = [];
+
 
   protected mailOpties = this.utilService.getEnumAsSelectList(
     "statusmail.optie",
@@ -195,7 +197,17 @@ export class ParameterEditComponent
       this.userEventListenerParameters = parameters.userEventListenerParameters;
 
       // TODO: refactor do remove `this.parameters` and use `this.form` instead
+      console.log({parameters});
       this.parameters = data.parameters;
+      this.parameters.zaakAfzenders = [{
+        id: 1,
+        speciaal: true,
+        mail: "GEMEENTE",
+      },
+        {id: 2,
+          speciaal: false,
+          mail: "mail@sanderboer.nl"
+        }]
       this.parameters.intakeMail = this.parameters.intakeMail
         ? this.parameters.intakeMail
         : ZaakStatusmailOptie.BESCHIKBAAR_UIT;
@@ -206,7 +218,6 @@ export class ParameterEditComponent
       forkJoin([
         referentieTabelService.listReferentieTabellen(),
         referentieTabelService.listAfzenders(),
-        zaakafhandelParametersService.listReplyTos(),
         zaakafhandelParametersService.listZaakbeeindigRedenen(),
         mailtemplateBeheerService.listKoppelbareMailtemplates(),
         zaakafhandelParametersService.listResultaattypes(
@@ -216,7 +227,6 @@ export class ParameterEditComponent
         ([
           referentieTabellen,
           afzenders,
-          replyTos,
           zaakbeeindigRedenen,
           mailtemplates,
           resultaattypes,
@@ -224,8 +234,7 @@ export class ParameterEditComponent
           this.referentieTabellen = referentieTabellen;
           this.zaakbeeindigRedenen = zaakbeeindigRedenen;
           this.mailtemplates = mailtemplates;
-          this.zaakAfzenders = afzenders;
-          this.replyTos = replyTos;
+          this.allZaakAfzenders = this.zaakAfzenders = afzenders;
           this.resultaattypes = resultaattypes;
           this.createForm();
         },
@@ -457,7 +466,7 @@ export class ParameterEditComponent
         formGroup,
       );
     });
-    this.initZaakAfzenders();
+    this.initZaakAfzenderFormControls();
   }
 
   createZaakbeeindigForm() {
@@ -538,17 +547,20 @@ export class ParameterEditComponent
     }
   }
 
-  private initZaakAfzenders() {
-    let i = 0;
-    for (const zaakAfzender of this.parameters.zaakAfzenders) {
-      (zaakAfzender as { index: number }).index = i++;
-      this.addZaakAfzenderControl(zaakAfzender);
-    }
-    this.loadZaakAfzenders();
-    this.initAfzenders();
+  private initZaakAfzenderFormControls() {
+    this.parameters.zaakAfzenders.forEach(({ mail, speciaal }, index) => {
+      // @ts-expect-error TODO: ts issue
+      this.form.controls.mailtemplateKoppelingen.addControl(
+          index,
+          new FormControl({ mail, speciaal, index }),
+      )
+      this.zaakAfzenders = this.zaakAfzenders.filter((afzender) => afzender !== mail)
+    })
+
+    this.setZaakAfzendersDataSource();
   }
 
-  private loadZaakAfzenders() {
+  private setZaakAfzendersDataSource() {
     this.zaakAfzendersDataSource.data = this.parameters.zaakAfzenders
       .slice()
       .sort((a, b) => {
@@ -560,7 +572,7 @@ export class ParameterEditComponent
       });
   }
 
-  addZaakAfzender(afzender: string): void {
+  protected addZaakAfzender(afzender: string): void {
     const zaakAfzender: Api<"RESTZaakAfzender"> & { index: number } = {
       speciaal: false,
       defaultMail: false,
@@ -575,11 +587,11 @@ export class ParameterEditComponent
     }
     this.addZaakAfzenderControl(zaakAfzender);
     this.parameters.zaakAfzenders.push(zaakAfzender);
-    this.loadZaakAfzenders();
+    this.setZaakAfzendersDataSource();
     this.removeAfzender(afzender);
   }
 
-  updateZaakAfzenders(afzender: string): void {
+  setDefaultMail(afzender: string): void {
     for (const zaakAfzender of this.parameters.zaakAfzenders) {
       zaakAfzender.defaultMail = zaakAfzender.mail === afzender;
     }
@@ -592,8 +604,8 @@ export class ParameterEditComponent
         this.parameters.zaakAfzenders.splice(i, 1);
       }
     }
-    this.loadZaakAfzenders();
-    this.addAfzender(afzender);
+    this.setZaakAfzendersDataSource();
+    this.zaakAfzenders.push(afzender);
   }
 
   private addZaakAfzenderControl(zaakAfzender: Api<"RESTZaakAfzender">) {
@@ -611,24 +623,6 @@ export class ParameterEditComponent
     return this.form.controls.mailtemplateKoppelingen.get(
       `afzender${zaakAfzender.index}__${field}`,
     );
-  }
-
-  private initAfzenders() {
-    for (const zaakAfzender of this.parameters.zaakAfzenders) {
-      if (zaakAfzender.mail) {
-        this.removeAfzender(zaakAfzender.mail);
-      }
-    }
-    this.loadAfzenders();
-  }
-
-  private loadAfzenders(): void {
-    this.zaakAfzenders.sort((a, b) => a.localeCompare(b));
-  }
-
-  private addAfzender(afzender: string): void {
-    this.zaakAfzenders.push(afzender);
-    this.loadAfzenders();
   }
 
   private removeAfzender(afzender: string): void {
@@ -843,5 +837,15 @@ export class ParameterEditComponent
     ) as FormGroup<{
       toelichting: FormControl<string | null>;
     }>;
+  }
+
+  protected replyToDisplayValue(replyTo: Api<"RESTReplyTo"> | null) {
+    if(!replyTo?.mail) return "---"
+
+    if(replyTo.speciaal) {
+      return "gegevens.mail.afzender." + replyTo.mail
+    }
+
+    return replyTo.mail
   }
 }

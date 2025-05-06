@@ -5,7 +5,7 @@
 
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import {Observable, of} from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ReferentieTabel } from "./model/referentie-tabel";
@@ -62,6 +62,7 @@ export class ReferentieTabelService {
   }
 
   listAfzenders(): Observable<string[]> {
+    return of(["foo", "bar"])
     return this.http
       .get<string[]>(`${this.basepath}/afzender`)
       .pipe(

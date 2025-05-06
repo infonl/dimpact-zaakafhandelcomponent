@@ -25,7 +25,7 @@ export class ZacSelect<
     Form extends Record<string, AbstractControl>,
     Key extends keyof Form,
     Option extends Form[Key]["value"],
-    OptionDisplayValue extends keyof Option | ((option: Option) => string),
+    OptionDisplayValue extends keyof Option | ((option: Option | null) => string),
     Compare extends (a: Option, b: Option) => boolean,
   >
   implements OnInit, OnChanges, OnDestroy

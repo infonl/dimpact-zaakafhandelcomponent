@@ -370,7 +370,7 @@
                       </th>
                       <td mat-cell *matCellDef="let afzender">
                         <mat-radio-button
-                          (click)="updateZaakAfzenders(afzender.mail)"
+                          (click)="setDefaultMail(afzender.mail)"
                           [checked]="afzender.defaultMail"
                         >
                         </mat-radio-button>
@@ -383,8 +383,7 @@
                         translate="mail.afzender"
                       ></th>
                       <td mat-cell *matCellDef="let afzender">
-                        {{
-                          afzender.speciaal
+                        {{ afzender.speciaal
                             ? ("gegevens.mail.afzender." + afzender.mail
                               | translate)
                             : afzender.mail
@@ -398,36 +397,21 @@
                         translate="mail.antwoord"
                       ></th>
                       <td mat-cell *matCellDef="let afzender">
-                        <mat-select
-                          placeholder="{{ 'verzender.-geen-' | translate }}"
-                          [formControl]="
-                            getZaakAfzenderControl(afzender, 'replyTo')
-                          "
-                          [compareWith]="compareObject"
+                        <zac-select
+                          [form]="form.controls.mailtemplateKoppelingen"
+                          label="afzender"
+                          [key]="afzender.index"
+                          [options]="replyTos$ | async"
+                          [optionDisplayValue]="replyToDisplayValue"
                         >
-                          <mat-option>{{
-                            "verzender.-geen-" | translate
-                          }}</mat-option>
-                          <mat-option
-                            *ngFor="let replyTo of replyTos"
-                            [value]="replyTo.mail"
-                          >
-                            {{
-                              replyTo.speciaal
-                                ? ("gegevens.mail.afzender." + replyTo.mail
-                                  | translate)
-                                : replyTo.mail
-                            }}
-                          </mat-option>
-                        </mat-select>
+                        </zac-select>
                       </td>
                     </ng-container>
                     <ng-container matColumnDef="id" stickyEnd>
                       <th mat-header-cell *matHeaderCellDef>
                         <button
                           mat-icon-button
-                          *ngIf="0 < zaakAfzenders.length"
-                          id="afzender-toevoegen"
+                          *ngIf="zaakAfzenders.length"
                           title="{{ 'actie.toevoegen' | translate }}"
                           aria-label="Afzender toevoegen"
                           [matMenuTriggerFor]="afzendersMenu"
