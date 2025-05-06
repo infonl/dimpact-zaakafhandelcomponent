@@ -18,7 +18,6 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.jacobras.humanreadable.HumanReadable.fileSize
-import org.apache.commons.text.StringEscapeUtils
 import org.apache.commons.text.StringEscapeUtils.escapeHtml4
 import java.lang.Runtime.getRuntime
 import kotlin.time.DurationUnit
@@ -61,11 +60,11 @@ class UtilRestService @Inject constructor(
         assertPolicy(policyService.readOverigeRechten().beheren)
         return body(
             h(1, "Util") +
-                    h(2, "Caches") +
-                    links(listOf("cache", "cache/ztc", "cache/zhps")) +
-                    links(listOf("cache/clear", "cache/ztc/clear", "cache/zhps/clear")) +
-                    h(2, "System") +
-                    links(listOf("memory"))
+                h(2, "Caches") +
+                links(listOf("cache", "cache/ztc", "cache/zhps")) +
+                links(listOf("cache/clear", "cache/ztc/clear", "cache/zhps/clear")) +
+                h(2, "System") +
+                links(listOf("memory"))
         )
     }
 
@@ -75,10 +74,10 @@ class UtilRestService @Inject constructor(
         assertPolicy(policyService.readOverigeRechten().beheren)
         return body(
             listOf(
-                    ztcClientCaches(),
-                    zaakafhandelParameterServiceCaches()
-                )
+                ztcClientCaches(),
+                zaakafhandelParameterServiceCaches()
             )
+        )
     }
 
     @GET
