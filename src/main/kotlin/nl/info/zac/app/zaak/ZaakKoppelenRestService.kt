@@ -42,6 +42,7 @@ import java.util.UUID
 @Singleton
 @NoArgConstructor
 @AllOpen
+@Suppress("TooManyFunctions")
 class ZaakKoppelenRestService @Inject constructor(
     private val policyService: PolicyService,
     private val searchService: SearchService,
@@ -115,7 +116,12 @@ class ZaakKoppelenRestService @Inject constructor(
         (areBothOpen(sourceZaak, targetZaak) || areBothClosed(sourceZaak, targetZaak)) &&
             sourceZaak.hasLinkRights() &&
             targetZaak.hasLinkRights() &&
-            targetZaak.isLinkableTo(sourceZaak, relationType)
+            targetZaak.isLinkableTo(sourceZaak, relationType) &&
+            isAlreadyLinked(sourceZaak) &&
+            isAlreadyLinked(zrcClientService.readZaak(UUID.fromString(targetZaak.getObjectId())))
+
+    private fun isAlreadyLinked(zaak: Zaak) =
+        !(zaak.is_Hoofdzaak || zaak.isDeelzaak)
 
     private fun areBothOpen(sourceZaak: Zaak, targetZaak: ZaakZoekObject) =
         sourceZaak.isOpen && targetZaak.archiefNominatie == null
@@ -129,16 +135,16 @@ class ZaakKoppelenRestService @Inject constructor(
 
     private fun ZaakZoekObject.isLinkableTo(sourceZaak: Zaak, relationType: RelatieType) =
         when (relationType) {
-            RelatieType.HOOFDZAAK -> this.zaaktypeUuid?.let { uuid ->
-                ztcClientService.readZaaktype(sourceZaak.zaaktype).deelzaaktypen.any {
-                    it.toString().contains(uuid)
-                }
-            } ?: false
-            RelatieType.DEELZAAK -> sourceZaak.zaaktype.extractUuid().toString().let { uuid ->
+            RelatieType.HOOFDZAAK -> sourceZaak.zaaktype.extractUuid().toString().let { uuid ->
                 ztcClientService.readZaaktype(UUID.fromString(this.zaaktypeUuid)).deelzaaktypen.any {
                     it.toString().contains(uuid)
                 }
             }
+            RelatieType.DEELZAAK -> this.zaaktypeUuid?.let { uuid ->
+                ztcClientService.readZaaktype(sourceZaak.zaaktype).deelzaaktypen.any {
+                    it.toString().contains(uuid)
+                }
+            } ?: false
             else -> throw UnsupportedOperationException("Unsupported link type: $relationType")
         }
 }

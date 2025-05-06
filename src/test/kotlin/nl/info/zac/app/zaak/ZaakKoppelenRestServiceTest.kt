@@ -6,7 +6,6 @@ package nl.info.zac.app.zaak
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -42,14 +41,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         ztcClientService = ztcClientService
     )
 
-    beforeEach {
-        checkUnnecessaryStub()
-    }
-
     Given("A valid zaak UUID and relationType is provided") {
         val zaakUuid = UUID.randomUUID()
         val zaakZoekUuid = UUID.randomUUID().toString()
-        val relationType = RelatieType.HOOFDZAAK
+        val relationType = RelatieType.DEELZAAK
         val zoekZaakIdentifier = "ZAAK-2000-00002"
         val zaakTypeURI = URI(UUID.randomUUID().toString())
         val zaakZoekObjectTypeUuid1 = UUID.randomUUID().toString()
@@ -73,6 +68,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             archiefNominatie = Archiefnominatie.BLIJVEND_BEWAREN.toString()
         )
 
+        val zaakZoek = createZaak(
+            uuid = UUID.fromString(zaakZoekObject1.zaaktypeUuid),
+            identificatie = zoekZaakIdentifier,
+            archiefnominatie = Archiefnominatie.BLIJVEND_BEWAREN,
+            zaakTypeURI = URI(zaakZoekObjectTypeUuid1)
+        )
+
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject1), 1)
 
         When("findLinkableZaken is called") {
@@ -83,6 +85,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every {
                 ztcClientService.readZaaktype(sourceZaak.zaaktype).deelzaaktypen
             } returns listOf(URI(zaakZoekObjectTypeUuid1))
+            every {
+                ztcClientService.readZaaktype(zaakZoek.zaaktype).deelzaaktypen
+            } returns listOf(zaakTypeURI)
+            every { zrcClientService.readZaak(eq(UUID.fromString(zaakZoekUuid))) } returns zaakZoek
 
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = zaakUuid,

@@ -9,6 +9,7 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
@@ -33,6 +34,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
     lateinit var zaakUUID: UUID
+    lateinit var teKoppelenZaakUuid: UUID
 
     Given("ZAC Docker container is running and the zaakafhandelparameters have been created") {
         itestHttpClient.performGetRequest(
@@ -44,12 +46,24 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 zaakUUID = getString("uuid").let(UUID::fromString)
             }
         }
+        itestHttpClient.performGetRequest(
+            "$ZAC_API_URI/zaken/zaak/id/ZAAK-2000-0000000003"
+        ).use { getZaakResponse ->
+            val responseBody = getZaakResponse.body!!.string()
+            logger.info { "Response: $responseBody" }
+            with(JSONObject(responseBody)) {
+                teKoppelenZaakUuid = getString("uuid").let(UUID::fromString)
+            }
+        }
 
-        When("searching for a HOOFDZAAK linkable zaken with 'ZAAK-2000' zaak identifier") {
+        When(
+            "searching for a DEELZAAK linkable zaken with 'ZAAK-2000' zaak identifier and then link teh linkable " +
+                "zaak"
+        ) {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakUUID/zoek-koppelbare-zaken" +
                     "?zoekZaakIdentifier=$ZOEK_ZAAK_IDENTIFIER" +
-                    "&relationType=HOOFDZAAK" +
+                    "&relationType=DEELZAAK" +
                     "&rows=$ROWS_DEFAULT" +
                     "&page=$PAGE_DEFAULT"
             )
@@ -118,14 +132,31 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             }
         }
 
+        When("link zaak-ZAAK-2000-0000000003 as hoofdzaak to $ZAAK_MANUAL_2024_01_IDENTIFICATION") {
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/zaken/zaak/koppel",
+                requestBodyAsString = """
+                {
+                     "zaakUuid": "$teKoppelenZaakUuid",
+                     "teKoppelenZaakUuid": "$zaakUUID",
+                     "relatieType": "HOOFDZAAK"
+                }
+                """.trimIndent()
+            )
+
+            Then("successfully links the zaak") {
+                response.code shouldBe HTTP_STATUS_NO_CONTENT
+            }
+        }
+
         When(
-            "searching for a DEELZAAK linkable zaken with 'ZAAK-2000' zaak identifier but without the 'rows' " +
+            "searching for a HOOFDZAAK linkable zaken with 'ZAAK-2000' zaak identifier but without the 'rows' " +
                 "and 'page' request parameters"
         ) {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakProductaanvraag1Uuid/zoek-koppelbare-zaken" +
                     "?zoekZaakIdentifier=$ZOEK_ZAAK_IDENTIFIER" +
-                    "&relationType=DEELZAAK"
+                    "&relationType=HOOFDZAAK"
             )
 
             Then("returns list of zaken each with a linkable flag") {
