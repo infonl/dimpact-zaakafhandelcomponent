@@ -36,8 +36,16 @@
       [sideNav]="actionsSidenav"
       (klantGegevens)="initiatorGeselecteerd($event.klant)"
       [initiator]="true"
-      [allowBedrijf]="!!zaak.rechten.toevoegenInitiatorBedrijf"
-      [allowPersoon]="!!zaak.rechten.toevoegenInitiatorPersoon"
+      [allowBedrijf]="
+        !!zaak.rechten.toevoegenInitiatorBedrijf &&
+        !!zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+          ?.kvkKoppelen
+      "
+      [allowPersoon]="
+        !!zaak.rechten.toevoegenInitiatorPersoon &&
+        !!zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+          ?.brpKoppelen
+      "
     ></zac-klant-koppel>
     <zac-klant-koppel
       *ngSwitchCase="'actie.betrokkene.toevoegen'"
@@ -138,42 +146,52 @@
   </mat-drawer>
   <mat-drawer-content>
     <div class="flex-row flex-wrap gap-10">
-      <zac-zaak-initiator-toevoegen
-        class="w100 flex-1"
-        *ngIf="!zaak.initiatorIdentificatieType"
-        [toevoegenToegestaan]="
-          !!(
-            zaak.rechten.toevoegenInitiatorPersoon ||
-            zaak.rechten.toevoegenInitiatorBedrijf
-          )
-        "
-        (add)="addOrEditZaakInitiator()"
-      >
-      </zac-zaak-initiator-toevoegen>
-      <zac-persoongegevens
-        class="w100 flex-1"
-        *ngIf="zaak.initiatorIdentificatieType === 'BSN'"
-        [bsn]="zaak.initiatorIdentificatie"
-        [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
-        [isWijzigbaar]="zaak.rechten.toevoegenInitiatorPersoon"
-        (edit)="addOrEditZaakInitiator()"
-        (delete)="deleteInitiator()"
-      >
-      </zac-persoongegevens>
-      <zac-bedrijfsgegevens
+      <section
         class="w100 flex-1"
         *ngIf="
-          zaak.initiatorIdentificatieType === 'VN' ||
-          zaak.initiatorIdentificatieType === 'RSIN'
+          zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+            ?.kvkKoppelen ||
+          zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+            ?.brpKoppelen
         "
-        [rsinOfVestigingsnummer]="zaak.initiatorIdentificatie"
-        [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
-        (edit)="addOrEditZaakInitiator()"
-        [isWijzigbaar]="zaak.rechten.toevoegenInitiatorBedrijf"
-        (delete)="deleteInitiator()"
       >
-      </zac-bedrijfsgegevens>
-
+        <zac-zaak-initiator-toevoegen
+          class="w100 flex-1"
+          *ngIf="canAddInitiator()"
+          [toevoegenToegestaan]="allowedToAddInitiator()"
+          (add)="addOrEditZaakInitiator()"
+        >
+        </zac-zaak-initiator-toevoegen>
+        <zac-persoongegevens
+          class="w100 flex-1"
+          *ngIf="
+            zaak.initiatorIdentificatieType === 'BSN' &&
+            !!zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+              ?.brpKoppelen
+          "
+          [bsn]="zaak.initiatorIdentificatie"
+          [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
+          [isWijzigbaar]="zaak.rechten.toevoegenInitiatorPersoon"
+          (edit)="addOrEditZaakInitiator()"
+          (delete)="deleteInitiator()"
+        >
+        </zac-persoongegevens>
+        <zac-bedrijfsgegevens
+          class="w100 flex-1"
+          *ngIf="
+            (zaak.initiatorIdentificatieType === 'VN' ||
+              zaak.initiatorIdentificatieType === 'RSIN') &&
+            !!zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+              ?.kvkKoppelen
+          "
+          [rsinOfVestigingsnummer]="zaak.initiatorIdentificatie"
+          [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
+          (edit)="addOrEditZaakInitiator()"
+          [isWijzigbaar]="zaak.rechten.toevoegenInitiatorBedrijf"
+          (delete)="deleteInitiator()"
+        >
+        </zac-bedrijfsgegevens>
+      </section>
       <mat-card class="zaken-card w50 flex-1">
         <mat-card-header class="flex-row space-between">
           <mat-card-title>{{ zaak.identificatie }}</mat-card-title>

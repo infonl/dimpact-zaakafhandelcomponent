@@ -1381,10 +1381,46 @@ export class ZaakViewComponent
     }
   }
 
-  // Prevent `closedStart` from `#actionsSidenav` to reset the value to `null` on dialog actions
-  async menuItemChanged(event: string) {
+  async menuItemChanged(event: string | null) {
+    if (event === "actie.zaak.koppelen") {
+      return;
+    }
+
     setTimeout(() => {
       this.activeSideAction = event;
     }, 100);
+  }
+
+  protected canAddInitiator() {
+    const initiatorIdentificatieType = String(
+      this.zaak.initiatorIdentificatieType,
+    );
+
+    if (
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.brpKoppelen
+    ) {
+      return !["BSN"].includes(initiatorIdentificatieType);
+    }
+
+    if (
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.kvkKoppelen
+    ) {
+      return !["VN", "RSIN"].includes(initiatorIdentificatieType);
+    }
+
+    return false;
+  }
+
+  protected allowedToAddInitiator() {
+    const brpAllowd =
+      !!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.brpKoppelen && this.zaak.rechten.toevoegenInitiatorPersoon;
+    const kvkAllowed =
+      !!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.kvkKoppelen && this.zaak.rechten.toevoegenInitiatorBedrijf;
+
+    return Boolean(brpAllowd || kvkAllowed);
   }
 }
