@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Zaak } from "../zaken/model/zaak";
+import { Api } from "../shared/utils/generated-types";
 
-export const ViewResourceUtil: { actieveZaak: Zaak } = {
+export const ViewResourceUtil: { actieveZaak: Api<"RestZaak"> | null } = {
   actieveZaak: null,
 };

@@ -12,10 +12,9 @@ import { TaakStuurGegevens } from "../../plan-items/model/taak-stuur-gegevens";
 import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { GeneratedType } from "../../shared/utils/generated-types";
+import { Api, GeneratedType } from "../../shared/utils/generated-types";
 import { Taak } from "../../taken/model/taak";
 import { Taakinformatie } from "../../taken/model/taakinformatie";
-import { Zaak } from "../../zaken/model/zaak";
 
 export abstract class AbstractTaakFormulier {
   public static TAAK_TOEKENNING = "taakToekenning";
@@ -25,7 +24,7 @@ export abstract class AbstractTaakFormulier {
   protected static TOELICHTING_FIELD = "toelichting";
   protected static TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER = ";";
 
-  zaak: Zaak;
+  zaak: Api<"RestZaak">;
   taakNaam: string;
   humanTaskData: HumanTaskData;
   taak: Taak;

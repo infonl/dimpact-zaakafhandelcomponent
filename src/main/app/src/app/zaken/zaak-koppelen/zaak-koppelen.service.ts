@@ -9,7 +9,7 @@ import { Subject } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
 import { ViewResourceUtil } from "../../locatie/view-resource.util";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
-import { Zaak } from "../model/zaak";
+import { Api } from "../../shared/utils/generated-types";
 import { ZaakKoppelDialogGegevens } from "../model/zaak-koppel-dialog-gegevens";
 
 @Injectable({
@@ -21,30 +21,33 @@ export class ZaakKoppelenService {
     private dialog: MatDialog,
   ) {}
 
-  addTeKoppelenZaak(zaak: Zaak): void {
+  addTeKoppelenZaak(zaak: Api<"RestZaak">): void {
     if (!this.isReedsTeKoppelen(zaak)) {
       this._koppelenZaak(zaak);
     }
   }
 
-  isReedsTeKoppelen(zaak: Zaak): boolean {
-    const teKoppelenZaken = SessionStorageUtil.getItem(
+  isReedsTeKoppelen(zaak: Api<"RestZaak">): boolean {
+    const teKoppelenZaken = SessionStorageUtil.getItem<Api<"RestZaak">[]>(
       "teKoppelenZaken",
       [],
-    ) as Zaak[];
+    );
     return (
       teKoppelenZaken.find((_zaak) => _zaak.uuid === zaak.uuid) !== undefined
     );
   }
 
   appInit() {
-    const zaken = SessionStorageUtil.getItem("teKoppelenZaken", []) as Zaak[];
+    const zaken = SessionStorageUtil.getItem<Api<"RestZaak">[]>(
+      "teKoppelenZaken",
+      [],
+    );
     zaken.forEach((zaak) => {
       this._koppelenZaak(zaak, true);
     });
   }
 
-  private _koppelenZaak(zaak: Zaak, onInit?: boolean) {
+  private _koppelenZaak(zaak: Api<"RestZaak">, onInit?: boolean) {
     const dismiss: Subject<void> = new Subject<void>();
     dismiss.asObservable().subscribe(() => {
       this.deleteTeKoppelenZaak(zaak);
@@ -52,12 +55,13 @@ export class ZaakKoppelenService {
     const editAction = new Subject<string>();
     editAction.asObservable().subscribe((url) => {
       const nieuwZaakID = url.split("/").pop();
+      if (!nieuwZaakID) return;
       this.openDialog(zaak, nieuwZaakID);
     });
-    const teKoppelenZaken = SessionStorageUtil.getItem(
+    const teKoppelenZaken = SessionStorageUtil.getItem<Api<"RestZaak">[]>(
       "teKoppelenZaken",
       [],
-    ) as Zaak[];
+    );
     teKoppelenZaken.push(zaak);
     if (!onInit) {
       SessionStorageUtil.setItem("teKoppelenZaken", teKoppelenZaken);
@@ -77,7 +81,7 @@ export class ZaakKoppelenService {
     // this.utilService.addAction(action);
   }
 
-  private openDialog(zaak: Zaak, nieuwZaakID: string) {
+  private openDialog(zaak: Api<"RestZaak">, nieuwZaakID: string) {
     const zaakKoppelGegevens = new ZaakKoppelDialogGegevens();
     zaakKoppelGegevens.bronZaakUuid = zaak.uuid;
     zaakKoppelGegevens.doelZaakIdentificatie = nieuwZaakID;
@@ -90,8 +94,11 @@ export class ZaakKoppelenService {
     // });
   }
 
-  private deleteTeKoppelenZaak(zaak: Zaak) {
-    const zaken = SessionStorageUtil.getItem("teKoppelenZaken", []) as Zaak[];
+  private deleteTeKoppelenZaak(zaak: Api<"RestZaak">) {
+    const zaken = SessionStorageUtil.getItem<Api<"RestZaak">[]>(
+      "teKoppelenZaken",
+      [],
+    );
     SessionStorageUtil.setItem(
       "teKoppelenZaken",
       zaken.filter((_zaak) => _zaak.uuid !== zaak.uuid),
@@ -103,7 +110,7 @@ export class ZaakKoppelenService {
    */
   private isDisabled(zaakIdentificatie: string): string | null {
     return ViewResourceUtil.actieveZaak &&
-      ViewResourceUtil.actieveZaak.identificatie !== zaakIdentificatie
+      ViewResourceUtil.actieveZaak?.identificatie !== zaakIdentificatie
       ? null
       : "actie.zaak.koppelen.disabled";
   }

@@ -39,8 +39,7 @@ import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
 import { HrefMenuItem } from "../../shared/side-nav/menu-item/href-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
-import { GeneratedType } from "../../shared/utils/generated-types";
-import { Zaak } from "../../zaken/model/zaak";
+import { Api, GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { FileFormat, FileFormatUtil } from "../model/file-format";
@@ -59,7 +58,7 @@ export class InformatieObjectViewComponent
   infoObject?: GeneratedType<"RestEnkelvoudigInformatieobject">;
   laatsteVersieInfoObject: GeneratedType<"RestEnkelvoudigInformatieobject">;
   zaakInformatieObjecten: ZaakInformatieobject[] = [];
-  zaak?: Zaak;
+  zaak?: Api<"RestZaak">;
   documentNieuweVersieGegevens?: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
   documentPreviewBeschikbaar = false;
   menu: MenuItem[];

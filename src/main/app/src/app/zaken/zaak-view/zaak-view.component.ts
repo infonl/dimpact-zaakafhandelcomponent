@@ -59,12 +59,11 @@ import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
-import { GeneratedType } from "../../shared/utils/generated-types";
+import { Api } from "../../shared/utils/generated-types";
 import { Taak } from "../../taken/model/taak";
 import { TaakStatus } from "../../taken/model/taak-status.enum";
 import { TakenService } from "../../taken/taken.service";
 import { IntakeAfrondenDialogComponent } from "../intake-afronden-dialog/intake-afronden-dialog.component";
-import { Zaak } from "../model/zaak";
 import { ZaakBetrokkene } from "../model/zaak-betrokkene";
 import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
@@ -84,13 +83,13 @@ export class ZaakViewComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   readonly indicatiesLayout = IndicatiesLayout;
-  zaak!: Zaak;
-  zaakOpschorting!: GeneratedType<"RESTZaakOpschorting">;
-  menu!: MenuItem[];
+  zaak!: Api<"RestZaak">;
+  zaakOpschorting!: Api<"RESTZaakOpschorting">;
+  menu: MenuItem[] = [];
   actiefPlanItem: PlanItem | null = null;
   activeSideAction: string | null = null;
-  teWijzigenBesluit!: GeneratedType<"RestDecision">;
-  documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
+  teWijzigenBesluit!: Api<"RestDecision">;
+  documentToMove!: Partial<Api<"RestEnkelvoudigInformatieobject">>;
 
   takenDataSource = new MatTableDataSource<ExpandableTableData<Taak>>();
   allTakenExpanded = false;
@@ -143,7 +142,7 @@ export class ZaakViewComponent
   notitieType = NotitieType.ZAAK;
   dateFieldIcon = new Map<string, TextIcon>();
   viewInitialized = false;
-  loggedInUser!: GeneratedType<"RestLoggedInUser">;
+  loggedInUser!: Api<"RestLoggedInUser">;
 
   private zaakListener!: WebsocketListener;
   private zaakRollenListener!: WebsocketListener;
@@ -221,10 +220,7 @@ export class ZaakViewComponent
       }),
     );
 
-    this.takenDataSource.filterPredicate = (
-      data: ExpandableTableData<Taak>,
-      filter: string,
-    ): boolean => {
+    this.takenDataSource.filterPredicate = (data, filter) => {
       return !this.toonAfgerondeTaken.value
         ? data.data.status !== filter["status"]
         : true;
@@ -235,7 +231,7 @@ export class ZaakViewComponent
     );
   }
 
-  init(zaak: Zaak): void {
+  init(zaak: Api<"RestZaak">): void {
     this.zaak = zaak;
     this.utilService.disableActionBar(!zaak.rechten.wijzigen);
     this.loadHistorie();
@@ -262,9 +258,9 @@ export class ZaakViewComponent
         case "groep":
           return item.data.groep.naam;
         case "behandelaar":
-          return item.data.behandelaar?.naam;
+          return item.data.behandelaar?.naam ?? "";
         default:
-          return item.data[property];
+          return String(item.data[property as keyof typeof item.data]);
       }
     };
     this.takenDataSource.sort = this.takenSort;
@@ -276,7 +272,7 @@ export class ZaakViewComponent
         case "gebruiker":
           return item.door;
         default:
-          return item[property];
+          return String(item[property as keyof typeof item]);
       }
     };
 
@@ -299,7 +295,7 @@ export class ZaakViewComponent
       new TextIcon(
         DateConditionals.provideFormControlValue(
           DateConditionals.isExceeded,
-          this.zaak.einddatum,
+          this.zaak.einddatum ?? "",
         ),
         "report_problem",
         "warningVerlopen_icon",
@@ -396,7 +392,7 @@ export class ZaakViewComponent
 
     if (this.zaak.rechten.creeerenDocument) {
       if (
-        this.zaak.zaaktype.zaakafhandelparameters.smartDocuments
+        this.zaak.zaaktype.zaakafhandelparameters?.smartDocuments
           .enabledGlobally &&
         this.zaak.zaaktype.zaakafhandelparameters.smartDocuments
           .enabledForZaaktype
@@ -662,7 +658,7 @@ export class ZaakViewComponent
 
   createUserEventListenerDialog(planItem: PlanItem): {
     dialogComponent: ComponentType<unknown>;
-    dialogData: { zaak: Zaak; planItem: PlanItem };
+    dialogData: { zaak: Api<"RestZaak">; planItem: PlanItem };
   } {
     switch (planItem.userEventListenerActie) {
       case UserEventListenerActie.IntakeAfronden:
@@ -774,7 +770,7 @@ export class ZaakViewComponent
     this.actionsSidenav.close();
     const dialogData = new DialogData<
       unknown,
-      { toelichting: string; resultaattype: GeneratedType<"RestResultaattype"> }
+      { toelichting: string; resultaattype: Api<"RestResultaattype"> }
     >(
       [
         new SelectFormFieldBuilder()
@@ -871,17 +867,16 @@ export class ZaakViewComponent
         const duurVerkortingOpschorting: number =
           werkelijkeOpschortDuur - (this.zaakOpschorting?.duurDagen ?? 0);
 
-        const zaakOpschortGegevens: GeneratedType<"RESTZaakOpschortGegevens"> =
-          {
-            indicatieOpschorting: false,
-            duurDagen: werkelijkeOpschortDuur,
-            uiterlijkeEinddatumAfdoening: moment(
-              this.zaak.uiterlijkeEinddatumAfdoening,
-            )
-              .add(duurVerkortingOpschorting, "days")
-              .format("YYYY-MM-DD"),
-            redenOpschorting: redenOpschortingField,
-          };
+        const zaakOpschortGegevens: Api<"RESTZaakOpschortGegevens"> = {
+          indicatieOpschorting: false,
+          duurDagen: werkelijkeOpschortDuur,
+          uiterlijkeEinddatumAfdoening: moment(
+            this.zaak.uiterlijkeEinddatumAfdoening,
+          )
+            .add(duurVerkortingOpschorting, "days")
+            .format("YYYY-MM-DD"),
+          redenOpschorting: redenOpschortingField,
+        };
 
         if (this.zaak.einddatumGepland) {
           zaakOpschortGegevens.einddatumGepland = moment(
@@ -1069,7 +1064,7 @@ export class ZaakViewComponent
 
   betrokkeneGeselecteerd(betrokkene: KlantGegevens): void {
     this.websocketService.suspendListener(this.zaakRollenListener);
-    this.actionsSidenav.close();
+    void this.actionsSidenav.close();
     this.zakenService
       .createBetrokkene(
         this.zaak,
@@ -1214,7 +1209,7 @@ export class ZaakViewComponent
   }
 
   startZaakOntkoppelenDialog(
-    gerelateerdeZaak: GeneratedType<"RestGerelateerdeZaak">,
+    gerelateerdeZaak: Api<"RestGerelateerdeZaak">,
   ): void {
     this.dialog
       .open(ZaakOntkoppelenDialogComponent, {
@@ -1239,14 +1234,14 @@ export class ZaakViewComponent
     this.sluitSidenav();
   }
 
-  besluitWijzigen($event: GeneratedType<"RestDecision">): void {
+  besluitWijzigen($event: Api<"RestDecision">): void {
     this.activeSideAction = "actie.besluit.wijzigen";
     this.teWijzigenBesluit = $event;
     this.actionsSidenav.open();
   }
 
   documentMoveToCase(
-    $event: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>,
+    $event: Partial<Api<"RestEnkelvoudigInformatieobject">>,
   ): void {
     this.activeSideAction = "actie.document.verplaatsen";
     this.documentToMove = $event;
@@ -1259,15 +1254,16 @@ export class ZaakViewComponent
   }
 
   doIntrekking($event): void {
-    const gegevens: GeneratedType<"RestDecisionWithdrawalData"> = {
-      besluitUuid: $event.uuid,
-      vervaldatum: $event.vervaldatum,
-      vervalreden: $event.vervalreden.value,
-      reden: $event.toelichting,
-    };
-    this.zakenService.intrekkenBesluit(gegevens).subscribe(() => {
-      this.utilService.openSnackbar("msg.besluit.ingetrokken");
-    });
+    this.zakenService
+      .intrekkenBesluit({
+        besluitUuid: $event.uuid,
+        vervaldatum: $event.vervaldatum,
+        vervalreden: $event.vervalreden.value,
+        reden: $event.toelichting,
+      })
+      .subscribe(() => {
+        this.utilService.openSnackbar("msg.besluit.ingetrokken");
+      });
   }
 
   betrokkeneGegevensOphalen(
