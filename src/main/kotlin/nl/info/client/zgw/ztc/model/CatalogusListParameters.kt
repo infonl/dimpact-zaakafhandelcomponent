@@ -36,4 +36,7 @@ class CatalogusListParameters {
      */
     @field:QueryParam("page")
     var page: Int? = null
+
+    override fun toString() =
+        "CatalogusListParameters(domein=$domein, domeinIn=$domeinIn, rsin=$rsin, rsinIn=$rsinIn, page=$page)"
 }

@@ -8,6 +8,7 @@ import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.ztc.model.generated.BesluitType
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
+import nl.info.client.zgw.ztc.model.generated.Catalogus
 import nl.info.client.zgw.ztc.model.generated.InformatieObjectType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.ReferentieProces
@@ -60,6 +61,32 @@ fun createBrondatumArchiefprocedure(
     afleidingswijze: AfleidingswijzeEnum? = AfleidingswijzeEnum.VERVALDATUM_BESLUIT
 ) = BrondatumArchiefprocedure().apply {
     this.afleidingswijze = afleidingswijze
+}
+
+fun createCatalogus(
+    url: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
+    zaaktypen: List<URI> = emptyList(),
+    besluittypen: List<URI> = emptyList(),
+    informatieobjecttypen: List<URI> = emptyList()
+) = Catalogus(
+    url,
+    zaaktypen,
+    besluittypen,
+    informatieobjecttypen
+)
+
+fun createCatalogusListParameters(
+    domein: String? = null,
+    domeinIn: String? = null,
+    rsin: String? = null,
+    rsinIn: String? = null,
+    page: Int? = null
+) = CatalogusListParameters().apply {
+    this.domein = domein
+    this.domeinIn = domeinIn
+    this.rsin = rsin
+    this.rsinIn = rsinIn
+    this.page = page
 }
 
 @Suppress("LongParameterList")

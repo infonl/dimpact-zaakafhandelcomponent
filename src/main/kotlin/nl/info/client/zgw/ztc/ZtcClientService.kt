@@ -73,12 +73,11 @@ class ZtcClientService @Inject constructor(
         private val ztcTimeCache: Cache<String, ZonedDateTime> = createCache("Time", 1)
 
         private val uuidToZaakTypeCache: Cache<UUID, ZaakType> = createCache("UUID -> ZaakType")
-        private val uriToZaakTypeCache: Cache<URI, ZaakType> = createCache("URI -> ZaakType")
         private val uriToZaakTypeListCache: Cache<URI, List<ZaakType>> = createCache("URI -> List<ZaakType>")
         private val uuidToStatusTypeCache: Cache<UUID, StatusType> = createCache("UUID -> StatusType")
         private val uriToStatusTypeListCache: Cache<URI, List<StatusType>> = createCache("URI -> List<StatusType>")
         private val uriToZaakTypeInformatieObjectTypeListCache: Cache<URI, List<ZaakTypeInformatieObjectType>> =
-            createCache("URI -> List<ZaakTypeInformatieObjectType")
+            createCache("URI -> List<ZaakTypeInformatieObjectType>")
         private val uuidToInformatieObjectTypeCache: Cache<UUID, InformatieObjectType> =
             createCache("UUID -> InformatieObjectType")
         private val uriToInformatieObjectTypeListCache: Cache<URI, List<InformatieObjectType>> =
@@ -365,7 +364,6 @@ class ZtcClientService @Inject constructor(
 
     fun clearZaaktypeCache(): String {
         uuidToZaakTypeCache.invalidateAll()
-        uriToZaakTypeCache.invalidateAll()
         uriToZaakTypeListCache.invalidateAll()
         return cleared(Caching.ZTC_ZAAKTYPE)
     }
