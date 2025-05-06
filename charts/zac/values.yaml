@@ -10,22 +10,23 @@
 # -- External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com)
 contextUrl: ""
 
-# db Configuration of database connection
+# -- Configuration of the ZAC database connection
 db:
-  host: ""  # -- database.internal or 1.2.3.4
+  # -- database.internal or 1.2.3.4
+  host: ""
   name: ""
   user: ""
   password: ""
 
-# auth Configuration of OpenID Connect
+# -- Configuration for the Keycloak OpenID Connect integration
 auth:
-  server: ""  # https://keycloak.example.com
+  server: ""
   realm: ""
-  # -- Client ID and secret as defined in the realm
+  # -- Client ID and secret as defined in the Keycloak ZAC realm
   clientId: ""
   secret: ""
 
-# configuration of the ZAC admin client in Keycloak
+# -- Configuration of the ZAC admin client in Keycloak
 keycloak:
   adminClient:
     # -- Keycloak ZAC admin client name
@@ -33,16 +34,16 @@ keycloak:
     # -- Keycloak ZAC admin client secret
     secret: ""
 
-# gemeente Configuration gemeente
+# -- Council specific configuration
 gemeente:
   code: ""
   naam: ""
   mail: ""
 
-# -- Email sending connection. SPF record needs to be properly setup in DNS
+# -- SMTP provider configuration. SPF record needs to be properly set up in DNS
 mail:
   smtp:
-    # -- SMTP server host (for example localhost or in-v3.mailjet.com). Required
+    # -- SMTP server host (for example, localhost or in-v3.mailjet.com). Required
     server: ""
     # -- SMTP server port: 587 for TLS, port 25 for relaying. Required
     port: "587"
@@ -51,33 +52,34 @@ mail:
     # -- SMTP server password if authentication is required. Optional
     password: ""
 
-# zgwApis Configuration of ZGW API's provider (Open Zaak)
+# -- ZGW API configuration for integration with the ZGW APIs provider (OpenZaak)
 zgwApis:
-  url: ""  # http://open-zaak.internal
-  urlExtern: ""  # https://open-zaak.example.com
+  url: ""
+  urlExtern: ""
   clientId: ""
   secret: ""
 
-# API key for the ZGW Notificaties Consumer API - ZAC integration; also needs to be configured in Open Notificaties
+# -- API key for the ZGW Notificaties Consumer API integration; also needs to be configured in Open Notificaties
 notificationsSecretKey: ""
 
-# klantenApi Configuration of Klanten API provider (Open Klant)
+# -- Integration with the Klantinteracties API provider (OpenKlant)
 klantinteractiesApi:
   url: ""  # http://open-klant.internal/klantinteracties
   token: ""
 
-# featureFlags defines supported feature flags and their default values
+# -- Supported feature flags
 featureFlags:
+  # -- turns BPMN support on or off
   bpmnSupport: false
 
-# objectenApi Configuration of the Objecten API provider (Overige Registraties)
+# -- Integration with the Objecten API provider
 objectenApi:
-  url: ""  # http://objecten.internal
+  url: ""
   token: ""
 
-# brpApi Configuration of the BRP Api provider (Haal Centraal)
+# Integration with the BRP API provider (Haal Centraal)
 brpApi:
-  url: ""  # https://www.haalcentraal.nl/haalcentraal
+  url: ""
   apiKey: ""
   protocollering:
     # -- If specified, enables the BRP Protocollering
@@ -87,19 +89,19 @@ brpApi:
     # -- Verwerking for BRP Protocollering
     verwerking: "zaakafhandelcomponent"
 
-# Configuration of the KVK API provider (KVK)
+# -- Integration with the KVK API provider (KVK)
 kvkApi:
   url: ""  # https://developers.kvk.nl/test
   apiKey: ""
 
-# Configuration of the BAG API provider (Kadaster)
+# -- Integration with the BAG API provider (Kadaster)
 bagApi:
   url: ""  # https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2
   apiKey: ""
 
-# Open Formulieren configuration of the Open Forms URL
+# --Integration with Open Formulieren. Not used at the moment.
 openForms:
-  url: ""  # https://open-forms.example.com
+  url: ""
 
 # -- API key for authentication of internal ZAC endpoints
 zacInternalEndpointsApiKey: ""
@@ -119,7 +121,7 @@ smartDocuments:
   # -- If this setting is set, then templates in SmartDocuments cannot use user-specific values.
   fixedUserName: ""
 
-# signaleringen Configuration of the signaleren job
+# -- Signaleringen cronjob configuration
 signaleringen:
   # -- Delete any signaleringen older than this number of days when the corresponding admin endpoint is called.
   deleteOlderThanDays: "14"
@@ -144,25 +146,26 @@ signaleringen:
   securityContext: {}
   tolerations: []
 
-# ZAC OpenTelemetry configuration. Only read when opentelemetry-collector is enabled
-# opentelemetry_zaakafhandelcomponent:
-#   disabled: "-true"
-#   endpoint: "http://otel-collector:4317"
+# -- OpenTelemetry configuration. Only read when opentelemetry-collector is enabled
+opentelemetry_zaakafhandelcomponent:
+  disabled: "-true"
+  # -- OpenTelemetry collector URL. For example: http://opentelemetry-collector.default.svc.cluster.local:4317
+  endpoint: ""
 
 
 # -- Maximum size (in Mega Bytes) of files that can be uploaded.
 maxFileSizeMB: 80
 
 # -- An optional list of additional file extensions that can be uploaded
-# additionalAllowedFileTypes: aaa,bbb,ccc
+additionalAllowedFileTypes:
 
 # -- Enable Java remote debugging
 remoteDebug: false
 
-# -- jvm options to set in the _JAVA_OPTIONS env var, recommended defaults are used if not provided and are shown below
+# -- JVM options to set in the _JAVA_OPTIONS env var, recommended defaults are used if not provided and are shown below
 # javaOptions: -Xmx1024m -Xms1024m -Xlog:gc::time,uptime
 
-# -- the number of replicas to run
+# -- The number of replicas to run
 replicaCount: 1
 
 # image the image parameters to use
@@ -181,7 +184,7 @@ nameOverride: ""
 # -- fullname to use
 fullnameOverride: ""
 
-# serviceAccount service account parameters
+# -- serviceAccount service account parameters
 serviceAccount:
   # -- Specifies whether a service account should be created
   create: true
@@ -197,7 +200,7 @@ podAnnotations: {}
 podSecurityContext: {}
 # fsGroup: 2000
 
-# generic security context
+# -- generic security context
 securityContext: {}
   # capabilities:
   #   drop:
@@ -206,13 +209,13 @@ securityContext: {}
 # runAsNonRoot: true
 # runAsUser: 1000
 
-# service specifications
+# -- service specifications
 service:
   type: ClusterIP
   port: 80
   annotations: {}
 
-# ingress specifications
+# -- ingress specifications
 ingress:
   enabled: false
   className: ""
@@ -229,14 +232,14 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-# currently not in use, specify backend in ingress instead
+# -- currently not in use, specify backend in ingress instead
 backendConfig:
   enabled: false
 
-# specify resources limits and requests if needed, prefilled values are the minimum recommended
+# -- specify resource limits and requests if needed, prefilled values are the minimum recommended
 resources:
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
+  # We usually recommend not specifying default resources and to leave this as a conscious
+  # choice for the user. This also increases the chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   # limits:
@@ -246,7 +249,7 @@ resources:
     cpu: 100m
     memory: 1Gi
 
-# set autoscaling parameters
+# -- autoscaling parameters
 autoscaling:
   enabled: false
   minReplicas: 1
@@ -270,7 +273,7 @@ initContainer:
     repository: curlimages/curl
     tag: 8.13.0@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd
 
-# opa provision the opa deployment, prefilled resources values are the minimum recommended
+# -- Open Policy Agent (OPA) configuration, prefilled resources values are the minimum recommended
 opa:
   enabled: true
   # -- set sidecar to true to run the opa service together with the zac pod
@@ -284,7 +287,7 @@ opa:
     annotations: {}
   image:
     repository: openpolicyagent/opa
-    tag: "1.4.2-static@sha256:3c995dc8a59f6ddfd92eb7404d2f7ff9fe71cd025d9251199957a8a6afbfd76e"
+    tag: "1.4.0-static@sha256:8eb5ef478f757fabba76dfdafb58ab85667c151415b4f3689d9f05acc635d8ea"
     pullPolicy: IfNotPresent
   # The settings below will be ignored when running as a sidecar (the zac values will be used instead)
   autoscaling:
@@ -315,7 +318,7 @@ opa:
 # See the zaakafhandelcomponent wiki on more information about this.
 #
 
-# solr enable to use the included solr helm chart to provision a solr to use with zac
+# -- Solr enable to use the included solr helm chart to provision a solr to use with zac
 solr:
   # -- set enabled to true to provision bitnami solr version with the zac core
   enabled: false
@@ -359,7 +362,7 @@ solr:
   zookeeper:
     enabled: false
 
-# requires the installation of the solr-operator crds: kubectl create -f https://solr.apache.org/operator/downloads/crds/v0.8.1/all-with-dependencies.yaml
+# -- requires the installation of the solr-operator crds: kubectl create -f https://solr.apache.org/operator/downloads/crds/v0.8.1/all-with-dependencies.yaml
 solr-operator:
   # -- annotations for solr-operator
   annotations: {}
@@ -511,7 +514,7 @@ solr-operator:
       # -- tolerations for zookeeper
       tolerations: []
 
-# office_converter use the office converter specified, prefilled resources values are the minimum recommended
+# -- office_converter configuration. Prefilled resources values are the minimum recommended
 office_converter:
   enabled: true
   # set url if the office-converter url cannot be automatically determined
@@ -550,7 +553,7 @@ office_converter:
 # -- Extra objects to deploy (value evaluated as a template)
 extraDeploy: []
 
-# opentelemetry-collector enable to use the included helm chart and settings to work with zac
+# -- opentelemetry-collector enable to use the included helm chart and settings to work with zac
 opentelemetry-collector:
   enabled: false
   mode: deployment
@@ -692,5 +695,5 @@ organizations:
     # -- The RSIN of the Non-natural person - the organization that created the zaak. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
     rsin: ""
 
-# -- OpenZaak Catalogus Domein
+# -- ZAC OpenZaak Catalogus Domein
 catalogusDomein: ALG
