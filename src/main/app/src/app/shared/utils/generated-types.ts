@@ -13,7 +13,7 @@ type NestedSchemaProperty<Type, Key> = Key extends `${infer P}.${infer R}`
     ? Type[Key]
     : never;
 
-// @depricated use `Api` instead
+// @deprecated use `Api` instead
 export type GeneratedType<Key extends keyof components["schemas"]> =
   NestedSchemaProperty<components["schemas"], Key>;
 
