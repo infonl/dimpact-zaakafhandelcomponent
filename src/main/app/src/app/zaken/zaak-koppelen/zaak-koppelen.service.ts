@@ -76,7 +76,11 @@ export class ZaakKoppelenService {
       dismiss,
       () => this.isDisabled(zaak.identificatie),
     );
-    this.utilService.addAction(action);
+
+    // Prevent the OLD handling/diolog from being opened (other code should still be preserved for the time being)
+    // Commented out code below triggers showing the action bar
+    //
+    // this.utilService.addAction(action);
   }
 
   private openDialog(zaak: Zaak, nieuwZaakID: string) {
@@ -84,9 +88,12 @@ export class ZaakKoppelenService {
     zaakKoppelGegevens.bronZaakUuid = zaak.uuid;
     zaakKoppelGegevens.doelZaakIdentificatie = nieuwZaakID;
 
-    this.dialog.open(ZaakKoppelenDialogComponent, {
-      data: zaakKoppelGegevens,
-    });
+    // Prevent the OLD handling/diolog from being opened (other code should still be preserved for the time being)
+    // Commented out code below trigger the actual linking dialog
+    //
+    // this.dialog.open(ZaakKoppelenDialogComponent, {
+    //   data: zaakKoppelGegevens,
+    // });
   }
 
   private deleteTeKoppelenZaak(zaak: Zaak) {
