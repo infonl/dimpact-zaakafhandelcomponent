@@ -14,6 +14,7 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.app.admin.converter.RESTZaaktypeOverzichtConverter
 import net.atos.zac.policy.PolicyService
+import net.atos.zac.policy.PolicyService.assertPolicy
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.admin.model.RESTBuildInformation
@@ -38,7 +39,7 @@ class HealthCheckRestService @Inject constructor(
     @GET
     @Path("zaaktypes")
     fun listZaaktypeInrichtingschecks(): List<RESTZaaktypeInrichtingscheck> {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         return listZaaktypes().map {
             convertToREST(healthCheckService.controleerZaaktype(it.url))
         }
@@ -47,13 +48,14 @@ class HealthCheckRestService @Inject constructor(
     @GET
     @Path("bestaat-communicatiekanaal-eformulier")
     fun readBestaatCommunicatiekanaalEformulier(): Boolean {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         return healthCheckService.bestaatCommunicatiekanaalEformulier()
     }
 
     @DELETE
     @Path("ztc-cache")
     fun clearZTCCaches(): ZonedDateTime {
+        assertPolicy(policyService.readOverigeRechten().beheren)
         ztcClientService.clearZaaktypeCache()
         ztcClientService.clearStatustypeCache()
         ztcClientService.clearResultaattypeCache()
@@ -67,13 +69,19 @@ class HealthCheckRestService @Inject constructor(
 
     @GET
     @Path("ztc-cache")
-    fun readZTCCacheTime() = ztcClientService.resetCacheTimeToNow()
+    fun readZTCCacheTime(): ZonedDateTime {
+        assertPolicy(policyService.readOverigeRechten().beheren)
+        return ztcClientService.resetCacheTimeToNow()
+    }
 
+    /**
+     * Returns the ZAC build information. This information may be read by all ZAC users.
+     */
     @GET
     @Path("build-informatie")
     fun readBuildInformatie() =
         healthCheckService.readBuildInformatie().let {
-            RESTBuildInformation(it.commit, it.buildId, it.buildDatumTijd, it.versienummer)
+            RESTBuildInformation(it.commit, it.buildId, it.buildDateTime, it.versionNumber)
         }
 
     private fun listZaaktypes() =
