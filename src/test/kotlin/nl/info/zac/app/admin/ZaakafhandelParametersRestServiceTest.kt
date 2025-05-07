@@ -227,7 +227,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
 
         When("storing templates mapping") {
             val exception = shouldThrow<SmartDocumentsConfigurationException> {
-                zaakafhandelParametersRestService.storeTemplatesMapping(
+                zaakafhandelParametersRestService.storeSmartDocumentsTemplatesMapping(
                     UUID.randomUUID(),
                     emptySet()
                 )
