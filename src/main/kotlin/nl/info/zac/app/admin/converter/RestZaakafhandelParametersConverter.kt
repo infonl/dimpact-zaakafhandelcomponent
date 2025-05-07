@@ -18,9 +18,10 @@ import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter.convertRESTZaa
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters
 import net.atos.zac.app.admin.converter.RESTZaaktypeOverzichtConverter
-import net.atos.zac.app.admin.converter.RestBetrokkeneKoppelingenConverter
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen
+import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen.Companion.toBetrokkeneKoppelingen
+import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen.Companion.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.zaak.model.RESTZaakStatusmailOptie
@@ -67,9 +68,9 @@ class RestZaakafhandelParametersConverter @Inject constructor(
                 enabledGlobally = smartDocumentsService.isEnabled(),
                 enabledForZaaktype = zaakafhandelParameters.isSmartDocumentsIngeschakeld
             ),
-            betrokkeneKoppelingen = zaakafhandelParameters.betrokkeneKoppelingen?.let {
-                RestBetrokkeneKoppelingenConverter.fromBetrokkeneKoppelingen(it)
-            } ?: RestBetrokkeneKoppelingen(),
+            betrokkeneKoppelingen = zaakafhandelParameters.betrokkeneKoppelingen
+                ?.toRestBetrokkeneKoppelingen()
+                ?: RestBetrokkeneKoppelingen(),
         )
         restZaakafhandelParameters.caseDefinition?.takeIf { inclusiefRelaties }?.let { caseDefinition ->
             zaakafhandelParameters.nietOntvankelijkResultaattype?.let {
@@ -147,10 +148,8 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             it.setZaakAfzenders(
                 convertRESTZaakAfzenders(restZaakafhandelParameters.zaakAfzenders)
             )
-            restZaakafhandelParameters.betrokkeneKoppelingen?.let { restBetrokkeneKoppelingen ->
-                it.betrokkeneKoppelingen = RestBetrokkeneKoppelingenConverter.fromRestBetrokkeneKoppelingen(
-                    restBetrokkeneKoppelingen, it
-                )
+            restZaakafhandelParameters.betrokkeneKoppelingen.let { restBetrokkeneKoppelingen ->
+                it.betrokkeneKoppelingen = restBetrokkeneKoppelingen.toBetrokkeneKoppelingen(it)
             }
         }
 }

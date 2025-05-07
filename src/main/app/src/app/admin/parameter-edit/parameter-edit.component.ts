@@ -71,6 +71,10 @@ export class ParameterEditComponent
     zaakAfzenders: [],
     userEventListenerParameters: [],
     zaaktype: {},
+    betrokkeneKoppelingen: {
+      brpKoppelen: false,
+      kvkKoppelen: false,
+    },
   };
 
   humanTaskParameters: GeneratedType<"RESTHumanTaskParameters">[] = [];
