@@ -15,7 +15,6 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-
 import net.atos.zac.util.FlywayIntegrator;
 
 @Entity
