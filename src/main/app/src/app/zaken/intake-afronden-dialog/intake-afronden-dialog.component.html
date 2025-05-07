@@ -32,35 +32,51 @@
   <div *ngIf="formGroup.get('ontvankelijk').dirty">
     <div *ngIf="!formGroup.get('ontvankelijk').value">
       <p
+        *ngIf="this.data.zaak.isOpgeschort"
+        [innerHTML]="
+          'planitem.INTAKE_AFRONDEN.toelichting.opgeshort' | translate
+        "
         class="readonly"
-        [innerHTML]="'planitem.INTAKE_AFRONDEN.toelichting' | translate"
       ></p>
-      <mat-form-field appearance="fill" class="full-width">
-        <mat-label>{{ "redenNietOntvankelijk" | translate }}</mat-label>
-        <textarea
-          id="redenNietOntvankelijk"
-          formControlName="reden"
-          maxlength="100"
-          matInput
-        ></textarea>
-        <mat-hint align="end"
-          >{{ formGroup.get("reden").value.length }}/100</mat-hint
-        >
-        <mat-error>{{
-          getError(formGroup.get("reden"), "redenNietOntvankelijk")
-        }}</mat-error>
-      </mat-form-field>
+      <ng-container *ngIf="!this.data.zaak.isOpgeschort">
+        <p
+          [innerHTML]="'planitem.INTAKE_AFRONDEN.toelichting' | translate"
+          class="readonly"
+        ></p>
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>{{ "redenNietOntvankelijk" | translate }}</mat-label>
+          <textarea
+            id="redenNietOntvankelijk"
+            formControlName="reden"
+            maxlength="100"
+            matInput
+          ></textarea>
+          <mat-hint align="end"
+            >{{ formGroup.get("reden").value.length }}/100</mat-hint
+          >
+          <mat-error>{{
+            getError(formGroup.get("reden"), "redenNietOntvankelijk")
+          }}</mat-error>
+        </mat-form-field>
+      </ng-container>
     </div>
-    <div>
+    <ng-container
+      *ngIf="
+        formGroup.get('ontvankelijk').value ||
+        (!formGroup.get('ontvankelijk').value && !this.data.zaak.isOpgeschort)
+      "
+    >
       <mat-checkbox
         *ngIf="mailBeschikbaar"
         id="sendMail"
         formControlName="sendMail"
         >{{ "sendMail" | translate }}</mat-checkbox
       >
-    </div>
-    <div *ngIf="formGroup.get('sendMail').value">
-      <mat-form-field appearance="fill" class="full-width">
+      <mat-form-field
+        *ngIf="formGroup.get('sendMail').value"
+        appearance="fill"
+        class="full-width"
+      >
         <mat-label>{{ "verzender" | translate }}</mat-label>
         <mat-select
           placeholder="{{ 'verzender.-kies-' | translate }}"
@@ -81,9 +97,11 @@
           </mat-option>
         </mat-select>
       </mat-form-field>
-    </div>
-    <div *ngIf="formGroup.get('sendMail').value">
-      <mat-form-field appearance="fill" class="full-width">
+      <mat-form-field
+        *ngIf="formGroup.get('sendMail').value"
+        appearance="fill"
+        class="full-width"
+      >
         <button
           *ngIf="initiatorEmail"
           mat-icon-button
@@ -109,27 +127,28 @@
           getError(formGroup.get("ontvanger"), "ontvanger")
         }}</mat-error>
       </mat-form-field>
-    </div>
-    <mat-expansion-panel
-      class="mat-elevation-z0"
-      *ngIf="formGroup.get('sendMail').value"
-    >
-      <mat-expansion-panel-header>
-        {{ "body" | translate }}
-      </mat-expansion-panel-header>
-      <div
-        *ngIf="formGroup.get('ontvankelijk').value"
-        class="readonly"
-        [innerHTML]="zaakOntvankelijkMail?.body"
-      ></div>
-      <div
-        *ngIf="!formGroup.get('ontvankelijk').value"
-        class="readonly"
-        [innerHTML]="zaakNietOntvankelijkMail?.body"
-      ></div>
-    </mat-expansion-panel>
+      <mat-expansion-panel
+        class="mat-elevation-z0"
+        *ngIf="formGroup.get('sendMail').value"
+      >
+        <mat-expansion-panel-header>
+          {{ "body" | translate }}
+        </mat-expansion-panel-header>
+        <div
+          *ngIf="formGroup.get('ontvankelijk').value"
+          class="readonly"
+          [innerHTML]="zaakOntvankelijkMail?.body"
+        ></div>
+        <div
+          *ngIf="!formGroup.get('ontvankelijk').value"
+          class="readonly"
+          [innerHTML]="zaakNietOntvankelijkMail?.body"
+        ></div>
+      </mat-expansion-panel>
+    </ng-container>
   </div>
 </div>
+
 <div mat-dialog-actions>
   <button
     mat-raised-button
