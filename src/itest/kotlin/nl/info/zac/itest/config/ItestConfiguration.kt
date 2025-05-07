@@ -417,6 +417,12 @@ object ItestConfiguration {
     lateinit var zaakProductaanvraag1Uuid: UUID
 
     /**
+     * Global variable to store the UUID of a zaaktype that is created in the integration tests
+     * from a productaanvraag.
+     */
+    lateinit var zaakTypeProductaanvraag1UuId: UUID
+
+    /**
      * Global variable to store the UUID of a zaak that is created in the integration tests
      * from a productaanvraag.
      */

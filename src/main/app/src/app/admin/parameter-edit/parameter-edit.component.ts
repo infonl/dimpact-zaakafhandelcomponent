@@ -134,7 +134,7 @@ export class ParameterEditComponent
         referentieTabelService.listDomeinen(),
         referentieTabelService.listAfzenders(),
         zaakafhandelParametersService.listReplyTos(),
-        identityService.listGroups(),
+        identityService.listGroupsForZaakType(this.parameters.zaaktype.uuid),
         zaakafhandelParametersService.listZaakbeeindigRedenen(),
         mailtemplateBeheerService.listKoppelbareMailtemplates(),
         zaakafhandelParametersService.listResultaattypes(
