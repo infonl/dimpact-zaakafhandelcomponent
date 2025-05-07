@@ -52,7 +52,6 @@ export class IdentityService {
   listGroupsForZaakType(
     zaaktypeUuid?: string,
   ): Observable<GeneratedType<"RestGroup">[]> {
-    console.log(zaaktypeUuid);
     if (!zaaktypeUuid) {
       return this.listGroups();
     }
