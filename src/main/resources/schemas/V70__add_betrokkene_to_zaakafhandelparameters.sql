@@ -18,8 +18,9 @@ CREATE TABLE ${schema}.betrokkene_koppelingen (
 CREATE SEQUENCE ${schema}.sq_betrokkene_koppelingen START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
 
 -- Add values to the new table for existing zaakafhandelparameters
-INSERT INTO ${schema}.betrokkene_koppelingen (id_zaakafhandelparameters, brpKoppelen, kvkKoppelen)
+INSERT INTO ${schema}.betrokkene_koppelingen (id_betrokkene_koppelingen, id_zaakafhandelparameters, brpKoppelen, kvkKoppelen)
 SELECT
+    nextval('${schema}.sq_betrokkene_koppelingen'), -- Generate IDs using the sequence
     id_zaakafhandelparameters,
     FALSE, -- Default value for brpKoppelen
     FALSE  -- Default value for kvkKoppelen
