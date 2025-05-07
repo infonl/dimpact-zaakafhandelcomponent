@@ -707,10 +707,7 @@ export class ZaakViewComponent
     this.actionsSidenav.close();
 
     if (this.zaak.isOpgeschort) {
-      this.dialog.open(ActieOnmogelijkDialogComponent, {
-        data: this.translate.instant("actie.zaak.afbreken.opgeschort"),
-      });
-
+      this.dialog.open(ActieOnmogelijkDialogComponent);
       return;
     }
 
