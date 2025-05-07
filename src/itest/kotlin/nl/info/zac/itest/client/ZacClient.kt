@@ -206,6 +206,10 @@ class ZacClient {
               },
               "smartDocuments": {
                  "enabledForZaaktype": true
+              },
+              "betrokkeneKoppelingen": {
+                "brpKoppelen": true,
+                "kvkKoppelen": true
               }
             }
             """.trimIndent()

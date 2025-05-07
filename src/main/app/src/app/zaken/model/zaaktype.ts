@@ -1,10 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ZaakafhandelParameters } from "../../admin/model/zaakafhandel-parameters";
 import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaaktypeRelatie } from "./zaaktype-relatie";
 
 export class Zaaktype {
@@ -24,5 +24,5 @@ export class Zaaktype {
   verlengingstermijn: number;
   zaaktypeRelaties: ZaaktypeRelatie[];
   informatieobjecttypes?: string[];
-  zaakafhandelparameters: ZaakafhandelParameters;
+  zaakafhandelparameters: GeneratedType<"RestZaakafhandelParameters">;
 }

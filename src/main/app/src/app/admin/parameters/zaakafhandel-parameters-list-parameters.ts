@@ -6,15 +6,14 @@
 import { SortDirection } from "@angular/material/sort";
 import { ListParameters } from "../../shared/model/list-parameters";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
-import { Zaaktype } from "../../zaken/model/zaaktype";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { DatumRange } from "../../zoeken/model/datum-range";
-import { CaseDefinition } from "../model/case-definition";
 
 export class ZaakafhandelParametersListParameters extends ListParameters {
   valide: ToggleSwitchOptions = ToggleSwitchOptions.INDETERMINATE;
   geldig: ToggleSwitchOptions = ToggleSwitchOptions.INDETERMINATE;
-  zaaktype: Partial<Zaaktype> | null = null;
-  caseDefinition: Partial<CaseDefinition> | null = null;
+  zaaktype: Partial<GeneratedType<"RestZaaktype">> | null = null;
+  caseDefinition: Partial<GeneratedType<"RESTCaseDefinition">> | null = null;
   beginGeldigheid = new DatumRange();
   eindeGeldigheid = new DatumRange();
 
