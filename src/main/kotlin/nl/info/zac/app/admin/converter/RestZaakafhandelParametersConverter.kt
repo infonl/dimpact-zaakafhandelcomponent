@@ -39,7 +39,6 @@ class RestZaakafhandelParametersConverter @Inject constructor(
     val ztcClientService: ZtcClientService,
     val zaakafhandelParameterService: ZaakafhandelParameterService,
     val smartDocumentsService: SmartDocumentsService,
-    val restBetrokkeneKoppelingenConverter: RestBetrokkeneKoppelingenConverter
 ) {
     fun toRestZaakafhandelParameters(
         zaakafhandelParameters: ZaakafhandelParameters,
@@ -69,7 +68,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
                 enabledForZaaktype = zaakafhandelParameters.isSmartDocumentsIngeschakeld
             ),
             betrokkeneKoppelingen = zaakafhandelParameters.betrokkeneKoppelingen?.let {
-                restBetrokkeneKoppelingenConverter.convert(it)
+                RestBetrokkeneKoppelingenConverter.fromBetrokkeneKoppelingen(it)
             } ?: RestBetrokkeneKoppelingen(),
         )
         restZaakafhandelParameters.caseDefinition?.takeIf { inclusiefRelaties }?.let { caseDefinition ->
@@ -148,8 +147,10 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             it.setZaakAfzenders(
                 convertRESTZaakAfzenders(restZaakafhandelParameters.zaakAfzenders)
             )
-            it.betrokkeneKoppelingen = restBetrokkeneKoppelingenConverter.convert(
-                restZaakafhandelParameters.betrokkeneKoppelingen, it
-            )
+            restZaakafhandelParameters.betrokkeneKoppelingen?.let { restBetrokkeneKoppelingen ->
+                it.betrokkeneKoppelingen = RestBetrokkeneKoppelingenConverter.fromRestBetrokkeneKoppelingen(
+                    restBetrokkeneKoppelingen, it
+                )
+            }
         }
 }
