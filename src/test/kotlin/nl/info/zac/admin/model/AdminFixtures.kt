@@ -5,6 +5,7 @@
 
 package nl.info.zac.admin.model
 
+import net.atos.zac.admin.model.BetrokkeneKoppelingen
 import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.admin.model.HumanTaskReferentieTabel
 import net.atos.zac.admin.model.MailtemplateKoppeling
@@ -87,6 +88,7 @@ fun createZaakafhandelParameters(
         this.productaanvraagtype = productaanvraagtype
         this.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
         this.caseDefinitionID = caseDefinitionId
+        this.betrokkeneKoppelingen = createBetrokkeneKoppelingen(zaakafhandelParameters = this)
         setMailtemplateKoppelingen(
             setOf(
                 createMailtemplateKoppelingen(
@@ -131,4 +133,16 @@ fun createZaakAfzender(
     this.isDefault = defaultMail
     this.mail = mail
     this.replyTo = replyTo
+}
+
+fun createBetrokkeneKoppelingen(
+    id: Long = 1234L,
+    zaakafhandelParameters: ZaakafhandelParameters,
+    brpKoppelen: Boolean = true,
+    kvkKoppelen: Boolean = true
+) = BetrokkeneKoppelingen().apply {
+    this.id = id
+    this.zaakafhandelParameters = zaakafhandelParameters
+    this.brpKoppelen = brpKoppelen
+    this.kvkKoppelen = kvkKoppelen
 }
