@@ -151,6 +151,8 @@ class ZaakKoppelenRestService @Inject constructor(
                             it.toString().contains(uuid)
                         }
                     } ?: false
-            else -> throw UnsupportedOperationException("Unsupported link type: $relationType")
+            else -> throw UnsupportedOperationException(
+                "Unsupported link type: $relationType for ${sourceZaak.identificatie} -> ${this.identificatie}"
+            )
         }
 }

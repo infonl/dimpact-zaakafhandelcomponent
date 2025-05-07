@@ -14,6 +14,7 @@ import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2000_03_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2024_01_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
@@ -47,7 +48,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             }
         }
         itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/zaken/zaak/id/ZAAK-2000-0000000003"
+            "$ZAC_API_URI/zaken/zaak/id/$ZAAK_MANUAL_2000_03_IDENTIFICATION"
         ).use { getZaakResponse ->
             val responseBody = getZaakResponse.body!!.string()
             logger.info { "Response: $responseBody" }
@@ -103,7 +104,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "type": "ZAAK"
                     },
                     {
-                      "identificatie": "ZAAK-2000-0000000003",
+                      "identificatie": "$ZAAK_MANUAL_2000_03_IDENTIFICATION",
                       "isKoppelbaar": true,
                       "omschrijving": "fakeOmschrijving",
                       "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
@@ -134,7 +135,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("link zaak-ZAAK-2000-0000000003 as hoofdzaak to $ZAAK_MANUAL_2024_01_IDENTIFICATION") {
+        When("link $ZAAK_MANUAL_2000_03_IDENTIFICATION as hoofdzaak to $ZAAK_MANUAL_2024_01_IDENTIFICATION") {
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/zaak/koppel",
                 requestBodyAsString = """
@@ -196,7 +197,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "type": "ZAAK"
                     },
                     {
-                      "identificatie": "ZAAK-2000-0000000003",
+                      "identificatie": "$ZAAK_MANUAL_2000_03_IDENTIFICATION",
                       "isKoppelbaar": false,
                       "omschrijving": "fakeOmschrijving",
                       "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
