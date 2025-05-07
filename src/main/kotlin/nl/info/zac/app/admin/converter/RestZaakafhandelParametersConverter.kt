@@ -20,10 +20,10 @@ import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.conve
 import net.atos.zac.app.admin.converter.RESTZaaktypeOverzichtConverter
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen
-import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen.Companion.toBetrokkeneKoppelingen
-import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen.Companion.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
+import nl.info.zac.app.admin.model.toBetrokkeneKoppelingen
+import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.zaak.model.RESTZaakStatusmailOptie
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.smartdocuments.SmartDocumentsService
