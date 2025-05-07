@@ -81,8 +81,8 @@ import nl.info.zac.app.zaak.converter.RestDecisionConverter
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
+import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowed
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
-import nl.info.zac.app.zaak.exception.InitiatorNotAllowed
 import nl.info.zac.app.zaak.model.RESTReden
 import nl.info.zac.app.zaak.model.RESTZaakAfbrekenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
@@ -1233,12 +1233,12 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.uuid)
             } returns zaakafhandelParameters
 
-            val exception = shouldThrow<InitiatorNotAllowed> {
+            val exception = shouldThrow<BetrokkeneNotAllowed> {
                 zaakRestService.createZaak(zaakAanmaakGegevens)
             }
 
             Then("An error should be thrown") {
-                exception.errorCode shouldBe ErrorCode.ERROR_CODE_CASE_INITIATOR_NOT_ALLOWED
+                exception.errorCode shouldBe ErrorCode.ERROR_CODE_CASE_BETROKKENE_NOT_ALLOWED
             }
         }
     }

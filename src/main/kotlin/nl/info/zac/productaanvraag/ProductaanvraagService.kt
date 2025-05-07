@@ -444,12 +444,12 @@ class ProductaanvraagService @Inject constructor(
                 val firstZaakafhandelparameters = zaakafhandelparameters.first()
                 productaanvraag.betrokkenen?.forEach {
                     it.inpBsn?.let {
-                        if(!firstZaakafhandelparameters.betrokkeneKoppelingen.brpKoppelen) {
+                        if (!firstZaakafhandelparameters.betrokkeneKoppelingen.brpKoppelen) {
                             throw BetrokkeneNotAllowed()
                         }
                     }
                     it.innNnpId?.let {
-                        if(!firstZaakafhandelparameters.betrokkeneKoppelingen.kvkKoppelen) {
+                        if (!firstZaakafhandelparameters.betrokkeneKoppelingen.kvkKoppelen) {
                             throw BetrokkeneNotAllowed()
                         }
                     }
@@ -460,7 +460,7 @@ class ProductaanvraagService @Inject constructor(
                     productaanvraag,
                     productaanvraagObject
                 )
-            } catch(exception: BetrokkeneNotAllowed) {
+            } catch (exception: BetrokkeneNotAllowed) {
                 logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
             } catch (exception: RuntimeException) {
                 logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
