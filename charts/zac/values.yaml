@@ -148,8 +148,9 @@ signaleringen:
 
 # -- OpenTelemetry configuration. Only read when opentelemetry-collector is enabled
 opentelemetry_zaakafhandelcomponent:
+  # -- Enables or disables the ZAC OpenTelemetry integration. Disabled by default.
   disabled: "-true"
-  # -- OpenTelemetry collector URL. For example: http://opentelemetry-collector.default.svc.cluster.local:4317
+  # -- OpenTelemetry collector endpoint URL
   endpoint: ""
 
 
