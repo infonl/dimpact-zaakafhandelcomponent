@@ -5,7 +5,7 @@
 
 import { Coordinate } from "ol/coordinate";
 import { GeometryType } from "../../zaken/model/geometryType";
-import { Api } from "../utils/generated-types";
+import { GeneratedType } from "../utils/generated-types";
 
 export class LocationUtil {
   /**
@@ -23,7 +23,7 @@ export class LocationUtil {
   }
 
   public static coordinateToPoint([x, y]: Coordinate) {
-    const geometry: Api<"RestGeometry"> = {
+    const geometry: GeneratedType<"RestGeometry"> = {
       type: GeometryType.POINT,
       point: {
         latitude: y,
@@ -34,7 +34,7 @@ export class LocationUtil {
   }
 
   public static pointToCoordinate(
-    point: Api<"RestGeometry">["point"],
+    point: GeneratedType<"RestGeometry">["point"],
   ): Coordinate {
     if (!point) return [0, 0];
 
@@ -43,7 +43,7 @@ export class LocationUtil {
     return [longitude ?? 0, latitude ?? 0];
   }
 
-  public static format(geometry?: Api<"RestGeometry">) {
+  public static format(geometry?: GeneratedType<"RestGeometry">) {
     if (geometry?.type == GeometryType.POINT) {
       return geometry.point?.latitude + ", " + geometry.point?.longitude;
     }

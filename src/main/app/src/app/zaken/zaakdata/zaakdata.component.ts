@@ -12,7 +12,7 @@ import {
   FormGroup,
 } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
-import { Api } from "../../shared/utils/generated-types";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -20,7 +20,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaakdata.component.html",
 })
 export class ZaakdataComponent implements OnInit {
-  @Input({ required: true }) zaak!: Api<"RestZaak">;
+  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Input() readonly = false;
   bezigMetOpslaan = false;

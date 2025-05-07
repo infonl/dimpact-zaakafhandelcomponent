@@ -40,7 +40,7 @@ import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
-import { Api, GeneratedType } from "../../shared/utils/generated-types";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
 import { Taak } from "../model/taak";
 import { TaakStatus } from "../model/taak-status.enum";
@@ -62,7 +62,7 @@ export class TaakViewComponent
   zaakDocumentenComponent!: ZaakDocumentenComponent;
 
   taak: Taak;
-  zaak: Api<"RestZaak">;
+  zaak: GeneratedType<"RestZaak">;
   formulier: AbstractTaakFormulier;
   formConfig: FormConfig;
   formulierDefinitie: FormulierDefinitie;
@@ -160,7 +160,7 @@ export class TaakViewComponent
     }
   }
 
-  private createTaakForm(taak: Taak, zaak: Api<"RestZaak">): void {
+  private createTaakForm(taak: Taak, zaak: GeneratedType<"RestZaak">): void {
     if (taak.formulierDefinitieId) {
       this.createHardCodedTaakForm(taak, zaak);
     } else if (taak.formulierDefinitie) {
@@ -170,7 +170,10 @@ export class TaakViewComponent
     }
   }
 
-  private createHardCodedTaakForm(taak: Taak, zaak: Api<"RestZaak">): void {
+  private createHardCodedTaakForm(
+    taak: Taak,
+    zaak: GeneratedType<"RestZaak">,
+  ): void {
     if (
       this.taak.status !== TaakStatus.Afgerond &&
       this.taak.rechten.wijzigen
@@ -524,12 +527,14 @@ export class TaakViewComponent
   private createZaakFromTaak(taak: Taak): void {
     const zaaktype = {
       omschrijving: taak.zaaktypeOmschrijving,
-    } satisfies Partial<Api<"RestZaaktype">> as Api<"RestZaaktype">;
+    } satisfies Partial<
+      GeneratedType<"RestZaaktype">
+    > as GeneratedType<"RestZaaktype">;
 
     this.zaak = {
       identificatie: taak.zaakIdentificatie,
       uuid: taak.zaakUuid,
       zaaktype,
-    } satisfies Partial<Api<"RestZaak">> as Api<"RestZaak">;
+    } satisfies Partial<GeneratedType<"RestZaak">> as GeneratedType<"RestZaak">;
   }
 }

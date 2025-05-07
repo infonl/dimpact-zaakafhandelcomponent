@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Api } from "../../shared/utils/generated-types";
+import { GeneratedType } from "../../shared/utils/generated-types";
 
 export class GeometryGegevens {
   constructor(
-    public geometry: Api<"RestGeometry">,
+    public geometry: GeneratedType<"RestGeometry">,
     public reden: string,
   ) {}
 }

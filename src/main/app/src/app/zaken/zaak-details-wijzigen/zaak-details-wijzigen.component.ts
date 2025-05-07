@@ -30,7 +30,7 @@ import { AbstractFormField } from "src/app/shared/material-form-builder/model/ab
 import { FormConfig } from "src/app/shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "src/app/shared/material-form-builder/model/form-config-builder";
 import { OrderUtil } from "src/app/shared/order/order-util";
-import { Api, GeneratedType } from "src/app/shared/utils/generated-types";
+import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -39,7 +39,7 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./zaak-details-wijzigen.component.less"],
 })
 export class CaseDetailsEditComponent implements OnDestroy, OnInit {
-  @Input({ required: true }) zaak!: Api<"RestZaak">;
+  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input({ required: true }) loggedInUser!: GeneratedType<"RestLoggedInUser">;
   @Input({ required: true }) sideNav!: MatDrawer;
 
@@ -348,7 +348,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     void this.updateZaak(this.createZaakPatch(updates));
   }
 
-  locationChanged(update?: Api<"RestGeometry">) {
+  locationChanged(update?: GeneratedType<"RestGeometry">) {
     this.zaak.zaakgeometrie = update;
     this.reasonField.formControl.enable();
   }
@@ -362,10 +362,10 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
       groep: (assignment as { groep: GeneratedType<"RestGroup"> }).groep,
       behandelaar: (assignment as { medewerker: GeneratedType<"RestUser"> })
         .medewerker,
-    } satisfies Partial<Api<"RestZaak">>;
+    } satisfies Partial<GeneratedType<"RestZaak">>;
   }
 
-  private async updateZaak(zaak: Partial<Api<"RestZaak">>) {
+  private async updateZaak(zaak: Partial<GeneratedType<"RestZaak">>) {
     const reason = this.reasonField.formControl.value;
     const subscriptions: Subscription[] = [];
 
@@ -401,7 +401,10 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     );
   }
 
-  private patchBehandelaar(zaak: Partial<Api<"RestZaak">>, reason?: string) {
+  private patchBehandelaar(
+    zaak: Partial<GeneratedType<"RestZaak">>,
+    reason?: string,
+  ) {
     if (
       zaak.behandelaar?.id === this.zaak.behandelaar?.id &&
       zaak.groep?.id === this.zaak.groep?.id

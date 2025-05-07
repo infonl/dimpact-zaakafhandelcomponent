@@ -5,7 +5,7 @@
 
 import { Pipe, PipeTransform } from "@angular/core";
 import { LocationUtil } from "../location/location-util";
-import { Api } from "../utils/generated-types";
+import { GeneratedType } from "../utils/generated-types";
 
 @Pipe({
   name: "location",
@@ -13,7 +13,7 @@ import { Api } from "../utils/generated-types";
 export class LocationPipe implements PipeTransform {
   constructor() {}
 
-  transform(value: Api<"RestGeometry"> | string | null) {
+  transform(value: GeneratedType<"RestGeometry"> | string | null) {
     if (!value) return null;
 
     return LocationUtil.format(

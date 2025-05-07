@@ -36,7 +36,7 @@ import {
   NotificationDialogComponent,
   NotificationDialogData,
 } from "../../shared/notification-dialog/notification-dialog.component";
-import { Api, GeneratedType } from "../../shared/utils/generated-types";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { DocumentCreationData } from "../model/document-creation-data";
 
@@ -48,7 +48,7 @@ import { DocumentCreationData } from "../model/document-creation-data";
 export class InformatieObjectCreateAttendedComponent
   implements OnInit, OnDestroy
 {
-  @Input() zaak: Api<"RestZaak">;
+  @Input() zaak: GeneratedType<"RestZaak">;
   @Input() taak: Taak;
   @Input() sideNav: MatDrawer;
   @Output() document = new EventEmitter<DocumentCreationData>();

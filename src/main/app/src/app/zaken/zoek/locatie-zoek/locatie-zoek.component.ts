@@ -38,7 +38,7 @@ import {
   LocationService,
   SuggestResult,
 } from "../../../shared/location/location.service";
-import { Api } from "../../../shared/utils/generated-types";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { GeometryGegevens } from "../../model/geometry-gegevens";
 import { GeometryType } from "../../model/geometryType";
 
@@ -48,20 +48,20 @@ import { GeometryType } from "../../model/geometryType";
   styleUrls: ["./locatie-zoek.component.less"],
 })
 export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
-  @Input({ required: true }) currentLocation!: Api<"RestGeometry">;
+  @Input({ required: true }) currentLocation!: GeneratedType<"RestGeometry">;
   @Input() readonly = false;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Input({ required: true }) reasonControl!: FormControl<string>;
   @Output() locatie = new EventEmitter<GeometryGegevens>();
   @Output() locationChanged = new EventEmitter<
-    Api<"RestGeometry"> | undefined
+    GeneratedType<"RestGeometry"> | undefined
   >();
   @ViewChild("openLayersMap", { static: true }) openLayersMapRef: ElementRef;
-  markerLocatie?: Api<"RestGeometry">;
+  markerLocatie?: GeneratedType<"RestGeometry">;
   nearestAddress: AddressResult;
   searchControl = new FormControl();
   searchResults: SuggestResult[] = [];
-  initialLocation: Api<"RestGeometry">;
+  initialLocation: GeneratedType<"RestGeometry">;
 
   private unsubscribe$: Subject<void> = new Subject<void>();
 
@@ -234,7 +234,10 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
     this.setLocation();
   }
 
-  private setLocation(geometry?: Api<"RestGeometry">, fromSearch = true) {
+  private setLocation(
+    geometry?: GeneratedType<"RestGeometry">,
+    fromSearch = true,
+  ) {
     this.markerLocatie = geometry;
     this.clearPreviousMarker();
     this.searchControl.reset();

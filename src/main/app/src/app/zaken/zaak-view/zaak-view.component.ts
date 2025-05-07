@@ -59,7 +59,7 @@ import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
-import { Api } from "../../shared/utils/generated-types";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { Taak } from "../../taken/model/taak";
 import { TaakStatus } from "../../taken/model/taak-status.enum";
 import { TakenService } from "../../taken/taken.service";
@@ -83,13 +83,13 @@ export class ZaakViewComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   readonly indicatiesLayout = IndicatiesLayout;
-  zaak!: Api<"RestZaak">;
-  zaakOpschorting!: Api<"RESTZaakOpschorting">;
+  zaak!: GeneratedType<"RestZaak">;
+  zaakOpschorting!: GeneratedType<"RESTZaakOpschorting">;
   menu: MenuItem[] = [];
   actiefPlanItem: PlanItem | null = null;
   activeSideAction: string | null = null;
-  teWijzigenBesluit!: Api<"RestDecision">;
-  documentToMove!: Partial<Api<"RestEnkelvoudigInformatieobject">>;
+  teWijzigenBesluit!: GeneratedType<"RestDecision">;
+  documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
   takenDataSource = new MatTableDataSource<ExpandableTableData<Taak>>();
   allTakenExpanded = false;
@@ -142,7 +142,7 @@ export class ZaakViewComponent
   notitieType = NotitieType.ZAAK;
   dateFieldIcon = new Map<string, TextIcon>();
   viewInitialized = false;
-  loggedInUser!: Api<"RestLoggedInUser">;
+  loggedInUser!: GeneratedType<"RestLoggedInUser">;
 
   private zaakListener!: WebsocketListener;
   private zaakRollenListener!: WebsocketListener;
@@ -231,7 +231,7 @@ export class ZaakViewComponent
     );
   }
 
-  init(zaak: Api<"RestZaak">): void {
+  init(zaak: GeneratedType<"RestZaak">): void {
     this.zaak = zaak;
     this.utilService.disableActionBar(!zaak.rechten.wijzigen);
     this.loadHistorie();
@@ -658,7 +658,7 @@ export class ZaakViewComponent
 
   createUserEventListenerDialog(planItem: PlanItem): {
     dialogComponent: ComponentType<unknown>;
-    dialogData: { zaak: Api<"RestZaak">; planItem: PlanItem };
+    dialogData: { zaak: GeneratedType<"RestZaak">; planItem: PlanItem };
   } {
     switch (planItem.userEventListenerActie) {
       case UserEventListenerActie.IntakeAfronden:
@@ -770,7 +770,7 @@ export class ZaakViewComponent
     this.actionsSidenav.close();
     const dialogData = new DialogData<
       unknown,
-      { toelichting: string; resultaattype: Api<"RestResultaattype"> }
+      { toelichting: string; resultaattype: GeneratedType<"RestResultaattype"> }
     >(
       [
         new SelectFormFieldBuilder()
@@ -867,16 +867,17 @@ export class ZaakViewComponent
         const duurVerkortingOpschorting: number =
           werkelijkeOpschortDuur - (this.zaakOpschorting?.duurDagen ?? 0);
 
-        const zaakOpschortGegevens: Api<"RESTZaakOpschortGegevens"> = {
-          indicatieOpschorting: false,
-          duurDagen: werkelijkeOpschortDuur,
-          uiterlijkeEinddatumAfdoening: moment(
-            this.zaak.uiterlijkeEinddatumAfdoening,
-          )
-            .add(duurVerkortingOpschorting, "days")
-            .format("YYYY-MM-DD"),
-          redenOpschorting: redenOpschortingField,
-        };
+        const zaakOpschortGegevens: GeneratedType<"RESTZaakOpschortGegevens"> =
+          {
+            indicatieOpschorting: false,
+            duurDagen: werkelijkeOpschortDuur,
+            uiterlijkeEinddatumAfdoening: moment(
+              this.zaak.uiterlijkeEinddatumAfdoening,
+            )
+              .add(duurVerkortingOpschorting, "days")
+              .format("YYYY-MM-DD"),
+            redenOpschorting: redenOpschortingField,
+          };
 
         if (this.zaak.einddatumGepland) {
           zaakOpschortGegevens.einddatumGepland = moment(
@@ -1209,7 +1210,7 @@ export class ZaakViewComponent
   }
 
   startZaakOntkoppelenDialog(
-    gerelateerdeZaak: Api<"RestGerelateerdeZaak">,
+    gerelateerdeZaak: GeneratedType<"RestGerelateerdeZaak">,
   ): void {
     this.dialog
       .open(ZaakOntkoppelenDialogComponent, {
@@ -1234,14 +1235,14 @@ export class ZaakViewComponent
     this.sluitSidenav();
   }
 
-  besluitWijzigen($event: Api<"RestDecision">): void {
+  besluitWijzigen($event: GeneratedType<"RestDecision">): void {
     this.activeSideAction = "actie.besluit.wijzigen";
     this.teWijzigenBesluit = $event;
     this.actionsSidenav.open();
   }
 
   documentMoveToCase(
-    $event: Partial<Api<"RestEnkelvoudigInformatieobject">>,
+    $event: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>,
   ): void {
     this.activeSideAction = "actie.document.verplaatsen";
     this.documentToMove = $event;

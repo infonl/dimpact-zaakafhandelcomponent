@@ -8,7 +8,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { ZaakRelatietype } from "../../../zaken/model/zaak-relatietype";
 import { ZaakZoekObject } from "../../../zoeken/model/zaken/zaak-zoek-object";
 import { Indicatie } from "../../model/indicatie";
-import { Api } from "../../utils/generated-types";
+import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
 
 export enum ZaakIndicatie {
@@ -29,7 +29,7 @@ export class ZaakIndicatiesComponent
   implements OnChanges
 {
   @Input() zaakZoekObject: ZaakZoekObject;
-  @Input() zaak: Api<"RestZaak">;
+  @Input() zaak: GeneratedType<"RestZaak">;
 
   constructor(private translateService: TranslateService) {
     super();

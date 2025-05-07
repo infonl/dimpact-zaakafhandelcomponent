@@ -12,7 +12,7 @@ import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { Api } from "../../shared/utils/generated-types";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { PlanItem } from "../model/plan-item";
 import { PlanItemType } from "../model/plan-item-type.enum";
 import { PlanItemsService } from "../plan-items.service";
@@ -28,7 +28,7 @@ export class HumanTaskDoComponent implements OnInit {
   private formulier: AbstractTaakFormulier;
   @Input() planItem: PlanItem;
   @Input() sideNav: MatDrawer;
-  @Input() zaak: Api<"RestZaak">;
+  @Input() zaak: GeneratedType<"RestZaak">;
   @Output() done = new EventEmitter<void>();
 
   constructor(

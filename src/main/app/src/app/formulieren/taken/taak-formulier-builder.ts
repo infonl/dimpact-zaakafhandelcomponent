@@ -7,7 +7,7 @@ import { HumanTaskData } from "../../plan-items/model/human-task-data";
 import { PlanItem } from "../../plan-items/model/plan-item";
 import { DividerFormFieldBuilder } from "../../shared/material-form-builder/form-components/divider/divider-form-field-builder";
 import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
-import { Api, GeneratedType } from "../../shared/utils/generated-types";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { Taak } from "../../taken/model/taak";
 import { TaakStatus } from "../../taken/model/taak-status.enum";
 import { AbstractTaakFormulier } from "./abstract-taak-formulier";
@@ -19,7 +19,10 @@ export class TaakFormulierBuilder {
     this._formulier = formulier;
   }
 
-  startForm(planItem: PlanItem, zaak: Api<"RestZaak">): TaakFormulierBuilder {
+  startForm(
+    planItem: PlanItem,
+    zaak: GeneratedType<"RestZaak">,
+  ): TaakFormulierBuilder {
     this._formulier.tabellen = planItem.tabellen;
     this._formulier.zaak = zaak;
     this._formulier.taakNaam = planItem.naam;
@@ -48,7 +51,10 @@ export class TaakFormulierBuilder {
     return this;
   }
 
-  behandelForm(taak: Taak, zaak: Api<"RestZaak">): TaakFormulierBuilder {
+  behandelForm(
+    taak: Taak,
+    zaak: GeneratedType<"RestZaak">,
+  ): TaakFormulierBuilder {
     this._formulier.zaak = zaak;
     this._formulier.taak = taak;
     this._formulier.tabellen = taak.tabellen;

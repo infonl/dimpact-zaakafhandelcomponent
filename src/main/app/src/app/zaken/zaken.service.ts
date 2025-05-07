@@ -15,7 +15,7 @@ import { Roltype } from "../klanten/model/klanten/roltype";
 import { TableRequest } from "../shared/dynamic-table/datasource/table-request";
 import { HistorieRegel } from "../shared/historie/model/historie-regel";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { Api, GeneratedType } from "../shared/utils/generated-types";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { ZaakZoekObject } from "../zoeken/model/zaken/zaak-zoek-object";
 import { Zaak } from "./model/zaak";
 import { ZaakAfbrekenGegevens } from "./model/zaak-afbreken-gegevens";
@@ -70,7 +70,10 @@ export class ZakenService {
   updateZaak(
     uuid: string,
     update: {
-      zaak: Omit<Partial<Api<"RestZaak">>, "zaakgeometrie" | "behandelaar">;
+      zaak: Omit<
+        Partial<GeneratedType<"RestZaak">>,
+        "zaakgeometrie" | "behandelaar"
+      >;
       reden?: string;
     },
   ) {
@@ -78,7 +81,7 @@ export class ZakenService {
       .PATCH(
         "/rest/zaken/zaak/{uuid}",
         {
-          zaak: update.zaak as Api<"RestZaak">,
+          zaak: update.zaak as GeneratedType<"RestZaak">,
           reden: update.reden ?? "",
         },
         {
@@ -148,7 +151,7 @@ export class ZakenService {
       );
   }
 
-  updateZaakdata(zaak: Api<"RestZaak">) {
+  updateZaakdata(zaak: GeneratedType<"RestZaak">) {
     return this.zacHttpClient
       .PUT("/rest/zaken/zaakdata", zaak)
       .pipe(
@@ -211,7 +214,7 @@ export class ZakenService {
       );
   }
 
-  updateInitiator(zaak: Api<"RestZaak">, initiator: Klant) {
+  updateInitiator(zaak: GeneratedType<"RestZaak">, initiator: Klant) {
     return this.zacHttpClient
       .PUT("/rest/zaken/initiator", {
         zaakUUID: zaak.uuid,
@@ -224,7 +227,7 @@ export class ZakenService {
       );
   }
 
-  deleteInitiator(zaak: Api<"RestZaak">, reden: string) {
+  deleteInitiator(zaak: GeneratedType<"RestZaak">, reden: string) {
     return this.zacHttpClient
       .DELETE("/rest/zaken/{uuid}/initiator", {
         pathParams: { path: { uuid: zaak.uuid } },
@@ -236,7 +239,7 @@ export class ZakenService {
   }
 
   createBetrokkene(
-    zaak: Api<"RestZaak">,
+    zaak: GeneratedType<"RestZaak">,
     betrokkene: Klant,
     roltype: Roltype,
     roltoelichting: string,

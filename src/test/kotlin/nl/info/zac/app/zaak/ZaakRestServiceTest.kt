@@ -1243,7 +1243,6 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-
     Given("A zaak with a zaakinformatieobject where the corresponding informatieobject is only linked to this zaak") {
         val zaakUUID = UUID.randomUUID()
         val informatieobjectUUID = UUID.randomUUID()

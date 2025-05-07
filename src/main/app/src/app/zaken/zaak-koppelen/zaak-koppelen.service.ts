@@ -9,7 +9,7 @@ import { Subject } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
 import { ViewResourceUtil } from "../../locatie/view-resource.util";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
-import { Api } from "../../shared/utils/generated-types";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakKoppelDialogGegevens } from "../model/zaak-koppel-dialog-gegevens";
 
 @Injectable({
@@ -21,24 +21,23 @@ export class ZaakKoppelenService {
     private dialog: MatDialog,
   ) {}
 
-  addTeKoppelenZaak(zaak: Api<"RestZaak">): void {
+  addTeKoppelenZaak(zaak: GeneratedType<"RestZaak">): void {
     if (!this.isReedsTeKoppelen(zaak)) {
       this._koppelenZaak(zaak);
     }
   }
 
-  isReedsTeKoppelen(zaak: Api<"RestZaak">): boolean {
-    const teKoppelenZaken = SessionStorageUtil.getItem<Api<"RestZaak">[]>(
-      "teKoppelenZaken",
-      [],
-    );
+  isReedsTeKoppelen(zaak: GeneratedType<"RestZaak">): boolean {
+    const teKoppelenZaken = SessionStorageUtil.getItem<
+      GeneratedType<"RestZaak">[]
+    >("teKoppelenZaken", []);
     return (
       teKoppelenZaken.find((_zaak) => _zaak.uuid === zaak.uuid) !== undefined
     );
   }
 
   appInit() {
-    const zaken = SessionStorageUtil.getItem<Api<"RestZaak">[]>(
+    const zaken = SessionStorageUtil.getItem<GeneratedType<"RestZaak">[]>(
       "teKoppelenZaken",
       [],
     );
@@ -47,7 +46,7 @@ export class ZaakKoppelenService {
     });
   }
 
-  private _koppelenZaak(zaak: Api<"RestZaak">, onInit?: boolean) {
+  private _koppelenZaak(zaak: GeneratedType<"RestZaak">, onInit?: boolean) {
     const dismiss: Subject<void> = new Subject<void>();
     dismiss.asObservable().subscribe(() => {
       this.deleteTeKoppelenZaak(zaak);
@@ -58,10 +57,9 @@ export class ZaakKoppelenService {
       if (!nieuwZaakID) return;
       this.openDialog(zaak, nieuwZaakID);
     });
-    const teKoppelenZaken = SessionStorageUtil.getItem<Api<"RestZaak">[]>(
-      "teKoppelenZaken",
-      [],
-    );
+    const teKoppelenZaken = SessionStorageUtil.getItem<
+      GeneratedType<"RestZaak">[]
+    >("teKoppelenZaken", []);
     teKoppelenZaken.push(zaak);
     if (!onInit) {
       SessionStorageUtil.setItem("teKoppelenZaken", teKoppelenZaken);
@@ -81,7 +79,7 @@ export class ZaakKoppelenService {
     // this.utilService.addAction(action);
   }
 
-  private openDialog(zaak: Api<"RestZaak">, nieuwZaakID: string) {
+  private openDialog(zaak: GeneratedType<"RestZaak">, nieuwZaakID: string) {
     const zaakKoppelGegevens = new ZaakKoppelDialogGegevens();
     zaakKoppelGegevens.bronZaakUuid = zaak.uuid;
     zaakKoppelGegevens.doelZaakIdentificatie = nieuwZaakID;
@@ -94,8 +92,8 @@ export class ZaakKoppelenService {
     // });
   }
 
-  private deleteTeKoppelenZaak(zaak: Api<"RestZaak">) {
-    const zaken = SessionStorageUtil.getItem<Api<"RestZaak">[]>(
+  private deleteTeKoppelenZaak(zaak: GeneratedType<"RestZaak">) {
+    const zaken = SessionStorageUtil.getItem<GeneratedType<"RestZaak">[]>(
       "teKoppelenZaken",
       [],
     );

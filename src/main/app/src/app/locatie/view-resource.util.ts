@@ -3,8 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Api } from "../shared/utils/generated-types";
+import { GeneratedType } from "../shared/utils/generated-types";
 
-export const ViewResourceUtil: { actieveZaak: Api<"RestZaak"> | null } = {
+export const ViewResourceUtil: {
+  actieveZaak: GeneratedType<"RestZaak"> | null;
+} = {
   actieveZaak: null,
 };

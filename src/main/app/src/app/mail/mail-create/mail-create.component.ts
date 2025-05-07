@@ -28,7 +28,7 @@ import { AbstractFormField } from "../../shared/material-form-builder/model/abst
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { NavigationService } from "../../shared/navigation/navigation.service";
-import { Api, GeneratedType } from "../../shared/utils/generated-types";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { TakenService } from "../../taken/taken.service";
 import { ZakenService } from "../../zaken/zaken.service";
@@ -49,7 +49,7 @@ export class MailCreateComponent implements OnInit {
   };
 
   formConfig: FormConfig;
-  @Input() zaak: Api<"RestZaak">;
+  @Input() zaak: GeneratedType<"RestZaak">;
   @Input() sideNav: MatDrawer;
   @Output() mailVerstuurd = new EventEmitter<boolean>();
   fields: Array<AbstractFormField[]>;

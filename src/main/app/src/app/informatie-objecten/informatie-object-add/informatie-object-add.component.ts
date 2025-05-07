@@ -30,7 +30,7 @@ import { FormComponent } from "../../shared/material-form-builder/form/form/form
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { OrderUtil } from "../../shared/order/order-util";
-import { Api, GeneratedType } from "../../shared/utils/generated-types";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { Taak } from "../../taken/model/taak";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
@@ -42,7 +42,7 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
   styleUrls: ["./informatie-object-add.component.less"],
 })
 export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
-  @Input() zaak?: Api<"RestZaak">;
+  @Input() zaak?: GeneratedType<"RestZaak">;
   @Input() taak?: Taak;
   @Input() sideNav!: MatDrawer;
   @Output() document = new EventEmitter<

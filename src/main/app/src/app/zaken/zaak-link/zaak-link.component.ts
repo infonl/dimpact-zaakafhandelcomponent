@@ -16,7 +16,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
-import { Api, GeneratedType } from "src/app/shared/utils/generated-types";
+import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { ZaakRelatietype } from "../model/zaak-relatietype";
 import { ZakenService } from "../zaken.service";
@@ -27,7 +27,7 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./zaak-link.component.less"],
 })
 export class ZaakLinkComponent implements OnDestroy {
-  @Input({ required: true }) zaak!: Api<"RestZaak">;
+  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Output() zaakLinked = new EventEmitter();
 

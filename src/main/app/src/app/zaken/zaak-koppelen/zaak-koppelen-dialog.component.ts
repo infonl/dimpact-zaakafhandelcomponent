@@ -16,7 +16,7 @@ import { ReadonlyFormFieldBuilder } from "../../shared/material-form-builder/for
 import { SelectFormField } from "../../shared/material-form-builder/form-components/select/select-form-field";
 import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
 import { MaterialFormBuilderService } from "../../shared/material-form-builder/material-form-builder.service";
-import { Api } from "../../shared/utils/generated-types";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakKoppelDialogGegevens } from "../model/zaak-koppel-dialog-gegevens";
 import { ZaakKoppelGegevens } from "../model/zaak-koppel-gegevens";
 import { ZaakRelatietype } from "../model/zaak-relatietype";
@@ -29,8 +29,8 @@ import { ZaakKoppelenService } from "./zaak-koppelen.service";
 })
 export class ZaakKoppelenDialogComponent implements OnInit {
   loading: boolean;
-  bronZaak: Api<"RestZaak">;
-  doelZaak: Api<"RestZaak">;
+  bronZaak: GeneratedType<"RestZaak">;
+  doelZaak: GeneratedType<"RestZaak">;
   soortRadioFormField: RadioFormField;
   hoofddeelZaakSelectFormField: SelectFormField;
   relevanteZaakReadonlyFormField: ReadonlyFormField;
@@ -177,8 +177,8 @@ export class ZaakKoppelenDialogComponent implements OnInit {
   private optie(
     opties: { label: string; value: ZaakRelatietype }[],
     type: ZaakRelatietype,
-    bron: Api<"RestZaak">,
-    doel: Api<"RestZaak">,
+    bron: GeneratedType<"RestZaak">,
+    doel: GeneratedType<"RestZaak">,
   ): void {
     if (this.koppelbaar(type, bron, doel)) {
       opties.push({
@@ -190,8 +190,8 @@ export class ZaakKoppelenDialogComponent implements OnInit {
 
   private koppelbaar(
     type: ZaakRelatietype,
-    andere: Api<"RestZaak">,
-    onderhanden: Api<"RestZaak">,
+    andere: GeneratedType<"RestZaak">,
+    onderhanden: GeneratedType<"RestZaak">,
   ): boolean {
     if (type == ZaakRelatietype.HOOFDZAAK) {
       return this.koppelbaar(ZaakRelatietype.DEELZAAK, onderhanden, andere);
@@ -209,8 +209,8 @@ export class ZaakKoppelenDialogComponent implements OnInit {
 
   private label(
     type: ZaakRelatietype,
-    andere: Api<"RestZaak">,
-    onderhanden: Api<"RestZaak">,
+    andere: GeneratedType<"RestZaak">,
+    onderhanden: GeneratedType<"RestZaak">,
   ): string {
     return (
       type +
@@ -288,8 +288,8 @@ export class ZaakKoppelenDialogComponent implements OnInit {
   }
 
   private koppelZaak(
-    bronZaak: Api<"RestZaak">,
-    doelZaak: Api<"RestZaak">,
+    bronZaak: GeneratedType<"RestZaak">,
+    doelZaak: GeneratedType<"RestZaak">,
     relatieType: ZaakRelatietype,
     relatieTypeReverse: ZaakRelatietype,
   ) {
