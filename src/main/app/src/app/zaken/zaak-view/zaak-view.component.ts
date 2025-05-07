@@ -1383,13 +1383,7 @@ export class ZaakViewComponent
   }
 
   async menuItemChanged(event: string | null) {
-    if (event === "actie.zaak.koppelen") {
-      return;
-    }
-
-    setTimeout(() => {
-      this.activeSideAction = event;
-    }, 100);
+    this.activeSideAction = event;
   }
 
   protected canAddInitiator() {
