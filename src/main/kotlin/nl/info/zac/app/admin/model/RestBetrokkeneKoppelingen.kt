@@ -23,7 +23,7 @@ class RestBetrokkeneKoppelingen {
             }
 
         fun RestBetrokkeneKoppelingen.toBetrokkeneKoppelingen(
-            zaakafhandelParameters: ZaakafhandelParameters?
+            zaakafhandelParameters: ZaakafhandelParameters
         ): BetrokkeneKoppelingen = BetrokkeneKoppelingen().apply {
             id = this@toBetrokkeneKoppelingen.id
             brpKoppelen = this@toBetrokkeneKoppelingen.brpKoppelen
