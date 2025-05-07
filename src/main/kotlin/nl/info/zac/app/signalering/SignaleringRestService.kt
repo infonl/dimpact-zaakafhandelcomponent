@@ -29,7 +29,6 @@ import nl.info.zac.app.signalering.model.RestSignaleringTaskSummary
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.IdentityService
-import nl.info.zac.identity.model.Group
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
