@@ -31,6 +31,12 @@ private const val STATUS_TYPE_OMSCHRIJVING = "Afgerond"
 
 @Suppress("LargeClass")
 class ZaakKoppelenRestServiceTest : BehaviorSpec({
+    val zoekZaakIdentifier = "ZAAK-2000-00002"
+    val zaakTypeURI = URI(UUID.randomUUID().toString())
+    val zaakZoekObjectTypeUuid = UUID.randomUUID().toString()
+    val page = 0
+    val rows = 10
+
     val policyService = mockk<PolicyService>()
     val searchService = mockk<SearchService>()
     val zrcClientService = mockk<ZrcClientService>()
@@ -47,56 +53,49 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
     }
 
     Given("A valid zaak UUID and relationType is provided") {
-        val zaakUuid = UUID.randomUUID()
-        val zaakZoekUuid = UUID.randomUUID().toString()
-        val relationType = RelatieType.HOOFDZAAK
-        val zoekZaakIdentifier = "ZAAK-2000-00002"
-        val zaakTypeURI = URI(UUID.randomUUID().toString())
-        val zaakZoekObjectTypeUuid1 = UUID.randomUUID().toString()
-        val page = 0
-        val rows = 10
         val sourceZaak = createZaak(
-            uuid = zaakUuid,
             identificatie = "ZAAK-2000-00001",
             archiefnominatie = Archiefnominatie.BLIJVEND_BEWAREN,
             zaakTypeURI = zaakTypeURI
         )
 
-        val zaakZoekObject1 = createZaakZoekObject(
-            uuidAsString = zaakZoekUuid,
+        val zaakZoekObject = createZaakZoekObject(
             type = ZoekObjectType.ZAAK,
             zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
             identificatie = zoekZaakIdentifier,
             omschrijving = OMSCHRIJVING,
             statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
-            zaaktypeUuid = zaakZoekObjectTypeUuid1,
+            zaaktypeUuid = zaakZoekObjectTypeUuid,
             archiefNominatie = Archiefnominatie.BLIJVEND_BEWAREN.toString()
         )
 
-        val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject1), 1)
+        val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+
+        every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
+        every { searchService.zoek(any()) } returns zoekResultaat
+        every { policyService.readZaakRechten(sourceZaak).koppelen } returns true
+        every { policyService.readZaakRechten(zaakZoekObject).koppelen } returns true
+        every {
+            ztcClientService.readZaaktype(sourceZaak.zaaktype).deelzaaktypen
+        } returns listOf(URI(zaakZoekObjectTypeUuid))
 
         When("findLinkableZaken is called") {
-            every { zrcClientService.readZaak(zaakUuid) } returns sourceZaak
-            every { searchService.zoek(any()) } returns zoekResultaat
-            every { policyService.readZaakRechten(sourceZaak).koppelen } returns true
-            every { policyService.readZaakRechten(zaakZoekObject1).koppelen } returns true
-            every {
-                ztcClientService.readZaaktype(sourceZaak.zaaktype).deelzaaktypen
-            } returns listOf(URI(zaakZoekObjectTypeUuid1))
-
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = zaakUuid,
+                zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = relationType,
+                relationType = RelatieType.DEELZAAK,
                 page = page,
                 rows = rows
             )
 
             Then("a single linkable zaak should be returned") {
                 result.resultCount shouldBe 1
+            }
+
+            And("the returned zaak info should be correct") {
                 with(result.results.first()) {
-                    id shouldBe zaakZoekUuid
-                    type shouldBe zaakZoekObject1.getType()
+                    id shouldBe zaakZoekObject.getObjectId()
+                    type shouldBe zaakZoekObject.getType()
                     identificatie shouldBe zoekZaakIdentifier
                     omschrijving shouldBe OMSCHRIJVING
                     zaaktypeOmschrijving shouldBe ZAAK_TYPE_OMSCHRIJVING
@@ -105,12 +104,207 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            Then("required services should be invoked") {
-                verify { zrcClientService.readZaak(zaakUuid) }
-                verify { searchService.zoek(any()) }
-                verify { policyService.readZaakRechten(sourceZaak) }
-                verify { policyService.readZaakRechten(zaakZoekObject1) }
-                verify { ztcClientService.readZaaktype(sourceZaak.zaaktype) }
+            And("required services should be invoked") {
+                verify(exactly = 1) {
+                    zrcClientService.readZaak(sourceZaak.uuid)
+                    searchService.zoek(any())
+                    policyService.readZaakRechten(sourceZaak)
+                    policyService.readZaakRechten(zaakZoekObject)
+                    ztcClientService.readZaaktype(sourceZaak.zaaktype)
+                }
+            }
+        }
+    }
+
+    Given("A hoofdzaak with hoofdzaak link request") {
+        val deelzakenTypeUuid = UUID.randomUUID()
+
+        val hoofdzaak = createZaak(
+            identificatie = "ZAAK-2000-00001",
+            archiefnominatie = Archiefnominatie.BLIJVEND_BEWAREN,
+            zaakTypeURI = zaakTypeURI,
+            deelzaken = setOf(URI("https://example.com/deelzaak/$deelzakenTypeUuid"))
+        )
+
+        val zaakZoekObject = createZaakZoekObject(
+            type = ZoekObjectType.ZAAK,
+            zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
+            identificatie = zoekZaakIdentifier,
+            omschrijving = OMSCHRIJVING,
+            statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
+            zaaktypeUuid = zaakZoekObjectTypeUuid,
+            archiefNominatie = Archiefnominatie.BLIJVEND_BEWAREN.toString()
+        )
+
+        val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+
+        every { zrcClientService.readZaak(hoofdzaak.uuid) } returns hoofdzaak
+        every { searchService.zoek(any()) } returns zoekResultaat
+        every { policyService.readZaakRechten(hoofdzaak).koppelen } returns true
+        every { policyService.readZaakRechten(zaakZoekObject).koppelen } returns true
+
+        When("findLinkableZaken is called") {
+            val result = zaakKoppelenRestService.findLinkableZaken(
+                zaakUuid = hoofdzaak.uuid,
+                zoekZaakIdentifier = zoekZaakIdentifier,
+                relationType = RelatieType.HOOFDZAAK,
+                page = page,
+                rows = rows
+            )
+
+            Then("a single linkable zaak should be returned") {
+                result.resultCount shouldBe 1
+            }
+
+            And("the result should be correct") {
+                with(result.results.first()) {
+                    id shouldBe zaakZoekObject.getObjectId()
+                    type shouldBe zaakZoekObject.getType()
+                    identificatie shouldBe zoekZaakIdentifier
+                    omschrijving shouldBe OMSCHRIJVING
+                    zaaktypeOmschrijving shouldBe ZAAK_TYPE_OMSCHRIJVING
+                    statustypeOmschrijving shouldBe STATUS_TYPE_OMSCHRIJVING
+                    isKoppelbaar shouldBe false
+                }
+            }
+
+            And("required services should be invoked") {
+                verify(exactly = 1) {
+                    zrcClientService.readZaak(hoofdzaak.uuid)
+                    searchService.zoek(any())
+                    policyService.readZaakRechten(hoofdzaak)
+                    policyService.readZaakRechten(zaakZoekObject)
+                }
+            }
+        }
+    }
+
+    Given("A hoofdzaak with deelzaak link request") {
+        val deelzakenTypeUuid = UUID.randomUUID()
+
+        val hoofdzaak = createZaak(
+            identificatie = "ZAAK-2000-00001",
+            archiefnominatie = Archiefnominatie.BLIJVEND_BEWAREN,
+            zaakTypeURI = zaakTypeURI,
+            deelzaken = setOf(URI("https://example.com/deelzaak/$deelzakenTypeUuid"))
+        )
+
+        val zaakZoekObject = createZaakZoekObject(
+            type = ZoekObjectType.ZAAK,
+            zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
+            identificatie = zoekZaakIdentifier,
+            omschrijving = OMSCHRIJVING,
+            statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
+            zaaktypeUuid = zaakZoekObjectTypeUuid,
+            archiefNominatie = Archiefnominatie.BLIJVEND_BEWAREN.toString()
+        )
+
+        val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+
+        every { zrcClientService.readZaak(hoofdzaak.uuid) } returns hoofdzaak
+        every { searchService.zoek(any()) } returns zoekResultaat
+        every { policyService.readZaakRechten(hoofdzaak).koppelen } returns true
+        every { policyService.readZaakRechten(zaakZoekObject).koppelen } returns true
+        every {
+            ztcClientService.readZaaktype(hoofdzaak.zaaktype).deelzaaktypen
+        } returns listOf(URI(zaakZoekObjectTypeUuid))
+
+        When("findLinkableZaken is called") {
+            val result = zaakKoppelenRestService.findLinkableZaken(
+                zaakUuid = hoofdzaak.uuid,
+                zoekZaakIdentifier = zoekZaakIdentifier,
+                relationType = RelatieType.DEELZAAK,
+                page = page,
+                rows = rows
+            )
+
+            Then("a single linkable zaak should be returned") {
+                result.resultCount shouldBe 1
+            }
+
+            And("the result should be correct") {
+                with(result.results.first()) {
+                    id shouldBe zaakZoekObject.getObjectId()
+                    type shouldBe zaakZoekObject.getType()
+                    identificatie shouldBe zoekZaakIdentifier
+                    omschrijving shouldBe OMSCHRIJVING
+                    zaaktypeOmschrijving shouldBe ZAAK_TYPE_OMSCHRIJVING
+                    statustypeOmschrijving shouldBe STATUS_TYPE_OMSCHRIJVING
+                    isKoppelbaar shouldBe true
+                }
+            }
+
+            And("required services should be invoked") {
+                verify(exactly = 1) {
+                    zrcClientService.readZaak(hoofdzaak.uuid)
+                    searchService.zoek(any())
+                    policyService.readZaakRechten(hoofdzaak)
+                    policyService.readZaakRechten(zaakZoekObject)
+                    ztcClientService.readZaaktype(hoofdzaak.zaaktype)
+                }
+            }
+        }
+    }
+
+    Given("A deelzaak with hoofdzaak link request") {
+        val hoofdzaakUuid = UUID.randomUUID()
+
+        val deelzaak = createZaak(
+            identificatie = "ZAAK-2000-00001",
+            archiefnominatie = Archiefnominatie.BLIJVEND_BEWAREN,
+            zaakTypeURI = zaakTypeURI,
+            hoofdzaakUri = URI("https://example.com/deelzaak/$hoofdzaakUuid")
+        )
+
+        val zaakZoekObject = createZaakZoekObject(
+            type = ZoekObjectType.ZAAK,
+            zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
+            identificatie = zoekZaakIdentifier,
+            omschrijving = OMSCHRIJVING,
+            statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
+            zaaktypeUuid = zaakZoekObjectTypeUuid,
+            archiefNominatie = Archiefnominatie.BLIJVEND_BEWAREN.toString()
+        )
+
+        val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+
+        every { zrcClientService.readZaak(deelzaak.uuid) } returns deelzaak
+        every { searchService.zoek(any()) } returns zoekResultaat
+        every { policyService.readZaakRechten(deelzaak).koppelen } returns true
+        every { policyService.readZaakRechten(zaakZoekObject).koppelen } returns true
+
+        When("findLinkableZaken is called") {
+            val result = zaakKoppelenRestService.findLinkableZaken(
+                zaakUuid = deelzaak.uuid,
+                zoekZaakIdentifier = zoekZaakIdentifier,
+                relationType = RelatieType.HOOFDZAAK,
+                page = page,
+                rows = rows
+            )
+
+            Then("a single linkable zaak should be returned") {
+                result.resultCount shouldBe 1
+            }
+
+            And("the result should be correct") {
+                with(result.results.first()) {
+                    id shouldBe zaakZoekObject.getObjectId()
+                    type shouldBe zaakZoekObject.getType()
+                    identificatie shouldBe zoekZaakIdentifier
+                    omschrijving shouldBe OMSCHRIJVING
+                    zaaktypeOmschrijving shouldBe ZAAK_TYPE_OMSCHRIJVING
+                    statustypeOmschrijving shouldBe STATUS_TYPE_OMSCHRIJVING
+                    isKoppelbaar shouldBe false
+                }
+            }
+
+            And("required services should be invoked") {
+                verify(exactly = 1) {
+                    zrcClientService.readZaak(deelzaak.uuid)
+                    searchService.zoek(any())
+                    policyService.readZaakRechten(deelzaak)
+                    policyService.readZaakRechten(zaakZoekObject)
+                }
             }
         }
     }
