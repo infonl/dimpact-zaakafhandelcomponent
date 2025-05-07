@@ -179,7 +179,7 @@ export class ZaakCreateComponent {
 
     if (
       !caseType.zaakafhandelparameters?.betrokkeneKoppelingen?.kvkKoppelen &&
-      !caseType.zaakafhandelparameters?.betrokkeneKoppelingen?.kvkKoppelen
+      !caseType.zaakafhandelparameters?.betrokkeneKoppelingen?.brpKoppelen
     ) {
       this.form.controls.initiator.setValue(null);
     }
