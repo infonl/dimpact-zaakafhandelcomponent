@@ -507,10 +507,7 @@ export class ZaakViewComponent
   private createKoppelingenMenuItems(): void {
     if (this.zaak.rechten.behandelen || this.zaak.rechten.wijzigen) {
       this.menu.push(new HeaderMenuItem("koppelingen"));
-      if (
-        this.zaak.rechten.toevoegenBetrokkeneBedrijf ||
-        this.zaak.rechten.toevoegenBetrokkenePersoon
-      ) {
+      if (this.allowedToAddBetrokkene()) {
         this.menu.push(
           new ButtonMenuItem(
             "actie.betrokkene.toevoegen",
@@ -518,15 +515,16 @@ export class ZaakViewComponent
             "group_add",
           ),
         );
-        if (this.zaak.rechten.toevoegenBagObject) {
-          this.menu.push(
-            new ButtonMenuItem(
-              "actie.bagObject.toevoegen",
-              () => this.actionsSidenav.open(),
-              "add_home_work",
-            ),
-          );
-        }
+      }
+
+      if (this.zaak.rechten.toevoegenBagObject) {
+        this.menu.push(
+          new ButtonMenuItem(
+            "actie.bagObject.toevoegen",
+            () => this.actionsSidenav.open(),
+            "add_home_work",
+          ),
+        );
       }
 
       if (this.zaak.rechten.wijzigen) {
@@ -1408,14 +1406,14 @@ export class ZaakViewComponent
     return false;
   }
 
-  protected allowedToAddInitiator() {
-    const brpAllowd =
+  protected allowedToAddBetrokkene() {
+    const brpAllowed =
       !!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
         ?.brpKoppelen && this.zaak.rechten.toevoegenInitiatorPersoon;
     const kvkAllowed =
       !!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
         ?.kvkKoppelen && this.zaak.rechten.toevoegenInitiatorBedrijf;
 
-    return Boolean(brpAllowd || kvkAllowed);
+    return Boolean(brpAllowed || kvkAllowed);
   }
 }

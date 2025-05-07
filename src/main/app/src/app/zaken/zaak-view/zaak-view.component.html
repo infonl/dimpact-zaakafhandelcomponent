@@ -52,8 +52,16 @@
       (klantGegevens)="betrokkeneGeselecteerd($event)"
       [sideNav]="actionsSidenav"
       [zaaktypeUUID]="zaak.zaaktype.uuid"
-      [allowBedrijf]="!!zaak.rechten.toevoegenBetrokkeneBedrijf"
-      [allowPersoon]="!!zaak.rechten.toevoegenBetrokkenePersoon"
+      [allowBedrijf]="
+        !!zaak.rechten.toevoegenInitiatorBedrijf &&
+        !!zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+          ?.kvkKoppelen
+      "
+      [allowPersoon]="
+        !!zaak.rechten.toevoegenInitiatorPersoon &&
+        !!zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+          ?.brpKoppelen
+      "
     ></zac-klant-koppel>
     <zac-bag-zoek
       *ngSwitchCase="'actie.bagObject.toevoegen'"
@@ -158,7 +166,7 @@
         <zac-zaak-initiator-toevoegen
           class="w100 flex-1"
           *ngIf="canAddInitiator()"
-          [toevoegenToegestaan]="allowedToAddInitiator()"
+          [toevoegenToegestaan]="allowedToAddBetrokkene()"
           (add)="addOrEditZaakInitiator()"
         >
         </zac-zaak-initiator-toevoegen>

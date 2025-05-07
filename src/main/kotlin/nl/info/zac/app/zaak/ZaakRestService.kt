@@ -254,7 +254,7 @@ class ZaakRestService @Inject constructor(
         val zaaktypeUUID = restZaak.zaaktype.uuid
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUUID)
 
-        assertCanAddInitiator(restZaak)
+        assertCanAddBetrokkene(restZaak)
 
         // make sure to use the omschrijving of the zaaktype that was retrieved to perform
         // authorisation on zaaktype
@@ -318,7 +318,7 @@ class ZaakRestService @Inject constructor(
     ): RestZaak {
         val zaak = zrcClientService.readZaak(zaakUUID)
 
-        assertCanAddInitiator(restZaakEditMetRedenGegevens.zaak)
+        assertCanAddBetrokkene(restZaakEditMetRedenGegevens.zaak)
 
         with(policyService.readZaakRechten(zaak)) {
             assertPolicy(wijzigen)
@@ -793,6 +793,7 @@ class ZaakRestService @Inject constructor(
     fun listBetrokkenenVoorZaak(@PathParam("uuid") zaakUUID: UUID): List<RestZaakBetrokkene> {
         val zaak = zrcClientService.readZaak(zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak).lezen)
+        assertCanAddBetrokkene(restZaakConverter.toRestZaak(zaak))
         return zaakService.listBetrokkenenforZaak(zaak).toRestZaakBetrokkenen()
     }
 
@@ -1207,7 +1208,7 @@ class ZaakRestService @Inject constructor(
 
     private fun speciaalMail(mail: String): Speciaal? = if (!mail.contains("@")) Speciaal.valueOf(mail) else null
 
-    private fun assertCanAddInitiator(zaak: RestZaak) {
+    private fun assertCanAddBetrokkene(zaak: RestZaak) {
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
             zaak.zaaktype.uuid
         )

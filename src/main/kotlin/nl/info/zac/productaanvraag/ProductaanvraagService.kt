@@ -41,6 +41,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
+import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowed
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
@@ -441,12 +442,26 @@ class ProductaanvraagService @Inject constructor(
                     )
                 }
                 val firstZaakafhandelparameters = zaakafhandelparameters.first()
+                productaanvraag.betrokkenen?.forEach {
+                    it.inpBsn?.let {
+                        if(!firstZaakafhandelparameters.betrokkeneKoppelingen.brpKoppelen) {
+                            throw BetrokkeneNotAllowed()
+                        }
+                    }
+                    it.innNnpId?.let {
+                        if(!firstZaakafhandelparameters.betrokkeneKoppelingen.kvkKoppelen) {
+                            throw BetrokkeneNotAllowed()
+                        }
+                    }
+                }
                 LOG.fine { "Creating a zaak using a CMMN case with zaaktype UUID: '${firstZaakafhandelparameters.zaakTypeUUID}'" }
                 startZaakWithCmmnProcess(
                     firstZaakafhandelparameters.zaakTypeUUID,
                     productaanvraag,
                     productaanvraagObject
                 )
+            } catch(exception: BetrokkeneNotAllowed) {
+                logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
             } catch (exception: RuntimeException) {
                 logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
             }
