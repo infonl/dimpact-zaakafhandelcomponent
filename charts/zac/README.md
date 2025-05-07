@@ -75,7 +75,9 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | extraDeploy | list | `[]` | Extra objects to deploy (value evaluated as a template) |
 | featureFlags.bpmnSupport | bool | `false` | turns BPMN support on or off |
 | fullnameOverride | string | `""` | fullname to use |
-| gemeente | object | `{"code":"","mail":"","naam":""}` | Council specific configuration |
+| gemeente.code | string | `""` |  |
+| gemeente.mail | string | `""` |  |
+| gemeente.naam | string | `""` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/infonl/zaakafhandelcomponent"` |  |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
