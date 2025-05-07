@@ -57,8 +57,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
 
         When(
-            "searching for a DEELZAAK linkable zaken with 'ZAAK-2000' zaak identifier and then link teh linkable " +
-                "zaak"
+            """
+            searching for a DEELZAAK linkable zaken with 'ZAAK-2000' zaak identifier and then link the linkable
+            zaak
+            """.trimIndent()
         ) {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakUUID/zoek-koppelbare-zaken" +
