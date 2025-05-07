@@ -116,12 +116,7 @@ class ZaakKoppelenRestService @Inject constructor(
         (areBothOpen(sourceZaak, targetZaak) || areBothClosed(sourceZaak, targetZaak)) &&
             sourceZaak.hasLinkRights() &&
             targetZaak.hasLinkRights() &&
-            targetZaak.isLinkableTo(sourceZaak, relationType) &&
-            isAlreadyLinked(sourceZaak) &&
-            isAlreadyLinked(zrcClientService.readZaak(UUID.fromString(targetZaak.getObjectId())))
-
-    private fun isAlreadyLinked(zaak: Zaak) =
-        !(zaak.is_Hoofdzaak || zaak.isDeelzaak)
+            targetZaak.isLinkableTo(sourceZaak, relationType)
 
     private fun areBothOpen(sourceZaak: Zaak, targetZaak: ZaakZoekObject) =
         sourceZaak.isOpen && targetZaak.archiefNominatie == null
@@ -133,18 +128,29 @@ class ZaakKoppelenRestService @Inject constructor(
 
     private fun Zaak.hasLinkRights() = policyService.readZaakRechten(this).koppelen
 
-    private fun ZaakZoekObject.isLinkableTo(sourceZaak: Zaak, relationType: RelatieType) =
+    private fun ZaakZoekObject.isLinkableTo(sourceZaak: Zaak, relationType: RelatieType): Boolean =
         when (relationType) {
-            RelatieType.HOOFDZAAK -> sourceZaak.zaaktype.extractUuid().toString().let { uuid ->
-                ztcClientService.readZaaktype(UUID.fromString(this.zaaktypeUuid)).deelzaaktypen.any {
-                    it.toString().contains(uuid)
-                }
-            }
-            RelatieType.DEELZAAK -> this.zaaktypeUuid?.let { uuid ->
-                ztcClientService.readZaaktype(sourceZaak.zaaktype).deelzaaktypen.any {
-                    it.toString().contains(uuid)
-                }
-            } ?: false
+            RelatieType.HOOFDZAAK ->
+                // hoofdzaak to hoofdzaak link not allowed
+                !sourceZaak.is_Hoofdzaak &&
+                    // a zaak cannot have two hoofdzaken
+                    !sourceZaak.isDeelzaak &&
+                    // source zaak's zaaktype is allowed in target zaak as deelzaak
+                    sourceZaak.zaaktype.extractUuid().toString().let { uuid ->
+                        ztcClientService.readZaaktype(UUID.fromString(this.zaaktypeUuid)).deelzaaktypen.any {
+                            it.toString().contains(uuid)
+                        }
+                    }
+            RelatieType.DEELZAAK ->
+                // As per https://vng-realisatie.github.io/gemma-zaken/standaard/zaken
+                // "deelzaken van deelzaken zijn NIET toegestaan"
+                !sourceZaak.isDeelzaak &&
+                    // target zaak's zaaktype is allowed in source zaak as deelzaak
+                    this.zaaktypeUuid?.let { uuid ->
+                        ztcClientService.readZaaktype(sourceZaak.zaaktype).deelzaaktypen.any {
+                            it.toString().contains(uuid)
+                        }
+                    } ?: false
             else -> throw UnsupportedOperationException("Unsupported link type: $relationType")
         }
 }
