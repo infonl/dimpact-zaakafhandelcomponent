@@ -67,8 +67,8 @@ import nl.info.zac.app.zaak.converter.RestDecisionConverter
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
+import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowed
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
-import nl.info.zac.app.zaak.exception.InitiatorNotAllowed
 import nl.info.zac.app.zaak.model.RESTDocumentOntkoppelGegevens
 import nl.info.zac.app.zaak.model.RESTReden
 import nl.info.zac.app.zaak.model.RESTZaakAanmaakGegevens
@@ -1215,10 +1215,10 @@ class ZaakRestService @Inject constructor(
 
         zaak.initiatorIdentificatieType?.let {
             if (it.isKvK() && !zaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen) {
-                throw InitiatorNotAllowed()
+                throw BetrokkeneNotAllowed()
             }
             if (it.isBsn() && !zaakafhandelParameters.betrokkeneKoppelingen.brpKoppelen) {
-                throw InitiatorNotAllowed()
+                throw BetrokkeneNotAllowed()
             }
         }
     }
