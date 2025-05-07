@@ -18,7 +18,7 @@ import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.model.ReferenceTable.Systeem
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.healthcheck.exception.BuildInformationException
-import nl.info.zac.healthcheck.model.BuildInformatie
+import nl.info.zac.healthcheck.model.BuildInformation
 import nl.info.zac.healthcheck.model.ZaaktypeInrichtingscheck
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -50,7 +50,7 @@ class HealthCheckService @Inject constructor(
         private const val DEV_BUILD_ID = "dev"
     }
 
-    private var buildInformatie: BuildInformatie = createBuildInformatie()
+    private var buildInformation: BuildInformation = createBuildInformatie()
 
     fun bestaatCommunicatiekanaalEformulier() =
         referenceTableService.readReferenceTable(Systeem.COMMUNICATIEKANAAL.name).values.any {
@@ -79,9 +79,9 @@ class HealthCheckService @Inject constructor(
             }
         }
 
-    fun readBuildInformatie() = buildInformatie
+    fun readBuildInformatie() = buildInformation
 
-    private fun createBuildInformatie(): BuildInformatie {
+    private fun createBuildInformatie(): BuildInformation {
         val buildDatumTijdFile = File(BUILD_TIMESTAMP_FILE)
         val buildDateTime = if (buildDatumTijdFile.exists()) {
             try {
@@ -92,7 +92,7 @@ class HealthCheckService @Inject constructor(
         } else {
             null
         }
-        return BuildInformatie(
+        return BuildInformation(
             commitHash.orElse(null),
             branchName.orElse(null),
             buildDateTime,

@@ -6,17 +6,11 @@
 import { Injectable } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { Subject } from "rxjs";
-import {
-  ActionBarAction,
-  ActionEntityType,
-} from "../../core/actionbar/model/action-bar-action";
 import { UtilService } from "../../core/service/util.service";
 import { ViewResourceUtil } from "../../locatie/view-resource.util";
-import { ActionIcon } from "../../shared/edit/action-icon";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { Zaak } from "../model/zaak";
 import { ZaakKoppelDialogGegevens } from "../model/zaak-koppel-dialog-gegevens";
-import { ZaakKoppelenDialogComponent } from "./zaak-koppelen-dialog.component";
 
 @Injectable({
   providedIn: "root",
@@ -68,15 +62,19 @@ export class ZaakKoppelenService {
     if (!onInit) {
       SessionStorageUtil.setItem("teKoppelenZaken", teKoppelenZaken);
     }
-    const action: ActionBarAction = new ActionBarAction(
-      zaak.identificatie,
-      ActionEntityType.ZAAK,
-      zaak.identificatie,
-      new ActionIcon("link", "actie.zaak.koppelen", editAction),
-      dismiss,
-      () => this.isDisabled(zaak.identificatie),
-    );
-    this.utilService.addAction(action);
+
+    // Prevent the OLD handling/dialog from being opened (other code should still be preserved for the time being)
+    // Commented out code below triggers showing the action bar
+    //
+    // const action: ActionBarAction = new ActionBarAction(
+    //   zaak.identificatie,
+    //   ActionEntityType.ZAAK,
+    //   zaak.identificatie,
+    //   new ActionIcon("link", "actie.zaak.koppelen", editAction),
+    //   dismiss,
+    //   () => this.isDisabled(zaak.identificatie),
+    // );
+    // this.utilService.addAction(action);
   }
 
   private openDialog(zaak: Zaak, nieuwZaakID: string) {
@@ -84,9 +82,12 @@ export class ZaakKoppelenService {
     zaakKoppelGegevens.bronZaakUuid = zaak.uuid;
     zaakKoppelGegevens.doelZaakIdentificatie = nieuwZaakID;
 
-    this.dialog.open(ZaakKoppelenDialogComponent, {
-      data: zaakKoppelGegevens,
-    });
+    // Prevent the OLD handling/dialog from being opened (other code should still be preserved for the time being)
+    // Commented out code below trigger the actual linking dialog
+    //
+    // this.dialog.open(ZaakKoppelenDialogComponent, {
+    //   data: zaakKoppelGegevens,
+    // });
   }
 
   private deleteTeKoppelenZaak(zaak: Zaak) {

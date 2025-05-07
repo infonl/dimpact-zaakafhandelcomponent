@@ -13,6 +13,8 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.app.admin.converter.RESTZaaktypeOverzichtConverter
+import net.atos.zac.policy.PolicyService
+import net.atos.zac.policy.PolicyService.assertPolicy
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.admin.model.RESTBuildInformation
@@ -31,23 +33,29 @@ import java.time.ZonedDateTime
 class HealthCheckRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val configuratieService: ConfiguratieService,
-    private val healthCheckService: HealthCheckService
+    private val healthCheckService: HealthCheckService,
+    private val policyService: PolicyService
 ) {
     @GET
     @Path("zaaktypes")
-    fun listZaaktypeInrichtingschecks() =
-        listZaaktypes().map {
+    fun listZaaktypeInrichtingschecks(): List<RESTZaaktypeInrichtingscheck> {
+        assertPolicy(policyService.readOverigeRechten().beheren)
+        return listZaaktypes().map {
             convertToREST(healthCheckService.controleerZaaktype(it.url))
         }
+    }
 
     @GET
     @Path("bestaat-communicatiekanaal-eformulier")
-    fun readBestaatCommunicatiekanaalEformulier() =
-        healthCheckService.bestaatCommunicatiekanaalEformulier()
+    fun readBestaatCommunicatiekanaalEformulier(): Boolean {
+        assertPolicy(policyService.readOverigeRechten().beheren)
+        return healthCheckService.bestaatCommunicatiekanaalEformulier()
+    }
 
     @DELETE
     @Path("ztc-cache")
     fun clearZTCCaches(): ZonedDateTime {
+        assertPolicy(policyService.readOverigeRechten().beheren)
         ztcClientService.clearZaaktypeCache()
         ztcClientService.clearStatustypeCache()
         ztcClientService.clearResultaattypeCache()
@@ -61,13 +69,19 @@ class HealthCheckRestService @Inject constructor(
 
     @GET
     @Path("ztc-cache")
-    fun readZTCCacheTime() = ztcClientService.resetCacheTimeToNow()
+    fun readZTCCacheTime(): ZonedDateTime {
+        assertPolicy(policyService.readOverigeRechten().beheren)
+        return ztcClientService.resetCacheTimeToNow()
+    }
 
+    /**
+     * Returns the ZAC build information. This information may be read by all ZAC users.
+     */
     @GET
     @Path("build-informatie")
     fun readBuildInformatie() =
         healthCheckService.readBuildInformatie().let {
-            RESTBuildInformation(it.commit, it.buildId, it.buildDatumTijd, it.versienummer)
+            RESTBuildInformation(it.commit, it.buildId, it.buildDateTime, it.versionNumber)
         }
 
     private fun listZaaktypes() =

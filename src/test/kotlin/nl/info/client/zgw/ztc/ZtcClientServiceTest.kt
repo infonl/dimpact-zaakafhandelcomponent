@@ -5,6 +5,7 @@
 package nl.info.client.zgw.ztc
 
 import io.kotest.assertions.nondeterministic.eventually
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.equals.shouldBeEqual
@@ -13,9 +14,13 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import nl.info.client.zgw.ztc.ZtcClientService.Companion.MAX_CACHE_SIZE
+import nl.info.client.zgw.ztc.exception.CatalogusNotFoundException
+import nl.info.client.zgw.ztc.model.createCatalogus
+import nl.info.client.zgw.ztc.model.createCatalogusListParameters
 import nl.info.client.zgw.ztc.model.createZaakType
 import java.net.URI
 import java.time.ZonedDateTime
+import java.util.Optional
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
@@ -31,6 +36,37 @@ class ZtcClientServiceTest : BehaviorSpec({
 
     beforeEach {
         checkUnnecessaryStub()
+    }
+
+    Given("An existing catalogus for the given parameters") {
+        val catalogusListParameters = createCatalogusListParameters()
+        val expectedCatalogus = createCatalogus()
+        every { ztcClient.catalogusList(catalogusListParameters).singleResult } returns Optional.of(expectedCatalogus)
+
+        When("readCatalogus is called") {
+            val result = ztcClientService.readCatalogus(catalogusListParameters)
+
+            Then("it should return the expected catalogus") {
+                result shouldBe expectedCatalogus
+            }
+        }
+    }
+
+    Given("No catalog for the given parameters") {
+        val catalogusListParameters = createCatalogusListParameters()
+        every { ztcClient.catalogusList(catalogusListParameters).singleResult } returns Optional.empty()
+
+        When("readCatalogus is called") {
+            val exception = shouldThrow<CatalogusNotFoundException> {
+                ztcClientService.readCatalogus(catalogusListParameters)
+            }
+
+            Then("it should throw an exception") {
+                exception.message shouldBe
+                    "No catalogus found for catalogus list parameters " +
+                    "'CatalogusListParameters(domein=null, domeinIn=null, rsin=null, rsinIn=null, page=null)'."
+            }
+        }
     }
 
     Given("ZTC client service") {
