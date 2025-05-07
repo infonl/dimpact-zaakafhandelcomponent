@@ -50,8 +50,12 @@ export class IdentityService {
   }
 
   listGroupsForZaakType(
-    zaaktypeUuid: string,
+    zaaktypeUuid?: string,
   ): Observable<GeneratedType<"RestGroup">[]> {
+    console.log(zaaktypeUuid);
+    if (!zaaktypeUuid) {
+      return this.listGroups();
+    }
     return this.zacHttp
       .GET("/rest/identity/groups/zaaktype/{zaaktypeUuid}", {
         pathParams: { path: { zaaktypeUuid } },

@@ -40,7 +40,7 @@ export class ZaakCreateComponent {
   protected activeSideAction: string | null = null;
 
   private readonly inboxProductaanvraag: InboxProductaanvraag;
-  
+
   protected groups: Observable<GeneratedType<"RestGroup">[]> | null = null;
   protected users: GeneratedType<"RestUser">[] = [];
   protected caseTypes = this.zakenService.listZaaktypes();
@@ -106,13 +106,13 @@ export class ZaakCreateComponent {
 
     this.form.controls.zaaktype.valueChanges.subscribe((caseType) =>
       this.caseTypeSelected(caseType),
-  );
+    );
     this.form.controls.groep.valueChanges.subscribe((value) => {
       if (!value) {
         this.form.controls.behandelaar.setValue(null);
         this.form.controls.behandelaar.disable();
         return;
-      }      
+      }
       identityService.listUsersInGroup(value.id).subscribe((users) => {
         this.users = users ?? [];
         this.form.controls.behandelaar.enable();
@@ -164,13 +164,9 @@ export class ZaakCreateComponent {
   caseTypeSelected(caseType?: GeneratedType<"RestZaaktype"> | null): void {
     if (!caseType) return;
     const { zaakafhandelparameters, vertrouwelijkheidaanduiding } = caseType;
-    console.log(caseType.uuid);
-    
     this.form.controls.groep.enable();
+    this.groups = this.identityService.listGroupsForZaakType(caseType.uuid);
 
-    this.groups = this.identityService.listGroupsForZaakType(
-      caseType.uuid,);
-    
     this.groups.subscribe((groups) => {
       this.form.controls.groep.setValue(
         groups?.find(({ id }) => id === zaakafhandelparameters?.defaultGroepId),
