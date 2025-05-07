@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.58](https://img.shields.io/badge/Version-1.0.58-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
+![Version: 1.0.59](https://img.shields.io/badge/Version-1.0.59-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -48,8 +48,9 @@ The Github workflow will perform helm-linting and will bump the version if neede
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| additionalAllowedFileTypes | string | `nil` | An optional list of additional file extensions that can be uploaded |
 | affinity | object | `{}` | set affinity parameters |
-| auth.clientId | string | `""` | Client ID and secret as defined in the realm |
+| auth.clientId | string | `""` | Client ID and secret as defined in the Keycloak ZAC realm |
 | auth.realm | string | `""` |  |
 | auth.secret | string | `""` |  |
 | auth.server | string | `""` |  |
@@ -65,14 +66,14 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | brpApi.protocollering.originOin | string | `""` | If specified, enables the BRP Protocollering |
 | brpApi.protocollering.verwerking | string | `"zaakafhandelcomponent"` | Verwerking for BRP Protocollering |
 | brpApi.url | string | `""` |  |
-| catalogusDomein | string | `"ALG"` | OpenZaak Catalogus Domein |
+| catalogusDomein | string | `"ALG"` | ZAC OpenZaak Catalogus Domein |
 | contextUrl | string | `""` | External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com) |
-| db.host | string | `""` |  |
+| db.host | string | `""` | database.internal or 1.2.3.4 |
 | db.name | string | `""` |  |
 | db.password | string | `""` |  |
 | db.user | string | `""` |  |
 | extraDeploy | list | `[]` | Extra objects to deploy (value evaluated as a template) |
-| featureFlags.bpmnSupport | bool | `false` |  |
+| featureFlags.bpmnSupport | bool | `false` | turns BPMN support on or off |
 | fullnameOverride | string | `""` | fullname to use |
 | gemeente.code | string | `""` |  |
 | gemeente.mail | string | `""` |  |
@@ -88,17 +89,18 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | ingress.hosts[0].paths[0].path | string | `"/"` |  |
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` |  |
 | ingress.tls | list | `[]` |  |
-| initContainer | object | `{"enabled":true,"image":{"repository":"curlimages/curl","tag":"8.13.0@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd"}}` | set initContainer parameters |
+| initContainer.enabled | bool | `true` |  |
+| initContainer.image.repository | string | `"curlimages/curl"` |  |
+| initContainer.image.tag | string | `"8.13.0@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd"` |  |
 | keycloak.adminClient.id | string | `""` | Keycloak ZAC admin client name |
 | keycloak.adminClient.secret | string | `""` | Keycloak ZAC admin client secret |
 | klantinteractiesApi.token | string | `""` |  |
 | klantinteractiesApi.url | string | `""` |  |
 | kvkApi.apiKey | string | `""` |  |
 | kvkApi.url | string | `""` |  |
-| mail | object | `{"smtp":{"password":"","port":"587","server":"","username":""}}` | Email sending connection. SPF record needs to be properly setup in DNS |
 | mail.smtp.password | string | `""` | SMTP server password if authentication is required. Optional |
 | mail.smtp.port | string | `"587"` | SMTP server port: 587 for TLS, port 25 for relaying. Required |
-| mail.smtp.server | string | `""` | SMTP server host (for example localhost or in-v3.mailjet.com). Required |
+| mail.smtp.server | string | `""` | SMTP server host (for example, localhost or in-v3.mailjet.com). Required |
 | mail.smtp.username | string | `""` | SMTP server username if authentication is required. Optional |
 | maxFileSizeMB | int | `80` | Maximum size (in Mega Bytes) of files that can be uploaded. |
 | nameOverride | string | `""` | name to use |
@@ -185,7 +187,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.service.type | string | `"ClusterIP"` |  |
 | nginx.useXForwardedHost | bool | `false` |  |
 | nodeSelector | object | `{}` | set node selector parameters |
-| notificationsSecretKey | string | `""` |  |
+| notificationsSecretKey | string | `""` | API key for the ZGW Notificaties Consumer API integration; also needs to be configured in Open Notificaties |
 | objectenApi.token | string | `""` |  |
 | objectenApi.url | string | `""` |  |
 | office_converter.affinity | object | `{}` |  |
@@ -213,7 +215,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
 | opa.image.tag | string | `"1.4.2-static@sha256:3c995dc8a59f6ddfd92eb7404d2f7ff9fe71cd025d9251199957a8a6afbfd76e"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
-| opa.name | string | `"opa"` | set url if the opa url cannot be automatically determined and is not run as a sidecar. the opa url should be the url the openpolicyagent can be reached on from ZAC ( for example: http://release-opa.default.svc.cluster.local:8181 ) url: "" |
+| opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
 | opa.podAnnotations | object | `{}` |  |
 | opa.podSecurityContext | object | `{}` |  |
@@ -226,7 +228,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.service.type | string | `"ClusterIP"` |  |
 | opa.sidecar | bool | `false` | set sidecar to true to run the opa service together with the zac pod |
 | opa.tolerations | list | `[]` |  |
-| openForms.url | string | `""` |  |
+| openForms.url | string | `""` | Not used at the moment. |
 | opentelemetry-collector.config.receivers.jaeger | object | `{}` |  |
 | opentelemetry-collector.config.receivers.prometheus | object | `{}` |  |
 | opentelemetry-collector.config.receivers.zipkin | object | `{}` |  |
@@ -244,15 +246,17 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opentelemetry-collector.ports.zipkin.enabled | bool | `false` |  |
 | opentelemetry-collector.presets.clusterMetrics.enabled | bool | `false` |  |
 | opentelemetry-collector.replicaCount | int | `1` |  |
+| opentelemetry_zaakafhandelcomponent.disabled | string | `"-true"` | Enables or disables the ZAC OpenTelemetry integration. Disabled by default. |
+| opentelemetry_zaakafhandelcomponent.endpoint | string | `""` | OpenTelemetry collector endpoint URL |
 | organizations.bron.rsin | string | `""` | The RSIN of the Non-natural person - the organization that created the zaak. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef |
 | organizations.verantwoordelijke.rsin | string | `""` | The RSIN of the Non-natural person - the organization that is ultimately responsible for handling a zaak or establishing a decision. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef |
 | podAnnotations | object | `{}` | pod specific annotations |
 | podSecurityContext | object | `{}` | pod specific security context |
 | remoteDebug | bool | `false` | Enable Java remote debugging |
-| replicaCount | int | `1` | the number of replicas to run |
+| replicaCount | int | `1` | The number of replicas to run |
 | resources.requests.cpu | string | `"100m"` |  |
 | resources.requests.memory | string | `"1Gi"` |  |
-| securityContext | object | `{}` |  |
+| securityContext | object | `{}` | generic security context |
 | service.annotations | object | `{}` |  |
 | service.port | int | `80` |  |
 | service.type | string | `"ClusterIP"` |  |
@@ -278,7 +282,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | signaleringen.tolerations | list | `[]` |  |
 | smartDocuments.authentication | string | `""` | Authentication token |
 | smartDocuments.enabled | bool | `false` | Enable SmartDocuments integration for creating a new document |
-| smartDocuments.fixedUserName | string | `""` | If this setting is set, then templates in SmartDocuments cannot use user-specific values. |
+| smartDocuments.fixedUserName | string | `""` | If set this overrides the sending of the username of the user that is logged in to ZAC to SmartDocuments with a fixed value. This username is sent to SmartDocuments when creating a new document as an HTTP header. For most target environments this should not be set, assuming that all users that are available in ZAC are also available in the SmartDocuments environment with the same username. If this setting is set, then templates in SmartDocuments cannot use user-specific values. |
 | smartDocuments.url | string | `""` | URL to SmartDocuments instance. For example: https://partners.smartdocuments.com |
 | solr-operator.affinity | object | `{}` | affinity for solr-operator |
 | solr-operator.annotations | object | `{}` | annotations for solr-operator |

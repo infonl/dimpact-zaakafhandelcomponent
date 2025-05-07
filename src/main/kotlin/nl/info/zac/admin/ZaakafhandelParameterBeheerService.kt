@@ -9,6 +9,7 @@ import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.BetrokkeneKoppelingen
 import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.admin.model.MailtemplateKoppeling
 import net.atos.zac.admin.model.UserEventListenerParameters
@@ -165,7 +166,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         mapPreviousZaakafhandelparametersData(zaakafhandelParameters, zaaktype, previousZaakafhandelparameters)
         storeZaakafhandelParameters(zaakafhandelParameters)
 
-        // ZaakafhandelParameters and SmartDocumentsTemplates have circular relations. To solve this we update
+        // ZaakafhandelParameters and SmartDocumentsTemplates have circular relations. To solve this, we update
         // already existing ZaakafhandelParameters with SmartDocuments settings
         previousZaakafhandelparameters.zaakTypeUUID?.let { previousZaakafhandelparametersUuid ->
             mapSmartDocuments(previousZaakafhandelparametersUuid, zaakafhandelParameters.zaakTypeUUID)
@@ -215,6 +216,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         mapZaakbeeindigGegevens(previousZaakafhandelparameters, zaakafhandelParameters, zaaktype)
         mapMailtemplateKoppelingen(previousZaakafhandelparameters, zaakafhandelParameters)
         mapZaakAfzenders(previousZaakafhandelparameters, zaakafhandelParameters)
+        mapBetrokkeneKoppelingen(previousZaakafhandelparameters, zaakafhandelParameters)
     }
 
     private fun currentZaakafhandelParameters(zaaktypeUuid: UUID): ZaakafhandelParameters {
@@ -374,4 +376,13 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             zaakafhandelParameters = newZaakafhandelParameters
         }
     }.let(newZaakafhandelParameters::setZaakAfzenders)
+
+    private fun mapBetrokkeneKoppelingen(
+        previousZaakafhandelParameters: ZaakafhandelParameters,
+        newZaakafhandelParameters: ZaakafhandelParameters
+    ) = BetrokkeneKoppelingen().apply {
+        brpKoppelen = previousZaakafhandelParameters.betrokkeneKoppelingen.brpKoppelen
+        kvkKoppelen = previousZaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen
+        zaakafhandelParameters = newZaakafhandelParameters
+    }
 }

@@ -14,10 +14,24 @@ import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
+import nl.info.zac.app.signalering.model.RestSignaleringInstellingen
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
 import org.flowable.task.api.TaskInfo
 import java.time.ZonedDateTime
+
+fun createRestSignaleringInstellingen(
+    id: Long = 1234L,
+    type: SignaleringType = createSignaleringType(),
+    isDashboard: Boolean = true,
+    isMail: Boolean = true,
+) = RestSignaleringInstellingen(
+    id = id,
+    type = type.type,
+    subjecttype = type.subjecttype,
+    dashboard = isDashboard,
+    mail = isMail
+)
 
 @Suppress("LongParameterList")
 fun createSignalering(

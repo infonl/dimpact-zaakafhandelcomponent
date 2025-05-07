@@ -16,6 +16,9 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import net.atos.zac.app.shared.RESTResultaat
+import net.atos.zac.policy.PolicyService
+import net.atos.zac.policy.PolicyService.assertPolicy
+import net.atos.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
 import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.app.shared.RestPageParameters
@@ -39,6 +42,7 @@ import java.time.ZonedDateTime
 class SignaleringRestService @Inject constructor(
     private val signaleringService: SignaleringService,
     private val identityService: IdentityService,
+    private val policyService: PolicyService,
     private val restSignaleringInstellingenConverter: RestSignaleringInstellingenConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
@@ -106,19 +110,24 @@ class SignaleringRestService @Inject constructor(
     @Path("group/{groupId}/instellingen")
     fun listGroupSignaleringInstellingen(
         @PathParam("groupId") groupId: String
-    ): List<RestSignaleringInstellingen> =
-        SignaleringInstellingenZoekParameters(identityService.readGroup(groupId))
+    ): List<RestSignaleringInstellingen> {
+        assertPolicy(policyService.readOverigeRechten().beheren)
+        return SignaleringInstellingenZoekParameters(identityService.readGroup(groupId))
             .let(signaleringService::listInstellingenInclusiefMogelijke)
             .let(restSignaleringInstellingenConverter::convert)
+    }
 
     @PUT
     @Path("group/{groupId}/instellingen")
     fun updateGroupSignaleringInstellingen(
         @PathParam("groupId") groupId: String,
         restInstellingen: RestSignaleringInstellingen
-    ) = identityService.readGroup(groupId)
-        .let { restSignaleringInstellingenConverter.convert(restInstellingen, it) }
-        .let(signaleringService::createUpdateOrDeleteInstellingen)
+    ): SignaleringInstellingen? {
+        assertPolicy(policyService.readOverigeRechten().beheren)
+        return identityService.readGroup(groupId)
+            .let { restSignaleringInstellingenConverter.convert(restInstellingen, it) }
+            .let(signaleringService::createUpdateOrDeleteInstellingen)
+    }
 
     @GET
     @Path("/typen/dashboard")

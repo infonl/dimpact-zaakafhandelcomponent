@@ -23,6 +23,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
@@ -109,6 +110,9 @@ public class ZaakafhandelParameters {
     // The set is necessary for Hibernate when you have more than one eager collection on an entity.
     @OneToMany(mappedBy = "zaakafhandelParameters", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private Set<MailtemplateKoppeling> mailtemplateKoppelingen;
+
+    @OneToOne(mappedBy = "zaakafhandelParameters", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private BetrokkeneKoppelingen betrokkeneKoppelingen;
 
     // The set is necessary for Hibernate when you have more than one eager collection on an entity.
     @OneToMany(mappedBy = "zaakafhandelParameters", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
@@ -324,6 +328,14 @@ public class ZaakafhandelParameters {
 
     public void setSmartDocumentsIngeschakeld(boolean smartDocumentsIngeschakeld) {
         this.smartDocumentsIngeschakeld = smartDocumentsIngeschakeld;
+    }
+
+    public BetrokkeneKoppelingen getBetrokkeneKoppelingen() {
+        return betrokkeneKoppelingen;
+    }
+
+    public void setBetrokkeneKoppelingen(BetrokkeneKoppelingen betrokkeneKoppelingen) {
+        this.betrokkeneKoppelingen = betrokkeneKoppelingen;
     }
 
     /**
