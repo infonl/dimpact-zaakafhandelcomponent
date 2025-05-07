@@ -27,7 +27,7 @@ import { Subscription, forkJoin } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { Api } from "../../shared/utils/generated-types";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakStatusmailOptie } from "../../zaken/model/zaak-statusmail-optie";
 import { AdminComponent } from "../admin/admin.component";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
@@ -60,7 +60,7 @@ export class ParameterEditComponent
 
   isSmartDocumentsStepValid: boolean = true;
 
-  parameters: Api<"RestZaakafhandelParameters"> = {
+  parameters: GeneratedType<"RestZaakafhandelParameters"> = {
     humanTaskParameters: [],
     mailtemplateKoppelingen: [],
     zaakbeeindigParameters: [],
@@ -73,12 +73,17 @@ export class ParameterEditComponent
     zaaktype: {},
   };
 
-  humanTaskParameters: Api<"RESTHumanTaskParameters">[] = [];
-  userEventListenerParameters: Api<"RESTUserEventListenerParameter">[] = [];
-  zaakbeeindigParameters: Api<"RESTZaakbeeindigParameter">[] = [];
-  selection = new SelectionModel<Api<"RESTZaakbeeindigParameter">>(true);
+  humanTaskParameters: GeneratedType<"RESTHumanTaskParameters">[] = [];
+  userEventListenerParameters: GeneratedType<"RESTUserEventListenerParameter">[] =
+    [];
+  zaakbeeindigParameters: GeneratedType<"RESTZaakbeeindigParameter">[] = [];
+  selection = new SelectionModel<GeneratedType<"RESTZaakbeeindigParameter">>(
+    true,
+  );
   zaakAfzenders: string[] = [];
-  zaakAfzendersDataSource = new MatTableDataSource<Api<"RESTZaakAfzender">>();
+  zaakAfzendersDataSource = new MatTableDataSource<
+    GeneratedType<"RESTZaakAfzender">
+  >();
   mailtemplateKoppelingen =
     MailtemplateKoppelingMailUtil.getBeschikbareMailtemplateKoppelingen();
 
@@ -109,15 +114,15 @@ export class ParameterEditComponent
 
   mailOpties: { label: string; value: string }[] = [];
 
-  caseDefinitions: Api<"RESTCaseDefinition">[] = [];
+  caseDefinitions: GeneratedType<"RESTCaseDefinition">[] = [];
   domeinen: string[] = [];
-  groepen: Api<"RestGroup">[] = [];
-  medewerkers: Api<"RestLoggedInUser">[] = [];
-  resultaattypes: Api<"RestResultaattype">[] = [];
+  groepen: GeneratedType<"RestGroup">[] = [];
+  medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
+  resultaattypes: GeneratedType<"RestResultaattype">[] = [];
   referentieTabellen: ReferentieTabel[] = [];
   formulierDefinities: FormulierDefinitie[] = [];
-  zaakbeeindigRedenen: Api<"RESTZaakbeeindigReden">[] = [];
-  mailtemplates: Api<"RESTMailtemplate">[] = [];
+  zaakbeeindigRedenen: GeneratedType<"RESTZaakbeeindigReden">[] = [];
+  mailtemplates: GeneratedType<"RESTMailtemplate">[] = [];
   replyTos: ReplyTo[] = [];
   loading = false;
   subscriptions$: Subscription[] = [];
@@ -216,7 +221,7 @@ export class ParameterEditComponent
   }
 
   private readHumanTaskParameters(
-    caseDefinition: Api<"RESTCaseDefinition">,
+    caseDefinition: GeneratedType<"RESTCaseDefinition">,
   ): void {
     this.humanTaskParameters = [];
     this.caseDefinitions
@@ -234,7 +239,7 @@ export class ParameterEditComponent
   }
 
   private readUserEventListenerParameters(
-    caseDefinition: Api<"RESTCaseDefinition">,
+    caseDefinition: GeneratedType<"RESTCaseDefinition">,
   ): void {
     this.userEventListenerParameters = [];
     this.caseDefinitions
@@ -246,7 +251,7 @@ export class ParameterEditComponent
   }
 
   getHumanTaskControl(
-    parameter: Api<"RESTHumanTaskParameters">,
+    parameter: GeneratedType<"RESTHumanTaskParameters">,
     field: string,
   ): FormControl {
     const formGroup = this.humanTasksFormGroup.get(
@@ -325,7 +330,7 @@ export class ParameterEditComponent
   }
 
   isHumanTaskParameterValid(
-    humanTaskParameter: Api<"RESTHumanTaskParameters">,
+    humanTaskParameter: GeneratedType<"RESTHumanTaskParameters">,
   ): boolean {
     return (
       this.humanTasksFormGroup.get(
@@ -345,7 +350,7 @@ export class ParameterEditComponent
   }
 
   private getHumanTaskFormGroup(
-    humanTaskParameters: Api<"RESTHumanTaskParameters">,
+    humanTaskParameters: GeneratedType<"RESTHumanTaskParameters">,
   ): FormGroup {
     const humanTaskFormGroup: FormGroup = this.formBuilder.group({
       formulierDefinitie: [
@@ -386,7 +391,7 @@ export class ParameterEditComponent
   }
 
   private getReferentieTabel(
-    humanTaskParameters: Api<"RESTHumanTaskParameters">,
+    humanTaskParameters: GeneratedType<"RESTHumanTaskParameters">,
     veld: FormulierVeldDefinitie,
   ) {
     const humanTaskReferentieTabel =
@@ -456,12 +461,14 @@ export class ParameterEditComponent
     });
   }
 
-  isZaaknietontvankelijkParameter(parameter: Api<"RESTZaakbeeindigParameter">) {
+  isZaaknietontvankelijkParameter(
+    parameter: GeneratedType<"RESTZaakbeeindigParameter">,
+  ) {
     return parameter.zaakbeeindigReden === undefined;
   }
 
   private addZaakbeeindigParameter(
-    parameter: Api<"RESTZaakbeeindigParameter">,
+    parameter: GeneratedType<"RESTZaakbeeindigParameter">,
   ): void {
     this.zaakbeeindigParameters.push(parameter);
     this.zaakbeeindigFormGroup.addControl(
@@ -472,9 +479,9 @@ export class ParameterEditComponent
   }
 
   private getZaaknietontvankelijkParameter(
-    zaakafhandelParameters: Api<"RestZaakafhandelParameters">,
+    zaakafhandelParameters: GeneratedType<"RestZaakafhandelParameters">,
   ) {
-    const parameter: Api<"RESTZaakbeeindigParameter"> = {
+    const parameter: GeneratedType<"RESTZaakbeeindigParameter"> = {
       resultaattype:
         zaakafhandelParameters.zaakNietOntvankelijkResultaattype ?? undefined,
     };
@@ -482,8 +489,10 @@ export class ParameterEditComponent
     return parameter;
   }
 
-  private getZaakbeeindigParameter(reden: Api<"RESTZaakbeeindigReden">) {
-    let parameter: Api<"RESTZaakbeeindigParameter"> | null = null;
+  private getZaakbeeindigParameter(
+    reden: GeneratedType<"RESTZaakbeeindigReden">,
+  ) {
+    let parameter: GeneratedType<"RESTZaakbeeindigParameter"> | null = null;
     for (const item of this.parameters.zaakbeeindigParameters) {
       if (this.compareObject(item.zaakbeeindigReden, reden)) {
         parameter = item;
@@ -498,7 +507,9 @@ export class ParameterEditComponent
     return parameter;
   }
 
-  updateZaakbeeindigForm(parameter: Api<"RESTZaakbeeindigParameter">) {
+  updateZaakbeeindigForm(
+    parameter: GeneratedType<"RESTZaakbeeindigParameter">,
+  ) {
     const control = this.getZaakbeeindigControl(parameter, "beeindigResultaat");
     if (this.selection.isSelected(parameter)) {
       control?.addValidators([Validators.required]);
@@ -510,7 +521,7 @@ export class ParameterEditComponent
 
   changeSelection(
     $event: MatCheckboxChange,
-    parameter: Api<"RESTZaakbeeindigParameter">,
+    parameter: GeneratedType<"RESTZaakbeeindigParameter">,
   ): void {
     if ($event) {
       this.selection.toggle(parameter);
@@ -541,13 +552,14 @@ export class ParameterEditComponent
   }
 
   addZaakAfzender(afzender: string): void {
-    const zaakAfzender: Api<"RESTZaakAfzender"> & { index: number } = {
-      speciaal: false,
-      defaultMail: false,
-      mail: afzender,
-      replyTo: undefined,
-      index: 0,
-    };
+    const zaakAfzender: GeneratedType<"RESTZaakAfzender"> & { index: number } =
+      {
+        speciaal: false,
+        defaultMail: false,
+        mail: afzender,
+        replyTo: undefined,
+        index: 0,
+      };
     for (const bestaand of this.parameters.zaakAfzenders) {
       if (zaakAfzender.index <= (bestaand as { index: number }).index) {
         zaakAfzender.index = (bestaand as { index: number }).index + 1;
@@ -576,7 +588,9 @@ export class ParameterEditComponent
     this.addAfzender(afzender);
   }
 
-  private addZaakAfzenderControl(zaakAfzender: Api<"RESTZaakAfzender">) {
+  private addZaakAfzenderControl(
+    zaakAfzender: GeneratedType<"RESTZaakAfzender">,
+  ) {
     // @ts-expect-error TODO: add proper type to `mailFormGroup`
     this.mailFormGroup.addControl(
       "afzender" + (zaakAfzender as { index: number }).index + "__replyTo",
@@ -585,7 +599,7 @@ export class ParameterEditComponent
   }
 
   getZaakAfzenderControl(
-    zaakAfzender: Api<"RESTZaakAfzender"> & { index?: number },
+    zaakAfzender: GeneratedType<"RESTZaakAfzender"> & { index?: number },
     field: string,
   ) {
     return this.mailFormGroup.get(`afzender${zaakAfzender.index}__${field}`);
@@ -618,7 +632,7 @@ export class ParameterEditComponent
   }
 
   getZaakbeeindigControl(
-    parameter: Api<"RESTZaakbeeindigParameter">,
+    parameter: GeneratedType<"RESTZaakbeeindigParameter">,
     field: string,
   ) {
     return this.zaakbeeindigFormGroup.get(
@@ -691,16 +705,17 @@ export class ParameterEditComponent
     this.parameters.afrondenMail =
       this.mailFormGroup.get("afrondenMail")?.value;
 
-    const parameterMailtemplateKoppelingen: Api<"RESTMailtemplateKoppeling">[] =
+    const parameterMailtemplateKoppelingen: GeneratedType<"RESTMailtemplateKoppeling">[] =
       [];
     this.mailtemplateKoppelingen.forEach((koppeling) => {
-      const mailtemplateKoppeling: Api<"RESTMailtemplateKoppeling"> = {
-        mailtemplate: this.mailtemplates.find(
-          (mailtemplate) =>
-            mailtemplate.id ===
-            this.mailFormGroup.get(koppeling)?.get("mailtemplate")?.value,
-        ),
-      };
+      const mailtemplateKoppeling: GeneratedType<"RESTMailtemplateKoppeling"> =
+        {
+          mailtemplate: this.mailtemplates.find(
+            (mailtemplate) =>
+              mailtemplate.id ===
+              this.mailFormGroup.get(koppeling)?.get("mailtemplate")?.value,
+          ),
+        };
 
       if (mailtemplateKoppeling.mailtemplate) {
         parameterMailtemplateKoppelingen.push(mailtemplateKoppeling);
@@ -759,7 +774,7 @@ export class ParameterEditComponent
             for (let i = 0; i < index.length; i++) {
               if (index[i] === afzender.mail) {
                 (
-                  afzender as Api<"RESTZaakAfzender"> & {
+                  afzender as GeneratedType<"RESTZaakAfzender"> & {
                     index: number;
                   }
                 ).index = i;
@@ -785,7 +800,7 @@ export class ParameterEditComponent
 
   formulierDefinitieChanged(
     $event: MatSelectChange,
-    humanTaskParameter: Api<"RESTHumanTaskParameters">,
+    humanTaskParameter: GeneratedType<"RESTHumanTaskParameters">,
   ): void {
     humanTaskParameter.formulierDefinitieId = $event.value;
     this.humanTasksFormGroup.setControl(
