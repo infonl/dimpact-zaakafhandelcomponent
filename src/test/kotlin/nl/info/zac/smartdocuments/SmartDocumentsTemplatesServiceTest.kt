@@ -55,6 +55,49 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
                     smartDocumentsTemplatesResponse.documentsStructure.templatesStructure.templateGroups.size
             }
         }
+
+        When("list template names for a first-level group is called") {
+            val templateNames = smartDocumentsTemplatesService.listGroupTemplateNames(listOf("Dimpact"))
+
+            Then("it should return a list of template names") {
+                templateNames shouldBe listOf("Aanvullende informatie nieuw", "Aanvullende informatie oud")
+            }
+        }
+
+        When("list template names for a nested level group is called") {
+            val templateNames = smartDocumentsTemplatesService.listGroupTemplateNames(
+                listOf(
+                    "Dimpact",
+                    "Indienen aansprakelijkstelling door derden behandelen"
+                )
+            )
+
+            Then("it should return a list of template names") {
+                templateNames shouldBe listOf("Data Test", "OpenZaakTest")
+            }
+        }
+
+        When("list template names for a non-existent first-level group is called") {
+            val exception = shouldThrow<IllegalArgumentException> {
+                smartDocumentsTemplatesService.listGroupTemplateNames(listOf("no such group"))
+            }
+
+            Then("it should return a list of template names") {
+                exception.message shouldContain "no such group"
+            }
+        }
+
+        When("list template names for a non-existent nested group is called") {
+            val exception = shouldThrow<IllegalArgumentException> {
+                smartDocumentsTemplatesService.listGroupTemplateNames(
+                    listOf("Dimpact", "no such group")
+                )
+            }
+
+            Then("it should return a list of template names") {
+                exception.message shouldContain "Dimpact, no such group"
+            }
+        }
     }
 
     Given("A missing mapping") {
@@ -224,6 +267,16 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
 
             Then("it returns an empty set") {
                 templates shouldBe emptySet()
+            }
+        }
+
+        When("template names are listed") {
+            val templateNames = smartDocumentsTemplatesService.listGroupTemplateNames(
+                listOf("Dimpact")
+            )
+
+            Then("it should return a list of template names") {
+                templateNames shouldBe emptyList()
             }
         }
 

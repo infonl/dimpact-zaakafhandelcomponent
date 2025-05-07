@@ -6,9 +6,9 @@ package nl.info.zac.healthcheck.model
 
 import java.time.ZonedDateTime
 
-data class BuildInformatie(
+data class BuildInformation(
     val commit: String?,
     val buildId: String?,
-    val buildDatumTijd: ZonedDateTime?,
-    val versienummer: String?
+    val buildDateTime: ZonedDateTime?,
+    val versionNumber: String?
 )

@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.55](https://img.shields.io/badge/Version-1.0.55-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
+![Version: 1.0.58](https://img.shields.io/badge/Version-1.0.58-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -211,7 +211,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.4.0-static@sha256:8eb5ef478f757fabba76dfdafb58ab85667c151415b4f3689d9f05acc635d8ea"` |  |
+| opa.image.tag | string | `"1.4.2-static@sha256:3c995dc8a59f6ddfd92eb7404d2f7ff9fe71cd025d9251199957a8a6afbfd76e"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` | set url if the opa url cannot be automatically determined and is not run as a sidecar. the opa url should be the url the openpolicyagent can be reached on from ZAC ( for example: http://release-opa.default.svc.cluster.local:8181 ) url: "" |
 | opa.nodeSelector | object | `{}` |  |
@@ -366,7 +366,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr.service.ports.http | int | `80` |  |
 | solr.zookeeper.enabled | bool | `false` |  |
 | tolerations | list | `[]` | set toleration parameters |
-| zacInternalEndpointsApiKey | string | `""` |  |
+| zacInternalEndpointsApiKey | string | `""` | API key for authentication of internal ZAC endpoints |
 | zgwApis.clientId | string | `""` |  |
 | zgwApis.secret | string | `""` |  |
 | zgwApis.url | string | `""` |  |

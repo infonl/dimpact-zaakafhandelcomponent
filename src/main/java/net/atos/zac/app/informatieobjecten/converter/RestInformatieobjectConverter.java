@@ -4,7 +4,7 @@
  */
 package net.atos.zac.app.informatieobjecten.converter;
 
-import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
+import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 import static nl.info.zac.app.configuratie.model.RestTaalKt.toRestTaal;
 import static nl.info.zac.app.identity.model.RestUserKt.toRestUser;
 import static nl.info.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;

@@ -23,8 +23,11 @@
   >
     {{ "actie.zoeken" | translate }}
   </button>
-  <button mat-flat-button (click)="reset()">
+  <button mat-raised-button (click)="reset()">
     {{ "actie.wissen" | translate }}
+  </button>
+  <button mat-raised-button (click)="close()">
+    {{ "actie.annuleren" | translate }}
   </button>
 
   <div class="table-wrapper">
@@ -33,37 +36,37 @@
         <th *matHeaderCellDef mat-header-cell>
           {{ "zaak.identificatie" | translate }}
         </th>
-        <td *matCellDef="let case" mat-cell>
-          {{ case.identificatie | empty }}
+        <td *matCellDef="let row" mat-cell>
+          {{ row.identificatie | empty }}
         </td>
       </ng-container>
       <ng-container matColumnDef="zaaktypeOmschrijving">
         <th *matHeaderCellDef mat-header-cell>
           {{ "zaaktypeOmschrijving" | translate }}
         </th>
-        <td *matCellDef="let case" mat-cell>
-          {{ case.zaaktypeOmschrijving | empty }}
+        <td *matCellDef="let row" mat-cell>
+          {{ row.zaaktypeOmschrijving | empty }}
         </td>
       </ng-container>
       <ng-container matColumnDef="statustypeOmschrijving">
         <th *matHeaderCellDef mat-header-cell>
           {{ "status" | translate }}
         </th>
-        <td *matCellDef="let case" mat-cell>
-          {{ case?.statustypeOmschrijving | empty }}
+        <td *matCellDef="let row" mat-cell>
+          {{ row?.statustypeOmschrijving | empty }}
         </td>
       </ng-container>
       <ng-container matColumnDef="omschrijving">
         <th *matHeaderCellDef mat-header-cell>
           {{ "omschrijving" | translate }}
         </th>
-        <td *matCellDef="let case" mat-cell>
-          {{ case.omschrijving | empty }}
+        <td *matCellDef="let row" mat-cell>
+          {{ row.omschrijving | empty }}
         </td>
       </ng-container>
       <ng-container matColumnDef="acties" stickyEnd>
         <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let row">
+        <td mat-cell *matCellDef="let row" class="text-right">
           <button
             mat-icon-button
             color="primary"
@@ -86,12 +89,15 @@
       ></tr>
     </table>
     <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
-    <p *ngIf="cases.data.length == 0 && !loading">
+    <p *ngIf="!loading && cases.data.length == 0">
       {{
         foutmelding ? foutmelding : ("msg.geen.gegevens.gevonden" | translate)
       }}
     </p>
-    <p *ngIf="totalCases > 10 && !loading" class="feedback">
+    <p
+      *ngIf="!loading && cases.data.length > 0 && totalCases > 10"
+      class="feedback"
+    >
       <mat-divider class="mat-divider-wrapper"></mat-divider>
       {{
         "Alleen de eerste 10 resultaten worden getoond. Scherp de zoekopdracht aan als het gewenste resultaat hier niet tussen staat."

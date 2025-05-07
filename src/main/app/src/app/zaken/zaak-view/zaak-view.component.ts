@@ -537,17 +537,6 @@ export class ZaakViewComponent
         this.menu.push(
           new ButtonMenuItem(
             "actie.zaak.koppelen",
-            () => {
-              this.zaakKoppelenService.addTeKoppelenZaak(this.zaak);
-            },
-            "account_tree",
-          ),
-        );
-      }
-      if (this.zaak.rechten.wijzigen && document.cookie.includes("koppelen")) {
-        this.menu.push(
-          new ButtonMenuItem(
-            "actie.zaak.koppelen - NEW",
             () => this.actionsSidenav.open(),
             "account_tree",
           ),
@@ -1219,6 +1208,11 @@ export class ZaakViewComponent
     this.updateZaak();
   }
 
+  zaakLinked(): void {
+    this.sluitSidenav();
+    this.updateZaak();
+  }
+
   startZaakOntkoppelenDialog(
     gerelateerdeZaak: GeneratedType<"RestGerelateerdeZaak">,
   ): void {
@@ -1236,6 +1230,7 @@ export class ZaakViewComponent
         this.activeSideAction = null;
         if (result) {
           this.utilService.openSnackbar("msg.zaak.ontkoppelen.uitgevoerd");
+          this.updateZaak();
         }
       });
   }
@@ -1390,13 +1385,10 @@ export class ZaakViewComponent
     }
   }
 
+  // Prevent `closedStart` from `#actionsSidenav` to reset the value to `null` on dialog actions
   async menuItemChanged(event: string) {
-    if (event === "actie.zaak.koppelen") {
-      return;
-    }
-
     setTimeout(() => {
       this.activeSideAction = event;
-    }, 100); // Prevent `closedStart` from `#actionsSidenav` to reset the value to `null` on dialog actions
+    }, 100);
   }
 }

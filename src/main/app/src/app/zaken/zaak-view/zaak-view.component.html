@@ -124,12 +124,11 @@
       (informationObjectLinked)="updateDocumentList()"
     ></zac-informatie-object-link>
     <zac-zaak-link
-      *ngSwitchCase="'actie.zaak.koppelen - NEW'"
-      [actionLabel]="'actie.zaak.koppelen'"
+      *ngSwitchCase="'actie.zaak.koppelen'"
       [zaak]="zaak"
       [sideNav]="actionsSidenav"
+      (zaakLinked)="zaakLinked()"
     ></zac-zaak-link>
-
     <zac-zaakdata
       *ngSwitchCase="'actie.zaakdata.bekijken'"
       [readonly]="true"

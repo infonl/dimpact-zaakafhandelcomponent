@@ -348,7 +348,7 @@ class ZaakServiceTest : BehaviorSpec({
         )
         val identification = "fakeBSN"
         val roleAdviseur = createRolNatuurlijkPersoon(
-            zaaktypeURI = zaak.zaaktype,
+            zaakURI = zaak.url,
             rolType = roleTypeAdviseur,
             natuurlijkPersoon = createNatuurlijkPersoon(bsn = identification)
         )
@@ -389,7 +389,7 @@ class ZaakServiceTest : BehaviorSpec({
         )
         val identification = "fakeBSN"
         val roleAdviseur = createRolNatuurlijkPersoon(
-            zaaktypeURI = zaak.zaaktype,
+            zaakURI = zaak.zaaktype,
             rolType = roleTypeAdviseur,
             natuurlijkPersoon = createNatuurlijkPersoon(bsn = identification)
         )
@@ -422,7 +422,7 @@ class ZaakServiceTest : BehaviorSpec({
         val zaak = createZaak()
         val rolNatuurlijkPersonen = listOf<Rol<*>>(
             createRolNatuurlijkPersoon(
-                zaaktypeURI = zaak.zaaktype,
+                zaakURI = zaak.zaaktype,
                 rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BELANGHEBBENDE)
             ),
             createRolOrganisatorischeEenheid(
@@ -430,11 +430,11 @@ class ZaakServiceTest : BehaviorSpec({
                 rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BESLISSER)
             ),
             createRolNatuurlijkPersoon(
-                zaaktypeURI = zaak.zaaktype,
+                zaakURI = zaak.zaaktype,
                 rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
             ),
             createRolNatuurlijkPersoon(
-                zaaktypeURI = zaak.zaaktype,
+                zaakURI = zaak.zaaktype,
                 rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
             )
         )
