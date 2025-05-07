@@ -7,10 +7,14 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# Please add Helm Docs field descriptions using the format `# -- blah` to leaf nodes only and not to parent nodes, except if all leaf nodes
+# have field descriptions. Otherwise, leaf nodes with field descriptions will be ignored and will not be included in the generated README.md.
+# See: https://github.com/norwoodj/helm-docs for details.
+
 # -- External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com)
 contextUrl: ""
 
-# -- Configuration of the ZAC database connection
+# Configuration of the ZAC database connection
 db:
   # -- database.internal or 1.2.3.4
   host: ""
@@ -18,7 +22,7 @@ db:
   user: ""
   password: ""
 
-# -- Configuration for the Keycloak OpenID Connect integration
+# Configuration for the Keycloak OpenID Connect integration
 auth:
   server: ""
   realm: ""
@@ -26,7 +30,7 @@ auth:
   clientId: ""
   secret: ""
 
-# -- Configuration of the ZAC admin client in Keycloak
+# Configuration of the ZAC admin client in Keycloak
 keycloak:
   adminClient:
     # -- Keycloak ZAC admin client name
@@ -40,7 +44,7 @@ gemeente:
   naam: ""
   mail: ""
 
-# -- SMTP provider configuration. SPF record needs to be properly set up in DNS
+# SMTP provider configuration. SPF record needs to be properly set up in DNS
 mail:
   smtp:
     # -- SMTP server host (for example, localhost or in-v3.mailjet.com). Required
@@ -52,7 +56,7 @@ mail:
     # -- SMTP server password if authentication is required. Optional
     password: ""
 
-# -- ZGW API configuration for integration with the ZGW APIs provider (OpenZaak)
+# ZGW API configuration for integration with the ZGW APIs provider (OpenZaak)
 zgwApis:
   url: ""
   urlExtern: ""
@@ -62,17 +66,17 @@ zgwApis:
 # -- API key for the ZGW Notificaties Consumer API integration; also needs to be configured in Open Notificaties
 notificationsSecretKey: ""
 
-# -- Integration with the Klantinteracties API provider (OpenKlant)
+# Integration with the Klantinteracties API provider (OpenKlant)
 klantinteractiesApi:
   url: ""  # http://open-klant.internal/klantinteracties
   token: ""
 
-# -- Supported feature flags
+# Supported feature flags
 featureFlags:
   # -- turns BPMN support on or off
   bpmnSupport: false
 
-# -- Integration with the Objecten API provider
+# Integration with the Objecten API provider
 objectenApi:
   url: ""
   token: ""
@@ -89,18 +93,19 @@ brpApi:
     # -- Verwerking for BRP Protocollering
     verwerking: "zaakafhandelcomponent"
 
-# -- Integration with the KVK API provider (KVK)
+# Integration with the KVK API provider (KVK)
 kvkApi:
   url: ""  # https://developers.kvk.nl/test
   apiKey: ""
 
-# -- Integration with the BAG API provider (Kadaster)
+# Integration with the BAG API provider (Kadaster)
 bagApi:
   url: ""  # https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2
   apiKey: ""
 
-# --Integration with Open Formulieren. Not used at the moment.
+# Integration with Open Formulieren.
 openForms:
+  # -- Not used at the moment.
   url: ""
 
 # -- API key for authentication of internal ZAC endpoints
@@ -113,15 +118,14 @@ smartDocuments:
   url: ""
   # -- Authentication token
   authentication: ""
-  # -- If set this overrides the sending of the username of the user that is logged in to ZAC to
-  # -- SmartDocuments with a fixed value.
-  # -- This username is sent to SmartDocuments when creating a new document as an HTTP header.
-  # -- For most target environments this should not be set, assuming that
-  # -- all users that are available in ZAC are also available in the SmartDocuments environment with the same username.
-  # -- If this setting is set, then templates in SmartDocuments cannot use user-specific values.
+  # -- If set this overrides the sending of the username of the user that is logged in to ZAC to SmartDocuments with a fixed value.
+  # This username is sent to SmartDocuments when creating a new document as an HTTP header.
+  # For most target environments this should not be set, assuming that all users that are available in ZAC are also available in the
+  # SmartDocuments environment with the same username.
+  # If this setting is set, then templates in SmartDocuments cannot use user-specific values.
   fixedUserName: ""
 
-# -- Signaleringen cronjob configuration
+# Signaleringen cronjob configuration
 signaleringen:
   # -- Delete any signaleringen older than this number of days when the corresponding admin endpoint is called.
   deleteOlderThanDays: "14"
@@ -146,7 +150,7 @@ signaleringen:
   securityContext: {}
   tolerations: []
 
-# -- OpenTelemetry configuration. Only read when opentelemetry-collector is enabled
+# OpenTelemetry configuration. Only read when opentelemetry-collector is enabled
 opentelemetry_zaakafhandelcomponent:
   # -- Enables or disables the ZAC OpenTelemetry integration. Disabled by default.
   disabled: "-true"
@@ -185,7 +189,7 @@ nameOverride: ""
 # -- fullname to use
 fullnameOverride: ""
 
-# -- serviceAccount service account parameters
+# serviceAccount service account parameters
 serviceAccount:
   # -- Specifies whether a service account should be created
   create: true
@@ -210,13 +214,13 @@ securityContext: {}
 # runAsNonRoot: true
 # runAsUser: 1000
 
-# -- service specifications
+# service specifications
 service:
   type: ClusterIP
   port: 80
   annotations: {}
 
-# -- ingress specifications
+# ingress specifications
 ingress:
   enabled: false
   className: ""
@@ -233,11 +237,11 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-# -- currently not in use, specify backend in ingress instead
+# currently not in use, specify backend in ingress instead
 backendConfig:
   enabled: false
 
-# -- specify resource limits and requests if needed, prefilled values are the minimum recommended
+# specify resource limits and requests if needed, prefilled values are the minimum recommended
 resources:
   # We usually recommend not specifying default resources and to leave this as a conscious
   # choice for the user. This also increases the chances charts run on environments with little
@@ -250,7 +254,7 @@ resources:
     cpu: 100m
     memory: 1Gi
 
-# -- autoscaling parameters
+# autoscaling parameters
 autoscaling:
   enabled: false
   minReplicas: 1
@@ -267,19 +271,19 @@ tolerations: []
 # -- set affinity parameters
 affinity: {}
 
-# -- set initContainer parameters
+# set initContainer parameters
 initContainer:
   enabled: true
   image:
     repository: curlimages/curl
     tag: 8.13.0@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd
 
-# -- Open Policy Agent (OPA) configuration, prefilled resources values are the minimum recommended
+# Open Policy Agent (OPA) configuration, prefilled resources values are the minimum recommended
 opa:
   enabled: true
   # -- set sidecar to true to run the opa service together with the zac pod
   sidecar: false
-  # -- set url if the opa url cannot be automatically determined and is not run as a sidecar. the opa url should be the url the openpolicyagent can be reached on from ZAC ( for example: http://release-opa.default.svc.cluster.local:8181 )
+  # set url if the opa url cannot be automatically determined and is not run as a sidecar. the opa url should be the url the openpolicyagent can be reached on from ZAC ( for example: http://release-opa.default.svc.cluster.local:8181 )
   # url: ""
   name: "opa"
   service:
@@ -319,7 +323,7 @@ opa:
 # See the zaakafhandelcomponent wiki on more information about this.
 #
 
-# -- Solr enable to use the included solr helm chart to provision a solr to use with zac
+# Solr enable to use the included solr helm chart to provision a solr to use with zac
 solr:
   # -- set enabled to true to provision bitnami solr version with the zac core
   enabled: false
@@ -363,7 +367,7 @@ solr:
   zookeeper:
     enabled: false
 
-# -- requires the installation of the solr-operator crds: kubectl create -f https://solr.apache.org/operator/downloads/crds/v0.8.1/all-with-dependencies.yaml
+# requires the installation of the solr-operator crds: kubectl create -f https://solr.apache.org/operator/downloads/crds/v0.8.1/all-with-dependencies.yaml
 solr-operator:
   # -- annotations for solr-operator
   annotations: {}
@@ -515,7 +519,7 @@ solr-operator:
       # -- tolerations for zookeeper
       tolerations: []
 
-# -- office_converter configuration. Prefilled resources values are the minimum recommended
+# office_converter configuration. Prefilled resources values are the minimum recommended
 office_converter:
   enabled: true
   # set url if the office-converter url cannot be automatically determined
@@ -554,7 +558,7 @@ office_converter:
 # -- Extra objects to deploy (value evaluated as a template)
 extraDeploy: []
 
-# -- opentelemetry-collector enable to use the included helm chart and settings to work with zac
+# opentelemetry-collector enable to use the included helm chart and settings to work with zac
 opentelemetry-collector:
   enabled: false
   mode: deployment
