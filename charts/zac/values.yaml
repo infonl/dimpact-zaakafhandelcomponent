@@ -38,7 +38,7 @@ keycloak:
     # -- Keycloak ZAC admin client secret
     secret: ""
 
-# -- Council specific configuration
+# Council specific configuration
 gemeente:
   code: ""
   naam: ""
