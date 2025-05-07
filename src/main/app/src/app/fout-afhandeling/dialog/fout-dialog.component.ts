@@ -8,7 +8,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 
 @Component({
   templateUrl: "fout-dialog.component.html",
-  styleUrls: ["./fout-dialog.component.less"],
+  styleUrls: ["./dialog.component.less"],
 })
 export class FoutDialogComponent {
   constructor(

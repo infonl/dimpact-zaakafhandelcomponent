@@ -128,14 +128,14 @@ export class FoutAfhandelingService {
 
     if (err.status === 400) {
       return this.openFoutDialog(
-        this.translate.instant(errorDetail || "dialoog.body.error.technisch"),
+        this.translate.instant(errorDetail || "dialoog.error.body.technisch"),
       );
     }
 
     this.foutmelding = err.message;
     if (err.error instanceof ErrorEvent) {
       // client-side error
-      this.foutmelding = this.translate.instant("dialoog.body.error.fout");
+      this.foutmelding = this.translate.instant("dialoog.error.body.fout");
       this.bericht = err.error.message;
       this.router.navigate(["/fout-pagina"]);
     } else if (err.status === 0 && err.url.startsWith("/rest/")) {
@@ -144,7 +144,7 @@ export class FoutAfhandelingService {
         window.location.reload();
         return;
       }
-      this.foutmelding = this.translate.instant("dialoog.body.error.loggedout");
+      this.foutmelding = this.translate.instant("dialoog.error.body.loggedout");
       this.bericht = "";
       this.router.navigate(["/fout-pagina"]);
     } else {
@@ -154,7 +154,7 @@ export class FoutAfhandelingService {
 
       // show error in context and do not redirect to error page
       return this.openFoutDetailedDialog(
-        this.translate.instant(errorDetail || "dialoog.body.error.technisch"),
+        this.translate.instant(errorDetail || "dialoog.error.body.technisch"),
         err.error.exception,
         showServerErrorTexts,
       );

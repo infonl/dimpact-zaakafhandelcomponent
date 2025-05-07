@@ -21,6 +21,7 @@ import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
 import { forkJoin } from "rxjs";
 import { map, tap } from "rxjs/operators";
+import { ActieOnmogelijkDialogComponent } from "src/app/fout-afhandeling/dialog/actie-onmogelijk-dialog.component";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { ZaakbeeindigReden } from "../../admin/model/zaakbeeindig-reden";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
@@ -684,13 +685,21 @@ export class ZaakViewComponent
 
   createUserEventListenerZaakAfhandelenDialog(planItem: PlanItem) {
     return {
-      dialogComponent: ZaakAfhandelenDialogComponent,
+      dialogComponent: this.zaak.isOpgeschort
+        ? ActieOnmogelijkDialogComponent
+        : ZaakAfhandelenDialogComponent,
       dialogData: { zaak: this.zaak, planItem: planItem },
     };
   }
 
   private openZaakAfbrekenDialog(): void {
     this.actionsSidenav.close();
+
+    if (this.zaak.isOpgeschort) {
+      this.dialog.open(ActieOnmogelijkDialogComponent);
+      return;
+    }
+
     const dialogData = new DialogData<unknown, { reden: ZaakbeeindigReden }>(
       [
         new SelectFormFieldBuilder()

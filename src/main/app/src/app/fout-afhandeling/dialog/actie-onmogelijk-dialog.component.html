@@ -1,12 +1,12 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2024 Lifely
+  ~ SPDX-FileCopyrightText: 2025 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
 <div mat-dialog-title>
   <h3>
     <mat-icon>error</mat-icon>
-    {{ "dialoog.error.titel.algemeen" | translate }}
+    {{ "dialoog.error.titel.onmogelijk" | translate }}
   </h3>
   <button mat-icon-button (click)="close()">
     <mat-icon>close</mat-icon>
@@ -14,7 +14,7 @@
 </div>
 
 <div mat-dialog-content>
-  <div>{{ data }}</div>
+  <div>{{ "dialoog.error.body.onmogelijk.opgeschort" | translate }}</div>
 </div>
 <div mat-dialog-actions>
   <button autofocus mat-raised-button (click)="close()">
