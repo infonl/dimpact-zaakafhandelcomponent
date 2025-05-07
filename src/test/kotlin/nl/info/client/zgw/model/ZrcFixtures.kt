@@ -151,6 +151,7 @@ fun createZaak(
     vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
     status: URI? = null,
     verlenging: Verlenging? = null,
+    hoofdzaakUri: URI? = null,
     deelzaken: Set<URI>? = null,
     uuid: UUID = UUID.randomUUID(),
     omschrijving: String = "fakeOmschrijving"
@@ -173,6 +174,7 @@ fun createZaak(
     this.status = status
     this.verlenging = verlenging
     this.deelzaken = deelzaken
+    this.hoofdzaak = hoofdzaakUri
     this.omschrijving = omschrijving
 }
 
