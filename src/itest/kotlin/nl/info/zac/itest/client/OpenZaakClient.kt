@@ -12,7 +12,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import java.util.Date
 
-fun generateToken(): String =
+fun generateOpenZaakJwtToken(): String =
     JWT.create().withIssuer(OPEN_ZAAK_CLIENT_ID)
         .withIssuedAt(Date())
         .withHeader(mapOf("client_identifier" to OPEN_ZAAK_CLIENT_ID))

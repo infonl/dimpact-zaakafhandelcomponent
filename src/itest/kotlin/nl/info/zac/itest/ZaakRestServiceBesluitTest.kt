@@ -16,8 +16,6 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
@@ -26,6 +24,8 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
+import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
 import java.util.UUID
 
@@ -79,7 +79,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             """.trimIndent()
         ).run {
             logger.info { "Response: ${body!!.string()}" }
-            code shouldBe HTTP_STATUS_NO_CONTENT
+            code shouldBe HTTP_NO_CONTENT
         }
         itestHttpClient.performGetRequest(
             "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID"
@@ -123,7 +123,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                 """.trimIndent()
             ).run {
                 logger.info { "Response: ${body!!.string()}" }
-                code shouldBe HTTP_STATUS_OK
+                code shouldBe HTTP_OK
             }
 
             Then("the besluit has been created successfully") {
@@ -132,7 +132,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                 ).use { response ->
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
-                    response.code shouldBe HTTP_STATUS_OK
+                    response.code shouldBe HTTP_OK
                     val besluiten = JSONArray(responseBody)
                     besluiten.shouldHaveSize(1)
                     besluiten.getJSONObject(0).run {
@@ -177,7 +177,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             ).use { response ->
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue("isIngetrokken", false)
                     shouldContainJsonKeyValue("toelichting", updateReason)
@@ -190,7 +190,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                 ).use { response ->
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
-                    response.code shouldBe HTTP_STATUS_OK
+                    response.code shouldBe HTTP_OK
                     val besluiten = JSONArray(responseBody)
                     besluiten.shouldHaveSize(1)
                     besluiten.getJSONObject(0).run {
@@ -225,7 +225,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             ).use { response ->
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue("isIngetrokken", true)
                     shouldContainJsonKeyValue("toelichting", "fakeBesluitUpdateToelichting")
@@ -239,7 +239,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                 ).use { response ->
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
-                    response.code shouldBe HTTP_STATUS_OK
+                    response.code shouldBe HTTP_OK
                     val besluiten = JSONArray(responseBody)
                     besluiten.shouldHaveSize(1)
                     with(besluiten.getJSONObject(0).toString()) {

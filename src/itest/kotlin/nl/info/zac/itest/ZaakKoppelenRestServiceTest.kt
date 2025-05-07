@@ -9,8 +9,6 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
@@ -20,6 +18,8 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
+import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 
 private const val ROWS_DEFAULT = 10
@@ -72,7 +72,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             )
 
             Then("returns list of zaken each with a linkable flag") {
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
@@ -148,7 +148,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             )
 
             Then("successfully links the zaak") {
-                response.code shouldBe HTTP_STATUS_NO_CONTENT
+                response.code shouldBe HTTP_NO_CONTENT
             }
         }
 
@@ -165,7 +165,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             )
 
             Then("returns list of zaken each with a linkable flag") {
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """

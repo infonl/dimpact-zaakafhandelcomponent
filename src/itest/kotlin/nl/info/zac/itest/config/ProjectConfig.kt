@@ -12,15 +12,16 @@ import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.core.spec.SpecExecutionOrder
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.client.KeycloakClient
+import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.ADDITIONAL_ALLOWED_FILE_TYPES
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.info.zac.itest.config.ItestConfiguration.KVK_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OFFICE_CONVERTER_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SMTP_SERVER_PORT
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_HEALTH_READY_URL
@@ -33,6 +34,7 @@ import org.testcontainers.containers.ContainerLaunchException
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
+import java.net.HttpURLConnection.HTTP_OK
 import java.net.SocketException
 import kotlin.jvm.optionals.getOrNull
 import kotlin.time.Duration.Companion.minutes
@@ -91,7 +93,7 @@ class ProjectConfig : AbstractProjectConfig() {
                     headers = Headers.headersOf("Content-Type", "application/json"),
                     url = KEYCLOAK_HEALTH_READY_URL,
                     addAuthorizationHeader = false
-                ).code shouldBe HTTP_STATUS_OK
+                ).code shouldBe HTTP_OK
             }
             logger.info { "Keycloak is healthy" }
             logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
@@ -101,12 +103,15 @@ class ProjectConfig : AbstractProjectConfig() {
                     url = ZAC_HEALTH_READY_URL,
                     addAuthorizationHeader = false
                 ).use { response ->
-                    response.code shouldBe HTTP_STATUS_OK
+                    response.code shouldBe HTTP_OK
                     JSONObject(response.body!!.string()).getString("status") shouldBe "UP"
                 }
             }
             logger.info { "ZAC is healthy" }
-            KeycloakClient.authenticate()
+            authenticate(
+                username = TEST_USER_1_USERNAME,
+                password = TEST_USER_1_PASSWORD
+            )
         } catch (exception: ContainerLaunchException) {
             logger.error(exception) { "Failed to start Docker containers" }
             dockerComposeContainer.stop()

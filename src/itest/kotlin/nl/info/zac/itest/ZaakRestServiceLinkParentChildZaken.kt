@@ -12,8 +12,6 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
@@ -23,6 +21,8 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEM
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
+import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 
 /**
@@ -82,12 +82,12 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
             Then("the parent-child relationship between the two zaken should be established") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_NO_CONTENT
+                response.code shouldBe HTTP_NO_CONTENT
 
                 // retrieve the first zaak and check if the parent-child relationship has been established
                 val response = zacClient.retrieveZaak(zaak1UUID)
                 with(response) {
-                    code shouldBe HTTP_STATUS_OK
+                    code shouldBe HTTP_OK
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
                     JSONObject(responseBody).getJSONArray("gerelateerdeZaken").run {
@@ -120,12 +120,12 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
             Then("the parent-child relationship between the two zaken should be removed") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_NO_CONTENT
+                response.code shouldBe HTTP_NO_CONTENT
 
                 // retrieve the zaak and check if the parent-child relationship has been removed
                 val response = zacClient.retrieveZaak(zaak1UUID)
                 with(response) {
-                    code shouldBe HTTP_STATUS_OK
+                    code shouldBe HTTP_OK
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
                     JSONObject(responseBody).getJSONArray("gerelateerdeZaken").run {

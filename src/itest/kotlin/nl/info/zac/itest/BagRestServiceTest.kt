@@ -14,8 +14,6 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.BAG_TEST_ADRES_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
@@ -23,6 +21,8 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
+import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
@@ -44,7 +44,7 @@ class BagRestServiceTest : BehaviorSpec({
                 "the response should be a 200 HTTP response with the expected addresses that match the search criteria"
             ) {
                 val responseBody = response.body!!.string()
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     {
@@ -196,7 +196,7 @@ class BagRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("it is successfully added to the zaak") {
-                response.code shouldBe HTTP_STATUS_NO_CONTENT
+                response.code shouldBe HTTP_NO_CONTENT
 
                 // retrieve the BAG objects for the zaak
                 itestHttpClient.performGetRequest(
@@ -248,7 +248,7 @@ class BagRestServiceTest : BehaviorSpec({
             )
             Then("the BAG object is successfully returned") {
                 val responseBody = response.body!!.string()
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     {

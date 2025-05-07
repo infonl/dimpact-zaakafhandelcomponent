@@ -14,7 +14,6 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
@@ -23,6 +22,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_UITERL
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import org.json.JSONArray
+import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -143,7 +143,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
 
                 with(zacResponse) {
-                    code shouldBe HTTP_STATUS_OK
+                    code shouldBe HTTP_OK
 
                     with(responseBody) {
                         shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", fataleDatum.toString())

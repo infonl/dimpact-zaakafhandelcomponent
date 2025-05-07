@@ -20,8 +20,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_ZAAK_AFHANDELEN
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
@@ -30,6 +28,8 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
+import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 
 /**
@@ -81,7 +81,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             }
             """.trimIndent()
         ).run {
-            code shouldBe HTTP_STATUS_NO_CONTENT
+            code shouldBe HTTP_NO_CONTENT
         }
         itestHttpClient.performGetRequest(
             "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID"
@@ -118,14 +118,14 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                 }
                 """.trimIndent()
             ).run {
-                code shouldBe HTTP_STATUS_NO_CONTENT
+                code shouldBe HTTP_NO_CONTENT
             }
 
             Then("the zaak should be closed and have a result") {
                 zacClient.retrieveZaak(zaakUUID).use { response ->
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
-                    response.code shouldBe HTTP_STATUS_OK
+                    response.code shouldBe HTTP_OK
                     responseBody.run {
                         shouldContainJsonKeyValue("isOpen", false)
                         shouldContainJsonKey("resultaat")
@@ -143,14 +143,14 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                     {"reden":"fakeReason"}
                 """.trimIndent()
             ).run {
-                code shouldBe HTTP_STATUS_NO_CONTENT
+                code shouldBe HTTP_NO_CONTENT
             }
 
             Then("the zaak should be open and should no longer have a result") {
                 zacClient.retrieveZaak(zaakUUID).use { response ->
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
-                    response.code shouldBe HTTP_STATUS_OK
+                    response.code shouldBe HTTP_OK
                     responseBody.run {
                         shouldContainJsonKeyValue("isOpen", true)
                         shouldNotContainJsonKey("resultaat")
@@ -174,14 +174,14 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                     }
                 """.trimIndent()
             ).run {
-                code shouldBe HTTP_STATUS_NO_CONTENT
+                code shouldBe HTTP_NO_CONTENT
             }
 
             Then("the zaak should be closed and have a result") {
                 zacClient.retrieveZaak(zaakUUID).use { response ->
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
-                    response.code shouldBe HTTP_STATUS_OK
+                    response.code shouldBe HTTP_OK
                     responseBody.run {
                         shouldContainJsonKeyValue("isOpen", false)
                         shouldContainJsonKey("resultaat")
@@ -256,14 +256,14 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                 }
                 """.trimIndent()
             ).run {
-                code shouldBe HTTP_STATUS_NO_CONTENT
+                code shouldBe HTTP_NO_CONTENT
             }
 
             Then("email should be sent with correct details") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
                     url = "$GREENMAIL_API_URI/user/$receiverMail/messages/"
                 )
-                receivedMailsResponse.code shouldBe HTTP_STATUS_OK
+                receivedMailsResponse.code shouldBe HTTP_OK
 
                 val responseBody = receivedMailsResponse.body!!.string()
                 logger.info { "Response: $responseBody" }

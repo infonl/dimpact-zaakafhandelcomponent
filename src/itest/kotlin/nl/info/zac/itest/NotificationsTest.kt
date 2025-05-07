@@ -15,9 +15,6 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_FORBIDDEN
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.OBJECTS_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
@@ -50,6 +47,9 @@ import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
 import org.testcontainers.containers.wait.strategy.Wait
+import java.net.HttpURLConnection.HTTP_FORBIDDEN
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
+import java.net.HttpURLConnection.HTTP_OK
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -77,7 +77,7 @@ class NotificationsTest : BehaviorSpec({
                 ).toString()
             )
             Then("the response should be forbidden") {
-                response.code shouldBe HTTP_STATUS_FORBIDDEN
+                response.code shouldBe HTTP_FORBIDDEN
             }
         }
     }
@@ -120,7 +120,7 @@ class NotificationsTest : BehaviorSpec({
                 """the response should be 'no content', a zaak should be created in OpenZaak
                         and a zaak productaanvraag proces of type 'Productaanvraag-Dimpact' should be started in ZAC"""
             ) {
-                response.code shouldBe HTTP_STATUS_NO_CONTENT
+                response.code shouldBe HTTP_NO_CONTENT
 
                 // retrieve the newly created zaak and check the contents
                 itestHttpClient.performGetRequest(
@@ -157,7 +157,7 @@ class NotificationsTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraag1Uuid/betrokkene",
             )
             Then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
@@ -221,7 +221,7 @@ class NotificationsTest : BehaviorSpec({
                 """the response should be 'no content', a zaak should be created in OpenZaak
                         and a zaak productaanvraag proces of type 'Productaanvraag-Dimpact' should be started in ZAC"""
             ) {
-                response.code shouldBe HTTP_STATUS_NO_CONTENT
+                response.code shouldBe HTTP_NO_CONTENT
 
                 // retrieve the newly created zaak and check the contents
                 itestHttpClient.performGetRequest(
@@ -280,7 +280,7 @@ class NotificationsTest : BehaviorSpec({
             Then(
                 """the response should be 'no content' and a corresponding error message should be logged in ZAC"""
             ) {
-                response.code shouldBe HTTP_STATUS_NO_CONTENT
+                response.code shouldBe HTTP_NO_CONTENT
 
                 // we expect ZAC to log an error message indicating that the resourceURL is invalid
                 dockerComposeContainer.waitingFor(
@@ -342,7 +342,7 @@ class NotificationsTest : BehaviorSpec({
                     ).toString(),
                     addAuthorizationHeader = false
                 )
-                response.code shouldBe HTTP_STATUS_NO_CONTENT
+                response.code shouldBe HTTP_NO_CONTENT
                 // because of the retries using eventually, we can end up with duplicate messages. that's ok.
                 websocketListener.messagesReceived.size shouldBeGreaterThan 0
             }
@@ -408,7 +408,7 @@ class NotificationsTest : BehaviorSpec({
                     ).toString(),
                     addAuthorizationHeader = false
                 )
-                response.code shouldBe HTTP_STATUS_NO_CONTENT
+                response.code shouldBe HTTP_NO_CONTENT
                 // because of the retries using eventually, we can end up with duplicate messages. that's ok.
                 websocketListener.messagesReceived.size shouldBeGreaterThan 0
             }

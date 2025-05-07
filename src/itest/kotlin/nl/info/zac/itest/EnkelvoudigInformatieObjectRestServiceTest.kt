@@ -19,7 +19,6 @@ import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_UPDATED_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING
@@ -45,6 +44,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.File
+import java.net.HttpURLConnection.HTTP_OK
 import java.net.URLDecoder
 import java.time.LocalDate
 import java.time.ZonedDateTime
@@ -114,7 +114,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             Then("the response should be OK and contain information for the created document and uploaded file") {
                 val responseBody = response.body!!.string()
                 logger.info { "$endpointUrl response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                          {
                           "bestandsnaam" : "$TEST_PDF_FILE_NAME",
@@ -191,7 +191,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             ) {
                 val responseBody = response.body!!.string()
                 logger.info { "$endpointUrl response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
                     shouldContainJsonKeyValue("status", DOCUMENT_STATUS_IN_BEWERKING)
@@ -227,7 +227,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 "the response should be OK"
             ) {
                 logger.info { "$endpointUrl status code: ${response.code}" }
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
             }
         }
         When("the huidigeversie endpoint is called") {
@@ -242,7 +242,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             ) {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
                     shouldContainJsonKeyValue("status", DOCUMENT_STATUS_DEFINITIEF)
@@ -309,7 +309,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             ) {
                 val responseBody = response.body!!.string()
                 logger.info { "$endpointUrl response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     {
                       "bestandsnaam" : "$TEST_TXT_FILE_NAME",
@@ -356,7 +356,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             ) {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
             }
         }
         When("the get enkelvoudiginformatieobject endpoint is called") {
@@ -366,7 +366,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             Then("the response should be OK and should contain information about the document converted to PDF") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                          {
                           "bestandsnaam" : "$TEST_TXT_CONVERTED_TO_PDF_FILE_NAME",
@@ -437,7 +437,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             ) {
                 val responseBody = response.body!!.string()
                 logger.info { "$endpointUrl response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
                     shouldContainJsonKeyValue("beschrijving", "taak-document")

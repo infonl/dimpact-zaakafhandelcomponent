@@ -178,8 +178,8 @@ class ItestHttpClient {
         headers.newBuilder().add(Header.AUTHORIZATION.name, determineBearerToken(url)).build()
 
     private fun determineBearerToken(url: String) = "Bearer " + if (URI(url).port == OPEN_ZAAK_EXTERNAL_PORT) {
-        generateToken()
+        generateOpenZaakJwtToken()
     } else {
-        KeycloakClient.requestAccessToken()
+        refreshAccessToken()
     }
 }

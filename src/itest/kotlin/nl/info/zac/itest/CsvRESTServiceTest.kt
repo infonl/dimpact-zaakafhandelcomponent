@@ -11,12 +11,12 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REINDEXING
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_ZAKEN
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_ZAKEN_AFGEROND
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.junit.jupiter.api.Order
+import java.net.HttpURLConnection.HTTP_OK
 
 /**
  * Since we run this test after [IndexingAdminRestServiceTest], we expect
@@ -109,7 +109,7 @@ class CsvRESTServiceTest : BehaviorSpec({
                  one for each open zaak
                 """
             ) {
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
 

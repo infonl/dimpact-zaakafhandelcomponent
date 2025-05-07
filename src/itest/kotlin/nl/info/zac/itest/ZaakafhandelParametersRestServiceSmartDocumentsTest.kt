@@ -10,7 +10,6 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_BAD_REQUEST
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_GROUP_1_ID
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_GROUP_1_NAME
@@ -34,6 +33,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_RE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
+import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 
 @Order(TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED)
 class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
@@ -244,7 +244,7 @@ class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
                 val storeResponseBody = storeResponse.body!!.string()
                 logger.info { "Response: $storeResponseBody" }
 
-                storeResponse.code shouldBe HTTP_STATUS_BAD_REQUEST
+                storeResponse.code shouldBe HTTP_BAD_REQUEST
                 storeResponseBody shouldBe """{"message":"msg.error.smartdocuments.not.configured"}"""
             }
         }
