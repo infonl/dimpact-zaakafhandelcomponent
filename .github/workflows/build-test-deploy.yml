@@ -216,7 +216,7 @@ jobs:
       - name: Get next tag on main
         id: get-tag-main
         if: ${{ github.ref == 'refs/heads/main'}}
-        uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297 # 1.71.0
+        uses: anothrNick/github-tag-action@da70c4e4c9ff91cc59445f3d9f1606b7f144be72 # 1.72.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PRERELEASE: false
@@ -227,7 +227,7 @@ jobs:
       - name: Get next tag on non-main
         id: get-tag-non-main
         if: ${{ github.ref != 'refs/heads/main'}}
-        uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297 # 1.71.0
+        uses: anothrNick/github-tag-action@da70c4e4c9ff91cc59445f3d9f1606b7f144be72 # 1.72.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PRERELEASE: false
