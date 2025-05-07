@@ -14,9 +14,6 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NOT_FOUND
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
@@ -31,6 +28,9 @@ import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_NOT_FOUND
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
+import java.net.HttpURLConnection.HTTP_OK
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -170,7 +170,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
             ) {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_NO_CONTENT
+                response.code shouldBe HTTP_NO_CONTENT
                 // Retrieve the zaak and check that the zaakdata is no longer available.
                 // Note that in this test scenario the zaak is not deleted from OpenZaak
                 // and so ZAC should still return the zaak.
@@ -178,7 +178,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 zacClient.retrieveZaak(zaakUUID).run {
                     val responseBody = this.body!!.string()
                     logger.info { "Response: $responseBody" }
-                    this.code shouldBe HTTP_STATUS_OK
+                    this.code shouldBe HTTP_OK
                     responseBody.shouldContainJsonKeyValue("uuid", zaakUUID.toString())
                     responseBody.shouldContainJsonKeyValue("zaakdata", "")
                 }
@@ -198,7 +198,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 ).run {
                     val responseBody = body!!.string()
                     logger.info { "Response: $responseBody" }
-                    this.code shouldBe HTTP_STATUS_NOT_FOUND
+                    this.code shouldBe HTTP_NOT_FOUND
                     responseBody shouldEqualJson """
                         {"message":"No historic task with id '$aanvullendeInformatieTaskID' found"}
                     """.trimIndent()

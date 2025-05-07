@@ -12,9 +12,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.urlEncode
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_BAD_REQUEST
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_SEE_OTHER
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_ID
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
@@ -29,6 +26,9 @@ import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import okhttp3.FormBody
 import okhttp3.Headers
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_BAD_REQUEST
+import java.net.HttpURLConnection.HTTP_OK
+import java.net.HttpURLConnection.HTTP_SEE_OTHER
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -61,7 +61,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             Then("the response should be OK and the response should contain a redirect URL to SmartDocuments") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
 
                 with(responseBody) {
                     shouldContainJsonKeyValue(
@@ -93,7 +93,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             Then("the response should be OK and the response should contain a redirect URL to Smartdocuments") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
 
                 with(responseBody) {
                     shouldContainJsonKeyValue(
@@ -120,7 +120,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             Then("the response should be 400 Client Error") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_BAD_REQUEST
+                response.code shouldBe HTTP_BAD_REQUEST
                 responseBody shouldContain "must not be null"
             }
         }
@@ -155,7 +155,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 val locationHeader = response.header("Location")!!
                 logger.info { "Location header: $locationHeader" }
 
-                response.code shouldBe HTTP_STATUS_SEE_OTHER
+                response.code shouldBe HTTP_SEE_OTHER
                 locationHeader shouldContain "static/smart-documents-result.html" +
                     "?zaak=$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION" +
                     "&doc=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
@@ -195,7 +195,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 val locationHeader = response.header("Location")!!
                 logger.info { "Location header: $locationHeader" }
 
-                response.code shouldBe HTTP_STATUS_SEE_OTHER
+                response.code shouldBe HTTP_SEE_OTHER
                 locationHeader shouldContain "static/smart-documents-result.html" +
                     "?zaak=$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION" +
                     "&taak=$task1ID" +
@@ -233,7 +233,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 val locationHeader = response.header("Location")!!
                 logger.info { "Location header: $locationHeader" }
 
-                response.code shouldBe HTTP_STATUS_SEE_OTHER
+                response.code shouldBe HTTP_SEE_OTHER
                 locationHeader shouldContain "static/smart-documents-result.html" +
                     "?zaak=$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION" +
                     "&doc=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
@@ -270,7 +270,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 val locationHeader = response.header("Location")!!
                 logger.info { "Location header: $locationHeader" }
 
-                response.code shouldBe HTTP_STATUS_SEE_OTHER
+                response.code shouldBe HTTP_SEE_OTHER
                 locationHeader shouldContain "static/smart-documents-result.html" +
                     "?zaak=$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION" +
                     "&taak=$task1ID" +

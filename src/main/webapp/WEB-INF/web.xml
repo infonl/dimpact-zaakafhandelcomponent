@@ -46,6 +46,10 @@
         <role-name>zaakafhandelcomponent_user</role-name>
     </security-role>
 
+    <security-role>
+        <role-name>beheerder</role-name>
+    </security-role>
+
     <security-constraint>
         <display-name>Deny all HTTP methods on '/rest/notificaties' except POST</display-name>
         <web-resource-collection>
@@ -123,6 +127,17 @@
             <http-method-omission>GET</http-method-omission>
         </web-resource-collection>
         <auth-constraint/>
+    </security-constraint>
+
+    <security-constraint>
+        <display-name>Require the 'beheerder' role on `/admin/*`</display-name>
+        <web-resource-collection>
+            <web-resource-name>admin</web-resource-name>
+            <url-pattern>/admin/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>beheerder</role-name>
+        </auth-constraint>
     </security-constraint>
 
     <security-constraint>

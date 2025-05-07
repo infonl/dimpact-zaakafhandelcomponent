@@ -12,13 +12,13 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 
 /**
@@ -41,7 +41,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
         ).run {
             val responseBody = body!!.string()
             logger.info { "Response: $responseBody" }
-            code shouldBe HTTP_STATUS_OK
+            code shouldBe HTTP_OK
             JSONObject(responseBody).run {
                 getJSONObject("zaakdata").run {
                     zaakUUID = getString("zaakUUID").run(UUID::fromString)
@@ -53,7 +53,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
         ).run {
             val responseBody = body!!.string()
             logger.info { "Response: $responseBody" }
-            code shouldBe HTTP_STATUS_OK
+            code shouldBe HTTP_OK
             takenCreateResponse = responseBody
         }
 
@@ -80,7 +80,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
             ).run {
                 val responseBody = body!!.string()
                 logger.info { "Response: $responseBody" }
-                code shouldBe HTTP_STATUS_OK
+                code shouldBe HTTP_OK
                 takenPatchResponse = responseBody
             }
 
@@ -94,7 +94,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                 zacClient.retrieveZaak(zaakUUID).use { response ->
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
-                    response.code shouldBe HTTP_STATUS_OK
+                    response.code shouldBe HTTP_OK
                     responseBody.run {
                         shouldContainJsonKeyValue("isOpen", true)
                         shouldNotContainJsonKey("resultaat")
