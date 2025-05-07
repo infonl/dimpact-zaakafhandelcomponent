@@ -153,8 +153,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
         When(
             """
-                searching for a HOOFDZAAK linkable zaken with 'ZAAK-2000' zaak identifier but without the 'rows' and 
-                'page' request parameters
+            searching for a HOOFDZAAK linkable zaken with 'ZAAK-2000' zaak identifier but without the 'rows' and 
+            'page' request parameters
             """.trimIndent()
         ) {
             val response = itestHttpClient.performGetRequest(
