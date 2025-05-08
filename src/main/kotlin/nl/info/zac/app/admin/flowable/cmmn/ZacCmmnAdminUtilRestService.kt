@@ -139,7 +139,7 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
 
     private fun logVariable(caseInstanceId: String, variable: String) {
         val value = cmmnRuntimeService.getVariable(caseInstanceId, variable)
-        LOG.info("'$caseInstanceId' : '%$variable' = '$value'")
+        LOG.info("'$caseInstanceId' : '$variable' = '$value'")
     }
 
     private fun fixVariable(caseInstanceId: String, variable: String, value: Any) {
