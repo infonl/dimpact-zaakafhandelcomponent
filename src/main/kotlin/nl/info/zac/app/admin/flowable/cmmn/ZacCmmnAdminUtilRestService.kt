@@ -13,6 +13,8 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.policy.PolicyService
+import net.atos.zac.policy.PolicyService.assertPolicy
 import org.flowable.cmmn.api.CmmnRuntimeService
 import org.flowable.cmmn.api.CmmnTaskService
 import org.flowable.engine.RuntimeService
@@ -31,7 +33,8 @@ import java.util.logging.Logger
 class ZacCmmnAdminUtilRestService @Inject constructor(
     val cmmnRuntimeService: CmmnRuntimeService,
     val cmmnTaskService: CmmnTaskService,
-    val runtimeService: RuntimeService
+    val runtimeService: RuntimeService,
+    val policyService: PolicyService
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZacCmmnAdminUtilRestService::class.java.getName())
@@ -41,6 +44,7 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
     @Path("countmissingvariables")
     @Produces(MediaType.APPLICATION_JSON)
     fun countMissingVariables(): Response {
+        assertPolicy(policyService.readOverigeRechten().beheren)
         countMissingVariable(ZaakVariabelenService.VAR_ZAAK_UUID)
         countMissingVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE)
         countMissingVariable(ZaakVariabelenService.VAR_ZAAKTYPE_UUUID)
@@ -52,6 +56,7 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
     @Path("logzaaktypeuuid")
     @Produces(MediaType.APPLICATION_JSON)
     fun logExistingZaaktypeUUID(): Response {
+        assertPolicy(policyService.readOverigeRechten().beheren)
         cmmnRuntimeService.createCaseInstanceQuery().variableExists(
             ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
         ).list().forEach { caseInstance ->
@@ -66,7 +71,8 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
     @GET
     @Path("fixmissingzaaktypeuuid/{zaaktypeuuid}")
     @Produces(MediaType.APPLICATION_JSON)
-    fun fixMissingZaaktypeUUID(@PathParam("zaaktypeuuid") zaaktypeUUIDString: String): Response? {
+    fun fixMissingZaaktypeUUID(@PathParam("zaaktypeuuid") zaaktypeUUIDString: String): Response {
+        assertPolicy(policyService.readOverigeRechten().beheren)
         val zaaktypeUUID = UUID.fromString(zaaktypeUUIDString)
         cmmnRuntimeService.createCaseInstanceQuery().variableNotExists(
             ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
@@ -83,7 +89,8 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
     @GET
     @Path("fixexistingzaaktypeuuid/{zaaktypeuuid}")
     @Produces(MediaType.APPLICATION_JSON)
-    fun fixAllZaaktypeUUID(@PathParam("zaaktypeuuid") zaaktypeUUIDString: String): Response? {
+    fun fixAllZaaktypeUUID(@PathParam("zaaktypeuuid") zaaktypeUUIDString: String): Response {
+        assertPolicy(policyService.readOverigeRechten().beheren)
         val zaaktypeUUID = UUID.fromString(zaaktypeUUIDString)
         cmmnRuntimeService.createCaseInstanceQuery().variableExists(
             ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
@@ -101,6 +108,7 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
     @Path("logtasksmissingscopeid")
     @Produces(MediaType.APPLICATION_JSON)
     fun logTasksMissingScopeId(): Response {
+        assertPolicy(policyService.readOverigeRechten().beheren)
         val tasks = cmmnTaskService.createTaskQuery().list().filter { it.scopeId == null }
         LOG.info("Number of tasks missing scopeId : ${tasks.size}")
         tasks.forEach {
@@ -113,6 +121,7 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
     @Path("completetasksmissingscopeid")
     @Produces(MediaType.APPLICATION_JSON)
     fun completeTasksMissingScopeId(): Response {
+        assertPolicy(policyService.readOverigeRechten().beheren)
         runtimeService.createActivityInstanceQuery().list()
             .forEach {
                 runtimeService.deleteProcessInstance(
@@ -123,7 +132,7 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
         return Response.noContent().build()
     }
 
-    private fun countMissingVariable(variable: String?) {
+    private fun countMissingVariable(variable: String) {
         val count = cmmnRuntimeService.createCaseInstanceQuery().variableNotExists(variable).count()
         LOG.info("Number of cases missing variable '$variable' = $count")
     }

@@ -9,6 +9,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import net.atos.zac.policy.PolicyService
 import nl.info.zac.app.admin.flowable.cmmn.ZacCmmnAdminUtilRestService
 import org.flowable.cmmn.api.CmmnRuntimeService
 import org.flowable.cmmn.api.CmmnTaskService
@@ -18,20 +19,23 @@ class ZacCmmnAdminUtilRestServiceTest : BehaviorSpec({
     val cmmnRuntimeService = mockk<CmmnRuntimeService>()
     val cmmnTaskService = mockk<CmmnTaskService>()
     val runtimeService = mockk<RuntimeService>()
+    val policyService = mockk<PolicyService>()
     val zakCmmnAdminUtilRestService = ZacCmmnAdminUtilRestService(
         cmmnRuntimeService = cmmnRuntimeService,
         cmmnTaskService = cmmnTaskService,
-        runtimeService = runtimeService
+        runtimeService = runtimeService,
+        policyService = policyService
     )
 
     beforeEach {
         checkUnnecessaryStub()
     }
 
-    Given("ZacCmmnAdminUtilRestService") {
+    Given("A user with 'beheren' permissions") {
+        every { policyService.readOverigeRechten().beheren } returns true
         every { cmmnRuntimeService.createCaseInstanceQuery().variableNotExists(any()).count() } returns 123L
 
-        When("countMissingVariables") {
+        When("countMissingVariables is called") {
             val response = zakCmmnAdminUtilRestService.countMissingVariables()
 
             Then("should return no content") {
