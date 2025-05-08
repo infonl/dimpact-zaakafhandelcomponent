@@ -16,9 +16,9 @@ import {
   PLATFORM_ID,
 } from "@angular/core";
 import { Subscription, fromEvent } from "rxjs";
+import { HasEventTargetAddRemove } from "rxjs/internal/observable/fromEvent";
 import { filter } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
-import {HasEventTargetAddRemove} from "rxjs/internal/observable/fromEvent";
 
 @Directive({
   selector: "[zacOutsideClick]",
@@ -35,7 +35,11 @@ export class OutsideClickDirective implements OnInit, OnDestroy {
 
   constructor(
     private element: ElementRef,
-    @Optional() @Inject(DOCUMENT) private document: HasEventTargetAddRemove<MouseEvent> | ArrayLike<HasEventTargetAddRemove<MouseEvent>>,
+    @Optional()
+    @Inject(DOCUMENT)
+    private document:
+      | HasEventTargetAddRemove<MouseEvent>
+      | ArrayLike<HasEventTargetAddRemove<MouseEvent>>,
     @Inject(PLATFORM_ID) private platformId: Record<string, unknown>,
     private utilService: UtilService,
   ) {}

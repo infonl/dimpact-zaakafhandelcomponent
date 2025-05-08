@@ -36,8 +36,8 @@ export class FileDragAndDropDirective {
     evt.stopPropagation();
     this.border = "solid transparent";
     const files = evt.dataTransfer?.files;
-    if (!files?.length) return
-    
+    if (!files?.length) return;
+
     this.fileDropped.emit(files);
   }
 }
