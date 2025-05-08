@@ -23,13 +23,13 @@ export class IdentityService {
     private foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
-  listGroups(zaaktypeUuid?: string): Observable<GeneratedType<"RestGroup">[]> { 
+  listGroups(zaaktypeUuid?: string): Observable<GeneratedType<"RestGroup">[]> {
     if (!zaaktypeUuid) {
-    return this.zacHttp
-      .GET("/rest/identity/groups")
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+      return this.zacHttp
+        .GET("/rest/identity/groups")
+        .pipe(
+          catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+        );
     } else {
       return this.zacHttp
         .GET("/rest/identity/groups/zaaktype/{zaaktypeUuid}", {
