@@ -17,7 +17,6 @@ import { delay, map, shareReplay, switchMap } from "rxjs/operators";
 import { ProgressDialogComponent } from "src/app/shared/progress-dialog/progress-dialog.component";
 import { ProgressSnackbar } from "src/app/shared/progress-snackbar/progress-snackbar.component";
 import { OrderUtil } from "../../shared/order/order-util";
-import { ActionBarAction } from "../actionbar/model/action-bar-action";
 
 @Injectable({
   providedIn: "root",
@@ -31,8 +30,7 @@ export class UtilService {
   );
 
   public headerTitle$: Observable<string> = this.headerTitle.asObservable();
-  public addAction$ = new Subject<ActionBarAction>();
-  public disableActionBar$ = new Subject<boolean>();
+  public disable$ = new Subject<boolean>();
 
   public loading$: Observable<boolean> = this.loading.pipe(
     switchMap((loading) =>
@@ -198,14 +196,6 @@ export class UtilService {
 
   closeProgressDialog() {
     this.dialog.closeAll();
-  }
-
-  addAction(action: ActionBarAction) {
-    this.addAction$.next(action);
-  }
-
-  disableActionBar(state: boolean) {
-    this.disableActionBar$.next(state);
   }
 
   reloadRoute(): void {
