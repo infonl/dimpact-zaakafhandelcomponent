@@ -599,7 +599,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 result.resultCount shouldBe 1
             }
 
-            And("the result should be that no link is not possible") {
+            And("the result should be that link is not possible") {
                 with(result.results.first()) {
                     id shouldBe zaakZoekObject.getObjectId()
                     type shouldBe zaakZoekObject.getType()
@@ -703,7 +703,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 result.resultCount shouldBe 1
             }
 
-            And("the result should be that no link is not possible") {
+            And("the result should be that link is not possible") {
                 with(result.results.first()) {
                     id shouldBe zaakZoekObject.getObjectId()
                     type shouldBe zaakZoekObject.getType()
@@ -738,7 +738,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 result.resultCount shouldBe 1
             }
 
-            And("the result should be that no link is not possible") {
+            And("the result should be that link is not possible") {
                 with(result.results.first()) {
                     id shouldBe zaakZoekObject.getObjectId()
                     type shouldBe zaakZoekObject.getType()
