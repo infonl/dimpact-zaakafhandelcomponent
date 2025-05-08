@@ -5,6 +5,7 @@
 package nl.info.zac.app.admin.flowable.cmmn
 
 import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
@@ -15,6 +16,7 @@ import jakarta.ws.rs.core.Response
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
+import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.CmmnRuntimeService
 import org.flowable.cmmn.api.CmmnTaskService
 import org.flowable.engine.RuntimeService
@@ -27,9 +29,11 @@ import java.util.logging.Logger
  * Meant to be used by developers / system admins only.
  * In future see if we can move this functionality somewhere else. It should not be in the ZAC API really.
  */
+@Singleton
 @Path("admin/cmmn")
 @Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.TEXT_HTML)
+@Produces(MediaType.APPLICATION_JSON)
+@NoArgConstructor
 class ZacCmmnAdminUtilRestService @Inject constructor(
     val cmmnRuntimeService: CmmnRuntimeService,
     val cmmnTaskService: CmmnTaskService,
@@ -42,7 +46,6 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
 
     @GET
     @Path("countmissingvariables")
-    @Produces(MediaType.APPLICATION_JSON)
     fun countMissingVariables(): Response {
         assertPolicy(policyService.readOverigeRechten().beheren)
         countMissingVariable(ZaakVariabelenService.VAR_ZAAK_UUID)
@@ -54,7 +57,6 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
 
     @GET
     @Path("logzaaktypeuuid")
-    @Produces(MediaType.APPLICATION_JSON)
     fun logExistingZaaktypeUUID(): Response {
         assertPolicy(policyService.readOverigeRechten().beheren)
         cmmnRuntimeService.createCaseInstanceQuery().variableExists(
@@ -70,7 +72,6 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
 
     @GET
     @Path("fixmissingzaaktypeuuid/{zaaktypeuuid}")
-    @Produces(MediaType.APPLICATION_JSON)
     fun fixMissingZaaktypeUUID(@PathParam("zaaktypeuuid") zaaktypeUUIDString: String): Response {
         assertPolicy(policyService.readOverigeRechten().beheren)
         val zaaktypeUUID = UUID.fromString(zaaktypeUUIDString)
@@ -88,7 +89,6 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
 
     @GET
     @Path("fixexistingzaaktypeuuid/{zaaktypeuuid}")
-    @Produces(MediaType.APPLICATION_JSON)
     fun fixAllZaaktypeUUID(@PathParam("zaaktypeuuid") zaaktypeUUIDString: String): Response {
         assertPolicy(policyService.readOverigeRechten().beheren)
         val zaaktypeUUID = UUID.fromString(zaaktypeUUIDString)
@@ -106,7 +106,6 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
 
     @GET
     @Path("logtasksmissingscopeid")
-    @Produces(MediaType.APPLICATION_JSON)
     fun logTasksMissingScopeId(): Response {
         assertPolicy(policyService.readOverigeRechten().beheren)
         val tasks = cmmnTaskService.createTaskQuery().list().filter { it.scopeId == null }
@@ -119,7 +118,6 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
 
     @GET
     @Path("completetasksmissingscopeid")
-    @Produces(MediaType.APPLICATION_JSON)
     fun completeTasksMissingScopeId(): Response {
         assertPolicy(policyService.readOverigeRechten().beheren)
         runtimeService.createActivityInstanceQuery().list()
