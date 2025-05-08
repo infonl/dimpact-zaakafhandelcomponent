@@ -90,9 +90,10 @@
                 formControlName="defaultGroepId"
                 [compareWith]="compareObject"
               >
-                <mat-option *ngFor="let groep of groepen" [value]="groep.id">{{
-                  groep.naam
-                }}</mat-option>
+                <mat-option [value]="null">{{ 'groep.-kies-' | translate }}</mat-option>
+                <mat-option *ngFor="let groep of groepen" [value]="groep.id">
+                  {{ groep.naam }}
+                </mat-option>
               </mat-select>
             </mat-form-field>
             <mat-form-field class="w33 w100-md" floatLabel="always">
