@@ -176,4 +176,9 @@
         <servlet-name>webdav</servlet-name>
         <url-pattern>/webdav/*</url-pattern>
     </servlet-mapping>
+
+    <error-page>
+        <error-code>403</error-code>
+        <location>/error-403.html</location>
+    </error-page>
 </web-app>
