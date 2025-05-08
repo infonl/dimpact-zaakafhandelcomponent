@@ -30,15 +30,15 @@ export abstract class EditComponent
   extends StaticTextComponent
   implements OnInit, OnDestroy
 {
-  editing: boolean;
+  editing = false;
   @HostBinding("class.zac-is-invalid") isInValid = false;
 
   @Input() readonly = false;
   @Input() abstract formField: AbstractFormField;
-  @Output() saveField = new EventEmitter<any>();
+  @Output() saveField = new EventEmitter<Record<string, unknown>>();
 
-  formFields: FormGroup;
-  subscription: Subscription;
+  formFields = new FormGroup({});
+  subscription: Subscription | null = null;
 
   protected constructor(
     protected mfbService: MaterialFormBuilderService,
@@ -74,8 +74,9 @@ export abstract class EditComponent
 
       this.subscription = this.formFields.statusChanges.subscribe(
         (status: FormControlStatus) => {
-          this.isInValid =
-            this.formFields.get(this.formField.id).dirty && status !== "VALID";
+          this.isInValid = Boolean(
+            this.formFields.get(this.formField.id)?.dirty && status !== "VALID",
+          );
         },
       );
     }
@@ -107,10 +108,10 @@ export abstract class EditComponent
   private submitSave(): void {
     const values = Object.keys(this.formFields.controls).reduce(
       (result, key) => {
-        result[key] = this.formFields.get(key).value;
+        result[key] = this.formFields.get(key)?.value;
         return result;
       },
-      {},
+      {} as Record<string, unknown> satisfies Record<string, unknown>,
     );
 
     this.saveField.emit(values);
