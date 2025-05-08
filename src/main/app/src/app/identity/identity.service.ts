@@ -23,12 +23,22 @@ export class IdentityService {
     private foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
-  listGroups() {
+  listGroups(zaaktypeUuid?: string): Observable<GeneratedType<"RestGroup">[]> { 
+    if (!zaaktypeUuid) {
     return this.zacHttp
       .GET("/rest/identity/groups")
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
+    } else {
+      return this.zacHttp
+        .GET("/rest/identity/groups/zaaktype/{zaaktypeUuid}", {
+          pathParams: { path: { zaaktypeUuid } },
+        })
+        .pipe(
+          catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+        );
+    }
   }
 
   listUsersInGroup(groupId: string) {
@@ -44,21 +54,6 @@ export class IdentityService {
   listUsers() {
     return this.zacHttp
       .GET(`/rest/identity/users`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
-  }
-
-  listGroupsForZaakType(
-    zaaktypeUuid?: string,
-  ): Observable<GeneratedType<"RestGroup">[]> {
-    if (!zaaktypeUuid) {
-      return this.listGroups();
-    }
-    return this.zacHttp
-      .GET("/rest/identity/groups/zaaktype/{zaaktypeUuid}", {
-        pathParams: { path: { zaaktypeUuid } },
-      })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

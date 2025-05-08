@@ -165,7 +165,7 @@ export class ZaakCreateComponent {
     if (!caseType) return;
     const { zaakafhandelparameters, vertrouwelijkheidaanduiding } = caseType;
     this.form.controls.groep.enable();
-    this.groups = this.identityService.listGroupsForZaakType(caseType.uuid);
+    this.groups = this.identityService.listGroups(caseType.uuid);
 
     this.groups.subscribe((groups) => {
       this.form.controls.groep.setValue(
