@@ -23,7 +23,7 @@ import java.lang.Runtime.getRuntime
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-@Path("util")
+@Path("admin/util")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.TEXT_HTML)
 @NoArgConstructor
@@ -38,7 +38,7 @@ class UtilRestService @Inject constructor(
         private val ZTC: String = h(2, "ztcClientService")
         private val ZHPS: String = h(2, "zaakafhandelParameterService")
 
-        private fun links(url: List<String>) = ul(url.map { a("/rest/util/$it", it) })
+        private fun links(url: List<String>) = ul(url.map { a("/rest/admin/util/$it", it) })
 
         private fun body(utils: List<String>) = body(utils.joinToString())
 
