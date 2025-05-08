@@ -117,7 +117,7 @@ class ZaakKoppelenRestService @Inject constructor(
         (areBothOpen(sourceZaak, targetZaak) || areBothClosed(sourceZaak, targetZaak)) &&
             sourceZaak.hasLinkRights() &&
             targetZaak.hasLinkRights() &&
-            targetZaak.isLinkableTo(sourceZaak, relationType) &&
+            sourceZaak.isLinkableTo(targetZaak, relationType) &&
             targetZaak.hasMatchingZaaktypeWith(sourceZaak, relationType)
 
     private fun areBothOpen(sourceZaak: Zaak, targetZaak: ZaakZoekObject) =
@@ -130,21 +130,21 @@ class ZaakKoppelenRestService @Inject constructor(
 
     private fun Zaak.hasLinkRights() = policyService.readZaakRechten(this).koppelen
 
-    private fun ZaakZoekObject.isLinkableTo(sourceZaak: Zaak, relationType: RelatieType): Boolean =
+    private fun Zaak.isLinkableTo(targetZaak: ZaakZoekObject, relationType: RelatieType): Boolean =
         when (relationType) {
             RelatieType.HOOFDZAAK ->
                 // hoofdzaak to hoofdzaak link not allowed
-                !sourceZaak.is_Hoofdzaak && !this.isIndicatie(ZaakIndicatie.HOOFDZAAK) &&
+                !this.is_Hoofdzaak && !targetZaak.isIndicatie(ZaakIndicatie.HOOFDZAAK) &&
                     // a zaak cannot have two hoofdzaken
-                    !sourceZaak.isDeelzaak && !this.isIndicatie(ZaakIndicatie.DEELZAAK)
+                    !this.isDeelzaak && !targetZaak.isIndicatie(ZaakIndicatie.DEELZAAK)
             RelatieType.DEELZAAK ->
                 // As per https://vng-realisatie.github.io/gemma-zaken/standaard/zaken
                 // "deelzaken van deelzaken zijn NIET toegestaan"
-                !sourceZaak.isDeelzaak && !this.isIndicatie(ZaakIndicatie.DEELZAAK) &&
+                !this.isDeelzaak && !targetZaak.isIndicatie(ZaakIndicatie.DEELZAAK) &&
                     // a hoofdzaak cannot become also a deelzaak
-                    !(sourceZaak.is_Hoofdzaak && this.isIndicatie(ZaakIndicatie.HOOFDZAAK))
+                    !(this.is_Hoofdzaak && targetZaak.isIndicatie(ZaakIndicatie.HOOFDZAAK))
             else -> throw UnsupportedOperationException(
-                "Unsupported link type: $relationType for ${sourceZaak.identificatie} -> ${this.identificatie}"
+                "Unsupported link type: $relationType for ${this.identificatie} -> ${targetZaak.identificatie}"
             )
         }
 
