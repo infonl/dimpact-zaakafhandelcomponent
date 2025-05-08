@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.app.flowable.cmmn
+package nl.info.zac.app.admin.flowable.cmmn
 
 import jakarta.inject.Inject
 import jakarta.ws.rs.Consumes
