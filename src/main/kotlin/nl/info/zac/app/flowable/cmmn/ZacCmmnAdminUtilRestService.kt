@@ -25,7 +25,7 @@ import java.util.logging.Logger
  * Meant to be used by developers / system admins only.
  * In future see if we can move this functionality somewhere else. It should not be in the ZAC API really.
  */
-@Path("fixutil")
+@Path("admin/cmmn")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.TEXT_HTML)
 class ZacCmmnAdminUtilRestService @Inject constructor(
@@ -38,7 +38,7 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
     }
 
     @GET
-    @Path("countmissing")
+    @Path("countmissingvariables")
     @Produces(MediaType.APPLICATION_JSON)
     fun countMissingVariables(): Response {
         countMissingVariable(ZaakVariabelenService.VAR_ZAAK_UUID)
