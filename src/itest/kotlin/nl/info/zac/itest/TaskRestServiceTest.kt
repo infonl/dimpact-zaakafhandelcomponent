@@ -59,8 +59,8 @@ class TaskRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody.shouldBeJsonArray()
-                // the zaak is in the intake phase, so there should be only be one human task
-                // plan item: 'aanvullende informatie'
+                // the zaak is in the intake phase, and in a previous test two 'aanvullende informatie' tasks have been started
+                // for this zaak, so there should be two (identical) tasks in the list
                 JSONArray(responseBody).length() shouldBe 2
                 for (task in JSONArray(responseBody)) {
                     with(task.toString()) {
