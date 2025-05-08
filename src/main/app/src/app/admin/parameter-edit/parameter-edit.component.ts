@@ -134,7 +134,7 @@ export class ParameterEditComponent
         referentieTabelService.listDomeinen(),
         referentieTabelService.listAfzenders(),
         zaakafhandelParametersService.listReplyTos(),
-        identityService.listGroupsForZaakType(this.parameters.zaaktype.uuid),
+        identityService.listGroups(),
         zaakafhandelParametersService.listZaakbeeindigRedenen(),
         mailtemplateBeheerService.listKoppelbareMailtemplates(),
         zaakafhandelParametersService.listResultaattypes(
@@ -248,21 +248,19 @@ export class ParameterEditComponent
   }
 
   createForm() {
-    const defaultGroepId = this.parameters.defaultGroepId;
-    const validGroep = this.groepen.some(g => g.id === defaultGroepId);
-    
     this.algemeenFormGroup = this.formBuilder.group({
       caseDefinition: [this.parameters.caseDefinition, [Validators.required]],
       domein: [this.parameters.domein],
-      defaultGroepId: [validGroep ? defaultGroepId : null],
+      defaultGroepId: [this.parameters.defaultGroepId, [Validators.required]],
       defaultBehandelaarId: [this.parameters.defaultBehandelaarId],
-      einddatumGeplandWaarschuwing: [this.parameters.einddatumGeplandWaarschuwing],
+      einddatumGeplandWaarschuwing: [
+        this.parameters.einddatumGeplandWaarschuwing,
+      ],
       uiterlijkeEinddatumAfdoeningWaarschuwing: [
-        this.parameters.uiterlijkeEinddatumAfdoeningWaarschuwing
+        this.parameters.uiterlijkeEinddatumAfdoeningWaarschuwing,
       ],
       productaanvraagtype: [this.parameters.productaanvraagtype],
     });
-    
     this.createHumanTasksForm();
     this.createUserEventListenerForm();
     this.createMailForm();
@@ -270,25 +268,11 @@ export class ParameterEditComponent
     this.createSmartDocumentsEnabledForm();
     this.setMedewerkersForGroup(this.parameters.defaultGroepId);
 
-    if (!this.algemeenFormGroup.controls.defaultGroepId.value) {
-      this.algemeenFormGroup.controls.defaultBehandelaarId.disable();
-    }
-
     this.subscriptions$.push(
       this.algemeenFormGroup.controls.defaultGroepId.valueChanges.subscribe(
-        (groepId) => {
-          if (!groepId) {
-            this.algemeenFormGroup.controls.defaultBehandelaarId.disable();
-            this.medewerkers = [];
-          } else {
-            this.algemeenFormGroup.controls.defaultBehandelaarId.enable();
-            this.setMedewerkersForGroup(groepId);
-          }
-        }
-      )
+        this.setMedewerkersForGroup.bind(this),
+      ),
     );
-    
-    
 
     this.subscriptions$.push(
       this.algemeenFormGroup.controls.einddatumGeplandWaarschuwing.valueChanges.subscribe(
@@ -314,7 +298,7 @@ export class ParameterEditComponent
   }
 
   private setMedewerkersForGroup(groepId: string) {
-    this.identityService
+    return this.identityService
       .listUsersInGroup(groepId)
       .subscribe((medewerkers) => {
         this.medewerkers = medewerkers;
