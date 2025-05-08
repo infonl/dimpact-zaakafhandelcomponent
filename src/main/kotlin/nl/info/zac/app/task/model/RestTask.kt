@@ -43,6 +43,8 @@ data class RestTask(
 
     var zaaktypeOmschrijving: String? = null,
 
+    var zaaktypeUUID: UUID? = null,
+
     var status: TaakStatus? = null,
 
     /**

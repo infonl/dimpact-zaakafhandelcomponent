@@ -31,4 +31,5 @@ export class Taak {
   taakinformatie: Taakinformatie;
   taakdocumenten: string[];
   rechten: TaakRechten;
+  zaaktypeUUID: string;
 }

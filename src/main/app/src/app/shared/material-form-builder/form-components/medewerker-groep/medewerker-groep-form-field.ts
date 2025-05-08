@@ -13,7 +13,7 @@ export class MedewerkerGroepFormField extends AbstractFormGroupField {
   groepLabel: string;
   medewerkerLabel: string;
   maxlength: number;
-
+  zaaktypeUuid: string;
   maxGroupNameLength: number;
   maxGroupIdLength: number;
 
