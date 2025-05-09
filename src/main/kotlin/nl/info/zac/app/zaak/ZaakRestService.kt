@@ -1208,11 +1208,11 @@ class ZaakRestService @Inject constructor(
     private fun speciaalMail(mail: String): Speciaal? = if (!mail.contains("@")) Speciaal.valueOf(mail) else null
 
     private fun assertCanAddBetrokkene(zaak: RestZaak) {
-        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-            zaak.zaaktype.uuid
-        )
-
         zaak.initiatorIdentificatieType?.let {
+            val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
+                zaak.zaaktype.uuid
+            )
+            
             if (it.isKvK && !zaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen) {
                 throw BetrokkeneNotAllowed()
             }
