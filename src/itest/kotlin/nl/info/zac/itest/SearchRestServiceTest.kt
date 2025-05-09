@@ -47,6 +47,8 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_DOCUME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_TITEL
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.util.removeExtraFields
+import nl.info.zac.itest.util.removeFieldRecursively
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONObject
 
@@ -417,7 +419,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     {
                       "isKoppelbaar": false,
                       "identificatie": "$ZAAK_MANUAL_2020_01_IDENTIFICATION",
-                      "omschrijving": "changedDescription",
+                      "omschrijving": "fakeZaakDescription2",
                       "statustypeOmschrijving": "Intake",
                       "toelichting": "$ZAAK_EXPLANATION_1",
                       "type": "ZAAK",
@@ -495,7 +497,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     {
                       "isKoppelbaar": false,
                       "identificatie": "$ZAAK_MANUAL_2020_01_IDENTIFICATION",
-                      "omschrijving": "changedDescription",
+                      "omschrijving": "fakeZaakDescription2",
                       "statustypeOmschrijving": "Intake",
                       "toelichting": "$ZAAK_EXPLANATION_1",
                       "type": "ZAAK",
