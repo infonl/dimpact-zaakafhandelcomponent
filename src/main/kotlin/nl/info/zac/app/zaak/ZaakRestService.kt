@@ -1212,7 +1212,7 @@ class ZaakRestService @Inject constructor(
             val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
                 zaak.zaaktype.uuid
             )
-            
+
             if (it.isKvK && !zaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen) {
                 throw BetrokkeneNotAllowed()
             }
