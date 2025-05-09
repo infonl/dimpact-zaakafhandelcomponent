@@ -139,6 +139,11 @@ export class MedewerkerGroepComponent
   }
 
   private getMedewerkers(defaultMedewerkerId?: string) {
+    if (!this.groepen?.some((groep) => groep.id === this.data.groep.value.id)) {
+      // group has been removed; do not request users
+      return;
+    }
+
     this.medewerkers = [];
     this.identityService
       .listUsersInGroup(this.data.groep.value.id)
