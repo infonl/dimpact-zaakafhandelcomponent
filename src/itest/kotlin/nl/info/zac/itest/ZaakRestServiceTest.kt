@@ -108,7 +108,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "naam": "$TEST_GROUP_A_DESCRIPTION"
                       },
                       "identificatie": "$ZAAK_MANUAL_2020_01_IDENTIFICATION",
-                      "indicaties": [],
+                      "indicaties": ["ONTVANGSTBEVESTIGING_NIET_VERSTUURD"],
                       "isBesluittypeAanwezig": false,
                       "isDeelzaak": false,
                       "isHeropend": false,
@@ -535,7 +535,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "naam": "$TEST_GROUP_A_DESCRIPTION"
                       },
                       "identificatie": "$ZAAK_MANUAL_2020_01_IDENTIFICATION",
-                      "indicaties": [],
+                      "indicaties": ["ONTVANGSTBEVESTIGING_NIET_VERSTUURD"],
                       "isBesluittypeAanwezig": false,
                       "isDeelzaak": false,
                       "isHeropend": false,
