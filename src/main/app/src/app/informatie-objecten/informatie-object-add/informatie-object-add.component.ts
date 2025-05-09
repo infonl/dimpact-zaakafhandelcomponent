@@ -76,7 +76,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
   );
 
   private informatieobjectStatussen!: { label: string; value: string }[];
-  private status!: SelectFormField;
+  private status?: SelectFormField = undefined;
   private subscriptions: Subscription[] = [];
 
   private getInputs(deps: { loggedInUser: GeneratedType<"RestLoggedInUser"> }) {
@@ -267,12 +267,12 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
     this.subscriptions.push(
       ontvangstDatum.formControl.valueChanges.subscribe((value) => {
         if (value && verzendDatum.formControl.enabled) {
-          this.status.formControl.setValue(this.getStatusDefinitief());
-          this.status.formControl.disable();
+          this.status?.formControl.setValue(this.getStatusDefinitief());
+          this.status?.formControl.disable();
           verzendDatum.formControl.disable();
         } else if (!value && verzendDatum.formControl.disabled) {
           if (!this.isAfgehandeld()) {
-            this.status.formControl.enable();
+            this.status?.formControl.enable();
           }
           verzendDatum.formControl.enable();
         }
@@ -306,7 +306,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
     return !this.zaak?.isOpen;
   }
 
-  private getStatusDefinitief(): { label: string; value: string } {
+  private getStatusDefinitief() {
     return this.informatieobjectStatussen.find(
       (option) =>
         option.value ===
@@ -383,7 +383,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     if (this.isAfgehandeld()) {
-      this.status.formControl.disable();
+      this.status?.formControl.disable();
     }
   }
 

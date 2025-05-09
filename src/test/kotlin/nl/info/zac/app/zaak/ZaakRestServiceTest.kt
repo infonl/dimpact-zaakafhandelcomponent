@@ -330,6 +330,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(any<UUID>()) } returns zaakType
         every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
         every { loggedInUserInstance.get() } returns createLoggedInUser()
+        every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
         When("zaak creation is attempted") {
             val exception = shouldThrow<CommunicationChannelNotFound> {
@@ -350,6 +351,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(any<UUID>()) } returns zaakType
         every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
         every { loggedInUserInstance.get() } returns createLoggedInUser()
+        every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
         When("zaak creation is attempted") {
             val exception = shouldThrow<CommunicationChannelNotFound> {
@@ -711,6 +713,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { eventingService.send(any<ScreenEvent>()) } just runs
         every { restZaakConverter.toRestZaak(patchedZaak) } returns restZaak
         every { identityService.checkIfUserIsInGroup(restZaak.behandelaar!!.id, restZaak.groep!!.id) } just runs
+        every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
         When("zaak final date is set to a later date") {
             val updatedRestZaak = zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
@@ -744,6 +747,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
         every { identityService.checkIfUserIsInGroup(any(), any()) } throws InputValidationFailedException()
+        every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
         When("zaak update is requested") {
             shouldThrow<InputValidationFailedException> {
@@ -762,6 +766,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten(verlengenDoorlooptijd = false)
+        every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
         When("zaak update is requested with a new final date") {
             val exception = shouldThrow<PolicyException> {
@@ -799,6 +804,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten(wijzigenDoorlooptijd = false)
+        every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
         When("zaak update is requested with a new final date") {
             val exception = shouldThrow<PolicyException> {
@@ -1232,6 +1238,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.uuid)
             } returns zaakafhandelParameters
+
 
             val exception = shouldThrow<BetrokkeneNotAllowed> {
                 zaakRestService.createZaak(zaakAanmaakGegevens)

@@ -432,41 +432,44 @@ class ProductaanvraagService @Inject constructor(
         val zaakafhandelparameters = zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
             productaanvraag.type
         )
-        if (zaakafhandelparameters.isNotEmpty()) {
-            try {
-                if (zaakafhandelparameters.size > 1) {
-                    LOG.warning(
-                        "Multiple zaakafhandelparameters found for productaanvraag type '${productaanvraag.type}'. " +
-                            "Using the first one with zaaktype UUID: '${zaakafhandelparameters.first().zaakTypeUUID}' " +
-                            "and zaaktype omschrijving: '${zaakafhandelparameters.first().zaaktypeOmschrijving}'."
-                    )
-                }
-                val firstZaakafhandelparameters = zaakafhandelparameters.first()
-                productaanvraag.betrokkenen?.forEach {
-                    it.inpBsn
-                        ?.takeUnless { firstZaakafhandelparameters.betrokkeneKoppelingen.brpKoppelen }
-                        ?.let { throw BetrokkeneNotAllowed() }
-
-                    it.innNnpId
-                        ?.takeUnless { firstZaakafhandelparameters.betrokkeneKoppelingen.kvkKoppelen }
-                        ?.let { throw BetrokkeneNotAllowed() }
-                }
-                LOG.fine { "Creating a zaak using a CMMN case with zaaktype UUID: '${firstZaakafhandelparameters.zaakTypeUUID}'" }
-                startZaakWithCmmnProcess(
-                    firstZaakafhandelparameters.zaakTypeUUID,
-                    productaanvraag,
-                    productaanvraagObject
-                )
-            } catch (exception: BetrokkeneNotAllowed) {
-                logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
-            } catch (exception: RuntimeException) {
-                logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
-            }
-        } else {
+        if (zaakafhandelparameters.isEmpty()) {
             LOG.info(
                 "No zaaktype found for productaanvraag-Dimpact type '${productaanvraag.type}'. No zaak was created."
             )
             registreerInbox(productaanvraag, productaanvraagObject)
+            return
+        }
+
+        try {
+            if (zaakafhandelparameters.size > 1) {
+                LOG.warning(
+                    "Multiple zaakafhandelparameters found for productaanvraag type '${productaanvraag.type}'. " +
+                        "Using the first one with zaaktype UUID: '${zaakafhandelparameters.first().zaakTypeUUID}' " +
+                        "and zaaktype omschrijving: '${zaakafhandelparameters.first().zaaktypeOmschrijving}'."
+                )
+            }
+            val firstZaakafhandelparameters = zaakafhandelparameters.first()
+            productaanvraag.betrokkenen?.forEach {
+                it.inpBsn
+                    ?.takeUnless { firstZaakafhandelparameters.betrokkeneKoppelingen.brpKoppelen }
+                    ?.let { throw BetrokkeneNotAllowed() }
+
+                it.innNnpId
+                    ?.takeUnless { firstZaakafhandelparameters.betrokkeneKoppelingen.kvkKoppelen }
+                    ?.let { throw BetrokkeneNotAllowed() }
+            }
+            LOG.fine {
+                "Creating a zaak using a CMMN case with zaaktype UUID: '${firstZaakafhandelparameters.zaakTypeUUID}'"
+            }
+            startZaakWithCmmnProcess(
+                firstZaakafhandelparameters.zaakTypeUUID,
+                productaanvraag,
+                productaanvraagObject
+            )
+        } catch (exception: BetrokkeneNotAllowed) {
+            logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
+        } catch (exception: RuntimeException) {
+            logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
         }
     }
 

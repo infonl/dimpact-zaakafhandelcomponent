@@ -77,7 +77,10 @@ fun createZaakafhandelParameters(
     nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
     zaakbeeindigParameters: Set<ZaakbeeindigParameter>? = emptySet(),
     caseDefinitionId: String = "fakeCaseDefinitionId",
-    betrokkeneKoppelingen: BetrokkeneKoppelingen? = null
+    betrokkeneKoppelingen: BetrokkeneKoppelingen = BetrokkeneKoppelingen().apply {
+        brpKoppelen = true
+        kvkKoppelen = true
+    }
 ) =
     ZaakafhandelParameters().apply {
         this.id = id
@@ -89,7 +92,6 @@ fun createZaakafhandelParameters(
         this.productaanvraagtype = productaanvraagtype
         this.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
         this.caseDefinitionID = caseDefinitionId
-        this.betrokkeneKoppelingen = createBetrokkeneKoppelingen(zaakafhandelParameters = this)
         setMailtemplateKoppelingen(
             setOf(
                 createMailtemplateKoppelingen(
@@ -100,6 +102,10 @@ fun createZaakafhandelParameters(
         )
         setZaakAfzenders(setOf(createZaakAfzender(zaakafhandelParameters = this)))
         setZaakbeeindigParameters(zaakbeeindigParameters)
+        val parameters = this
+        this.betrokkeneKoppelingen = betrokkeneKoppelingen.apply {
+            this.zaakafhandelParameters = parameters
+        }
     }
 
 fun createMailtemplateKoppelingen(
