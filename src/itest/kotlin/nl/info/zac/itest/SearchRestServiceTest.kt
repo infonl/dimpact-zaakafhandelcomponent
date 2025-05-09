@@ -407,27 +407,27 @@ class SearchRestServiceTest : BehaviorSpec({
                     {
                       "isKoppelbaar": true,
                       "identificatie": "$ZAAK_MANUAL_2024_01_IDENTIFICATION",
-                      "type": "ZAAK",
+                      "type": "ZAAK"
                     },
                     {
                       "isKoppelbaar": false,
                       "identificatie": "$ZAAK_MANUAL_2020_01_IDENTIFICATION",
-                      "type": "ZAAK",
+                      "type": "ZAAK"
                     },
                     {
                       "isKoppelbaar": true,
                       "identificatie": "ZAAK-2000-0000000006",
-                      "type": "ZAAK",
+                      "type": "ZAAK"
                     },
                     {
                       "isKoppelbaar": true,
                       "identificatie": "ZAAK-2000-0000000005",
-                      "type": "ZAAK",
+                      "type": "ZAAK"
                     },
                     {
                       "isKoppelbaar": true,
                       "identificatie": "ZAAK-2000-0000000004",
-                      "type": "ZAAK",
+                      "type": "ZAAK"
                     }
                   ],
                   "totaal": 10,
@@ -465,27 +465,27 @@ class SearchRestServiceTest : BehaviorSpec({
                     {
                       "isKoppelbaar": false,
                       "identificatie": "$ZAAK_MANUAL_2024_01_IDENTIFICATION",
-                      "type": "ZAAK",
+                      "type": "ZAAK"
                     },
                     {
                       "isKoppelbaar": false,
                       "identificatie": "$ZAAK_MANUAL_2020_01_IDENTIFICATION",
-                      "type": "ZAAK",
+                      "type": "ZAAK"
                     },
                     {
                       "isKoppelbaar": false,
                       "identificatie": "ZAAK-2000-0000000006",
-                      "type": "ZAAK",
+                      "type": "ZAAK"
                     },
                     {
                       "isKoppelbaar": false,
                       "identificatie": "ZAAK-2000-0000000005",
-                      "type": "ZAAK",
+                      "type": "ZAAK"
                     },
                     {
                       "isKoppelbaar": false,
                       "identificatie": "ZAAK-2000-0000000004",
-                      "type": "ZAAK",
+                      "type": "ZAAK"
                     }
                   ],
                   "totaal": 10,
