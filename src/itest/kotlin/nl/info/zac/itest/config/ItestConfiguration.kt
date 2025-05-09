@@ -21,13 +21,6 @@ object ItestConfiguration {
     private const val ZAC_MANAGEMENT_PORT = 9990
     private const val GREENMAIL_API_PORT = 18083
 
-    const val HTTP_STATUS_OK = 200
-    const val HTTP_STATUS_NO_CONTENT = 204
-    const val HTTP_STATUS_SEE_OTHER = 303
-    const val HTTP_STATUS_BAD_REQUEST = 400
-    const val HTTP_STATUS_FORBIDDEN = 403
-    const val HTTP_STATUS_NOT_FOUND = 404
-
     /**
      * Temporarily increase the HTTP read timeout to 60 seconds to allow for
      * the slow 'document-creation/create-document-attended' endpoint to complete on slower computers.
@@ -168,6 +161,7 @@ object ItestConfiguration {
     const val TEST_COORDINATOR_1_USERNAME = "coordinator1"
     const val TEST_COORDINATOR_1_NAME = "Test Coordinator1"
     const val TEST_BEHANDELAAR_1_USERNAME = "behandelaar1"
+    const val TEST_BEHANDELAAR_1_PASSWORD = "behandelaar1"
     const val TEST_BEHANDELAAR_1_NAME = "Test Behandelaar1"
     const val TEST_RAADPLEGER_1_ID = "raadpleger1"
     const val TEST_RAADPLEGER_1_NAME = "Test Raadpleger1"
@@ -307,6 +301,7 @@ object ItestConfiguration {
     const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_TITEL = "Fake test document"
     const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_FILE_NAME = "fake-test-document.pdf"
 
+    const val ZAAK_MANUAL_2000_03_IDENTIFICATION = "ZAAK-2000-0000000003"
     const val ZAAK_MANUAL_2020_01_IDENTIFICATION = "ZAAK-2020-0000000001"
     const val ZAAK_MANUAL_2024_01_IDENTIFICATION = "ZAAK-2024-0000000001"
 
@@ -318,10 +313,12 @@ object ItestConfiguration {
      */
     const val ZAC_DEFAULT_DOCKER_IMAGE = "ghcr.io/infonl/zaakafhandelcomponent:dev"
 
+    const val ZAC_BASE_URI = "http://localhost:$ZAC_CONTAINER_PORT"
+
     /**
      * The ZAC API URI from outside the Docker network.
      */
-    const val ZAC_API_URI = "http://localhost:$ZAC_CONTAINER_PORT/rest"
+    const val ZAC_API_URI = "$ZAC_BASE_URI/rest"
 
     /**
      * The ZAC websocket base URI from outside the Docker network.

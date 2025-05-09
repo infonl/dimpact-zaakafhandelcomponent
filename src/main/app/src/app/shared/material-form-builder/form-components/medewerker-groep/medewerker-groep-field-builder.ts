@@ -36,6 +36,11 @@ export class MedewerkerGroepFieldBuilder extends AbstractFormFieldBuilder {
     return this;
   }
 
+  setZaaktypeUuid(zaaktypeUuid: string): this {
+    this.formField.zaaktypeUuid = zaaktypeUuid;
+    return this;
+  }
+
   groepRequired(): this {
     this.formField.groep.setValidators(Validators.required);
     this.formField.required = true;

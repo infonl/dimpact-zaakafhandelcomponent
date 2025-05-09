@@ -14,9 +14,6 @@ import io.kotest.matchers.date.shouldBeBetween
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_BAD_REQUEST
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
 import nl.info.zac.itest.config.ItestConfiguration.START_DATE
@@ -32,6 +29,9 @@ import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_BAD_REQUEST
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
+import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -72,7 +72,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 )
 
                 Then("the response should be 'ok'") {
-                    response.code shouldBe HTTP_STATUS_OK
+                    response.code shouldBe HTTP_OK
                 }
             }
         }
@@ -96,7 +96,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             )
 
             Then("the response should be 'ok'") {
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
             }
         }
     }
@@ -109,7 +109,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         )
         var responseBody = zaakInformatieObjectenResponse.body!!.string()
         logger.info { "Response: $responseBody" }
-        zaakInformatieObjectenResponse.code shouldBe HTTP_STATUS_OK
+        zaakInformatieObjectenResponse.code shouldBe HTTP_OK
         val zaakInformatieObjectenUrl = JSONArray(responseBody)
             .getJSONObject(0)
             .getString("url")
@@ -120,7 +120,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         )
         responseBody = zaakRollenResponse.body!!.string()
         logger.info { "Response: $responseBody" }
-        zaakRollenResponse.code shouldBe HTTP_STATUS_OK
+        zaakRollenResponse.code shouldBe HTTP_OK
         val zaakRollenUrl = JSONObject(responseBody)
             .getJSONArray("results")
             .getJSONObject(0)
@@ -155,7 +155,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             Then("the response should be 'no content'") {
                 responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_NO_CONTENT
+                response.code shouldBe HTTP_NO_CONTENT
             }
         }
 
@@ -184,7 +184,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             Then("the response should be 'no content'") {
                 responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_NO_CONTENT
+                response.code shouldBe HTTP_NO_CONTENT
             }
         }
 
@@ -213,7 +213,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             Then("the response should be 'no content'") {
                 responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_NO_CONTENT
+                response.code shouldBe HTTP_NO_CONTENT
             }
         }
     }
@@ -281,7 +281,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             logger.info { "Response: $responseBody" }
 
             Then("400 should be returned") {
-                response.code shouldBe HTTP_STATUS_BAD_REQUEST
+                response.code shouldBe HTTP_BAD_REQUEST
                 responseBody.shouldContainJsonKeyValue("message", "Requested page 2 must be <= 1")
             }
         }

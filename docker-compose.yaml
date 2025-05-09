@@ -168,7 +168,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   redis:
-    image: redis:8.0.0@sha256:a4b90e7079b67c41bdf4ca6f9d87197079e4c1c3273b7f489a74f2687d85a05e
+    image: redis:7.4.3@sha256:7df1eeff67eb0ba84f6b9d2940765a6bb1158081426745c185a03b1507de6a09
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -255,7 +255,7 @@ services:
       - "8181:8181"
 
   brp-personen-mock:
-    image: ghcr.io/brp-api/personen-mock:2.3.0-202409180940@sha256:eacbf6bb9d7ccd74c283506072c0d11e5695b04c0d5ed587f61fd3a4db689220
+    image: ghcr.io/brp-api/personen-mock:2.6.0-202504011526@sha256:cfa6f238f37c748595b336d0582ecf9685b67096ad625d8c9b13c84f8914c64c
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010

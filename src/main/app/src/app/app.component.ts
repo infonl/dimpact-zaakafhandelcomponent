@@ -9,7 +9,6 @@ import { TranslateService } from "@ngx-translate/core";
 import { UtilService } from "./core/service/util.service";
 import { IdentityService } from "./identity/identity.service";
 import { SessionStorageUtil } from "./shared/storage/session-storage.util";
-import { ZaakKoppelenService } from "./zaken/zaak-koppelen/zaak-koppelen.service";
 
 @Component({
   selector: "zac-root",
@@ -22,9 +21,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   constructor(
     private translate: TranslateService,
     private titleService: Title,
-    private zaakKoppelenService: ZaakKoppelenService,
     public utilService: UtilService,
-    private identityService: IdentityService,
   ) {}
 
   ngOnInit(): void {
@@ -38,7 +35,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     if (!this.initialized) {
-      this.zaakKoppelenService.appInit();
       this.initialized = true;
     }
   }

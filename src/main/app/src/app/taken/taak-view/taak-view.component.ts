@@ -251,9 +251,8 @@ export class TaakViewComponent
     groepComponent.data = {
       custom: () =>
         this.identityService
-          .listGroups()
-          .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam"))))
-          .toPromise(),
+          .listGroups(this.taak.zaaktypeUUID)
+          .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam")))),
     };
   }
 
@@ -297,6 +296,7 @@ export class TaakViewComponent
         .groepLabel("groep.-kies-")
         .groepRequired()
         .medewerkerLabel("behandelaar.-kies-")
+        .setZaaktypeUuid(this.taak.zaaktypeUUID)
         .build(),
     );
     this.editFormFields.set(

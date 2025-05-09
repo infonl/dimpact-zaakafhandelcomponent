@@ -25,6 +25,7 @@ import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.FilterParameters
 import nl.info.zac.search.model.FilterVeld
+import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.ZoekParameters
 import nl.info.zac.search.model.ZoekResultaat
 import nl.info.zac.search.model.ZoekVeld
@@ -42,6 +43,7 @@ import java.util.UUID
 @Singleton
 @NoArgConstructor
 @AllOpen
+@Suppress("TooManyFunctions")
 class ZaakKoppelenRestService @Inject constructor(
     private val policyService: PolicyService,
     private val searchService: SearchService,
@@ -115,7 +117,8 @@ class ZaakKoppelenRestService @Inject constructor(
         (areBothOpen(sourceZaak, targetZaak) || areBothClosed(sourceZaak, targetZaak)) &&
             sourceZaak.hasLinkRights() &&
             targetZaak.hasLinkRights() &&
-            targetZaak.isLinkableTo(sourceZaak, relationType)
+            sourceZaak.isLinkableTo(targetZaak, relationType) &&
+            targetZaak.hasMatchingZaaktypeWith(sourceZaak, relationType)
 
     private fun areBothOpen(sourceZaak: Zaak, targetZaak: ZaakZoekObject) =
         sourceZaak.isOpen && targetZaak.archiefNominatie == null
@@ -127,18 +130,42 @@ class ZaakKoppelenRestService @Inject constructor(
 
     private fun Zaak.hasLinkRights() = policyService.readZaakRechten(this).koppelen
 
-    private fun ZaakZoekObject.isLinkableTo(sourceZaak: Zaak, relationType: RelatieType) =
+    private fun Zaak.isLinkableTo(targetZaak: ZaakZoekObject, relationType: RelatieType): Boolean =
         when (relationType) {
-            RelatieType.HOOFDZAAK -> this.zaaktypeUuid?.let { uuid ->
-                ztcClientService.readZaaktype(sourceZaak.zaaktype).deelzaaktypen.any {
-                    it.toString().contains(uuid)
+            RelatieType.HOOFDZAAK ->
+                // hoofdzaak to hoofdzaak link not allowed
+                !this.is_Hoofdzaak && !targetZaak.isIndicatie(ZaakIndicatie.HOOFDZAAK) &&
+                    // a zaak cannot have two hoofdzaken
+                    !this.isDeelzaak && !targetZaak.isIndicatie(ZaakIndicatie.DEELZAAK)
+            RelatieType.DEELZAAK ->
+                // As per https://vng-realisatie.github.io/gemma-zaken/standaard/zaken
+                // "deelzaken van deelzaken zijn NIET toegestaan"
+                !this.isDeelzaak && !targetZaak.isIndicatie(ZaakIndicatie.DEELZAAK) &&
+                    // a hoofdzaak cannot become also a deelzaak
+                    !(this.is_Hoofdzaak && targetZaak.isIndicatie(ZaakIndicatie.HOOFDZAAK))
+            else -> throw UnsupportedOperationException(
+                "Unsupported link type: $relationType for ${this.identificatie} -> ${targetZaak.identificatie}"
+            )
+        }
+
+    private fun ZaakZoekObject.hasMatchingZaaktypeWith(sourceZaak: Zaak, relationType: RelatieType): Boolean =
+        when (relationType) {
+            RelatieType.HOOFDZAAK ->
+                // source zaak's zaaktype is allowed in target zaak as deelzaak
+                sourceZaak.zaaktype.extractUuid().toString().let { uuid ->
+                    ztcClientService.readZaaktype(UUID.fromString(this.zaaktypeUuid)).deelzaaktypen.any {
+                        it.toString().contains(uuid)
+                    }
                 }
-            } ?: false
-            RelatieType.DEELZAAK -> sourceZaak.zaaktype.extractUuid().toString().let { uuid ->
-                ztcClientService.readZaaktype(UUID.fromString(this.zaaktypeUuid)).deelzaaktypen.any {
-                    it.toString().contains(uuid)
-                }
-            }
-            else -> throw UnsupportedOperationException("Unsupported link type: $relationType")
+            RelatieType.DEELZAAK ->
+                // target zaak's zaaktype is allowed in source zaak as deelzaak
+                this.zaaktypeUuid?.let { uuid ->
+                    ztcClientService.readZaaktype(sourceZaak.zaaktype).deelzaaktypen.any {
+                        it.toString().contains(uuid)
+                    }
+                } ?: false
+            else -> throw UnsupportedOperationException(
+                "Unsupported link type: $relationType for ${sourceZaak.identificatie} -> ${this.identificatie}"
+            )
         }
 }

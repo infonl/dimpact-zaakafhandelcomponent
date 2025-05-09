@@ -12,8 +12,6 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.TEST_INFORMATIE_OBJECT_TYPE_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
@@ -24,6 +22,8 @@ import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import org.json.JSONArray
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
+import java.net.HttpURLConnection.HTTP_OK
 import java.net.URLEncoder
 import java.time.LocalDate
 
@@ -64,14 +64,14 @@ class MailRestServiceTest : BehaviorSpec({
             Then("the response should be 'no-content'") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_NO_CONTENT
+                response.code shouldBe HTTP_NO_CONTENT
             }
 
             And("the received mail should contain the right details") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
                     url = "$GREENMAIL_API_URI/user/$receiverMail/messages/"
                 )
-                receivedMailsResponse.code shouldBe HTTP_STATUS_OK
+                receivedMailsResponse.code shouldBe HTTP_OK
 
                 val receivedMails = JSONArray(receivedMailsResponse.body!!.string())
                 with(receivedMails) {
@@ -104,7 +104,7 @@ class MailRestServiceTest : BehaviorSpec({
                 )
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
                 // the email PDF should always be the first
                 JSONArray(responseBody)[0].toString() shouldEqualJsonIgnoringExtraneousFields """
                 {

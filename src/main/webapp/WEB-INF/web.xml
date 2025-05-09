@@ -46,6 +46,10 @@
         <role-name>zaakafhandelcomponent_user</role-name>
     </security-role>
 
+    <security-role>
+        <role-name>beheerder</role-name>
+    </security-role>
+
     <security-constraint>
         <display-name>Deny all HTTP methods on '/rest/notificaties' except POST</display-name>
         <web-resource-collection>
@@ -126,6 +130,25 @@
     </security-constraint>
 
     <security-constraint>
+        <display-name>Require the 'beheerder' role on admin-only pages and endpoints</display-name>
+        <web-resource-collection>
+            <web-resource-name>admin</web-resource-name>
+            <url-pattern>/admin/*</url-pattern>
+        </web-resource-collection>
+        <web-resource-collection>
+            <web-resource-name>admin</web-resource-name>
+            <url-pattern>/rest/admin/util/*</url-pattern>
+        </web-resource-collection>
+        <web-resource-collection>
+            <web-resource-name>admin</web-resource-name>
+            <url-pattern>/rest/admin/cmmn/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>beheerder</role-name>
+        </auth-constraint>
+    </security-constraint>
+
+    <security-constraint>
         <display-name>Require the 'zaakafhandelcomponent_user' role for all other endpoints</display-name>
         <web-resource-collection>
             <web-resource-name>zaakafhandelcomponent</web-resource-name>
@@ -161,4 +184,9 @@
         <servlet-name>webdav</servlet-name>
         <url-pattern>/webdav/*</url-pattern>
     </servlet-mapping>
+
+    <error-page>
+        <error-code>403</error-code>
+        <location>/error-403.html</location>
+    </error-page>
 </web-app>

@@ -1,0 +1,149 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 Lifely
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+
+    <title>Geen toestemming</title>
+
+    <link
+      rel="preload"
+      href="/assets/fonts/Roboto/400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href="/assets/fonts/Roboto/500.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href="/assets/i18n/nl.json"
+      as="fetch"
+      crossorigin="anonymous"
+    />
+
+    <!-- Optimized CSS -->
+    <style>
+      :root {
+        --background-color: #fff;
+        --primary-color: #212121;
+        --secondary-color: #fff;
+        --header-bar-color: #3f51b5;
+        --success-bg: #dfede3;
+        --success-fill: #46a35e;
+        --error-bg: #ffe5e5;
+        --error-fill: #f44336;
+        --warning-bg: #fbedd5;
+        --warning-fill: #ffa500;
+      }
+
+      @font-face {
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: 400 500;
+        font-display: swap;
+        src:
+          url("/assets/fonts/Roboto/400.woff2") format("woff2"),
+          url("/assets/fonts/Roboto/500.woff2") format("woff2");
+      }
+
+      body {
+        font-family: Roboto, "Helvetica Neue", sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 20px;
+        color: var(--primary-color);
+      }
+
+      /* Material Design Layout Structure */
+      .mdl-layout {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        background-color: var(--background-color);
+      }
+
+      .mdl-layout__header {
+        background-color: var(--header-bar-color);
+        color: var(--secondary-color);
+        display: flex;
+        align-items: center;
+        height: 64px;
+        position: relative;
+        z-index: 3;
+      }
+
+      .mdl-layout__header-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        padding: 0 16px;
+        width: 100%;
+      }
+
+      .mdl-layout--fixed-header .mdl-layout__header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 4;
+      }
+
+      .mdl-layout__content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: calc(100vh);
+        overflow-y: auto;
+        flex-grow: 1;
+        position: relative;
+        z-index: 1;
+      }
+
+      .mdl-layout-title {
+        font-size: 20px;
+        font-weight: 500;
+        margin: 0;
+        padding: 0 16px !important;
+        color: inherit;
+      }
+
+      .wrapper {
+        min-width: 444px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="mdl-layout mdl-layout--fixed-header">
+      <header class="mdl-layout__header">
+        <div class="mdl-layout__header-row">
+          <span id="layout-title" class="mdl-layout-title mdl-layout-title__zac"
+            >Geen toestemming</span
+          >
+        </div>
+      </header>
+
+      <main class="mdl-layout__content">
+        <div class="page-content">
+          <div class="wrapper">
+            <p>U heeft helaas geen toestemming om deze pagina te bekijken.</p>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

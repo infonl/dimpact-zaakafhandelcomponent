@@ -11,10 +11,10 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
+import java.net.HttpURLConnection.HTTP_OK
 
 /**
  * Integration test to test the functionality of extending a zaak.
@@ -47,7 +47,7 @@ class ZaakRestServiceExtensionTest : BehaviorSpec({
             ) {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue("redenVerlenging", reason)
                     shouldContainJsonKeyValue("duurVerlenging", "$daysExtended dagen")

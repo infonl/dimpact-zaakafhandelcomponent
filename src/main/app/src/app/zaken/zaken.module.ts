@@ -27,7 +27,6 @@ import { ZaakCreateComponent } from "./zaak-create/zaak-create.component";
 import { CaseDetailsEditComponent } from "./zaak-details-wijzigen/zaak-details-wijzigen.component";
 import { ZaakDocumentenComponent } from "./zaak-documenten/zaak-documenten.component";
 import { ZaakInitiatorToevoegenComponent } from "./zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
-import { ZaakKoppelenDialogComponent } from "./zaak-koppelen/zaak-koppelen-dialog.component";
 import { ZaakLinkComponent } from "./zaak-link/zaak-link.component";
 import { ZaakOntkoppelenDialogComponent } from "./zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
 import { ZaakOpschortenDialogComponent } from "./zaak-opschorten-dialog/zaak-opschorten-dialog.component";
@@ -58,7 +57,6 @@ import { LocatieZoekComponent } from "./zoek/locatie-zoek/locatie-zoek.component
     ZakenAfgehandeldComponent,
     ZaakAfhandelenDialogComponent,
     ZakenVerdelenDialogComponent,
-    ZaakKoppelenDialogComponent,
     ZaakOntkoppelenDialogComponent,
     ZakenVrijgevenDialogComponent,
     ZaakOpschortenDialogComponent,

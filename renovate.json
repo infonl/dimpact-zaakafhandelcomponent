@@ -23,12 +23,16 @@
     "solr": "https://solr.apache.org/charts"
   },
   "helm-values": {
-    "fileMatch": "(^|/)ci/.+values\\.ya?ml$"
+    "managerFilePatterns": [
+      "/(^|/)ci/.+values\\.ya?ml$/"
+    ]
   },
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": ["^publiccode\\.yaml$"],
+      "managerFilePatterns": [
+        "/^publiccode\\.yaml$/"
+      ],
       "matchStrings": [
         "softwareVersion: \"(?<currentValue>[^\"]+)\"\\nreleaseDate: \"(?<releaseDate>[^\"]+)\""
       ],
@@ -38,7 +42,9 @@
     },
     {
       "customType": "regex",
-      "fileMatch": ["workflows/.+\\.ya?ml$"],
+      "managerFilePatterns": [
+        "/workflows/.+\\.ya?ml$/"
+      ],
       "matchStrings": [
         "\\sJAVA_VERSION: \"(?<currentValue>[^\"]+)\""
       ],
@@ -75,7 +81,9 @@
         "gradle"
       ],
       "enabled": false,
-      "description": ["Updates for dependencies that are provided by WildFly"]
+      "description": [
+        "Updates for dependencies that are provided by WildFly"
+      ]
     },
     {
       "matchPackageNames": [
@@ -85,7 +93,9 @@
         "docker"
       ],
       "allowedVersions": "<= 25.0.6",
-      "description": ["Pinned by the next Dimpact PodiumD release"]
+      "description": [
+        "Pinned by the next Dimpact PodiumD release"
+      ]
     },
     {
       "matchPackageNames": [
@@ -95,7 +105,9 @@
         "maven"
       ],
       "allowedVersions": "<= 25.0.6",
-      "description": ["Pinned by the next Dimpact PodiumD release"]
+      "description": [
+        "Pinned by the next Dimpact PodiumD release"
+      ]
     },
     {
       "matchPackageNames": [
@@ -105,7 +117,9 @@
         "docker"
       ],
       "allowedVersions": "< 3.1.0",
-      "description": ["Pinned by the next Dimpact PodiumD release"]
+      "description": [
+        "Pinned by the next Dimpact PodiumD release"
+      ]
     },
     {
       "matchPackageNames": [
@@ -115,7 +129,9 @@
         "docker"
       ],
       "allowedVersions": "< 3.1.0",
-      "description": ["Pinned by the next Dimpact PodiumD release"]
+      "description": [
+        "Pinned by the next Dimpact PodiumD release"
+      ]
     },
     {
       "matchPackageNames": [
@@ -125,7 +141,9 @@
         "docker"
       ],
       "allowedVersions": "< 2.8.0",
-      "description": ["Pinned by the next Dimpact PodiumD release"]
+      "description": [
+        "Pinned by the next Dimpact PodiumD release"
+      ]
     },
     {
       "matchPackageNames": [
@@ -135,7 +153,9 @@
         "docker"
       ],
       "allowedVersions": "< 1.19.0",
-      "description": ["Pinned by the next Dimpact PodiumD release"]
+      "description": [
+        "Pinned by the next Dimpact PodiumD release"
+      ]
     },
     {
       "matchPackageNames": [
@@ -145,7 +165,9 @@
         "docker"
       ],
       "allowedVersions": "< 1.9.0",
-      "description": ["Pinned by the next Dimpact PodiumD release"]
+      "description": [
+        "Pinned by the next Dimpact PodiumD release"
+      ]
     },
     {
       "matchPackageNames": [
@@ -155,7 +177,9 @@
         "docker"
       ],
       "allowedVersions": "<= 7.4.1",
-      "description": ["Pinned by the next Dimpact PodiumD release"]
+      "description": [
+        "Pinned by the next Dimpact PodiumD release"
+      ]
     },
     {
       "matchPackageNames": [
@@ -173,7 +197,9 @@
         "helm"
       ],
       "allowedVersions": "<= 0.123.0",
-      "description": ["Pinned until https://github.com/open-telemetry/community/issues/2641 is solved"]
+      "description": [
+        "Pinned until https://github.com/open-telemetry/community/issues/2641 is solved"
+      ]
     },
     {
       "matchPackageNames": [
@@ -188,7 +214,9 @@
         "pinDigest"
       ],
       "enabled": false,
-      "description": ["The version of the ZAC Docker image in our Docker Compose file is set to 'latest' and is only used for local development"]
+      "description": [
+        "The version of the ZAC Docker image in our Docker Compose file is set to 'latest' and is only used for local development"
+      ]
     },
     {
       "matchPackageNames": [
@@ -198,8 +226,12 @@
         "github-releases"
       ],
       "automerge": true,
-      "schedule": ["* 0-8 1,15 * *"],
-      "description": ["automerge the updates to publiccode.yaml on the 1st and 15th day of the month before 08:00"]
+      "schedule": [
+        "* 0-8 1,15 * *"
+      ],
+      "description": [
+        "automerge the updates to publiccode.yaml on the 1st and 15th day of the month before 08:00"
+      ]
     },
     {
       "matchPackageNames": [
@@ -220,7 +252,9 @@
         "com.diffplug.spotless"
       ],
       "allowedVersions": "< 7",
-      "description": ["Pinned - version 7 causes Connection refused and node/npm discovery issues"]
+      "description": [
+        "Pinned - version 7 causes Connection refused and node/npm discovery issues"
+      ]
     },
     {
       "matchPackageNames": [

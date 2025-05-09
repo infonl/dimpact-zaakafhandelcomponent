@@ -25,7 +25,6 @@ import {
 import { AdminModule } from "./admin/admin.module";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
-import { ActionBarComponent } from "./core/actionbar/action-bar.component";
 import { CoreModule } from "./core/core.module";
 import { ToolbarComponent } from "./core/toolbar/toolbar.component";
 import { DashboardModule } from "./dashboard/dashboard.module";
@@ -46,7 +45,7 @@ const httpLoaderFactory = (http: HttpClient) =>
   new TranslateHttpLoader(http, "./assets/i18n/", ".json");
 
 @NgModule({
-  declarations: [AppComponent, ToolbarComponent, ActionBarComponent],
+  declarations: [AppComponent, ToolbarComponent],
   exports: [ToolbarComponent],
   bootstrap: [AppComponent],
   imports: [

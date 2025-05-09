@@ -90,7 +90,6 @@ describe(ZaakViewComponent.name, () => {
     }).compileComponents();
 
     utilService = TestBed.inject(UtilService);
-    jest.spyOn(utilService, "disableActionBar").mockReturnValue(undefined);
     jest.spyOn(utilService, "setTitle").mockImplementation();
 
     zakenService = TestBed.inject(ZakenService);

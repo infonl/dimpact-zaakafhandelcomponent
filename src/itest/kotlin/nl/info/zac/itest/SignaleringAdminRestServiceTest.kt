@@ -17,7 +17,6 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_EMAIL_ADDRESS
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
@@ -35,6 +34,7 @@ import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_OK
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
@@ -63,7 +63,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
             requestBodyAsString = """{"mail":true,"subjecttype":"TAAK","type":"TAAK_VERLOPEN"}""",
             addAuthorizationHeader = true
         )
-        response.code shouldBe HTTP_STATUS_OK
+        response.code shouldBe HTTP_OK
 
         lateinit var zaakUuid: UUID
         zacClient.createZaak(
@@ -115,7 +115,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
             )
 
             Then("the response should be 'ok' and a task signalering email should be sent") {
-                sendSignaleringenResponse.code shouldBe HTTP_STATUS_OK
+                sendSignaleringenResponse.code shouldBe HTTP_OK
                 val sendSignaleringenResponseBody = sendSignaleringenResponse.body!!.string()
                 logger.info { "Response: $sendSignaleringenResponseBody" }
                 sendSignaleringenResponseBody shouldBe "Started sending signaleringen using job: 'Signaleringen verzenden'"
@@ -126,7 +126,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
                         url = "$GREENMAIL_API_URI/user/$TEST_USER_1_EMAIL/messages/"
                     )
-                    receivedMailsResponse.code shouldBe HTTP_STATUS_OK
+                    receivedMailsResponse.code shouldBe HTTP_OK
                     receivedMails = JSONArray(receivedMailsResponse.body!!.string())
                     receivedMails.length() shouldBe 1
                 }

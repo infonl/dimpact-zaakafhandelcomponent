@@ -451,6 +451,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
       .groepRequired()
       .styleClass("row case-details-edit-form")
       .disabled(disabled)
+      .setZaaktypeUuid(this.zaak.zaaktype.uuid)
       .build();
   }
 
