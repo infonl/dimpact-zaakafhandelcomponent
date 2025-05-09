@@ -403,7 +403,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                             "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_2",
                             "omschrijving": "$ZAAK_DESCRIPTION_1"
                         },
-                        "reden": "fakeReason"
+                        "reden": "fakeReason",
+                        "zaaktype": {
+                            "uuid": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
+                        }
                     }
                 """.trimIndent()
             )
@@ -515,7 +518,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                             "uiterlijkeEinddatumAfdoening": "$fatalDateNew",
                             "omschrijving": "changedDescription"
                         },
-                        "reden": "fakeReason"
+                        "reden": "fakeReason",
+                        "zaaktype": {
+                            "uuid": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
+                        }
                     }
                 """.trimIndent()
             )
