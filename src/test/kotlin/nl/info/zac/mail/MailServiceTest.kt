@@ -20,15 +20,20 @@ import jakarta.mail.Message
 import jakarta.mail.Transport
 import jakarta.mail.internet.MimeMultipart
 import net.atos.client.zgw.drc.DrcClientService
+import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.client.zgw.zrc.util.StatusTypeUtil
+import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.mailtemplates.MailTemplateHelper
 import net.atos.zac.mailtemplates.model.createMailGegevens
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobject
+import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
+import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
@@ -37,7 +42,9 @@ import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mail.model.getBronnenFromZaak
 import org.flowable.task.api.Task
 import java.net.URI
+import java.time.ZonedDateTime
 import java.util.Properties
+import java.util.UUID
 
 class MailServiceTest : BehaviorSpec({
     val configuratieService = mockk<ConfiguratieService>()
@@ -45,12 +52,16 @@ class MailServiceTest : BehaviorSpec({
     val mailTemplateHelper = mockk<MailTemplateHelper>()
     val zgwApiService = mockk<ZGWApiService>()
     val ztcClientService = mockk<ZtcClientService>()
+    val zrcClientService = mockk<ZrcClientService>()
+    val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
 
     val mailService = MailService(
         configuratieService,
         zgwApiService,
         ztcClientService,
+        zrcClientService,
+        zaakVariabelenService,
         drcClientService,
         mailTemplateHelper,
         loggedInUserInstance
@@ -202,6 +213,75 @@ class MailServiceTest : BehaviorSpec({
                         contentType shouldBe "text/html; charset=UTF-8"
                         content shouldBe resolvedBody
                     }
+                }
+            }
+        }
+    }
+
+    Given("a zaak that is not heropend") {
+        val zaakUuid = UUID.randomUUID()
+        val statusUuid = UUID.randomUUID()
+        val zaak = createZaak().apply {
+            uuid = zaakUuid
+            status = URI(statusUuid.toString())
+        }
+        val statusType = createStatusType().apply {
+            omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING
+        }
+        val status = createZaakStatus(
+            statusUuid,
+            URI(statusUuid.toString()),
+            zaak.url,
+            statusType.url,
+            ZonedDateTime.now()
+        )
+
+        every { zrcClientService.readStatus(zaak.status) } returns status
+        every { ztcClientService.readStatustype(status.statustype) } returns statusType
+        mockkStatic(StatusTypeUtil::class)
+        every { StatusTypeUtil.isHeropend(statusType) } returns false
+        every { zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, true) } just runs
+
+        When("setOntvangstbevestigingVerstuurdIfNotHeropend is called") {
+            mailService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
+
+            Then("ontvangstbevestiging is true") {
+                verify(exactly = 1) {
+                    zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, true)
+                }
+            }
+        }
+    }
+
+    Given("a zaak is heropend") {
+        val zaakUuid = UUID.randomUUID()
+        val statusUuid = UUID.randomUUID()
+        val zaak = createZaak().apply {
+            uuid = zaakUuid
+            status = URI(statusUuid.toString())
+        }
+        val statusType = createStatusType().apply {
+            omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND
+        }
+        val status = createZaakStatus(
+            statusUuid,
+            URI(statusUuid.toString()),
+            zaak.url,
+            statusType.url,
+            ZonedDateTime.now()
+        )
+
+        every { zrcClientService.readStatus(zaak.status) } returns status
+        every { ztcClientService.readStatustype(status.statustype) } returns statusType
+        mockkStatic(StatusTypeUtil::class)
+        every { StatusTypeUtil.isHeropend(statusType) } returns true
+
+        When("setOntvangstbevestigingVerstuurdIfNotHeropend is called") {
+            mailService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
+
+            Then("ontvangstbevestiging is false") {
+                verify(exactly = 0) {
+                    zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, false)
                 }
             }
         }

@@ -24,7 +24,10 @@ import jakarta.mail.MessagingException
 import jakarta.mail.Session
 import jakarta.mail.Transport
 import net.atos.client.zgw.drc.DrcClientService
+import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend
+import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.mailtemplates.MailTemplateHelper
 import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.util.MediaTypes
@@ -34,6 +37,7 @@ import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.InformatieObjectType
+import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.model.getFullName
@@ -49,11 +53,19 @@ import org.htmlcleaner.HtmlCleaner
 import org.htmlcleaner.PrettyXmlSerializer
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.lang.Boolean
 import java.time.LocalDate
 import java.util.Base64
 import java.util.Optional
 import java.util.logging.Level
 import java.util.logging.Logger
+import kotlin.Array
+import kotlin.ByteArray
+import kotlin.String
+import kotlin.Suppress
+import kotlin.apply
+import kotlin.let
+import kotlin.takeIf
 
 @ApplicationScoped
 @NoArgConstructor
@@ -63,6 +75,8 @@ class MailService @Inject constructor(
     private var configuratieService: ConfiguratieService,
     private var zgwApiService: ZGWApiService,
     private var ztcClientService: ZtcClientService,
+    private var zrcClientService: ZrcClientService,
+    private var zaakVariabelenService: ZaakVariabelenService,
     private var drcClientService: DrcClientService,
     private var mailTemplateHelper: MailTemplateHelper,
     private var loggedInUserInstance: Instance<LoggedInUser>,
@@ -131,6 +145,16 @@ class MailService @Inject constructor(
         }
 
         return body
+    }
+
+    fun setOntvangstbevestigingVerstuurdIfNotHeropend(zaak: Zaak) {
+        val statusType: StatusType? = zaak.status?.let { statusUuid ->
+            val status = zrcClientService.readStatus(statusUuid)
+            ztcClientService.readStatustype(status.statustype)
+        }
+        if (!isHeropend(statusType)) {
+            zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, Boolean.TRUE)
+        }
     }
 
     @PostConstruct
