@@ -451,11 +451,11 @@ class ProductaanvraagService @Inject constructor(
             val firstZaakafhandelparameters = zaakafhandelparameters.first()
             productaanvraag.betrokkenen?.forEach {
                 it.inpBsn
-                    ?.takeIf { firstZaakafhandelparameters.betrokkeneKoppelingen.brpKoppelen }
+                    ?.takeUnless { firstZaakafhandelparameters.betrokkeneKoppelingen.brpKoppelen }
                     ?.let { throw BetrokkeneNotAllowed() }
 
                 it.innNnpId
-                    ?.takeIf { firstZaakafhandelparameters.betrokkeneKoppelingen.kvkKoppelen }
+                    ?.takeUnless { firstZaakafhandelparameters.betrokkeneKoppelingen.kvkKoppelen }
                     ?.let { throw BetrokkeneNotAllowed() }
             }
             LOG.fine {
