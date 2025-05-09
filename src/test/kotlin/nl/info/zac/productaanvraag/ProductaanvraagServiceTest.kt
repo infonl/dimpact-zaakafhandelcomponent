@@ -211,7 +211,11 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             zaaktypeUUID = zaakTypeUUID,
         )
         zaakafhandelParameters.apply {
-            betrokkeneKoppelingen = createBetrokkeneKoppelingen(zaakafhandelParameters = zaakafhandelParameters, brpKoppelen = true, kvkKoppelen = true)
+            betrokkeneKoppelingen = createBetrokkeneKoppelingen(
+                zaakafhandelParameters = zaakafhandelParameters,
+                brpKoppelen = true,
+                kvkKoppelen = true
+            )
         }
         val formulierBron = createBron()
         val coordinates = listOf(52.08968250760225, 5.114358701512936)
@@ -357,7 +361,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val roleToBeCreated = slot<Rol<*>>()
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
-            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(productAanvraagType)
+            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                productAanvraagType
+            )
         } returns listOf(zaakafhandelParameters)
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
         every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
@@ -440,7 +446,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakToBeCreated = slot<Zaak>()
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
-            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(productAanvraagType)
+            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                productAanvraagType
+            )
         } returns listOf(zaakafhandelParameters)
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
         every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
@@ -513,7 +521,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakToBeCreated = slot<Zaak>()
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
-            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(productAanvraagType)
+            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                productAanvraagType
+            )
         } returns listOf(zaakafhandelParameters)
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
         every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
@@ -661,13 +671,18 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakToBeCreated = slot<Zaak>()
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
-            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(productAanvraagType)
+            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                productAanvraagType
+            )
         } returns listOf(zaakafhandelParameters)
 
         When("it is not allowed to add a betrokkene") {
             val invalidZaakafhandelParameters = createZaakafhandelParameters()
             val zaakafhandelParametersNonAllowedBetrokkene = invalidZaakafhandelParameters.apply {
-                betrokkeneKoppelingen = createBetrokkeneKoppelingen(brpKoppelen = false, zaakafhandelParameters = invalidZaakafhandelParameters)
+                betrokkeneKoppelingen = createBetrokkeneKoppelingen(
+                    brpKoppelen = false,
+                    zaakafhandelParameters = invalidZaakafhandelParameters
+                )
             }
 
             every {
@@ -710,7 +725,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             } returns listOf(rolTypeZaakcoordinator)
             every { zrcClientService.createRol(capture(rolesToBeCreated)) } just runs
             every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
-            every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
+            every {
+                zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
+            } returns zaakafhandelParameters
             every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
             every {
                 zrcClientService.createZaakInformatieobject(
@@ -853,7 +870,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         // no zaakafhandelparameters are configured for the zaaktype
         every {
-            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(productAanvraagType)
+            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                productAanvraagType
+            )
         } returns emptyList()
         every { inboxProductaanvraagService.create(capture(inboxProductaanvraagSlot)) } just runs
 
