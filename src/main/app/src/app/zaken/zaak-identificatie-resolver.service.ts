@@ -5,8 +5,6 @@
 
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
-import { Observable } from "rxjs";
-import { Zaak } from "./model/zaak";
 import { ZakenService } from "./zaken.service";
 
 @Injectable({
@@ -15,7 +13,7 @@ import { ZakenService } from "./zaken.service";
 export class ZaakIdentificatieResolver {
   constructor(private zakenService: ZakenService) {}
 
-  resolve(route: ActivatedRouteSnapshot): Observable<Zaak> {
+  resolve(route: ActivatedRouteSnapshot) {
     const zaakID = route.paramMap.get("zaakIdentificatie");
     if (!zaakID) {
       throw new Error(

@@ -41,6 +41,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
+import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowed
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
@@ -118,8 +119,8 @@ class ProductaanvraagService @Inject constructor(
     fun getProductaanvraag(productaanvraagObject: ModelObject): ProductaanvraagDimpact =
         JsonbBuilder.create(
             JsonbConfig()
-                // register our custom enum JSON adapters because by default enums are deserialized using the enum's name
-                // instead of the value and this fails because in the generated model classes the enum names are
+                // Register our enum JSON adapters because by default enums are deserialized using the enum's name
+                // instead of the value, and this fails because in the generated model classes the enum names are
                 // capitalized and the values are not
                 .withAdapters(
                     IndicatieMachtigingEnumJsonAdapter(),
@@ -431,30 +432,44 @@ class ProductaanvraagService @Inject constructor(
         val zaakafhandelparameters = zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
             productaanvraag.type
         )
-        if (zaakafhandelparameters.isNotEmpty()) {
-            try {
-                if (zaakafhandelparameters.size > 1) {
-                    LOG.warning(
-                        "Multiple zaakafhandelparameters found for productaanvraag type '${productaanvraag.type}'. " +
-                            "Using the first one with zaaktype UUID: '${zaakafhandelparameters.first().zaakTypeUUID}' " +
-                            "and zaaktype omschrijving: '${zaakafhandelparameters.first().zaaktypeOmschrijving}'."
-                    )
-                }
-                val firstZaakafhandelparameters = zaakafhandelparameters.first()
-                LOG.fine { "Creating a zaak using a CMMN case with zaaktype UUID: '${firstZaakafhandelparameters.zaakTypeUUID}'" }
-                startZaakWithCmmnProcess(
-                    firstZaakafhandelparameters.zaakTypeUUID,
-                    productaanvraag,
-                    productaanvraagObject
-                )
-            } catch (exception: RuntimeException) {
-                logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
-            }
-        } else {
+        if (zaakafhandelparameters.isEmpty()) {
             LOG.info(
                 "No zaaktype found for productaanvraag-Dimpact type '${productaanvraag.type}'. No zaak was created."
             )
             registreerInbox(productaanvraag, productaanvraagObject)
+            return
+        }
+
+        try {
+            if (zaakafhandelparameters.size > 1) {
+                LOG.warning(
+                    "Multiple zaakafhandelparameters found for productaanvraag type '${productaanvraag.type}'. " +
+                        "Using the first one with zaaktype UUID: '${zaakafhandelparameters.first().zaakTypeUUID}' " +
+                        "and zaaktype omschrijving: '${zaakafhandelparameters.first().zaaktypeOmschrijving}'."
+                )
+            }
+            val firstZaakafhandelparameters = zaakafhandelparameters.first()
+            productaanvraag.betrokkenen?.forEach {
+                it.inpBsn
+                    ?.takeUnless { firstZaakafhandelparameters.betrokkeneKoppelingen.brpKoppelen }
+                    ?.let { throw BetrokkeneNotAllowed() }
+
+                it.innNnpId
+                    ?.takeUnless { firstZaakafhandelparameters.betrokkeneKoppelingen.kvkKoppelen }
+                    ?.let { throw BetrokkeneNotAllowed() }
+            }
+            LOG.fine {
+                "Creating a zaak using a CMMN case with zaaktype UUID: '${firstZaakafhandelparameters.zaakTypeUUID}'"
+            }
+            startZaakWithCmmnProcess(
+                firstZaakafhandelparameters.zaakTypeUUID,
+                productaanvraag,
+                productaanvraagObject
+            )
+        } catch (exception: BetrokkeneNotAllowed) {
+            logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
+        } catch (exception: RuntimeException) {
+            logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
         }
     }
 

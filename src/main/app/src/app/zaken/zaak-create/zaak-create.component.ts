@@ -178,6 +178,13 @@ export class ZaakCreateComponent {
         ({ value }) => value === vertrouwelijkheidaanduiding,
       ),
     );
+
+    if (
+      !caseType.zaakafhandelparameters?.betrokkeneKoppelingen?.kvkKoppelen &&
+      !caseType.zaakafhandelparameters?.betrokkeneKoppelingen?.brpKoppelen
+    ) {
+      this.form.controls.initiator.setValue(null);
+    }
   }
 
   protected async openSideNav(action: string) {
@@ -228,4 +235,15 @@ export class ZaakCreateComponent {
 
   // This is required for the `zac-bag-zoek` to work as expected
   protected bagObjectSelected() {}
+
+  protected canAddInitiator() {
+    const betrokkeneKoppelingen =
+      this.form.controls.zaaktype.value?.zaakafhandelparameters
+        ?.betrokkeneKoppelingen;
+    if (!betrokkeneKoppelingen) return false;
+
+    const { brpKoppelen, kvkKoppelen } = betrokkeneKoppelingen;
+
+    return Boolean(brpKoppelen || kvkKoppelen);
+  }
 }

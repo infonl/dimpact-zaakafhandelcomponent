@@ -13,6 +13,15 @@ class RestBetrokkeneKoppelingen {
     var zaakafhandelParameters: RestZaakafhandelParameters? = null
     var brpKoppelen = false
     var kvkKoppelen = false
+
+    constructor() {
+        // Default constructor
+    }
+
+    constructor(brpKoppelen: Boolean, kvkKoppelen: Boolean) {
+        this.brpKoppelen = brpKoppelen
+        this.kvkKoppelen = kvkKoppelen
+    }
 }
 
 fun BetrokkeneKoppelingen.toRestBetrokkeneKoppelingen(): RestBetrokkeneKoppelingen =

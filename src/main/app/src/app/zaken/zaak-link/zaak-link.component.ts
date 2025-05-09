@@ -18,13 +18,8 @@ import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
-import { Zaak } from "../model/zaak";
 import { ZaakRelatietype } from "../model/zaak-relatietype";
 import { ZakenService } from "../zaken.service";
-
-/*
- enum/type below should come from our GeneratedType 
-*/
 
 @Component({
   selector: "zac-zaak-link",
@@ -32,7 +27,7 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./zaak-link.component.less"],
 })
 export class ZaakLinkComponent implements OnDestroy {
-  @Input({ required: true }) zaak!: Zaak; // GeneratedType<"RestZaak">;
+  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Output() zaakLinked = new EventEmitter();
 

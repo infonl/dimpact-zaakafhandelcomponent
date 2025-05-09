@@ -73,12 +73,15 @@ import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.model.createZaakafhandelParameters
+import nl.info.zac.app.admin.createBetrokkeneKoppelingen
 import nl.info.zac.app.decision.DecisionService
+import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.AANVULLENDE_INFORMATIE_TASK_NAME
 import nl.info.zac.app.zaak.converter.RestDecisionConverter
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
+import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowed
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
 import nl.info.zac.app.zaak.model.RESTReden
 import nl.info.zac.app.zaak.model.RESTZaakAfbrekenGegevens
@@ -102,6 +105,7 @@ import nl.info.zac.app.zaak.model.createRestZaaktype
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
@@ -326,6 +330,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(any<UUID>()) } returns zaakType
         every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
         every { loggedInUserInstance.get() } returns createLoggedInUser()
+        every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
         When("zaak creation is attempted") {
             val exception = shouldThrow<CommunicationChannelNotFound> {
@@ -346,6 +351,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(any<UUID>()) } returns zaakType
         every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
         every { loggedInUserInstance.get() } returns createLoggedInUser()
+        every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
         When("zaak creation is attempted") {
             val exception = shouldThrow<CommunicationChannelNotFound> {
@@ -707,6 +713,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { eventingService.send(any<ScreenEvent>()) } just runs
         every { restZaakConverter.toRestZaak(patchedZaak) } returns restZaak
         every { identityService.checkIfUserIsInGroup(restZaak.behandelaar!!.id, restZaak.groep!!.id) } just runs
+        every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
         When("zaak final date is set to a later date") {
             val updatedRestZaak = zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
@@ -740,6 +747,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
         every { identityService.checkIfUserIsInGroup(any(), any()) } throws InputValidationFailedException()
+        every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
         When("zaak update is requested") {
             shouldThrow<InputValidationFailedException> {
@@ -758,6 +766,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten(verlengenDoorlooptijd = false)
+        every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
         When("zaak update is requested with a new final date") {
             val exception = shouldThrow<PolicyException> {
@@ -795,6 +804,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten(wijzigenDoorlooptijd = false)
+        every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
         When("zaak update is requested with a new final date") {
             val exception = shouldThrow<PolicyException> {
@@ -1206,6 +1216,35 @@ class ZaakRestServiceTest : BehaviorSpec({
                     headers["Content-Disposition"]!![0] shouldBe """attachment; filename="procesdiagram.gif"""".trimIndent()
                     (entity as InputStream).bufferedReader().use { it.readText() } shouldBe "fakeDiagram"
                 }
+            }
+        }
+    }
+
+    Given("A initiator is posted on a zaak create with an initiator") {
+        val zaakUUID = UUID.randomUUID()
+
+        When("This is not allowed in the zaak afhandel parameters") {
+            val betrokkeneKoppelingen = createBetrokkeneKoppelingen(
+                brpKoppelen = false,
+                zaakafhandelParameters = createZaakafhandelParameters()
+            )
+            val zaakafhandelParameters = createZaakafhandelParameters(betrokkeneKoppelingen = betrokkeneKoppelingen)
+            val zaakType = createZaakType()
+
+            val zaak = createRestZaak(uuid = zaakUUID, initiatorIdentificatieType = IdentificatieType.BSN)
+            val zaakAanmaakGegevens = createRESTZaakAanmaakGegevens(zaak = zaak)
+
+            every { ztcClientService.readZaaktype(zaak.zaaktype.uuid) } returns zaakType
+            every {
+                zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.uuid)
+            } returns zaakafhandelParameters
+
+            val exception = shouldThrow<BetrokkeneNotAllowed> {
+                zaakRestService.createZaak(zaakAanmaakGegevens)
+            }
+
+            Then("An error should be thrown") {
+                exception.errorCode shouldBe ErrorCode.ERROR_CODE_CASE_BETROKKENE_NOT_ALLOWED
             }
         }
     }

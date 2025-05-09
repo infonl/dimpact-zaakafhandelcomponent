@@ -31,7 +31,6 @@ import { NavigationService } from "../../shared/navigation/navigation.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { TakenService } from "../../taken/taken.service";
-import { Zaak } from "../../zaken/model/zaak";
 import { ZakenService } from "../../zaken/zaken.service";
 import { MailService } from "../mail.service";
 
@@ -50,7 +49,7 @@ export class MailCreateComponent implements OnInit {
   };
 
   formConfig: FormConfig;
-  @Input() zaak: Zaak;
+  @Input() zaak: GeneratedType<"RestZaak">;
   @Input() sideNav: MatDrawer;
   @Output() mailVerstuurd = new EventEmitter<boolean>();
   fields: Array<AbstractFormField[]>;

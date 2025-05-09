@@ -20,7 +20,10 @@ type DateFormat =
 export class DatumPipe implements PipeTransform {
   constructor(@Inject(LOCALE_ID) public locale: string) {}
 
-  transform(value?: Date | moment.Moment | string, dateFormat?: DateFormat) {
+  transform(
+    value?: Date | moment.Moment | string | null,
+    dateFormat?: DateFormat,
+  ) {
     if (!value) return value;
 
     const localeDate = moment(value, moment.ISO_8601).locale(this.locale);

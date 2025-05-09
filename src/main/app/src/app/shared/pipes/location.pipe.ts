@@ -4,8 +4,8 @@
  */
 
 import { Pipe, PipeTransform } from "@angular/core";
-import { Geometry } from "../../zaken/model/geometry";
 import { LocationUtil } from "../location/location-util";
+import { GeneratedType } from "../utils/generated-types";
 
 @Pipe({
   name: "location",
@@ -13,12 +13,11 @@ import { LocationUtil } from "../location/location-util";
 export class LocationPipe implements PipeTransform {
   constructor() {}
 
-  transform(value: Geometry | string): string {
-    if (value) {
-      return LocationUtil.format(
-        typeof value == "string" ? LocationUtil.wktToPoint(value) : value,
-      );
-    }
-    return null;
+  transform(value: GeneratedType<"RestGeometry"> | string | null) {
+    if (!value) return null;
+
+    return LocationUtil.format(
+      typeof value == "string" ? LocationUtil.wktToPoint(value) : value,
+    );
   }
 }

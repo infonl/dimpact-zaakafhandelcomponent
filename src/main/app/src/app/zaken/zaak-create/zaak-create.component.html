@@ -37,6 +37,7 @@
           }}</mat-hint>
         </zac-auto-complete>
         <zac-input
+          *ngIf="canAddInitiator()"
           key="initiator"
           [form]="form"
           class="col-12 col-md-6"
