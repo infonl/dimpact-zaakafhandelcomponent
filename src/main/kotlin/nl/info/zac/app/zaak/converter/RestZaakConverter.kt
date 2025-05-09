@@ -134,9 +134,6 @@ class RestZaakConverter @Inject constructor(
             isOpen = zaak.isOpen,
             isHeropend = StatusTypeUtil.isHeropend(statustype),
             isInIntakeFase = StatusTypeUtil.isIntake(statustype),
-            isOntvangstbevestigingVerstuurd = zaakVariabelenService.findOntvangstbevestigingVerstuurd(
-                zaak.uuid
-            ).orElse(false),
             isBesluittypeAanwezig = zaaktype.besluittypen?.isNotEmpty() ?: false,
             isProcesGestuurd = bpmnService.isProcessDriven(zaak.uuid),
             rechten = policyService.readZaakRechten(zaak, zaaktype).let(RestRechtenConverter::convert),
@@ -147,6 +144,8 @@ class RestZaakConverter @Inject constructor(
                 StatusTypeUtil.isHeropend(statustype) -> EnumSet.of(ZaakIndicatie.HEROPEND)
                 zaak.isOpgeschort -> EnumSet.of(ZaakIndicatie.OPSCHORTING)
                 zaak.isVerlengd -> EnumSet.of(ZaakIndicatie.VERLENGD)
+                shouldSetOntvangstbevestigingNietVerstuurdIndication(zaak, statustype) ->
+                    EnumSet.of(ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 else -> EnumSet.noneOf(ZaakIndicatie::class.java)
             }
         )
@@ -216,4 +215,8 @@ class RestZaakConverter @Inject constructor(
             ?.forEach(gerelateerdeZaken::add)
         return gerelateerdeZaken
     }
+
+    private fun shouldSetOntvangstbevestigingNietVerstuurdIndication(zaak: Zaak, statustype: StatusType?) =
+        !zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid).orElse(false) &&
+            !StatusTypeUtil.isHeropend(statustype)
 }
