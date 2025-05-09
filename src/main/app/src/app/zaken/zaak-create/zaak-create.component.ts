@@ -237,11 +237,13 @@ export class ZaakCreateComponent {
   protected bagObjectSelected() {}
 
   protected canAddInitiator() {
-    const betrokkeneKoppelingen = this.form.controls.zaaktype.value?.zaakafhandelparameters?.betrokkeneKoppelingen
-    if (!betrokkeneKoppelingen) return false
+    const betrokkeneKoppelingen =
+      this.form.controls.zaaktype.value?.zaakafhandelparameters
+        ?.betrokkeneKoppelingen;
+    if (!betrokkeneKoppelingen) return false;
 
-    const { brpKoppelen, kvkKoppelen } = betrokkeneKoppelingen
+    const { brpKoppelen, kvkKoppelen } = betrokkeneKoppelingen;
 
-    return Boolean(brpKoppelen || kvkKoppelen)
+    return Boolean(brpKoppelen || kvkKoppelen);
   }
 }
