@@ -119,8 +119,8 @@ class ProductaanvraagService @Inject constructor(
     fun getProductaanvraag(productaanvraagObject: ModelObject): ProductaanvraagDimpact =
         JsonbBuilder.create(
             JsonbConfig()
-                // register our custom enum JSON adapters because by default enums are deserialized using the enum's name
-                // instead of the value and this fails because in the generated model classes the enum names are
+                // Register our enum JSON adapters because by default enums are deserialized using the enum's name
+                // instead of the value, and this fails because in the generated model classes the enum names are
                 // capitalized and the values are not
                 .withAdapters(
                     IndicatieMachtigingEnumJsonAdapter(),
@@ -451,11 +451,11 @@ class ProductaanvraagService @Inject constructor(
             val firstZaakafhandelparameters = zaakafhandelparameters.first()
             productaanvraag.betrokkenen?.forEach {
                 it.inpBsn
-                    ?.takeUnless { firstZaakafhandelparameters.betrokkeneKoppelingen.brpKoppelen }
+                    ?.takeIf { firstZaakafhandelparameters.betrokkeneKoppelingen.brpKoppelen }
                     ?.let { throw BetrokkeneNotAllowed() }
 
                 it.innNnpId
-                    ?.takeUnless { firstZaakafhandelparameters.betrokkeneKoppelingen.kvkKoppelen }
+                    ?.takeIf { firstZaakafhandelparameters.betrokkeneKoppelingen.kvkKoppelen }
                     ?.let { throw BetrokkeneNotAllowed() }
             }
             LOG.fine {
