@@ -581,6 +581,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                         {
                             "geometrie": null,
                             "reden": "fakeReason"
+                        },
+                        "zaaktype": {
+                            "uuid": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
                         }
                 """.trimIndent()
             )
