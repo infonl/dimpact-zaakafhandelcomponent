@@ -282,8 +282,8 @@ Bijvoorbeeld als je een domein wilt maken dat alle vergunningen omvat, zodat je 
 
 Om het domein in te richten en toe te wijzen neem je de volgende stappen:
 1. In keyckloak:
-- selecteer in de dropdown het zaakafhandelcomponent
-- klik op clients en op zaakafhandelcomponent en ga vervolgens naar het kopje roles
+- selecteer het zaakafhandelcomponent realm
+- in clients selecteer het zaakafhandelcomponent
 - maak een rol aan met een naam die beginnent met domein_ en een korte omschrijving van het domein, bijvoorbeeld domein_vergunningen
 - maak een groep aan met de functionele rol die de gebruikers moeten krijgen en de juist aangemaakte domein rol
 - plaats de gebruikers die bij dit domein horen aan de groep toe
