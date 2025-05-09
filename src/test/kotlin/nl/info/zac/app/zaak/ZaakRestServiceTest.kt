@@ -1239,7 +1239,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.uuid)
             } returns zaakafhandelParameters
 
-
             val exception = shouldThrow<BetrokkeneNotAllowed> {
                 zaakRestService.createZaak(zaakAanmaakGegevens)
             }
