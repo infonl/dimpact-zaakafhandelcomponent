@@ -443,16 +443,13 @@ class ProductaanvraagService @Inject constructor(
                 }
                 val firstZaakafhandelparameters = zaakafhandelparameters.first()
                 productaanvraag.betrokkenen?.forEach {
-                    it.inpBsn?.let {
-                        if (!firstZaakafhandelparameters.betrokkeneKoppelingen.brpKoppelen) {
-                            throw BetrokkeneNotAllowed()
-                        }
-                    }
-                    it.innNnpId?.let {
-                        if (!firstZaakafhandelparameters.betrokkeneKoppelingen.kvkKoppelen) {
-                            throw BetrokkeneNotAllowed()
-                        }
-                    }
+                    it.inpBsn
+                        ?.takeUnless { firstZaakafhandelparameters.betrokkeneKoppelingen.brpKoppelen }
+                        ?.let { throw BetrokkeneNotAllowed() }
+
+                    it.innNnpId
+                        ?.takeUnless { firstZaakafhandelparameters.betrokkeneKoppelingen.kvkKoppelen }
+                        ?.let { throw BetrokkeneNotAllowed() }
                 }
                 LOG.fine { "Creating a zaak using a CMMN case with zaaktype UUID: '${firstZaakafhandelparameters.zaakTypeUUID}'" }
                 startZaakWithCmmnProcess(

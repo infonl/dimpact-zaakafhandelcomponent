@@ -36,32 +36,16 @@
       [sideNav]="actionsSidenav"
       (klantGegevens)="initiatorGeselecteerd($event.klant)"
       [initiator]="true"
-      [allowBedrijf]="
-        !!zaak.rechten.toevoegenInitiatorBedrijf &&
-        !!zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.kvkKoppelen
-      "
-      [allowPersoon]="
-        !!zaak.rechten.toevoegenInitiatorPersoon &&
-        !!zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.brpKoppelen
-      "
+      [allowBedrijf]="allowBedrijf()"
+      [allowPersoon]="allowPersoon()"
     ></zac-klant-koppel>
     <zac-klant-koppel
       *ngSwitchCase="'actie.betrokkene.toevoegen'"
       (klantGegevens)="betrokkeneGeselecteerd($event)"
       [sideNav]="actionsSidenav"
       [zaaktypeUUID]="zaak.zaaktype.uuid"
-      [allowBedrijf]="
-        !!zaak.rechten.toevoegenInitiatorBedrijf &&
-        !!zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.kvkKoppelen
-      "
-      [allowPersoon]="
-        !!zaak.rechten.toevoegenInitiatorPersoon &&
-        !!zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.brpKoppelen
-      "
+      [allowBedrijf]="allowBedrijf()"
+      [allowPersoon]="allowPersoon()"
     ></zac-klant-koppel>
     <zac-bag-zoek
       *ngSwitchCase="'actie.bagObject.toevoegen'"
@@ -154,15 +138,7 @@
   </mat-drawer>
   <mat-drawer-content>
     <div class="flex-row flex-wrap gap-10">
-      <section
-        class="w100 flex-1"
-        *ngIf="
-          zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-            ?.kvkKoppelen ||
-          zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-            ?.brpKoppelen
-        "
-      >
+      <section class="w100 flex-1" *ngIf="showInitiator()">
         <zac-zaak-initiator-toevoegen
           class="w100 flex-1"
           *ngIf="canAddInitiator()"
@@ -172,11 +148,7 @@
         </zac-zaak-initiator-toevoegen>
         <zac-persoongegevens
           class="w100 flex-1"
-          *ngIf="
-            zaak.initiatorIdentificatieType === 'BSN' &&
-            !!zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-              ?.brpKoppelen
-          "
+          *ngIf="showPersoonsgegevens()"
           [bsn]="zaak.initiatorIdentificatie"
           [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
           [isWijzigbaar]="zaak.rechten.toevoegenInitiatorPersoon"
@@ -186,12 +158,7 @@
         </zac-persoongegevens>
         <zac-bedrijfsgegevens
           class="w100 flex-1"
-          *ngIf="
-            (zaak.initiatorIdentificatieType === 'VN' ||
-              zaak.initiatorIdentificatieType === 'RSIN') &&
-            !!zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-              ?.kvkKoppelen
-          "
+          *ngIf="showBedrijfsgegevens()"
           [rsinOfVestigingsnummer]="zaak.initiatorIdentificatie"
           [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
           (edit)="addOrEditZaakInitiator()"

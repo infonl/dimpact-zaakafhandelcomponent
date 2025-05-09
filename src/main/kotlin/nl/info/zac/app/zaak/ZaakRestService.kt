@@ -1214,10 +1214,10 @@ class ZaakRestService @Inject constructor(
         )
 
         zaak.initiatorIdentificatieType?.let {
-            if (it.isKvK() && !zaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen) {
+            if (it.isKvK && !zaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen) {
                 throw BetrokkeneNotAllowed()
             }
-            if (it.isBsn() && !zaakafhandelParameters.betrokkeneKoppelingen.brpKoppelen) {
+            if (it.isBsn && !zaakafhandelParameters.betrokkeneKoppelingen.brpKoppelen) {
                 throw BetrokkeneNotAllowed()
             }
         }

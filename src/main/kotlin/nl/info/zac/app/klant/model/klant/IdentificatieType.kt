@@ -4,11 +4,11 @@
  */
 package nl.info.zac.app.klant.model.klant
 
-enum class IdentificatieType {
-    BSN,
-    VN,
-    RSIN;
-
-    fun isBsn(): Boolean = this == BSN
-    fun isKvK(): Boolean = this == RSIN || this == VN
+enum class IdentificatieType(
+    val isBsn: Boolean = false,
+    val isKvK: Boolean = false
+) {
+    BSN(isBsn = true),
+    VN(isKvK = true),
+    RSIN(isKvK = true)
 }

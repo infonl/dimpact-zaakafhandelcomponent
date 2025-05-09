@@ -235,4 +235,13 @@ export class ZaakCreateComponent {
 
   // This is required for the `zac-bag-zoek` to work as expected
   protected bagObjectSelected() {}
+
+  protected canAddInitiator() {
+    const betrokkeneKoppelingen = this.form.controls.zaaktype.value?.zaakafhandelparameters?.betrokkeneKoppelingen
+    if (!betrokkeneKoppelingen) return false
+
+    const { brpKoppelen, kvkKoppelen } = betrokkeneKoppelingen
+
+    return Boolean(brpKoppelen || kvkKoppelen)
+  }
 }
