@@ -77,7 +77,7 @@ fun createRestZaakAfhandelParameters(
     productaanvraagtype: String? = null,
     defaultGroupId: String? = null,
     defaultBehandelaarId: String? = null,
-    restBetrokkeneKoppelingen: RestBetrokkeneKoppelingen? = null
+    restBetrokkeneKoppelingen: RestBetrokkeneKoppelingen = RestBetrokkeneKoppelingen()
 ) = RestZaakafhandelParameters(
     id = id,
     domein = domein,
