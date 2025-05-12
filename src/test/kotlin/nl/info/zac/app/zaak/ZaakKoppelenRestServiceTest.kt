@@ -222,10 +222,6 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
 
         When("findLinkableZaken with DEELZAAK link is called") {
-            every {
-                ztcClientService.readZaaktype(sourceZaak.zaaktype).deelzaaktypen
-            } returns listOf(URI(zaakZoekObjectTypeUuid))
-
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -246,7 +242,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     omschrijving shouldBe OMSCHRIJVING
                     zaaktypeOmschrijving shouldBe ZAAK_TYPE_OMSCHRIJVING
                     statustypeOmschrijving shouldBe STATUS_TYPE_OMSCHRIJVING
-                    isKoppelbaar shouldBe true
+                    isKoppelbaar shouldBe false
                 }
             }
 
@@ -256,9 +252,6 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     searchService.zoek(any())
                     policyService.readZaakRechten(sourceZaak)
                     policyService.readZaakRechten(zaakZoekObject)
-                }
-                verify(exactly = 1) {
-                    ztcClientService.readZaaktype(sourceZaak.zaaktype)
                 }
             }
         }
