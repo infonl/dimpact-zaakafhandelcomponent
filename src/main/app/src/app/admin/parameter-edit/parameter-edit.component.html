@@ -738,8 +738,11 @@
           <form [formGroup]="smartDocumentsEnabledForm" class="flex-col">
             <div class="flex-row items-center">
               <h2 class="flex-1">
-                {{ "title.admin.parameters.step.smart-documents" | translate }}
+                {{ "msg.smartdocuments.form.title" | translate }}
               </h2>
+              <p>
+                {{ "title.admin.parameters.step.smart-documents" | translate }}
+              </p>
               <mat-slide-toggle
                 formControlName="enabledForZaaktype"
                 (click)="$event.stopPropagation()"
