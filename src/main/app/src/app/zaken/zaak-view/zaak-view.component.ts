@@ -713,6 +713,7 @@ export class ZaakViewComponent
     );
 
     dialogData.confirmButtonActionKey = "actie.zaak.afbreken";
+    dialogData.icon = "thumb_down_alt";
 
     this.dialog
       .open(DialogComponent, { data: dialogData })
@@ -746,6 +747,7 @@ export class ZaakViewComponent
     );
 
     dialogData.confirmButtonActionKey = "actie.zaak.heropenen";
+    dialogData.icon = "restart_alt";
 
     this.dialog
       .open(DialogComponent, { data: dialogData })
@@ -791,6 +793,7 @@ export class ZaakViewComponent
     );
 
     dialogData.confirmButtonActionKey = "actie.zaak.afsluiten";
+    dialogData.icon = "thumb_up_alt";
 
     this.dialog
       .open(DialogComponent, { data: dialogData })
@@ -1248,7 +1251,12 @@ export class ZaakViewComponent
     this.loadHistorie();
   }
 
-  doIntrekking($event): void {
+  doIntrekking($event: {
+    uuid: string;
+    vervaldatum: string;
+    vervalreden: FormControl<string>;
+    toelichting: string;
+  }): void {
     this.zakenService
       .intrekkenBesluit({
         besluitUuid: $event.uuid,

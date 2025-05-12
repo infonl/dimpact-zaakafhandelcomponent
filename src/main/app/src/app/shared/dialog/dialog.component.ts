@@ -30,13 +30,11 @@ export class DialogComponent implements OnInit {
     this.dialogRef.disableClose = true;
     this.loading = true;
     if (this.data.fn) {
-      const results: any[] = [];
+      const results: Record<string, unknown> = {};
       for (const formField of this.data.formFields) {
         switch (formField.fieldType) {
           case FieldType.CHECKBOX:
-            results[formField.id] =
-              formField.formControl.value != null &&
-              formField.formControl.value;
+            results[formField.id] = !!formField.formControl.value;
             break;
           default:
             results[formField.id] = formField.formControl.value;

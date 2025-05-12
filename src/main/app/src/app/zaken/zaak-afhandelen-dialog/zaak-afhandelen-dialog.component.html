@@ -3,15 +3,16 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div mat-dialog-title>
-  <h3>
-    <mat-icon>thumb_up_alt</mat-icon>
-    {{ data.planItem.naam | translate }}
-  </h3>
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  <mat-icon>thumb_up_alt</mat-icon>
+  <span class="flex-grow-1">
+    {{ "planitem." + data.planItem.userEventListenerActie | translate }}
+  </span>
   <button mat-icon-button (click)="close()">
     <mat-icon>close</mat-icon>
   </button>
-</div>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
 <div mat-dialog-content [formGroup]="formGroup">
   <p

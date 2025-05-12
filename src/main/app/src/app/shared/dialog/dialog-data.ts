@@ -10,6 +10,7 @@ export class DialogData<Value = unknown, Result = unknown> {
   public confirmButtonActionKey = "actie.ja";
   public cancelButtonActionKey: string | null = "actie.annuleren";
   public value: Value = null as Value;
+  public icon: string | null = null;
 
   constructor(
     public formFields: AbstractFormField[],
