@@ -132,16 +132,18 @@ class ZaakKoppelenRestService @Inject constructor(
 
     private fun Zaak.isLinkableTo(targetZaak: ZaakZoekObject, relationType: RelatieType): Boolean =
         when (relationType) {
+            // "The case you are searching for here will become the main case"
             RelatieType.HOOFDZAAK ->
                 // hoofdzaak to hoofdzaak link not allowed
                 !this.is_Hoofdzaak && !targetZaak.isIndicatie(HOOFDZAAK) &&
                     // a zaak cannot have two hoofdzaken
                     !this.isDeelzaak && !targetZaak.isIndicatie(DEELZAAK)
+            // "The case you are searching for here will become the subcase"
             RelatieType.DEELZAAK ->
                 // As per https://vng-realisatie.github.io/gemma-zaken/standaard/zaken
                 // "deelzaken van deelzaken zijn NIET toegestaan"
                 !this.isDeelzaak && !targetZaak.isIndicatie(DEELZAAK) &&
-                    // a hoofdzaak cannot become both a hoofdzaak and a deelzaak
+                    // a hoofdzaak cannot be both a hoofdzaak and a deelzaak
                     !targetZaak.isIndicatie(HOOFDZAAK)
             else -> throw UnsupportedOperationException(
                 "Unsupported link type: $relationType for ${this.identificatie} -> ${targetZaak.identificatie}"
@@ -150,6 +152,7 @@ class ZaakKoppelenRestService @Inject constructor(
 
     private fun ZaakZoekObject.hasMatchingZaaktypeWith(sourceZaak: Zaak, relationType: RelatieType): Boolean =
         when (relationType) {
+            // "The case you are searching for here will become the main case"
             RelatieType.HOOFDZAAK ->
                 // source zaak's zaaktype is allowed in target zaak as deelzaak
                 sourceZaak.zaaktype.extractUuid().toString().let { uuid ->
@@ -157,6 +160,7 @@ class ZaakKoppelenRestService @Inject constructor(
                         it.toString().contains(uuid)
                     }
                 }
+            // "The case you are searching for here will become the subcase"
             RelatieType.DEELZAAK ->
                 // target zaak's zaaktype is allowed in source zaak as deelzaak
                 this.zaaktypeUuid?.let { uuid ->

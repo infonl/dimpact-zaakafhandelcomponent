@@ -12,6 +12,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.policy.PolicyService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -20,6 +21,7 @@ import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.ZaakIndicatie.*
 import nl.info.zac.search.model.ZoekResultaat
 import nl.info.zac.search.model.createZaakZoekObject
+import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType.*
 import java.net.URI
 import java.util.UUID
@@ -53,7 +55,16 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A source zaak which is not linked and a target no-link zaak") {
+    fun checkIfRequiredServicesAreInvoked(times: Int, sourceZaak: Zaak, targetZaak: ZaakZoekObject) {
+        verify(exactly = times) {
+            zrcClientService.readZaak(sourceZaak.uuid)
+            searchService.zoek(any())
+            policyService.readZaakRechten(sourceZaak)
+            policyService.readZaakRechten(targetZaak)
+        }
+    }
+
+    Given("A source zaak which is not linked and a target not linked zaak") {
         val sourceZaak = createZaak(
             identificatie = "ZAAK-2000-00001",
             archiefnominatie = Archiefnominatie.BLIJVEND_BEWAREN,
@@ -106,12 +117,9 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should be invoked") {
+            And("required services should've be invoked") {
+                checkIfRequiredServicesAreInvoked(times = 1, sourceZaak = sourceZaak, targetZaak = zaakZoekObject)
                 verify(exactly = 1) {
-                    zrcClientService.readZaak(sourceZaak.uuid)
-                    searchService.zoek(any())
-                    policyService.readZaakRechten(sourceZaak)
-                    policyService.readZaakRechten(zaakZoekObject)
                     ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid))
                 }
             }
@@ -146,13 +154,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should be invoked") {
-                verify(exactly = 2) {
-                    zrcClientService.readZaak(sourceZaak.uuid)
-                    searchService.zoek(any())
-                    policyService.readZaakRechten(sourceZaak)
-                    policyService.readZaakRechten(zaakZoekObject)
-                }
+            And("required services should've be invoked") {
+                checkIfRequiredServicesAreInvoked(times = 2, sourceZaak = sourceZaak, targetZaak = zaakZoekObject)
                 verify(exactly = 1) {
                     ztcClientService.readZaaktype(sourceZaak.zaaktype)
                 }
@@ -210,13 +213,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should be invoked") {
-                verify(exactly = 1) {
-                    zrcClientService.readZaak(sourceZaak.uuid)
-                    searchService.zoek(any())
-                    policyService.readZaakRechten(sourceZaak)
-                    policyService.readZaakRechten(zaakZoekObject)
-                }
+            And("required services should've be invoked") {
+                checkIfRequiredServicesAreInvoked(times = 1, sourceZaak = sourceZaak, targetZaak = zaakZoekObject)
             }
         }
 
@@ -245,13 +243,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should be invoked") {
-                verify(exactly = 2) {
-                    zrcClientService.readZaak(sourceZaak.uuid)
-                    searchService.zoek(any())
-                    policyService.readZaakRechten(sourceZaak)
-                    policyService.readZaakRechten(zaakZoekObject)
-                }
+            And("required services should've be invoked") {
+                checkIfRequiredServicesAreInvoked(times = 2, sourceZaak = sourceZaak, targetZaak = zaakZoekObject)
             }
         }
     }
@@ -306,13 +299,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should be invoked") {
-                verify(exactly = 1) {
-                    zrcClientService.readZaak(sourceZaak.uuid)
-                    searchService.zoek(any())
-                    policyService.readZaakRechten(sourceZaak)
-                    policyService.readZaakRechten(zaakZoekObject)
-                }
+            And("required services should've be invoked") {
+                checkIfRequiredServicesAreInvoked(times = 1, sourceZaak = sourceZaak, targetZaak = zaakZoekObject,)
             }
         }
 
@@ -341,13 +329,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should be invoked") {
-                verify(exactly = 2) {
-                    zrcClientService.readZaak(sourceZaak.uuid)
-                    searchService.zoek(any())
-                    policyService.readZaakRechten(sourceZaak)
-                    policyService.readZaakRechten(zaakZoekObject)
-                }
+            And("required services should've be invoked") {
+                checkIfRequiredServicesAreInvoked(times = 2, sourceZaak = sourceZaak, targetZaak = zaakZoekObject)
             }
         }
     }
@@ -405,13 +388,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should be invoked") {
-                verify(exactly = 1) {
-                    zrcClientService.readZaak(hoofdzaak.uuid)
-                    searchService.zoek(any())
-                    policyService.readZaakRechten(hoofdzaak)
-                    policyService.readZaakRechten(zaakZoekObject)
-                }
+            And("required services should've be invoked") {
+                checkIfRequiredServicesAreInvoked(times = 1, sourceZaak = hoofdzaak, targetZaak = zaakZoekObject)
             }
         }
 
@@ -440,13 +418,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should be invoked") {
-                verify(exactly = 2) {
-                    zrcClientService.readZaak(hoofdzaak.uuid)
-                    searchService.zoek(any())
-                    policyService.readZaakRechten(hoofdzaak)
-                    policyService.readZaakRechten(zaakZoekObject)
-                }
+            And("required services should've be invoked") {
+                checkIfRequiredServicesAreInvoked(times = 2, sourceZaak = hoofdzaak, targetZaak = zaakZoekObject)
             }
         }
     }
@@ -504,13 +477,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should be invoked") {
-                verify(exactly = 1) {
-                    zrcClientService.readZaak(hoofdzaak.uuid)
-                    searchService.zoek(any())
-                    policyService.readZaakRechten(hoofdzaak)
-                    policyService.readZaakRechten(zaakZoekObject)
-                }
+            And("required services should've be invoked") {
+                checkIfRequiredServicesAreInvoked(times = 1, sourceZaak = hoofdzaak, targetZaak = zaakZoekObject)
             }
         }
 
@@ -539,18 +507,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should be invoked") {
-                verify(exactly = 2) {
-                    zrcClientService.readZaak(hoofdzaak.uuid)
-                    searchService.zoek(any())
-                    policyService.readZaakRechten(hoofdzaak)
-                    policyService.readZaakRechten(zaakZoekObject)
-                }
+            And("required services should've be invoked") {
+                checkIfRequiredServicesAreInvoked(times = 2, sourceZaak = hoofdzaak, targetZaak = zaakZoekObject)
             }
         }
     }
 
-    Given("A source hoofdzaak and target no-link zaak") {
+    Given("A source hoofdzaak and target not linked zaak") {
         val deelzakenTypeUuid = UUID.randomUUID()
 
         val hoofdzaak = createZaak(
@@ -602,13 +565,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should be invoked") {
-                verify(exactly = 1) {
-                    zrcClientService.readZaak(hoofdzaak.uuid)
-                    searchService.zoek(any())
-                    policyService.readZaakRechten(hoofdzaak)
-                    policyService.readZaakRechten(zaakZoekObject)
-                }
+            And("required services should've be invoked") {
+                checkIfRequiredServicesAreInvoked(times = 1, sourceZaak = hoofdzaak, targetZaak = zaakZoekObject)
             }
         }
 
@@ -641,13 +599,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should be invoked") {
-                verify(exactly = 2) {
-                    zrcClientService.readZaak(hoofdzaak.uuid)
-                    searchService.zoek(any())
-                    policyService.readZaakRechten(hoofdzaak)
-                    policyService.readZaakRechten(zaakZoekObject)
-                }
+            And("required services should've be invoked") {
+                checkIfRequiredServicesAreInvoked(times = 2, sourceZaak = hoofdzaak, targetZaak = zaakZoekObject)
                 verify(exactly = 1) {
                     ztcClientService.readZaaktype(hoofdzaak.zaaktype)
                 }
@@ -708,13 +661,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should be invoked") {
-                verify(exactly = 1) {
-                    zrcClientService.readZaak(deelzaak.uuid)
-                    searchService.zoek(any())
-                    policyService.readZaakRechten(deelzaak)
-                    policyService.readZaakRechten(zaakZoekObject)
-                }
+            And("required services should've be invoked") {
+                checkIfRequiredServicesAreInvoked(times = 1, sourceZaak = deelzaak, targetZaak = zaakZoekObject)
             }
         }
 
@@ -743,13 +691,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should be invoked") {
-                verify(exactly = 2) {
-                    zrcClientService.readZaak(deelzaak.uuid)
-                    searchService.zoek(any())
-                    policyService.readZaakRechten(deelzaak)
-                    policyService.readZaakRechten(zaakZoekObject)
-                }
+            And("required services should've be invoked") {
+                checkIfRequiredServicesAreInvoked(times = 2, sourceZaak = deelzaak, targetZaak = zaakZoekObject)
             }
         }
     }
@@ -807,13 +750,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should be invoked") {
-                verify(exactly = 1) {
-                    zrcClientService.readZaak(deelzaak.uuid)
-                    searchService.zoek(any())
-                    policyService.readZaakRechten(deelzaak)
-                    policyService.readZaakRechten(zaakZoekObject)
-                }
+            And("required services should've be invoked") {
+                checkIfRequiredServicesAreInvoked(times = 1, sourceZaak = deelzaak, targetZaak = zaakZoekObject)
             }
         }
 
@@ -842,18 +780,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should be invoked") {
-                verify(exactly = 2) {
-                    zrcClientService.readZaak(deelzaak.uuid)
-                    searchService.zoek(any())
-                    policyService.readZaakRechten(deelzaak)
-                    policyService.readZaakRechten(zaakZoekObject)
-                }
+            And("required services should've be invoked") {
+                checkIfRequiredServicesAreInvoked(times = 2, sourceZaak = deelzaak, targetZaak = zaakZoekObject)
             }
         }
     }
 
-    Given("A source deelzaak and target no-link zaak") {
+    Given("A source deelzaak and target not linked zaak") {
         val deelzaakUuid = UUID.randomUUID()
 
         val deelzaak = createZaak(
@@ -905,13 +838,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should be invoked") {
-                verify(exactly = 1) {
-                    zrcClientService.readZaak(deelzaak.uuid)
-                    searchService.zoek(any())
-                    policyService.readZaakRechten(deelzaak)
-                    policyService.readZaakRechten(zaakZoekObject)
-                }
+            And("required services should've be invoked") {
+                checkIfRequiredServicesAreInvoked(times = 1, sourceZaak = deelzaak, targetZaak = zaakZoekObject)
             }
         }
 
@@ -940,13 +868,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should be invoked") {
-                verify(exactly = 2) {
-                    zrcClientService.readZaak(deelzaak.uuid)
-                    searchService.zoek(any())
-                    policyService.readZaakRechten(deelzaak)
-                    policyService.readZaakRechten(zaakZoekObject)
-                }
+            And("required services should've be invoked") {
+                checkIfRequiredServicesAreInvoked(times = 2, sourceZaak = deelzaak, targetZaak = zaakZoekObject)
             }
         }
     }
