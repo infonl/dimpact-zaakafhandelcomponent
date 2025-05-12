@@ -362,10 +362,7 @@ export class ZaakViewComponent
     this.menu = [new HeaderMenuItem("zaak")];
 
     if (this.zaak.rechten.behandelen && !this.zaak.isProcesGestuurd) {
-      if (
-        !this.zaak.isOntvangstbevestigingVerstuurd &&
-        this.zaak.rechten.versturenOntvangstbevestiging
-      ) {
+      if (this.zaak.rechten.versturenOntvangstbevestiging) {
         this.menu.push(
           new ButtonMenuItem(
             "actie.ontvangstbevestiging.versturen",
