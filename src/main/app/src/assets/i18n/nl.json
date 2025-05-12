@@ -458,6 +458,7 @@
   "indicatie.VERGRENDELD": "is vergrendeld",
   "indicatie.VERLENGD": "is verlengd",
   "indicatie.VERZONDEN": "is verzonden",
+  "indicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD": "Geen bevestiging verstuurd",
   "informatieobject.status": "Status",
   "informatieobject.status.definitief": "Definitief",
   "informatieobject.status.in_bewerking": "In bewerking",
