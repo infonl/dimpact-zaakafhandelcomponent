@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2025 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
