@@ -3,12 +3,15 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div mat-dialog-title>
-  <h3>{{ "actie.bevestig" | translate }}</h3>
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  <span class="flex-grow-1">
+    {{ "actie.bevestig" | translate }}
+  </span>
   <button mat-icon-button (click)="cancel()">
     <mat-icon>close</mat-icon>
   </button>
-</div>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
 <div mat-dialog-content>
   <p [innerHTML]="data._melding.key | translate: data._melding.args"></p>

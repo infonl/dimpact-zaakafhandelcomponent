@@ -3,17 +3,25 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div mat-dialog-title>
-  <h3>{{ data.confirmButtonActionKey | translate }}</h3>
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  <mat-icon *ngIf="data.icon">{{ data.icon }}</mat-icon>
+  <span class="flex-grow-1">
+    {{ data.confirmButtonActionKey | translate }}
+  </span>
   <button mat-icon-button (click)="cancel()">
     <mat-icon>close</mat-icon>
   </button>
-</div>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
 <div mat-dialog-content>
-  <p *ngIf="data.melding" [innerHTML]="data.melding"></p>
-  <p *ngIf="data.uitleg" class="uitleg" [innerHTML]="data.uitleg"></p>
-  <ng-container *ngFor="let formField of data.formFields">
+  <p *ngIf="data.options.melding" [innerHTML]="data.options.melding"></p>
+  <p
+    *ngIf="data.options.uitleg"
+    class="uitleg"
+    [innerHTML]="data.options.uitleg"
+  ></p>
+  <ng-container *ngFor="let formField of data.options.formFields">
     <mfb-form-field [field]="formField"></mfb-form-field>
   </ng-container>
 </div>
