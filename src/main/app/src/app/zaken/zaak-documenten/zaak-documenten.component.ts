@@ -236,8 +236,8 @@ export class ZaakDocumentenComponent
             { document: informatieobject.titel },
           );
         }
-        const dialogData = new DialogData<unknown, { reden?: string }>(
-          [
+        const dialogData = new DialogData<unknown, { reden?: string }>({
+          formFields: [
             new TextareaFormFieldBuilder()
               .id("reden")
               .label("reden")
@@ -245,14 +245,15 @@ export class ZaakDocumentenComponent
               .maxlength(200)
               .build(),
           ],
-          ({ reden }) =>
+          callback: ({ reden }) =>
             this.zakenService.ontkoppelInformatieObject({
               zaakUUID: this.zaak.uuid,
               documentUUID: informatieobject.uuid,
               reden: reden,
             }),
           melding,
-        );
+          icon: "link_off"
+        });
         this.dialog
           .open(DialogComponent, {
             data: dialogData,

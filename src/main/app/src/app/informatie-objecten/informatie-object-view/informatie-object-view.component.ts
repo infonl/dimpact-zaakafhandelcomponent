@@ -372,8 +372,8 @@ export class InformatieObjectViewComponent
   }
 
   private openDocumentVerwijderenDialog(): void {
-    const dialogData = new DialogData(
-      this.zaak
+    const dialogData = new DialogData<unknown, { reden: string }>({
+      formFields: this.zaak
         ? [
             new InputFormFieldBuilder()
               .id("reden")
@@ -383,14 +383,14 @@ export class InformatieObjectViewComponent
               .build(),
           ]
         : [],
-      (results: any[]) =>
-        this.deleteEnkelvoudigInformatieObject$(results["reden"]),
-      this.translate.instant("msg.document.verwijderen.bevestigen", {
-        document: this.infoObject.titel,
+      callback: (results) =>
+        this.deleteEnkelvoudigInformatieObject$(results.reden),
+      melding: this.translate.instant("msg.document.verwijderen.bevestigen", {
+        document: this.infoObject?.titel,
       }),
-    );
-
-    dialogData.confirmButtonActionKey = "actie.document.verwijderen";
+      confirmButtonActionKey: "actie.document.verwijderen",
+      icon: "delete"
+    });
 
     this.dialog
       .open(DialogComponent, { data: dialogData })

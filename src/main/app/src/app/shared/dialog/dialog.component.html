@@ -15,9 +15,13 @@
 <mat-divider></mat-divider>
 
 <div mat-dialog-content>
-  <p *ngIf="data.melding" [innerHTML]="data.melding"></p>
-  <p *ngIf="data.uitleg" class="uitleg" [innerHTML]="data.uitleg"></p>
-  <ng-container *ngFor="let formField of data.formFields">
+  <p *ngIf="data.options.melding" [innerHTML]="data.options.melding"></p>
+  <p
+    *ngIf="data.options.uitleg"
+    class="uitleg"
+    [innerHTML]="data.options.uitleg"
+  ></p>
+  <ng-container *ngFor="let formField of data.options.formFields">
     <mfb-form-field [field]="formField"></mfb-form-field>
   </ng-container>
 </div>

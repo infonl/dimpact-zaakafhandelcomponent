@@ -131,21 +131,21 @@ export class BesluitViewComponent implements OnInit, OnChanges {
   }
 
   intrekken(besluit: GeneratedType<"RestDecision">) {
-    const dialogData = new DialogData(
-      [
+    const dialogData = new DialogData({
+      formFields: [
         this.maakIdField(besluit),
         this.maakVervaldatumField(besluit),
         this.maakVervalredenField(besluit),
         this.maakToelichtingField(),
         this.maakMessageField(besluit),
       ],
-      (results) => this.saveIntrekking(results),
-      this.translate.instant("msg.besluit.intrekken"),
-    );
-    dialogData.confirmButtonActionKey = "actie.besluit.intrekken";
-    this.dialog.open(DialogComponent, {
-      data: dialogData,
+      callback: (results) => this.saveIntrekking(results),
+      melding: this.translate.instant("msg.besluit.intrekken.melding"),
+      confirmButtonActionKey: "actie.besluit.intrekken",
+      icon: "stop_circle"
     });
+
+    this.dialog.open(DialogComponent, { data: dialogData });
   }
 
   saveIntrekking(results: unknown): Observable<null> {

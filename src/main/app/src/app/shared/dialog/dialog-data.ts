@@ -7,19 +7,33 @@ import { Observable } from "rxjs";
 import { AbstractFormField } from "../material-form-builder/model/abstract-form-field";
 
 export class DialogData<Value = unknown, Result = unknown> {
-  public confirmButtonActionKey = "actie.ja";
+  public confirmButtonActionKey: string | null = "actie.ja";
   public cancelButtonActionKey: string | null = "actie.annuleren";
   public value: Value = null as Value;
-  public icon: string | null = null;
+  public icon: string;
 
   constructor(
-    public formFields: AbstractFormField[],
-    public fn?: (result: Result) => Observable<unknown>,
-    public melding?: string,
-    public uitleg?: string,
-  ) {}
+    public options: {
+      formFields: AbstractFormField[];
+      callback?: (result: Result) => Observable<unknown>;
+      melding?: string;
+      uitleg?: string;
+      confirmButtonActionKey?: string | null;
+      cancelButtonActionKey?: string | null;
+      icon: string;
+    },
+  ) {
+    this.icon = options.icon;
+
+    if (options.confirmButtonActionKey !== undefined) {
+      this.confirmButtonActionKey = options.confirmButtonActionKey;
+    }
+    if (options.cancelButtonActionKey !== undefined) {
+      this.cancelButtonActionKey = options.cancelButtonActionKey;
+    }
+  }
 
   formFieldsInvalid(): boolean {
-    return this.formFields.some((field) => field.formControl.invalid);
+    return this.options.formFields.some((field) => field.formControl.invalid);
   }
 }
