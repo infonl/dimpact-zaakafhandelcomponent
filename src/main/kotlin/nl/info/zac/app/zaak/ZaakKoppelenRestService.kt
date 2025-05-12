@@ -141,8 +141,8 @@ class ZaakKoppelenRestService @Inject constructor(
                 // As per https://vng-realisatie.github.io/gemma-zaken/standaard/zaken
                 // "deelzaken van deelzaken zijn NIET toegestaan"
                 !this.isDeelzaak && !targetZaak.isIndicatie(ZaakIndicatie.DEELZAAK) &&
-                    // a hoofdzaak cannot become also a deelzaak
-                    !(this.is_Hoofdzaak && targetZaak.isIndicatie(ZaakIndicatie.HOOFDZAAK))
+                    // a hoofdzaak cannot become also a hoofzaak and a deelzaak
+                    !targetZaak.isIndicatie(ZaakIndicatie.HOOFDZAAK)
             else -> throw UnsupportedOperationException(
                 "Unsupported link type: $relationType for ${this.identificatie} -> ${targetZaak.identificatie}"
             )
