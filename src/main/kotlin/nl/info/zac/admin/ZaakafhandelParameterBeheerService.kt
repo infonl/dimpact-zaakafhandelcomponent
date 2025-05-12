@@ -380,9 +380,11 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
     private fun mapBetrokkeneKoppelingen(
         previousZaakafhandelParameters: ZaakafhandelParameters,
         newZaakafhandelParameters: ZaakafhandelParameters
-    ) = BetrokkeneKoppelingen().apply {
-        brpKoppelen = previousZaakafhandelParameters.betrokkeneKoppelingen.brpKoppelen
-        kvkKoppelen = previousZaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen
-        zaakafhandelParameters = newZaakafhandelParameters
+    ) = newZaakafhandelParameters.apply {
+        betrokkeneKoppelingen.apply {
+            kvkKoppelen = previousZaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen
+            brpKoppelen = previousZaakafhandelParameters.betrokkeneKoppelingen.brpKoppelen
+            zaakafhandelParameters = newZaakafhandelParameters
+        }
     }
 }
