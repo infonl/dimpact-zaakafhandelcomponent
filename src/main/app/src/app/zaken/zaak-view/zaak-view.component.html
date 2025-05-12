@@ -524,7 +524,7 @@
               </div>
             </mat-tab>
 
-            <mat-tab *ngIf="betrokkenen.data.length > 0">
+            <mat-tab *ngIf="showBetrokkeneKoppelingen()">
               <ng-template mat-tab-label>
                 <mat-icon>groups</mat-icon>
                 {{ "betrokkenen" | translate }}
