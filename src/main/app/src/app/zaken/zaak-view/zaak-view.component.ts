@@ -1486,11 +1486,11 @@ export class ZaakViewComponent
 
   protected showBetrokkeneKoppelingen() {
     const brpAllowed =
-        !!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-            ?.brpKoppelen;
+      !!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.brpKoppelen;
     const kvkAllowed =
-        !!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-            ?.kvkKoppelen;
+      !!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.kvkKoppelen;
 
     return Boolean(brpAllowed || kvkAllowed) && !!this.betrokkenen.data.length;
   }
