@@ -25,7 +25,8 @@ import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.FilterParameters
 import nl.info.zac.search.model.FilterVeld
-import nl.info.zac.search.model.ZaakIndicatie.*
+import nl.info.zac.search.model.ZaakIndicatie.DEELZAAK
+import nl.info.zac.search.model.ZaakIndicatie.HOOFDZAAK
 import nl.info.zac.search.model.ZoekParameters
 import nl.info.zac.search.model.ZoekResultaat
 import nl.info.zac.search.model.ZoekVeld

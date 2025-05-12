@@ -19,11 +19,12 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.search.SearchService
-import nl.info.zac.search.model.ZaakIndicatie.*
+import nl.info.zac.search.model.ZaakIndicatie.DEELZAAK
+import nl.info.zac.search.model.ZaakIndicatie.HOOFDZAAK
 import nl.info.zac.search.model.ZoekResultaat
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
-import nl.info.zac.search.model.zoekobject.ZoekObjectType.*
+import nl.info.zac.search.model.zoekobject.ZoekObjectType.ZAAK
 import java.net.URI
 import java.util.UUID
 
