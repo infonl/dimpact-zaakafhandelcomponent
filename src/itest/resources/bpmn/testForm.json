@@ -68,7 +68,7 @@
       "key": "AM_SmartDocuments",
       "input": false,
       "properties": {
-        "AM_SmartDocuments_Group": "Dimpact"
+        "SmartDocuments_Group": "Dimpact"
       },
       "components": [
         {

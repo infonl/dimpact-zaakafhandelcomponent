@@ -45,6 +45,8 @@ import { ZakenService } from "../../zaken/zaken.service";
 import { Taak } from "../model/taak";
 import { TaakStatus } from "../model/taak-status.enum";
 import { TakenService } from "../taken.service";
+import { lastValueFrom } from "rxjs";
+import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 
 @Component({
   templateUrl: "./taak-view.component.html",
@@ -100,6 +102,7 @@ export class TaakViewComponent
     private websocketService: WebsocketService,
     private taakFormulierenService: TaakFormulierenService,
     private identityService: IdentityService,
+    private zaakafhandelParametersService: ZaakafhandelParametersService,
     protected translate: TranslateService,
   ) {
     super();
@@ -223,6 +226,9 @@ export class TaakViewComponent
         case "groepMedewerkerFieldset":
           this.initializeGroepMedewerkerFieldsetComponent(component);
           break;
+        case "groepSmartDocumentsFieldset":
+          this.initializeGroepSmartDocumentsFieldsetComponent(component);
+          break;
       }
       if ("components" in component) {
         this.initializeSpecializedFormioComponents(component.components);
@@ -250,9 +256,11 @@ export class TaakViewComponent
     groepComponent.template = "{{ item.naam }}";
     groepComponent.data = {
       custom: () =>
-        this.identityService
-          .listGroups(this.taak.zaaktypeUUID)
-          .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam")))),
+        lastValueFrom(
+          this.identityService
+            .listGroups(this.taak.zaaktypeUUID)
+            .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam")))),
+        ),
     };
   }
 
@@ -271,14 +279,36 @@ export class TaakViewComponent
           groepComponentKey in this.formioChangeData &&
           this.formioChangeData[groepComponentKey] !== ""
         ) {
-          return this.identityService
-            .listUsersInGroup(this.formioChangeData[groepComponentKey])
-            .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam"))))
-            .toPromise();
+          return lastValueFrom(
+            this.identityService
+              .listUsersInGroup(this.formioChangeData[groepComponentKey])
+              .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam")))),
+          );
         } else {
           return Promise.resolve([]);
         }
       },
+    };
+  }
+
+  private initializeGroepSmartDocumentsFieldsetComponent(component: {
+    [key: string]: any;
+  }): void {
+    component.type = "fieldset";
+    const smartDocumentsPath: GeneratedType<"RestSmartDocumentsPath"> = {
+      groups: component.properties["SmartDocuments_Group"].split(),
+    };
+
+    const smartDocumentsTemplateComponent = component.components[0];
+    smartDocumentsTemplateComponent.valueProperty = "id";
+    smartDocumentsTemplateComponent.template = "{{ item.naam }}";
+    smartDocumentsTemplateComponent.data = {
+      custom: () =>
+        lastValueFrom(
+          this.zaakafhandelParametersService
+            .listSmartDocumentsGroupTemplateNames(smartDocumentsPath)
+            .pipe(tap((value) => value.sort())),
+        ),
     };
   }
 
