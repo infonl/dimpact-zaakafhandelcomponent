@@ -29,27 +29,27 @@ export class DialogComponent implements OnInit {
   confirm(): void {
     this.dialogRef.disableClose = true;
     this.loading = true;
-    if (this.data.fn) {
-      const results: any[] = [];
-      for (const formField of this.data.formFields) {
-        switch (formField.fieldType) {
-          case FieldType.CHECKBOX:
-            results[formField.id] =
-              formField.formControl.value != null &&
-              formField.formControl.value;
-            break;
-          default:
-            results[formField.id] = formField.formControl.value;
-            break;
-        }
-      }
-      this.data.fn(results).subscribe({
-        next: () => this.dialogRef.close(true),
-        error: () => this.dialogRef.close(false),
-      });
-    } else {
+
+    if (!this.data.options.callback) {
       this.dialogRef.close(true);
+      return;
     }
+
+    const results: Record<string, unknown> = {};
+    for (const formField of this.data.options.formFields) {
+      switch (formField.fieldType) {
+        case FieldType.CHECKBOX:
+          results[formField.id] = !!formField.formControl.value;
+          break;
+        default:
+          results[formField.id] = formField.formControl.value;
+          break;
+      }
+    }
+    this.data.options.callback(results).subscribe({
+      next: () => this.dialogRef.close(true),
+      error: () => this.dialogRef.close(false),
+    });
   }
 
   cancel(): void {
