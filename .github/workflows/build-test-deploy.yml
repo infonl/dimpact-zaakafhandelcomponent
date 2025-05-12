@@ -50,7 +50,8 @@ jobs:
             changes-requiring-build:
               - '**'
               - '!**/*.md'
-              - '!**/*.pdf'          
+              - '!**/*.pdf'       
+              - '!**/*.png'                 
               - '!charts/**'          
               - '!docs/**'          
               - '!*.sh'
