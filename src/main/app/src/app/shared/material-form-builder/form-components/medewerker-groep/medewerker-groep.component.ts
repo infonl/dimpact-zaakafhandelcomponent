@@ -12,7 +12,7 @@ import {
   Validators,
 } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { Observable, Subscription } from "rxjs";
+import { Observable, of, Subscription } from "rxjs";
 import { map, startWith, tap } from "rxjs/operators";
 import { IdentityService } from "../../../../identity/identity.service";
 import { OrderUtil } from "../../../order/order-util";
@@ -30,10 +30,10 @@ export class MedewerkerGroepComponent
   implements OnInit, OnDestroy
 {
   data: MedewerkerGroepFormField;
-  groepen: GeneratedType<"RestGroup">[];
-  filteredGroepen: Observable<GeneratedType<"RestGroup">[]>;
-  medewerkers: GeneratedType<"RestUser">[];
-  filteredMedewerkers: Observable<GeneratedType<"RestUser">[]>;
+  groepen: GeneratedType<"RestGroup">[] = [];
+  medewerkers: GeneratedType<"RestUser">[] = [];
+  filteredGroepen: Observable<GeneratedType<"RestGroup">[]> = of([]);
+  filteredMedewerkers: Observable<GeneratedType<"RestUser">[]> = of([]);
   subscriptions$: Subscription[] = [];
 
   hasGroep: boolean = false;
@@ -50,7 +50,9 @@ export class MedewerkerGroepComponent
     this.initGroepen();
 
     this.subscriptions$.push(
-      this.data.groep.valueChanges.subscribe(() => {
+      this.data.groep.valueChanges.subscribe((value) => {
+        this.hasGroep = !!value;
+
         if (!this.data.groep.dirty) {
           return;
         }
@@ -61,19 +63,21 @@ export class MedewerkerGroepComponent
         } else if (!this.data.groep.value) {
           this.data.medewerker.disable();
         }
-        this.data.medewerker.setValue(null);
+        this.data.medewerker.setValue({ id: "", naam: "" });
       }),
     );
+
+    if (!this.groepen?.some((groep) => groep.id === this.data.groep.value.id)) {
+      // Group must have been removed in ID manager; reset the field
+      this.data.groep.setValue({ id: "", naam: "" });
+      return;
+    }
 
     if (!this.data.groep.value) {
       this.data.medewerker.disable();
     } else {
       this.getMedewerkers(this.data.medewerker.defaultValue?.id);
     }
-
-    this.data.groep.valueChanges.subscribe((value) => {
-      this.hasGroep = !!value;
-    });
 
     this.data.medewerker.valueChanges.subscribe((value) => {
       this.hasMedewerker = !!value;
@@ -139,12 +143,6 @@ export class MedewerkerGroepComponent
   }
 
   private getMedewerkers(defaultMedewerkerId?: string) {
-    if (!this.groepen?.some((groep) => groep.id === this.data.groep.value.id)) {
-      // group has been removed; do not request users
-      return;
-    }
-
-    this.medewerkers = [];
     this.identityService
       .listUsersInGroup(this.data.groep.value.id)
       .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam"))))
@@ -166,9 +164,12 @@ export class MedewerkerGroepComponent
         );
 
         if (defaultMedewerkerId) {
-          this.data.medewerker.setValue(
-            medewerkers.find(({ id }) => id === defaultMedewerkerId),
+          const medewerker = medewerkers.find(
+            ({ id }) => id === defaultMedewerkerId,
           );
+          if (medewerker) {
+            this.data.medewerker.setValue(medewerker);
+          }
         }
       });
   }
