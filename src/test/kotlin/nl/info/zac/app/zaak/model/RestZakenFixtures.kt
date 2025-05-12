@@ -12,6 +12,7 @@ import net.atos.zac.app.policy.model.RestZaakRechten
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.admin.createRestZaakAfhandelParameters
+import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.klant.model.klant.IdentificatieType
@@ -138,6 +139,7 @@ fun createRestZaak(
     communicatiekanaal: String? = "fakeCommunicatiekanaal",
     isOpen: Boolean = true,
     startDatum: LocalDate = LocalDate.of(2023, 9, 15),
+    initiatorIdentificatieType: IdentificatieType = IdentificatieType.BSN,
 ) = RestZaak(
     uuid = uuid,
     identificatie = "ZA2023001",
@@ -172,7 +174,7 @@ fun createRestZaak(
     kenmerken = listOf(createRESTZaakKenmerk()),
     zaakdata = createZaakData(),
     indicaties = indicaties,
-    initiatorIdentificatieType = IdentificatieType.BSN,
+    initiatorIdentificatieType = initiatorIdentificatieType,
     initiatorIdentificatie = "Sample Initiator Identificatie",
     isOpen = isOpen,
     isHeropend = false,
@@ -282,7 +284,9 @@ fun createRestZaakStatus(
     toelichting = toelichting
 )
 
-fun createRestZaaktype() = RestZaaktype(
+fun createRestZaaktype(
+    zaakafhandelParameters: RestZaakafhandelParameters = createRestZaakAfhandelParameters()
+) = RestZaaktype(
     uuid = UUID.randomUUID(),
     identificatie = "fakeIdentificatie",
     doel = "Sample Doel",
@@ -299,7 +303,7 @@ fun createRestZaaktype() = RestZaaktype(
     verlengingstermijn = null,
     zaaktypeRelaties = emptyList(),
     informatieobjecttypes = emptyList(),
-    zaakafhandelparameters = createRestZaakAfhandelParameters()
+    zaakafhandelparameters = zaakafhandelParameters
 )
 
 private fun createZaakData() = mapOf(

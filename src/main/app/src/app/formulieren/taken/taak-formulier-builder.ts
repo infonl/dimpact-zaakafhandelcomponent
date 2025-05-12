@@ -10,7 +10,6 @@ import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { Taak } from "../../taken/model/taak";
 import { TaakStatus } from "../../taken/model/taak-status.enum";
-import { Zaak } from "../../zaken/model/zaak";
 import { AbstractTaakFormulier } from "./abstract-taak-formulier";
 
 export class TaakFormulierBuilder {
@@ -20,7 +19,10 @@ export class TaakFormulierBuilder {
     this._formulier = formulier;
   }
 
-  startForm(planItem: PlanItem, zaak: Zaak): TaakFormulierBuilder {
+  startForm(
+    planItem: PlanItem,
+    zaak: GeneratedType<"RestZaak">,
+  ): TaakFormulierBuilder {
     this._formulier.tabellen = planItem.tabellen;
     this._formulier.zaak = zaak;
     this._formulier.taakNaam = planItem.naam;
@@ -49,7 +51,10 @@ export class TaakFormulierBuilder {
     return this;
   }
 
-  behandelForm(taak: Taak, zaak: Zaak): TaakFormulierBuilder {
+  behandelForm(
+    taak: Taak,
+    zaak: GeneratedType<"RestZaak">,
+  ): TaakFormulierBuilder {
     this._formulier.zaak = zaak;
     this._formulier.taak = taak;
     this._formulier.tabellen = taak.tabellen;

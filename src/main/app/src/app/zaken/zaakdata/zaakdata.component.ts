@@ -12,7 +12,7 @@ import {
   FormGroup,
 } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
-import { Zaak } from "../model/zaak";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -20,7 +20,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaakdata.component.html",
 })
 export class ZaakdataComponent implements OnInit {
-  @Input({ required: true }) zaak!: Zaak;
+  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Input() readonly = false;
   bezigMetOpslaan = false;
@@ -106,7 +106,7 @@ export class ZaakdataComponent implements OnInit {
   }
 
   opslaan(): void {
-    this.mergeDeep(this.zaak.zaakdata, this.form?.value);
+    this.mergeDeep(this.zaak.zaakdata ?? {}, this.form?.value);
     this.bezigMetOpslaan = true;
     this.zakenService.updateZaakdata(this.zaak).subscribe(() => {
       this.bezigMetOpslaan = false;

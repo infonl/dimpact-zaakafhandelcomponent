@@ -24,7 +24,7 @@ export class VertrouwelijkaanduidingToTranslationKeyPipe
     "ZEER_GEHEIM",
   ] as const;
 
-  transform(value?: GeneratedType<"VertrouwelijkheidaanduidingEnum">) {
+  transform(value?: GeneratedType<"VertrouwelijkheidaanduidingEnum"> | null) {
     if (!value || !this.expectedKeys.includes(value)) {
       throw new Error(`Unexpected vertrouwelijkheidaanduiding: ${value}`);
     }

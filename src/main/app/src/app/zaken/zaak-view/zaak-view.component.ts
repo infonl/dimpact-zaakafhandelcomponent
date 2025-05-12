@@ -64,7 +64,6 @@ import { Taak } from "../../taken/model/taak";
 import { TaakStatus } from "../../taken/model/taak-status.enum";
 import { TakenService } from "../../taken/taken.service";
 import { IntakeAfrondenDialogComponent } from "../intake-afronden-dialog/intake-afronden-dialog.component";
-import { Zaak } from "../model/zaak";
 import { ZaakBetrokkene } from "../model/zaak-betrokkene";
 import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
@@ -83,9 +82,9 @@ export class ZaakViewComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   readonly indicatiesLayout = IndicatiesLayout;
-  zaak!: Zaak;
+  zaak!: GeneratedType<"RestZaak">;
   zaakOpschorting!: GeneratedType<"RESTZaakOpschorting">;
-  menu!: MenuItem[];
+  menu: MenuItem[] = [];
   actiefPlanItem: PlanItem | null = null;
   activeSideAction: string | null = null;
   teWijzigenBesluit!: GeneratedType<"RestDecision">;
@@ -219,10 +218,7 @@ export class ZaakViewComponent
       }),
     );
 
-    this.takenDataSource.filterPredicate = (
-      data: ExpandableTableData<Taak>,
-      filter: string,
-    ): boolean => {
+    this.takenDataSource.filterPredicate = (data, filter) => {
       return !this.toonAfgerondeTaken.value
         ? data.data.status !== filter["status"]
         : true;
@@ -233,7 +229,7 @@ export class ZaakViewComponent
     );
   }
 
-  init(zaak: Zaak): void {
+  init(zaak: GeneratedType<"RestZaak">): void {
     this.zaak = zaak;
     this.loadHistorie();
     this.loadBetrokkenen();
@@ -259,9 +255,9 @@ export class ZaakViewComponent
         case "groep":
           return item.data.groep.naam;
         case "behandelaar":
-          return item.data.behandelaar?.naam;
+          return item.data.behandelaar?.naam ?? "";
         default:
-          return item.data[property];
+          return String(item.data[property as keyof typeof item.data]);
       }
     };
     this.takenDataSource.sort = this.takenSort;
@@ -273,7 +269,7 @@ export class ZaakViewComponent
         case "gebruiker":
           return item.door;
         default:
-          return item[property];
+          return String(item[property as keyof typeof item]);
       }
     };
 
@@ -295,7 +291,7 @@ export class ZaakViewComponent
       new TextIcon(
         DateConditionals.provideFormControlValue(
           DateConditionals.isExceeded,
-          this.zaak.einddatum,
+          this.zaak.einddatum ?? "",
         ),
         "report_problem",
         "warningVerlopen_icon",
@@ -389,7 +385,7 @@ export class ZaakViewComponent
 
     if (this.zaak.rechten.creeerenDocument) {
       if (
-        this.zaak.zaaktype.zaakafhandelparameters.smartDocuments
+        this.zaak.zaaktype.zaakafhandelparameters?.smartDocuments
           .enabledGlobally &&
         this.zaak.zaaktype.zaakafhandelparameters.smartDocuments
           .enabledForZaaktype
@@ -504,10 +500,7 @@ export class ZaakViewComponent
   private createKoppelingenMenuItems(): void {
     if (this.zaak.rechten.behandelen || this.zaak.rechten.wijzigen) {
       this.menu.push(new HeaderMenuItem("koppelingen"));
-      if (
-        this.zaak.rechten.toevoegenBetrokkeneBedrijf ||
-        this.zaak.rechten.toevoegenBetrokkenePersoon
-      ) {
+      if (this.allowedToAddBetrokkene()) {
         this.menu.push(
           new ButtonMenuItem(
             "actie.betrokkene.toevoegen",
@@ -515,15 +508,16 @@ export class ZaakViewComponent
             "group_add",
           ),
         );
-        if (this.zaak.rechten.toevoegenBagObject) {
-          this.menu.push(
-            new ButtonMenuItem(
-              "actie.bagObject.toevoegen",
-              () => this.actionsSidenav.open(),
-              "add_home_work",
-            ),
-          );
-        }
+      }
+
+      if (this.zaak.rechten.toevoegenBagObject) {
+        this.menu.push(
+          new ButtonMenuItem(
+            "actie.bagObject.toevoegen",
+            () => this.actionsSidenav.open(),
+            "add_home_work",
+          ),
+        );
       }
 
       if (this.zaak.rechten.wijzigen) {
@@ -655,7 +649,7 @@ export class ZaakViewComponent
 
   createUserEventListenerDialog(planItem: PlanItem): {
     dialogComponent: ComponentType<unknown>;
-    dialogData: { zaak: Zaak; planItem: PlanItem };
+    dialogData: { zaak: GeneratedType<"RestZaak">; planItem: PlanItem };
   } {
     switch (planItem.userEventListenerActie) {
       case UserEventListenerActie.IntakeAfronden:
@@ -1062,7 +1056,7 @@ export class ZaakViewComponent
 
   betrokkeneGeselecteerd(betrokkene: KlantGegevens): void {
     this.websocketService.suspendListener(this.zaakRollenListener);
-    this.actionsSidenav.close();
+    void this.actionsSidenav.close();
     this.zakenService
       .createBetrokkene(
         this.zaak,
@@ -1252,15 +1246,16 @@ export class ZaakViewComponent
   }
 
   doIntrekking($event): void {
-    const gegevens: GeneratedType<"RestDecisionWithdrawalData"> = {
-      besluitUuid: $event.uuid,
-      vervaldatum: $event.vervaldatum,
-      vervalreden: $event.vervalreden.value,
-      reden: $event.toelichting,
-    };
-    this.zakenService.intrekkenBesluit(gegevens).subscribe(() => {
-      this.utilService.openSnackbar("msg.besluit.ingetrokken");
-    });
+    this.zakenService
+      .intrekkenBesluit({
+        besluitUuid: $event.uuid,
+        vervaldatum: $event.vervaldatum,
+        vervalreden: $event.vervalreden.value,
+        reden: $event.toelichting,
+      })
+      .subscribe(() => {
+        this.utilService.openSnackbar("msg.besluit.ingetrokken");
+      });
   }
 
   betrokkeneGegevensOphalen(
@@ -1378,10 +1373,92 @@ export class ZaakViewComponent
     }
   }
 
-  // Prevent `closedStart` from `#actionsSidenav` to reset the value to `null` on dialog actions
-  async menuItemChanged(event: string) {
-    setTimeout(() => {
-      this.activeSideAction = event;
-    }, 100);
+  async menuItemChanged(event: string | null) {
+    this.activeSideAction = event;
+  }
+
+  protected showInitiator() {
+    const betrokkeneKoppelingen =
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen;
+    if (!betrokkeneKoppelingen) return false;
+
+    const { brpKoppelen, kvkKoppelen } = betrokkeneKoppelingen;
+
+    return Boolean(brpKoppelen || kvkKoppelen);
+  }
+
+  protected showPersoonsgegevens() {
+    const betrokkeneKoppelingen =
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen;
+    if (!betrokkeneKoppelingen) return false;
+
+    const { brpKoppelen } = betrokkeneKoppelingen;
+
+    return Boolean(
+      brpKoppelen &&
+        ["BSN"].includes(this.zaak.initiatorIdentificatieType ?? ""),
+    );
+  }
+
+  protected showBedrijfsgegevens() {
+    const betrokkeneKoppelingen =
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen;
+    if (!betrokkeneKoppelingen) return false;
+
+    const { kvkKoppelen } = betrokkeneKoppelingen;
+
+    return Boolean(
+      kvkKoppelen &&
+        ["VN", "RSIN"].includes(this.zaak.initiatorIdentificatieType ?? ""),
+    );
+  }
+
+  protected canAddInitiator() {
+    const initiatorIdentificatieType = String(
+      this.zaak.initiatorIdentificatieType,
+    );
+
+    if (
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.brpKoppelen
+    ) {
+      return !["BSN"].includes(initiatorIdentificatieType);
+    }
+
+    if (
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.kvkKoppelen
+    ) {
+      return !["VN", "RSIN"].includes(initiatorIdentificatieType);
+    }
+
+    return false;
+  }
+
+  protected allowedToAddBetrokkene() {
+    const brpAllowed =
+      !!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.brpKoppelen && this.zaak.rechten.toevoegenInitiatorPersoon;
+    const kvkAllowed =
+      !!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.kvkKoppelen && this.zaak.rechten.toevoegenInitiatorBedrijf;
+
+    return Boolean(brpAllowed || kvkAllowed);
+  }
+
+  protected allowBedrijf() {
+    return Boolean(
+      this.zaak.rechten.toevoegenInitiatorBedrijf &&
+        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+          ?.kvkKoppelen,
+    );
+  }
+
+  protected allowPersoon() {
+    return Boolean(
+      this.zaak.rechten.toevoegenInitiatorPersoon &&
+        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+          ?.brpKoppelen,
+    );
   }
 }
