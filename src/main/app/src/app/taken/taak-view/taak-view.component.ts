@@ -252,7 +252,8 @@ export class TaakViewComponent
       custom: () =>
         this.identityService
           .listGroups(this.taak.zaaktypeUUID)
-          .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam")))),
+          .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam"))))
+          .toPromise(),
     };
   }
 

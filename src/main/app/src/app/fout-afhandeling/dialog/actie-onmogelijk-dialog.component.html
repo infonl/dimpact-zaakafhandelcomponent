@@ -3,15 +3,16 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div mat-dialog-title>
-  <h3>
-    <mat-icon>error</mat-icon>
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  <mat-icon>error</mat-icon>
+  <span class="flex-grow-1">
     {{ "dialoog.error.titel.onmogelijk" | translate }}
-  </h3>
+  </span>
   <button mat-icon-button (click)="close()">
     <mat-icon>close</mat-icon>
   </button>
-</div>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
 <div mat-dialog-content>
   <div>{{ "dialoog.error.body.onmogelijk.opgeschort" | translate }}</div>
