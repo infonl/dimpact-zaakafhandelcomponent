@@ -764,7 +764,7 @@ export class ZaakViewComponent
     this.actionsSidenav.close();
     const dialogData = new DialogData<
       unknown,
-      { toelichting: string, resultaattype: { id: string }}
+      { toelichting: string; resultaattype: { id: string } }
     >({
       formFields: [
         new SelectFormFieldBuilder()
@@ -891,7 +891,7 @@ export class ZaakViewComponent
         verwachteDuur: this.zaakOpschorting.duurDagen,
       }),
       confirmButtonActionKey: "actie.zaak.hervatten",
-      icon: "play_circle"
+      icon: "play_circle",
     });
 
     this.dialog
@@ -1046,7 +1046,7 @@ export class ZaakViewComponent
           melding: this.translate.instant(
             "msg.initiator.ontkoppelen.bevestigen",
           ),
-          icon: "link_off"
+          icon: "link_off",
         }),
       })
       .afterClosed()
@@ -1104,7 +1104,7 @@ export class ZaakViewComponent
               betrokkene: betrokkeneIdentificatie,
             },
           ),
-          icon: "link_off"
+          icon: "link_off",
         }),
       })
       .afterClosed()
@@ -1340,7 +1340,7 @@ export class ZaakViewComponent
         omschrijving: bagObject.omschrijving,
       }),
       confirmButtonActionKey: "actie.bagObject.verwijderen",
-      icon: "link_off"
+      icon: "link_off",
     });
 
     this.dialog
@@ -1373,7 +1373,7 @@ export class ZaakViewComponent
       ],
       confirmButtonActionKey: "actie.ok",
       cancelButtonActionKey: null,
-      icon: "play_shapes"
+      icon: "play_shapes",
     });
     dialogData.confirmButtonActionKey = "actie.ok";
     dialogData.cancelButtonActionKey = null;

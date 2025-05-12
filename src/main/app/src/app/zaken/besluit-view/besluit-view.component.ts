@@ -142,7 +142,7 @@ export class BesluitViewComponent implements OnInit, OnChanges {
       callback: (results) => this.saveIntrekking(results),
       melding: this.translate.instant("msg.besluit.intrekken.melding"),
       confirmButtonActionKey: "actie.besluit.intrekken",
-      icon: "stop_circle"
+      icon: "stop_circle",
     });
 
     this.dialog.open(DialogComponent, { data: dialogData });

@@ -389,7 +389,7 @@ export class InformatieObjectViewComponent
         document: this.infoObject?.titel,
       }),
       confirmButtonActionKey: "actie.document.verwijderen",
-      icon: "delete"
+      icon: "delete",
     });
 
     this.dialog

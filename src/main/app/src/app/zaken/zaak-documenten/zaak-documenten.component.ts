@@ -252,7 +252,7 @@ export class ZaakDocumentenComponent
               reden: reden,
             }),
           melding,
-          icon: "link_off"
+          icon: "link_off",
         });
         this.dialog
           .open(DialogComponent, {
