@@ -30,7 +30,8 @@ fun createZaakZoekObject(
     omschrijving: String = "fakeOmschrijving",
     statustypeOmschrijving: String = "fakeStatustypeOmschrijving",
     zaaktypeUuid: String = UUID.randomUUID().toString(),
-    archiefNominatie: String = Archiefnominatie.BLIJVEND_BEWAREN.toString()
+    archiefNominatie: String = Archiefnominatie.BLIJVEND_BEWAREN.toString(),
+    indicatie: ZaakIndicatie?,
 ) = ZaakZoekObject(
     id = uuidAsString,
     type = type.name
@@ -41,4 +42,7 @@ fun createZaakZoekObject(
     this.statustypeOmschrijving = statustypeOmschrijving
     this.zaaktypeUuid = zaaktypeUuid
     this.archiefNominatie = archiefNominatie
+    if (indicatie != null) {
+        setIndicatie(indicatie, true)
+    }
 }

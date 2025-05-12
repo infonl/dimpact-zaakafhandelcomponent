@@ -25,7 +25,7 @@ import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.FilterParameters
 import nl.info.zac.search.model.FilterVeld
-import nl.info.zac.search.model.ZaakIndicatie
+import nl.info.zac.search.model.ZaakIndicatie.*
 import nl.info.zac.search.model.ZoekParameters
 import nl.info.zac.search.model.ZoekResultaat
 import nl.info.zac.search.model.ZoekVeld
@@ -134,15 +134,15 @@ class ZaakKoppelenRestService @Inject constructor(
         when (relationType) {
             RelatieType.HOOFDZAAK ->
                 // hoofdzaak to hoofdzaak link not allowed
-                !this.is_Hoofdzaak && !targetZaak.isIndicatie(ZaakIndicatie.HOOFDZAAK) &&
+                !this.is_Hoofdzaak && !targetZaak.isIndicatie(HOOFDZAAK) &&
                     // a zaak cannot have two hoofdzaken
-                    !this.isDeelzaak && !targetZaak.isIndicatie(ZaakIndicatie.DEELZAAK)
+                    !this.isDeelzaak && !targetZaak.isIndicatie(DEELZAAK)
             RelatieType.DEELZAAK ->
                 // As per https://vng-realisatie.github.io/gemma-zaken/standaard/zaken
                 // "deelzaken van deelzaken zijn NIET toegestaan"
-                !this.isDeelzaak && !targetZaak.isIndicatie(ZaakIndicatie.DEELZAAK) &&
-                    // a hoofdzaak cannot become also a hoofzaak and a deelzaak
-                    !targetZaak.isIndicatie(ZaakIndicatie.HOOFDZAAK)
+                !this.isDeelzaak && !targetZaak.isIndicatie(DEELZAAK) &&
+                    // a hoofdzaak cannot become both a hoofdzaak and a deelzaak
+                    !targetZaak.isIndicatie(HOOFDZAAK)
             else -> throw UnsupportedOperationException(
                 "Unsupported link type: $relationType for ${this.identificatie} -> ${targetZaak.identificatie}"
             )
