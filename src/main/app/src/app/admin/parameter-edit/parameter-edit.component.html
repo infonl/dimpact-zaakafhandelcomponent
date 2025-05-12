@@ -717,6 +717,12 @@
           "gegevens.koppelingen" | translate
         }}</ng-template>
         <ng-template matStepContent>
+          <h2 class="flex-1">
+            {{ "gegevens.landelijk.koppelingen" | translate }}
+          </h2>
+          <p>
+            {{ "gegevens.landelijk.koppelingen.omschrijving" | translate }}
+          </p>
           <form class="flex-col gap-12" [formGroup]="betrokkeneKoppelingen">
             <div class="flex-row items-center gap-8">
               <mat-slide-toggle

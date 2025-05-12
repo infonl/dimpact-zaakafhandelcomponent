@@ -200,6 +200,8 @@
   "gegevens.algemeen": "Information",
   "gegevens.beeindiging": "Case termination information",
   "gegevens.koppelingen": "Connections",
+  "gegevens.landelijk.koppelingen": "National registration connections",
+  "gegevens.landelijk.koppelingen.omschrijving": "Indicate which registries can potentially be linked to this case type.",
   "gegevens.koppelen.brp": "Linking basic register of persons (personal data)",
   "gegevens.koppelen.kvk": "CoC (company data) linking",
   "gegevens.overig": "Other information",
