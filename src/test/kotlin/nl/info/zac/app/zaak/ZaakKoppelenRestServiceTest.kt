@@ -234,7 +234,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 result.resultCount shouldBe 1
             }
 
-            And("link is possible") {
+            And("link is not possible") {
                 with(result.results.first()) {
                     id shouldBe zaakZoekObject.getObjectId()
                     type shouldBe zaakZoekObject.getType()
