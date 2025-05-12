@@ -22,10 +22,16 @@ describe(MedewerkerGroepComponent.name, () => {
 
   let identityService: IdentityService;
 
+  const group: GeneratedType<"RestGroup"> = {
+    id: "test-group-id",
+    naam: "test-group",
+  };
   const user: GeneratedType<"RestUser"> = {
     id: "test-user-id",
     naam: "test-medewerker",
   };
+
+  const groepFormControl = new FormControl(group);
   const medewerkerGroepFormField = new MedewerkerGroepFormField();
   const medewerkerFormControl = new FormControl(user, { nonNullable: true });
 
@@ -48,7 +54,6 @@ describe(MedewerkerGroepComponent.name, () => {
     const fixture = TestBed.createComponent(MedewerkerGroepComponent);
     component = fixture.componentInstance;
 
-    const groepFormControl = new FormControl({ id: "1", naam: "test-groep" });
     jest
       .spyOn(medewerkerGroepFormField, "medewerker", "get")
       .mockReturnValue(medewerkerFormControl);
@@ -58,6 +63,7 @@ describe(MedewerkerGroepComponent.name, () => {
     component.data = medewerkerGroepFormField;
 
     identityService = TestBed.inject(IdentityService);
+    jest.spyOn(identityService, "listGroups").mockReturnValue(of([group]));
     jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of([user]));
   });
 
