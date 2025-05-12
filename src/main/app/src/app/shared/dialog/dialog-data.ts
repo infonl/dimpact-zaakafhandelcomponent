@@ -15,6 +15,8 @@ export class DialogData<Value = unknown, Result = unknown> {
   constructor(
     public options: {
       formFields: AbstractFormField[];
+      // TODO: the `result` type should be based on the form fields
+      // right now this is impossible as `AbstractFormField` always return `any` as a field value
       callback?: (result: Result) => Observable<unknown>;
       melding?: string;
       uitleg?: string;

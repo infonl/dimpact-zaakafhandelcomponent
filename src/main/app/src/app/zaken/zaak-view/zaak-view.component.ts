@@ -763,7 +763,8 @@ export class ZaakViewComponent
   private openZaakAfsluitenDialog(): void {
     this.actionsSidenav.close();
     const dialogData = new DialogData<
-      unknown
+      unknown,
+      { toelichting: string, resultaattype: { id: string }}
     >({
       formFields: [
         new SelectFormFieldBuilder()
