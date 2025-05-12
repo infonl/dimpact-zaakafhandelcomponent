@@ -170,9 +170,12 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isProcessDriven(zaak.uuid) } returns false
         every { policyService.readZaakRechten(zaak, zaakType) } returns zaakrechten
-        every { zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) } returns Optional.of(true)
 
         When("converting a zaak to a rest zaak") {
+            every {
+                zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid)
+            } returns Optional.of(true)
+
             val restZaak = restZaakConverter.toRestZaak(zaak, status, statusType)
 
             Then("the zaak should be converted correctly") {
