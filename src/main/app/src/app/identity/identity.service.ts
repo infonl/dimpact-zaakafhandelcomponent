@@ -30,15 +30,15 @@ export class IdentityService {
         .pipe(
           catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
         );
-    } else {
-      return this.zacHttp
-        .GET("/rest/identity/groups/zaaktype/{zaaktypeUuid}", {
-          pathParams: { path: { zaaktypeUuid } },
-        })
-        .pipe(
-          catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-        );
     }
+
+    return this.zacHttp
+      .GET("/rest/identity/groups/zaaktype/{zaaktypeUuid}", {
+        pathParams: { path: { zaaktypeUuid } },
+      })
+      .pipe(
+        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+      );
   }
 
   listUsersInGroup(groupId: string) {
