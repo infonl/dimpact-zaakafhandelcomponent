@@ -32,7 +32,6 @@ import { FormConfigBuilder } from "../../shared/material-form-builder/model/form
 import { OrderUtil } from "../../shared/order/order-util";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { Taak } from "../../taken/model/taak";
-import { Zaak } from "../../zaken/model/zaak";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
@@ -43,7 +42,7 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
   styleUrls: ["./informatie-object-add.component.less"],
 })
 export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
-  @Input() zaak?: Zaak;
+  @Input() zaak?: GeneratedType<"RestZaak">;
   @Input() taak?: Taak;
   @Input() sideNav!: MatDrawer;
   @Output() document = new EventEmitter<
@@ -77,7 +76,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
   );
 
   private informatieobjectStatussen!: { label: string; value: string }[];
-  private status!: SelectFormField;
+  private status?: SelectFormField = undefined;
   private subscriptions: Subscription[] = [];
 
   private getInputs(deps: { loggedInUser: GeneratedType<"RestLoggedInUser"> }) {
@@ -268,12 +267,12 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
     this.subscriptions.push(
       ontvangstDatum.formControl.valueChanges.subscribe((value) => {
         if (value && verzendDatum.formControl.enabled) {
-          this.status.formControl.setValue(this.getStatusDefinitief());
-          this.status.formControl.disable();
+          this.status?.formControl.setValue(this.getStatusDefinitief());
+          this.status?.formControl.disable();
           verzendDatum.formControl.disable();
         } else if (!value && verzendDatum.formControl.disabled) {
           if (!this.isAfgehandeld()) {
-            this.status.formControl.enable();
+            this.status?.formControl.enable();
           }
           verzendDatum.formControl.enable();
         }
@@ -303,11 +302,11 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
     return this.zaak ? this.zaak.uuid : this.taak!.zaakUuid;
   }
 
-  private isAfgehandeld(): boolean {
-    return this.zaak && !this.zaak.isOpen;
+  private isAfgehandeld() {
+    return !this.zaak?.isOpen;
   }
 
-  private getStatusDefinitief(): { label: string; value: string } {
+  private getStatusDefinitief() {
     return this.informatieobjectStatussen.find(
       (option) =>
         option.value ===
@@ -384,7 +383,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     if (this.isAfgehandeld()) {
-      this.status.formControl.disable();
+      this.status?.formControl.disable();
     }
   }
 

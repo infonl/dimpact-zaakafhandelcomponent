@@ -67,6 +67,7 @@ import nl.info.zac.app.zaak.converter.RestDecisionConverter
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
+import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowed
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
 import nl.info.zac.app.zaak.model.RESTDocumentOntkoppelGegevens
 import nl.info.zac.app.zaak.model.RESTReden
@@ -252,6 +253,9 @@ class ZaakRestService @Inject constructor(
         val restZaak = restZaakAanmaakGegevens.zaak
         val zaaktypeUUID = restZaak.zaaktype.uuid
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUUID)
+
+        assertCanAddBetrokkene(restZaak)
+
         // make sure to use the omschrijving of the zaaktype that was retrieved to perform
         // authorisation on zaaktype
         assertPolicy(
@@ -313,6 +317,9 @@ class ZaakRestService @Inject constructor(
         restZaakEditMetRedenGegevens: RESTZaakEditMetRedenGegevens
     ): RestZaak {
         val zaak = zrcClientService.readZaak(zaakUUID)
+
+        assertCanAddBetrokkene(restZaakEditMetRedenGegevens.zaak)
+
         with(policyService.readZaakRechten(zaak)) {
             assertPolicy(wijzigen)
             if (
@@ -1199,4 +1206,19 @@ class ZaakRestService @Inject constructor(
     }
 
     private fun speciaalMail(mail: String): Speciaal? = if (!mail.contains("@")) Speciaal.valueOf(mail) else null
+
+    private fun assertCanAddBetrokkene(zaak: RestZaak) {
+        zaak.initiatorIdentificatieType?.let {
+            val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
+                zaak.zaaktype.uuid
+            )
+
+            if (it.isKvK && !zaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen) {
+                throw BetrokkeneNotAllowed()
+            }
+            if (it.isBsn && !zaakafhandelParameters.betrokkeneKoppelingen.brpKoppelen) {
+                throw BetrokkeneNotAllowed()
+            }
+        }
+    }
 }

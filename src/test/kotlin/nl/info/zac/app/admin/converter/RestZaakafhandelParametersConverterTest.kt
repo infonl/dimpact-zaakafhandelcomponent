@@ -40,7 +40,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         restHumanTaskParametersConverter,
         ztcClientService,
         zaakafhandelParameterService,
-        smartDocumentsService,
+        smartDocumentsService
     )
 
     Given("ZaakafhandelParameters with minimal content") {

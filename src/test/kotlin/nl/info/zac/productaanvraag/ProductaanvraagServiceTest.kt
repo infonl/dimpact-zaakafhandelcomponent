@@ -40,6 +40,7 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
 import nl.info.zac.admin.model.createZaakafhandelParameters
+import nl.info.zac.app.admin.createBetrokkeneKoppelingen
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.productaanvraag.model.generated.Geometry
@@ -209,6 +210,13 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakafhandelParameters = createZaakafhandelParameters(
             zaaktypeUUID = zaakTypeUUID,
         )
+        zaakafhandelParameters.apply {
+            betrokkeneKoppelingen = createBetrokkeneKoppelingen(
+                zaakafhandelParameters = zaakafhandelParameters,
+                brpKoppelen = true,
+                kvkKoppelen = true
+            )
+        }
         val formulierBron = createBron()
         val coordinates = listOf(52.08968250760225, 5.114358701512936)
         val bsnNumber = "fakeBsnNumber"
@@ -353,7 +361,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val roleToBeCreated = slot<Rol<*>>()
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
-            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(productAanvraagType)
+            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                productAanvraagType
+            )
         } returns listOf(zaakafhandelParameters)
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
         every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
@@ -436,7 +446,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakToBeCreated = slot<Zaak>()
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
-            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(productAanvraagType)
+            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                productAanvraagType
+            )
         } returns listOf(zaakafhandelParameters)
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
         every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
@@ -509,7 +521,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakToBeCreated = slot<Zaak>()
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
-            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(productAanvraagType)
+            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                productAanvraagType
+            )
         } returns listOf(zaakafhandelParameters)
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
         every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
@@ -657,41 +671,78 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakToBeCreated = slot<Zaak>()
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
-            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(productAanvraagType)
-        } returns listOf(zaakafhandelParameters)
-        every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
-        // here we simulate the case that no role types have been defined for the adviseur role
-        every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.ADVISEUR) } returns emptyList()
-        every {
-            ztcClientService.findRoltypen(any(), "Belanghebbende")
-        } returns listOf(rolTypeBelanghebbende)
-        every {
-            ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.BESLISSER)
-        } returns listOf(rolTypeBeslisser)
-        // here we simulate the case that multiple role types have been defined for the klantcontacter role
-        every {
-            ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.KLANTCONTACTER)
-        } returns listOf(rolTypeKlantcontacter1, rolTypeKlantcontacter2)
-        every {
-            ztcClientService.findRoltypen(any(), "Medeaanvrager")
-        } returns listOf(rolTypeMedeInitiator)
-        every {
-            ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.ZAAKCOORDINATOR)
-        } returns listOf(rolTypeZaakcoordinator)
-        every { zrcClientService.createRol(capture(rolesToBeCreated)) } just runs
-        every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
-        every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
-        every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
-        every {
-            zrcClientService.createZaakInformatieobject(
-                any(),
-                "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                productAanvraagType
             )
-        } returns createdZaakInformatieobject
-        every { cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any()) } just Runs
-        every { configuratieService.readBronOrganisatie() } returns "123443210"
+        } returns listOf(zaakafhandelParameters)
+
+        When("it is not allowed to add a betrokkene") {
+            val invalidZaakafhandelParameters = createZaakafhandelParameters()
+            val zaakafhandelParametersNonAllowedBetrokkene = invalidZaakafhandelParameters.apply {
+                betrokkeneKoppelingen = createBetrokkeneKoppelingen(
+                    brpKoppelen = false,
+                    zaakafhandelParameters = invalidZaakafhandelParameters
+                )
+            }
+
+            every {
+                zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                    productAanvraagType
+                )
+            } returns listOf(zaakafhandelParametersNonAllowedBetrokkene)
+
+            productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+            Then("not create the zaak not related objects and neither start the zaak") {
+                verify(exactly = 0) {
+                    zgwApiService.createZaak(any())
+                    zrcClientService.createZaakobject(any())
+                    zrcClientService.createRol(any())
+                    cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any())
+                }
+            }
+        }
 
         When("the productaanvraag is handled") {
+            every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
+            // here we simulate the case that no role types have been defined for the adviseur role
+            every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.ADVISEUR) } returns emptyList()
+            every {
+                ztcClientService.findRoltypen(any(), "Belanghebbende")
+            } returns listOf(rolTypeBelanghebbende)
+            every {
+                ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.BESLISSER)
+            } returns listOf(rolTypeBeslisser)
+            // here we simulate the case that multiple role types have been defined for the klantcontacter role
+            every {
+                ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.KLANTCONTACTER)
+            } returns listOf(rolTypeKlantcontacter1, rolTypeKlantcontacter2)
+            every {
+                ztcClientService.findRoltypen(any(), "Medeaanvrager")
+            } returns listOf(rolTypeMedeInitiator)
+            every {
+                ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.ZAAKCOORDINATOR)
+            } returns listOf(rolTypeZaakcoordinator)
+            every { zrcClientService.createRol(capture(rolesToBeCreated)) } just runs
+            every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
+            every {
+                zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
+            } returns zaakafhandelParameters
+            every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
+            every {
+                zrcClientService.createZaakInformatieobject(
+                    any(),
+                    "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                )
+            } returns createdZaakInformatieobject
+            every { cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any()) } just Runs
+            every { configuratieService.readBronOrganisatie() } returns "123443210"
+            every {
+                zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                    productAanvraagType
+                )
+            } returns listOf(zaakafhandelParameters)
+
             productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
             Then(
@@ -819,7 +870,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         // no zaakafhandelparameters are configured for the zaaktype
         every {
-            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(productAanvraagType)
+            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                productAanvraagType
+            )
         } returns emptyList()
         every { inboxProductaanvraagService.create(capture(inboxProductaanvraagSlot)) } just runs
 
