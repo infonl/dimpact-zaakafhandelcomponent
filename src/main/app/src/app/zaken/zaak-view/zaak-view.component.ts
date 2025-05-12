@@ -1483,4 +1483,15 @@ export class ZaakViewComponent
           ?.brpKoppelen,
     );
   }
+
+  protected showBetrokkeneKoppelingen() {
+    const brpAllowed =
+        !!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+            ?.brpKoppelen;
+    const kvkAllowed =
+        !!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+            ?.kvkKoppelen;
+
+    return Boolean(brpAllowed || kvkAllowed) && !!this.betrokkenen.data.length;
+  }
 }
