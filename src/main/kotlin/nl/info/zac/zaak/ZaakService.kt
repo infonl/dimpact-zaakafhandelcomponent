@@ -21,11 +21,14 @@ import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolVestiging
 import net.atos.client.zgw.zrc.model.Vestiging
 import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.client.zgw.zrc.util.StatusTypeUtil
 import net.atos.zac.event.EventingService
+import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
+import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.identity.model.Group
@@ -35,6 +38,7 @@ import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.exception.CaseHasLockedInformationObjectsException
 import nl.info.zac.zaak.exception.CaseHasOpenSubcasesException
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
+import java.lang.Boolean
 import java.util.Locale
 import java.util.UUID
 import java.util.logging.Logger
@@ -47,6 +51,7 @@ class ZaakService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
     private var eventingService: EventingService,
+    private var zaakVariabelenService: ZaakVariabelenService,
     private val lockService: EnkelvoudigInformatieObjectLockService
 ) {
     fun addBetrokkeneToZaak(
@@ -223,6 +228,16 @@ class ZaakService @Inject constructor(
         }
         if (lockService.hasLockedInformatieobjecten(zaak)) {
             throw CaseHasLockedInformationObjectsException("Case ${zaak.uuid} has locked information objects")
+        }
+    }
+
+    fun setOntvangstbevestigingVerstuurdIfNotHeropend(zaak: Zaak) {
+        val statusType: StatusType? = zaak.status?.let { statusUuid ->
+            val status = zrcClientService.readStatus(statusUuid)
+            ztcClientService.readStatustype(status.statustype)
+        }
+        if (!StatusTypeUtil.isHeropend(statusType)) {
+            zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, Boolean.TRUE)
         }
     }
 

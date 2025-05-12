@@ -6,7 +6,9 @@ package nl.info.zac.app.zaak.converter
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.zrc.model.BetrokkeneType
+import net.atos.client.zgw.zrc.model.BetrokkeneType.NATUURLIJK_PERSOON
+import net.atos.client.zgw.zrc.model.BetrokkeneType.NIET_NATUURLIJK_PERSOON
+import net.atos.client.zgw.zrc.model.BetrokkeneType.VESTIGING
 import net.atos.client.zgw.zrc.model.Status
 import net.atos.client.zgw.zrc.model.Verlenging
 import net.atos.client.zgw.zrc.model.Zaak
@@ -43,7 +45,7 @@ import nl.info.zac.search.model.ZaakIndicatie.OPSCHORTING
 import nl.info.zac.search.model.ZaakIndicatie.VERLENGD
 import java.time.LocalDate
 import java.time.Period
-import java.util.EnumSet
+import java.util.EnumSet.noneOf
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -123,9 +125,9 @@ class RestZaakConverter @Inject constructor(
             behandelaar = behandelaar,
             initiatorIdentificatie = initiator?.identificatienummer,
             initiatorIdentificatieType = when (val betrokkeneType = initiator?.betrokkeneType) {
-                BetrokkeneType.NATUURLIJK_PERSOON -> IdentificatieType.BSN
-                BetrokkeneType.VESTIGING -> IdentificatieType.VN
-                BetrokkeneType.NIET_NATUURLIJK_PERSOON -> IdentificatieType.RSIN
+                NATUURLIJK_PERSOON -> IdentificatieType.BSN
+                VESTIGING -> IdentificatieType.VN
+                NIET_NATUURLIJK_PERSOON -> IdentificatieType.RSIN
                 // betrokkeneType may be null
                 null -> null
                 else -> {
@@ -144,15 +146,15 @@ class RestZaakConverter @Inject constructor(
             isProcesGestuurd = bpmnService.isProcessDriven(zaak.uuid),
             rechten = policyService.readZaakRechten(zaak, zaaktype).let(RestRechtenConverter::convert),
             zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid),
-            indicaties = when {
-                zaak.is_Hoofdzaak -> EnumSet.of(HOOFDZAAK)
-                zaak.isDeelzaak -> EnumSet.of(DEELZAAK)
-                StatusTypeUtil.isHeropend(statustype) -> EnumSet.of(HEROPEND)
-                zaak.isOpgeschort -> EnumSet.of(OPSCHORTING)
-                zaak.isVerlengd -> EnumSet.of(VERLENGD)
-                isOntvangstbevestigingNietVerstuurdIndicationSetRequired(zaak, statustype) ->
-                    EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
-                else -> EnumSet.noneOf(ZaakIndicatie::class.java)
+            indicaties = noneOf(ZaakIndicatie::class.java).apply {
+                if (zaak.is_Hoofdzaak) add(HOOFDZAAK)
+                if (zaak.isDeelzaak) add(DEELZAAK)
+                if (StatusTypeUtil.isHeropend(statustype)) add(HEROPEND)
+                if (zaak.isOpgeschort) add(OPSCHORTING)
+                if (zaak.isVerlengd) add(VERLENGD)
+                if (isOntvangstbevestigingNietVerstuurdIndicationSetRequired(zaak, statustype)) {
+                    add(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
+                }
             }
         )
     }

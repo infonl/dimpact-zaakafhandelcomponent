@@ -27,12 +27,15 @@ import net.atos.zac.policy.PolicyService;
 import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.zac.mail.MailService;
 import nl.info.zac.mail.model.BronnenKt;
+import nl.info.zac.zaak.ZaakService;
 
 @Singleton
 @Path("mail")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class MailRestService {
+
+    private ZaakService zaakService;
     private MailService mailService;
     private ZaakVariabelenService zaakVariabelenService;
     private PolicyService policyService;
@@ -48,6 +51,7 @@ public class MailRestService {
 
     @Inject
     public MailRestService(
+            final ZaakService zaakService,
             final MailService mailService,
             final ZaakVariabelenService zaakVariabelenService,
             final PolicyService policyService,
@@ -55,6 +59,7 @@ public class MailRestService {
             final ZtcClientService ztcClientService,
             final RESTMailGegevensConverter restMailGegevensConverter
     ) {
+        this.zaakService = zaakService;
         this.mailService = mailService;
         this.zaakVariabelenService = zaakVariabelenService;
         this.policyService = policyService;
@@ -84,6 +89,6 @@ public class MailRestService {
         assertPolicy(!zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.getUuid()).orElse(false) &&
                      policyService.readZaakRechten(zaak).versturenOntvangstbevestiging());
         mailService.sendMail(restMailGegevensConverter.convert(restMailGegevens), BronnenKt.getBronnenFromZaak(zaak));
-        mailService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak);
+        zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak);
     }
 }
