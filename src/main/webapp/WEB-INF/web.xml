@@ -130,7 +130,7 @@
     </security-constraint>
 
     <security-constraint>
-        <display-name>Require the 'beheerder' role on `/admin/*` and `/rest/admin/util/*`</display-name>
+        <display-name>Require the 'beheerder' role on admin-only pages and endpoints</display-name>
         <web-resource-collection>
             <web-resource-name>admin</web-resource-name>
             <url-pattern>/admin/*</url-pattern>
@@ -138,6 +138,10 @@
         <web-resource-collection>
             <web-resource-name>admin</web-resource-name>
             <url-pattern>/rest/admin/util/*</url-pattern>
+        </web-resource-collection>
+        <web-resource-collection>
+            <web-resource-name>admin</web-resource-name>
+            <url-pattern>/rest/admin/cmmn/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>beheerder</role-name>

@@ -5,7 +5,7 @@
 
 import { Injectable } from "@angular/core";
 
-import { of } from "rxjs";
+import { Observable, of } from "rxjs";
 import { catchError, tap } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
@@ -23,9 +23,19 @@ export class IdentityService {
     private foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
-  listGroups() {
+  listGroups(zaaktypeUuid?: string): Observable<GeneratedType<"RestGroup">[]> {
+    if (!zaaktypeUuid) {
+      return this.zacHttp
+        .GET("/rest/identity/groups")
+        .pipe(
+          catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+        );
+    }
+
     return this.zacHttp
-      .GET("/rest/identity/groups")
+      .GET("/rest/identity/groups/zaaktype/{zaaktypeUuid}", {
+        pathParams: { path: { zaaktypeUuid } },
+      })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

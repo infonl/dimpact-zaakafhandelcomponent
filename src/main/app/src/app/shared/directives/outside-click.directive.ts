@@ -16,6 +16,7 @@ import {
   PLATFORM_ID,
 } from "@angular/core";
 import { Subscription, fromEvent } from "rxjs";
+import { HasEventTargetAddRemove } from "rxjs/internal/observable/fromEvent";
 import { filter } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 
@@ -30,11 +31,15 @@ export class OutsideClickDirective implements OnInit, OnDestroy {
 
   @Output("zacOutsideClick") outsideClick = new EventEmitter<MouseEvent>();
 
-  private subscription: Subscription;
+  private subscription: Subscription | null = null;
 
   constructor(
     private element: ElementRef,
-    @Optional() @Inject(DOCUMENT) private document: any,
+    @Optional()
+    @Inject(DOCUMENT)
+    private document:
+      | HasEventTargetAddRemove<MouseEvent>
+      | ArrayLike<HasEventTargetAddRemove<MouseEvent>>,
     @Inject(PLATFORM_ID) private platformId: Record<string, unknown>,
     private utilService: UtilService,
   ) {}
@@ -63,9 +68,7 @@ export class OutsideClickDirective implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
+    this.subscription?.unsubscribe();
   }
 
   private static isOrContainsClickTarget(

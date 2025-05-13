@@ -41,7 +41,7 @@ export class ZaakCreateComponent {
 
   private readonly inboxProductaanvraag: InboxProductaanvraag;
 
-  protected groups = this.identityService.listGroups();
+  protected groups: Observable<GeneratedType<"RestGroup">[]> | null = null;
   protected users: GeneratedType<"RestUser">[] = [];
   protected caseTypes = this.zakenService.listZaaktypes();
   protected communicationChannels: string[] = [];
@@ -89,6 +89,7 @@ export class ZaakCreateComponent {
     utilService.setTitle("title.zaak.aanmaken");
     this.inboxProductaanvraag =
       router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
+    this.form.controls.groep.disable();
     this.form.controls.behandelaar.disable();
 
     referentieTabelService
@@ -162,8 +163,9 @@ export class ZaakCreateComponent {
 
   caseTypeSelected(caseType?: GeneratedType<"RestZaaktype"> | null): void {
     if (!caseType) return;
-
     const { zaakafhandelparameters, vertrouwelijkheidaanduiding } = caseType;
+    this.form.controls.groep.enable();
+    this.groups = this.identityService.listGroups(caseType.uuid);
 
     this.groups.subscribe((groups) => {
       this.form.controls.groep.setValue(
@@ -176,6 +178,13 @@ export class ZaakCreateComponent {
         ({ value }) => value === vertrouwelijkheidaanduiding,
       ),
     );
+
+    if (
+      !caseType.zaakafhandelparameters?.betrokkeneKoppelingen?.kvkKoppelen &&
+      !caseType.zaakafhandelparameters?.betrokkeneKoppelingen?.brpKoppelen
+    ) {
+      this.form.controls.initiator.setValue(null);
+    }
   }
 
   protected async openSideNav(action: string) {
@@ -226,4 +235,15 @@ export class ZaakCreateComponent {
 
   // This is required for the `zac-bag-zoek` to work as expected
   protected bagObjectSelected() {}
+
+  protected canAddInitiator() {
+    const betrokkeneKoppelingen =
+      this.form.controls.zaaktype.value?.zaakafhandelparameters
+        ?.betrokkeneKoppelingen;
+    if (!betrokkeneKoppelingen) return false;
+
+    const { brpKoppelen, kvkKoppelen } = betrokkeneKoppelingen;
+
+    return Boolean(brpKoppelen || kvkKoppelen);
+  }
 }

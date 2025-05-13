@@ -45,7 +45,7 @@ services:
       - "--health-enabled=true"
 
   keycloak-database:
-    image: docker.io/postgres:17.4@sha256:304ab813518754228f9f792f79d6da36359b82d8ecf418096c636725f8c930ad
+    image: docker.io/postgres:17.5@sha256:864831322bf2520e7d03d899b01b542de6de9ece6fe29c89f19dc5e1d5568ccf
     ports:
       - "54326:5432"
     healthcheck:
@@ -62,7 +62,7 @@ services:
       - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
 
   zac-database:
-    image: docker.io/postgres:17.4@sha256:304ab813518754228f9f792f79d6da36359b82d8ecf418096c636725f8c930ad
+    image: docker.io/postgres:17.5@sha256:864831322bf2520e7d03d899b01b542de6de9ece6fe29c89f19dc5e1d5568ccf
     ports:
       - "54320:5432"
     healthcheck:
@@ -168,7 +168,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   redis:
-    image: redis:8.0.0@sha256:a4b90e7079b67c41bdf4ca6f9d87197079e4c1c3273b7f489a74f2687d85a05e
+    image: redis:7.4.3@sha256:7df1eeff67eb0ba84f6b9d2940765a6bb1158081426745c185a03b1507de6a09
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -255,7 +255,8 @@ services:
       - "8181:8181"
 
   brp-personen-mock:
-    image: ghcr.io/brp-api/personen-mock:2.6.0-202504011526@sha256:cfa6f238f37c748595b336d0582ecf9685b67096ad625d8c9b13c84f8914c64c
+    # We use the 'latest' tag here because an unconventional versioning scheme is used for these Docker images which Renovate does not support
+    image: ghcr.io/brp-api/personen-mock:2.6.0-latest
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
@@ -263,7 +264,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: docker.io/postgres:17.4@sha256:304ab813518754228f9f792f79d6da36359b82d8ecf418096c636725f8c930ad
+    image: docker.io/postgres:17.5@sha256:864831322bf2520e7d03d899b01b542de6de9ece6fe29c89f19dc5e1d5568ccf
     ports:
       - "54325:5432"
     healthcheck:
@@ -566,7 +567,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web:
-    image: maykinmedia/open-archiefbeheer:1.0.0@sha256:e65152ebadea436fcb753f7408be527e6a2d2f99ada405e261626e1efdf1ae68
+    image: maykinmedia/open-archiefbeheer:1.0.1@sha256:0369bd51594bee412b2564ab04060ef6d2748d1441090d85e9c9d83a0ce3f6f4
     platform: linux/amd64
     environment: &web_env
       - ALLOWED_HOSTS="*"
@@ -616,7 +617,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web-init:
-    image: maykinmedia/open-archiefbeheer:1.0.0@sha256:e65152ebadea436fcb753f7408be527e6a2d2f99ada405e261626e1efdf1ae68
+    image: maykinmedia/open-archiefbeheer:1.0.1@sha256:0369bd51594bee412b2564ab04060ef6d2748d1441090d85e9c9d83a0ce3f6f4
     platform: linux/amd64
     environment: *web_env
     command: /setup_configuration.sh
@@ -630,7 +631,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery:
-    image: maykinmedia/open-archiefbeheer:1.0.0@sha256:e65152ebadea436fcb753f7408be527e6a2d2f99ada405e261626e1efdf1ae68
+    image: maykinmedia/open-archiefbeheer:1.0.1@sha256:0369bd51594bee412b2564ab04060ef6d2748d1441090d85e9c9d83a0ce3f6f4
     platform: linux/amd64
     command: /celery_worker.sh
     environment: *web_env
@@ -646,7 +647,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery-beat:
-    image: maykinmedia/open-archiefbeheer:1.0.0@sha256:e65152ebadea436fcb753f7408be527e6a2d2f99ada405e261626e1efdf1ae68
+    image: maykinmedia/open-archiefbeheer:1.0.1@sha256:0369bd51594bee412b2564ab04060ef6d2748d1441090d85e9c9d83a0ce3f6f4
     platform: linux/amd64
     command: /celery_beat.sh
     environment: *web_env

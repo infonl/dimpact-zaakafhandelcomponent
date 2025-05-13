@@ -40,7 +40,6 @@ import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item
 import { HrefMenuItem } from "../../shared/side-nav/menu-item/href-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { Zaak } from "../../zaken/model/zaak";
 import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { FileFormat, FileFormatUtil } from "../model/file-format";
@@ -59,7 +58,7 @@ export class InformatieObjectViewComponent
   infoObject?: GeneratedType<"RestEnkelvoudigInformatieobject">;
   laatsteVersieInfoObject: GeneratedType<"RestEnkelvoudigInformatieobject">;
   zaakInformatieObjecten: ZaakInformatieobject[] = [];
-  zaak?: Zaak;
+  zaak?: GeneratedType<"RestZaak">;
   documentNieuweVersieGegevens?: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
   documentPreviewBeschikbaar = false;
   menu: MenuItem[];
@@ -373,8 +372,8 @@ export class InformatieObjectViewComponent
   }
 
   private openDocumentVerwijderenDialog(): void {
-    const dialogData = new DialogData(
-      this.zaak
+    const dialogData = new DialogData<unknown, { reden: string }>({
+      formFields: this.zaak
         ? [
             new InputFormFieldBuilder()
               .id("reden")
@@ -384,14 +383,14 @@ export class InformatieObjectViewComponent
               .build(),
           ]
         : [],
-      (results: any[]) =>
-        this.deleteEnkelvoudigInformatieObject$(results["reden"]),
-      this.translate.instant("msg.document.verwijderen.bevestigen", {
-        document: this.infoObject.titel,
+      callback: (results) =>
+        this.deleteEnkelvoudigInformatieObject$(results.reden),
+      melding: this.translate.instant("msg.document.verwijderen.bevestigen", {
+        document: this.infoObject?.titel,
       }),
-    );
-
-    dialogData.confirmButtonActionKey = "actie.document.verwijderen";
+      confirmButtonActionKey: "actie.document.verwijderen",
+      icon: "delete",
+    });
 
     this.dialog
       .open(DialogComponent, { data: dialogData })
