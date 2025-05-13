@@ -255,7 +255,8 @@ services:
       - "8181:8181"
 
   brp-personen-mock:
-    image: ghcr.io/brp-api/personen-mock:2.6.0-202504011526@sha256:cfa6f238f37c748595b336d0582ecf9685b67096ad625d8c9b13c84f8914c64c
+    # We use the 'latest' tag here because an unconventional versioning scheme is used for these Docker images which Renovate does not support
+    image: ghcr.io/brp-api/personen-mock:2.6.0-latest
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
@@ -566,7 +567,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web:
-    image: maykinmedia/open-archiefbeheer:1.0.0@sha256:e65152ebadea436fcb753f7408be527e6a2d2f99ada405e261626e1efdf1ae68
+    image: maykinmedia/open-archiefbeheer:1.0.1@sha256:0369bd51594bee412b2564ab04060ef6d2748d1441090d85e9c9d83a0ce3f6f4
     platform: linux/amd64
     environment: &web_env
       - ALLOWED_HOSTS="*"
@@ -616,7 +617,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web-init:
-    image: maykinmedia/open-archiefbeheer:1.0.0@sha256:e65152ebadea436fcb753f7408be527e6a2d2f99ada405e261626e1efdf1ae68
+    image: maykinmedia/open-archiefbeheer:1.0.1@sha256:0369bd51594bee412b2564ab04060ef6d2748d1441090d85e9c9d83a0ce3f6f4
     platform: linux/amd64
     environment: *web_env
     command: /setup_configuration.sh
@@ -630,7 +631,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery:
-    image: maykinmedia/open-archiefbeheer:1.0.0@sha256:e65152ebadea436fcb753f7408be527e6a2d2f99ada405e261626e1efdf1ae68
+    image: maykinmedia/open-archiefbeheer:1.0.1@sha256:0369bd51594bee412b2564ab04060ef6d2748d1441090d85e9c9d83a0ce3f6f4
     platform: linux/amd64
     command: /celery_worker.sh
     environment: *web_env
@@ -646,7 +647,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery-beat:
-    image: maykinmedia/open-archiefbeheer:1.0.0@sha256:e65152ebadea436fcb753f7408be527e6a2d2f99ada405e261626e1efdf1ae68
+    image: maykinmedia/open-archiefbeheer:1.0.1@sha256:0369bd51594bee412b2564ab04060ef6d2748d1441090d85e9c9d83a0ce3f6f4
     platform: linux/amd64
     command: /celery_beat.sh
     environment: *web_env
