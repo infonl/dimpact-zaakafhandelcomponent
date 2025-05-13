@@ -3,17 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import {
   AbstractControl,
   FormControl,
-  ValidationErrors,
   ValidatorFn,
   Validators,
 } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { Observable, Subscription } from "rxjs";
-import { map, startWith, tap } from "rxjs/operators";
+import { tap } from "rxjs/operators";
 import { IdentityService } from "../../../../identity/identity.service";
 import { OrderUtil } from "../../../order/order-util";
 import { GeneratedType } from "../../../utils/generated-types";
@@ -25,19 +23,13 @@ import { MedewerkerGroepFormField } from "./medewerker-groep-form-field";
   templateUrl: "./medewerker-groep.component.html",
   styleUrls: ["./medewerker-groep.component.less"],
 })
-export class MedewerkerGroepComponent
-  extends FormComponent
-  implements OnInit, OnDestroy
-{
-  data: MedewerkerGroepFormField;
-  groepen: GeneratedType<"RestGroup">[];
-  filteredGroepen: Observable<GeneratedType<"RestGroup">[]>;
-  medewerkers: GeneratedType<"RestUser">[];
-  filteredMedewerkers: Observable<GeneratedType<"RestUser">[]>;
-  subscriptions$: Subscription[] = [];
+export class MedewerkerGroepComponent extends FormComponent implements OnInit {
+  private groups: GeneratedType<"RestGroup">[] = [];
+  private users: GeneratedType<"RestUser">[] = [];
 
-  hasGroep: boolean = false;
-  hasMedewerker: boolean = false;
+  public data: MedewerkerGroepFormField;
+  protected filteredGroups: GeneratedType<"RestGroup">[] = [];
+  protected filteredUsers: GeneratedType<"RestUser">[] = [];
 
   constructor(
     public translate: TranslateService,
@@ -47,73 +39,70 @@ export class MedewerkerGroepComponent
   }
 
   ngOnInit(): void {
-    this.initGroepen();
-
-    this.subscriptions$.push(
-      this.data.groep.valueChanges.subscribe(() => {
-        if (!this.data.groep.dirty) {
-          return;
-        }
-
-        if (this.data.groep.valid) {
-          this.data.medewerker.enable();
-          this.getMedewerkers(this.data.medewerker.defaultValue?.id);
-        } else if (!this.data.groep.value) {
-          this.data.medewerker.disable();
-        }
-        this.data.medewerker.setValue(null);
-      }),
-    );
-
-    if (!this.data.groep.value) {
-      this.data.medewerker.disable();
-    } else {
-      this.getMedewerkers(this.data.medewerker.defaultValue?.id);
-    }
+    this.data.medewerker.disable();
 
     this.data.groep.valueChanges.subscribe((value) => {
-      this.hasGroep = !!value;
+      const filterValue = typeof value === "string" ? value : value?.naam;
+      this.filteredGroups = this.groups.filter(
+        ({ naam }) =>
+          !value || naam.toLowerCase().includes(filterValue.toLowerCase()),
+      );
+
+      this.data.medewerker.reset();
+      // The `MedewerkerGroepFormField` has the wrong type so we overwrite it here
+      // This will get replaced when moving over to the Angular form builder for all forms
+      this.data.medewerker.setValue(
+        null as unknown as GeneratedType<"RestUser">,
+      );
+
+      if (!value) {
+        this.data.medewerker.disable();
+        return;
+      }
+
+      const group = this.groups.find(({ id }) => id === value.id);
+
+      if (!group) return;
+
+      this.data.medewerker.enable();
+      this.setUsers(this.data.medewerker.defaultValue?.id);
     });
 
     this.data.medewerker.valueChanges.subscribe((value) => {
-      this.hasMedewerker = !!value;
+      const filterValue = typeof value === "string" ? value : value?.naam;
+      this.filteredUsers = value
+        ? this.users.filter(({ naam }) =>
+            naam.toLowerCase().includes(filterValue.toLowerCase()),
+          )
+        : this.users;
     });
+
+    this.setGroups();
   }
 
-  ngOnDestroy() {
-    this.subscriptions$.forEach((s) => s.unsubscribe());
-  }
-
-  initGroepen(): void {
+  private setGroups(): void {
     this.identityService
       .listGroups(this.data.zaaktypeUuid)
       .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam"))))
-      .subscribe((groepen) => {
-        this.groepen = groepen;
+      .subscribe((groups) => {
+        this.groups = this.filteredGroups = groups;
+
         const validators: ValidatorFn[] = [];
-        validators.push(AutocompleteValidators.optionInList(groepen));
-        if (this.data.groep.hasValidator(Validators.required)) {
-          validators.push(Validators.required);
-        }
-        validators.push((control: AbstractControl): ValidationErrors | null => {
-          if (!control.value || typeof control.value !== "object") {
-            return null; // or return an error if this is unexpected
-          }
+        validators.push(AutocompleteValidators.optionInList(groups));
+
+        validators.push((control: AbstractControl) => {
+          if (!control.value || typeof control.value !== "object") return null;
 
           const naamToolong =
-            control.value.naam &&
-            control.value.naam.length > this.data.maxGroupNameLength;
+            control.value.naam?.length > this.data.maxGroupNameLength;
 
           return naamToolong ? { naamToolong: true } : null;
         });
-        validators.push((control: AbstractControl): ValidationErrors | null => {
-          if (!control.value || typeof control.value !== "object") {
-            return null; // or return an error if this is unexpected
-          }
+        validators.push((control: AbstractControl) => {
+          if (!control.value || typeof control.value !== "object") return null;
 
           const idTooLong =
-            control.value.id &&
-            control.value.id.length > this.data.maxGroupIdLength;
+            control.value.id?.length > this.data.maxGroupIdLength;
 
           return idTooLong ? { idTooLong: true } : null;
         });
@@ -121,81 +110,44 @@ export class MedewerkerGroepComponent
         this.data.groep.setValidators(validators);
         this.data.groep.updateValueAndValidity();
 
-        this.filteredGroepen = this.data.groep.valueChanges.pipe(
-          startWith(""),
-          map((groep) =>
-            groep ? this._filterGroepen(groep) : this.groepen.slice(),
-          ),
+        if (this.data.groep.hasValidator(Validators.required)) {
+          validators.push(Validators.required);
+        }
+
+        const group = groups.find(
+          ({ id }) => id === this.data.groep.defaultValue.id,
         );
 
-        if (this.data.groep.defaultValue) {
-          this.data.groep.setValue(
-            groepen.find(
-              (groep) => groep.id === this.data.groep.defaultValue.id,
-            ),
-          );
-        }
+        this.data.groep.setValue(
+          group ?? (null as unknown as GeneratedType<"RestGroup">),
+        );
       });
   }
 
-  private getMedewerkers(defaultMedewerkerId?: string) {
-    this.medewerkers = [];
+  private setUsers(defaultUserId?: string) {
     this.identityService
       .listUsersInGroup(this.data.groep.value.id)
       .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam"))))
-      .subscribe((medewerkers) => {
-        this.medewerkers = medewerkers;
+      .subscribe((users) => {
+        this.users = this.filteredUsers = users;
+
         const validators: ValidatorFn[] = [];
-        validators.push(AutocompleteValidators.optionInList(medewerkers));
+        validators.push(AutocompleteValidators.optionInList(users));
         if (this.data.medewerker.hasValidator(Validators.required)) {
           validators.push(Validators.required);
         }
         this.data.medewerker.setValidators(validators);
-        this.filteredMedewerkers = this.data.medewerker.valueChanges.pipe(
-          startWith(""),
-          map((medewerker) =>
-            medewerker
-              ? this._filterMedewerkers(medewerker)
-              : this.medewerkers.slice(),
-          ),
-        );
 
-        if (defaultMedewerkerId) {
-          this.data.medewerker.setValue(
-            medewerkers.find(({ id }) => id === defaultMedewerkerId),
-          );
-        }
+        const user = users.find(({ id }) => id === defaultUserId);
+
+        this.data.medewerker.setValue(
+          user ?? (null as unknown as GeneratedType<"RestUser">),
+        );
       });
   }
 
-  displayFn(
-    obj: GeneratedType<"RestUser"> | GeneratedType<"RestGroup">,
-  ): string {
+  displayFn(obj: GeneratedType<"RestUser"> | GeneratedType<"RestGroup">) {
     return obj?.naam ?? "";
-  }
-
-  private _filterGroepen(
-    value: string | GeneratedType<"RestGroup">,
-  ): GeneratedType<"RestGroup">[] {
-    if (typeof value === "object") {
-      return [value];
-    }
-    const filterValue = value.toLowerCase();
-    return this.groepen.filter((groep) =>
-      groep.naam.toLowerCase().includes(filterValue),
-    );
-  }
-
-  private _filterMedewerkers(
-    value: string | GeneratedType<"RestUser">,
-  ): GeneratedType<"RestUser">[] {
-    if (typeof value === "object") {
-      return [value];
-    }
-    const filterValue = value.toLowerCase();
-    return this.medewerkers.filter((medewerker) =>
-      medewerker.naam.toLowerCase().includes(filterValue),
-    );
   }
 
   getMessage(formControl: FormControl, label: string): string {
@@ -218,9 +170,7 @@ export class MedewerkerGroepComponent
     return this.translate.instant("msg.error.field.generic");
   }
 
-  clearField(formControl: FormControl) {
-    if (formControl) {
-      formControl.setValue(null);
-    }
+  clearField(formControl?: FormControl) {
+    formControl?.setValue(null);
   }
 }
