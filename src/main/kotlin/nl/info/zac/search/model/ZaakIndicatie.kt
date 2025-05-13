@@ -20,5 +20,6 @@ enum class ZaakIndicatie {
     HEROPEND,
     HOOFDZAAK,
     DEELZAAK,
-    VERLENGD
+    VERLENGD,
+    ONTVANGSTBEVESTIGING_NIET_VERSTUURD
 }

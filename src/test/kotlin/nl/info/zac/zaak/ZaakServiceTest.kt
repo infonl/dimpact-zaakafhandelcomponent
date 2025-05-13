@@ -14,24 +14,31 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Rol
+import net.atos.client.zgw.zrc.util.StatusTypeUtil
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
+import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.model.createNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
+import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_OPEN_SUBCASES
@@ -41,18 +48,21 @@ import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.exception.CaseHasLockedInformationObjectsException
 import nl.info.zac.zaak.exception.CaseHasOpenSubcasesException
 import java.net.URI
+import java.time.ZonedDateTime
 import java.util.UUID
 
 class ZaakServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
+    val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val lockService = mockk<EnkelvoudigInformatieObjectLockService>()
 
     val zaakService = ZaakService(
         eventingService = eventingService,
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
+        zaakVariabelenService = zaakVariabelenService,
         lockService = lockService,
     )
     val explanation = "fakeExplanation"
@@ -491,6 +501,77 @@ class ZaakServiceTest : BehaviorSpec({
             Then("it should throw an exception") {
                 exception.errorCode shouldBe ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
                 exception.message shouldBe "Case ${zaak.uuid} has locked information objects"
+            }
+        }
+    }
+
+    Given("a zaak that is not heropend") {
+        val zaakUuid = UUID.randomUUID()
+        val statusUuid = UUID.randomUUID()
+        val zaak = createZaak().apply {
+            uuid = zaakUuid
+            status = URI(statusUuid.toString())
+        }
+        val statusType = createStatusType().apply {
+            omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING
+        }
+        val status = createZaakStatus(
+            statusUuid,
+            URI(statusUuid.toString()),
+            zaak.url,
+            statusType.url,
+            ZonedDateTime.now()
+        )
+
+        every { zrcClientService.readStatus(zaak.status) } returns status
+        every { ztcClientService.readStatustype(status.statustype) } returns statusType
+        mockkStatic(StatusTypeUtil::class)
+        every { StatusTypeUtil.isHeropend(statusType) } returns false
+        every {
+            zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, true)
+        } just runs
+
+        When("setOntvangstbevestigingVerstuurdIfNotHeropend is called") {
+            zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
+
+            Then("ontvangstbevestiging is true") {
+                verify(exactly = 1) {
+                    zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, true)
+                }
+            }
+        }
+    }
+
+    Given("a zaak is heropend") {
+        val zaakUuid = UUID.randomUUID()
+        val statusUuid = UUID.randomUUID()
+        val zaak = createZaak().apply {
+            uuid = zaakUuid
+            status = URI(statusUuid.toString())
+        }
+        val statusType = createStatusType().apply {
+            omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND
+        }
+        val status = createZaakStatus(
+            statusUuid,
+            URI(statusUuid.toString()),
+            zaak.url,
+            statusType.url,
+            ZonedDateTime.now()
+        )
+
+        every { zrcClientService.readStatus(zaak.status) } returns status
+        every { ztcClientService.readStatustype(status.statustype) } returns statusType
+        mockkStatic(StatusTypeUtil::class)
+        every { StatusTypeUtil.isHeropend(statusType) } returns true
+
+        When("setOntvangstbevestigingVerstuurdIfNotHeropend is called") {
+            zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
+
+            Then("ontvangstbevestiging is false") {
+                verify(exactly = 0) {
+                    zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, false)
+                }
             }
         }
     }

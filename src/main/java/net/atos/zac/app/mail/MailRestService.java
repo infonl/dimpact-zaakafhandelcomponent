@@ -5,7 +5,6 @@
 
 package net.atos.zac.app.mail;
 
-import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
 import static net.atos.zac.policy.PolicyService.assertPolicy;
 
 import java.util.UUID;
@@ -26,15 +25,17 @@ import net.atos.zac.app.mail.model.RESTMailGegevens;
 import net.atos.zac.flowable.ZaakVariabelenService;
 import net.atos.zac.policy.PolicyService;
 import nl.info.client.zgw.ztc.ZtcClientService;
-import nl.info.client.zgw.ztc.model.generated.StatusType;
 import nl.info.zac.mail.MailService;
 import nl.info.zac.mail.model.BronnenKt;
+import nl.info.zac.zaak.ZaakService;
 
 @Singleton
 @Path("mail")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class MailRestService {
+
+    private ZaakService zaakService;
     private MailService mailService;
     private ZaakVariabelenService zaakVariabelenService;
     private PolicyService policyService;
@@ -50,6 +51,7 @@ public class MailRestService {
 
     @Inject
     public MailRestService(
+            final ZaakService zaakService,
             final MailService mailService,
             final ZaakVariabelenService zaakVariabelenService,
             final PolicyService policyService,
@@ -57,6 +59,7 @@ public class MailRestService {
             final ZtcClientService ztcClientService,
             final RESTMailGegevensConverter restMailGegevensConverter
     ) {
+        this.zaakService = zaakService;
         this.mailService = mailService;
         this.zaakVariabelenService = zaakVariabelenService;
         this.policyService = policyService;
@@ -86,11 +89,6 @@ public class MailRestService {
         assertPolicy(!zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.getUuid()).orElse(false) &&
                      policyService.readZaakRechten(zaak).versturenOntvangstbevestiging());
         mailService.sendMail(restMailGegevensConverter.convert(restMailGegevens), BronnenKt.getBronnenFromZaak(zaak));
-
-        final StatusType statustype = zaak.getStatus() != null ?
-                ztcClientService.readStatustype(zrcClientService.readStatus(zaak.getStatus()).getStatustype()) : null;
-        if (!isHeropend(statustype)) {
-            zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaakUuid, Boolean.TRUE);
-        }
+        zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak);
     }
 }

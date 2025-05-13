@@ -58,9 +58,6 @@ data class RestZaak(
     @get:JsonbProperty("isDeelzaak")
     var isDeelzaak: Boolean,
 
-    @get:JsonbProperty("isOntvangstbevestigingVerstuurd")
-    var isOntvangstbevestigingVerstuurd: Boolean,
-
     @get:JsonbProperty("isBesluittypeAanwezig")
     var isBesluittypeAanwezig: Boolean,
 
