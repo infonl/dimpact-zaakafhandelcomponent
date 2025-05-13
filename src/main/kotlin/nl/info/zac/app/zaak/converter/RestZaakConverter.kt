@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.zaak.converter
 
+import jakarta.annotation.Nullable
 import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType.NATUURLIJK_PERSOON
@@ -12,7 +13,8 @@ import net.atos.client.zgw.zrc.model.BetrokkeneType.VESTIGING
 import net.atos.client.zgw.zrc.model.Status
 import net.atos.client.zgw.zrc.model.Verlenging
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.zrc.util.StatusTypeUtil
+import net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend
+import net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake
 import net.atos.zac.app.policy.converter.RestRechtenConverter
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.policy.PolicyService
@@ -140,8 +142,8 @@ class RestZaakConverter @Inject constructor(
             isHoofdzaak = zaak.is_Hoofdzaak,
             isDeelzaak = zaak.isDeelzaak,
             isOpen = zaak.isOpen,
-            isHeropend = StatusTypeUtil.isHeropend(statustype),
-            isInIntakeFase = StatusTypeUtil.isIntake(statustype),
+            isHeropend = isHeropend(statustype),
+            isInIntakeFase = isIntake(statustype),
             isBesluittypeAanwezig = zaaktype.besluittypen?.isNotEmpty() ?: false,
             isProcesGestuurd = bpmnService.isProcessDriven(zaak.uuid),
             rechten = policyService.readZaakRechten(zaak, zaaktype).let(RestRechtenConverter::convert),
@@ -149,10 +151,10 @@ class RestZaakConverter @Inject constructor(
             indicaties = noneOf(ZaakIndicatie::class.java).apply {
                 if (zaak.is_Hoofdzaak) add(HOOFDZAAK)
                 if (zaak.isDeelzaak) add(DEELZAAK)
-                if (StatusTypeUtil.isHeropend(statustype)) add(HEROPEND)
+                if (isHeropend(statustype)) add(HEROPEND)
                 if (zaak.isOpgeschort) add(OPSCHORTING)
                 if (zaak.isVerlengd) add(VERLENGD)
-                if (isOntvangstbevestigingNietVerstuurdIndicationSetRequired(zaak, statustype)) {
+                if (shouldOntvangstbevestigingNietVerstuurdIndicatieBeSet(zaak, statustype)) {
                     add(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
             }
@@ -224,7 +226,7 @@ class RestZaakConverter @Inject constructor(
         return gerelateerdeZaken
     }
 
-    private fun isOntvangstbevestigingNietVerstuurdIndicationSetRequired(zaak: Zaak, statustype: StatusType?) =
+    private fun shouldOntvangstbevestigingNietVerstuurdIndicatieBeSet(zaak: Zaak, @Nullable statustype: StatusType?) =
         !zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid).orElse(false) &&
-            !StatusTypeUtil.isHeropend(statustype)
+            !isHeropend(statustype)
 }

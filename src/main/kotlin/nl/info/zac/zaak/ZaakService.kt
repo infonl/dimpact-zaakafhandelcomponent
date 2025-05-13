@@ -28,7 +28,6 @@ import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
-import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.identity.model.Group
@@ -232,7 +231,7 @@ class ZaakService @Inject constructor(
     }
 
     fun setOntvangstbevestigingVerstuurdIfNotHeropend(zaak: Zaak) {
-        val statusType: StatusType? = zaak.status?.let { statusUuid ->
+        val statusType = zaak.status?.let { statusUuid ->
             val status = zrcClientService.readStatus(statusUuid)
             ztcClientService.readStatustype(status.statustype)
         }
