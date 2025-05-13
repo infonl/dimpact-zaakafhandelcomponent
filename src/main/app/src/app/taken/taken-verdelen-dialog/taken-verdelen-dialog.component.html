@@ -3,12 +3,19 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<h1 *ngIf="data.taken.length === 1" mat-dialog-title>
-  {{ "msg.verdelen.taak" | translate }}
-</h1>
-<h1 *ngIf="data.taken.length !== 1" mat-dialog-title>
-  {{ "msg.verdelen.taken" | translate: { aantal: data.taken.length } }}
-</h1>
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  <mat-icon>assignment_ind</mat-icon>
+  <span *ngIf="data.taken.length === 1" class="flex-grow-1">
+    {{ "msg.verdelen.taak" | translate }}
+  </span>
+  <span *ngIf="data.taken.length !== 1" class="flex-grow-1">
+    {{ "msg.verdelen.taken" | translate: { aantal: data.taken.length } }}
+  </span>
+  <button mat-icon-button (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
 <div mat-dialog-content>
   <mfb-form-field [field]="medewerkerGroepFormField"></mfb-form-field>
