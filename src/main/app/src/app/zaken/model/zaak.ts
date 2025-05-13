@@ -49,7 +49,6 @@ export class Zaak {
   isHeropend: boolean;
   isHoofdzaak: boolean;
   isDeelzaak: boolean;
-  isOntvangstbevestigingVerstuurd: boolean;
   isBesluittypeAanwezig: boolean;
   isInIntakeFase: boolean;
   isProcesGestuurd: boolean;
