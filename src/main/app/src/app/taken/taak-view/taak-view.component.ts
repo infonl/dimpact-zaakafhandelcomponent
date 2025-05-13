@@ -15,6 +15,7 @@ import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
+import { ExtendedComponentSchema, FormioForm } from "@formio/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { lastValueFrom } from "rxjs";
 import { tap } from "rxjs/operators";
@@ -210,7 +211,7 @@ export class TaakViewComponent
     });
   }
 
-  private createFormioForm(formioFormulier: Record<string, any>): void {
+  private createFormioForm(formioFormulier: FormioForm): void {
     this.formioFormulier = formioFormulier;
     this.initializeSpecializedFormioComponents(formioFormulier.components);
     this.utilService.setTitle("title.taak", {
@@ -219,39 +220,39 @@ export class TaakViewComponent
   }
 
   private initializeSpecializedFormioComponents(
-    components: Array<Record<string, any>>,
+    components: ExtendedComponentSchema[] | undefined,
   ): void {
-    for (const component of components) {
+    components?.forEach((component) => {
       switch (component.type) {
         case "groepMedewerkerFieldset":
-          this.initializeGroepMedewerkerFieldsetComponent(component);
+          this.initializeFormioGroepMedewerkerFieldsetComponent(component);
           break;
         case "groepSmartDocumentsFieldset":
-          this.initializeGroepSmartDocumentsFieldsetComponent(component);
+          this.initializeFormioGroepSmartDocumentsFieldsetComponent(component);
           break;
       }
       if ("components" in component) {
         this.initializeSpecializedFormioComponents(component.components);
       }
-    }
+    });
   }
 
-  private initializeGroepMedewerkerFieldsetComponent(component: {
-    [key: string]: any;
-  }): void {
+  private initializeFormioGroepMedewerkerFieldsetComponent(
+    component: ExtendedComponentSchema,
+  ): void {
     component.type = "fieldset";
     const groepComponent = component.components[0];
     const medewerkerComponent = component.components[1];
-    this.initializeGroepMedewerkerFieldsetGroepComponent(groepComponent);
-    this.initializeGroepMedewerkerFieldsetMedewerkerComponent(
+    this.initializeFormioGroepMedewerkerFieldsetGroepComponent(groepComponent);
+    this.initializeFormioGroepMedewerkerFieldsetMedewerkerComponent(
       medewerkerComponent,
       groepComponent.key,
     );
   }
 
-  private initializeGroepMedewerkerFieldsetGroepComponent(groepComponent: {
-    [key: string]: any;
-  }): void {
+  private initializeFormioGroepMedewerkerFieldsetGroepComponent(
+    groepComponent: ExtendedComponentSchema,
+  ): void {
     groepComponent.valueProperty = "id";
     groepComponent.template = "{{ item.naam }}";
     groepComponent.data = {
@@ -264,10 +265,8 @@ export class TaakViewComponent
     };
   }
 
-  private initializeGroepMedewerkerFieldsetMedewerkerComponent(
-    medewerkerComponent: {
-      [key: string]: any;
-    },
+  private initializeFormioGroepMedewerkerFieldsetMedewerkerComponent(
+    medewerkerComponent: ExtendedComponentSchema,
     groepComponentKey: string,
   ): void {
     medewerkerComponent.valueProperty = "id";
@@ -291,9 +290,9 @@ export class TaakViewComponent
     };
   }
 
-  private initializeGroepSmartDocumentsFieldsetComponent(component: {
-    [key: string]: any;
-  }): void {
+  private initializeFormioGroepSmartDocumentsFieldsetComponent(
+    component: ExtendedComponentSchema,
+  ): void {
     component.type = "fieldset";
     const smartDocumentsPath: GeneratedType<"RestSmartDocumentsPath"> = {
       groups: component.properties["SmartDocuments_Group"].split(),
