@@ -3,17 +3,24 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<h1 *ngIf="data.length == 1" mat-dialog-title>
-  {{ "title.zaak.vrijgeven" | translate }}
-</h1>
-<h1 *ngIf="data.length != 1" mat-dialog-title>
-  {{ "title.zaken.vrijgeven" | translate: { aantal: data.length } }}
-</h1>
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  <mat-icon>clear_all</mat-icon>
+  <span *ngIf="data.length === 1" class="flex-grow-1">
+    {{ "title.zaak.vrijgeven" | translate }}
+  </span>
+  <span *ngIf="data.length !== 1" class="flex-grow-1">
+    {{ "title.zaken.vrijgeven" | translate: { aantal: data.length } }}
+  </span>
+  <button mat-icon-button (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
 <div mat-dialog-content>
   <mfb-form-field [field]="redenFormField"></mfb-form-field>
-  <p *ngIf="data.length == 1">{{ "msg.vrijgeven.zaak" | translate }}</p>
-  <p *ngIf="data.length != 1">{{ "msg.vrijgeven.zaken" | translate }}</p>
+  <p *ngIf="data.length === 1">{{ "msg.vrijgeven.zaak" | translate }}</p>
+  <p *ngIf="data.length !== 1">{{ "msg.vrijgeven.zaken" | translate }}</p>
 </div>
 <div mat-dialog-actions>
   <button
