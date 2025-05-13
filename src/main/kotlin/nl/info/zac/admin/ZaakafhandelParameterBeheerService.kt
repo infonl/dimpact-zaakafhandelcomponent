@@ -9,6 +9,7 @@ import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.BetrokkeneKoppelingen
 import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.admin.model.MailtemplateKoppeling
 import net.atos.zac.admin.model.UserEventListenerParameters
@@ -380,10 +381,10 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         previousZaakafhandelParameters: ZaakafhandelParameters,
         newZaakafhandelParameters: ZaakafhandelParameters
     ) = newZaakafhandelParameters.apply {
-        betrokkeneKoppelingen.apply {
-            kvkKoppelen = previousZaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen
-            brpKoppelen = previousZaakafhandelParameters.betrokkeneKoppelingen.brpKoppelen
-            zaakafhandelParameters = newZaakafhandelParameters
-        }
+        betrokkeneKoppelingen = BetrokkeneKoppelingen(
+            newZaakafhandelParameters,
+            previousZaakafhandelParameters.betrokkeneKoppelingen.brpKoppelen,
+            previousZaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen
+        )
     }
 }
