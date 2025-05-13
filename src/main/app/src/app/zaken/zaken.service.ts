@@ -193,10 +193,9 @@ export class ZakenService {
 
   vrijgevenVanuitLijst(uuids: string[], reden?: string): Observable<void> {
     return this.zacHttpClient
-      .PUT("/rest/zaken/lijst/verdelen", {
+      .PUT("/rest/zaken/lijst/vrijgeven", {
         uuids,
         reden,
-        groepId: undefined as unknown as string, // TODO: check generated interface
       })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
