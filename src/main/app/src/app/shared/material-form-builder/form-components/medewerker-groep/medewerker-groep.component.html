@@ -21,12 +21,12 @@
       />
       <mat-icon
         matSuffix
-        *ngIf="!hasGroep"
+        *ngIf="!data.groep.value"
         [ngClass]="{ error: data.groep.invalid && data.formControl.dirty }"
         >search</mat-icon
       >
       <button
-        *ngIf="hasGroep"
+        *ngIf="data.groep.value"
         type="button"
         mat-icon-button
         matSuffix
@@ -40,11 +40,9 @@
         >
       </button>
       <mat-autocomplete #groepAC="matAutocomplete" [displayWith]="displayFn">
-        <mat-option
-          *ngFor="let groep of filteredGroepen | async"
-          [value]="groep"
-          >{{ groep.naam }}</mat-option
-        >
+        <mat-option *ngFor="let group of filteredGroups" [value]="group">{{
+          group.naam
+        }}</mat-option>
       </mat-autocomplete>
       <mat-error appEnhanceMatError *ngIf="data.groep.invalid">{{
         getMessage(data.groep, "Groep")
@@ -63,14 +61,14 @@
       />
       <mat-icon
         matSuffix
-        *ngIf="!hasMedewerker"
+        *ngIf="!data.medewerker.value"
         [ngClass]="{
           error: data.medewerker.invalid && data.formControl.dirty,
         }"
         >search</mat-icon
       >
       <button
-        *ngIf="hasMedewerker"
+        *ngIf="data.medewerker.value"
         type="button"
         mat-icon-button
         matSuffix
@@ -89,11 +87,9 @@
         #medewerkerAC="matAutocomplete"
         [displayWith]="displayFn"
       >
-        <mat-option
-          *ngFor="let medewerker of filteredMedewerkers | async"
-          [value]="medewerker"
-          >{{ medewerker.naam }}</mat-option
-        >
+        <mat-option *ngFor="let user of filteredUsers" [value]="user">{{
+          user.naam
+        }}</mat-option>
       </mat-autocomplete>
       <mat-error appEnhanceMatError *ngIf="data.medewerker.invalid">{{
         getMessage(data.medewerker, "Medewerker")
