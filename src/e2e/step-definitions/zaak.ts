@@ -244,7 +244,7 @@ Then(
 Then(
   "{string} sees the zaak initiator",
   { timeout: ONE_MINUTE_IN_MS },
-  async function (this: CustomWorld) {
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_NAME);
     await this.page.getByText(/initiator/i).click();
     await this.expect(
@@ -259,7 +259,7 @@ Then(
 Then(
     "{string} sees the indication that no acknowledgment has been sent",
     { timeout: ONE_MINUTE_IN_MS },
-    async function (this: CustomWorld) {
+    async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
       await this.expect(
         this.page.getByRole("option", { name: "Geen bevestiging verstuurd"}),
       ).toBeVisible();
