@@ -60,9 +60,7 @@ export class MedewerkerGroepComponent extends FormComponent implements OnInit {
         return;
       }
 
-      const group = this.groups.find(
-        ({ id }) => id === this.data.groep.defaultValue.id,
-      );
+      const group = this.groups.find(({ id }) => id === value.id);
 
       if (!group) return;
 
