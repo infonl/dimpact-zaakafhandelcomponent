@@ -107,12 +107,12 @@ export class MedewerkerGroepComponent extends FormComponent implements OnInit {
           return idTooLong ? { idTooLong: true } : null;
         });
 
-        this.data.groep.setValidators(validators);
-        this.data.groep.updateValueAndValidity();
-
         if (this.data.groep.hasValidator(Validators.required)) {
           validators.push(Validators.required);
         }
+
+        this.data.groep.setValidators(validators);
+        this.data.groep.updateValueAndValidity();
 
         const group = groups.find(
           ({ id }) => id === this.data.groep.defaultValue.id,
@@ -136,6 +136,7 @@ export class MedewerkerGroepComponent extends FormComponent implements OnInit {
         if (this.data.medewerker.hasValidator(Validators.required)) {
           validators.push(Validators.required);
         }
+
         this.data.medewerker.setValidators(validators);
 
         const user = users.find(({ id }) => id === defaultUserId);
