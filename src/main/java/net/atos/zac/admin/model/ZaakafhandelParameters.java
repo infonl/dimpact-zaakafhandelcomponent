@@ -331,7 +331,7 @@ public class ZaakafhandelParameters {
     }
 
     public BetrokkeneKoppelingen getBetrokkeneKoppelingen() {
-        return betrokkeneKoppelingen;
+        return betrokkeneKoppelingen != null ? betrokkeneKoppelingen : new BetrokkeneKoppelingen();
     }
 
     public void setBetrokkeneKoppelingen(BetrokkeneKoppelingen betrokkeneKoppelingen) {

@@ -25,6 +25,7 @@ import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import jakarta.persistence.criteria.Subquery
 import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.BetrokkeneKoppelingen
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -248,6 +249,14 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
             zaaktypeUUID = zaaktypeUUID,
         )
 
+        val betrokkeneKoppelingen = BetrokkeneKoppelingen().apply {
+            brpKoppelen = true
+            kvkKoppelen = false
+            zaakafhandelParameters = originalZaakafhandelParameters
+        }
+
+        originalZaakafhandelParameters.betrokkeneKoppelingen = betrokkeneKoppelingen
+
         val slotPersistZaakafhandelParameters = slot<ZaakafhandelParameters>()
 
         When("Processing the updated zaaktype") {
@@ -390,6 +399,13 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
                     new.isDefault shouldBe original.isDefault
                     new.mail shouldBe original.mail
                     new.replyTo shouldBe original.replyTo
+                }
+            }
+
+            And("The betrokkene koppelingen should get copied") {
+                slotPersistZaakafhandelParameters.captured.betrokkeneKoppelingen.let {
+                    it.brpKoppelen shouldBe originalZaakafhandelParameters.betrokkeneKoppelingen.brpKoppelen
+                    it.kvkKoppelen shouldBe originalZaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen
                 }
             }
 

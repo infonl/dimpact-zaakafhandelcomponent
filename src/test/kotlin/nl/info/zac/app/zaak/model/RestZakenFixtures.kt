@@ -180,7 +180,6 @@ fun createRestZaak(
     isHeropend = false,
     isHoofdzaak = true,
     isDeelzaak = false,
-    isOntvangstbevestigingVerstuurd = true,
     isBesluittypeAanwezig = false,
     isInIntakeFase = true,
     isProcesGestuurd = false,

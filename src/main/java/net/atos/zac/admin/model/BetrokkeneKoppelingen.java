@@ -36,10 +36,10 @@ public class BetrokkeneKoppelingen {
     private ZaakafhandelParameters zaakafhandelParameters;
 
     @Column(name = "brpKoppelen")
-    private boolean brpKoppelen;
+    private boolean brpKoppelen = false;
 
     @Column(name = "kvkKoppelen")
-    private boolean kvkKoppelen;
+    private boolean kvkKoppelen = false;
 
     public BetrokkeneKoppelingen() {
         // Default constructor

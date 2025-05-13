@@ -17,6 +17,7 @@ export enum ZaakIndicatie {
   HOOFDZAAK = "HOOFDZAAK",
   DEELZAAK = "DEELZAAK",
   VERLENGD = "VERLENGD",
+  ONTVANGSTBEVESTIGING_NIET_VERSTUURD = "ONTVANGSTBEVESTIGING_NIET_VERSTUURD",
 }
 
 @Component({
@@ -93,6 +94,17 @@ export class ZaakIndicatiesComponent
             ),
           );
           break;
+        case ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD:
+          this.indicaties.push(
+            new Indicatie(
+              indicatie,
+              "unsubscribe",
+              this.translateService.instant(
+                "indicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD",
+              ),
+            ),
+          );
+          break;
       }
     });
   }
@@ -100,21 +112,21 @@ export class ZaakIndicatiesComponent
   private getRedenOpschorting(): string {
     return this.zaakZoekObject
       ? this.zaakZoekObject.redenOpschorting
-      : this.zaak.redenOpschorting;
+      : (this.zaak.redenOpschorting ?? "");
   }
 
   private getStatusToelichting(): string {
     return this.zaakZoekObject
       ? this.zaakZoekObject.statusToelichting
-      : this.zaak.status.toelichting;
+      : (this.zaak.status?.toelichting ?? "");
   }
 
   private getDeelZaakToelichting(): string {
-    if (this.zaak) {
+    if (this.zaak.gerelateerdeZaken?.length) {
       const hoofdzaakID = this.zaak.gerelateerdeZaken.find(
         (gerelateerdeZaak) =>
           gerelateerdeZaak.relatieType === ZaakRelatietype.HOOFDZAAK,
-      ).identificatie;
+      )?.identificatie;
       return this.translateService.instant("msg.zaak.relatie", {
         identificatie: hoofdzaakID,
       });
@@ -123,7 +135,7 @@ export class ZaakIndicatiesComponent
   }
 
   private getHoofdzaakToelichting(): string {
-    if (this.zaak) {
+    if (this.zaak.gerelateerdeZaken?.length) {
       const deelzaken = this.zaak.gerelateerdeZaken.filter(
         (gerelateerdeZaak) =>
           gerelateerdeZaak.relatieType === ZaakRelatietype.DEELZAAK,

@@ -460,6 +460,7 @@
   "indicatie.VERGRENDELD": "is locked",
   "indicatie.VERLENGD": "has been extended",
   "indicatie.VERZONDEN": "has been sent",
+  "indicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD": "No confirmation sent",
   "informatieobject.status": "State",
   "informatieobject.status.definitief": "Final",
   "informatieobject.status.in_bewerking": "Being modified",
