@@ -43,11 +43,10 @@ export class MedewerkerGroepComponent extends FormComponent implements OnInit {
 
     this.data.groep.valueChanges.subscribe((value) => {
       const filterValue = typeof value === "string" ? value : value?.naam;
-      this.filteredGroups = value
-        ? this.groups.filter(({ naam }) =>
-            naam.toLowerCase().includes(filterValue.toLowerCase()),
-          )
-        : this.groups;
+      this.filteredGroups = this.groups.filter(
+        ({ naam }) =>
+          !value || naam.toLowerCase().includes(filterValue.toLowerCase()),
+      );
 
       this.data.medewerker.reset();
       // The `MedewerkerGroepFormField` has the wrong type so we overwrite it here
@@ -60,6 +59,12 @@ export class MedewerkerGroepComponent extends FormComponent implements OnInit {
         this.data.medewerker.disable();
         return;
       }
+
+      const group = this.groups.find(
+        ({ id }) => id === this.data.groep.defaultValue.id,
+      );
+
+      if (!group) return;
 
       this.data.medewerker.enable();
       this.setUsers(this.data.medewerker.defaultValue?.id);
@@ -111,16 +116,13 @@ export class MedewerkerGroepComponent extends FormComponent implements OnInit {
           validators.push(Validators.required);
         }
 
-        if (!this.data.groep.defaultValue) return;
-
         const group = groups.find(
           ({ id }) => id === this.data.groep.defaultValue.id,
         );
 
-        if (!group) return;
-
-        this.data.groep.setValue(group);
-        this.setUsers(this.data.medewerker.defaultValue?.id);
+        this.data.groep.setValue(
+          group ?? (null as unknown as GeneratedType<"RestGroup">),
+        );
       });
   }
 
@@ -138,13 +140,11 @@ export class MedewerkerGroepComponent extends FormComponent implements OnInit {
         }
         this.data.medewerker.setValidators(validators);
 
-        if (!defaultUserId) return;
-
         const user = users.find(({ id }) => id === defaultUserId);
 
-        if (!user) return;
-
-        this.data.medewerker.setValue(user);
+        this.data.medewerker.setValue(
+          user ?? (null as unknown as GeneratedType<"RestUser">),
+        );
       });
   }
 
