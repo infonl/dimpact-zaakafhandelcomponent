@@ -717,6 +717,12 @@
           "gegevens.koppelingen" | translate
         }}</ng-template>
         <ng-template matStepContent>
+          <h2 class="flex-1">
+            {{ "gegevens.landelijk.koppelingen" | translate }}
+          </h2>
+          <p>
+            {{ "gegevens.landelijk.koppelingen.omschrijving" | translate }}
+          </p>
           <form class="flex-col gap-12" [formGroup]="betrokkeneKoppelingen">
             <div class="flex-row items-center gap-8">
               <mat-slide-toggle
@@ -738,8 +744,11 @@
           <form [formGroup]="smartDocumentsEnabledForm" class="flex-col">
             <div class="flex-row items-center">
               <h2 class="flex-1">
-                {{ "title.admin.parameters.step.smart-documents" | translate }}
+                {{ "title.smartdocuments.form" | translate }}
               </h2>
+              <p>
+                {{ "title.admin.parameters.step.smart-documents" | translate }}
+              </p>
               <mat-slide-toggle
                 formControlName="enabledForZaaktype"
                 (click)="$event.stopPropagation()"

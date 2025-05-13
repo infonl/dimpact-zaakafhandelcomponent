@@ -21,10 +21,7 @@ import { Zaak } from "./model/zaak";
 import { ZaakAfbrekenGegevens } from "./model/zaak-afbreken-gegevens";
 import { ZaakAfsluitenGegevens } from "./model/zaak-afsluiten-gegevens";
 import { ZaakBetrokkene } from "./model/zaak-betrokkene";
-import { ZaakBetrokkeneGegevens } from "./model/zaak-betrokkene-gegevens";
 import { ZaakHeropenenGegevens } from "./model/zaak-heropenen-gegevens";
-import { ZaakToekennenGegevens } from "./model/zaak-toekennen-gegevens";
-import { ZakenVerdeelGegevens } from "./model/zaken-verdeel-gegevens";
 
 @Injectable({
   providedIn: "root",
@@ -42,17 +39,21 @@ export class ZakenService {
     return new HttpParams().set("tableRequest", JSON.stringify(request));
   }
 
-  readZaak(uuid: string): Observable<Zaak> {
-    return this.http
-      .get<Zaak>(`${this.basepath}/zaak/${uuid}`)
+  readZaak(uuid: string) {
+    return this.zacHttpClient
+      .GET("/rest/zaken/zaak/{uuid}", {
+        pathParams: { path: { uuid } },
+      })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
-  readZaakByID(id: string): Observable<Zaak> {
-    return this.http
-      .get<Zaak>(`${this.basepath}/zaak/id/${id}`)
+  readZaakByID(identificatie: string) {
+    return this.zacHttpClient
+      .GET("/rest/zaken/zaak/id/{identificatie}", {
+        pathParams: { path: { identificatie } },
+      })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -69,12 +70,24 @@ export class ZakenService {
   updateZaak(
     uuid: string,
     update: {
-      zaak: Omit<Partial<Zaak>, "zaakgeometrie" | "behandelaar">;
+      zaak: Omit<
+        Partial<GeneratedType<"RestZaak">>,
+        "zaakgeometrie" | "behandelaar"
+      >;
       reden?: string;
     },
   ) {
-    return this.http
-      .patch<Zaak>(`${this.basepath}/zaak/${uuid}`, update)
+    return this.zacHttpClient
+      .PATCH(
+        "/rest/zaken/zaak/{uuid}",
+        {
+          zaak: update.zaak as GeneratedType<"RestZaak">,
+          reden: update.reden ?? "",
+        },
+        {
+          pathParams: { path: { uuid } },
+        },
+      )
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -138,29 +151,24 @@ export class ZakenService {
       );
   }
 
-  updateZaakdata(zaak: Zaak): Observable<Zaak> {
-    return this.http
-      .put<Zaak>(`${this.basepath}/zaakdata`, zaak)
+  updateZaakdata(zaak: GeneratedType<"RestZaak">) {
+    return this.zacHttpClient
+      .PUT("/rest/zaken/zaakdata", zaak)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
   toekennen(
-    zaakUuid: string,
+    zaakUUID: string,
     options?: { behandelaarId?: string; groupId?: string; reason?: string },
   ) {
-    const toekennenGegevens = new ZaakToekennenGegevens();
-    toekennenGegevens.zaakUUID = zaakUuid;
-    toekennenGegevens.behandelaarGebruikersnaam = options?.behandelaarId;
-    toekennenGegevens.groepId = options?.groupId;
-    toekennenGegevens.reden = options?.reason;
-
-    return this.http
-      .patch<Zaak>(`${this.basepath}/toekennen`, toekennenGegevens)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.PATCH("/rest/zaken/toekennen", {
+      zaakUUID,
+      groepId: options?.groupId || "", // TODO: check this interface
+      behandelaarGebruikersnaam: options?.behandelaarId,
+      reden: options?.reason,
+    });
   }
 
   verdelenVanuitLijst(
@@ -169,61 +177,60 @@ export class ZakenService {
     groep?: GeneratedType<"RestGroup">,
     medewerker?: GeneratedType<"RestUser">,
     reden?: string,
-  ): Observable<void> {
-    const verdeelGegevens: ZakenVerdeelGegevens = new ZakenVerdeelGegevens();
-    verdeelGegevens.uuids = uuids;
-    verdeelGegevens.groepId = groep?.id;
-    verdeelGegevens.behandelaarGebruikersnaam = medewerker?.id;
-    verdeelGegevens.reden = reden;
-    verdeelGegevens.screenEventResourceId = screenEventResourceId;
-
-    return this.http
-      .put<void>(`${this.basepath}/lijst/verdelen`, verdeelGegevens)
+  ) {
+    return this.zacHttpClient
+      .PUT("/rest/zaken/lijst/verdelen", {
+        uuids,
+        groepId: groep?.id ?? "", // TODO: check generated interface
+        reden,
+        screenEventResourceId,
+        behandelaarGebruikersnaam: medewerker?.id,
+      })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
   vrijgevenVanuitLijst(uuids: string[], reden?: string): Observable<void> {
-    const verdeelGegevens: ZakenVerdeelGegevens = new ZakenVerdeelGegevens();
-    verdeelGegevens.uuids = uuids;
-    verdeelGegevens.reden = reden;
-
-    return this.http
-      .put<void>(`${this.basepath}/lijst/vrijgeven`, verdeelGegevens)
+    return this.zacHttpClient
+      .PUT("/rest/zaken/lijst/verdelen", {
+        uuids,
+        reden,
+        groepId: undefined as unknown as string, // TODO: check generated interface
+      })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
-  toekennenAanIngelogdeMedewerker(zaakUuid: string, reden?: string) {
-    const toekennenGegevens: ZaakToekennenGegevens =
-      new ZaakToekennenGegevens();
-    toekennenGegevens.zaakUUID = zaakUuid;
-    toekennenGegevens.reden = reden;
-
-    return this.http
-      .put<Zaak>(`${this.basepath}/toekennen/mij`, toekennenGegevens)
+  toekennenAanIngelogdeMedewerker(zaakUUID: string, reden?: string) {
+    return this.zacHttpClient
+      .PUT("/rest/zaken/toekennen/mij", {
+        zaakUUID,
+        reden,
+      })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
-  updateInitiator(zaak: Zaak, initiator: Klant): Observable<Zaak> {
-    const gegevens = new ZaakBetrokkeneGegevens();
-    gegevens.zaakUUID = zaak.uuid;
-    gegevens.betrokkeneIdentificatieType = initiator.identificatieType;
-    gegevens.betrokkeneIdentificatie = initiator.identificatie;
-    return this.http
-      .put<Zaak>(`${this.basepath}/initiator`, gegevens)
+  updateInitiator(zaak: GeneratedType<"RestZaak">, initiator: Klant) {
+    return this.zacHttpClient
+      .PUT("/rest/zaken/initiator", {
+        zaakUUID: zaak.uuid,
+        betrokkeneIdentificatieType: initiator.identificatieType,
+        betrokkeneIdentificatie: initiator.identificatie,
+        roltypeUUID: undefined as unknown as string, // TODO: check this interface
+      })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
-  deleteInitiator(zaak: Zaak, reden: string): Observable<Zaak> {
-    return this.http
-      .delete<Zaak>(`${this.basepath}/${zaak.uuid}/initiator`, {
+  deleteInitiator(zaak: GeneratedType<"RestZaak">, reden: string) {
+    return this.zacHttpClient
+      .DELETE("/rest/zaken/{uuid}/initiator", {
+        pathParams: { path: { uuid: zaak.uuid } },
         body: { reden },
       })
       .pipe(
@@ -232,19 +239,19 @@ export class ZakenService {
   }
 
   createBetrokkene(
-    zaak: Zaak,
+    zaak: GeneratedType<"RestZaak">,
     betrokkene: Klant,
     roltype: Roltype,
     roltoelichting: string,
-  ): Observable<Zaak> {
-    const gegevens = new ZaakBetrokkeneGegevens();
-    gegevens.zaakUUID = zaak.uuid;
-    gegevens.roltypeUUID = roltype.uuid;
-    gegevens.roltoelichting = roltoelichting;
-    gegevens.betrokkeneIdentificatieType = betrokkene.identificatieType;
-    gegevens.betrokkeneIdentificatie = betrokkene.identificatie;
-    return this.http
-      .post<Zaak>(`${this.basepath}/betrokkene`, gegevens)
+  ) {
+    return this.zacHttpClient
+      .POST("/rest/zaken/betrokkene", {
+        zaakUUID: zaak.uuid,
+        roltypeUUID: roltype.uuid,
+        roltoelichting,
+        betrokkeneIdentificatieType: betrokkene.identificatieType,
+        betrokkeneIdentificatie: betrokkene.identificatie,
+      })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -290,15 +297,11 @@ export class ZakenService {
     zaak: ZaakZoekObject,
     reden?: string,
   ) {
-    const toekennenGegevens: ZaakToekennenGegevens =
-      new ZaakToekennenGegevens();
-    toekennenGegevens.zaakUUID = zaak.id;
-    toekennenGegevens.reden = reden;
-
-    return this.http
-      .put<
-        GeneratedType<"RestZaakOverzicht">
-      >(`${this.basepath}/lijst/toekennen/mij`, toekennenGegevens)
+    return this.zacHttpClient
+      .PUT("/rest/zaken/lijst/toekennen/mij", {
+        zaakUUID: zaak.id,
+        reden,
+      })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

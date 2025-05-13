@@ -4,8 +4,11 @@
  */
 package nl.info.zac.app.admin
 
+import net.atos.zac.admin.model.BetrokkeneKoppelingen
+import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.app.admin.model.RESTZaaktypeOverzicht
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.RestFormioFormulierContent
 import nl.info.zac.app.admin.model.RestReferenceTable
 import nl.info.zac.app.admin.model.RestReferenceTableUpdate
@@ -73,7 +76,8 @@ fun createRestZaakAfhandelParameters(
     restZaaktypeOverzicht: RESTZaaktypeOverzicht = createRestZaaktypeOverzicht(),
     productaanvraagtype: String? = null,
     defaultGroupId: String? = null,
-    defaultBehandelaarId: String? = null
+    defaultBehandelaarId: String? = null,
+    restBetrokkeneKoppelingen: RestBetrokkeneKoppelingen = RestBetrokkeneKoppelingen()
 ) = RestZaakafhandelParameters(
     id = id,
     domein = domein,
@@ -84,8 +88,20 @@ fun createRestZaakAfhandelParameters(
         enabledForZaaktype = false
     ),
     defaultBehandelaarId = defaultBehandelaarId,
-    defaultGroepId = defaultGroupId
+    defaultGroepId = defaultGroupId,
+    betrokkeneKoppelingen = restBetrokkeneKoppelingen
 )
+
+fun createRestBetrokkeKoppelingen(
+    brpKoppelen: Boolean = false,
+    kvkKoppelen: Boolean = false
+) = RestBetrokkeneKoppelingen(brpKoppelen = brpKoppelen, kvkKoppelen = kvkKoppelen)
+
+fun createBetrokkeneKoppelingen(
+    brpKoppelen: Boolean = false,
+    kvkKoppelen: Boolean = false,
+    zaakafhandelParameters: ZaakafhandelParameters // Do not add default `= createZaakafhandelParameters()` as it will cause infinite loop
+) = BetrokkeneKoppelingen(zaakafhandelParameters, brpKoppelen, kvkKoppelen)
 
 @Suppress("LongParameterList")
 fun createRestZaaktypeOverzicht(

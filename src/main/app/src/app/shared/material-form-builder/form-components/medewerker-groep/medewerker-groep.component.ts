@@ -82,7 +82,7 @@ export class MedewerkerGroepComponent extends FormComponent implements OnInit {
 
   private setGroups(): void {
     this.identityService
-      .listGroups()
+      .listGroups(this.data.zaaktypeUuid)
       .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam"))))
       .subscribe((groups) => {
         this.groups = this.filteredGroups = groups;

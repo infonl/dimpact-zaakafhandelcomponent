@@ -41,8 +41,6 @@ import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { Zaak } from "../../zaken/model/zaak";
-import { Zaaktype } from "../../zaken/model/zaaktype";
 import { ZakenService } from "../../zaken/zaken.service";
 import { Taak } from "../model/taak";
 import { TaakStatus } from "../model/taak-status.enum";
@@ -64,7 +62,7 @@ export class TaakViewComponent
   zaakDocumentenComponent!: ZaakDocumentenComponent;
 
   taak: Taak;
-  zaak: Zaak;
+  zaak: GeneratedType<"RestZaak">;
   formulier: AbstractTaakFormulier;
   formConfig: FormConfig;
   formulierDefinitie: FormulierDefinitie;
@@ -162,7 +160,7 @@ export class TaakViewComponent
     }
   }
 
-  private createTaakForm(taak: Taak, zaak: Zaak): void {
+  private createTaakForm(taak: Taak, zaak: GeneratedType<"RestZaak">): void {
     if (taak.formulierDefinitieId) {
       this.createHardCodedTaakForm(taak, zaak);
     } else if (taak.formulierDefinitie) {
@@ -172,7 +170,10 @@ export class TaakViewComponent
     }
   }
 
-  private createHardCodedTaakForm(taak: Taak, zaak: Zaak): void {
+  private createHardCodedTaakForm(
+    taak: Taak,
+    zaak: GeneratedType<"RestZaak">,
+  ): void {
     if (
       this.taak.status !== TaakStatus.Afgerond &&
       this.taak.rechten.wijzigen
@@ -250,7 +251,7 @@ export class TaakViewComponent
     groepComponent.data = {
       custom: () =>
         this.identityService
-          .listGroups()
+          .listGroups(this.taak.zaaktypeUUID)
           .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam"))))
           .toPromise(),
     };
@@ -296,6 +297,7 @@ export class TaakViewComponent
         .groepLabel("groep.-kies-")
         .groepRequired()
         .medewerkerLabel("behandelaar.-kies-")
+        .setZaaktypeUuid(this.taak.zaaktypeUUID)
         .build(),
     );
     this.editFormFields.set(
@@ -524,11 +526,16 @@ export class TaakViewComponent
    *  Zaak is nog niet geladen, beschikbare zaak-data uit de taak vast weergeven totdat de zaak is geladen
    */
   private createZaakFromTaak(taak: Taak): void {
-    const zaak = new Zaak();
-    zaak.identificatie = taak.zaakIdentificatie;
-    zaak.uuid = taak.zaakUuid;
-    zaak.zaaktype = new Zaaktype();
-    zaak.zaaktype.omschrijving = taak.zaaktypeOmschrijving;
-    this.zaak = zaak;
+    const zaaktype = {
+      omschrijving: taak.zaaktypeOmschrijving,
+    } satisfies Partial<
+      GeneratedType<"RestZaaktype">
+    > as GeneratedType<"RestZaaktype">;
+
+    this.zaak = {
+      identificatie: taak.zaakIdentificatie,
+      uuid: taak.zaakUuid,
+      zaaktype,
+    } satisfies Partial<GeneratedType<"RestZaak">> as GeneratedType<"RestZaak">;
   }
 }

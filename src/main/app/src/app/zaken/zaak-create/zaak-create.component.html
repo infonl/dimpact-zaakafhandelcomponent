@@ -9,8 +9,14 @@
       (klantGegevens)="initiatorSelected($event.klant)"
       [sideNav]="actionsSidenav"
       [initiator]="true"
-      [allowBedrijf]="true"
-      [allowPersoon]="true"
+      [allowBedrijf]="
+        form.controls.zaaktype.value?.zaakafhandelparameters
+          ?.betrokkeneKoppelingen?.kvkKoppelen ?? false
+      "
+      [allowPersoon]="
+        form.controls.zaaktype.value?.zaakafhandelparameters
+          ?.betrokkeneKoppelingen?.brpKoppelen ?? false
+      "
     ></zac-klant-koppel>
     <zac-bag-zoek
       *ngSwitchCase="'actie.bagObject.toevoegen'"
@@ -37,6 +43,7 @@
           }}</mat-hint>
         </zac-auto-complete>
         <zac-input
+          *ngIf="canAddInitiator()"
           key="initiator"
           [form]="form"
           class="col-12 col-md-6"

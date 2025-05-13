@@ -25,7 +25,6 @@ import { FormConfigBuilder } from "../../shared/material-form-builder/model/form
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { TakenService } from "../../taken/taken.service";
-import { Zaak } from "../../zaken/model/zaak";
 import { ZakenService } from "../../zaken/zaken.service";
 import { MailService } from "../mail.service";
 
@@ -38,7 +37,7 @@ export class OntvangstbevestigingComponent implements OnInit {
   formConfig: FormConfig;
   fields: Array<AbstractFormField[]>;
   @Input() sideNav: MatDrawer;
-  @Input() zaak: Zaak;
+  @Input() zaak: GeneratedType<"RestZaak">;
   @Output() ontvangstBevestigd = new EventEmitter<boolean>();
 
   constructor(
