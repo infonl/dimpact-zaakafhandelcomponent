@@ -82,6 +82,17 @@
           },
           "dataSrc": "custom",
           "clearOnRefresh": true
+        },
+        {
+          "label": "Create",
+          "action": "event",
+          "showValidations": false,
+          "block": true,
+          "tableView": false,
+          "key": "AM_SmartDocuments_Create",
+          "type": "button",
+          "event": "createDocument",
+          "input": true
         }
       ]
     },

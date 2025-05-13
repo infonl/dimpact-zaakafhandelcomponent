@@ -16,9 +16,11 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
+import { lastValueFrom } from "rxjs";
 import { tap } from "rxjs/operators";
 import { ZaakDocumentenComponent } from "src/app/zaken/zaak-documenten/zaak-documenten.component";
 import { FormulierDefinitie } from "../../admin/model/formulieren/formulier-definitie";
+import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
@@ -45,8 +47,6 @@ import { ZakenService } from "../../zaken/zaken.service";
 import { Taak } from "../model/taak";
 import { TaakStatus } from "../model/taak-status.enum";
 import { TakenService } from "../taken.service";
-import { lastValueFrom } from "rxjs";
-import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 
 @Component({
   templateUrl: "./taak-view.component.html",

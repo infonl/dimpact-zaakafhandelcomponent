@@ -68,7 +68,10 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                     "zaakIdentificatie":"$zaakIdentificatie",
                     "initiator":null,
                     "zaaktypeOmschrijving":"BPMN test zaaktype",
-                    "firstName":"Name"
+                    "firstName":"Name",
+                    "AM_TeamBehandelaar_Groep": "test-group-co",
+                    "AM_TeamBehandelaar_Medewerker": "coordinator1",
+                    "AM_SmartDocuments_Template": "Advies oud"
                 }
                 """.trimIndent()
             )
