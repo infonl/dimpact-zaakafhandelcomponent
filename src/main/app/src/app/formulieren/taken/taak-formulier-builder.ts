@@ -44,6 +44,7 @@ export class TaakFormulierBuilder {
           .label("actie.taak.toewijzing")
           .groepLabel("actie.taak.toekennen.groep")
           .groepRequired()
+          .setZaaktypeUuid(zaak.zaaktype.uuid)
           .medewerkerLabel("actie.taak.toekennen.medewerker")
           .build(),
       ],
