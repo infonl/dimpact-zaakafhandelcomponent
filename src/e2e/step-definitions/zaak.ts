@@ -257,6 +257,16 @@ Then(
 );
 
 Then(
+  "{string} sees the indication that no acknowledgment has been sent",
+  { timeout: ONE_MINUTE_IN_MS },
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await this.expect(
+      this.page.getByRole("option", { name: "Geen bevestiging verstuurd" }),
+    ).toBeVisible();
+  },
+);
+
+Then(
   "Employee {string} clicks on the first zaak in the zaak-werkvoorraad with delay",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
