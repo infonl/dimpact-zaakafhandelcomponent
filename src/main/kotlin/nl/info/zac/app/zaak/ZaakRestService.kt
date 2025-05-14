@@ -200,14 +200,19 @@ class ZaakRestService @Inject constructor(
             }
         }
 
-    @PUT
+    @PATCH
     @Path("initiator")
     fun updateInitiator(gegevens: RESTZaakBetrokkeneGegevens): RestZaak {
         val zaak = zrcClientService.readZaak(gegevens.zaakUUID)
         zgwApiService.findInitiatorRoleForZaak(zaak)?.also {
             removeInitiator(zaak, it, ROL_VERWIJDER_REDEN)
         }
-        addInitiator(gegevens.betrokkeneIdentificatieType, gegevens.betrokkeneIdentificatie, zaak)
+        addInitiator(
+            gegevens.betrokkeneIdentificatieType,
+            gegevens.betrokkeneIdentificatie,
+            zaak,
+            gegevens.roltoelichting
+        )
         return restZaakConverter.toRestZaak(zaak)
     }
 
@@ -268,7 +273,8 @@ class ZaakRestService @Inject constructor(
             addInitiator(
                 restZaak.initiatorIdentificatieType!!,
                 restZaak.initiatorIdentificatie!!,
-                zaak
+                zaak,
+                AANMAKEN_ZAAK_REDEN
             )
         }
         restZaak.groep?.let {
@@ -965,7 +971,8 @@ class ZaakRestService @Inject constructor(
     private fun addInitiator(
         identificationType: IdentificatieType,
         identification: String,
-        zaak: Zaak
+        zaak: Zaak,
+        reden: String? = ROL_TOEVOEGEN_REDEN
     ) {
         val zaakRechten = policyService.readZaakRechten(zaak)
         when (identificationType) {
@@ -977,7 +984,7 @@ class ZaakRestService @Inject constructor(
             identificationType = identificationType,
             identification = identification,
             zaak = zaak,
-            explanation = ROL_TOEVOEGEN_REDEN
+            explanation = reden?.ifEmpty { ROL_TOEVOEGEN_REDEN } ?: ROL_TOEVOEGEN_REDEN
         )
     }
 
