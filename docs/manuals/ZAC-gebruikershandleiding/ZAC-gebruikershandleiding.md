@@ -582,6 +582,10 @@ Met deze actie kan een ontvangstbevestiging per e-mail naar de initiator of een 
 
 7 Klik op ‘Versturen’ om de actie af te ronden
 
+Zolang er geen ontvangstbevestiging handmatig of automatisch is verstuurd blijft er een indicatie staan in de zaak:
+
+![Geen ontvangstbevestiging verstuurd](./images/geen-onvangstbevestiging-verstuurd.png)
+
 ### E-mail versturen
 
 Met deze actie wordt een e-mail vanuit de zaak verstuurd. De mail wordt als document aan de zaak toegevoegd.
