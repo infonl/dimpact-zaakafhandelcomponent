@@ -13,7 +13,7 @@
  [*Actiegegevens*](#actiegegevens)
  [*Mailgegevens*](#mailgegevens)
  [*Zaakbeëindig gegevens*](#zaakbeëindig-gegevens)
- [*Smartdocuments*](#smartdocuments)
+ [*Koppelingen*](#koppelingen)
 
 
 [*Referentietabellen*](#referentietabellen)
@@ -85,7 +85,7 @@ Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
 - Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
 #### Taakgegevens
 1. Klik op de knop Volgende om naar het volgende tabblad ‘Taakgegevens’ te gaan. Hier worden alle beschikbare taken van het CMMN-model getoond. Standaard staan alle taken aan maar het is mogelijk om een taak via het schuifje uit te zetten waardoor deze tijdens de zaakbehandeling niet beschikbaar is.
-![image](images/2f75ad61-aae6-4aa5-b94e-cb0bba651aae.png)
+![image](images/zaps_taakgegevens.png)
 
  
 2. Klik op een taak om de instellingen te openen. Iedere taak heeft standaard 3 instellingen:
@@ -93,7 +93,7 @@ Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
   - Groep | de groep die standaard bij taaktoewijzing wordt ingevuld als een gebruiker de taak start
   - Doorlooptijd | bepaalt de fatale datum van de taak
 In sommige taakbehandelformulieren komen keuzelijsten voor waarvan de opties via een referentietabel aangepast kunnen worden. Welke referentietabel in dat taakbehandelformulier gebruikt wordt is dan te zien bij de instelling ‘Referentietabel voor ...’. Om de opties aan te passen kun je later naar de menukeuze ‘Referentietabellen’ gaan en daar de juiste tabel te kiezen, dit wordt elders in deze handleiding omschreven. Het is ook mogelijk om zelf een referentietabel aan te maken en deze in het taakbehandelformulier te gebruiken. Na het aanmaken van de tabel kan deze in de lijst bij de instelling ‘Referentietabel voor ...’ gekozen worden.
-![image](images/208073572-dbe3e168-91ff-4a42-9c03-dea7824e348a.png)
+![image](images/zaps_advies_intern.png)
 #### Actiegegevens
 Ga verder naar het tabblad ‘Actiegegevens’. Bij de acties waarmee een gebruiker een fase afrondt is het mogelijk om een toelichting te tonen, denk aan een herinnering aan een belangrijke handeling die in die fase moete zijn uitgevoerd. Klik op een fase om de toelichting in het veld in te vullen.
 #### Mailgegevens
@@ -102,7 +102,7 @@ Ga verder naar het tabblad ‘Actiegegevens’. Bij de acties waarmee een gebrui
   - Statusmail intake fase (v) | bepaalt of bij het afronden van de fase ‘Intake’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
   - Statusmail afronden fase (v) | bepaalt of bij het afronden van de fase ‘In behandeling’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
   
-  ![image](images/84bfa621-a433-43ff-bd79-0f65ef3a2eda.png)
+  ![image](images/zaps_mailgegevens.png)
 
 - Bij het verzenden van een mail kan de behandelaar kiezen wat de afzender van de e-mail wordt. De keuzes die de behandelaar te zien krijgt zijn, is in dit tabblad in te stellen en gelden voor alle mails. Een mail heeft altijd de opties e-mailadres van de gemeente en het e-mailadres van de medewerker (de ingelogde gebruiker). Deze opties kunnen worden aangevuld met meer mailafzenders. Daarnaast kan een van deze opties als standaard ingevulde mailafzender worden ingesteld. Verder kan bij iedere mailafzender een eigen 'Antwoord aan' e-mailadres worden ingesteld, als dit niet wordt ingesteld dan is deze gelijk aan de afzender. Een uitgebreide beschrijving van de mailafzenders is in het hoofdstuk Mailafzenders te vinden.
 2. Stel de lijst van mogelijke mailafzenders op en kies de 'Antwoord aan' bij iedere mailafzender. Selecteer daarna welke mailafzender als default wordt getoond aan de behandelaar.
@@ -113,16 +113,26 @@ Ga verder naar ‘Zaakbeëindig gegevens’.  In dit tabblad kan voor een aantal
   - Verzoek is bij verkeerde organisatie ingediend | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt. 
   - Verzoek is door initiator ingetrokken | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
   - Zaak is een duplicaat | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
-    ![image](images/33fc1158-0ada-4fea-a491-fc1e6e9935a0.png)
-#### Smartdocuments
-1. Ga verder naar 'SmartDocuments'. Hier kunt u het documenttype selecteren dat door elk sjabloon moet worden verwerkt.
+    ![image](images/zaps_zaakgegevens_gegevens.png)
+#### Koppelingen
+1. Ga verder naar 'Koppelingen'. Hier kunt u Landelijke registratie koppelingen aan of uit zetten en het documenttype selecteren dat door elk Smartocuments  sjabloon moet worden verwerkt.
+
+##### Landelijke registratie koppelingen
+
+  - Hiermee kan voor een zaaktype de BRP en of KvK koppelingen worden uitgezet, met de knoppen:
+  -- Basisregistratie personen (persoonsgegevens) koppelen
+  -- KvK (bedrijfsgegevens) koppelen
+
+##### Smartdocuments
+
   - SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen
   - Elk SmartDocuments-sjabloon moet de plug-in "RedirectURL" ingeschakeld hebben.
   - SmartDocuments inschakelen voor het huidige zaaktype (stap 1)
   - De sjabloongroep uitvouwen (stap 2)
   - Documenttype selecteren (stap 3)
   - De configuratie opslaan (stap 4) 
-![image](images/f744cc21-04a4-4457-827a-1e6807c019b2.png)
+  
+![image](images/zaps_koppelingen.png)
   - Het documenttype deselecteren kan door het vinkje te verwijderen of in de dropdown "Geen documenttype" te selecteren.
 2. Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
 

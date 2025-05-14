@@ -121,4 +121,17 @@ export class ZaakafhandelParametersService {
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
+
+  listSmartDocumentsGroupTemplateNames(
+    path: GeneratedType<"RestSmartDocumentsPath">,
+  ): Observable<string[]> {
+    return this.zacHttpClient
+      .PUT(
+        "/rest/zaakafhandelparameters/smartdocuments-group-template-names",
+        path,
+      )
+      .pipe(
+        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+      );
+  }
 }
