@@ -47,7 +47,7 @@ export class DialogComponent implements OnInit {
       }
     }
     this.data.options.callback(results).subscribe({
-      next: () => this.dialogRef.close(true),
+      next: (data) => this.dialogRef.close(data),
       error: () => this.dialogRef.close(false),
     });
   }
