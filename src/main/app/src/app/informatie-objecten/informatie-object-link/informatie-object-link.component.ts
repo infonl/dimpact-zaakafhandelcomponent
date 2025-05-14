@@ -131,8 +131,10 @@ export class InformatieObjectLinkComponent
       );
   }
 
-  selectCase(row: any) {
-    const linkDocumentDetails = {
+  selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
+    const linkDocumentDetails: GeneratedType<"RESTDocumentVerplaatsGegevens"> & {
+      documentTitel?: string;
+    } = {
       documentUUID:
         "uuid" in this.infoObject
           ? this.infoObject.uuid
@@ -143,7 +145,7 @@ export class InformatieObjectLinkComponent
               : "",
       documentTitel: this.infoObject.titel,
       bron: this.source,
-      nieuweZaakID: row.identificatie,
+      nieuweZaakID: row.identificatie ?? undefined,
     };
 
     const msgSnackbarKey =

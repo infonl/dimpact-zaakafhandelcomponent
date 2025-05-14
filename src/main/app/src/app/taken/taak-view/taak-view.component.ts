@@ -83,7 +83,7 @@ export class TaakViewComponent
     "toelichting",
   ];
 
-  editFormFields: Map<string, any> = new Map<string, any>();
+  editFormFields = new Map<string, unknown>();
   fataledatumIcon: TextIcon;
   initialized = false;
 

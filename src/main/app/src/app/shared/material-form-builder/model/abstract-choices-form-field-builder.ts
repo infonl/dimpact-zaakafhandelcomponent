@@ -34,7 +34,7 @@ export abstract class AbstractChoicesFormFieldBuilder extends AbstractFormFieldB
     return this;
   }
 
-  options(options: Observable<any[]> | any[]): this {
+  options(options: Observable<unknown[]> | unknown[]): this {
     if (isObservable(options)) {
       this.formField.options = options;
     } else {
