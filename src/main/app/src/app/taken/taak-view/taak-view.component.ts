@@ -48,6 +48,7 @@ import { ZakenService } from "../../zaken/zaken.service";
 import { Taak } from "../model/taak";
 import { TaakStatus } from "../model/taak-status.enum";
 import { TakenService } from "../taken.service";
+import { FormioCustomEvent } from "../../formulieren/formio-wrapper/formio-wrapper.component";
 
 @Component({
   templateUrl: "./taak-view.component.html",
@@ -295,7 +296,7 @@ export class TaakViewComponent
   ): void {
     component.type = "fieldset";
     const smartDocumentsPath: GeneratedType<"RestSmartDocumentsPath"> = {
-      groups: component.properties["SmartDocuments_Group"].split(),
+      groups: this.formioGetSmartDocumentsGroups(component),
     };
 
     const smartDocumentsTemplateComponent = component.components[0];
@@ -309,6 +310,12 @@ export class TaakViewComponent
             .pipe(tap((value) => value.sort())),
         ),
     };
+  }
+
+  private formioGetSmartDocumentsGroups(
+    component: ExtendedComponentSchema,
+  ): string[] {
+    return component.properties["SmartDocuments_Group"].split();
   }
 
   isReadonly() {
@@ -565,5 +572,15 @@ export class TaakViewComponent
       uuid: taak.zaakUuid,
       zaaktype,
     } satisfies Partial<GeneratedType<"RestZaak">> as GeneratedType<"RestZaak">;
+  }
+
+  onDocumentCreate(event: FormioCustomEvent) {
+    const parent = event.component.parent;
+    const groups = this.formioGetSmartDocumentsGroups(parent);
+    const template = event.data[parent.key + "_Template"];
+    console.log("Groups %o, template %s", groups, template);
+
+    this.activeSideAction = "actie.document.maken";
+    this.actionsSidenav.open();
   }
 }
