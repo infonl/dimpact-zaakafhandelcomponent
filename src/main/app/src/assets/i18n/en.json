@@ -722,7 +722,7 @@
   "msg.formulierdefinitie.verwijderen.bevestigen": "Delete form definition '{{naam}}'?",
   "msg.advies.behandelen": "The case handler asks for advice.<br>Assess the question and, if necessary, the documents and provide your advice with an explanation.",
   "msg.bagObject.gekoppeld": "The BAG object has been added",
-  "msg.bagObject.ontkoppelen.bevestigen": "Unlink BAG object \"{{omschrijving}}\" form the case?",
+  "msg.bagObject.ontkoppelen.bevestigen": "Unlink BAG object \"{{omschrijving}}\" from the case?",
   "msg.bagObject.ontkoppelen.uitgevoerd": "BAG object \"{{omschrijving}}\" has been unlinked",
   "msg.aantal.bagObjecten.geselecteerd": "{{aantal}} BAG objects selected",
   "msg.besluit.documenten.verstuurd": "One or more decision documents have already been sent.",
