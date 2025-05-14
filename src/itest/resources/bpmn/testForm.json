@@ -28,6 +28,81 @@
       ],
       "input": false,
       "tableView": false
+    },
+    {
+      "legend": "Approval by:",
+      "type": "groepMedewerkerFieldset",
+      "key": "AM_TeamBehandelaar",
+      "input": false,
+      "components": [
+        {
+          "label": "Group",
+          "type": "select",
+          "key": "AM_TeamBehandelaar_Groep",
+          "input": true,
+          "widget": "html5",
+          "validate": {
+            "required": true
+          },
+          "dataSrc": "custom",
+          "clearOnRefresh": true
+        },
+        {
+          "label": "User",
+          "type": "select",
+          "key": "AM_TeamBehandelaar_Medewerker",
+          "widget": "html5",
+          "input": true,
+          "validate": {
+            "required": true
+          },
+          "dataSrc": "custom",
+          "refreshOn": "AM_TeamBehandelaar_Groep",
+          "clearOnRefresh": true
+        }
+      ]
+    },
+    {
+      "legend": "SmartDocuments",
+      "type": "groepSmartDocumentsFieldset",
+      "key": "AM_SmartDocuments",
+      "input": false,
+      "properties": {
+        "SmartDocuments_Group": "Dimpact"
+      },
+      "components": [
+        {
+          "label": "Template",
+          "type": "select",
+          "key": "AM_SmartDocuments_Template",
+          "input": true,
+          "widget": "html5",
+          "validate": {
+            "required": true
+          },
+          "dataSrc": "custom",
+          "clearOnRefresh": true
+        },
+        {
+          "label": "Create",
+          "action": "event",
+          "showValidations": false,
+          "block": true,
+          "tableView": false,
+          "key": "AM_SmartDocuments_Create",
+          "type": "button",
+          "event": "createDocument",
+          "input": true
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
     }
   ]
 }

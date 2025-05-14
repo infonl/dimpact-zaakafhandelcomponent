@@ -33,13 +33,13 @@ import kotlin.jvm.optionals.getOrDefault
 @Suppress("LongParameterList")
 class SmartDocumentsService @Inject constructor(
     // RestEasy declarative clients use configuration properties
-    // To make the client optional we use Instance, which is alternative to @Autowire(required=false) in Spring
+    // To make the client optional we use Instance, which is an alternative to @Autowire(required=false) in Spring
     @RestClient
     private val smartDocumentsClient: Instance<SmartDocumentsClient>,
 
     // With nullable Kotlin types ConfigProperty and Weld error with:
-    //     io.smallrye.config.inject.ConfigException: SRCFG02000: Failed to Inject @ConfigProperty for key
-    // Therefore we use Optional to support non-mandatory properties.
+    //     io.smallrye.config.inject.ConfigException: SRCFG02000: Failed to Inject @ConfigProperty for key,
+    // Therefore, we use Optional to support non-mandatory properties.
     // Weld injects Optional.empty() if a property is not available and overrides the Kotlin default value.
 
     @ConfigProperty(name = "SMARTDOCUMENTS_ENABLED")
