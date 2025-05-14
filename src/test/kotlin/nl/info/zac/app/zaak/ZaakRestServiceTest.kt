@@ -931,6 +931,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("A zaak with an initiator") {
         val zaak = createZaak()
         val rolMedewerker = createRolMedewerker()
@@ -1045,6 +1046,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """
         Two existing zaaktypes in the configured catalogue for which the logged in user is authorised
@@ -1295,6 +1297,61 @@ class ZaakRestServiceTest : BehaviorSpec({
                     )
                     indexingService.removeInformatieobject(informatieobjectUUID)
                     ontkoppeldeDocumentenService.create(enkelvoudiginformatieobject, zaak, "veryFakeReason")
+                }
+            }
+        }
+    }
+
+    Given("an initiator is being updated") {
+        val data = createRESTZaakBetrokkeneGegevens()
+        val zaak = createZaak()
+
+        every { zrcClientService.readZaak(data.zaakUUID) } returns zaak
+        every { zgwApiService.findInitiatorRoleForZaak(any()) } returns null
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
+        every {
+            zaakService.addInitiatorToZaak(
+                data.betrokkeneIdentificatieType,
+                data.betrokkeneIdentificatie,
+                zaak,
+                any()
+            )
+        } just runs
+        every { restZaakConverter.toRestZaak(zaak) } returns createRestZaak()
+
+        When("a reason is passed") {
+            zaakRestService.updateInitiator(
+                data.apply {
+                    roltoelichting = "test reden"
+                }
+            )
+
+            Then("the reasons should get saved") {
+                verify(exactly = 1) {
+                    zaakService.addInitiatorToZaak(
+                        data.betrokkeneIdentificatieType,
+                        data.betrokkeneIdentificatie,
+                        any(),
+                        "test reden"
+                    )
+                }
+            }
+        }
+
+        When("no reason is passed") {
+            zaakRestService.updateInitiator(
+                data.apply {
+                    roltoelichting = null
+                }
+            )
+            Then("the reason should be set to the default") {
+                verify(exactly = 1) {
+                    zaakService.addInitiatorToZaak(
+                        data.betrokkeneIdentificatieType,
+                        data.betrokkeneIdentificatie,
+                        any(),
+                        "Toegekend door de medewerker tijdens het behandelen van de zaak"
+                    )
                 }
             }
         }
