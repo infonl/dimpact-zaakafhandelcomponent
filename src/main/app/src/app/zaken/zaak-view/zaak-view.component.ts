@@ -512,7 +512,7 @@ export class ZaakViewComponent
       if (this.zaak.rechten.toevoegenBagObject) {
         this.menu.push(
           new ButtonMenuItem(
-            "actie.bagObject.toevoegen",
+            "actie.bagObject.koppelen",
             () => this.actionsSidenav.open(),
             "add_home_work",
           ),
@@ -1159,7 +1159,7 @@ export class ZaakViewComponent
     this.bagService
       .create(new BAGObjectGegevens(this.zaak.uuid, bagObject))
       .subscribe(() => {
-        this.utilService.openSnackbar("msg.bagObject.toegevoegd");
+        this.utilService.openSnackbar("msg.bagObject.gekoppeld");
         this.loadHistorie();
         this.loadBagObjecten();
       });
@@ -1366,10 +1366,10 @@ export class ZaakViewComponent
           .pipe(
             tap(() => this.websocketService.suspendListener(this.zaakListener)),
           ),
-      uitleg: this.translate.instant("msg.bagObject.verwijderen.bevestigen", {
+      uitleg: this.translate.instant("msg.bagObject.ontkoppelen.bevestigen", {
         omschrijving: bagObject.omschrijving,
       }),
-      confirmButtonActionKey: "actie.bagObject.verwijderen",
+      confirmButtonActionKey: "actie.bagObject.ontkoppelen",
       icon: "link_off",
     });
 
@@ -1382,7 +1382,7 @@ export class ZaakViewComponent
           this.loadHistorie();
           this.loadBagObjecten();
           this.utilService.openSnackbar(
-            "msg.bagObject.verwijderen.uitgevoerd",
+            "msg.bagObject.ontkoppelen.uitgevoerd",
             { omschrijving: bagObject.omschrijving },
           );
         }
