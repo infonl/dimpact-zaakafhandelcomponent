@@ -92,7 +92,7 @@ export class ZaakViewComponent
   takenDataSource = new MatTableDataSource<ExpandableTableData<Taak>>();
   allTakenExpanded = false;
   toonAfgerondeTaken = new FormControl(false);
-  takenFilter: Record<string, unknown> = {};
+  takenStatusFilter: GeneratedType<"TaakStatus"> | "" = "";
   takenLoading = false;
   takenColumnsToDisplay = [
     "naam",
@@ -218,8 +218,9 @@ export class ZaakViewComponent
     );
 
     this.takenDataSource.filterPredicate = (data, filter) => {
+      console.log(data, filter);
       return !this.toonAfgerondeTaken.value
-        ? data.data.status !== filter["status"]
+        ? data.data.status !== filter
         : true;
     };
 
@@ -1012,35 +1013,44 @@ export class ZaakViewComponent
     this.websocketService.suspendListener(this.zaakRollenListener);
     this.actionsSidenav.close();
 
-    if(this.zaak.initiatorIdentificatie) {
+    if (this.zaak.initiatorIdentificatie) {
       // We already have an initiator, we need a reason to change it
       this.dialog
-          .open(DialogComponent, {
-            data: new DialogData<unknown, { reden: string }>({
-              formFields: [
-                new TextareaFormFieldBuilder()
-                    .id("reden")
-                    .label("reden")
-                    .validators(Validators.required)
-                    .build(),
-              ],
-              callback: ({ reden }) =>
-                  this.zakenService.updateInitiator(this.zaak, initiator, reden),
-              melding: this.translate.instant("msg.initiator.bevestigen", {
-                naam: initiator.naam,
-              }),
-              icon: "link",
+        .open(DialogComponent, {
+          data: new DialogData<unknown, { reden: string }>({
+            formFields: [
+              new TextareaFormFieldBuilder()
+                .id("reden")
+                .label("reden")
+                .validators(Validators.required)
+                .build(),
+            ],
+            callback: ({ reden }) =>
+              this.zakenService.updateInitiator(this.zaak, initiator, reden),
+            melding: this.translate.instant("msg.initiator.bevestigen", {
+              naam: initiator.naam,
             }),
-          })
-          .afterClosed()
-          .subscribe(zaak => this.handleNewInitiator(zaak, "msg.initiator.gewijzigd"));
-      return
+            icon: "link",
+          }),
+        })
+        .afterClosed()
+        .subscribe((zaak) =>
+          this.handleNewInitiator("msg.initiator.gewijzigd", zaak),
+        );
+      return;
     }
 
-    this.zakenService.updateInitiator(this.zaak, initiator).subscribe(zaak => this.handleNewInitiator(zaak, "msg.initiator.toegevoegd"));
+    this.zakenService
+      .updateInitiator(this.zaak, initiator)
+      .subscribe((zaak) =>
+        this.handleNewInitiator("msg.initiator.toegevoegd", zaak),
+      );
   }
 
-  private handleNewInitiator(zaak?: GeneratedType<"RestZaak">, notification: string): void {
+  private handleNewInitiator(
+    notification: string,
+    zaak?: GeneratedType<"RestZaak">,
+  ): void {
     if (!zaak) return;
 
     this.zaak = zaak;
@@ -1173,11 +1183,10 @@ export class ZaakViewComponent
 
   filterTakenOpStatus() {
     if (!this.toonAfgerondeTaken.value) {
-      this.takenFilter["status"] = "AFGEROND";
+      this.takenStatusFilter = "AFGEROND";
     }
 
-    // @ts-expect-error TODO this throwing a ts error, functionality needs to be checked
-    this.takenDataSource.filter = this.takenFilter;
+    this.takenDataSource.filter = this.takenStatusFilter;
     SessionStorageUtil.setItem(
       "toonAfgerondeTaken",
       this.toonAfgerondeTaken.value,
