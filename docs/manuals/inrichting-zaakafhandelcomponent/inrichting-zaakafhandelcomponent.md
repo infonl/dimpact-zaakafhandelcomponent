@@ -13,7 +13,7 @@
  [*Actiegegevens*](#actiegegevens)
  [*Mailgegevens*](#mailgegevens)
  [*Zaakbeëindig gegevens*](#zaakbeëindig-gegevens)
- [*Smartdocuments*](#smartdocuments)
+ [*Koppelingen*](#koppelingen)
 
 
 [*Referentietabellen*](#referentietabellen)
@@ -114,14 +114,24 @@ Ga verder naar ‘Zaakbeëindig gegevens’.  In dit tabblad kan voor een aantal
   - Verzoek is door initiator ingetrokken | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
   - Zaak is een duplicaat | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
     ![image](images/zaps_zaakgegevens_gegevens.png)
-#### Smartdocuments
-1. Ga verder naar 'SmartDocuments'. Hier kunt u het documenttype selecteren dat door elk sjabloon moet worden verwerkt.
+#### Koppelingen
+1. Ga verder naar 'Koppelingen'. Hier kunt u Landelijke registratie koppelingen aan of uit zetten en het documenttype selecteren dat door elk Smartocuments  sjabloon moet worden verwerkt.
+
+##### Landelijke registratie koppelingen
+
+  - Hiermee kan voor een zaaktype de BRP en of KvK koppelingen worden uitgezet, met de knoppen:
+  -- Basisregistratie personen (persoonsgegevens) koppelen
+  -- KvK (bedrijfsgegevens) koppelen
+
+##### Smartdocuments
+
   - SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen
   - Elk SmartDocuments-sjabloon moet de plug-in "RedirectURL" ingeschakeld hebben.
   - SmartDocuments inschakelen voor het huidige zaaktype (stap 1)
   - De sjabloongroep uitvouwen (stap 2)
   - Documenttype selecteren (stap 3)
   - De configuratie opslaan (stap 4) 
+  
 ![image](images/zaps_koppelingen.png)
   - Het documenttype deselecteren kan door het vinkje te verwijderen of in de dropdown "Geen documenttype" te selecteren.
 2. Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
