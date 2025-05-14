@@ -173,7 +173,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   objecten-api.local:
-    image: docker.io/maykinmedia/objects-api:3.0.3@sha256:64e6e8286034f7723b04cde7a4016f9ca7df061ea5d7161c0b3654ee8271a1a5
+    image: docker.io/maykinmedia/objects-api:3.0.4@sha256:cd81f35fd9ddd405f3b600a024dfc911b7952a4396a9603841664325820d0a80
     platform: linux/amd64
     ports:
       - "8010:8000"
@@ -219,7 +219,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   objecten-api-import:
-    image: docker.io/maykinmedia/objects-api:3.0.3@sha256:64e6e8286034f7723b04cde7a4016f9ca7df061ea5d7161c0b3654ee8271a1a5
+    image: docker.io/maykinmedia/objects-api:3.0.4@sha256:cd81f35fd9ddd405f3b600a024dfc911b7952a4396a9603841664325820d0a80
     platform: linux/amd64
     environment: *objects-env
     # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
@@ -359,7 +359,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.123.0@sha256:e5e4a13f0ea98e7ca1d1d809be040180540146888d0d764abd4e1277cba87350
+    image: docker.io/otel/opentelemetry-collector:0.126.0@sha256:e02c9c8d05f282f696ae1c7122a9f06d938ce6aee78082adc35ac74bd998e3d0
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
