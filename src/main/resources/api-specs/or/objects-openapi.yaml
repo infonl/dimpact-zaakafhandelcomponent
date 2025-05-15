@@ -1,5 +1,5 @@
 openapi: 3.0.3
-# Lifely: manually fixed an issue in this spec; see 'Lifely' below
+# INFO.nl: manually fixed an issue in this spec; see 'INFO.nl' below
 info:
   title: Objects API
   version: 2.4.4 (v2)
@@ -936,7 +936,7 @@ components:
           minimum: 0
           description: Version of the OBJECTTYPE for data in the object record
         data:
-          # Lifely: manually added missing attributes 'type' and 'additionalProperties'
+          # INFO.nl: manually added missing attributes 'type' and 'additionalProperties'
           type: object
           additionalProperties: {}
           description: Object data, based on OBJECTTYPE

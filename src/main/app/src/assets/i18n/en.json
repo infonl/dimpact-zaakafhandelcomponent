@@ -585,7 +585,6 @@
   "actie.bedrijf.bekijken": "View company",
   "actie.bagObject.bekijken": "View BAG object",
   "actie.bagObject.koppelen": "Add BAG object",
-  "actie.bagObject.verwijderen": "Delete BAG object",
   "actie.bagObject.ontkoppelen": "Unlink BAG object",
   "actie.besluit.vastleggen": "Create decision",
   "actie.besluit.wijzigen": "Edit decision",
