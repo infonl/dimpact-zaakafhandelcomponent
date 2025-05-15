@@ -219,7 +219,7 @@ export class ZaakViewComponent
     );
 
     this.takenDataSource.filterPredicate = (data, filter) => {
-      if(!filter) return true
+      if (!filter) return true;
 
       return !this.toonAfgerondeTaken.value
         ? data.data.status !== filter
