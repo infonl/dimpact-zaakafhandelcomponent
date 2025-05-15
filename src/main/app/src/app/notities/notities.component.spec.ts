@@ -40,7 +40,7 @@ const mockNotitieService = {
 };
 
 const mockTranslateService = {
-  get(key: any): any {
+  get(key: unknown) {
     return of(key);
   },
   onTranslationChange: of({}),

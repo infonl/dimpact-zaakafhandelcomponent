@@ -45,7 +45,7 @@ export class NotitieService {
       );
   }
 
-  deleteNotitie(id: number): Observable<any> {
+  deleteNotitie(id: number) {
     return this.http
       .delete(`${this.basepath}/${id}`)
       .pipe(
