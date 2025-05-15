@@ -92,8 +92,6 @@ export class LocatieTonenComponent implements OnInit, AfterViewInit {
       matrixIds[z] = ("0" + z).slice(-2);
     }
 
-    console.log("currentLocation", this.currentLocation);
-
     const brtsource = new source.WMTS({
       projection: projection,
       layer: "standaard",
