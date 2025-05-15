@@ -95,8 +95,8 @@ Versiegeschiedenis:
     - [Zaak koppelen om een zaakrelatie te leggen](#zaak-koppelen-om-een-zaakrelatie-te-leggen)
     - [Inzien gekoppelde zaken](#inzien-gekoppelde-zaken)
     - [Ontkoppelen zaken](#ontkoppelen-zaken)
-    - [Zaak afhandelen](#zaak-afhandelen)
-    - [Besluit vastleggen](#besluit-vastleggen)
+- [Zaak afhandelen](#zaak-afhandelen)
+- [Besluit vastleggen](#besluit-vastleggen)
     - [Besluit wijzigen](#besluit-wijzigen)
     - [Besluit intrekken](#besluit-intrekken)
     - [Zaak afhandelen](#zaak-afhandelen)
@@ -1162,7 +1162,7 @@ Een besluit kan ingetrokken worden door deze een vervaldatum en -reden te geven.
 
 4 Klik op ‘Wijzigen’ om het besluit weer op te slaan
 
-### Zaak afhandelen
+## Zaak afhandelen
 
 Met deze actie kan een zaak die helemaal gereed is worden afgehandeld. Deze actie is dan ook alleen beschikbaar als alle taken zijn afgerond.
 
