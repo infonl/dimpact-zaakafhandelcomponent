@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-FileCopyrightText: 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
 # To setup a python virtual environment, with required libraries, run this script with the following command:
