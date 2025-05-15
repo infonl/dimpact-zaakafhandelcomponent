@@ -143,7 +143,7 @@ export class ZaakViewComponent
   viewInitialized = false;
   loggedInUser!: GeneratedType<"RestLoggedInUser">;
 
-  locationFeatureCookie: Boolean = false;
+  locationFeatureCookie: boolean = false;
 
   private zaakListener!: WebsocketListener;
   private zaakRollenListener!: WebsocketListener;
