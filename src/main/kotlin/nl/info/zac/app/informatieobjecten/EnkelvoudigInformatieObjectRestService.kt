@@ -138,8 +138,8 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         zoekParameters: RESTInformatieobjectZoekParameters
     ): List<RestEnkelvoudigInformatieobject> {
         val zaak = zoekParameters.zaakUUID?.let { zrcClientService.readZaak(it) }
-        zoekParameters.informatieobjectUUIDs?.let {
-            return restInformatieobjectConverter.convertUUIDsToREST(it, zaak)
+        return zoekParameters.informatieobjectUUIDs?.let {
+            restInformatieobjectConverter.convertUUIDsToREST(it, zaak)
         } ?: run {
             checkNotNull(zaak) { "Zoekparameters hebben geen waarde" }
             assertPolicy(policyService.readZaakRechten(zaak).lezen)
@@ -154,7 +154,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                     compareList.contains(it.informatieobjectTypeUUID)
                 }.toMutableList()
             }
-            return enkelvoudigInformatieobjectenVoorZaak
+            enkelvoudigInformatieobjectenVoorZaak
         }
     }
 
@@ -336,14 +336,14 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     fun preview(@PathParam("uuid") uuid: UUID?, @PathParam("versie") versie: Int?): Response {
         val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(uuid)
         assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieObject).lezen)
-        try {
+        return try {
             val inhoud = versie?.let {
                 drcClientService.downloadEnkelvoudigInformatieobjectVersie(
                     uuid,
                     versie
                 )
             } ?: drcClientService.downloadEnkelvoudigInformatieobject(uuid)
-            return Response.ok(inhoud)
+            Response.ok(inhoud)
                 .header(
                     "Content-Disposition",
                     """inline; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
@@ -522,11 +522,11 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private fun retrieveDocumentContent(uuid: UUID, version: Int?): Response {
         val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(uuid)
         assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden)
-        try {
+        return try {
             val documentContent = version?.let {
                 drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version)
             } ?: drcClientService.downloadEnkelvoudigInformatieobject(uuid)
-            return Response.ok(documentContent)
+            Response.ok(documentContent)
                 .header(
                     "Content-Disposition",
                     """attachment; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
