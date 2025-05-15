@@ -219,7 +219,6 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
   };
 
   selectAddress($event: MatAutocompleteSelectedEvent): void {
-    console.log("event", $event);
     this.locationService
       .addressLookup($event.option.value.id)
       .subscribe((objectData) => {
