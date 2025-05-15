@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 INSERT INTO ${schema}.referentie_tabel(id_referentie_tabel, code, naam)
