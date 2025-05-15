@@ -287,8 +287,7 @@ export class InformatieObjectViewComponent
         ),
       );
     }
-    console.log("INFOOBJ ", this.infoObject);
-    
+
     if (
       this.zaak &&
       this.infoObject.status?.toUpperCase() == "DEFINITIEF" &&
