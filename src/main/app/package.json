@@ -1,6 +1,10 @@
 {
   "name": "app",
   "version": "0.0.3",
+  "engines": {
+    "node": "22.15.18",
+    "npm": "11.3.0"
+  },
   "scripts": {
     "ng": "ng",
     "dev": "npm run generate:types:zac-openapi && ng serve --hmr --proxy-config proxy.conf.json",
