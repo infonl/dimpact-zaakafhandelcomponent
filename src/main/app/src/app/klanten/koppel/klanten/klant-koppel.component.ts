@@ -21,7 +21,7 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
   ],
   template: `
     <div class="side-nav-container">
-      <mat-toolbar role="heading" class="side-nav-container gap-16">
+      <mat-toolbar role="heading" class="gap-16">
         <mat-icon>person_add_alt_1</mat-icon>
         <span class="flex-grow-1">
           {{
