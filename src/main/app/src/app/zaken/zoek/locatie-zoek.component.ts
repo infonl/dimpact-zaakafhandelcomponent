@@ -32,15 +32,15 @@ import WMTSTileGrid from "ol/tilegrid/WMTS.js";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { environment } from "src/environments/environment";
-import { LocationUtil } from "../../../shared/location/location-util";
+import { LocationUtil } from "../../shared/location/location-util";
 import {
   AddressResult,
   LocationService,
   SuggestResult,
-} from "../../../shared/location/location.service";
-import { GeneratedType } from "../../../shared/utils/generated-types";
-import { GeometryGegevens } from "../../model/geometry-gegevens";
-import { GeometryType } from "../../model/geometryType";
+} from "../../shared/location/location.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
+import { GeometryGegevens } from "../model/geometry-gegevens";
+import { GeometryType } from "../model/geometryType";
 
 @Component({
   selector: "zac-locatie-zoek",

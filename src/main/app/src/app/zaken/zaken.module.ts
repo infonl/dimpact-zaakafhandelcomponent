@@ -29,7 +29,6 @@ import { ZaakDocumentenComponent } from "./zaak-documenten/zaak-documenten.compo
 import { ZaakInitiatorToevoegenComponent } from "./zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZaakLinkComponent } from "./zaak-link/zaak-link.component";
 import { LocatieTonenComponent } from "./zaak-locatie/tonen/zaak-locatie-tonen.component";
-import { LocatieZoekComponent } from "./zaak-locatie/zoek/locatie-zoek.component";
 import { ZaakOntkoppelenDialogComponent } from "./zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
 import { ZaakOpschortenDialogComponent } from "./zaak-opschorten-dialog/zaak-opschorten-dialog.component";
 import { ZaakVerkortComponent } from "./zaak-verkort/zaak-verkort.component";
@@ -43,6 +42,7 @@ import { ZakenRoutingModule } from "./zaken-routing.module";
 import { ZakenVerdelenDialogComponent } from "./zaken-verdelen-dialog/zaken-verdelen-dialog.component";
 import { ZakenVrijgevenDialogComponent } from "./zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component";
 import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorraad.component";
+import { LocatieZoekComponent } from "./zoek/locatie-zoek.component";
 
 @NgModule({
   declarations: [
