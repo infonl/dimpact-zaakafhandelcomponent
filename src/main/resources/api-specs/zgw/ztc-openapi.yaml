@@ -1,5 +1,5 @@
 openapi: 3.0.3
-# Lifely: renamed invalid min_length and max_length properties to minLength and maxLength
+# INFO.nl: renamed invalid min_length and max_length properties to minLength and maxLength
 info:
   title: Catalogi API
   version: 1.3.1 (1)
@@ -10286,7 +10286,7 @@ components:
       enum:
       - blijvend_bewaren
       - vernietigen
-      # manual added by Lifely: need to allow for empty values returned by the API
+      # manual added by INFO.nl: need to allow for empty values returned by the API
       # and unfortunately the OpenAPI Generator does not fully support the `oneOf` construct yet
       - ''
       type: string
@@ -10636,7 +10636,7 @@ components:
             * `woz_waarde` - Woz waarde
             * `zakelijk_recht` - Zakelijk recht
             * `overige` - Overige
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/ObjecttypeEnum'
@@ -10739,7 +10739,7 @@ components:
             * `woz_waarde` - Woz waarde
             * `zakelijk_recht` - Zakelijk recht
             * `overige` - Overige
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/ObjecttypeEnum'
@@ -11497,7 +11497,7 @@ components:
       - woz_waarde
       - zakelijk_recht
       - overige
-      # manual added by Lifely: need to allow for empty values returned by the API
+      # manual added by INFO.nl: need to allow for empty values returned by the API
       # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
       - ''
       type: string
@@ -12535,7 +12535,7 @@ components:
 
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/ArchiefnominatieEnum'
@@ -12679,7 +12679,7 @@ components:
 
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/ArchiefnominatieEnum'

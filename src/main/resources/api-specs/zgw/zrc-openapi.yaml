@@ -1,5 +1,5 @@
 openapi: 3.0.3
-# Lifely: renamed invalid min_length and max_length properties to minLength and maxLength
+# INFO.nl: renamed invalid min_length and max_length properties to minLength and maxLength
 info:
   title: Zaken API
   version: 1.5.1 (1)
@@ -10663,7 +10663,7 @@ components:
       enum:
       - blijvend_bewaren
       - vernietigen
-      # manual changed by Lifely: need to allow for empty values returned by the API
+      # manual changed by INFO.nl: need to allow for empty values returned by the API
       # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
       - ''
       type: string
@@ -10864,7 +10864,7 @@ components:
 
             * `gemachtigde` - De betrokkene in de rol bij de zaak is door een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
             * `machtiginggever` - De betrokkene in de rol bij de zaak heeft een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/IndicatieMachtigingEnum'
@@ -10992,7 +10992,7 @@ components:
       - nog_niet
       - gedeeltelijk
       - geheel
-      # manual changed by Lifely: need to allow for empty values returned by the API
+      # manual changed by INFO.nl: need to allow for empty values returned by the API
       # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
       - ''
       type: string
@@ -11246,7 +11246,7 @@ components:
       - m
       - v
       - o
-      # manual changed by Lifely: need to allow for empty values returned by the API
+      # manual changed by INFO.nl: need to allow for empty values returned by the API
       # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
       - ''
       type: string
@@ -11254,7 +11254,7 @@ components:
       enum:
       - gemachtigde
       - machtiginggever
-      # manual changed by Lifely: need to allow for empty values returned by the API
+      # manual changed by INFO.nl: need to allow for empty values returned by the API
       # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
       - ''
       type: string
@@ -11279,7 +11279,7 @@ components:
       - kapitaalvennootschap_binnen_eer
       - overige_buitenlandse_rechtspersoon_vennootschap
       - kapitaalvennootschap_buiten_eer
-      # manual changed by Lifely: need to allow for empty values returned by the API
+      # manual changed by INFO.nl: need to allow for empty values returned by the API
       # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
       - ''
       type: string
@@ -11523,7 +11523,7 @@ components:
       - kanaal
       - resource
       - resourceUrl
-      # manual changed by Lifely: this causes corrupt uncompilable Java code with OpenAPI Generator 7.9.0
+      # manual changed by INFO.nl: this causes corrupt uncompilable Java code with OpenAPI Generator 7.9.0
       # NullEnum:
       #      enum:
       #      - null
@@ -12968,7 +12968,7 @@ components:
             * `nog_niet` - De met de zaak gemoeide kosten zijn (nog) niet betaald.
             * `gedeeltelijk` - De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
             * `geheel` - De met de zaak gemoeide kosten zijn geheel betaald.
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/BetalingsindicatieEnum'
@@ -13376,7 +13376,7 @@ components:
             * `m` - Man
             * `v` - Vrouw
             * `o` - Onbekend
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/GeslachtsaanduidingEnum'
@@ -13435,7 +13435,7 @@ components:
             * `m` - Man
             * `v` - Vrouw
             * `o` - Onbekend
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/GeslachtsaanduidingEnum'
@@ -13472,7 +13472,7 @@ components:
           maxLength: 500
         innRechtsvorm:
           description: De juridische vorm van de NIET-NATUURLIJK PERSOON.
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/InnRechtsvormEnum'
@@ -13506,7 +13506,7 @@ components:
           maxLength: 500
         innRechtsvorm:
           description: De juridische vorm van de NIET-NATUURLIJK PERSOON.
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/InnRechtsvormEnum'
@@ -14197,7 +14197,7 @@ components:
             * `nog_niet` - De met de zaak gemoeide kosten zijn (nog) niet betaald.
             * `gedeeltelijk` - De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
             * `geheel` - De met de zaak gemoeide kosten zijn geheel betaald.
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/BetalingsindicatieEnum'
@@ -14305,7 +14305,7 @@ components:
 
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/ArchiefnominatieEnum'
@@ -14887,7 +14887,7 @@ components:
             * `nog_niet` - De met de zaak gemoeide kosten zijn (nog) niet betaald.
             * `gedeeltelijk` - De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
             * `geheel` - De met de zaak gemoeide kosten zijn geheel betaald.
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/BetalingsindicatieEnum'
@@ -14950,7 +14950,7 @@ components:
 
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/ArchiefnominatieEnum'

@@ -172,7 +172,7 @@ This way you can test a locally running ZAC or you can test ZAC running on e.g. 
 
 #### Set up Postman for ZAC
 
-As a Lifely developer you can use our shared Postman ZAC collection in our [ZAC API TEST Postman team workspace](https://zaakafhandelcomponent.postman.co/workspace/aec6c5c4-affd-490b-9c81-e8b1cf339d22).
+As a INFO.nl developer you can use our shared Postman ZAC collection in our [ZAC API TEST Postman team workspace](https://zaakafhandelcomponent.postman.co/workspace/aec6c5c4-affd-490b-9c81-e8b1cf339d22).
 Alternatively you can set up a Postman collection yourself using the instructions below.
 
 To use our shared Postman collection you need to be a member of our Zaakafhandelcomponent Postman team (max 3 members for the free Postman version).

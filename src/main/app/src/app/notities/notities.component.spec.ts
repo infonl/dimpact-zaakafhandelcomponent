@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -40,7 +40,7 @@ const mockNotitieService = {
 };
 
 const mockTranslateService = {
-  get(key: any): any {
+  get(key: unknown) {
     return of(key);
   },
   onTranslationChange: of({}),

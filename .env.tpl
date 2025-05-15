@@ -1,5 +1,5 @@
 #
-# SPDX-FileCopyrightText: <YYYY> Lifely
+# SPDX-FileCopyrightText: <YYYY> INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
