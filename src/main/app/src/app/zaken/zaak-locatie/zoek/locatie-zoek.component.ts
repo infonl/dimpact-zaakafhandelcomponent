@@ -219,6 +219,7 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
   };
 
   selectAddress($event: MatAutocompleteSelectedEvent): void {
+    console.log("event", $event);
     this.locationService
       .addressLookup($event.option.value.id)
       .subscribe((objectData) => {
@@ -295,20 +296,5 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
       size: this.map.getSize(),
       maxZoom: this.MAX_ZOOM,
     });
-  }
-
-  cancel(): void {
-    this.currentLocation = this.initialLocation;
-    this.locationChanged.emit(this.initialLocation);
-    void this.sideNav.close();
-  }
-
-  save(): void {
-    this.initialLocation = this.currentLocation;
-    if (!this.markerLocatie) return;
-
-    this.locatie.next(
-      new GeometryGegevens(this.markerLocatie, this.reasonControl.value),
-    );
   }
 }
