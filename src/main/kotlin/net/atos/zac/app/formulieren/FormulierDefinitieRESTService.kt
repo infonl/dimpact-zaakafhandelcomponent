@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Dimpact, 2025 Lifely
+ * SPDX-FileCopyrightText: 2023 Dimpact, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.formulieren
