@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -284,15 +284,21 @@ node {
         error("No available version found for base version $baseVersion")
     }
 
-    fun packageJsonNodeJs(): String {
-        val regex = """"@types/node":\s*"(\d+\.\d+\.\d+)"""".toRegex()
+    fun packageJsonNodeVersion(): String {
         val packageJson = file("$srcApp/package.json").readText()
-        val matchResult = regex.find(packageJson)
-        return matchResult?.groups?.get(1)?.value ?: error("Node version not found")
+        val regex = """"node":\s*"([^"]+)"""".toRegex()
+        return regex.find(packageJson)?.groups?.get(1)?.value ?: error("Node version not found")
+    }
+
+    fun packageJsonNpmVersion(): String {
+        val packageJson = file("$srcApp/package.json").readText()
+        val regex = """"npm":\s*"([^"]+)"""".toRegex()
+        return regex.find(packageJson)?.groups?.get(1)?.value ?: error("npm version not found")
     }
 
     download.set(true)
-    version.set(packageJsonNodeJs().let(::getLatestAvailableVersion))
+    version.set(packageJsonNodeVersion().let(::getLatestAvailableVersion))
+    npmVersion.set(packageJsonNpmVersion())
     distBaseUrl.set("https://nodejs.org/dist")
     nodeProjectDir.set(srcApp.asFile)
     if (System.getenv("CI") != null) {

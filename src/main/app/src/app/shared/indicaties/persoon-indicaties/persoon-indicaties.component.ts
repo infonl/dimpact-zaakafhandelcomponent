@@ -1,10 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  *
  */
 
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnChanges, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Indicatie } from "../../model/indicatie";
 import { GeneratedType } from "../../utils/generated-types";
@@ -17,7 +17,7 @@ import { IndicatiesComponent } from "../indicaties.component";
 })
 export class PersoonIndicatiesComponent
   extends IndicatiesComponent
-  implements OnInit
+  implements OnInit, OnChanges
 {
   constructor(private translateService: TranslateService) {
     super();
