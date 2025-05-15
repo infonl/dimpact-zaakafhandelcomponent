@@ -296,4 +296,19 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
       maxZoom: this.MAX_ZOOM,
     });
   }
+
+  cancel(): void {
+    this.currentLocation = this.initialLocation;
+    this.locationChanged.emit(this.initialLocation);
+    void this.sideNav.close();
+  }
+
+  save(): void {
+    this.initialLocation = this.currentLocation;
+    if (!this.markerLocatie) return;
+
+    this.locatie.next(
+      new GeometryGegevens(this.markerLocatie, this.reasonControl.value),
+    );
+  }
 }
