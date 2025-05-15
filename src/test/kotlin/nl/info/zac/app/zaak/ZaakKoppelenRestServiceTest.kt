@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2025 Lifely, 2025 Dimpact
+ * SPDX-FileCopyrightText: 2025 INFO.nl, 2025 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.zaak
