@@ -327,6 +327,7 @@
                     class="flex-item"
                   ></zac-static-text>
                   <zac-static-text
+                    *ngIf="!locationFeatureCookie"
                     [label]="'locatie' | translate"
                     [value]="zaak.zaakgeometrie | location | empty"
                     class="flex-item"

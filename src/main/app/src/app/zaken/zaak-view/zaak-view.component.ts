@@ -222,7 +222,7 @@ export class ZaakViewComponent
 
     this.locationFeatureCookie = document.cookie
       .split("; ")
-      .some((cookie) => cookie.startsWith("locatie="));
+      .some((cookie) => cookie.startsWith("locatie"));
 
     this.takenDataSource.filterPredicate = (data, filter) => {
       return !this.toonAfgerondeTaken.value
