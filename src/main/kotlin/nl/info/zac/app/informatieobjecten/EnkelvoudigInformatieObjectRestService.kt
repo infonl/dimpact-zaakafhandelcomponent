@@ -21,7 +21,6 @@ import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.UriInfo
-import net.atos.client.officeconverter.OfficeConverterClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
@@ -54,6 +53,7 @@ import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
+import nl.info.zac.app.informatieobjecten.exception.ConvertException
 import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.authentication.LoggedInUser
@@ -95,11 +95,9 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val policyService: PolicyService,
     private val enkelvoudigInformatieObjectDownloadService: EnkelvoudigInformatieObjectDownloadService,
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
-    private val officeConverterClientService: OfficeConverterClientService
+    private val enkelvoudigInformatieObjectConvertService: EnkelvoudigInformatieObjectConvertService,
 ) {
-    companion object {
-        private const val TOELICHTING_PDF = "Geconverteerd naar PDF"
-    }
+
 
     @GET
     @Path("informatieobject/{uuid}")
@@ -496,26 +494,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         assertPolicy(
             policyService.readDocumentRechten(document, zrcClientService.readZaak(zaakUUID)).wijzigen
         )
-        drcClientService.downloadEnkelvoudigInformatieobject(
-            enkelvoudigInformatieobjectUUID
-        ).use { documentInputStream ->
-            officeConverterClientService.convertToPDF(
-                documentInputStream,
-                document.bestandsnaam
-            ).use { pdfInputStream ->
-                val pdf = EnkelvoudigInformatieObjectWithLockRequest()
-                val inhoud = pdfInputStream.readAllBytes()
-                pdf.inhoud = inhoud.toBase64String()
-                pdf.formaat = MediaTypes.Application.PDF.mediaType
-                pdf.bestandsnaam = StringUtils.substringBeforeLast(document.bestandsnaam, ".") + ".pdf"
-                pdf.bestandsomvang = inhoud.size
-                enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                    document.url.extractUuid(),
-                    pdf,
-                    TOELICHTING_PDF
-                )
-            }
-        }
+        enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObject(document, enkelvoudigInformatieobjectUUID)
         return Response.ok().build()
     }
 

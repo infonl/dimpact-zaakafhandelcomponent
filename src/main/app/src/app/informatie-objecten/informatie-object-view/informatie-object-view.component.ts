@@ -291,13 +291,14 @@ export class InformatieObjectViewComponent
 
     if (
       this.zaak &&
-      this.infoObject.status?. === InformatieobjectStatus.DEFINITIEF &&
+      this.infoObject.status ===
+        (InformatieobjectStatus.DEFINITIEF as string) &&
       this.laatsteVersieInfoObject.rechten.wijzigen &&
       FileFormatUtil.isOffice(this.infoObject.formaat as FileFormat)
     ) {
       this.menu.push(
         new AsyncButtonMenuItem(
-          "actie.converteren",
+          "actie. eren",
           () =>
             this.informatieObjectenService.convertInformatieObjectToPDF(
               this.infoObject.uuid,

@@ -8,11 +8,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.Runs
-import io.mockk.every
-import io.mockk.just
-import io.mockk.mockk
-import io.mockk.verify
+import io.mockk.*
 import jakarta.enterprise.inject.Instance
 import net.atos.client.officeconverter.OfficeConverterClientService
 import net.atos.client.zgw.drc.DrcClientService
@@ -61,6 +57,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val enkelvoudigInformatieObjectDownloadService = mockk<EnkelvoudigInformatieObjectDownloadService>()
     val enkelvoudigInformatieObjectLockService = mockk<EnkelvoudigInformatieObjectLockService>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
+    val enkelvoudigInformatieObjectConvertService = mockk<EnkelvoudigInformatieObjectConvertService>()
     val eventingService = mockk<EventingService>()
     val inboxDocumentenService = mockk<InboxDocumentenService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
@@ -95,7 +92,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         policyService = policyService,
         enkelvoudigInformatieObjectDownloadService = enkelvoudigInformatieObjectDownloadService,
         enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService,
-        officeConverterClientService = officeConverterClientService
+        enkelvoudigInformatieObjectConvertService = enkelvoudigInformatieObjectConvertService
     )
 
     isolationMode = IsolationMode.InstancePerTest
@@ -465,6 +462,27 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 returnedEnkelvoudigInformatieObjectVersieGegevens shouldBe restEnkelvoudigInformatieObjectVersieGegevens
             }
         }
+        When("the enkelvoudig informatieobject is trying to be converted with status definitief") {
+            var restInformatieobject = createRestEnkelvoudigInformatieobject()
+            val zaak = createZaak()
+            restInformatieobject.status = StatusEnum.DEFINITIEF
+
+            val resp = enkelvoudigInformatieObjectRestService.convertInformatieObjectToPDF(restInformatieobject.uuid, zaak.uuid)
+            Then("the response should be ok") {
+                resp.status shouldBe 200
+            }
+        }
+        When("the enkelvoudig informatieobject is trying to be converted with status in bewerking") {
+            val restInformatieobject = createRestEnkelvoudigInformatieobject()
+            val zaak = createZaak()
+
+            val resp = enkelvoudigInformatieObjectRestService.convertInformatieObjectToPDF(restInformatieobject.uuid, zaak.uuid)
+            Then("the response should be an error message") {
+                resp.status shouldBe 400
+            }
+        }
+
+
     }
     Given("A zaak with two informatieobjecttypes") {
         val zaak = createZaak()
