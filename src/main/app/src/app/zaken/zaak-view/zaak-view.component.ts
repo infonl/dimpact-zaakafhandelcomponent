@@ -143,6 +143,8 @@ export class ZaakViewComponent
   viewInitialized = false;
   loggedInUser!: GeneratedType<"RestLoggedInUser">;
 
+  locationFeatureCookie: Boolean = false;
+
   private zaakListener!: WebsocketListener;
   private zaakRollenListener!: WebsocketListener;
   private zaakBesluitenListener!: WebsocketListener;
@@ -217,6 +219,10 @@ export class ZaakViewComponent
         this.loadTaken();
       }),
     );
+
+    this.locationFeatureCookie = document.cookie
+      .split("; ")
+      .some((cookie) => cookie.startsWith("locatie="));
 
     this.takenDataSource.filterPredicate = (data, filter) => {
       return !this.toonAfgerondeTaken.value
