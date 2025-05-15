@@ -25,5 +25,5 @@ test_wijzigen_succeeds if {
 }
 
 test_wijzigen_fails if {
-    not wijzigen with input.user.key as "fakeRole"
+    not wijzigen with input.user.rollen as [ "fakeRole" ]
 }
