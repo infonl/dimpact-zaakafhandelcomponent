@@ -71,7 +71,7 @@ export class LocatieTonenComponent implements OnInit, AfterViewInit {
   private pointStyle: style.Style = new style.Style({
     text: new style.Text({
       text: "location_on",
-      font: '640 32px "Material Symbols Outlined"',
+      font: '500 32px "Material Symbols Outlined"',
       fill: new style.Fill({
         color: "#ff0000",
       }),
