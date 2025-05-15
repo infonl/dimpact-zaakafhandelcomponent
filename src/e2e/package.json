@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "engines": {
     "node": "20.19.2",
-    "npm": "10.8.2"
+    "npm": "10.9.2"
   },
   "scripts": {
     "e2e:run": "./node_modules/.bin/cucumber-js -p default",
