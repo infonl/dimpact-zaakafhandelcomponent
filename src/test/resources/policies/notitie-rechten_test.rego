@@ -14,7 +14,7 @@ test_lezen_succeeds if {
 }
 
 test_lezen_fails if {
-    not lezen with input.user.key as "fakeRole"
+    not lezen with input.user.rollen as [ "fakeRole" ]
 }
 
 ##########
