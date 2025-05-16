@@ -31,6 +31,7 @@ import java.util.logging.Logger
 @Transactional(SUPPORTS)
 @NoArgConstructor
 @AllOpen
+@Suppress("TooManyFunctions")
 class SmartDocumentsTemplatesService @Inject constructor(
     private val entityManager: EntityManager,
     private val smartDocumentsService: SmartDocumentsService,

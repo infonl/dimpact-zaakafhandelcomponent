@@ -29,6 +29,7 @@ import nl.info.zac.documentcreation.DocumentCreationService
 import nl.info.zac.documentcreation.model.DocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.createDocumentCreationAttendedResponse
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_SMARTDOCUMENTS_DISABLED
+import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import java.net.URI
 import java.util.UUID
@@ -40,12 +41,14 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val flowableTaskService = mockk<FlowableTaskService>()
+    val bpmnService = mockk<BpmnService>()
     val documentCreationRestService = DocumentCreationRestService(
         policyService = policyService,
         documentCreationService = documentCreationService,
         zrcClientService = zrcClientService,
         zaakafhandelParameterService = zaakafhandelParameterService,
-        flowableTaskService = flowableTaskService
+        flowableTaskService = flowableTaskService,
+        bpmnService = bpmnService,
     )
 
     isolationMode = IsolationMode.InstancePerTest
@@ -74,6 +77,9 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         every {
             documentCreationService.createDocumentAttended(capture(documentCreationDataAttended))
         } returns documentCreationResponse
+        every {
+            bpmnService.isProcessDriven(any())
+        } returns false
 
         When("createDocument is called by a role that is allowed to change the zaak") {
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
