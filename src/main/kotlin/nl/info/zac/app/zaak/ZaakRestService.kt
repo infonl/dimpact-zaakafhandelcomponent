@@ -205,6 +205,7 @@ class ZaakRestService @Inject constructor(
     fun updateInitiator(gegevens: RESTZaakBetrokkeneGegevens): RestZaak {
         val zaak = zrcClientService.readZaak(gegevens.zaakUUID)
         zgwApiService.findInitiatorRoleForZaak(zaak)?.also {
+            requireNotNull(gegevens.roltoelichting) { throw BetrokkeneNotAllowed() }
             removeInitiator(zaak, it, ROL_VERWIJDER_REDEN)
         }
         addInitiator(
