@@ -305,21 +305,18 @@ describe(UtilService.name, () => {
     });
 
     it("should sort when a sortkey is passed", () => {
-        // Arrange
-        const items = [
-            { foo: { bar: "2baz" } },
-            { foo: { bar: "1bazzz" } },
-            { foo: { bar: "2baz" } },
-        ];
+      // Arrange
+      const items = [
+        { foo: { bar: "2baz" } },
+        { foo: { bar: "1bazzz" } },
+        { foo: { bar: "2baz" } },
+      ];
 
-        // Act
-        const result = service.getUniqueItemsList(items, "foo", "bar", "bar");
+      // Act
+      const result = service.getUniqueItemsList(items, "foo", "bar", "bar");
 
-        // Assert
-        expect(result).toStrictEqual([
-            { bar: "1bazzz" },
-            { bar: "2baz" },
-        ]);
-    })
+      // Assert
+      expect(result).toStrictEqual([{ bar: "1bazzz" }, { bar: "2baz" }]);
+    });
   });
 });

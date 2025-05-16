@@ -110,7 +110,10 @@ export class ReferentieTabelComponent extends AdminComponent implements OnInit {
     this.persistTabel();
   }
 
-  editTabelWaarde(event: Record<string, unknown>, row: ReferentieTabelWaarde): void {
+  editTabelWaarde(
+    event: Record<string, unknown>,
+    row: ReferentieTabelWaarde,
+  ): void {
     const naam = event["waarde_" + row.id];
     for (const waarde of this.tabel.waarden) {
       if (waarde.naam === naam) {
