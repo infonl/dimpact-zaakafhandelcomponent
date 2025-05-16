@@ -51,6 +51,10 @@ export class InformatieObjectCreateAttendedComponent
   @Input() zaak: GeneratedType<"RestZaak">;
   @Input() taak: Taak;
   @Input() sideNav: MatDrawer;
+  @Input() smartDocumentsGroupPath: string[];
+  @Input() smartDocumentsTemplateName: string;
+  @Input() smartDocumentsInformatieobjectType: string;
+  @Input() smartDocumentsInformatieObjectTypeUUID: string;
   @Output() document = new EventEmitter<DocumentCreationData>();
 
   @ViewChild(FormComponent) form: FormComponent;
@@ -87,7 +91,15 @@ export class InformatieObjectCreateAttendedComponent
       .optionLabel("name")
       .validators(Validators.required)
       .options(
-        this.smartDocumentsService.getTemplatesMapping(this.zaak.zaaktype.uuid),
+        this.smartDocumentsGroupPath
+          ? this.smartDocumentsService.getTemplateGroup(
+              { path: this.smartDocumentsGroupPath },
+              this.smartDocumentsTemplateName,
+              this.smartDocumentsInformatieObjectTypeUUID,
+            )
+          : this.smartDocumentsService.getTemplatesMapping(
+              this.zaak.zaaktype.uuid,
+            ),
       )
       .build();
 

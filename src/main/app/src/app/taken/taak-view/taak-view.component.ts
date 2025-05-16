@@ -73,6 +73,10 @@ export class TaakViewComponent
   formioFormulier: Record<string, any> = {};
   formioChangeData;
 
+  smartDocumentsGroupPath: string[];
+  smartDocumentsTemplateName: string;
+  smartDocumentsInformatieObjectTypeUUID: string;
+
   menu: MenuItem[] = [];
   activeSideAction: string | null = null;
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
@@ -296,7 +300,7 @@ export class TaakViewComponent
   ): void {
     component.type = "fieldset";
     const smartDocumentsPath: GeneratedType<"RestSmartDocumentsPath"> = {
-      groups: this.formioGetSmartDocumentsGroups(component),
+      path: this.formioGetSmartDocumentsGroups(component),
     };
 
     const smartDocumentsTemplateComponent = component.components[0];
@@ -315,7 +319,7 @@ export class TaakViewComponent
   private formioGetSmartDocumentsGroups(
     component: ExtendedComponentSchema,
   ): string[] {
-    return component.properties["SmartDocuments_Group"].split();
+    return component.properties["SmartDocuments_Group"].split("/");
   }
 
   isReadonly() {
@@ -576,11 +580,12 @@ export class TaakViewComponent
 
   onDocumentCreate(event: FormioCustomEvent) {
     const parent = event.component.parent;
-    const groups = this.formioGetSmartDocumentsGroups(parent);
-    const template = event.data[parent.key + "_Template"];
-    console.log("Groups %o, template %s", groups, template);
-
     this.activeSideAction = "actie.document.maken";
+    this.smartDocumentsGroupPath = this.formioGetSmartDocumentsGroups(parent);
+    this.smartDocumentsInformatieObjectTypeUUID =
+      parent.properties["SmartDocuments_InformatieObjectTypeUUID"];
+    this.smartDocumentsTemplateName =
+      event.data[parent.key + "_Template"].toString();
     this.actionsSidenav.open();
   }
 }
