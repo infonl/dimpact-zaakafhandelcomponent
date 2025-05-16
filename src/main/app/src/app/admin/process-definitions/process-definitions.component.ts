@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-FileCopyrightText: 2024 Dimpact, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -55,9 +55,11 @@ export class ProcessDefinitionsComponent
     this.fileInput.nativeElement.click();
   }
 
-  fileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
+  fileSelected(event: Event) {
+    if (event.target instanceof HTMLInputElement) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
       this.readFileContent(file)
         .then((content) => {
           this.processDefinitionsService
