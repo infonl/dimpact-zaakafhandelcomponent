@@ -54,6 +54,8 @@ class ProjectConfig : AbstractProjectConfig() {
     private val dockerComposeEnvironment = mapOf(
         "ADDITIONAL_ALLOWED_FILE_TYPES" to ADDITIONAL_ALLOWED_FILE_TYPES,
         "BAG_API_CLIENT_MP_REST_URL" to "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/",
+        "BRP_DOELBINDING_ZOEKMET" to "BRPACT-ZoekenAlgemeen",
+        "BRP_DOELBINDING_RAADPLEEGMET" to "BRPACT-Totaal",
         "FEATURE_FLAG_BPMN_SUPPORT" to "true",
         "KVK_API_CLIENT_MP_REST_URL" to KVK_MOCK_BASE_URI,
         "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to OFFICE_CONVERTER_BASE_URI,
@@ -65,6 +67,7 @@ class ProjectConfig : AbstractProjectConfig() {
         // override default entrypoint for ZAC Docker container to add JaCoCo agent for recording integration test coverage
         "ZAC_DOCKER_ENTRYPOINT" to
             "java" +
+            "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005" +
             " -javaagent:/jacoco-agent/org.jacoco.agent-runtime.jar=destfile=/jacoco-report/jacoco-it.exec" +
             // make sure that the WildFly management port is accessible from outside the container
             " -Djboss.bind.address.management=0.0.0.0" +

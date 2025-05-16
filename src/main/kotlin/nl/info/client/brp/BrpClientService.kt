@@ -24,13 +24,20 @@ import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
+import java.util.Optional
 
 @ApplicationScoped
 @AllOpen
 @NoArgConstructor
 class BrpClientService @Inject constructor(
-    @RestClient val personenApi: PersonenApi
+    @RestClient val personenApi: PersonenApi,
+    @ConfigProperty(name = "brp.doelbinding.zoekmet")
+    private val purposeSearch: Optional<String>,
+
+    @ConfigProperty(name = "brp.doelbinding.raadpleegmet")
+    private val purposeRetrieve: Optional<String>
 ) {
     companion object {
         private const val BURGERSERVICENUMMER = "burgerservicenummer"
@@ -54,7 +61,7 @@ class BrpClientService @Inject constructor(
 
     fun queryPersonen(personenQuery: PersonenQuery): PersonenQueryResponse =
         updateQuery(personenQuery).let {
-            personenApi.personen(it)
+            personenApi.personen(purpose = purposeSearch.get(), personenQuery = it)
         }
 
     /**
@@ -66,7 +73,8 @@ class BrpClientService @Inject constructor(
     fun retrievePersoon(burgerservicenummer: String): Persoon? =
         (
             personenApi.personen(
-                createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer)
+                purpose = purposeRetrieve.get(),
+                personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer)
             ) as RaadpleegMetBurgerservicenummerResponse
             )
             .personen?.firstOrNull()

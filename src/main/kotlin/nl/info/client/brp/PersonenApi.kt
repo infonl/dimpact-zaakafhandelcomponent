@@ -5,6 +5,7 @@
 package nl.info.client.brp
 
 import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.HeaderParam
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
@@ -57,5 +58,8 @@ interface PersonenApi {
      * Gebruik de fields parameter om alleen die gegevens op te vragen die je nodig hebt en waarvoor je geautoriseerd bent.
      */
     @POST
-    fun personen(personenQuery: PersonenQuery): PersonenQueryResponse
+    fun personen(
+        @HeaderParam(BRPClientHeadersFactory.X_DOELBINDING) purpose: String,
+        personenQuery: PersonenQuery
+    ): PersonenQueryResponse
 }

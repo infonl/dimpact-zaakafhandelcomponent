@@ -24,9 +24,6 @@ class BRPClientHeadersFactory @Inject constructor(
     @ConfigProperty(name = "brp.origin.oin")
     private val originOIN: Optional<String>,
 
-    @ConfigProperty(name = "brp.doelbinding")
-    private val purpose: Optional<String>,
-
     @ConfigProperty(name = "brp.verwerking")
     private val process: Optional<String>,
 
@@ -37,7 +34,7 @@ class BRPClientHeadersFactory @Inject constructor(
     companion object {
         private const val X_API_KEY = "X-API-KEY"
         private const val X_ORIGIN_OIN = "X-ORIGIN-OIN"
-        private const val X_DOELBINDING = "X-DOELBINDING"
+        const val X_DOELBINDING = "X-DOELBINDING"
         private const val X_VERWERKING = "X-VERWERKING"
         private const val X_GEBRUIKER = "X-GEBRUIKER"
         private const val SYSTEM_USER = "BurgerZelf"
@@ -51,7 +48,6 @@ class BRPClientHeadersFactory @Inject constructor(
             clientOutgoingHeaders.apply {
                 createHeader(X_API_KEY, apiKey)
                 createHeader(X_ORIGIN_OIN, originOIN)
-                createHeader(X_DOELBINDING, purpose)
                 createHeader(X_VERWERKING, process)
                 createHeader(X_GEBRUIKER, getUser())
             }

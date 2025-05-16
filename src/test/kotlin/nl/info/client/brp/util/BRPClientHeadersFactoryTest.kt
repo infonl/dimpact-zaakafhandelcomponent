@@ -32,7 +32,6 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
             Optional.of(false),
             Optional.of(originOin),
             Optional.of("customPurpose"),
-            Optional.of("customProcess"),
             loggedInUserInstance
         )
         val existingHeaders = Headers<String>().apply {
@@ -55,7 +54,6 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
             Optional.of(apiKey),
             Optional.of(true),
             Optional.of(originOin),
-            Optional.empty(),
             Optional.empty(),
             loggedInUserInstance
         )
@@ -83,7 +81,6 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
             Optional.of(true),
             Optional.of(originOin),
             Optional.empty(),
-            Optional.empty(),
             loggedInUserInstance
         )
 
@@ -110,7 +107,6 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
             Optional.of(true),
             Optional.of(originOin),
             Optional.of("customPurpose"),
-            Optional.of("customProcess"),
             loggedInUserInstance
         )
 
@@ -121,8 +117,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
                 with(headers) {
                     shouldContain("X-API-KEY", listOf(apiKey))
                     shouldContain("X-ORIGIN-OIN", listOf(originOin))
-                    shouldContain("X-DOELBINDING", listOf("customPurpose"))
-                    shouldContain("X-VERWERKING", listOf("customProcess"))
+                    shouldContain("X-VERWERKING", listOf("customPurpose"))
                     shouldContain("X-GEBRUIKER", listOf("username"))
                 }
             }
@@ -140,7 +135,6 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
             Optional.of(apiKey),
             Optional.of(true),
             Optional.of(originOin),
-            Optional.empty(),
             Optional.empty(),
             loggedInUserInstance
         )
