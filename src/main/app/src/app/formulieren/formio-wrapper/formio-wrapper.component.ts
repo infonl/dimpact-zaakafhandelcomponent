@@ -8,9 +8,14 @@ import {
   EventEmitter,
   Input,
   Output,
+  ViewChild,
   ViewEncapsulation,
 } from "@angular/core";
-import { FormioOptions } from "@formio/angular";
+import {
+  ExtendedComponentSchema,
+  FormioComponent,
+  FormioOptions,
+} from "@formio/angular";
 
 @Component({
   selector: "zac-formio-wrapper",
@@ -25,6 +30,10 @@ export class FormioWrapperComponent {
   @Input() readOnly: boolean;
   @Output() formSubmit = new EventEmitter<any>();
   @Output() formChange = new EventEmitter<any>();
+  @Output() createDocument = new EventEmitter<FormioCustomEvent>();
+
+  @ViewChild(FormioComponent, { static: false })
+  formioComponent!: FormioComponent;
 
   onSubmit(event: any) {
     this.formSubmit.emit(event);
@@ -34,4 +43,18 @@ export class FormioWrapperComponent {
     // Filter out form.io change events that do not contain data
     if (event.data) this.formChange.emit(event);
   }
+
+  onCustomEvent(event: FormioCustomEvent) {
+    if (event.type === "createDocument") {
+      // Emit to parent
+      this.createDocument.emit(event);
+    }
+  }
+}
+
+export interface FormioCustomEvent {
+  type: string;
+  component: ExtendedComponentSchema;
+  data: Record<string, object>;
+  event?: Event;
 }

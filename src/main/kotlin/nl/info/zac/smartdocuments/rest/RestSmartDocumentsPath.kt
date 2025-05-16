@@ -10,5 +10,5 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 @AllOpen
 data class RestSmartDocumentsPath(
-    var groups: List<String>
+    var path: List<String>
 )

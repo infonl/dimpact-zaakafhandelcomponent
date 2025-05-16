@@ -27,6 +27,7 @@ import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { FormioCustomEvent } from "../../formulieren/formio-wrapper/formio-wrapper.component";
 import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-formulier";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -71,6 +72,10 @@ export class TaakViewComponent
   formulierDefinitie: FormulierDefinitie;
   formioFormulier: Record<string, any> = {};
   formioChangeData;
+
+  smartDocumentsGroupPath: string[];
+  smartDocumentsTemplateName: string;
+  smartDocumentsInformatieobjectTypeUuid: string;
 
   menu: MenuItem[] = [];
   activeSideAction: string | null = null;
@@ -295,7 +300,7 @@ export class TaakViewComponent
   ): void {
     component.type = "fieldset";
     const smartDocumentsPath: GeneratedType<"RestSmartDocumentsPath"> = {
-      groups: component.properties["SmartDocuments_Group"].split(),
+      path: this.formioGetSmartDocumentsGroups(component),
     };
 
     const smartDocumentsTemplateComponent = component.components[0];
@@ -309,6 +314,12 @@ export class TaakViewComponent
             .pipe(tap((value) => value.sort())),
         ),
     };
+  }
+
+  private formioGetSmartDocumentsGroups(
+    component: ExtendedComponentSchema,
+  ): string[] {
+    return component.properties["SmartDocuments_Group"].split("/");
   }
 
   isReadonly() {
@@ -565,5 +576,16 @@ export class TaakViewComponent
       uuid: taak.zaakUuid,
       zaaktype,
     } satisfies Partial<GeneratedType<"RestZaak">> as GeneratedType<"RestZaak">;
+  }
+
+  onDocumentCreate(event: FormioCustomEvent) {
+    const parent = event.component.parent;
+    this.activeSideAction = "actie.document.maken";
+    this.smartDocumentsGroupPath = this.formioGetSmartDocumentsGroups(parent);
+    this.smartDocumentsInformatieobjectTypeUuid =
+      parent.properties["SmartDocuments_InformatieobjectTypeUuid"];
+    this.smartDocumentsTemplateName =
+      event.data[parent.key + "_Template"].toString();
+    this.actionsSidenav.open();
   }
 }
