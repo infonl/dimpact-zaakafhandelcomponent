@@ -24,13 +24,20 @@ import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
+import java.util.Optional
 
 @ApplicationScoped
 @AllOpen
 @NoArgConstructor
 class BrpClientService @Inject constructor(
-    @RestClient val personenApi: PersonenApi
+    @RestClient val personenApi: PersonenApi,
+    @ConfigProperty(name = "brp.doelbinding.zoekmet")
+    private val purposeSearch: Optional<String>,
+
+    @ConfigProperty(name = "brp.doelbinding.raadpleegmet")
+    private val purposeRetrieve: Optional<String>
 ) {
     companion object {
         private const val BURGERSERVICENUMMER = "burgerservicenummer"
@@ -52,10 +59,12 @@ class BrpClientService @Inject constructor(
         private val FIELDS_PERSOON_BEPERKT = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING)
     }
 
-    fun queryPersonen(personenQuery: PersonenQuery): PersonenQueryResponse =
-        updateQuery(personenQuery).let {
-            personenApi.personen(it)
+    fun queryPersonen(personenQuery: PersonenQuery): PersonenQueryResponse {
+        val purpose = validatedPurpose(purposeSearch, "X-DOELBINDING for search")
+        return updateQuery(personenQuery).let {
+            personenApi.personen(personenQuery = it, purpose = purpose)
         }
+    }
 
     /**
      * Retrieves a person by burgerservicenummer from the BRP Personen API.
@@ -63,13 +72,16 @@ class BrpClientService @Inject constructor(
      * @param burgerservicenummer the burgerservicenummer of the person to retrieve
      * @return the person if found, otherwise null
      */
-    fun retrievePersoon(burgerservicenummer: String): Persoon? =
-        (
+    fun retrievePersoon(burgerservicenummer: String): Persoon? {
+        val purpose = validatedPurpose(purposeRetrieve, "X-DOELBINDING for retrieve")
+        return (
             personenApi.personen(
-                createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer)
+                personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer),
+                purpose = purpose
             ) as RaadpleegMetBurgerservicenummerResponse
             )
             .personen?.firstOrNull()
+    }
 
     private fun createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer: String) =
         RaadpleegMetBurgerservicenummer().apply {
@@ -88,5 +100,13 @@ class BrpClientService @Inject constructor(
             else -> error("Must use one of the subclasses of '${PersonenQuery::class.java.simpleName}'")
         }
         fields = if (personenQuery is RaadpleegMetBurgerservicenummer) FIELDS_PERSOON else FIELDS_PERSOON_BEPERKT
+    }
+
+    private fun validatedPurpose(purposeOptional: Optional<String>, purposeName: String): String {
+        val purpose = purposeOptional.orElseThrow {
+            IllegalStateException("$purposeName must be configured and not empty")
+        }
+        require(purpose.isNotBlank()) { "$purposeName must not be blank" }
+        return purpose
     }
 }

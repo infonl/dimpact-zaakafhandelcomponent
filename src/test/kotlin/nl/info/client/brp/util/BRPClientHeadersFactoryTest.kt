@@ -20,6 +20,7 @@ import java.util.Optional
 class BRPClientHeadersFactoryTest : BehaviorSpec({
     val apiKey = "apiKey"
     val originOin = "originOin"
+    val testValue = "test"
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
 
     beforeEach {
@@ -31,8 +32,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
             Optional.of(apiKey),
             Optional.of(false),
             Optional.of(originOin),
-            Optional.of("customPurpose"),
-            Optional.of("customProcess"),
+            Optional.of(testValue),
             loggedInUserInstance
         )
         val existingHeaders = Headers<String>().apply {
@@ -55,7 +55,6 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
             Optional.of(apiKey),
             Optional.of(true),
             Optional.of(originOin),
-            Optional.empty(),
             Optional.empty(),
             loggedInUserInstance
         )
@@ -83,7 +82,6 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
             Optional.of(true),
             Optional.of(originOin),
             Optional.empty(),
-            Optional.empty(),
             loggedInUserInstance
         )
 
@@ -109,8 +107,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
             Optional.of(apiKey),
             Optional.of(true),
             Optional.of(originOin),
-            Optional.of("customPurpose"),
-            Optional.of("customProcess"),
+            Optional.of(testValue),
             loggedInUserInstance
         )
 
@@ -121,8 +118,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
                 with(headers) {
                     shouldContain("X-API-KEY", listOf(apiKey))
                     shouldContain("X-ORIGIN-OIN", listOf(originOin))
-                    shouldContain("X-DOELBINDING", listOf("customPurpose"))
-                    shouldContain("X-VERWERKING", listOf("customProcess"))
+                    shouldContain("X-VERWERKING", listOf(testValue))
                     shouldContain("X-GEBRUIKER", listOf("username"))
                 }
             }
@@ -140,7 +136,6 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
             Optional.of(apiKey),
             Optional.of(true),
             Optional.of(originOin),
-            Optional.empty(),
             Optional.empty(),
             loggedInUserInstance
         )
