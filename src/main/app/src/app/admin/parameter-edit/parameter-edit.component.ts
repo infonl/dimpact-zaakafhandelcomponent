@@ -396,13 +396,16 @@ export class ParameterEditComponent
 
   private getReferentieTabel(
     humanTaskParameters: GeneratedType<"RESTHumanTaskParameters">,
-    veld: FormulierVeldDefinitie,
+    veldDefinitie: FormulierVeldDefinitie,
   ) {
     const humanTaskReferentieTabel =
-      humanTaskParameters.referentieTabellen?.find((r) => (r.veld = veld.naam));
-    return humanTaskReferentieTabel != null
-      ? humanTaskReferentieTabel.tabel
-      : this.referentieTabellen.find((r) => (r.code = veld.naam));
+      humanTaskParameters.referentieTabellen?.find(
+        ({ veld }) => veld === veldDefinitie.naam,
+      );
+    return (
+      humanTaskReferentieTabel?.tabel ??
+      this.referentieTabellen.find(({ code }) => code === veldDefinitie.naam)
+    );
   }
 
   private createUserEventListenerForm() {
