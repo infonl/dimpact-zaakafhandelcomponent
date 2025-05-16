@@ -53,8 +53,7 @@ export class InformatieObjectCreateAttendedComponent
   @Input() sideNav: MatDrawer;
   @Input() smartDocumentsGroupPath: string[];
   @Input() smartDocumentsTemplateName: string;
-  @Input() smartDocumentsInformatieobjectType: string;
-  @Input() smartDocumentsInformatieObjectTypeUUID: string;
+  @Input() smartDocumentsInformatieobjectTypeUuid: string;
   @Output() document = new EventEmitter<DocumentCreationData>();
 
   @ViewChild(FormComponent) form: FormComponent;
@@ -95,7 +94,7 @@ export class InformatieObjectCreateAttendedComponent
           ? this.smartDocumentsService.getTemplateGroup(
               { path: this.smartDocumentsGroupPath },
               this.smartDocumentsTemplateName,
-              this.smartDocumentsInformatieObjectTypeUUID,
+              this.smartDocumentsInformatieobjectTypeUuid,
             )
           : this.smartDocumentsService.getTemplatesMapping(
               this.zaak.zaaktype.uuid,
