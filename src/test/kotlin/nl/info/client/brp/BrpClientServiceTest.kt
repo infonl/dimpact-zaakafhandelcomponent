@@ -15,12 +15,15 @@ import nl.info.client.brp.model.createRaadpleegMetBurgerservicenummer
 import nl.info.client.brp.model.createRaadpleegMetBurgerservicenummerResponse
 import java.util.Optional
 
+const val PURPOSE_SEARCH = "customPurpose"
+const val PURPOSE_RETRIEVE = "customRetrieve"
+
 class BrpClientServiceTest : BehaviorSpec({
     val personenApi: PersonenApi = mockk<PersonenApi>()
     val brpClientService = BrpClientService(
         personenApi,
-        Optional.of("customPurpose"),
-        Optional.of("customRetrieve")
+        Optional.of(PURPOSE_SEARCH),
+        Optional.of(PURPOSE_RETRIEVE)
     )
     beforeEach {
         checkUnnecessaryStub()
@@ -35,7 +38,7 @@ class BrpClientServiceTest : BehaviorSpec({
             persons = listOf(person)
         )
         every {
-            personenApi.personen("customRetrieve", any())
+            personenApi.personen(any(), PURPOSE_RETRIEVE)
         } returns raadpleegMetBurgerservicenummerResponse
 
         When("find person is called with the BSN of the person") {
@@ -48,7 +51,7 @@ class BrpClientServiceTest : BehaviorSpec({
     }
     Given("No person for a given BSN") {
         every {
-            personenApi.personen("customRetrieve", any())
+            personenApi.personen(any(), PURPOSE_RETRIEVE)
         } returns createRaadpleegMetBurgerservicenummerResponse(persons = emptyList())
 
         When("find person is called with the BSN of the person") {
@@ -65,7 +68,7 @@ class BrpClientServiceTest : BehaviorSpec({
             createPersoon(bsn = "123456789")
         )
         every {
-            personenApi.personen("customRetrieve", any())
+            personenApi.personen(any(), PURPOSE_RETRIEVE)
         } returns createRaadpleegMetBurgerservicenummerResponse(persons = persons)
 
         When("find person is called with the BSN of the person") {
@@ -85,7 +88,7 @@ class BrpClientServiceTest : BehaviorSpec({
             persons = listOf(person)
         )
         every {
-            personenApi.personen("customPurpose", any())
+            personenApi.personen(any(), PURPOSE_SEARCH)
         } returns raadpleegMetBurgerservicenummerResponse
 
         When("a query is run on personen for this BSN") {

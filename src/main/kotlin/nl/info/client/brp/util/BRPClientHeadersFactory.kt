@@ -32,9 +32,9 @@ class BRPClientHeadersFactory @Inject constructor(
 ) : ClientHeadersFactory {
 
     companion object {
+        const val X_DOELBINDING = "X-DOELBINDING"
         private const val X_API_KEY = "X-API-KEY"
         private const val X_ORIGIN_OIN = "X-ORIGIN-OIN"
-        const val X_DOELBINDING = "X-DOELBINDING"
         private const val X_VERWERKING = "X-VERWERKING"
         private const val X_GEBRUIKER = "X-GEBRUIKER"
         private const val SYSTEM_USER = "BurgerZelf"
