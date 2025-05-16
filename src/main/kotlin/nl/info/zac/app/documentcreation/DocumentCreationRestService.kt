@@ -29,6 +29,7 @@ import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
 import nl.info.zac.documentcreation.DocumentCreationService
 import nl.info.zac.documentcreation.model.DocumentCreationDataAttended
+import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -47,7 +48,8 @@ class DocumentCreationRestService @Inject constructor(
     private val documentCreationService: DocumentCreationService,
     private val zrcClientService: ZrcClientService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
-    private val flowableTaskService: FlowableTaskService
+    private val flowableTaskService: FlowableTaskService,
+    private val bpmnService: BpmnService
 ) {
     companion object {
         enum class SmartDocumentsWizardResult {
@@ -72,8 +74,8 @@ class DocumentCreationRestService @Inject constructor(
                     ?: throw TaskNotFoundException("No open task found with task id: '$it'")
                 assertPolicy(policyService.readTaakRechten(task).creeerenDocument)
             }
-            it.zaaktype.extractUuid().let {
-                if (!zaakafhandelParameterService.isSmartDocumentsEnabled(it)) {
+            if (!bpmnService.isProcessDriven(it.uuid)) {
+                if (!zaakafhandelParameterService.isSmartDocumentsEnabled(it.zaaktype.extractUuid())) {
                     throw SmartDocumentsDisabledException()
                 }
             }
