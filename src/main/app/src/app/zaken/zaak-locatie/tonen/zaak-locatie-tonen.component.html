@@ -1,0 +1,14 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<div class="map-container">
+  <zac-static-text
+    class="overlay"
+    [label]="'zaak.locatie.adres' | translate"
+    [value]="nearestAddress ? nearestAddress.weergavenaam : null"
+  >
+  </zac-static-text>
+  <div #openLayersMap [id]="'open-layers-map'" class="open-layers-map"></div>
+</div>
