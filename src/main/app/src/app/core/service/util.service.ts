@@ -65,7 +65,7 @@ export class UtilService {
   /**
    * Check whether there is an active edit overlay on the screen eg. autocomplete or datepicker
    */
-  hasEditOverlay(): boolean {
+  hasEditOverlay() {
     const overlayElements = this.getOverlayElements(
       "mat-autocomplete-panel",
       "mat-select-panel",
@@ -76,11 +76,11 @@ export class UtilService {
   }
 
   private getOverlayElements(...classList: string[]) {
-    const overlayElements = [];
-    for (const styleClass of classList) {
-      overlayElements.push(...this.document.getElementsByClassName(styleClass));
-    }
-    return overlayElements;
+    return classList.reduce((acc, styleClass) => {
+      return acc.concat(
+        Array.from(this.document.getElementsByClassName(styleClass)),
+      );
+    }, [] as Element[]);
   }
 
   setTitle(title: string, params?: InterpolationParameters): void {

@@ -292,16 +292,34 @@ describe(UtilService.name, () => {
     it("should return an array of unique items based on the specified key", () => {
       // Arrange
       const items = [
-        { foo: { bar: "baz" } },
-        { foo: { bar: "bazzz" } },
-        { foo: { bar: "baz" } },
+        { foo: { bar: "2baz" } },
+        { foo: { bar: "1bazzz" } },
+        { foo: { bar: "2baz" } },
       ];
 
       // Act
       const result = service.getUniqueItemsList(items, "foo", "bar");
 
       // Assert
-      expect(result).toStrictEqual([{ bar: "baz" }, { bar: "bazzz" }]);
+      expect(result).toStrictEqual([{ bar: "2baz" }, { bar: "1bazzz" }]);
     });
+
+    it("should sort when a sortkey is passed", () => {
+        // Arrange
+        const items = [
+            { foo: { bar: "2baz" } },
+            { foo: { bar: "1bazzz" } },
+            { foo: { bar: "2baz" } },
+        ];
+
+        // Act
+        const result = service.getUniqueItemsList(items, "foo", "bar", "bar");
+
+        // Assert
+        expect(result).toStrictEqual([
+            { bar: "1bazzz" },
+            { bar: "2baz" },
+        ]);
+    })
   });
 });
