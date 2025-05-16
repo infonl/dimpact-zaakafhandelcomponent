@@ -92,7 +92,7 @@ export class ZaakViewComponent
   takenDataSource = new MatTableDataSource<ExpandableTableData<Taak>>();
   allTakenExpanded = false;
   toonAfgerondeTaken = new FormControl(false);
-  takenFilter: Record<string, unknown> = {};
+  takenStatusFilter: GeneratedType<"TaakStatus"> | "" = "";
   takenLoading = false;
   takenColumnsToDisplay = [
     "naam",
@@ -218,8 +218,10 @@ export class ZaakViewComponent
     );
 
     this.takenDataSource.filterPredicate = (data, filter) => {
+      if (!filter) return true;
+
       return !this.toonAfgerondeTaken.value
-        ? data.data.status !== filter["status"]
+        ? data.data.status !== filter
         : true;
     };
 
@@ -1182,11 +1184,10 @@ export class ZaakViewComponent
 
   filterTakenOpStatus() {
     if (!this.toonAfgerondeTaken.value) {
-      this.takenFilter["status"] = "AFGEROND";
+      this.takenStatusFilter = "AFGEROND";
     }
 
-    // @ts-expect-error TODO this throwing a ts error, functionality needs to be checked
-    this.takenDataSource.filter = this.takenFilter;
+    this.takenDataSource.filter = this.takenStatusFilter;
     SessionStorageUtil.setItem(
       "toonAfgerondeTaken",
       this.toonAfgerondeTaken.value,
