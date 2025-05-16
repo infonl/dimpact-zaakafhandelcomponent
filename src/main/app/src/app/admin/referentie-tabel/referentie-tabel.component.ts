@@ -82,8 +82,11 @@ export class ReferentieTabelComponent extends AdminComponent implements OnInit {
       .build();
   }
 
-  editTabel(event: any, field: string): void {
-    this.tabel[field] = event[field];
+  editTabel(
+    event: Record<string, unknown>,
+    field: keyof typeof this.tabel,
+  ): void {
+    this.tabel[field] = event[field] as never;
     this.persistTabel();
   }
 
@@ -107,8 +110,8 @@ export class ReferentieTabelComponent extends AdminComponent implements OnInit {
     this.persistTabel();
   }
 
-  editTabelWaarde(event: any, row: ReferentieTabelWaarde): void {
-    const naam: string = event["waarde_" + row.id];
+  editTabelWaarde(event: Record<string, unknown>, row: ReferentieTabelWaarde): void {
+    const naam = event["waarde_" + row.id];
     for (const waarde of this.tabel.waarden) {
       if (waarde.naam === naam) {
         this.foutAfhandelingService.openFoutDialog(
@@ -117,7 +120,7 @@ export class ReferentieTabelComponent extends AdminComponent implements OnInit {
         return;
       }
     }
-    this.tabel.waarden[this.getTabelWaardeIndex(row)].naam = naam;
+    this.tabel.waarden[this.getTabelWaardeIndex(row)].naam = String(naam);
     this.persistTabel();
   }
 

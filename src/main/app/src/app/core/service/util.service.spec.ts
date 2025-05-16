@@ -287,4 +287,21 @@ describe(UtilService.name, () => {
       },
     );
   });
+
+  describe(UtilService.prototype.getUniqueItemsList.name, () => {
+    it("should return an array of unique items based on the specified key", () => {
+      // Arrange
+      const items = [
+        { foo: { bar: "baz" } },
+        { foo: { bar: "bazzz" } },
+        { foo: { bar: "baz" } },
+      ];
+
+      // Act
+      const result = service.getUniqueItemsList(items, "foo", "bar");
+
+      // Assert
+      expect(result).toStrictEqual([{ bar: "baz" }, { bar: "bazzz" }]);
+    });
+  });
 });
