@@ -40,8 +40,8 @@ export class ParametersComponent
 
   private storedParameterFilters = "parameterFilters";
 
-  zaaktypes: Zaaktype[] = [];
-  caseDefinitions: CaseDefinition[] = [];
+  zaaktypes: GeneratedType<"RESTZaaktypeOverzicht">[] = [];
+  caseDefinitions: GeneratedType<"RESTCaseDefinition">[] = [];
 
   constructor(
     public utilService: UtilService,
