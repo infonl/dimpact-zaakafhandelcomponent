@@ -6,6 +6,7 @@ package nl.info.client.brp
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import nl.info.client.brp.exception.BrpInvalidPurposeException
 import nl.info.client.brp.model.generated.PersonenQuery
 import nl.info.client.brp.model.generated.PersonenQueryResponse
 import nl.info.client.brp.model.generated.Persoon
@@ -59,29 +60,29 @@ class BrpClientService @Inject constructor(
         private val FIELDS_PERSOON_BEPERKT = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING)
     }
 
-    fun queryPersonen(personenQuery: PersonenQuery): PersonenQueryResponse {
-        val purpose = validatedPurpose(purposeSearch, "X-DOELBINDING for search")
-        return updateQuery(personenQuery).let {
-            personenApi.personen(personenQuery = it, purpose = purpose)
+    fun queryPersonen(personenQuery: PersonenQuery): PersonenQueryResponse =
+        updateQuery(personenQuery).let {
+            personenApi.personen(
+                personenQuery = it,
+                purpose = purposeSearch.validatePurpose("brp.doelbinding.zoekmet")
+            )
         }
-    }
 
     /**
-     * Retrieves a person by burgerservicenummer from the BRP Personen API.
+     * Retrieves a person by burgerservicenummer from the BRP Personen API by validating
+     * the appropriate doelbinding purpose configuration.
      *
      * @param burgerservicenummer the burgerservicenummer of the person to retrieve
      * @return the person if found, otherwise null
+     *
+     * @throws BrpInvalidPurposeException if the configured purpose is invalid or missing.
      */
-    fun retrievePersoon(burgerservicenummer: String): Persoon? {
-        val purpose = validatedPurpose(purposeRetrieve, "X-DOELBINDING for retrieve")
-        return (
-            personenApi.personen(
-                personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer),
-                purpose = purpose
-            ) as RaadpleegMetBurgerservicenummerResponse
-            )
-            .personen?.firstOrNull()
-    }
+    fun retrievePersoon(burgerservicenummer: String): Persoon? = (
+        personenApi.personen(
+            personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer),
+            purpose = purposeRetrieve.validatePurpose("brp.doelbinding.raadpleegmet")
+        ) as RaadpleegMetBurgerservicenummerResponse
+        ).personen?.firstOrNull()
 
     private fun createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer: String) =
         RaadpleegMetBurgerservicenummer().apply {
@@ -102,11 +103,10 @@ class BrpClientService @Inject constructor(
         fields = if (personenQuery is RaadpleegMetBurgerservicenummer) FIELDS_PERSOON else FIELDS_PERSOON_BEPERKT
     }
 
-    private fun validatedPurpose(purposeOptional: Optional<String>, purposeName: String): String {
-        val purpose = purposeOptional.orElseThrow {
-            IllegalStateException("$purposeName must be configured and not empty")
+    private fun Optional<String>.validatePurpose(purposeName: String): String =
+        this.orElseThrow {
+            BrpInvalidPurposeException("$purposeName must be configured and not empty.")
+        }.let {
+            it.ifBlank { throw BrpInvalidPurposeException("$purposeName must not be blank.") }
         }
-        require(purpose.isNotBlank()) { "$purposeName must not be blank" }
-        return purpose
-    }
 }

@@ -5,11 +5,13 @@
 
 package nl.info.client.brp
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import nl.info.client.brp.exception.BrpInvalidPurposeException
 import nl.info.client.brp.model.createPersoon
 import nl.info.client.brp.model.createRaadpleegMetBurgerservicenummer
 import nl.info.client.brp.model.createRaadpleegMetBurgerservicenummerResponse
@@ -18,6 +20,7 @@ import java.util.Optional
 const val PURPOSE_SEARCH = "customPurpose"
 const val PURPOSE_RETRIEVE = "customRetrieve"
 
+@Suppress("NAME_SHADOWING")
 class BrpClientServiceTest : BehaviorSpec({
     val personenApi: PersonenApi = mockk<PersonenApi>()
     val brpClientService = BrpClientService(
@@ -96,6 +99,40 @@ class BrpClientServiceTest : BehaviorSpec({
 
             Then("it should return the person") {
                 personResponse shouldBe raadpleegMetBurgerservicenummerResponse
+            }
+        }
+    }
+    Given("No purpose is configured for BRP search") {
+        val personenQuery = createRaadpleegMetBurgerservicenummer(listOf("123456789"))
+
+        val brpClientService = BrpClientService(
+            personenApi = personenApi,
+            purposeSearch = Optional.empty(),
+            purposeRetrieve = Optional.of(PURPOSE_RETRIEVE)
+        )
+
+        When("queryPersonen is called") {
+            Then("it should throw BrpInvalidPurposeException") {
+                shouldThrow<BrpInvalidPurposeException> {
+                    brpClientService.queryPersonen(personenQuery)
+                }.message shouldBe "brp.doelbinding.zoekmet must be configured and not empty."
+            }
+        }
+    }
+    Given("Blank purpose is configured for BRP search") {
+        val personenQuery = createRaadpleegMetBurgerservicenummer(listOf("123456789"))
+
+        val brpClientService = BrpClientService(
+            personenApi = personenApi,
+            purposeSearch = Optional.of(" "),
+            purposeRetrieve = Optional.of(PURPOSE_RETRIEVE)
+        )
+
+        When("queryPersonen is called") {
+            Then("it should throw BrpInvalidPurposeException") {
+                shouldThrow<BrpInvalidPurposeException> {
+                    brpClientService.queryPersonen(personenQuery)
+                }.message shouldBe "brp.doelbinding.zoekmet must not be blank."
             }
         }
     }
