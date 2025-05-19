@@ -34,7 +34,7 @@ import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.flowable.util.TaskUtil.getTaakStatus
 import net.atos.zac.formulieren.FormulierRuntimeService
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.exception.PolicyException
+import nl.info.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createDocumentRechtenAllDeny
 import net.atos.zac.policy.output.createTaakRechtenAllDeny
 import net.atos.zac.policy.output.createWerklijstRechten

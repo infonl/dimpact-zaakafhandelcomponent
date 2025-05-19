@@ -26,7 +26,7 @@ import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.mailtemplates.MailTemplateService
 import net.atos.zac.mailtemplates.model.createMailGegevens
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.exception.PolicyException
+import nl.info.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.client.zgw.brc.BrcClientService

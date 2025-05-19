@@ -14,7 +14,7 @@ import io.mockk.every
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.exception.PolicyException
+import nl.info.zac.policy.exception.PolicyException
 import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.app.shared.RestPageParameters
 import nl.info.zac.app.signalering.converter.RestSignaleringInstellingenConverter

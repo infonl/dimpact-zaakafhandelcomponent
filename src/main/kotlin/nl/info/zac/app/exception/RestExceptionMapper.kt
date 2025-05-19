@@ -19,7 +19,7 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.exception.DrcRuntimeException
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
-import net.atos.zac.policy.exception.PolicyException
+import nl.info.zac.policy.exception.PolicyException
 import nl.info.client.brp.BrpClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.exception.BrcRuntimeException

@@ -15,7 +15,7 @@ import io.mockk.every
 import io.mockk.mockk
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.exception.PolicyException
+import nl.info.zac.policy.exception.PolicyException
 import nl.info.client.zgw.ztc.ZtcClientService
 
 class UtilRestServiceTest : BehaviorSpec({
