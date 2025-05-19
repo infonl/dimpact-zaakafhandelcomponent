@@ -584,10 +584,16 @@ export class TaakViewComponent
     this.smartDocumentsGroupPath = this.formioGetSmartDocumentsGroups(parent);
     this.smartDocumentsTemplateName =
       event.data[parent.key + "_Template"].toString();
+    const normalizedTemplateName = this.smartDocumentsTemplateName
+      ?.replace(" ", "_")
+      .trim();
     this.smartDocumentsInformatieobjecttypeUuid =
       parent.properties[
-        `SmartDocuments_${this.smartDocumentsTemplateName}_InformatieobjecttypeUuid`
+        `SmartDocuments_${normalizedTemplateName}_InformatieobjecttypeUuid`
       ] || parent.properties["SmartDocuments_InformatieobjecttypeUuid"];
-    this.actionsSidenav.open();
+
+    if (normalizedTemplateName.length > 0) {
+      this.actionsSidenav.open();
+    }
   }
 }
