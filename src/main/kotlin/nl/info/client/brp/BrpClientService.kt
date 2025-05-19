@@ -34,13 +34,15 @@ import java.util.Optional
 @NoArgConstructor
 class BrpClientService @Inject constructor(
     @RestClient val personenApi: PersonenApi,
-    @ConfigProperty(name = "brp.doelbinding.zoekmet")
+    @ConfigProperty(name = ENV_VAR_BRP_DOELBINDING_ZOEKMET)
     private val purposeSearch: Optional<String>,
 
-    @ConfigProperty(name = "brp.doelbinding.raadpleegmet")
+    @ConfigProperty(name = ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET)
     private val purposeRetrieve: Optional<String>
 ) {
     companion object {
+        private const val ENV_VAR_BRP_DOELBINDING_ZOEKMET = "brp.doelbinding.zoekmet"
+        private const val ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET = "brp.doelbinding.raadpleegmet"
         private const val BURGERSERVICENUMMER = "burgerservicenummer"
         private const val GESLACHT = "geslacht"
         private const val NAAM = "naam"
@@ -69,8 +71,7 @@ class BrpClientService @Inject constructor(
         }
 
     /**
-     * Retrieves a person by burgerservicenummer from the BRP Personen API by validating
-     * the appropriate doelbinding purpose configuration.
+     * Retrieves a person by burgerservicenummer from the BRP Personen API.
      *
      * @param burgerservicenummer the burgerservicenummer of the person to retrieve
      * @return the person if found, otherwise null
