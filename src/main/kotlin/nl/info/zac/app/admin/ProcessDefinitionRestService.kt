@@ -15,10 +15,11 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.zac.policy.PolicyService
 import nl.info.zac.app.admin.model.RestProcessDefinition
 import nl.info.zac.app.admin.model.RestProcessDefinitionContent
 import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
 
 @Singleton
@@ -32,14 +33,14 @@ class ProcessDefinitionRestService @Inject constructor(
 ) {
     @GET
     fun listProcessDefinitions(): List<RestProcessDefinition> {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         return bpmnService.listProcessDefinitions()
             .map { RestProcessDefinition(it.id, it.name, it.version, it.key) }
     }
 
     @POST
     fun createProcessDefinition(processDefinitionContent: RestProcessDefinitionContent): Response {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         bpmnService.addProcessDefinition(processDefinitionContent.filename, processDefinitionContent.content)
         return Response.created(null).build()
     }
@@ -47,7 +48,7 @@ class ProcessDefinitionRestService @Inject constructor(
     @DELETE
     @Path("{key}")
     fun deleteProcessDefinition(@PathParam("key") key: String): Response {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         bpmnService.deleteProcessDefinition(key)
         return Response.noContent().build()
     }

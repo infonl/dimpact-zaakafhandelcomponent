@@ -22,13 +22,13 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.PolicyService.assertPolicy
 import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
 import nl.info.zac.documentcreation.DocumentCreationService
 import nl.info.zac.documentcreation.model.DocumentCreationDataAttended
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
