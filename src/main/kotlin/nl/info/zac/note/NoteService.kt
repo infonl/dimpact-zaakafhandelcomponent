@@ -10,7 +10,6 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
-import net.atos.zac.util.ValidationUtil
 import net.atos.zac.util.ValidationUtil.valideerObject
 import nl.info.zac.note.model.Note
 import nl.info.zac.note.model.Note.Companion.ZAAK_UUID_FIELD
