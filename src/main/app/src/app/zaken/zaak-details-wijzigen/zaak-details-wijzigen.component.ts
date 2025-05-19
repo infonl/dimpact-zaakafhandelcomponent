@@ -49,11 +49,14 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
 
   private medewerkerGroepFormField!: MedewerkerGroepFormField;
   private communicatiekanalen: Observable<string[]>;
-  private communicatiekanaalField!: SelectFormField;
+  private communicatiekanaalField!: SelectFormField<string>;
   private startDatumField!: DateFormField;
   private einddatumGeplandField!: DateFormField | InputFormField;
   private uiterlijkeEinddatumAfdoeningField!: DateFormField;
-  private vertrouwelijkheidaanduidingField!: SelectFormField;
+  private vertrouwelijkheidaanduidingField!: SelectFormField<{
+    label: string;
+    value: string;
+  }>;
   private vertrouwelijkheidaanduidingenList: { label: string; value: string }[];
   private omschrijving!: TextareaFormField;
   private toelichtingField!: TextareaFormField;
@@ -340,7 +343,9 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
       fields.forEach((field) => {
         const value = field.formControl.value;
         acc[field.id] =
-          field.id === "vertrouwelijkheidaanduiding" ? value.value : value;
+          field.id === "vertrouwelijkheidaanduiding"
+            ? (value as { value: unknown }).value
+            : value;
       });
       return acc;
     }, {});

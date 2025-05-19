@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -106,7 +106,7 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
       .validators(CustomValidators.postcode)
       .maxlength(POSTAL_CODE_LENGTH)
       .build();
-    this.typeFormField = new SelectFormFieldBuilder()
+    this.typeFormField = new SelectFormFieldBuilder<string>()
       .id("type")
       .label("type")
       .options([...this.types])
@@ -164,12 +164,12 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
     const postcode = this.postcodeFormField.formControl.value;
     const huisnummer = this.huisnummerFormField.formControl.value;
 
-    return (
+    return Boolean(
       kvkNummer ||
-      bedrijfsnaam ||
-      vestigingsnummer ||
-      rsin ||
-      (postcode && huisnummer)
+        bedrijfsnaam ||
+        vestigingsnummer ||
+        rsin ||
+        (postcode && huisnummer),
     );
   }
 

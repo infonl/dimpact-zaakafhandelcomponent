@@ -69,7 +69,7 @@ export class TaakViewComponent
   formulier: AbstractTaakFormulier;
   formConfig: FormConfig;
   formulierDefinitie: FormulierDefinitie;
-  formioFormulier: Record<string, any> = {};
+  formioFormulier: FormioForm = {};
   formioChangeData;
 
   menu: MenuItem[] = [];
@@ -438,7 +438,10 @@ export class TaakViewComponent
     }
   }
 
-  onFormioFormSubmit(submission: any) {
+  onFormioFormSubmit(submission: {
+    data: Record<string, string>;
+    state: string;
+  }) {
     this.websocketService.suspendListener(this.taakListener);
     for (const key in submission.data) {
       if (key !== "submit" && key !== "save") {
@@ -459,10 +462,12 @@ export class TaakViewComponent
     }
   }
 
-  onFormioFormChange(event: any) {
+  onFormioFormChange(event: { data: unknown }) {
     this.formioChangeData = event.data;
   }
 
+  // TODO add the correct type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editToewijzing(event: any) {
     if (
       event["medewerker-groep"].medewerker &&

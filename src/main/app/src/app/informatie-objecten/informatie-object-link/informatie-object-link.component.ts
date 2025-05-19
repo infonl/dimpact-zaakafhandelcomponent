@@ -47,7 +47,7 @@ export class InformatieObjectLinkComponent
   @Output() informationObjectLinked = new EventEmitter<void>();
 
   public intro: string = "";
-  public caseSearchField?: AbstractFormControlField;
+  public caseSearchField?: AbstractFormControlField<string>;
   public isValid = false;
   public loading = false;
 
@@ -84,7 +84,7 @@ export class InformatieObjectLinkComponent
     this.caseSearchField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
-        this.isValid = value?.length >= 2;
+        this.isValid = (value?.length ?? 0) >= 2;
       });
 
     this.documentAction =
@@ -111,6 +111,9 @@ export class InformatieObjectLinkComponent
   searchCases() {
     this.loading = true;
     this.utilService.setLoading(true);
+    if (!this.caseSearchField?.formControl.value) return;
+    if (!this.infoObject.informatieobjectTypeUUID) return;
+
     this.zoekenService
       .listDocumentKoppelbareZaken(
         this.caseSearchField?.formControl.value,

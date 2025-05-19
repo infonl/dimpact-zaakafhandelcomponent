@@ -6,7 +6,9 @@
 import { FieldType } from "../../model/field-type.enum";
 import { DocumentenLijstFormField } from "../documenten-lijst/documenten-lijst-form-field";
 
-export class DocumentenOndertekenenFormField extends DocumentenLijstFormField {
+export class DocumentenOndertekenenFormField<
+  T extends string = string,
+> extends DocumentenLijstFormField<T> {
   fieldType = FieldType.DOCUMENTEN_ONDERTEKENEN;
 
   constructor() {

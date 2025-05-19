@@ -138,7 +138,7 @@ export class FileInputComponent extends FormComponent implements OnInit {
     if ($event) {
       $event.stopPropagation();
     }
-    this.data.formControl.setValue("");
+    this.data.formControl.setValue(null);
     this.changeDetector.detectChanges();
   }
 
@@ -172,7 +172,7 @@ export class FileInputComponent extends FormComponent implements OnInit {
   validateFile(file: File): boolean {
     this.data.uploadError = null;
     if (!file) {
-      this.data.formControl.setValue("");
+      this.data.formControl.setValue(null);
       this.changeDetector.detectChanges();
       return false;
     }

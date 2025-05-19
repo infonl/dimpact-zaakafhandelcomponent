@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024-2025 INFO.nl
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -327,6 +327,7 @@
                     class="flex-item"
                   ></zac-static-text>
                   <zac-static-text
+                    *ngIf="!locationFeatureCookie"
                     [label]="'locatie' | translate"
                     [value]="zaak.zaakgeometrie | location | empty"
                     class="flex-item"
@@ -342,6 +343,25 @@
                     [label]="'toelichting' | translate"
                     [value]="zaak.toelichting | empty"
                   ></zac-static-text>
+                </div>
+              </div>
+            </mat-tab>
+
+            <mat-tab *ngIf="zaak.zaakgeometrie && locationFeatureCookie">
+              <ng-template mat-tab-label>
+                <mat-icon>place</mat-icon>
+                {{ "locatie" | translate }}</ng-template
+              >
+              <div id="locatie_tab" class="table-wrapper">
+                <div class="flex flex-col gap-10 editable">
+                  <zac-static-text
+                    [label]="'coordinates' | translate"
+                    [value]="zaak.zaakgeometrie | location | empty"
+                    class="flex-item"
+                  ></zac-static-text>
+                  <zac-locatie-tonen
+                    [currentLocation]="zaak.zaakgeometrie"
+                  ></zac-locatie-tonen>
                 </div>
               </div>
             </mat-tab>

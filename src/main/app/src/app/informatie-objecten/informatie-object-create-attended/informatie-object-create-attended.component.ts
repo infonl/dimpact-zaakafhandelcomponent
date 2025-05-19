@@ -61,7 +61,9 @@ export class InformatieObjectCreateAttendedComponent
   private ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
   private informatieObjectTypes: Informatieobjecttype[] = [];
   private subscriptions$: Subscription[] = [];
-  private sjabloonOptions$ = new BehaviorSubject<unknown[]>([]);
+  private sjabloonOptions$ = new BehaviorSubject<
+    GeneratedType<"RestMappedSmartDocumentsTemplate">[]
+  >([]);
 
   constructor(
     private smartDocumentsService: SmartDocumentsService,
@@ -83,7 +85,9 @@ export class InformatieObjectCreateAttendedComponent
     this.informatieObjectTypes =
       (await this.fetchInformatieobjecttypes()) ?? [];
 
-    const templateGroup = new AutocompleteFormFieldBuilder()
+    const templateGroup = new AutocompleteFormFieldBuilder<
+      GeneratedType<"RestMappedSmartDocumentsTemplateGroup">
+    >()
       .id("templateGroup")
       .label("Sjabloongroep")
       .optionLabel("name")
@@ -93,7 +97,9 @@ export class InformatieObjectCreateAttendedComponent
       )
       .build();
 
-    const template = new AutocompleteFormFieldBuilder()
+    const template = new AutocompleteFormFieldBuilder<
+      GeneratedType<"RestMappedSmartDocumentsTemplate">
+    >()
       .id("template")
       .label("Sjabloon")
       .optionLabel("name")

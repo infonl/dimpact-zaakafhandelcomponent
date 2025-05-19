@@ -9,8 +9,10 @@ import { AbstractFileFormField } from "./abstract-file-form-field";
 import { AbstractFormFieldBuilder } from "./abstract-form-field-builder";
 import { FormFieldHint } from "./form-field-hint";
 
-export abstract class AbstractFileFormFieldBuilder extends AbstractFormFieldBuilder {
-  abstract readonly formField: AbstractFileFormField;
+export abstract class AbstractFileFormFieldBuilder<
+  T extends File = File,
+> extends AbstractFormFieldBuilder<T> {
+  abstract readonly formField: AbstractFileFormField<T>;
 
   constructor() {
     super();

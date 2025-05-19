@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { Klant } from "./klant";
-import { Roltype } from "./roltype";
 
 export class KlantGegevens {
   constructor(public klant: Klant) {}
 
-  betrokkeneRoltype: Roltype;
+  betrokkeneRoltype: GeneratedType<"RestRoltype">;
   betrokkeneToelichting: string;
 }
