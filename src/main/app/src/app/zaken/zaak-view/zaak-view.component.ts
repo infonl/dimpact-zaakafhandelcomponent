@@ -142,6 +142,10 @@ export class ZaakViewComponent
   viewInitialized = false;
   loggedInUser!: GeneratedType<"RestLoggedInUser">;
 
+  locationFeatureCookie = document.cookie
+    .split("; ")
+    .some((cookie) => cookie.startsWith("locatie"));
+
   private zaakListener!: WebsocketListener;
   private zaakRollenListener!: WebsocketListener;
   private zaakBesluitenListener!: WebsocketListener;
