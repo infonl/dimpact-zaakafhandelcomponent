@@ -6,8 +6,8 @@ package nl.info.zac.app.search.model
 
 import net.atos.zac.app.policy.converter.RestRechtenConverter
 import net.atos.zac.app.policy.model.RestDocumentRechten
-import net.atos.zac.policy.output.DocumentRechten
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate
+import nl.info.zac.policy.output.DocumentRechten
 import nl.info.zac.search.model.DocumentIndicatie
 import nl.info.zac.search.model.zoekobject.DocumentZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType

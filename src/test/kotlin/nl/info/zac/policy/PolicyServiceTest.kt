@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.policy
+package nl.info.zac.policy
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -15,12 +15,6 @@ import jakarta.enterprise.inject.Instance
 import net.atos.client.opa.model.RuleQuery
 import net.atos.client.opa.model.RuleResponse
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.zac.policy.input.DocumentInput
-import net.atos.zac.policy.input.UserInput
-import net.atos.zac.policy.input.ZaakInput
-import net.atos.zac.policy.output.createDocumentRechten
-import net.atos.zac.policy.output.createWerklijstRechten
-import net.atos.zac.policy.output.createZaakRechten
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.Ondertekening
 import nl.info.client.zgw.drc.model.generated.SoortEnum
@@ -35,6 +29,12 @@ import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.model.createEnkelvoudigInformatieObjectLock
+import nl.info.zac.policy.input.DocumentInput
+import nl.info.zac.policy.input.UserInput
+import nl.info.zac.policy.input.ZaakInput
+import nl.info.zac.policy.output.createDocumentRechten
+import nl.info.zac.policy.output.createWerklijstRechten
+import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.createZaakZoekObject
 import java.net.URI
@@ -44,7 +44,7 @@ import java.util.UUID
 class PolicyServiceTest : BehaviorSpec({
     val enkelvoudigInformatieObjectLockService = mockk<EnkelvoudigInformatieObjectLockService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val opaEvaluationClient = mockk<OPAEvaluationClient>()
+    val opaEvaluationClient = mockk<OpaEvaluationClient>()
     val ztcClientService = mockk<ZtcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
     val loggedInUser = createLoggedInUser()
@@ -217,7 +217,7 @@ class PolicyServiceTest : BehaviorSpec({
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("policy rights are requested") {
-            val zaakRechten = policyService.readZaakRechten(zaakZoekObject)
+            val zaakRechten = policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
 
             Then("correct ZaakData is sent to OPA") {
                 zaakRechten shouldBe expectedZaakRechten

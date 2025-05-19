@@ -15,10 +15,11 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.zac.policy.PolicyService
 import nl.info.zac.app.admin.model.RestZaaktypeBpmnProcessDefinition
 import nl.info.zac.flowable.bpmn.ZaaktypeBpmnProcessDefinitionService
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -38,7 +39,7 @@ class ZaaktypeBpmnProcessDefinitionRestService @Inject constructor(
         @NotEmpty @PathParam("processDefinitionKey") processDefinitionKey: String,
         @Valid restZaaktypeBpmnProcessDefinition: RestZaaktypeBpmnProcessDefinition
     ): Response {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         zaaktypeBpmnProcessDefinitionService.createZaaktypeBpmnProcessDefinition(
             ZaaktypeBpmnProcessDefinition().apply {
                 zaaktypeUuid = restZaaktypeBpmnProcessDefinition.zaaktypeUuid

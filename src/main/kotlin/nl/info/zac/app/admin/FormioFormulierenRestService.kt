@@ -15,10 +15,11 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.zac.policy.PolicyService
 import nl.info.zac.app.admin.model.RestFormioFormulier
 import nl.info.zac.app.admin.model.RestFormioFormulierContent
 import nl.info.zac.formio.FormioService
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
 
 @Singleton
@@ -32,14 +33,14 @@ class FormioFormulierenRestService @Inject constructor(
 ) {
     @GET
     fun listFormulieren(): List<RestFormioFormulier> {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         return formioService.listFormulieren()
             .map { RestFormioFormulier(it.id, it.name, it.title) }
     }
 
     @POST
     fun createFormulier(restFormioFormulierContent: RestFormioFormulierContent): Response {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         formioService.addFormulier(restFormioFormulierContent.filename, restFormioFormulierContent.content)
         return Response.created(null).build()
     }
@@ -47,7 +48,7 @@ class FormioFormulierenRestService @Inject constructor(
     @DELETE
     @Path("{id}")
     fun deleteFormulier(@PathParam("id") id: Long): Response {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         formioService.deleteFormulier(id)
         return Response.noContent().build()
     }

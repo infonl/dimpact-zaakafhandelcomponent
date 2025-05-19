@@ -15,8 +15,6 @@ import io.mockk.mockk
 import net.atos.client.zgw.shared.model.Archiefnominatie.VERNIETIGEN
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.output.createZaakRechten
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
 import nl.info.client.zgw.model.createRolMedewerker
@@ -37,6 +35,8 @@ import nl.info.zac.app.zaak.model.createRestZaaktype
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_HEROPEND
 import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD
 import java.util.EnumSet
 import java.util.Optional

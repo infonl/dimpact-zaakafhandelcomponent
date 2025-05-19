@@ -18,12 +18,12 @@ import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeUUID
 import net.atos.zac.flowable.util.TaskUtil
 import net.atos.zac.formulieren.FormulierDefinitieService
-import net.atos.zac.policy.PolicyService
 import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.task.model.RestTask
 import nl.info.zac.formio.FormioService
+import nl.info.zac.policy.PolicyService
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo
