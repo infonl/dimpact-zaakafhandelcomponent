@@ -9,6 +9,7 @@ import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.Runs
 import io.mockk.every
@@ -475,7 +476,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             restInformatieobject.status = StatusEnum.DEFINITIEF
 
-            val resp = enkelvoudigInformatieObjectRestService.convertInformatieObjectToPDF(restInformatieobject.uuid, zaak.uuid)
+            val resp = enkelvoudigInformatieObjectRestService.convertInformatieObjectToPDF(
+                restInformatieobject.uuid,
+                zaak.uuid
+            )
             Then("the response should be ok") {
                 resp.status shouldBe 200
             }
@@ -484,13 +488,16 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             val restInformatieobject = createRestEnkelvoudigInformatieobject()
             val zaak = createZaak()
 
-            val resp = enkelvoudigInformatieObjectRestService.convertInformatieObjectToPDF(restInformatieobject.uuid, zaak.uuid)
+            val resp = enkelvoudigInformatieObjectRestService.convertInformatieObjectToPDF(
+                restInformatieobject.uuid,
+                zaak.uuid
+            )
             Then("the response should be an error message") {
                 resp.status shouldBe 400
+                val entity = resp.entity as String
+                entity shouldContain "\"message\":\"msg.error.convert.not.possible\""
             }
         }
-
-
     }
     Given("A zaak with two informatieobjecttypes") {
         val zaak = createZaak()

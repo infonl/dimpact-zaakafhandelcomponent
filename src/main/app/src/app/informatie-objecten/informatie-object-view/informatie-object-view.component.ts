@@ -44,8 +44,8 @@ import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { FileFormat, FileFormatUtil } from "../model/file-format";
 import { FileIcon } from "../model/file-icon";
-import { ZaakInformatieobject } from "../model/zaak-informatieobject";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
+import { ZaakInformatieobject } from "../model/zaak-informatieobject";
 
 @Component({
   templateUrl: "./informatie-object-view.component.html",
@@ -298,7 +298,7 @@ export class InformatieObjectViewComponent
     ) {
       this.menu.push(
         new AsyncButtonMenuItem(
-          "actie. eren",
+          "actie.converteren",
           () =>
             this.informatieObjectenService.convertInformatieObjectToPDF(
               this.infoObject.uuid,

@@ -53,7 +53,6 @@ import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
-import nl.info.zac.app.informatieobjecten.exception.ConvertException
 import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.authentication.LoggedInUser
@@ -62,8 +61,6 @@ import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.toBase64String
-import org.apache.commons.lang3.StringUtils
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
 import java.io.IOException
 import java.net.URI
@@ -97,7 +94,6 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
     private val enkelvoudigInformatieObjectConvertService: EnkelvoudigInformatieObjectConvertService,
 ) {
-
 
     @GET
     @Path("informatieobject/{uuid}")
@@ -494,7 +490,10 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         assertPolicy(
             policyService.readDocumentRechten(document, zrcClientService.readZaak(zaakUUID)).wijzigen
         )
-        enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObject(document, enkelvoudigInformatieobjectUUID)
+        enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObject(
+            document,
+            enkelvoudigInformatieobjectUUID
+        )
         return Response.ok().build()
     }
 

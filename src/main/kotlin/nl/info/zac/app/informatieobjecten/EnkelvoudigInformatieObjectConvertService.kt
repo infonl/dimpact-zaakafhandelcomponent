@@ -61,5 +61,3 @@ class EnkelvoudigInformatieObjectConvertService @Inject constructor(
         }
     }
 }
-
-
