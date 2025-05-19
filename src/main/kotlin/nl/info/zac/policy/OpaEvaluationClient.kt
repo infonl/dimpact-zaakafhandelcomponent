@@ -15,6 +15,7 @@ import nl.info.zac.policy.input.TaakInput
 import nl.info.zac.policy.input.UserInput
 import nl.info.zac.policy.input.ZaakInput
 import nl.info.zac.policy.output.DocumentRechten
+import nl.info.zac.policy.output.NotitieRechten
 import nl.info.zac.policy.output.OverigeRechten
 import nl.info.zac.policy.output.TaakRechten
 import nl.info.zac.policy.output.WerklijstRechten
@@ -36,6 +37,10 @@ interface OpaEvaluationClient {
     @POST
     @Path("document/document_rechten")
     fun readDocumentRechten(query: RuleQuery<DocumentInput>): RuleResponse<DocumentRechten>
+
+    @POST
+    @Path("notitie/notitie_rechten")
+    fun readNotitieRechten(query: RuleQuery<UserInput>): RuleResponse<NotitieRechten>
 
     @POST
     @Path("overig/overige_rechten")
