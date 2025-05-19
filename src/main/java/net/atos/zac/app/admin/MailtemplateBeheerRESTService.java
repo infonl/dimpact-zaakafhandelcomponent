@@ -45,13 +45,13 @@ public class MailtemplateBeheerRESTService {
     @GET
     @Path("{id}")
     public RESTMailtemplate readMailtemplate(@PathParam("id") final long id) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
+        assertPolicy(policyService.readOverigeRechten().getBeheren());
         return RESTMailtemplateConverter.convert(mailTemplateService.readMailtemplate(id));
     }
 
     @GET
     public List<RESTMailtemplate> listMailtemplates() {
-        assertPolicy(policyService.readOverigeRechten().beheren());
+        assertPolicy(policyService.readOverigeRechten().getBeheren());
         final List<MailTemplate> mailTemplates = mailTemplateService.listMailtemplates();
         return mailTemplates.stream().map(RESTMailtemplateConverter::convert).toList();
     }
@@ -59,7 +59,7 @@ public class MailtemplateBeheerRESTService {
     @GET
     @Path("/koppelbaar")
     public List<RESTMailtemplate> listkoppelbareMailtemplates() {
-        assertPolicy(policyService.readOverigeRechten().beheren());
+        assertPolicy(policyService.readOverigeRechten().getBeheren());
         final List<MailTemplate> mailTemplates = mailTemplateService.listKoppelbareMailtemplates();
         return mailTemplates.stream().map(RESTMailtemplateConverter::convert).toList();
     }
@@ -67,14 +67,14 @@ public class MailtemplateBeheerRESTService {
     @DELETE
     @Path("{id}")
     public void deleteMailtemplate(@PathParam("id") final long id) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
+        assertPolicy(policyService.readOverigeRechten().getBeheren());
         mailTemplateService.delete(id);
     }
 
     @PUT
     @Path("")
     public RESTMailtemplate persistMailtemplate(final RESTMailtemplate mailtemplate) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
+        assertPolicy(policyService.readOverigeRechten().getBeheren());
         return RESTMailtemplateConverter.convert(
                 mailTemplateService.storeMailtemplate(RESTMailtemplateConverter.convert(mailtemplate))
         );

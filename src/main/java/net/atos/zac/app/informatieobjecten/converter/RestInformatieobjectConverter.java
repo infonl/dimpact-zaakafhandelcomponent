@@ -128,7 +128,7 @@ public class RestInformatieobjectConverter {
         restEnkelvoudigInformatieobject.isBesluitDocument = brcClientService.isInformatieObjectGekoppeldAanBesluit(
                 enkelvoudigInformatieObject.getUrl()
         );
-        if (rechten.lezen()) {
+        if (rechten.getLezen()) {
             convertEnkelvoudigInformatieObject(enkelvoudigInformatieObject, lock, restEnkelvoudigInformatieobject);
             if (
                 enkelvoudigInformatieObject.getOndertekening() != null &&
@@ -425,7 +425,7 @@ public class RestInformatieobjectConverter {
         restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID;
         restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.getIdentificatie();
         restEnkelvoudigInformatieobject.rechten = RestRechtenConverter.convert(rechten);
-        if (rechten.lezen()) {
+        if (rechten.getLezen()) {
             convertEnkelvoudigInformatieObject(enkelvoudigInformatieObject, lock, restEnkelvoudigInformatieobject);
             restEnkelvoudigInformatieobject.relatieType = relatieType;
             restEnkelvoudigInformatieobject.zaakIdentificatie = zaak.getIdentificatie();

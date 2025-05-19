@@ -2,13 +2,15 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.policy.input
 
-package net.atos.zac.policy.input;
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
-public class TaakData {
+@NoArgConstructor
+@AllOpen
+data class TaakData(
+    var open: Boolean = false,
 
-    public boolean open;
-
-    public String zaaktype;
-
-}
+    var zaaktype: String? = null
+)

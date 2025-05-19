@@ -2,24 +2,26 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.policy.input
 
-package net.atos.zac.policy.input;
+import jakarta.json.bind.annotation.JsonbProperty
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
-import jakarta.json.bind.annotation.JsonbProperty;
+@NoArgConstructor
+@AllOpen
+data class DocumentData(
+    var definitief: Boolean = false,
 
-public class DocumentData {
+    var vergrendeld: Boolean = false,
 
-    public boolean definitief;
+    var ondertekend: Boolean = false,
 
-    public boolean vergrendeld;
+    @field:JsonbProperty("vergrendeld_door")
+    var vergrendeldDoor: String? = null,
 
-    public boolean ondertekend;
+    var zaaktype: String? = null,
 
-    @JsonbProperty("vergrendeld_door")
-    public String vergrendeldDoor;
-
-    public String zaaktype;
-
-    @JsonbProperty("zaak_open")
-    public boolean zaakOpen;
-}
+    @field:JsonbProperty("zaak_open")
+    var zaakOpen: Boolean = false
+)

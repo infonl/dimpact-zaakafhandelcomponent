@@ -46,20 +46,20 @@ public class MailtemplateKoppelingRESTService {
     @GET
     @Path("{id}")
     public RESTMailtemplateKoppeling readMailtemplateKoppeling(@PathParam("id") final long id) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
+        assertPolicy(policyService.readOverigeRechten().getBeheren());
         return RESTMailtemplateKoppelingConverter.convert(mailTemplateKoppelingenService.readMailtemplateKoppeling(id));
     }
 
     @DELETE
     @Path("{id}")
     public void deleteMailtemplateKoppeling(@PathParam("id") final long id) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
+        assertPolicy(policyService.readOverigeRechten().getBeheren());
         mailTemplateKoppelingenService.delete(id);
     }
 
     @GET
     public List<RESTMailtemplateKoppeling> listMailtemplateKoppelingen() {
-        assertPolicy(policyService.readOverigeRechten().beheren());
+        assertPolicy(policyService.readOverigeRechten().getBeheren());
         final List<MailtemplateKoppeling> mailtemplateKoppelingList = mailTemplateKoppelingenService.listMailtemplateKoppelingen();
         return mailtemplateKoppelingList.stream().map(mailtemplateKoppeling -> {
             final RESTMailtemplateKoppeling restMailtemplateKoppeling = RESTMailtemplateKoppelingConverter.convert(mailtemplateKoppeling);
@@ -74,7 +74,7 @@ public class MailtemplateKoppelingRESTService {
     public RESTMailtemplateKoppeling storeMailtemplateKoppeling(
             final RESTMailtemplateKoppeling mailtemplateKoppeling
     ) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
+        assertPolicy(policyService.readOverigeRechten().getBeheren());
         return RESTMailtemplateKoppelingConverter.convert(
                 mailTemplateKoppelingenService.storeMailtemplateKoppeling(
                         RESTMailtemplateKoppelingConverter.convert(mailtemplateKoppeling)

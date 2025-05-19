@@ -2,34 +2,20 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.policy.output
 
-package net.atos.zac.policy.output;
+import jakarta.json.bind.annotation.JsonbCreator
+import jakarta.json.bind.annotation.JsonbProperty
+import net.atos.zac.util.SerializableByYasson
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
-import jakarta.json.bind.annotation.JsonbCreator;
-import jakarta.json.bind.annotation.JsonbProperty;
-
-import net.atos.zac.util.SerializableByYasson;
-
-public record TaakRechten(
-                          boolean lezen,
-                          boolean wijzigen,
-                          boolean toekennen,
-                          boolean creeerenDocument,
-                          boolean toevoegenDocument
-) implements SerializableByYasson {
-
-    @JsonbCreator
-    public TaakRechten(
-            @JsonbProperty("lezen") final boolean lezen,
-            @JsonbProperty("wijzigen") final boolean wijzigen,
-            @JsonbProperty("toekennen") final boolean toekennen,
-            @JsonbProperty("creeeren_document") boolean creeerenDocument,
-            @JsonbProperty("toevoegen_document") final boolean toevoegenDocument
-    ) {
-        this.lezen = lezen;
-        this.wijzigen = wijzigen;
-        this.toekennen = toekennen;
-        this.creeerenDocument = creeerenDocument;
-        this.toevoegenDocument = toevoegenDocument;
-    }
-}
+@NoArgConstructor
+@AllOpen
+data class TaakRechten @JsonbCreator constructor(
+    @param:JsonbProperty("lezen") val lezen: Boolean,
+    @param:JsonbProperty("wijzigen") val wijzigen: Boolean,
+    @param:JsonbProperty("toekennen") val toekennen: Boolean,
+    @param:JsonbProperty("creeeren_document") val creeerenDocument: Boolean,
+    @param:JsonbProperty("toevoegen_document") val toevoegenDocument: Boolean
+) : SerializableByYasson

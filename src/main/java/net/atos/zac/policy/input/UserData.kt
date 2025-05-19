@@ -2,18 +2,21 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.policy.input
 
-package net.atos.zac.policy.input;
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
-import java.util.Set;
+@NoArgConstructor
+@AllOpen
+data class UserData(
+    var id: String,
 
-public class UserData {
+    var rollen: Set<String>? = null,
 
-    public String id;
-
-    public Set<String> rollen;
-
-    // Lijst van zaaktype.omschrijving waarvoor de ingelogde gebruiker geautoriseerd is.
-    // De waarde null betekend dat de gebruiker geautoriseerd is voor elk zaaktype.
-    public Set<String> zaaktypen;
-}
+    /**
+     * Lijst van zaaktype.omschrijving waarvoor de ingelogde gebruiker geautoriseerd is.
+     * De waarde null betekend dat de gebruiker geautoriseerd is voor elk zaaktype.
+     */
+    var zaaktypen: Set<String>? = null
+)
