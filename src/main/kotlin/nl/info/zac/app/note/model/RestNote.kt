@@ -33,7 +33,7 @@ data class RestNote(
     var employeeFullname: String?,
 
     @field:JsonbProperty("bewerkenToegestaan")
-    var updatingAllowed: Boolean
+    var updatingAllowed: Boolean = false
 )
 
 fun RestNote.toNote() = Note().apply {
