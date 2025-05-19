@@ -19,6 +19,8 @@ import nl.info.zac.app.note.converter.NoteConverter
 import nl.info.zac.app.note.model.RestNote
 import nl.info.zac.app.note.model.toNote
 import nl.info.zac.note.NoteService
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
@@ -31,7 +33,8 @@ import java.util.UUID
 @AllOpen
 class NoteRestService @Inject constructor(
     private val noteService: NoteService,
-    private val noteConverter: NoteConverter
+    private val noteConverter: NoteConverter,
+    private val policyService: PolicyService
 ) {
     /**
      * List notes for a given case UUID.
@@ -39,24 +42,30 @@ class NoteRestService @Inject constructor(
      */
     @GET
     @Path("{type}/{uuid}")
-    fun listNotes(@PathParam("uuid") zaakUUID: UUID): List<RestNote> =
-        noteService.listNotesForZaak(zaakUUID)
+    fun listNotes(@PathParam("uuid") zaakUUID: UUID): List<RestNote> {
+        assertPolicy(policyService.readNotitieRechten().lezen)
+        return noteService.listNotesForZaak(zaakUUID)
             .map(noteConverter::toRestNote)
+    }
 
     @POST
     fun createNote(restNote: RestNote): RestNote {
+        assertPolicy(policyService.readNotitieRechten().wijzigen)
         val notitie = noteService.createNote(restNote.toNote())
         return noteConverter.toRestNote(notitie)
     }
 
     @PATCH
     fun updateNote(restNote: RestNote): RestNote {
+        assertPolicy(policyService.readNotitieRechten().wijzigen)
         val updatedNotitie = noteService.updateNote(restNote.toNote())
         return noteConverter.toRestNote(updatedNotitie)
     }
 
     @DELETE
     @Path("{id}")
-    fun deleteNote(@PathParam("id") id: Long) =
+    fun deleteNote(@PathParam("id") id: Long) {
+        assertPolicy(policyService.readNotitieRechten().wijzigen)
         noteService.deleteNote(id)
+    }
 }

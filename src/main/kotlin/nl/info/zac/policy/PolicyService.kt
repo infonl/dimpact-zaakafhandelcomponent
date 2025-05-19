@@ -168,6 +168,11 @@ class PolicyService @Inject constructor(
         ).getResult()
     }
 
+    fun readNotitieRechten() =
+        evaluationClient.readNotitieRechten(
+            RuleQuery(UserInput(loggedInUserInstance.get()))
+        ).getResult()
+
     fun readWerklijstRechten(): WerklijstRechten =
         evaluationClient.readWerklijstRechten(
             RuleQuery(UserInput(loggedInUserInstance.get()))
