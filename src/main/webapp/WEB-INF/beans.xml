@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2023 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 <!-- Note that currently ZAC requires the bean discovery mode to be set to 'all' even though this is generally not advised. -->

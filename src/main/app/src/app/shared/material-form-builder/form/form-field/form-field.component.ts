@@ -28,7 +28,7 @@ import { FormFieldDirective } from "./form-field.directive";
 export class FormFieldComponent implements OnInit, AfterViewInit {
   @Input() field: AbstractFormField;
 
-  @Output() valueChanges = new EventEmitter<any>();
+  @Output() valueChanges = new EventEmitter<unknown>();
 
   private _field: FormItem;
   private loaded: boolean;

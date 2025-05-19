@@ -1,4 +1,4 @@
-{{! Lifely/INFO temporary workaround for the issue where the OpenAPI Generator Gradle plugin }}
+{{! INFO.nl temporary workaround for the issue where the OpenAPI Generator Gradle plugin }}
 {{! incorrectly generates '@JsonbTransient' annotations for certain 'type' fields in polymorphic model classes }}
 {{! which has the result that these fields are not serialized and deserialized leading to errors in the various APIs we use. }}
 {{! For example in the generated BRP 'PersonenQuery.java' class the 'type' String field was given the '@JsonbTransient' annotation }}
@@ -57,21 +57,21 @@ public class {{classname}} {{#parent}}extends {{{.}}}{{/parent}}{{#vendorExtensi
   */
 {{/description}}
   {{^withXml}}
-  {{! Lifely/INFO. Changed this line to prevent the generation of the @JsonbTransient annotation for polymorphism. See reasons above. }}
+  {{! INFO.nl. Changed this line to prevent the generation of the @JsonbTransient annotation for polymorphism. See reasons above. }}
   {{#jsonb}}@JsonbProperty("{{baseName}}"){{/jsonb}}
-  {{! Lifely/INFO. End of change. }}
+  {{! INFO.nl. End of change. }}
   {{/withXml}}
 {{#vendorExtensions.x-field-extra-annotation}}
 {{{vendorExtensions.x-field-extra-annotation}}}
 {{/vendorExtensions.x-field-extra-annotation}}
 {{#isContainer}}
-  {{! Lifely/INFO: the use of allOf in combination with readOnly fields in the parent class results in uncompilable code }}
+  {{! INFO.nl: the use of allOf in combination with readOnly fields in the parent class results in uncompilable code }}
   {{! see: https://github.com/OpenAPITools/openapi-generator/issues/16374 }}
   {{! as workaround we simply set the visibility of all fields in pojo's to 'protected' instead of 'private' }}
   protected {{{datatypeWithEnum}}} {{name}}{{#required}} = {{{defaultValue}}}{{/required}}{{^required}} = null{{/required}};
 {{/isContainer}}
 {{^isContainer}}
-  {{! Lifely/INFO: the use of allOf in combination with readOnly fields in the parent class results in uncompilable code }}
+  {{! INFO.nl: the use of allOf in combination with readOnly fields in the parent class results in uncompilable code }}
   {{! see: https://github.com/OpenAPITools/openapi-generator/issues/16374 }}
   {{! as workaround we simply set the visibility of all fields in pojo's to 'protected' instead of 'private' }}
   protected {{{datatypeWithEnum}}} {{name}}{{#defaultValue}} = {{{.}}}{{/defaultValue}};

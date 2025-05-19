@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.informatieobjecten
@@ -8,7 +8,13 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.*
+import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.types.shouldBeInstanceOf
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.client.officeconverter.OfficeConverterClientService
 import net.atos.client.zgw.drc.DrcClientService
@@ -49,6 +55,8 @@ import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
+import java.io.ByteArrayInputStream
+import java.io.IOException
 import java.net.URI
 import java.util.UUID
 
@@ -534,6 +542,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """
             Valid REST document verzend gegevens with multiple informatieobjecten each with
@@ -583,6 +592,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("Valid gegevens with an informatieobject that cannot be sent") {
         val zaakUuid = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUuid)
@@ -603,6 +613,67 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 shouldThrow<PolicyException> {
                     enkelvoudigInformatieObjectRestService.sendDocument(restDocumentVerzendGegevens)
                 }
+            }
+        }
+    }
+
+    Given("An existing document and the user has permission to download the document") {
+        val uuid = UUID.randomUUID()
+        val byteArrayInputStream = ByteArrayInputStream(byteArrayOf(1, 2, 3))
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden } returns true
+        every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } returns byteArrayInputStream
+
+        When("readFile is called") {
+            val response = enkelvoudigInformatieObjectRestService.readFile(uuid)
+
+            Then("it should return the document content as a response") {
+                with(response) {
+                    status shouldBe 200
+                    headers["Content-Disposition"]!!.first() shouldBe
+                        """attachment; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
+                    entity shouldBe byteArrayInputStream
+                }
+            }
+        }
+    }
+
+    Given("The user does not have permission to download the document") {
+        val uuid = UUID.randomUUID()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden } returns false
+
+        When("readFile is called") {
+            val exception = shouldThrow<PolicyException> {
+                enkelvoudigInformatieObjectRestService.readFile(uuid)
+            }
+
+            Then("it should throw a PolicyException") {
+                exception shouldNotBe null
+            }
+        }
+    }
+
+    Given("An IOException occurs while retrieving the document content") {
+        val uuid = UUID.randomUUID()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden } returns true
+        every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } throws IOException("Failed to retrieve content")
+
+        When("readFile is called") {
+            val exception = shouldThrow<RuntimeException> {
+                enkelvoudigInformatieObjectRestService.readFile(uuid)
+            }
+
+            Then("it should throw a exception") {
+                exception.cause.shouldBeInstanceOf<IOException>()
+                exception.cause?.message shouldBe "Failed to retrieve content"
             }
         }
     }

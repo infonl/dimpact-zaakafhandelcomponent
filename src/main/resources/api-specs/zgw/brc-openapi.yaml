@@ -1,5 +1,5 @@
 openapi: 3.0.3
-# Lifely: renamed invalid minLength and maxLength properties to minLength and maxLength
+# INFO.nl: renamed invalid minLength and maxLength properties to minLength and maxLength
 info:
   title: Besluiten API
   version: 1.1.0 (1)
@@ -2276,7 +2276,7 @@ components:
             * `tijdelijk` - Besluit met tijdelijke werking
             * `ingetrokken_overheid` - Besluit ingetrokken door overheid
             * `ingetrokken_belanghebbende` - Besluit ingetrokken o.v.v. belanghebbende
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/VervalredenEnum'
@@ -2412,7 +2412,7 @@ components:
             * `tijdelijk` - Besluit met tijdelijke werking
             * `ingetrokken_overheid` - Besluit ingetrokken door overheid
             * `ingetrokken_belanghebbende` - Besluit ingetrokken o.v.v. belanghebbende
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/VervalredenEnum'
@@ -2584,7 +2584,7 @@ components:
             * `tijdelijk` - Besluit met tijdelijke werking
             * `ingetrokken_overheid` - Besluit ingetrokken door overheid
             * `ingetrokken_belanghebbende` - Besluit ingetrokken o.v.v. belanghebbende
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/VervalredenEnum'
@@ -2643,7 +2643,7 @@ components:
       - tijdelijk
       - ingetrokken_overheid
       - ingetrokken_belanghebbende
-      # manual changed by Lifely: need to allow for empty values returned by the API
+      # manual changed by INFO.nl: need to allow for empty values returned by the API
       - ''
       type: string
     Wijzigingen:

@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 <mat-sidenav-container>
@@ -17,6 +17,7 @@
         form.controls.zaaktype.value?.zaakafhandelparameters
           ?.betrokkeneKoppelingen?.brpKoppelen ?? false
       "
+      class="side-nav-container"
     ></zac-klant-koppel>
     <zac-bag-zoek
       *ngSwitchCase="'actie.bagObject.koppelen'"

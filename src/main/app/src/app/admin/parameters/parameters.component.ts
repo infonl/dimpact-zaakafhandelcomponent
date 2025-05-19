@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024-2025 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024-2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -40,8 +40,8 @@ export class ParametersComponent
 
   private storedParameterFilters = "parameterFilters";
 
-  zaaktypes: Zaaktype[] = [];
-  caseDefinitions: CaseDefinition[] = [];
+  zaaktypes: GeneratedType<"RESTZaaktypeOverzicht">[] = [];
+  caseDefinitions: GeneratedType<"RESTCaseDefinition">[] = [];
 
   constructor(
     public utilService: UtilService,

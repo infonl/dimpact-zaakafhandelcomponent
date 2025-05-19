@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely, 2024 Dimpact
+ * SPDX-FileCopyrightText: 2023 INFO.nl, 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.zaak
@@ -278,17 +278,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                 identificationType = restZaak.initiatorIdentificatieType!!,
                 identification = restZaak.initiatorIdentificatie!!,
                 zaak = zaak,
-                explanation = "Toegekend door de medewerker tijdens het behandelen van de zaak"
+                explanation = "Aanmaken zaak"
             )
         } just runs
+
         every { bpmnService.findProcessDefinitionForZaaktype(zaakTypeUUID) } returns null
 
-        When(
-            """
-                createZaak is called for a zaaktype for which the logged in user has permissions and for which
-                no BPMN process definition is found
-            """
-        ) {
+        When("a zaaktype is created for which the user has permissions and no BPMN process definition is found") {
             every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
             every {
                 policyService.readZaakRechten(zaak)
@@ -925,12 +921,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                         restZaakBetrokkenGegevens.betrokkeneIdentificatieType,
                         restZaakBetrokkenGegevens.betrokkeneIdentificatie,
                         zaak,
-                        "Toegekend door de medewerker tijdens het behandelen van de zaak"
+                        restZaakBetrokkenGegevens.roltoelichting!!
                     )
                 }
             }
         }
     }
+
     Given("A zaak with an initiator") {
         val zaak = createZaak()
         val rolMedewerker = createRolMedewerker()
@@ -1045,6 +1042,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """
         Two existing zaaktypes in the configured catalogue for which the logged in user is authorised
@@ -1295,6 +1293,62 @@ class ZaakRestServiceTest : BehaviorSpec({
                     )
                     indexingService.removeInformatieobject(informatieobjectUUID)
                     ontkoppeldeDocumentenService.create(enkelvoudiginformatieobject, zaak, "veryFakeReason")
+                }
+            }
+        }
+    }
+
+    Given("an initiator is being updated") {
+        val data = createRESTZaakBetrokkeneGegevens()
+        val zaak = createZaak()
+
+        every { zrcClientService.readZaak(data.zaakUUID) } returns zaak
+        every { zgwApiService.findInitiatorRoleForZaak(any()) } returns null
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
+        every {
+            zaakService.addInitiatorToZaak(
+                data.betrokkeneIdentificatieType,
+                data.betrokkeneIdentificatie,
+                zaak,
+                any()
+            )
+        } just runs
+        every { restZaakConverter.toRestZaak(zaak) } returns createRestZaak()
+
+        When("a reason is passed") {
+            zaakRestService.updateInitiator(
+                data.apply {
+                    roltoelichting = "test reden"
+                }
+            )
+
+            Then("the reasons should get saved") {
+                verify(exactly = 1) {
+                    zaakService.addInitiatorToZaak(
+                        data.betrokkeneIdentificatieType,
+                        data.betrokkeneIdentificatie,
+                        any(),
+                        "test reden"
+                    )
+                }
+            }
+        }
+
+        When("no reason is passed") {
+            zaakRestService.updateInitiator(
+                data.apply {
+                    roltoelichting = null
+                }
+            )
+
+            Then("the reason should be set to the default") {
+                verify(exactly = 1) {
+                    zaakService.addInitiatorToZaak(
+                        data.betrokkeneIdentificatieType,
+                        data.betrokkeneIdentificatie,
+                        any(),
+                        "Toegekend door de medewerker tijdens het behandelen van de zaak"
+                    )
                 }
             }
         }
