@@ -10,11 +10,11 @@ import net.atos.zac.app.policy.model.RestOverigeRechten;
 import net.atos.zac.app.policy.model.RestTaakRechten;
 import net.atos.zac.app.policy.model.RestWerklijstRechten;
 import net.atos.zac.app.policy.model.RestZaakRechten;
-import net.atos.zac.policy.output.DocumentRechten;
-import net.atos.zac.policy.output.OverigeRechten;
-import net.atos.zac.policy.output.TaakRechten;
-import net.atos.zac.policy.output.WerklijstRechten;
-import net.atos.zac.policy.output.ZaakRechten;
+import nl.info.zac.policy.output.DocumentRechten;
+import nl.info.zac.policy.output.OverigeRechten;
+import nl.info.zac.policy.output.TaakRechten;
+import nl.info.zac.policy.output.WerklijstRechten;
+import nl.info.zac.policy.output.ZaakRechten;
 
 public class RestRechtenConverter {
 

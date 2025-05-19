@@ -5,6 +5,8 @@
 
 package net.atos.zac.app.productaanvragen;
 
+import static net.atos.zac.policy.PolicyServiceKt.assertPolicy;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
@@ -37,8 +39,6 @@ import net.atos.zac.productaanvraag.model.InboxProductaanvraagListParameters;
 import net.atos.zac.productaanvraag.model.InboxProductaanvraagResultaat;
 import net.atos.zac.util.MediaTypes;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-
-import static net.atos.zac.policy.PolicyServiceKt.assertPolicy;
 
 @Singleton
 @Path("inbox-productaanvragen")

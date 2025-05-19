@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.policy.input
+package nl.info.zac.policy.input
 
 import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.authentication.LoggedInUser
@@ -11,7 +11,7 @@ import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 @AllOpen
- data class DocumentInput(
+data class DocumentInput(
     var loggedInUser: LoggedInUser,
 
     @field:JsonbProperty("document")

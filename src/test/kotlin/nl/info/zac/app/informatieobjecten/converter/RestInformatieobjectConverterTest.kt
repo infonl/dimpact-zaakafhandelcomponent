@@ -21,7 +21,6 @@ import net.atos.client.zgw.shared.model.ZgwError
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.output.DocumentRechten
 import net.atos.zac.policy.output.createDocumentRechtenAllDeny
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -39,6 +38,7 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
+import nl.info.zac.policy.output.DocumentRechten
 import org.eclipse.jetty.http.HttpStatus
 import java.net.URI
 import java.time.LocalDate

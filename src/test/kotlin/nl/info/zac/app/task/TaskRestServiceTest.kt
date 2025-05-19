@@ -34,7 +34,6 @@ import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.flowable.util.TaskUtil.getTaakStatus
 import net.atos.zac.formulieren.FormulierRuntimeService
 import net.atos.zac.policy.PolicyService
-import nl.info.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createDocumentRechtenAllDeny
 import net.atos.zac.policy.output.createTaakRechtenAllDeny
 import net.atos.zac.policy.output.createWerklijstRechten
@@ -58,6 +57,7 @@ import nl.info.zac.app.task.model.createRestTaskReleaseData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.identity.model.getFullName
+import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService

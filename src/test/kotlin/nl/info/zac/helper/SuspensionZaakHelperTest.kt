@@ -19,10 +19,10 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.policy.PolicyService
-import nl.info.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.client.zgw.model.createOpschorting
 import nl.info.client.zgw.model.createZaak
+import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import java.time.LocalDate
 import java.util.Optional

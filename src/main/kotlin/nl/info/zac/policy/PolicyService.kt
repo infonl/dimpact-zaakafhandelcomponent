@@ -14,19 +14,6 @@ import net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend
 import net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.util.TaskUtil
-import nl.info.zac.policy.exception.PolicyException
-import net.atos.zac.policy.input.DocumentData
-import net.atos.zac.policy.input.DocumentInput
-import net.atos.zac.policy.input.TaakData
-import net.atos.zac.policy.input.TaakInput
-import net.atos.zac.policy.input.UserInput
-import net.atos.zac.policy.input.ZaakData
-import net.atos.zac.policy.input.ZaakInput
-import net.atos.zac.policy.output.DocumentRechten
-import net.atos.zac.policy.output.OverigeRechten
-import net.atos.zac.policy.output.TaakRechten
-import net.atos.zac.policy.output.WerklijstRechten
-import net.atos.zac.policy.output.ZaakRechten
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.util.extractUuid
@@ -37,6 +24,20 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
 import nl.info.zac.enkelvoudiginformatieobject.util.isSigned
+import nl.info.zac.policy.OpaEvaluationClient
+import nl.info.zac.policy.exception.PolicyException
+import nl.info.zac.policy.input.DocumentData
+import nl.info.zac.policy.input.DocumentInput
+import nl.info.zac.policy.input.TaakData
+import nl.info.zac.policy.input.TaakInput
+import nl.info.zac.policy.input.UserInput
+import nl.info.zac.policy.input.ZaakData
+import nl.info.zac.policy.input.ZaakInput
+import nl.info.zac.policy.output.DocumentRechten
+import nl.info.zac.policy.output.OverigeRechten
+import nl.info.zac.policy.output.TaakRechten
+import nl.info.zac.policy.output.WerklijstRechten
+import nl.info.zac.policy.output.ZaakRechten
 import nl.info.zac.search.model.DocumentIndicatie
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.zoekobject.DocumentZoekObject
@@ -44,7 +45,6 @@ import nl.info.zac.search.model.zoekobject.TaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.apache.commons.collections.CollectionUtils
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import org.flowable.task.api.TaskInfo
 
@@ -53,7 +53,7 @@ import org.flowable.task.api.TaskInfo
 @AllOpen
 class PolicyService @Inject constructor(
     private val loggedInUserInstance: Instance<LoggedInUser>,
-    @RestClient private val evaluationClient: OPAEvaluationClient,
+    @RestClient private val evaluationClient: OpaEvaluationClient,
     private val ztcClientService: ZtcClientService,
     private val lockService: EnkelvoudigInformatieObjectLockService,
     private val zrcClientService: ZrcClientService
