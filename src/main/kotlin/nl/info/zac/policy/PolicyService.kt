@@ -18,7 +18,6 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
@@ -69,20 +68,18 @@ class PolicyService @Inject constructor(
     }
 
     fun readZaakRechten(zaak: Zaak, zaaktype: ZaakType): ZaakRechten {
+        val statusType = zaak.status?.let {
+            ztcClientService.readStatustype(zrcClientService.readStatus(it).statustype)
+        }
         val zaakData = ZaakData().apply {
             this.open = zaak.isOpen
             this.zaaktype = zaaktype.getOmschrijving()
             this.opgeschort = zaak.isOpgeschort
             this.verlengd = zaak.isVerlengd
             this.besloten = zaaktype.getBesluittypen()?.isNotEmpty() == true
+            this.intake = isIntake(statusType)
+            this.heropend = isHeropend(statusType)
         }
-        var statusType: StatusType? = null
-        zaak.status?.let {
-            val status = zrcClientService.readStatus(it)
-            statusType = ztcClientService.readStatustype(status.getStatustype())
-        }
-        zaakData.intake = isIntake(statusType)
-        zaakData.heropend = isHeropend(statusType)
         return evaluationClient.readZaakRechten(
             RuleQuery(
                 ZaakInput(loggedInUserInstance.get(), zaakData)
