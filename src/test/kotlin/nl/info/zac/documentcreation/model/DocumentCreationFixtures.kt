@@ -52,7 +52,7 @@ fun createDocumentCreationDataAttended(
     templateId: String = "2",
     title: String = "title",
     creationDate: ZonedDateTime = ZonedDateTime.now(),
-) = DocumentCreationDataAttended(
+) = CmmnDocumentCreationDataAttended(
     zaak = zaak,
     taskId = taskId,
     templateGroupId = templateGroupId,

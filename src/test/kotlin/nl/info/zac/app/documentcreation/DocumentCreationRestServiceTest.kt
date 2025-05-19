@@ -25,8 +25,9 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.app.documentcreation.model.createRestDocumentCreationAttendedData
-import nl.info.zac.documentcreation.DocumentCreationService
-import nl.info.zac.documentcreation.model.DocumentCreationDataAttended
+import nl.info.zac.documentcreation.BpmnDocumentCreationService
+import nl.info.zac.documentcreation.CmmnDocumentCreationService
+import nl.info.zac.documentcreation.model.CmmnDocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.createDocumentCreationAttendedResponse
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_SMARTDOCUMENTS_DISABLED
 import nl.info.zac.flowable.bpmn.BpmnService
@@ -35,7 +36,8 @@ import java.net.URI
 import java.util.UUID
 
 class DocumentCreationRestServiceTest : BehaviorSpec({
-    val documentCreationService = mockk<DocumentCreationService>()
+    val cmmnDocumentCreationService = mockk<CmmnDocumentCreationService>()
+    val bpmnDocumentCreationService = mockk<BpmnDocumentCreationService>()
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
@@ -44,11 +46,11 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     val bpmnService = mockk<BpmnService>()
     val documentCreationRestService = DocumentCreationRestService(
         policyService = policyService,
-        documentCreationService = documentCreationService,
+        cmmnDocumentCreationService = cmmnDocumentCreationService,
+        bpmnDocumentCreationService = bpmnDocumentCreationService,
         zrcClientService = zrcClientService,
         zaakafhandelParameterService = zaakafhandelParameterService,
-        flowableTaskService = flowableTaskService,
-        bpmnService = bpmnService,
+        flowableTaskService = flowableTaskService
     )
 
     isolationMode = IsolationMode.InstancePerTest
@@ -68,14 +70,14 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             title = "Title",
         )
         val documentCreationResponse = createDocumentCreationAttendedResponse()
-        val documentCreationDataAttended = slot<DocumentCreationDataAttended>()
+        val documentCreationDataAttended = slot<CmmnDocumentCreationDataAttended>()
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { ztcClientService.readInformatieobjecttypen(zaak.zaaktype) } returns listOf(
             createInformatieObjectType(omschrijving = "bijlage")
         )
         every {
-            documentCreationService.createDocumentAttended(capture(documentCreationDataAttended))
+            cmmnDocumentCreationService.createCmmnDocumentAttended(capture(documentCreationDataAttended))
         } returns documentCreationResponse
         every {
             bpmnService.isProcessDriven(any())

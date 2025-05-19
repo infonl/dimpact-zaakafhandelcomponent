@@ -53,7 +53,7 @@ export class InformatieObjectCreateAttendedComponent
   @Input() sideNav: MatDrawer;
   @Input() smartDocumentsGroupPath: string[];
   @Input() smartDocumentsTemplateName: string;
-  @Input() smartDocumentsInformatieobjectTypeUuid: string;
+  @Input() smartDocumentsInformatieobjecttypeUuid: string;
   @Output() document = new EventEmitter<DocumentCreationData>();
 
   @ViewChild(FormComponent) form: FormComponent;
@@ -94,7 +94,7 @@ export class InformatieObjectCreateAttendedComponent
           ? this.smartDocumentsService.getTemplateGroup(
               { path: this.smartDocumentsGroupPath },
               this.smartDocumentsTemplateName,
-              this.smartDocumentsInformatieobjectTypeUuid,
+              this.smartDocumentsInformatieobjecttypeUuid,
             )
           : this.smartDocumentsService.getTemplatesMapping(
               this.zaak.zaaktype.uuid,
@@ -226,13 +226,28 @@ export class InformatieObjectCreateAttendedComponent
         // Convert form fields to REST end point Body Parameters
         switch (key) {
           case "templateGroup":
-            documentCreateData["zaakUuid"] = this.zaak.uuid;
-            documentCreateData["smartDocumentsTemplateGroupId"] = value.id;
+            documentCreateData.zaakUuid = this.zaak.uuid;
+            documentCreateData.smartDocumentsTemplateGroupId = value.id;
+            if (this.smartDocumentsInformatieobjecttypeUuid != null) {
+              documentCreateData.smartDocumentsTemplateGroupName =
+                this.smartDocumentsGroupPath[
+                  this.smartDocumentsGroupPath.length - 1
+                ];
+            }
             break;
           case "template":
-            documentCreateData["smartDocumentsTemplateId"] = value.id;
+            documentCreateData.smartDocumentsTemplateId = value.id;
+            if (this.smartDocumentsInformatieobjecttypeUuid != null) {
+              documentCreateData.smartDocumentsTemplateName =
+                this.smartDocumentsTemplateName;
+            }
             break;
           case "informationObjectType":
+            if (this.smartDocumentsInformatieobjecttypeUuid != null) {
+              documentCreateData.informatieobjecttypeUuid =
+                this.smartDocumentsInformatieobjecttypeUuid;
+            }
+            break;
           case "confidentiality":
             // Fields not end point Body Parameters; 'just informational', so leave them out. End point will determine these values itself (again)
             break;

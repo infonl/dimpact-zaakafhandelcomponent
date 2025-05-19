@@ -8,6 +8,10 @@ export class DocumentCreationData {
   public taskId: string;
   public smartDocumentsTemplateGroupId: string;
   public smartDocumentsTemplateId: string;
+  // BPMN fields
+  public informatieobjecttypeUuid?: string;
+  public smartDocumentsTemplateGroupName?: string;
+  public smartDocumentsTemplateName?: string;
   public title: string;
   public description?: string;
   public author: string;

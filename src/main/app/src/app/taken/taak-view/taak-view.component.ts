@@ -75,7 +75,7 @@ export class TaakViewComponent
 
   smartDocumentsGroupPath: string[];
   smartDocumentsTemplateName: string;
-  smartDocumentsInformatieobjectTypeUuid: string;
+  smartDocumentsInformatieobjecttypeUuid: string;
 
   menu: MenuItem[] = [];
   activeSideAction: string | null = null;
@@ -582,8 +582,8 @@ export class TaakViewComponent
     const parent = event.component.parent;
     this.activeSideAction = "actie.document.maken";
     this.smartDocumentsGroupPath = this.formioGetSmartDocumentsGroups(parent);
-    this.smartDocumentsInformatieobjectTypeUuid =
-      parent.properties["SmartDocuments_InformatieobjectTypeUuid"];
+    this.smartDocumentsInformatieobjecttypeUuid =
+      parent.properties["SmartDocuments_InformatieobjecttypeUuid"];
     this.smartDocumentsTemplateName =
       event.data[parent.key + "_Template"].toString();
     this.actionsSidenav.open();

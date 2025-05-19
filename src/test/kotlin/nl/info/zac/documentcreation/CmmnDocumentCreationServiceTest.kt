@@ -36,14 +36,14 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-class DocumentCreationServiceTest : BehaviorSpec({
+class CmmnDocumentCreationServiceTest : BehaviorSpec({
     val smartDocumentsService = mockk<SmartDocumentsService>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val documentCreationDataConverter = mockk<DocumentCreationDataConverter>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
     val configuratieService: ConfiguratieService = mockk<ConfiguratieService>()
-    val documentCreationService = DocumentCreationService(
+    val cmmnDocumentCreationService = CmmnDocumentCreationService(
         smartDocumentsService = smartDocumentsService,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
         documentCreationDataConverter = documentCreationDataConverter,
@@ -97,7 +97,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
         every { configuratieService.readContextUrl() } returns contextUrl
 
         When("the 'create document attended' method is called") {
-            val documentCreationResponse = documentCreationService.createDocumentAttended(documentCreationData)
+            val documentCreationResponse = cmmnDocumentCreationService.createCmmnDocumentAttended(documentCreationData)
 
             Then(
                 """
@@ -115,17 +115,19 @@ class DocumentCreationServiceTest : BehaviorSpec({
                         outputFormats.size shouldBe 1
                         outputFormats[0].outputFormat shouldBe "docx"
                         redirectMethod shouldBe "POST"
-                        redirectUrl shouldBe "$contextUrl/rest/document-creation/smartdocuments/callback" +
+                        redirectUrl shouldBe "$contextUrl/rest/document-creation/smartdocuments/cmmn-callback" +
                             "/zaak/${zaak.uuid}" +
                             "/task/$taskId" +
-                            "?templateId=${URLEncoder.encode(documentCreationData.templateId, Charsets.UTF_8)}" +
-                            "&templateGroupId=${URLEncoder.encode(documentCreationData.templateGroupId, Charsets.UTF_8)}" +
-                            "&title=${URLEncoder.encode(documentCreationData.title, Charsets.UTF_8)}" +
+                            "?title=${URLEncoder.encode(documentCreationData.title, Charsets.UTF_8)}" +
                             "&userName=${URLEncoder.encode(userDisplayName, Charsets.UTF_8)}" +
                             "&creationDate=${URLEncoder.encode(
                                 documentCreationData.creationDate.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
                                 Charsets.UTF_8
-                            )}"
+                            )}" +
+                            "&templateId=" +
+                            "${URLEncoder.encode(documentCreationData.templateId, Charsets.UTF_8)}" +
+                            "&templateGroupId=" +
+                            "${URLEncoder.encode(documentCreationData.templateGroupId, Charsets.UTF_8)}"
                     }
                 }
             }
@@ -139,6 +141,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
         val taakId = "4"
         val title = "title"
         val description = "description"
+        val informatieobjecttypeUuid = UUID.randomUUID()
         val creationDate = ZonedDateTime.now()
         val userName = "Full Name"
         val zaak = createZaak()
@@ -149,13 +152,11 @@ class DocumentCreationServiceTest : BehaviorSpec({
         every { smartDocumentsService.downloadDocument(smartDocumentId) } returns downloadedFile
         every {
             documentCreationDataConverter.toEnkelvoudigInformatieObjectCreateLockRequest(
-                zaak,
                 downloadedFile,
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                templateGroupId,
-                templateId,
                 title,
                 description,
+                informatieobjecttypeUuid,
                 creationDate,
                 userName
             )
@@ -170,14 +171,13 @@ class DocumentCreationServiceTest : BehaviorSpec({
         } returns zaakInformatieobject
 
         When("storing a downloaded file is requested") {
-            val returnedZaakInformatieobject = documentCreationService.storeDocument(
+            val returnedZaakInformatieobject = cmmnDocumentCreationService.storeDocument(
                 zaak = zaak,
                 taskId = taakId,
                 fileId = smartDocumentId,
-                templateGroupId = templateGroupId,
-                templateId = templateId,
                 title = title,
                 description = description,
+                informatieobjecttypeUuid = informatieobjecttypeUuid,
                 creationDate = creationDate,
                 userName = userName
             )
@@ -210,7 +210,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
         every { configuratieService.readContextUrl() } returns contextUrl
 
         When("Document creation URL is requested for zaak") {
-            val uri = documentCreationService.documentCreationCallbackUrl(
+            val uri = cmmnDocumentCreationService.documentCreationCallbackUrl(
                 zaakUuid = zaakUuid,
                 null,
                 templateGroupId,
@@ -222,19 +222,19 @@ class DocumentCreationServiceTest : BehaviorSpec({
             )
 
             Then("Correct URl is provided") {
-                uri.toString() shouldBe "$contextUrl/rest/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
-                    "?templateId=$templateId" +
-                    "&templateGroupId=$templateGroupId" +
-                    "&title=$title" +
+                uri.toString() shouldBe "$contextUrl/rest/document-creation/smartdocuments/cmmn-callback/zaak/$zaakUuid" +
+                    "?title=$title" +
                     "&userName=Full+User+Name" +
                     "&creationDate=2024-10-07T00%3A00%3A00Z" +
-                    "&description=$description"
+                    "&description=$description" +
+                    "&templateId=$templateId" +
+                    "&templateGroupId=$templateGroupId"
             }
         }
 
         When("Document creation URL is requested for taak") {
             val taakUuid = UUID.randomUUID().toString()
-            val uri = documentCreationService.documentCreationCallbackUrl(
+            val uri = cmmnDocumentCreationService.documentCreationCallbackUrl(
                 zaakUuid,
                 taakUuid,
                 templateGroupId,
@@ -247,13 +247,13 @@ class DocumentCreationServiceTest : BehaviorSpec({
 
             Then("Correct URl is provided") {
                 uri.toString() shouldBe
-                    "$contextUrl/rest/document-creation/smartdocuments/callback/zaak/$zaakUuid/task/$taakUuid" +
-                    "?templateId=$templateId" +
-                    "&templateGroupId=$templateGroupId" +
-                    "&title=$title" +
+                    "$contextUrl/rest/document-creation/smartdocuments/cmmn-callback/zaak/$zaakUuid/task/$taakUuid" +
+                    "?title=$title" +
                     "&userName=Full+User+Name" +
                     "&creationDate=2024-10-07T00%3A00%3A00Z" +
-                    "&description=$description"
+                    "&description=$description" +
+                    "&templateId=$templateId" +
+                    "&templateGroupId=$templateGroupId"
             }
         }
     }
@@ -263,7 +263,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
         every { configuratieService.readContextUrl() } returns contextUrl
 
         When("SmartDocuments finish page URL is requested") {
-            val finishPageUrl = documentCreationService.documentCreationFinishPageUrl(
+            val finishPageUrl = cmmnDocumentCreationService.documentCreationFinishPageUrl(
                 "1",
                 "1",
                 "document name",

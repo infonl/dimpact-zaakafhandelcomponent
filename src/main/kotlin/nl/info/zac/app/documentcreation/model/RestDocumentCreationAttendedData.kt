@@ -31,5 +31,10 @@ data class RestDocumentCreationAttendedData(
     var smartDocumentsTemplateGroupId: String,
 
     @field:NotNull
-    var smartDocumentsTemplateId: String
+    var smartDocumentsTemplateId: String,
+
+    // BPMN optional fields
+    var informatieobjecttypeUuid: UUID?,
+    var smartDocumentsTemplateGroupName: String?,
+    var smartDocumentsTemplateName: String?
 )

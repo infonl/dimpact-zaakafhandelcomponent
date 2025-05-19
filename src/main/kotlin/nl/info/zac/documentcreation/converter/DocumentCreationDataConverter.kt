@@ -40,12 +40,12 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.productaanvraag.ProductaanvraagService
-import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.decodedBase64StringLength
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.Objects
+import java.util.UUID
 
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -59,7 +59,6 @@ class DocumentCreationDataConverter @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
     private val identityService: IdentityService,
     private val productaanvraagService: ProductaanvraagService,
-    private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
     private val configuratieService: ConfiguratieService
 ) {
     companion object {
@@ -199,13 +198,11 @@ class DocumentCreationDataConverter @Inject constructor(
         }
 
     fun toEnkelvoudigInformatieObjectCreateLockRequest(
-        zaak: Zaak,
         file: File,
         format: String,
-        smartDocumentsTemplateGroupId: String,
-        smartDocumentsTemplateId: String,
         title: String,
         description: String?,
+        informatieobjecttypeUuid: UUID,
         creationDate: ZonedDateTime,
         userName: String
     ) = EnkelvoudigInformatieObjectCreateLockRequest().apply {
@@ -217,13 +214,7 @@ class DocumentCreationDataConverter @Inject constructor(
         beschrijving = description
         status = StatusEnum.IN_BEWERKING
         vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
-        informatieobjecttype = smartDocumentsTemplatesService.getInformationObjectTypeUUID(
-            zaakafhandelParametersUUID = zaak.zaaktype.extractUuid(),
-            templateGroupId = smartDocumentsTemplateGroupId,
-            templateId = smartDocumentsTemplateId
-        ).let {
-            ztcClientService.readInformatieobjecttype(it).url
-        }
+        informatieobjecttype = ztcClientService.readInformatieobjecttype(informatieobjecttypeUuid).url
         bestandsnaam = file.fileName
         formaat = format
         inhoud = file.document.data
