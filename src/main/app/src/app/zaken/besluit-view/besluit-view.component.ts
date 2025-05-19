@@ -152,9 +152,7 @@ export class BesluitViewComponent implements OnInit, OnChanges {
     return new HiddenFormFieldBuilder(besluit.uuid).id("uuid").build();
   }
 
-  private maakVervaldatumField(
-    besluit: GeneratedType<"RestDecision">,
-  ) {
+  private maakVervaldatumField(besluit: GeneratedType<"RestDecision">) {
     return new DateFormFieldBuilder(besluit.vervaldatum)
       .id("vervaldatum")
       .label("vervaldatum")
@@ -163,9 +161,7 @@ export class BesluitViewComponent implements OnInit, OnChanges {
       .build();
   }
 
-  private maakVervalredenField(
-    besluit: GeneratedType<"RestDecision">,
-  ) {
+  private maakVervalredenField(besluit: GeneratedType<"RestDecision">) {
     const vervalRedenen = this.utilService.getEnumAsSelectListExceptFor(
       "besluit.vervalreden",
       VervalReden,
@@ -196,9 +192,7 @@ export class BesluitViewComponent implements OnInit, OnChanges {
       .build();
   }
 
-  private maakMessageField(
-    besluit: GeneratedType<"RestDecision">,
-  ) {
+  private maakMessageField(besluit: GeneratedType<"RestDecision">) {
     const documentenVerstuurd = besluit.informatieobjecten?.some(
       ({ verzenddatum }) => verzenddatum != null,
     );

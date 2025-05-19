@@ -22,6 +22,7 @@ import { InputFormField } from "../../../shared/material-form-builder/form-compo
 import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { SelectFormField } from "../../../shared/material-form-builder/form-components/select/select-form-field";
 import { SelectFormFieldBuilder } from "../../../shared/material-form-builder/form-components/select/select-form-field-builder";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { KlantenModule } from "../../klanten.module";
 import { KlantenService } from "../../klanten.service";
 import { Klant } from "../../model/klanten/klant";
@@ -75,7 +76,7 @@ export class KlantKoppelBetrokkeneComponent implements OnInit, AfterViewInit {
   @Output() klantGegevens = new EventEmitter<KlantGegevens>();
   @ViewChild("zoek") zoek: PersoonZoekComponent | BedrijfZoekComponent;
 
-  betrokkeneRoltype: SelectFormField;
+  betrokkeneRoltype: SelectFormField<GeneratedType<"RestRoltype">>;
   betrokkeneToelichting: InputFormField;
   formGroup: FormGroup;
 
@@ -119,10 +120,10 @@ export class KlantKoppelBetrokkeneComponent implements OnInit, AfterViewInit {
   }
 
   klantGeselecteerd(klant: Klant): void {
-    const klantGegevens: KlantGegevens = new KlantGegevens(klant);
-    klantGegevens.betrokkeneRoltype = this.betrokkeneRoltype.formControl.value;
+    const klantGegevens = new KlantGegevens(klant);
+    klantGegevens.betrokkeneRoltype = this.betrokkeneRoltype.formControl.value!;
     klantGegevens.betrokkeneToelichting =
-      this.betrokkeneToelichting.formControl.value;
+      this.betrokkeneToelichting.formControl.value!;
 
     this.klantGegevens.emit(klantGegevens);
   }

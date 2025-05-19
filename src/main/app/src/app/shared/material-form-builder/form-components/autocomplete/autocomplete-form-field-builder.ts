@@ -3,14 +3,19 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { Observable } from "rxjs";
 import { AbstractChoicesFormFieldBuilder } from "../../model/abstract-choices-form-field-builder";
 import { AutocompleteFormField } from "./autocomplete-form-field";
-import {Observable} from "rxjs";
 
-export class AutocompleteFormFieldBuilder<T extends Record<string, unknown> | Observable<Record<string, unknown>> = Record<string, unknown>> extends AbstractChoicesFormFieldBuilder<T> {
+type AllowedValue = Record<string, unknown>;
+type ValueType = AllowedValue | Observable<AllowedValue>;
+
+export class AutocompleteFormFieldBuilder<
+  T extends ValueType = Record<string, unknown>,
+> extends AbstractChoicesFormFieldBuilder<T> {
   readonly formField: AutocompleteFormField<T>;
 
-  constructor(value?: T) {
+  constructor(value?: T | null) {
     super();
     this.formField = new AutocompleteFormField();
     this.formField.initControl(value);

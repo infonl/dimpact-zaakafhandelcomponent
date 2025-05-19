@@ -9,22 +9,22 @@ describe(EmptyPipe.name, () => {
   const pipe = new EmptyPipe();
 
   it.each([
-      [undefined, undefined, "-"],
-      [undefined, "naam", "-"],
-      [{ naam: undefined }, "naam", "-"],
-      [{ naam: "" }, "naam", "-"],
-      [{ naam: "Jaap" }, "naam", "Jaap"],
-      ["", undefined, "-"],
-      ["", "naam", "-"],
-      ["Jaap", undefined, "Jaap"],
-      ["Jaap", "naam", "Jaap"],
-      [[], undefined, "-"],
-      [[], "naam", "-"],
-      [["Jaap"], undefined, "Jaap"],
-      [["Jaap"], "naam", "-"],
+    [undefined, undefined, "-"],
+    [undefined, "naam", "-"],
+    [{ naam: undefined }, "naam", "-"],
+    [{ naam: "" }, "naam", "-"],
+    [{ naam: "Jaap" }, "naam", "Jaap"],
+    ["", undefined, "-"],
+    ["", "naam", "-"],
+    ["Jaap", undefined, "Jaap"],
+    ["Jaap", "naam", "Jaap"],
+    [[], undefined, "-"],
+    [[], "naam", "-"],
+    [["Jaap"], undefined, "Jaap"],
+    [["Jaap"], "naam", "-"],
   ])("%p with key %p should return %s", (object, key, exected) => {
     const result = pipe.transform(object, key);
 
     expect(result).toBe(exected);
-  })
+  });
 });

@@ -53,12 +53,10 @@ export class ZaakafhandelParametersService {
       );
   }
 
-  listZaakbeeindigRedenenForZaaktype(
-    zaaktypeUuid: string,
-  ): Observable<ZaakbeeindigReden[]> {
+  listZaakbeeindigRedenenForZaaktype(zaaktypeUuid: string) {
     return this.http
       .get<
-        ZaakbeeindigReden[]
+        GeneratedType<"RESTZaakbeeindigReden">[]
       >(`${this.basepath}/zaakbeeindigredenen/${zaaktypeUuid}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),

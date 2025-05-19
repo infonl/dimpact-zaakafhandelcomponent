@@ -7,10 +7,12 @@ import { ActionIcon } from "../../../edit/action-icon";
 import { AbstractFormFieldBuilder } from "../../model/abstract-form-field-builder";
 import { InputFormField } from "./input-form-field";
 
-export class InputFormFieldBuilder<T extends string | number | boolean = string> extends AbstractFormFieldBuilder<T> {
+export class InputFormFieldBuilder<
+  T extends string | number | boolean = string,
+> extends AbstractFormFieldBuilder<T> {
   readonly formField: InputFormField<T>;
 
-  constructor(value?: T) {
+  constructor(value?: T | null) {
     super();
     this.formField = new InputFormField();
     this.formField.initControl(value);

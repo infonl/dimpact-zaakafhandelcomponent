@@ -10,7 +10,7 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
-import {FormControl, Validators} from "@angular/forms";
+import { FormControl, Validators } from "@angular/forms";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -22,15 +22,15 @@ import { IdentityService } from "../../identity/identity.service";
 import { HtmlEditorFormField } from "../../shared/material-form-builder/form-components/html-editor/html-editor-form-field";
 import { HtmlEditorFormFieldBuilder } from "../../shared/material-form-builder/form-components/html-editor/html-editor-form-field-builder";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
+import { ReadonlyFormField } from "../../shared/material-form-builder/form-components/readonly/readonly-form-field";
 import { ReadonlyFormFieldBuilder } from "../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
+import { SelectFormField } from "../../shared/material-form-builder/form-components/select/select-form-field";
 import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
 import { AbstractFormControlField } from "../../shared/material-form-builder/model/abstract-form-control-field";
 import { AdminComponent } from "../admin/admin.component";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { Mail } from "../model/mail";
 import { Mailtemplate } from "../model/mailtemplate";
-import {ReadonlyFormField} from "../../shared/material-form-builder/form-components/readonly/readonly-form-field";
-import {SelectFormField} from "../../shared/material-form-builder/form-components/select/select-form-field";
 
 @Component({
   templateUrl: "./mailtemplate.component.html",
@@ -52,7 +52,9 @@ export class MailtemplateComponent
   };
 
   naamFormField?: AbstractFormControlField<string>;
-  mailFormField?: ReadonlyFormField | SelectFormField<{ label: string, value: string}>;
+  mailFormField?:
+    | ReadonlyFormField
+    | SelectFormField<{ label: string; value: string }>;
   onderwerpFormField?: HtmlEditorFormField;
   bodyFormField?: HtmlEditorFormField;
   defaultMailtemplateFormField?: AbstractFormControlField;
@@ -103,7 +105,10 @@ export class MailtemplateComponent
         .label(this.fields.MAIL)
         .build();
     } else {
-      this.mailFormField = new SelectFormFieldBuilder<{label: string, value: string}>()
+      this.mailFormField = new SelectFormFieldBuilder<{
+        label: string;
+        value: string;
+      }>()
         .id(this.fields.MAIL)
         .label(this.fields.MAIL)
         .optionLabel("label")
@@ -135,7 +140,9 @@ export class MailtemplateComponent
       .build();
 
     this.subscriptions$.push(
-      (this.mailFormField.formControl as FormControl<{ value: Mail}>).valueChanges.subscribe((value) => {
+      (
+        this.mailFormField.formControl as FormControl<{ value: Mail }>
+      ).valueChanges.subscribe((value) => {
         if (value) {
           this.service
             .ophalenVariabelenVoorMail(value.value)
@@ -159,13 +166,19 @@ export class MailtemplateComponent
   }
 
   saveMailtemplate(): void {
-    this.template.defaultMailtemplate = Boolean(this.defaultMailtemplateFormField
-      ?.formControl.value)
-    this.template.mailTemplateNaam = this.naamFormField?.formControl.value ?? "";
+    this.template.defaultMailtemplate = Boolean(
+      this.defaultMailtemplateFormField?.formControl.value,
+    );
+    this.template.mailTemplateNaam =
+      this.naamFormField?.formControl.value ?? "";
     if (!this.template.mail) {
-      this.template.mail = (this.mailFormField?.formControl.value as { value: string })?.value;
+      this.template.mail = (
+        this.mailFormField?.formControl.value as { value: string }
+      )?.value;
     }
-    this.template.mail = this.template.mail ?? (this.mailFormField?.formControl.value as { value: string })?.value;
+    this.template.mail =
+      this.template.mail ??
+      (this.mailFormField?.formControl.value as { value: string })?.value;
     this.template.onderwerp = this.onderwerpFormField?.formControl.value ?? "";
     this.template.body = this.bodyFormField?.formControl.value ?? "";
     this.persistMailtemplate();

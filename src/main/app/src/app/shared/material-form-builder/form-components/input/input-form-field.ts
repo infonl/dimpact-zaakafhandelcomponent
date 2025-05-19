@@ -9,7 +9,9 @@ import { ActionIcon } from "../../../edit/action-icon";
 import { AbstractFormControlField } from "../../model/abstract-form-control-field";
 import { FieldType } from "../../model/field-type.enum";
 
-export class InputFormField<T extends string | number | boolean = string> extends AbstractFormControlField<T> {
+export class InputFormField<
+  T extends string | number | boolean = string,
+> extends AbstractFormControlField<T> {
   fieldType: FieldType = FieldType.INPUT;
   icons: ActionIcon[] = [];
   clicked = new Subject<unknown>();

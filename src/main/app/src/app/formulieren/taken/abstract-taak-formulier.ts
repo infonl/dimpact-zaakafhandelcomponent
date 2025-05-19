@@ -90,15 +90,16 @@ export abstract class AbstractTaakFormulier {
 
   getTaak(formGroup: FormGroup): Taak {
     this.taak.taakdata = this.getDataElementen(formGroup);
-    this.taak.toelichting = String(this.getFormField(
-      AbstractTaakFormulier.TOELICHTING_FIELD,
-    ).formControl.value);
+    this.taak.toelichting = String(
+      this.getFormField(AbstractTaakFormulier.TOELICHTING_FIELD).formControl
+        .value,
+    );
     this.taak.taakinformatie = this.getTaakinformatie(formGroup);
     return this.taak;
   }
 
   protected getDataElement(key: string) {
-    return key in this.dataElementen ? this.dataElementen[key] : null;
+    return key in this.dataElementen ? this.dataElementen[key] : undefined;
   }
 
   refreshTaakdocumentenEnBijlagen() {

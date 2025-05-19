@@ -6,7 +6,9 @@
 import { AbstractFileFormField } from "../../model/abstract-file-form-field";
 import { FieldType } from "../../model/field-type.enum";
 
-export class TaakDocumentUploadFormField<T extends File = File> extends AbstractFileFormField<T> {
+export class TaakDocumentUploadFormField<
+  T extends File = File,
+> extends AbstractFileFormField<T> {
   fieldType: FieldType = FieldType.TAAK_DOCUMENT_UPLOAD;
 
   defaultTitel: string;

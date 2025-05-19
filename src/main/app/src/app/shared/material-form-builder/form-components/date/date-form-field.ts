@@ -3,11 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { Moment } from "moment/moment";
 import { AbstractFormControlField } from "../../model/abstract-form-control-field";
 import { FieldType } from "../../model/field-type.enum";
-import {Moment} from "moment/moment";
 
-export class DateFormField extends AbstractFormControlField<Moment | Date | string | null> {
+export class DateFormField extends AbstractFormControlField<
+  Moment | Date | string | null
+> {
   fieldType = FieldType.DATE;
   public minDate: Date;
   public maxDate: Date;

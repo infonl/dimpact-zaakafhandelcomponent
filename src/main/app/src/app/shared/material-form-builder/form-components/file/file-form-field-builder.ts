@@ -6,7 +6,9 @@
 import { AbstractFileFormFieldBuilder } from "../../model/abstract-file-form-field-builder";
 import { FileFormField } from "./file-form-field";
 
-export class FileFormFieldBuilder<T extends File = File> extends AbstractFileFormFieldBuilder<T> {
+export class FileFormFieldBuilder<
+  T extends File = File,
+> extends AbstractFileFormFieldBuilder<T> {
   readonly formField: FileFormField<T>;
 
   uploadURL(url: string): this {
@@ -21,7 +23,7 @@ export class FileFormFieldBuilder<T extends File = File> extends AbstractFileFor
     }
   }
 
-  constructor(value?: T) {
+  constructor(value?: T | null) {
     super();
     this.formField = new FileFormField();
     this.formField.initControl(value);

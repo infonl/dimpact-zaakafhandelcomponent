@@ -22,8 +22,8 @@ export class AutocompleteComponent
 {
   data: AutocompleteFormField;
 
-  options: Record<string, string>[];
-  filteredOptions: Observable<unknown[]>;
+  options: Record<string, unknown>[] = [];
+  filteredOptions = new Observable<unknown[]>();
   optionsChanged$: Subscription;
 
   constructor(public translate: TranslateService) {
@@ -59,25 +59,29 @@ export class AutocompleteComponent
             case "string":
               return value;
             case "object":
-              return value[this.data.optionLabel];
+              return value[String(this.data.optionLabel)];
             default:
               return null;
           }
         }),
-        map((name) => (name ? this._filter(name) : this.options?.slice())),
+        map((name) =>
+          name ? this._filter(String(name)) : this.options?.slice(),
+        ),
       );
     });
   }
 
   displayFn = (obj: unknown): string => {
-    return obj?.[this.data.optionLabel] ?? obj;
+    return obj?.[String(this.data.optionLabel)] ?? obj;
   };
 
   private _filter(filter: string): unknown[] {
     const filterValue = filter.toLowerCase();
 
     return this.options.filter((option) => {
-      return option[this.data.optionLabel].toLowerCase().includes(filterValue);
+      return String(option[String(this.data.optionLabel)])
+        .toLowerCase()
+        .includes(filterValue);
     });
   }
 

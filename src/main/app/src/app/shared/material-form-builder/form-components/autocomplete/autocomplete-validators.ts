@@ -3,11 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  AbstractControl,
-  AsyncValidatorFn,
-  ValidatorFn,
-} from "@angular/forms";
+import { AbstractControl, AsyncValidatorFn, ValidatorFn } from "@angular/forms";
 import { Observable, of, take } from "rxjs";
 import { map } from "rxjs/operators";
 
@@ -43,7 +39,10 @@ export class AutocompleteValidators {
     };
   }
 
-  static equals(object1: Record<string, unknown> | string, object2: Record<string, unknown> | string) {
+  static equals(
+    object1: Record<string, unknown> | string,
+    object2: Record<string, unknown> | string,
+  ) {
     if (typeof object1 === "string" || typeof object2 === "string") {
       return object1 === object2;
     }

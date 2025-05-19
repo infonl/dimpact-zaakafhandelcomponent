@@ -6,7 +6,9 @@
 import { AbstractFormControlField } from "../../model/abstract-form-control-field";
 import { FieldType } from "../../model/field-type.enum";
 
-export class GoogleMapsFormField<T extends string = string> extends AbstractFormControlField<T> {
+export class GoogleMapsFormField<
+  T extends string = string,
+> extends AbstractFormControlField<T> {
   fieldType: FieldType = FieldType.GOOGLEMAPS;
 
   constructor() {

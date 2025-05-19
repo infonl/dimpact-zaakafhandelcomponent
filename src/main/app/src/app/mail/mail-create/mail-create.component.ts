@@ -18,6 +18,7 @@ import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { ActionIcon } from "../../shared/edit/action-icon";
 import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
+import { DocumentenLijstFormField } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-form-field";
 import { HtmlEditorFormFieldBuilder } from "../../shared/material-form-builder/form-components/html-editor/html-editor-form-field-builder";
 import { InputFormField } from "../../shared/material-form-builder/form-components/input/input-form-field";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
@@ -55,11 +56,11 @@ export class MailCreateComponent implements OnInit {
   fields: Array<AbstractFormField[]>;
   ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
 
-  verzenderFormField: SelectFormField<{ mail: string, replyTo: string }>;
+  verzenderFormField: SelectFormField<GeneratedType<"RESTZaakAfzender">>;
   ontvangerFormField: InputFormField;
   onderwerpFormField: AbstractFormControlField<string>;
   bodyFormField: AbstractFormControlField<string>;
-  bijlagenFormField: AbstractFormControlField<string>;
+  bijlagenFormField: DocumentenLijstFormField;
 
   constructor(
     private zakenService: ZakenService,

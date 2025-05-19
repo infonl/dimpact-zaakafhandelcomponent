@@ -8,7 +8,9 @@ import { FileIcon } from "../../../informatie-objecten/model/file-icon";
 import { MB_IN_BYTES } from "../../utils/constants";
 import { AbstractFormControlField } from "./abstract-form-control-field";
 
-export abstract class AbstractFileFormField<T extends File = File> extends AbstractFormControlField<T> {
+export abstract class AbstractFileFormField<
+  T extends File = File,
+> extends AbstractFormControlField<T> {
   fileIcons = [...FileIcon.fileIcons];
   maxFileSizeMB: number;
   uploadURL: string;

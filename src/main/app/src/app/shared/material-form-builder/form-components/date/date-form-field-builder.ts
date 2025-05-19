@@ -3,11 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { Moment } from "moment";
 import { AbstractFormFieldBuilder } from "../../model/abstract-form-field-builder";
 import { DateFormField } from "./date-form-field";
-import {Moment} from "moment";
 
-export class DateFormFieldBuilder extends AbstractFormFieldBuilder<Moment | Date | string | null> {
+export class DateFormFieldBuilder extends AbstractFormFieldBuilder<
+  Moment | Date | string | null
+> {
   readonly formField: DateFormField;
 
   constructor(value?: Moment | Date | string | null) {

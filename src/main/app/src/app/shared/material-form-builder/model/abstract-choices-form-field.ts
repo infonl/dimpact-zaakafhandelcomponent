@@ -12,14 +12,22 @@ import { AbstractFormControlField } from "./abstract-form-control-field";
  * Abstract class voor Form Fields die meerdere waardes tonen (checkbox, radiobutton, select)
  * Deze componenten hebben een compare methode nodig om te bepalen welke value geselecteerd moet worden in de lijst.
  */
-export abstract class AbstractChoicesFormField<T extends Record<string, unknown> = Record<string, unknown>> extends AbstractFormControlField<T> {
+
+type AllowedValue = Record<string, unknown> | string | string[];
+type ValueType = AllowedValue | Observable<AllowedValue>;
+
+export type ResolvedType<T> = T extends Observable<infer R> ? R : T;
+
+export abstract class AbstractChoicesFormField<
+  T extends ValueType = Record<string, unknown>,
+> extends AbstractFormControlField<T> {
   optionsChanged$ = new EventEmitter<void>();
-  private options$ = new Observable<T[]>();
-  private valueOptions: T[] = [];
-  public optionLabel: string | null = null;
+  private options$ = new Observable<ResolvedType<T>[]>();
+  private valueOptions: ResolvedType<T>[] = [];
+  public optionLabel: keyof ResolvedType<T> | null = null;
   public optionSuffix: string | null = null;
-  public optionValue: string | null = null;
-  public optionOrderFn?: (a: T, b: T) => number;
+  public optionValue: keyof ResolvedType<T> | null = null;
+  public optionOrderFn?: (a: ResolvedType<T>, b: ResolvedType<T>) => number;
   public settings: {
     translateLabels?: boolean;
     capitalizeFirstLetter?: boolean;
@@ -29,7 +37,10 @@ export abstract class AbstractChoicesFormField<T extends Record<string, unknown>
     super();
   }
 
-  compareWithFn = (object1: T, object2: T): boolean => {
+  compareWithFn = (
+    object1: ResolvedType<T>,
+    object2: ResolvedType<T>,
+  ): boolean => {
     if (object1 && object2) {
       return this.optionValue
         ? this.compare(object1, object2, this.optionValue)
@@ -40,7 +51,11 @@ export abstract class AbstractChoicesFormField<T extends Record<string, unknown>
     return false;
   };
 
-  private compare(object1: T, object2: T, field: keyof T): boolean {
+  private compare(
+    object1: ResolvedType<T>,
+    object2: ResolvedType<T>,
+    field: keyof ResolvedType<T>,
+  ): boolean {
     return (
       object1 === object2[field] ||
       object1[field] === object2 ||
@@ -48,7 +63,7 @@ export abstract class AbstractChoicesFormField<T extends Record<string, unknown>
     );
   }
 
-  getOption(value: T) {
+  getOption(value: ResolvedType<T>) {
     for (const option of this.valueOptions) {
       if (this.compareWithFn(value, option)) {
         return option;
@@ -61,12 +76,14 @@ export abstract class AbstractChoicesFormField<T extends Record<string, unknown>
     return this.options$;
   }
 
-  set options(options: Observable<T[]>) {
+  set options(options: Observable<ResolvedType<T>[]>) {
     this.valueOptions = [];
     this.options$ = options.pipe(
       tap((value) => {
         this.valueOptions = value;
-        value?.sort(this.optionOrderFn || OrderUtil.orderBy(this.optionLabel as null)); // as null to make TS happy
+        value?.sort(
+          this.optionOrderFn || OrderUtil.orderBy(this.optionLabel as null),
+        ); // as null to make TS happy
       }),
     );
     this.optionsChanged$.next();

@@ -7,7 +7,7 @@ import { Component, Inject, OnDestroy } from "@angular/core";
 import { Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { TranslateService } from "@ngx-translate/core";
-import moment, {Moment} from "moment";
+import moment, { Moment } from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { CheckboxFormField } from "src/app/shared/material-form-builder/form-components/checkbox/checkbox-form-field";
 import { CheckboxFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/checkbox/checkbox-form-field-builder";
@@ -126,6 +126,7 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       });
 
     this.einddatumGeplandField.formControl.valueChanges
+      // @ts-expect-error -- TODO TS2554: Expected 0 arguments, but got 1
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
         if (value == null) {
@@ -194,8 +195,9 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
     const zaakVerlengGegevens: GeneratedType<"RESTZaakVerlengGegevens"> = {
       duurDagen: this.duurDagenField.formControl.value ?? undefined,
       einddatumGepland: String(this.einddatumGeplandField.formControl.value),
-      uiterlijkeEinddatumAfdoening:
-        String(this.uiterlijkeEinddatumAfdoeningField.formControl.value),
+      uiterlijkeEinddatumAfdoening: String(
+        this.uiterlijkeEinddatumAfdoeningField.formControl.value,
+      ),
       redenVerlenging: this.redenVerlengingField.formControl.value,
       takenVerlengen: Boolean(this.takenVerlengenField.formControl.value),
     };

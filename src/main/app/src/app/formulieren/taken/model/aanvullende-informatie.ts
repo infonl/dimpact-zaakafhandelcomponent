@@ -11,7 +11,6 @@ import { MessageFormFieldBuilder } from "src/app/shared/material-form-builder/fo
 import { MessageLevel } from "src/app/shared/material-form-builder/form-components/message/message-level.enum";
 import { Mail } from "../../../admin/model/mail";
 import { Mailtemplate } from "../../../admin/model/mailtemplate";
-import { ZaakAfzender } from "../../../admin/model/zaakafzender";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { KlantenService } from "../../../klanten/klanten.service";
@@ -159,12 +158,12 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
       });
 
     this.getFormField(fields.VERZENDER).formControl.valueChanges.subscribe(
-      (afzender: ZaakAfzender) => {
-        const verzender: SelectFormField = this.getFormField(
+      (afzender) => {
+        const verzender = this.getFormField(
           fields.VERZENDER,
         ) as SelectFormField;
         this.getFormField(fields.REPLYTO).formControl.setValue(
-          verzender.getOption(afzender)?.replyTo,
+          verzender.getOption(afzender as Record<string, unknown>)?.replyTo,
         );
       },
     );
@@ -195,7 +194,7 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
             const initiatorToevoegenIcon = new ActionIcon(
               "person",
               "actie.initiator.email.toevoegen",
-              new Subject<void>(),
+              new Subject<unknown>(),
             );
             const emailInput = this.getFormField(
               this.fields.EMAILADRES,
@@ -215,8 +214,9 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
     this.getFormField(
       AbstractTaakFormulier.TAAK_FATALEDATUM,
     ).formControl.valueChanges.subscribe((selectedMoment) => {
-      this.getFormField("messageField").label =
-        this.getMessageFieldLabel(selectedMoment as string);
+      this.getFormField("messageField").label = this.getMessageFieldLabel(
+        selectedMoment as string,
+      );
     });
   }
 
@@ -311,7 +311,12 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
         ]);
       } else {
         this.form.push([
-          new RadioFormFieldBuilder(this.getDataElement(fields.ZAAK_HERVATTEN))
+          new RadioFormFieldBuilder(
+            this.getDataElement(fields.ZAAK_HERVATTEN) as unknown as {
+              value: string;
+              label: string;
+            },
+          )
             .id(fields.ZAAK_HERVATTEN)
             .label("actie.zaak.hervatten")
             .options([

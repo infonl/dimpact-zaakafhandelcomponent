@@ -10,13 +10,15 @@ import { ActionIcon } from "../../../edit/action-icon";
 import { AbstractFormFieldBuilder } from "../../model/abstract-form-field-builder";
 import { HtmlEditorFormField } from "./html-editor-form-field";
 
-export class HtmlEditorFormFieldBuilder<T extends string = string> extends AbstractFormFieldBuilder<T> {
+export class HtmlEditorFormFieldBuilder<
+  T extends string = string,
+> extends AbstractFormFieldBuilder<T> {
   readonly formField: HtmlEditorFormField<T>;
 
-  constructor(value?: T) {
+  constructor(value?: T | null) {
     super();
     this.formField = new HtmlEditorFormField();
-    this.formField.initControl(value ? value : "" as T);
+    this.formField.initControl(value ? value : ("" as T));
   }
 
   mailtemplateBody(mailtemplate$: Observable<Mailtemplate>): this {

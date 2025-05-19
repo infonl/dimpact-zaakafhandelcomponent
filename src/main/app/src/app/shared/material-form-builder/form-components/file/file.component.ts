@@ -140,7 +140,7 @@ export class FileComponent extends FormComponent implements OnInit {
   }
 
   updateInput(inputValue: string) {
-    this.data.formControl.setValue(inputValue);
+    this.data.formControl.setValue(inputValue as unknown as File); // TODO this should be a `File` type
     this.changeDetector.detectChanges();
   }
 

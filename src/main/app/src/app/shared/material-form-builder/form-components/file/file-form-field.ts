@@ -6,7 +6,9 @@
 import { AbstractFileFormField } from "../../model/abstract-file-form-field";
 import { FieldType } from "../../model/field-type.enum";
 
-export class FileFormField<T extends File = File> extends AbstractFileFormField<T> {
+export class FileFormField<
+  T extends File = File,
+> extends AbstractFileFormField<T> {
   fieldType: FieldType = FieldType.FILE;
 
   constructor() {

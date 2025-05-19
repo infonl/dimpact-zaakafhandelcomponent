@@ -6,7 +6,9 @@
 import { AbstractFormControlField } from "../../model/abstract-form-control-field";
 import { FieldType } from "../../model/field-type.enum";
 
-export class CheckboxFormField<T extends boolean = boolean> extends AbstractFormControlField<T> {
+export class CheckboxFormField<
+  T extends boolean = boolean,
+> extends AbstractFormControlField<T> {
   fieldType = FieldType.CHECKBOX;
 
   constructor() {

@@ -20,7 +20,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { Observable, Subscription } from "rxjs";
 import { FoutAfhandelingService } from "../../../../fout-afhandeling/fout-afhandeling.service";
 import { InformatieObjectenService } from "../../../../informatie-objecten/informatie-objecten.service";
-import { Informatieobjecttype } from "../../../../informatie-objecten/model/informatieobjecttype";
+import { GeneratedType } from "../../../utils/generated-types";
 import { FormComponent } from "../../model/form-component";
 import { TaakDocumentUploadFormField } from "./taak-document-upload-form-field";
 
@@ -40,7 +40,7 @@ export class TaakDocumentUploadComponent
   uploadControl: FormControl;
   titelControl: FormControl;
   typeControl: FormControl;
-  types$: Observable<Informatieobjecttype[]>;
+  types$: Observable<GeneratedType<"RestInformatieobjecttype">[]>;
   UploadStatus = {
     SELECTEER_BESTAND: "SELECTEER_BESTAND",
     BEZIG: "BEZIG",
@@ -170,6 +170,7 @@ export class TaakDocumentUploadComponent
       }
     }
     if (this.uploadControl.value && this.formGroup.valid) {
+      // @ts-expect-error TODO check why this is working
       this.data.formControl.setValue(JSON.stringify(this.formGroup.value));
     } else {
       this.data.formControl.setValue(null);
@@ -177,8 +178,8 @@ export class TaakDocumentUploadComponent
   }
 
   compareInfoObjectType(
-    object1: Informatieobjecttype,
-    object2: Informatieobjecttype,
+    object1: GeneratedType<"RestInformatieobjecttype">,
+    object2: GeneratedType<"RestInformatieobjecttype">,
   ): boolean {
     if (object1 && object2) {
       return object1.uuid === object2.uuid;

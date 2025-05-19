@@ -6,10 +6,12 @@
 import { AbstractFileFormFieldBuilder } from "../../model/abstract-file-form-field-builder";
 import { TaakDocumentUploadFormField } from "./taak-document-upload-form-field";
 
-export class TaakDocumentUploadFieldBuilder<T extends File = File> extends AbstractFileFormFieldBuilder<T> {
+export class TaakDocumentUploadFieldBuilder<
+  T extends File = File,
+> extends AbstractFileFormFieldBuilder<T> {
   readonly formField: TaakDocumentUploadFormField<T>;
 
-  constructor(value?: T) {
+  constructor(value?: T | null) {
     super();
     this.formField = new TaakDocumentUploadFormField();
     this.formField.initControl(value);

@@ -13,7 +13,7 @@ export class HiddenFormField<T = unknown> extends AbstractFormControlField<T> {
     super();
   }
 
-  initControl(value?: T) {
+  initControl(value?: T | null) {
     super.initControl(value);
     this.label = "hidden";
   }
