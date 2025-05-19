@@ -104,7 +104,7 @@ class NoteRestServiceTest : BehaviorSpec({
         When("deleteNote is called") {
             noteRestService.deleteNote(nodeId)
 
-            Then("the node is deleted") {
+            Then("the note is deleted") {
                 verify(exactly = 1) {
                     noteService.deleteNote(nodeId)
                 }
