@@ -14,7 +14,7 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.app.admin.converter.RESTZaaktypeOverzichtConverter
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.PolicyService.assertPolicy
+import net.atos.zac.policy.assertPolicy
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.admin.model.RESTBuildInformation

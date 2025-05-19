@@ -21,6 +21,7 @@ import net.atos.zac.app.formulieren.converter.toRESTFormulierDefinitie
 import net.atos.zac.app.formulieren.model.RESTFormulierDefinitie
 import net.atos.zac.formulieren.FormulierDefinitieService
 import net.atos.zac.policy.PolicyService
+import net.atos.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -37,13 +38,13 @@ class FormulierDefinitieRESTService @Inject constructor(
 
     @GET
     fun listFormDefinitions() =
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren).run {
+        assertPolicy(policyService.readOverigeRechten().beheren).run {
             service.listFormulierDefinities().map { it.toRESTFormulierDefinitie(false) }
         }
 
     @POST
     fun createFormDefinition(@Valid restFormulierDefinitie: RESTFormulierDefinitie) =
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren).run {
+        assertPolicy(policyService.readOverigeRechten().beheren).run {
             service.createFormulierDefinitie(
                 restFormulierDefinitie.toFormulierDefinitie()
             ).toRESTFormulierDefinitie(true)
@@ -52,20 +53,20 @@ class FormulierDefinitieRESTService @Inject constructor(
     @GET
     @Path("{id}")
     fun readFormDefinition(@PathParam("id") id: Long) =
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren).run {
+        assertPolicy(policyService.readOverigeRechten().beheren).run {
             service.readFormulierDefinitie(id).toRESTFormulierDefinitie(true)
         }
 
     @GET
     @Path("runtime/{systeemnaam}")
     fun findFormDefinition(@PathParam("systeemnaam") systeemnaam: String) =
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren).run {
+        assertPolicy(policyService.readOverigeRechten().beheren).run {
             service.readFormulierDefinitie(systeemnaam).toRESTFormulierDefinitie(true)
         }
 
     @PUT
     fun updateFormDefinition(@Valid restFormulierDefinitie: RESTFormulierDefinitie) =
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren).run {
+        assertPolicy(policyService.readOverigeRechten().beheren).run {
             service.updateFormulierDefinitie(
                 restFormulierDefinitie.toFormulierDefinitie()
             ).toRESTFormulierDefinitie(true)
@@ -74,7 +75,7 @@ class FormulierDefinitieRESTService @Inject constructor(
     @DELETE
     @Path("{id}")
     fun deleteFormDefinition(@PathParam("id") id: Long) {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         service.deleteFormulierDefinitie(id)
     }
 }

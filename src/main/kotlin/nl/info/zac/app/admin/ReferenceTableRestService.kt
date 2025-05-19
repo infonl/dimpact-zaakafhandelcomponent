@@ -17,6 +17,7 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.policy.PolicyService
+import net.atos.zac.policy.assertPolicy
 import nl.info.zac.admin.ReferenceTableAdminService
 import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.model.ReferenceTable
@@ -47,7 +48,7 @@ class ReferenceTableRestService @Inject constructor(
 ) {
     @GET
     fun listReferenceTables(): List<RestReferenceTable> {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         return referenceTableService.listReferenceTables()
             .map { it.toRestReferenceTable(false) }
     }
@@ -66,7 +67,7 @@ class ReferenceTableRestService @Inject constructor(
 
     @POST
     fun createReferenceTable(restReferenceTable: RestReferenceTable): RestReferenceTable {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         return referenceTableAdminService.createReferenceTable(
             restReferenceTable.toReferenceTable()
         ).toRestReferenceTable(
@@ -77,7 +78,7 @@ class ReferenceTableRestService @Inject constructor(
     @GET
     @Path("{id}")
     fun readReferenceTable(@PathParam("id") id: Long): RestReferenceTable {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         return referenceTableService.readReferenceTable(id).toRestReferenceTable(
             true
         )
@@ -89,7 +90,7 @@ class ReferenceTableRestService @Inject constructor(
         @PathParam("id") id: Long,
         @Valid restReferenceTableUpdate: RestReferenceTableUpdate
     ): RestReferenceTable {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         return referenceTableService.readReferenceTable(id).let { existingReferenceTable ->
             val systemValueNames = existingReferenceTable.values.filter { it.isSystemValue }.map { it.name }
             existingReferenceTable.updateExistingReferenceTable(
@@ -109,14 +110,14 @@ class ReferenceTableRestService @Inject constructor(
     @DELETE
     @Path("{id}")
     fun deleteReferenceTable(@PathParam("id") id: Long) {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         referenceTableAdminService.deleteReferenceTable(id)
     }
 
     @GET
     @Path("afzender")
     fun listEmailSenders(): List<String> {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         return referenceTableService.readReferenceTable(Systeem.AFZENDER.name).values.let {
             getReferenceTableValueNames(it)
         }
@@ -134,7 +135,7 @@ class ReferenceTableRestService @Inject constructor(
     @GET
     @Path("domein")
     fun listDomains(): List<String> {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         return referenceTableService.readReferenceTable(Systeem.DOMEIN.name).values.let {
             getReferenceTableValueNames(it)
         }

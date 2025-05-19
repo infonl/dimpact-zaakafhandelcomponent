@@ -217,7 +217,7 @@ class PolicyServiceTest : BehaviorSpec({
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("policy rights are requested") {
-            val zaakRechten = policyService.readZaakRechten(zaakZoekObject)
+            val zaakRechten = policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
 
             Then("correct ZaakData is sent to OPA") {
                 zaakRechten shouldBe expectedZaakRechten

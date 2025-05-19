@@ -13,7 +13,7 @@ import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.shared.cache.Caching
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.PolicyService.assertPolicy
+import net.atos.zac.policy.assertPolicy
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor

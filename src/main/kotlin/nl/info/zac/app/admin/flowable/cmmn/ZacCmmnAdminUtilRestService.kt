@@ -15,7 +15,7 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.PolicyService.assertPolicy
+import net.atos.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.CmmnRuntimeService
 import org.flowable.cmmn.api.CmmnTaskService

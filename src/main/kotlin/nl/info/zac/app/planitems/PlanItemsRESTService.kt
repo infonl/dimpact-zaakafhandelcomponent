@@ -28,6 +28,7 @@ import net.atos.zac.mailtemplates.MailTemplateService
 import net.atos.zac.mailtemplates.model.Mail
 import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.policy.PolicyService
+import net.atos.zac.policy.assertPolicy
 import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZGWApiService
@@ -143,7 +144,7 @@ class PlanItemsRESTService @Inject constructor(
         val zaakUUID = zaakVariabelenService.readZaakUUID(planItem)
         val zaak = zrcClientService.readZaak(zaakUUID)
         val taakdata = humanTaskData.taakdata
-        PolicyService.assertPolicy(policyService.readZaakRechten(zaak).startenTaak)
+        assertPolicy(policyService.readZaakRechten(zaak).startenTaak)
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
             zaak.zaaktype.extractUuid()
         )
@@ -216,9 +217,9 @@ class PlanItemsRESTService @Inject constructor(
     fun doUserEventListenerPlanItem(userEventListenerData: RESTUserEventListenerData) {
         val zaak = zrcClientService.readZaak(userEventListenerData.zaakUuid)
         val zaakRechten = policyService.readZaakRechten(zaak)
-        PolicyService.assertPolicy(zaakRechten.startenTaak)
+        assertPolicy(zaakRechten.startenTaak)
         if (userEventListenerData.restMailGegevens != null) {
-            PolicyService.assertPolicy(zaakRechten.versturenEmail)
+            assertPolicy(zaakRechten.versturenEmail)
         }
         when (userEventListenerData.actie) {
             UserEventListenerActie.INTAKE_AFRONDEN -> {

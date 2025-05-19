@@ -4,6 +4,7 @@
  */
 package net.atos.zac.app.inboxdocumenten;
 
+import static net.atos.zac.policy.PolicyServiceKt.assertPolicy;
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 
 import java.util.List;
@@ -61,7 +62,7 @@ public class InboxDocumentenRESTService {
     @PUT
     @Path("")
     public RESTResultaat<RESTInboxDocument> listInboxDocuments(final RESTInboxDocumentListParameters restListParameters) {
-        PolicyService.assertPolicy(policyService.readWerklijstRechten().inbox());
+        assertPolicy(policyService.readWerklijstRechten().inbox());
         final InboxDocumentListParameters listParameters = listParametersConverter.convert(restListParameters);
         var inboxDocuments = inboxDocumentenService.list(listParameters);
         var informationObjectTypeUUIDs = inboxDocuments.stream().map(
@@ -80,7 +81,7 @@ public class InboxDocumentenRESTService {
     @DELETE
     @Path("{id}")
     public void deleteInboxDocument(@PathParam("id") final long id) {
-        PolicyService.assertPolicy(policyService.readWerklijstRechten().inbox());
+        assertPolicy(policyService.readWerklijstRechten().inbox());
         final Optional<InboxDocument> inboxDocument = inboxDocumentenService.find(id);
         if (inboxDocument.isEmpty()) {
             return; // reeds verwijderd

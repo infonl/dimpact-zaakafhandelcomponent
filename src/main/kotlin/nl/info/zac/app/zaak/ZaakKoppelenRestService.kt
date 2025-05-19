@@ -127,7 +127,7 @@ class ZaakKoppelenRestService @Inject constructor(
     private fun areBothClosed(sourceZaak: Zaak, targetZaak: ZaakZoekObject) =
         !sourceZaak.isOpen && targetZaak.archiefNominatie != null
 
-    private fun ZaakZoekObject.hasLinkRights() = policyService.readZaakRechten(this).koppelen
+    private fun ZaakZoekObject.hasLinkRights() = policyService.readZaakRechtenForZaakZoekObject(this).koppelen
 
     private fun Zaak.hasLinkRights() = policyService.readZaakRechten(this).koppelen
 

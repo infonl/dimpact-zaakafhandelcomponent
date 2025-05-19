@@ -6,7 +6,7 @@
 package net.atos.zac.app.bag;
 
 import static java.util.stream.Collectors.joining;
-import static net.atos.zac.policy.PolicyService.assertPolicy;
+import static net.atos.zac.policy.PolicyServiceKt.assertPolicy;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -107,7 +107,7 @@ public class BagRestService {
     @POST
     public void create(final RESTBAGObjectGegevens bagObjectGegevens) {
         final Zaak zaak = zrcClientService.readZaak(bagObjectGegevens.zaakUuid);
-        assertPolicy(policyService.readZaakRechten(zaak).toevoegenBagObject());
+        assertPolicy(policyService.readZaakRechten(zaak, null).toevoegenBagObject());
         if (isNogNietGekoppeld(bagObjectGegevens.getBagObject(), zaak)) {
             zrcClientService.createZaakobject(RestBagConverter.convertToZaakobject(bagObjectGegevens.getBagObject(), zaak));
         }
@@ -116,7 +116,7 @@ public class BagRestService {
     @DELETE
     public void delete(final RESTBAGObjectGegevens bagObjectGegevens) {
         final Zaak zaak = zrcClientService.readZaak(bagObjectGegevens.zaakUuid);
-        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
+        assertPolicy(policyService.readZaakRechten(zaak, null).behandelen());
         final Zaakobject zaakobject = zrcClientService.readZaakobject(bagObjectGegevens.uuid);
         zrcClientService.deleteZaakobject(zaakobject, bagObjectGegevens.redenWijzigen);
     }
@@ -126,7 +126,7 @@ public class BagRestService {
     public List<RESTBAGObjectGegevens> listBagobjectenVoorZaak(@PathParam("zaakUuid") final UUID zaakUUID) {
         final ZaakobjectListParameters zaakobjectListParameters = new ZaakobjectListParameters();
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        assertPolicy(policyService.readZaakRechten(zaak).lezen());
+        assertPolicy(policyService.readZaakRechten(zaak, null).lezen());
         zaakobjectListParameters.setZaak(zaak.getUrl());
         final Results<Zaakobject> zaakobjecten = zrcClientService.listZaakobjecten(zaakobjectListParameters);
         if (zaakobjecten.getCount() > 0) {

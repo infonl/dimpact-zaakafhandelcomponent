@@ -5,7 +5,6 @@
 
 package net.atos.zac.app.admin;
 
-import static net.atos.zac.policy.PolicyService.assertPolicy;
 
 import java.util.List;
 import java.util.Set;
@@ -28,6 +27,8 @@ import net.atos.zac.mailtemplates.model.Mail;
 import net.atos.zac.mailtemplates.model.MailTemplate;
 import net.atos.zac.mailtemplates.model.MailTemplateVariabelen;
 import net.atos.zac.policy.PolicyService;
+
+import static net.atos.zac.policy.PolicyServiceKt.assertPolicy;
 
 @Singleton
 @Path("beheer/mailtemplates")

@@ -15,7 +15,7 @@ import jakarta.ws.rs.core.Response
 import net.atos.zac.csv.CsvService
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.PolicyService.assertPolicy
+import net.atos.zac.policy.assertPolicy
 import net.atos.zac.util.MediaTypes
 import nl.info.zac.app.search.converter.RestZoekParametersConverter
 import nl.info.zac.app.search.model.RestZoekParameters

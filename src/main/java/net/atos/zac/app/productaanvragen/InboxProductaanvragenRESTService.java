@@ -5,8 +5,6 @@
 
 package net.atos.zac.app.productaanvragen;
 
-import static net.atos.zac.policy.PolicyService.assertPolicy;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
@@ -39,6 +37,8 @@ import net.atos.zac.productaanvraag.model.InboxProductaanvraagListParameters;
 import net.atos.zac.productaanvraag.model.InboxProductaanvraagResultaat;
 import net.atos.zac.util.MediaTypes;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+
+import static net.atos.zac.policy.PolicyServiceKt.assertPolicy;
 
 @Singleton
 @Path("inbox-productaanvragen")
@@ -97,7 +97,7 @@ public class InboxProductaanvragenRESTService {
     @DELETE
     @Path("{id}")
     public void deleteInboxProductaanvraag(@PathParam("id") final long id) {
-        PolicyService.assertPolicy(policyService.readWerklijstRechten().inboxProductaanvragenVerwijderen());
+        assertPolicy(policyService.readWerklijstRechten().inboxProductaanvragenVerwijderen());
         inboxProductaanvraagService.delete(id);
     }
 }

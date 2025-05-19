@@ -57,7 +57,7 @@ class RestZoekResultaatConverter @Inject constructor(
     private fun convert(zoekObject: ZoekObject): AbstractRestZoekObject =
         when (zoekObject.getType()) {
             ZoekObjectType.ZAAK -> (zoekObject as ZaakZoekObject).toRestZaakZoekObject(
-                policyService.readZaakRechten(zoekObject)
+                policyService.readZaakRechtenForZaakZoekObject(zoekObject)
             )
             ZoekObjectType.TAAK -> (zoekObject as TaakZoekObject).toRestTaakZoekObject(
                 policyService.readTaakRechten(zoekObject)
@@ -72,7 +72,7 @@ class RestZoekResultaatConverter @Inject constructor(
             zoekResultaat.items.mapIndexed { index, result ->
                 with(result as ZaakZoekObject) {
                     convert(
-                        result.toRestZaakZoekObject(policyService.readZaakRechten(result)),
+                        result.toRestZaakZoekObject(policyService.readZaakRechtenForZaakZoekObject(result)),
                         documentLinkableList[index]
                     )
                 }
