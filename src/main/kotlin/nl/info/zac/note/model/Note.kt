@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.notities.model
+package nl.info.zac.note.model
 
 import jakarta.persistence.Basic
 import jakarta.persistence.Column
@@ -30,7 +30,7 @@ import java.util.UUID
     allocationSize = 1
 )
 @AllOpen
-class Notitie {
+class Note {
     companion object {
         const val ZAAK_UUID_FIELD: String = "zaakUUID"
     }

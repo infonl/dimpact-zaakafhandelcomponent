@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.notities
+package nl.info.zac.note
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -11,8 +11,8 @@ import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.zac.util.ValidationUtil
-import nl.info.zac.notities.model.Notitie
-import nl.info.zac.notities.model.Notitie.Companion.ZAAK_UUID_FIELD
+import nl.info.zac.note.model.Note
+import nl.info.zac.note.model.Note.Companion.ZAAK_UUID_FIELD
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
@@ -21,33 +21,33 @@ import java.util.UUID
 @Transactional(SUPPORTS)
 @NoArgConstructor
 @AllOpen
-class NotitieService @Inject constructor(
+class NoteService @Inject constructor(
     private val entityManager: EntityManager
 ) {
     @Transactional(REQUIRED)
-    fun createNotitie(notitie: Notitie): Notitie {
-        ValidationUtil.valideerObject(notitie)
-        entityManager.persist(notitie)
-        return notitie
+    fun createNote(note: Note): Note {
+        ValidationUtil.valideerObject(note)
+        entityManager.persist(note)
+        return note
     }
 
-    fun listNotitiesForZaak(zaakUUID: UUID): List<Notitie> {
+    fun listNotesForZaak(zaakUUID: UUID): List<Note> {
         val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(Notitie::class.java)
-        val root = query.from(Notitie::class.java)
+        val query = builder.createQuery(Note::class.java)
+        val root = query.from(Note::class.java)
         query.select(root).where(builder.equal(root.get<Any>(ZAAK_UUID_FIELD), zaakUUID))
         return entityManager.createQuery(query).getResultList()
     }
 
     @Transactional(REQUIRED)
-    fun updateNotitie(notitie: Notitie): Notitie {
-        ValidationUtil.valideerObject(notitie)
-        return entityManager.merge(notitie)
+    fun updateNote(note: Note): Note {
+        ValidationUtil.valideerObject(note)
+        return entityManager.merge(note)
     }
 
     @Transactional(REQUIRED)
-    fun deleteNotitie(notitieId: Long) {
-        val notitie = entityManager.find(Notitie::class.java, notitieId)
-        entityManager.remove(notitie)
+    fun deleteNote(notitieId: Long) {
+        val note = entityManager.find(Note::class.java, notitieId)
+        entityManager.remove(note)
     }
 }
