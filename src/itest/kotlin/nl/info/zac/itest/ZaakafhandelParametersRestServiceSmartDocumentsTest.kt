@@ -108,7 +108,7 @@ class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaakafhandelparameters/smartdocuments-group-template-names",
                 requestBodyAsString = """
                 {
-                    "groups": [ "$SMART_DOCUMENTS_ROOT_GROUP_NAME", "$SMART_DOCUMENTS_GROUP_1_NAME" ]
+                    "path": [ "$SMART_DOCUMENTS_ROOT_GROUP_NAME", "$SMART_DOCUMENTS_GROUP_1_NAME" ]
                 }
                 """.trimIndent()
             )
