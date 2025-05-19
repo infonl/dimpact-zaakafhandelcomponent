@@ -66,7 +66,7 @@ mockk = "1.14.2"
 
 testcontainers = "1.21.0"
 
-json-json = "20250107"
+json-json = "20250517"
 slf4j-simple = "2.0.17"
 
 github-kotlin-logging = "7.0.7"
