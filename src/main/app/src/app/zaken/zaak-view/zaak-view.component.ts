@@ -143,7 +143,9 @@ export class ZaakViewComponent
   viewInitialized = false;
   loggedInUser!: GeneratedType<"RestLoggedInUser">;
 
-  locationFeatureCookie: boolean = false;
+  locationFeatureCookie = document.cookie
+    .split("; ")
+    .some((cookie) => cookie.startsWith("locatie"));
 
   private zaakListener!: WebsocketListener;
   private zaakRollenListener!: WebsocketListener;
@@ -219,10 +221,6 @@ export class ZaakViewComponent
         this.loadTaken();
       }),
     );
-
-    this.locationFeatureCookie = document.cookie
-      .split("; ")
-      .some((cookie) => cookie.startsWith("locatie"));
 
     this.takenDataSource.filterPredicate = (data, filter) => {
       if (!filter) return true;
