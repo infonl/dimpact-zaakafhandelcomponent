@@ -153,7 +153,7 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
       .readDefaultAfzenderVoorZaak(this.zaak.uuid)
       .subscribe((defaultMail) => {
         this.getFormField(fields.VERZENDER).formControl.setValue(
-          defaultMail.mail,
+          defaultMail?.mail,
         );
       });
 

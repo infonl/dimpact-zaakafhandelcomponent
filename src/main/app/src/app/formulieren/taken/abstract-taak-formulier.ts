@@ -172,7 +172,7 @@ export abstract class AbstractTaakFormulier {
         if (typeof this.dataElementen[key] === "boolean") {
           this.dataElementen[key] = `${this.dataElementen[key]}`;
         } else {
-          this.dataElementen[key] = String(value);
+          this.dataElementen[key] = value as string; // TODO better define `dataElementen` type
         }
       });
     return this.dataElementen;

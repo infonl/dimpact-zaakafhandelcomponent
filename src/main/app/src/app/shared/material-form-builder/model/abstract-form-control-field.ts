@@ -16,6 +16,6 @@ export abstract class AbstractFormControlField<
   }
 
   initControl(value?: T | null) {
-    this.formControl = AbstractFormField.formControlInstance<T | null>(value);
+    this.formControl = AbstractFormField.formControlInstance<T | null>(value ?? null);
   }
 }
