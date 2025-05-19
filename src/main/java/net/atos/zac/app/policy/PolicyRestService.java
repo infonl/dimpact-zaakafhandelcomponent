@@ -16,7 +16,7 @@ import jakarta.ws.rs.core.MediaType;
 import net.atos.zac.app.policy.converter.RestRechtenConverter;
 import net.atos.zac.app.policy.model.RestOverigeRechten;
 import net.atos.zac.app.policy.model.RestWerklijstRechten;
-import net.atos.zac.policy.PolicyService;
+import nl.info.zac.policy.PolicyService;
 
 @Path("policy")
 @Consumes(MediaType.APPLICATION_JSON)

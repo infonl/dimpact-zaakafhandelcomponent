@@ -1,8 +1,8 @@
 #
-# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-FileCopyrightText: 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-package net.atos.zac.overig
+package net.atos.zac.werklijst
 
 import rego.v1
 

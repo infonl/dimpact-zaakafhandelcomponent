@@ -1,5 +1,5 @@
 #
-# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-FileCopyrightText: 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
@@ -10,8 +10,8 @@ publiccodeYmlVersion: "0.4"
 
 name: Dimpact Zaakafhandelcomponent (ZAC)
 url: "git://github.com/infonl/dimpact-zaakafhandelcomponent.git"
-softwareVersion: "v3.5.1"
-releaseDate: "2025-05-01T07:45:54.000Z"
+softwareVersion: "v3.6.12"
+releaseDate: "2025-05-15T08:10:33.000Z"
 
 platforms:
 - web
@@ -39,7 +39,7 @@ description:
 
 legal:
   license: EUPL-1.2+
-  mainCopyrightOwner: Lifely
+  mainCopyrightOwner: INFO.nl
   repoOwner: INFO
 
 maintenance:

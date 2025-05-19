@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2025 Lifely
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -89,7 +89,7 @@
       ></tr>
     </table>
     <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
-    <p *ngIf="!loading && cases.data.length == 0">
+    <p *ngIf="!loading && cases.data.length === 0">
       {{
         foutmelding ? foutmelding : ("msg.geen.gegevens.gevonden" | translate)
       }}

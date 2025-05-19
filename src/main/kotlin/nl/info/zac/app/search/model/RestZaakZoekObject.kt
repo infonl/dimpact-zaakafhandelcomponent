@@ -1,6 +1,6 @@
 /*
  *
- *  * SPDX-FileCopyrightText: 2025 Lifely
+ *  * SPDX-FileCopyrightText: 2025 INFO.nl
  *  * SPDX-License-Identifier: EUPL-1.2+
  *
  */
@@ -8,8 +8,8 @@ package nl.info.zac.app.search.model
 
 import net.atos.zac.app.policy.converter.RestRechtenConverter
 import net.atos.zac.app.policy.model.RestZaakRechten
-import net.atos.zac.policy.output.ZaakRechten
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate
+import nl.info.zac.policy.output.ZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType

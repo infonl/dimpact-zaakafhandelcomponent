@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely, 2024 Dimpact
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl, 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.zaak
@@ -50,8 +50,6 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.util.time.LocalDateUtil
@@ -110,6 +108,8 @@ import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -200,14 +200,20 @@ class ZaakRestService @Inject constructor(
             }
         }
 
-    @PUT
+    @PATCH
     @Path("initiator")
     fun updateInitiator(gegevens: RESTZaakBetrokkeneGegevens): RestZaak {
         val zaak = zrcClientService.readZaak(gegevens.zaakUUID)
         zgwApiService.findInitiatorRoleForZaak(zaak)?.also {
+            requireNotNull(gegevens.roltoelichting) { throw BetrokkeneNotAllowed() }
             removeInitiator(zaak, it, ROL_VERWIJDER_REDEN)
         }
-        addInitiator(gegevens.betrokkeneIdentificatieType, gegevens.betrokkeneIdentificatie, zaak)
+        addInitiator(
+            gegevens.betrokkeneIdentificatieType,
+            gegevens.betrokkeneIdentificatie,
+            zaak,
+            gegevens.roltoelichting
+        )
         return restZaakConverter.toRestZaak(zaak)
     }
 
@@ -268,7 +274,8 @@ class ZaakRestService @Inject constructor(
             addInitiator(
                 restZaak.initiatorIdentificatieType!!,
                 restZaak.initiatorIdentificatie!!,
-                zaak
+                zaak,
+                AANMAKEN_ZAAK_REDEN
             )
         }
         restZaak.groep?.let {
@@ -965,7 +972,8 @@ class ZaakRestService @Inject constructor(
     private fun addInitiator(
         identificationType: IdentificatieType,
         identification: String,
-        zaak: Zaak
+        zaak: Zaak,
+        reden: String? = ROL_TOEVOEGEN_REDEN
     ) {
         val zaakRechten = policyService.readZaakRechten(zaak)
         when (identificationType) {
@@ -977,7 +985,7 @@ class ZaakRestService @Inject constructor(
             identificationType = identificationType,
             identification = identification,
             zaak = zaak,
-            explanation = ROL_TOEVOEGEN_REDEN
+            explanation = reden?.ifEmpty { ROL_TOEVOEGEN_REDEN } ?: ROL_TOEVOEGEN_REDEN
         )
     }
 

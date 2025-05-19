@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2025 Lifely
+ * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.bag
@@ -15,7 +15,7 @@ import net.atos.client.bag.model.BevraagAdressenParameters
 import net.atos.client.bag.model.createAdresIOHal
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.app.bag.model.BAGObjectType
-import net.atos.zac.policy.PolicyService
+import nl.info.zac.policy.PolicyService
 
 class BagRestServiceTest : BehaviorSpec({
     val bagClientService = mockk<BagClientService>()

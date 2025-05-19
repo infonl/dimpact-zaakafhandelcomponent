@@ -31,8 +31,8 @@ import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen;
 import net.atos.zac.gebruikersvoorkeuren.model.Werklijst;
 import net.atos.zac.gebruikersvoorkeuren.model.Zoekopdracht;
 import net.atos.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters;
-import net.atos.zac.policy.PolicyService;
 import nl.info.zac.authentication.LoggedInUser;
+import nl.info.zac.policy.PolicyService;
 
 @Singleton
 @Path("gebruikersvoorkeuren")

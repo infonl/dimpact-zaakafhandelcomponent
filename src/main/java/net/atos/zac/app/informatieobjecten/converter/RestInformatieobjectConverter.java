@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.informatieobjecten.converter;
@@ -33,8 +33,6 @@ import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObject
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject;
 import net.atos.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject;
 import net.atos.zac.app.policy.converter.RestRechtenConverter;
-import net.atos.zac.policy.PolicyService;
-import net.atos.zac.policy.output.DocumentRechten;
 import nl.info.client.zgw.brc.BrcClientService;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest;
@@ -50,6 +48,8 @@ import nl.info.zac.configuratie.model.Taal;
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
 import nl.info.zac.identity.IdentityService;
+import nl.info.zac.policy.PolicyService;
+import nl.info.zac.policy.output.DocumentRechten;
 
 public class RestInformatieobjectConverter {
     private static final Logger LOG = Logger.getLogger(RestInformatieobjectConverter.class.getName());
@@ -128,7 +128,7 @@ public class RestInformatieobjectConverter {
         restEnkelvoudigInformatieobject.isBesluitDocument = brcClientService.isInformatieObjectGekoppeldAanBesluit(
                 enkelvoudigInformatieObject.getUrl()
         );
-        if (rechten.lezen()) {
+        if (rechten.getLezen()) {
             convertEnkelvoudigInformatieObject(enkelvoudigInformatieObject, lock, restEnkelvoudigInformatieobject);
             if (
                 enkelvoudigInformatieObject.getOndertekening() != null &&
@@ -425,7 +425,7 @@ public class RestInformatieobjectConverter {
         restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID;
         restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.getIdentificatie();
         restEnkelvoudigInformatieobject.rechten = RestRechtenConverter.convert(rechten);
-        if (rechten.lezen()) {
+        if (rechten.getLezen()) {
             convertEnkelvoudigInformatieObject(enkelvoudigInformatieObject, lock, restEnkelvoudigInformatieobject);
             restEnkelvoudigInformatieobject.relatieType = relatieType;
             restEnkelvoudigInformatieobject.zaakIdentificatie = zaak.getIdentificatie();

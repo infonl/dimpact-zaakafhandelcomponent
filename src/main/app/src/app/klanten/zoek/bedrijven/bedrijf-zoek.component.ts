@@ -1,9 +1,16 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+} from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
@@ -19,6 +26,7 @@ import {
   POSTAL_CODE_LENGTH,
   VESTIGINGSNUMMER_LENGTH,
 } from "../../../shared/utils/constants";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { CustomValidators } from "../../../shared/validators/customValidators";
 import { KlantenService } from "../../klanten.service";
 import { Bedrijf } from "../../model/bedrijven/bedrijf";
@@ -30,11 +38,11 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   templateUrl: "./bedrijf-zoek.component.html",
   styleUrls: ["./bedrijf-zoek.component.less"],
 })
-export class BedrijfZoekComponent implements OnInit {
+export class BedrijfZoekComponent implements OnInit, OnDestroy {
   @Output() bedrijf? = new EventEmitter<Bedrijf>();
   @Input() sideNav?: MatSidenav;
   @Input() syncEnabled: boolean = false;
-  bedrijven: MatTableDataSource<Bedrijf> = new MatTableDataSource<Bedrijf>();
+  bedrijven = new MatTableDataSource<Bedrijf>();
   foutmelding: string;
   formGroup: FormGroup;
   bedrijfColumns: string[] = [
@@ -44,9 +52,9 @@ export class BedrijfZoekComponent implements OnInit {
     "type",
     "adres",
     "acties",
-  ];
+  ] as const;
   loading = false;
-  types = ["HOOFDVESTIGING", "NEVENVESTIGING", "RECHTSPERSOON"];
+  types = ["HOOFDVESTIGING", "NEVENVESTIGING", "RECHTSPERSOON"] as const;
   uuid: string;
   private formSelectedSubscription!: Subscription;
 
@@ -98,10 +106,10 @@ export class BedrijfZoekComponent implements OnInit {
       .validators(CustomValidators.postcode)
       .maxlength(POSTAL_CODE_LENGTH)
       .build();
-    this.typeFormField = new SelectFormFieldBuilder()
+    this.typeFormField = new SelectFormFieldBuilder<string>()
       .id("type")
       .label("type")
-      .options(this.types)
+      .options([...this.types])
       .build();
     this.huisnummerFormField = new InputFormFieldBuilder()
       .id("huisnummer")
@@ -156,12 +164,12 @@ export class BedrijfZoekComponent implements OnInit {
     const postcode = this.postcodeFormField.formControl.value;
     const huisnummer = this.huisnummerFormField.formControl.value;
 
-    return (
+    return Boolean(
       kvkNummer ||
-      bedrijfsnaam ||
-      vestigingsnummer ||
-      rsin ||
-      (postcode && huisnummer)
+        bedrijfsnaam ||
+        vestigingsnummer ||
+        rsin ||
+        (postcode && huisnummer),
     );
   }
 
@@ -189,7 +197,7 @@ export class BedrijfZoekComponent implements OnInit {
       });
   }
 
-  typeChanged(type: any): void {
+  typeChanged(type: GeneratedType<"BedrijfType">): void {
     this.rsinFormField.required = type === "RECHTSPERSOON";
   }
 

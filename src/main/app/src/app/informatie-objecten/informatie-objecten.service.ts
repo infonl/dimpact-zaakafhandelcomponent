@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -67,12 +67,10 @@ export class InformatieObjectenService {
       );
   }
 
-  listInformatieobjecttypesForZaak(
-    zaakUUID: string,
-  ): Observable<Informatieobjecttype[]> {
+  listInformatieobjecttypesForZaak(zaakUUID: string) {
     return this.http
       .get<
-        Informatieobjecttype[]
+        GeneratedType<"RestInformatieobjecttype">[]
       >(`${this.basepath}/informatieobjecttypes/zaak/${zaakUUID}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),

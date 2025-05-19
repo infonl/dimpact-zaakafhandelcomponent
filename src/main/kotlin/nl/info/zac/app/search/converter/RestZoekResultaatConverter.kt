@@ -1,13 +1,12 @@
 /*
  *
- *  * SPDX-FileCopyrightText: 2025 Lifely
+ *  * SPDX-FileCopyrightText: 2025 INFO.nl
  *  * SPDX-License-Identifier: EUPL-1.2+
  *
  */
 package nl.info.zac.app.search.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.policy.PolicyService
 import nl.info.zac.app.search.model.AbstractRestZoekObject
 import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
 import nl.info.zac.app.search.model.RestZaakZoekObject
@@ -16,6 +15,7 @@ import nl.info.zac.app.search.model.RestZoekResultaat
 import nl.info.zac.app.search.model.toRestDocumentZoekObject
 import nl.info.zac.app.search.model.toRestTaakZoekObject
 import nl.info.zac.app.search.model.toRestZaakZoekObject
+import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.model.FilterParameters
 import nl.info.zac.search.model.FilterResultaat
 import nl.info.zac.search.model.FilterVeld
@@ -57,7 +57,7 @@ class RestZoekResultaatConverter @Inject constructor(
     private fun convert(zoekObject: ZoekObject): AbstractRestZoekObject =
         when (zoekObject.getType()) {
             ZoekObjectType.ZAAK -> (zoekObject as ZaakZoekObject).toRestZaakZoekObject(
-                policyService.readZaakRechten(zoekObject)
+                policyService.readZaakRechtenForZaakZoekObject(zoekObject)
             )
             ZoekObjectType.TAAK -> (zoekObject as TaakZoekObject).toRestTaakZoekObject(
                 policyService.readTaakRechten(zoekObject)
@@ -72,7 +72,7 @@ class RestZoekResultaatConverter @Inject constructor(
             zoekResultaat.items.mapIndexed { index, result ->
                 with(result as ZaakZoekObject) {
                     convert(
-                        result.toRestZaakZoekObject(policyService.readZaakRechten(result)),
+                        result.toRestZaakZoekObject(policyService.readZaakRechtenForZaakZoekObject(result)),
                         documentLinkableList[index]
                     )
                 }

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -18,11 +18,11 @@ import io.mockk.verify
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.exception.PolicyException
-import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.client.zgw.model.createOpschorting
 import nl.info.client.zgw.model.createZaak
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.exception.PolicyException
+import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import java.time.LocalDate
 import java.util.Optional

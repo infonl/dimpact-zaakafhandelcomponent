@@ -6432,7 +6432,7 @@ components:
       - sha_256
       - sha_512
       - sha_3
-        # manual added by Lifely: need to allow for empty values returned by the API
+        # manual added by INFO.nl: need to allow for empty values returned by the API
       - ''
       type: string
     AuditTrail:
@@ -6848,7 +6848,7 @@ components:
             * `confidentieel` - Confidentieel
             * `geheim` - Geheim
             * `zeer_geheim` - Zeer geheim
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
@@ -6868,7 +6868,7 @@ components:
             * `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.
             * `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.
             * `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/StatusEnum'
@@ -7035,7 +7035,7 @@ components:
             * `confidentieel` - Confidentieel
             * `geheim` - Geheim
             * `zeer_geheim` - Zeer geheim
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
@@ -7056,7 +7056,7 @@ components:
             * `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.
             * `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.
             * `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/StatusEnum'
@@ -7080,7 +7080,7 @@ components:
           maxLength: 255
         inhoud:
           type: string
-          # manual changed by Lifely: `format: byte` results in errors when using the generated client code
+          # manual changed by INFO.nl: `format: byte` results in errors when using the generated client code
           format: bytes
           description: Minimal accepted size of uploaded file = 4294967296 bytes (or
             4.0 GiB)
@@ -7203,7 +7203,7 @@ components:
             * `confidentieel` - Confidentieel
             * `geheim` - Geheim
             * `zeer_geheim` - Zeer geheim
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
@@ -7224,7 +7224,7 @@ components:
             * `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.
             * `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.
             * `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/StatusEnum'
@@ -7248,7 +7248,7 @@ components:
           maxLength: 255
         inhoud:
           type: string
-          # Manually changed by Lifely: `format: byte` results in errors when using the generated client code
+          # Manually changed by INFO.nl: `format: byte` results in errors when using the generated client code
           format: bytes
           description: Minimal accepted size of uploaded file = 4294967296 bytes (or
             4.0 GiB)
@@ -7962,7 +7962,7 @@ components:
             * `confidentieel` - Confidentieel
             * `geheim` - Geheim
             * `zeer_geheim` - Zeer geheim
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
@@ -7983,7 +7983,7 @@ components:
             * `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.
             * `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.
             * `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.
-          # manual changed by Lifely: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/StatusEnum'
@@ -8007,7 +8007,7 @@ components:
           maxLength: 255
         inhoud:
           type: string
-          # Manually changed by Lifely: `format: byte` results in errors when using the generated client code
+          # Manually changed by INFO.nl: `format: byte` results in errors when using the generated client code
           format: bytes
           description: Minimal accepted size of uploaded file = 4294967296 bytes (or
             4.0 GiB)
@@ -8255,7 +8255,7 @@ components:
       - analoog
       - digitaal
       - pki
-      # manual added by Lifely: need to allow for empty values returned by the API
+      # manual added by INFO.nl: need to allow for empty values returned by the API
       - ''
       type: string
     StatusEnum:
@@ -8264,7 +8264,7 @@ components:
       - ter_vaststelling
       - definitief
       - gearchiveerd
-      # manual changed by Lifely: need to allow for empty values returned by the API
+      # manual changed by INFO.nl: need to allow for empty values returned by the API
       # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
       - ''
       type: string
@@ -8323,7 +8323,7 @@ components:
       - confidentieel
       - geheim
       - zeer_geheim
-      # manual changed by Lifely: need to allow for empty values returned by the API
+      # manual changed by INFO.nl: need to allow for empty values returned by the API
       # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
       - ''
       type: string

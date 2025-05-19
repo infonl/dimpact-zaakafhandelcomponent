@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -7,7 +7,7 @@ import { Component, Inject, OnDestroy } from "@angular/core";
 import { Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { TranslateService } from "@ngx-translate/core";
-import moment from "moment";
+import moment, { Moment } from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { CheckboxFormField } from "src/app/shared/material-form-builder/form-components/checkbox/checkbox-form-field";
 import { CheckboxFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/checkbox/checkbox-form-field-builder";
@@ -30,8 +30,8 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
   formFields: AbstractFormField[][] = [];
   loading = true;
 
-  duurDagenField: InputFormField;
-  einddatumGeplandField: DateFormField | HiddenFormField;
+  duurDagenField: InputFormField<number>;
+  einddatumGeplandField: DateFormField | HiddenFormField<string | Moment>;
   uiterlijkeEinddatumAfdoeningField: DateFormField;
   redenVerlengingField: InputFormField;
   takenVerlengenField: CheckboxFormField;
@@ -44,7 +44,7 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: { zaak: Zaak },
     private zakenService: ZakenService,
   ) {
-    this.duurDagenField = new InputFormFieldBuilder()
+    this.duurDagenField = new InputFormFieldBuilder<number>()
       .id("verlengduur")
       .label("verlengduur")
       .validators(
@@ -79,7 +79,7 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
           )
           .maxDate(maxDateEinddatumGepland)
           .build()
-      : new HiddenFormFieldBuilder().id("einddatumGepland").build();
+      : new HiddenFormFieldBuilder<string>().id("einddatumGepland").build();
 
     const maxDateUiterlijkeEinddatumAfdoening = moment(
       data.zaak.uiterlijkeEinddatumAfdoening,
@@ -126,6 +126,7 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       });
 
     this.einddatumGeplandField.formControl.valueChanges
+      // @ts-expect-error -- TODO TS2554: Expected 0 arguments, but got 1
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
         if (value == null) {
@@ -192,12 +193,13 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
     this.loading = true;
 
     const zaakVerlengGegevens: GeneratedType<"RESTZaakVerlengGegevens"> = {
-      duurDagen: this.duurDagenField.formControl.value,
-      einddatumGepland: this.einddatumGeplandField.formControl.value,
-      uiterlijkeEinddatumAfdoening:
+      duurDagen: this.duurDagenField.formControl.value ?? undefined,
+      einddatumGepland: String(this.einddatumGeplandField.formControl.value),
+      uiterlijkeEinddatumAfdoening: String(
         this.uiterlijkeEinddatumAfdoeningField.formControl.value,
+      ),
       redenVerlenging: this.redenVerlengingField.formControl.value,
-      takenVerlengen: this.takenVerlengenField.formControl.value,
+      takenVerlengen: Boolean(this.takenVerlengenField.formControl.value),
     };
 
     this.zakenService

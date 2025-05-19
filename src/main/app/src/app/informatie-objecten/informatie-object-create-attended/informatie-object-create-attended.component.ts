@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -39,6 +39,7 @@ import {
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { DocumentCreationData } from "../model/document-creation-data";
+import { Informatieobjecttype } from "../model/informatieobjecttype";
 
 @Component({
   selector: "zac-informatie-object-create-attended",
@@ -61,9 +62,11 @@ export class InformatieObjectCreateAttendedComponent
   fields: Array<AbstractFormField[]>;
   formConfig: FormConfig;
   private ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
-  private informatieObjectTypes: any;
+  private informatieObjectTypes: Informatieobjecttype[] = [];
   private subscriptions$: Subscription[] = [];
-  private sjabloonOptions$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+  private sjabloonOptions$ = new BehaviorSubject<
+    GeneratedType<"RestMappedSmartDocumentsTemplate">[]
+  >([]);
 
   constructor(
     private smartDocumentsService: SmartDocumentsService,
@@ -82,9 +85,12 @@ export class InformatieObjectCreateAttendedComponent
       .requireUserChanges()
       .build();
     this.getIngelogdeMedewerker();
-    this.informatieObjectTypes = await this.fetchInformatieobjecttypes();
+    this.informatieObjectTypes =
+      (await this.fetchInformatieobjecttypes()) ?? [];
 
-    const templateGroup = new AutocompleteFormFieldBuilder()
+    const templateGroup = new AutocompleteFormFieldBuilder<
+      GeneratedType<"RestMappedSmartDocumentsTemplateGroup">
+    >()
       .id("templateGroup")
       .label("Sjabloongroep")
       .optionLabel("name")
@@ -102,7 +108,9 @@ export class InformatieObjectCreateAttendedComponent
       )
       .build();
 
-    const template = new AutocompleteFormFieldBuilder()
+    const template = new AutocompleteFormFieldBuilder<
+      GeneratedType<"RestMappedSmartDocumentsTemplate">
+    >()
       .id("template")
       .label("Sjabloon")
       .optionLabel("name")
@@ -189,8 +197,8 @@ export class InformatieObjectCreateAttendedComponent
             confidentiality.formControl.setValue(
               this.translateService.instant(
                 this.vertrouwelijkaanduidingToTranslationKeyPipe.transform(
-                  infoObjectType.vertrouwelijkheidaanduiding,
-                ) || null,
+                  infoObjectType.vertrouwelijkheidaanduiding as GeneratedType<"VertrouwelijkheidaanduidingEnum">,
+                ),
               ),
             );
 
@@ -203,7 +211,7 @@ export class InformatieObjectCreateAttendedComponent
     );
   }
 
-  private async fetchInformatieobjecttypes(): Promise<any> {
+  private async fetchInformatieobjecttypes() {
     try {
       const informatieobjecttypes = await firstValueFrom(
         this.informatieObjectenService

@@ -1,12 +1,16 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2025 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { MatSelectChange } from "@angular/material/select";
+import { fromPartial } from "@total-typescript/shoehorn";
 import { DatumRange } from "src/app/zoeken/model/datum-range";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
+import { UtilService } from "../../core/service/util.service";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
+import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParametersComponent } from "./parameters.component";
 import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-list-parameters";
 
@@ -64,9 +68,9 @@ describe("ParametersComponent applyFilter", () => {
         .mockImplementation(jest.fn());
 
       const component = new ParametersComponent(
-        {} as any, // skip constructor deps
-        { getZaakafhandelParameters: jest.fn() } as any,
-        { getUniqueItemsList: jest.fn() } as any,
+        fromPartial<UtilService>({}),
+        fromPartial<ConfiguratieService>({}),
+        fromPartial<ZaakafhandelParametersService>({}),
       );
 
       component["storedParameterFilters"] = "test-key";
@@ -81,7 +85,7 @@ describe("ParametersComponent applyFilter", () => {
         order: "",
         page: 0,
         maxResults: 25,
-      } as ZaakafhandelParametersListParameters;
+      } satisfies ZaakafhandelParametersListParameters;
 
       component.applyFilter({
         event,

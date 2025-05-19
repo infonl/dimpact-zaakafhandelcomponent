@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.informatieobjecten
@@ -41,8 +41,6 @@ import net.atos.zac.app.informatieobjecten.model.RestZaakInformatieobject
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.util.MediaTypes
 import net.atos.zac.webdav.WebdavHelper
 import net.atos.zac.websocket.event.ScreenEventType
@@ -60,6 +58,8 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
@@ -138,8 +138,8 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         zoekParameters: RESTInformatieobjectZoekParameters
     ): List<RestEnkelvoudigInformatieobject> {
         val zaak = zoekParameters.zaakUUID?.let { zrcClientService.readZaak(it) }
-        zoekParameters.informatieobjectUUIDs?.let {
-            return restInformatieobjectConverter.convertUUIDsToREST(it, zaak)
+        return zoekParameters.informatieobjectUUIDs?.let {
+            restInformatieobjectConverter.convertUUIDsToREST(it, zaak)
         } ?: run {
             checkNotNull(zaak) { "Zoekparameters hebben geen waarde" }
             assertPolicy(policyService.readZaakRechten(zaak).lezen)
@@ -154,7 +154,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                     compareList.contains(it.informatieobjectTypeUUID)
                 }.toMutableList()
             }
-            return enkelvoudigInformatieobjectenVoorZaak
+            enkelvoudigInformatieobjectenVoorZaak
         }
     }
 
@@ -336,14 +336,14 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     fun preview(@PathParam("uuid") uuid: UUID?, @PathParam("versie") versie: Int?): Response {
         val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(uuid)
         assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieObject).lezen)
-        try {
+        return try {
             val inhoud = versie?.let {
                 drcClientService.downloadEnkelvoudigInformatieobjectVersie(
                     uuid,
                     versie
                 )
             } ?: drcClientService.downloadEnkelvoudigInformatieobject(uuid)
-            return Response.ok(inhoud)
+            Response.ok(inhoud)
                 .header(
                     "Content-Disposition",
                     """inline; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
@@ -363,7 +363,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         informatieobjecten
             .map(policyService::readDocumentRechten)
             .map { it.downloaden }
-            .forEach(PolicyService::assertPolicy)
+            .forEach { assertPolicy(it) }
         return informatieobjecten
             .let(enkelvoudigInformatieObjectDownloadService::getZipStreamOutput)
             .let(Response::ok)
@@ -522,11 +522,11 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private fun retrieveDocumentContent(uuid: UUID, version: Int?): Response {
         val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(uuid)
         assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden)
-        try {
+        return try {
             val documentContent = version?.let {
                 drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version)
             } ?: drcClientService.downloadEnkelvoudigInformatieobject(uuid)
-            return Response.ok(documentContent)
+            Response.ok(documentContent)
                 .header(
                     "Content-Disposition",
                     """attachment; filename="${enkelvoudigInformatieObject.bestandsnaam}""""

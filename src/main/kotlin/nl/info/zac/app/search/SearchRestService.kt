@@ -1,6 +1,6 @@
 /*
  *
- *  * SPDX-FileCopyrightText: 2025 Lifely
+ *  * SPDX-FileCopyrightText: 2025 INFO.nl
  *  * SPDX-License-Identifier: EUPL-1.2+
  *
  */
@@ -15,7 +15,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.zac.policy.PolicyService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.search.converter.RestZoekParametersConverter
@@ -25,6 +24,8 @@ import nl.info.zac.app.search.model.RestZoekKoppelenParameters
 import nl.info.zac.app.search.model.RestZoekParameters
 import nl.info.zac.app.search.model.RestZoekResultaat
 import nl.info.zac.app.search.model.toZoekParameters
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.ZoekResultaat
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
@@ -52,10 +53,10 @@ class SearchRestService @Inject constructor(
     @Path("list")
     fun listSearchResults(restZoekParameters: RestZoekParameters): RestZoekResultaat<out AbstractRestZoekObject> {
         when (restZoekParameters.type) {
-            ZoekObjectType.ZAAK, ZoekObjectType.TAAK -> PolicyService.assertPolicy(
+            ZoekObjectType.ZAAK, ZoekObjectType.TAAK -> assertPolicy(
                 policyService.readWerklijstRechten().zakenTaken
             )
-            else -> PolicyService.assertPolicy(policyService.readOverigeRechten().zoeken)
+            else -> assertPolicy(policyService.readOverigeRechten().zoeken)
         }
         return restZoekZaakParametersConverter.convert(restZoekParameters).let {
             searchService.zoek(it).let {
@@ -67,7 +68,7 @@ class SearchRestService @Inject constructor(
     @PUT
     @Path("zaken")
     fun listZakenForInformationObjectType(@Valid restZoekKoppelenParameters: RestZoekKoppelenParameters) =
-        PolicyService.assertPolicy(policyService.readWerklijstRechten().zakenTaken).run {
+        assertPolicy(policyService.readWerklijstRechten().zakenTaken).run {
             searchService.zoek(restZoekKoppelenParameters.toZoekParameters()).let {
                 restZoekResultaatConverter.convert(it, buildDocumentsLinkableList(it, restZoekKoppelenParameters))
             }

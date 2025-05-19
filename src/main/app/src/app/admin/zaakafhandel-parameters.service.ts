@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024-2025 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024-2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -53,12 +53,10 @@ export class ZaakafhandelParametersService {
       );
   }
 
-  listZaakbeeindigRedenenForZaaktype(
-    zaaktypeUuid: string,
-  ): Observable<ZaakbeeindigReden[]> {
+  listZaakbeeindigRedenenForZaaktype(zaaktypeUuid: string) {
     return this.http
       .get<
-        ZaakbeeindigReden[]
+        GeneratedType<"RESTZaakbeeindigReden">[]
       >(`${this.basepath}/zaakbeeindigredenen/${zaaktypeUuid}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),

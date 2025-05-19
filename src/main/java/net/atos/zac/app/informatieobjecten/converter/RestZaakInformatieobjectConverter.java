@@ -15,11 +15,11 @@ import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.zac.app.informatieobjecten.model.RestZaakInformatieobject;
 import net.atos.zac.app.policy.converter.RestRechtenConverter;
-import net.atos.zac.policy.PolicyService;
-import net.atos.zac.policy.output.ZaakRechten;
 import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.client.zgw.ztc.model.generated.StatusType;
 import nl.info.client.zgw.ztc.model.generated.ZaakType;
+import nl.info.zac.policy.PolicyService;
+import nl.info.zac.policy.output.ZaakRechten;
 
 public class RestZaakInformatieobjectConverter {
 
@@ -39,7 +39,7 @@ public class RestZaakInformatieobjectConverter {
         final RestZaakInformatieobject restZaakInformatieobject = new RestZaakInformatieobject();
         restZaakInformatieobject.zaakIdentificatie = zaak.getIdentificatie();
         restZaakInformatieobject.zaakRechten = RestRechtenConverter.convert(zaakrechten);
-        if (zaakrechten.lezen()) {
+        if (zaakrechten.getLezen()) {
             restZaakInformatieobject.zaakStartDatum = zaak.getStartdatum();
             restZaakInformatieobject.zaakEinddatumGepland = zaak.getEinddatumGepland();
             restZaakInformatieobject.zaaktypeOmschrijving = zaaktype.getOmschrijving();

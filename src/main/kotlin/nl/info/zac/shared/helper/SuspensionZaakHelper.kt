@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.shared.helper
@@ -8,8 +8,9 @@ import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.policy.PolicyService
 import nl.info.client.zgw.zrc.model.generated.Opschorting
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 import java.time.ZonedDateTime
@@ -28,8 +29,8 @@ class SuspensionZaakHelper @Inject constructor(
 
     fun suspendZaak(zaak: Zaak, numberOfDays: Long, suspensionReason: String?): Zaak {
         policyService.readZaakRechten(zaak).let {
-            PolicyService.assertPolicy(it.opschorten)
-            PolicyService.assertPolicy(zaak.opschorting.reden.isNullOrEmpty())
+            assertPolicy(it.opschorten)
+            assertPolicy(zaak.opschorting.reden.isNullOrEmpty())
         }
 
         val zaakUUID = zaak.uuid
@@ -50,8 +51,8 @@ class SuspensionZaakHelper @Inject constructor(
 
     fun resumeZaak(zaak: Zaak, resumeReason: String?): Zaak {
         policyService.readZaakRechten(zaak).let {
-            PolicyService.assertPolicy(it.hervatten)
-            PolicyService.assertPolicy(zaak.isOpgeschort)
+            assertPolicy(it.hervatten)
+            assertPolicy(zaak.isOpgeschort)
         }
 
         val zaakUUID = zaak.uuid
@@ -77,8 +78,8 @@ class SuspensionZaakHelper @Inject constructor(
 
     fun extendZaakFatalDate(zaak: Zaak, numberOfDays: Long, description: String?): Zaak {
         policyService.readZaakRechten(zaak).let {
-            PolicyService.assertPolicy(it.wijzigen)
-            PolicyService.assertPolicy(it.verlengenDoorlooptijd)
+            assertPolicy(it.wijzigen)
+            assertPolicy(it.verlengenDoorlooptijd)
         }
 
         val endDatePlanned = zaak.einddatumGepland?.plusDays(numberOfDays)

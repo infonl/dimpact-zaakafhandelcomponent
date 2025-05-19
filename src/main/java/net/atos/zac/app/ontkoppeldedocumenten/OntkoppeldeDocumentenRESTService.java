@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.ontkoppeldedocumenten;
 
-import static net.atos.zac.policy.PolicyService.assertPolicy;
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
+import static nl.info.zac.policy.PolicyServiceKt.assertPolicy;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,9 +39,9 @@ import net.atos.zac.documenten.OntkoppeldeDocumentenService;
 import net.atos.zac.documenten.model.OntkoppeldDocument;
 import net.atos.zac.documenten.model.OntkoppeldDocumentListParameters;
 import net.atos.zac.documenten.model.OntkoppeldeDocumentenResultaat;
-import net.atos.zac.policy.PolicyService;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.zac.app.identity.converter.RestUserConverter;
+import nl.info.zac.policy.PolicyService;
 
 @Singleton
 @Path("ontkoppeldedocumenten")
@@ -87,7 +87,7 @@ public class OntkoppeldeDocumentenRESTService {
     @PUT
     @Path("")
     public RESTResultaat<RESTOntkoppeldDocument> listDetachedDocuments(final RESTOntkoppeldDocumentListParameters restListParameters) {
-        assertPolicy(policyService.readWerklijstRechten().inbox());
+        assertPolicy(policyService.readWerklijstRechten().getInbox());
         final OntkoppeldDocumentListParameters listParameters = listParametersConverter.convert(restListParameters);
         final OntkoppeldeDocumentenResultaat resultaat = ontkoppeldeDocumentenService.getResultaat(listParameters);
         var ontkoppeldeDocumenten = resultaat.getItems();
@@ -116,7 +116,7 @@ public class OntkoppeldeDocumentenRESTService {
     @DELETE
     @Path("{id}")
     public void deleteDetachedDocument(@PathParam("id") final long id) {
-        assertPolicy(policyService.readWerklijstRechten().ontkoppeldeDocumentenVerwijderen());
+        assertPolicy(policyService.readWerklijstRechten().getOntkoppeldeDocumentenVerwijderen());
         final Optional<OntkoppeldDocument> ontkoppeldDocument = ontkoppeldeDocumentenService.find(id);
         if (ontkoppeldDocument.isEmpty()) {
             return; // al verwijderd

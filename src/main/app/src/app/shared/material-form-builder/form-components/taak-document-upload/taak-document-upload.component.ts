@@ -20,7 +20,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { Observable, Subscription } from "rxjs";
 import { FoutAfhandelingService } from "../../../../fout-afhandeling/fout-afhandeling.service";
 import { InformatieObjectenService } from "../../../../informatie-objecten/informatie-objecten.service";
-import { Informatieobjecttype } from "../../../../informatie-objecten/model/informatieobjecttype";
+import { GeneratedType } from "../../../utils/generated-types";
 import { FormComponent } from "../../model/form-component";
 import { TaakDocumentUploadFormField } from "./taak-document-upload-form-field";
 
@@ -40,7 +40,7 @@ export class TaakDocumentUploadComponent
   uploadControl: FormControl;
   titelControl: FormControl;
   typeControl: FormControl;
-  types$: Observable<Informatieobjecttype[]>;
+  types$: Observable<GeneratedType<"RestInformatieobjecttype">[]>;
   UploadStatus = {
     SELECTEER_BESTAND: "SELECTEER_BESTAND",
     BEZIG: "BEZIG",
@@ -100,7 +100,7 @@ export class TaakDocumentUploadComponent
       this.uploadControl.setValue(file.name);
       this.updateValue();
       this.subscription = this.createRequest(file).subscribe({
-        next: (event: HttpEvent<any>) => {
+        next: (event: HttpEvent<unknown>) => {
           switch (event.type) {
             case HttpEventType.Sent:
               this.status = this.UploadStatus.BEZIG;
@@ -108,7 +108,9 @@ export class TaakDocumentUploadComponent
             case HttpEventType.ResponseHeader:
               break;
             case HttpEventType.UploadProgress:
-              this.progress = Math.round((event.loaded / event.total) * 100);
+              this.progress = Math.round(
+                (event.loaded / (event.total ?? 1)) * 100,
+              );
               this.uploadControl.setValue(`${file.name} | ${this.progress}%`);
               break;
             case HttpEventType.Response:
@@ -145,7 +147,7 @@ export class TaakDocumentUploadComponent
     this.updateValue();
   }
 
-  createRequest(file: File): Observable<any> {
+  createRequest(file: File) {
     const formData: FormData = new FormData();
     formData.append("filename", file.name);
     formData.append("filesize", file.size.toString());
@@ -170,6 +172,7 @@ export class TaakDocumentUploadComponent
       }
     }
     if (this.uploadControl.value && this.formGroup.valid) {
+      // @ts-expect-error TODO check why this is working
       this.data.formControl.setValue(JSON.stringify(this.formGroup.value));
     } else {
       this.data.formControl.setValue(null);
@@ -177,8 +180,8 @@ export class TaakDocumentUploadComponent
   }
 
   compareInfoObjectType(
-    object1: Informatieobjecttype,
-    object2: Informatieobjecttype,
+    object1: GeneratedType<"RestInformatieobjecttype">,
+    object2: GeneratedType<"RestInformatieobjecttype">,
   ): boolean {
     if (object1 && object2) {
       return object1.uuid === object2.uuid;

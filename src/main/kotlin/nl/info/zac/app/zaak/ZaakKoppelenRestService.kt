@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2025 Lifely
+ * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.zaak
@@ -16,12 +16,12 @@ import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.zac.policy.PolicyService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
 import nl.info.zac.app.search.model.RestZoekResultaat
 import nl.info.zac.app.zaak.model.RelatieType
+import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.FilterParameters
 import nl.info.zac.search.model.FilterVeld
@@ -127,7 +127,7 @@ class ZaakKoppelenRestService @Inject constructor(
     private fun areBothClosed(sourceZaak: Zaak, targetZaak: ZaakZoekObject) =
         !sourceZaak.isOpen && targetZaak.archiefNominatie != null
 
-    private fun ZaakZoekObject.hasLinkRights() = policyService.readZaakRechten(this).koppelen
+    private fun ZaakZoekObject.hasLinkRights() = policyService.readZaakRechtenForZaakZoekObject(this).koppelen
 
     private fun Zaak.hasLinkRights() = policyService.readZaakRechten(this).koppelen
 
