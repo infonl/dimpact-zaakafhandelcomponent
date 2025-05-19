@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.notities
+package nl.info.zac.app.notities
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
@@ -15,10 +15,10 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.app.notities.converter.NotitieConverter
-import net.atos.zac.app.notities.model.RestNotitie
-import net.atos.zac.app.notities.model.toNotitie
-import net.atos.zac.notities.NotitieService
+import nl.info.zac.app.notities.converter.NotitieConverter
+import nl.info.zac.app.notities.model.RestNotitie
+import nl.info.zac.app.notities.model.toNotitie
+import nl.info.zac.notities.NotitieService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID

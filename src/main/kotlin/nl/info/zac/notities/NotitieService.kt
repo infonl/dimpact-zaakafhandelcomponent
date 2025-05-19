@@ -1,8 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.notities
+package nl.info.zac.notities
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -10,8 +10,8 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
-import net.atos.zac.notities.model.Notitie
 import net.atos.zac.util.ValidationUtil
+import nl.info.zac.notities.model.Notitie
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID

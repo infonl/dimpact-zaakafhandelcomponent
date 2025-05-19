@@ -1,8 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.notities.model
+package nl.info.zac.notities.model
 
 import jakarta.persistence.Basic
 import jakarta.persistence.Column
@@ -13,7 +13,6 @@ import jakarta.persistence.Id
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
 import net.atos.zac.util.FlywayIntegrator
 import nl.info.zac.util.AllOpen
 import java.time.ZonedDateTime

@@ -2,14 +2,14 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.notities.converter
+package nl.info.zac.app.notities.converter
 
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
-import net.atos.zac.app.notities.model.RestNotitie
-import net.atos.zac.notities.model.Notitie
+import nl.info.zac.app.notities.model.RestNotitie
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.notities.model.Notitie
 
 class NotitieConverter @Inject constructor(
     private val identityService: IdentityService,
