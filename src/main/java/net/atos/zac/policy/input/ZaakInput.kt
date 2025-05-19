@@ -2,21 +2,15 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.policy.input
 
-package net.atos.zac.policy.input;
+import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
-import nl.info.zac.authentication.LoggedInUser;
-
-public class ZaakInput extends UserInput {
-
-    private final ZaakData zaak;
-
-    public ZaakInput(final LoggedInUser loggedInUser, final ZaakData zaak) {
-        super(loggedInUser);
-        this.zaak = zaak;
-    }
-
-    public ZaakData getZaak() {
-        return zaak;
-    }
-}
+@NoArgConstructor
+@AllOpen
+data class ZaakInput(
+    var loggedInUser: LoggedInUser,
+    var zaak: ZaakData
+) : UserInput(loggedInUser)

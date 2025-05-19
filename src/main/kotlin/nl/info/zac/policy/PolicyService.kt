@@ -63,13 +63,18 @@ class PolicyService @Inject constructor(
             RuleQuery(UserInput(loggedInUserInstance.get()))
         ).getResult()
 
-    fun readZaakRechten(zaak: Zaak, zaaktype: ZaakType = ztcClientService.readZaaktype(zaak.zaaktype)): ZaakRechten {
+    fun readZaakRechten(zaak: Zaak): ZaakRechten {
+        val zaakType = ztcClientService.readZaaktype(zaak.zaaktype)
+        return readZaakRechten(zaak, zaakType)
+    }
+
+    fun readZaakRechten(zaak: Zaak, zaaktype: ZaakType): ZaakRechten {
         val zaakData = ZaakData().apply {
-            this.open = zaak.isOpen()
+            this.open = zaak.isOpen
             this.zaaktype = zaaktype.getOmschrijving()
-            this.opgeschort = zaak.isOpgeschort()
-            this.verlengd = zaak.isVerlengd()
-            this.besloten = CollectionUtils.isNotEmpty(zaaktype.getBesluittypen())
+            this.opgeschort = zaak.isOpgeschort
+            this.verlengd = zaak.isVerlengd
+            this.besloten = zaaktype.getBesluittypen()?.isNotEmpty() == true
         }
         var statusType: StatusType? = null
         zaak.status?.let {
@@ -139,9 +144,14 @@ class PolicyService @Inject constructor(
         ).getResult()
     }
 
+    fun readTaakRechten(taskInfo: TaskInfo): TaakRechten {
+        val zaaktypeOmschrijving = TaakVariabelenService.readZaaktypeOmschrijving(taskInfo)
+        return readTaakRechten(taskInfo, zaaktypeOmschrijving)
+    }
+
     fun readTaakRechten(
         taskInfo: TaskInfo,
-        zaaktypeOmschrijving: String? = TaakVariabelenService.readZaaktypeOmschrijving(taskInfo)
+        zaaktypeOmschrijving: String?
     ): TaakRechten {
         val taakData = TaakData().apply {
             this.open = TaskUtil.isOpen(taskInfo)

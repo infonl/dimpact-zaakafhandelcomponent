@@ -75,7 +75,7 @@ public class MailRestService {
             final RESTMailGegevens restMailGegevens
     ) {
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        assertPolicy(policyService.readZaakRechten(zaak, null).versturenEmail());
+        assertPolicy(policyService.readZaakRechten(zaak, null).getVersturenEmail());
         mailService.sendMail(restMailGegevensConverter.convert(restMailGegevens), BronnenKt.getBronnenFromZaak(zaak));
     }
 
@@ -87,7 +87,7 @@ public class MailRestService {
     ) {
         final Zaak zaak = zrcClientService.readZaak(zaakUuid);
         assertPolicy(!zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.getUuid()).orElse(false) &&
-                     policyService.readZaakRechten(zaak, null).versturenOntvangstbevestiging());
+                     policyService.readZaakRechten(zaak, null).getVersturenOntvangstbevestiging());
         mailService.sendMail(restMailGegevensConverter.convert(restMailGegevens), BronnenKt.getBronnenFromZaak(zaak));
         zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak);
     }
