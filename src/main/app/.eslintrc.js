@@ -34,7 +34,6 @@ module.exports = {
             suffixes: ["Component", "Page", "Dialog"],
           },
         ],
-        "@typescript-eslint/no-explicit-any": "warn",
       },
     },
     {

@@ -100,7 +100,7 @@ export class TaakDocumentUploadComponent
       this.uploadControl.setValue(file.name);
       this.updateValue();
       this.subscription = this.createRequest(file).subscribe({
-        next: (event: HttpEvent<any>) => {
+        next: (event: HttpEvent<unknown>) => {
           switch (event.type) {
             case HttpEventType.Sent:
               this.status = this.UploadStatus.BEZIG;
@@ -108,7 +108,9 @@ export class TaakDocumentUploadComponent
             case HttpEventType.ResponseHeader:
               break;
             case HttpEventType.UploadProgress:
-              this.progress = Math.round((event.loaded / event.total) * 100);
+              this.progress = Math.round(
+                (event.loaded / (event.total ?? 1)) * 100,
+              );
               this.uploadControl.setValue(`${file.name} | ${this.progress}%`);
               break;
             case HttpEventType.Response:
@@ -145,7 +147,7 @@ export class TaakDocumentUploadComponent
     this.updateValue();
   }
 
-  createRequest(file: File): Observable<any> {
+  createRequest(file: File) {
     const formData: FormData = new FormData();
     formData.append("filename", file.name);
     formData.append("filesize", file.size.toString());
