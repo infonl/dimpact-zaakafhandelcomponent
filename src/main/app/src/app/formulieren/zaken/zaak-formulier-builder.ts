@@ -14,7 +14,7 @@ export class ZaakFormulierBuilder {
   }
 
   form(zaak: Zaak): ZaakFormulierBuilder {
-    this._formulier.dataElementen = zaak.zaakdata;
+    this._formulier.dataElementen = zaak.zaakdata as Record<string, string | undefined>;
     this._formulier.zaak = zaak;
     this._formulier.initForm();
     return this;
