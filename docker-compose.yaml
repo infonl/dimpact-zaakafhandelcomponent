@@ -597,6 +597,7 @@ services:
       - OAB_API_URL=http://localhost:8004
       - OAB_API_PATH=/api/v1
       - OAB_ZAAK_URL_TEMPLATE=https://localhost:8080/zaken/{identificatie}
+      - FRONTEND_URL=http://localhost:8005
       - REQUESTS_READ_TIMEOUT=5000
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
