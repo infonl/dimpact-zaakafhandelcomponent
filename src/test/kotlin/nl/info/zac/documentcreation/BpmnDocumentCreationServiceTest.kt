@@ -5,8 +5,10 @@
 
 package nl.info.zac.documentcreation
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -24,7 +26,7 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter
-import nl.info.zac.documentcreation.model.createCmmnDocumentCreationDataAttended
+import nl.info.zac.documentcreation.model.createBpmnDocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.createData
 import nl.info.zac.documentcreation.model.createDocumentCreationAttendedResponse
 import nl.info.zac.smartdocuments.SmartDocumentsService
@@ -36,14 +38,14 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-class CmmnDocumentCreationServiceTest : BehaviorSpec({
+class BpmnDocumentCreationServiceTest : BehaviorSpec({
     val smartDocumentsService = mockk<SmartDocumentsService>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val documentCreationDataConverter = mockk<DocumentCreationDataConverter>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
     val configuratieService: ConfiguratieService = mockk<ConfiguratieService>()
-    val cmmnDocumentCreationService = CmmnDocumentCreationService(
+    val bpmnDocumentCreationService = BpmnDocumentCreationService(
         smartDocumentsService = smartDocumentsService,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
         documentCreationDataConverter = documentCreationDataConverter,
@@ -61,7 +63,7 @@ class CmmnDocumentCreationServiceTest : BehaviorSpec({
         val zaakTypeURI = URI("https://example.com/$zaakTypeUUID")
         val zaak = createZaak(zaakTypeURI = zaakTypeURI)
         val taskId = "fakeTaskId"
-        val documentCreationData = createCmmnDocumentCreationDataAttended(
+        val documentCreationData = createBpmnDocumentCreationDataAttended(
             zaak = zaak,
             taskId = taskId
         )
@@ -72,8 +74,6 @@ class CmmnDocumentCreationServiceTest : BehaviorSpec({
         val data = createData()
         val documentCreationAttendedResponse = createDocumentCreationAttendedResponse()
         val contextUrl = "https://example.com"
-        val templateGroupName = "fakeTemplateGroupName"
-        val templateName = "fakeTemplateName"
         val dataSlot = slot<Data>()
         val smartDocumentSlot = slot<SmartDocument>()
 
@@ -88,16 +88,10 @@ class CmmnDocumentCreationServiceTest : BehaviorSpec({
         every {
             smartDocumentsService.createDocumentAttended(capture(dataSlot), capture(smartDocumentSlot))
         } returns documentCreationAttendedResponse
-        every {
-            smartDocumentsTemplatesService.getTemplateGroupName(documentCreationData.templateGroupId)
-        } returns templateGroupName
-        every {
-            smartDocumentsTemplatesService.getTemplateName(documentCreationData.templateId)
-        } returns templateName
         every { configuratieService.readContextUrl() } returns contextUrl
 
         When("the 'create document attended' method is called") {
-            val documentCreationResponse = cmmnDocumentCreationService.createCmmnDocumentAttended(documentCreationData)
+            val documentCreationResponse = bpmnDocumentCreationService.createBpmnDocumentAttended(documentCreationData)
 
             Then(
                 """
@@ -109,13 +103,13 @@ class CmmnDocumentCreationServiceTest : BehaviorSpec({
                     message shouldBe documentCreationAttendedResponse.message
                 }
                 with(smartDocumentSlot.captured) {
-                    selection.templateGroup shouldBe templateGroupName
-                    selection.template shouldBe templateName
+                    selection.templateGroup shouldBe "fakeGroup"
+                    selection.template shouldBe "fakeTemplate"
                     with(variables!!) {
                         outputFormats.size shouldBe 1
                         outputFormats[0].outputFormat shouldBe "docx"
                         redirectMethod shouldBe "POST"
-                        redirectUrl shouldBe "$contextUrl/rest/document-creation/smartdocuments/cmmn-callback" +
+                        redirectUrl shouldBe "$contextUrl/rest/document-creation/smartdocuments/bpmn-callback" +
                             "/zaak/${zaak.uuid}" +
                             "/task/$taskId" +
                             "?title=${URLEncoder.encode(documentCreationData.title, Charsets.UTF_8)}" +
@@ -124,10 +118,11 @@ class CmmnDocumentCreationServiceTest : BehaviorSpec({
                                 documentCreationData.creationDate.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
                                 Charsets.UTF_8
                             )}" +
-                            "&templateId=" +
-                            "${URLEncoder.encode(documentCreationData.templateId, Charsets.UTF_8)}" +
-                            "&templateGroupId=" +
-                            "${URLEncoder.encode(documentCreationData.templateGroupId, Charsets.UTF_8)}"
+                            "&templateName=" +
+                            "${URLEncoder.encode(documentCreationData.templateName, Charsets.UTF_8)}" +
+                            "&templateGroupName=" +
+                            "${URLEncoder.encode(documentCreationData.templateGroupName, Charsets.UTF_8)}" +
+                            "&informatieobjecttypeUuid=" + documentCreationData.informatieobjecttypeUuid
                     }
                 }
             }
@@ -136,8 +131,6 @@ class CmmnDocumentCreationServiceTest : BehaviorSpec({
 
     Given("Generated document information") {
         val smartDocumentId = "1"
-        val templateGroupId = "2"
-        val templateId = "3"
         val taakId = "4"
         val title = "title"
         val description = "description"
@@ -171,7 +164,7 @@ class CmmnDocumentCreationServiceTest : BehaviorSpec({
         } returns zaakInformatieobject
 
         When("storing a downloaded file is requested") {
-            val returnedZaakInformatieobject = cmmnDocumentCreationService.storeDocument(
+            val returnedZaakInformatieobject = bpmnDocumentCreationService.storeDocument(
                 zaak = zaak,
                 taskId = taakId,
                 fileId = smartDocumentId,
@@ -200,8 +193,9 @@ class CmmnDocumentCreationServiceTest : BehaviorSpec({
     Given("A zaak exists") {
         val contextUrl = "https://example.com:2222"
         val zaakUuid = UUID.randomUUID()
-        val templateGroupId = "groupId"
-        val templateId = "templateId"
+        val informatieobjecttypeUuid = UUID.randomUUID()
+        val templateGroupName = "groupName"
+        val templateName = "templateName"
         val title = "title"
         val description = "description"
         val creationDate = ZonedDateTime.of(2024, 10, 7, 0, 0, 0, 0, ZoneOffset.UTC)
@@ -209,36 +203,34 @@ class CmmnDocumentCreationServiceTest : BehaviorSpec({
 
         every { configuratieService.readContextUrl() } returns contextUrl
 
-        When("Document creation URL is requested for zaak") {
-            val uri = cmmnDocumentCreationService.documentCreationCallbackUrl(
-                zaakUuid = zaakUuid,
-                null,
-                templateGroupId,
-                templateId,
-                title,
-                description,
-                creationDate,
-                userName
-            )
+        When("Document creation URL is requested without taak id") {
+            val exception = shouldThrow<IllegalArgumentException> {
+                bpmnDocumentCreationService.documentCreationCallbackUrl(
+                    zaakUuid = zaakUuid,
+                    null,
+                    informatieobjecttypeUuid,
+                    templateGroupName,
+                    templateName,
+                    title,
+                    description,
+                    creationDate,
+                    userName
+                )
+            }
 
-            Then("Correct URl is provided") {
-                uri.toString() shouldBe "$contextUrl/rest/document-creation/smartdocuments/cmmn-callback/zaak/$zaakUuid" +
-                    "?title=$title" +
-                    "&userName=Full+User+Name" +
-                    "&creationDate=2024-10-07T00%3A00%3A00Z" +
-                    "&description=$description" +
-                    "&templateId=$templateId" +
-                    "&templateGroupId=$templateGroupId"
+            Then("correct exception is thrown") {
+                exception.message shouldContain "taskId"
             }
         }
 
         When("Document creation URL is requested for taak") {
-            val taakUuid = UUID.randomUUID().toString()
-            val uri = cmmnDocumentCreationService.documentCreationCallbackUrl(
+            val taakId = "12"
+            val uri = bpmnDocumentCreationService.documentCreationCallbackUrl(
                 zaakUuid,
-                taakUuid,
-                templateGroupId,
-                templateId,
+                taakId,
+                informatieobjecttypeUuid,
+                templateGroupName,
+                templateName,
                 title,
                 description,
                 creationDate,
@@ -247,13 +239,14 @@ class CmmnDocumentCreationServiceTest : BehaviorSpec({
 
             Then("Correct URl is provided") {
                 uri.toString() shouldBe
-                    "$contextUrl/rest/document-creation/smartdocuments/cmmn-callback/zaak/$zaakUuid/task/$taakUuid" +
+                    "$contextUrl/rest/document-creation/smartdocuments/bpmn-callback/zaak/$zaakUuid/task/$taakId" +
                     "?title=$title" +
                     "&userName=Full+User+Name" +
                     "&creationDate=2024-10-07T00%3A00%3A00Z" +
                     "&description=$description" +
-                    "&templateId=$templateId" +
-                    "&templateGroupId=$templateGroupId"
+                    "&templateName=$templateName" +
+                    "&templateGroupName=$templateGroupName" +
+                    "&informatieobjecttypeUuid=$informatieobjecttypeUuid"
             }
         }
     }
@@ -263,7 +256,7 @@ class CmmnDocumentCreationServiceTest : BehaviorSpec({
         every { configuratieService.readContextUrl() } returns contextUrl
 
         When("SmartDocuments finish page URL is requested") {
-            val finishPageUrl = cmmnDocumentCreationService.documentCreationFinishPageUrl(
+            val finishPageUrl = bpmnDocumentCreationService.documentCreationFinishPageUrl(
                 "1",
                 "1",
                 "document name",
