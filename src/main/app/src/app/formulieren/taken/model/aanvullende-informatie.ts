@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -180,7 +180,7 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
         fields.ZAAK_OPSCHORTEN,
       ).formControl.valueChanges.subscribe((opschorten) => {
         this.getFormField(AbstractTaakFormulier.TAAK_FATALEDATUM).required =
-          opschorten;
+          Boolean(opschorten);
       });
     }
 
@@ -216,7 +216,7 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
       AbstractTaakFormulier.TAAK_FATALEDATUM,
     ).formControl.valueChanges.subscribe((selectedMoment) => {
       this.getFormField("messageField").label =
-        this.getMessageFieldLabel(selectedMoment);
+        this.getMessageFieldLabel(selectedMoment as string);
     });
   }
 
@@ -354,8 +354,8 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
 
   private toonHervatten(): boolean {
     if (this.readonly) {
-      return this.getDataElement(this.fields.ZAAK_HERVATTEN);
+      return Boolean(this.getDataElement(this.fields.ZAAK_HERVATTEN));
     }
-    return this.zaak.isOpgeschort && this.zaak.rechten.behandelen;
+    return Boolean(this.zaak.isOpgeschort && this.zaak.rechten.behandelen);
   }
 }

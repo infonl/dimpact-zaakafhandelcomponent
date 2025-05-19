@@ -6,7 +6,7 @@
 import { AbstractChoicesFormField } from "../../model/abstract-choices-form-field";
 import { FieldType } from "../../model/field-type.enum";
 
-export class RadioFormField<T extends Record<string, unknown>> extends AbstractChoicesFormField<T> {
+export class RadioFormField<T extends Record<string, unknown> = Record<string, unknown>> extends AbstractChoicesFormField<T> {
   fieldType = FieldType.RADIO;
 
   constructor() {

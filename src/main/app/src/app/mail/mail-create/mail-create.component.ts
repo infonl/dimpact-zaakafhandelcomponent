@@ -55,11 +55,11 @@ export class MailCreateComponent implements OnInit {
   fields: Array<AbstractFormField[]>;
   ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
 
-  verzenderFormField: SelectFormField;
+  verzenderFormField: SelectFormField<{ mail: string, replyTo: string }>;
   ontvangerFormField: InputFormField;
-  onderwerpFormField: AbstractFormControlField;
-  bodyFormField: AbstractFormControlField;
-  bijlagenFormField: AbstractFormControlField;
+  onderwerpFormField: AbstractFormControlField<string>;
+  bodyFormField: AbstractFormControlField<string>;
+  bijlagenFormField: AbstractFormControlField<string>;
 
   constructor(
     private zakenService: ZakenService,
@@ -169,12 +169,12 @@ export class MailCreateComponent implements OnInit {
   onFormSubmit(formGroup: FormGroup): void {
     if (formGroup?.valid) {
       const mailGegevens: GeneratedType<"RESTMailGegevens"> = {
-        verzender: this.verzenderFormField.formControl.value.mail,
-        replyTo: this.verzenderFormField.formControl.value.replyTo,
-        ontvanger: this.ontvangerFormField.formControl.value,
-        onderwerp: this.onderwerpFormField.formControl.value,
-        body: this.bodyFormField.formControl.value,
-        bijlagen: this.bijlagenFormField.formControl.value,
+        verzender: this.verzenderFormField.formControl.value?.mail,
+        replyTo: this.verzenderFormField.formControl.value?.replyTo,
+        ontvanger: this.ontvangerFormField.formControl.value ?? "",
+        onderwerp: this.onderwerpFormField.formControl.value ?? "",
+        body: this.bodyFormField.formControl.value ?? "",
+        bijlagen: this.bijlagenFormField.formControl.value ?? "",
         createDocumentFromMail: true,
       };
 
