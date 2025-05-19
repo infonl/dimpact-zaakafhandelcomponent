@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.policy
+package nl.info.zac.policy
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
@@ -24,7 +24,6 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
 import nl.info.zac.enkelvoudiginformatieobject.util.isSigned
-import nl.info.zac.policy.OpaEvaluationClient
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.input.DocumentData
 import nl.info.zac.policy.input.DocumentInput
@@ -51,6 +50,7 @@ import org.flowable.task.api.TaskInfo
 @ApplicationScoped
 @NoArgConstructor
 @AllOpen
+@Suppress("TooManyFunctions")
 class PolicyService @Inject constructor(
     private val loggedInUserInstance: Instance<LoggedInUser>,
     @RestClient private val evaluationClient: OpaEvaluationClient,
