@@ -15,8 +15,8 @@ import io.mockk.every
 import io.mockk.mockk
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.policy.PolicyService
-import nl.info.zac.policy.exception.PolicyException
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.policy.exception.PolicyException
 
 class UtilRestServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()

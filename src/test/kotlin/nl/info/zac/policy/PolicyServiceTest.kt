@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package nl.info.zac.policy
+package net.atos.zac.policy
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -15,6 +15,9 @@ import jakarta.enterprise.inject.Instance
 import net.atos.client.opa.model.RuleQuery
 import net.atos.client.opa.model.RuleResponse
 import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.zac.policy.output.createDocumentRechten
+import net.atos.zac.policy.output.createWerklijstRechten
+import net.atos.zac.policy.output.createZaakRechten
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.Ondertekening
 import nl.info.client.zgw.drc.model.generated.SoortEnum
@@ -29,12 +32,10 @@ import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.model.createEnkelvoudigInformatieObjectLock
+import nl.info.zac.policy.OpaEvaluationClient
 import nl.info.zac.policy.input.DocumentInput
 import nl.info.zac.policy.input.UserInput
 import nl.info.zac.policy.input.ZaakInput
-import nl.info.zac.policy.output.createDocumentRechten
-import nl.info.zac.policy.output.createWerklijstRechten
-import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.createZaakZoekObject
 import java.net.URI

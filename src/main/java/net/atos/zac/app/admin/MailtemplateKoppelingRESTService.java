@@ -6,6 +6,8 @@
 package net.atos.zac.app.admin;
 
 
+import static net.atos.zac.policy.PolicyServiceKt.assertPolicy;
+
 import java.util.List;
 
 import jakarta.inject.Inject;
@@ -25,8 +27,6 @@ import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter;
 import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling;
 import net.atos.zac.policy.PolicyService;
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter;
-
-import static net.atos.zac.policy.PolicyServiceKt.assertPolicy;
 
 @Singleton
 @Path("beheer/mailtemplatekoppeling")

@@ -13,7 +13,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.atos.zac.policy.PolicyService
-import nl.info.zac.policy.exception.PolicyException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -21,6 +20,7 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.createBuildInformation
 import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
+import nl.info.zac.policy.exception.PolicyException
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
