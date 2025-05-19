@@ -14,7 +14,7 @@ import net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend
 import net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.util.TaskUtil
-import net.atos.zac.policy.exception.PolicyException
+import nl.info.zac.policy.exception.PolicyException
 import net.atos.zac.policy.input.DocumentData
 import net.atos.zac.policy.input.DocumentInput
 import net.atos.zac.policy.input.TaakData

@@ -13,6 +13,8 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
+import net.atos.zac.policy.PolicyService
+import nl.info.zac.policy.exception.PolicyException
 import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.app.shared.RestPageParameters
 import nl.info.zac.app.signalering.converter.RestSignaleringInstellingenConverter
@@ -21,8 +23,6 @@ import nl.info.zac.app.zaak.model.createRESTZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
-import nl.info.zac.policy.PolicyService
-import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.signalering.model.createRestSignaleringInstellingen
 import nl.info.zac.signalering.model.createSignaleringInstellingen

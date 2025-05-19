@@ -27,6 +27,12 @@ import net.atos.zac.app.informatieobjecten.converter.RestZaakInformatieobjectCon
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
+import net.atos.zac.policy.PolicyService
+import nl.info.zac.policy.exception.PolicyException
+import net.atos.zac.policy.output.createDocumentRechten
+import net.atos.zac.policy.output.createDocumentRechtenAllDeny
+import net.atos.zac.policy.output.createZaakRechten
+import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.webdav.WebdavHelper
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
@@ -49,12 +55,6 @@ import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
-import nl.info.zac.policy.PolicyService
-import nl.info.zac.policy.exception.PolicyException
-import nl.info.zac.policy.output.createDocumentRechten
-import nl.info.zac.policy.output.createDocumentRechtenAllDeny
-import nl.info.zac.policy.output.createZaakRechten
-import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.net.URI
