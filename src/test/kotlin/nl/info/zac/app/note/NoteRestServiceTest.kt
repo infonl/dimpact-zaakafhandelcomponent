@@ -75,7 +75,7 @@ class NoteRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An existing node and node update data and a user with permissions to update notes") {
+    Given("An existing note and note update data and a user with permissions to update notes") {
         val restNote = createRestNote()
         val updatedNote = createNote()
         val updatedRestNote = createRestNote()
