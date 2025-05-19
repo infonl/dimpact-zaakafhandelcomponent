@@ -726,7 +726,6 @@ services:
     ports:
       - "8080:8080"
       - "9990:9990"
-      - "5005:5005"
     # only for integration testing purpose, override to root user
     user: root
     volumes:
