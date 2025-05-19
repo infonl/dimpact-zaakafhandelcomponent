@@ -47,6 +47,8 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.zac.app.exception.RestExceptionMapper
+import nl.info.zac.app.informatieobjecten.exception.ConvertException
 import nl.info.zac.app.informatieobjecten.model.createRESTFileUpload
 import nl.info.zac.app.informatieobjecten.model.createRESTInformatieobjectZoekParameters
 import nl.info.zac.app.informatieobjecten.model.createRestDocumentVerzendGegevens
@@ -452,6 +454,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     }
     Given("An enkelvoudig informatieobject") {
         val informatieobjectUUID = UUID.randomUUID()
+        val zaak = createZaak()
         val enkelvoudiginformatieobject = createEnkelvoudigInformatieObject()
         val restEnkelvoudigInformatieObjectVersieGegevens =
             createRestEnkelvoudigInformatieObjectVersieGegevens(uuid = informatieobjectUUID)
@@ -459,6 +462,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             drcClientService.readEnkelvoudigInformatieobject(informatieobjectUUID)
         } returns enkelvoudiginformatieobject
         every { policyService.readDocumentRechten(enkelvoudiginformatieobject) } returns createDocumentRechten()
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { policyService.readDocumentRechten(enkelvoudiginformatieobject, zaak) } returns createDocumentRechten()
         every {
             restInformatieobjectConverter.convertToRestEnkelvoudigInformatieObjectVersieGegevens(enkelvoudiginformatieobject)
         } returns restEnkelvoudigInformatieObjectVersieGegevens
@@ -472,12 +477,15 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
         When("the enkelvoudig informatieobject is trying to be converted with status definitief") {
-            var restInformatieobject = createRestEnkelvoudigInformatieobject()
-            val zaak = createZaak()
-            restInformatieobject.status = StatusEnum.DEFINITIEF
+            every {
+                enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObject(
+                    any(), any()
+                )
+            } just Runs
 
+            enkelvoudiginformatieobject.status = StatusEnum.DEFINITIEF
             val resp = enkelvoudigInformatieObjectRestService.convertInformatieObjectToPDF(
-                restInformatieobject.uuid,
+                informatieobjectUUID,
                 zaak.uuid
             )
             Then("the response should be ok") {
@@ -485,13 +493,19 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
         When("the enkelvoudig informatieobject is trying to be converted with status in bewerking") {
-            val restInformatieobject = createRestEnkelvoudigInformatieobject()
-            val zaak = createZaak()
+            every {
+                enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObject(
+                    any(),
+                    any()
+                )
+            } throws ConvertException()
 
-            val resp = enkelvoudigInformatieObjectRestService.convertInformatieObjectToPDF(
-                restInformatieobject.uuid,
-                zaak.uuid
-            )
+            val resp = try {
+                enkelvoudigInformatieObjectRestService.convertInformatieObjectToPDF(informatieobjectUUID, zaak.uuid)
+            } catch (e: Exception) {
+                RestExceptionMapper().toResponse(e)
+            }
+
             Then("the response should be an error message") {
                 resp.status shouldBe 400
                 val entity = resp.entity as String
