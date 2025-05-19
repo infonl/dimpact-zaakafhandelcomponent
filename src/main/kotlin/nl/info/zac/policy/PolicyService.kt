@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.policy
+package net.atos.zac.policy
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
@@ -14,28 +14,29 @@ import net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend
 import net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.util.TaskUtil
+import net.atos.zac.policy.exception.PolicyException
+import net.atos.zac.policy.input.DocumentData
+import net.atos.zac.policy.input.DocumentInput
+import net.atos.zac.policy.input.TaakData
+import net.atos.zac.policy.input.TaakInput
+import net.atos.zac.policy.input.UserInput
+import net.atos.zac.policy.input.ZaakData
+import net.atos.zac.policy.input.ZaakInput
+import net.atos.zac.policy.output.DocumentRechten
+import net.atos.zac.policy.output.OverigeRechten
+import net.atos.zac.policy.output.TaakRechten
+import net.atos.zac.policy.output.WerklijstRechten
+import net.atos.zac.policy.output.ZaakRechten
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
 import nl.info.zac.enkelvoudiginformatieobject.util.isSigned
-import nl.info.zac.policy.exception.PolicyException
-import nl.info.zac.policy.input.DocumentData
-import nl.info.zac.policy.input.DocumentInput
-import nl.info.zac.policy.input.TaakData
-import nl.info.zac.policy.input.TaakInput
-import nl.info.zac.policy.input.UserInput
-import nl.info.zac.policy.input.ZaakData
-import nl.info.zac.policy.input.ZaakInput
-import nl.info.zac.policy.output.DocumentRechten
-import nl.info.zac.policy.output.OverigeRechten
-import nl.info.zac.policy.output.TaakRechten
-import nl.info.zac.policy.output.WerklijstRechten
-import nl.info.zac.policy.output.ZaakRechten
 import nl.info.zac.search.model.DocumentIndicatie
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.zoekobject.DocumentZoekObject
@@ -43,16 +44,16 @@ import nl.info.zac.search.model.zoekobject.TaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import org.apache.commons.collections.CollectionUtils
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import org.flowable.task.api.TaskInfo
 
 @ApplicationScoped
 @NoArgConstructor
 @AllOpen
-@Suppress("TooManyFunctions")
 class PolicyService @Inject constructor(
     private val loggedInUserInstance: Instance<LoggedInUser>,
-    @RestClient private val evaluationClient: OpaEvaluationClient,
+    @RestClient private val evaluationClient: OPAEvaluationClient,
     private val ztcClientService: ZtcClientService,
     private val lockService: EnkelvoudigInformatieObjectLockService,
     private val zrcClientService: ZrcClientService
@@ -62,24 +63,21 @@ class PolicyService @Inject constructor(
             RuleQuery(UserInput(loggedInUserInstance.get()))
         ).getResult()
 
-    fun readZaakRechten(zaak: Zaak): ZaakRechten {
-        val zaakType = ztcClientService.readZaaktype(zaak.zaaktype)
-        return readZaakRechten(zaak, zaakType)
-    }
-
-    fun readZaakRechten(zaak: Zaak, zaaktype: ZaakType): ZaakRechten {
-        val statusType = zaak.status?.let {
-            ztcClientService.readStatustype(zrcClientService.readStatus(it).statustype)
-        }
+    fun readZaakRechten(zaak: Zaak, zaaktype: ZaakType = ztcClientService.readZaaktype(zaak.zaaktype)): ZaakRechten {
         val zaakData = ZaakData().apply {
-            this.open = zaak.isOpen
+            this.open = zaak.isOpen()
             this.zaaktype = zaaktype.getOmschrijving()
-            this.opgeschort = zaak.isOpgeschort
-            this.verlengd = zaak.isVerlengd
-            this.besloten = zaaktype.getBesluittypen()?.isNotEmpty() == true
-            this.intake = isIntake(statusType)
-            this.heropend = isHeropend(statusType)
+            this.opgeschort = zaak.isOpgeschort()
+            this.verlengd = zaak.isVerlengd()
+            this.besloten = CollectionUtils.isNotEmpty(zaaktype.getBesluittypen())
         }
+        var statusType: StatusType? = null
+        zaak.status?.let {
+            val status = zrcClientService.readStatus(it)
+            statusType = ztcClientService.readStatustype(status.getStatustype())
+        }
+        zaakData.intake = isIntake(statusType)
+        zaakData.heropend = isHeropend(statusType)
         return evaluationClient.readZaakRechten(
             RuleQuery(
                 ZaakInput(loggedInUserInstance.get(), zaakData)
@@ -141,14 +139,9 @@ class PolicyService @Inject constructor(
         ).getResult()
     }
 
-    fun readTaakRechten(taskInfo: TaskInfo): TaakRechten {
-        val zaaktypeOmschrijving = TaakVariabelenService.readZaaktypeOmschrijving(taskInfo)
-        return readTaakRechten(taskInfo, zaaktypeOmschrijving)
-    }
-
     fun readTaakRechten(
         taskInfo: TaskInfo,
-        zaaktypeOmschrijving: String?
+        zaaktypeOmschrijving: String? = TaakVariabelenService.readZaaktypeOmschrijving(taskInfo)
     ): TaakRechten {
         val taakData = TaakData().apply {
             this.open = TaskUtil.isOpen(taskInfo)

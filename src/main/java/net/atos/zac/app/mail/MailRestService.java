@@ -5,8 +5,6 @@
 
 package net.atos.zac.app.mail;
 
-import static nl.info.zac.policy.PolicyServiceKt.assertPolicy;
-
 import java.util.UUID;
 
 import jakarta.inject.Inject;
@@ -23,11 +21,13 @@ import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter;
 import net.atos.zac.app.mail.model.RESTMailGegevens;
 import net.atos.zac.flowable.ZaakVariabelenService;
+import net.atos.zac.policy.PolicyService;
 import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.zac.mail.MailService;
 import nl.info.zac.mail.model.BronnenKt;
-import nl.info.zac.policy.PolicyService;
 import nl.info.zac.zaak.ZaakService;
+
+import static net.atos.zac.policy.PolicyServiceKt.assertPolicy;
 
 @Singleton
 @Path("mail")
@@ -75,7 +75,7 @@ public class MailRestService {
             final RESTMailGegevens restMailGegevens
     ) {
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        assertPolicy(policyService.readZaakRechten(zaak).getVersturenEmail());
+        assertPolicy(policyService.readZaakRechten(zaak, null).versturenEmail());
         mailService.sendMail(restMailGegevensConverter.convert(restMailGegevens), BronnenKt.getBronnenFromZaak(zaak));
     }
 
@@ -87,7 +87,7 @@ public class MailRestService {
     ) {
         final Zaak zaak = zrcClientService.readZaak(zaakUuid);
         assertPolicy(!zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.getUuid()).orElse(false) &&
-                     policyService.readZaakRechten(zaak).getVersturenOntvangstbevestiging());
+                     policyService.readZaakRechten(zaak, null).versturenOntvangstbevestiging());
         mailService.sendMail(restMailGegevensConverter.convert(restMailGegevens), BronnenKt.getBronnenFromZaak(zaak));
         zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak);
     }

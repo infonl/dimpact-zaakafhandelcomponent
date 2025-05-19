@@ -20,8 +20,8 @@ import net.atos.zac.app.formulieren.converter.toFormulierDefinitie
 import net.atos.zac.app.formulieren.converter.toRESTFormulierDefinitie
 import net.atos.zac.app.formulieren.model.RESTFormulierDefinitie
 import net.atos.zac.formulieren.FormulierDefinitieService
-import nl.info.zac.policy.PolicyService
-import nl.info.zac.policy.assertPolicy
+import net.atos.zac.policy.PolicyService
+import net.atos.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 

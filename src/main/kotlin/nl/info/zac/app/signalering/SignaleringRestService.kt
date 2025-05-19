@@ -16,6 +16,8 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import net.atos.zac.app.shared.RESTResultaat
+import net.atos.zac.policy.PolicyService
+import net.atos.zac.policy.assertPolicy
 import net.atos.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
 import net.atos.zac.signalering.model.SignaleringType
@@ -27,8 +29,6 @@ import nl.info.zac.app.signalering.model.RestSignaleringTaskSummary
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.IdentityService
-import nl.info.zac.policy.PolicyService
-import nl.info.zac.policy.assertPolicy
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime

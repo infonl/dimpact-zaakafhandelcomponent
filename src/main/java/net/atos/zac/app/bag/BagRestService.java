@@ -6,7 +6,7 @@
 package net.atos.zac.app.bag;
 
 import static java.util.stream.Collectors.joining;
-import static nl.info.zac.policy.PolicyServiceKt.assertPolicy;
+import static net.atos.zac.policy.PolicyServiceKt.assertPolicy;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,7 +45,7 @@ import net.atos.zac.app.bag.model.RESTBAGObject;
 import net.atos.zac.app.bag.model.RESTBAGObjectGegevens;
 import net.atos.zac.app.bag.model.RESTListAdressenParameters;
 import net.atos.zac.app.shared.RESTResultaat;
-import nl.info.zac.policy.PolicyService;
+import net.atos.zac.policy.PolicyService;
 
 @Path("bag")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -107,7 +107,7 @@ public class BagRestService {
     @POST
     public void create(final RESTBAGObjectGegevens bagObjectGegevens) {
         final Zaak zaak = zrcClientService.readZaak(bagObjectGegevens.zaakUuid);
-        assertPolicy(policyService.readZaakRechten(zaak).getToevoegenBagObject());
+        assertPolicy(policyService.readZaakRechten(zaak, null).toevoegenBagObject());
         if (isNogNietGekoppeld(bagObjectGegevens.getBagObject(), zaak)) {
             zrcClientService.createZaakobject(RestBagConverter.convertToZaakobject(bagObjectGegevens.getBagObject(), zaak));
         }
@@ -116,7 +116,7 @@ public class BagRestService {
     @DELETE
     public void delete(final RESTBAGObjectGegevens bagObjectGegevens) {
         final Zaak zaak = zrcClientService.readZaak(bagObjectGegevens.zaakUuid);
-        assertPolicy(policyService.readZaakRechten(zaak).getBehandelen());
+        assertPolicy(policyService.readZaakRechten(zaak, null).behandelen());
         final Zaakobject zaakobject = zrcClientService.readZaakobject(bagObjectGegevens.uuid);
         zrcClientService.deleteZaakobject(zaakobject, bagObjectGegevens.redenWijzigen);
     }
@@ -126,7 +126,7 @@ public class BagRestService {
     public List<RESTBAGObjectGegevens> listBagobjectenVoorZaak(@PathParam("zaakUuid") final UUID zaakUUID) {
         final ZaakobjectListParameters zaakobjectListParameters = new ZaakobjectListParameters();
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        assertPolicy(policyService.readZaakRechten(zaak).getLezen());
+        assertPolicy(policyService.readZaakRechten(zaak, null).lezen());
         zaakobjectListParameters.setZaak(zaak.getUrl());
         final Results<Zaakobject> zaakobjecten = zrcClientService.listZaakobjecten(zaakobjectListParameters);
         if (zaakobjecten.getCount() > 0) {

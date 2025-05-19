@@ -4,8 +4,8 @@
  */
 package net.atos.zac.app.inboxdocumenten;
 
+import static net.atos.zac.policy.PolicyServiceKt.assertPolicy;
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
-import static nl.info.zac.policy.PolicyServiceKt.assertPolicy;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,8 +33,8 @@ import net.atos.zac.app.shared.RESTResultaat;
 import net.atos.zac.documenten.InboxDocumentenService;
 import net.atos.zac.documenten.model.InboxDocument;
 import net.atos.zac.documenten.model.InboxDocumentListParameters;
+import net.atos.zac.policy.PolicyService;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import nl.info.zac.policy.PolicyService;
 
 @Singleton
 @Path("inboxdocumenten")
@@ -62,7 +62,7 @@ public class InboxDocumentenRESTService {
     @PUT
     @Path("")
     public RESTResultaat<RESTInboxDocument> listInboxDocuments(final RESTInboxDocumentListParameters restListParameters) {
-        assertPolicy(policyService.readWerklijstRechten().getInbox());
+        assertPolicy(policyService.readWerklijstRechten().inbox());
         final InboxDocumentListParameters listParameters = listParametersConverter.convert(restListParameters);
         var inboxDocuments = inboxDocumentenService.list(listParameters);
         var informationObjectTypeUUIDs = inboxDocuments.stream().map(
@@ -81,7 +81,7 @@ public class InboxDocumentenRESTService {
     @DELETE
     @Path("{id}")
     public void deleteInboxDocument(@PathParam("id") final long id) {
-        assertPolicy(policyService.readWerklijstRechten().getInbox());
+        assertPolicy(policyService.readWerklijstRechten().inbox());
         final Optional<InboxDocument> inboxDocument = inboxDocumentenService.find(id);
         if (inboxDocument.isEmpty()) {
             return; // reeds verwijderd

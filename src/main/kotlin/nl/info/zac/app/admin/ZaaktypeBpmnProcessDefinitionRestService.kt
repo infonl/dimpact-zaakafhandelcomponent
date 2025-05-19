@@ -15,11 +15,11 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
+import net.atos.zac.policy.PolicyService
+import net.atos.zac.policy.assertPolicy
 import nl.info.zac.app.admin.model.RestZaaktypeBpmnProcessDefinition
 import nl.info.zac.flowable.bpmn.ZaaktypeBpmnProcessDefinitionService
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition
-import nl.info.zac.policy.PolicyService
-import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
