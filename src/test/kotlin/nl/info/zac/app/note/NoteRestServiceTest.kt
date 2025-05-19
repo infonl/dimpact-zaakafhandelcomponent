@@ -96,7 +96,7 @@ class NoteRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An existing node and a user with permissions to update notes") {
+    Given("An existing note and a user with permissions to update notes") {
         val nodeId = 123L
         every { policyService.readNotitieRechten().wijzigen } returns true
         every { noteService.deleteNote(nodeId) } just Runs
