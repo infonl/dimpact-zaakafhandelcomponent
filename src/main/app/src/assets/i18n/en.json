@@ -842,6 +842,7 @@
   "msg.initiator.ontkoppelen.uitgevoerd": "The initiator has been unlinked",
   "msg.initiator.toegevoegd": "The initiator {{naam}} has been added",
   "msg.initiator.gewijzigd": "The initiator has been updated",
+  "msg.initiator.bevestigen": "{{naam}} will be set as initiator of the case.",
   "msg.loading": "Retrieving the data",
   "msg.mailtemplate.opgeslagen": "Mailtemplate saved",
   "msg.mailtemplate.verwijderen.bevestigen": "Delete mailtemplate?",

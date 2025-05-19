@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-package net.atos.zac.overig
+package net.atos.zac.document
 
 import rego.v1
 

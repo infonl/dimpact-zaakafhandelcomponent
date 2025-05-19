@@ -213,13 +213,18 @@ export class ZakenService {
       );
   }
 
-  updateInitiator(zaak: GeneratedType<"RestZaak">, initiator: Klant) {
+  updateInitiator(
+    zaak: GeneratedType<"RestZaak">,
+    initiator: GeneratedType<"RestPersoon">,
+    reason?: string,
+  ) {
     return this.zacHttpClient
-      .PUT("/rest/zaken/initiator", {
+      .PATCH("/rest/zaken/initiator", {
         zaakUUID: zaak.uuid,
-        betrokkeneIdentificatieType: initiator.identificatieType,
-        betrokkeneIdentificatie: initiator.identificatie,
+        betrokkeneIdentificatieType: initiator.identificatieType!,
+        betrokkeneIdentificatie: initiator.identificatie!,
         roltypeUUID: undefined as unknown as string, // TODO: check this interface
+        roltoelichting: reason,
       })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
