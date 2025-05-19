@@ -39,7 +39,7 @@ Normally every ZAC user will automatically obtain this system role from the [ZAC
 
 ZAC also supports the concept of 'domain' (domein) roles.
 These roles normally correspond to user groups in the [ZAC IAM architecture](iamArchitecture.md) and typically to departments
-in a muncipality. E.g. 'sociaal domein'.
+in a municipality. E.g. 'sociaal domein'.
 These roles are used to grant access to a certain zaaktype (or set of zaaktypes) in ZAC.
 This is done by configuring the 'zaakafhandelparameters' for a zaaktype in ZAC for a certain domain
 and by giving a certain group of users the corresponding domain role in Keycloak.
@@ -111,6 +111,10 @@ various resources on which a user can perform actions:
 | zaken_taken                                          |     ✅     |                                                                                                                           |             |                                                                     |           |
 | zaken_taken_verdelen                                 |            |                                                                                                                           |     ✅      |                                                                     |           |
 | zaken_taken_exporteren                               |            |                                                                                                                           |             |                                                                     |    ✅     |
+|                                                      |            |                                                                                                                           |             |                                                                     |           |
+| **_Notitie rechten_**                                |            |                                                                                                                           |             |                                                                     |           |
+| lezen                                                |            |                                                                                                                           |             |                                                                     |           |
+| wijzigen                                                     |            |                                                                                                                           |             |                                                                     |           |
 |                                                      |            |                                                                                                                           |             |                                                                     |           |
 | **_Overige rechten_**                                |            |                                                                                                                           |             |                                                                     |           |
 | starten_zaak                                         |            |                                                             ✅                                                             |             |                                                                     |           |

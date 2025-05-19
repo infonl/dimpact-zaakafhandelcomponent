@@ -11,7 +11,7 @@ import data.net.atos.zac.rol.behandelaar
 import data.net.atos.zac.rol.raadpleger
 import input.user
 
-notities_rechten := {
+notitie_rechten := {
     "lezen": lezen,
     "wijzigen": wijzigen
 }
