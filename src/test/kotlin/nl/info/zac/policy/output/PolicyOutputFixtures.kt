@@ -5,12 +5,6 @@
 
 package nl.info.zac.policy.output
 
-import nl.info.zac.policy.output.DocumentRechten
-import nl.info.zac.policy.output.OverigeRechten
-import nl.info.zac.policy.output.TaakRechten
-import nl.info.zac.policy.output.WerklijstRechten
-import nl.info.zac.policy.output.ZaakRechten
-
 @Suppress("LongParameterList")
 fun createDocumentRechten(
     lezen: Boolean = true,
