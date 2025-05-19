@@ -67,12 +67,10 @@ export class InformatieObjectenService {
       );
   }
 
-  listInformatieobjecttypesForZaak(
-    zaakUUID: string,
-  ): Observable<Informatieobjecttype[]> {
+  listInformatieobjecttypesForZaak(zaakUUID: string) {
     return this.http
       .get<
-        Informatieobjecttype[]
+        GeneratedType<"RestInformatieobjecttype">[]
       >(`${this.basepath}/informatieobjecttypes/zaak/${zaakUUID}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),

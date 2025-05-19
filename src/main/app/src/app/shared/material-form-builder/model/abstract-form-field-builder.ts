@@ -8,8 +8,8 @@ import { Observable, first } from "rxjs";
 import { AbstractFormField } from "./abstract-form-field";
 import { FormFieldHint } from "./form-field-hint";
 
-export abstract class AbstractFormFieldBuilder {
-  abstract readonly formField: AbstractFormField;
+export abstract class AbstractFormFieldBuilder<T = unknown> {
+  abstract readonly formField: AbstractFormField<T | null | undefined>;
 
   protected constructor() {}
 
@@ -33,9 +33,9 @@ export abstract class AbstractFormFieldBuilder {
     return this;
   }
 
-  value$(value: Observable<any>): this {
+  value$(value: Observable<unknown>): this {
     value.pipe(first()).subscribe((firstValue) => {
-      this.formField.formControl.setValue(firstValue);
+      this.formField.formControl.setValue(firstValue as T);
     });
     return this;
   }

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -90,15 +90,16 @@ export abstract class AbstractTaakFormulier {
 
   getTaak(formGroup: FormGroup): Taak {
     this.taak.taakdata = this.getDataElementen(formGroup);
-    this.taak.toelichting = this.getFormField(
-      AbstractTaakFormulier.TOELICHTING_FIELD,
-    ).formControl.value;
+    this.taak.toelichting = String(
+      this.getFormField(AbstractTaakFormulier.TOELICHTING_FIELD).formControl
+        .value,
+    );
     this.taak.taakinformatie = this.getTaakinformatie(formGroup);
     return this.taak;
   }
 
-  protected getDataElement(key: string): any {
-    return key in this.dataElementen ? this.dataElementen[key] : null;
+  protected getDataElement(key: string) {
+    return key in this.dataElementen ? this.dataElementen[key] : undefined;
   }
 
   refreshTaakdocumentenEnBijlagen() {
@@ -171,7 +172,7 @@ export abstract class AbstractTaakFormulier {
         if (typeof this.dataElementen[key] === "boolean") {
           this.dataElementen[key] = `${this.dataElementen[key]}`;
         } else {
-          this.dataElementen[key] = value as any;
+          this.dataElementen[key] = String(value);
         }
       });
     return this.dataElementen;
@@ -197,7 +198,7 @@ export abstract class AbstractTaakFormulier {
     };
   }
 
-  getFormField(id: string): AbstractFormField {
+  getFormField(id: string) {
     for (const fieldArray of this.form) {
       for (const field of fieldArray) {
         if (field.id === id) {

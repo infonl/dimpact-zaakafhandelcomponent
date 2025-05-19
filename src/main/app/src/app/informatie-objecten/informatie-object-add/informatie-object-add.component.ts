@@ -76,7 +76,8 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
   );
 
   private informatieobjectStatussen!: { label: string; value: string }[];
-  private status?: SelectFormField = undefined;
+  private status?: SelectFormField<{ label: string; value: string }> =
+    undefined;
   private subscriptions: Subscription[] = [];
 
   private getInputs(deps: { loggedInUser: GeneratedType<"RestLoggedInUser"> }) {

@@ -10,7 +10,7 @@ import { Zaak } from "../../zaken/model/zaak";
 
 export abstract class AbstractZaakFormulier {
   zaak: Zaak;
-  dataElementen: Record<string, unknown>;
+  dataElementen: Record<string, string | undefined>;
   form: Array<AbstractFormField[]>;
 
   constructor(protected translate: TranslateService) {}

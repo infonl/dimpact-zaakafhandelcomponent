@@ -15,7 +15,6 @@ import { Bedrijf } from "./model/bedrijven/bedrijf";
 import { ListBedrijvenParameters } from "./model/bedrijven/list-bedrijven-parameters";
 import { Vestigingsprofiel } from "./model/bedrijven/vestigingsprofiel";
 import { ContactGegevens } from "./model/klanten/contact-gegevens";
-import { Roltype } from "./model/klanten/roltype";
 import { ListPersonenParameters } from "./model/personen/list-personen-parameters";
 import { PersonenParameters } from "./model/personen/personen-parameters";
 
@@ -112,18 +111,20 @@ export class KlantenService {
   }
 
   /* istanbul ignore next */
-  listBetrokkeneRoltypen(zaaktypeUuid: string): Observable<Roltype[]> {
+  listBetrokkeneRoltypen(zaaktypeUuid: string) {
     return this.http
-      .get<Roltype[]>(`${this.basepath}/roltype/${zaaktypeUuid}/betrokkene`)
+      .get<
+        GeneratedType<"RestRoltype">[]
+      >(`${this.basepath}/roltype/${zaaktypeUuid}/betrokkene`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
   /* istanbul ignore next */
-  listRoltypen(): Observable<Roltype[]> {
+  listRoltypen() {
     return this.http
-      .get<Roltype[]>(`${this.basepath}/roltype`)
+      .get<GeneratedType<"RestRoltype">[]>(`${this.basepath}/roltype`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

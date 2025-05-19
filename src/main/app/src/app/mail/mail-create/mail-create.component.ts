@@ -18,6 +18,7 @@ import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { ActionIcon } from "../../shared/edit/action-icon";
 import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
+import { DocumentenLijstFormField } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-form-field";
 import { HtmlEditorFormFieldBuilder } from "../../shared/material-form-builder/form-components/html-editor/html-editor-form-field-builder";
 import { InputFormField } from "../../shared/material-form-builder/form-components/input/input-form-field";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
@@ -55,11 +56,11 @@ export class MailCreateComponent implements OnInit {
   fields: Array<AbstractFormField[]>;
   ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
 
-  verzenderFormField: SelectFormField;
+  verzenderFormField: SelectFormField<GeneratedType<"RESTZaakAfzender">>;
   ontvangerFormField: InputFormField;
-  onderwerpFormField: AbstractFormControlField;
-  bodyFormField: AbstractFormControlField;
-  bijlagenFormField: AbstractFormControlField;
+  onderwerpFormField: AbstractFormControlField<string>;
+  bodyFormField: AbstractFormControlField<string>;
+  bijlagenFormField: DocumentenLijstFormField;
 
   constructor(
     private zakenService: ZakenService,
@@ -169,12 +170,12 @@ export class MailCreateComponent implements OnInit {
   onFormSubmit(formGroup: FormGroup): void {
     if (formGroup?.valid) {
       const mailGegevens: GeneratedType<"RESTMailGegevens"> = {
-        verzender: this.verzenderFormField.formControl.value.mail,
-        replyTo: this.verzenderFormField.formControl.value.replyTo,
-        ontvanger: this.ontvangerFormField.formControl.value,
-        onderwerp: this.onderwerpFormField.formControl.value,
-        body: this.bodyFormField.formControl.value,
-        bijlagen: this.bijlagenFormField.formControl.value,
+        verzender: this.verzenderFormField.formControl.value?.mail,
+        replyTo: this.verzenderFormField.formControl.value?.replyTo,
+        ontvanger: this.ontvangerFormField.formControl.value ?? "",
+        onderwerp: this.onderwerpFormField.formControl.value ?? "",
+        body: this.bodyFormField.formControl.value ?? "",
+        bijlagen: this.bijlagenFormField.formControl.value ?? "",
         createDocumentFromMail: true,
       };
 

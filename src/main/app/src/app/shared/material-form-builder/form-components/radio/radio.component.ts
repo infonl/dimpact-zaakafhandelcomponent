@@ -13,8 +13,8 @@ import { RadioFormField } from "./radio-form-field";
   styleUrls: ["./radio.component.less"],
 })
 export class RadioComponent extends FormComponent implements OnInit {
-  data: RadioFormField;
-  selectedValue: string;
+  data: RadioFormField<string>;
+  selectedValue?: string | null = null;
 
   constructor(public translate: TranslateService) {
     super();

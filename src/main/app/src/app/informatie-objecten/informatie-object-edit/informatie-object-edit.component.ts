@@ -136,7 +136,7 @@ export class InformatieObjectEditComponent
             label: this.translateService.instant(
               "informatieobject.status." + this.infoObject.status,
             ),
-            value: this.infoObject.status,
+            value: String(this.infoObject.status),
           }
         : null,
     )
@@ -209,7 +209,7 @@ export class InformatieObjectEditComponent
       .build();
 
     this.subscriptions$.push(
-      inhoudField.formControl.valueChanges.subscribe((file: File) => {
+      inhoudField.formControl.valueChanges.subscribe((file) => {
         titel.formControl.setValue(file?.name?.replace(/\.[^/.]+$/, "") || "");
         titel.formControl.markAsDirty();
       }),

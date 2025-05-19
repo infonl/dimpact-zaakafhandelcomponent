@@ -7,11 +7,9 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
-import { ZaakAfzender } from "../admin/model/zaakafzender";
 import { ZaakbeeindigReden } from "../admin/model/zaakbeeindig-reden";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { Klant } from "../klanten/model/klanten/klant";
-import { Roltype } from "../klanten/model/klanten/roltype";
 import { TableRequest } from "../shared/dynamic-table/datasource/table-request";
 import { HistorieRegel } from "../shared/historie/model/historie-regel";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
@@ -245,13 +243,13 @@ export class ZakenService {
   createBetrokkene(
     zaak: GeneratedType<"RestZaak">,
     betrokkene: Klant,
-    roltype: Roltype,
+    roltype: GeneratedType<"RestRoltype">,
     roltoelichting: string,
   ) {
     return this.zacHttpClient
       .POST("/rest/zaken/betrokkene", {
         zaakUUID: zaak.uuid,
-        roltypeUUID: roltype.uuid,
+        roltypeUUID: roltype.uuid!,
         roltoelichting,
         betrokkeneIdentificatieType: betrokkene.identificatieType,
         betrokkeneIdentificatie: betrokkene.identificatie,
@@ -327,17 +325,21 @@ export class ZakenService {
       );
   }
 
-  listAfzendersVoorZaak(zaakUuid: string): Observable<ZaakAfzender[]> {
+  listAfzendersVoorZaak(zaakUuid: string) {
     return this.http
-      .get<ZaakAfzender[]>(`${this.basepath}/zaak/${zaakUuid}/afzender`)
+      .get<
+        GeneratedType<"RESTZaakAfzender">[]
+      >(`${this.basepath}/zaak/${zaakUuid}/afzender`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
-  readDefaultAfzenderVoorZaak(zaakUuid: string): Observable<ZaakAfzender> {
+  readDefaultAfzenderVoorZaak(zaakUuid: string) {
     return this.http
-      .get<ZaakAfzender>(`${this.basepath}/zaak/${zaakUuid}/afzender/default`)
+      .get<
+        GeneratedType<"RESTZaakAfzender">
+      >(`${this.basepath}/zaak/${zaakUuid}/afzender/default`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
