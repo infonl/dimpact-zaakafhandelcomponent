@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -12,14 +12,14 @@ import { AbstractFormControlField } from "./abstract-form-control-field";
  * Abstract class voor Form Fields die meerdere waardes tonen (checkbox, radiobutton, select)
  * Deze componenten hebben een compare methode nodig om te bepalen welke value geselecteerd moet worden in de lijst.
  */
-export abstract class AbstractChoicesFormField extends AbstractFormControlField {
+export abstract class AbstractChoicesFormField<T extends Record<string, unknown> = Record<string, unknown>> extends AbstractFormControlField<T> {
   optionsChanged$ = new EventEmitter<void>();
-  private options$: Observable<any[]> = new Observable();
-  private valueOptions: any[] = [];
+  private options$ = new Observable<T[]>();
+  private valueOptions: T[] = [];
   public optionLabel: string | null = null;
   public optionSuffix: string | null = null;
   public optionValue: string | null = null;
-  public optionOrderFn?: (a: any, b: any) => number;
+  public optionOrderFn?: (a: T, b: T) => number;
   public settings: {
     translateLabels?: boolean;
     capitalizeFirstLetter?: boolean;
@@ -29,7 +29,7 @@ export abstract class AbstractChoicesFormField extends AbstractFormControlField 
     super();
   }
 
-  compareWithFn = (object1: any, object2: any): boolean => {
+  compareWithFn = (object1: T, object2: T): boolean => {
     if (object1 && object2) {
       return this.optionValue
         ? this.compare(object1, object2, this.optionValue)
@@ -40,7 +40,7 @@ export abstract class AbstractChoicesFormField extends AbstractFormControlField 
     return false;
   };
 
-  private compare(object1: any, object2: any, field: string): boolean {
+  private compare(object1: T, object2: T, field: keyof T): boolean {
     return (
       object1 === object2[field] ||
       object1[field] === object2 ||
@@ -48,7 +48,7 @@ export abstract class AbstractChoicesFormField extends AbstractFormControlField 
     );
   }
 
-  getOption(value: any) {
+  getOption(value: T) {
     for (const option of this.valueOptions) {
       if (this.compareWithFn(value, option)) {
         return option;
@@ -57,16 +57,16 @@ export abstract class AbstractChoicesFormField extends AbstractFormControlField 
     return null;
   }
 
-  get options(): Observable<any[]> {
+  get options() {
     return this.options$;
   }
 
-  set options(options: Observable<any[]>) {
+  set options(options: Observable<T[]>) {
     this.valueOptions = [];
     this.options$ = options.pipe(
       tap((value) => {
         this.valueOptions = value;
-        value?.sort(this.optionOrderFn || OrderUtil.orderBy(this.optionLabel));
+        value?.sort(this.optionOrderFn || OrderUtil.orderBy(this.optionLabel as null)); // as null to make TS happy
       }),
     );
     this.optionsChanged$.next();

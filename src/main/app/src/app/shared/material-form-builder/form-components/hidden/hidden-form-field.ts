@@ -6,14 +6,14 @@
 import { AbstractFormControlField } from "../../model/abstract-form-control-field";
 import { FieldType } from "../../model/field-type.enum";
 
-export class HiddenFormField extends AbstractFormControlField {
+export class HiddenFormField<T = unknown> extends AbstractFormControlField<T> {
   fieldType: FieldType = FieldType.HIDDEN;
 
   constructor() {
     super();
   }
 
-  initControl(value?: any) {
+  initControl(value?: T) {
     super.initControl(value);
     this.label = "hidden";
   }

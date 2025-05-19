@@ -1,12 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { AbstractChoicesFormField } from "../../model/abstract-choices-form-field";
 import { FieldType } from "../../model/field-type.enum";
 
-export class RadioFormField extends AbstractChoicesFormField {
+export class RadioFormField<T extends Record<string, unknown>> extends AbstractChoicesFormField<T> {
   fieldType = FieldType.RADIO;
 
   constructor() {

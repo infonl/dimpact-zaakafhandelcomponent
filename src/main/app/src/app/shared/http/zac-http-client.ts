@@ -15,7 +15,7 @@ export type Paths = paths;
 
 type PathsWithMethod<Paths, PathnameMethod extends HttpMethod> = {
   [Pathname in keyof Paths]: Paths[Pathname] extends {
-    [K in PathnameMethod]: any;
+    [K in PathnameMethod]: unknown;
   }
     ? Pathname
     : never;
@@ -26,7 +26,7 @@ type Response<
   type extends "get" | "post" | "put" | "delete" | "patch",
 > = NonNullable<
   FetchResponse<
-    Paths[P][type] extends Record<string | number, any>
+    Paths[P][type] extends Record<string | number, unknown>
       ? Paths[P][type]
       : never,
     Record<string, unknown>,

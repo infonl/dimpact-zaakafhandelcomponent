@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -10,12 +10,12 @@ import { ActionIcon } from "../../../edit/action-icon";
 import { AbstractFormControlField } from "../../model/abstract-form-control-field";
 import { FieldType } from "../../model/field-type.enum";
 
-export class HtmlEditorFormField extends AbstractFormControlField {
+export class HtmlEditorFormField<T extends string = string> extends AbstractFormControlField<T> {
   fieldType: FieldType = FieldType.HTML_EDITOR;
-  icons: ActionIcon[];
+  icons: ActionIcon[] = [];
   mailtemplateBody$: Observable<Mailtemplate>;
   mailtemplateOnderwerp$: Observable<Mailtemplate>;
-  variabelen: MailtemplateVariabele[];
+  variabelen: MailtemplateVariabele[] = [];
   emptyToolbar: boolean;
   maxlength: number;
 

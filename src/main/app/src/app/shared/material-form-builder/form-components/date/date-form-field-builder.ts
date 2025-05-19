@@ -1,15 +1,16 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { AbstractFormFieldBuilder } from "../../model/abstract-form-field-builder";
 import { DateFormField } from "./date-form-field";
+import {Moment} from "moment";
 
-export class DateFormFieldBuilder extends AbstractFormFieldBuilder {
+export class DateFormFieldBuilder extends AbstractFormFieldBuilder<Moment | Date | string | null> {
   readonly formField: DateFormField;
 
-  constructor(value?: any) {
+  constructor(value?: Moment | Date | string | null) {
     super();
     this.formField = new DateFormField();
     this.formField.initControl(value);

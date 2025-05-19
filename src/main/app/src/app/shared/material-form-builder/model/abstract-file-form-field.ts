@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -8,7 +8,7 @@ import { FileIcon } from "../../../informatie-objecten/model/file-icon";
 import { MB_IN_BYTES } from "../../utils/constants";
 import { AbstractFormControlField } from "./abstract-form-control-field";
 
-export abstract class AbstractFileFormField extends AbstractFormControlField {
+export abstract class AbstractFileFormField<T extends File = File> extends AbstractFormControlField<T> {
   fileIcons = [...FileIcon.fileIcons];
   maxFileSizeMB: number;
   uploadURL: string;
@@ -20,7 +20,7 @@ export abstract class AbstractFileFormField extends AbstractFormControlField {
     super();
   }
 
-  isBestandstypeToegestaan(file: File): boolean {
+  isBestandstypeToegestaan(file: T): boolean {
     if (!file.name.includes(".")) {
       return false;
     } else {
@@ -29,18 +29,18 @@ export abstract class AbstractFileFormField extends AbstractFormControlField {
     }
   }
 
-  isBestandsgrootteToegestaan(file: File): boolean {
+  isBestandsgrootteToegestaan(file: T): boolean {
     return file.size <= this.maxFileSizeMB * MB_IN_BYTES;
   }
 
-  getBestandsextensie(file: File) {
+  getBestandsextensie(file: T) {
     if (file.name.indexOf(".") < 1) {
       return "-";
     }
     return "." + this.getType(file);
   }
 
-  getBestandsgrootteMB(file: File): string {
+  getBestandsgrootteMB(file: T): string {
     return parseFloat(String(file.size / MB_IN_BYTES)).toFixed(2);
   }
 
@@ -52,13 +52,13 @@ export abstract class AbstractFileFormField extends AbstractFormControlField {
     this.reset$.next();
   }
 
-  getAllowedFileTypes(): string {
+  getAllowedFileTypes() {
     return this.fileIcons
       .map((fileIcon) => fileIcon.getBestandsextensie())
       .join(", ");
   }
 
-  private getType(file: File): string {
-    return file.name.split(".").pop().toLowerCase();
+  private getType(file: T) {
+    return file.name.split(".").pop()?.toLowerCase() ?? "";
   }
 }
