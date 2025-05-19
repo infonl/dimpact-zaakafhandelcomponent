@@ -16,8 +16,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.assertPolicy
 import nl.info.zac.admin.ReferenceTableAdminService
 import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.model.ReferenceTable
@@ -31,6 +29,8 @@ import nl.info.zac.app.admin.model.toReferenceTableValue
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNOT_BE_CHANGED
 import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 

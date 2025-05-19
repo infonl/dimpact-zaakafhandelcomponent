@@ -41,8 +41,6 @@ import net.atos.zac.app.informatieobjecten.model.RestZaakInformatieobject
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.assertPolicy
 import net.atos.zac.util.MediaTypes
 import net.atos.zac.webdav.WebdavHelper
 import net.atos.zac.websocket.event.ScreenEventType
@@ -60,6 +58,8 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String

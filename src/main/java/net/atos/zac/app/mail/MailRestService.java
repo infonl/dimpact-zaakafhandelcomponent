@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.mail;
 
-import static net.atos.zac.policy.PolicyServiceKt.assertPolicy;
+import static nl.info.zac.policy.PolicyServiceKt.assertPolicy;
 
 import java.util.UUID;
 
@@ -23,10 +23,10 @@ import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter;
 import net.atos.zac.app.mail.model.RESTMailGegevens;
 import net.atos.zac.flowable.ZaakVariabelenService;
-import net.atos.zac.policy.PolicyService;
 import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.zac.mail.MailService;
 import nl.info.zac.mail.model.BronnenKt;
+import nl.info.zac.policy.PolicyService;
 import nl.info.zac.zaak.ZaakService;
 
 @Singleton

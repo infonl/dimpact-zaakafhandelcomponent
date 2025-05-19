@@ -33,7 +33,6 @@ import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObject
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject;
 import net.atos.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject;
 import net.atos.zac.app.policy.converter.RestRechtenConverter;
-import net.atos.zac.policy.PolicyService;
 import nl.info.client.zgw.brc.BrcClientService;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest;
@@ -49,6 +48,7 @@ import nl.info.zac.configuratie.model.Taal;
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
 import nl.info.zac.identity.IdentityService;
+import nl.info.zac.policy.PolicyService;
 import nl.info.zac.policy.output.DocumentRechten;
 
 public class RestInformatieobjectConverter {
