@@ -3,12 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.policy.input
+package nl.info.zac.policy.input
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.equals.shouldBeEqual
 import nl.info.zac.authentication.createLoggedInUser
-import nl.info.zac.policy.input.UserInput
 
 class UserInputTest : BehaviorSpec({
 

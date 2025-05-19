@@ -48,11 +48,6 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.output.createOverigeRechtenAllDeny
-import net.atos.zac.policy.output.createWerklijstRechten
-import net.atos.zac.policy.output.createZaakRechten
-import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.brc.BrcClientService
@@ -116,7 +111,12 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
+import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
+import nl.info.zac.policy.output.createOverigeRechtenAllDeny
+import nl.info.zac.policy.output.createWerklijstRechten
+import nl.info.zac.policy.output.createZaakRechten
+import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.productaanvraag.createProductaanvraagDimpact
 import nl.info.zac.search.IndexingService
