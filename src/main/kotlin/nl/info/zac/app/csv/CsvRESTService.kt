@@ -14,11 +14,11 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import net.atos.zac.csv.CsvService
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.assertPolicy
 import net.atos.zac.util.MediaTypes
 import nl.info.zac.app.search.converter.RestZoekParametersConverter
 import nl.info.zac.app.search.model.RestZoekParameters
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.SearchService
 import nl.info.zac.util.NoArgConstructor
 

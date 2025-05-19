@@ -8,9 +8,9 @@ import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.assertPolicy
 import nl.info.client.zgw.zrc.model.generated.Opschorting
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 import java.time.ZonedDateTime

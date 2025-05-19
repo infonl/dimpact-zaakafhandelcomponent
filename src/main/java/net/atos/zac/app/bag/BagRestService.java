@@ -6,7 +6,7 @@
 package net.atos.zac.app.bag;
 
 import static java.util.stream.Collectors.joining;
-import static net.atos.zac.policy.PolicyServiceKt.assertPolicy;
+import static nl.info.zac.policy.PolicyServiceKt.assertPolicy;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,7 +45,7 @@ import net.atos.zac.app.bag.model.RESTBAGObject;
 import net.atos.zac.app.bag.model.RESTBAGObjectGegevens;
 import net.atos.zac.app.bag.model.RESTListAdressenParameters;
 import net.atos.zac.app.shared.RESTResultaat;
-import net.atos.zac.policy.PolicyService;
+import nl.info.zac.policy.PolicyService;
 
 @Path("bag")
 @Consumes(MediaType.APPLICATION_JSON)

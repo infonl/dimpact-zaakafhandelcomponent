@@ -7,7 +7,6 @@
 package nl.info.zac.app.search.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.policy.PolicyService
 import nl.info.zac.app.search.model.AbstractRestZoekObject
 import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
 import nl.info.zac.app.search.model.RestZaakZoekObject
@@ -16,6 +15,7 @@ import nl.info.zac.app.search.model.RestZoekResultaat
 import nl.info.zac.app.search.model.toRestDocumentZoekObject
 import nl.info.zac.app.search.model.toRestTaakZoekObject
 import nl.info.zac.app.search.model.toRestZaakZoekObject
+import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.model.FilterParameters
 import nl.info.zac.search.model.FilterResultaat
 import nl.info.zac.search.model.FilterVeld

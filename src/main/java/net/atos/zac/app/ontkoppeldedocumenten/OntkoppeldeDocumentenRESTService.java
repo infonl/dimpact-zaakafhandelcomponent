@@ -4,8 +4,8 @@
  */
 package net.atos.zac.app.ontkoppeldedocumenten;
 
-import static net.atos.zac.policy.PolicyServiceKt.assertPolicy;
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
+import static nl.info.zac.policy.PolicyServiceKt.assertPolicy;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,9 +39,9 @@ import net.atos.zac.documenten.OntkoppeldeDocumentenService;
 import net.atos.zac.documenten.model.OntkoppeldDocument;
 import net.atos.zac.documenten.model.OntkoppeldDocumentListParameters;
 import net.atos.zac.documenten.model.OntkoppeldeDocumentenResultaat;
-import net.atos.zac.policy.PolicyService;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.zac.app.identity.converter.RestUserConverter;
+import nl.info.zac.policy.PolicyService;
 
 @Singleton
 @Path("ontkoppeldedocumenten")
