@@ -16,15 +16,16 @@ class NotitieConverter @Inject constructor(
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     fun toRestNotitie(notitie: Notitie): RestNotitie {
-        val medewerker = identityService.readUser(notitie.gebruikersnaamMedewerker)
+        val medewerker = identityService.readUser(notitie.employeeUsername)
         return RestNotitie(
             id = notitie.id,
             zaakUUID = notitie.zaakUUID,
-            tekst = notitie.tekst,
-            tijdstipLaatsteWijziging = notitie.tijdstipLaatsteWijziging,
-            gebruikersnaamMedewerker = notitie.gebruikersnaamMedewerker,
-            voornaamAchternaamMedewerker = "${medewerker.firstName} ${medewerker.lastName}",
-            bewerkenToegestaan = loggedInUserInstance.get().id == notitie.gebruikersnaamMedewerker
+            text = notitie.text,
+            dateTimeLastModified = notitie.dateTimeLastModified,
+            employeeUsername = notitie.employeeUsername,
+            employeeFullname = "${medewerker.firstName} ${medewerker.lastName}",
+            // updating a note is only allowed if the logged-in user is the same as the employee who created the note
+            updatingAllowed = loggedInUserInstance.get().id == notitie.employeeUsername
         )
     }
 }

@@ -32,10 +32,7 @@ import java.util.UUID
 @AllOpen
 class Notitie {
     companion object {
-        /**
-         * Naam van property: [Notitie.zaakUUID]
-         */
-        const val ZAAK_UUID: String = "zaakUUID"
+        const val ZAAK_UUID_FIELD: String = "zaakUUID"
     }
 
     @Id
@@ -46,14 +43,14 @@ class Notitie {
     @Column(name = "zaak_uuid", updatable = false)
     lateinit var zaakUUID: UUID
 
-    @Column(nullable = false)
+    @Column(name = "tekst", nullable = false)
     @NotBlank
-    lateinit var tekst: String
+    lateinit var text: String
 
     @Column(name = "tijdstip_laatste_wijziging", nullable = false)
-    lateinit var tijdstipLaatsteWijziging: ZonedDateTime
+    lateinit var dateTimeLastModified: ZonedDateTime
 
     @Column(name = "gebruikersnaam_medewerker", nullable = false, updatable = true)
     @NotBlank
-    lateinit var gebruikersnaamMedewerker: String
+    lateinit var employeeUsername: String
 }

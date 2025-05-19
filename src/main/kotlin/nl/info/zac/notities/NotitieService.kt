@@ -12,6 +12,7 @@ import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.zac.util.ValidationUtil
 import nl.info.zac.notities.model.Notitie
+import nl.info.zac.notities.model.Notitie.Companion.ZAAK_UUID_FIELD
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
@@ -34,7 +35,7 @@ class NotitieService @Inject constructor(
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(Notitie::class.java)
         val root = query.from(Notitie::class.java)
-        query.select(root).where(builder.equal(root.get<Any>(Notitie.Companion.ZAAK_UUID), zaakUUID))
+        query.select(root).where(builder.equal(root.get<Any>(ZAAK_UUID_FIELD), zaakUUID))
         return entityManager.createQuery(query).getResultList()
     }
 
