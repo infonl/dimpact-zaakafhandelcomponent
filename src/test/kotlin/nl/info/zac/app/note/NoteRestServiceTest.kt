@@ -101,7 +101,7 @@ class NoteRestServiceTest : BehaviorSpec({
         every { policyService.readNotitieRechten().wijzigen } returns true
         every { noteService.deleteNote(nodeId) } just Runs
 
-        When("deleteNode is called") {
+        When("deleteNote is called") {
             noteRestService.deleteNote(nodeId)
 
             Then("the node is deleted") {
