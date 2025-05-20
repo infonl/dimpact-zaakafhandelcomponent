@@ -7,7 +7,7 @@ package net.atos.zac.app.informatieobjecten.model;
 
 import java.time.LocalDate;
 
-import net.atos.zac.app.policy.model.RestZaakRechten;
+import nl.info.zac.app.policy.model.RestZaakRechten;
 import nl.info.zac.app.zaak.model.RestZaakStatus;
 
 /**

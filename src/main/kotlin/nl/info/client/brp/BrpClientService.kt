@@ -6,6 +6,7 @@ package nl.info.client.brp
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import nl.info.client.brp.exception.BrpInvalidPurposeException
 import nl.info.client.brp.model.generated.PersonenQuery
 import nl.info.client.brp.model.generated.PersonenQueryResponse
 import nl.info.client.brp.model.generated.Persoon
@@ -24,15 +25,24 @@ import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
+import java.util.Optional
 
 @ApplicationScoped
 @AllOpen
 @NoArgConstructor
 class BrpClientService @Inject constructor(
-    @RestClient val personenApi: PersonenApi
+    @RestClient val personenApi: PersonenApi,
+    @ConfigProperty(name = ENV_VAR_BRP_DOELBINDING_ZOEKMET)
+    private val queryPersonenDefaultPurpose: Optional<String>,
+
+    @ConfigProperty(name = ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET)
+    private val retrievePersoonDefaultPurpose: Optional<String>
 ) {
     companion object {
+        private const val ENV_VAR_BRP_DOELBINDING_ZOEKMET = "brp.doelbinding.zoekmet"
+        private const val ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET = "brp.doelbinding.raadpleegmet"
         private const val BURGERSERVICENUMMER = "burgerservicenummer"
         private const val GESLACHT = "geslacht"
         private const val NAAM = "naam"
@@ -54,7 +64,10 @@ class BrpClientService @Inject constructor(
 
     fun queryPersonen(personenQuery: PersonenQuery): PersonenQueryResponse =
         updateQuery(personenQuery).let {
-            personenApi.personen(it)
+            personenApi.personen(
+                personenQuery = it,
+                purpose = queryPersonenDefaultPurpose.validatePurpose(ENV_VAR_BRP_DOELBINDING_ZOEKMET)
+            )
         }
 
     /**
@@ -62,14 +75,15 @@ class BrpClientService @Inject constructor(
      *
      * @param burgerservicenummer the burgerservicenummer of the person to retrieve
      * @return the person if found, otherwise null
+     *
+     * @throws BrpInvalidPurposeException if the configured purpose is invalid or missing.
      */
-    fun retrievePersoon(burgerservicenummer: String): Persoon? =
-        (
-            personenApi.personen(
-                createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer)
-            ) as RaadpleegMetBurgerservicenummerResponse
-            )
-            .personen?.firstOrNull()
+    fun retrievePersoon(burgerservicenummer: String): Persoon? = (
+        personenApi.personen(
+            personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer),
+            purpose = retrievePersoonDefaultPurpose.validatePurpose(ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET)
+        ) as RaadpleegMetBurgerservicenummerResponse
+        ).personen?.firstOrNull()
 
     private fun createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer: String) =
         RaadpleegMetBurgerservicenummer().apply {
@@ -89,4 +103,11 @@ class BrpClientService @Inject constructor(
         }
         fields = if (personenQuery is RaadpleegMetBurgerservicenummer) FIELDS_PERSOON else FIELDS_PERSOON_BEPERKT
     }
+
+    private fun Optional<String>.validatePurpose(purposeName: String): String =
+        this.orElseThrow {
+            BrpInvalidPurposeException("$purposeName must be configured and not empty.")
+        }.let {
+            it.ifBlank { throw BrpInvalidPurposeException("$purposeName must not be blank.") }
+        }
 }

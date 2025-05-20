@@ -9,8 +9,8 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.RelevanteZaak
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.zac.app.policy.converter.RestRechtenConverter
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
 import nl.info.zac.policy.PolicyService
@@ -26,7 +26,7 @@ class RestGerelateerdeZaakConverter @Inject constructor(
         return RestGerelateerdeZaak(
             identificatie = zaak.identificatie,
             relatieType = relatieType,
-            rechten = RestRechtenConverter.convert(zaakrechten),
+            rechten = zaakrechten.toRestZaakRechten(),
             zaaktypeOmschrijving = takeIf { zaakrechten.lezen }?.let { zaaktype.omschrijving },
             startdatum = takeIf { zaakrechten.lezen }?.let { zaak.startdatum },
             statustypeOmschrijving = takeIf { zaakrechten.lezen }?.let {
