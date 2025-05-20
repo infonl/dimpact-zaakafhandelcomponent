@@ -20,7 +20,7 @@ import java.util.Optional
 class BRPClientHeadersFactoryTest : BehaviorSpec({
     val apiKey = "apiKey"
     val originOin = "originOin"
-    val testValue = "purpose"
+    val purpose = "purpose"
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
 
     beforeEach {
@@ -32,7 +32,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
             Optional.of(apiKey),
             Optional.of(false),
             Optional.of(originOin),
-            Optional.of(testValue),
+            Optional.of(purpose),
             loggedInUserInstance
         )
         val existingHeaders = Headers<String>().apply {
@@ -107,7 +107,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
             Optional.of(apiKey),
             Optional.of(true),
             Optional.of(originOin),
-            Optional.of(testValue),
+            Optional.of(purpose),
             loggedInUserInstance
         )
 
@@ -118,7 +118,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
                 with(headers) {
                     shouldContain("X-API-KEY", listOf(apiKey))
                     shouldContain("X-ORIGIN-OIN", listOf(originOin))
-                    shouldContain("X-VERWERKING", listOf(testValue))
+                    shouldContain("X-VERWERKING", listOf(purpose))
                     shouldContain("X-GEBRUIKER", listOf("username"))
                 }
             }
@@ -128,7 +128,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
     Given("Previously set BRP headers, no custom doelbinding and verwerking, protocolering enabled  and a valid user") {
         val outgoingHeaders = Headers<String>().apply {
             add("X-API-KEY", apiKey)
-            add("X-DOELBINDING", testValue)
+            add("X-DOELBINDING", purpose)
         }
         every { loggedInUserInstance.get().id } returns "username"
 
@@ -147,7 +147,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
                 with(headers) {
                     shouldContain("X-API-KEY", listOf(apiKey))
                     shouldContain("X-ORIGIN-OIN", listOf(originOin))
-                    shouldContain("X-DOELBINDING", listOf(testValue))
+                    shouldContain("X-DOELBINDING", listOf(purpose))
                     shouldNotHaveKey("X-VERWERKING")
                     shouldContain("X-GEBRUIKER", listOf("username"))
                 }
