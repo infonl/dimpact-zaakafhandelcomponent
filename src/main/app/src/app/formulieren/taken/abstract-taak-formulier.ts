@@ -172,7 +172,7 @@ export abstract class AbstractTaakFormulier {
         if (typeof this.dataElementen[key] === "boolean") {
           this.dataElementen[key] = `${this.dataElementen[key]}`;
         } else {
-          this.dataElementen[key] = value as string; // TODO better define `dataElementen` type
+          this.dataElementen[key] = value as string; // TODO better define `dataElementen` type -- fixed in https://dimpact.atlassian.net/browse/PZ-6901
         }
       });
     return this.dataElementen;
