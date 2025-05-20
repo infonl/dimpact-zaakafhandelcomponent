@@ -87,6 +87,7 @@ class DocumentCreationRestService @Inject constructor(
                 .let { RestDocumentCreationAttendedResponse(it.redirectUrl, it.message) }
         }
 
+    @Suppress("ThrowsCount")
     private fun createCmmnDocument(
         zaak: Zaak,
         restDocumentCreationAttendedData: RestDocumentCreationAttendedData
@@ -97,8 +98,10 @@ class DocumentCreationRestService @Inject constructor(
         return CmmnDocumentCreationDataAttended(
             zaak = zaak,
             taskId = restDocumentCreationAttendedData.taskId,
-            templateId = restDocumentCreationAttendedData.smartDocumentsTemplateId,
-            templateGroupId = restDocumentCreationAttendedData.smartDocumentsTemplateGroupId,
+            templateId = restDocumentCreationAttendedData.smartDocumentsTemplateId
+                ?: throw IllegalArgumentException("SmartDocuments template ID is required"),
+            templateGroupId = restDocumentCreationAttendedData.smartDocumentsTemplateGroupId
+                ?: throw IllegalArgumentException("SmartDocuments template group ID is required"),
             title = restDocumentCreationAttendedData.title,
             description = restDocumentCreationAttendedData.description,
             author = restDocumentCreationAttendedData.author,
@@ -110,9 +113,12 @@ class DocumentCreationRestService @Inject constructor(
         BpmnDocumentCreationDataAttended(
             zaak = zaak,
             taskId = restDocumentCreationAttendedData.taskId,
-            templateName = restDocumentCreationAttendedData.smartDocumentsTemplateName!!,
-            templateGroupName = restDocumentCreationAttendedData.smartDocumentsTemplateGroupName!!,
-            informatieobjecttypeUuid = restDocumentCreationAttendedData.informatieobjecttypeUuid!!,
+            templateName = restDocumentCreationAttendedData.smartDocumentsTemplateName
+                ?: throw IllegalArgumentException("SmartDocuments template name is required"),
+            templateGroupName = restDocumentCreationAttendedData.smartDocumentsTemplateGroupName
+                ?: throw IllegalArgumentException("SmartDocuments template group name is required"),
+            informatieobjecttypeUuid = restDocumentCreationAttendedData.informatieobjecttypeUuid
+                ?: throw IllegalArgumentException("Information object type UUID is required"),
             title = restDocumentCreationAttendedData.title,
             description = restDocumentCreationAttendedData.description,
             author = restDocumentCreationAttendedData.author,

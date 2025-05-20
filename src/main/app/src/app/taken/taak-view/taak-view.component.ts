@@ -298,13 +298,11 @@ export class TaakViewComponent
     component: ExtendedComponentSchema,
   ): void {
     component.type = "fieldset";
+    const componentWithProperties = component.components.find(
+      (component: ExtendedComponentSchema) => component.properties.keys.length > 0
+    );
     const smartDocumentsPath: GeneratedType<"RestSmartDocumentsPath"> = {
-      path: this.formioGetSmartDocumentsGroups(
-        component.components.find(
-          (component: { key: string }) =>
-            component.key === "AM_SmartDocuments_Create",
-        ),
-      ),
+      path: this.formioGetSmartDocumentsGroups(componentWithProperties),
     };
 
     const smartDocumentsTemplateComponent = component.components[0];
@@ -320,9 +318,10 @@ export class TaakViewComponent
     };
   }
 
-  private formioGetSmartDocumentsGroups(component?: ExtendedComponentSchema) {
-    return (component?.properties["SmartDocuments_Group"]?.split("/") ??
-      []) as string[];
+  private formioGetSmartDocumentsGroups(
+    component: ExtendedComponentSchema,
+  ): string[] {
+    return component?.properties["SmartDocuments_Group"].split("/");
   }
 
   isReadonly() {
@@ -587,20 +586,18 @@ export class TaakViewComponent
   }
 
   onDocumentCreate(event: FormioCustomEvent) {
-    const { component } = event;
-
     this.activeSideAction = "actie.document.maken";
-    this.smartDocumentsGroupPath =
-      this.formioGetSmartDocumentsGroups(component);
+    this.smartDocumentsGroupPath = this.formioGetSmartDocumentsGroups(event.component);
+    const componentBaseName = event.component.key.split("_").slice(0, -1).join("_");
     this.smartDocumentsTemplateName =
-      event.data["AM_SmartDocuments_Template"].toString();
+      event.data[componentBaseName + "_Template"].toString();
     const normalizedTemplateName = this.smartDocumentsTemplateName
       ?.replace(" ", "_")
       .trim();
     this.smartDocumentsInformatieobjecttypeUuid =
-      component.properties[
+      event.component.properties[
         `SmartDocuments_${normalizedTemplateName}_InformatieobjecttypeUuid`
-      ] || component.properties["SmartDocuments_InformatieobjecttypeUuid"];
+      ] || event.component.properties["SmartDocuments_InformatieobjecttypeUuid"];
 
     if (normalizedTemplateName.length > 0) {
       this.actionsSidenav.open();

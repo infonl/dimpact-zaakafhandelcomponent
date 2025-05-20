@@ -27,13 +27,11 @@ data class RestDocumentCreationAttendedData(
     @field:NotNull
     var creationDate: ZonedDateTime,
 
-    @field:NotNull
-    var smartDocumentsTemplateGroupId: String,
+    // CMMN fields
+    var smartDocumentsTemplateGroupId: String?,
+    var smartDocumentsTemplateId: String?,
 
-    @field:NotNull
-    var smartDocumentsTemplateId: String,
-
-    // BPMN optional fields
+    // BPMN fields
     var informatieobjecttypeUuid: UUID?,
     var smartDocumentsTemplateGroupName: String?,
     var smartDocumentsTemplateName: String?
