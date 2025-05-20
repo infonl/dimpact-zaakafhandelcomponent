@@ -534,6 +534,23 @@ export class ZaakViewComponent
           ),
         );
       }
+
+      if (
+        this.zaak.rechten.wijzigenLocatie &&
+        !(
+          this.zaak.zaakgeometrie &&
+          Object.keys(this.zaak.zaakgeometrie)?.length > 0
+        )
+      ) {
+        console.log(this.zaak.zaakgeometrie);
+        this.menu.push(
+          new ButtonMenuItem(
+            "actie.zaak.locatie",
+            () => this.actionsSidenav.open(),
+            "add_location_alt",
+          ),
+        );
+      }
     }
   }
 
@@ -951,6 +968,13 @@ export class ZaakViewComponent
   editCaseDetails(): void {
     if (this.zaak.rechten.wijzigen || this.zaak.rechten.toekennen) {
       this.activeSideAction = "actie.zaak.wijzigen";
+      this.actionsSidenav.open();
+    }
+  }
+
+  editLocationDetails(): void {
+    if (this.zaak.rechten.wijzigen) {
+      this.activeSideAction = "actie.zaak.locatie";
       this.actionsSidenav.open();
     }
   }

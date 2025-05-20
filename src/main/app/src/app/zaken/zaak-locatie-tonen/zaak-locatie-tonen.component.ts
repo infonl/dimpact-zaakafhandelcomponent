@@ -24,13 +24,13 @@ import * as source from "ol/source.js";
 import * as style from "ol/style.js";
 import WMTSTileGrid from "ol/tilegrid/WMTS.js";
 import { environment } from "src/environments/environment";
-import { LocationUtil } from "../../../shared/location/location-util";
+import { LocationUtil } from "../../shared/location/location-util";
 import {
   AddressResult,
   LocationService,
-} from "../../../shared/location/location.service";
-import { GeneratedType } from "../../../shared/utils/generated-types";
-import { GeometryType } from "../../model/geometryType";
+} from "../../shared/location/location.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
+import { GeometryType } from "../model/geometryType";
 
 @Component({
   selector: "zac-locatie-tonen",

@@ -59,6 +59,12 @@
       [loggedInUser]="loggedInUser"
       [sideNav]="actionsSidenav"
     ></zac-case-details-edit>
+    <zac-case-location-edit
+      *ngSwitchCase="'actie.zaak.locatie'"
+      [currentLocation]="zaak.zaakgeometrie"
+      [loggedInUser]="loggedInUser"
+      [sideNav]="actionsSidenav"
+    ></zac-case-location-edit>
     <zac-informatie-object-create-attended
       *ngSwitchCase="'actie.document.maken'"
       [sideNav]="actionsSidenav"
@@ -354,6 +360,15 @@
               >
               <div id="locatie_tab" class="table-wrapper">
                 <div class="flex flex-col gap-10 editable">
+                  <button
+                    *ngIf="zaak.rechten.wijzigenLocatie"
+                    mat-icon-button
+                    mat-small-icon-button
+                    (click)="editLocationDetails()"
+                  >
+                    <mat-icon>edit</mat-icon>
+                  </button>
+
                   <zac-static-text
                     [label]="'coordinates' | translate"
                     [value]="zaak.zaakgeometrie | location | empty"
