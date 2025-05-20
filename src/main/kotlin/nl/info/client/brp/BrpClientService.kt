@@ -35,10 +35,10 @@ import java.util.Optional
 class BrpClientService @Inject constructor(
     @RestClient val personenApi: PersonenApi,
     @ConfigProperty(name = ENV_VAR_BRP_DOELBINDING_ZOEKMET)
-    private val purposeSearch: Optional<String>,
+    private val queryPersonenDefaultPurpose: Optional<String>,
 
     @ConfigProperty(name = ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET)
-    private val purposeRetrieve: Optional<String>
+    private val retrievePersoonDefaultPurpose: Optional<String>
 ) {
     companion object {
         private const val ENV_VAR_BRP_DOELBINDING_ZOEKMET = "brp.doelbinding.zoekmet"
@@ -66,7 +66,7 @@ class BrpClientService @Inject constructor(
         updateQuery(personenQuery).let {
             personenApi.personen(
                 personenQuery = it,
-                purpose = purposeSearch.validatePurpose("brp.doelbinding.zoekmet")
+                purpose = queryPersonenDefaultPurpose.validatePurpose(ENV_VAR_BRP_DOELBINDING_ZOEKMET)
             )
         }
 
@@ -81,7 +81,7 @@ class BrpClientService @Inject constructor(
     fun retrievePersoon(burgerservicenummer: String): Persoon? = (
         personenApi.personen(
             personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer),
-            purpose = purposeRetrieve.validatePurpose("brp.doelbinding.raadpleegmet")
+            purpose = retrievePersoonDefaultPurpose.validatePurpose(ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET)
         ) as RaadpleegMetBurgerservicenummerResponse
         ).personen?.firstOrNull()
 

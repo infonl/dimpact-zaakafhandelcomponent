@@ -4,6 +4,4 @@
  */
 package nl.info.client.brp.exception
 
-class BrpInvalidPurposeException(message: String, cause: Throwable?) : RuntimeException(message, cause) {
-    constructor(message: String) : this(message, null)
-}
+class BrpInvalidPurposeException(message: String) : RuntimeException(message)
