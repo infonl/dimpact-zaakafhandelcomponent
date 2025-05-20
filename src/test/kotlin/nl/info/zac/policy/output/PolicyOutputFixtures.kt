@@ -190,8 +190,20 @@ fun createOverigeRechten(
     zoeken
 )
 
+fun createNotitieRechten(
+    lezen: Boolean = true,
+    wijzigen: Boolean = true
+) = NotitieRechten(
+    lezen = lezen,
+    wijzigen = wijzigen
+)
+
 fun createOverigeRechtenAllDeny(
     startenZaak: Boolean = false,
     beheren: Boolean = false,
     zoeken: Boolean = false
-) = createOverigeRechten(startenZaak, beheren, zoeken)
+) = createOverigeRechten(
+    startenZaak = startenZaak,
+    beheren = beheren,
+    zoeken = zoeken
+)
