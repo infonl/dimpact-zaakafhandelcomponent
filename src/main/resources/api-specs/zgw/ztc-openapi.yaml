@@ -10212,7 +10212,7 @@ components:
         - blijvend_bewaren
         - vernietigen
         # manual changed by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
-        # OpenAPI Generator does not support the `oneOf` construct fully yet
+        # OpenAPI Generator does not support the 'oneOf' construct fully yet
         - ''
       type: string
     BesluitType:
@@ -10568,7 +10568,7 @@ components:
             * `zakelijk_recht` - Zakelijk recht
             * `overige` - Overige
           # manual changed by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
-          # OpenAPI Generator does not support the `oneOf` construct fully yet
+          # OpenAPI Generator does not support the 'oneOf' construct fully yet
           allOf:
             - $ref: '#/components/schemas/ObjecttypeEnum'
             #- $ref: '#/components/schemas/BlankEnum'
@@ -10673,7 +10673,7 @@ components:
             * `zakelijk_recht` - Zakelijk recht
             * `overige` - Overige
           # manual changed by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
-          # OpenAPI Generator does not support the `oneOf` construct fully yet
+          # OpenAPI Generator does not support the 'oneOf' construct fully yet
           allOf:
             - $ref: '#/components/schemas/ObjecttypeEnum'
             #- $ref: '#/components/schemas/BlankEnum'
@@ -11348,7 +11348,7 @@ components:
         - zakelijk_recht
         - overige
       # manual changed by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
-      #  OpenAPI Generator does not support the `oneOf` construct fully yet
+      #  OpenAPI Generator does not support the 'oneOf' construct fully yet
         - ''
       type: string
     OmschrijvingGeneriek:
@@ -11874,7 +11874,7 @@ components:
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
           # manual changed by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
-          # OpenAPI Generator does not support the `oneOf` construct fully yet
+          # OpenAPI Generator does not support the 'oneOf' construct fully yet
           allOf:
             - $ref: '#/components/schemas/ArchiefnominatieEnum'
             #- $ref: '#/components/schemas/BlankEnum'
@@ -12452,7 +12452,7 @@ components:
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
           # manual changed by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
-          # OpenAPI Generator does not support the `oneOf` construct fully yet
+          # OpenAPI Generator does not support the 'oneOf' construct fully yet
           allOf:
           - $ref: '#/components/schemas/ArchiefnominatieEnum'
           #- $ref: '#/components/schemas/BlankEnum'
@@ -12602,7 +12602,7 @@ components:
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
           # manual changed by INFO.nl: need to allow for empty values returned by the API,
-          # and unfortunately, the OpenAPI Generator does not support the `oneOf` construct fully yet
+          # and unfortunately, the OpenAPI Generator does not support the 'oneOf' construct fully yet
           allOf:
           - $ref: '#/components/schemas/ArchiefnominatieEnum'
           #- $ref: '#/components/schemas/BlankEnum'
