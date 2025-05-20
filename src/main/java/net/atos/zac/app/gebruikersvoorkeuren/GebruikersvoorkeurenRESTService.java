@@ -5,6 +5,8 @@
 
 package net.atos.zac.app.gebruikersvoorkeuren;
 
+import static nl.info.zac.app.policy.model.RestWerklijstRechtenKt.toRestWerklijstRechten;
+
 import java.util.List;
 
 import jakarta.enterprise.inject.Instance;
@@ -25,7 +27,6 @@ import net.atos.zac.app.gebruikersvoorkeuren.converter.RESTZoekopdrachtConverter
 import net.atos.zac.app.gebruikersvoorkeuren.model.RESTDashboardCardInstelling;
 import net.atos.zac.app.gebruikersvoorkeuren.model.RESTTabelGegevens;
 import net.atos.zac.app.gebruikersvoorkeuren.model.RESTZoekopdracht;
-import net.atos.zac.app.policy.converter.RestRechtenConverter;
 import net.atos.zac.gebruikersvoorkeuren.GebruikersvoorkeurenService;
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen;
 import net.atos.zac.gebruikersvoorkeuren.model.Werklijst;
@@ -92,7 +93,7 @@ public class GebruikersvoorkeurenRESTService {
         );
         restTabelGegevens.aantalPerPagina = tabelInstellingen.getAantalPerPagina();
         restTabelGegevens.pageSizeOptions = TabelInstellingen.PAGE_SIZE_OPTIONS;
-        restTabelGegevens.werklijstRechten = RestRechtenConverter.convert(policyService.readWerklijstRechten());
+        restTabelGegevens.werklijstRechten = toRestWerklijstRechten(policyService.readWerklijstRechten());
         return restTabelGegevens;
     }
 

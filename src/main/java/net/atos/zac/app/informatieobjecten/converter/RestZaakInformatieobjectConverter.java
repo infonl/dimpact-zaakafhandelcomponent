@@ -5,6 +5,7 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
+import static nl.info.zac.app.policy.model.RestZaakRechtenKt.toRestZaakRechten;
 import static nl.info.zac.app.zaak.model.RestZaakStatusKt.toRestZaakStatus;
 
 import jakarta.inject.Inject;
@@ -14,7 +15,6 @@ import net.atos.client.zgw.zrc.model.Status;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.zac.app.informatieobjecten.model.RestZaakInformatieobject;
-import net.atos.zac.app.policy.converter.RestRechtenConverter;
 import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.client.zgw.ztc.model.generated.StatusType;
 import nl.info.client.zgw.ztc.model.generated.ZaakType;
@@ -38,7 +38,7 @@ public class RestZaakInformatieobjectConverter {
         final ZaakRechten zaakrechten = policyService.readZaakRechten(zaak, zaaktype);
         final RestZaakInformatieobject restZaakInformatieobject = new RestZaakInformatieobject();
         restZaakInformatieobject.zaakIdentificatie = zaak.getIdentificatie();
-        restZaakInformatieobject.zaakRechten = RestRechtenConverter.convert(zaakrechten);
+        restZaakInformatieobject.zaakRechten = toRestZaakRechten(zaakrechten);
         if (zaakrechten.getLezen()) {
             restZaakInformatieobject.zaakStartDatum = zaak.getStartdatum();
             restZaakInformatieobject.zaakEinddatumGepland = zaak.getEinddatumGepland();

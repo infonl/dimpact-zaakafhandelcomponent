@@ -7,13 +7,13 @@ package nl.info.zac.app.zaak.converter
 import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.zac.app.policy.converter.RestRechtenConverter
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
+import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.policy.PolicyService
 
@@ -34,7 +34,7 @@ class RestZaakOverzichtConverter @Inject constructor(
         return RestZaakOverzicht(
             uuid = zaak.uuid,
             identificatie = zaak.identificatie,
-            rechten = RestRechtenConverter.convert(zaakrechten),
+            rechten = zaakrechten.toRestZaakRechten(),
             startdatum = zaakrechten.lezen.takeIf { it }?.let { zaak.startdatum },
             einddatum = zaakrechten.lezen.takeIf { it }?.let { zaak.einddatum },
             einddatumGepland = zaakrechten.lezen.takeIf { it }?.let { zaak.einddatumGepland },

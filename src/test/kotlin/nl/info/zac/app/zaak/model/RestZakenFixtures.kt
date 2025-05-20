@@ -8,7 +8,6 @@ package nl.info.zac.app.zaak.model
 import net.atos.zac.app.bag.model.RESTBAGObject
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte
 import net.atos.zac.app.bag.model.RESTPand
-import net.atos.zac.app.policy.model.RestZaakRechten
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.admin.createRestZaakAfhandelParameters
@@ -16,6 +15,7 @@ import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.app.policy.model.RestZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie
 import java.net.URI
 import java.time.LocalDate
@@ -268,11 +268,48 @@ fun createRestZaakUnlinkData(
     reden = reason
 )
 
+@Suppress("LongParameterList")
 fun createRestZaakRechten(
     lezen: Boolean = true,
-) = RestZaakRechten().apply {
-    this.lezen = lezen
-}
+    wijzigen: Boolean = true,
+    toekennen: Boolean = true,
+    behandelen: Boolean = true,
+    afbreken: Boolean = true,
+    heropenen: Boolean = true,
+    bekijkenZaakdata: Boolean = true,
+    wijzigenDoorlooptijd: Boolean = true,
+    toevoegenBagObject: Boolean = true,
+    toevoegenBetrokkeneBedrijf: Boolean = true,
+    toevoegenBetrokkenePersoon: Boolean = true,
+    toevoegenInitiatorBedrijf: Boolean = true,
+    toevoegenInitiatorPersoon: Boolean = true,
+    versturenOntvangstbevestiging: Boolean = true,
+    verwijderenBetrokkene: Boolean = true,
+    verwijderenInitiator: Boolean = true,
+    creeerenDocument: Boolean = true,
+    versturenEmail: Boolean = true,
+    wijzigenLocatie: Boolean = true
+) = RestZaakRechten(
+    lezen = lezen,
+    wijzigen = wijzigen,
+    toekennen = toekennen,
+    behandelen = behandelen,
+    afbreken = afbreken,
+    heropenen = heropenen,
+    bekijkenZaakdata = bekijkenZaakdata,
+    wijzigenDoorlooptijd = wijzigenDoorlooptijd,
+    toevoegenBagObject = toevoegenBagObject,
+    toevoegenBetrokkeneBedrijf = toevoegenBetrokkeneBedrijf,
+    toevoegenBetrokkenePersoon = toevoegenBetrokkenePersoon,
+    toevoegenInitiatorBedrijf = toevoegenInitiatorBedrijf,
+    toevoegenInitiatorPersoon = toevoegenInitiatorPersoon,
+    versturenOntvangstbevestiging = versturenOntvangstbevestiging,
+    verwijderenBetrokkene = verwijderenBetrokkene,
+    verwijderenInitiator = verwijderenInitiator,
+    creeerenDocument = creeerenDocument,
+    versturenEmail = versturenEmail,
+    wijzigenLocatie = wijzigenLocatie
+)
 
 fun createRestZaakResultaat() = RestZaakResultaat()
 
