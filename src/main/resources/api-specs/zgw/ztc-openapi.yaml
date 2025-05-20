@@ -10210,6 +10210,9 @@ components:
       enum:
         - blijvend_bewaren
         - vernietigen
+        # manual changed by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+        # OpenAPI Generator does not support the `oneOf` construct fully yet
+        - ''
       type: string
     BesluitType:
       type: object
@@ -10563,9 +10566,11 @@ components:
             * `woz_waarde` - Woz waarde
             * `zakelijk_recht` - Zakelijk recht
             * `overige` - Overige
-          oneOf:
+          # manual changed by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+          # OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
             - $ref: '#/components/schemas/ObjecttypeEnum'
-            - $ref: '#/components/schemas/BlankEnum'
+            #- $ref: '#/components/schemas/BlankEnum'
         registratie:
           type: string
           description: De naam van de registratie waarvan het procesobject deel uit
@@ -10666,9 +10671,11 @@ components:
             * `woz_waarde` - Woz waarde
             * `zakelijk_recht` - Zakelijk recht
             * `overige` - Overige
-          oneOf:
+          # manual changed by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+          # OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
             - $ref: '#/components/schemas/ObjecttypeEnum'
-            - $ref: '#/components/schemas/BlankEnum'
+            #- $ref: '#/components/schemas/BlankEnum'
         registratie:
           type: string
           description: De naam van de registratie waarvan het procesobject deel uit
@@ -11339,6 +11346,9 @@ components:
         - woz_waarde
         - zakelijk_recht
         - overige
+      # manual changed by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+      #  OpenAPI Generator does not support the `oneOf` construct fully yet
+        - ''
       type: string
     OmschrijvingGeneriek:
       type: object
@@ -11862,9 +11872,11 @@ components:
 
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
-          oneOf:
+          # manual changed by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+          # OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
             - $ref: '#/components/schemas/ArchiefnominatieEnum'
-            - $ref: '#/components/schemas/BlankEnum'
+            #- $ref: '#/components/schemas/BlankEnum'
         archiefactietermijn:
           type: string
           nullable: true
@@ -12588,7 +12600,7 @@ components:
 
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
-          # manual changed by INFO.nl: need to allow for empty values returned by the API
+          # manual changed by INFO.nl: need to allow for empty values returned by the API,
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/ArchiefnominatieEnum'
