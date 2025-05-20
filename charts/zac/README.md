@@ -62,9 +62,10 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | bagApi.apiKey | string | `""` |  |
 | bagApi.url | string | `""` |  |
 | brpApi.apiKey | string | `""` |  |
-| brpApi.protocollering.doelbinding | object | `{"raadpleegmet":"BRPACT-Totaal","zoekmet":"BRPACT-ZoekenAlgemeen"}` | Doelbinding for BRP Protocollering |
-| brpApi.protocollering.originOin | string | `""` | If specified, enables the BRP Protocollering |
-| brpApi.protocollering.verwerking | string | `"zaakafhandelcomponent"` | Verwerking for BRP Protocollering |
+| brpApi.protocollering.doelbinding.raadpleegmet | string | `"BRPACT-Totaal"` |  |
+| brpApi.protocollering.doelbinding.zoekmet | string | `"BRPACT-ZoekenAlgemeen"` |  |
+| brpApi.protocollering.originOin | string | `""` |  |
+| brpApi.protocollering.verwerking | string | `"zaakafhandelcomponent"` |  |
 | brpApi.url | string | `""` |  |
 | catalogusDomein | string | `"ALG"` | ZAC OpenZaak Catalogus Domein |
 | contextUrl | string | `""` | External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com) |
