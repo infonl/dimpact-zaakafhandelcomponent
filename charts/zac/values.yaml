@@ -89,7 +89,9 @@ brpApi:
     # -- If specified, enables the BRP Protocollering
     originOin: ""
     # -- Doelbinding for BRP Protocollering
-    doelbinding: "BRPACT-Totaal"
+    doelbinding:
+      zoekmet: "BRPACT-ZoekenAlgemeen"
+      raadpleegmet: "BRPACT-Totaal"
     # -- Verwerking for BRP Protocollering
     verwerking: "zaakafhandelcomponent"
 
