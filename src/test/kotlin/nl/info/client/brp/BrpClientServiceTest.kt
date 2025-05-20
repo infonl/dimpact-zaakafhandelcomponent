@@ -5,19 +5,27 @@
 
 package nl.info.client.brp
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import nl.info.client.brp.exception.BrpInvalidPurposeException
 import nl.info.client.brp.model.createPersoon
 import nl.info.client.brp.model.createRaadpleegMetBurgerservicenummer
 import nl.info.client.brp.model.createRaadpleegMetBurgerservicenummerResponse
+import java.util.Optional
+
+const val QUERY_PERSONEN_PURPOSE = "testQueryPurpose"
+const val RETRIEVE_PERSOON_PURPOSE = "testRetrievePurpose"
 
 class BrpClientServiceTest : BehaviorSpec({
     val personenApi: PersonenApi = mockk<PersonenApi>()
-    val brpClientService = BrpClientService(
-        personenApi
+    var brpClientService = BrpClientService(
+        personenApi,
+        Optional.of(QUERY_PERSONEN_PURPOSE),
+        Optional.of(RETRIEVE_PERSOON_PURPOSE)
     )
     beforeEach {
         checkUnnecessaryStub()
@@ -31,7 +39,9 @@ class BrpClientServiceTest : BehaviorSpec({
         val raadpleegMetBurgerservicenummerResponse = createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
         )
-        every { personenApi.personen(any()) } returns raadpleegMetBurgerservicenummerResponse
+        every {
+            personenApi.personen(any(), RETRIEVE_PERSOON_PURPOSE)
+        } returns raadpleegMetBurgerservicenummerResponse
 
         When("find person is called with the BSN of the person") {
             val personResponse = brpClientService.retrievePersoon(bsn)
@@ -42,9 +52,9 @@ class BrpClientServiceTest : BehaviorSpec({
         }
     }
     Given("No person for a given BSN") {
-        every { personenApi.personen(any()) } returns createRaadpleegMetBurgerservicenummerResponse(
-            persons = emptyList()
-        )
+        every {
+            personenApi.personen(any(), RETRIEVE_PERSOON_PURPOSE)
+        } returns createRaadpleegMetBurgerservicenummerResponse(persons = emptyList())
 
         When("find person is called with the BSN of the person") {
             val personResponse = brpClientService.retrievePersoon("123456789")
@@ -59,7 +69,9 @@ class BrpClientServiceTest : BehaviorSpec({
             createPersoon(bsn = "123456789"),
             createPersoon(bsn = "123456789")
         )
-        every { personenApi.personen(any()) } returns createRaadpleegMetBurgerservicenummerResponse(persons = persons)
+        every {
+            personenApi.personen(any(), RETRIEVE_PERSOON_PURPOSE)
+        } returns createRaadpleegMetBurgerservicenummerResponse(persons = persons)
 
         When("find person is called with the BSN of the person") {
             val personResponse = brpClientService.retrievePersoon("123456789")
@@ -77,13 +89,49 @@ class BrpClientServiceTest : BehaviorSpec({
         val raadpleegMetBurgerservicenummerResponse = createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
         )
-        every { personenApi.personen(any()) } returns raadpleegMetBurgerservicenummerResponse
+        every {
+            personenApi.personen(any(), QUERY_PERSONEN_PURPOSE)
+        } returns raadpleegMetBurgerservicenummerResponse
 
         When("a query is run on personen for this BSN") {
             val personResponse = brpClientService.queryPersonen(createRaadpleegMetBurgerservicenummer(listOf(bsn)))
 
             Then("it should return the person") {
                 personResponse shouldBe raadpleegMetBurgerservicenummerResponse
+            }
+        }
+    }
+    Given("No purpose is configured for BRP search") {
+        val personenQuery = createRaadpleegMetBurgerservicenummer(listOf("123456789"))
+
+        brpClientService = BrpClientService(
+            personenApi = personenApi,
+            queryPersonenDefaultPurpose = Optional.empty(),
+            retrievePersoonDefaultPurpose = Optional.of(RETRIEVE_PERSOON_PURPOSE)
+        )
+
+        When("queryPersonen is called") {
+            Then("it should throw BrpInvalidPurposeException") {
+                shouldThrow<BrpInvalidPurposeException> {
+                    brpClientService.queryPersonen(personenQuery)
+                }.message shouldBe "brp.doelbinding.zoekmet must be configured and not empty."
+            }
+        }
+    }
+    Given("Blank purpose is configured for BRP search") {
+        val personenQuery = createRaadpleegMetBurgerservicenummer(listOf("123456789"))
+
+        brpClientService = BrpClientService(
+            personenApi = personenApi,
+            queryPersonenDefaultPurpose = Optional.of(" "),
+            retrievePersoonDefaultPurpose = Optional.of(RETRIEVE_PERSOON_PURPOSE)
+        )
+
+        When("queryPersonen is called") {
+            Then("it should throw BrpInvalidPurposeException") {
+                shouldThrow<BrpInvalidPurposeException> {
+                    brpClientService.queryPersonen(personenQuery)
+                }.message shouldBe "brp.doelbinding.zoekmet must not be blank."
             }
         }
     }

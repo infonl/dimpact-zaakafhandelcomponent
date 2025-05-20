@@ -86,11 +86,10 @@ brpApi:
   url: ""
   apiKey: ""
   protocollering:
-    # -- If specified, enables the BRP Protocollering
     originOin: ""
-    # -- Doelbinding for BRP Protocollering
-    doelbinding: "BRPACT-Totaal"
-    # -- Verwerking for BRP Protocollering
+    doelbinding:
+      zoekmet: "BRPACT-ZoekenAlgemeen"
+      raadpleegmet: "BRPACT-Totaal"
     verwerking: "zaakafhandelcomponent"
 
 # Integration with the KVK API provider (KVK)
