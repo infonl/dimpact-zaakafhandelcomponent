@@ -203,7 +203,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "isKoppelbaar": true,
                       "omschrijving": "$ZAAK_OMSCHRIJVING",
                       "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
-                      "statustypeOmschrijving": "Afgerond",
+                      "statustypeOmschrijving": "In behandeling",
                       "type": "ZAAK"
                     },
                     {

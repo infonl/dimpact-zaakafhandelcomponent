@@ -298,9 +298,9 @@ export class TaakViewComponent
     component: ExtendedComponentSchema,
   ): void {
     component.type = "fieldset";
-    const componentWithProperties = component.components.find(
+    const componentWithProperties = component.components?.find(
       (component: ExtendedComponentSchema) =>
-        component.properties.keys.length > 0,
+        Object.keys(component.properties || []).length > 0,
     );
     const smartDocumentsPath: GeneratedType<"RestSmartDocumentsPath"> = {
       path: this.formioGetSmartDocumentsGroups(componentWithProperties),
