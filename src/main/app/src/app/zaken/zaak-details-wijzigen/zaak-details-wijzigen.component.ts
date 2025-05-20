@@ -321,7 +321,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     return null;
   }
 
-  saveFromFormView(formGroup?: FormGroup): void {
+  onSubmit(formGroup?: FormGroup): void {
     if (!formGroup) {
       void this.sideNav.close();
       return;
@@ -336,26 +336,6 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     );
 
     void this.updateZaak(this.createZaakPatch(updates));
-  }
-
-  saveFromMapView() {
-    const updates = this.formFields.reduce((acc, fields) => {
-      fields.forEach((field) => {
-        const value = field.formControl.value;
-        acc[field.id] =
-          field.id === "vertrouwelijkheidaanduiding"
-            ? (value as { value: unknown }).value
-            : value;
-      });
-      return acc;
-    }, {});
-
-    void this.updateZaak(this.createZaakPatch(updates));
-  }
-
-  locationChanged(update?: GeneratedType<"RestGeometry">) {
-    this.zaak.zaakgeometrie = update;
-    this.reasonField.formControl.enable();
   }
 
   private createZaakPatch(update: Record<string, unknown>) {
@@ -376,34 +356,17 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
 
     this.patchBehandelaar(zaak, reason);
 
-    this.patchLocation(reason).subscribe(() => {
-      // To prevent a race condition, we need to first update the `zaakgeometrie` and then the other fields
-      subscriptions.push(
-        this.zakenService
-          .updateZaak(this.zaak.uuid, { zaak, reden: reason })
-          .subscribe(() => {}),
-      );
-
-      forkJoin([subscriptions]).subscribe(() => this.sideNav.close());
-    });
-  }
-
-  private patchLocation(reason?: string) {
-    if (
-      JSON.stringify(this.zaak.zaakgeometrie) ===
-      JSON.stringify(this.initialZaakGeometry)
-    ) {
-      return new Observable((observer) => {
-        observer.next(null);
-        observer.complete();
+    this.zakenService
+      .updateZaak(this.zaak.uuid, { zaak, reden: reason })
+      .pipe(takeUntil(this.ngDestroy))
+      .subscribe({
+        next: () => {
+          void this.sideNav.close();
+        },
+        error: (err) => {
+          console.error("Fout bij bijwerken zaak:", err);
+        },
       });
-    }
-
-    return this.zakenService.updateZaakLocatie(
-      this.zaak.uuid,
-      reason,
-      this.zaak.zaakgeometrie as unknown as GeneratedType<"RestGeometry">,
-    );
   }
 
   private patchBehandelaar(

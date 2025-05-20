@@ -43,7 +43,6 @@ import { ZakenRoutingModule } from "./zaken-routing.module";
 import { ZakenVerdelenDialogComponent } from "./zaken-verdelen-dialog/zaken-verdelen-dialog.component";
 import { ZakenVrijgevenDialogComponent } from "./zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component";
 import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorraad.component";
-import { LocatieZoekComponent } from "./zoek/locatie-zoek/locatie-zoek.component";
 
 @NgModule({
   declarations: [
@@ -68,7 +67,6 @@ import { LocatieZoekComponent } from "./zoek/locatie-zoek/locatie-zoek.component
     CaseLocationEditComponent,
     ZaakLinkComponent,
     NotitiesComponent,
-    LocatieZoekComponent,
     LocatieTonenComponent,
     ZaakDocumentenComponent,
     ZaakdataComponent,
