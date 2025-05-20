@@ -310,9 +310,6 @@ export class CaseLocationEditComponent
   }
 
   save(): void {
-    this.initialLocation = this.zaak.zaakgeometrie;
-    if (!this.markerLocatie) return;
-
     this.zakenService
       .updateZaakLocatie(
         this.zaak.uuid,

@@ -332,12 +332,6 @@
                     "
                     class="flex-item"
                   ></zac-static-text>
-                  <zac-static-text
-                    *ngIf="!locationFeatureCookie"
-                    [label]="'locatie' | translate"
-                    [value]="zaak.zaakgeometrie | location | empty"
-                    class="flex-item"
-                  ></zac-static-text>
                 </div>
 
                 <div class="flex flex-col gap-10">
@@ -353,7 +347,7 @@
               </div>
             </mat-tab>
 
-            <mat-tab *ngIf="zaak.zaakgeometrie && locationFeatureCookie">
+            <mat-tab *ngIf="zaak.zaakgeometrie">
               <ng-template mat-tab-label>
                 <mat-icon>place</mat-icon>
                 {{ "locatie" | translate }}</ng-template
