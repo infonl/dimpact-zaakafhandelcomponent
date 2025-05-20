@@ -53,7 +53,6 @@ import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
-import nl.info.zac.app.informatieobjecten.exception.ConvertException
 import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.authentication.LoggedInUser
@@ -491,15 +490,11 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         assertPolicy(
             policyService.readDocumentRechten(document, zrcClientService.readZaak(zaakUUID)).wijzigen
         )
-        return try {
-            enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObject(
-                document,
-                enkelvoudigInformatieobjectUUID
-            )
-            Response.ok().build()
-        } catch (convertException: ConvertException) {
-            throw convertException
-        }
+        enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObject(
+            document,
+            enkelvoudigInformatieobjectUUID
+        )
+        return Response.ok().build()
     }
 
     private fun retrieveDocumentContent(uuid: UUID, version: Int?): Response {

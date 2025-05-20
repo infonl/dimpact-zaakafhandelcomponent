@@ -17,7 +17,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.client.officeconverter.OfficeConverterClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.zrc.ZrcClientService
@@ -72,7 +71,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val inboxDocumentenService = mockk<InboxDocumentenService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val officeConverterClientService = mockk<OfficeConverterClientService>()
     val ontkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
     val policyService = mockk<PolicyService>()
     val restGerelateerdeZaakConverter = mockk<RestGerelateerdeZaakConverter>()
