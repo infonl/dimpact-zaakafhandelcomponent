@@ -13,7 +13,6 @@ import nl.info.zac.itest.config.ItestConfiguration.BPMN_TASK_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_2
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
-import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_05_20
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR

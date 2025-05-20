@@ -299,7 +299,8 @@ export class TaakViewComponent
   ): void {
     component.type = "fieldset";
     const componentWithProperties = component.components.find(
-      (component: ExtendedComponentSchema) => component.properties.keys.length > 0
+      (component: ExtendedComponentSchema) =>
+        component.properties.keys.length > 0,
     );
     const smartDocumentsPath: GeneratedType<"RestSmartDocumentsPath"> = {
       path: this.formioGetSmartDocumentsGroups(componentWithProperties),
@@ -587,8 +588,13 @@ export class TaakViewComponent
 
   onDocumentCreate(event: FormioCustomEvent) {
     this.activeSideAction = "actie.document.maken";
-    this.smartDocumentsGroupPath = this.formioGetSmartDocumentsGroups(event.component);
-    const componentBaseName = event.component.key.split("_").slice(0, -1).join("_");
+    this.smartDocumentsGroupPath = this.formioGetSmartDocumentsGroups(
+      event.component,
+    );
+    const componentBaseName = event.component.key
+      .split("_")
+      .slice(0, -1)
+      .join("_");
     this.smartDocumentsTemplateName =
       event.data[componentBaseName + "_Template"].toString();
     const normalizedTemplateName = this.smartDocumentsTemplateName
@@ -597,7 +603,8 @@ export class TaakViewComponent
     this.smartDocumentsInformatieobjecttypeUuid =
       event.component.properties[
         `SmartDocuments_${normalizedTemplateName}_InformatieobjecttypeUuid`
-      ] || event.component.properties["SmartDocuments_InformatieobjecttypeUuid"];
+      ] ||
+      event.component.properties["SmartDocuments_InformatieobjecttypeUuid"];
 
     if (normalizedTemplateName.length > 0) {
       this.actionsSidenav.open();

@@ -117,7 +117,7 @@ export class InformatieObjectCreateAttendedComponent implements OnInit {
 
       this.form.controls.templateGroup.setValue(smartDocumentsTemplateGroup);
 
-      if(templateGroups.length !== 1) return;
+      if (templateGroups.length !== 1) return;
 
       this.form.controls.templateGroup.disable();
     });
