@@ -201,11 +201,6 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
-  }
-
   private searchAddresses(query: string): void {
     if (query) {
       this.locationService.addressSuggest(query).subscribe((data) => {
@@ -311,5 +306,10 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
         ? new GeometryGegevens(this.markerLocatie, this.reasonControl.value)
         : null,
     );
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 }

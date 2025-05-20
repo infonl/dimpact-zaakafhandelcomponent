@@ -14,7 +14,7 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
-import { FormControl, Validators } from "@angular/forms";
+import { FormControl } from "@angular/forms";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { MatDrawer } from "@angular/material/sidenav";
 import * as control from "ol/control.js";
@@ -41,6 +41,7 @@ import {
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { GeometryGegevens } from "../model/geometry-gegevens";
 import { GeometryType } from "../model/geometryType";
+import { ZakenService } from "../zaken.service";
 
 @Component({
   selector: "zac-case-location-edit",
@@ -50,7 +51,7 @@ import { GeometryType } from "../model/geometryType";
 export class CaseLocationEditComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  @Input({ required: true }) currentLocation!: GeneratedType<"RestGeometry">;
+  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input() readonly = false;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Output() locatie = new EventEmitter<GeometryGegevens>();
@@ -103,11 +104,13 @@ export class CaseLocationEditComponent
     }),
   });
 
-  constructor(private locationService: LocationService) {}
+  constructor(
+    private zakenService: ZakenService,
+    private locationService: LocationService,
+  ) {}
 
   ngOnInit(): void {
-    console.log("this.currentLocation", this.currentLocation);
-    this.initialLocation = this.currentLocation;
+    this.initialLocation = this.zaak.zaakgeometrie;
     const projection = proj.get(this.EPSG3857);
     const projectionExtent = projection?.getExtent();
     const size = extent.getWidth(projectionExtent) / 256;
@@ -199,8 +202,8 @@ export class CaseLocationEditComponent
       this.openLayersMapRef.nativeElement.focus();
     });
 
-    if (this.currentLocation) {
-      this.setLocation(this.currentLocation, false);
+    if (this.zaak.zaakgeometrie) {
+      this.setLocation(this.zaak.zaakgeometrie, false);
     }
   }
 
@@ -301,17 +304,29 @@ export class CaseLocationEditComponent
   }
 
   cancel(): void {
-    this.currentLocation = this.initialLocation;
+    this.zaak.zaakgeometrie = this.initialLocation;
     this.locationChanged.emit(this.initialLocation);
     void this.sideNav.close();
   }
 
   save(): void {
-    this.initialLocation = this.currentLocation;
+    this.initialLocation = this.zaak.zaakgeometrie;
     if (!this.markerLocatie) return;
 
-    this.locatie.next(
-      new GeometryGegevens(this.markerLocatie, this.reasonControl.value),
-    );
+    this.zakenService
+      .updateZaakLocatie(
+        this.zaak.uuid,
+        this.reasonControl.value,
+        this.markerLocatie,
+      )
+      .subscribe({
+        next: () => {
+          this.sideNav.close();
+          this.locatie.emit();
+        },
+        error: (err) => {
+          console.error("Failed to update location:", err);
+        },
+      });
   }
 }

@@ -61,9 +61,9 @@
     ></zac-case-details-edit>
     <zac-case-location-edit
       *ngSwitchCase="'actie.zaak.locatie'"
-      [currentLocation]="zaak.zaakgeometrie"
-      [loggedInUser]="loggedInUser"
+      [zaak]="zaak"
       [sideNav]="actionsSidenav"
+      (locatie)="locationSelected()"
     ></zac-case-location-edit>
     <zac-informatie-object-create-attended
       *ngSwitchCase="'actie.document.maken'"

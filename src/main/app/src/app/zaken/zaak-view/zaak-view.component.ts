@@ -1271,6 +1271,11 @@ export class ZaakViewComponent
     this.updateZaak();
   }
 
+  locationSelected(): void {
+    this.sluitSidenav();
+    this.updateZaak();
+  }
+
   startZaakOntkoppelenDialog(
     gerelateerdeZaak: GeneratedType<"RestGerelateerdeZaak">,
   ): void {
