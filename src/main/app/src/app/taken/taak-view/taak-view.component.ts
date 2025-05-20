@@ -65,35 +65,34 @@ export class TaakViewComponent
   @ViewChild("zaakDocumentenComponent")
   zaakDocumentenComponent!: ZaakDocumentenComponent;
 
-  taak: Taak;
-  zaak: GeneratedType<"RestZaak">;
-  formulier: AbstractTaakFormulier;
-  formConfig: FormConfig;
+  protected taak: Taak;
+  protected zaak: GeneratedType<"RestZaak">;
+  protected formulier: AbstractTaakFormulier;
+  protected formConfig: FormConfig;
   formulierDefinitie: FormulierDefinitie;
   formioFormulier: FormioForm = {};
   formioChangeData;
 
-  smartDocumentsGroupPath: string[];
-  smartDocumentsTemplateName: string;
-  smartDocumentsInformatieobjecttypeUuid: string;
+  smartDocumentsGroupPath: string[] = [];
+  smartDocumentsTemplateName?: string;
+  smartDocumentsInformatieobjecttypeUuid?: string;
 
   menu: MenuItem[] = [];
   activeSideAction: string | null = null;
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
-  historieSrc: MatTableDataSource<TaakHistorieRegel> =
-    new MatTableDataSource<TaakHistorieRegel>();
-  historieColumns: string[] = [
+  protected historieSrc = new MatTableDataSource<TaakHistorieRegel>();
+  protected historieColumns = [
     "datum",
     "wijziging",
     "oudeWaarde",
     "nieuweWaarde",
     "toelichting",
-  ];
+  ] as const;
 
   editFormFields = new Map<string, unknown>();
   fataledatumIcon: TextIcon;
-  initialized = false;
+  protected initialized = false;
 
   posts = 0;
   private taakListener: WebsocketListener;
@@ -300,7 +299,12 @@ export class TaakViewComponent
   ): void {
     component.type = "fieldset";
     const smartDocumentsPath: GeneratedType<"RestSmartDocumentsPath"> = {
-      path: this.formioGetSmartDocumentsGroups(component),
+      path: this.formioGetSmartDocumentsGroups(
+        component.components.find(
+          (component: { key: string }) =>
+            component.key === "AM_SmartDocuments_Create",
+        ),
+      ),
     };
 
     const smartDocumentsTemplateComponent = component.components[0];
@@ -316,10 +320,9 @@ export class TaakViewComponent
     };
   }
 
-  private formioGetSmartDocumentsGroups(
-    component: ExtendedComponentSchema,
-  ): string[] {
-    return component.properties["SmartDocuments_Group"].split("/");
+  private formioGetSmartDocumentsGroups(component?: ExtendedComponentSchema) {
+    return (component?.properties["SmartDocuments_Group"]?.split("/") ??
+      []) as string[];
   }
 
   isReadonly() {
@@ -584,18 +587,20 @@ export class TaakViewComponent
   }
 
   onDocumentCreate(event: FormioCustomEvent) {
-    const parent = event.component.parent;
+    const { component } = event;
+
     this.activeSideAction = "actie.document.maken";
-    this.smartDocumentsGroupPath = this.formioGetSmartDocumentsGroups(parent);
+    this.smartDocumentsGroupPath =
+      this.formioGetSmartDocumentsGroups(component);
     this.smartDocumentsTemplateName =
-      event.data[parent.key + "_Template"].toString();
+      event.data["AM_SmartDocuments_Template"].toString();
     const normalizedTemplateName = this.smartDocumentsTemplateName
       ?.replace(" ", "_")
       .trim();
     this.smartDocumentsInformatieobjecttypeUuid =
-      parent.properties[
+      component.properties[
         `SmartDocuments_${normalizedTemplateName}_InformatieobjecttypeUuid`
-      ] || parent.properties["SmartDocuments_InformatieobjecttypeUuid"];
+      ] || component.properties["SmartDocuments_InformatieobjecttypeUuid"];
 
     if (normalizedTemplateName.length > 0) {
       this.actionsSidenav.open();
