@@ -27,4 +27,4 @@ jobs:
         with:
           comment: true
           allow_multiple_documents: true
-          yaml_exclude_regex: "charts/.+\\.ya?ml$" # validation will break on helm charts. We have linting already in place
+          exclude_file: .github/config/json-yaml-validate-exclude.txt
