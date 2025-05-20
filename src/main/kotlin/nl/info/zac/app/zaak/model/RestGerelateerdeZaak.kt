@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.zaak.model
 
-import net.atos.zac.app.policy.model.RestZaakRechten
+import nl.info.zac.app.policy.model.RestZaakRechten
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate

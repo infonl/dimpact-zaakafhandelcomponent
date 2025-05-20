@@ -8,7 +8,6 @@ import jakarta.inject.Inject
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.app.formulieren.converter.toRESTFormulierDefinitie
-import net.atos.zac.app.policy.converter.toRestTaakRechten
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskData
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskInformation
@@ -21,6 +20,7 @@ import net.atos.zac.formulieren.FormulierDefinitieService
 import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
+import nl.info.zac.app.policy.model.toRestTaakRechten
 import nl.info.zac.app.task.model.RestTask
 import nl.info.zac.formio.FormioService
 import nl.info.zac.policy.PolicyService

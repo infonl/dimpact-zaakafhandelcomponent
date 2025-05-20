@@ -1,8 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.policy
+package nl.info.zac.app.policy
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
@@ -11,10 +11,10 @@ import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.app.policy.converter.toRestOverigeRechten
-import net.atos.zac.app.policy.converter.toRestWerklijstRechten
-import net.atos.zac.app.policy.model.RestOverigeRechten
-import net.atos.zac.app.policy.model.RestWerklijstRechten
+import nl.info.zac.app.policy.model.RestOverigeRechten
+import nl.info.zac.app.policy.model.RestWerklijstRechten
+import nl.info.zac.app.policy.model.toRestOverigeRechten
+import nl.info.zac.app.policy.model.toRestWerklijstRechten
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor

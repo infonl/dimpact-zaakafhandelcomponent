@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
-import static net.atos.zac.app.policy.converter.RestRechtenConverterKt.toRestZaakRechten;
+import static nl.info.zac.app.policy.model.RestZaakRechtenKt.toRestZaakRechten;
 import static nl.info.zac.app.zaak.model.RestZaakStatusKt.toRestZaakStatus;
 
 import jakarta.inject.Inject;

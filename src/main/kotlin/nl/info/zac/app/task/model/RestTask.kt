@@ -6,9 +6,9 @@ package nl.info.zac.app.task.model
 
 import jakarta.json.JsonObject
 import net.atos.zac.app.formulieren.model.RESTFormulierDefinitie
-import net.atos.zac.app.policy.model.RestTaakRechten
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
+import nl.info.zac.app.policy.model.RestTaakRechten
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate

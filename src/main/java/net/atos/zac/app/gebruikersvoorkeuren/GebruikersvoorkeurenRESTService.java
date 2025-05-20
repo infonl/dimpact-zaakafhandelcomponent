@@ -5,6 +5,8 @@
 
 package net.atos.zac.app.gebruikersvoorkeuren;
 
+import static nl.info.zac.app.policy.model.RestWerklijstRechtenKt.toRestWerklijstRechten;
+
 import java.util.List;
 
 import jakarta.enterprise.inject.Instance;
@@ -32,8 +34,6 @@ import net.atos.zac.gebruikersvoorkeuren.model.Zoekopdracht;
 import net.atos.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters;
 import nl.info.zac.authentication.LoggedInUser;
 import nl.info.zac.policy.PolicyService;
-
-import static net.atos.zac.app.policy.converter.RestRechtenConverterKt.toRestWerklijstRechten;
 
 @Singleton
 @Path("gebruikersvoorkeuren")

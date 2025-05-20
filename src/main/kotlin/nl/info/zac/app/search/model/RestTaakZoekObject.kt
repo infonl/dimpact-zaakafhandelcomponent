@@ -4,9 +4,9 @@
  */
 package nl.info.zac.app.search.model
 
-import net.atos.zac.app.policy.converter.toRestTaakRechten
-import net.atos.zac.app.policy.model.RestTaakRechten
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate
+import nl.info.zac.app.policy.model.RestTaakRechten
+import nl.info.zac.app.policy.model.toRestTaakRechten
 import nl.info.zac.app.task.model.TaakStatus
 import nl.info.zac.policy.output.TaakRechten
 import nl.info.zac.search.model.zoekobject.TaakZoekObject

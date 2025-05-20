@@ -4,10 +4,10 @@
  */
 package net.atos.zac.app.informatieobjecten.converter;
 
-import static net.atos.zac.app.policy.converter.RestRechtenConverterKt.toRestDocumentRechten;
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 import static nl.info.zac.app.configuratie.model.RestTaalKt.toRestTaal;
 import static nl.info.zac.app.identity.model.RestUserKt.toRestUser;
+import static nl.info.zac.app.policy.model.RestDocumentRechtenKt.toRestDocumentRechten;
 import static nl.info.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
 import static nl.info.zac.identity.model.UserKt.getFullName;
 import static nl.info.zac.util.Base64ConvertersKt.toBase64String;

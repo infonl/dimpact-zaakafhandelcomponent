@@ -6,9 +6,9 @@
  */
 package nl.info.zac.app.search.model
 
-import net.atos.zac.app.policy.converter.toRestZaakRechten
-import net.atos.zac.app.policy.model.RestZaakRechten
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate
+import nl.info.zac.app.policy.model.RestZaakRechten
+import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.policy.output.ZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject

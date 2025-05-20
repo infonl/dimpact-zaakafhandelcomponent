@@ -5,6 +5,8 @@
 
 package net.atos.zac.app.policy.model
 
+import nl.info.zac.app.policy.model.RestDocumentRechten
+
 fun createRestDocumentRechten() = RestDocumentRechten(
     lezen = true,
     wijzigen = true,

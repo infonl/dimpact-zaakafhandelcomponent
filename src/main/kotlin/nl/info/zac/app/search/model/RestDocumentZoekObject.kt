@@ -4,9 +4,9 @@
  */
 package nl.info.zac.app.search.model
 
-import net.atos.zac.app.policy.converter.toRestDocumentRechten
-import net.atos.zac.app.policy.model.RestDocumentRechten
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate
+import nl.info.zac.app.policy.model.RestDocumentRechten
+import nl.info.zac.app.policy.model.toRestDocumentRechten
 import nl.info.zac.policy.output.DocumentRechten
 import nl.info.zac.search.model.DocumentIndicatie
 import nl.info.zac.search.model.zoekobject.DocumentZoekObject
