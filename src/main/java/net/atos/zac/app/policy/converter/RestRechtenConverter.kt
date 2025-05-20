@@ -2,83 +2,69 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.policy.converter
 
-package net.atos.zac.app.policy.converter;
+import net.atos.zac.app.policy.model.RestDocumentRechten
+import net.atos.zac.app.policy.model.RestOverigeRechten
+import net.atos.zac.app.policy.model.RestTaakRechten
+import net.atos.zac.app.policy.model.RestWerklijstRechten
+import net.atos.zac.app.policy.model.RestZaakRechten
+import nl.info.zac.policy.output.DocumentRechten
+import nl.info.zac.policy.output.OverigeRechten
+import nl.info.zac.policy.output.TaakRechten
+import nl.info.zac.policy.output.WerklijstRechten
+import nl.info.zac.policy.output.ZaakRechten
 
-import net.atos.zac.app.policy.model.RestDocumentRechten;
-import net.atos.zac.app.policy.model.RestOverigeRechten;
-import net.atos.zac.app.policy.model.RestTaakRechten;
-import net.atos.zac.app.policy.model.RestWerklijstRechten;
-import net.atos.zac.app.policy.model.RestZaakRechten;
-import nl.info.zac.policy.output.DocumentRechten;
-import nl.info.zac.policy.output.OverigeRechten;
-import nl.info.zac.policy.output.TaakRechten;
-import nl.info.zac.policy.output.WerklijstRechten;
-import nl.info.zac.policy.output.ZaakRechten;
+fun DocumentRechten.toRestDocumentRechten() = RestDocumentRechten(
+    lezen = this.lezen,
+    wijzigen = this.wijzigen,
+    ontgrendelen = this.ontgrendelen,
+    vergrendelen = this.vergrendelen,
+    verwijderen = this.verwijderen,
+    ondertekenen = this.ondertekenen,
+    toevoegenNieuweVersie = this.toevoegenNieuweVersie
+)
 
-public class RestRechtenConverter {
+fun TaakRechten.toRestTaakRechten() = RestTaakRechten(
+    lezen = this.lezen,
+    wijzigen = this.wijzigen,
+    toekennen = this.toekennen,
+    toevoegenDocument = this.toevoegenDocument
+)
 
-    public static RestDocumentRechten convert(final DocumentRechten documentRechten) {
-        final RestDocumentRechten restDocumentRechten = new RestDocumentRechten();
-        restDocumentRechten.lezen = documentRechten.getLezen();
-        restDocumentRechten.wijzigen = documentRechten.getWijzigen();
-        restDocumentRechten.ontgrendelen = documentRechten.getOntgrendelen();
-        restDocumentRechten.vergrendelen = documentRechten.getVergrendelen();
-        restDocumentRechten.verwijderen = documentRechten.getVerwijderen();
-        restDocumentRechten.ondertekenen = documentRechten.getOndertekenen();
-        restDocumentRechten.toevoegenNieuweVersie = documentRechten.getToevoegenNieuweVersie();
-        return restDocumentRechten;
-    }
+fun ZaakRechten.toRestZaakRechten() = RestZaakRechten(
+    lezen = this.lezen,
+    wijzigen = this.wijzigen,
+    toekennen = this.toekennen,
+    behandelen = this.behandelen,
+    afbreken = this.afbreken,
+    heropenen = this.heropenen,
+    wijzigenDoorlooptijd = this.wijzigenDoorlooptijd,
+    bekijkenZaakdata = this.bekijkenZaakdata,
+    versturenOntvangstbevestiging = this.versturenOntvangstbevestiging,
+    toevoegenBagObject = this.toevoegenBagObject,
+    toevoegenBetrokkeneBedrijf = this.toevoegenBetrokkeneBedrijf,
+    toevoegenBetrokkenePersoon = this.toevoegenBetrokkenePersoon,
+    toevoegenInitiatorBedrijf = this.toevoegenInitiatorBedrijf,
+    toevoegenInitiatorPersoon = this.toevoegenInitiatorPersoon,
+    verwijderenBetrokkene = this.verwijderenBetrokkene,
+    verwijderenInitiator = this.verwijderenInitiator,
+    creeerenDocument = this.creeerenDocument,
+    versturenEmail = this.versturenEmail,
+    wijzigenLocatie = this.wijzigenLocatie
+)
 
-    public static RestTaakRechten convert(final TaakRechten taakRechten) {
-        final RestTaakRechten restTaakRechten = new RestTaakRechten();
-        restTaakRechten.lezen = taakRechten.getLezen();
-        restTaakRechten.wijzigen = taakRechten.getWijzigen();
-        restTaakRechten.toekennen = taakRechten.getToekennen();
-        restTaakRechten.toevoegenDocument = taakRechten.getToevoegenDocument();
-        return restTaakRechten;
-    }
+fun WerklijstRechten.toRestWerklijstRechten() = RestWerklijstRechten(
+    inbox = this.inbox,
+    ontkoppeldeDocumentenVerwijderen = this.ontkoppeldeDocumentenVerwijderen,
+    inboxProductaanvragenVerwijderen = this.inboxProductaanvragenVerwijderen,
+    zakenTaken = this.zakenTaken,
+    zakenTakenVerdelen = this.zakenTakenVerdelen,
+    zakenTakenExporteren = this.zakenTakenExporteren
+)
 
-    public static RestZaakRechten convert(final ZaakRechten zaakRechten) {
-        final RestZaakRechten restZaakRechten = new RestZaakRechten();
-        restZaakRechten.lezen = zaakRechten.getLezen();
-        restZaakRechten.wijzigen = zaakRechten.getWijzigen();
-        restZaakRechten.toekennen = zaakRechten.getToekennen();
-        restZaakRechten.behandelen = zaakRechten.getBehandelen();
-        restZaakRechten.afbreken = zaakRechten.getAfbreken();
-        restZaakRechten.heropenen = zaakRechten.getHeropenen();
-        restZaakRechten.wijzigenDoorlooptijd = zaakRechten.getWijzigenDoorlooptijd();
-        restZaakRechten.bekijkenZaakdata = zaakRechten.getBekijkenZaakdata();
-        restZaakRechten.versturenOntvangstbevestiging = zaakRechten.getVersturenOntvangstbevestiging();
-        restZaakRechten.toevoegenBagObject = zaakRechten.getToevoegenBagObject();
-        restZaakRechten.toevoegenBetrokkeneBedrijf = zaakRechten.getToevoegenBetrokkeneBedrijf();
-        restZaakRechten.toevoegenBetrokkenePersoon = zaakRechten.getToevoegenBetrokkenePersoon();
-        restZaakRechten.toevoegenInitiatorBedrijf = zaakRechten.getToevoegenInitiatorBedrijf();
-        restZaakRechten.toevoegenInitiatorPersoon = zaakRechten.getToevoegenInitiatorPersoon();
-        restZaakRechten.verwijderenBetrokkene = zaakRechten.getVerwijderenBetrokkene();
-        restZaakRechten.verwijderenInitiator = zaakRechten.getVerwijderenInitiator();
-        restZaakRechten.creeerenDocument = zaakRechten.getCreeerenDocument();
-        restZaakRechten.versturenEmail = zaakRechten.getVersturenEmail();
-        restZaakRechten.wijzigenLocatie = zaakRechten.getWijzigenLocatie();
-        return restZaakRechten;
-    }
-
-    public static RestWerklijstRechten convert(final WerklijstRechten werklijstrechten) {
-        final RestWerklijstRechten restWerklijstRechten = new RestWerklijstRechten();
-        restWerklijstRechten.inbox = werklijstrechten.getInbox();
-        restWerklijstRechten.ontkoppeldeDocumentenVerwijderen = werklijstrechten.getOntkoppeldeDocumentenVerwijderen();
-        restWerklijstRechten.inboxProductaanvragenVerwijderen = werklijstrechten.getInboxProductaanvragenVerwijderen();
-        restWerklijstRechten.zakenTaken = werklijstrechten.getZakenTaken();
-        restWerklijstRechten.zakenTakenVerdelen = werklijstrechten.getZakenTakenVerdelen();
-        restWerklijstRechten.zakenTakenExporteren = werklijstrechten.getZakenTakenExporteren();
-        return restWerklijstRechten;
-    }
-
-    public static RestOverigeRechten convert(final OverigeRechten overigeRechten) {
-        final RestOverigeRechten restOverigeRechten = new RestOverigeRechten();
-        restOverigeRechten.startenZaak = overigeRechten.getStartenZaak();
-        restOverigeRechten.beheren = overigeRechten.getBeheren();
-        restOverigeRechten.zoeken = overigeRechten.getZoeken();
-        return restOverigeRechten;
-    }
-}
+fun OverigeRechten.toRestOverigeRechten() = RestOverigeRechten(
+    startenZaak = this.startenZaak,
+    beheren = this.beheren,
+    zoeken = this.zoeken
+)

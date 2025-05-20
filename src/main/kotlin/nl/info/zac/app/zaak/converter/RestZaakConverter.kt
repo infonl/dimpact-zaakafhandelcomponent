@@ -15,7 +15,7 @@ import net.atos.client.zgw.zrc.model.Verlenging
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend
 import net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake
-import net.atos.zac.app.policy.converter.RestRechtenConverter
+import net.atos.zac.app.policy.converter.toRestZaakRechten
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.util.time.PeriodUtil
 import nl.info.client.zgw.brc.BrcClientService
@@ -146,7 +146,7 @@ class RestZaakConverter @Inject constructor(
             isInIntakeFase = isIntake(statustype),
             isBesluittypeAanwezig = zaaktype.besluittypen?.isNotEmpty() ?: false,
             isProcesGestuurd = bpmnService.isProcessDriven(zaak.uuid),
-            rechten = policyService.readZaakRechten(zaak, zaaktype).let(RestRechtenConverter::convert),
+            rechten = policyService.readZaakRechten(zaak, zaaktype).toRestZaakRechten(),
             zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid),
             indicaties = noneOf(ZaakIndicatie::class.java).apply {
                 if (zaak.is_Hoofdzaak) add(HOOFDZAAK)

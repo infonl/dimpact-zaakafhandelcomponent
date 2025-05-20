@@ -6,7 +6,7 @@
  */
 package nl.info.zac.app.search.model
 
-import net.atos.zac.app.policy.converter.RestRechtenConverter
+import net.atos.zac.app.policy.converter.toRestZaakRechten
 import net.atos.zac.app.policy.model.RestZaakRechten
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate
 import nl.info.zac.policy.output.ZaakRechten
@@ -94,7 +94,7 @@ fun ZaakZoekObject.toRestZaakZoekObject(zaakRechten: ZaakRechten) = RestZaakZoek
     indicatieHeropend = this@toRestZaakZoekObject.isIndicatie(ZaakIndicatie.HEROPEND),
     statusToelichting = this@toRestZaakZoekObject.statusToelichting,
     indicaties = this@toRestZaakZoekObject.getZaakIndicaties(),
-    rechten = RestRechtenConverter.convert(zaakRechten),
+    rechten = zaakRechten.toRestZaakRechten(),
     betrokkenen = this@toRestZaakZoekObject.betrokkenen?.mapKeys {
         it.key.replace(ZaakZoekObject.ZAAK_BETROKKENE_PREFIX, "")
     }?.toMutableMap() ?: mutableMapOf()

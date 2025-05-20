@@ -268,11 +268,48 @@ fun createRestZaakUnlinkData(
     reden = reason
 )
 
+@Suppress("LongParameterList")
 fun createRestZaakRechten(
     lezen: Boolean = true,
-) = RestZaakRechten().apply {
-    this.lezen = lezen
-}
+    wijzigen: Boolean = true,
+    toekennen: Boolean = true,
+    behandelen: Boolean = true,
+    afbreken: Boolean = true,
+    heropenen: Boolean = true,
+    bekijkenZaakdata: Boolean = true,
+    wijzigenDoorlooptijd: Boolean = true,
+    toevoegenBagObject: Boolean = true,
+    toevoegenBetrokkeneBedrijf: Boolean = true,
+    toevoegenBetrokkenePersoon: Boolean = true,
+    toevoegenInitiatorBedrijf: Boolean = true,
+    toevoegenInitiatorPersoon: Boolean = true,
+    versturenOntvangstbevestiging: Boolean = true,
+    verwijderenBetrokkene: Boolean = true,
+    verwijderenInitiator: Boolean = true,
+    creeerenDocument: Boolean = true,
+    versturenEmail: Boolean = true,
+    wijzigenLocatie: Boolean = true
+) = RestZaakRechten(
+    lezen = lezen,
+    wijzigen = wijzigen,
+    toekennen = toekennen,
+    behandelen = behandelen,
+    afbreken = afbreken,
+    heropenen = heropenen,
+    bekijkenZaakdata = bekijkenZaakdata,
+    wijzigenDoorlooptijd = wijzigenDoorlooptijd,
+    toevoegenBagObject = toevoegenBagObject,
+    toevoegenBetrokkeneBedrijf = toevoegenBetrokkeneBedrijf,
+    toevoegenBetrokkenePersoon = toevoegenBetrokkenePersoon,
+    toevoegenInitiatorBedrijf = toevoegenInitiatorBedrijf,
+    toevoegenInitiatorPersoon = toevoegenInitiatorPersoon,
+    versturenOntvangstbevestiging = versturenOntvangstbevestiging,
+    verwijderenBetrokkene = verwijderenBetrokkene,
+    verwijderenInitiator = verwijderenInitiator,
+    creeerenDocument = creeerenDocument,
+    versturenEmail = versturenEmail,
+    wijzigenLocatie = wijzigenLocatie
+)
 
 fun createRestZaakResultaat() = RestZaakResultaat()
 

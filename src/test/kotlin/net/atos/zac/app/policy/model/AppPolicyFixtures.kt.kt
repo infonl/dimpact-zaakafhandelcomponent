@@ -5,4 +5,12 @@
 
 package net.atos.zac.app.policy.model
 
-fun createRESTDocumentRechten() = RestDocumentRechten()
+fun createRestDocumentRechten() = RestDocumentRechten(
+    lezen = true,
+    wijzigen = true,
+    verwijderen = true,
+    vergrendelen = true,
+    ontgrendelen = true,
+    ondertekenen = true,
+    toevoegenNieuweVersie = true
+)

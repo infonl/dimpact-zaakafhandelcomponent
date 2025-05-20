@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.search.model
 
-import net.atos.zac.app.policy.converter.RestRechtenConverter
+import net.atos.zac.app.policy.converter.toRestDocumentRechten
 import net.atos.zac.app.policy.model.RestDocumentRechten
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate
 import nl.info.zac.policy.output.DocumentRechten
@@ -81,5 +81,5 @@ fun DocumentZoekObject.toRestDocumentZoekObject(documentRechten: DocumentRechten
     indicaties = this@toRestDocumentZoekObject.getDocumentIndicaties()
         .filter { it != DocumentIndicatie.GEBRUIKSRECHT }
         .toCollection(EnumSet.noneOf(DocumentIndicatie::class.java)),
-    rechten = RestRechtenConverter.convert(documentRechten)
+    rechten = documentRechten.toRestDocumentRechten()
 )

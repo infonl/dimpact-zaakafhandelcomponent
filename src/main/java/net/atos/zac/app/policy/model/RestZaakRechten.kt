@@ -2,46 +2,26 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.policy.model
 
-package net.atos.zac.app.policy.model;
-
-public class RestZaakRechten {
-
-    public boolean lezen;
-
-    public boolean wijzigen;
-
-    public boolean toekennen;
-
-    public boolean behandelen;
-
-    public boolean afbreken;
-
-    public boolean heropenen;
-
-    public boolean bekijkenZaakdata;
-
-    public boolean wijzigenDoorlooptijd;
-
-    public boolean toevoegenBagObject;
-
-    public boolean toevoegenBetrokkeneBedrijf;
-
-    public boolean toevoegenBetrokkenePersoon;
-
-    public boolean toevoegenInitiatorBedrijf;
-
-    public boolean toevoegenInitiatorPersoon;
-
-    public boolean versturenOntvangstbevestiging;
-
-    public boolean verwijderenBetrokkene;
-
-    public boolean verwijderenInitiator;
-
-    public boolean creeerenDocument;
-
-    public boolean versturenEmail;
-
-    public boolean wijzigenLocatie;
-}
+data class RestZaakRechten(
+    val lezen: Boolean,
+    val wijzigen: Boolean,
+    val toekennen: Boolean,
+    val behandelen: Boolean,
+    val afbreken: Boolean,
+    val heropenen: Boolean,
+    val bekijkenZaakdata: Boolean,
+    val wijzigenDoorlooptijd: Boolean,
+    val toevoegenBagObject: Boolean,
+    val toevoegenBetrokkeneBedrijf: Boolean,
+    val toevoegenBetrokkenePersoon: Boolean,
+    val toevoegenInitiatorBedrijf: Boolean,
+    val toevoegenInitiatorPersoon: Boolean,
+    val versturenOntvangstbevestiging: Boolean,
+    val verwijderenBetrokkene: Boolean,
+    val verwijderenInitiator: Boolean,
+    val creeerenDocument: Boolean,
+    val versturenEmail: Boolean,
+    val wijzigenLocatie: Boolean
+)

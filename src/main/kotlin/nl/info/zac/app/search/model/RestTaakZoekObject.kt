@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.search.model
 
-import net.atos.zac.app.policy.converter.RestRechtenConverter
+import net.atos.zac.app.policy.converter.toRestTaakRechten
 import net.atos.zac.app.policy.model.RestTaakRechten
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate
 import nl.info.zac.app.task.model.TaakStatus
@@ -56,5 +56,5 @@ fun TaakZoekObject.toRestTaakZoekObject(taakRechten: TaakRechten) = RestTaakZoek
     zaakUuid = this@toRestTaakZoekObject.zaakUUID,
     zaakToelichting = this@toRestTaakZoekObject.zaakToelichting,
     zaakOmschrijving = this@toRestTaakZoekObject.zaakOmschrijving,
-    rechten = RestRechtenConverter.convert(taakRechten)
+    rechten = taakRechten.toRestTaakRechten()
 )

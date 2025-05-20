@@ -8,7 +8,7 @@ import jakarta.inject.Inject
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.app.formulieren.converter.toRESTFormulierDefinitie
-import net.atos.zac.app.policy.converter.RestRechtenConverter
+import net.atos.zac.app.policy.converter.toRestTaakRechten
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskData
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskInformation
@@ -43,9 +43,7 @@ class RestTaskConverter @Inject constructor(
     @Suppress("LongMethod", "ComplexMethod")
     fun convert(taskInfo: TaskInfo): RestTask {
         val zaaktypeOmschrijving = readZaaktypeOmschrijving(taskInfo)
-        val restTaakRechten = policyService.readTaakRechten(taskInfo, zaaktypeOmschrijving).let {
-            RestRechtenConverter.convert(it)
-        }
+        val restTaakRechten = policyService.readTaakRechten(taskInfo, zaaktypeOmschrijving).toRestTaakRechten()
         val restTask = RestTask(
             id = taskInfo.id,
             naam = taskInfo.name,

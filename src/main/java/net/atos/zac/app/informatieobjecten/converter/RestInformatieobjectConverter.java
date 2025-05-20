@@ -4,6 +4,7 @@
  */
 package net.atos.zac.app.informatieobjecten.converter;
 
+import static net.atos.zac.app.policy.converter.RestRechtenConverterKt.toRestDocumentRechten;
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 import static nl.info.zac.app.configuratie.model.RestTaalKt.toRestTaal;
 import static nl.info.zac.app.identity.model.RestUserKt.toRestUser;
@@ -32,7 +33,6 @@ import net.atos.zac.app.informatieobjecten.model.RESTFileUpload;
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens;
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject;
 import net.atos.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject;
-import net.atos.zac.app.policy.converter.RestRechtenConverter;
 import nl.info.client.zgw.brc.BrcClientService;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest;
@@ -120,15 +120,15 @@ public class RestInformatieobjectConverter {
         final UUID enkelvoudigInformatieObjectUUID = extractUuid(enkelvoudigInformatieObject.getUrl());
         final EnkelvoudigInformatieObjectLock lock = enkelvoudigInformatieObject.getLocked() ?
                 enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID) : null;
-        final DocumentRechten rechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak);
+        final DocumentRechten documentRechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak);
         final RestEnkelvoudigInformatieobject restEnkelvoudigInformatieobject = new RestEnkelvoudigInformatieobject();
         restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID;
         restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.getIdentificatie();
-        restEnkelvoudigInformatieobject.rechten = RestRechtenConverter.convert(rechten);
+        restEnkelvoudigInformatieobject.rechten = toRestDocumentRechten(documentRechten);
         restEnkelvoudigInformatieobject.isBesluitDocument = brcClientService.isInformatieObjectGekoppeldAanBesluit(
                 enkelvoudigInformatieObject.getUrl()
         );
-        if (rechten.getLezen()) {
+        if (documentRechten.getLezen()) {
             convertEnkelvoudigInformatieObject(enkelvoudigInformatieObject, lock, restEnkelvoudigInformatieobject);
             if (
                 enkelvoudigInformatieObject.getOndertekening() != null &&
@@ -420,12 +420,12 @@ public class RestInformatieobjectConverter {
         final UUID enkelvoudigInformatieObjectUUID = extractUuid(enkelvoudigInformatieObject.getUrl());
         final EnkelvoudigInformatieObjectLock lock = enkelvoudigInformatieObject.getLocked() ?
                 enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID) : null;
-        final DocumentRechten rechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak);
+        final DocumentRechten documentRechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak);
         final RestGekoppeldeZaakEnkelvoudigInformatieObject restEnkelvoudigInformatieobject = new RestGekoppeldeZaakEnkelvoudigInformatieObject();
         restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID;
         restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.getIdentificatie();
-        restEnkelvoudigInformatieobject.rechten = RestRechtenConverter.convert(rechten);
-        if (rechten.getLezen()) {
+        restEnkelvoudigInformatieobject.rechten = toRestDocumentRechten(documentRechten);
+        if (documentRechten.getLezen()) {
             convertEnkelvoudigInformatieObject(enkelvoudigInformatieObject, lock, restEnkelvoudigInformatieobject);
             restEnkelvoudigInformatieobject.relatieType = relatieType;
             restEnkelvoudigInformatieobject.zaakIdentificatie = zaak.getIdentificatie();

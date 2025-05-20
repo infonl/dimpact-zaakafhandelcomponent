@@ -71,5 +71,5 @@ data class RestTask(
 
     var taakdocumenten: List<UUID>? = null,
 
-    var rechten: RestTaakRechten? = null
+    var rechten: RestTaakRechten
 )

@@ -25,7 +25,6 @@ import net.atos.zac.app.gebruikersvoorkeuren.converter.RESTZoekopdrachtConverter
 import net.atos.zac.app.gebruikersvoorkeuren.model.RESTDashboardCardInstelling;
 import net.atos.zac.app.gebruikersvoorkeuren.model.RESTTabelGegevens;
 import net.atos.zac.app.gebruikersvoorkeuren.model.RESTZoekopdracht;
-import net.atos.zac.app.policy.converter.RestRechtenConverter;
 import net.atos.zac.gebruikersvoorkeuren.GebruikersvoorkeurenService;
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen;
 import net.atos.zac.gebruikersvoorkeuren.model.Werklijst;
@@ -33,6 +32,8 @@ import net.atos.zac.gebruikersvoorkeuren.model.Zoekopdracht;
 import net.atos.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters;
 import nl.info.zac.authentication.LoggedInUser;
 import nl.info.zac.policy.PolicyService;
+
+import static net.atos.zac.app.policy.converter.RestRechtenConverterKt.toRestWerklijstRechten;
 
 @Singleton
 @Path("gebruikersvoorkeuren")
@@ -92,7 +93,7 @@ public class GebruikersvoorkeurenRESTService {
         );
         restTabelGegevens.aantalPerPagina = tabelInstellingen.getAantalPerPagina();
         restTabelGegevens.pageSizeOptions = TabelInstellingen.PAGE_SIZE_OPTIONS;
-        restTabelGegevens.werklijstRechten = RestRechtenConverter.convert(policyService.readWerklijstRechten());
+        restTabelGegevens.werklijstRechten = toRestWerklijstRechten(policyService.readWerklijstRechten());
         return restTabelGegevens;
     }
 
