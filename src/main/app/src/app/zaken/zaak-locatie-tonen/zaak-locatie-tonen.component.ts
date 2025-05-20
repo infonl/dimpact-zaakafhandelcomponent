@@ -168,9 +168,7 @@ export class LocatieTonenComponent implements OnInit, AfterViewInit {
 
         const coordinate = LocationUtil.pointToCoordinate(geometry.point);
         this.addMarker(coordinate);
-        if ((this.map.getView()?.getZoom() ?? 0) < this.MAX_ZOOM) {
-          this.zoomToMarker(coordinate);
-        }
+        this.zoomToMarker(coordinate);
         this.locationService
           .coordinateToAddress(coordinate)
           .subscribe((objectData) => {
