@@ -1,4 +1,5 @@
-# INFO.nl: made manual changes to this specification to make it work with the OpenAPI generator; search for "INFO.nl" to find the changes
+# INFO.nl: made manual changes to this specification to make it work with the OpenAPI generator.
+# Search for "INFO.nl" to find the changes.
 openapi: 3.0.3
 info:
   title: Catalogi API
@@ -12450,8 +12451,8 @@ components:
 
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
-          # manual changed by INFO.nl: need to allow for empty values returned by the API
-          # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
+          # manual changed by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+          # OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/ArchiefnominatieEnum'
           #- $ref: '#/components/schemas/BlankEnum'
@@ -12601,7 +12602,7 @@ components:
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
           # manual changed by INFO.nl: need to allow for empty values returned by the API,
-          # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
+          # and unfortunately, the OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/ArchiefnominatieEnum'
           #- $ref: '#/components/schemas/BlankEnum'
