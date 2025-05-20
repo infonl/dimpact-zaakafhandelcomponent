@@ -11762,9 +11762,11 @@ components:
         - organisatorische_eenheid
         - medewerker
       type: string
-    BlankEnum:
-      enum:
-        - ''
+      # manual changed by INFO.nl: need to allow for empty values returned by the API
+      # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
+#    BlankEnum:
+#      enum:
+#        - ''
     BronEnum:
       enum:
         - ac
@@ -12635,10 +12637,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/SubVerblijfBuitenlandRequest'
           nullable: true
-    # manual changed by INFO.nl: this results in uncompilable code
-    #NullEnum:
-      #enum:
-        #- null
     ObjectAdres:
       type: object
       properties:
@@ -14211,7 +14209,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/ArchiefnominatieEnum'
             #- $ref: '#/components/schemas/BlankEnum'
-            #- $ref: '#/components/schemas/NullEnum'
         archiefstatus:
           allOf:
             - $ref: '#/components/schemas/ArchiefstatusEnum'
@@ -15402,7 +15399,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/ArchiefnominatieEnum'
             #- $ref: '#/components/schemas/BlankEnum'
-            #- $ref: '#/components/schemas/NullEnum'
         archiefstatus:
           allOf:
             - $ref: '#/components/schemas/ArchiefstatusEnum'
@@ -16062,7 +16058,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/ArchiefnominatieEnum'
             #- $ref: '#/components/schemas/BlankEnum'
-            #- $ref: '#/components/schemas/NullEnum'
         archiefstatus:
           allOf:
             - $ref: '#/components/schemas/ArchiefstatusEnum'
