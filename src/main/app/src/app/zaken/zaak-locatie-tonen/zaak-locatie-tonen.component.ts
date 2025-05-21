@@ -153,12 +153,6 @@ export class LocatieTonenComponent implements OnInit, AfterViewInit {
     }
   }
 
-  ngOnChanges(): void {
-    if (this.currentLocation) {
-      this.setLocation(this.currentLocation);
-    }
-  }
-
   private setLocation(geometry?: GeneratedType<"RestGeometry">) {
     this.clearPreviousMarker();
 
