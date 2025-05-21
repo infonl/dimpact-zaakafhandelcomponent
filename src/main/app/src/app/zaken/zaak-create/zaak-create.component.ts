@@ -20,7 +20,6 @@ import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/ver
 import { KlantenService } from "../../klanten/klanten.service";
 import { Bedrijf } from "../../klanten/model/bedrijven/bedrijf";
 import { Klant } from "../../klanten/model/klanten/klant";
-import { InboxProductaanvraag } from "../../productaanvragen/model/inbox-productaanvraag";
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import {
   BSN_LENGTH,
@@ -39,7 +38,7 @@ export class ZaakCreateComponent {
 
   protected activeSideAction: string | null = null;
 
-  private readonly inboxProductaanvraag: InboxProductaanvraag;
+  private readonly inboxProductaanvraag: GeneratedType<"RESTInboxProductaanvraag">;
 
   protected groups: Observable<GeneratedType<"RestGroup">[]> | null = null;
   protected users: GeneratedType<"RestUser">[] = [];
@@ -192,7 +191,9 @@ export class ZaakCreateComponent {
     await this.actionsSidenav.open();
   }
 
-  private handleProductRequest(productRequest?: InboxProductaanvraag) {
+  private handleProductRequest(
+    productRequest?: GeneratedType<"RESTInboxProductaanvraag">,
+  ) {
     if (!productRequest?.initiatorID) return;
 
     this.form.controls.toelichting.setValue(
