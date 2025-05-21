@@ -42,6 +42,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { GeometryGegevens } from "../model/geometry-gegevens";
 import { GeometryType } from "../model/geometryType";
 import { ZakenService } from "../zaken.service";
+import isEqual from "lodash.isequal";
 
 @Component({
   selector: "zac-case-location-edit",
@@ -188,14 +189,9 @@ export class CaseLocationEditComponent
     this.markerLocatie$
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((geometry) => {
-        console.log(
-          "JSON.stringify(geometry) !== JSON.stringify(this.zaak.zaakgeometrie)",
-          JSON.stringify(geometry) !== JSON.stringify(this.zaak.zaakgeometrie),
-        );
-        if (
-          JSON.stringify(geometry) === JSON.stringify(this.zaak.zaakgeometrie)
-        ) {
+        if (isEqual(geometry, this.initialLocation)) {
           this.reasonControl.disable();
+          this.reasonControl.reset();
         } else {
           this.reasonControl.enable();
         }
