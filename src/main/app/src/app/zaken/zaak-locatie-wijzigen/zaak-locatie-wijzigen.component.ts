@@ -29,7 +29,7 @@ import * as proj from "ol/proj.js";
 import * as source from "ol/source.js";
 import * as style from "ol/style.js";
 import WMTSTileGrid from "ol/tilegrid/WMTS.js";
-import { Subject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { environment } from "src/environments/environment";
 import { LocationUtil } from "../../shared/location/location-util";
@@ -52,14 +52,18 @@ export class CaseLocationEditComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
-  @Input() readonly = false;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Output() locatie = new EventEmitter<GeometryGegevens>();
   @Output() locationChanged = new EventEmitter<
     GeneratedType<"RestGeometry"> | undefined
   >();
+
   @ViewChild("openLayersMap", { static: true }) openLayersMapRef: ElementRef;
-  markerLocatie?: GeneratedType<"RestGeometry">;
+
+  // markerLocatie?: GeneratedType<"RestGeometry">;
+  markerLocatie$ = new BehaviorSubject<GeneratedType<"RestGeometry"> | null>(
+    null,
+  );
   nearestAddress: AddressResult;
   searchControl = new FormControl();
   reasonControl = new FormControl();
@@ -67,6 +71,7 @@ export class CaseLocationEditComponent
   initialLocation: GeneratedType<"RestGeometry">;
 
   private unsubscribe$: Subject<void> = new Subject<void>();
+  protected readonly: boolean = false;
 
   private map: ol.Map;
   private view: ol.View;
@@ -171,10 +176,29 @@ export class CaseLocationEditComponent
     const modify = new interaction.Modify({ source: this.locationSource });
     this.map.addInteraction(modify);
 
+    this.readonly = !this.zaak.rechten.wijzigenLocatie;
+    this.reasonControl.disable();
+
     this.searchControl.valueChanges
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((value) => {
         this.searchAddresses(value);
+      });
+
+    this.markerLocatie$
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((geometry) => {
+        console.log(
+          "JSON.stringify(geometry) !== JSON.stringify(this.zaak.zaakgeometrie)",
+          JSON.stringify(geometry) !== JSON.stringify(this.zaak.zaakgeometrie),
+        );
+        if (
+          JSON.stringify(geometry) === JSON.stringify(this.zaak.zaakgeometrie)
+        ) {
+          this.reasonControl.disable();
+        } else {
+          this.reasonControl.enable();
+        }
       });
   }
 
@@ -207,11 +231,6 @@ export class CaseLocationEditComponent
     }
   }
 
-  ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
-  }
-
   private searchAddresses(query: string): void {
     if (query) {
       this.locationService.addressSuggest(query).subscribe((data) => {
@@ -240,11 +259,19 @@ export class CaseLocationEditComponent
     this.setLocation();
   }
 
+  isDisabled(): void {
+    // const compared =
+    //   JSON.stringify(this.initialLocation) ===
+    //   JSON.stringify(this.markerLocatie);
+    // console.log("compared", compared);
+    // return this.readonly || !this.reasonControl.valid || !this.markerLocatie;
+  }
+
   private setLocation(
     geometry?: GeneratedType<"RestGeometry">,
     fromSearch = true,
   ) {
-    this.markerLocatie = geometry;
+    this.markerLocatie$.next(geometry ?? null);
     this.clearPreviousMarker();
     this.searchControl.reset();
 
@@ -314,7 +341,7 @@ export class CaseLocationEditComponent
       .updateZaakLocatie(
         this.zaak.uuid,
         this.reasonControl.value,
-        this.markerLocatie,
+        this.markerLocatie$.getValue(),
       )
       .subscribe({
         next: () => {
@@ -325,5 +352,10 @@ export class CaseLocationEditComponent
           console.error("Failed to update location:", err);
         },
       });
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 }

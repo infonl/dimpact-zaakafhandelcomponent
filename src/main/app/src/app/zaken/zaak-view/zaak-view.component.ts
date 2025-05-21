@@ -538,7 +538,6 @@ export class ZaakViewComponent
           Object.keys(this.zaak.zaakgeometrie)?.length > 0
         )
       ) {
-        console.log(this.zaak.zaakgeometrie);
         this.menu.push(
           new ButtonMenuItem(
             "actie.zaak.locatie",

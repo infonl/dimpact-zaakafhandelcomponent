@@ -21,14 +21,14 @@
         <mat-card-content class="flex-row items-center">
           <div>{{ "coordinates" | translate }}</div>
           <zac-static-text
-            [value]="markerLocatie | location | empty"
+            [value]="markerLocatie$ | async | location | empty"
             class="flex-item flex-1"
           ></zac-static-text>
           <button
             mat-icon-button
             matSuffix
             (click)="clearLocation()"
-            disabled="{{ !markerLocatie }}"
+            disabled="{{ !markerLocatie$ }}"
           >
             <mat-icon>link_off</mat-icon>
           </button>
@@ -87,7 +87,7 @@
         <button
           mat-raised-button
           color="primary"
-          [disabled]="!reasonControl.valid"
+          [disabled]="isDisabled()"
           (click)="save()"
         >
           {{ "actie.opslaan" | translate }}
