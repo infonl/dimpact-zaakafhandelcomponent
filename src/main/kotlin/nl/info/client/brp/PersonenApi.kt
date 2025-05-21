@@ -62,6 +62,6 @@ interface PersonenApi {
     @POST
     fun personen(
         personenQuery: PersonenQuery,
-        @HeaderParam(BRPClientHeadersFactory.X_DOELBINDING) purpose: String
+        @HeaderParam(BRPClientHeadersFactory.X_DOELBINDING) purpose: String?
     ): PersonenQueryResponse
 }
