@@ -30,9 +30,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
     Given("Protocolering disabled") {
         val brpClientHeadersFactory = BRPClientHeadersFactory(
             Optional.of(apiKey),
-            Optional.of(false),
             Optional.of(originOin),
-            Optional.of(purpose),
             loggedInUserInstance
         )
         val existingHeaders = Headers<String>().apply {
@@ -53,9 +51,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
 
         val brpClientHeadersFactory = BRPClientHeadersFactory(
             Optional.of(apiKey),
-            Optional.of(true),
             Optional.of(originOin),
-            Optional.empty(),
             loggedInUserInstance
         )
 
@@ -79,9 +75,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
 
         val brpClientHeadersFactory = BRPClientHeadersFactory(
             Optional.of(apiKey),
-            Optional.of(true),
             Optional.of(originOin),
-            Optional.empty(),
             loggedInUserInstance
         )
 
@@ -105,9 +99,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
 
         val brpClientHeadersFactory = BRPClientHeadersFactory(
             Optional.of(apiKey),
-            Optional.of(true),
             Optional.of(originOin),
-            Optional.of(purpose),
             loggedInUserInstance
         )
 
@@ -118,7 +110,6 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
                 with(headers) {
                     shouldContain("X-API-KEY", listOf(apiKey))
                     shouldContain("X-ORIGIN-OIN", listOf(originOin))
-                    shouldContain("X-VERWERKING", listOf(purpose))
                     shouldContain("X-GEBRUIKER", listOf("username"))
                 }
             }
@@ -134,9 +125,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
 
         val brpClientHeadersFactory = BRPClientHeadersFactory(
             Optional.of(apiKey),
-            Optional.of(true),
             Optional.of(originOin),
-            Optional.empty(),
             loggedInUserInstance
         )
 

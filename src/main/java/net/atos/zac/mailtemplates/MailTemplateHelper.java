@@ -272,14 +272,14 @@ public class MailTemplateHelper {
         );
     }
 
-    private String replaceInitiatorVariabelen(final String resolvedTekst, final Optional<Rol<?>> initiator) {
+    private String replaceInitiatorVariabelen(final String resolvedTekst, String zaakNummer, final Optional<Rol<?>> initiator) {
         if (initiator.isPresent()) {
             final String identificatie = initiator.get().getIdentificatienummer();
             final BetrokkeneType betrokkene = initiator.get().getBetrokkeneType();
             return switch (betrokkene) {
                 case NATUURLIJK_PERSOON -> replaceInitiatorVariabelenPersoon(
                         resolvedTekst,
-                        brpClientService.retrievePersoon(identificatie)
+                        brpClientService.retrievePersoon(identificatie, zaakNummer)
                 );
                 case VESTIGING -> replaceInitiatorVariabelenResultaatItem(
                         resolvedTekst,

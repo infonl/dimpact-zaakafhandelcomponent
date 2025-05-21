@@ -90,7 +90,7 @@ brpApi:
     doelbinding:
       zoekmet: "BRPACT-ZoekenAlgemeen"
       raadpleegmet: "BRPACT-Totaal"
-    verwerking: "zaakafhandelcomponent"
+
 
 # Integration with the KVK API provider (KVK)
 kvkApi:

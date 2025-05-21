@@ -24,6 +24,12 @@ data class RestListPersonenParameters(
     var straat: String? = null
 )
 
+data class RestContext(
+    val context: String,
+    val action: String,
+    val taskId: String? = null
+)
+
 @Suppress("ReturnCount", "CyclomaticComplexMethod")
 fun RestListPersonenParameters.toPersonenQuery(): PersonenQuery =
     when {

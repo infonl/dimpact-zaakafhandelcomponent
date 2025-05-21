@@ -115,8 +115,8 @@ class BrpClientServiceTest : BehaviorSpec({
         )
         val brpClientService = BrpClientService(
             personenApi = personenApi,
-            queryPersonenPurpose = Optional.empty(),
-            retrievePersoonPurpose = Optional.of(RETRIEVE_PERSOON_PURPOSE)
+            queryPersonenDefaultPurpose = Optional.empty(),
+            retrievePersoonDefaultPurpose = Optional.of(RETRIEVE_PERSOON_PURPOSE)
         )
 
         every {
@@ -144,8 +144,8 @@ class BrpClientServiceTest : BehaviorSpec({
         )
         val brpClientService = BrpClientService(
             personenApi = personenApi,
-            queryPersonenPurpose = Optional.of(QUERY_PERSONEN_PURPOSE),
-            retrievePersoonPurpose = Optional.empty()
+            queryPersonenDefaultPurpose = Optional.of(QUERY_PERSONEN_PURPOSE),
+            retrievePersoonDefaultPurpose = Optional.empty()
         )
 
         every {
