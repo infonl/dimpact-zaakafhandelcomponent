@@ -12,7 +12,7 @@ import {
 } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import moment from "moment";
-import { Observable, Subject, Subscription, forkJoin, takeUntil } from "rxjs";
+import { Observable, Subject, Subscription, takeUntil } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { UtilService } from "src/app/core/service/util.service";
 import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
@@ -352,7 +352,6 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
 
   private async updateZaak(zaak: Partial<GeneratedType<"RestZaak">>) {
     const reason = this.reasonField.formControl.value;
-    const subscriptions: Subscription[] = [];
 
     this.patchBehandelaar(zaak, reason);
 
