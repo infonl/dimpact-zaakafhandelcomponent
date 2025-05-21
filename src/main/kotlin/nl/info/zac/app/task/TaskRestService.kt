@@ -45,7 +45,6 @@ import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEventType
-import nl.info.client.zgw.drc.model.generated.SoortEnum
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
@@ -375,10 +374,7 @@ class TaskRestService @Inject constructor(
                     assertPolicy(
                         (
                             // this extra check is because the API can return an empty ondertekening soort
-                            enkelvoudigInformatieobject.ondertekening == null ||
-                                // when no signature is present (even if this is not
-                                // permitted according to the original OpenAPI spec)
-                                enkelvoudigInformatieobject.ondertekening.soort == SoortEnum.EMPTY
+                            enkelvoudigInformatieobject.ondertekening == null
                             ) && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
                     )
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
