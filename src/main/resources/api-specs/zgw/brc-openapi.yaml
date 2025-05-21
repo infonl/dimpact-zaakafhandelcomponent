@@ -2654,7 +2654,7 @@ components:
         - tijdelijk
         - ingetrokken_overheid
         - ingetrokken_belanghebbende
-        # manual changed by INFO.nl: need to allow for empty values returned by the API
+        # manually changed by INFO.nl: need to allow for empty values returned by the API
         # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
         - ''
       type: string
