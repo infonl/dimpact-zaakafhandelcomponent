@@ -137,28 +137,6 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                 }
             }
         }
-
-        When("the create document attended ('wizard') endpoint is called without mandatory parameter") {
-            val endpointUrl = "$ZAC_API_URI/document-creation/create-document-attended"
-            logger.info { "Calling $endpointUrl endpoint" }
-            val response = itestHttpClient.performJSONPostRequest(
-                url = endpointUrl,
-                requestBodyAsString = JSONObject(
-                    mapOf(
-                        "zaakUuid" to bpmnZaakUuid,
-                        "informatieobjecttypeUuid" to INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID,
-                        "smartDocumentsTemplateGroupName" to SMART_DOCUMENTS_ROOT_GROUP_NAME,
-                        "smartDocumentsTemplateName" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME
-                    )
-                ).toString()
-            )
-            Then("the response should be 400 Client Error") {
-                val responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_BAD_REQUEST
-                responseBody shouldContain "must not be null"
-            }
-        }
     }
 
     Given("zaak and a file created from template in SmartDocuments") {

@@ -24,6 +24,7 @@ import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.app.documentcreation.model.createRestDocumentCreationAttendedData
 import nl.info.zac.documentcreation.BpmnDocumentCreationService
 import nl.info.zac.documentcreation.CmmnDocumentCreationService
+import nl.info.zac.documentcreation.DocumentCreationService
 import nl.info.zac.documentcreation.model.CmmnDocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.createDocumentCreationAttendedResponse
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_SMARTDOCUMENTS_DISABLED
@@ -36,6 +37,7 @@ import java.net.URI
 import java.util.UUID
 
 class DocumentCreationRestServiceTest : BehaviorSpec({
+    val documentCreationService = mockk<DocumentCreationService>()
     val cmmnDocumentCreationService = mockk<CmmnDocumentCreationService>()
     val bpmnDocumentCreationService = mockk<BpmnDocumentCreationService>()
     val policyService = mockk<PolicyService>()
@@ -46,6 +48,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     val bpmnService = mockk<BpmnService>()
     val documentCreationRestService = DocumentCreationRestService(
         policyService = policyService,
+        documentCreationService = documentCreationService,
         cmmnDocumentCreationService = cmmnDocumentCreationService,
         bpmnDocumentCreationService = bpmnDocumentCreationService,
         zrcClientService = zrcClientService,

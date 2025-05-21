@@ -36,7 +36,7 @@ class DocumentCreationService @Inject constructor(
     }
 
     /**
-     * Download generated SmartDocuments file and store it as Informatieobject
+     * Download a generated SmartDocuments file and store it as an Informatieobject
      */
     fun storeDocument(
         zaak: Zaak,
@@ -76,7 +76,7 @@ class DocumentCreationService @Inject constructor(
         description: String?,
         creationDate: ZonedDateTime,
         userName: String
-    ) =
+    ): UriBuilder =
         UriBuilder
             .fromUri(configuratieService.readContextUrl())
             .queryParam("title", title)

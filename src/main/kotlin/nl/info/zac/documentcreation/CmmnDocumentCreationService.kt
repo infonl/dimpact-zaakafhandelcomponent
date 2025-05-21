@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.documentcreation
@@ -7,6 +7,7 @@ package nl.info.zac.documentcreation
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
+import jakarta.ws.rs.HttpMethod
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.util.MediaTypes
 import nl.info.client.smartdocuments.model.document.OutputFormat
@@ -14,9 +15,7 @@ import nl.info.client.smartdocuments.model.document.Selection
 import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.smartdocuments.model.document.Variables
 import nl.info.client.zgw.util.extractUuid
-import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter
 import nl.info.zac.documentcreation.model.CmmnDocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
@@ -39,18 +38,10 @@ class CmmnDocumentCreationService @Inject constructor(
     private val smartDocumentsService: SmartDocumentsService,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
     private val documentCreationDataConverter: DocumentCreationDataConverter,
-    private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
-    private val configuratieService: ConfiguratieService,
+    private val documentCreationService: DocumentCreationService,
     private val loggedInUserInstance: Instance<LoggedInUser>,
-) : DocumentCreationService(
-    smartDocumentsService,
-    documentCreationDataConverter,
-    enkelvoudigInformatieObjectUpdateService,
-    configuratieService
 ) {
     companion object {
-        const val REDIRECT_METHOD = "POST"
-
         private const val SMART_DOCUMENTS_REDIRECT_URL_BASE =
             "rest/document-creation/smartdocuments/cmmn-callback/zaak/{zaakUuid}"
 
@@ -94,7 +85,7 @@ class CmmnDocumentCreationService @Inject constructor(
                 outputFormats = listOf(
                     OutputFormat(MediaTypes.Application.MS_WORD_OPEN_XML.extensions.first().drop(1))
                 ),
-                redirectMethod = REDIRECT_METHOD,
+                redirectMethod = HttpMethod.POST,
                 redirectUrl = documentCreationCallbackUrl(
                     zaakUuid = creationDataUnattended.zaak.uuid,
                     taskId = creationDataUnattended.taskId,
@@ -125,7 +116,12 @@ class CmmnDocumentCreationService @Inject constructor(
         creationDate: ZonedDateTime,
         userName: String
     ): URI {
-        val builder = createDocumentCreationUriBulder(title, description, creationDate, userName).apply {
+        val builder = documentCreationService.createDocumentCreationUriBulder(
+            title,
+            description,
+            creationDate,
+            userName
+        ).apply {
             queryParam("templateId", templateId)
             queryParam("templateGroupId", templateGroupId)
         }

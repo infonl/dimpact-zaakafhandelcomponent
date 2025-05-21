@@ -28,6 +28,7 @@ import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
 import nl.info.zac.documentcreation.BpmnDocumentCreationService
 import nl.info.zac.documentcreation.CmmnDocumentCreationService
+import nl.info.zac.documentcreation.DocumentCreationService
 import nl.info.zac.documentcreation.model.BpmnDocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.CmmnDocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
@@ -36,7 +37,6 @@ import nl.info.zac.policy.assertPolicy
 import nl.info.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Level
@@ -47,8 +47,10 @@ import java.util.logging.Logger
 @Produces(MediaType.APPLICATION_JSON)
 @NoArgConstructor
 @AllOpen
+@Suppress("LongParameterList")
 class DocumentCreationRestService @Inject constructor(
     private val policyService: PolicyService,
+    private val documentCreationService: DocumentCreationService,
     private val cmmnDocumentCreationService: CmmnDocumentCreationService,
     private val bpmnDocumentCreationService: BpmnDocumentCreationService,
     private val zrcClientService: ZrcClientService,
@@ -146,50 +148,8 @@ class DocumentCreationRestService @Inject constructor(
         @QueryParam("userName") userName: String,
         @FormParam("sdDocument") @DefaultValue("") fileId: String,
     ): Response =
-        zrcClientService.readZaak(zaakUuid).let { zaak ->
-            if (fileId.isBlank()) {
-                buildWizardFinishPageRedirectResponse(
-                    cmmnDocumentCreationService.documentCreationFinishPageUrl(
-                        zaakId = zaak.identificatie,
-                        documentName = title,
-                        result = SmartDocumentsWizardResult.CANCELLED.toString().lowercase()
-                    )
-                )
-            } else {
-                runCatching {
-                    cmmnDocumentCreationService.getInformationObjecttypeUuid(zaak, templateGroupId, templateId).let {
-                        cmmnDocumentCreationService.storeDocument(
-                            zaak = zaak,
-                            fileId = fileId,
-                            title = title,
-                            description = description,
-                            informatieobjecttypeUuid = it,
-                            creationDate = creationDate,
-                            userName = userName
-                        ).let {
-                            buildWizardFinishPageRedirectResponse(
-                                cmmnDocumentCreationService.documentCreationFinishPageUrl(
-                                    zaakId = zaak.identificatie,
-                                    documentName = title,
-                                    result = SmartDocumentsWizardResult.SUCCESS.toString().lowercase()
-                                )
-                            )
-                        }
-                    }
-                }.onFailure {
-                    LOG.log(Level.WARNING, it) {
-                        "Failed to create document for zaak ${zaak.identificatie}"
-                    }
-                }.getOrElse {
-                    buildWizardFinishPageRedirectResponse(
-                        cmmnDocumentCreationService.documentCreationFinishPageUrl(
-                            zaakId = zaak.identificatie,
-                            documentName = title,
-                            result = SmartDocumentsWizardResult.FAILURE.toString().lowercase()
-                        )
-                    )
-                }
-            }
+        createDocument(zaakUuid, null, title, description, creationDate, userName, fileId) {
+            cmmnDocumentCreationService.getInformationObjecttypeUuid(it, templateGroupId, templateId)
         }
 
     /**
@@ -214,58 +174,12 @@ class DocumentCreationRestService @Inject constructor(
         @QueryParam("userName") userName: String,
         @FormParam("sdDocument") @DefaultValue("") fileId: String,
     ): Response =
-        zrcClientService.readZaak(zaakUuid).let { zaak ->
-            if (fileId.isBlank()) {
-                buildWizardFinishPageRedirectResponse(
-                    cmmnDocumentCreationService.documentCreationFinishPageUrl(
-                        zaakId = zaak.identificatie,
-                        taskId = taskId,
-                        documentName = title,
-                        result = SmartDocumentsWizardResult.CANCELLED.toString().lowercase()
-                    )
-                )
-            } else {
-                runCatching {
-                    cmmnDocumentCreationService.getInformationObjecttypeUuid(zaak, templateGroupId, templateId).let {
-                        cmmnDocumentCreationService.storeDocument(
-                            zaak = zaak,
-                            taskId = taskId,
-                            fileId = fileId,
-                            informatieobjecttypeUuid = it,
-                            title = title,
-                            description = description,
-                            creationDate = creationDate,
-                            userName = userName
-                        ).let {
-                            buildWizardFinishPageRedirectResponse(
-                                cmmnDocumentCreationService.documentCreationFinishPageUrl(
-                                    zaakId = zaak.identificatie,
-                                    taskId = taskId,
-                                    documentName = title,
-                                    result = SmartDocumentsWizardResult.SUCCESS.toString().lowercase()
-                                )
-                            )
-                        }
-                    }
-                }.onFailure {
-                    LOG.log(Level.WARNING, it) {
-                        "Failed to create document for zaak ${zaak.identificatie} and task $taskId"
-                    }
-                }.getOrElse {
-                    buildWizardFinishPageRedirectResponse(
-                        cmmnDocumentCreationService.documentCreationFinishPageUrl(
-                            zaakId = zaak.identificatie,
-                            taskId = taskId,
-                            documentName = title,
-                            result = SmartDocumentsWizardResult.FAILURE.toString().lowercase()
-                        )
-                    )
-                }
-            }
+        createDocument(zaakUuid, taskId, title, description, creationDate, userName, fileId) {
+            cmmnDocumentCreationService.getInformationObjecttypeUuid(it, templateGroupId, templateId)
         }
 
     /**
-     * SmartDocuments callback for BPMN task
+     * SmartDocuments callback for a BPMN task
      *
      * Called when SmartDocument Wizard "Finish" button is clicked. The URL provided as "redirectUrl" to
      * SmartDocuments contains all the parameters needed to store the document for a task:
@@ -285,54 +199,68 @@ class DocumentCreationRestService @Inject constructor(
         @QueryParam("userName") userName: String,
         @FormParam("sdDocument") @DefaultValue("") fileId: String,
     ): Response =
+        createDocument(zaakUuid, taskId, title, description, creationDate, userName, fileId) {
+            informatieobjecttypeUuid
+        }
+
+    private fun createDocument(
+        zaakUuid: UUID,
+        taskId: String?,
+        title: String,
+        description: String?,
+        creationDate: ZonedDateTime,
+        userName: String,
+        fileId: String,
+        fetchInformatieobjecttypeUuidFunction: (zaak: Zaak) -> UUID,
+    ) =
         zrcClientService.readZaak(zaakUuid).let { zaak ->
             if (fileId.isBlank()) {
-                buildWizardFinishPageRedirectResponse(
-                    bpmnDocumentCreationService.documentCreationFinishPageUrl(
+                Response.seeOther(
+                    documentCreationService.documentCreationFinishPageUrl(
                         zaakId = zaak.identificatie,
                         taskId = taskId,
                         documentName = title,
                         result = SmartDocumentsWizardResult.CANCELLED.toString().lowercase()
                     )
-                )
+                ).build()
             } else {
                 runCatching {
-                    bpmnDocumentCreationService.storeDocument(
-                        zaak = zaak,
-                        taskId = taskId,
-                        fileId = fileId,
-                        informatieobjecttypeUuid = informatieobjecttypeUuid,
-                        title = title,
-                        description = description,
-                        creationDate = creationDate,
-                        userName = userName
-                    ).let {
-                        buildWizardFinishPageRedirectResponse(
-                            bpmnDocumentCreationService.documentCreationFinishPageUrl(
-                                zaakId = zaak.identificatie,
-                                taskId = taskId,
-                                documentName = title,
-                                result = SmartDocumentsWizardResult.SUCCESS.toString().lowercase()
-                            )
-                        )
+                    fetchInformatieobjecttypeUuidFunction(zaak).let {
+                        documentCreationService.storeDocument(
+                            zaak = zaak,
+                            taskId = taskId,
+                            fileId = fileId,
+                            title = title,
+                            description = description,
+                            informatieobjecttypeUuid = it,
+                            creationDate = creationDate,
+                            userName = userName
+                        ).let {
+                            Response.seeOther(
+                                documentCreationService.documentCreationFinishPageUrl(
+                                    zaakId = zaak.identificatie,
+                                    taskId = taskId,
+                                    documentName = title,
+                                    result = SmartDocumentsWizardResult.SUCCESS.toString().lowercase()
+                                )
+                            ).build()
+                        }
                     }
                 }.onFailure {
                     LOG.log(Level.WARNING, it) {
-                        "Failed to create document for zaak ${zaak.identificatie} and task $taskId"
+                        "Failed to create document for zaak ${zaak.identificatie}" +
+                            if (taskId != null) " and task $taskId" else ""
                     }
                 }.getOrElse {
-                    buildWizardFinishPageRedirectResponse(
-                        bpmnDocumentCreationService.documentCreationFinishPageUrl(
+                    Response.seeOther(
+                        documentCreationService.documentCreationFinishPageUrl(
                             zaakId = zaak.identificatie,
                             taskId = taskId,
                             documentName = title,
                             result = SmartDocumentsWizardResult.FAILURE.toString().lowercase()
                         )
-                    )
+                    ).build()
                 }
             }
         }
-
-    private fun buildWizardFinishPageRedirectResponse(location: URI) =
-        Response.seeOther(location).build()
 }
