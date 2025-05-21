@@ -28,7 +28,7 @@ import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.util.Optional
-import kotlin.jvm.optionals.getOrDefault
+import kotlin.jvm.optionals.getOrNull
 
 @ApplicationScoped
 @AllOpen
@@ -44,9 +44,7 @@ class BrpClientService @Inject constructor(
 ) {
     companion object {
         private const val ENV_VAR_BRP_DOELBINDING_ZOEKMET = "brp.doelbinding.zoekmet"
-        private const val ENV_VAR_BRP_DOELBINDING_ZOEKMET_DEFAULT = "BRPACT-ZoekenAlgemeen"
         private const val ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET = "brp.doelbinding.raadpleegmet"
-        private const val ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET_DEFAULT = "BRPACT-Totaal"
         private const val BURGERSERVICENUMMER = "burgerservicenummer"
         private const val GESLACHT = "geslacht"
         private const val NAAM = "naam"
@@ -66,24 +64,11 @@ class BrpClientService @Inject constructor(
         private val FIELDS_PERSOON_BEPERKT = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING)
     }
 
-    private val queryPersonenDefaultPurpose: String =
-        queryPersonenPurpose.getOrDefault(ENV_VAR_BRP_DOELBINDING_ZOEKMET_DEFAULT).let {
-            it.ifBlank {
-                throw BrpInvalidPurposeException("$ENV_VAR_BRP_DOELBINDING_ZOEKMET must not be blank.")
-            }
-        }
-    private val retrievePersoonDefaultPurpose: String =
-        retrievePersoonPurpose.getOrDefault(ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET_DEFAULT).let {
-            it.ifBlank {
-                throw BrpInvalidPurposeException("$ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET must not be blank.")
-            }
-        }
-
     fun queryPersonen(personenQuery: PersonenQuery): PersonenQueryResponse =
         updateQuery(personenQuery).let {
             personenApi.personen(
                 personenQuery = it,
-                purpose = queryPersonenDefaultPurpose
+                purpose = queryPersonenPurpose.getOrNull()
             )
         }
 
@@ -98,7 +83,7 @@ class BrpClientService @Inject constructor(
     fun retrievePersoon(burgerservicenummer: String): Persoon? = (
         personenApi.personen(
             personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer),
-            purpose = retrievePersoonDefaultPurpose
+            purpose = retrievePersoonPurpose.getOrNull()
         ) as RaadpleegMetBurgerservicenummerResponse
         ).personen?.firstOrNull()
 
