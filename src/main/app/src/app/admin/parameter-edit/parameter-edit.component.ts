@@ -770,8 +770,8 @@ export class ParameterEditComponent
 
     this.zaakafhandelParametersService
       .updateZaakafhandelparameters(this.parameters)
-      .subscribe(
-        (data) => {
+      .subscribe({
+        next: (data) => {
           this.loading = false;
           this.utilService.openSnackbar(
             "msg.zaakafhandelparameters.opgeslagen",
@@ -790,10 +790,10 @@ export class ParameterEditComponent
             }
           }
         },
-        () => {
+        error: () => {
           this.loading = false;
         },
-      );
+      });
 
     if (
       this.parameters.smartDocuments.enabledGlobally &&
