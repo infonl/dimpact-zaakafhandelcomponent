@@ -4,7 +4,7 @@
 #
 name: Build, test & deploy
 
-on:
+on:p
   pull_request:
   merge_group:
   workflow_dispatch:
@@ -464,7 +464,7 @@ jobs:
       NEXT_VERSION: ${{ needs.next-version.outputs.version }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
-    if: github.ref == 'refs/heads/main'
+    if: ${{ github.ref == 'refs/heads/main' && vars.ENABLE_AUTOMATIC_PROVISION == 'true' }}
     steps:
       - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
