@@ -28,17 +28,19 @@ import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.util.Optional
+import kotlin.jvm.optionals.getOrNull
 
 @ApplicationScoped
 @AllOpen
 @NoArgConstructor
 class BrpClientService @Inject constructor(
     @RestClient val personenApi: PersonenApi,
+
     @ConfigProperty(name = ENV_VAR_BRP_DOELBINDING_ZOEKMET)
-    private val queryPersonenDefaultPurpose: Optional<String>,
+    private val queryPersonenPurpose: Optional<String>,
 
     @ConfigProperty(name = ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET)
-    private val retrievePersoonDefaultPurpose: Optional<String>
+    private val retrievePersoonPurpose: Optional<String>
 ) {
     companion object {
         private const val ENV_VAR_BRP_DOELBINDING_ZOEKMET = "brp.doelbinding.zoekmet"
@@ -66,7 +68,7 @@ class BrpClientService @Inject constructor(
         updateQuery(personenQuery).let {
             personenApi.personen(
                 personenQuery = it,
-                purpose = queryPersonenDefaultPurpose.validatePurpose(ENV_VAR_BRP_DOELBINDING_ZOEKMET)
+                purpose = queryPersonenPurpose.getOrNull()
             )
         }
 
@@ -81,7 +83,7 @@ class BrpClientService @Inject constructor(
     fun retrievePersoon(burgerservicenummer: String): Persoon? = (
         personenApi.personen(
             personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer),
-            purpose = retrievePersoonDefaultPurpose.validatePurpose(ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET)
+            purpose = retrievePersoonPurpose.getOrNull()
         ) as RaadpleegMetBurgerservicenummerResponse
         ).personen?.firstOrNull()
 
@@ -98,16 +100,10 @@ class BrpClientService @Inject constructor(
             is ZoekMetNaamEnGemeenteVanInschrijving -> ZOEK_MET_NAAM_EN_GEMEENTE_VAN_INSCHRIJVING
             is ZoekMetNummeraanduidingIdentificatie -> ZOEK_MET_NUMMERAANDUIDING_IDENTIFICATIE
             is ZoekMetPostcodeEnHuisnummer -> ZOEK_MET_POSTCODE_EN_HUISNUMMER
-            is ZoekMetStraatHuisnummerEnGemeenteVanInschrijving -> ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING
+            is ZoekMetStraatHuisnummerEnGemeenteVanInschrijving ->
+                ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING
             else -> error("Must use one of the subclasses of '${PersonenQuery::class.java.simpleName}'")
         }
         fields = if (personenQuery is RaadpleegMetBurgerservicenummer) FIELDS_PERSOON else FIELDS_PERSOON_BEPERKT
     }
-
-    private fun Optional<String>.validatePurpose(purposeName: String): String =
-        this.orElseThrow {
-            BrpInvalidPurposeException("$purposeName must be configured and not empty.")
-        }.let {
-            it.ifBlank { throw BrpInvalidPurposeException("$purposeName must not be blank.") }
-        }
 }
