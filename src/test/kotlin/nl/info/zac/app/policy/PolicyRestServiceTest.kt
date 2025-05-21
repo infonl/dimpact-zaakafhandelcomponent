@@ -9,6 +9,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.output.createNotitieRechten
 import nl.info.zac.policy.output.createOverigeRechten
 import nl.info.zac.policy.output.createWerklijstRechten
 
@@ -36,7 +37,7 @@ class PolicyRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("the policy service returns valid overige rechten") {
+    Given("Existing overige rechten") {
         val overigeRechten = createOverigeRechten()
         every { policyService.readOverigeRechten() } returns overigeRechten
 
@@ -48,6 +49,22 @@ class PolicyRestServiceTest : BehaviorSpec({
                     startenZaak shouldBe overigeRechten.startenZaak
                     beheren shouldBe overigeRechten.beheren
                     zoeken shouldBe overigeRechten.zoeken
+                }
+            }
+        }
+    }
+
+    Given("Existing notitie rechten") {
+        val notitieRechten = createNotitieRechten()
+        every { policyService.readNotitieRechten() } returns notitieRechten
+
+        When("readOverigeRechten is called") {
+            val restNotitieRechten = policyRestService.readNotitieRechten()
+
+            Then("it should return the converted RestOverigeRechten") {
+                with(restNotitieRechten) {
+                    lezen shouldBe notitieRechten.lezen
+                    wijzigen shouldBe notitieRechten.wijzigen
                 }
             }
         }

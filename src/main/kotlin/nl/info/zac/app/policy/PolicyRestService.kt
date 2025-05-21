@@ -11,8 +11,10 @@ import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import nl.info.zac.app.policy.model.RestNotitieRechten
 import nl.info.zac.app.policy.model.RestOverigeRechten
 import nl.info.zac.app.policy.model.RestWerklijstRechten
+import nl.info.zac.app.policy.model.toRestNotitieRechten
 import nl.info.zac.app.policy.model.toRestOverigeRechten
 import nl.info.zac.app.policy.model.toRestWerklijstRechten
 import nl.info.zac.policy.PolicyService
@@ -35,4 +37,8 @@ class PolicyRestService @Inject constructor(
     @GET
     @Path("overigeRechten")
     fun readOverigeRechten(): RestOverigeRechten = policyService.readOverigeRechten().toRestOverigeRechten()
+
+    @GET
+    @Path("notitieRechten")
+    fun readNotitieRechten(): RestNotitieRechten = policyService.readNotitieRechten().toRestNotitieRechten()
 }
