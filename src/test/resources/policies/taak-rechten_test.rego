@@ -41,7 +41,7 @@ test_lezen if {
 }
 
 test_lezen_wrong_role_fails if {
-    not lezen with input.user.rollen as [ "functioneel" ]
+    not lezen with input.user.rollen as [ "fakeRole" ]
 }
 
 test_lezen_missing_role_fails if {
@@ -56,7 +56,7 @@ test_wijzigen if {
 }
 
 test_wijzigen_wrong_role_fails if {
-    not wijzigen with input.user.rollen as [ "functioneel" ]
+    not wijzigen with input.user.rollen as [ "fakeRole" ]
 }
 
 test_wijzigen_missing_role_fails if {
@@ -71,7 +71,7 @@ test_toekennen if {
 }
 
 test_toekennen_wrong_role_fails if {
-    not toekennen with input.user.rollen as [ "functioneel" ]
+    not toekennen with input.user.rollen as [ "fakeRole" ]
 }
 
 test_toekennen_missing_role_fails if {
@@ -94,7 +94,7 @@ test_creeeren_document_taak_closed_fails if {
 }
 
 test_creeeren_document_wrong_role_fails if {
-    not creeeren_document with input.user.rollen as [ "functioneel" ]
+    not creeeren_document with input.user.rollen as [ "fakeRole" ]
 }
 
 test_creeeren_document_missing_role_fails if {
@@ -117,7 +117,7 @@ test_creeeren_document_taak_closed_fails if {
 }
 
 test_toevoegen_document_wrong_role_fails if {
-    not toevoegen_document with input.user.rollen as ["functioneel"]
+    not toevoegen_document with input.user.rollen as ["fakeRole"]
 }
 
 test_toevoegen_document_missing_role_fails if {
