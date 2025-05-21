@@ -531,13 +531,7 @@ export class ZaakViewComponent
         );
       }
 
-      if (
-        this.zaak.rechten.wijzigenLocatie &&
-        !(
-          this.zaak.zaakgeometrie &&
-          Object.keys(this.zaak.zaakgeometrie)?.length > 0
-        )
-      ) {
+      if (this.zaak.rechten.wijzigenLocatie && !this.zaak.zaakgeometrie) {
         this.menu.push(
           new ButtonMenuItem(
             "actie.zaak.locatie.toevoegen",
