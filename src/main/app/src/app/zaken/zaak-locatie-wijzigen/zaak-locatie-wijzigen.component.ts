@@ -189,9 +189,8 @@ export class CaseLocationEditComponent
     this.markerLocatie$
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((geometry) => {
-        if (isEqual(geometry, this.initialLocation)) {
-          this.reasonControl.disable();
-          this.reasonControl.reset();
+        if (isEqual(geometry, this.zaak.zaakgeometrie)) {
+          this.disableReasonControl();
         } else {
           this.reasonControl.enable();
         }
@@ -252,15 +251,13 @@ export class CaseLocationEditComponent
   }
 
   clearLocation() {
+    this.disableReasonControl();
     this.setLocation();
   }
 
-  isDisabled(): void {
-    // const compared =
-    //   JSON.stringify(this.initialLocation) ===
-    //   JSON.stringify(this.markerLocatie);
-    // console.log("compared", compared);
-    // return this.readonly || !this.reasonControl.valid || !this.markerLocatie;
+  private disableReasonControl() {
+    this.reasonControl.disable();
+    this.reasonControl.reset();
   }
 
   private setLocation(

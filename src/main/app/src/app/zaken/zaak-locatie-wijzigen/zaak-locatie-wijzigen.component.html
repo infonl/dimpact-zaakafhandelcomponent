@@ -4,10 +4,15 @@
   -->
 
 <mat-toolbar role="heading" class="gap-16">
-  <mat-icon>pin_drop</mat-icon>
-  <span class="flex-grow-1">{{
-    "actie.zaak.locatie.wijzigen" | translate
-  }}</span>
+  <mat-icon>{{ initialLocation ? "place" : "add_location_alt" }}</mat-icon>
+  <span class="flex-grow-1">
+    {{
+      (initialLocation
+        ? "actie.zaak.locatie.wijzigen"
+        : "actie.zaak.locatie.toevoegen"
+      ) | translate
+    }}
+  </span>
   <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
   </button>
@@ -87,7 +92,7 @@
         <button
           mat-raised-button
           color="primary"
-          [disabled]="isDisabled()"
+          [disabled]="!reasonControl.valid"
           (click)="save()"
         >
           {{ "actie.opslaan" | translate }}

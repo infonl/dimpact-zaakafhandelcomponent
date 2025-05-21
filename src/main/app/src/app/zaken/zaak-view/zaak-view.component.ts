@@ -540,7 +540,7 @@ export class ZaakViewComponent
       ) {
         this.menu.push(
           new ButtonMenuItem(
-            "actie.zaak.locatie",
+            "actie.zaak.locatie.toevoegen",
             () => this.actionsSidenav.open(),
             "add_location_alt",
           ),
@@ -969,7 +969,7 @@ export class ZaakViewComponent
 
   editLocationDetails(): void {
     if (this.zaak.rechten.wijzigen) {
-      this.activeSideAction = "actie.zaak.locatie";
+      this.activeSideAction = "actie.zaak.locatie.toevoegen";
       this.actionsSidenav.open();
     }
   }
