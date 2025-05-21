@@ -1,8 +1,8 @@
+# INFO.nl: made manual changes to this specification to make it work with the OpenAPI generator; search for "INFO.nl" to find the changes
 openapi: 3.0.3
-# INFO.nl: renamed invalid minLength and maxLength properties to minLength and maxLength
 info:
   title: Besluiten API
-  version: 1.1.0 (1)
+  version: 1.1.0
   description: |
     Een API om een besluitregistratiecomponent (BRC) te benaderen.
 
@@ -79,6 +79,7 @@ info:
 
     * `verantwoordelijke_organisatie`: Het RSIN van de niet-natuurlijk persoon zijnde de organisatie die het besluit heeft vastgesteld.
     * `besluittype`: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
+    * `besluittype.catalogus`: **EXPERIMENTEEL** URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
 
     **Resources en acties**
 
@@ -102,40 +103,46 @@ paths:
       description: Deze lijst kan gefilterd wordt met query-string parameters.
       summary: Alle BESLUITen opvragen.
       parameters:
-      - in: query
-        name: besluittype
-        schema:
-          type: string
-        description: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
-      - in: query
-        name: identificatie
-        schema:
-          type: string
-        description: Identificatie van het besluit binnen de organisatie die het besluit
-          heeft vastgesteld. Indien deze niet opgegeven is, dan wordt die gegenereerd.
-      - name: page
-        required: false
-        in: query
-        description: Een pagina binnen de gepagineerde set resultaten.
-        schema:
-          type: integer
-      - in: query
-        name: verantwoordelijkeOrganisatie
-        schema:
-          type: string
-        description: Het RSIN van de niet-natuurlijk persoon zijnde de organisatie
-          die het besluit heeft vastgesteld.
-      - in: query
-        name: zaak
-        schema:
-          type: string
-        description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
-          uitkomst is.
+        - in: query
+          name: besluittype
+          schema:
+            type: string
+          description: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
+        - in: query
+          name: identificatie
+          schema:
+            type: string
+          description: Identificatie van het besluit binnen de organisatie die het besluit
+            heeft vastgesteld. Indien deze niet opgegeven is, dan wordt die gegenereerd.
+        - name: page
+          required: false
+          in: query
+          description: Een pagina binnen de gepagineerde set resultaten.
+          schema:
+            type: integer
+        - name: pageSize
+          required: false
+          in: query
+          description: Het aantal resultaten terug te geven per pagina.
+          schema:
+            type: integer
+        - in: query
+          name: verantwoordelijkeOrganisatie
+          schema:
+            type: string
+          description: Het RSIN van de niet-natuurlijk persoon zijnde de organisatie
+            die het besluit heeft vastgesteld.
+        - in: query
+          name: zaak
+          schema:
+            type: string
+          description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
+            uitkomst is.
       tags:
-      - besluiten
+        - besluiten
       security:
-      - JWT-Claims:
-        - besluiten.lezen
+        - JWT-Claims:
+            - besluiten.lezen
       responses:
         '200':
           headers:
@@ -271,26 +278,26 @@ paths:
         - publicatie `besluittype` - `concept` moet `false` zijn
       summary: Maak een BESLUIT aan.
       parameters:
-      - in: header
-        name: Content-Type
-        schema:
-          type: string
-          enum:
-          - application/json
-        description: Content type van de verzoekinhoud.
-        required: true
-      - in: header
-        name: X-Audit-Toelichting
-        schema:
-          type: string
-        description: Toelichting waarom een bepaald verzoek wordt gedaan
-      - in: header
-        name: X-NLX-Logrecord-ID
-        schema:
-          type: string
-        description: Identifier of the request, traceable throughout the network
+        - in: header
+          name: Content-Type
+          schema:
+            type: string
+            enum:
+              - application/json
+          description: Content type van de verzoekinhoud.
+          required: true
+        - in: header
+          name: X-Audit-Toelichting
+          schema:
+            type: string
+          description: Toelichting waarom een bepaald verzoek wordt gedaan
+        - in: header
+          name: X-NLX-Logrecord-ID
+          schema:
+            type: string
+          description: Identifier of the request, traceable throughout the network
       tags:
-      - besluiten
+        - besluiten
       requestBody:
         content:
           application/json:
@@ -298,8 +305,8 @@ paths:
               $ref: '#/components/schemas/BesluitRequest'
         required: true
       security:
-      - JWT-Claims:
-        - besluiten.aanmaken
+        - JWT-Claims:
+            - besluiten.aanmaken
       responses:
         '201':
           headers:
@@ -432,17 +439,17 @@ paths:
       description: Alle audit trail regels behorend bij het BESLUIT.
       summary: Alle audit trail regels behorend bij het BESLUIT.
       parameters:
-      - in: path
-        name: besluit_uuid
-        schema:
-          type: string
-          format: uuid
-        required: true
+        - in: path
+          name: besluit_uuid
+          schema:
+            type: string
+            format: uuid
+          required: true
       tags:
-      - besluiten
+        - besluiten
       security:
-      - JWT-Claims:
-        - audittrails.lezen
+        - JWT-Claims:
+            - audittrails.lezen
       responses:
         '200':
           headers:
@@ -572,24 +579,24 @@ paths:
       description: Een specifieke audit trail
       summary: Een specifieke audit trail regel opvragen.
       parameters:
-      - in: path
-        name: besluit_uuid
-        schema:
-          type: string
-          format: uuid
-        required: true
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-          description: Unieke identificatie van de audit regel.
-        required: true
+        - in: path
+          name: besluit_uuid
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+            description: Unieke identificatie van de audit regel.
+          required: true
       tags:
-      - besluiten
+        - besluiten
       security:
-      - JWT-Claims:
-        - audittrails.lezen
+        - JWT-Claims:
+            - audittrails.lezen
       responses:
         '200':
           headers:
@@ -717,34 +724,34 @@ paths:
       description: Een specifiek BESLUIT opvragen.
       summary: Een specifiek BESLUIT opvragen.
       parameters:
-      - in: header
-        name: If-None-Match
-        schema:
-          type: string
-        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-          voor meer informatie.
-        examples:
-          OneValue:
-            value: '"79054025255fb1a26e4bc422aef54eb4"'
-            summary: Eén ETag-waarde
-          MultipleValues:
-            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-            summary: Meerdere ETag-waardes
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-          description: Unieke resource identifier (UUID4)
-        required: true
+        - in: header
+          name: If-None-Match
+          schema:
+            type: string
+          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+            voor meer informatie.
+          examples:
+            OneValue:
+              value: '"79054025255fb1a26e4bc422aef54eb4"'
+              summary: Eén ETag-waarde
+            MultipleValues:
+              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+              summary: Meerdere ETag-waardes
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+            description: Unieke resource identifier (UUID4)
+          required: true
       tags:
-      - besluiten
+        - besluiten
       security:
-      - JWT-Claims:
-        - besluiten.lezen
+        - JWT-Claims:
+            - besluiten.lezen
       responses:
         '200':
           headers:
@@ -884,33 +891,33 @@ paths:
         - publicatie `besluittype` - `concept` moet `false` zijn
       summary: Werk een BESLUIT in zijn geheel bij.
       parameters:
-      - in: header
-        name: Content-Type
-        schema:
-          type: string
-          enum:
-          - application/json
-        description: Content type van de verzoekinhoud.
-        required: true
-      - in: header
-        name: X-Audit-Toelichting
-        schema:
-          type: string
-        description: Toelichting waarom een bepaald verzoek wordt gedaan
-      - in: header
-        name: X-NLX-Logrecord-ID
-        schema:
-          type: string
-        description: Identifier of the request, traceable throughout the network
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-          description: Unieke resource identifier (UUID4)
-        required: true
+        - in: header
+          name: Content-Type
+          schema:
+            type: string
+            enum:
+              - application/json
+          description: Content type van de verzoekinhoud.
+          required: true
+        - in: header
+          name: X-Audit-Toelichting
+          schema:
+            type: string
+          description: Toelichting waarom een bepaald verzoek wordt gedaan
+        - in: header
+          name: X-NLX-Logrecord-ID
+          schema:
+            type: string
+          description: Identifier of the request, traceable throughout the network
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+            description: Unieke resource identifier (UUID4)
+          required: true
       tags:
-      - besluiten
+        - besluiten
       requestBody:
         content:
           application/json:
@@ -918,8 +925,8 @@ paths:
               $ref: '#/components/schemas/BesluitRequest'
         required: true
       security:
-      - JWT-Claims:
-        - besluiten.bijwerken
+        - JWT-Claims:
+            - besluiten.bijwerken
       responses:
         '200':
           headers:
@@ -1065,41 +1072,41 @@ paths:
         - publicatie `besluittype` - `concept` moet `false` zijn
       summary: Werk een BESLUIT deels bij.
       parameters:
-      - in: header
-        name: Content-Type
-        schema:
-          type: string
-          enum:
-          - application/json
-        description: Content type van de verzoekinhoud.
-        required: true
-      - in: header
-        name: X-Audit-Toelichting
-        schema:
-          type: string
-        description: Toelichting waarom een bepaald verzoek wordt gedaan
-      - in: header
-        name: X-NLX-Logrecord-ID
-        schema:
-          type: string
-        description: Identifier of the request, traceable throughout the network
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-          description: Unieke resource identifier (UUID4)
-        required: true
+        - in: header
+          name: Content-Type
+          schema:
+            type: string
+            enum:
+              - application/json
+          description: Content type van de verzoekinhoud.
+          required: true
+        - in: header
+          name: X-Audit-Toelichting
+          schema:
+            type: string
+          description: Toelichting waarom een bepaald verzoek wordt gedaan
+        - in: header
+          name: X-NLX-Logrecord-ID
+          schema:
+            type: string
+          description: Identifier of the request, traceable throughout the network
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+            description: Unieke resource identifier (UUID4)
+          required: true
       tags:
-      - besluiten
+        - besluiten
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchedBesluitRequest'
       security:
-      - JWT-Claims:
-        - besluiten.bijwerken
+        - JWT-Claims:
+            - besluiten.bijwerken
       responses:
         '200':
           headers:
@@ -1243,28 +1250,28 @@ paths:
         - audit trail regels
       summary: Verwijder een BESLUIT
       parameters:
-      - in: header
-        name: X-Audit-Toelichting
-        schema:
-          type: string
-        description: Toelichting waarom een bepaald verzoek wordt gedaan
-      - in: header
-        name: X-NLX-Logrecord-ID
-        schema:
-          type: string
-        description: Identifier of the request, traceable throughout the network
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-          description: Unieke resource identifier (UUID4)
-        required: true
+        - in: header
+          name: X-Audit-Toelichting
+          schema:
+            type: string
+          description: Toelichting waarom een bepaald verzoek wordt gedaan
+        - in: header
+          name: X-NLX-Logrecord-ID
+          schema:
+            type: string
+          description: Identifier of the request, traceable throughout the network
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+            description: Unieke resource identifier (UUID4)
+          required: true
       tags:
-      - besluiten
+        - besluiten
       security:
-      - JWT-Claims:
-        - besluiten.verwijderen
+        - JWT-Claims:
+            - besluiten.verwijderen
       responses:
         '204':
           headers:
@@ -1387,34 +1394,34 @@ paths:
       description: Vraag de headers op die je bij een GET request zou krijgen.
       summary: 'De headers voor een specifiek(e) BESLUIT opvragen '
       parameters:
-      - in: header
-        name: If-None-Match
-        schema:
-          type: string
-        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-          voor meer informatie.
-        examples:
-          OneValue:
-            value: '"79054025255fb1a26e4bc422aef54eb4"'
-            summary: Eén ETag-waarde
-          MultipleValues:
-            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-            summary: Meerdere ETag-waardes
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-          description: Unieke resource identifier (UUID4)
-        required: true
+        - in: header
+          name: If-None-Match
+          schema:
+            type: string
+          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+            voor meer informatie.
+          examples:
+            OneValue:
+              value: '"79054025255fb1a26e4bc422aef54eb4"'
+              summary: Eén ETag-waarde
+            MultipleValues:
+              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+              summary: Meerdere ETag-waardes
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+            description: Unieke resource identifier (UUID4)
+          required: true
       tags:
-      - besluiten
+        - besluiten
       security:
-      - JWT-Claims:
-        - besluiten.lezen
+        - JWT-Claims:
+            - besluiten.lezen
       responses:
         '200':
           headers:
@@ -1436,22 +1443,22 @@ paths:
       description: Deze lijst kan gefilterd wordt met query-string parameters.
       summary: Alle BESLUIT-INFORMATIEOBJECT relaties opvragen.
       parameters:
-      - in: query
-        name: besluit
-        schema:
-          type: integer
-        description: URL-referentie naar het BESLUIT.
-      - in: query
-        name: informatieobject
-        schema:
-          type: string
-        description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten API)
-          waarin (een deel van) het besluit beschreven is.
+        - in: query
+          name: besluit
+          schema:
+            type: integer
+          description: URL-referentie naar het BESLUIT.
+        - in: query
+          name: informatieobject
+          schema:
+            type: string
+          description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten API)
+            waarin (een deel van) het besluit beschreven is.
       tags:
-      - besluitinformatieobjecten
+        - besluitinformatieobjecten
       security:
-      - JWT-Claims:
-        - besluiten.lezen
+        - JWT-Claims:
+            - besluiten.lezen
       responses:
         '200':
           headers:
@@ -1590,26 +1597,26 @@ paths:
         - Bij het aanmaken wordt ook in de Documenten API de gespiegelde relatie aangemaakt, echter zonder de relatie-informatie.
       summary: Maak een BESLUIT-INFORMATIEOBJECT relatie aan.
       parameters:
-      - in: header
-        name: Content-Type
-        schema:
-          type: string
-          enum:
-          - application/json
-        description: Content type van de verzoekinhoud.
-        required: true
-      - in: header
-        name: X-Audit-Toelichting
-        schema:
-          type: string
-        description: Toelichting waarom een bepaald verzoek wordt gedaan
-      - in: header
-        name: X-NLX-Logrecord-ID
-        schema:
-          type: string
-        description: Identifier of the request, traceable throughout the network
+        - in: header
+          name: Content-Type
+          schema:
+            type: string
+            enum:
+              - application/json
+          description: Content type van de verzoekinhoud.
+          required: true
+        - in: header
+          name: X-Audit-Toelichting
+          schema:
+            type: string
+          description: Toelichting waarom een bepaald verzoek wordt gedaan
+        - in: header
+          name: X-NLX-Logrecord-ID
+          schema:
+            type: string
+          description: Identifier of the request, traceable throughout the network
       tags:
-      - besluitinformatieobjecten
+        - besluitinformatieobjecten
       requestBody:
         content:
           application/json:
@@ -1617,8 +1624,8 @@ paths:
               $ref: '#/components/schemas/BesluitInformatieObjectRequest'
         required: true
       security:
-      - JWT-Claims:
-        - besluiten.aanmaken
+        - JWT-Claims:
+            - besluiten.aanmaken
       responses:
         '201':
           headers:
@@ -1751,34 +1758,34 @@ paths:
       description: Een specifieke BESLUIT-INFORMATIEOBJECT relatie opvragen.
       summary: Een specifieke BESLUIT-INFORMATIEOBJECT relatie opvragen.
       parameters:
-      - in: header
-        name: If-None-Match
-        schema:
-          type: string
-        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-          voor meer informatie.
-        examples:
-          OneValue:
-            value: '"79054025255fb1a26e4bc422aef54eb4"'
-            summary: Eén ETag-waarde
-          MultipleValues:
-            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-            summary: Meerdere ETag-waardes
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-          description: Unieke resource identifier (UUID4)
-        required: true
+        - in: header
+          name: If-None-Match
+          schema:
+            type: string
+          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+            voor meer informatie.
+          examples:
+            OneValue:
+              value: '"79054025255fb1a26e4bc422aef54eb4"'
+              summary: Eén ETag-waarde
+            MultipleValues:
+              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+              summary: Meerdere ETag-waardes
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+            description: Unieke resource identifier (UUID4)
+          required: true
       tags:
-      - besluitinformatieobjecten
+        - besluitinformatieobjecten
       security:
-      - JWT-Claims:
-        - besluiten.lezen
+        - JWT-Claims:
+            - besluiten.lezen
       responses:
         '200':
           headers:
@@ -1911,28 +1918,28 @@ paths:
       description: Verwijder een BESLUIT-INFORMATIEOBJECT relatie.
       summary: Verwijder een BESLUIT-INFORMATIEOBJECT relatie.
       parameters:
-      - in: header
-        name: X-Audit-Toelichting
-        schema:
-          type: string
-        description: Toelichting waarom een bepaald verzoek wordt gedaan
-      - in: header
-        name: X-NLX-Logrecord-ID
-        schema:
-          type: string
-        description: Identifier of the request, traceable throughout the network
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-          description: Unieke resource identifier (UUID4)
-        required: true
+        - in: header
+          name: X-Audit-Toelichting
+          schema:
+            type: string
+          description: Toelichting waarom een bepaald verzoek wordt gedaan
+        - in: header
+          name: X-NLX-Logrecord-ID
+          schema:
+            type: string
+          description: Identifier of the request, traceable throughout the network
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+            description: Unieke resource identifier (UUID4)
+          required: true
       tags:
-      - besluitinformatieobjecten
+        - besluitinformatieobjecten
       security:
-      - JWT-Claims:
-        - besluiten.verwijderen
+        - JWT-Claims:
+            - besluiten.verwijderen
       responses:
         '204':
           headers:
@@ -2055,34 +2062,34 @@ paths:
       description: Vraag de headers op die je bij een GET request zou krijgen.
       summary: 'De headers voor een specifiek(e) BESLUITINFORMATIEOBJECT opvragen '
       parameters:
-      - in: header
-        name: If-None-Match
-        schema:
-          type: string
-        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-          voor meer informatie.
-        examples:
-          OneValue:
-            value: '"79054025255fb1a26e4bc422aef54eb4"'
-            summary: Eén ETag-waarde
-          MultipleValues:
-            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-            summary: Meerdere ETag-waardes
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-          description: Unieke resource identifier (UUID4)
-        required: true
+        - in: header
+          name: If-None-Match
+          schema:
+            type: string
+          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+            voor meer informatie.
+          examples:
+            OneValue:
+              value: '"79054025255fb1a26e4bc422aef54eb4"'
+              summary: Eén ETag-waarde
+            MultipleValues:
+              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+              summary: Meerdere ETag-waardes
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+            description: Unieke resource identifier (UUID4)
+          required: true
       tags:
-      - besluitinformatieobjecten
+        - besluitinformatieobjecten
       security:
-      - JWT-Claims:
-        - besluiten.lezen
+        - JWT-Claims:
+            - besluiten.lezen
       responses:
         '200':
           headers:
@@ -2109,7 +2116,7 @@ components:
           description: Unieke identificatie van de audit regel.
         bron:
           allOf:
-          - $ref: '#/components/schemas/BronEnum'
+            - $ref: '#/components/schemas/BronEnum'
           description: |-
             De naam van het component waar de wijziging in is gedaan.
 
@@ -2195,14 +2202,14 @@ components:
         wijzigingen:
           $ref: '#/components/schemas/Wijzigingen'
       required:
-      - actie
-      - bron
-      - hoofdObject
-      - resource
-      - resourceUrl
-      - resourceWeergave
-      - resultaat
-      - wijzigingen
+        - actie
+        - bron
+        - hoofdObject
+        - resource
+        - resourceUrl
+        - resourceWeergave
+        - resultaat
+        - wijzigingen
     Besluit:
       type: object
       description: |-
@@ -2217,10 +2224,10 @@ components:
           type: string
           format: uri
           readOnly: true
-          description: URL-referentie naar dit object. Dit is de unieke identificatie
-            en locatie van dit object.
           minLength: 1
           maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
         identificatie:
           type: string
           description: Identificatie van het besluit binnen de organisatie die het
@@ -2243,7 +2250,6 @@ components:
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           format: uri
-          minLength: null
           maxLength: 200
         datum:
           type: string
@@ -2279,8 +2285,8 @@ components:
           # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
-          - $ref: '#/components/schemas/VervalredenEnum'
-          #- $ref: '#/components/schemas/BlankEnum'
+            - $ref: '#/components/schemas/VervalredenEnum'
+            #- $ref: '#/components/schemas/BlankEnum'
         vervalredenWeergave:
           type: string
           readOnly: true
@@ -2300,10 +2306,10 @@ components:
           nullable: true
           description: De datum tot wanneer verweer tegen het besluit mogelijk is.
       required:
-      - besluittype
-      - datum
-      - ingangsdatum
-      - verantwoordelijkeOrganisatie
+        - besluittype
+        - datum
+        - ingangsdatum
+        - verantwoordelijkeOrganisatie
     BesluitInformatieObject:
       type: object
       properties:
@@ -2311,10 +2317,10 @@ components:
           type: string
           format: uri
           readOnly: true
-          description: URL-referentie naar dit object. Dit is de unieke identificatie
-            en locatie van dit object.
           minLength: 1
           maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
         informatieobject:
           type: string
           description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
@@ -2326,9 +2332,11 @@ components:
           type: string
           format: uri
           description: URL-referentie naar het BESLUIT.
+          minLength: 1
+          maxLength: 1000
       required:
-      - besluit
-      - informatieobject
+        - besluit
+        - informatieobject
     BesluitInformatieObjectRequest:
       type: object
       properties:
@@ -2343,9 +2351,11 @@ components:
           type: string
           format: uri
           description: URL-referentie naar het BESLUIT.
+          minLength: 1
+          maxLength: 1000
       required:
-      - besluit
-      - informatieobject
+        - besluit
+        - informatieobject
     BesluitRequest:
       type: object
       description: |-
@@ -2379,7 +2389,6 @@ components:
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           format: uri
-          minLength: null
           maxLength: 200
         datum:
           type: string
@@ -2415,8 +2424,8 @@ components:
           # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
-          - $ref: '#/components/schemas/VervalredenEnum'
-          #- $ref: '#/components/schemas/BlankEnum'
+            - $ref: '#/components/schemas/VervalredenEnum'
+            #- $ref: '#/components/schemas/BlankEnum'
         publicatiedatum:
           type: string
           format: date
@@ -2433,24 +2442,24 @@ components:
           nullable: true
           description: De datum tot wanneer verweer tegen het besluit mogelijk is.
       required:
-      - besluittype
-      - datum
-      - ingangsdatum
-      - verantwoordelijkeOrganisatie
+        - besluittype
+        - datum
+        - ingangsdatum
+        - verantwoordelijkeOrganisatie
     BlankEnum:
       enum:
-      - ''
+        - ''
     BronEnum:
       enum:
-      - ac
-      - nrc
-      - zrc
-      - ztc
-      - drc
-      - brc
-      - cmc
-      - kc
-      - vrc
+        - ac
+        - nrc
+        - zrc
+        - ztc
+        - drc
+        - brc
+        - cmc
+        - kc
+        - vrc
       type: string
     FieldValidationError:
       type: object
@@ -2466,9 +2475,9 @@ components:
           type: string
           description: Uitleg wat er precies fout is met de gegevens
       required:
-      - code
-      - name
-      - reason
+        - code
+        - name
+        - reason
     Fout:
       type: object
       description: Formaat van HTTP 4xx en 5xx fouten.
@@ -2493,13 +2502,16 @@ components:
           description: URI met referentie naar dit specifiek voorkomen van de fout.
             Deze kan gebruikt worden in combinatie met server logs, bijvoorbeeld.
       required:
-      - code
-      - detail
-      - instance
-      - status
-      - title
+        - code
+        - detail
+        - instance
+        - status
+        - title
     PaginatedBesluitList:
       type: object
+      required:
+        - count
+        - results
       properties:
         count:
           type: integer
@@ -2551,7 +2563,6 @@ components:
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           format: uri
-          minLength: null
           maxLength: 200
         datum:
           type: string
@@ -2587,8 +2598,8 @@ components:
           # manual changed by INFO.nl: need to allow for empty values returned by the API
           # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
-          - $ref: '#/components/schemas/VervalredenEnum'
-          #- $ref: '#/components/schemas/BlankEnum'
+            - $ref: '#/components/schemas/VervalredenEnum'
+            #- $ref: '#/components/schemas/BlankEnum'
         publicatiedatum:
           type: string
           format: date
@@ -2632,19 +2643,17 @@ components:
           items:
             $ref: '#/components/schemas/FieldValidationError'
       required:
-      - code
-      - detail
-      - instance
-      - invalidParams
-      - status
-      - title
+        - code
+        - detail
+        - instance
+        - invalidParams
+        - status
+        - title
     VervalredenEnum:
       enum:
-      - tijdelijk
-      - ingetrokken_overheid
-      - ingetrokken_belanghebbende
-      # manual changed by INFO.nl: need to allow for empty values returned by the API
-      - ''
+        - tijdelijk
+        - ingetrokken_overheid
+        - ingetrokken_belanghebbende
       type: string
     Wijzigingen:
       type: object
@@ -2660,4 +2669,7 @@ components:
       scheme: bearer
       bearerFormat: JWT
 servers:
-- url: /besluiten/api/v1
+  - url: /besluiten/api/v1
+tags:
+  - name: besluiten
+  - name: besluitinformatieobjecten
