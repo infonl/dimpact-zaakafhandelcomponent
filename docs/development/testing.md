@@ -46,7 +46,7 @@ The following steps can help you debug failing integration tests:
 2. Make sure there are no running Docker containers on your computer.
 3. In IntelliJ run the integration tests in debug mode. On the `src\itest` folder right click and select `Debug Tests in Zaakafhandelcomponent `
    1. Click on the `Instantiating tests` line in the IntelliJ Console so you can see the output of the tests.
-   2. Check for failures. Focus on the first test that fails since one failing tests typically cascades in other failing tests down the line since we have lots of ordering dependencies between our integration ttests.
+   2. Check for failures. Focus on the first test that fails since one failing test typically cascades into other failing tests down the line since we have lots of ordering dependencies between our integration tests.
    3. If all tests fail this usually indicates that the ZAC Docker container itself does not even start up. In that case forget about the integration tests and first try to get ZAC starting up locally using Docker Compose. 
    Come back here once this is fixed.
    4. If there are tests failing add a debug breakpoint in IntelliJ just before and just after this test is run.
