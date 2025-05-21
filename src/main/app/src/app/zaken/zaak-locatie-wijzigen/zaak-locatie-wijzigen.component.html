@@ -33,7 +33,7 @@
             mat-icon-button
             matSuffix
             (click)="clearLocation()"
-            disabled="{{ !markerLocatie$ }}"
+            [disabled]="!(markerLocatie$ | async)"
           >
             <mat-icon>link_off</mat-icon>
           </button>
