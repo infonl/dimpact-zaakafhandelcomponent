@@ -52,7 +52,7 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() readonly = false;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Input({ required: true }) reasonControl!: FormControl<string>;
-  @Output() locatie = new EventEmitter<GeometryGegevens>();
+  @Output() locatie = new EventEmitter<GeometryGegevens | null>();
   @Output() locationChanged = new EventEmitter<
     GeneratedType<"RestGeometry"> | undefined
   >();
@@ -305,10 +305,11 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
 
   save(): void {
     this.initialLocation = this.currentLocation;
-    if (!this.markerLocatie) return;
 
     this.locatie.next(
-      new GeometryGegevens(this.markerLocatie, this.reasonControl.value),
+      this.markerLocatie
+        ? new GeometryGegevens(this.markerLocatie, this.reasonControl.value)
+        : null,
     );
   }
 }
