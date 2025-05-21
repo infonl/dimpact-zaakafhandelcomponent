@@ -42,7 +42,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { GeometryGegevens } from "../model/geometry-gegevens";
 import { GeometryType } from "../model/geometryType";
 import { ZakenService } from "../zaken.service";
-import isEqual from "lodash.isequal";
 
 @Component({
   selector: "zac-case-location-edit",
@@ -184,7 +183,7 @@ export class CaseLocationEditComponent
     this.markerLocatie$
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((geometry) => {
-        if (isEqual(geometry, this.zaak.zaakgeometrie)) {
+        if (LocationUtil.isSameGeometry(geometry, this.zaak.zaakgeometrie)) {
           this.disableReasonControl();
         } else {
           this.reasonControl.enable();
