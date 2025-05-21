@@ -55,9 +55,6 @@ export class CaseLocationEditComponent
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Output() locatie = new EventEmitter<GeometryGegevens | null>();
-  @Output() locationChanged = new EventEmitter<
-    GeneratedType<"RestGeometry"> | undefined
-  >();
 
   @ViewChild("openLayersMap", { static: true }) openLayersMapRef: ElementRef;
 
@@ -69,7 +66,6 @@ export class CaseLocationEditComponent
   searchControl = new FormControl();
   reasonControl = new FormControl();
   searchResults: SuggestResult[] = [];
-  initialLocation: GeneratedType<"RestGeometry">;
 
   private unsubscribe$: Subject<void> = new Subject<void>();
   protected readonly: boolean = false;
@@ -116,7 +112,6 @@ export class CaseLocationEditComponent
   ) {}
 
   ngOnInit(): void {
-    this.initialLocation = this.zaak.zaakgeometrie;
     const projection = proj.get(this.EPSG3857);
     const projectionExtent = projection?.getExtent();
     const size = extent.getWidth(projectionExtent) / 256;
@@ -288,11 +283,6 @@ export class CaseLocationEditComponent
         }
       }
     }
-
-    if (JSON.stringify(geometry) === JSON.stringify(this.initialLocation)) {
-      return;
-    }
-    this.locationChanged.emit(geometry);
   }
 
   private addMarker(coordinate: Coordinate) {
@@ -324,8 +314,6 @@ export class CaseLocationEditComponent
   }
 
   cancel(): void {
-    this.zaak.zaakgeometrie = this.initialLocation;
-    this.locationChanged.emit(this.initialLocation);
     void this.sideNav.close();
   }
 
