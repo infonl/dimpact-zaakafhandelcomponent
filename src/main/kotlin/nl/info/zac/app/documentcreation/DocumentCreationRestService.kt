@@ -148,7 +148,14 @@ class DocumentCreationRestService @Inject constructor(
         @QueryParam("userName") userName: String,
         @FormParam("sdDocument") @DefaultValue("") fileId: String,
     ): Response =
-        createDocument(zaakUuid, null, title, description, creationDate, userName, fileId) {
+        createDocument(
+            zaakUuid = zaakUuid,
+            title = title,
+            description = description,
+            creationDate = creationDate,
+            userName = userName,
+            fileId = fileId
+        ) {
             cmmnDocumentCreationService.getInformationObjecttypeUuid(it, templateGroupId, templateId)
         }
 
@@ -174,7 +181,15 @@ class DocumentCreationRestService @Inject constructor(
         @QueryParam("userName") userName: String,
         @FormParam("sdDocument") @DefaultValue("") fileId: String,
     ): Response =
-        createDocument(zaakUuid, taskId, title, description, creationDate, userName, fileId) {
+        createDocument(
+            zaakUuid = zaakUuid,
+            taskId = taskId,
+            title = title,
+            description = description,
+            creationDate = creationDate,
+            userName = userName,
+            fileId = fileId
+        ) {
             cmmnDocumentCreationService.getInformationObjecttypeUuid(it, templateGroupId, templateId)
         }
 
@@ -199,13 +214,21 @@ class DocumentCreationRestService @Inject constructor(
         @QueryParam("userName") userName: String,
         @FormParam("sdDocument") @DefaultValue("") fileId: String,
     ): Response =
-        createDocument(zaakUuid, taskId, title, description, creationDate, userName, fileId) {
+        createDocument(
+            zaakUuid = zaakUuid,
+            taskId = taskId,
+            title = title,
+            description = description,
+            creationDate = creationDate,
+            userName = userName,
+            fileId = fileId
+        ) {
             informatieobjecttypeUuid
         }
 
     private fun createDocument(
         zaakUuid: UUID,
-        taskId: String?,
+        taskId: String? = null,
         title: String,
         description: String?,
         creationDate: ZonedDateTime,
