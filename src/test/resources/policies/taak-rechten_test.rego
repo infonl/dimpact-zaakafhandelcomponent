@@ -117,7 +117,7 @@ test_creeeren_document_taak_closed_fails if {
 }
 
 test_toevoegen_document_wrong_role_fails if {
-    not toevoegen_document with input.user.rollen as ["fakeRole"]
+    not toevoegen_document with input.user.rollen as [ "fakeRole" ]
 }
 
 test_toevoegen_document_missing_role_fails if {
