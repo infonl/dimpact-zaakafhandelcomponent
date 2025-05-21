@@ -4,7 +4,7 @@
 #
 name: Build, test & deploy
 
-on:p
+on:
   pull_request:
   merge_group:
   workflow_dispatch:
