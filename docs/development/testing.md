@@ -31,7 +31,7 @@ To do this you will first need to do the following:
     ```shell
     ./gradlew buildDockerImage
     ```
-3. If BAG integration is part of the test suite: create a 'run configuration' in your IDE where the following two environment variables are set: `BAG_API_CLIENT_MP_REST_URL` and `BAG_API_KEY`.
+3. If BAG integration is part of the test suite: create a 'Run Configuration' in IntelliJ where the following two environment variables are set: `BAG_API_CLIENT_MP_REST_URL` and `BAG_API_KEY`.
 4. Run the integration tests from your IDE using this run configuration.
 
 Running the integration tests will first start up all required services (Keycloak, Open Zaak, etc) as Docker containers using our [Docker Compose file](installDockerCompose.md),
@@ -42,7 +42,7 @@ then start up ZAC as Docker container and finally run the integration tests.
 Debugging integration tests can be difficult, because of the Docker environment used but also in large part because of the ordering dependency between many of these tests.
 The following steps can help you debug failing integration tests:
 
-1. Build the ZAC Docker Image. E.g. `./gradlew clean buildDockerImage`
+1. Build the ZAC Docker Image. See instructions above.
 2. Make sure there are no running Docker containers on your computer.
 3. In IntelliJ run the integration tests in debug mode. On the `src\itest` folder right click and select `Debug Tests in Zaakafhandelcomponent `
    1. Click on the `Instantiating tests` line in the IntelliJ Console so you can see the output of the tests.
