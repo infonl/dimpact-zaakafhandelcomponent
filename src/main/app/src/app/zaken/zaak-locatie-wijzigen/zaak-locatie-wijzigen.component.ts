@@ -54,7 +54,7 @@ export class CaseLocationEditComponent
 {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input({ required: true }) sideNav!: MatDrawer;
-  @Output() locatie = new EventEmitter<GeometryGegevens>();
+  @Output() locatie = new EventEmitter<GeometryGegevens | null>();
   @Output() locationChanged = new EventEmitter<
     GeneratedType<"RestGeometry"> | undefined
   >();
