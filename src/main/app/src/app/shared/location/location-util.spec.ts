@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { LocationUtil } from "./location-util";
 import { GeometryType } from "../../zaken/model/geometryType";
 import { GeneratedType } from "../utils/generated-types";
+import { LocationUtil } from "./location-util";
 
 describe(LocationUtil.isSameGeometry.name, () => {
   const makePoint = (
