@@ -321,7 +321,7 @@ export class CaseLocationEditComponent
       .updateZaakLocatie(
         this.zaak.uuid,
         this.reasonControl.value,
-        this.markerLocatie$.getValue(),
+        this.markerLocatie$.getValue() ?? undefined,
       )
       .subscribe({
         next: () => {
