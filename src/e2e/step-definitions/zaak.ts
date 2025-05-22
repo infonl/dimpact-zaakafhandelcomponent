@@ -149,8 +149,7 @@ When(
     await this.page
       .getByRole("row", { name: /1112GV/ })
       .first()
-      .getByRole("button")
-      .nth(1)
+      .getByRole("button", { name: "Select" })
       .click();
     await this.page.getByText("close").click();
 
