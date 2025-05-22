@@ -375,7 +375,7 @@ configure<SpotlessExtension> {
         ).config(mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports")))
     }
     format("json") {
-        target("src/**/*.json")
+        target("src/**/*.json", "scripts/**/*.json")
         targetExclude(
             "$e2ePath/node_modules/**",
             "$e2ePath/reports/**",
