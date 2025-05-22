@@ -64,7 +64,7 @@ describe(LocationUtil.isSameGeometry.name, () => {
       { type: GeometryType.GEOMETRY_COLLECTION, geometries: [] },
       false,
     ],
-  ])("%s", (_desc, left, right, expected) => {
+  ])("geometry %p and %p are the same: %p", (left, right, expected) => {
     expect(LocationUtil.isSameGeometry(left, right)).toBe(expected);
   });
 });
