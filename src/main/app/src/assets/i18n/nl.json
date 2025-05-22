@@ -820,6 +820,7 @@
   "msg.error.case.has.open.subcases": "Deze hoofdzaak heeft open deelzaken en kan niet afgesloten worden.",
   "msg.error.case.has.locked.information.objects": "Deze zaak heeft vergrendelde documenten en kan niet afgesloten worden.",
   "msg.error.case.has.no.communication.channel": "De zaak heeft geen communicatiekanaal.",
+  "msg.error.convert.not.possible": "Dit document kan niet worden geconverteerd.",
   "msg.email.verstuurd": "E-mail is verstuurd",
   "msg.extern.advies.vastleggen.behandelen": "Er is een extern advies aangevraagd. Hieronder kan het antwoord worden vastgelegd.",
   "msg.formioformulier.verwijderen.bevestigen": "Formulier '{{naam}}' verwijderen?",
