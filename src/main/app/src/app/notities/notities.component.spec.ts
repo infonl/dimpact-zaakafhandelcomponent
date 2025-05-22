@@ -70,6 +70,7 @@ describe("NotitiesComponent", () => {
 
     fixture = TestBed.createComponent(NotitiesComponent);
     component = fixture.componentInstance;
+    component.notitieRechten = { lezen: true, wijzigen: true };
     fixture.detectChanges();
   });
 
