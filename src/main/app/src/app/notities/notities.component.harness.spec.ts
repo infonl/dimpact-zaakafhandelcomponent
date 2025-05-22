@@ -15,7 +15,6 @@ import { PipesModule } from "../shared/pipes/pipes.module";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { NotitiesComponent } from "./notities.component";
 import { NotitieService } from "./notities.service";
-import { Notitie } from "./model/notitie";
 
 const currentUser: GeneratedType<"RestLoggedInUser"> = {
   id: "currentUser",
