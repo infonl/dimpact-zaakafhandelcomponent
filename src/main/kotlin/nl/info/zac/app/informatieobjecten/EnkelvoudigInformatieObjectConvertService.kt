@@ -14,7 +14,7 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.util.extractUuid
-import nl.info.zac.app.informatieobjecten.exception.ConvertException
+import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
@@ -37,7 +37,7 @@ class EnkelvoudigInformatieObjectConvertService @Inject constructor(
 
     fun convertEnkelvoudigInformatieObject(document: EnkelvoudigInformatieObject, enkelvoudigInformatieobjectUUID: UUID) {
         if (document.status != StatusEnum.DEFINITIEF) {
-            throw ConvertException()
+            throw EnkelvoudigInformatieObjectConversionException()
         }
         drcClientService.downloadEnkelvoudigInformatieobject(
             enkelvoudigInformatieobjectUUID

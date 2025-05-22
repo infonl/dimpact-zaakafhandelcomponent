@@ -47,7 +47,7 @@ import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.exception.RestExceptionMapper
-import nl.info.zac.app.informatieobjecten.exception.ConvertException
+import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
 import nl.info.zac.app.informatieobjecten.model.createRESTFileUpload
 import nl.info.zac.app.informatieobjecten.model.createRESTInformatieobjectZoekParameters
 import nl.info.zac.app.informatieobjecten.model.createRestDocumentVerzendGegevens
@@ -496,7 +496,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     any(),
                     any()
                 )
-            } throws ConvertException()
+            } throws EnkelvoudigInformatieObjectConversionException()
 
             val resp = try {
                 enkelvoudigInformatieObjectRestService.convertInformatieObjectToPDF(informatieobjectUUID, zaak.uuid)
@@ -507,7 +507,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             Then("the response should be an error message") {
                 resp.status shouldBe 400
                 val entity = resp.entity as String
-                entity shouldContain "\"message\":\"msg.error.convert.not.possible\""
+                entity shouldContain """"message":"msg.error.convert.not.possible""""
             }
         }
     }
