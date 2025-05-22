@@ -49,6 +49,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
+import java.net.URLEncoder
 
 /**
  * This test assumes a roltype has been created in a previously run test.
@@ -78,8 +79,12 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
         When("a person is retrieved using a BSN which is present in both the BRP and Klanten API databases") {
+            val context = "ZAAK AANMAKEN"
+            val action = "Zaak aanmaken"
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/klanten/persoon/$TEST_PERSON_HENDRIKA_JANSE_BSN"
+                url = "$ZAC_API_URI/klanten/persoon/$TEST_PERSON_HENDRIKA_JANSE_BSN?" +
+                    "context=${URLEncoder.encode(context, Charsets.UTF_8)}" +
+                    "&action=${URLEncoder.encode(action, Charsets.UTF_8)}"
             )
             Then(
                 """
