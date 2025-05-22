@@ -1,127 +1,127 @@
 {
-  "request":{
-    "url":"/wsxmldeposit/deposit/wizard",
-    "method":"POST",
-    "headers":{
-      "Accept":{
-        "equalTo":"application/json"
+  "request": {
+    "url": "/wsxmldeposit/deposit/wizard",
+    "method": "POST",
+    "headers": {
+      "Accept": {
+        "equalTo": "application/json"
       },
-      "Content-Type":{
-        "equalTo":"application/json"
+      "Content-Type": {
+        "equalTo": "application/json"
       },
-      "Authorization":{
-        "equalTo":"Basic fakeSmartDocumentsAuthentication"
+      "Authorization": {
+        "equalTo": "Basic fakeSmartDocumentsAuthentication"
       },
-      "Username":{
-        "equalTo":"testuser1"
+      "Username": {
+        "equalTo": "testuser1"
       }
     },
-    "bodyPatterns":[
+    "bodyPatterns": [
       {
-        "or":[
+        "or": [
           {
-            "equalToJson":{
-              "SmartDocument":{
-                "Selection":{
-                  "TemplateGroup":"root",
-                  "Template":"root template 1",
-                  "FixedValues":""
+            "equalToJson": {
+              "SmartDocument": {
+                "Selection": {
+                  "TemplateGroup": "root",
+                  "Template": "root template 1",
+                  "FixedValues": ""
                 },
-                "Variables":{
-                  "OutputFormats":[
+                "Variables": {
+                  "OutputFormats": [
                     {
-                      "OutputFormat":"docx"
+                      "OutputFormat": "docx"
                     }
                   ],
-                  "RedirectMethod":"POST",
-                  "RedirectUrl":"${json-unit.any-string}"
+                  "RedirectMethod": "POST",
+                  "RedirectUrl": "${json-unit.any-string}"
                 }
               },
-              "data":{
-                "aanvrager":{
-                  "naam":"Héndrika Janse"
+              "data": {
+                "aanvrager": {
+                  "naam": "Héndrika Janse"
                 },
-                "gebruiker":{
-                  "id":"testuser1",
-                  "naam":"Test User1 Špëçîâl Characters"
+                "gebruiker": {
+                  "id": "testuser1",
+                  "naam": "Test User1 Špëçîâl Characters"
                 },
-                "startformulier":{
-                  "data":{
-                    "omschrijving":"Ik heb een vraag over mijn paspoort",
-                    "telefoonnummer":"0612345678",
-                    "naam":"Jan Jansen"
+                "startformulier": {
+                  "data": {
+                    "omschrijving": "Ik heb een vraag over mijn paspoort",
+                    "telefoonnummer": "0612345678",
+                    "naam": "Jan Jansen"
                   },
-                  "productAanvraagtype":"productaanvraag-type-1"
+                  "productAanvraagtype": "productaanvraag-type-1"
                 },
-                "zaak":{
-                  "communicatiekanaal":"E-formulier",
-                  "groep":"Test group A",
-                  "identificatie":"ZAAK-1970-0000000001",
-                  "omschrijving":"fakeZaakOmschrijving",
-                  "registratiedatum":"${json-unit.any-string}",
-                  "startdatum":"01-01-1970",
-                  "status":"Wacht op aanvullende informatie",
-                  "toelichting":"Aangemaakt vanuit open-forms met kenmerk 'f8534f13-0669-4d4d-a364-6b6c4ad3d243'. fakeZaakToelichting",
-                  "uiterlijkeEinddatumAfdoening":"${json-unit.any-string}",
-                  "verlengingReden":"fakeReason",
-                  "vertrouwelijkheidaanduiding":"openbaar",
-                  "zaaktype":"Melding evenement organiseren behandelen"
+                "zaak": {
+                  "communicatiekanaal": "E-formulier",
+                  "groep": "Test group A",
+                  "identificatie": "ZAAK-1970-0000000001",
+                  "omschrijving": "fakeZaakOmschrijving",
+                  "registratiedatum": "${json-unit.any-string}",
+                  "startdatum": "01-01-1970",
+                  "status": "Wacht op aanvullende informatie",
+                  "toelichting": "Aangemaakt vanuit open-forms met kenmerk 'f8534f13-0669-4d4d-a364-6b6c4ad3d243'. fakeZaakToelichting",
+                  "uiterlijkeEinddatumAfdoening": "${json-unit.any-string}",
+                  "verlengingReden": "fakeReason",
+                  "vertrouwelijkheidaanduiding": "openbaar",
+                  "zaaktype": "Melding evenement organiseren behandelen"
                 }
               }
             },
-            "ignoreArrayOrder":true
+            "ignoreArrayOrder": true
           },
           {
-            "equalToJson":{
-              "SmartDocument":{
-                "Selection":{
-                  "TemplateGroup":"root",
-                  "Template":"root template 1",
-                  "FixedValues":""
+            "equalToJson": {
+              "SmartDocument": {
+                "Selection": {
+                  "TemplateGroup": "root",
+                  "Template": "root template 1",
+                  "FixedValues": ""
                 },
-                "Variables":{
-                  "OutputFormats":[
+                "Variables": {
+                  "OutputFormats": [
                     {
-                      "OutputFormat":"docx"
+                      "OutputFormat": "docx"
                     }
                   ],
-                  "RedirectMethod":"POST",
-                  "RedirectUrl":"${json-unit.any-string}"
+                  "RedirectMethod": "POST",
+                  "RedirectUrl": "${json-unit.any-string}"
                 }
               },
-              "data":{
-                "gebruiker":{
-                  "id":"testuser1",
-                  "naam":"Test User1 Špëçîâl Characters"
+              "data": {
+                "gebruiker": {
+                  "id": "testuser1",
+                  "naam": "Test User1 Špëçîâl Characters"
                 },
-                "taak":{
-                  "naam":"User details"
+                "taak": {
+                  "naam": "User details"
                 },
-                "zaak":{
-                  "communicatiekanaal":"fakeCommunicatiekanaal1",
-                  "groep":"Test group A",
-                  "identificatie":"ZAAK-2000-0000000004",
-                  "omschrijving":"fakeOmschrijving",
-                  "registratiedatum":"${json-unit.any-string}",
-                  "startdatum":"01-01-2000",
-                  "toelichting":"null",
-                  "uiterlijkeEinddatumAfdoening":"31-01-2000",
-                  "vertrouwelijkheidaanduiding":"openbaar",
-                  "zaaktype":"BPMN test zaaktype"
+                "zaak": {
+                  "communicatiekanaal": "fakeCommunicatiekanaal1",
+                  "groep": "Test group A",
+                  "identificatie": "ZAAK-2000-0000000004",
+                  "omschrijving": "fakeOmschrijving",
+                  "registratiedatum": "${json-unit.any-string}",
+                  "startdatum": "01-01-2000",
+                  "toelichting": "null",
+                  "uiterlijkeEinddatumAfdoening": "31-01-2000",
+                  "vertrouwelijkheidaanduiding": "openbaar",
+                  "zaaktype": "BPMN test zaaktype"
                 }
               }
             },
-            "ignoreArrayOrder":true
+            "ignoreArrayOrder": true
           }
         ]
       }
     ]
   },
-  "response":{
-    "status":200,
-    "body":"{\"ticket\": \"fakeSmartdocumentsTicketID\"}",
-    "headers":{
-      "Content-Type":"application/json"
+  "response": {
+    "status": 200,
+    "body": "{\"ticket\": \"fakeSmartdocumentsTicketID\"}",
+    "headers": {
+      "Content-Type": "application/json"
     }
   }
 }
