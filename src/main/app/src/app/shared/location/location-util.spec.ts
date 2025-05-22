@@ -9,11 +9,11 @@ import { GeneratedType } from "../utils/generated-types";
 
 describe(LocationUtil.isSameGeometry.name, () => {
   const makePoint = (
-    lat: number,
-    lon: number,
+    latitude: number,
+    longitude: number,
   ): GeneratedType<"RestGeometry"> => ({
     type: GeometryType.POINT,
-    point: { latitude: lat, longitude: lon },
+    point: { latitude, longitude },
   });
 
   it.each([
