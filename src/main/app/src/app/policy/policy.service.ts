@@ -22,26 +22,14 @@ export class PolicyService {
   private basepath = "/rest/policy";
 
   readWerklijstRechten() {
-    return this.zacHttp
-      .GET(`/rest/policy/werklijstRechten`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttp.GET(`/rest/policy/werklijstRechten`);
   }
 
   readOverigeRechten() {
-    return this.zacHttp
-      .GET(`/rest/policy/overigeRechten`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttp.GET(`/rest/policy/overigeRechten`);
   }
 
   readNotitieRechten() {
-    return this.zacHttp
-      .GET(`/rest/policy/notitieRechten`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttp.GET(`/rest/policy/notitieRechten`);
   }
 }
