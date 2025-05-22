@@ -23,7 +23,7 @@
 </div>
 
 <div class="notitie-container" [hidden]="showNotes">
-  <div class="notitie-header flex-row space-between">
+  <div class="notitie-header flex-row justify-content-between">
     <div class="flex-row">
       <mat-icon class="notitie-header-icon">sticky_note_2</mat-icon>
       <span class="notitie-header-text">{{ "notities" | translate }}</span>
@@ -40,7 +40,7 @@
     <ng-container *ngFor="let notitie of notities">
       <div class="notitie">
         <div
-          class="notitie-content-header flex-row space-between items-baseline"
+          class="notitie-content-header flex-row justify-content-between align-items-baseline"
         >
           <span class="notitie-title">{{
             notitie.voornaamAchternaamMedewerker
