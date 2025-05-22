@@ -290,7 +290,7 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
     this.utilService.setLoading(true);
     this.personen.data = [];
     this.klantenService
-      .listPersonen(this.createListPersonenParameters())
+      .listPersonen(this.createListPersonenParameters(), { context: "PERSONEN_ZOEKEN", action: "search" })
       .subscribe((personen) => {
         this.personen.data = personen.resultaten;
         this.foutmelding = personen.foutmelding;

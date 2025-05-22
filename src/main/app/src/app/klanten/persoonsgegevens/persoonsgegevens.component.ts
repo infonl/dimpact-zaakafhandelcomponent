@@ -22,11 +22,12 @@ export class PersoonsgegevensComponent {
   isVerwijderbaar = input<boolean>();
   isWijzigbaar = input<boolean>();
   bsn = input<string>();
+  zaakUuid = input<string>();
 
   bsn$ = toObservable(this.bsn);
 
   persoon$ = this.bsn$.pipe(
-    switchMap((bsn) => this.klantenService.readPersoon(bsn)),
+    switchMap((bsn) => this.klantenService.readPersoon(bsn, { context: this.zaakUuid, action: "show initiator" })),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 

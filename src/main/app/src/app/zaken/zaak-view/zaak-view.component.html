@@ -155,6 +155,7 @@
         <zac-persoongegevens
           class="w100 flex-1"
           *ngIf="showPersoonsgegevens()"
+          [zaakUuid]="zaak.uuid"
           [bsn]="zaak.initiatorIdentificatie"
           [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
           [isWijzigbaar]="zaak.rechten.toevoegenInitiatorPersoon"

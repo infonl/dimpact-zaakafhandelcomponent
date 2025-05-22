@@ -17,23 +17,26 @@ import { Vestigingsprofiel } from "./model/bedrijven/vestigingsprofiel";
 import { ContactGegevens } from "./model/klanten/contact-gegevens";
 import { ListPersonenParameters } from "./model/personen/list-personen-parameters";
 import { PersonenParameters } from "./model/personen/personen-parameters";
+import {ZacHttpClient} from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class KlantenService {
   constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
+    private readonly http: HttpClient,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
+    private readonly zacHttpClient: ZacHttpClient
   ) {}
 
   private basepath = "/rest/klanten";
 
   /* istanbul ignore next */
-  readPersoon(bsn: string): Observable<GeneratedType<"RestPersoon">> {
-    return this.http
-      .get<GeneratedType<"RestPersoon">>(`${this.basepath}/persoon/${bsn}`)
-      .pipe(
+  readPersoon(bsn: string, context: { context: string, action: string }) {
+    return this.zacHttpClient.GET("/rest/klanten/persoon/{bsn}", {
+      pathParams: { path: bsn },
+      queryParams: context,
+    }).pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
@@ -87,11 +90,12 @@ export class KlantenService {
   /* istanbul ignore next */
   listPersonen(
     listPersonenParameters: ListPersonenParameters,
-  ): Observable<Resultaat<GeneratedType<"RestPersoon">>> {
-    return this.http
-      .put<
-        Resultaat<GeneratedType<"RestPersoon">>
-      >(`${this.basepath}/personen`, listPersonenParameters)
+    context: { context: string, action: string },
+  ) {
+    return this.zacHttpClient.PUT("/rest/klanten/personen", {
+      persoon: listPersonenParameters,
+      context
+    })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
