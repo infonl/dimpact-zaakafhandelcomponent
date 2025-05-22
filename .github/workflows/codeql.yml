@@ -102,6 +102,11 @@ jobs:
       pull-requests: write
     if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' && github.event_name == 'pull_request' }}
     steps:
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install gh -y
+
       - name: Check for CodeQL alerts
         id: codeql-check
         run: |
