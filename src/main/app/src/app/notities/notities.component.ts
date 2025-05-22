@@ -17,15 +17,15 @@ import { NotitieService } from "./notities.service";
 export class NotitiesComponent implements OnInit {
   @Input() uuid: string;
   @Input() type: string;
+  @Input() notitieRechten: GeneratedType<"RestNotitieRechten">;
 
   @ViewChild("notitieTekst") notitieTekst;
 
-  ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
+  ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
 
-  aantalNotities = 0;
-  laatNotitiesSchermZien = true;
-  geselecteerdeNotitieId: number;
   notities: Notitie[] = [];
+  showNotes = true;
+  geselecteerdeNotitieId: number | null = null;
   maxLengteTextArea = 1000;
 
   constructor(
@@ -41,7 +41,7 @@ export class NotitiesComponent implements OnInit {
   }
 
   toggleNotitieContainer() {
-    this.laatNotitiesSchermZien = !this.laatNotitiesSchermZien;
+    this.showNotes = !this.showNotes;
   }
 
   pasNotitieAan(id: number) {
@@ -60,7 +60,6 @@ export class NotitiesComponent implements OnInit {
             ),
           )
           .reverse();
-        this.aantalNotities = this.notities.length;
       });
   }
 
@@ -74,7 +73,6 @@ export class NotitiesComponent implements OnInit {
       this.notitieService.createNotitie(notitie).subscribe((notitie) => {
         this.notities.splice(0, 0, notitie);
         this.notitieTekst.nativeElement.value = "";
-        this.aantalNotities = this.notities.length;
       });
     }
   }
@@ -101,7 +99,6 @@ export class NotitiesComponent implements OnInit {
         this.notities.findIndex((n) => n.id === id),
         1,
       );
-      this.aantalNotities = this.notities.length;
     });
   }
 }

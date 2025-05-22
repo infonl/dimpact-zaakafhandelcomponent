@@ -10,6 +10,7 @@ import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { OverigeRechten } from "./model/overige-rechten";
 import { WerklijstRechten } from "./model/werklijst-rechten";
+import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
@@ -33,6 +34,16 @@ export class PolicyService {
   readOverigeRechten(): Observable<OverigeRechten> {
     return this.http
       .get<OverigeRechten>(`${this.basepath}/overigeRechten`)
+      .pipe(
+        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+      );
+  }
+
+  readNotitieRechten() {
+    return this.http
+      .get<
+        GeneratedType<"RestNotitieRechten">
+      >(`${this.basepath}/notitieRechten`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

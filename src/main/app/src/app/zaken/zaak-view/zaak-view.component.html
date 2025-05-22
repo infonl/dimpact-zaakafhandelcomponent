@@ -963,6 +963,11 @@
       (documentMoveToCase)="documentMoveToCase($event)"
     ></zac-zaak-documenten>
 
-    <zac-notities [uuid]="zaak.uuid" [type]="notitieType"></zac-notities>
+    <zac-notities
+      *ngIf="notitieRechten?.lezen || notitieRechten?.wijzigen"
+      [uuid]="zaak.uuid"
+      [type]="notitieType"
+      [notitieRechten]="notitieRechten"
+    ></zac-notities>
   </mat-drawer-content>
 </mat-drawer-container>

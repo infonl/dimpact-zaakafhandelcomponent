@@ -70,6 +70,7 @@ import { ZaakOntkoppelenDialogComponent } from "../zaak-ontkoppelen/zaak-ontkopp
 import { ZaakOpschortenDialogComponent } from "../zaak-opschorten-dialog/zaak-opschorten-dialog.component";
 import { ZaakVerlengenDialogComponent } from "../zaak-verlengen-dialog/zaak-verlengen-dialog.component";
 import { ZakenService } from "../zaken.service";
+import { PolicyService } from "src/app/policy/policy.service";
 
 @Component({
   templateUrl: "./zaak-view.component.html",
@@ -138,6 +139,7 @@ export class ZaakViewComponent
     "relatieType",
   ] as const;
   notitieType = NotitieType.ZAAK;
+  notitieRechten!: GeneratedType<"RestNotitieRechten">;
   dateFieldIcon = new Map<string, TextIcon>();
   viewInitialized = false;
   loggedInUser!: GeneratedType<"RestLoggedInUser">;
@@ -174,6 +176,7 @@ export class ZaakViewComponent
     private dialog: MatDialog,
     private translate: TranslateService,
     private bagService: BAGService,
+    private policyService: PolicyService,
   ) {
     super();
   }
@@ -218,6 +221,7 @@ export class ZaakViewComponent
 
         this.getIngelogdeMedewerker();
         this.loadTaken();
+        this.loadNotitieRechten();
       }),
     );
 
@@ -983,6 +987,12 @@ export class ZaakViewComponent
         this.filterTakenOpStatus();
         this.takenLoading = false;
       });
+  }
+
+  private loadNotitieRechten(): void {
+    this.policyService
+      .readNotitieRechten()
+      .subscribe((rechten) => (this.notitieRechten = rechten));
   }
 
   expandTaken(expand: boolean): void {
