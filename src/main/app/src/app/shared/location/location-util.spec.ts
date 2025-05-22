@@ -7,7 +7,7 @@ import { LocationUtil } from "./location-util";
 import { GeometryType } from "../../zaken/model/geometryType";
 import { GeneratedType } from "../utils/generated-types";
 
-describe("LocationUtil.isSameGeometry", () => {
+describe(LocationUtil.isSameGeometry.name, () => {
   const makePoint = (
     lat: number,
     lon: number,
