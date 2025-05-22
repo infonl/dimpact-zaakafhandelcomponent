@@ -14,7 +14,16 @@ To create a BPMN process definition, you can:
 * start with our integration tests [process](../../../src/itest/resources/bpmn/itProcessDefinition.bpmn)
 
 ### Requirements
+
+#### Candidate group/user
 The "User tasks" should have the candidate group or user set. For example, the XML attribute in the `.bpmn` file might look like this: `flowable:candidateGroups="group"`
+
+For example:
+```xml
+    <userTask id="userTask" name="User details" flowable:candidateGroups="group" flowable:formKey="testForm" flowable:formFieldValidation="false">
+      ... the rest of userTask tags ...
+    </userTask>
+```
 
 ### Upload
 1. Open ZAC
