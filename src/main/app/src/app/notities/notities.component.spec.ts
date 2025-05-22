@@ -19,6 +19,8 @@ import { GeneratedType } from "../shared/utils/generated-types";
 import { Notitie } from "./model/notitie";
 import { NotitiesComponent } from "./notities.component";
 import { NotitieService } from "./notities.service";
+import { ComponentHarness, HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 
 const currentUser: GeneratedType<"RestLoggedInUser"> = {
   id: "currentUser",
@@ -47,6 +49,17 @@ const mockTranslateService = {
   onLangChange: of({}),
   onDefaultLangChange: of({}),
 };
+
+class NotitiesHarness extends ComponentHarness {
+  static hostSelector = ".notitie-container";
+
+  async isTextareaVisible(): Promise<boolean> {
+    const textareas = await this.locatorForAll("textarea")();
+
+    console.log("Textareas found:: ", textareas.length);
+    return textareas.length > 0;
+  }
+}
 
 describe("NotitiesComponent", () => {
   let component: NotitiesComponent;
@@ -87,5 +100,27 @@ describe("NotitiesComponent", () => {
     component.updateNotitie(notitie, someOtherText);
     expect(notitie.gebruikersnaamMedewerker).toEqual(currentUser.id);
     expect(notitie.tekst).toEqual(someOtherText);
+  });
+
+  it("Harness: should show textarea when wijzigen is true", async () => {
+    component.notitieRechten = { lezen: false, wijzigen: true };
+    fixture.detectChanges();
+
+    const loader: HarnessLoader = TestbedHarnessEnvironment.loader(fixture);
+    const harness = await loader.getHarness(NotitiesHarness);
+
+    const isVisible = await harness.isTextareaVisible();
+    expect(isVisible).toBeTruthy();
+  });
+
+  it("Harness: should not show textarea when wijzigen is false", async () => {
+    component.notitieRechten = { lezen: false, wijzigen: false };
+    fixture.detectChanges();
+
+    const loader: HarnessLoader = TestbedHarnessEnvironment.loader(fixture);
+    const harness = await loader.getHarness(NotitiesHarness);
+
+    const isVisible = await harness.isTextareaVisible();
+    expect(isVisible).toBeFalsy();
   });
 });
