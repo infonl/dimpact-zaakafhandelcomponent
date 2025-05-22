@@ -147,10 +147,9 @@ When(
       .getByPlaceholder("Zoeken op adres, postcode of woonplaats")
       .press("Enter");
     await this.page
-      .getByRole("row", {
-        name: "Meelbeskamp 49, 1112GV Diemen",
-      })
-      .getByTitle("Selecteren")
+      .getByRole("row", { name: /1112GV/ })
+      .first()
+      .getByRole("button", { name: "Koppelen" })
       .click();
     await this.page.getByText("close").click();
 
