@@ -32,7 +32,6 @@ import okhttp3.FormBody
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
-import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_OK
 import java.net.HttpURLConnection.HTTP_SEE_OTHER
 import java.time.ZonedDateTime

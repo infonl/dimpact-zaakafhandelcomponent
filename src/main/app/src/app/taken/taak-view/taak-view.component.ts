@@ -592,7 +592,9 @@ export class TaakViewComponent
       event.component,
     );
     this.smartDocumentsTemplateName =
-      event.data[this.extractFieldsetName(event.component) + "_Template"].toString();
+      event.data[
+        this.extractFieldsetName(event.component) + "_Template"
+      ].toString();
     const normalizedTemplateName = this.smartDocumentsTemplateName
       ?.replace(" ", "_")
       .trim();
