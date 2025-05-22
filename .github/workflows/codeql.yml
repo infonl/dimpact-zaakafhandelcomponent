@@ -20,7 +20,7 @@ permissions:
 env:
   JAVA_VERSION: "21.0.7"
 
-# Only allow a single concurrent run per branch. Cancel in-progress runs on multiple pushes when not on main branch.  
+# Only allow a single concurrent run per branch. Cancel in-progress runs on multiple pushes when not on main branch.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ !contains(github.ref, 'main')}}
@@ -98,13 +98,36 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
-      checks: read
-      pull-requests: read
+      security-events: read
+      pull-requests: write
     if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' && github.event_name == 'pull_request' }}
     steps:
-      - name: Check CodeQL Status
-        uses: eldrick19/code-scanning-status-checker@868f78ef588214f12e365604583b7673d18941ce # v2.0.1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          pr_number: ${{ github.event.pull_request.number }}
-          repo: ${{ github.repository }}
+      - name: Check for CodeQL alerts
+        id: codeql-check
+        run: |
+          echo "Checking for CodeQL alerts on PR head SHA: ${{ github.event.pull_request.head.sha }}"
+          gh api \
+            repos/${{ github.repository }}/code-scanning/alerts \
+            -f state=open \
+            -f ref=${{ github.event.pull_request.head.sha }} \
+            --jq 'length' > alert_count.txt
+          ALERT_COUNT=$(cat alert_count.txt)
+          echo "Found $ALERT_COUNT CodeQL alerts"
+          echo "alert_count=$ALERT_COUNT" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Succeed if no CodeQL alerts found
+        if: steps.codeql-check.outputs.alert_count == '0'
+        run: |
+          echo "Success: no CodeQL alerts found."
+          exit 0
+
+      - name: Fail if CodeQL alerts found
+        if: steps.codeql-check.outputs.alert_count != '0'
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} \
+            --body "⚠️ CodeQL found ${{ steps.codeql-check.outputs.alert_count }} alert(s)."
+          exit 1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
