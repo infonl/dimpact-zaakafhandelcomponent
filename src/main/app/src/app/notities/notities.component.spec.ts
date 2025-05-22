@@ -34,7 +34,7 @@ const mockNotitieService = {
   listNotities(): Observable<Notitie[]> {
     return of([]);
   },
-  updateNotitie(notitie: Notitie) {
+  updateNotitie(notitie: GeneratedType<"RestNote">) {
     return of(notitie);
   },
 };

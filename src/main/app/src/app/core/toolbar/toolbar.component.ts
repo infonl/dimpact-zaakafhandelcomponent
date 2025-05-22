@@ -10,8 +10,6 @@ import { Router } from "@angular/router";
 import moment from "moment";
 import { Observable, Subscription } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
-import { OverigeRechten } from "../../policy/model/overige-rechten";
-import { WerklijstRechten } from "../../policy/model/werklijst-rechten";
 import { PolicyService } from "../../policy/policy.service";
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";

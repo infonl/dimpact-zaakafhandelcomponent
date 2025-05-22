@@ -5,11 +5,8 @@
 
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { OverigeRechten } from "./model/overige-rechten";
-import { WerklijstRechten } from "./model/werklijst-rechten";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 
 @Injectable({
