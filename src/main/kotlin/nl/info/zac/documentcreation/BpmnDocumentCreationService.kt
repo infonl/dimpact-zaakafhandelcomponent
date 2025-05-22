@@ -29,6 +29,15 @@ import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
 
+/***
+ * Document creation service for BPMN zaken
+ *
+ * BPMN forms (form.io) maintain inside them the SmartDocuments group name and a mapping
+ * template -> informatieobjecttype. A selector in the form provides the SmartDocuments template name.
+ *
+ * This service directly calls SmartDocuments with the provided template and template group names (without consulting
+ * the CMMN-only mapping) and uses the informatieobjecttype UUID provided by the BPMN form to call OpenZaak.
+ */
 @NoArgConstructor
 @ApplicationScoped
 @AllOpen

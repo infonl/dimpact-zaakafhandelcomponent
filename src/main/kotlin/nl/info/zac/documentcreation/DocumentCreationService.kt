@@ -46,7 +46,7 @@ class DocumentCreationService @Inject constructor(
         description: String?,
         informatieobjecttypeUuid: UUID,
         creationDate: ZonedDateTime,
-        userName: String,
+        userName: String
     ): ZaakInformatieobject =
         smartDocumentsService.downloadDocument(fileId).let { file ->
             documentCreationDataConverter.toEnkelvoudigInformatieObjectCreateLockRequest(

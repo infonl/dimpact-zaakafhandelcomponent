@@ -30,6 +30,14 @@ import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
 
+/***
+ * Document creation service for CMMN zaken
+ *
+ * SmartDocuments in CMMN works with pre-configured mapping SmartDocuments template -> informatieobjecttype, that's
+ * configured per zaak type.
+ *
+ * This service performs checks if this mapping is correct and works with template and template group IDs.
+ */
 @NoArgConstructor
 @ApplicationScoped
 @AllOpen

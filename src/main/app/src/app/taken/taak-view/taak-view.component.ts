@@ -591,12 +591,8 @@ export class TaakViewComponent
     this.smartDocumentsGroupPath = this.formioGetSmartDocumentsGroups(
       event.component,
     );
-    const componentBaseName = event.component.key
-      .split("_")
-      .slice(0, -1)
-      .join("_");
     this.smartDocumentsTemplateName =
-      event.data[componentBaseName + "_Template"].toString();
+      event.data[this.extractFieldsetName(event.component) + "_Template"].toString();
     const normalizedTemplateName = this.smartDocumentsTemplateName
       ?.replace(" ", "_")
       .trim();
@@ -609,5 +605,26 @@ export class TaakViewComponent
     if (normalizedTemplateName.length > 0) {
       this.actionsSidenav.open();
     }
+  }
+
+  /**
+   * Returns the key name of the fieldset group using the key of the button. We assume that all components in the
+   * fieldset have the same prefix as the key of the fieldset and that the separator is an underscore.
+   *
+   * If the name of the button is "AM_SmartDocuments_Create", the expected component base name is "AM_SmartDocuments".
+   *
+   * @example
+   *     {
+   *       "legend": "SmartDocuments",
+   *       "type": "groepSmartDocumentsFieldset",
+   *       "key": "AM_SmartDocuments",
+   *       "components": [
+   *         { "label": "Template", "type": "select", "key": "AM_SmartDocuments_Template", <.. more fields ..> },
+   *         { "label": "Create", "key": "AM_SmartDocuments_Create", "type": "button", <.. more fields ..> }
+   *       ]
+   *     }
+   */
+  extractFieldsetName(component: ExtendedComponentSchema): string {
+    return component.key.split("_").slice(0, -1).join("_");
   }
 }
