@@ -17,7 +17,7 @@ import { NotitieService } from "./notities.service";
 export class NotitiesComponent implements OnInit {
   @Input() uuid: string;
   @Input() type: string;
-  @Input() notitieRechten: GeneratedType<"RestNotitieRechten">;
+  @Input() notitieRechten?: GeneratedType<"RestNotitieRechten">;
 
   @ViewChild("notitieTekst") notitieTekst;
 
@@ -64,6 +64,8 @@ export class NotitiesComponent implements OnInit {
   }
 
   maakNotitieAan(tekst: string) {
+    if (!this.ingelogdeMedewerker?.id) return;
+
     if (tekst.length <= this.maxLengteTextArea) {
       const notitie: Notitie = new Notitie();
       notitie.zaakUUID = this.uuid;
@@ -78,6 +80,8 @@ export class NotitiesComponent implements OnInit {
   }
 
   updateNotitie(notitie: Notitie, notitieTekst: string) {
+    if (!this.ingelogdeMedewerker?.id) return;
+
     if (notitieTekst.length <= this.maxLengteTextArea) {
       notitie.tekst = notitieTekst;
       notitie.gebruikersnaamMedewerker = this.ingelogdeMedewerker.id;

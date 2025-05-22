@@ -36,9 +36,9 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   headerTitle$: Observable<string>;
   hasNewSignaleringen: boolean;
-  ingelogdeMedewerker: GeneratedType<"RestUser">;
-  overigeRechten = new OverigeRechten();
-  werklijstRechten = new WerklijstRechten();
+  ingelogdeMedewerker?: GeneratedType<"RestUser">;
+  overigeRechten?: GeneratedType<"RestOverigeRechten">;
+  werklijstRechten?: GeneratedType<"RestWerklijstRechten">;
   medewerkerNaamToolbar = "";
 
   private subscription$: Subscription;
