@@ -22,7 +22,6 @@ import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_NUMMERAANDUIDING_IDENTIFICATIE
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_POSTCODE_EN_HUISNUMMER
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING
-import nl.info.zac.app.klant.model.personen.RestContext
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -64,11 +63,12 @@ class BrpClientService @Inject constructor(
         private val FIELDS_PERSOON_BEPERKT = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING)
     }
 
-    fun queryPersonen(personenQuery: PersonenQuery, context: RestContext): PersonenQueryResponse =
+    fun queryPersonen(personenQuery: PersonenQuery, context: String, action: String, taskId: String?): PersonenQueryResponse =
         updateQuery(personenQuery).let {
             personenApi.personen(
                 personenQuery = it,
-                purpose = queryPersonenDefaultPurpose.getOrNull()
+                purpose = queryPersonenDefaultPurpose.getOrNull(),
+                process = getProcess(context, taskId, action)
             )
         }
 
@@ -82,7 +82,8 @@ class BrpClientService @Inject constructor(
     fun retrievePersoon(burgerservicenummer: String, context: String, action: String, taskId: String?): Persoon? = (
         personenApi.personen(
             personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer),
-            purpose = retrievePersoonDefaultPurpose.getOrNull()
+            purpose = retrievePersoonDefaultPurpose.getOrNull(),
+            process = getProcess(context, taskId, action)
         ) as RaadpleegMetBurgerservicenummerResponse
         ).personen?.firstOrNull()
 
@@ -105,4 +106,11 @@ class BrpClientService @Inject constructor(
         }
         fields = if (personenQuery is RaadpleegMetBurgerservicenummer) FIELDS_PERSOON else FIELDS_PERSOON_BEPERKT
     }
+
+    private fun getProcess(context: String, taskId: String?, action: String) =
+        buildString {
+            append(context)
+            taskId?.let { append("-$it") }
+            append("@$action")
+        }
 }

@@ -144,7 +144,9 @@ class KlantRestService @Inject constructor(
     fun listPersonen(restListPersonenRequest: RestListPersonenRequest): RESTResultaat<RestPersoon> =
         brpClientService.queryPersonen(
             restListPersonenRequest.persoon.toPersonenQuery(),
-            restListPersonenRequest.context
+            restListPersonenRequest.context.context,
+            restListPersonenRequest.context.action,
+            restListPersonenRequest.context.taskId
         )
             .toRechtsPersonen()
             .toRestResultaat()

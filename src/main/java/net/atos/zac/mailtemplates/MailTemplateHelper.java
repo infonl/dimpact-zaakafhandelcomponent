@@ -166,6 +166,7 @@ public class MailTemplateHelper {
                 resolvedTekst.contains(ZAAK_INITIATOR_ADRES.getVariabele())) {
                 resolvedTekst = replaceInitiatorVariabelen(
                         resolvedTekst,
+                        zaak.getIdentificatie(),
                         Optional.ofNullable(zgwApiService.findInitiatorRoleForZaak(zaak))
                 );
             }
@@ -279,7 +280,7 @@ public class MailTemplateHelper {
             return switch (betrokkene) {
                 case NATUURLIJK_PERSOON -> replaceInitiatorVariabelenPersoon(
                         resolvedTekst,
-                        brpClientService.retrievePersoon(identificatie, zaakNummer)
+                        brpClientService.retrievePersoon(identificatie, zaakNummer, "E-mail verzenden", null)
                 );
                 case VESTIGING -> replaceInitiatorVariabelenResultaatItem(
                         resolvedTekst,
@@ -292,7 +293,7 @@ public class MailTemplateHelper {
                 default -> throw new IllegalStateException(String.format("unexpected betrokkenetype %s", betrokkene));
             };
         }
-        return replaceInitiatorVariabelen(resolvedTekst, null, null);
+        return replaceInitiatorVariabelen(resolvedTekst, null, (String) null);
     }
 
     private static String replaceInitiatorVariabelenPersoon(
@@ -355,7 +356,7 @@ public class MailTemplateHelper {
     }
 
     private static String replaceInitiatorVariabelenOnbekend(final String resolvedTekst) {
-        return replaceInitiatorVariabelen(resolvedTekst, "Onbekend", null);
+        return replaceInitiatorVariabelen(resolvedTekst, "Onbekend", (String) null);
     }
 
     private static String replaceInitiatorVariabelen(

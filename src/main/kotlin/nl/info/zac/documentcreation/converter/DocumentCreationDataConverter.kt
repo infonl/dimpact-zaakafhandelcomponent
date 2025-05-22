@@ -111,11 +111,16 @@ class DocumentCreationDataConverter @Inject constructor(
         )
 
     private fun createAanvragerData(zaak: Zaak): AanvragerData? =
-        zgwApiService.findInitiatorRoleForZaak(zaak)?.let(::convertToAanvragerData)
+        zgwApiService.findInitiatorRoleForZaak(zaak)?.let { initiator ->
+            convertToAanvragerData(initiator, zaak.identificatie)
+        }
 
-    private fun convertToAanvragerData(initiator: Rol<*>): AanvragerData? =
+    private fun convertToAanvragerData(initiator: Rol<*>, zaakNummer: String): AanvragerData? =
         when (initiator.betrokkeneType) {
-            BetrokkeneType.NATUURLIJK_PERSOON -> createAanvragerDataNatuurlijkPersoon(initiator.identificatienummer)
+            BetrokkeneType.NATUURLIJK_PERSOON -> createAanvragerDataNatuurlijkPersoon(
+                initiator.identificatienummer,
+                zaakNummer
+            )
             BetrokkeneType.VESTIGING -> createAanvragerDataVestiging(initiator.identificatienummer)
             BetrokkeneType.NIET_NATUURLIJK_PERSOON -> createAanvragerDataNietNatuurlijkPersoon(
                 initiator.identificatienummer
@@ -125,8 +130,13 @@ class DocumentCreationDataConverter @Inject constructor(
             )
         }
 
-    private fun createAanvragerDataNatuurlijkPersoon(bsn: String): AanvragerData? =
-        brpClientService.retrievePersoon(bsn)?.let { convertToAanvragerDataPersoon(it) }
+    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, zaakNummer: String): AanvragerData? =
+        brpClientService.retrievePersoon(
+            bsn,
+            zaakNummer,
+            "Document aanmaken",
+            null
+        )?.let { convertToAanvragerDataPersoon(it) }
 
     private fun convertToAanvragerDataPersoon(persoon: Persoon) =
         AanvragerData(

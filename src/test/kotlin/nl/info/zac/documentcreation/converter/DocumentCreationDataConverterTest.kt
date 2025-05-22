@@ -77,7 +77,9 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid()
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNatuurlijkPersoon
-        every { brpClientService.retrievePersoon(rolNatuurlijkPersoon.identificatienummer) } returns persoon
+        every {
+            brpClientService.retrievePersoon(rolNatuurlijkPersoon.identificatienummer, any(), any(), null)
+        } returns persoon
         every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
         every { zgwApiService.findGroepForZaak(zaak) } returns rolOrganisatorischeEenheid
