@@ -8,11 +8,11 @@ import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
+import jakarta.ws.rs.HeaderParam
 import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
-import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -41,7 +41,7 @@ import nl.info.zac.app.klant.model.contactmoment.toRestContactMoment
 import nl.info.zac.app.klant.model.klant.RestContactGegevens
 import nl.info.zac.app.klant.model.klant.RestRoltype
 import nl.info.zac.app.klant.model.klant.toRestRoltypes
-import nl.info.zac.app.klant.model.personen.RestListPersonenRequest
+import nl.info.zac.app.klant.model.personen.RestListPersonenParameters
 import nl.info.zac.app.klant.model.personen.RestPersonenParameters
 import nl.info.zac.app.klant.model.personen.RestPersoon
 import nl.info.zac.app.klant.model.personen.VALID_PERSONEN_QUERIES
@@ -73,15 +73,14 @@ class KlantRestService @Inject constructor(
     @Path("persoon/{bsn}")
     fun readPersoon(
         @PathParam("bsn") @Length(min = 8, max = 9) bsn: String,
-        @QueryParam("context") context: String,
-        @QueryParam("action") action: String
+        @HeaderParam("X-Verwerking") xVerwerking: String
     ) = runBlocking {
         // run the two client calls concurrently in a coroutine scope,
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
             val klantPersoonDigitalAddresses = async { klantClientService.findDigitalAddressesByNumber(bsn) }
             val brpPersoon = async {
-                brpClientService.retrievePersoon(bsn, context, action)
+                brpClientService.retrievePersoon(bsn, xVerwerking)
             }
             klantPersoonDigitalAddresses.await().toRestPersoon().let { klantPersoon ->
                 brpPersoon.await()?.toRestPersoon()?.apply {
@@ -140,12 +139,11 @@ class KlantRestService @Inject constructor(
 
     @PUT
     @Path("personen")
-    fun listPersonen(restListPersonenRequest: RestListPersonenRequest): RESTResultaat<RestPersoon> =
-        brpClientService.queryPersonen(
-            restListPersonenRequest.persoon.toPersonenQuery(),
-            restListPersonenRequest.context.context,
-            restListPersonenRequest.context.action
-        )
+    fun listPersonen(
+        @HeaderParam("X-Verwerking") xVerwerking: String,
+        restListPersonenParameters: RestListPersonenParameters
+    ): RESTResultaat<RestPersoon> =
+        brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), xVerwerking)
             .toRechtsPersonen()
             .toRestResultaat()
 

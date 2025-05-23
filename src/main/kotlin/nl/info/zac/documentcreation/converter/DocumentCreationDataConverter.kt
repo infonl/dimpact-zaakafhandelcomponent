@@ -47,6 +47,8 @@ import java.net.URI
 import java.time.ZonedDateTime
 import java.util.Objects
 
+private const val ACTION = "Document aanmaken"
+
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
 class DocumentCreationDataConverter @Inject constructor(
@@ -130,12 +132,10 @@ class DocumentCreationDataConverter @Inject constructor(
             )
         }
 
-    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, zaakNummer: String): AanvragerData? =
-        brpClientService.retrievePersoon(
-            bsn,
-            zaakNummer,
-            "Document aanmaken"
-        )?.let { convertToAanvragerDataPersoon(it) }
+    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, zaakNummer: String): AanvragerData? {
+        val xVerwerking = "$zaakNummer@$ACTION"
+        return brpClientService.retrievePersoon(bsn, xVerwerking)?.let { convertToAanvragerDataPersoon(it) }
+    }
 
     private fun convertToAanvragerDataPersoon(persoon: Persoon) =
         AanvragerData(

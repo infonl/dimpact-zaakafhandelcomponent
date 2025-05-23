@@ -78,7 +78,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNatuurlijkPersoon
         every {
-            brpClientService.retrievePersoon(rolNatuurlijkPersoon.identificatienummer, any(), any())
+            brpClientService.retrievePersoon(rolNatuurlijkPersoon.identificatienummer, any())
         } returns persoon
         every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker

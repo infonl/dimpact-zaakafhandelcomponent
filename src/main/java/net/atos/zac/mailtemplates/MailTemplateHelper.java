@@ -82,6 +82,7 @@ public class MailTemplateHelper {
     public static final Pattern PTAGS = Pattern.compile("</?p>", Pattern.CASE_INSENSITIVE);
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private static final String ACTION = "E-mail verzenden";
 
     private BrpClientService brpClientService;
     private ConfiguratieService configuratieService;
@@ -274,13 +275,14 @@ public class MailTemplateHelper {
     }
 
     private String replaceInitiatorVariabelen(final String resolvedTekst, String zaakNummer, final Optional<Rol<?>> initiator) {
+        String xVerwerking = zaakNummer + "@" + ACTION;
         if (initiator.isPresent()) {
             final String identificatie = initiator.get().getIdentificatienummer();
             final BetrokkeneType betrokkene = initiator.get().getBetrokkeneType();
             return switch (betrokkene) {
                 case NATUURLIJK_PERSOON -> replaceInitiatorVariabelenPersoon(
                         resolvedTekst,
-                        brpClientService.retrievePersoon(identificatie, zaakNummer, "E-mail verzenden")
+                        brpClientService.retrievePersoon(identificatie, xVerwerking)
                 );
                 case VESTIGING -> replaceInitiatorVariabelenResultaatItem(
                         resolvedTekst,
