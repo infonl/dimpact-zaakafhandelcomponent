@@ -21,7 +21,7 @@ export class PersoonsgegevensComponent {
 
   isVerwijderbaar = input<boolean | undefined>(false);
   isWijzigbaar = input<boolean | undefined>(false);
-  bsn = input<string | null>();
+  bsn = input<string | null>(null);
   zaakIdentificatie = input.required<string>();
   action = input.required<string>();
 
