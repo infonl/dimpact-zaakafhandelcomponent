@@ -26,8 +26,7 @@ data class RestListPersonenParameters(
 
 data class RestContext(
     val context: String,
-    val action: String,
-    val taskId: String? = null
+    val action: String
 )
 
 @Suppress("ReturnCount", "CyclomaticComplexMethod")

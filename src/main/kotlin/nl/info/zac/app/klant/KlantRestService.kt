@@ -74,15 +74,14 @@ class KlantRestService @Inject constructor(
     fun readPersoon(
         @PathParam("bsn") @Length(min = 8, max = 9) bsn: String,
         @QueryParam("context") context: String,
-        @QueryParam("action") action: String,
-        @QueryParam("taskId") taskId: String?
+        @QueryParam("action") action: String
     ) = runBlocking {
         // run the two client calls concurrently in a coroutine scope,
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
             val klantPersoonDigitalAddresses = async { klantClientService.findDigitalAddressesByNumber(bsn) }
             val brpPersoon = async {
-                brpClientService.retrievePersoon(bsn, context, action, taskId)
+                brpClientService.retrievePersoon(bsn, context, action)
             }
             klantPersoonDigitalAddresses.await().toRestPersoon().let { klantPersoon ->
                 brpPersoon.await()?.toRestPersoon()?.apply {
@@ -145,8 +144,7 @@ class KlantRestService @Inject constructor(
         brpClientService.queryPersonen(
             restListPersonenRequest.persoon.toPersonenQuery(),
             restListPersonenRequest.context.context,
-            restListPersonenRequest.context.action,
-            restListPersonenRequest.context.taskId
+            restListPersonenRequest.context.action
         )
             .toRechtsPersonen()
             .toRestResultaat()
