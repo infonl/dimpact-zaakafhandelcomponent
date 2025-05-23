@@ -4,8 +4,6 @@
  */
 
 import { Injectable } from "@angular/core";
-import { catchError } from "rxjs/operators";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ListParameters } from "../shared/model/list-parameters";
 
@@ -15,27 +13,16 @@ import { ListParameters } from "../shared/model/list-parameters";
 export class InboxProductaanvragenService {
   private basepath = "/rest/inbox-productaanvragen";
 
-  constructor(
-    private readonly foutAfhandelingService: FoutAfhandelingService,
-    private readonly zacHttpClient: ZacHttpClient,
-  ) {}
+  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   list(parameters: ListParameters) {
-    return this.zacHttpClient
-      .PUT("/rest/inbox-productaanvragen", parameters)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.PUT("/rest/inbox-productaanvragen", parameters);
   }
 
   delete(id: number) {
-    return this.zacHttpClient
-      .DELETE("/rest/inbox-productaanvragen/{id}", {
-        pathParams: { path: { id } },
-      })
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.DELETE("/rest/inbox-productaanvragen/{id}", {
+      pathParams: { path: { id } },
+    });
   }
 
   pdfPreview(aanvraagdocumentUUID: string): string {
