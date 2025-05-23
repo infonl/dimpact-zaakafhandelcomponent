@@ -49,4 +49,27 @@ export class LocationUtil {
     }
     return null;
   }
+
+  public static isSameGeometry(
+    left?: GeneratedType<"RestGeometry"> | null,
+    right?: GeneratedType<"RestGeometry"> | null,
+  ) {
+    if (left?.type !== right?.type) return false;
+
+    switch (left?.type) {
+      case GeometryType.POINT:
+        return (
+          left?.point?.latitude === right?.point?.latitude &&
+          left?.point?.longitude === right?.point?.longitude
+        );
+      case GeometryType.POLYGON:
+        console.log("Polygon comparison not implemented");
+        return false;
+      case GeometryType.GEOMETRY_COLLECTION:
+        console.log("Geometry collection comparison not implemented");
+        return false;
+      default:
+        return false;
+    }
+  }
 }

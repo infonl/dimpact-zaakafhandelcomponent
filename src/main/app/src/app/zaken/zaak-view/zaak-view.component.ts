@@ -22,6 +22,7 @@ import moment from "moment";
 import { forkJoin } from "rxjs";
 import { map, tap } from "rxjs/operators";
 import { ActieOnmogelijkDialogComponent } from "src/app/fout-afhandeling/dialog/actie-onmogelijk-dialog.component";
+import { PolicyService } from "src/app/policy/policy.service";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { ZaakbeeindigReden } from "../../admin/model/zaakbeeindig-reden";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
@@ -138,13 +139,10 @@ export class ZaakViewComponent
     "relatieType",
   ] as const;
   notitieType = NotitieType.ZAAK;
+  notitieRechten!: GeneratedType<"RestNotitieRechten">;
   dateFieldIcon = new Map<string, TextIcon>();
   viewInitialized = false;
   loggedInUser!: GeneratedType<"RestLoggedInUser">;
-
-  locationFeatureCookie = document.cookie
-    .split("; ")
-    .some((cookie) => cookie.startsWith("locatie"));
 
   private zaakListener!: WebsocketListener;
   private zaakRollenListener!: WebsocketListener;
@@ -174,6 +172,7 @@ export class ZaakViewComponent
     private dialog: MatDialog,
     private translate: TranslateService,
     private bagService: BAGService,
+    private policyService: PolicyService,
   ) {
     super();
   }
@@ -218,6 +217,7 @@ export class ZaakViewComponent
 
         this.getIngelogdeMedewerker();
         this.loadTaken();
+        this.loadNotitieRechten();
       }),
     );
 
@@ -531,6 +531,16 @@ export class ZaakViewComponent
             "actie.zaak.koppelen",
             () => this.actionsSidenav.open(),
             "account_tree",
+          ),
+        );
+      }
+
+      if (this.zaak.rechten.wijzigenLocatie && !this.zaak.zaakgeometrie) {
+        this.menu.push(
+          new ButtonMenuItem(
+            "actie.zaak.locatie.toevoegen",
+            () => this.actionsSidenav.open(),
+            "add_location_alt",
           ),
         );
       }
@@ -955,6 +965,13 @@ export class ZaakViewComponent
     }
   }
 
+  editLocationDetails(): void {
+    if (this.zaak.rechten.wijzigen) {
+      this.activeSideAction = "actie.zaak.locatie.toevoegen";
+      this.actionsSidenav.open();
+    }
+  }
+
   addOrEditZaakInitiator(): void {
     this.activeSideAction = "actie.initiator.toevoegen";
     this.actionsSidenav.open();
@@ -983,6 +1000,12 @@ export class ZaakViewComponent
         this.filterTakenOpStatus();
         this.takenLoading = false;
       });
+  }
+
+  private loadNotitieRechten(): void {
+    this.policyService
+      .readNotitieRechten()
+      .subscribe((rechten) => (this.notitieRechten = rechten));
   }
 
   expandTaken(expand: boolean): void {
@@ -1243,6 +1266,11 @@ export class ZaakViewComponent
   }
 
   zaakLinked(): void {
+    this.sluitSidenav();
+    this.updateZaak();
+  }
+
+  locationSelected(): void {
     this.sluitSidenav();
     this.updateZaak();
   }

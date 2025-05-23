@@ -678,6 +678,8 @@
   "actie.wissen.aria-label": "Invoerveld wissen",
   "actie.vrijgeven": "Vrijgeven",
   "actie.zaak.aanmaken": "Zaak aanmaken",
+  "actie.zaak.locatie.toevoegen": "Zaaklocatie toevoegen",
+  "actie.zaak.locatie.wijzigen": "Zaaklocatie wijzigen",
   "actie.zaak.wijzigen": "Zaakgegevens bewerken",
   "actie.zaak.afbreken": "Zaak afbreken",
   "actie.zaak.afbreken.reden": "Reden waarom zaak wordt afgebroken",

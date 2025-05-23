@@ -29,41 +29,45 @@ import * as proj from "ol/proj.js";
 import * as source from "ol/source.js";
 import * as style from "ol/style.js";
 import WMTSTileGrid from "ol/tilegrid/WMTS.js";
-import { Subject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { environment } from "src/environments/environment";
-import { LocationUtil } from "../../../shared/location/location-util";
+import { LocationUtil } from "../../shared/location/location-util";
 import {
   AddressResult,
   LocationService,
   SuggestResult,
-} from "../../../shared/location/location.service";
-import { GeneratedType } from "../../../shared/utils/generated-types";
-import { GeometryGegevens } from "../../model/geometry-gegevens";
-import { GeometryType } from "../../model/geometryType";
+} from "../../shared/location/location.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
+import { GeometryGegevens } from "../model/geometry-gegevens";
+import { GeometryType } from "../model/geometryType";
+import { ZakenService } from "../zaken.service";
 
 @Component({
-  selector: "zac-locatie-zoek",
-  templateUrl: "./locatie-zoek.component.html",
-  styleUrls: ["./locatie-zoek.component.less"],
+  selector: "zac-case-location-edit",
+  templateUrl: "./zaak-locatie-wijzigen.component.html",
+  styleUrls: ["./zaak-locatie-wijzigen.component.less"],
 })
-export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
-  @Input({ required: true }) currentLocation!: GeneratedType<"RestGeometry">;
-  @Input() readonly = false;
+export class CaseLocationEditComponent
+  implements OnInit, AfterViewInit, OnDestroy
+{
+  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input({ required: true }) sideNav!: MatDrawer;
-  @Input({ required: true }) reasonControl!: FormControl<string>;
   @Output() locatie = new EventEmitter<GeometryGegevens | null>();
-  @Output() locationChanged = new EventEmitter<
-    GeneratedType<"RestGeometry"> | undefined
-  >();
+
   @ViewChild("openLayersMap", { static: true }) openLayersMapRef: ElementRef;
-  markerLocatie?: GeneratedType<"RestGeometry">;
+
+  // markerLocatie?: GeneratedType<"RestGeometry">;
+  markerLocatie$ = new BehaviorSubject<GeneratedType<"RestGeometry"> | null>(
+    null,
+  );
   nearestAddress: AddressResult;
   searchControl = new FormControl();
+  reasonControl = new FormControl();
   searchResults: SuggestResult[] = [];
-  initialLocation: GeneratedType<"RestGeometry">;
 
   private unsubscribe$: Subject<void> = new Subject<void>();
+  protected readonly: boolean = false;
 
   private map: ol.Map;
   private view: ol.View;
@@ -101,10 +105,12 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
     }),
   });
 
-  constructor(private locationService: LocationService) {}
+  constructor(
+    private zakenService: ZakenService,
+    private locationService: LocationService,
+  ) {}
 
   ngOnInit(): void {
-    this.initialLocation = this.currentLocation;
     const projection = proj.get(this.EPSG3857);
     const projectionExtent = projection?.getExtent();
     const size = extent.getWidth(projectionExtent) / 256;
@@ -165,10 +171,23 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
     const modify = new interaction.Modify({ source: this.locationSource });
     this.map.addInteraction(modify);
 
+    this.readonly = !this.zaak.rechten.wijzigenLocatie;
+    this.reasonControl.disable();
+
     this.searchControl.valueChanges
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((value) => {
         this.searchAddresses(value);
+      });
+
+    this.markerLocatie$
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((geometry) => {
+        if (LocationUtil.isSameGeometry(geometry, this.zaak.zaakgeometrie)) {
+          this.disableReasonControl();
+        } else {
+          this.reasonControl.enable();
+        }
       });
   }
 
@@ -196,14 +215,9 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
       this.openLayersMapRef.nativeElement.focus();
     });
 
-    if (this.currentLocation) {
-      this.setLocation(this.currentLocation, false);
+    if (this.zaak.zaakgeometrie) {
+      this.setLocation(this.zaak.zaakgeometrie, false);
     }
-  }
-
-  ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
   }
 
   private searchAddresses(query: string): void {
@@ -231,14 +245,20 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   clearLocation() {
+    this.disableReasonControl();
     this.setLocation();
+  }
+
+  private disableReasonControl() {
+    this.reasonControl.disable();
+    this.reasonControl.reset();
   }
 
   private setLocation(
     geometry?: GeneratedType<"RestGeometry">,
     fromSearch = true,
   ) {
-    this.markerLocatie = geometry;
+    this.markerLocatie$.next(geometry ?? null);
     this.clearPreviousMarker();
     this.searchControl.reset();
 
@@ -262,11 +282,6 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }
     }
-
-    if (JSON.stringify(geometry) === JSON.stringify(this.initialLocation)) {
-      return;
-    }
-    this.locationChanged.emit(geometry);
   }
 
   private addMarker(coordinate: Coordinate) {
@@ -298,18 +313,29 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   cancel(): void {
-    this.currentLocation = this.initialLocation;
-    this.locationChanged.emit(this.initialLocation);
     void this.sideNav.close();
   }
 
   save(): void {
-    this.initialLocation = this.currentLocation;
+    this.zakenService
+      .updateZaakLocatie(
+        this.zaak.uuid,
+        this.reasonControl.value,
+        this.markerLocatie$.getValue() ?? undefined,
+      )
+      .subscribe({
+        next: () => {
+          this.sideNav.close();
+          this.locatie.emit();
+        },
+        error: (err) => {
+          console.error("Failed to update location:", err);
+        },
+      });
+  }
 
-    this.locatie.next(
-      this.markerLocatie
-        ? new GeometryGegevens(this.markerLocatie, this.reasonControl.value)
-        : null,
-    );
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 }
