@@ -7,6 +7,7 @@
     <zac-klant-koppel
       *ngSwitchCase="'actie.initiator.toevoegen'"
       (klantGegevens)="initiatorSelected($event.klant)"
+      [context]="'ZAAK_AANMAKEN'"
       [sideNav]="actionsSidenav"
       [initiator]="true"
       [allowBedrijf]="

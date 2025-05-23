@@ -8,6 +8,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { Resultaat } from "../shared/model/resultaat";
 import { BSN_LENGTH } from "../shared/utils/constants";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -23,16 +24,24 @@ import { PersonenParameters } from "./model/personen/personen-parameters";
 })
 export class KlantenService {
   constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
+    private readonly http: HttpClient,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
+    private readonly zacHttpClient: ZacHttpClient,
   ) {}
 
   private basepath = "/rest/klanten";
 
   /* istanbul ignore next */
-  readPersoon(bsn: string): Observable<GeneratedType<"RestPersoon">> {
-    return this.http
-      .get<GeneratedType<"RestPersoon">>(`${this.basepath}/persoon/${bsn}`)
+  readPersoon(bsn: string, audit: { context: string; action: string }) {
+    return this.zacHttpClient
+      .GET("/rest/klanten/persoon/{bsn}", {
+        pathParams: {
+          path: { bsn },
+          header: {
+            "X-Verwerking": `${audit.context}@${audit.action}`,
+          },
+        },
+      })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -87,11 +96,16 @@ export class KlantenService {
   /* istanbul ignore next */
   listPersonen(
     listPersonenParameters: ListPersonenParameters,
-  ): Observable<Resultaat<GeneratedType<"RestPersoon">>> {
-    return this.http
-      .put<
-        Resultaat<GeneratedType<"RestPersoon">>
-      >(`${this.basepath}/personen`, listPersonenParameters)
+    audit: { context: string; action: string },
+  ) {
+    return this.zacHttpClient
+      .PUT("/rest/klanten/personen", listPersonenParameters, {
+        pathParams: {
+          header: {
+            "X-Verwerking": `${audit.context}@${audit.action}`,
+          },
+        },
+      })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

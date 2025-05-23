@@ -144,6 +144,7 @@
         </div>
         <zac-zaak-betrokkene-filter
           *ngIf="hasZaken || betrokkeneActief()"
+          context="ZOEKEN"
           [zoekparameters]="zoekParameters"
           (changed)="zoek.emit()"
         ></zac-zaak-betrokkene-filter>

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, input, Input, Output } from "@angular/core";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateModule } from "@ngx-translate/core";
 import { SharedModule } from "src/app/shared/shared.module";
@@ -46,6 +46,7 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
           </ng-template>
           <zac-klant-koppel-initiator-persoon
             type="persoon"
+            [context]="this.context()"
             (klantGegevens)="klantGegevens.emit($event)"
           />
         </mat-tab>
@@ -70,6 +71,7 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
           </ng-template>
           <zac-klant-koppel-betrokkene-persoon
             type="persoon"
+            [context]="this.context()"
             [zaaktypeUUID]="zaaktypeUUID"
             (klantGegevens)="klantGegevens.emit($event)"
           />
@@ -97,4 +99,6 @@ export class KlantKoppelComponent {
   @Input() allowPersoon: boolean;
   @Input() allowBedrijf: boolean;
   @Output() klantGegevens = new EventEmitter<KlantGegevens>();
+
+  context = input.required<string>();
 }
