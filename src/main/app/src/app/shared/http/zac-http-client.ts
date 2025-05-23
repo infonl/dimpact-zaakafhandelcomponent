@@ -162,7 +162,7 @@ export class ZacHttpClient {
       // Simple string replacement without regex
       const placeholder = `{${key}}`;
       while (url.includes(placeholder)) {
-        if (!pathParams[key as keyof typeof pathParams]) {
+        if (value === null || value === undefined) {
           throw new HttpParamsError(
             `No key provided for '{${key}}', stopping request to '${urlTemplate}'`,
           );
