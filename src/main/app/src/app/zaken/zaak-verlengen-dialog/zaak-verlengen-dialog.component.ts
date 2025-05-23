@@ -194,10 +194,15 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
 
     const zaakVerlengGegevens: GeneratedType<"RESTZaakVerlengGegevens"> = {
       duurDagen: this.duurDagenField.formControl.value ?? undefined,
-      einddatumGepland: String(this.einddatumGeplandField.formControl.value),
-      uiterlijkeEinddatumAfdoening: String(
-        this.uiterlijkeEinddatumAfdoeningField.formControl.value,
-      ),
+      einddatumGepland: this.einddatumGeplandField.formControl.value
+        ? moment(this.einddatumGeplandField.formControl.value).toISOString()
+        : undefined,
+      uiterlijkeEinddatumAfdoening: this.uiterlijkeEinddatumAfdoeningField
+        .formControl.value
+        ? moment(
+            this.uiterlijkeEinddatumAfdoeningField.formControl.value,
+          ).toISOString()
+        : undefined,
       redenVerlenging: this.redenVerlengingField.formControl.value,
       takenVerlengen: Boolean(this.takenVerlengenField.formControl.value),
     };

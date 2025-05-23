@@ -59,6 +59,12 @@
       [loggedInUser]="loggedInUser"
       [sideNav]="actionsSidenav"
     ></zac-case-details-edit>
+    <zac-case-location-edit
+      *ngSwitchCase="'actie.zaak.locatie.toevoegen'"
+      [zaak]="zaak"
+      [sideNav]="actionsSidenav"
+      (locatie)="locationSelected()"
+    ></zac-case-location-edit>
     <zac-informatie-object-create-attended
       *ngSwitchCase="'actie.document.maken'"
       [sideNav]="actionsSidenav"
@@ -326,12 +332,6 @@
                     "
                     class="flex-item"
                   ></zac-static-text>
-                  <zac-static-text
-                    *ngIf="!locationFeatureCookie"
-                    [label]="'locatie' | translate"
-                    [value]="zaak.zaakgeometrie | location | empty"
-                    class="flex-item"
-                  ></zac-static-text>
                 </div>
 
                 <div class="flex flex-col gap-10">
@@ -347,13 +347,22 @@
               </div>
             </mat-tab>
 
-            <mat-tab *ngIf="zaak.zaakgeometrie && locationFeatureCookie">
+            <mat-tab *ngIf="zaak.zaakgeometrie">
               <ng-template mat-tab-label>
                 <mat-icon>place</mat-icon>
                 {{ "locatie" | translate }}</ng-template
               >
               <div id="locatie_tab" class="table-wrapper">
                 <div class="flex flex-col gap-10 editable">
+                  <button
+                    *ngIf="zaak.rechten.wijzigenLocatie"
+                    mat-icon-button
+                    mat-small-icon-button
+                    (click)="editLocationDetails()"
+                  >
+                    <mat-icon>edit</mat-icon>
+                  </button>
+
                   <zac-static-text
                     [label]="'coordinates' | translate"
                     [value]="zaak.zaakgeometrie | location | empty"
@@ -963,6 +972,11 @@
       (documentMoveToCase)="documentMoveToCase($event)"
     ></zac-zaak-documenten>
 
-    <zac-notities [uuid]="zaak.uuid" [type]="notitieType"></zac-notities>
+    <zac-notities
+      *ngIf="notitieRechten?.lezen || notitieRechten?.wijzigen"
+      [uuid]="zaak.uuid"
+      [type]="notitieType"
+      [notitieRechten]="notitieRechten"
+    ></zac-notities>
   </mat-drawer-content>
 </mat-drawer-container>

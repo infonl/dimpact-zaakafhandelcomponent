@@ -55,7 +55,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                     id shouldBe "FG"
                     firstName shouldBe ""
                     lastName shouldBe "Functionele gebruiker"
-                    roles shouldBe setOf("functionele_gebruiker")
+                    roles shouldBe emptySet()
                 }
             }
 
