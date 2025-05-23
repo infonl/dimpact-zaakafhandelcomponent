@@ -12,39 +12,11 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<div>
-  <mat-tab-group mat-stretch-tabs="false">
-    <mat-tab label="{{ 'gegevens.algemeen' | translate }}">
-      <ng-template mat-tab-label>
-        <mat-icon>topic</mat-icon>
-        {{ "gegevens.algemeen" | translate }}</ng-template
-      >
-      <div class="form">
-        <mfb-form
-          *ngIf="formFields"
-          [formFields]="formFields"
-          [config]="formConfig"
-          (formSubmit)="saveFromFormView($event)"
-          (formPartial)="saveFromFormView($event)"
-        ></mfb-form>
-      </div>
-    </mat-tab>
-    <mat-tab
-      label="{{ 'locatie' | translate }}"
-      [disabled]="!zaak.rechten.wijzigenLocatie"
-    >
-      <ng-template mat-tab-label>
-        <mat-icon>place</mat-icon>
-        {{ "locatie" | translate }}
-      </ng-template>
-      <zac-locatie-zoek
-        [currentLocation]="zaak.zaakgeometrie"
-        [readonly]="!zaak.rechten.wijzigenLocatie"
-        [reasonControl]="reasonField.formControl"
-        (locatie)="saveFromMapView()"
-        (locationChanged)="locationChanged($event)"
-        [sideNav]="sideNav"
-      ></zac-locatie-zoek>
-    </mat-tab>
-  </mat-tab-group>
+<div class="form">
+  <mfb-form
+    *ngIf="formFields"
+    [formFields]="formFields"
+    [config]="formConfig"
+    (formSubmit)="onSubmit($event)"
+  ></mfb-form>
 </div>
