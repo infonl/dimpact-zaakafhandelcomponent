@@ -5,11 +5,8 @@
 
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { OverigeRechten } from "./model/overige-rechten";
-import { WerklijstRechten } from "./model/werklijst-rechten";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",
@@ -17,24 +14,21 @@ import { WerklijstRechten } from "./model/werklijst-rechten";
 export class PolicyService {
   constructor(
     private http: HttpClient,
+    private zacHttp: ZacHttpClient,
     private foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
   private basepath = "/rest/policy";
 
-  readWerklijstRechten(): Observable<WerklijstRechten> {
-    return this.http
-      .get<WerklijstRechten>(`${this.basepath}/werklijstRechten`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readWerklijstRechten() {
+    return this.zacHttp.GET(`/rest/policy/werklijstRechten`);
   }
 
-  readOverigeRechten(): Observable<OverigeRechten> {
-    return this.http
-      .get<OverigeRechten>(`${this.basepath}/overigeRechten`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readOverigeRechten() {
+    return this.zacHttp.GET(`/rest/policy/overigeRechten`);
+  }
+
+  readNotitieRechten() {
+    return this.zacHttp.GET(`/rest/policy/notitieRechten`);
   }
 }
