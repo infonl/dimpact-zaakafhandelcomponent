@@ -48,10 +48,10 @@ We truncate at 57 chars in order to provide space for the suffix
 
 {{/*
 Create a default fully qualified name for solrcloud.
-We truncate at 57 chars in order to provide space for the suffix
+We truncate at 25 chars in order to provide space for the suffixes set by the solr-operator and zookeeper
 */}}
 {{- define "zaakafhandelcomponent.solrcloud.fullname" -}}
-{{ include "zaakafhandelcomponent.fullname" . | trunc 57 | trimSuffix "-" }}-solr
+{{ include "zaakafhandelcomponent.fullname" . | trunc 25 | trimSuffix "-" }}-solr
 {{- end }}
 
 {{/*
