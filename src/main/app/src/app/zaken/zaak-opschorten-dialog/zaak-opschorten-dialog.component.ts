@@ -160,10 +160,14 @@ export class ZaakOpschortenDialogComponent implements OnDestroy {
     const zaakOpschortGegevens: GeneratedType<"RESTZaakOpschortGegevens"> = {
       indicatieOpschorting: true,
       duurDagen: this.duurDagenField.formControl.value ?? undefined,
-      einddatumGepland: String(this.einddatumGeplandField.formControl.value),
+      einddatumGepland: moment(
+        this.einddatumGeplandField.formControl.value,
+      ).toISOString(),
       uiterlijkeEinddatumAfdoening: this.uiterlijkeEinddatumAfdoeningField
         .formControl.value
-        ? String(this.uiterlijkeEinddatumAfdoeningField.formControl.value)
+        ? moment(
+            this.uiterlijkeEinddatumAfdoeningField.formControl.value,
+          ).toISOString()
         : undefined,
       redenOpschorting: this.redenOpschortingField.formControl.value,
     };
