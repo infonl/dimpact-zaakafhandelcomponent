@@ -24,13 +24,13 @@ import * as source from "ol/source.js";
 import * as style from "ol/style.js";
 import WMTSTileGrid from "ol/tilegrid/WMTS.js";
 import { environment } from "src/environments/environment";
-import { LocationUtil } from "../../../shared/location/location-util";
+import { LocationUtil } from "../../shared/location/location-util";
 import {
   AddressResult,
   LocationService,
-} from "../../../shared/location/location.service";
-import { GeneratedType } from "../../../shared/utils/generated-types";
-import { GeometryType } from "../../model/geometryType";
+} from "../../shared/location/location.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
+import { GeometryType } from "../model/geometryType";
 
 @Component({
   selector: "zac-locatie-tonen",
@@ -153,6 +153,12 @@ export class LocatieTonenComponent implements OnInit, AfterViewInit {
     }
   }
 
+  ngOnChanges(): void {
+    if (this.currentLocation) {
+      this.setLocation(this.currentLocation);
+    }
+  }
+
   private setLocation(geometry?: GeneratedType<"RestGeometry">) {
     this.clearPreviousMarker();
 
@@ -162,9 +168,7 @@ export class LocatieTonenComponent implements OnInit, AfterViewInit {
 
         const coordinate = LocationUtil.pointToCoordinate(geometry.point);
         this.addMarker(coordinate);
-        if ((this.map.getView()?.getZoom() ?? 0) < this.MAX_ZOOM) {
-          this.zoomToMarker(coordinate);
-        }
+        this.zoomToMarker(coordinate);
         this.locationService
           .coordinateToAddress(coordinate)
           .subscribe((objectData) => {

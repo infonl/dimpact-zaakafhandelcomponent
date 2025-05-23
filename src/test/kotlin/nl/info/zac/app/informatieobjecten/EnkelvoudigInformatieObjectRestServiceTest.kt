@@ -9,6 +9,7 @@ import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.Runs
 import io.mockk.every
@@ -16,7 +17,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.client.officeconverter.OfficeConverterClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.zrc.ZrcClientService
@@ -40,6 +40,8 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.zac.app.exception.RestExceptionMapper
+import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
 import nl.info.zac.app.informatieobjecten.model.createRESTFileUpload
 import nl.info.zac.app.informatieobjecten.model.createRESTInformatieobjectZoekParameters
 import nl.info.zac.app.informatieobjecten.model.createRestDocumentVerzendGegevens
@@ -65,10 +67,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val enkelvoudigInformatieObjectDownloadService = mockk<EnkelvoudigInformatieObjectDownloadService>()
     val enkelvoudigInformatieObjectLockService = mockk<EnkelvoudigInformatieObjectLockService>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
+    val enkelvoudigInformatieObjectConvertService = mockk<EnkelvoudigInformatieObjectConvertService>()
     val eventingService = mockk<EventingService>()
     val inboxDocumentenService = mockk<InboxDocumentenService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val officeConverterClientService = mockk<OfficeConverterClientService>()
     val ontkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
     val policyService = mockk<PolicyService>()
     val restGerelateerdeZaakConverter = mockk<RestGerelateerdeZaakConverter>()
@@ -99,7 +101,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         policyService = policyService,
         enkelvoudigInformatieObjectDownloadService = enkelvoudigInformatieObjectDownloadService,
         enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService,
-        officeConverterClientService = officeConverterClientService
+        enkelvoudigInformatieObjectConvertService = enkelvoudigInformatieObjectConvertService
     )
 
     isolationMode = IsolationMode.InstancePerTest
@@ -450,6 +452,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     }
     Given("An enkelvoudig informatieobject") {
         val informatieobjectUUID = UUID.randomUUID()
+        val zaak = createZaak()
         val enkelvoudiginformatieobject = createEnkelvoudigInformatieObject()
         val restEnkelvoudigInformatieObjectVersieGegevens =
             createRestEnkelvoudigInformatieObjectVersieGegevens(uuid = informatieobjectUUID)
@@ -457,6 +460,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             drcClientService.readEnkelvoudigInformatieobject(informatieobjectUUID)
         } returns enkelvoudiginformatieobject
         every { policyService.readDocumentRechten(enkelvoudiginformatieobject) } returns createDocumentRechten()
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { policyService.readDocumentRechten(enkelvoudiginformatieobject, zaak) } returns createDocumentRechten()
         every {
             restInformatieobjectConverter.convertToRestEnkelvoudigInformatieObjectVersieGegevens(enkelvoudiginformatieobject)
         } returns restEnkelvoudigInformatieObjectVersieGegevens
@@ -467,6 +472,42 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             Then("the current version of the enkelvoudig informatieobject is returned") {
                 returnedEnkelvoudigInformatieObjectVersieGegevens shouldBe restEnkelvoudigInformatieObjectVersieGegevens
+            }
+        }
+        When("the enkelvoudig informatieobject is trying to be converted with status definitief") {
+            every {
+                enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObject(
+                    any(), any()
+                )
+            } just Runs
+
+            enkelvoudiginformatieobject.status = StatusEnum.DEFINITIEF
+            val resp = enkelvoudigInformatieObjectRestService.convertInformatieObjectToPDF(
+                informatieobjectUUID,
+                zaak.uuid
+            )
+            Then("the response should be ok") {
+                resp.status shouldBe 200
+            }
+        }
+        When("the enkelvoudig informatieobject is trying to be converted with status in bewerking") {
+            every {
+                enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObject(
+                    any(),
+                    any()
+                )
+            } throws EnkelvoudigInformatieObjectConversionException()
+
+            val resp = try {
+                enkelvoudigInformatieObjectRestService.convertInformatieObjectToPDF(informatieobjectUUID, zaak.uuid)
+            } catch (e: Exception) {
+                RestExceptionMapper().toResponse(e)
+            }
+
+            Then("the response should be an error message") {
+                resp.status shouldBe 400
+                val entity = resp.entity as String
+                entity shouldContain """"message":"msg.error.convert.not.possible""""
             }
         }
     }

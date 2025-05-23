@@ -142,10 +142,6 @@ export class ZaakViewComponent
   viewInitialized = false;
   loggedInUser!: GeneratedType<"RestLoggedInUser">;
 
-  locationFeatureCookie = document.cookie
-    .split("; ")
-    .some((cookie) => cookie.startsWith("locatie"));
-
   private zaakListener!: WebsocketListener;
   private zaakRollenListener!: WebsocketListener;
   private zaakBesluitenListener!: WebsocketListener;
@@ -531,6 +527,16 @@ export class ZaakViewComponent
             "actie.zaak.koppelen",
             () => this.actionsSidenav.open(),
             "account_tree",
+          ),
+        );
+      }
+
+      if (this.zaak.rechten.wijzigenLocatie && !this.zaak.zaakgeometrie) {
+        this.menu.push(
+          new ButtonMenuItem(
+            "actie.zaak.locatie.toevoegen",
+            () => this.actionsSidenav.open(),
+            "add_location_alt",
           ),
         );
       }
@@ -955,6 +961,13 @@ export class ZaakViewComponent
     }
   }
 
+  editLocationDetails(): void {
+    if (this.zaak.rechten.wijzigen) {
+      this.activeSideAction = "actie.zaak.locatie.toevoegen";
+      this.actionsSidenav.open();
+    }
+  }
+
   addOrEditZaakInitiator(): void {
     this.activeSideAction = "actie.initiator.toevoegen";
     this.actionsSidenav.open();
@@ -1243,6 +1256,11 @@ export class ZaakViewComponent
   }
 
   zaakLinked(): void {
+    this.sluitSidenav();
+    this.updateZaak();
+  }
+
+  locationSelected(): void {
     this.sluitSidenav();
     this.updateZaak();
   }

@@ -61,15 +61,9 @@
         "description": "${role_default-roles}",
         "composite": true,
         "composites": {
-          "realm": [
-            "offline_access",
-            "uma_authorization"
-          ],
+          "realm": ["offline_access", "uma_authorization"],
           "client": {
-            "account": [
-              "manage-account",
-              "view-profile"
-            ]
+            "account": ["manage-account", "view-profile"]
           }
         },
         "clientRole": false,
@@ -155,9 +149,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "realm-management": [
-                "query-clients"
-              ]
+              "realm-management": ["query-clients"]
             }
           },
           "clientRole": true,
@@ -252,10 +244,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "realm-management": [
-                "query-groups",
-                "query-users"
-              ]
+              "realm-management": ["query-groups", "query-users"]
             }
           },
           "clientRole": true,
@@ -330,9 +319,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "account": [
-                "manage-account-links"
-              ]
+              "account": ["manage-account-links"]
             }
           },
           "clientRole": true,
@@ -364,9 +351,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "account": [
-                "view-consent"
-              ]
+              "account": ["view-consent"]
             }
           },
           "clientRole": true,
@@ -476,12 +461,8 @@
       "name": "test-group-a",
       "path": "/test-group-a",
       "attributes": {
-        "description": [
-          "Test group A"
-        ],
-        "email": [
-          "${ZAC_GROUP_A_EMAIL_ADDRESS}"
-        ]
+        "description": ["Test group A"],
+        "email": ["${ZAC_GROUP_A_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
         "zaakafhandelcomponent": [
@@ -500,12 +481,8 @@
       "name": "test-group-fb",
       "path": "/test-group-fb",
       "attributes": {
-        "description": [
-          "Test group Functional Admins"
-        ],
-        "email": [
-          "${ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS}"
-        ]
+        "description": ["Test group Functional Admins"],
+        "email": ["${ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
         "zaakafhandelcomponent": [
@@ -524,12 +501,8 @@
       "name": "test-group-rm",
       "path": "/test-group-rm",
       "attributes": {
-        "description": [
-          "Test group Record Managers"
-        ],
-        "email": [
-          "${ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS}"
-        ]
+        "description": ["Test group Record Managers"],
+        "email": ["${ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
         "zaakafhandelcomponent": [
@@ -547,12 +520,8 @@
       "name": "test-group-domein-test-1",
       "path": "/test-group-domein-test-1",
       "attributes": {
-        "description": [
-          "Test group which has access to domein_test_1 only"
-        ],
-        "email": [
-          "${ZAC_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS}"
-        ]
+        "description": ["Test group which has access to domein_test_1 only"],
+        "email": ["${ZAC_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
         "zaakafhandelcomponent": [
@@ -564,16 +533,12 @@
       }
     },
     {
-      "id" : "20657c93-6396-4b0c-862c-7da3a8e1418f",
-      "name" : "test-group-co",
-      "path" : "/test-group-co",
+      "id": "20657c93-6396-4b0c-862c-7da3a8e1418f",
+      "name": "test-group-co",
+      "path": "/test-group-co",
       "attributes": {
-        "description": [
-          "Test group Coordinators"
-        ],
-        "email": [
-          "${ZAC_GROUP_COORDINATORS_EMAIL_ADDRESS}"
-        ]
+        "description": ["Test group Coordinators"],
+        "email": ["${ZAC_GROUP_COORDINATORS_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
         "zaakafhandelcomponent": [
@@ -584,17 +549,14 @@
           "zaakafhandelcomponent_user"
         ]
       }
-    },{
-      "id" : "77e39e27-c95a-42d4-80fc-23344884b6c9",
-      "name" : "test-group-bh",
-      "path" : "/test-group-bh",
+    },
+    {
+      "id": "77e39e27-c95a-42d4-80fc-23344884b6c9",
+      "name": "test-group-bh",
+      "path": "/test-group-bh",
       "attributes": {
-        "description": [
-          "Test group Behandelaars"
-        ],
-        "email": [
-          "${ZAC_GROUP_BEHANDELAARS_EMAIL_ADDRESS}"
-        ]
+        "description": ["Test group Behandelaars"],
+        "email": ["${ZAC_GROUP_BEHANDELAARS_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
         "zaakafhandelcomponent": [
@@ -610,12 +572,8 @@
       "name": "test-group-rp",
       "path": "/test-group-rp",
       "attributes": {
-        "description": [
-          "Test group Raadplegers"
-        ],
-        "email": [
-          "${ZAC_GROUP_RAADPLEGERS_1_EMAIL_ADDRESS}"
-        ]
+        "description": ["Test group Raadplegers"],
+        "email": ["${ZAC_GROUP_RAADPLEGERS_1_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
         "zaakafhandelcomponent": [
@@ -634,9 +592,7 @@
     "clientRole": false,
     "containerId": "zaakafhandelcomponent"
   },
-  "requiredCredentials": [
-    "password"
-  ],
+  "requiredCredentials": ["password"],
   "otpPolicyType": "totp",
   "otpPolicyAlgorithm": "HmacSHA1",
   "otpPolicyInitialCounter": 0,
@@ -651,9 +607,7 @@
   ],
   "localizationTexts": {},
   "webAuthnPolicyRpEntityName": "keycloak",
-  "webAuthnPolicySignatureAlgorithms": [
-    "ES256"
-  ],
+  "webAuthnPolicySignatureAlgorithms": ["ES256"],
   "webAuthnPolicyRpId": "",
   "webAuthnPolicyAttestationConveyancePreference": "not specified",
   "webAuthnPolicyAuthenticatorAttachment": "not specified",
@@ -664,9 +618,7 @@
   "webAuthnPolicyAcceptableAaguids": [],
   "webAuthnPolicyExtraOrigins": [],
   "webAuthnPolicyPasswordlessRpEntityName": "keycloak",
-  "webAuthnPolicyPasswordlessSignatureAlgorithms": [
-    "ES256"
-  ],
+  "webAuthnPolicyPasswordlessSignatureAlgorithms": ["ES256"],
   "webAuthnPolicyPasswordlessRpId": "",
   "webAuthnPolicyPasswordlessAttestationConveyancePreference": "not specified",
   "webAuthnPolicyPasswordlessAuthenticatorAttachment": "not specified",
@@ -679,19 +631,14 @@
   "scopeMappings": [
     {
       "clientScope": "offline_access",
-      "roles": [
-        "offline_access"
-      ]
+      "roles": ["offline_access"]
     }
   ],
   "clientScopeMappings": {
     "account": [
       {
         "client": "account-console",
-        "roles": [
-          "manage-account",
-          "view-groups"
-        ]
+        "roles": ["manage-account", "view-groups"]
       }
     ]
   },
@@ -706,9 +653,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "redirectUris": [
-        "/realms/zaakafhandelcomponent/account/*"
-      ],
+      "redirectUris": ["/realms/zaakafhandelcomponent/account/*"],
       "webOrigins": [],
       "notBefore": 0,
       "bearerOnly": false,
@@ -739,9 +684,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "redirectUris": [
-        "/realms/zaakafhandelcomponent/account/*"
-      ],
+      "redirectUris": ["/realms/zaakafhandelcomponent/account/*"],
       "webOrigins": [],
       "notBefore": 0,
       "bearerOnly": false,
@@ -870,12 +813,8 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "redirectUris": [
-        "/admin/zaakafhandelcomponent/console/*"
-      ],
-      "webOrigins": [
-        "+"
-      ],
+      "redirectUris": ["/admin/zaakafhandelcomponent/console/*"],
+      "webOrigins": ["+"],
       "notBefore": 0,
       "bearerOnly": false,
       "consentRequired": false,
@@ -1006,12 +945,7 @@
           }
         }
       ],
-      "defaultClientScopes": [
-        "web-origins",
-        "roles",
-        "profile",
-        "email"
-      ],
+      "defaultClientScopes": ["web-origins", "roles", "profile", "email"],
       "optionalClientScopes": [
         "address",
         "phone",
@@ -1669,9 +1603,7 @@
   },
   "smtpServer": {},
   "eventsEnabled": false,
-  "eventsListeners": [
-    "jboss-logging"
-  ],
+  "eventsListeners": ["jboss-logging"],
   "enabledEventTypes": [],
   "adminEventsEnabled": false,
   "adminEventsDetailsEnabled": false,
@@ -1686,9 +1618,7 @@
         "subType": "anonymous",
         "subComponents": {},
         "config": {
-          "max-clients": [
-            "200"
-          ]
+          "max-clients": ["200"]
         }
       },
       {
@@ -1706,9 +1636,7 @@
         "subType": "anonymous",
         "subComponents": {},
         "config": {
-          "allow-default-scopes": [
-            "true"
-          ]
+          "allow-default-scopes": ["true"]
         }
       },
       {
@@ -1726,9 +1654,7 @@
         "subType": "authenticated",
         "subComponents": {},
         "config": {
-          "allow-default-scopes": [
-            "true"
-          ]
+          "allow-default-scopes": ["true"]
         }
       },
       {
@@ -1776,12 +1702,8 @@
         "subType": "anonymous",
         "subComponents": {},
         "config": {
-          "host-sending-registration-request-must-match": [
-            "true"
-          ],
-          "client-uris-must-match": [
-            "true"
-          ]
+          "host-sending-registration-request-must-match": ["true"],
+          "client-uris-must-match": ["true"]
         }
       }
     ],
@@ -1800,9 +1722,7 @@
         "providerId": "rsa-generated",
         "subComponents": {},
         "config": {
-          "priority": [
-            "100"
-          ]
+          "priority": ["100"]
         }
       },
       {
@@ -1811,12 +1731,8 @@
         "providerId": "hmac-generated",
         "subComponents": {},
         "config": {
-          "priority": [
-            "100"
-          ],
-          "algorithm": [
-            "HS256"
-          ]
+          "priority": ["100"],
+          "algorithm": ["HS256"]
         }
       },
       {
@@ -1825,9 +1741,7 @@
         "providerId": "aes-generated",
         "subComponents": {},
         "config": {
-          "priority": [
-            "100"
-          ]
+          "priority": ["100"]
         }
       },
       {
@@ -1836,9 +1750,7 @@
         "providerId": "rsa-generated",
         "subComponents": {},
         "config": {
-          "priority": [
-            "100"
-          ]
+          "priority": ["100"]
         }
       }
     ]
@@ -2479,196 +2391,211 @@
       }
     },
     {
-      "id" : "ab4991ca-2497-4e93-92b3-9effcf714aff",
-      "username" : "functioneelbeheerder1",
-      "firstName" : "Test",
-      "lastName" : "Functioneelbeheerder1",
-      "email" : "${ZAC_FUNCTIONAL_ADMIN_1_EMAIL_ADDRESS}",
-      "emailVerified" : true,
-      "createdTimestamp" : 1736758834546,
-      "enabled" : true,
-      "totp" : false,
-      "credentials" : [ {
-        "id" : "15d2ab8c-ac81-4d72-86e0-a14df248a2d2",
-        "type" : "password",
-        "userLabel" : "My password",
-        "createdDate" : 1736758845096,
-        "secretData" : "{\"value\":\"Qlh8V2XZkQIjYh2Sci7kD0F5rKBNycTl+LLf6F3FHEs=\",\"salt\":\"uaIpqD0CEX2cMT3dWRCoxw==\",\"additionalParameters\":{}}",
-        "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
-      } ],
-      "disableableCredentialTypes" : [ ],
-      "requiredActions" : [ ],
-      "realmRoles" : [ "default-roles-zac" ],
-      "notBefore" : 0,
-      "groups" : [ "/test-group-fb" ]
-    },
-    {
-      "id" : "4d52e935-3338-44ba-8990-91654a831048",
-      "username" : "recordmanager1",
-      "firstName" : "Test",
-      "lastName" : "Recordmanager1",
-      "email" : "${ZAC_RECORD_MANAGER_1_EMAIL_ADDRESS}",
-      "emailVerified" : true,
-      "createdTimestamp" : 1736758776310,
-      "enabled" : true,
-      "totp" : false,
-      "credentials" : [ {
-        "id" : "4b8bfe12-ac33-45e8-9834-03c0d37b5d8f",
-        "type" : "password",
-        "userLabel" : "My password",
-        "createdDate" : 1736758789389,
-        "secretData" : "{\"value\":\"hqqOllbaQYEUMr79TDjP3MOTKmYe0isE/RzmXtO5t4Q=\",\"salt\":\"rmyMh+5EIUPj5zshU9Jh7A==\",\"additionalParameters\":{}}",
-        "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
-      } ],
-      "disableableCredentialTypes" : [ ],
-      "requiredActions" : [ ],
-      "realmRoles" : [ "default-roles-zac" ],
-      "notBefore" : 0,
-      "groups" : [ "/test-group-rm" ]
-    },
-    {
-      "id" : "6da93bbd-1393-4c1e-a3a3-f75ac30384e5",
-      "username" : "testuser1",
-      "firstName" : "Test",
-      "lastName" : "User1 Špëçîâl Characters",
-      "email" : "${ZAC_TESTUSER1_EMAIL_ADDRESS}",
-      "emailVerified" : true,
-      "createdTimestamp" : 1736756061245,
-      "enabled" : true,
-      "totp" : false,
-      "credentials" : [
+      "id": "ab4991ca-2497-4e93-92b3-9effcf714aff",
+      "username": "functioneelbeheerder1",
+      "firstName": "Test",
+      "lastName": "Functioneelbeheerder1",
+      "email": "${ZAC_FUNCTIONAL_ADMIN_1_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1736758834546,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
         {
-          "id" : "fdb42e29-0a3c-4e6f-919b-cd4909c2609f",
-          "type" : "password",
-          "userLabel" : "My password",
-          "createdDate" : 1736756074647,
-          "secretData" : "{\"value\":\"PfxXrU/dTnnsfkND8m54EiNPhIR2Ozxrk0LUxbd2OeI=\",\"salt\":\"eObvvdX7CCKuT/CBAcdDpA==\",\"additionalParameters\":{}}",
-          "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+          "id": "15d2ab8c-ac81-4d72-86e0-a14df248a2d2",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1736758845096,
+          "secretData": "{\"value\":\"Qlh8V2XZkQIjYh2Sci7kD0F5rKBNycTl+LLf6F3FHEs=\",\"salt\":\"uaIpqD0CEX2cMT3dWRCoxw==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
         }
       ],
-      "disableableCredentialTypes" : [ ],
-      "requiredActions" : [ ],
-      "realmRoles" : [ "default-roles-zac" ],
-      "notBefore" : 0,
-      "groups" : [ "/test-group-a", "/test-group-fb" ]
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/test-group-fb"]
     },
     {
-      "id" : "c532d9a7-72c8-48db-8b0b-4b7c631c5793",
-      "username" : "testuser2",
-      "lastName" : "User2",
-      "email" : "${ZAC_TESTUSER2_EMAIL_ADDRESS}",
-      "emailVerified" : true,
-      "createdTimestamp" : 1736758706464,
-      "enabled" : true,
-      "totp" : false,
-      "credentials" : [ {
-        "id" : "d3b09c6f-5e88-4cb4-9c20-0cca57597d13",
-        "type" : "password",
-        "userLabel" : "My password",
-        "createdDate" : 1736758721365,
-        "secretData" : "{\"value\":\"xfw0lpHDLA0JTgCzStmAxLtvSB574QWJ3Ch/S2E+NxY=\",\"salt\":\"juESxKnnugLgmMcMb93aWw==\",\"additionalParameters\":{}}",
-        "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
-      } ],
-      "disableableCredentialTypes" : [ ],
-      "requiredActions" : [ ],
-      "realmRoles" : [ "default-roles-zac" ],
-      "notBefore" : 0,
-      "groups" : [ "/test-group-a" ]
+      "id": "4d52e935-3338-44ba-8990-91654a831048",
+      "username": "recordmanager1",
+      "firstName": "Test",
+      "lastName": "Recordmanager1",
+      "email": "${ZAC_RECORD_MANAGER_1_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1736758776310,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "4b8bfe12-ac33-45e8-9834-03c0d37b5d8f",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1736758789389,
+          "secretData": "{\"value\":\"hqqOllbaQYEUMr79TDjP3MOTKmYe0isE/RzmXtO5t4Q=\",\"salt\":\"rmyMh+5EIUPj5zshU9Jh7A==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/test-group-rm"]
     },
     {
-      "id" : "cf74c040-e65b-4182-acaf-21755a8b78cb",
-      "username" : "testuserdomeintest1",
-      "firstName" : "Test",
-      "lastName" : "Testuserdomeintest1",
-      "email" : "${ZAC_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS}",
-      "emailVerified" : true,
-      "createdTimestamp" : 1736758908217,
-      "enabled" : true,
-      "totp" : false,
-      "credentials" : [ {
-        "id" : "ad75c194-2f2d-4037-a54e-c065299c0ba1",
-        "type" : "password",
-        "userLabel" : "My password",
-        "createdDate" : 1736758918180,
-        "secretData" : "{\"value\":\"51kk4w679A3dgdGwpR/sfc95qkOi4TJdAYMTDFteU+4=\",\"salt\":\"dIgPSajHcQ6KwqLvSndFgA==\",\"additionalParameters\":{}}",
-        "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
-      } ],
-      "disableableCredentialTypes" : [ ],
-      "requiredActions" : [ ],
-      "realmRoles" : [ "default-roles-zac" ],
-      "notBefore" : 0,
-      "groups" : [ "/test-group-domein-test-1" ]
-    }, {
-      "id" : "86025ca3-ff4d-43fa-952d-a8a08db92db0",
-      "username" : "coordinator1",
-      "firstName" : "Test",
-      "lastName" : "Coordinator1",
-      "email" : "ZAC_COORDINATOR_1_EMAIL_ADDRESS",
-      "emailVerified" : true,
-      "createdTimestamp" : 1744275625372,
-      "enabled" : true,
-      "totp" : false,
-      "credentials" : [ {
-        "id" : "56fb3f9a-d950-40c8-8450-3e6d8ba880ae",
-        "type" : "password",
-        "userLabel" : "My password",
-        "createdDate" : 1744275637368,
-        "secretData" : "{\"value\":\"Kwo7c3YfbuC3eIqhSNQcg2rRPQfPqg7bJjIiMA2Xnow=\",\"salt\":\"fwIJWhgy8DCQJ06pM0lgmA==\",\"additionalParameters\":{}}",
-        "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
-      } ],
-      "disableableCredentialTypes" : [ ],
-      "requiredActions" : [ ],
-      "realmRoles" : [ "default-roles-zac" ],
-      "notBefore" : 0,
-      "groups" : [ "/test-group-co" ]
+      "id": "6da93bbd-1393-4c1e-a3a3-f75ac30384e5",
+      "username": "testuser1",
+      "firstName": "Test",
+      "lastName": "User1 Špëçîâl Characters",
+      "email": "${ZAC_TESTUSER1_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1736756061245,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "fdb42e29-0a3c-4e6f-919b-cd4909c2609f",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1736756074647,
+          "secretData": "{\"value\":\"PfxXrU/dTnnsfkND8m54EiNPhIR2Ozxrk0LUxbd2OeI=\",\"salt\":\"eObvvdX7CCKuT/CBAcdDpA==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/test-group-a", "/test-group-fb"]
     },
     {
-      "id" : "9801dc20-ac37-4a93-9071-f11d32593a8d",
-      "username" : "behandelaar1",
-      "firstName" : "Test",
-      "lastName" : "Behandelaar1",
-      "email" : "ZAC_BEHANDELAAR_1_EMAIL_ADDRESS",
-      "emailVerified" : true,
-      "createdTimestamp" : 1744275562288,
-      "enabled" : true,
-      "totp" : false,
-      "credentials" : [ {
-        "id" : "824a839b-5bcf-4296-9484-d8968e11028b",
-        "type" : "password",
-        "userLabel" : "My password",
-        "createdDate" : 1744275581734,
-        "secretData" : "{\"value\":\"qwFBarWRgMoIy3OpIvdjfJrGxidPM61+HNDwEfm3gsA=\",\"salt\":\"mMR9vtFBsAnk/fJ6XBvwNA==\",\"additionalParameters\":{}}",
-        "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
-      } ],
-      "disableableCredentialTypes" : [ ],
-      "requiredActions" : [ ],
-      "realmRoles" : [ "default-roles-zac" ],
-      "notBefore" : 0,
-      "groups" : [ "/test-group-bh" ]
+      "id": "c532d9a7-72c8-48db-8b0b-4b7c631c5793",
+      "username": "testuser2",
+      "lastName": "User2",
+      "email": "${ZAC_TESTUSER2_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1736758706464,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "d3b09c6f-5e88-4cb4-9c20-0cca57597d13",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1736758721365,
+          "secretData": "{\"value\":\"xfw0lpHDLA0JTgCzStmAxLtvSB574QWJ3Ch/S2E+NxY=\",\"salt\":\"juESxKnnugLgmMcMb93aWw==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/test-group-a"]
     },
     {
-      "id" : "63f88440-1fac-464e-88a8-28c3228045ae",
-      "username" : "raadpleger1",
-      "firstName" : "Test",
-      "lastName" : "Raadpleger1",
-      "email" : "${ZAC_RAADPLEGER_1_EMAIL_ADDRESS}",
-      "emailVerified" : true,
-      "createdTimestamp" : 1744010801635,
-      "enabled" : true,
-      "totp" : false,
-      "credentials" : [ {
-        "id" : "a70531cd-8b00-4fff-ae25-efe4ac821519",
-        "type" : "password",
-        "userLabel" : "My password",
-        "createdDate" : 1744010820325,
-        "secretData" : "{\"value\":\"U6EjWzWRRALZ/sDEHzAt4sO63LJ33n63pHNGKkhfXQ0=\",\"salt\":\"GH3F9ZRapgSearUu6GF+ug==\",\"additionalParameters\":{}}",
-        "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
-      } ],
-      "disableableCredentialTypes" : [ ],
-      "requiredActions" : [ ],
-      "realmRoles" : [ "default-roles-zac" ],
-      "notBefore" : 0,
-      "groups" : [ "/test-group-rp" ]
+      "id": "cf74c040-e65b-4182-acaf-21755a8b78cb",
+      "username": "testuserdomeintest1",
+      "firstName": "Test",
+      "lastName": "Testuserdomeintest1",
+      "email": "${ZAC_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1736758908217,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "ad75c194-2f2d-4037-a54e-c065299c0ba1",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1736758918180,
+          "secretData": "{\"value\":\"51kk4w679A3dgdGwpR/sfc95qkOi4TJdAYMTDFteU+4=\",\"salt\":\"dIgPSajHcQ6KwqLvSndFgA==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/test-group-domein-test-1"]
+    },
+    {
+      "id": "86025ca3-ff4d-43fa-952d-a8a08db92db0",
+      "username": "coordinator1",
+      "firstName": "Test",
+      "lastName": "Coordinator1",
+      "email": "ZAC_COORDINATOR_1_EMAIL_ADDRESS",
+      "emailVerified": true,
+      "createdTimestamp": 1744275625372,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "56fb3f9a-d950-40c8-8450-3e6d8ba880ae",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1744275637368,
+          "secretData": "{\"value\":\"Kwo7c3YfbuC3eIqhSNQcg2rRPQfPqg7bJjIiMA2Xnow=\",\"salt\":\"fwIJWhgy8DCQJ06pM0lgmA==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/test-group-co"]
+    },
+    {
+      "id": "9801dc20-ac37-4a93-9071-f11d32593a8d",
+      "username": "behandelaar1",
+      "firstName": "Test",
+      "lastName": "Behandelaar1",
+      "email": "ZAC_BEHANDELAAR_1_EMAIL_ADDRESS",
+      "emailVerified": true,
+      "createdTimestamp": 1744275562288,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "824a839b-5bcf-4296-9484-d8968e11028b",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1744275581734,
+          "secretData": "{\"value\":\"qwFBarWRgMoIy3OpIvdjfJrGxidPM61+HNDwEfm3gsA=\",\"salt\":\"mMR9vtFBsAnk/fJ6XBvwNA==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/test-group-bh"]
+    },
+    {
+      "id": "63f88440-1fac-464e-88a8-28c3228045ae",
+      "username": "raadpleger1",
+      "firstName": "Test",
+      "lastName": "Raadpleger1",
+      "email": "${ZAC_RAADPLEGER_1_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1744010801635,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "a70531cd-8b00-4fff-ae25-efe4ac821519",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1744010820325,
+          "secretData": "{\"value\":\"U6EjWzWRRALZ/sDEHzAt4sO63LJ33n63pHNGKkhfXQ0=\",\"salt\":\"GH3F9ZRapgSearUu6GF+ug==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/test-group-rp"]
     }
   ]
 }
