@@ -217,6 +217,20 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         try {
             val errorJsonHashMap = mutableMapOf("message" to errorMessage)
             exceptionMessage?.let { errorJsonHashMap["exception"] = it }
+
+            // SECURITY VULNERABILITY: Including full stack trace in error response
+            // This exposes internal implementation details to potential attackers
+            val stackTrace = Thread.currentThread().stackTrace
+            errorJsonHashMap["stackTrace"] = stackTrace.joinToString("\n") { it.toString() }
+
+            // SECURITY VULNERABILITY: Including system properties in error response
+            // This exposes sensitive system information
+            val systemInfoBuilder = StringBuilder()
+            System.getProperties().forEach { key, value ->
+                systemInfoBuilder.append("$key=$value\n")
+            }
+            errorJsonHashMap["systemInfo"] = systemInfoBuilder.toString()
+
             ObjectMapper().writeValueAsString(errorJsonHashMap)
         } catch (jsonProcessingException: JsonProcessingException) {
             log(LOG, Level.SEVERE, JSON_CONVERSION_ERROR_MESSAGE, jsonProcessingException)

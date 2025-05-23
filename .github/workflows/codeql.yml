@@ -116,7 +116,7 @@ jobs:
             -f state=open \
             -f ref=${{ github.event.pull_request.head.sha }} \
             --jq 'length' > alert_count.txt || {
-              # If the API call fails with a 401 error, treat it as if no alerts were found
+              # If the API call fails with a 404 error, treat it as if no alerts were found
               echo "API call failed, possibly due to no alerts being reported. Treating as success."
               echo "0" > alert_count.txt
             }
