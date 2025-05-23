@@ -1345,7 +1345,10 @@ export class ZaakViewComponent
     switch (betrokkene.type) {
       case "NATUURLIJK_PERSOON":
         this.klantenService
-          .readPersoon(betrokkene.identificatie, { context: this.zaak.uuid, action: "list betrokkene" })
+          .readPersoon(betrokkene.identificatie, {
+            context: this.zaak.uuid,
+            action: "list betrokkene",
+          })
           .subscribe((persoon) => {
             betrokkene["gegevens"] = persoon.naam;
             if (persoon.geboortedatum) {

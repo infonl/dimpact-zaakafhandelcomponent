@@ -7,7 +7,8 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
-  Input, OnChanges,
+  Input,
+  OnChanges,
   OnInit,
   ViewChild,
 } from "@angular/core";

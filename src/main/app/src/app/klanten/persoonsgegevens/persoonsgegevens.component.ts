@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {Component, EventEmitter, Output, input } from "@angular/core";
+import { Component, EventEmitter, Output, input } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
-import {of, shareReplay, switchMap} from "rxjs";
+import { of, shareReplay, switchMap } from "rxjs";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
@@ -29,8 +29,11 @@ export class PersoonsgegevensComponent {
 
   persoon$ = this.bsn$.pipe(
     switchMap((bsn) => {
-      if(!bsn) return of(undefined)
-      return this.klantenService.readPersoon(bsn, { context: this.zaakIdentificatie(), action: this.action() })
+      if (!bsn) return of(undefined);
+      return this.klantenService.readPersoon(bsn, {
+        context: this.zaakIdentificatie(),
+        action: this.action(),
+      });
     }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );

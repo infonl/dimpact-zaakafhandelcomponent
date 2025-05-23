@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {Component, EventEmitter, input, Input, Output} from "@angular/core";
+import { Component, EventEmitter, input, Input, Output } from "@angular/core";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateModule } from "@ngx-translate/core";
 import { SharedModule } from "src/app/shared/shared.module";
@@ -100,5 +100,5 @@ export class KlantKoppelComponent {
   @Input() allowBedrijf: boolean;
   @Output() klantGegevens = new EventEmitter<KlantGegevens>();
 
-  context = input.required<string>()
+  context = input.required<string>();
 }

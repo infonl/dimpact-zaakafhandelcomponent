@@ -3,11 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {HttpClient, HttpHeaders} from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { Resultaat } from "../shared/model/resultaat";
 import { BSN_LENGTH } from "../shared/utils/constants";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -17,7 +18,6 @@ import { Vestigingsprofiel } from "./model/bedrijven/vestigingsprofiel";
 import { ContactGegevens } from "./model/klanten/contact-gegevens";
 import { ListPersonenParameters } from "./model/personen/list-personen-parameters";
 import { PersonenParameters } from "./model/personen/personen-parameters";
-import {ZacHttpClient} from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",
@@ -26,19 +26,23 @@ export class KlantenService {
   constructor(
     private readonly http: HttpClient,
     private readonly foutAfhandelingService: FoutAfhandelingService,
-    private readonly zacHttpClient: ZacHttpClient
+    private readonly zacHttpClient: ZacHttpClient,
   ) {}
 
   private basepath = "/rest/klanten";
 
   /* istanbul ignore next */
-  readPersoon(bsn: string, context: { context: string, action: string }) {
-    return this.zacHttpClient.GET("/rest/klanten/persoon/{bsn}", {
-      pathParams: { path: { bsn }, query: context },
-      headers: new HttpHeaders({
-        'x-verwerking': `${context.context}@${context.action}`,
+  readPersoon(bsn: string, audit: { context: string; action: string }) {
+    return this.zacHttpClient
+      .GET("/rest/klanten/persoon/{bsn}", {
+        pathParams: {
+          path: { bsn },
+          header: {
+            "X-Verwerking": `${audit.context}@${audit.action}`,
+          },
+        },
       })
-    }).pipe(
+      .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
@@ -92,16 +96,16 @@ export class KlantenService {
   /* istanbul ignore next */
   listPersonen(
     listPersonenParameters: ListPersonenParameters,
-    context: { context: string, action: string },
+    audit: { context: string; action: string },
   ) {
-    return this.zacHttpClient.PUT("/rest/klanten/personen", {
-      persoon: listPersonenParameters,
-      context,
-    }, {
-      headers: new HttpHeaders({
-        'x-verwerking': `${context.context}@${context.action}`,
-      }),
-    })
+    return this.zacHttpClient
+      .PUT("/rest/klanten/personen", listPersonenParameters, {
+        pathParams: {
+          header: {
+            "X-Verwerking": `${audit.context}@${audit.action}`,
+          },
+        },
+      })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

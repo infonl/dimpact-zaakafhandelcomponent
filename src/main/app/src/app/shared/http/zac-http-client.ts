@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {HttpClient} from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import createClient, { FetchOptions, FetchResponse } from "openapi-fetch";
 import type { FilterKeys, HttpMethod } from "openapi-typescript-helpers";
@@ -47,11 +47,16 @@ export class ZacHttpClient {
   public GET<P extends PathsWithMethod<Paths, "get">>(
     url: P,
     init?: Parameters<HttpClient["get"]>[1] & {
-      pathParams?: FetchOptions<FilterKeys<Paths[P], "get">>["params"];
+      pathParams: FetchOptions<FilterKeys<Paths[P], "get">>["params"];
     },
   ) {
     return this.http
-      .get<Response<P, "get">>(this.prepareUrl(url, init?.pathParams), init)
+      .get<Response<P, "get">>(this.prepareUrl(url, init?.pathParams), {
+        ...init,
+        headers: init?.pathParams?.header
+          ? new HttpHeaders(init?.pathParams?.header)
+          : undefined,
+      })
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),
@@ -63,13 +68,16 @@ export class ZacHttpClient {
     url: P,
     body?: FetchOptions<FilterKeys<Paths[P], "post">>["body"],
     init?: Parameters<HttpClient["post"]>[2] & {
-      pathParams?: FetchOptions<FilterKeys<Paths[P], "post">>["params"];
+      pathParams: FetchOptions<FilterKeys<Paths[P], "post">>["params"];
     },
   ) {
     return this.http
-      .post<
-        Response<P, "post">
-      >(this.prepareUrl(url, init?.pathParams), body, init)
+      .post<Response<P, "post">>(this.prepareUrl(url, init?.pathParams), body, {
+        ...init,
+        headers: init?.pathParams?.header
+          ? new HttpHeaders(init?.pathParams?.header)
+          : undefined,
+      })
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),
@@ -81,13 +89,16 @@ export class ZacHttpClient {
     url: P,
     body: FetchOptions<FilterKeys<Paths[P], "put">>["body"],
     init?: Parameters<HttpClient["put"]>[2] & {
-      pathParams?: FetchOptions<FilterKeys<Paths[P], "put">>["params"];
+      pathParams: FetchOptions<FilterKeys<Paths[P], "put">>["params"];
     },
   ) {
     return this.http
-      .put<
-        Response<P, "put">
-      >(this.prepareUrl(url, init?.pathParams), body, init)
+      .put<Response<P, "put">>(this.prepareUrl(url, init?.pathParams), body, {
+        ...init,
+        headers: init?.pathParams?.header
+          ? new HttpHeaders(init?.pathParams?.header)
+          : undefined,
+      })
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),
@@ -98,13 +109,16 @@ export class ZacHttpClient {
   public DELETE<P extends PathsWithMethod<Paths, "delete">>(
     url: P,
     init?: Parameters<HttpClient["delete"]>[1] & {
-      pathParams?: FetchOptions<FilterKeys<Paths[P], "delete">>["params"];
+      pathParams: FetchOptions<FilterKeys<Paths[P], "delete">>["params"];
     },
   ) {
     return this.http
-      .delete<
-        Response<P, "delete">
-      >(this.prepareUrl(url, init?.pathParams), init)
+      .delete<Response<P, "delete">>(this.prepareUrl(url, init?.pathParams), {
+        ...init,
+        headers: init?.pathParams?.header
+          ? new HttpHeaders(init?.pathParams?.header)
+          : undefined,
+      })
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),
@@ -116,13 +130,20 @@ export class ZacHttpClient {
     url: P,
     body: FetchOptions<FilterKeys<Paths[P], "patch">>["body"],
     init?: Parameters<HttpClient["patch"]>[2] & {
-      pathParams?: FetchOptions<FilterKeys<Paths[P], "patch">>["params"];
+      pathParams: FetchOptions<FilterKeys<Paths[P], "patch">>["params"];
     },
   ) {
     return this.http
-      .patch<
-        Response<P, "patch">
-      >(this.prepareUrl(url, init?.pathParams), body, init)
+      .patch<Response<P, "patch">>(
+        this.prepareUrl(url, init?.pathParams),
+        body,
+        {
+          ...init,
+          headers: init?.pathParams?.header
+            ? new HttpHeaders(init?.pathParams?.header)
+            : undefined,
+        },
+      )
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),

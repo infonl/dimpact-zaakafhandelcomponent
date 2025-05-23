@@ -6,7 +6,8 @@
 import {
   AfterViewInit,
   Component,
-  EventEmitter, input,
+  EventEmitter,
+  input,
   Input,
   OnInit,
   Output,

@@ -22,6 +22,9 @@ export class PersoonResolverService {
       );
     }
 
-    return this.klantenService.readPersoon(bsn, { context: "UNKNOWN", action: "UNKNOWN" });
+    return this.klantenService.readPersoon(bsn, {
+      context: "UNKNOWN",
+      action: "UNKNOWN",
+    });
   }
 }
