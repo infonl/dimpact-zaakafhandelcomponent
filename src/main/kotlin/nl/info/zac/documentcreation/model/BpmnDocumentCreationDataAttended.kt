@@ -6,15 +6,18 @@ package nl.info.zac.documentcreation.model
 
 import net.atos.client.zgw.zrc.model.Zaak
 import java.time.ZonedDateTime
+import java.util.UUID
 
-data class DocumentCreationDataAttended(
+data class BpmnDocumentCreationDataAttended(
     val zaak: Zaak,
 
     val taskId: String?,
 
-    val templateGroupId: String,
+    val templateGroupName: String,
 
-    val templateId: String,
+    val templateName: String,
+
+    val informatieobjecttypeUuid: UUID,
 
     var title: String,
 

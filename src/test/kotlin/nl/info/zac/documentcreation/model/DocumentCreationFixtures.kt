@@ -15,6 +15,7 @@ import nl.info.client.smartdocuments.model.document.ZaakData
 import nl.info.client.zgw.model.createZaak
 import java.net.URI
 import java.time.ZonedDateTime
+import java.util.UUID
 
 fun createAanvragerData(
     naam: String = "fakeNaam",
@@ -45,18 +46,37 @@ fun createData(
 )
 
 @Suppress("LongParameterList")
-fun createDocumentCreationDataAttended(
+fun createCmmnDocumentCreationDataAttended(
     zaak: Zaak = createZaak(),
     taskId: String = "fakeTaskId",
     templateGroupId: String = "1",
     templateId: String = "2",
     title: String = "title",
     creationDate: ZonedDateTime = ZonedDateTime.now(),
-) = DocumentCreationDataAttended(
+) = CmmnDocumentCreationDataAttended(
     zaak = zaak,
     taskId = taskId,
     templateGroupId = templateGroupId,
     templateId = templateId,
+    title = title,
+    creationDate = creationDate
+)
+
+@Suppress("LongParameterList")
+fun createBpmnDocumentCreationDataAttended(
+    zaak: Zaak = createZaak(),
+    taskId: String = "fakeTaskId",
+    informatieobjecttypeUuid: UUID = UUID.randomUUID(),
+    templateGroupName: String = "fakeGroup",
+    templateName: String = "fakeTemplate",
+    title: String = "title",
+    creationDate: ZonedDateTime = ZonedDateTime.now(),
+) = BpmnDocumentCreationDataAttended(
+    zaak = zaak,
+    taskId = taskId,
+    informatieobjecttypeUuid = informatieobjecttypeUuid,
+    templateGroupName = templateGroupName,
+    templateName = templateName,
     title = title,
     creationDate = creationDate
 )

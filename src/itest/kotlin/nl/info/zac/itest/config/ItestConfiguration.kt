@@ -53,6 +53,7 @@ object ItestConfiguration {
     const val DOMEIN_TEST_1 = "domein_test_1"
     const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
+    const val BPMN_TASK_NAAM = "User details"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING = "bijlage"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
     const val INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING = "factuur"
@@ -119,10 +120,10 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_REINDEXING = 9
     const val TEST_SPEC_ORDER_AFTER_SEARCH = 10
 
-    const val TOTAL_COUNT_ZAKEN = 10
+    const val TOTAL_COUNT_ZAKEN = 11
     const val TOTAL_COUNT_ZAKEN_AFGEROND = 2
-    const val TOTAL_COUNT_TASKS = 2
-    const val TOTAL_COUNT_DOCUMENTS = 7
+    const val TOTAL_COUNT_TASKS = 3
+    const val TOTAL_COUNT_DOCUMENTS = 9
 
     /**
      * Test person that exists in both the BRP and the Klanten API databases
@@ -276,9 +277,11 @@ object ItestConfiguration {
     const val VERANTWOORDELIJKE_ORGANISATIE = "316245124"
     const val VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING"
     const val ZAC_INTERNAL_ENDPOINTS_API_KEY = "zacItestInternalEndpointsApiKey"
+
     const val ZAAK_DESCRIPTION_1 = "fakeZaakDescription1"
     const val ZAAK_DESCRIPTION_2 = "fakeZaakDescription2"
     const val ZAAK_EXPLANATION_1 = "fakeZaakExplanation1"
+    const val ZAAK_OMSCHRIJVING = "fakeOmschrijving"
 
     /**
      * First zaak created from a productaanvraag.
@@ -384,12 +387,17 @@ object ItestConfiguration {
     @Suppress("MagicNumber")
     val DATE_2024_01_31: LocalDate = LocalDate.of(2024, Month.JANUARY, 31)
 
+    @Suppress("MagicNumber")
+    val DATE_2024_05_20: LocalDate = LocalDate.of(2025, Month.MAY, 20)
+
     val DATE_TIME_2000_01_01: ZonedDateTime = DATE_2000_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
     val DATE_TIME_2020_01_01: ZonedDateTime = DATE_2020_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
     val DATE_TIME_2024_01_01: ZonedDateTime = DATE_2024_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
     val DATE_TIME_2024_01_31: ZonedDateTime = DATE_2024_01_31.atStartOfDay(TimeZone.getDefault().toZoneId())
 
     val ZAAKTYPE_BPMN_TEST_UUID: UUID = UUID.fromString("26076928-ce07-4d5d-8638-c2d276f6caca")
+    const val ZAAK_BPMN_TEST_IDENTIFICATION: String = "ZAAK-2000-0000000004"
+
     val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
     val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID: UUID =
         UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")

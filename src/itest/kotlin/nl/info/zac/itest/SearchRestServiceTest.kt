@@ -9,6 +9,7 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TASK_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_2
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
@@ -31,13 +32,16 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_DOCUMENTS
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_TASKS
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_ZAKEN
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BPMN_TEST_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2020_01_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2024_01_IDENTIFICATION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
@@ -114,7 +118,11 @@ class SearchRestServiceTest : BehaviorSpec({
                                 {
                                     "aantal": 12,
                                     "naam": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
-                                }                                
+                                },
+                                {
+                                    "aantal": 4,
+                                    "naam": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
+                                 }
                             ],
                             "BEHANDELAAR": [
                                 {
@@ -124,13 +132,17 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "GROEP": [
                                 {
-                                    "aantal": 12,
+                                    "aantal": 13,
                                     "naam": "$TEST_GROUP_A_DESCRIPTION"
+                                },
+                                {
+                                    "aantal": 1,
+                                    "naam": "group"
                                 }
                             ],
                             "TOEGEKEND": [
                                 {
-                                    "aantal": 10,
+                                    "aantal": 12,
                                     "naam": "false"
                                 },
                                 {
@@ -174,7 +186,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "ZAAK_COMMUNICATIEKANAAL": [
                                 {
-                                    "aantal": 7,
+                                    "aantal": 8,
                                     "naam": "$COMMUNICATIEKANAAL_TEST_1"
                                 },
                                 {
@@ -188,7 +200,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "ZAAK_VERTROUWELIJKHEIDAANDUIDING": [
                                 {
-                                    "aantal": 10,
+                                    "aantal": 11,
                                     "naam": "OPENBAAR"
                                 }
                             ],
@@ -202,11 +214,15 @@ class SearchRestServiceTest : BehaviorSpec({
                                 {
                                     "aantal": 2,
                                     "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM"
+                                },
+                                {
+                                    "aantal": 1,
+                                    "naam": "$BPMN_TASK_NAAM"
                                 }
                             ],
                             "TAAK_STATUS": [
                                 {
-                                    "aantal": 1,
+                                    "aantal": 2,
                                     "naam": "NIET_TOEGEKEND"
                                 },
                                 {
@@ -220,13 +236,13 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "definitief"
                                 },
                                 {
-                                    "aantal": 2,
+                                    "aantal": 4,
                                     "naam": "in_bewerking"
                                 }
                             ],
                             "DOCUMENT_TYPE": [
                                 {
-                                    "aantal": 5,
+                                    "aantal": 7,
                                     "naam": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING"
                                 },
                                 {
@@ -241,11 +257,11 @@ class SearchRestServiceTest : BehaviorSpec({
                             "DOCUMENT_VERGRENDELD_DOOR": [],
                             "DOCUMENT_INDICATIES": [
                                 {
-                                    "aantal": 6,
+                                    "aantal": 8,
                                     "naam": "GEBRUIKSRECHT"
                                 },
                                 {
-                                    "aantal": 7,
+                                    "aantal": 9,
                                     "naam": "ONDERTEKEND"
                                 },
                                 {
@@ -313,7 +329,10 @@ class SearchRestServiceTest : BehaviorSpec({
                         }, {
                           "aantal" : 4,
                           "naam" : "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
-                        } ],          
+                        }, {
+                          "aantal": 1,
+                          "naam": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
+                        }],          
                         "BEHANDELAAR": [
                           {
                             "aantal": 4,
@@ -326,12 +345,12 @@ class SearchRestServiceTest : BehaviorSpec({
                         } ],
                         "ZAAK_STATUS" : [
                            {
-                                "aantal": 1,
-                                "naam": "In behandeling"
-                            },
-                            {
                                 "aantal": 2,
                                 "naam": "Intake"
+                           },
+                           {
+                                "aantal": 1,
+                                "naam": "In behandeling"
                             },
                             {
                                 "aantal" : 1,
@@ -416,6 +435,11 @@ class SearchRestServiceTest : BehaviorSpec({
                     },
                     {
                       "isKoppelbaar": true,
+                      "identificatie": "ZAAK-2000-0000000007",
+                      "type": "ZAAK"
+                    },
+                    {
+                      "isKoppelbaar": true,
                       "identificatie": "ZAAK-2000-0000000006",
                       "type": "ZAAK"
                     },
@@ -423,14 +447,9 @@ class SearchRestServiceTest : BehaviorSpec({
                       "isKoppelbaar": true,
                       "identificatie": "ZAAK-2000-0000000005",
                       "type": "ZAAK"
-                    },
-                    {
-                      "isKoppelbaar": true,
-                      "identificatie": "ZAAK-2000-0000000004",
-                      "type": "ZAAK"
                     }
                   ],
-                  "totaal": 10,
+                  "totaal": 11,
                   "filters": {}
                 }
                 """.trimIndent()
@@ -474,6 +493,11 @@ class SearchRestServiceTest : BehaviorSpec({
                     },
                     {
                       "isKoppelbaar": false,
+                      "identificatie": "ZAAK-2000-0000000007",
+                      "type": "ZAAK"
+                    },
+                    {
+                      "isKoppelbaar": false,
                       "identificatie": "ZAAK-2000-0000000006",
                       "type": "ZAAK"
                     },
@@ -481,14 +505,9 @@ class SearchRestServiceTest : BehaviorSpec({
                       "isKoppelbaar": false,
                       "identificatie": "ZAAK-2000-0000000005",
                       "type": "ZAAK"
-                    },
-                    {
-                      "isKoppelbaar": false,
-                      "identificatie": "ZAAK-2000-0000000004",
-                      "type": "ZAAK"
                     }
                   ],
-                  "totaal": 10,
+                  "totaal": 11,
                   "filters": {}
                 }
                 """.trimIndent()
@@ -529,6 +548,23 @@ class SearchRestServiceTest : BehaviorSpec({
                         "foutmelding": "",
                         "resultaten": [
                             {
+                              "groepNaam": "group",
+                              "id": "173",
+                              "naam": "$BPMN_TASK_NAAM",
+                              "rechten": {
+                                "lezen": true,
+                                "toekennen": true,
+                                "toevoegenDocument": false,
+                                "wijzigen": true
+                              },
+                              "status": "NIET_TOEGEKEND",
+                              "type": "TAAK",
+                              "zaakIdentificatie": "$ZAAK_BPMN_TEST_IDENTIFICATION",
+                              "zaakOmschrijving": "$ZAAK_OMSCHRIJVING",
+                              "zaakToelichting": "null",
+                              "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
+                            },
+                            {
                                 "type": "TAAK",
                                 "behandelaarGebruikersnaam": "$TEST_USER_1_USERNAME",
                                 "behandelaarNaam": "$TEST_USER_1_NAME",
@@ -564,9 +600,13 @@ class SearchRestServiceTest : BehaviorSpec({
                                 "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                             }
                         ],
-                        "totaal": 2.0,
+                        "totaal": 3,
                         "filters": {
                             "ZAAKTYPE": [
+                                {
+                                    "aantal": 1,
+                                    "naam": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
+                                },
                                 {
                                     "aantal": 1,
                                     "naam": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
@@ -582,7 +622,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "$TEST_USER_1_NAME"
                                 },
                                 {
-                                    "aantal": 1,
+                                    "aantal": 2,
                                     "naam": "-NULL-"
                                 }
                             ],
@@ -590,17 +630,25 @@ class SearchRestServiceTest : BehaviorSpec({
                                 {
                                     "aantal": 2,
                                     "naam": "$TEST_GROUP_A_DESCRIPTION"
+                                },
+                                {
+                                    "aantal": 1,
+                                    "naam": "group"
                                 }
                             ],
                             "TAAK_NAAM": [
                                 {
                                     "aantal": 2,
                                     "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM"
+                                },
+                                {
+                                    "aantal": 1,
+                                    "naam": "$BPMN_TASK_NAAM"
                                 }
                             ],
                             "TAAK_STATUS": [
                                 {
-                                    "aantal": 1,
+                                    "aantal": 2,
                                     "naam": "NIET_TOEGEKEND"
                                 },
                                 {
@@ -649,18 +697,21 @@ class SearchRestServiceTest : BehaviorSpec({
                 JSONObject(responseBody).getJSONObject("filters").toString() shouldEqualJsonIgnoringOrderAndExtraneousFields """                   
                       {
                         "ZAAKTYPE" : [ {
-                          "aantal" : $TOTAL_COUNT_DOCUMENTS,
+                          "aantal" : 7,
                           "naam" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                        }, {
+                          "aantal": 2,
+                          "naam": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
                         } ],
                         "DOCUMENT_STATUS" : [ {
                           "aantal" : 5,
                           "naam" : "$DOCUMENT_STATUS_DEFINITIEF"
                         }, {
-                          "aantal" : 2,
+                          "aantal" : 4,
                           "naam" : "$DOCUMENT_STATUS_IN_BEWERKING"
                         } ],
                         "DOCUMENT_TYPE" : [ {
-                          "aantal" : 5,
+                          "aantal" : 7,
                           "naam" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING"
                         }, {
                           "aantal" : 1,
@@ -677,7 +728,7 @@ class SearchRestServiceTest : BehaviorSpec({
                           "aantal" : $TOTAL_COUNT_DOCUMENTS,
                           "naam" : "ONDERTEKEND"
                         }, {
-                          "aantal" : 6,
+                          "aantal" : 8,
                           "naam" : "GEBRUIKSRECHT"
                         }, {
                           "aantal" : 1,

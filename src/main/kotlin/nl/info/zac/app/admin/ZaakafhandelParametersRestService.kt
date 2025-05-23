@@ -257,10 +257,19 @@ class ZaakafhandelParametersRestService @Inject constructor(
     @PUT
     @Path("smartdocuments-group-template-names")
     fun listSmartDocumentsGroupTemplateNames(
-        path: RestSmartDocumentsPath
+        group: RestSmartDocumentsPath
     ): List<String> {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return smartDocumentsTemplatesService.listGroupTemplateNames(path.groups)
+        return smartDocumentsTemplatesService.listGroupTemplateNames(group.path)
+    }
+
+    @PUT
+    @Path("smartdocuments-template-group")
+    fun getSmartDocumentsGroup(
+        group: RestSmartDocumentsPath
+    ): RestSmartDocumentsTemplateGroup {
+        assertPolicy(policyService.readOverigeRechten().beheren)
+        return smartDocumentsTemplatesService.getTemplateGroup(group.path)
     }
 
     @GET

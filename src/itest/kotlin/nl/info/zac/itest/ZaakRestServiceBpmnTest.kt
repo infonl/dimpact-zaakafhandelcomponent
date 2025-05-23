@@ -22,7 +22,7 @@ import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 
 /**
- * This test creates a zaak with BPMN type.
+ * This test creates a zaak with a BPMN type.
  */
 class ZaakRestServiceBpmnTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
@@ -30,8 +30,8 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
 
     Given("A BPMN type zaak has been created") {
-        lateinit var zaakUUID: UUID
         val takenCreateResponse: String
+        var bpmnZaakUuid: UUID
 
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_BPMN_TEST_UUID,
@@ -44,12 +44,12 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
             code shouldBe HTTP_OK
             JSONObject(responseBody).run {
                 getJSONObject("zaakdata").run {
-                    zaakUUID = getString("zaakUUID").run(UUID::fromString)
+                    bpmnZaakUuid = getString("zaakUUID").run(UUID::fromString)
                 }
             }
         }
         itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/taken/zaak/$zaakUUID"
+            "$ZAC_API_URI/taken/zaak/$bpmnZaakUuid"
         ).run {
             val responseBody = body!!.string()
             logger.info { "Response: $responseBody" }
@@ -94,7 +94,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
             }
 
             And("the zaak should still be open and without result") {
-                zacClient.retrieveZaak(zaakUUID).use { response ->
+                zacClient.retrieveZaak(bpmnZaakUuid).use { response ->
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK

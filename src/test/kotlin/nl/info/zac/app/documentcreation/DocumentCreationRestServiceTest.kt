@@ -22,10 +22,13 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.app.documentcreation.model.createRestDocumentCreationAttendedData
+import nl.info.zac.documentcreation.BpmnDocumentCreationService
+import nl.info.zac.documentcreation.CmmnDocumentCreationService
 import nl.info.zac.documentcreation.DocumentCreationService
-import nl.info.zac.documentcreation.model.DocumentCreationDataAttended
+import nl.info.zac.documentcreation.model.CmmnDocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.createDocumentCreationAttendedResponse
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_SMARTDOCUMENTS_DISABLED
+import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
@@ -35,14 +38,19 @@ import java.util.UUID
 
 class DocumentCreationRestServiceTest : BehaviorSpec({
     val documentCreationService = mockk<DocumentCreationService>()
+    val cmmnDocumentCreationService = mockk<CmmnDocumentCreationService>()
+    val bpmnDocumentCreationService = mockk<BpmnDocumentCreationService>()
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val flowableTaskService = mockk<FlowableTaskService>()
+    val bpmnService = mockk<BpmnService>()
     val documentCreationRestService = DocumentCreationRestService(
         policyService = policyService,
         documentCreationService = documentCreationService,
+        cmmnDocumentCreationService = cmmnDocumentCreationService,
+        bpmnDocumentCreationService = bpmnDocumentCreationService,
         zrcClientService = zrcClientService,
         zaakafhandelParameterService = zaakafhandelParameterService,
         flowableTaskService = flowableTaskService
@@ -65,15 +73,18 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             title = "Title",
         )
         val documentCreationResponse = createDocumentCreationAttendedResponse()
-        val documentCreationDataAttended = slot<DocumentCreationDataAttended>()
+        val documentCreationDataAttended = slot<CmmnDocumentCreationDataAttended>()
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { ztcClientService.readInformatieobjecttypen(zaak.zaaktype) } returns listOf(
             createInformatieObjectType(omschrijving = "bijlage")
         )
         every {
-            documentCreationService.createDocumentAttended(capture(documentCreationDataAttended))
+            cmmnDocumentCreationService.createCmmnDocumentAttended(capture(documentCreationDataAttended))
         } returns documentCreationResponse
+        every {
+            bpmnService.isProcessDriven(any())
+        } returns false
 
         When("createDocument is called by a role that is allowed to change the zaak") {
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
