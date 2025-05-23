@@ -10,7 +10,7 @@ import { ZacHttpClient } from "../shared/http/zac-http-client";
   providedIn: "root",
 })
 export class PolicyService {
-  constructor(private zacHttpClient: ZacHttpClient) {}
+  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   readWerklijstRechten() {
     return this.zacHttpClient.GET(`/rest/policy/werklijstRechten`, {});
