@@ -23,8 +23,8 @@ export class PersoonResolverService {
     }
 
     return this.klantenService.readPersoon(bsn, {
-      context: "UNKNOWN",
-      action: "UNKNOWN",
+      context: "PersoonResolverService",
+      action: "resolve",
     });
   }
 }
