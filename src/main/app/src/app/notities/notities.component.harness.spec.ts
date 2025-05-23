@@ -77,23 +77,20 @@ describe("NotitiesComponent Harness", () => {
     component = fixture.componentInstance;
   });
 
-  it("should show textarea when wijzigen is true", async () => {
-    component.notitieRechten = { lezen: false, wijzigen: true };
-    fixture.detectChanges();
+  it.each`
+    wijzigen | expected
+    ${true}  | ${true}
+    ${false} | ${false}
+  `(
+    "should ${expected ? '' : 'not '}show textarea when wijzigen is $wijzigen",
+    async ({ wijzigen, expected }) => {
+      component.notitieRechten = { lezen: false, wijzigen };
+      fixture.detectChanges();
 
-    const loader: HarnessLoader = TestbedHarnessEnvironment.loader(fixture);
-    const harness = await loader.getHarness(NotitiesHarness);
+      const loader: HarnessLoader = TestbedHarnessEnvironment.loader(fixture);
+      const harness = await loader.getHarness(NotitiesHarness);
 
-    expect(await harness.isTextareaVisible()).toBe(true);
-  });
-
-  it("should not show textarea when wijzigen is false", async () => {
-    component.notitieRechten = { lezen: false, wijzigen: false };
-    fixture.detectChanges();
-
-    const loader: HarnessLoader = TestbedHarnessEnvironment.loader(fixture);
-    const harness = await loader.getHarness(NotitiesHarness);
-
-    expect(await harness.isTextareaVisible()).toBe(false);
-  });
+      expect(await harness.isTextareaVisible()).toBe(expected);
+    },
+  );
 });
