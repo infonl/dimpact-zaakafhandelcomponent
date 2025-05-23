@@ -63,12 +63,12 @@ class BrpClientService @Inject constructor(
         private val FIELDS_PERSOON_BEPERKT = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING)
     }
 
-    fun queryPersonen(personenQuery: PersonenQuery, context: String, action: String, taskId: String?): PersonenQueryResponse =
+    fun queryPersonen(personenQuery: PersonenQuery, context: String, action: String): PersonenQueryResponse =
         updateQuery(personenQuery).let {
             personenApi.personen(
                 personenQuery = it,
                 purpose = queryPersonenDefaultPurpose.getOrNull(),
-                process = getProcess(context, taskId, action)
+                process = getProcess(context, action)
             )
         }
 
@@ -79,11 +79,11 @@ class BrpClientService @Inject constructor(
      * @return the person if found, otherwise null
      *
      */
-    fun retrievePersoon(burgerservicenummer: String, context: String, action: String, taskId: String?): Persoon? = (
+    fun retrievePersoon(burgerservicenummer: String, context: String, action: String): Persoon? = (
         personenApi.personen(
             personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer),
             purpose = retrievePersoonDefaultPurpose.getOrNull(),
-            process = getProcess(context, taskId, action)
+            process = getProcess(context, action)
         ) as RaadpleegMetBurgerservicenummerResponse
         ).personen?.firstOrNull()
 
@@ -107,10 +107,9 @@ class BrpClientService @Inject constructor(
         fields = if (personenQuery is RaadpleegMetBurgerservicenummer) FIELDS_PERSOON else FIELDS_PERSOON_BEPERKT
     }
 
-    private fun getProcess(context: String, taskId: String?, action: String) =
+    private fun getProcess(context: String, action: String) =
         buildString {
             append(context)
-            taskId?.let { append("-$it") }
             append("@$action")
         }
 }

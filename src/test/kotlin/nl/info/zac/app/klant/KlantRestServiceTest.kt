@@ -151,10 +151,10 @@ class KlantRestServiceTest : BehaviorSpec({
         )
         val persoon = createPersoon(bsn = bsn)
         every { klantClientService.findDigitalAddressesByNumber(bsn) } returns digitaalAdresses
-        every { brpClientService.retrievePersoon(bsn, CONTEXT, ACTION, null) } returns persoon
+        every { brpClientService.retrievePersoon(bsn, CONTEXT, ACTION) } returns persoon
 
         When("when the person is retrieved") {
-            val restPersoon = klantRestService.readPersoon(bsn, CONTEXT, ACTION, null)
+            val restPersoon = klantRestService.readPersoon(bsn, CONTEXT, ACTION)
 
             Then("the person should be returned and should have contact details") {
                 with(restPersoon) {
@@ -172,10 +172,10 @@ class KlantRestServiceTest : BehaviorSpec({
         val action = "Zaak zoeken"
         val persoon = createPersoon(bsn = bsn)
         every { klantClientService.findDigitalAddressesByNumber(bsn) } returns emptyList()
-        every { brpClientService.retrievePersoon(bsn, context, action, null) } returns persoon
+        every { brpClientService.retrievePersoon(bsn, context, action) } returns persoon
 
         When("when the person is retrieved") {
-            val restPersoon = klantRestService.readPersoon(bsn, context, action, null)
+            val restPersoon = klantRestService.readPersoon(bsn, context, action)
 
             Then("the person should be returned and should not have contact details") {
                 with(restPersoon) {
@@ -196,11 +196,11 @@ class KlantRestServiceTest : BehaviorSpec({
             email = emailAddress
         )
         every { klantClientService.findDigitalAddressesByNumber(bsn) } returns digitaalAdresses
-        every { brpClientService.retrievePersoon(bsn, CONTEXT, ACTION, null) } returns null
+        every { brpClientService.retrievePersoon(bsn, CONTEXT, ACTION) } returns null
 
         When("when the person is retrieved") {
             val exception = shouldThrow<BrpPersonNotFoundException> {
-                klantRestService.readPersoon(bsn, CONTEXT, ACTION, null)
+                klantRestService.readPersoon(bsn, CONTEXT, ACTION)
             }
 
             Then("an exception should be thrown") {
@@ -211,11 +211,11 @@ class KlantRestServiceTest : BehaviorSpec({
     Given("A person with a BSN which does not exist in the klanten client nor in the BRP client") {
         val bsn = "123456789"
         every { klantClientService.findDigitalAddressesByNumber(bsn) } returns emptyList()
-        every { brpClientService.retrievePersoon(bsn, CONTEXT, ACTION, null) } returns null
+        every { brpClientService.retrievePersoon(bsn, CONTEXT, ACTION) } returns null
 
         When("when the person is retrieved") {
             val exception = shouldThrow<BrpPersonNotFoundException> {
-                klantRestService.readPersoon(bsn, CONTEXT, ACTION, null)
+                klantRestService.readPersoon(bsn, CONTEXT, ACTION)
             }
 
             Then("an exception should be thrown") {

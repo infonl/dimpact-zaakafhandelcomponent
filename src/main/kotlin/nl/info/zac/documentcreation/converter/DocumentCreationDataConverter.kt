@@ -134,8 +134,7 @@ class DocumentCreationDataConverter @Inject constructor(
         brpClientService.retrievePersoon(
             bsn,
             zaakNummer,
-            "Document aanmaken",
-            null
+            "Document aanmaken"
         )?.let { convertToAanvragerDataPersoon(it) }
 
     private fun convertToAanvragerDataPersoon(persoon: Persoon) =

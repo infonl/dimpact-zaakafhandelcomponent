@@ -280,7 +280,7 @@ public class MailTemplateHelper {
             return switch (betrokkene) {
                 case NATUURLIJK_PERSOON -> replaceInitiatorVariabelenPersoon(
                         resolvedTekst,
-                        brpClientService.retrievePersoon(identificatie, zaakNummer, "E-mail verzenden", null)
+                        brpClientService.retrievePersoon(identificatie, zaakNummer, "E-mail verzenden")
                 );
                 case VESTIGING -> replaceInitiatorVariabelenResultaatItem(
                         resolvedTekst,
