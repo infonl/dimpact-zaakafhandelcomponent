@@ -8,6 +8,7 @@ import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
+import jakarta.ws.rs.HeaderParam
 import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
@@ -71,13 +72,16 @@ class KlantRestService @Inject constructor(
     @GET
     @Path("persoon/{bsn}")
     fun readPersoon(
-        @PathParam("bsn") @Length(min = 8, max = 9) bsn: String
+        @PathParam("bsn") @Length(min = 8, max = 9) bsn: String,
+        @HeaderParam("X-Verwerking") xVerwerking: String
     ) = runBlocking {
         // run the two client calls concurrently in a coroutine scope,
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
             val klantPersoonDigitalAddresses = async { klantClientService.findDigitalAddressesByNumber(bsn) }
-            val brpPersoon = async { brpClientService.retrievePersoon(bsn) }
+            val brpPersoon = async {
+                brpClientService.retrievePersoon(bsn, xVerwerking)
+            }
             klantPersoonDigitalAddresses.await().toRestPersoon().let { klantPersoon ->
                 brpPersoon.await()?.toRestPersoon()?.apply {
                     telefoonnummer = klantPersoon.telefoonnummer
@@ -135,8 +139,11 @@ class KlantRestService @Inject constructor(
 
     @PUT
     @Path("personen")
-    fun listPersonen(restListPersonenParameters: RestListPersonenParameters): RESTResultaat<RestPersoon> =
-        brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery())
+    fun listPersonen(
+        @HeaderParam("X-Verwerking") xVerwerking: String,
+        restListPersonenParameters: RestListPersonenParameters
+    ): RESTResultaat<RestPersoon> =
+        brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), xVerwerking)
             .toRechtsPersonen()
             .toRestResultaat()
 

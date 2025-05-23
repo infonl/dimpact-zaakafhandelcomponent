@@ -13,11 +13,9 @@ data:
   BRON_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.bron.rsin entry required!" .Values.organizations.bron.rsin | quote }}
   BRP_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.brpApi.url entry required!" .Values.brpApi.url }}
   {{- if .Values.brpApi.protocollering.originOin }}
-  BRP_PROTOCOLERING: "true"
   BRP_ORIGIN_OIN: {{ .Values.brpApi.protocollering.originOin }}
   BRP_DOELBINDING_ZOEKMET: {{ required "Valid .Values.brpApi.protocollering.doelbinding.zoekmet entry required!" .Values.brpApi.protocollering.doelbinding.zoekmet }}
   BRP_DOELBINDING_RAADPLEEGMET: {{ required "Valid .Values.brpApi.protocollering.doelbinding.raadpleegmet entry required!" .Values.brpApi.protocollering.doelbinding.raadpleegmet }}
-  BRP_VERWERKING: {{ required "Valid .Values.brpApi.protocollering.verwerking entry required!" .Values.brpApi.protocollering.verwerking }}
   {{- end }}
   {{- if .Values.catalogusDomein }}
   CATALOGUS_DOMEIN: {{ .Values.catalogusDomein }}
