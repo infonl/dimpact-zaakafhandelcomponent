@@ -97,6 +97,7 @@ export class ZaakafhandelParametersService {
     return this.zacHttpClient.PUT(
       "/rest/zaakafhandelparameters",
       zaakafhandelparameters,
+      {},
     );
   }
 
@@ -122,6 +123,7 @@ export class ZaakafhandelParametersService {
     return this.zacHttpClient.PUT(
       "/rest/zaakafhandelparameters/smartdocuments-group-template-names",
       path,
+      {},
     );
   }
 }
