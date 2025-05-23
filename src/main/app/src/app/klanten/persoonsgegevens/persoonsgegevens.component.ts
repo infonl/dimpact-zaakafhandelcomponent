@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Output, input } from "@angular/core";
+import {Component, EventEmitter, Output, input } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
-import { shareReplay, switchMap } from "rxjs";
+import {of, shareReplay, switchMap} from "rxjs";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
@@ -19,15 +19,19 @@ export class PersoonsgegevensComponent {
   @Output() delete = new EventEmitter<GeneratedType<"RestPersoon">>();
   @Output() edit = new EventEmitter<GeneratedType<"RestPersoon">>();
 
-  isVerwijderbaar = input<boolean>();
-  isWijzigbaar = input<boolean>();
-  bsn = input<string>();
-  zaakUuid = input<string>();
+  isVerwijderbaar = input<boolean | undefined>(false);
+  isWijzigbaar = input<boolean | undefined>(false);
+  bsn = input<string | null>();
+  zaakIdentificatie = input.required<string>();
+  action = input.required<string>();
 
   bsn$ = toObservable(this.bsn);
 
   persoon$ = this.bsn$.pipe(
-    switchMap((bsn) => this.klantenService.readPersoon(bsn, { context: this.zaakUuid, action: "show initiator" })),
+    switchMap((bsn) => {
+      if(!bsn) return of(undefined)
+      return this.klantenService.readPersoon(bsn, { context: this.zaakIdentificatie(), action: this.action() })
+    }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 

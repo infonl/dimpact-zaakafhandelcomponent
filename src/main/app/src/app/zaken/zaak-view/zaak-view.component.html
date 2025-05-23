@@ -34,6 +34,7 @@
     <zac-klant-koppel
       *ngSwitchCase="'actie.initiator.toevoegen'"
       [sideNav]="actionsSidenav"
+      [context]="zaak.identificatie"
       (klantGegevens)="initiatorGeselecteerd($event.klant)"
       [initiator]="true"
       [allowBedrijf]="allowBedrijf()"
@@ -44,6 +45,7 @@
       (klantGegevens)="betrokkeneGeselecteerd($event)"
       [sideNav]="actionsSidenav"
       [zaaktypeUUID]="zaak.zaaktype.uuid"
+      [context]="zaak.identificatie"
       [allowBedrijf]="allowBedrijf()"
       [allowPersoon]="allowPersoon()"
     ></zac-klant-koppel>
@@ -155,8 +157,9 @@
         <zac-persoongegevens
           class="w100 flex-1"
           *ngIf="showPersoonsgegevens()"
-          [zaakUuid]="zaak.uuid"
+          [zaakIdentificatie]="zaak.identificatie"
           [bsn]="zaak.initiatorIdentificatie"
+          action="initiator tonen"
           [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
           [isWijzigbaar]="zaak.rechten.toevoegenInitiatorPersoon"
           (edit)="addOrEditZaakInitiator()"

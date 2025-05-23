@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
@@ -34,8 +34,10 @@ export class KlantenService {
   /* istanbul ignore next */
   readPersoon(bsn: string, context: { context: string, action: string }) {
     return this.zacHttpClient.GET("/rest/klanten/persoon/{bsn}", {
-      pathParams: { path: bsn },
-      queryParams: context,
+      pathParams: { path: { bsn }, query: context },
+      headers: new HttpHeaders({
+        'x-verwerking': `${context.context}@${context.action}`,
+      })
     }).pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -94,7 +96,11 @@ export class KlantenService {
   ) {
     return this.zacHttpClient.PUT("/rest/klanten/personen", {
       persoon: listPersonenParameters,
-      context
+      context,
+    }, {
+      headers: new HttpHeaders({
+        'x-verwerking': `${context.context}@${context.action}`,
+      }),
     })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),

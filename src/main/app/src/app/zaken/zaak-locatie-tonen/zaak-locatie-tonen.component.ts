@@ -7,7 +7,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
-  Input,
+  Input, OnChanges,
   OnInit,
   ViewChild,
 } from "@angular/core";
@@ -37,7 +37,7 @@ import { GeometryType } from "../model/geometryType";
   templateUrl: "./zaak-locatie-tonen.component.html",
   styleUrls: ["./zaak-locatie-tonen.component.less"],
 })
-export class LocatieTonenComponent implements OnInit, AfterViewInit {
+export class LocatieTonenComponent implements OnInit, AfterViewInit, OnChanges {
   @Input({ required: true }) currentLocation!: GeneratedType<"RestGeometry">;
 
   @ViewChild("openLayersMap", { static: true }) openLayersMapRef: ElementRef;

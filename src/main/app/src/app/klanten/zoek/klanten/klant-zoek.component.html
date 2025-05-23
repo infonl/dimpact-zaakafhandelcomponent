@@ -8,7 +8,7 @@
       <mat-icon>emoji_people</mat-icon>
       {{ "actie.zoeken.persoon" | translate }}
     </ng-template>
-    <zac-persoon-zoek (persoon)="klantGeselecteerd($event)"></zac-persoon-zoek>
+    <zac-persoon-zoek [context]="context()" action="klant-zoeken" (persoon)="klantGeselecteerd($event)"></zac-persoon-zoek>
   </mat-tab>
   <mat-tab>
     <ng-template mat-tab-label>

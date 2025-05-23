@@ -5,7 +5,7 @@
 
 import {
   Component,
-  EventEmitter,
+  EventEmitter, input,
   Input,
   OnDestroy,
   OnInit,
@@ -43,6 +43,10 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
   @Output() persoon? = new EventEmitter<GeneratedType<"RestPersoon">>();
   @Input() sideNav?: MatSidenav;
   @Input() syncEnabled: boolean = false;
+
+  protected action = input.required<string>()
+  protected context = input.required<string>()
+
   formGroup: FormGroup;
   bsnFormField: AbstractFormControlField;
   geslachtsnaamFormField: AbstractFormControlField;
@@ -290,7 +294,7 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
     this.utilService.setLoading(true);
     this.personen.data = [];
     this.klantenService
-      .listPersonen(this.createListPersonenParameters(), { context: "PERSONEN_ZOEKEN", action: "search" })
+      .listPersonen(this.createListPersonenParameters(), { context: this.context(), action: this.action() })
       .subscribe((personen) => {
         this.personen.data = personen.resultaten;
         this.foutmelding = personen.foutmelding;
