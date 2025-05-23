@@ -36,7 +36,7 @@ class SecurityUtil @Inject constructor(
             "Functionele gebruiker",
             "Functionele gebruiker",
             null,
-            setOf("functionele_gebruiker"),
+            emptySet(),
             emptySet()
         )
     }
