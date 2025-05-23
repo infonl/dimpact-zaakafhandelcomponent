@@ -22,6 +22,7 @@ import moment from "moment";
 import { forkJoin } from "rxjs";
 import { map, tap } from "rxjs/operators";
 import { ActieOnmogelijkDialogComponent } from "src/app/fout-afhandeling/dialog/actie-onmogelijk-dialog.component";
+import { PolicyService } from "src/app/policy/policy.service";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { ZaakbeeindigReden } from "../../admin/model/zaakbeeindig-reden";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
@@ -138,6 +139,7 @@ export class ZaakViewComponent
     "relatieType",
   ] as const;
   notitieType = NotitieType.ZAAK;
+  notitieRechten!: GeneratedType<"RestNotitieRechten">;
   dateFieldIcon = new Map<string, TextIcon>();
   viewInitialized = false;
   loggedInUser!: GeneratedType<"RestLoggedInUser">;
@@ -170,6 +172,7 @@ export class ZaakViewComponent
     private dialog: MatDialog,
     private translate: TranslateService,
     private bagService: BAGService,
+    private policyService: PolicyService,
   ) {
     super();
   }
@@ -214,6 +217,7 @@ export class ZaakViewComponent
 
         this.getIngelogdeMedewerker();
         this.loadTaken();
+        this.loadNotitieRechten();
       }),
     );
 
@@ -996,6 +1000,12 @@ export class ZaakViewComponent
         this.filterTakenOpStatus();
         this.takenLoading = false;
       });
+  }
+
+  private loadNotitieRechten(): void {
+    this.policyService
+      .readNotitieRechten()
+      .subscribe((rechten) => (this.notitieRechten = rechten));
   }
 
   expandTaken(expand: boolean): void {

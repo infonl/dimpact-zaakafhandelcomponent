@@ -1,83 +1,71 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 @import "/variables";
 
-.notitiesBtn {
+.show-notes-button {
   position: fixed;
   bottom: 15px;
   right: 15px;
   z-index: 10;
 }
 
-.notitieContainer {
+.notitie-container {
   position: fixed;
   bottom: 15px;
   right: 15px;
   width: 380px;
   box-shadow: 6px 6px 25px -8px @box-shadow-color;
+  background: @body-background-color;
   z-index: 1;
 }
 
 @media (max-width: 599px) {
-  .notitieContainer {
+  .notitie-container {
     width: 97%;
     right: 2px;
     bottom: 2px;
   }
 }
 
-.notitieHeader {
+.notitie-header {
   padding: 2px;
   min-height: 30px;
-  border-bottom: 1px solid @border-color;
-  background: @primary-background-color;
   font-size: 14px;
   color: @primary-text-color;
+  background: @primary-background-color;
+  border-bottom: 1px solid @border-color;
 }
 
-.notitieHeaderStickyIcon {
-  float: left;
+.notitie-header-icon {
   margin-top: 3px;
   margin-left: 5px;
 }
 
-.notitieHeaderTekst {
-  float: left;
+.notitie-header-text {
   margin-left: 5px;
   margin-top: 7px;
 }
 
-.notitieBody {
+.notitie-body {
+  width: 100%;
   min-height: 300px;
   max-height: 420px;
   overflow-y: auto;
-  background: @body-background-color;
 }
 
-.notitieFooter {
+.notitie-footer {
   padding: 5px;
-  background: white;
   border-top: 1px solid @border-color;
-
-  button {
-    position: absolute;
-    right: 5px;
-    bottom: 5px;
-  }
 }
 
-.textareaNotitie {
+.textarea-notitie {
   width: 100%;
-
-  #nieuwe_notitie_aanmaken {
-    width: 85%;
-  }
 }
 
-.minBtn {
-  float: right;
+.minimize-button {
   margin-right: 10px;
   margin-top: 2px;
   cursor: pointer;
@@ -87,12 +75,16 @@
   background: white;
   border-bottom: 1px solid @border-color;
 
-  .notitieContentHeader {
+  &:hover {
+    background: @table-hover-background-color;
+  }
+
+  .notitie-content-header {
     margin-bottom: 8px;
     padding: 16px 16px 0 16px;
   }
 
-  .notitieContentBody {
+  .notitie-content-body {
     font-size: 13px;
     margin-bottom: 8px;
     padding: 0 16px;
@@ -102,7 +94,7 @@
     }
   }
 
-  .notitieContentFooter {
+  .notitie-content-footer {
     display: flex;
     justify-content: flex-end;
 
@@ -111,12 +103,12 @@
     }
   }
 
-  .notitieTitle {
+  .notitie-title {
     font-size: 14px;
     font-weight: 500;
   }
 
-  .notitieSubtitle {
+  .notitie-subtitle {
     font-size: 12px;
     color: @title-color;
     display: flex;

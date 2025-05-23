@@ -3,19 +3,18 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-// Http testing module and mocking controller
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
-import { expectType } from "ts-expect";
-// Other imports
-import { TestBed } from "@angular/core/testing";
-
 import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
+import { TestBed } from "@angular/core/testing";
+import { TranslateModule } from "@ngx-translate/core";
+import { expectType } from "ts-expect";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { Paths, ZacHttpClient } from "./zac-http-client";
 
 describe(ZacHttpClient.name, () => {
@@ -24,13 +23,14 @@ describe(ZacHttpClient.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [],
+      imports: [TranslateModule.forRoot()],
       providers: [
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],
     });
 
+    TestBed.inject(FoutAfhandelingService);
     zacHttpClient = TestBed.inject(ZacHttpClient);
     httpTestingController = TestBed.inject(HttpTestingController);
   });
