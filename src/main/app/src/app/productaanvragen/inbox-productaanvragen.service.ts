@@ -4,8 +4,7 @@
  */
 
 import { Injectable } from "@angular/core";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { ListParameters } from "../shared/model/list-parameters";
+import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",
@@ -15,13 +14,13 @@ export class InboxProductaanvragenService {
 
   constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
-  list(parameters: ListParameters) {
-    return this.zacHttpClient.PUT("/rest/inbox-productaanvragen", parameters);
+  list(body: PutBody<"/rest/inbox-productaanvragen">) {
+    return this.zacHttpClient.PUT("/rest/inbox-productaanvragen", body, {});
   }
 
   delete(id: number) {
     return this.zacHttpClient.DELETE("/rest/inbox-productaanvragen/{id}", {
-      pathParams: { path: { id } },
+      path: { id },
     });
   }
 

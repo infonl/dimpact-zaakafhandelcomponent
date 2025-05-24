@@ -14,8 +14,9 @@ import {
 import { TestBed } from "@angular/core/testing";
 import { TranslateModule } from "@ngx-translate/core";
 import { expectType } from "ts-expect";
+import { paths } from "../../../generated/types/zac-openapi-types";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
-import { Paths, ZacHttpClient } from "./zac-http-client";
+import { ZacHttpClient } from "./zac-http-client";
 
 describe(ZacHttpClient.name, () => {
   let zacHttpClient: ZacHttpClient;
@@ -41,7 +42,7 @@ describe(ZacHttpClient.name, () => {
 
   describe(ZacHttpClient.prototype.GET.name, () => {
     it("Replaces the path params", (done) => {
-      const testData: Paths["/rest/bag/zaak/{zaakUuid}"]["get"]["responses"]["200"]["content"]["application/json"] =
+      const testData: paths["/rest/bag/zaak/{zaakUuid}"]["get"]["responses"]["200"]["content"]["application/json"] =
         [
           {
             uuid: "123",
@@ -51,11 +52,11 @@ describe(ZacHttpClient.name, () => {
 
       zacHttpClient
         .GET("/rest/bag/zaak/{zaakUuid}", {
-          pathParams: { path: { zaakUuid: "123" } },
+          path: { zaakUuid: "123" },
         })
         .subscribe((data) => {
           expectType<
-            Paths["/rest/bag/zaak/{zaakUuid}"]["get"]["responses"]["200"]["content"]["application/json"]
+            paths["/rest/bag/zaak/{zaakUuid}"]["get"]["responses"]["200"]["content"]["application/json"]
           >(data);
 
           expect(data).toEqual(testData);
@@ -71,10 +72,8 @@ describe(ZacHttpClient.name, () => {
     it("adds the query params", (done) => {
       zacHttpClient
         .GET("/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken", {
-          pathParams: {
-            query: { zoekZaakIdentifier: "test", relationType: "HOOFDZAAK" },
-            path: { zaakUuid: "123" },
-          },
+          query: { zoekZaakIdentifier: "test", relationType: "HOOFDZAAK" },
+          path: { zaakUuid: "123" },
         })
         .subscribe(() => {
           done();
@@ -91,10 +90,9 @@ describe(ZacHttpClient.name, () => {
 
   describe(ZacHttpClient.prototype.POST.name, () => {
     it("Http post works with all expected types", (done) => {
-      const testData: Paths["/rest/informatieobjecten/informatieobject/{uuid}/convert"]["post"]["responses"]["200"] =
+      const testData: paths["/rest/informatieobjecten/informatieobject/{uuid}/convert"]["post"]["responses"]["200"] =
         {
           headers: {},
-          content: undefined as never,
         };
 
       zacHttpClient
@@ -102,12 +100,13 @@ describe(ZacHttpClient.name, () => {
           "/rest/informatieobjecten/informatieobject/{uuid}/convert",
           undefined as never,
           {
-            pathParams: { query: { zaak: "123" }, path: { uuid: "123" } },
+            query: { zaak: "123" },
+            path: { uuid: "123" },
           },
         )
         .subscribe((data) => {
           expectType<
-            Paths["/rest/informatieobjecten/informatieobject/{uuid}/convert"]["post"]["responses"]["200"]["content"]["application/json"]
+            paths["/rest/informatieobjecten/informatieobject/{uuid}/convert"]["post"]["responses"]["200"]["content"]
           >(data);
 
           expect(data).toEqual(testData);
@@ -126,12 +125,13 @@ describe(ZacHttpClient.name, () => {
     it("Http PUT works with all expected types", (done) => {
       const path =
         "/rest/gebruikersvoorkeuren/aantal-per-pagina/{werklijst}/{aantal}" as const;
+
       zacHttpClient
-        .PUT(path, {} as never, {
-          pathParams: { path: { aantal: 2, werklijst: "AFGEHANDELDE_ZAKEN" } },
+        .PUT(path, undefined as never, {
+          path: { aantal: 2, werklijst: "AFGEHANDELDE_ZAKEN" },
         })
         .subscribe((data) => {
-          expectType<Paths[typeof path]["put"]["responses"]["204"]["content"]>(
+          expectType<paths[typeof path]["put"]["responses"]["204"]["content"]>(
             data,
           );
           expect(data).toBe(true);
@@ -148,15 +148,15 @@ describe(ZacHttpClient.name, () => {
     it("Http PUT works with all expected types", (done) => {
       const path = "/rest/zaken/{uuid}/zaaklocatie" as const;
       const testData: Partial<
-        Paths[typeof path]["patch"]["responses"]["200"]["content"]["application/json"]
+        paths[typeof path]["patch"]["responses"]["200"]["content"]["application/json"]
       > = { uuid: "123" };
       zacHttpClient
         .PATCH(path, {} as never, {
-          pathParams: { path: { uuid: "123" } },
+          path: { uuid: "123" },
         })
         .subscribe((data) => {
           expectType<
-            Paths[typeof path]["patch"]["responses"]["200"]["content"]["application/json"]
+            paths[typeof path]["patch"]["responses"]["200"]["content"]["application/json"]
           >(data);
           expect(data).toEqual(testData);
           done();
@@ -175,11 +175,11 @@ describe(ZacHttpClient.name, () => {
       const path = "/rest/gebruikersvoorkeuren/zoekopdracht/{id}" as const;
       zacHttpClient
         .DELETE(path, {
-          pathParams: { path: { id: 123 } },
+          path: { id: 123 },
         })
         .subscribe((data) => {
           expectType<
-            Paths[typeof path]["delete"]["responses"]["204"]["content"]
+            paths[typeof path]["delete"]["responses"]["204"]["content"]
           >(data);
           expect(data).toBe(true);
           done();

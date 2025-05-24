@@ -3,37 +3,53 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import createClient, { FetchOptions, FetchResponse } from "openapi-fetch";
-import type { FilterKeys, HttpMethod } from "openapi-typescript-helpers";
+import { FetchOptions, FetchResponse } from "openapi-fetch";
+import type {
+  FilterKeys,
+  HttpMethod,
+  PathsWithMethod,
+} from "openapi-typescript-helpers";
 import { catchError } from "rxjs/operators";
 import { paths } from "../../../generated/types/zac-openapi-types";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 
-createClient();
-export type Paths = paths;
+type Paths = paths;
+type Methods = Extract<HttpMethod, "get" | "post" | "put" | "delete" | "patch">;
 
-type PathsWithMethod<Paths, PathnameMethod extends HttpMethod> = {
-  [Pathname in keyof Paths]: Paths[Pathname] extends {
-    [K in PathnameMethod]: unknown;
-  }
-    ? Pathname
-    : never;
-}[keyof Paths];
-
-type Response<
-  P extends keyof Paths,
-  type extends "get" | "post" | "put" | "delete" | "patch",
-> = NonNullable<
+type Response<Path extends keyof Paths, Method extends Methods> = NonNullable<
   FetchResponse<
-    Paths[P][type] extends Record<string | number, unknown>
-      ? Paths[P][type]
+    Paths[Path][Method] extends Record<string | number, unknown>
+      ? Paths[Path][Method]
       : never,
     Record<string, unknown>,
     "application/json"
   >["data"]
 >;
+
+type PathParameters<
+  Path extends PathsWithMethod<Paths, Method>,
+  Method extends Methods,
+> = FetchOptions<FilterKeys<Paths[Path], Method>>["params"];
+
+type Body<
+  Path extends PathsWithMethod<Paths, Method>,
+  Method extends Methods,
+> = FetchOptions<FilterKeys<Paths[Path], Method>>["body"];
+
+export type PostBody<
+  Path extends PathsWithMethod<Paths, Method>,
+  Method extends Methods = "post",
+> = Body<Path, Method>;
+export type PutBody<
+  Path extends PathsWithMethod<Paths, Method>,
+  Method extends Methods = "put",
+> = Body<Path, Method>;
+export type PatchBody<
+  Path extends PathsWithMethod<Paths, Method>,
+  Method extends Methods = "patch",
+> = Body<Path, Method>;
 
 @Injectable({
   providedIn: "root",
@@ -44,14 +60,14 @@ export class ZacHttpClient {
     private readonly foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
-  public GET<P extends PathsWithMethod<Paths, "get">>(
-    url: P,
-    init?: Parameters<HttpClient["get"]>[1] & {
-      pathParams: FetchOptions<FilterKeys<Paths[P], "get">>["params"];
-    },
-  ) {
+  public GET<
+    Path extends PathsWithMethod<Paths, Method>,
+    Method extends Methods = "get",
+  >(url: Path, parameters: PathParameters<Path, Method>) {
     return this.http
-      .get<Response<P, "get">>(this.prepareUrl(url, init?.pathParams), init)
+      .get<
+        Response<Path, Method>
+      >(this.formatUrl(url, parameters), this.addHttpHeaders(parameters))
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),
@@ -59,17 +75,18 @@ export class ZacHttpClient {
       );
   }
 
-  public POST<P extends PathsWithMethod<Paths, "post">>(
-    url: P,
-    body?: FetchOptions<FilterKeys<Paths[P], "post">>["body"],
-    init?: Parameters<HttpClient["post"]>[2] & {
-      pathParams: FetchOptions<FilterKeys<Paths[P], "post">>["params"];
-    },
+  public POST<
+    Path extends PathsWithMethod<Paths, Method>,
+    Method extends Methods = "post",
+  >(
+    url: Path,
+    body: PostBody<Path, Method>,
+    parameters: PathParameters<Path, Method>,
   ) {
     return this.http
       .post<
-        Response<P, "post">
-      >(this.prepareUrl(url, init?.pathParams), body, init)
+        Response<Path, Method>
+      >(this.formatUrl(url, parameters), body, this.addHttpHeaders(parameters))
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),
@@ -77,17 +94,18 @@ export class ZacHttpClient {
       );
   }
 
-  public PUT<P extends PathsWithMethod<Paths, "put">>(
-    url: P,
-    body: FetchOptions<FilterKeys<Paths[P], "put">>["body"],
-    init?: Parameters<HttpClient["put"]>[2] & {
-      pathParams: FetchOptions<FilterKeys<Paths[P], "put">>["params"];
-    },
+  public PUT<
+    Path extends PathsWithMethod<Paths, Method>,
+    Method extends Methods = "put",
+  >(
+    url: Path,
+    body: PutBody<Path, Method>,
+    parameters: PathParameters<Path, Method>,
   ) {
     return this.http
       .put<
-        Response<P, "put">
-      >(this.prepareUrl(url, init?.pathParams), body, init)
+        Response<Path, Method>
+      >(this.formatUrl(url, parameters), body, this.addHttpHeaders(parameters))
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),
@@ -95,16 +113,19 @@ export class ZacHttpClient {
       );
   }
 
-  public DELETE<P extends PathsWithMethod<Paths, "delete">>(
-    url: P,
-    init?: Parameters<HttpClient["delete"]>[1] & {
-      pathParams: FetchOptions<FilterKeys<Paths[P], "delete">>["params"];
-    },
+  public DELETE<
+    Path extends PathsWithMethod<Paths, Method>,
+    Method extends Methods = "delete",
+  >(
+    url: Path,
+    parameters: PathParameters<Path, Method>,
+    body?: Body<Path, Method>,
   ) {
     return this.http
-      .delete<
-        Response<P, "delete">
-      >(this.prepareUrl(url, init?.pathParams), init)
+      .delete<Response<Path, Method>>(this.formatUrl(url, parameters), {
+        ...this.addHttpHeaders(parameters),
+        body: body,
+      })
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),
@@ -112,17 +133,18 @@ export class ZacHttpClient {
       );
   }
 
-  public PATCH<P extends PathsWithMethod<Paths, "patch">>(
-    url: P,
-    body: FetchOptions<FilterKeys<Paths[P], "patch">>["body"],
-    init?: Parameters<HttpClient["patch"]>[2] & {
-      pathParams: FetchOptions<FilterKeys<Paths[P], "patch">>["params"];
-    },
+  public PATCH<
+    Path extends PathsWithMethod<Paths, Method>,
+    Method extends Methods = "patch",
+  >(
+    url: Path,
+    body: PatchBody<Path, Method>,
+    parameters: PathParameters<Path, Method>,
   ) {
     return this.http
       .patch<
-        Response<P, "patch">
-      >(this.prepareUrl(url, init?.pathParams), body, init)
+        Response<Path, "patch">
+      >(this.formatUrl(url, parameters), body, this.addHttpHeaders(parameters))
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),
@@ -132,41 +154,42 @@ export class ZacHttpClient {
 
   private replacePathParams(
     urlTemplate: string,
-    pathParams: Record<string, string | number | boolean | null>,
+    pathParams: Record<string, unknown>,
   ) {
     let url = urlTemplate;
 
-    for (const key in pathParams) {
+    for (const [key, value] of Object.entries(pathParams)) {
       // Simple string replacement without regex
       const placeholder = `{${key}}`;
       while (url.includes(placeholder)) {
-        if (!pathParams[key]) {
+        if (value === null || value === undefined) {
           throw new HttpParamsError(
             `No key provided for '{${key}}', stopping request to '${urlTemplate}'`,
           );
         }
 
-        url = url.replace(placeholder, pathParams[key].toString());
+        url = url.replace(placeholder, `${value}`);
       }
     }
 
     return url;
   }
 
-  private prepareUrl(
-    url: string,
-    pathParams?: {
-      path?: Record<string, string | number | boolean | null>;
-      query?: Record<string, string | number | boolean | null>;
-    },
-  ) {
-    if (pathParams?.path) {
-      url = this.replacePathParams(url, pathParams.path);
+  private formatUrl<
+    Path extends PathsWithMethod<Paths, Method>,
+    Method extends Methods,
+  >(url: string, parameters: PathParameters<Path, Method>) {
+    if (
+      parameters &&
+      "path" in parameters &&
+      typeof parameters.path === "object"
+    ) {
+      url = this.replacePathParams(url, parameters.path);
     }
 
-    if (pathParams?.query) {
+    if (parameters?.query) {
       const queryParams = new URLSearchParams();
-      for (const [key, value] of Object.entries(pathParams.query)) {
+      for (const [key, value] of Object.entries(parameters.query)) {
         if (value !== undefined && value !== null) {
           queryParams.append(key, value.toString());
         }
@@ -176,6 +199,19 @@ export class ZacHttpClient {
     }
 
     return url;
+  }
+
+  private addHttpHeaders<
+    Path extends PathsWithMethod<Paths, Method>,
+    Method extends Methods,
+  >(
+    parameters: PathParameters<Path, Method>,
+  ): Parameters<typeof this.http.get>[1] {
+    const headers =
+      parameters && "header" in parameters ? parameters.header : undefined;
+    return {
+      headers: new HttpHeaders(headers),
+    };
   }
 }
 

@@ -4,8 +4,7 @@
  */
 
 import { Injectable } from "@angular/core";
-import { catchError, map, Observable } from "rxjs";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { map } from "rxjs";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
@@ -45,60 +44,33 @@ export type MappedSmartDocumentsTemplateFlattenedGroupWithParentId = Omit<
 
 @Injectable({ providedIn: "root" })
 export class SmartDocumentsService {
-  constructor(
-    private zacHttp: ZacHttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
-  ) {}
+  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
-  getAllSmartDocumentsTemplateGroups(): Observable<
-    GeneratedType<"RestSmartDocumentsTemplateGroup">[]
-  > {
-    return this.zacHttp
-      .GET("/rest/zaakafhandelparameters/smartdocuments-templates")
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  getAllSmartDocumentsTemplateGroups() {
+    return this.zacHttpClient.GET(
+      "/rest/zaakafhandelparameters/smartdocuments-templates",
+      {},
+    );
   }
 
-  getTemplatesMapping(
-    zaakafhandelUUID: string,
-  ): Observable<GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[]> {
-    return this.zacHttp
+  getTemplatesMapping(zaakafhandelUUID: string) {
+    return this.zacHttpClient
       .GET(
         "/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping",
-        {
-          pathParams: {
-            path: {
-              zaakafhandelUUID,
-            },
-          },
-        },
+        { path: { zaakafhandelUUID } },
       )
-      .pipe(
-        map((data) => this.flattenNestedGroups(data)),
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+      .pipe(map((data) => this.flattenNestedGroups(data)));
   }
 
   storeTemplatesMapping(
     zaakafhandelUUID: string,
     templates: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[],
   ) {
-    return this.zacHttp
-      .POST(
-        "/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping",
-        templates,
-        {
-          pathParams: {
-            path: {
-              zaakafhandelUUID,
-            },
-          },
-        },
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.POST(
+      "/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping",
+      templates,
+      { path: { zaakafhandelUUID } },
+    );
   }
 
   getOnlyMappedTemplates = (
