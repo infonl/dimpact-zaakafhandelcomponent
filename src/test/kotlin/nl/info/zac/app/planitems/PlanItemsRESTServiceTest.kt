@@ -28,6 +28,7 @@ import net.atos.zac.mailtemplates.model.createMailGegevens
 import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.generated.Besluit
+import nl.info.client.zgw.model.createResultaat
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.model.generated.Resultaat
@@ -354,11 +355,11 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
     }
 
     Given("Zaak exists") {
-        val zaak = createZaak()
-
+        val zaak = createZaak(
+            resultaat = URI("https://example.com/resultaat/${UUID.randomUUID()}"),
+        )
         val mailGegevens = createMailGegevens()
-        val resultaat = Resultaat()
-
+        val resultaat = createResultaat()
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
             startenTaak = true,

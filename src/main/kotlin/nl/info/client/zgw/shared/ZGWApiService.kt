@@ -346,7 +346,7 @@ class ZGWApiService @Inject constructor(
             "Resultaattype with description '$description' not found for zaaktype with URI: '$zaaktypeURI'."
         )
 
-    private fun berekenArchiveringsparameters(zaakUUID: UUID?) {
+    private fun berekenArchiveringsparameters(zaakUUID: UUID) {
         val zaak = zrcClientService.readZaak(zaakUUID)
         // refetch to get the einddatum (the archiefnominatie has also been set)
         val resultaattype = ztcClientService.readResultaattype(

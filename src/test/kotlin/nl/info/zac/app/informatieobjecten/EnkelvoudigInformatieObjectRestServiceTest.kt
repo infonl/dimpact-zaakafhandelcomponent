@@ -33,7 +33,7 @@ import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockR
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakInformatieobject
+import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -113,7 +113,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val responseRestEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
         val restFileUpload = createRESTFileUpload()
         val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectCreateLockRequest()
-        val zaakInformatieobject = createZaakInformatieobject()
+        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every {
@@ -240,7 +240,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val responseRestEnkelvoudigInformatieobject =
             createRestEnkelvoudigInformatieobject()
         val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectCreateLockRequest()
-        val zaakInformatieobject = createZaakInformatieobject()
+        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
 
         every { zrcClientService.readZaak(closedZaak.uuid) } returns closedZaak
         every {
@@ -415,7 +415,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             )
         )
         val zaakInformatieobjecten = listOf(
-            createZaakInformatieobject()
+            createZaakInformatieobjectForCreatesAndUpdates()
         )
         val besluitType = createBesluitType(
             url = URI("http://example.com/$besluittypeUuid"),

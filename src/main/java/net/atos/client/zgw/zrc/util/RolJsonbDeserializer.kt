@@ -2,40 +2,52 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.client.zgw.zrc.util
 
-package net.atos.client.zgw.zrc.util;
+import jakarta.json.bind.serializer.DeserializationContext
+import jakarta.json.bind.serializer.JsonbDeserializer
+import jakarta.json.stream.JsonParser
+import net.atos.client.zgw.shared.util.JsonbUtil
+import net.atos.client.zgw.shared.util.JsonbUtil.JSONB
+import net.atos.client.zgw.zrc.model.BetrokkeneType
+import net.atos.client.zgw.zrc.model.Rol
+import net.atos.client.zgw.zrc.model.RolMedewerker
+import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
+import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
+import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
+import net.atos.client.zgw.zrc.model.RolVestiging
+import java.lang.reflect.Type
 
-import static net.atos.client.zgw.shared.util.JsonbUtil.JSONB;
-import static net.atos.client.zgw.zrc.model.Rol.BETROKKENE_TYPE_NAAM;
+class RolJsonbDeserializer : JsonbDeserializer<Rol<*>> {
+    override fun deserialize(parser: JsonParser, ctx: DeserializationContext, rtType: Type): Rol<*> {
+        val jsonObject = parser.getObject()
+        val betrokkenetype = BetrokkeneType.fromValue(jsonObject.getJsonString(Rol.BETROKKENE_TYPE_NAAM).string)
 
-import java.lang.reflect.Type;
+        return when (betrokkenetype) {
+            BetrokkeneType.VESTIGING -> JSONB.fromJson(
+                jsonObject.toString(),
+                RolVestiging::class.java
+            )
 
-import jakarta.json.JsonObject;
-import jakarta.json.bind.serializer.DeserializationContext;
-import jakarta.json.bind.serializer.JsonbDeserializer;
-import jakarta.json.stream.JsonParser;
+            BetrokkeneType.MEDEWERKER -> JSONB.fromJson(
+                jsonObject.toString(),
+                RolMedewerker::class.java
+            )
 
-import net.atos.client.zgw.zrc.model.BetrokkeneType;
-import net.atos.client.zgw.zrc.model.Rol;
-import net.atos.client.zgw.zrc.model.RolMedewerker;
-import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon;
-import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon;
-import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
-import net.atos.client.zgw.zrc.model.RolVestiging;
+            BetrokkeneType.NATUURLIJK_PERSOON -> JSONB.fromJson(
+                jsonObject.toString(),
+                RolNatuurlijkPersoon::class.java
+            )
 
-public class RolJsonbDeserializer implements JsonbDeserializer<Rol<?>> {
+            BetrokkeneType.NIET_NATUURLIJK_PERSOON -> JsonbUtil.JSONB.fromJson(
+                jsonObject.toString(),
+                RolNietNatuurlijkPersoon::class.java
+            )
 
-    @Override
-    public Rol deserialize(final JsonParser parser, final DeserializationContext ctx, final Type rtType) {
-        final JsonObject jsonObject = parser.getObject();
-        final BetrokkeneType betrokkenetype = BetrokkeneType.fromValue(jsonObject.getJsonString(BETROKKENE_TYPE_NAAM).getString());
-
-        return switch (betrokkenetype) {
-            case VESTIGING -> JSONB.fromJson(jsonObject.toString(), RolVestiging.class);
-            case MEDEWERKER -> JSONB.fromJson(jsonObject.toString(), RolMedewerker.class);
-            case NATUURLIJK_PERSOON -> JSONB.fromJson(jsonObject.toString(), RolNatuurlijkPersoon.class);
-            case NIET_NATUURLIJK_PERSOON -> JSONB.fromJson(jsonObject.toString(), RolNietNatuurlijkPersoon.class);
-            case ORGANISATORISCHE_EENHEID -> JSONB.fromJson(jsonObject.toString(), RolOrganisatorischeEenheid.class);
-        };
+            BetrokkeneType.ORGANISATORISCHE_EENHEID -> JsonbUtil.JSONB.fromJson(
+                jsonObject.toString(),
+                RolOrganisatorischeEenheid::class.java
+            )
+        }
     }
 }

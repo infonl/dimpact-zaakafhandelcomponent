@@ -10,7 +10,7 @@ import java.util.UUID
 
 @NoArgConstructor
 data class RESTUserEventListenerData(
-    var zaakUuid: UUID? = null,
+    var zaakUuid: UUID,
 
     var planItemInstanceId: String? = null,
 

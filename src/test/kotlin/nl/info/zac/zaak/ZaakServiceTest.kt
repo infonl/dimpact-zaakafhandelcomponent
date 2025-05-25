@@ -14,7 +14,6 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
@@ -22,7 +21,6 @@ import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.util.StatusTypeUtil
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -525,8 +523,6 @@ class ZaakServiceTest : BehaviorSpec({
 
         every { zrcClientService.readStatus(zaak.status) } returns status
         every { ztcClientService.readStatustype(status.statustype) } returns statusType
-        mockkStatic(StatusTypeUtil::class)
-        every { StatusTypeUtil.isHeropend(statusType) } returns false
         every {
             zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, true)
         } just runs
@@ -562,8 +558,6 @@ class ZaakServiceTest : BehaviorSpec({
 
         every { zrcClientService.readStatus(zaak.status) } returns status
         every { ztcClientService.readStatustype(status.statustype) } returns statusType
-        mockkStatic(StatusTypeUtil::class)
-        every { StatusTypeUtil.isHeropend(statusType) } returns true
 
         When("setOntvangstbevestigingVerstuurdIfNotHeropend is called") {
             zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)

@@ -2,23 +2,12 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.zgw.zrc.util;
+package net.atos.client.zgw.zrc.util
 
-import nl.info.client.zgw.zrc.model.generated.Zaak;
+import nl.info.client.zgw.zrc.model.generated.Zaak
 
-public class ZaakUtil {
-    private ZaakUtil() {
-    }
+fun isOpgeschort(zaak: Zaak) = zaak.getOpschorting() != null && zaak.getOpschorting().getIndicatie()
 
-    public static boolean isOpgeschort(Zaak zaak) {
-        return zaak.getOpschorting() != null && zaak.getOpschorting().getIndicatie();
-    }
+fun isOpen(zaak: Zaak) = zaak.getArchiefnominatie() == null
 
-    public static boolean isOpen(Zaak zaak) {
-        return zaak.getArchiefnominatie() == null;
-    }
-
-    public static boolean isVerlengd(Zaak zaak) {
-        return zaak.getVerlenging() != null && zaak.getVerlenging().getDuur() != null;
-    }
-}
+fun isVerlengd(zaak: Zaak) = zaak.getVerlenging() != null && zaak.getVerlenging().getDuur() != null

@@ -8,7 +8,7 @@ import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
-import net.atos.client.zgw.zrc.util.StatusTypeUtil
+import net.atos.client.zgw.zrc.util.isHeropend
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
 import nl.info.client.zgw.shared.ZGWApiService
@@ -41,9 +41,9 @@ class ZaakZoekObjectConverter @Inject constructor(
     private fun convert(zaak: Zaak): ZaakZoekObject {
         val zaakZoekObject = ZaakZoekObject(
             id = zaak.uuid.toString(),
-            type = ZoekObjectType.ZAAK.name
-        ).apply {
+            type = ZoekObjectType.ZAAK.name,
             identificatie = zaak.identificatie
+        ).apply {
             omschrijving = zaak.omschrijving
             toelichting = zaak.toelichting
             registratiedatum = convertToDate(zaak.registratiedatum)
@@ -95,7 +95,7 @@ class ZaakZoekObjectConverter @Inject constructor(
             val statustype = ztcClientService.readStatustype(status.statustype)
             zaakZoekObject.statustypeOmschrijving = statustype.omschrijving
             zaakZoekObject.isStatusEindstatus = statustype.isEindstatus
-            zaakZoekObject.setIndicatie(ZaakIndicatie.HEROPEND, StatusTypeUtil.isHeropend(statustype))
+            zaakZoekObject.setIndicatie(ZaakIndicatie.HEROPEND, isHeropend(statustype))
         }
         zaakZoekObject.aantalOpenstaandeTaken = flowableTaskService.countOpenTasksForZaak(zaak.uuid)
         zaak.resultaat?.let { zaakResultaat ->
@@ -134,6 +134,6 @@ class ZaakZoekObjectConverter @Inject constructor(
             .results
             .filter { it.isBagObject }
             .map { it.waarde }
-            .let { if (it.isNotEmpty()) it else emptyList() }
+            .let { it.ifEmpty { emptyList() } }
     }
 }

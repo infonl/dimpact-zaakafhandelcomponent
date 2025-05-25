@@ -21,7 +21,7 @@ import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolVestiging
 import net.atos.client.zgw.zrc.model.Vestiging
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.zrc.util.StatusTypeUtil
+import net.atos.client.zgw.zrc.util.isHeropend
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.websocket.event.ScreenEventType
@@ -235,7 +235,7 @@ class ZaakService @Inject constructor(
             val status = zrcClientService.readStatus(statusUuid)
             ztcClientService.readStatustype(status.statustype)
         }
-        if (!StatusTypeUtil.isHeropend(statusType)) {
+        if (!isHeropend(statusType)) {
             zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, Boolean.TRUE)
         }
     }

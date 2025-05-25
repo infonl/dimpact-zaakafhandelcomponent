@@ -279,7 +279,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @Path("informatieobject/{uuid}/edit")
     fun editEnkelvoudigInformatieobjectInhoud(
         @PathParam("uuid") uuid: UUID,
-        @QueryParam("zaak") zaakUUID: UUID?,
+        @QueryParam("zaak") zaakUUID: UUID,
         @Context uriInfo: UriInfo
     ): Response {
         assertPolicy(
@@ -295,7 +295,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @Path("/informatieobject/{uuid}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     fun deleteEnkelvoudigInformatieObject(
-        @PathParam("uuid") uuid: UUID?,
+        @PathParam("uuid") uuid: UUID,
         documentVerwijderenGegevens: RESTDocumentVerwijderenGegevens
     ): Response {
         val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid)

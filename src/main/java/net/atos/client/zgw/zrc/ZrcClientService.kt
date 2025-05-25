@@ -2,512 +2,311 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.zgw.zrc;
+package net.atos.client.zgw.zrc
 
-import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
-import static nl.info.client.zgw.util.ZgwUriUtilsKt.validateZgwApiUri;
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.inject.Inject
+import jakarta.ws.rs.NotFoundException
+import net.atos.client.zgw.shared.model.Results
+import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
+import net.atos.client.zgw.zrc.model.BetrokkeneType
+import net.atos.client.zgw.zrc.model.Rol
+import net.atos.client.zgw.zrc.model.RolListParameters
+import net.atos.client.zgw.zrc.model.Status
+import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.client.zgw.zrc.model.ZaakInformatieobject
+import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
+import net.atos.client.zgw.zrc.model.ZaakListParameters
+import net.atos.client.zgw.zrc.model.ZaakUuid
+import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
+import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.util.validateZgwApiUri
+import nl.info.client.zgw.zrc.model.generated.Resultaat
+import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
+import org.eclipse.microprofile.config.inject.ConfigProperty
+import org.eclipse.microprofile.rest.client.inject.RestClient
+import java.net.URI
+import java.util.UUID
 
-import java.net.URI;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.NotFoundException;
-import jakarta.ws.rs.core.UriBuilder;
-
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import net.atos.client.zgw.shared.model.Results;
-import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
-import net.atos.client.zgw.zrc.model.BetrokkeneType;
-import net.atos.client.zgw.zrc.model.Rol;
-import net.atos.client.zgw.zrc.model.RolListParameters;
-import net.atos.client.zgw.zrc.model.Status;
-import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
-import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters;
-import net.atos.client.zgw.zrc.model.ZaakListParameters;
-import net.atos.client.zgw.zrc.model.ZaakUuid;
-import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters;
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel;
-import nl.info.client.zgw.zrc.model.generated.Resultaat;
-import nl.info.zac.configuratie.ConfiguratieService;
-
-/**
- * Careful!
- * <p>
- * Never call methods with caching annotations from within the service (or it will not work).
- * Do not introduce caches with keys other than URI and UUID.
- * Use Optional for caches that need to hold nulls (Infinispan does not cache nulls).
- */
 @ApplicationScoped
-public class ZrcClientService {
-
-    private static final Logger log = LoggerFactory.getLogger(ZrcClientService.class);
-    @Inject
+@NoArgConstructor
+@AllOpen
+class ZrcClientService @Inject constructor(
     @ConfigProperty(name = "ZGW_API_URL_EXTERN")
-    private String zgwApiUrlExtern;
+    private val zgwApiUrlExtern: String,
 
-    @Inject
     @RestClient
-    private ZrcClient zrcClient;
+    private val zrcClient: ZrcClient,
 
-    @Inject
-    private ZGWClientHeadersFactory zgwClientHeadersFactory;
+    private val zgwClientHeadersFactory: ZGWClientHeadersFactory,
 
-    @Inject
-    private ConfiguratieService configuratieService;
-
-    /**
-     * Create {@link Rol}.
-     *
-     * @param rol {@link Rol}/
-     */
-    public void createRol(final Rol<?> rol) {
-        createRol(rol, null);
+    private val configuratieService: ConfiguratieService
+) {
+    fun createRol(rol: Rol<*>) {
+        createRol(rol, null)
     }
 
-    /**
-     * Create {@link Rol}.
-     *
-     * @param rol         {@link Rol}/
-     * @param toelichting de toelichting
-     * @return Created {@link Rol}.
-     */
-    public Rol<?> createRol(final Rol<?> rol, final String toelichting) {
-        if (toelichting != null) {
-            zgwClientHeadersFactory.setAuditToelichting(toelichting);
-        }
-        return zrcClient.rolCreate(rol);
+    fun createRol(rol: Rol<*>, toelichting: String?): Rol<*> {
+        toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
+        return zrcClient.rolCreate(rol)
     }
 
-    /**
-     * Delete {@link Rol}.
-     *
-     * @param rol         de betreffende rol {@link Rol}/
-     * @param toelichting de toelichting
-     */
-    public void deleteRol(final Rol<?> rol, final String toelichting) {
-        if (toelichting != null) {
-            zgwClientHeadersFactory.setAuditToelichting(toelichting);
-        }
-        zrcClient.rolDelete(rol.getUuid());
+    fun deleteRol(rol: Rol<*>, toelichting: String?) {
+        toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
+        zrcClient.rolDelete(rol.uuid)
     }
 
-    /**
-     * Create {@link Zaakobject}.
-     *
-     * @param zaakobject {@link Zaakobject}.
-     * @return Created {@link Zaakobject}.
-     */
-    public Zaakobject createZaakobject(final Zaakobject zaakobject) {
-        return zrcClient.zaakobjectCreate(zaakobject);
+    fun createZaakobject(zaakobject: Zaakobject): Zaakobject =
+        zrcClient.zaakobjectCreate(zaakobject)
+
+    fun deleteZaakobject(zaakobject: Zaakobject, toelichting: String?) {
+        toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
+        zrcClient.zaakobjectDelete(zaakobject.uuid)
     }
 
-    /**
-     * Delete {@link Zaakobject}.
-     *
-     * @param zaakobject {@link Zaakobject}.
-     */
-    public void deleteZaakobject(final Zaakobject zaakobject, final String toelichting) {
-        if (toelichting != null) {
-            zgwClientHeadersFactory.setAuditToelichting(toelichting);
-        }
-        zrcClient.zaakobjectDelete(zaakobject.getUuid());
+    fun readZaakobject(zaakobjectUUID: UUID): Zaakobject = zrcClient.zaakobjectRead(zaakobjectUUID)
+
+    fun createZaakInformatieobject(
+        zaakInformatieobject: ZaakInformatieobject,
+        toelichting: String?
+    ): ZaakInformatieobject {
+        toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
+        return zrcClient.zaakinformatieobjectCreate(zaakInformatieobject)
     }
 
-    /**
-     * Read {@link Zaakobject} via its UUID.
-     * Throws a RuntimeException if the {@link Zaakobject} can not be read.
-     *
-     * @param zaakobjectUUID UUID of {@link Zaakobject}.
-     * @return {@link Zaakobject}. Never NULL!
-     */
-    public Zaakobject readZaakobject(final UUID zaakobjectUUID) {
-        return zrcClient.zaakobjectRead(zaakobjectUUID);
-    }
-
-    /**
-     * Create {@link ZaakInformatieobject}
-     *
-     * @param zaakInformatieobject describes relation between ZAAK en INFORMATIEOBJECT
-     * @return ZaakInformatieobject
-     */
-    public ZaakInformatieobject createZaakInformatieobject(final ZaakInformatieobject zaakInformatieobject, final String toelichting) {
-        if (toelichting != null) {
-            zgwClientHeadersFactory.setAuditToelichting(toelichting);
-        }
-        return zrcClient.zaakinformatieobjectCreate(zaakInformatieobject);
-    }
-
-    /**
-     * delete {@link ZaakInformatieobject}
-     *
-     * @param zaakInformatieobjectUuid zaakInformatieobjectUuid
-     */
-    public void deleteZaakInformatieobject(
-            final UUID zaakInformatieobjectUuid,
-            final String toelichting,
-            final String toelichtingPrefix
+    fun deleteZaakInformatieobject(
+        zaakInformatieobjectUuid: UUID,
+        toelichting: String?,
+        toelichtingPrefix: String?
     ) {
-        final String fullToelichting = StringUtils.isEmpty(toelichting) ?
-                toelichtingPrefix :
-                String.format("%s: %s", toelichtingPrefix, toelichting);
-        zgwClientHeadersFactory.setAuditToelichting(fullToelichting);
-        zrcClient.zaakinformatieobjectDelete(zaakInformatieobjectUuid);
+        val fullToelichting = toelichting?.let { "$toelichtingPrefix: $it" } ?: toelichtingPrefix
+        zgwClientHeadersFactory.setAuditToelichting(fullToelichting)
+        zrcClient.zaakinformatieobjectDelete(zaakInformatieobjectUuid)
     }
 
-    /**
-     * Read {@link Zaak} via its UUID.
-     * Throws a RuntimeException if the {@link Zaak} can not be read.
-     *
-     * @param zaakUUID UUID of {@link Zaak}.
-     * @return {@link Zaak}. Never NULL!
-     */
-    public Zaak readZaak(final UUID zaakUUID) {
-        return zrcClient.zaakRead(zaakUUID);
+    fun readZaak(zaakUUID: UUID): Zaak = zrcClient.zaakRead(zaakUUID)
+
+    fun readZaak(zaakURI: URI): Zaak {
+        validateZgwApiUri(zaakURI, configuratieService.readZgwApiClientMpRestUrl())
+        return readZaak(zaakURI.extractUuid())
     }
 
-    /**
-     * Read {@link Zaak} via its URI.
-     * Throws a RuntimeException if the {@link Zaak} can not be read.
-     *
-     * @param zaakURI URI of {@link Zaak}.
-     * @return {@link Zaak}. Never NULL!
-     */
-    public Zaak readZaak(final URI zaakURI) {
-        validateZgwApiUri(zaakURI, configuratieService.readZgwApiClientMpRestUrl());
-        return readZaak(extractUuid(zaakURI));
-    }
+    fun readZaakinformatieobject(zaakinformatieobjectUUID: UUID): ZaakInformatieobject =
+        zrcClient.zaakinformatieobjectRead(zaakinformatieobjectUUID)
 
     /**
-     * Read {@link ZaakInformatieobject} via its UUID.
-     * Throws a RuntimeException if the {@link ZaakInformatieobject} can not be read.
-     *
-     * @param zaakinformatieobjectUUID UUID of {@link ZaakInformatieobject}.
-     * @return {@link ZaakInformatieobject}. Never NULL!
-     */
-    public ZaakInformatieobject readZaakinformatieobject(final UUID zaakinformatieobjectUUID) {
-        return zrcClient.zaakinformatieobjectRead(zaakinformatieobjectUUID);
-    }
-
-    /**
-     * Update all instances of {@link Rol} for {@link Zaak}.
-     * Replaces all current instances of {@link Rol} with the suplied instances.
+     * Update all instances of [Rol] for [Zaak].
+     * Replaces all current instances of [Rol] with the suplied instances.
      *
      * @param zaak   de bij te werken zaak
      * @param rollen de gewenste rollen
      */
-    private void updateRollen(final Zaak zaak, final Collection<Rol<?>> rollen, final String toelichting) {
-        final Collection<Rol<?>> current = listRollen(zaak);
-        deleteDeletedRollen(current, rollen, toelichting);
-        deleteUpdatedRollen(current, rollen, toelichting);
-        createUpdatedRollen(current, rollen, toelichting);
-        createCreatedRollen(current, rollen, toelichting);
+    private fun updateRollen(zaak: Zaak, rollen: List<Rol<*>>, toelichting: String?) {
+        val current = listRollen(zaak)
+        deleteDeletedRollen(current, rollen, toelichting)
+        deleteUpdatedRollen(current, rollen, toelichting)
+        createUpdatedRollen(current, rollen, toelichting)
+        createCreatedRollen(current, rollen, toelichting)
     }
 
-    public void updateRol(final Zaak zaak, final Rol<?> rol, final String toelichting) {
-        final List<Rol<?>> rollen = listRollen(zaak);
-        rollen.add(rol);
-        updateRollen(zaak, rollen, toelichting);
+    fun updateRol(zaak: Zaak, rol: Rol<*>, toelichting: String?) {
+        val rollen = listRollen(zaak).toMutableList().apply { add(rol) }
+        updateRollen(zaak, rollen, toelichting)
     }
 
-    public void deleteRol(final Zaak zaak, final BetrokkeneType betrokkeneType, final String toelichting) {
-        final List<Rol<?>> rollen = listRollen(zaak);
-        final Optional<Rol<?>> rolMedewerker = rollen.stream().filter(rol -> rol.getBetrokkeneType() == betrokkeneType).findFirst();
-        rolMedewerker.ifPresent(betrokkene -> rollen.removeIf(rol -> rol.equalBetrokkeneRol(betrokkene)));
-        updateRollen(zaak, rollen, toelichting);
-    }
-
-    /**
-     * Read {@link Rol} via its URI.
-     * Throws a RuntimeException if the {@link Rol} can not be read.
-     *
-     * @param rolURI URI of {@link Rol}.
-     * @return {@link Rol}. Never NULL!
-     */
-    public Rol<?> readRol(final URI rolURI) {
-        validateZgwApiUri(rolURI, configuratieService.readZgwApiClientMpRestUrl());
-        return readRol(extractUuid(rolURI));
-    }
-
-    /**
-     * Read {@link Rol} via its UUID.
-     * Throws a RuntimeException if the {@link Rol} can not be read.
-     *
-     * @param rolUUID UUID of {@link Rol}.
-     * @return {@link Rol}. Never NULL!
-     */
-    public Rol<?> readRol(final UUID rolUUID) {
-        return zrcClient.rolRead(rolUUID);
-    }
-
-    /**
-     * Read {@link Resultaat} via its URI.
-     * Throws a RuntimeException if the {@link Resultaat} can not be read.
-     *
-     * @param resultaatURI URI of {@link Resultaat}.
-     * @return {@link Resultaat}. Never 'null'!
-     */
-    public Resultaat readResultaat(final URI resultaatURI) {
-        validateZgwApiUri(resultaatURI, configuratieService.readZgwApiClientMpRestUrl());
-        return zrcClient.resultaatRead(extractUuid(resultaatURI));
-    }
-
-    /**
-     * Read {@link Status} via its URI.
-     * Throws a RuntimeException if the {@link Status} can not be read.
-     *
-     * @param statusURI URI of {@link Status}.
-     * @return {@link Status}. Never 'null'!
-     */
-    public Status readStatus(final URI statusURI) {
-        validateZgwApiUri(statusURI, configuratieService.readZgwApiClientMpRestUrl());
-        return zrcClient.statusRead(extractUuid(statusURI));
-    }
-
-    /**
-     * List instances of {@link Zaakobject} filtered by {@link ZaakobjectListParameters}.
-     *
-     * @param zaakobjectListParameters {@link ZaakobjectListParameters}.
-     * @return List of {@link Zaakobject} instances.
-     */
-    public Results<Zaakobject> listZaakobjecten(final ZaakobjectListParameters zaakobjectListParameters) {
-        return zrcClient.zaakobjectList(zaakobjectListParameters);
-    }
-
-    /**
-     * Partially update {@link Zaak}.
-     *
-     * @param zaakUUID UUID of {@link Zaak}.
-     * @param zaak     {@link Zaak} with parts that need to be updated.
-     * @return Updated {@link Zaak}
-     */
-    public Zaak patchZaak(final UUID zaakUUID, final Zaak zaak, final String toelichting) {
-        if (toelichting != null) {
-            zgwClientHeadersFactory.setAuditToelichting(toelichting);
+    fun deleteRol(zaak: Zaak, betrokkeneType: BetrokkeneType?, toelichting: String?) {
+        val rollen = listRollen(zaak).toMutableList().apply {
+            firstOrNull { it.betrokkeneType == betrokkeneType }?.let { betrokkene ->
+                removeAll { it.equalBetrokkeneRol(betrokkene) }
+            }
         }
-        return patchZaak(zaakUUID, zaak);
+        updateRollen(zaak, rollen, toelichting)
     }
+
+    fun readRol(rolURI: URI): Rol<*> {
+        validateZgwApiUri(rolURI, configuratieService.readZgwApiClientMpRestUrl())
+        return readRol(rolURI.extractUuid())
+    }
+
+    fun readRol(rolUUID: UUID): Rol<*> = zrcClient.rolRead(rolUUID)
+
+    fun readResultaat(resultaatURI: URI): Resultaat {
+        validateZgwApiUri(resultaatURI, configuratieService.readZgwApiClientMpRestUrl())
+        return zrcClient.resultaatRead(resultaatURI.extractUuid())
+    }
+
+    fun readStatus(statusURI: URI): Status {
+        validateZgwApiUri(statusURI, configuratieService.readZgwApiClientMpRestUrl())
+        return zrcClient.statusRead(statusURI.extractUuid())
+    }
+
+    fun listZaakobjecten(zaakobjectListParameters: ZaakobjectListParameters): Results<Zaakobject> =
+        zrcClient.zaakobjectList(zaakobjectListParameters)
+
+    fun patchZaak(zaakUUID: UUID, zaak: Zaak, toelichting: String?): Zaak {
+        toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
+        return patchZaak(zaakUUID, zaak)
+    }
+
+    fun patchZaak(zaakUUID: UUID, zaak: Zaak): Zaak = zrcClient.zaakPartialUpdate(zaakUUID, zaak)
+
+    fun listZaken(filter: ZaakListParameters): Results<Zaak> = zrcClient.zaakList(filter)
 
     /**
-     * Partially update {@link Zaak}.
+     * List instances of [Zaak] filtered by [ZaakListParameters].
      *
-     * @param zaakUUID UUID of {@link Zaak}.
-     * @param zaak     {@link Zaak} with parts that need to be updated.
-     * @return Updated {@link Zaak}
+     * @param filter [ZaakListParameters].
+     * @return List of [ZaakUuid] instances.
      */
-    public Zaak patchZaak(final UUID zaakUUID, final Zaak zaak) {
-        return zrcClient.zaakPartialUpdate(zaakUUID, zaak);
-    }
+    fun listZakenUuids(filter: ZaakListParameters): Results<ZaakUuid> = zrcClient.zaakListUuids(filter)
 
     /**
-     * List instances of {@link Zaak} filtered by {@link ZaakListParameters}.
+     * List instances of [ZaakInformatieobject] filtered by [ZaakInformatieobjectListParameters].
      *
-     * @param filter {@link ZaakListParameters}.
-     * @return List of {@link Zaak} instances.
+     * @param filter [ZaakInformatieobjectListParameters].
+     * @return List of [ZaakInformatieobject] instances.
      */
-    public Results<Zaak> listZaken(final ZaakListParameters filter) {
-        return zrcClient.zaakList(filter);
-    }
+    fun listZaakinformatieobjecten(filter: ZaakInformatieobjectListParameters): List<ZaakInformatieobject> =
+        zrcClient.zaakinformatieobjectList(filter)
 
-    /**
-     * List instances of {@link Zaak} filtered by {@link ZaakListParameters}.
-     *
-     * @param filter {@link ZaakListParameters}.
-     * @return List of {@link ZaakUuid} instances.
-     */
-    public Results<ZaakUuid> listZakenUuids(final ZaakListParameters filter) {
-        return zrcClient.zaakListUuids(filter);
-    }
+    fun listZaakinformatieobjecten(zaak: Zaak): List<ZaakInformatieobject> =
+        listZaakinformatieobjecten(
+            ZaakInformatieobjectListParameters().apply {
+                this.zaak = zaak.url
+            }
+        )
 
-    /**
-     * List instances of {@link ZaakInformatieobject} filtered by {@link ZaakInformatieobjectListParameters}.
-     *
-     * @param filter {@link ZaakInformatieobjectListParameters}.
-     * @return List of {@link ZaakInformatieobject} instances.
-     */
-    public List<ZaakInformatieobject> listZaakinformatieobjecten(final ZaakInformatieobjectListParameters filter) {
-        return zrcClient.zaakinformatieobjectList(filter);
-    }
+    fun listZaakinformatieobjecten(informatieobject: EnkelvoudigInformatieObject): List<ZaakInformatieobject> =
+        listZaakinformatieobjecten(
+            ZaakInformatieobjectListParameters().apply {
+                this.informatieobject = informatieobject.getUrl()
+            }
+        )
 
-    public List<ZaakInformatieobject> listZaakinformatieobjecten(final Zaak zaak) {
-        final ZaakInformatieobjectListParameters parameters = new ZaakInformatieobjectListParameters();
-        parameters.setZaak(zaak.getUrl());
-        return listZaakinformatieobjecten(parameters);
-    }
+    fun listRollen(filter: RolListParameters): Results<Rol<*>> = zrcClient.rolList(filter)
 
-    public List<ZaakInformatieobject> listZaakinformatieobjecten(final EnkelvoudigInformatieObject informatieobject) {
-        final ZaakInformatieobjectListParameters parameters = new ZaakInformatieobjectListParameters();
-        parameters.setInformatieobject(informatieobject.getUrl());
-        return listZaakinformatieobjecten(parameters);
-    }
+    fun listRollen(zaak: Zaak): List<Rol<*>> =
+        zrcClient.rolList(RolListParameters(zaak.url)).getResults()
 
-    /**
-     * List instances of {@link Rol} filtered by {@link RolListParameters}.
-     *
-     * @param filter {@link RolListParameters}.
-     * @return List of {@link Rol} instances.
-     */
-    public Results<Rol<?>> listRollen(final RolListParameters filter) {
-        return zrcClient.rolList(filter);
-    }
-
-    /**
-     * List all instances of {@link Rol} for a specific {@link Zaak}.
-     *
-     * @param zaak {@link Zaak}
-     * @return List of {@link Rol}
-     */
-    public List<Rol<?>> listRollen(final Zaak zaak) {
-        return zrcClient.rolList(new RolListParameters(zaak.getUrl())).getResults();
-    }
-
-    public Zaak readZaakByID(final String identificatie) {
-        final ZaakListParameters zaakListParameters = new ZaakListParameters();
-        zaakListParameters.setIdentificatie(identificatie);
-        final Results<Zaak> zaakResults = listZaken(zaakListParameters);
-        if (zaakResults.getCount() == 0) {
-            throw new NotFoundException(String.format("Zaak met identificatie '%s' niet gevonden", identificatie));
-        } else if (zaakResults.getCount() > 1) {
-            throw new IllegalStateException(String.format("Meerdere zaken met identificatie '%s' gevonden", identificatie));
+    fun readZaakByID(identificatie: String): Zaak {
+        val zaakResults = listZaken(ZaakListParameters().apply { this.identificatie = identificatie })
+        require(zaakResults.count <= 1) {
+            "Meerdere zaken met identificatie '$identificatie' gevonden"
         }
-        return zaakResults.getResults().getFirst();
+        return zaakResults.getResults().firstOrNull()
+            ?: throw NotFoundException("Zaak met identificatie '$identificatie' niet gevonden")
     }
 
-    public void verplaatsInformatieobject(
-            final EnkelvoudigInformatieObject informatieobject,
-            final Zaak oudeZaak,
-            final Zaak nieuweZaak
+    fun verplaatsInformatieobject(
+        informatieobject: EnkelvoudigInformatieObject,
+        oudeZaak: Zaak,
+        nieuweZaak: Zaak
     ) {
-        final ZaakInformatieobjectListParameters parameters = new ZaakInformatieobjectListParameters();
-        parameters.setInformatieobject(informatieobject.getUrl());
-        parameters.setZaak(oudeZaak.getUrl());
-        List<ZaakInformatieobject> zaakInformatieobjecten = listZaakinformatieobjecten(parameters);
-        if (zaakInformatieobjecten.isEmpty()) {
-            throw new NotFoundException(String.format("Geen ZaakInformatieobject gevonden voor Zaak: '%s' en InformatieObject: '%s'",
-                    oudeZaak.getIdentificatie(),
-                    extractUuid(informatieobject.getInhoud())));
+        val parameters = ZaakInformatieobjectListParameters().apply {
+            this.informatieobject = informatieobject.getUrl()
+            this.zaak = oudeZaak.url
+        }
+        val zaakInformatieobjecten = listZaakinformatieobjecten(parameters)
+        require(zaakInformatieobjecten.isNotEmpty()) {
+            "Geen ZaakInformatieobject gevonden voor Zaak: '${oudeZaak.identificatie}' " +
+                "en InformatieObject: '${informatieobject.getInhoud().extractUuid()}'"
+        }
+        val oudeZaakInformatieobject = zaakInformatieobjecten.first()
+        val nieuweZaakInformatieObject = ZaakInformatieobject().apply {
+            this.zaak = nieuweZaak.url
+            this.informatieobject = informatieobject.getUrl()
+            this.titel = oudeZaakInformatieobject.titel
+            this.beschrijving = oudeZaakInformatieobject.beschrijving
         }
 
-        final ZaakInformatieobject oudeZaakInformatieobject = zaakInformatieobjecten.getFirst();
-        final ZaakInformatieobject nieuweZaakInformatieObject = new ZaakInformatieobject();
-        nieuweZaakInformatieObject.setZaak(nieuweZaak.getUrl());
-        nieuweZaakInformatieObject.setInformatieobject(informatieobject.getUrl());
-        nieuweZaakInformatieObject.setTitel(oudeZaakInformatieobject.getTitel());
-        nieuweZaakInformatieObject.setBeschrijving(oudeZaakInformatieobject.getBeschrijving());
-
-
-        final String toelichting = "%s -> %s".formatted(oudeZaak.getIdentificatie(), nieuweZaak.getIdentificatie());
-        createZaakInformatieobject(nieuweZaakInformatieObject, toelichting);
-        deleteZaakInformatieobject(oudeZaakInformatieobject.getUuid(), toelichting, "Verplaatst");
+        val toelichting = "${oudeZaak.identificatie} -> ${nieuweZaak.identificatie}"
+        createZaakInformatieobject(nieuweZaakInformatieObject, toelichting)
+        deleteZaakInformatieobject(oudeZaakInformatieobject.uuid, toelichting, "Verplaatst")
     }
 
-    public void koppelInformatieobject(
-            final EnkelvoudigInformatieObject informatieobject,
-            final Zaak nieuweZaak,
-            final String toelichting
+    fun koppelInformatieobject(
+        enkelvoudigInformatieObject: EnkelvoudigInformatieObject,
+        targetZaak: Zaak,
+        description: String?
     ) {
-        List<ZaakInformatieobject> zaakInformatieobjecten = listZaakinformatieobjecten(informatieobject);
-        if (!zaakInformatieobjecten.isEmpty()) {
-            final UUID zaakUuid = extractUuid(zaakInformatieobjecten.getFirst().getZaak());
-            throw new IllegalStateException(String.format("Informatieobject is reeds gekoppeld aan zaak '%s'", zaakUuid));
+        listZaakinformatieobjecten(enkelvoudigInformatieObject).firstOrNull()?.let {
+            throw IllegalStateException("Informatieobject is reeds gekoppeld aan zaak '${it.zaak.extractUuid()}'")
         }
-        final ZaakInformatieobject nieuweZaakInformatieObject = new ZaakInformatieobject();
-        nieuweZaakInformatieObject.setZaak(nieuweZaak.getUrl());
-        nieuweZaakInformatieObject.setInformatieobject(informatieobject.getUrl());
-        nieuweZaakInformatieObject.setTitel(informatieobject.getTitel());
-        nieuweZaakInformatieObject.setBeschrijving(informatieobject.getBeschrijving());
-        createZaakInformatieobject(nieuweZaakInformatieObject, toelichting);
-    }
-
-    /**
-     * List all instances of {@link ZRCAuditTrailRegel} for a specific {@link Zaak}.
-     *
-     * @param zaakUUID UUID of {@link Zaak}.
-     * @return List of {@link ZRCAuditTrailRegel} instances.
-     */
-    public List<ZRCAuditTrailRegel> listAuditTrail(final UUID zaakUUID) {
-        return zrcClient.listAuditTrail(zaakUUID);
-    }
-
-    public Resultaat createResultaat(final Resultaat resultaat) {
-        if (resultaat.getToelichting() != null) {
-            zgwClientHeadersFactory.setAuditToelichting(resultaat.getToelichting());
+        val nieuweZaakInformatieObject = ZaakInformatieobject().apply {
+            zaak = targetZaak.url
+            informatieobject = enkelvoudigInformatieObject.getUrl()
+            titel = enkelvoudigInformatieObject.getTitel()
+            beschrijving = enkelvoudigInformatieObject.getBeschrijving()
         }
-        return zrcClient.resultaatCreate(resultaat);
+        createZaakInformatieobject(nieuweZaakInformatieObject, description)
     }
 
-    public Resultaat updateResultaat(final Resultaat resultaat) {
-        if (resultaat.getToelichting() != null) {
-            zgwClientHeadersFactory.setAuditToelichting(resultaat.getToelichting());
-        }
-        return zrcClient.resultaatUpdate(resultaat.getUuid(), resultaat);
+    fun listAuditTrail(zaakUUID: UUID): List<ZRCAuditTrailRegel> =
+        zrcClient.listAuditTrail(zaakUUID)
+
+    fun createResultaat(resultaat: Resultaat): Resultaat? {
+        resultaat.toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
+        return zrcClient.resultaatCreate(resultaat)
     }
 
-    public void deleteResultaat(final UUID resultaatUUID) {
-        zrcClient.resultaatDelete(resultaatUUID);
+    fun updateResultaat(resultaat: Resultaat): Resultaat? {
+        resultaat.toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
+        return zrcClient.resultaatUpdate(resultaat.getUuid(), resultaat)
     }
 
-    public Zaak createZaak(final Zaak zaak) {
-        if (zaak.getToelichting() != null) {
-            zgwClientHeadersFactory.setAuditToelichting(zaak.getToelichting());
-        }
-        return zrcClient.zaakCreate(zaak);
+    fun deleteResultaat(resultaatUUID: UUID) = zrcClient.resultaatDelete(resultaatUUID)
+
+    fun createZaak(zaak: Zaak): Zaak {
+        zaak.toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
+        return zrcClient.zaakCreate(zaak)
     }
 
-    public Status createStatus(final Status status) {
-        if (status.getStatustoelichting() != null) {
-            zgwClientHeadersFactory.setAuditToelichting(status.getStatustoelichting());
-        }
-        return zrcClient.statusCreate(status);
+    fun createStatus(status: Status): Status {
+        status.statustoelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
+        return zrcClient.statusCreate(status)
     }
 
-    public URI createUrlExternToZaak(final UUID zaakUUID) {
-        return UriBuilder.fromUri(zgwApiUrlExtern).path(ZrcClient.class).path(ZrcClient.class, "zaakRead").build(zaakUUID);
+    fun heeftOpenDeelzaken(zaak: Zaak): Boolean =
+        zaak.deelzaken.map { zaakURI -> this.readZaak(zaakURI) }.any { it.isOpen }
+
+    private fun deleteDeletedRollen(
+        currentRoles: List<Rol<*>>,
+        rolesToBeDeleted: List<Rol<*>>,
+        description: String?
+    ) {
+        currentRoles
+            .filter { currentRole -> rolesToBeDeleted.none { it.equalBetrokkeneRol(currentRole) } }
+            .forEach { deleteRol(it, description) }
     }
 
-    public boolean heeftOpenDeelzaken(final Zaak zaak) {
-        return zaak.getDeelzaken().stream()
-                .map(this::readZaak).anyMatch(Zaak::isOpen);
-    }
+    private fun deleteUpdatedRollen(
+        currentRoles: List<Rol<*>>,
+        rolesToBeDeleted: List<Rol<*>>,
+        description: String?
+    ) = currentRoles
+        .filter { oud -> rolesToBeDeleted.any { it.equalBetrokkeneRol(oud) && it != oud } }
+        .forEach { deleteRol(it, description) }
 
-    private void deleteDeletedRollen(final Collection<Rol<?>> current, final Collection<Rol<?>> rollen, final String toelichting) {
-        current.stream()
-                .filter(oud -> rollen.stream()
-                        .noneMatch(oud::equalBetrokkeneRol))
-                .forEach(rol -> deleteRol(rol, toelichting));
-    }
+    private fun createUpdatedRollen(
+        currentRoles: List<Rol<*>>,
+        rolesToBeUpdated: List<Rol<*>>,
+        description: String?
+    ) = rolesToBeUpdated
+        .filter { newRole -> currentRoles.any { it.equalBetrokkeneRol(newRole) && it != newRole } }
+        .forEach { createRol(it, description) }
 
-    private void deleteUpdatedRollen(final Collection<Rol<?>> current, final Collection<Rol<?>> rollen, final String toelichting) {
-        current.stream()
-                .filter(oud -> rollen.stream()
-                        .filter(oud::equalBetrokkeneRol)
-                        .anyMatch(nieuw -> !nieuw.equals(oud)))
-                .forEach(rol -> deleteRol(rol, toelichting));
-    }
-
-    private void createUpdatedRollen(final Collection<Rol<?>> current, final Collection<Rol<?>> rollen, final String toelichting) {
-        rollen.stream()
-                .filter(nieuw -> current.stream()
-                        .filter(nieuw::equalBetrokkeneRol)
-                        .anyMatch(oud -> !oud.equals(nieuw)))
-                .forEach(rol -> createRol(rol, toelichting));
-    }
-
-    private void createCreatedRollen(final Collection<Rol<?>> currentRollen, final Collection<Rol<?>> rollen, final String toelichting) {
-        rollen.stream()
-                .filter(nieuw -> currentRollen.stream()
-                        .noneMatch(nieuw::equalBetrokkeneRol))
-                .forEach(rol -> createRol(rol, toelichting));
+    private fun createCreatedRollen(
+        currentRoles: List<Rol<*>>,
+        rolesToBeCreated: List<Rol<*>>,
+        description: String?
+    ) {
+        rolesToBeCreated
+            .filter { newRole -> currentRoles.none { it.equalBetrokkeneRol(newRole) } }
+            .forEach { createRol(it, description) }
     }
 }

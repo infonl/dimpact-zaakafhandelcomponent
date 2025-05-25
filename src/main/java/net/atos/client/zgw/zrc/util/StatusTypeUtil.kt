@@ -2,24 +2,18 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.zgw.zrc.util;
+package net.atos.client.zgw.zrc.util
 
-import static nl.info.zac.configuratie.ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND;
-import static nl.info.zac.configuratie.ConfiguratieService.STATUSTYPE_OMSCHRIJVING_INTAKE;
+import nl.info.client.zgw.ztc.model.generated.StatusType
+import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_HEROPEND
+import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_INTAKE
 
-import jakarta.annotation.Nullable;
+// TODO: make non-nullable
+fun isHeropend(statusType: StatusType?): Boolean {
+    return statusType != null && STATUSTYPE_OMSCHRIJVING_HEROPEND == statusType.getOmschrijving()
+}
 
-import nl.info.client.zgw.ztc.model.generated.StatusType;
-
-public class StatusTypeUtil {
-    private StatusTypeUtil() {
-    }
-
-    public static boolean isHeropend(@Nullable StatusType statusType) {
-        return statusType != null && STATUSTYPE_OMSCHRIJVING_HEROPEND.equals(statusType.getOmschrijving());
-    }
-
-    public static boolean isIntake(@Nullable final StatusType statustype) {
-        return statustype != null && STATUSTYPE_OMSCHRIJVING_INTAKE.equals(statustype.getOmschrijving());
-    }
+// TODO: make non-nullable
+fun isIntake(statustype: StatusType?): Boolean {
+    return statustype != null && STATUSTYPE_OMSCHRIJVING_INTAKE == statustype.getOmschrijving()
 }

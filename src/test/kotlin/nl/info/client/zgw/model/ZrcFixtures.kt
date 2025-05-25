@@ -5,6 +5,7 @@
 package nl.info.client.zgw.model
 
 import net.atos.client.zgw.shared.model.Archiefnominatie
+import net.atos.client.zgw.zrc.model.AardRelatieWeergave
 import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.NatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
@@ -188,14 +189,26 @@ fun createZaakobjectOpenbareRuimte(
     objectOpenbareRuimte
 )
 
-fun createZaakInformatieobject(
+fun createZaakInformatieobjectForCreatesAndUpdates(
     informatieobjectUUID: UUID = UUID.randomUUID(),
     zaakUUID: UUID = UUID.randomUUID(),
-    informatieObjectURL: URI = URI("http://example.com/$informatieobjectUUID"),
-    zaakURL: URI = URI("http://example.com/$zaakUUID")
+    informatieObjectURL: URI = URI("https://example.com/$informatieobjectUUID"),
+    zaakURL: URI = URI("https://example.com/$zaakUUID")
 ) = ZaakInformatieobject(
     informatieObjectURL,
     zaakURL
+)
+
+fun createZaakInformatieobjectForReads(
+    url: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    uuid: UUID = UUID.randomUUID(),
+    aardRelatieWeergave: AardRelatieWeergave = AardRelatieWeergave.HOORT_BIJ,
+    registratiedatum: ZonedDateTime = ZonedDateTime.now()
+) = ZaakInformatieobject(
+    url,
+    uuid,
+    aardRelatieWeergave,
+    registratiedatum
 )
 
 fun createZaakobjectProductaanvraag(

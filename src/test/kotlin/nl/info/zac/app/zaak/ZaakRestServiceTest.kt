@@ -57,7 +57,7 @@ import nl.info.client.zgw.model.createOrganisatorischeEenheid
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakInformatieobject
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.model.createZaakobjectOpenbareRuimte
 import nl.info.client.zgw.model.createZaakobjectPand
 import nl.info.client.zgw.shared.ZGWApiService
@@ -1252,9 +1252,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         val informatieobjectUUID = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUUID)
         val enkelvoudiginformatieobject = createEnkelvoudigInformatieObject(uuid = informatieobjectUUID)
-        val zaakinformatiebject = createZaakInformatieobject(
-            zaakUUID = zaakUUID,
-            informatieobjectUUID = informatieobjectUUID
+        val zaakinformatiebject = createZaakInformatieobjectForReads(
+            uuid = informatieobjectUUID
         )
         val restOntkoppelGegevens = createRestDocumentOntkoppelGegevens(
             zaakUUID = zaakUUID,

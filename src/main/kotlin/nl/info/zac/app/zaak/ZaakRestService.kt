@@ -36,7 +36,7 @@ import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.client.zgw.zrc.model.ZaakListParameters
-import net.atos.client.zgw.zrc.util.StatusTypeUtil
+import net.atos.client.zgw.zrc.util.isHeropend
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_ID
 import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_REASON
@@ -244,7 +244,7 @@ class ZaakRestService @Inject constructor(
     @DELETE
     @Path("betrokkene/{uuid}")
     fun deleteBetrokkene(
-        @PathParam("uuid") betrokkeneUUID: UUID?,
+        @PathParam("uuid") betrokkeneUUID: UUID,
         reden: RESTReden
     ): RestZaak {
         val betrokkene = zrcClientService.readRol(betrokkeneUUID)
@@ -657,7 +657,7 @@ class ZaakRestService @Inject constructor(
             null
         }
         assertPolicy(policyService.readZaakRechten(zaak).afbreken)
-        assertPolicy(zaak.isOpen && !StatusTypeUtil.isHeropend(statustype))
+        assertPolicy(zaak.isOpen && !isHeropend(statustype))
         zaakService.checkZaakAfsluitbaar(zaak)
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
             zaak.zaaktype.extractUuid()
@@ -689,7 +689,7 @@ class ZaakRestService @Inject constructor(
     @PATCH
     @Path("/zaak/{uuid}/heropenen")
     fun reopenZaak(
-        @PathParam("uuid") zaakUUID: UUID?,
+        @PathParam("uuid") zaakUUID: UUID,
         heropenenGegevens: RESTZaakHeropenenGegevens
     ) {
         val zaak = zrcClientService.readZaak(zaakUUID)
@@ -830,16 +830,12 @@ class ZaakRestService @Inject constructor(
      */
     @GET
     @Path("zaak/{uuid}/afzender/default")
-    fun readDefaultAfzenderVoorZaak(@PathParam("uuid") zaakUUID: UUID?): RESTZaakAfzender? {
+    fun readDefaultAfzenderVoorZaak(@PathParam("uuid") zaakUUID: UUID): RESTZaakAfzender? {
         val zaak = zrcClientService.readZaak(zaakUUID)
-        return resolveZaakAfzenderMail(
-            zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid()).zaakAfzenders
-                .filter { it.isDefault }
-                .map(RESTZaakAfzenderConverter::convertZaakAfzender)
-                .stream()
-        )
-            .findAny()
-            .orElse(null)
+        return zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid())
+            .zaakAfzenders
+            .firstOrNull { it.isDefault }
+            ?.let(RESTZaakAfzenderConverter::convertZaakAfzender)
     }
 
     @GET

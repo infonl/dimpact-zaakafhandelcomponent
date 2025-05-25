@@ -84,7 +84,7 @@ class SearchRestService @Inject constructor(
         )
     }
 
-    private fun isDocumentLinkable(zaakIdentification: String?, informationObjectTypeUuid: UUID) =
+    private fun isDocumentLinkable(zaakIdentification: String, informationObjectTypeUuid: UUID) =
         zrcClientService.readZaakByID(zaakIdentification).zaaktype.extractUuid().let {
             ztcClientService.readZaaktype(it).informatieobjecttypen.any {
                 it.extractUuid() == informationObjectTypeUuid

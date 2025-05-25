@@ -31,7 +31,7 @@ import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakInformatieobject
+import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import nl.info.client.zgw.model.createZaakobjectProductaanvraag
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -206,7 +206,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakType = createZaakType()
         val createdZaak = createZaak()
         val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-        val createdZaakInformatieobject = createZaakInformatieobject()
+        val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
         val zaakafhandelParameters = createZaakafhandelParameters(
             zaaktypeUUID = zaakTypeUUID,
         )
@@ -331,7 +331,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakType = createZaakType()
         val createdZaak = createZaak()
         val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-        val createdZaakInformatieobject = createZaakInformatieobject()
+        val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
         val zaakafhandelParameters = createZaakafhandelParameters(
             zaaktypeUUID = zaakTypeUUID,
         )
@@ -422,7 +422,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakType = createZaakType()
         val createdZaak = createZaak()
         val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-        val createdZaakInformatieobject = createZaakInformatieobject()
+        val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
         val zaakafhandelParameters = createZaakafhandelParameters(
             zaaktypeUUID = zaakTypeUUID
         )
@@ -503,7 +503,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakType = createZaakType()
         val createdZaak = createZaak()
         val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-        val createdZaakInformatieobject = createZaakInformatieobject()
+        val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
         val zaakafhandelParameters = createZaakafhandelParameters(
             zaaktypeUUID = zaakTypeUUID
         )
@@ -576,7 +576,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakType = createZaakType()
         val createdZaak = createZaak()
         val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-        val createdZaakInformatieobject = createZaakInformatieobject()
+        val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
         val zaakafhandelParameters = createZaakafhandelParameters(
             zaaktypeUUID = zaakTypeUUID
         )
@@ -935,7 +935,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             createEnkelvoudigInformatieObject(),
             createEnkelvoudigInformatieObject()
         )
-        val zaakInformatieobjecten = listOf(createZaakInformatieobject(), createZaakInformatieobject())
+        val zaakInformatieobjecten = listOf(
+            createZaakInformatieobjectForCreatesAndUpdates(),
+            createZaakInformatieobjectForCreatesAndUpdates()
+        )
         val zaakUrl = URI("fakeZaakUrl")
         val createdZaakInformatieobjectSlot = slot<ZaakInformatieobject>()
         val beschrijving = "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"

@@ -10,8 +10,8 @@ import jakarta.inject.Inject
 import net.atos.client.opa.model.RuleQuery
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend
-import net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake
+import net.atos.client.zgw.zrc.util.isHeropend
+import net.atos.client.zgw.zrc.util.isIntake
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.util.TaskUtil
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject

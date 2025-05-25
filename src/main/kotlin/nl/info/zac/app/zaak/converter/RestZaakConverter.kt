@@ -13,8 +13,8 @@ import net.atos.client.zgw.zrc.model.BetrokkeneType.VESTIGING
 import net.atos.client.zgw.zrc.model.Status
 import net.atos.client.zgw.zrc.model.Verlenging
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend
-import net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake
+import net.atos.client.zgw.zrc.util.isHeropend
+import net.atos.client.zgw.zrc.util.isIntake
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.util.time.PeriodUtil
 import nl.info.client.zgw.brc.BrcClientService

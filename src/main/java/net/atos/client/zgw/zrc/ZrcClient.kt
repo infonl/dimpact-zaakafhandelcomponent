@@ -2,184 +2,182 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.zgw.zrc;
+package net.atos.client.zgw.zrc
 
-import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
-
-import java.util.List;
-import java.util.UUID;
-
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.PATCH;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-
-import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
-import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParams;
-import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
-import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
-import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
-
-import net.atos.client.zgw.shared.exception.ZgwErrorExceptionMapper;
-import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper;
-import net.atos.client.zgw.shared.model.Results;
-import net.atos.client.zgw.shared.util.JsonbConfiguration;
-import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
-import net.atos.client.zgw.zrc.exception.ZrcResponseExceptionMapper;
-import net.atos.client.zgw.zrc.model.Rol;
-import net.atos.client.zgw.zrc.model.RolListParameters;
-import net.atos.client.zgw.zrc.model.Status;
-import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
-import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters;
-import net.atos.client.zgw.zrc.model.ZaakListParameters;
-import net.atos.client.zgw.zrc.model.ZaakUuid;
-import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters;
-import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel;
-import nl.info.client.zgw.zrc.model.generated.Resultaat;
-import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap;
+import jakarta.ws.rs.BeanParam
+import jakarta.ws.rs.DELETE
+import jakarta.ws.rs.GET
+import jakarta.ws.rs.PATCH
+import jakarta.ws.rs.POST
+import jakarta.ws.rs.PUT
+import jakarta.ws.rs.Path
+import jakarta.ws.rs.PathParam
+import jakarta.ws.rs.Produces
+import jakarta.ws.rs.core.MediaType
+import net.atos.client.zgw.shared.exception.ZgwErrorExceptionMapper
+import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper
+import net.atos.client.zgw.shared.model.Results
+import net.atos.client.zgw.shared.util.JsonbConfiguration
+import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
+import net.atos.client.zgw.zrc.exception.ZrcResponseExceptionMapper
+import net.atos.client.zgw.zrc.model.Rol
+import net.atos.client.zgw.zrc.model.RolListParameters
+import net.atos.client.zgw.zrc.model.Status
+import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.client.zgw.zrc.model.ZaakInformatieobject
+import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
+import net.atos.client.zgw.zrc.model.ZaakListParameters
+import net.atos.client.zgw.zrc.model.ZaakUuid
+import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
+import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
+import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
+import nl.info.client.zgw.zrc.model.generated.Resultaat
+import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
+import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam
+import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParams
+import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
+import org.eclipse.microprofile.rest.client.annotation.RegisterProvider
+import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
+import java.util.UUID
 
 @RegisterRestClient(configKey = "ZGW-API-Client")
-@RegisterClientHeaders(ZGWClientHeadersFactory.class)
-@RegisterProvider(ZgwErrorExceptionMapper.class)
-@RegisterProvider(ZgwValidationErrorResponseExceptionMapper.class)
-@RegisterProvider(ZrcResponseExceptionMapper.class)
-@RegisterProvider(JsonbConfiguration.class)
+@RegisterClientHeaders(ZGWClientHeadersFactory::class)
+@RegisterProvider(ZgwErrorExceptionMapper::class)
+@RegisterProvider(ZgwValidationErrorResponseExceptionMapper::class)
+@RegisterProvider(ZrcResponseExceptionMapper::class)
+@RegisterProvider(JsonbConfiguration::class)
 @Path("zaken/api/v1")
-@Produces(APPLICATION_JSON)
-public interface ZrcClient {
-
-    String ACCEPT_CRS = "Accept-Crs";
-
-    String ACCEPT_CRS_VALUE = "EPSG:4326";
-
-    String CONTENT_CRS = "Content-Crs";
-
-    String CONTENT_CRS_VALUE = ACCEPT_CRS_VALUE;
-
-    @GET
-    @Path("zaken")
-    @ClientHeaderParams({
-                         @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-                         @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
-    Results<Zaak> zaakList(@BeanParam final ZaakListParameters parameters);
+@Produces(MediaType.APPLICATION_JSON)
+@Suppress("TooManyFunctions")
+interface ZrcClient {
+    companion object {
+        const val ACCEPT_CRS = "Accept-Crs"
+        const val ACCEPT_CRS_VALUE = "EPSG:4326"
+        const val CONTENT_CRS = "Content-Crs"
+        const val CONTENT_CRS_VALUE = ACCEPT_CRS_VALUE
+    }
 
     @GET
     @Path("zaken")
-    @ClientHeaderParams({
-                         @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-                         @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
-    Results<ZaakUuid> zaakListUuids(@BeanParam final ZaakListParameters parameters);
+    @ClientHeaderParams(
+        ClientHeaderParam(name = ACCEPT_CRS, value = arrayOf(ACCEPT_CRS_VALUE)),
+        ClientHeaderParam(name = CONTENT_CRS, value = arrayOf(CONTENT_CRS_VALUE))
+    )
+    fun zaakList(@BeanParam parameters: ZaakListParameters): Results<Zaak>
+
+    @GET
+    @Path("zaken")
+    @ClientHeaderParams(
+        ClientHeaderParam(name = ACCEPT_CRS, value = arrayOf(ACCEPT_CRS_VALUE)),
+        ClientHeaderParam(name = CONTENT_CRS, value = arrayOf(CONTENT_CRS_VALUE))
+    )
+    fun zaakListUuids(@BeanParam parameters: ZaakListParameters): Results<ZaakUuid>
 
     @POST
     @Path("zaken")
-    @ClientHeaderParams({
-                         @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-                         @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
-    Zaak zaakCreate(final Zaak zaak);
+    @ClientHeaderParams(
+        ClientHeaderParam(name = ACCEPT_CRS, value = arrayOf(ACCEPT_CRS_VALUE)),
+        ClientHeaderParam(name = CONTENT_CRS, value = arrayOf(CONTENT_CRS_VALUE))
+    )
+    fun zaakCreate(zaak: Zaak): Zaak
 
     @PATCH
     @Path("zaken/{uuid}")
-    @ClientHeaderParams({
-                         @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-                         @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
-    Zaak zaakPartialUpdate(@PathParam("uuid") final UUID uuid, final Zaak zaak);
+    @ClientHeaderParams(
+        ClientHeaderParam(name = ACCEPT_CRS, value = arrayOf(ACCEPT_CRS_VALUE)),
+        ClientHeaderParam(name = CONTENT_CRS, value = arrayOf(CONTENT_CRS_VALUE))
+    )
+    fun zaakPartialUpdate(@PathParam("uuid") uuid: UUID, zaak: Zaak): Zaak
 
     @GET
     @Path("zaken/{uuid}")
-    @ClientHeaderParams({
-                         @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-                         @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
-    Zaak zaakRead(@PathParam("uuid") final UUID uuid);
+    @ClientHeaderParams(
+        ClientHeaderParam(name = ACCEPT_CRS, value = arrayOf(ACCEPT_CRS_VALUE)),
+        ClientHeaderParam(name = CONTENT_CRS, value = arrayOf(CONTENT_CRS_VALUE))
+    )
+    fun zaakRead(@PathParam("uuid") uuid: UUID): Zaak
 
     @GET
     @Path("rollen")
-    Results<Rol<?>> rolList(@BeanParam final RolListParameters parameters);
+    fun rolList(@BeanParam parameters: RolListParameters): Results<Rol<*>>
 
     @POST
     @Path("rollen")
-    Rol<?> rolCreate(final Rol<?> rol);
+    fun rolCreate(rol: Rol<*>): Rol<*>
 
     @DELETE
     @Path("rollen/{uuid}")
-    void rolDelete(@PathParam("uuid") final UUID uuid);
+    fun rolDelete(@PathParam("uuid") uuid: UUID)
 
     @GET
     @Path("rollen/{uuid}")
-    Rol<?> rolRead(@PathParam("uuid") final UUID uuid);
+    fun rolRead(@PathParam("uuid") uuid: UUID): Rol<*>
 
     @GET
     @Path("zaakinformatieobjecten")
-    List<ZaakInformatieobject> zaakinformatieobjectList(@BeanParam final ZaakInformatieobjectListParameters parameters);
+    fun zaakinformatieobjectList(@BeanParam parameters: ZaakInformatieobjectListParameters): List<ZaakInformatieobject>
 
     @POST
     @Path("zaakinformatieobjecten")
-    ZaakInformatieobject zaakinformatieobjectCreate(final ZaakInformatieobject zaakInformatieObject);
+    fun zaakinformatieobjectCreate(zaakInformatieObject: ZaakInformatieobject): ZaakInformatieobject
 
     @DELETE
     @Path("zaakinformatieobjecten/{uuid}")
-    void zaakinformatieobjectDelete(@PathParam("uuid") final UUID uuid);
+    fun zaakinformatieobjectDelete(@PathParam("uuid") uuid: UUID)
 
     @POST
     @Path("statussen")
-    Status statusCreate(final Status status);
+    fun statusCreate(status: Status): Status
 
     @GET
     @Path("statussen/{status_uuid}")
-    Status statusRead(@PathParam("status_uuid") final UUID statusUUID);
+    fun statusRead(@PathParam("status_uuid") statusUUID: UUID): Status
 
     @POST
     @Path("resultaten")
-    Resultaat resultaatCreate(final Resultaat resultaat);
+    fun resultaatCreate(resultaat: Resultaat): Resultaat
 
     @GET
     @Path("resultaten/{uuid}")
-    Resultaat resultaatRead(@PathParam("uuid") final UUID resultaatUUID);
+    fun resultaatRead(@PathParam("uuid") resultaatUUID: UUID): Resultaat
 
     @PUT
     @Path("resultaten/{uuid}")
-    Resultaat resultaatUpdate(@PathParam("uuid") final UUID resultaatUUID, final Resultaat resultaat);
+    fun resultaatUpdate(@PathParam("uuid") resultaatUUID: UUID, resultaat: Resultaat): Resultaat
 
     @DELETE
     @Path("resultaten/{uuid}")
-    void resultaatDelete(@PathParam("uuid") final UUID uuid);
+    fun resultaatDelete(@PathParam("uuid") uuid: UUID)
 
     @GET
     @Path("zaken/{zaak_uuid}/zaakeigenschappen")
-    List<ZaakEigenschap> zaakeigenschapList(@PathParam("zaak_uuid") final UUID zaakUUID);
+    fun zaakeigenschapList(@PathParam("zaak_uuid") zaakUUID: UUID): List<ZaakEigenschap>
 
     @POST
     @Path("zaken/{zaak_uuid}/zaakeigenschappen")
-    ZaakEigenschap zaakeigenschapCreate(@PathParam("zaak_uuid") final UUID zaakUUID, final ZaakEigenschap zaakeigenschap);
+    fun zaakeigenschapCreate(@PathParam("zaak_uuid") zaakUUID: UUID, zaakeigenschap: ZaakEigenschap): ZaakEigenschap
 
     @GET
     @Path("zaakobjecten")
-    Results<Zaakobject> zaakobjectList(@BeanParam final ZaakobjectListParameters zaakobjectListParameters);
+    fun zaakobjectList(@BeanParam zaakobjectListParameters: ZaakobjectListParameters): Results<Zaakobject>
 
     @POST
     @Path("zaakobjecten")
-    Zaakobject zaakobjectCreate(final Zaakobject zaakobject);
+    fun zaakobjectCreate(zaakobject: Zaakobject): Zaakobject
 
     @DELETE
     @Path("zaakobjecten/{uuid}")
-    void zaakobjectDelete(@PathParam("uuid") final UUID uuid);
+    fun zaakobjectDelete(@PathParam("uuid") uuid: UUID)
 
     @GET
     @Path("zaakobjecten/{uuid}")
-    Zaakobject zaakobjectRead(@PathParam("uuid") final UUID uuid);
+    fun zaakobjectRead(@PathParam("uuid") uuid: UUID): Zaakobject
 
     @GET
     @Path("zaken/{zaak_uuid}/audittrail")
-    List<ZRCAuditTrailRegel> listAuditTrail(@PathParam("zaak_uuid") final UUID zaakUUID);
+    fun listAuditTrail(@PathParam("zaak_uuid") zaakUUID: UUID): List<ZRCAuditTrailRegel>
 
     @GET
     @Path("zaakinformatieobjecten/{uuid}")
-    ZaakInformatieobject zaakinformatieobjectRead(@PathParam("uuid") UUID zaakinformatieobjectUUID);
-
+    fun zaakinformatieobjectRead(@PathParam("uuid") zaakinformatieobjectUUID: UUID): ZaakInformatieobject
 }
