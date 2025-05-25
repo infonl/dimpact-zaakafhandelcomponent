@@ -103,6 +103,19 @@ public abstract class Rol<T> {
     }
 
     /**
+     * For testing purposes only where a rol with a UUID is needed.
+     */
+    public Rol(
+            final UUID uuid,
+            final RolType roltype,
+            final BetrokkeneType betrokkeneType
+    ) {
+        this.uuid = uuid;
+        this.roltype = roltype.getUrl();
+        this.betrokkeneType = betrokkeneType;
+    }
+
+    /**
      * Constructor with required attributes for POST and PUT requests
      */
     public Rol(

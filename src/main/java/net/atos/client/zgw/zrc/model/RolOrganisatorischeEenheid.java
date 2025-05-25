@@ -7,6 +7,7 @@ package net.atos.client.zgw.zrc.model;
 
 import java.net.URI;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -15,6 +16,16 @@ import nl.info.client.zgw.ztc.model.generated.RolType;
 public class RolOrganisatorischeEenheid extends Rol<OrganisatorischeEenheid> {
 
     public RolOrganisatorischeEenheid() {
+    }
+
+    /**
+     * For testing purposes only.
+     */
+    public RolOrganisatorischeEenheid(
+            final UUID uuid,
+            final RolType roltype
+    ) {
+        super(uuid, roltype, BetrokkeneType.ORGANISATORISCHE_EENHEID);
     }
 
     public RolOrganisatorischeEenheid(

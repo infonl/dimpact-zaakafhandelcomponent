@@ -17,7 +17,9 @@ import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import nl.info.client.zgw.model.createMedewerker
 import nl.info.client.zgw.model.createRolMedewerker
+import nl.info.client.zgw.model.createRolMedewerkerForReads
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
+import nl.info.client.zgw.model.createRolOrganisatorischeEenheidForReads
 import nl.info.client.zgw.model.createZaak
 import nl.info.zac.configuratie.ConfiguratieService
 import java.util.UUID
@@ -76,23 +78,24 @@ class ZrcClientServiceTest : BehaviorSpec({
 
     Given("A zaak with existing roles") {
         val zaak = createZaak()
-        val medewerkerRole1 = createRolMedewerker()
-        val medewerkerRole2 = createRolMedewerker()
-        val organisatorischeEenheidRol = createRolOrganisatorischeEenheid()
+        val medewerkerRole1 = createRolMedewerkerForReads()
+        val medewerkerRole2 = createRolMedewerkerForReads()
+        val organisatorischeEenheidRol = createRolOrganisatorischeEenheidForReads()
         val existingRoles = listOf(medewerkerRole1, medewerkerRole2, organisatorischeEenheidRol)
         val description = "fakeDescription"
         every { zrcClient.rolList(any()) } returns Results(existingRoles, existingRoles.size)
         every { zrcClient.rolDelete(any()) } just Runs
+        every { zgwClientHeadersFactory.setAuditToelichting(description) } just Runs
 
         When("deleteRol is called for betrokkeneType 'Medewerker'") {
             zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER, description)
 
-            Then("it should remove the roles of the matching betrokkene type") {
+            Then("it should remove only the first role of the matching betrokkene type") {
                 verify(exactly = 1) {
                     zrcClient.rolDelete(medewerkerRole1.uuid)
-                    zrcClient.rolDelete(medewerkerRole2.uuid)
                 }
                 verify(exactly = 0) {
+                    zrcClient.rolDelete(medewerkerRole2.uuid)
                     zrcClient.rolDelete(organisatorischeEenheidRol.uuid)
                 }
             }

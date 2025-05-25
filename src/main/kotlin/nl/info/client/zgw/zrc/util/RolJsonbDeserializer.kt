@@ -39,12 +39,12 @@ class RolJsonbDeserializer : JsonbDeserializer<Rol<*>> {
                 RolNatuurlijkPersoon::class.java
             )
 
-            BetrokkeneType.NIET_NATUURLIJK_PERSOON -> JsonbUtil.JSONB.fromJson(
+            BetrokkeneType.NIET_NATUURLIJK_PERSOON -> JSONB.fromJson(
                 jsonObject.toString(),
                 RolNietNatuurlijkPersoon::class.java
             )
 
-            BetrokkeneType.ORGANISATORISCHE_EENHEID -> JsonbUtil.JSONB.fromJson(
+            BetrokkeneType.ORGANISATORISCHE_EENHEID -> JSONB.fromJson(
                 jsonObject.toString(),
                 RolOrganisatorischeEenheid::class.java
             )

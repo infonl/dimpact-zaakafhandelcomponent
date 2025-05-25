@@ -111,6 +111,14 @@ fun createRolMedewerker(
     betrokkeneIdentificatie
 )
 
+fun createRolMedewerkerForReads(
+    uuid: UUID = UUID.randomUUID(),
+    rolType: RolType = createRolType(),
+) = RolMedewerker(
+    uuid,
+    rolType
+)
+
 fun createRolNatuurlijkPersoon(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(zaakTypeUri = zaakURI),
@@ -133,6 +141,14 @@ fun createRolOrganisatorischeEenheid(
     rolType,
     toelichting,
     organisatorischeEenheid
+)
+
+fun createRolOrganisatorischeEenheidForReads(
+    uuid: UUID = UUID.randomUUID(),
+    rolType: RolType = createRolType(),
+) = RolOrganisatorischeEenheid(
+    uuid,
+    rolType
 )
 
 @Suppress("LongParameterList")

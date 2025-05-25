@@ -9,6 +9,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.net.URI;
 import java.util.Objects;
+import java.util.UUID;
 
 import jakarta.annotation.Nullable;
 
@@ -19,6 +20,16 @@ import nl.info.client.zgw.ztc.model.generated.RolType;
 public class RolMedewerker extends Rol<Medewerker> {
 
     public RolMedewerker() {
+    }
+
+    /**
+     * For testing purposes only.
+     */
+    public RolMedewerker(
+        final UUID uuid,
+        final RolType roltype
+    ) {
+        super(uuid, roltype, BetrokkeneType.MEDEWERKER);
     }
 
     public RolMedewerker(
