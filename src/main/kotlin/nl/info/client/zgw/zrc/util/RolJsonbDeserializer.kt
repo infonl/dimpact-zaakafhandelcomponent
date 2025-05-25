@@ -7,7 +7,6 @@ package nl.info.client.zgw.zrc.util
 import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.bind.serializer.JsonbDeserializer
 import jakarta.json.stream.JsonParser
-import net.atos.client.zgw.shared.util.JsonbUtil
 import net.atos.client.zgw.shared.util.JsonbUtil.JSONB
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Rol
