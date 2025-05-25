@@ -26,8 +26,8 @@ public class RolMedewerker extends Rol<Medewerker> {
      * For testing purposes only.
      */
     public RolMedewerker(
-        final UUID uuid,
-        final RolType roltype
+            final UUID uuid,
+            final RolType roltype
     ) {
         super(uuid, roltype, BetrokkeneType.MEDEWERKER);
     }
