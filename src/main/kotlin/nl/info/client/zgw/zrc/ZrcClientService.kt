@@ -96,21 +96,6 @@ class ZrcClientService @Inject constructor(
     fun readZaakinformatieobject(zaakinformatieobjectUUID: UUID): ZaakInformatieobject =
         zrcClient.zaakinformatieobjectRead(zaakinformatieobjectUUID)
 
-    /**
-     * Update all instances of [Rol] for [Zaak].
-     * Replaces all current instances of [Rol] with the suplied instances.
-     *
-     * @param zaak   de bij te werken zaak
-     * @param rollen de gewenste rollen
-     */
-    private fun updateRollen(zaak: Zaak, rollen: List<Rol<*>>, toelichting: String?) {
-        val current = listRollen(zaak)
-        deleteDeletedRollen(current, rollen, toelichting)
-        deleteUpdatedRollen(current, rollen, toelichting)
-        createUpdatedRollen(current, rollen, toelichting)
-        createCreatedRollen(current, rollen, toelichting)
-    }
-
     fun updateRol(zaak: Zaak, rol: Rol<*>, toelichting: String?) {
         val rollen = listRollen(zaak).toMutableList().apply { add(rol) }
         updateRollen(zaak, rollen, toelichting)
@@ -154,20 +139,8 @@ class ZrcClientService @Inject constructor(
 
     fun listZaken(filter: ZaakListParameters): Results<Zaak> = zrcClient.zaakList(filter)
 
-    /**
-     * List instances of [Zaak] filtered by [ZaakListParameters].
-     *
-     * @param filter [ZaakListParameters].
-     * @return List of [ZaakUuid] instances.
-     */
     fun listZakenUuids(filter: ZaakListParameters): Results<ZaakUuid> = zrcClient.zaakListUuids(filter)
 
-    /**
-     * List instances of [ZaakInformatieobject] filtered by [ZaakInformatieobjectListParameters].
-     *
-     * @param filter [ZaakInformatieobjectListParameters].
-     * @return List of [ZaakInformatieobject] instances.
-     */
     fun listZaakinformatieobjecten(filter: ZaakInformatieobjectListParameters): List<ZaakInformatieobject> =
         zrcClient.zaakinformatieobjectList(filter)
 
@@ -281,6 +254,21 @@ class ZrcClientService @Inject constructor(
             .forEach { deleteRol(it, description) }
     }
 
+    /**
+     * Updates the [Rol]s for a [Zaak].
+     * Replaces all existing [Rol]s with the provided roles.
+     *
+     * @param zaak the zaak
+     * @param rollen the roles to be updated
+     */
+    private fun updateRollen(zaak: Zaak, rollen: List<Rol<*>>, toelichting: String?) {
+        val current = listRollen(zaak)
+        deleteDeletedRollen(current, rollen, toelichting)
+        deleteUpdatedRollen(current, rollen, toelichting)
+        createUpdatedRollen(current, rollen, toelichting)
+        createCreatedRollen(current, rollen, toelichting)
+    }
+
     private fun deleteUpdatedRollen(
         currentRoles: List<Rol<*>>,
         rolesToBeDeleted: List<Rol<*>>,
@@ -301,9 +289,7 @@ class ZrcClientService @Inject constructor(
         currentRoles: List<Rol<*>>,
         rolesToBeCreated: List<Rol<*>>,
         description: String?
-    ) {
-        rolesToBeCreated
-            .filter { newRole -> currentRoles.none { it.equalBetrokkeneRol(newRole) } }
-            .forEach { createRol(it, description) }
-    }
+    ) = rolesToBeCreated
+        .filter { newRole -> currentRoles.none { it.equalBetrokkeneRol(newRole) } }
+        .forEach { createRol(it, description) }
 }

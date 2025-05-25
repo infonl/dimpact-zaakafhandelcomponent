@@ -25,7 +25,7 @@ public class RolMedewerker extends Rol<Medewerker> {
             final URI zaak,
             final RolType roltype,
             final String roltoelichting,
-            // it is possible in the ZGW API to have a RolMedewerker without a Medewerker
+            // it is possible in the ZGW API to have a RolMedewerker without a Medewerker,
             // and this does occur in practice in certain circumstances
             @Nullable final Medewerker betrokkeneIdentificatie
     ) {
