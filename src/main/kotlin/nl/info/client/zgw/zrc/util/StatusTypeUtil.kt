@@ -12,14 +12,10 @@ import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRI
  * Returns `true` if the [StatusType] is not `null` and is equals to '[STATUSTYPE_OMSCHRIJVING_HEROPEND]'.
  * Note that in the ZGW ZRC API a zaak status and therefore also the corresponding [StatusType] may be `null`.
  */
-fun isHeropend(statusType: StatusType?): Boolean {
-    return statusType != null && STATUSTYPE_OMSCHRIJVING_HEROPEND == statusType.getOmschrijving()
-}
+fun StatusType?.isHeropend() = this != null && STATUSTYPE_OMSCHRIJVING_HEROPEND == this.getOmschrijving()
 
 /**
  * Returns `true` if the [StatusType] is not `null` and is equals to '[STATUSTYPE_OMSCHRIJVING_INTAKE]'.
  * Note that in the ZGW ZRC API a zaak status and therefore also the corresponding [StatusType] may be `null`.
  */
-fun isIntake(statustype: StatusType?): Boolean {
-    return statustype != null && STATUSTYPE_OMSCHRIJVING_INTAKE == statustype.getOmschrijving()
-}
+fun StatusType?.isIntake() = this != null && STATUSTYPE_OMSCHRIJVING_INTAKE == this.getOmschrijving()

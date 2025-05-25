@@ -77,8 +77,8 @@ class PolicyService @Inject constructor(
             this.opgeschort = zaak.isOpgeschort
             this.verlengd = zaak.isVerlengd
             this.besloten = zaaktype.getBesluittypen()?.isNotEmpty() == true
-            this.intake = isIntake(statusType)
-            this.heropend = isHeropend(statusType)
+            this.intake = statusType.isIntake()
+            this.heropend = statusType.isHeropend()
         }
         return evaluationClient.readZaakRechten(
             RuleQuery(

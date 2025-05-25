@@ -657,7 +657,7 @@ class ZaakRestService @Inject constructor(
             null
         }
         assertPolicy(policyService.readZaakRechten(zaak).afbreken)
-        assertPolicy(zaak.isOpen && !isHeropend(statustype))
+        assertPolicy(zaak.isOpen && !statustype.isHeropend())
         zaakService.checkZaakAfsluitbaar(zaak)
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
             zaak.zaaktype.extractUuid()

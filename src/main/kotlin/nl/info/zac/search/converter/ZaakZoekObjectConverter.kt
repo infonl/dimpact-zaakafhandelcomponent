@@ -95,7 +95,7 @@ class ZaakZoekObjectConverter @Inject constructor(
             val statustype = ztcClientService.readStatustype(status.statustype)
             zaakZoekObject.statustypeOmschrijving = statustype.omschrijving
             zaakZoekObject.isStatusEindstatus = statustype.isEindstatus
-            zaakZoekObject.setIndicatie(ZaakIndicatie.HEROPEND, isHeropend(statustype))
+            zaakZoekObject.setIndicatie(ZaakIndicatie.HEROPEND, statustype.isHeropend())
         }
         zaakZoekObject.aantalOpenstaandeTaken = flowableTaskService.countOpenTasksForZaak(zaak.uuid)
         zaak.resultaat?.let { zaakResultaat ->

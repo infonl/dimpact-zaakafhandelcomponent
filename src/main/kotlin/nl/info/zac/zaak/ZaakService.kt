@@ -235,7 +235,7 @@ class ZaakService @Inject constructor(
             val status = zrcClientService.readStatus(statusUuid)
             ztcClientService.readStatustype(status.statustype)
         }
-        if (!isHeropend(statusType)) {
+        if (!statusType.isHeropend()) {
             zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, Boolean.TRUE)
         }
     }
