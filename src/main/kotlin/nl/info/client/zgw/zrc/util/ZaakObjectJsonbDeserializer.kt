@@ -1,14 +1,13 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.zgw.zrc.util
+package nl.info.client.zgw.zrc.util
 
 import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.bind.serializer.JsonbDeserializer
 import jakarta.json.stream.JsonParser
 import net.atos.client.zgw.shared.util.JsonbUtil.JSONB
-import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
 import net.atos.client.zgw.zrc.model.Objecttype
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdres
@@ -17,6 +16,7 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats
+import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
 import java.lang.reflect.Type
 
 class ZaakObjectJsonbDeserializer : JsonbDeserializer<Zaakobject> {

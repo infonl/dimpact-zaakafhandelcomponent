@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.zgw.zrc.util
+package nl.info.client.zgw.zrc.util
 
 import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.bind.serializer.JsonbDeserializer
@@ -37,7 +37,8 @@ class GeometryJsonbDeserializer : JsonbDeserializer<Geometry> {
             GeometryType.POINT -> JSONB.fromJson(jsonObject.toString(), Point::class.java)
             GeometryType.POLYGON -> JSONB.fromJson(jsonObject.toString(), Polygon::class.java)
             GeometryType.GEOMETRYCOLLECTION -> JSONB.fromJson(
-                jsonObject.toString(), GeometryCollection::class.java
+                jsonObject.toString(),
+                GeometryCollection::class.java
             )
         }
     }

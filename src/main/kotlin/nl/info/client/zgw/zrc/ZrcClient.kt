@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.zgw.zrc
+package nl.info.client.zgw.zrc
 
 import jakarta.ws.rs.BeanParam
 import jakarta.ws.rs.DELETE
@@ -19,7 +19,6 @@ import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionM
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.shared.util.JsonbConfiguration
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
-import net.atos.client.zgw.zrc.exception.ZrcResponseExceptionMapper
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolListParameters
 import net.atos.client.zgw.zrc.model.Status
@@ -31,6 +30,7 @@ import net.atos.client.zgw.zrc.model.ZaakUuid
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
+import nl.info.client.zgw.zrc.exception.ZrcResponseExceptionMapper
 import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam

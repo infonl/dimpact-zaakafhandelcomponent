@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.zgw.zrc
+package nl.info.client.zgw.zrc
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -28,7 +28,6 @@ import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.net.URI
 import java.util.UUID
@@ -36,10 +35,8 @@ import java.util.UUID
 @ApplicationScoped
 @NoArgConstructor
 @AllOpen
+@Suppress("TooManyFunctions")
 class ZrcClientService @Inject constructor(
-    @ConfigProperty(name = "ZGW_API_URL_EXTERN")
-    private val zgwApiUrlExtern: String,
-
     @RestClient
     private val zrcClient: ZrcClient,
 

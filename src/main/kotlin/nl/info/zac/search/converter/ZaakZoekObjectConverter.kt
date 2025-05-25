@@ -5,14 +5,14 @@
 package nl.info.zac.search.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
-import net.atos.client.zgw.zrc.util.isHeropend
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
@@ -99,7 +99,7 @@ class ZaakZoekObjectConverter @Inject constructor(
         }
         zaakZoekObject.aantalOpenstaandeTaken = flowableTaskService.countOpenTasksForZaak(zaak.uuid)
         zaak.resultaat?.let { zaakResultaat ->
-            zrcClientService.readResultaat(zaakResultaat)?.let { resultaat ->
+            zrcClientService.readResultaat(zaakResultaat).let { resultaat ->
                 ztcClientService.readResultaattype(resultaat.resultaattype).let { resultaattype ->
                     zaakZoekObject.resultaattypeOmschrijving = resultaattype.omschrijving
                     zaakZoekObject.resultaatToelichting = resultaat.toelichting

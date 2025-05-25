@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.zgw.zrc.util
+package nl.info.client.zgw.zrc.util
 
 import nl.info.client.zgw.zrc.model.generated.Zaak
 
