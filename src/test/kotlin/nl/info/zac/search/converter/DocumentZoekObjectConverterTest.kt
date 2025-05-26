@@ -11,11 +11,11 @@ import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.model.Archiefnominatie
-import net.atos.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakInformatieobject
+import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -58,7 +58,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
             uuid = documentUUID,
             indicatieGebruiksrecht = null
         )
-        val zaakInformatieobject = createZaakInformatieobject(informatieobjectUUID = documentUUID)
+        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(informatieobjectUUID = documentUUID)
         val zaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$zaaktypeUUID"))
         val zaak = createZaak(
             zaakTypeURI = zaakType.url,
@@ -106,7 +106,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
             uuid = documentUUID,
             indicatieGebruiksrecht = true
         )
-        val zaakInformatieobject = createZaakInformatieobject(informatieobjectUUID = documentUUID)
+        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(informatieobjectUUID = documentUUID)
         val zaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$zaaktypeUUID"))
         val zaak = createZaak(
             zaakTypeURI = zaakType.url,

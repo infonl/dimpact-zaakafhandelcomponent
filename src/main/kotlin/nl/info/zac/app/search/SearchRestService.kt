@@ -14,8 +14,8 @@ import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.search.converter.RestZoekParametersConverter
 import nl.info.zac.app.search.converter.RestZoekResultaatConverter
@@ -84,7 +84,7 @@ class SearchRestService @Inject constructor(
         )
     }
 
-    private fun isDocumentLinkable(zaakIdentification: String?, informationObjectTypeUuid: UUID) =
+    private fun isDocumentLinkable(zaakIdentification: String, informationObjectTypeUuid: UUID) =
         zrcClientService.readZaakByID(zaakIdentification).zaaktype.extractUuid().let {
             ztcClientService.readZaaktype(it).informatieobjecttypen.any {
                 it.extractUuid() == informationObjectTypeUuid

@@ -15,7 +15,6 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.FormulierDefinitie
 import net.atos.zac.admin.model.ZaakafhandelParameters
@@ -28,8 +27,10 @@ import net.atos.zac.mailtemplates.model.createMailGegevens
 import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.generated.Besluit
+import nl.info.client.zgw.model.createResultaat
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.zac.admin.model.createHumanTaskParameters
 import nl.info.zac.admin.model.createZaakafhandelParameters
@@ -354,11 +355,11 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
     }
 
     Given("Zaak exists") {
-        val zaak = createZaak()
-
+        val zaak = createZaak(
+            resultaat = URI("https://example.com/resultaat/${UUID.randomUUID()}"),
+        )
         val mailGegevens = createMailGegevens()
-        val resultaat = Resultaat()
-
+        val resultaat = createResultaat()
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
             startenTaak = true,
