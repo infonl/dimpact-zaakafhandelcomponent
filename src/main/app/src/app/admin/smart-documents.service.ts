@@ -5,7 +5,11 @@
 
 import { Injectable } from "@angular/core";
 import { map } from "rxjs";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
+import {
+  PostBody,
+  PutBody,
+  ZacHttpClient,
+} from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 export type SmartDocumentsTemplateWithParentId =
@@ -64,30 +68,30 @@ export class SmartDocumentsService {
 
   storeTemplatesMapping(
     zaakafhandelUUID: string,
-    templates: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[],
+    body: PostBody<"/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping">,
   ) {
     return this.zacHttpClient.POST(
       "/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping",
-      templates,
+      body,
       { path: { zaakafhandelUUID } },
     );
   }
 
   getTemplateGroup(
-    groupPath: GeneratedType<"RestSmartDocumentsPath">,
+    body: PutBody<"/rest/zaakafhandelparameters/smartdocuments-template-group">,
     templateName: string,
     informatieObjectTypeUUID: string,
-  ): Observable<GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[]> {
-    return this.zacHttp
+  ) {
+    return this.zacHttpClient
       .PUT(
         "/rest/zaakafhandelparameters/smartdocuments-template-group",
-        groupPath,
+        body,
+        {},
       )
       .pipe(
         map((data) =>
           this.getOnlyOneTemplate(data, templateName, informatieObjectTypeUUID),
         ),
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 

@@ -9,6 +9,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
+import { Observable } from "rxjs";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { Taak } from "src/app/taken/model/taak";
@@ -94,7 +95,7 @@ export class InformatieObjectCreateAttendedComponent implements OnInit {
     this.form.controls.informationObjectType.disable();
     this.form.controls.confidentiality.disable();
 
-    const templateGroupsFetcher =
+    const templateGroupsFetcher: Observable<typeof this.templateGroups> =
       this.smartDocumentsGroupPath &&
       this.smartDocumentsTemplateName &&
       this.smartDocumentsInformatieobjecttypeUuid
