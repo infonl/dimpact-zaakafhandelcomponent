@@ -8,6 +8,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ReferentieTabel } from "./model/referentie-tabel";
 
 @Injectable({
@@ -19,6 +20,7 @@ export class ReferentieTabelService {
   constructor(
     private http: HttpClient,
     private foutAfhandelingService: FoutAfhandelingService,
+    private readonly zacHttpClient: ZacHttpClient,
   ) {}
 
   listReferentieTabellen(): Observable<ReferentieTabel[]> {
@@ -93,5 +95,19 @@ export class ReferentieTabelService {
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
+  }
+
+  listBrpSearchValues() {
+    return this.zacHttpClient.GET(
+      "/rest/referentietabellen/brp-doelbinding-zoek-waarde",
+      {},
+    );
+  }
+
+  listBrpViewValues() {
+    return this.zacHttpClient.GET(
+      "/rest/referentietabellen/brp-doelbinding-raadpleeg-waarde",
+      {},
+    );
   }
 }

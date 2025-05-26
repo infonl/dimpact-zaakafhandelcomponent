@@ -741,14 +741,59 @@
               <p>{{ "gegevens.koppelen.kvk" | translate }}</p>
             </div>
           </form>
+          <mat-divider class="my-3"></mat-divider>
+          <form [formGroup]="brpDoelbindingFormGroup" class="flex-col">
+            <h2>
+              {{ "title.brpDoelbinding.form" | translate }}
+            </h2>
+            <p>
+              {{ "title.admin.parameters.step.brpDoelbinding" | translate }}
+            </p>
+
+            <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
+              <mat-label>{{
+                "brpDoelbinding.zoekWaarde" | translate
+              }}</mat-label>
+              <mat-select
+                placeholder="{{ 'resultaat.-kies-' | translate }}"
+                [formControl]="brpDoelbindingFormGroup.controls.zoekWaarde"
+              >
+                <mat-option
+                  *ngFor="let value of brpSearchValues"
+                  [value]="value"
+                  >{{ value }}</mat-option
+                >
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
+              <mat-label>{{
+                "brpDoelbinding.raadpleegWaarde" | translate
+              }}</mat-label>
+              <mat-select
+                placeholder="{{ 'resultaat.-kies-' | translate }}"
+                [formControl]="brpDoelbindingFormGroup.controls.raadpleegWaarde"
+              >
+                <mat-option
+                  *ngFor="let value of brpConsultingValues"
+                  [value]="value"
+                  >{{ value }}</mat-option
+                >
+              </mat-select>
+            </mat-form-field>
+          </form>
+          <mat-divider class="my-3"></mat-divider>
           <form [formGroup]="smartDocumentsEnabledForm" class="flex-col">
             <div class="flex-row items-center">
-              <h2 class="flex-1">
-                {{ "title.smartdocuments.form" | translate }}
-              </h2>
-              <p>
-                {{ "title.admin.parameters.step.smart-documents" | translate }}
-              </p>
+              <section class="flex-1">
+                <h2>
+                  {{ "title.smartdocuments.form" | translate }}
+                </h2>
+                <p>
+                  {{
+                    "title.admin.parameters.step.smart-documents" | translate
+                  }}
+                </p>
+              </section>
               <mat-slide-toggle
                 formControlName="enabledForZaaktype"
                 (click)="$event.stopPropagation()"
