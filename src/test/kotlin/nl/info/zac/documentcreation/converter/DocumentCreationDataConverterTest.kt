@@ -33,7 +33,6 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.productaanvraag.ProductaanvraagService
-import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 
 class DocumentCreationDataConverterTest : BehaviorSpec({
     val zgwApiService = mockk<ZGWApiService>()
@@ -45,7 +44,6 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
     val flowableTaskService = mockk<FlowableTaskService>()
     val identityService = mockk<IdentityService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
-    val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val configuratieService = mockk<ConfiguratieService>()
     val documentCreationDataConverter = DocumentCreationDataConverter(
         zgwApiService = zgwApiService,
@@ -57,7 +55,6 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         flowableTaskService = flowableTaskService,
         identityService = identityService,
         productaanvraagService = productaanvraagService,
-        smartDocumentsTemplatesService = smartDocumentsTemplatesService,
         configuratieService = configuratieService
     )
 

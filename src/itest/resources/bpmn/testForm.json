@@ -67,9 +67,6 @@
       "type": "groepSmartDocumentsFieldset",
       "key": "AM_SmartDocuments",
       "input": false,
-      "properties": {
-        "SmartDocuments_Group": "Dimpact"
-      },
       "components": [
         {
           "label": "Template",
@@ -92,7 +89,12 @@
           "key": "AM_SmartDocuments_Create",
           "type": "button",
           "event": "createDocument",
-          "input": true
+          "input": true,
+          "properties": {
+            "SmartDocuments_Group": "Dimpact/OpenZaak",
+            "SmartDocuments_Data_Test_InformatieobjecttypeUuid": "efc332f2-be3b-4bad-9e3c-49a6219c92ad",
+            "SmartDocuments_OpenZaakTest_InformatieobjecttypeUuid": "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
+          }
         }
       ]
     },
