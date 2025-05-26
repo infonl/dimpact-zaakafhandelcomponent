@@ -128,6 +128,7 @@ export class InformatieObjectenService {
       .POST(
         "/rest/document-creation/create-document-attended",
         documentCreationData,
+        {},
       )
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),

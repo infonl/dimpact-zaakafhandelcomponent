@@ -8,7 +8,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
 import { Resultaat } from "../shared/model/resultaat";
 import { BSN_LENGTH } from "../shared/utils/constants";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -77,22 +77,12 @@ export class KlantenService {
 
   /* istanbul ignore next */
   getPersonenParameters() {
-    return this.zacHttpClient
-      .GET("/rest/klanten/personen/parameters")
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.GET("/rest/klanten/personen/parameters", {});
   }
 
   /* istanbul ignore next */
-  listPersonen(
-    listPersonenParameters: GeneratedType<"RestListPersonenParameters">,
-  ) {
-    return this.zacHttpClient
-      .PUT("/rest/klanten/personen", listPersonenParameters)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listPersonen(body: PutBody<"/rest/klanten/personen">) {
+    return this.zacHttpClient.PUT("/rest/klanten/personen", body, {});
   }
 
   /* istanbul ignore next */
