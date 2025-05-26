@@ -75,6 +75,10 @@ export class ParameterEditComponent
       brpKoppelen: false,
       kvkKoppelen: false,
     },
+    brpDoelbindingen: {
+      zoekWaarde: "",
+      raadpleegWaarde: "",
+    },
   };
 
   humanTaskParameters: GeneratedType<"RESTHumanTaskParameters">[] = [];

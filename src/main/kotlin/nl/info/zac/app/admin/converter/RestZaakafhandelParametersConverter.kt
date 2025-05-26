@@ -20,10 +20,13 @@ import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.conve
 import net.atos.zac.app.admin.converter.RESTZaaktypeOverzichtConverter
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen
+import nl.info.zac.app.admin.model.RestBrpDoelbindingen
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.admin.model.toBetrokkeneKoppelingen
+import nl.info.zac.app.admin.model.toBrpDoelbindingen
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
+import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
 import nl.info.zac.app.zaak.model.RESTZaakStatusmailOptie
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.smartdocuments.SmartDocumentsService
@@ -71,6 +74,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             betrokkeneKoppelingen = zaakafhandelParameters.betrokkeneKoppelingen
                 ?.toRestBetrokkeneKoppelingen()
                 ?: RestBetrokkeneKoppelingen(),
+            brpDoelbindingen = zaakafhandelParameters.brpDoelbindingen?.toRestBrpDoelbindingen() ?: RestBrpDoelbindingen(),
         )
         restZaakafhandelParameters.caseDefinition?.takeIf { inclusiefRelaties }?.let { caseDefinition ->
             zaakafhandelParameters.nietOntvankelijkResultaattype?.let {
@@ -150,6 +154,9 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             )
             restZaakafhandelParameters.betrokkeneKoppelingen.let { restBetrokkeneKoppelingen ->
                 it.betrokkeneKoppelingen = restBetrokkeneKoppelingen.toBetrokkeneKoppelingen(it)
+            }
+            restZaakafhandelParameters.brpDoelbindingen.let { restBrpDoelbindingen ->
+                it.brpDoelbindingen = restBrpDoelbindingen.toBrpDoelbindingen(it)
             }
         }
 }
