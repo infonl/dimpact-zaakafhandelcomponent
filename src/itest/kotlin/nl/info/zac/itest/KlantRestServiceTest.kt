@@ -51,6 +51,8 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
 
+private const val X_VERWERKING = "X-Verwerking"
+
 /**
  * This test assumes a roltype has been created in a previously run test.
  */
@@ -81,10 +83,10 @@ class KlantRestServiceTest : BehaviorSpec({
         When("a person is retrieved using a BSN which is present in both the BRP and Klanten API databases") {
             val context = "ZAAK AANMAKEN"
             val action = "Zaak aanmaken"
-            val xVerwerking = "$context@$action"
+            val process = "$context@$action"
 
             val headers = Headers.Builder()
-                .add("X-Verwerking", xVerwerking)
+                .add(X_VERWERKING, process)
                 .build()
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/klanten/persoon/$TEST_PERSON_HENDRIKA_JANSE_BSN",

@@ -121,7 +121,7 @@ class DocumentCreationDataConverter @Inject constructor(
         when (initiator.betrokkeneType) {
             BetrokkeneType.NATUURLIJK_PERSOON -> createAanvragerDataNatuurlijkPersoon(
                 initiator.identificatienummer,
-                zaakNummer
+                "$zaakNummer@$ACTION"
             )
             BetrokkeneType.VESTIGING -> createAanvragerDataVestiging(initiator.identificatienummer)
             BetrokkeneType.NIET_NATUURLIJK_PERSOON -> createAanvragerDataNietNatuurlijkPersoon(
@@ -132,9 +132,8 @@ class DocumentCreationDataConverter @Inject constructor(
             )
         }
 
-    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, zaakNummer: String): AanvragerData? {
-        val xVerwerking = "$zaakNummer@$ACTION"
-        return brpClientService.retrievePersoon(bsn, xVerwerking)?.let { convertToAanvragerDataPersoon(it) }
+    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, process: String): AanvragerData? {
+        return brpClientService.retrievePersoon(bsn, process)?.let { convertToAanvragerDataPersoon(it) }
     }
 
     private fun convertToAanvragerDataPersoon(persoon: Persoon) =
