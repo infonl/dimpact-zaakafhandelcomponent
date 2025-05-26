@@ -69,11 +69,15 @@ class KlantRestService @Inject constructor(
     val ztcClientService: ZtcClientService,
     val klantClientService: KlantClientService
 ) {
+    companion object {
+        const val HEADER_VERWERKING = "X-Verwerking"
+    }
+
     @GET
     @Path("persoon/{bsn}")
     fun readPersoon(
         @PathParam("bsn") @Length(min = 8, max = 9) bsn: String,
-        @HeaderParam("X-Verwerking") auditEvent: String
+        @HeaderParam(HEADER_VERWERKING) auditEvent: String
     ) = runBlocking {
         // run the two client calls concurrently in a coroutine scope,
         // so we do not need to wait for the first call to complete
@@ -140,7 +144,7 @@ class KlantRestService @Inject constructor(
     @PUT
     @Path("personen")
     fun listPersonen(
-        @HeaderParam("X-Verwerking") auditEvent: String,
+        @HeaderParam(HEADER_VERWERKING) auditEvent: String,
         restListPersonenParameters: RestListPersonenParameters
     ): RESTResultaat<RestPersoon> =
         brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), auditEvent)
