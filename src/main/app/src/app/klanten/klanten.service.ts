@@ -86,11 +86,14 @@ export class KlantenService {
   }
 
   /* istanbul ignore next */
-  listPersonen(body: PutBody<"/rest/klanten/personen">, audit: { context: string; action: string },) {
+  listPersonen(
+    body: PutBody<"/rest/klanten/personen">,
+    audit: { context: string; action: string },
+  ) {
     return this.zacHttpClient.PUT("/rest/klanten/personen", body, {
       header: {
         "X-Verwerking": `${audit.context}@${audit.action}`,
-      }
+      },
     });
   }
 
