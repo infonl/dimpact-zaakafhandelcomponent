@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import createClient, { FetchOptions, FetchResponse } from "openapi-fetch";
 import type { FilterKeys, HttpMethod } from "openapi-typescript-helpers";
@@ -51,7 +51,12 @@ export class ZacHttpClient {
     },
   ) {
     return this.http
-      .get<Response<P, "get">>(this.prepareUrl(url, init?.pathParams), init)
+      .get<Response<P, "get">>(this.prepareUrl(url, init?.pathParams), {
+        ...init,
+        headers: init?.pathParams?.header
+          ? new HttpHeaders(init?.pathParams?.header)
+          : undefined,
+      })
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),
@@ -67,9 +72,12 @@ export class ZacHttpClient {
     },
   ) {
     return this.http
-      .post<
-        Response<P, "post">
-      >(this.prepareUrl(url, init?.pathParams), body, init)
+      .post<Response<P, "post">>(this.prepareUrl(url, init?.pathParams), body, {
+        ...init,
+        headers: init?.pathParams?.header
+          ? new HttpHeaders(init?.pathParams?.header)
+          : undefined,
+      })
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),
@@ -85,9 +93,12 @@ export class ZacHttpClient {
     },
   ) {
     return this.http
-      .put<
-        Response<P, "put">
-      >(this.prepareUrl(url, init?.pathParams), body, init)
+      .put<Response<P, "put">>(this.prepareUrl(url, init?.pathParams), body, {
+        ...init,
+        headers: init?.pathParams?.header
+          ? new HttpHeaders(init?.pathParams?.header)
+          : undefined,
+      })
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),
@@ -102,9 +113,12 @@ export class ZacHttpClient {
     },
   ) {
     return this.http
-      .delete<
-        Response<P, "delete">
-      >(this.prepareUrl(url, init?.pathParams), init)
+      .delete<Response<P, "delete">>(this.prepareUrl(url, init?.pathParams), {
+        ...init,
+        headers: init?.pathParams?.header
+          ? new HttpHeaders(init?.pathParams?.header)
+          : undefined,
+      })
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),
@@ -120,9 +134,16 @@ export class ZacHttpClient {
     },
   ) {
     return this.http
-      .patch<
-        Response<P, "patch">
-      >(this.prepareUrl(url, init?.pathParams), body, init)
+      .patch<Response<P, "patch">>(
+        this.prepareUrl(url, init?.pathParams),
+        body,
+        {
+          ...init,
+          headers: init?.pathParams?.header
+            ? new HttpHeaders(init?.pathParams?.header)
+            : undefined,
+        },
+      )
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),

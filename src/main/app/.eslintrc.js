@@ -34,6 +34,7 @@ module.exports = {
             suffixes: ["Component", "Page", "Dialog"],
           },
         ],
+        "@angular-eslint/use-lifecycle-interface": "error",
       },
     },
     {

@@ -6,6 +6,7 @@
 import {
   Component,
   EventEmitter,
+  input,
   Input,
   OnDestroy,
   OnInit,
@@ -15,7 +16,7 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
-import { Subject, Subscription, forkJoin } from "rxjs";
+import { forkJoin, Subject, Subscription } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
 import { ActionIcon } from "../../../shared/edit/action-icon";
@@ -43,6 +44,10 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
   @Output() persoon? = new EventEmitter<GeneratedType<"RestPersoon">>();
   @Input() sideNav?: MatSidenav;
   @Input() syncEnabled: boolean = false;
+
+  protected action = input.required<string>();
+  protected context = input.required<string>();
+
   formGroup: FormGroup;
   bsnFormField: AbstractFormControlField;
   geslachtsnaamFormField: AbstractFormControlField;
@@ -290,7 +295,10 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
     this.utilService.setLoading(true);
     this.personen.data = [];
     this.klantenService
-      .listPersonen(this.createListPersonenParameters())
+      .listPersonen(this.createListPersonenParameters(), {
+        context: this.context(),
+        action: this.action(),
+      })
       .subscribe((personen) => {
         this.personen.data = personen.resultaten;
         this.foutmelding = personen.foutmelding;

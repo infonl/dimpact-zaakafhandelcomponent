@@ -1,10 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2021-2022 Atos
+ * SPDX-FileCopyrightText: 2021-2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
-import { MatDialogRef } from "@angular/material/dialog";
+import { Component, Inject } from "@angular/core";
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 
 @Component({
   selector: "zac-klant-zoek-dialog",
@@ -12,5 +12,8 @@ import { MatDialogRef } from "@angular/material/dialog";
   styleUrls: ["./klant-zoek-dialog.component.less"],
 })
 export class KlantZoekDialog {
-  constructor(public dialogRef: MatDialogRef<KlantZoekDialog>) {}
+  constructor(
+    public dialogRef: MatDialogRef<KlantZoekDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: { context: string },
+  ) {}
 }
