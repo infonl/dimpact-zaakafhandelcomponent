@@ -293,7 +293,7 @@ opa:
 # If an external solr instance is used, configure the URL here
 solr:
   # -- The location of an existing solr instance to be used by zac
-  url: 
+  url: ""
 
 # It is recommended to use solr-operator to help provision a solr-cloud cluster,
 # you will have to configure the zac core seperately then.
