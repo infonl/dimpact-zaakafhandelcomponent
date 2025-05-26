@@ -8,5 +8,4 @@
         "src/e2e/step-definitions/*.ts",
         "step-definitions/*.ts"
     ],
-    "java.configuration.updateBuildConfiguration": "disabled"
 }
