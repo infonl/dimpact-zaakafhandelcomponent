@@ -845,7 +845,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                     with(result.results.first()) {
                         id shouldBe zaakZoekObject.getObjectId()
                         type shouldBe zaakZoekObject.getType()
-                        identificatie shouldBe zaakSearchText.trim()
+                        identificatie shouldBe zaakSearchTextTrimmed
                         omschrijving shouldBe OMSCHRIJVING
                         zaaktypeOmschrijving shouldBe ZAAK_TYPE_OMSCHRIJVING
                         statustypeOmschrijving shouldBe STATUS_TYPE_OMSCHRIJVING
