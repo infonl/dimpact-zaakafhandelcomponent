@@ -43,7 +43,6 @@ jobs:
       - name: Add repositories
         run: | 
           helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
-          helm repo add bitnami https://charts.bitnami.com/bitnami
           helm repo add solr https://solr.apache.org/charts
 
       - name: Run chart-testing (list-changed)
@@ -101,7 +100,6 @@ jobs:
       - name: Add repositories
         run: | 
           helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
-          helm repo add bitnami https://charts.bitnami.com/bitnami
           helm repo add solr https://solr.apache.org/charts
 
       - name: Create kind cluster
