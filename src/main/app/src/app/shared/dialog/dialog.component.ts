@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -47,7 +47,7 @@ export class DialogComponent implements OnInit {
       }
     }
     this.data.options.callback(results).subscribe({
-      next: () => this.dialogRef.close(true),
+      next: (data) => this.dialogRef.close(data ?? true),
       error: () => this.dialogRef.close(false),
     });
   }

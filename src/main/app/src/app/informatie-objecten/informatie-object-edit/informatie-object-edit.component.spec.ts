@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2025 Lifely
+ * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  *
  */
@@ -11,10 +11,10 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateModule } from "@ngx-translate/core";
+import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
 import { FormComponent } from "src/app/shared/material-form-builder/form/form/form.component";
 import { updateComponentInputs } from "../../../test-helpers";
-import { Taal } from "../../configuratie/model/taal";
 import { IdentityService } from "../../identity/identity.service";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -36,7 +36,7 @@ describe(InformatieObjectEditComponent.name, () => {
       auteur: "Test Author",
       bestandsnaam: "Test File Name",
       formaat: "Test Format",
-      taal: new Taal(),
+      taal: fromPartial<GeneratedType<"RestTaal">>({}),
       ontvangstdatum: new Date().toDateString(),
       toelichting: "Test Explanation",
       verzenddatum: new Date().toDateString(),

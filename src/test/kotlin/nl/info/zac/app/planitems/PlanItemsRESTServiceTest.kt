@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -15,7 +15,6 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.FormulierDefinitie
 import net.atos.zac.admin.model.ZaakafhandelParameters
@@ -25,14 +24,13 @@ import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.mailtemplates.MailTemplateService
 import net.atos.zac.mailtemplates.model.createMailGegevens
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.exception.PolicyException
-import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.generated.Besluit
+import nl.info.client.zgw.model.createResultaat
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.zac.admin.model.createHumanTaskParameters
 import nl.info.zac.admin.model.createZaakafhandelParameters
@@ -44,6 +42,9 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.exception.PolicyException
+import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.zaak.ZaakService
@@ -354,11 +355,11 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
     }
 
     Given("Zaak exists") {
-        val zaak = createZaak()
-
+        val zaak = createZaak(
+            resultaat = URI("https://example.com/resultaat/${UUID.randomUUID()}"),
+        )
         val mailGegevens = createMailGegevens()
-        val resultaat = Resultaat()
-
+        val resultaat = createResultaat()
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
             startenTaak = true,

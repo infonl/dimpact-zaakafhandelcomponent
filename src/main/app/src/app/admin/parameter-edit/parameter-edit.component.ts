@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024-2025 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024-2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -396,13 +396,16 @@ export class ParameterEditComponent
 
   private getReferentieTabel(
     humanTaskParameters: GeneratedType<"RESTHumanTaskParameters">,
-    veld: FormulierVeldDefinitie,
+    veldDefinitie: FormulierVeldDefinitie,
   ) {
     const humanTaskReferentieTabel =
-      humanTaskParameters.referentieTabellen?.find((r) => (r.veld = veld.naam));
-    return humanTaskReferentieTabel != null
-      ? humanTaskReferentieTabel.tabel
-      : this.referentieTabellen.find((r) => (r.code = veld.naam));
+      humanTaskParameters.referentieTabellen?.find(
+        ({ veld }) => veld === veldDefinitie.naam,
+      );
+    return (
+      humanTaskReferentieTabel?.tabel ??
+      this.referentieTabellen.find(({ code }) => code === veldDefinitie.naam)
+    );
   }
 
   private createUserEventListenerForm() {
@@ -767,8 +770,8 @@ export class ParameterEditComponent
 
     this.zaakafhandelParametersService
       .updateZaakafhandelparameters(this.parameters)
-      .subscribe(
-        (data) => {
+      .subscribe({
+        next: (data) => {
           this.loading = false;
           this.utilService.openSnackbar(
             "msg.zaakafhandelparameters.opgeslagen",
@@ -787,10 +790,10 @@ export class ParameterEditComponent
             }
           }
         },
-        () => {
+        error: () => {
           this.loading = false;
         },
-      );
+      });
 
     if (
       this.parameters.smartDocuments.enabledGlobally &&

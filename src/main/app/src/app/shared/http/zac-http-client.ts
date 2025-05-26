@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -7,15 +7,16 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import createClient, { FetchOptions, FetchResponse } from "openapi-fetch";
 import type { FilterKeys, HttpMethod } from "openapi-typescript-helpers";
-import { throwError } from "rxjs";
-import { paths } from "src/generated/types/zac-openapi-types";
+import { catchError } from "rxjs/operators";
+import { paths } from "../../../generated/types/zac-openapi-types";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 
 createClient();
 export type Paths = paths;
 
 type PathsWithMethod<Paths, PathnameMethod extends HttpMethod> = {
   [Pathname in keyof Paths]: Paths[Pathname] extends {
-    [K in PathnameMethod]: any;
+    [K in PathnameMethod]: unknown;
   }
     ? Pathname
     : never;
@@ -26,7 +27,7 @@ type Response<
   type extends "get" | "post" | "put" | "delete" | "patch",
 > = NonNullable<
   FetchResponse<
-    Paths[P][type] extends Record<string | number, any>
+    Paths[P][type] extends Record<string | number, unknown>
       ? Paths[P][type]
       : never,
     Record<string, unknown>,
@@ -38,7 +39,10 @@ type Response<
   providedIn: "root",
 })
 export class ZacHttpClient {
-  constructor(private http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
+  ) {}
 
   public GET<P extends PathsWithMethod<Paths, "get">>(
     url: P,
@@ -46,14 +50,13 @@ export class ZacHttpClient {
       pathParams: FetchOptions<FilterKeys<Paths[P], "get">>["params"];
     },
   ) {
-    try {
-      return this.http.get<Response<P, "get">>(
-        this.prepareUrl(url, init?.pathParams),
-        init,
+    return this.http
+      .get<Response<P, "get">>(this.prepareUrl(url, init?.pathParams), init)
+      .pipe(
+        catchError((error) =>
+          this.foutAfhandelingService.foutAfhandelen(error),
+        ),
       );
-    } catch (error) {
-      return throwError(() => error);
-    }
   }
 
   public POST<P extends PathsWithMethod<Paths, "post">>(
@@ -63,15 +66,15 @@ export class ZacHttpClient {
       pathParams: FetchOptions<FilterKeys<Paths[P], "post">>["params"];
     },
   ) {
-    try {
-      return this.http.post<Response<P, "post">>(
-        this.prepareUrl(url, init?.pathParams),
-        body,
-        init,
+    return this.http
+      .post<
+        Response<P, "post">
+      >(this.prepareUrl(url, init?.pathParams), body, init)
+      .pipe(
+        catchError((error) =>
+          this.foutAfhandelingService.foutAfhandelen(error),
+        ),
       );
-    } catch (error) {
-      return throwError(() => error);
-    }
   }
 
   public PUT<P extends PathsWithMethod<Paths, "put">>(
@@ -81,15 +84,15 @@ export class ZacHttpClient {
       pathParams: FetchOptions<FilterKeys<Paths[P], "put">>["params"];
     },
   ) {
-    try {
-      return this.http.put<Response<P, "put">>(
-        this.prepareUrl(url, init?.pathParams),
-        body,
-        init,
+    return this.http
+      .put<
+        Response<P, "put">
+      >(this.prepareUrl(url, init?.pathParams), body, init)
+      .pipe(
+        catchError((error) =>
+          this.foutAfhandelingService.foutAfhandelen(error),
+        ),
       );
-    } catch (error) {
-      return throwError(() => error);
-    }
   }
 
   public DELETE<P extends PathsWithMethod<Paths, "delete">>(
@@ -98,14 +101,15 @@ export class ZacHttpClient {
       pathParams: FetchOptions<FilterKeys<Paths[P], "delete">>["params"];
     },
   ) {
-    try {
-      return this.http.delete<Response<P, "delete">>(
-        this.prepareUrl(url, init?.pathParams),
-        init,
+    return this.http
+      .delete<
+        Response<P, "delete">
+      >(this.prepareUrl(url, init?.pathParams), init)
+      .pipe(
+        catchError((error) =>
+          this.foutAfhandelingService.foutAfhandelen(error),
+        ),
       );
-    } catch (error) {
-      return throwError(() => error);
-    }
   }
 
   public PATCH<P extends PathsWithMethod<Paths, "patch">>(
@@ -115,15 +119,15 @@ export class ZacHttpClient {
       pathParams: FetchOptions<FilterKeys<Paths[P], "patch">>["params"];
     },
   ) {
-    try {
-      return this.http.patch<Response<P, "patch">>(
-        this.prepareUrl(url, init?.pathParams),
-        body,
-        init,
+    return this.http
+      .patch<
+        Response<P, "patch">
+      >(this.prepareUrl(url, init?.pathParams), body, init)
+      .pipe(
+        catchError((error) =>
+          this.foutAfhandelingService.foutAfhandelen(error),
+        ),
       );
-    } catch (error) {
-      return throwError(() => error);
-    }
   }
 
   private replacePathParams(

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.mail
@@ -25,7 +25,7 @@ import net.atos.zac.mailtemplates.MailTemplateHelper
 import net.atos.zac.mailtemplates.model.createMailGegevens
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakInformatieobject
+import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
@@ -76,7 +76,7 @@ class MailServiceTest : BehaviorSpec({
             omschrijving = "e-mail"
         )
         val user = createLoggedInUser()
-        val zaakInformatieobject = createZaakInformatieobject()
+        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
         val resolvedSubject = "resolvedSubject"
 
         every { mailTemplateHelper.resolveVariabelen(mailGegevens.subject) } returns "fakeResolvedString1"

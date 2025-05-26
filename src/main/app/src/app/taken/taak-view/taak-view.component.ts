@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Dimpact, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Dimpact, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -27,6 +27,7 @@ import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { FormioCustomEvent } from "../../formulieren/formio-wrapper/formio-wrapper.component";
 import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-formulier";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -64,31 +65,34 @@ export class TaakViewComponent
   @ViewChild("zaakDocumentenComponent")
   zaakDocumentenComponent!: ZaakDocumentenComponent;
 
-  taak: Taak;
-  zaak: GeneratedType<"RestZaak">;
-  formulier: AbstractTaakFormulier;
-  formConfig: FormConfig;
+  protected taak: Taak;
+  protected zaak: GeneratedType<"RestZaak">;
+  protected formulier: AbstractTaakFormulier;
+  protected formConfig: FormConfig;
   formulierDefinitie: FormulierDefinitie;
-  formioFormulier: Record<string, any> = {};
+  formioFormulier: FormioForm = {};
   formioChangeData;
+
+  smartDocumentsGroupPath: string[] = [];
+  smartDocumentsTemplateName?: string;
+  smartDocumentsInformatieobjecttypeUuid?: string;
 
   menu: MenuItem[] = [];
   activeSideAction: string | null = null;
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
-  historieSrc: MatTableDataSource<TaakHistorieRegel> =
-    new MatTableDataSource<TaakHistorieRegel>();
-  historieColumns: string[] = [
+  protected historieSrc = new MatTableDataSource<TaakHistorieRegel>();
+  protected historieColumns = [
     "datum",
     "wijziging",
     "oudeWaarde",
     "nieuweWaarde",
     "toelichting",
-  ];
+  ] as const;
 
   editFormFields = new Map<string, unknown>();
   fataledatumIcon: TextIcon;
-  initialized = false;
+  protected initialized = false;
 
   posts = 0;
   private taakListener: WebsocketListener;
@@ -294,8 +298,12 @@ export class TaakViewComponent
     component: ExtendedComponentSchema,
   ): void {
     component.type = "fieldset";
+    const componentWithProperties = component.components?.find(
+      (component: ExtendedComponentSchema) =>
+        Object.keys(component.properties || []).length > 0,
+    );
     const smartDocumentsPath: GeneratedType<"RestSmartDocumentsPath"> = {
-      groups: component.properties["SmartDocuments_Group"].split(),
+      path: this.formioGetSmartDocumentsGroups(componentWithProperties),
     };
 
     const smartDocumentsTemplateComponent = component.components[0];
@@ -309,6 +317,12 @@ export class TaakViewComponent
             .pipe(tap((value) => value.sort())),
         ),
     };
+  }
+
+  private formioGetSmartDocumentsGroups(
+    component: ExtendedComponentSchema,
+  ): string[] {
+    return component?.properties["SmartDocuments_Group"].split("/");
   }
 
   isReadonly() {
@@ -438,7 +452,10 @@ export class TaakViewComponent
     }
   }
 
-  onFormioFormSubmit(submission: any) {
+  onFormioFormSubmit(submission: {
+    data: Record<string, string>;
+    state: string;
+  }) {
     this.websocketService.suspendListener(this.taakListener);
     for (const key in submission.data) {
       if (key !== "submit" && key !== "save") {
@@ -459,10 +476,12 @@ export class TaakViewComponent
     }
   }
 
-  onFormioFormChange(event: any) {
+  onFormioFormChange(event: { data: unknown }) {
     this.formioChangeData = event.data;
   }
 
+  // TODO add the correct type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editToewijzing(event: any) {
     if (
       event["medewerker-groep"].medewerker &&
@@ -565,5 +584,49 @@ export class TaakViewComponent
       uuid: taak.zaakUuid,
       zaaktype,
     } satisfies Partial<GeneratedType<"RestZaak">> as GeneratedType<"RestZaak">;
+  }
+
+  onDocumentCreate(event: FormioCustomEvent) {
+    this.activeSideAction = "actie.document.maken";
+    this.smartDocumentsGroupPath = this.formioGetSmartDocumentsGroups(
+      event.component,
+    );
+    this.smartDocumentsTemplateName =
+      event.data[
+        this.extractFieldsetName(event.component) + "_Template"
+      ].toString();
+    const normalizedTemplateName = this.smartDocumentsTemplateName
+      ?.replace(" ", "_")
+      .trim();
+    this.smartDocumentsInformatieobjecttypeUuid =
+      event.component.properties[
+        `SmartDocuments_${normalizedTemplateName}_InformatieobjecttypeUuid`
+      ] ||
+      event.component.properties["SmartDocuments_InformatieobjecttypeUuid"];
+
+    if (normalizedTemplateName.length > 0) {
+      this.actionsSidenav.open();
+    }
+  }
+
+  /**
+   * Returns the key name of the fieldset group using the key of the button. We assume that all components in the
+   * fieldset have the same prefix as the key of the fieldset and that the separator is an underscore.
+   *
+   * If the name of the button is "AM_SmartDocuments_Create", the expected component base name is "AM_SmartDocuments".
+   *
+   * @example
+   *     {
+   *       "legend": "SmartDocuments",
+   *       "type": "groepSmartDocumentsFieldset",
+   *       "key": "AM_SmartDocuments",
+   *       "components": [
+   *         { "label": "Template", "type": "select", "key": "AM_SmartDocuments_Template", <.. more fields ..> },
+   *         { "label": "Create", "key": "AM_SmartDocuments_Create", "type": "button", <.. more fields ..> }
+   *       ]
+   *     }
+   */
+  extractFieldsetName(component: ExtendedComponentSchema): string {
+    return component.key.split("_").slice(0, -1).join("_");
   }
 }

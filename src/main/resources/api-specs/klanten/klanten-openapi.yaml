@@ -1,7 +1,7 @@
 openapi: 3.0.3
-# INFO/Lifely: we changed this OpenAPI spec in some places because when generating Java client code
+# INFO.nl: we changed this OpenAPI spec in some places because when generating Java client code
 # using the OpenAPI Generator framework this spec resulted in uncompilable code.
-# See the 'INFO/Lifely' comments in the spec below.
+# See the 'INFO.nl' comments in the spec below.
 info:
   title: klantinteracties
   version: 0.1.2 (1)
@@ -3234,7 +3234,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DigitaalAdresForeignKey'
-          # INFO/Lifely: nullable arrays result in uncompilable generated Java code so we uncomment this for now
+          # INFO.nl: nullable arrays result in uncompilable generated Java code so we uncomment this for now
           # nullable: true
           description: Digitaal adresen dat een partij verstrekte voor gebruik bij
             toekomstig contact met de gemeente.
@@ -3254,7 +3254,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RekeningnummerForeignKey'
-          # INFO/Lifely: nullable arrays result in uncompilable generated Java code so we uncomment this for now
+          # INFO.nl: nullable arrays result in uncompilable generated Java code so we uncomment this for now
           #nullable: true
           description: Rekeningnummers van een partij
         voorkeursRekeningnummer:

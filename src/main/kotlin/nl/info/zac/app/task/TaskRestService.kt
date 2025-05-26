@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.task
@@ -25,7 +25,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RESTFileUpload
@@ -41,15 +40,13 @@ import net.atos.zac.flowable.task.TaakVariabelenService.readSignatures
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
 import net.atos.zac.flowable.util.TaskUtil
 import net.atos.zac.formulieren.FormulierRuntimeService
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEventType
-import nl.info.client.zgw.drc.model.generated.SoortEnum
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.app.task.converter.RestTaskConverter
 import nl.info.zac.app.task.converter.RestTaskHistoryConverter
@@ -62,6 +59,8 @@ import nl.info.zac.app.task.model.RestTaskReleaseData
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.helper.SuspensionZaakHelper
@@ -375,10 +374,7 @@ class TaskRestService @Inject constructor(
                     assertPolicy(
                         (
                             // this extra check is because the API can return an empty ondertekening soort
-                            enkelvoudigInformatieobject.ondertekening == null ||
-                                // when no signature is present (even if this is not
-                                // permitted according to the original OpenAPI spec)
-                                enkelvoudigInformatieobject.ondertekening.soort == SoortEnum.EMPTY
+                            enkelvoudigInformatieobject.ondertekening == null
                             ) && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
                     )
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(

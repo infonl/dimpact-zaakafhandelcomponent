@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.itest
@@ -33,7 +33,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 /**
- * This test assumes that a zaak has been created, a task has been started and a template mapping is created
+ * This test assumes that a zaak has been created, a task has been started, and a template mapping is created
  * in previously run tests.
  */
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED)
@@ -128,12 +128,14 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
     Given("zaak and a file created from template in SmartDocuments") {
         When("SmartDocuments zaak callback is provided with metadata about the new file") {
-            val endpointUrl = "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakProductaanvraag1Uuid" +
-                "?templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
-                "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID" +
-                "&userName=" + TEST_USER_1_NAME.urlEncode() +
-                "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
-                "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode()
+            val endpointUrl =
+                "$ZAC_API_URI/document-creation/smartdocuments/cmmn-callback/zaak/$zaakProductaanvraag1Uuid" +
+                    "?userName=" + TEST_USER_1_NAME.urlEncode() +
+                    "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
+                    "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
+                    "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
+                    "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID"
+
             logger.info { "Calling $endpointUrl endpoint" }
             val response = itestHttpClient.performPostRequest(
                 url = endpointUrl,
@@ -167,13 +169,15 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     Given("zaak, task, title, description, author and a file created from template in SmartDocuments") {
         When("SmartDocuments taak callback is provided with metadata about the new file") {
             val endpointUrl =
-                "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakProductaanvraag1Uuid/task/$task1ID" +
-                    "?templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
-                    "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID" +
-                    "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
+                "$ZAC_API_URI/document-creation/smartdocuments/cmmn-callback/" +
+                    "zaak/$zaakProductaanvraag1Uuid/task/$task1ID" +
+                    "?title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&description=A+file" +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
-                    "&userName=" + TEST_USER_1_NAME.urlEncode()
+                    "&userName=" + TEST_USER_1_NAME.urlEncode() +
+                    "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
+                    "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID"
+
             logger.info { "Calling $endpointUrl endpoint" }
             val response = itestHttpClient.performPostRequest(
                 url = endpointUrl,
@@ -208,12 +212,13 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     Given("zaak and a file creation cancelled in SmartDocuments") {
         When("SmartDocuments zaak callback is called") {
             val endpointUrl =
-                "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakProductaanvraag1Uuid" +
-                    "?templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
-                    "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID" +
-                    "&userName=" + TEST_USER_1_NAME.urlEncode() +
+                "$ZAC_API_URI/document-creation/smartdocuments/cmmn-callback/zaak/$zaakProductaanvraag1Uuid" +
+                    "?userName=" + TEST_USER_1_NAME.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
-                    "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode()
+                    "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
+                    "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
+                    "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID"
+
             logger.info { "Calling $endpointUrl endpoint" }
             val response = itestHttpClient.performPostRequest(
                 url = endpointUrl,
@@ -245,12 +250,14 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     Given("zaak, task and a file creation cancelled in SmartDocuments") {
         When("SmartDocuments taak callback is called") {
             val endpointUrl =
-                "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakProductaanvraag1Uuid/task/$task1ID" +
-                    "?templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
-                    "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID" +
-                    "&userName=" + TEST_USER_1_NAME.urlEncode() +
+                "$ZAC_API_URI/document-creation/smartdocuments/cmmn-callback/" +
+                    "zaak/$zaakProductaanvraag1Uuid/task/$task1ID" +
+                    "?userName=" + TEST_USER_1_NAME.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
-                    "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode()
+                    "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
+                    "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
+                    "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID"
+
             logger.info { "Calling $endpointUrl endpoint" }
             val response = itestHttpClient.performPostRequest(
                 url = endpointUrl,

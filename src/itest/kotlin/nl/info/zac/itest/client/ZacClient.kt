@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.itest.client
@@ -7,6 +7,7 @@ package nl.info.zac.itest.client
 import io.github.oshai.kotlinlogging.KotlinLogging
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Response
 import java.time.ZonedDateTime
@@ -222,7 +223,7 @@ class ZacClient {
         groupId: String,
         groupName: String,
         behandelaarId: String? = null,
-        description: String? = "fakeOmschrijving",
+        description: String? = ZAAK_OMSCHRIJVING,
         toelichting: String? = null,
         startDate: ZonedDateTime,
         communicatiekanaal: String? = COMMUNICATIEKANAAL_TEST_1,

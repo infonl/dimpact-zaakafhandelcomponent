@@ -1,5 +1,5 @@
 #
-# SPDX-FileCopyrightText: 2025 Lifely
+# SPDX-FileCopyrightText: 2025 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 
 #
@@ -8,7 +8,7 @@
 header:
   license:
     content: |      
-       SPDX-FileCopyrightText: 2025 Lifely
+       SPDX-FileCopyrightText: 2025 INFO.nl
        SPDX-License-Identifier: EUPL-1.2+
     pattern: |
        SPDX-FileCopyrightText: .*

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.informatieobjecten
@@ -21,9 +21,7 @@ import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.UriInfo
-import net.atos.client.officeconverter.OfficeConverterClientService
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectDownloadService
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
@@ -41,8 +39,6 @@ import net.atos.zac.app.informatieobjecten.model.RestZaakInformatieobject
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.util.MediaTypes
 import net.atos.zac.webdav.WebdavHelper
 import net.atos.zac.websocket.event.ScreenEventType
@@ -52,6 +48,7 @@ import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
@@ -60,10 +57,10 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.toBase64String
-import org.apache.commons.lang3.StringUtils
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
 import java.io.IOException
 import java.net.URI
@@ -95,11 +92,8 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val policyService: PolicyService,
     private val enkelvoudigInformatieObjectDownloadService: EnkelvoudigInformatieObjectDownloadService,
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
-    private val officeConverterClientService: OfficeConverterClientService
+    private val enkelvoudigInformatieObjectConvertService: EnkelvoudigInformatieObjectConvertService,
 ) {
-    companion object {
-        private const val TOELICHTING_PDF = "Geconverteerd naar PDF"
-    }
 
     @GET
     @Path("informatieobject/{uuid}")
@@ -138,8 +132,8 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         zoekParameters: RESTInformatieobjectZoekParameters
     ): List<RestEnkelvoudigInformatieobject> {
         val zaak = zoekParameters.zaakUUID?.let { zrcClientService.readZaak(it) }
-        zoekParameters.informatieobjectUUIDs?.let {
-            return restInformatieobjectConverter.convertUUIDsToREST(it, zaak)
+        return zoekParameters.informatieobjectUUIDs?.let {
+            restInformatieobjectConverter.convertUUIDsToREST(it, zaak)
         } ?: run {
             checkNotNull(zaak) { "Zoekparameters hebben geen waarde" }
             assertPolicy(policyService.readZaakRechten(zaak).lezen)
@@ -154,7 +148,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                     compareList.contains(it.informatieobjectTypeUUID)
                 }.toMutableList()
             }
-            return enkelvoudigInformatieobjectenVoorZaak
+            enkelvoudigInformatieobjectenVoorZaak
         }
     }
 
@@ -285,7 +279,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @Path("informatieobject/{uuid}/edit")
     fun editEnkelvoudigInformatieobjectInhoud(
         @PathParam("uuid") uuid: UUID,
-        @QueryParam("zaak") zaakUUID: UUID?,
+        @QueryParam("zaak") zaakUUID: UUID,
         @Context uriInfo: UriInfo
     ): Response {
         assertPolicy(
@@ -301,7 +295,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @Path("/informatieobject/{uuid}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     fun deleteEnkelvoudigInformatieObject(
-        @PathParam("uuid") uuid: UUID?,
+        @PathParam("uuid") uuid: UUID,
         documentVerwijderenGegevens: RESTDocumentVerwijderenGegevens
     ): Response {
         val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid)
@@ -336,14 +330,14 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     fun preview(@PathParam("uuid") uuid: UUID?, @PathParam("versie") versie: Int?): Response {
         val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(uuid)
         assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieObject).lezen)
-        try {
+        return try {
             val inhoud = versie?.let {
                 drcClientService.downloadEnkelvoudigInformatieobjectVersie(
                     uuid,
                     versie
                 )
             } ?: drcClientService.downloadEnkelvoudigInformatieobject(uuid)
-            return Response.ok(inhoud)
+            Response.ok(inhoud)
                 .header(
                     "Content-Disposition",
                     """inline; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
@@ -363,7 +357,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         informatieobjecten
             .map(policyService::readDocumentRechten)
             .map { it.downloaden }
-            .forEach(PolicyService::assertPolicy)
+            .forEach { assertPolicy(it) }
         return informatieobjecten
             .let(enkelvoudigInformatieObjectDownloadService::getZipStreamOutput)
             .let(Response::ok)
@@ -496,37 +490,21 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         assertPolicy(
             policyService.readDocumentRechten(document, zrcClientService.readZaak(zaakUUID)).wijzigen
         )
-        drcClientService.downloadEnkelvoudigInformatieobject(
+        enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObject(
+            document,
             enkelvoudigInformatieobjectUUID
-        ).use { documentInputStream ->
-            officeConverterClientService.convertToPDF(
-                documentInputStream,
-                document.bestandsnaam
-            ).use { pdfInputStream ->
-                val pdf = EnkelvoudigInformatieObjectWithLockRequest()
-                val inhoud = pdfInputStream.readAllBytes()
-                pdf.inhoud = inhoud.toBase64String()
-                pdf.formaat = MediaTypes.Application.PDF.mediaType
-                pdf.bestandsnaam = StringUtils.substringBeforeLast(document.bestandsnaam, ".") + ".pdf"
-                pdf.bestandsomvang = inhoud.size
-                enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                    document.url.extractUuid(),
-                    pdf,
-                    TOELICHTING_PDF
-                )
-            }
-        }
+        )
         return Response.ok().build()
     }
 
     private fun retrieveDocumentContent(uuid: UUID, version: Int?): Response {
         val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(uuid)
         assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden)
-        try {
+        return try {
             val documentContent = version?.let {
                 drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version)
             } ?: drcClientService.downloadEnkelvoudigInformatieobject(uuid)
-            return Response.ok(documentContent)
+            Response.ok(documentContent)
                 .header(
                     "Content-Disposition",
                     """attachment; filename="${enkelvoudigInformatieObject.bestandsnaam}""""

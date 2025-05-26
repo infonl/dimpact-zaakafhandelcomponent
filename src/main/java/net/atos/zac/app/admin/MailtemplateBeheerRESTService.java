@@ -5,7 +5,8 @@
 
 package net.atos.zac.app.admin;
 
-import static net.atos.zac.policy.PolicyService.assertPolicy;
+
+import static nl.info.zac.policy.PolicyServiceKt.assertPolicy;
 
 import java.util.List;
 import java.util.Set;
@@ -27,7 +28,7 @@ import net.atos.zac.mailtemplates.MailTemplateService;
 import net.atos.zac.mailtemplates.model.Mail;
 import net.atos.zac.mailtemplates.model.MailTemplate;
 import net.atos.zac.mailtemplates.model.MailTemplateVariabelen;
-import net.atos.zac.policy.PolicyService;
+import nl.info.zac.policy.PolicyService;
 
 @Singleton
 @Path("beheer/mailtemplates")
@@ -44,13 +45,13 @@ public class MailtemplateBeheerRESTService {
     @GET
     @Path("{id}")
     public RESTMailtemplate readMailtemplate(@PathParam("id") final long id) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
+        assertPolicy(policyService.readOverigeRechten().getBeheren());
         return RESTMailtemplateConverter.convert(mailTemplateService.readMailtemplate(id));
     }
 
     @GET
     public List<RESTMailtemplate> listMailtemplates() {
-        assertPolicy(policyService.readOverigeRechten().beheren());
+        assertPolicy(policyService.readOverigeRechten().getBeheren());
         final List<MailTemplate> mailTemplates = mailTemplateService.listMailtemplates();
         return mailTemplates.stream().map(RESTMailtemplateConverter::convert).toList();
     }
@@ -58,7 +59,7 @@ public class MailtemplateBeheerRESTService {
     @GET
     @Path("/koppelbaar")
     public List<RESTMailtemplate> listkoppelbareMailtemplates() {
-        assertPolicy(policyService.readOverigeRechten().beheren());
+        assertPolicy(policyService.readOverigeRechten().getBeheren());
         final List<MailTemplate> mailTemplates = mailTemplateService.listKoppelbareMailtemplates();
         return mailTemplates.stream().map(RESTMailtemplateConverter::convert).toList();
     }
@@ -66,14 +67,14 @@ public class MailtemplateBeheerRESTService {
     @DELETE
     @Path("{id}")
     public void deleteMailtemplate(@PathParam("id") final long id) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
+        assertPolicy(policyService.readOverigeRechten().getBeheren());
         mailTemplateService.delete(id);
     }
 
     @PUT
     @Path("")
     public RESTMailtemplate persistMailtemplate(final RESTMailtemplate mailtemplate) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
+        assertPolicy(policyService.readOverigeRechten().getBeheren());
         return RESTMailtemplateConverter.convert(
                 mailTemplateService.storeMailtemplate(RESTMailtemplateConverter.convert(mailtemplate))
         );

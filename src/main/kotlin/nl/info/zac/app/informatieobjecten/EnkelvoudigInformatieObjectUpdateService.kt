@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.informatieobjecten
@@ -16,8 +16,6 @@ import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.PolicyService.assertPolicy
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
@@ -30,6 +28,8 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate

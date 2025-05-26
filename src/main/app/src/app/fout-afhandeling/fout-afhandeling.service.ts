@@ -86,7 +86,7 @@ export class FoutAfhandelingService {
     error: string,
     details: string,
     showServerErrorTexts?: boolean,
-  ): Observable<never> {
+  ) {
     this.dialog.open(FoutDetailedDialogComponent, {
       data: {
         error,
@@ -124,7 +124,7 @@ export class FoutAfhandelingService {
     }
 
     const errorDetail =
-      err.error?.message || err.message || err.error?.exception;
+      err.error?.message || err.message || err?.error?.exception;
 
     if (err.status === 400) {
       return this.openFoutDialog(
@@ -137,7 +137,7 @@ export class FoutAfhandelingService {
       // client-side error
       this.foutmelding = this.translate.instant("dialoog.error.body.fout");
       this.bericht = err.error.message;
-      this.router.navigate(["/fout-pagina"]);
+      void this.router.navigate(["/fout-pagina"]);
     } else if (err.status === 0 && err.url.startsWith("/rest/")) {
       // status 0 means that the user is no longer logged in
       if (!isDevMode()) {
@@ -146,16 +146,17 @@ export class FoutAfhandelingService {
       }
       this.foutmelding = this.translate.instant("dialoog.error.body.loggedout");
       this.bericht = "";
-      this.router.navigate(["/fout-pagina"]);
+      void this.router.navigate(["/fout-pagina"]);
     } else {
       // only show server error texts in case of a server error (500 family of errors)
       // or in case of a 403 Forbidden error
       const showServerErrorTexts = err.status >= 500 || err.status === 403;
 
-      // show error in context and do not redirect to error page
+      // show error in context and do not redirect to error-page
       return this.openFoutDetailedDialog(
         this.translate.instant(errorDetail || "dialoog.error.body.technisch"),
-        err.error.exception,
+        err.error?.exception ??
+          this.translate.instant("dialoog.error.body.fout"),
         showServerErrorTexts,
       );
     }

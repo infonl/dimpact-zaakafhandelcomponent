@@ -1,0 +1,55 @@
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+.form {
+  min-width: 840px;
+}
+
+.map-container {
+  min-width: 840px;
+  position: relative;
+  margin: -15px 0 12px;
+  border: 1px solid var(--mat-tab-header-divider-color);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.open-layers-map {
+  height: calc(100vh - 531px);
+
+  &.readonly {
+    height: calc(100vh - 339px);
+  }
+}
+
+.overlay {
+  font-weight: 500;
+  display: block;
+  width: fit-content;
+  height: 0;
+  overflow: visible;
+  position: relative;
+  z-index: 1;
+  left: 9px;
+  pointer-events: none;
+
+  ::ng-deep .static-text {
+    padding: 12px;
+    border-radius: 6px;
+    backdrop-filter: brightness(112.5%) saturate(75%) blur(2.5px);
+  }
+}
+
+.location-coordinates {
+  margin-bottom: 8px;
+
+  .mat-mdc-card-content {
+    display: flex;
+  }
+
+  zac-static-text {
+    text-align: center;
+  }
+}

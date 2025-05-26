@@ -1,14 +1,14 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.history.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Geometry
 import net.atos.zac.util.time.LocalDateUtil
 import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.history.model.HistoryAction
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.util.asMapWithKeyOfString

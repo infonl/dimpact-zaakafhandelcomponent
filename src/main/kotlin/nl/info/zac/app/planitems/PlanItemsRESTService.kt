@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.planitems
@@ -14,7 +14,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.FormulierDefinitie
@@ -27,11 +26,11 @@ import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.mailtemplates.MailTemplateService
 import net.atos.zac.mailtemplates.model.Mail
 import net.atos.zac.mailtemplates.model.MailGegevens
-import net.atos.zac.policy.PolicyService
 import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.planitems.converter.RESTPlanItemConverter
 import nl.info.zac.app.planitems.model.RESTHumanTaskData
 import nl.info.zac.app.planitems.model.RESTPlanItem
@@ -43,6 +42,8 @@ import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.util.AllOpen
@@ -143,7 +144,7 @@ class PlanItemsRESTService @Inject constructor(
         val zaakUUID = zaakVariabelenService.readZaakUUID(planItem)
         val zaak = zrcClientService.readZaak(zaakUUID)
         val taakdata = humanTaskData.taakdata
-        PolicyService.assertPolicy(policyService.readZaakRechten(zaak).startenTaak)
+        assertPolicy(policyService.readZaakRechten(zaak).startenTaak)
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
             zaak.zaaktype.extractUuid()
         )
@@ -216,9 +217,9 @@ class PlanItemsRESTService @Inject constructor(
     fun doUserEventListenerPlanItem(userEventListenerData: RESTUserEventListenerData) {
         val zaak = zrcClientService.readZaak(userEventListenerData.zaakUuid)
         val zaakRechten = policyService.readZaakRechten(zaak)
-        PolicyService.assertPolicy(zaakRechten.startenTaak)
+        assertPolicy(zaakRechten.startenTaak)
         if (userEventListenerData.restMailGegevens != null) {
-            PolicyService.assertPolicy(zaakRechten.versturenEmail)
+            assertPolicy(zaakRechten.versturenEmail)
         }
         when (userEventListenerData.actie) {
             UserEventListenerActie.INTAKE_AFRONDEN -> {

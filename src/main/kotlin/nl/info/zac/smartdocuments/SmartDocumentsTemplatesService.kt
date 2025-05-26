@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.smartdocuments
@@ -12,9 +12,10 @@ import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
-import nl.info.zac.documentcreation.DocumentCreationService
+import nl.info.zac.documentcreation.CmmnDocumentCreationService
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
+import nl.info.zac.smartdocuments.rest.RestSmartDocumentsTemplateGroup
 import nl.info.zac.smartdocuments.rest.group
 import nl.info.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroup
 import nl.info.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroupSet
@@ -30,13 +31,14 @@ import java.util.logging.Logger
 @Transactional(SUPPORTS)
 @NoArgConstructor
 @AllOpen
+@Suppress("TooManyFunctions")
 class SmartDocumentsTemplatesService @Inject constructor(
     private val entityManager: EntityManager,
     private val smartDocumentsService: SmartDocumentsService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
 ) {
     companion object {
-        private val LOG = Logger.getLogger(DocumentCreationService::class.java.name)
+        private val LOG = Logger.getLogger(CmmnDocumentCreationService::class.java.name)
     }
 
     /**
@@ -52,13 +54,27 @@ class SmartDocumentsTemplatesService @Inject constructor(
     /**
      * Lists all SmartDocuments template names for a template group.
      *
+     * @param groupPath path to the template group, starting with the root group.
      * @return A list of template names in the group
      */
-    fun listGroupTemplateNames(groupNames: List<String>) =
+    fun listGroupTemplateNames(groupPath: List<String>) =
         if (smartDocumentsService.isEnabled()) {
-            listTemplates().group(groupNames).templates?.map { it.name } ?: emptyList()
+            listTemplates().group(groupPath).templates?.map { it.name } ?: emptyList()
         } else {
             emptyList()
+        }
+
+    /**
+     * Return SmartDocuments template group data
+     *
+     * @param groupPath path to the template group, starting with the root group.
+     * @return A list of template names in the group
+     */
+    fun getTemplateGroup(groupPath: List<String>): RestSmartDocumentsTemplateGroup =
+        if (smartDocumentsService.isEnabled()) {
+            listTemplates().group(groupPath)
+        } else {
+            throw SmartDocumentsConfigurationException("Smart documents is disabled")
         }
 
     /**

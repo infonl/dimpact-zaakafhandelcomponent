@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -32,9 +32,9 @@ import {
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { DatumRange } from "../../zoeken/model/datum-range";
 import { InboxProductaanvragenService } from "../inbox-productaanvragen.service";
-import { InboxProductaanvraag } from "../model/inbox-productaanvraag";
 import { InboxProductaanvraagListParameters } from "../model/inbox-productaanvraag-list-parameters";
 
 @Component({
@@ -47,7 +47,9 @@ export class InboxProductaanvragenListComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   isLoadingResults = true;
-  dataSource = new MatTableDataSource<InboxProductaanvraag>();
+  dataSource = new MatTableDataSource<
+    GeneratedType<"RESTInboxProductaanvraag">
+  >();
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   displayedColumns: string[] = [
@@ -67,11 +69,11 @@ export class InboxProductaanvragenListComponent
     "actions_filter",
   ];
   listParameters: InboxProductaanvraagListParameters;
-  expandedRow: InboxProductaanvraag | null;
+  expandedRow: GeneratedType<"RESTInboxProductaanvraag"> | null = null;
   filterType: string[] = [];
   filterChange = new EventEmitter<void>();
   clearZoekopdracht = new EventEmitter<void>();
-  previewSrc: SafeUrl = null;
+  previewSrc: SafeUrl | null = null;
 
   constructor(
     private inboxProductaanvragenService: InboxProductaanvragenService,
@@ -113,9 +115,9 @@ export class InboxProductaanvragenListComponent
         }),
       )
       .subscribe((data) => {
-        this.paginator.length = data.totaal;
-        this.filterType = data.filterType;
-        this.dataSource.data = data.resultaten;
+        this.paginator.length = Number(data.totaal);
+        this.filterType = (data as { filterType: string[] }).filterType;
+        this.dataSource.data = data.resultaten ?? [];
       });
   }
 
@@ -130,8 +132,8 @@ export class InboxProductaanvragenListComponent
     );
   }
 
-  getDownloadURL(ip: InboxProductaanvraag): string {
-    return this.infoService.getDownloadURL(ip.aanvraagdocumentUUID);
+  getDownloadURL(ip: GeneratedType<"RESTInboxProductaanvraag">): string {
+    return this.infoService.getDownloadURL(ip.aanvraagdocumentUUID!);
   }
 
   filtersChanged(options: {
@@ -180,7 +182,7 @@ export class InboxProductaanvragenListComponent
     return Werklijst.INBOX_PRODUCTAANVRAGEN;
   }
 
-  updateActive(selectedRow: InboxProductaanvraag) {
+  updateActive(selectedRow: GeneratedType<"RESTInboxProductaanvraag">) {
     if (this.expandedRow === selectedRow) {
       this.expandedRow = null;
       this.previewSrc = null;
@@ -188,26 +190,30 @@ export class InboxProductaanvragenListComponent
       this.expandedRow = selectedRow;
       this.previewSrc = this.sanitizer.bypassSecurityTrustResourceUrl(
         this.inboxProductaanvragenService.pdfPreview(
-          selectedRow.aanvraagdocumentUUID,
+          selectedRow.aanvraagdocumentUUID!,
         ),
       );
     }
   }
 
-  aanmakenZaak(inboxProductaanvraag: InboxProductaanvraag): void {
+  aanmakenZaak(
+    inboxProductaanvraag: GeneratedType<"RESTInboxProductaanvraag">,
+  ): void {
     this.router.navigateByUrl("zaken/create", {
       state: { inboxProductaanvraag },
     });
   }
 
   inboxProductaanvragenVerwijderen(
-    inboxProductaanvraag: InboxProductaanvraag,
+    inboxProductaanvraag: GeneratedType<"RESTInboxProductaanvraag">,
   ): void {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
           "msg.inboxProductaanvraag.verwijderen.bevestigen",
-          this.inboxProductaanvragenService.delete(inboxProductaanvraag),
+          this.inboxProductaanvragenService.delete(
+            Number(inboxProductaanvraag.id),
+          ),
         ),
       })
       .afterClosed()

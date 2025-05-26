@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #
-# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-FileCopyrightText: 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
 set -e

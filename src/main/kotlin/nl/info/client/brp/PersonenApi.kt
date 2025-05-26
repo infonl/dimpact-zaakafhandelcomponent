@@ -1,10 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.client.brp
 
 import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.HeaderParam
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
@@ -52,10 +53,15 @@ interface PersonenApi {
      * 5. Zoek met straat, huisnummer en gemeente van inschrijving
      * 6. Zoek met nummeraanduiding identificatie
      *
+     *@param personenQuery de zoekcriteria voor personen
+     *@param purpose de doelbinding (X-DOELBINDING-header), verplicht voor protocolering en autorisatie
      *
      * Default krijg je personen terug die nog in leven zijn, tenzij je de inclusiefoverledenpersonen=true opgeeft.
      * Gebruik de fields parameter om alleen die gegevens op te vragen die je nodig hebt en waarvoor je geautoriseerd bent.
      */
     @POST
-    fun personen(personenQuery: PersonenQuery): PersonenQueryResponse
+    fun personen(
+        personenQuery: PersonenQuery,
+        @HeaderParam(BRPClientHeadersFactory.X_DOELBINDING) purpose: String?
+    ): PersonenQueryResponse
 }

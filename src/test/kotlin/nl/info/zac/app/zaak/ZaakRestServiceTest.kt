@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely, 2024 Dimpact
+ * SPDX-FileCopyrightText: 2023 INFO.nl, 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.zaak
@@ -25,7 +25,6 @@ import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.model.Archiefnominatie
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.GeometryToBeDeleted
@@ -48,12 +47,6 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.exception.PolicyException
-import net.atos.zac.policy.output.createOverigeRechtenAllDeny
-import net.atos.zac.policy.output.createWerklijstRechten
-import net.atos.zac.policy.output.createZaakRechten
-import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.brc.BrcClientService
@@ -63,11 +56,12 @@ import nl.info.client.zgw.model.createOrganisatorischeEenheid
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakInformatieobject
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.model.createZaakobjectOpenbareRuimte
 import nl.info.client.zgw.model.createZaakobjectPand
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -117,6 +111,12 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.exception.PolicyException
+import nl.info.zac.policy.output.createOverigeRechtenAllDeny
+import nl.info.zac.policy.output.createWerklijstRechten
+import nl.info.zac.policy.output.createZaakRechten
+import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.productaanvraag.createProductaanvraagDimpact
 import nl.info.zac.search.IndexingService
@@ -278,17 +278,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                 identificationType = restZaak.initiatorIdentificatieType!!,
                 identification = restZaak.initiatorIdentificatie!!,
                 zaak = zaak,
-                explanation = "Toegekend door de medewerker tijdens het behandelen van de zaak"
+                explanation = "Aanmaken zaak"
             )
         } just runs
+
         every { bpmnService.findProcessDefinitionForZaaktype(zaakTypeUUID) } returns null
 
-        When(
-            """
-                createZaak is called for a zaaktype for which the logged in user has permissions and for which
-                no BPMN process definition is found
-            """
-        ) {
+        When("a zaaktype is created for which the user has permissions and no BPMN process definition is found") {
             every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
             every {
                 policyService.readZaakRechten(zaak)
@@ -925,12 +921,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                         restZaakBetrokkenGegevens.betrokkeneIdentificatieType,
                         restZaakBetrokkenGegevens.betrokkeneIdentificatie,
                         zaak,
-                        "Toegekend door de medewerker tijdens het behandelen van de zaak"
+                        restZaakBetrokkenGegevens.roltoelichting!!
                     )
                 }
             }
         }
     }
+
     Given("A zaak with an initiator") {
         val zaak = createZaak()
         val rolMedewerker = createRolMedewerker()
@@ -1045,6 +1042,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """
         Two existing zaaktypes in the configured catalogue for which the logged in user is authorised
@@ -1254,9 +1252,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         val informatieobjectUUID = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUUID)
         val enkelvoudiginformatieobject = createEnkelvoudigInformatieObject(uuid = informatieobjectUUID)
-        val zaakinformatiebject = createZaakInformatieobject(
-            zaakUUID = zaakUUID,
-            informatieobjectUUID = informatieobjectUUID
+        val zaakinformatiebject = createZaakInformatieobjectForReads(
+            uuid = informatieobjectUUID
         )
         val restOntkoppelGegevens = createRestDocumentOntkoppelGegevens(
             zaakUUID = zaakUUID,
@@ -1295,6 +1292,62 @@ class ZaakRestServiceTest : BehaviorSpec({
                     )
                     indexingService.removeInformatieobject(informatieobjectUUID)
                     ontkoppeldeDocumentenService.create(enkelvoudiginformatieobject, zaak, "veryFakeReason")
+                }
+            }
+        }
+    }
+
+    Given("an initiator is being updated") {
+        val data = createRESTZaakBetrokkeneGegevens()
+        val zaak = createZaak()
+
+        every { zrcClientService.readZaak(data.zaakUUID) } returns zaak
+        every { zgwApiService.findInitiatorRoleForZaak(any()) } returns null
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
+        every {
+            zaakService.addInitiatorToZaak(
+                data.betrokkeneIdentificatieType,
+                data.betrokkeneIdentificatie,
+                zaak,
+                any()
+            )
+        } just runs
+        every { restZaakConverter.toRestZaak(zaak) } returns createRestZaak()
+
+        When("a reason is passed") {
+            zaakRestService.updateInitiator(
+                data.apply {
+                    roltoelichting = "test reden"
+                }
+            )
+
+            Then("the reasons should get saved") {
+                verify(exactly = 1) {
+                    zaakService.addInitiatorToZaak(
+                        data.betrokkeneIdentificatieType,
+                        data.betrokkeneIdentificatie,
+                        any(),
+                        "test reden"
+                    )
+                }
+            }
+        }
+
+        When("no reason is passed") {
+            zaakRestService.updateInitiator(
+                data.apply {
+                    roltoelichting = null
+                }
+            )
+
+            Then("the reason should be set to the default") {
+                verify(exactly = 1) {
+                    zaakService.addInitiatorToZaak(
+                        data.betrokkeneIdentificatieType,
+                        data.betrokkeneIdentificatie,
+                        any(),
+                        "Toegekend door de medewerker tijdens het behandelen van de zaak"
+                    )
                 }
             }
         }

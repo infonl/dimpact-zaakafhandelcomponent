@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.65](https://img.shields.io/badge/Version-1.0.65-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
+![Version: 1.0.71](https://img.shields.io/badge/Version-1.0.71-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,8 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @bitnami | solr | 9.6.4 |
-| @opentelemetry | opentelemetry-collector | 0.124.0 |
+| @opentelemetry | opentelemetry-collector | 0.125.0 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -23,7 +22,6 @@ A Helm chart for installing Zaakafhandelcomponent
 Make sure you have helm installed. Add the required repositories as follows:
 ```
 helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
-helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo add solr https://solr.apache.org/charts
 ```
 
@@ -62,9 +60,10 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | bagApi.apiKey | string | `""` |  |
 | bagApi.url | string | `""` |  |
 | brpApi.apiKey | string | `""` |  |
-| brpApi.protocollering.doelbinding | string | `"BRPACT-Totaal"` | Doelbinding for BRP Protocollering |
-| brpApi.protocollering.originOin | string | `""` | If specified, enables the BRP Protocollering |
-| brpApi.protocollering.verwerking | string | `"zaakafhandelcomponent"` | Verwerking for BRP Protocollering |
+| brpApi.protocollering.doelbinding.raadpleegmet | string | `"BRPACT-Totaal"` |  |
+| brpApi.protocollering.doelbinding.zoekmet | string | `"BRPACT-ZoekenAlgemeen"` |  |
+| brpApi.protocollering.originOin | string | `""` |  |
+| brpApi.protocollering.verwerking | string | `"zaakafhandelcomponent"` |  |
 | brpApi.url | string | `""` |  |
 | catalogusDomein | string | `"ALG"` | ZAC OpenZaak Catalogus Domein |
 | contextUrl | string | `""` | External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com) |
@@ -343,32 +342,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.zookeeper-operator.zookeeper.storage.size | string | `"1Gi"` | zookeeper storage size |
 | solr-operator.zookeeper-operator.zookeeper.storage.storageClassName | string | `"managed-csi"` | zookeeper storageClassName |
 | solr-operator.zookeeper-operator.zookeeper.tolerations | list | `[]` | tolerations for zookeeper |
-| solr.auth.enabled | bool | `false` |  |
-| solr.cloudBootstrap | bool | `false` |  |
-| solr.cloudEnabled | bool | `false` |  |
-| solr.collectionReplicas | int | `1` |  |
-| solr.coreNames[0] | string | `"zac"` |  |
-| solr.customLivenessProbe.failureThreshold | int | `6` |  |
-| solr.customLivenessProbe.httpGet.path | string | `"/solr/zac/admin/ping"` |  |
-| solr.customLivenessProbe.httpGet.port | string | `"http"` |  |
-| solr.customLivenessProbe.initialDelaySeconds | int | `40` |  |
-| solr.customLivenessProbe.periodSeconds | int | `10` |  |
-| solr.customLivenessProbe.successThreshold | int | `1` |  |
-| solr.customLivenessProbe.timeoutSeconds | int | `15` |  |
-| solr.customReadinessProbe.failureThreshold | int | `6` |  |
-| solr.customReadinessProbe.httpGet.path | string | `"/solr/zac/admin/ping"` |  |
-| solr.customReadinessProbe.httpGet.port | string | `"http"` |  |
-| solr.customReadinessProbe.initialDelaySeconds | int | `60` |  |
-| solr.customReadinessProbe.periodSeconds | int | `10` |  |
-| solr.customReadinessProbe.successThreshold | int | `1` |  |
-| solr.customReadinessProbe.timeoutSeconds | int | `15` |  |
-| solr.enabled | bool | `false` | set enabled to true to provision bitnami solr version with the zac core |
-| solr.extraEnvVars[0].name | string | `"ZK_CREATE_CHROOT"` |  |
-| solr.extraEnvVars[0].value | string | `"true"` |  |
-| solr.persistence.size | string | `"1Gi"` |  |
-| solr.replicaCount | int | `1` |  |
-| solr.service.ports.http | int | `80` |  |
-| solr.zookeeper.enabled | bool | `false` |  |
+| solr.url | string | `""` | The location of an existing solr instance to be used by zac |
 | tolerations | list | `[]` | set toleration parameters |
 | zacInternalEndpointsApiKey | string | `""` | API key for authentication of internal ZAC endpoints |
 | zgwApis.clientId | string | `""` |  |

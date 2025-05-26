@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -10,9 +10,9 @@ import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { HistorieRegel } from "../shared/historie/model/historie-regel";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { createFormData } from "../shared/utils/form-data";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { DocumentCreationData } from "./model/document-creation-data";
 import { DocumentCreationResponse } from "./model/document-creation-response";
 import { DocumentVerwijderenGegevens } from "./model/document-verwijderen-gegevens";
 import { DocumentVerzendGegevens } from "./model/document-verzend-gegevens";
@@ -30,8 +30,9 @@ export class InformatieObjectenService {
   private basepath = "/rest/informatieobjecten";
 
   constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
+    private readonly http: HttpClient,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
+    private readonly zacHttpClient: ZacHttpClient,
   ) {}
 
   // Het EnkelvoudigInformatieobject kan opgehaald worden binnen de context van een specifieke zaak.
@@ -67,12 +68,10 @@ export class InformatieObjectenService {
       );
   }
 
-  listInformatieobjecttypesForZaak(
-    zaakUUID: string,
-  ): Observable<Informatieobjecttype[]> {
+  listInformatieobjecttypesForZaak(zaakUUID: string) {
     return this.http
       .get<
-        Informatieobjecttype[]
+        GeneratedType<"RestInformatieobjecttype">[]
       >(`${this.basepath}/informatieobjecttypes/zaak/${zaakUUID}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
@@ -123,11 +122,11 @@ export class InformatieObjectenService {
   }
 
   createDocumentAttended(
-    documentCreationData: DocumentCreationData,
-  ): Observable<DocumentCreationResponse> {
-    return this.http
-      .post<DocumentCreationResponse>(
-        `rest/document-creation/create-document-attended`,
+    documentCreationData: GeneratedType<"RestDocumentCreationAttendedData">,
+  ) {
+    return this.zacHttpClient
+      .POST(
+        "/rest/document-creation/create-document-attended",
         documentCreationData,
       )
       .pipe(

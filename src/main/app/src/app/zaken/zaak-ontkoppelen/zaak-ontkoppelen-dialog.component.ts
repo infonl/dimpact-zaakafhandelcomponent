@@ -1,13 +1,13 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Component, Inject, OnInit } from "@angular/core";
 import { Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { TextareaFormField } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
-import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
@@ -15,7 +15,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "zaak-ontkoppelen-dialog.component.html",
 })
 export class ZaakOntkoppelenDialogComponent implements OnInit {
-  redenFormField: AbstractFormField;
+  redenFormField: TextareaFormField;
   loading: boolean;
 
   constructor(
@@ -41,7 +41,7 @@ export class ZaakOntkoppelenDialogComponent implements OnInit {
   ontkoppel(): void {
     this.dialogRef.disableClose = true;
     this.loading = true;
-    this.data.reden = this.redenFormField.formControl.value;
+    this.data.reden = this.redenFormField.formControl.value!;
     this.zakenService.ontkoppelZaak(this.data).subscribe(() => {
       this.dialogRef.close(true);
     });

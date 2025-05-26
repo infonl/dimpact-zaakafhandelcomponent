@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -14,7 +14,7 @@ import {
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
-import moment, { Moment } from "moment";
+import moment from "moment";
 import { of, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { DividerFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/divider/divider-form-field-builder";
@@ -63,7 +63,7 @@ export class BesluitEditComponent implements OnDestroy, OnInit {
       .cancelText("actie.annuleren")
       .build();
     const resultaattypeField = new SelectFormFieldBuilder(
-      this.zaak.resultaat.resultaattype,
+      this.zaak.resultaat?.resultaattype,
     )
       .id("resultaattype")
       .label("resultaat")
@@ -95,7 +95,7 @@ export class BesluitEditComponent implements OnDestroy, OnInit {
     const vervaldatumField = new DateFormFieldBuilder(this.besluit.vervaldatum)
       .id("vervaldatum")
       .label("vervaldatum")
-      .minDate(ingangsdatumField.formControl.value)
+      .minDate(new Date(String(ingangsdatumField.formControl.value)))
       .build();
     const documentenField = new DocumentenLijstFieldBuilder()
       .id("documenten")
@@ -170,20 +170,22 @@ export class BesluitEditComponent implements OnDestroy, OnInit {
     ingangsdatumField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
-        (vervaldatumField as DateFormField).minDate = value;
+        (vervaldatumField as DateFormField).minDate = new Date(String(value));
       });
 
     besluittypeField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
-        documentenField.updateDocumenten(this.listInformatieObjecten(value.id));
+        documentenField.updateDocumenten(
+          this.listInformatieObjecten((value as unknown as { id: string })?.id),
+        ); // TODO: type `besluittypeField` correctly
       });
 
     publicationDateField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
-      .subscribe((value: Moment | null) => {
+      .subscribe((value) => {
         if (value) {
-          const adjustedLastResponseDate: Moment = value
+          const adjustedLastResponseDate = moment(value)
             .clone()
             .add(
               this.besluit.besluittype?.publication.responseTermDays ?? 0,

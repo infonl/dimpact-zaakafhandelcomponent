@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024-2025 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024-2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -22,6 +22,7 @@ import moment from "moment";
 import { forkJoin } from "rxjs";
 import { map, tap } from "rxjs/operators";
 import { ActieOnmogelijkDialogComponent } from "src/app/fout-afhandeling/dialog/actie-onmogelijk-dialog.component";
+import { PolicyService } from "src/app/policy/policy.service";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { ZaakbeeindigReden } from "../../admin/model/zaakbeeindig-reden";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
@@ -35,7 +36,6 @@ import { WebsocketListener } from "../../core/websocket/model/websocket-listener
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { KlantenService } from "../../klanten/klanten.service";
-import { Klant } from "../../klanten/model/klanten/klant";
 import { KlantGegevens } from "../../klanten/model/klanten/klant-gegevens";
 import { ViewResourceUtil } from "../../locatie/view-resource.util";
 import { NotitieType } from "../../notities/model/notitietype.enum";
@@ -93,7 +93,7 @@ export class ZaakViewComponent
   takenDataSource = new MatTableDataSource<ExpandableTableData<Taak>>();
   allTakenExpanded = false;
   toonAfgerondeTaken = new FormControl(false);
-  takenFilter: Record<string, unknown> = {};
+  takenStatusFilter: GeneratedType<"TaakStatus"> | "" = "";
   takenLoading = false;
   takenColumnsToDisplay = [
     "naam",
@@ -139,6 +139,7 @@ export class ZaakViewComponent
     "relatieType",
   ] as const;
   notitieType = NotitieType.ZAAK;
+  notitieRechten!: GeneratedType<"RestNotitieRechten">;
   dateFieldIcon = new Map<string, TextIcon>();
   viewInitialized = false;
   loggedInUser!: GeneratedType<"RestLoggedInUser">;
@@ -171,6 +172,7 @@ export class ZaakViewComponent
     private dialog: MatDialog,
     private translate: TranslateService,
     private bagService: BAGService,
+    private policyService: PolicyService,
   ) {
     super();
   }
@@ -215,12 +217,15 @@ export class ZaakViewComponent
 
         this.getIngelogdeMedewerker();
         this.loadTaken();
+        this.loadNotitieRechten();
       }),
     );
 
     this.takenDataSource.filterPredicate = (data, filter) => {
+      if (!filter) return true;
+
       return !this.toonAfgerondeTaken.value
-        ? data.data.status !== filter["status"]
+        ? data.data.status !== filter
         : true;
     };
 
@@ -526,6 +531,16 @@ export class ZaakViewComponent
             "actie.zaak.koppelen",
             () => this.actionsSidenav.open(),
             "account_tree",
+          ),
+        );
+      }
+
+      if (this.zaak.rechten.wijzigenLocatie && !this.zaak.zaakgeometrie) {
+        this.menu.push(
+          new ButtonMenuItem(
+            "actie.zaak.locatie.toevoegen",
+            () => this.actionsSidenav.open(),
+            "add_location_alt",
           ),
         );
       }
@@ -950,6 +965,13 @@ export class ZaakViewComponent
     }
   }
 
+  editLocationDetails(): void {
+    if (this.zaak.rechten.wijzigen) {
+      this.activeSideAction = "actie.zaak.locatie.toevoegen";
+      this.actionsSidenav.open();
+    }
+  }
+
   addOrEditZaakInitiator(): void {
     this.activeSideAction = "actie.initiator.toevoegen";
     this.actionsSidenav.open();
@@ -978,6 +1000,12 @@ export class ZaakViewComponent
         this.filterTakenOpStatus();
         this.takenLoading = false;
       });
+  }
+
+  private loadNotitieRechten(): void {
+    this.policyService
+      .readNotitieRechten()
+      .subscribe((rechten) => (this.notitieRechten = rechten));
   }
 
   expandTaken(expand: boolean): void {
@@ -1009,21 +1037,55 @@ export class ZaakViewComponent
     );
   }
 
-  initiatorGeselecteerd(initiator: Klant): void {
+  initiatorGeselecteerd(initiator: GeneratedType<"RestPersoon">) {
     this.websocketService.suspendListener(this.zaakRollenListener);
     this.actionsSidenav.close();
-    const melding = this.zaak.initiatorIdentificatie
-      ? "msg.initiator.gewijzigd"
-      : "msg.initiator.toegevoegd";
+
+    if (this.zaak.initiatorIdentificatie) {
+      // We already have an initiator, we need a reason to change it
+      this.dialog
+        .open(DialogComponent, {
+          data: new DialogData<unknown, { reden: string }>({
+            formFields: [
+              new TextareaFormFieldBuilder()
+                .id("reden")
+                .label("reden")
+                .validators(Validators.required)
+                .build(),
+            ],
+            callback: ({ reden }) =>
+              this.zakenService.updateInitiator(this.zaak, initiator, reden),
+            melding: this.translate.instant("msg.initiator.bevestigen", {
+              naam: initiator.naam,
+            }),
+            icon: "link",
+          }),
+        })
+        .afterClosed()
+        .subscribe((zaak) =>
+          this.handleNewInitiator("msg.initiator.gewijzigd", zaak),
+        );
+      return;
+    }
+
     this.zakenService
       .updateInitiator(this.zaak, initiator)
-      .subscribe((zaak) => {
-        this.zaak = zaak;
-        this.utilService.openSnackbar(melding, {
-          naam: zaak.initiatorIdentificatie,
-        });
-        this.loadHistorie();
-      });
+      .subscribe((zaak) =>
+        this.handleNewInitiator("msg.initiator.toegevoegd", zaak),
+      );
+  }
+
+  private handleNewInitiator(
+    notification: string,
+    zaak?: GeneratedType<"RestZaak">,
+  ): void {
+    if (!zaak) return;
+
+    this.zaak = zaak;
+    this.utilService.openSnackbar(notification, {
+      naam: zaak.initiatorIdentificatie,
+    });
+    this.loadHistorie();
   }
 
   deleteInitiator(): void {
@@ -1149,11 +1211,10 @@ export class ZaakViewComponent
 
   filterTakenOpStatus() {
     if (!this.toonAfgerondeTaken.value) {
-      this.takenFilter["status"] = "AFGEROND";
+      this.takenStatusFilter = "AFGEROND";
     }
 
-    // @ts-expect-error TODO this throwing a ts error, functionality needs to be checked
-    this.takenDataSource.filter = this.takenFilter;
+    this.takenDataSource.filter = this.takenStatusFilter;
     SessionStorageUtil.setItem(
       "toonAfgerondeTaken",
       this.toonAfgerondeTaken.value,
@@ -1205,6 +1266,11 @@ export class ZaakViewComponent
   }
 
   zaakLinked(): void {
+    this.sluitSidenav();
+    this.updateZaak();
+  }
+
+  locationSelected(): void {
     this.sluitSidenav();
     this.updateZaak();
   }

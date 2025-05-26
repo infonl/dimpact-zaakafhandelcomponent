@@ -1,5 +1,5 @@
 #
-# SPDX-FileCopyrightText: <YYYY> Lifely
+# SPDX-FileCopyrightText: <YYYY> INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
@@ -21,6 +21,8 @@ BAG_API_CLIENT_MP_REST_URL=op://Dimpact/ZAC-.env-$APP_ENV/BAG/API_CLIENT_MP_REST
 BAG_API_KEY=op://Dimpact/ZAC-.env-$APP_ENV/BAG/API_KEY
 BRON_ORGANISATIE_RSIN=123443210
 BRP_API_CLIENT_MP_REST_URL=http://localhost:5010/haalcentraal/api/brp
+BRP_DOELBINDING_ZOEKMET=BRPACT-ZoekenAlgemeen
+BRP_DOELBINDING_RAADPLEEGMET=BRPACT-Totaal
 CONTEXT_URL=http://localhost:8080
 DB_HOST=localhost:54320
 DB_NAME=zac

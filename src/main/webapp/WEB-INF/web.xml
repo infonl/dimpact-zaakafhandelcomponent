@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2023 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -97,11 +97,22 @@
     </security-constraint>
 
     <security-constraint>
-        <display-name>Deny all HTTP methods on '/rest/document-creation/smartdocuments/callback/*' except POST</display-name>
+        <display-name>Deny all HTTP methods on '/rest/document-creation/smartdocuments/cmmn-callback/*' except POST</display-name>
         <web-resource-collection>
             <web-resource-name>smartdocuments-document-creation</web-resource-name>
             <description>SmartDocuments create document callback endpoint</description>
-            <url-pattern>/rest/document-creation/smartdocuments/callback/*</url-pattern>
+            <url-pattern>/rest/document-creation/smartdocuments/cmmn-callback/*</url-pattern>
+            <http-method-omission>POST</http-method-omission>
+        </web-resource-collection>
+        <auth-constraint/>
+    </security-constraint>
+
+    <security-constraint>
+        <display-name>Deny all HTTP methods on '/rest/document-creation/smartdocuments/bpmn-callback/*' except POST</display-name>
+        <web-resource-collection>
+            <web-resource-name>smartdocuments-document-creation</web-resource-name>
+            <description>SmartDocuments create document callback endpoint</description>
+            <url-pattern>/rest/document-creation/smartdocuments/bpmn-callback/*</url-pattern>
             <http-method-omission>POST</http-method-omission>
         </web-resource-collection>
         <auth-constraint/>

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -43,8 +43,8 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_CASE_BETROKKENE_NOT_ALLOWED("msg.error.case.betrokkene.not.allowed"),
     ERROR_CODE_SEARCH_INDEXING("msg.error.search.indexing.exception"),
     ERROR_CODE_SEARCH_SEARCH("msg.error.search.search.exception"),
-
     ERROR_CODE_USER_NOT_IN_GROUP("msg.error.user.not.in.group"),
     ERROR_CODE_USER_NOT_FOUND_IN_KEYCLOAK("msg.error.user.not.in.keycloak"),
     ERROR_CODE_GROUP_NOT_FOUND_IN_KEYCLOAK("msg.error.group.not.in.keycloak"),
+    ERROR_CODE_CONVERT_NOT_POSSIBLE("msg.error.convert.not.possible"),
 }
