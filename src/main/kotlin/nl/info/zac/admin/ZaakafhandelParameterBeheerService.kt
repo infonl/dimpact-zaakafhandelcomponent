@@ -218,7 +218,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         mapMailtemplateKoppelingen(previousZaakafhandelparameters, zaakafhandelParameters)
         mapZaakAfzenders(previousZaakafhandelparameters, zaakafhandelParameters)
         mapBetrokkeneKoppelingen(previousZaakafhandelparameters, zaakafhandelParameters)
-        mapBetrokkeneKoppelingen(previousZaakafhandelparameters, zaakafhandelParameters)
+        mapBrpDoelbindingen(previousZaakafhandelparameters, zaakafhandelParameters)
     }
 
     private fun currentZaakafhandelParameters(zaaktypeUuid: UUID): ZaakafhandelParameters {

@@ -74,7 +74,9 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             betrokkeneKoppelingen = zaakafhandelParameters.betrokkeneKoppelingen
                 ?.toRestBetrokkeneKoppelingen()
                 ?: RestBetrokkeneKoppelingen(),
-            brpDoelbindingen = zaakafhandelParameters.brpDoelbindingen?.toRestBrpDoelbindingen() ?: RestBrpDoelbindingen(),
+            brpDoelbindingen = zaakafhandelParameters.brpDoelbindingen
+                ?.toRestBrpDoelbindingen()
+                ?: RestBrpDoelbindingen(),
         )
         restZaakafhandelParameters.caseDefinition?.takeIf { inclusiefRelaties }?.let { caseDefinition ->
             zaakafhandelParameters.nietOntvankelijkResultaattype?.let {
