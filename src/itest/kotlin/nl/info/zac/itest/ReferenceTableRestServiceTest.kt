@@ -69,6 +69,22 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                                 "aantalWaarden": 0
                             },
                             {
+                                "aantalWaarden": 15,
+                                "code": "$REFERENCE_TABLE_BRP_DOELBINDING_RAADPLEEG_WAARDE_CODE",
+                                "id": 7,
+                                "naam": "$REFERENCE_TABLE_BRP_DOELBINDING_RAADPLEEG_WAARDE_NAAM",
+                                "systeem": true,
+                                "waarden": []
+                            },
+                            {
+                                "aantalWaarden": 4,
+                                "code": "$REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_CODE",
+                                "id": 6,
+                                "naam": "$REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_NAAM",
+                                "systeem": true,
+                                "waarden": []
+                            },
+                            {
                                 "code": "$REFERENCE_TABLE_COMMUNICATIEKANAAL_CODE", 
                                 "naam": "$REFERENCE_TABLE_COMMUNICATIEKANAAL_NAME", 
                                 "systeem": true, 
@@ -85,23 +101,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                                 "naam": "$REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_NAME", 
                                 "systeem": true, 
                                 "aantalWaarden": 0
-                            },
-                            {
-                                "aantalWaarden": 15,
-                                "code": "$REFERENCE_TABLE_BRP_DOELBINDING_RAADPLEEG_WAARDE_CODE",
-                                "id": 7,
-                                "naam": "$REFERENCE_TABLE_BRP_DOELBINDING_RAADPLEEG_WAARDE_NAAM",
-                                "systeem": true,
-                                "waarden": []
-                              },
-                              {
-                                "aantalWaarden": 4,
-                                "code": "$REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_CODE",
-                                "id": 6,
-                                "naam": "$REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_NAAM",
-                                "systeem": true,
-                                "waarden": []
-                              },
+                            }
                         ]
                         """.trimIndent()
                     )
