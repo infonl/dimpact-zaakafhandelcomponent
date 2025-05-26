@@ -33,11 +33,9 @@ export class KlantenService {
   readPersoon(bsn: string, audit: { context: string; action: string }) {
     return this.zacHttpClient
       .GET("/rest/klanten/persoon/{bsn}", {
-        pathParams: {
-          path: { bsn },
-          header: {
-            "X-Verwerking": `${audit.context}@${audit.action}`,
-          },
+        path: { bsn },
+        header: {
+          "X-Verwerking": `${audit.context}@${audit.action}`,
         },
       })
       .pipe(
