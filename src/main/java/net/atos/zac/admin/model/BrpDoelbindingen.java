@@ -35,6 +35,16 @@ public class BrpDoelbindingen {
     @Column(name = "raadpleegWaarde")
     private String raadpleegWaarde = "";
 
+    public BrpDoelbindingen() {
+        // Default constructor
+    }
+
+    public BrpDoelbindingen(ZaakafhandelParameters zaakafhandelParameters, String zoekWaarde, String raadpleegWaarde) {
+        this.zaakafhandelParameters = zaakafhandelParameters;
+        this.zoekWaarde = zoekWaarde;
+        this.raadpleegWaarde = raadpleegWaarde;
+    }
+
     // Getters and Setters
 
     public Long getId() {
