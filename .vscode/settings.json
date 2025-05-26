@@ -7,5 +7,5 @@
     "cucumber.glue": [
         "src/e2e/step-definitions/*.ts",
         "step-definitions/*.ts"
-    ],
+    ]
 }
