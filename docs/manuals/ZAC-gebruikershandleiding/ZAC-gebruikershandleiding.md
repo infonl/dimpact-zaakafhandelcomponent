@@ -495,7 +495,7 @@ Met het menu item 'Zaaklocatie toevoegen' is het mogelijk om een locatie bij een
 
 **Stappen**
 
-1 In de tab 'Locatie'kan je de locatie bekijken en aanpassen door op het potloodje te klikken. Hiermee opent weer hetzelfde formulier als bij 'Zaaklocatie toevoegen'
+1 In de tab 'Locatie' kan je de locatie bekijken en aanpassen door op het potloodje te klikken. Hiermee opent weer hetzelfde formulier als bij 'Zaaklocatie toevoegen'
 ![Locatie wijzigen ](./images/locatie-vastleggen-wijzigen-2.png)
 
 2 Kies de nieuwe locatie en vul het verplichte reden-veld in
