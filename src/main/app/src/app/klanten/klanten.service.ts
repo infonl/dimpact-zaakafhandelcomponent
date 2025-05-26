@@ -8,6 +8,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { Resultaat } from "../shared/model/resultaat";
 import { BSN_LENGTH } from "../shared/utils/constants";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -15,16 +16,15 @@ import { Bedrijf } from "./model/bedrijven/bedrijf";
 import { ListBedrijvenParameters } from "./model/bedrijven/list-bedrijven-parameters";
 import { Vestigingsprofiel } from "./model/bedrijven/vestigingsprofiel";
 import { ContactGegevens } from "./model/klanten/contact-gegevens";
-import { ListPersonenParameters } from "./model/personen/list-personen-parameters";
-import { PersonenParameters } from "./model/personen/personen-parameters";
 
 @Injectable({
   providedIn: "root",
 })
 export class KlantenService {
   constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
+    private readonly http: HttpClient,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
+    private readonly zacHttpClient: ZacHttpClient,
   ) {}
 
   private basepath = "/rest/klanten";
@@ -76,9 +76,9 @@ export class KlantenService {
   }
 
   /* istanbul ignore next */
-  getPersonenParameters(): Observable<PersonenParameters[]> {
-    return this.http
-      .get<PersonenParameters[]>(`${this.basepath}/personen/parameters`)
+  getPersonenParameters() {
+    return this.zacHttpClient
+      .GET("/rest/klanten/personen/parameters")
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -86,12 +86,10 @@ export class KlantenService {
 
   /* istanbul ignore next */
   listPersonen(
-    listPersonenParameters: ListPersonenParameters,
-  ): Observable<Resultaat<GeneratedType<"RestPersoon">>> {
-    return this.http
-      .put<
-        Resultaat<GeneratedType<"RestPersoon">>
-      >(`${this.basepath}/personen`, listPersonenParameters)
+    listPersonenParameters: GeneratedType<"RestListPersonenParameters">,
+  ) {
+    return this.zacHttpClient
+      .PUT("/rest/klanten/personen", listPersonenParameters)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
