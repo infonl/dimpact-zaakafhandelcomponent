@@ -147,10 +147,12 @@ class MailServiceTest : BehaviorSpec({
         }
     }
 
-    Given("a task") {
+    Given("A task and mail gegevens with an attachment UUID array string consisting of an empty string") {
         val task = mockk<Task>()
         val mailGegevens = createMailGegevens(
-            createDocumentFromMail = true
+            createDocumentFromMail = true,
+            // test if we can correctly handle an attachment UUID array string consisting of an empty string
+            attachments = ""
         )
         val bronnen = Bronnen.Builder().add(task).build()
         val resolvedSubject = "resolvedSubject"
