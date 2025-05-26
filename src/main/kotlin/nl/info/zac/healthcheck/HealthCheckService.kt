@@ -33,6 +33,7 @@ import java.util.UUID
 
 @Singleton
 @NoArgConstructor
+@Suppress("TooManyFunctions")
 class HealthCheckService @Inject constructor(
     @ConfigProperty(name = "BRANCH_NAME")
     private val branchName: Optional<String?>,

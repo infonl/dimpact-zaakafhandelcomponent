@@ -44,6 +44,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
     val zaakafhandelParameterService: ZaakafhandelParameterService,
     val smartDocumentsService: SmartDocumentsService,
 ) {
+    @Suppress("LongMethod")
     fun toRestZaakafhandelParameters(
         zaakafhandelParameters: ZaakafhandelParameters,
         inclusiefRelaties: Boolean
