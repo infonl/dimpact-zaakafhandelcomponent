@@ -4,22 +4,21 @@
  */
 package nl.info.zac.app.zaak.converter
 
-import jakarta.annotation.Nullable
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType.NATUURLIJK_PERSOON
 import net.atos.client.zgw.zrc.model.BetrokkeneType.NIET_NATUURLIJK_PERSOON
 import net.atos.client.zgw.zrc.model.BetrokkeneType.VESTIGING
 import net.atos.client.zgw.zrc.model.Status
 import net.atos.client.zgw.zrc.model.Verlenging
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend
-import net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.util.time.PeriodUtil
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.util.isHeropend
+import nl.info.client.zgw.zrc.util.isIntake
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
@@ -142,8 +141,8 @@ class RestZaakConverter @Inject constructor(
             isHoofdzaak = zaak.is_Hoofdzaak,
             isDeelzaak = zaak.isDeelzaak,
             isOpen = zaak.isOpen,
-            isHeropend = isHeropend(statustype),
-            isInIntakeFase = isIntake(statustype),
+            isHeropend = statustype.isHeropend(),
+            isInIntakeFase = statustype.isIntake(),
             isBesluittypeAanwezig = zaaktype.besluittypen?.isNotEmpty() ?: false,
             isProcesGestuurd = bpmnService.isProcessDriven(zaak.uuid),
             rechten = policyService.readZaakRechten(zaak, zaaktype).toRestZaakRechten(),
@@ -151,7 +150,7 @@ class RestZaakConverter @Inject constructor(
             indicaties = noneOf(ZaakIndicatie::class.java).apply {
                 if (zaak.is_Hoofdzaak) add(HOOFDZAAK)
                 if (zaak.isDeelzaak) add(DEELZAAK)
-                if (isHeropend(statustype)) add(HEROPEND)
+                if (statustype.isHeropend()) add(HEROPEND)
                 if (zaak.isOpgeschort) add(OPSCHORTING)
                 if (zaak.isVerlengd) add(VERLENGD)
                 if (shouldOntvangstbevestigingNietVerstuurdIndicatieBeSet(zaak, statustype)) {
@@ -226,7 +225,7 @@ class RestZaakConverter @Inject constructor(
         return gerelateerdeZaken
     }
 
-    private fun shouldOntvangstbevestigingNietVerstuurdIndicatieBeSet(zaak: Zaak, @Nullable statustype: StatusType?) =
+    private fun shouldOntvangstbevestigingNietVerstuurdIndicatieBeSet(zaak: Zaak, statustype: StatusType?) =
         !zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid).orElse(false) &&
-            !isHeropend(statustype)
+            !statustype.isHeropend()
 }

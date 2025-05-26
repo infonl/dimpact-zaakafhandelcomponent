@@ -18,11 +18,11 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter;
 import net.atos.zac.app.mail.model.RESTMailGegevens;
 import net.atos.zac.flowable.ZaakVariabelenService;
+import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.zac.mail.MailService;
 import nl.info.zac.mail.model.BronnenKt;

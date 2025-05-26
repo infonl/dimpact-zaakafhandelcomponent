@@ -13,7 +13,7 @@ import io.mockk.verify
 import nl.info.client.smartdocuments.model.createFile
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakInformatieobject
+import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter
@@ -48,7 +48,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
         val zaak = createZaak()
         val downloadedFile = createFile()
         val enkelvoudigInformatieObjectLockRequest = createEnkelvoudigInformatieObjectCreateLockRequest()
-        val zaakInformatieobject = createZaakInformatieobject()
+        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
 
         every { smartDocumentsService.downloadDocument(smartDocumentId) } returns downloadedFile
         every {

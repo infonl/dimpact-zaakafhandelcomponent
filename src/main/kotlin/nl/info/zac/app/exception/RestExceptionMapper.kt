@@ -17,12 +17,12 @@ import net.atos.client.klant.KlantClientService
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.exception.DrcRuntimeException
-import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
 import nl.info.client.brp.BrpClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.exception.BrcRuntimeException
 import nl.info.client.zgw.shared.exception.ZgwRuntimeException
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.exception.ZtcRuntimeException
 import nl.info.zac.exception.ErrorCode

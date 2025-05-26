@@ -11,7 +11,6 @@ import jakarta.json.JsonObject
 import jakarta.json.JsonString
 import jakarta.json.JsonValue
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.formulieren.model.FormulierData
 import net.atos.zac.app.formulieren.model.RESTFormulierVeldDefinitie
@@ -22,6 +21,7 @@ import net.atos.zac.formulieren.model.FormulierVeldtype
 import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.model.ReferenceTableValue
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService

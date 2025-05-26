@@ -22,7 +22,6 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.UriInfo
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectDownloadService
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
@@ -49,6 +48,7 @@ import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
@@ -279,7 +279,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @Path("informatieobject/{uuid}/edit")
     fun editEnkelvoudigInformatieobjectInhoud(
         @PathParam("uuid") uuid: UUID,
-        @QueryParam("zaak") zaakUUID: UUID?,
+        @QueryParam("zaak") zaakUUID: UUID,
         @Context uriInfo: UriInfo
     ): Response {
         assertPolicy(
@@ -295,7 +295,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @Path("/informatieobject/{uuid}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     fun deleteEnkelvoudigInformatieObject(
-        @PathParam("uuid") uuid: UUID?,
+        @PathParam("uuid") uuid: UUID,
         documentVerwijderenGegevens: RESTDocumentVerwijderenGegevens
     ): Response {
         val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid)

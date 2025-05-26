@@ -20,7 +20,6 @@ import jakarta.servlet.http.HttpSession
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.event.EventingService
@@ -38,6 +37,7 @@ import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.test.org.flowable.task.service.impl.persistence.entity.createHistoricTaskInstanceEntityImpl
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.app.model.createRESTUser

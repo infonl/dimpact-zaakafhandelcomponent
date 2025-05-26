@@ -28,11 +28,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.shared.util.DateTimeUtil;
-import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.zac.documenten.model.InboxDocument;
 import net.atos.zac.documenten.model.InboxDocumentListParameters;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.zac.search.model.DatumRange;
 import nl.info.zac.shared.model.SorteerRichting;
 

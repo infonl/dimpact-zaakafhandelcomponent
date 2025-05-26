@@ -21,7 +21,7 @@ import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
-import nl.info.client.zgw.model.createZaakInformatieobject
+import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
@@ -51,7 +51,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
 
     val zaak = Zaak()
     val enkelvoudigInformatieObjectCreateLockRequest = createEnkelvoudigInformatieObjectCreateLockRequest()
-    val zaakInformatieObject = createZaakInformatieobject()
+    val zaakInformatieObject = createZaakInformatieobjectForCreatesAndUpdates()
     val taskId = "1234"
     val task = createTestTask()
 
