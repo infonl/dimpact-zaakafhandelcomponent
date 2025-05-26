@@ -80,7 +80,7 @@ class ZaakKoppelenRestService @Inject constructor(
     ) = ZoekParameters(ZoekObjectType.ZAAK).apply {
         start = pageNo * rowsNo
         rows = rowsNo
-        addZoekVeld(ZoekVeld.ZAAK_IDENTIFICATIE, zoekZaakIdentifier)
+        addZoekVeld(ZoekVeld.ZAAK_IDENTIFICATIE, zoekZaakIdentifier.trim())
         addFilter(FilterVeld.ZAAK_IDENTIFICATIE, FilterParameters(listOf(zaak.identificatie), true))
     }
 
