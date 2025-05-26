@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -35,9 +35,9 @@ export class ZoekenService {
   public reset$ = new Subject<void>();
 
   constructor(
-    private http: HttpClient,
-    private zacHttp: ZacHttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
+    private readonly http: HttpClient,
+    private readonly zacHttpClient: ZacHttpClient,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
   list(zoekParameters: ZoekParameters): Observable<ZoekResultaat<ZoekObject>> {
@@ -72,20 +72,12 @@ export class ZoekenService {
     zoekZaakIdentifier: string,
     relationType: ZaakRelatietype, // TODO: `ZaakRelatietype` needs to be generated in the interface
   ) {
-    return this.zacHttp
-      .GET("/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken", {
-        pathParams: {
-          path: {
-            zaakUuid,
-          },
-          query: {
-            zoekZaakIdentifier,
-            relationType,
-          },
-        },
-      })
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.GET(
+      "/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken",
+      {
+        path: { zaakUuid },
+        query: { zoekZaakIdentifier, relationType },
+      },
+    );
   }
 }

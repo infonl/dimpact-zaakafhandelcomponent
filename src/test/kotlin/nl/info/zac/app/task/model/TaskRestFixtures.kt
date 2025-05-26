@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -9,6 +9,7 @@ import jakarta.json.JsonObject
 import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjecttype
+import nl.info.zac.app.policy.model.createRestTaakRechten
 import nl.info.zac.app.zaak.model.createRestUser
 import java.util.UUID
 
@@ -28,7 +29,8 @@ fun createRestTask(
     tabellen = tabellen,
     zaakIdentificatie = zaakIdentificatie,
     zaakUuid = zaakUuid,
-    formioFormulier = formioFormulier
+    formioFormulier = formioFormulier,
+    rechten = createRestTaakRechten(),
 )
 
 fun createRestTaskDocumentData(

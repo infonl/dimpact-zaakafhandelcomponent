@@ -1,5 +1,5 @@
 #
-# SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+# SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
@@ -11,8 +11,8 @@ ARG versionNumber
 LABEL name="zaakafhandelcomponent"
 LABEL summary="Zaakafhandelcomponent (ZAC) developed for Dimpact"
 LABEL description="The zaakafhandelcomponent (ZAC) is an open-source, generic, workflow-based component for managing 'zaken' in the context of zaakgericht werken, a Dutch approach to case management."
-LABEL maintainer="Lifely/INFO"
-LABEL vendor="Lifely/INFO"
+LABEL maintainer="INFO.nl"
+LABEL vendor="INFO.nl"
 LABEL url="https://github.com/infonl/dimpact-zaakafhandelcomponent"
 LABEL git_commit=$commitHash
 # Unset labels set by the Temurin Ubi9 base Docker image

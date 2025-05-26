@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -37,7 +37,7 @@ When(
 When(
   "{string} distributes the zaken to the first group available",
   async function (this: CustomWorld, s: string) {
-    await this.page.getByTitle("Verdelen").click();
+    await this.page.getByRole("button", { name: "Verdelen" }).click();
     const expectedLabel = "Zaak toekennen aan groep";
     await this.page.getByLabel(expectedLabel).click();
     await this.page.getByRole("option", { name: "test gr" }).first().click();
@@ -49,9 +49,9 @@ When(
 When(
   "{string} releases the zaken",
   async function (this: CustomWorld, s: string) {
-    await this.page.getByTitle("Vrijgeven").click();
+    await this.page.getByRole("button", { name: "Vrijgeven" }).click();
     await this.page.getByLabel("Reden").fill("Fake reason");
-    await this.page.getByRole("button", { name: /Vrijgeven/ }).click();
+    await this.page.getByRole("button", { name: "Vrijgeven" }).click();
   },
 );
 

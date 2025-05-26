@@ -9,8 +9,8 @@ import jakarta.json.bind.annotation.JsonbTransient;
 import jakarta.json.bind.annotation.JsonbTypeDeserializer;
 import jakarta.json.bind.annotation.JsonbTypeSerializer;
 
-import net.atos.client.zgw.zrc.util.GeometryJsonbDeserializer;
 import nl.info.client.zgw.zrc.jsonb.GeometryJsonbSerializer;
+import nl.info.client.zgw.zrc.util.GeometryJsonbDeserializer;
 
 @JsonbTypeDeserializer(GeometryJsonbDeserializer.class)
 @JsonbTypeSerializer(GeometryJsonbSerializer.class)

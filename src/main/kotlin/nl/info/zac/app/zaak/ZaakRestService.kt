@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely, 2024 Dimpact
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl, 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.zaak
@@ -25,7 +25,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.GeometryToBeDeleted
@@ -36,7 +35,6 @@ import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.client.zgw.zrc.model.ZaakListParameters
-import net.atos.client.zgw.zrc.util.StatusTypeUtil
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_ID
 import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_REASON
@@ -50,8 +48,6 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.util.time.LocalDateUtil
@@ -59,6 +55,8 @@ import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.decision.DecisionService
@@ -110,6 +108,8 @@ import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -200,14 +200,20 @@ class ZaakRestService @Inject constructor(
             }
         }
 
-    @PUT
+    @PATCH
     @Path("initiator")
     fun updateInitiator(gegevens: RESTZaakBetrokkeneGegevens): RestZaak {
         val zaak = zrcClientService.readZaak(gegevens.zaakUUID)
         zgwApiService.findInitiatorRoleForZaak(zaak)?.also {
+            requireNotNull(gegevens.roltoelichting) { throw BetrokkeneNotAllowed() }
             removeInitiator(zaak, it, ROL_VERWIJDER_REDEN)
         }
-        addInitiator(gegevens.betrokkeneIdentificatieType, gegevens.betrokkeneIdentificatie, zaak)
+        addInitiator(
+            gegevens.betrokkeneIdentificatieType,
+            gegevens.betrokkeneIdentificatie,
+            zaak,
+            gegevens.roltoelichting
+        )
         return restZaakConverter.toRestZaak(zaak)
     }
 
@@ -238,7 +244,7 @@ class ZaakRestService @Inject constructor(
     @DELETE
     @Path("betrokkene/{uuid}")
     fun deleteBetrokkene(
-        @PathParam("uuid") betrokkeneUUID: UUID?,
+        @PathParam("uuid") betrokkeneUUID: UUID,
         reden: RESTReden
     ): RestZaak {
         val betrokkene = zrcClientService.readRol(betrokkeneUUID)
@@ -268,7 +274,8 @@ class ZaakRestService @Inject constructor(
             addInitiator(
                 restZaak.initiatorIdentificatieType!!,
                 restZaak.initiatorIdentificatie!!,
-                zaak
+                zaak,
+                AANMAKEN_ZAAK_REDEN
             )
         }
         restZaak.groep?.let {
@@ -650,7 +657,7 @@ class ZaakRestService @Inject constructor(
             null
         }
         assertPolicy(policyService.readZaakRechten(zaak).afbreken)
-        assertPolicy(zaak.isOpen && !StatusTypeUtil.isHeropend(statustype))
+        assertPolicy(zaak.isOpen && !statustype.isHeropend())
         zaakService.checkZaakAfsluitbaar(zaak)
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
             zaak.zaaktype.extractUuid()
@@ -682,7 +689,7 @@ class ZaakRestService @Inject constructor(
     @PATCH
     @Path("/zaak/{uuid}/heropenen")
     fun reopenZaak(
-        @PathParam("uuid") zaakUUID: UUID?,
+        @PathParam("uuid") zaakUUID: UUID,
         heropenenGegevens: RESTZaakHeropenenGegevens
     ) {
         val zaak = zrcClientService.readZaak(zaakUUID)
@@ -823,16 +830,12 @@ class ZaakRestService @Inject constructor(
      */
     @GET
     @Path("zaak/{uuid}/afzender/default")
-    fun readDefaultAfzenderVoorZaak(@PathParam("uuid") zaakUUID: UUID?): RESTZaakAfzender? {
+    fun readDefaultAfzenderVoorZaak(@PathParam("uuid") zaakUUID: UUID): RESTZaakAfzender? {
         val zaak = zrcClientService.readZaak(zaakUUID)
-        return resolveZaakAfzenderMail(
-            zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid()).zaakAfzenders
-                .filter { it.isDefault }
-                .map(RESTZaakAfzenderConverter::convertZaakAfzender)
-                .stream()
-        )
-            .findAny()
-            .orElse(null)
+        return zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid())
+            .zaakAfzenders
+            .firstOrNull { it.isDefault }
+            ?.let(RESTZaakAfzenderConverter::convertZaakAfzender)
     }
 
     @GET
@@ -965,7 +968,8 @@ class ZaakRestService @Inject constructor(
     private fun addInitiator(
         identificationType: IdentificatieType,
         identification: String,
-        zaak: Zaak
+        zaak: Zaak,
+        reden: String? = ROL_TOEVOEGEN_REDEN
     ) {
         val zaakRechten = policyService.readZaakRechten(zaak)
         when (identificationType) {
@@ -977,7 +981,7 @@ class ZaakRestService @Inject constructor(
             identificationType = identificationType,
             identification = identification,
             zaak = zaak,
-            explanation = ROL_TOEVOEGEN_REDEN
+            explanation = reden?.ifEmpty { ROL_TOEVOEGEN_REDEN } ?: ROL_TOEVOEGEN_REDEN
         )
     }
 

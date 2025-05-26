@@ -6,7 +6,6 @@
 import { Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { Mail } from "../../../admin/model/mail";
-import { ZaakAfzender } from "../../../admin/model/zaakafzender";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
@@ -113,12 +112,12 @@ export class ExternAdviesMail extends AbstractTaakFormulier {
     );
 
     this.getFormField(fields.VERZENDER).formControl.valueChanges.subscribe(
-      (afzender: ZaakAfzender) => {
-        const verzender: SelectFormField = this.getFormField(
+      (afzender) => {
+        const verzender = this.getFormField(
           fields.VERZENDER,
         ) as SelectFormField;
         this.getFormField(fields.REPLYTO).formControl.setValue(
-          verzender.getOption(afzender)?.replyTo,
+          verzender.getOption(afzender as Record<string, unknown>)?.replyTo,
         );
       },
     );

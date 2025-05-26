@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -16,7 +16,6 @@ import { Observable, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { Mail } from "../../admin/model/mail";
 import { Mailtemplate } from "../../admin/model/mailtemplate";
-import { ZaakAfzender } from "../../admin/model/zaakafzender";
 import { UtilService } from "../../core/service/util.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
@@ -50,7 +49,7 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
     new Subject<void>(),
   );
   resultaattypes: Observable<GeneratedType<"RestResultaattype">[]>;
-  afzenders: Observable<ZaakAfzender[]>;
+  afzenders: Observable<GeneratedType<"RESTZaakAfzender">[]>;
   private ngDestroy = new Subject<void>();
 
   constructor(

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.authentication
@@ -36,7 +36,7 @@ class SecurityUtil @Inject constructor(
             "Functionele gebruiker",
             "Functionele gebruiker",
             null,
-            setOf("functionele_gebruiker"),
+            emptySet(),
             emptySet()
         )
     }

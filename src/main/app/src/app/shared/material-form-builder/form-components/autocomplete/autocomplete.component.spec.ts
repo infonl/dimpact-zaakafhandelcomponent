@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { DebugElement, EventEmitter } from "@angular/core";
+import { DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { ReactiveFormsModule } from "@angular/forms";
 import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
@@ -14,7 +14,7 @@ import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
-import { AutocompleteFormField } from "./autocomplete-form-field";
+import { AutocompleteFormFieldBuilder } from "./autocomplete-form-field-builder";
 import { AutocompleteComponent } from "./autocomplete.component";
 
 describe(AutocompleteComponent.name, () => {
@@ -40,14 +40,12 @@ describe(AutocompleteComponent.name, () => {
     component = fixture.componentInstance;
     debugElement = fixture.debugElement;
 
-    component.data = {
-      label: "Test Label",
-      formControl: new FormControl(),
-      id: "test",
-      optionLabel: "name",
-      options: of([{ name: "Option 1" }, { name: "Option 2" }]),
-      optionsChanged$: new EventEmitter(),
-    } as AutocompleteFormField;
+    component.data = new AutocompleteFormFieldBuilder()
+      .label("Test Label")
+      .id("test")
+      .optionLabel("name")
+      .options(of([{ name: "Option 1" }, { name: "Option 2" }]))
+      .build();
 
     fixture.detectChanges();
   });
@@ -59,7 +57,7 @@ describe(AutocompleteComponent.name, () => {
     });
 
     it("should show the clear action when a value has been selected", () => {
-      component.data.formControl.setValue("Option 1");
+      component.data.formControl.setValue({ name: "Option 1" });
       fixture.detectChanges();
 
       const clearButton = debugElement.query(By.css("button[mat-icon-button]"));
@@ -67,7 +65,7 @@ describe(AutocompleteComponent.name, () => {
     });
 
     it("should revert back to the search action when the clear action has been pressed", () => {
-      component.data.formControl.setValue("Option 1");
+      component.data.formControl.setValue({ name: "Option 1" });
       fixture.detectChanges();
 
       const clearButton = debugElement.query(By.css("button[mat-icon-button]"));

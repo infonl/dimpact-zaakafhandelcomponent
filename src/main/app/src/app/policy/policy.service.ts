@@ -3,38 +3,24 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { catchError } from "rxjs/operators";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { OverigeRechten } from "./model/overige-rechten";
-import { WerklijstRechten } from "./model/werklijst-rechten";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class PolicyService {
-  constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
-  ) {}
+  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
-  private basepath = "/rest/policy";
-
-  readWerklijstRechten(): Observable<WerklijstRechten> {
-    return this.http
-      .get<WerklijstRechten>(`${this.basepath}/werklijstRechten`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readWerklijstRechten() {
+    return this.zacHttpClient.GET(`/rest/policy/werklijstRechten`, {});
   }
 
-  readOverigeRechten(): Observable<OverigeRechten> {
-    return this.http
-      .get<OverigeRechten>(`${this.basepath}/overigeRechten`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readOverigeRechten() {
+    return this.zacHttpClient.GET(`/rest/policy/overigeRechten`, {});
+  }
+
+  readNotitieRechten() {
+    return this.zacHttpClient.GET(`/rest/policy/notitieRechten`, {});
   }
 }

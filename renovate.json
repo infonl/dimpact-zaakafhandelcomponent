@@ -19,7 +19,6 @@
   "prConcurrentLimit": 5,
   "registryAliases": {
     "opentelemetry": "https://open-telemetry.github.io/opentelemetry-helm-charts",
-    "bitnami": "https://charts.bitnami.com/bitnami",
     "solr": "https://solr.apache.org/charts"
   },
   "helm-values": {

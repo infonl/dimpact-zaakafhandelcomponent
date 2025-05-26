@@ -164,7 +164,7 @@ Zodra een werklijst, zaak, taak of document geopend is, dan verschijnt deze in h
 
 De beschikbaarheid van functionaliteit voor een gebruiker in het ZAC is verbonden aan rechten. Er wordt momenteel gewerkt met drie rollen voor gebruikers, hieronder volgt een korte omschrijving. Deze rollen zijn nog in ontwikkeling. Het komt dus voor dat functionaliteit, zoals beschreven in deze handleiding, niet beschikbaar voor jou is omdat een rol niet aan jou is toegewezen.
 
-Raadpleger: heeft rechten om zaken, taken en documenten te raadplegen, maar niet om deze te wijzigen.
+Raadpleger: heeft rechten om zaken, taken, notities en documenten te raadplegen, maar niet om deze te wijzigen.
 
 Behandelaar: heeft alle rechten om met de werklijsten, zaken, taken en documenten te werken. Er zijn enkele beperkingen op het gebied van werk verdelen, definitieve documenten en beëindigde zaken.
 
@@ -478,26 +478,34 @@ De datums van een zaak zijn als geheel aan te passen door op het potlood van é�
 
 3 Klik op het vink icoon om de wijziging op te slaan. As je wilt annuleren dan klik je op het kruis icoon en blijft de huidige waarde staan.
 
-## Locatie vastleggen of wijzigen
+## Locatie vastleggen
 
-Met het potlood icoon in het zaakdetail veld is het mogelijk om een locatie in het tabblad 'Locatie'bij een zaak vast te leggen. Van de gekozen locatie worden de coördinaten vastgelegd. Deze locatie kan op de kaart bekeken worden door met de muisaanwijzer op de locatie te klikken. Door de vastgelegde locatie te openen in de kaart kan ook het dichtstbijzijnde adres bij die locatie bekeken worden.
-![Locatie vastleggen wijzigen 1](./images/locatie-vastleggen-wijzigen-1.png)
-
-![Locatie vastleggen wijzigen 2](./images/locatie-vastleggen-wijzigen-2.png)
+Met het menu item 'Zaaklocatie toevoegen' is het mogelijk om een locatie bij een zaak vast te leggen. Van de gekozen locatie worden de coördinaten vastgelegd. Deze locatie kan op de kaart bekeken worden door met de muisaanwijzer op de locatie te klikken. Door de vastgelegde locatie tab te openen in de kaart kan ook het dichtstbijzijnde adres bij die locatie bekeken worden.
 
 **Stappen:**
 
-1 In een zaak in het tabblad ‘Locatie’ kies je een locatie:
+1 In een zaak met het menu item 'Zaaklocatie toevoegen' kies je een locatie:
 - een locatie kan gezocht worden op straatnaam, huisnummer, postcode of plaatsnaam. Het is ook mogelijk om de locatie in de kaart met een muisklik te selecteren.
 
-2 Vul de verplichte reden voor het vastleggen of wijzigen van de locatie in
+2 Vul de verplichte reden voor het vastleggen van de locatie in
 
 3 Klik op ‘Opslaan’ om de locatie vast te leggen
+![Locatie vastleggen](./images/locatie-vastleggen-wijzigen-1.png)
+
+## Locatie wijzigen
+
+**Stappen**
+
+1 In de tab 'Locatie' kan je de locatie bekijken en aanpassen door op het potloodje te klikken. Hiermee opent weer hetzelfde formulier als bij 'Zaaklocatie toevoegen'
+![Locatie wijzigen ](./images/locatie-vastleggen-wijzigen-2.png)
+
+2 Kies de nieuwe locatie en vul het verplichte reden-veld in
+
+3 Klik op opslaan om de nieuwe locatie vast te leggen
 
 ## Locatie ontkoppelen
 
 Het is ook mogelijk een locatie te ontkoppelen.
-![Locatie verwijderen](./images/locatie-verwijderen.png)
 
 **Stappen:**
 
@@ -506,6 +514,7 @@ Het is ook mogelijk een locatie te ontkoppelen.
 2 Vul de verplichte reden voor het ontkoppelen van de locatie in
 
 3 Klik op ‘Opslaan’ om de locatie te ontkoppelen
+![Locatie verwijderen](./images/locatie-verwijderen.png)
 
 ## Zaak opschorten
 
@@ -1370,6 +1379,8 @@ Een document kan verwijderd worden door het document vanuit een zaak of de werkl
 Er kan op ieder moment bij een zaak een notitie worden vastgelegd. Een notitie kan handig zijn om bijvoorbeeld een aantekening vast te leggen die tijdens de behandeling kan helpen maar geen informatie bevat over de uiteindelijke uitkomst van de zaak.
 
 De notities functie wordt geactiveerd met het Notities icoon rechtsonder in het zaakscherm. Als er notities bij een zaak aanwezig zijn dan geeft het icoon aan hoeveel er zijn.
+
+De raadpleger mag notities alleen inzien, niet aanpassen of verwijderen. Een behandelaar mag notities van andere behandelaren inzien, maar niet aanpassen of verwijderen. 
 
 ## Notitie aanmaken
 

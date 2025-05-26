@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.admin
@@ -27,8 +27,6 @@ import net.atos.zac.app.admin.model.RESTTaakFormulierDefinitie
 import net.atos.zac.app.admin.model.RESTTaakFormulierVeldDefinitie
 import net.atos.zac.app.admin.model.RESTZaakbeeindigReden
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.PolicyService.assertPolicy
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ReferenceTableService
@@ -42,6 +40,8 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import nl.info.zac.smartdocuments.rest.RestSmartDocumentsPath
@@ -257,10 +257,19 @@ class ZaakafhandelParametersRestService @Inject constructor(
     @PUT
     @Path("smartdocuments-group-template-names")
     fun listSmartDocumentsGroupTemplateNames(
-        path: RestSmartDocumentsPath
+        group: RestSmartDocumentsPath
     ): List<String> {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return smartDocumentsTemplatesService.listGroupTemplateNames(path.groups)
+        return smartDocumentsTemplatesService.listGroupTemplateNames(group.path)
+    }
+
+    @PUT
+    @Path("smartdocuments-template-group")
+    fun getSmartDocumentsGroup(
+        group: RestSmartDocumentsPath
+    ): RestSmartDocumentsTemplateGroup {
+        assertPolicy(policyService.readOverigeRechten().beheren)
+        return smartDocumentsTemplatesService.getTemplateGroup(group.path)
     }
 
     @GET

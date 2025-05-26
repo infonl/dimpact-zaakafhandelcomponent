@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -44,6 +44,7 @@ import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { FileFormat, FileFormatUtil } from "../model/file-format";
 import { FileIcon } from "../model/file-icon";
+import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 import { ZaakInformatieobject } from "../model/zaak-informatieobject";
 
 @Component({
@@ -290,6 +291,8 @@ export class InformatieObjectViewComponent
 
     if (
       this.zaak &&
+      this.infoObject.status ===
+        (InformatieobjectStatus.DEFINITIEF as string) &&
       this.laatsteVersieInfoObject.rechten.wijzigen &&
       FileFormatUtil.isOffice(this.infoObject.formaat as FileFormat)
     ) {

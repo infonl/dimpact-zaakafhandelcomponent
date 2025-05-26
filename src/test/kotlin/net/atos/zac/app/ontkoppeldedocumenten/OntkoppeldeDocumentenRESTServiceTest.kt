@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -18,16 +18,16 @@ import io.mockk.verify
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.exception.ZgwErrorException
 import net.atos.client.zgw.shared.model.ZgwError
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentConverter
 import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentListParametersConverter
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.documenten.model.OntkoppeldDocument
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.output.createWerklijstRechten
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.identity.converter.RestUserConverter
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.output.createWerklijstRechten
 import java.net.URI
 import java.util.Optional
 import java.util.UUID

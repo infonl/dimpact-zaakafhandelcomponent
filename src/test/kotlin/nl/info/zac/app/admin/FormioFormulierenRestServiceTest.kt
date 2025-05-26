@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2025 Lifely
+ * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.admin
@@ -12,9 +12,9 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import net.atos.zac.policy.PolicyService
 import nl.info.zac.formio.FormioService
 import nl.info.zac.formio.createFormioFormulier
+import nl.info.zac.policy.PolicyService
 import org.apache.http.HttpStatus
 
 class FormioFormulierenRestServiceTest : BehaviorSpec({

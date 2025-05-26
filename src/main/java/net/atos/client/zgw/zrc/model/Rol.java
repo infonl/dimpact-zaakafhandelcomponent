@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -16,7 +16,7 @@ import jakarta.annotation.Nullable;
 import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.json.bind.annotation.JsonbTypeDeserializer;
 
-import net.atos.client.zgw.zrc.util.RolJsonbDeserializer;
+import nl.info.client.zgw.zrc.util.RolJsonbDeserializer;
 import nl.info.client.zgw.ztc.model.generated.RolType;
 
 @JsonbTypeDeserializer(RolJsonbDeserializer.class)
@@ -100,6 +100,19 @@ public abstract class Rol<T> {
     private IndicatieMachtiging indicatieMachtiging;
 
     public Rol() {
+    }
+
+    /**
+     * For testing purposes only where a rol with a UUID is needed.
+     */
+    public Rol(
+            final UUID uuid,
+            final RolType roltype,
+            final BetrokkeneType betrokkeneType
+    ) {
+        this.uuid = uuid;
+        this.roltype = roltype.getUrl();
+        this.betrokkeneType = betrokkeneType;
     }
 
     /**

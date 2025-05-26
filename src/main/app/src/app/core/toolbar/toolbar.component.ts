@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -10,8 +10,6 @@ import { Router } from "@angular/router";
 import moment from "moment";
 import { Observable, Subscription } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
-import { OverigeRechten } from "../../policy/model/overige-rechten";
-import { WerklijstRechten } from "../../policy/model/werklijst-rechten";
 import { PolicyService } from "../../policy/policy.service";
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
@@ -36,9 +34,9 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   headerTitle$: Observable<string>;
   hasNewSignaleringen: boolean;
-  ingelogdeMedewerker: GeneratedType<"RestUser">;
-  overigeRechten = new OverigeRechten();
-  werklijstRechten = new WerklijstRechten();
+  ingelogdeMedewerker?: GeneratedType<"RestUser">;
+  overigeRechten?: GeneratedType<"RestOverigeRechten">;
+  werklijstRechten?: GeneratedType<"RestWerklijstRechten">;
   medewerkerNaamToolbar = "";
 
   private subscription$: Subscription;

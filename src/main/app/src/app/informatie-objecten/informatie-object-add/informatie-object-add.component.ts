@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -76,7 +76,8 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
   );
 
   private informatieobjectStatussen!: { label: string; value: string }[];
-  private status?: SelectFormField = undefined;
+  private status?: SelectFormField<{ label: string; value: string }> =
+    undefined;
   private subscriptions: Subscription[] = [];
 
   private getInputs(deps: { loggedInUser: GeneratedType<"RestLoggedInUser"> }) {

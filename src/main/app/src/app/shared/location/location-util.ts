@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -48,5 +48,28 @@ export class LocationUtil {
       return geometry.point?.latitude + ", " + geometry.point?.longitude;
     }
     return null;
+  }
+
+  public static isSameGeometry(
+    left?: GeneratedType<"RestGeometry"> | null,
+    right?: GeneratedType<"RestGeometry"> | null,
+  ) {
+    if (left?.type !== right?.type) return false;
+
+    switch (left?.type) {
+      case GeometryType.POINT:
+        return (
+          left?.point?.latitude === right?.point?.latitude &&
+          left?.point?.longitude === right?.point?.longitude
+        );
+      case GeometryType.POLYGON:
+        console.log("Polygon comparison not implemented");
+        return false;
+      case GeometryType.GEOMETRY_COLLECTION:
+        console.log("Geometry collection comparison not implemented");
+        return false;
+      default:
+        return false;
+    }
   }
 }

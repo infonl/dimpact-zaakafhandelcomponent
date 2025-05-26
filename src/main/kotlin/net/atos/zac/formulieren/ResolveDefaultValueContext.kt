@@ -1,12 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.formulieren
 
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.flowable.ZaakVariabelenService
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.task.model.RestTask
 
 class ResolveDefaultValueContext(

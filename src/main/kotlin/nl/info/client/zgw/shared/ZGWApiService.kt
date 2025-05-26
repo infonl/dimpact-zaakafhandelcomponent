@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.client.zgw.shared
@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.util.DateTimeUtil.convertToDateTime
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolListParameters
@@ -23,6 +22,7 @@ import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
 import nl.info.client.zgw.shared.exception.ResultTypeNotFoundException
 import nl.info.client.zgw.shared.exception.StatusTypeNotFoundException
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
@@ -346,7 +346,7 @@ class ZGWApiService @Inject constructor(
             "Resultaattype with description '$description' not found for zaaktype with URI: '$zaaktypeURI'."
         )
 
-    private fun berekenArchiveringsparameters(zaakUUID: UUID?) {
+    private fun berekenArchiveringsparameters(zaakUUID: UUID) {
         val zaak = zrcClientService.readZaak(zaakUUID)
         // refetch to get the einddatum (the archiefnominatie has also been set)
         val resultaattype = ztcClientService.readResultaattype(

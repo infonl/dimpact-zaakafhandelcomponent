@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -11,7 +11,6 @@ import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.shared.model.Results
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.createAdres
@@ -24,6 +23,7 @@ import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -33,7 +33,6 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.productaanvraag.ProductaanvraagService
-import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 
 class DocumentCreationDataConverterTest : BehaviorSpec({
     val zgwApiService = mockk<ZGWApiService>()
@@ -45,7 +44,6 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
     val flowableTaskService = mockk<FlowableTaskService>()
     val identityService = mockk<IdentityService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
-    val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val configuratieService = mockk<ConfiguratieService>()
     val documentCreationDataConverter = DocumentCreationDataConverter(
         zgwApiService = zgwApiService,
@@ -57,7 +55,6 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         flowableTaskService = flowableTaskService,
         identityService = identityService,
         productaanvraagService = productaanvraagService,
-        smartDocumentsTemplatesService = smartDocumentsTemplatesService,
         configuratieService = configuratieService
     )
 
