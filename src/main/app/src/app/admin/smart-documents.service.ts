@@ -101,6 +101,45 @@ export class SmartDocumentsService {
       );
   }
 
+  getTemplateGroup(
+    groupPath: GeneratedType<"RestSmartDocumentsPath">,
+    templateName: string,
+    informatieObjectTypeUUID: string,
+  ): Observable<GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[]> {
+    return this.zacHttp
+      .PUT(
+        "/rest/zaakafhandelparameters/smartdocuments-template-group",
+        groupPath,
+      )
+      .pipe(
+        map((data) =>
+          this.getOnlyOneTemplate(data, templateName, informatieObjectTypeUUID),
+        ),
+        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+      );
+  }
+
+  getOnlyOneTemplate = (
+    templateGroup: GeneratedType<"RestSmartDocumentsTemplateGroup">,
+    templateName: string,
+    informatieObjectTypeUUID: string,
+  ): GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] => [
+    {
+      id: templateGroup.id,
+      name: templateGroup.name,
+      groups: null,
+      templates: [
+        {
+          id: templateGroup.templates!.find(
+            ({ name }) => name === templateName,
+          )!.id,
+          name: templateName,
+          informatieObjectTypeUUID,
+        },
+      ],
+    },
+  ];
+
   getOnlyMappedTemplates = (
     data: MappedSmartDocumentsTemplateGroupWithParentId[],
   ): GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] => {
