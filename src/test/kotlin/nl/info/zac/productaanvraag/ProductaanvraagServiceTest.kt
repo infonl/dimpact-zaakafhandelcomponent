@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.productaanvraag
@@ -18,7 +18,6 @@ import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.or.`object`.model.createObjectRecord
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Point
 import net.atos.client.zgw.zrc.model.Rol
@@ -31,9 +30,10 @@ import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakInformatieobject
+import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import nl.info.client.zgw.model.createZaakobjectProductaanvraag
 import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -206,7 +206,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakType = createZaakType()
         val createdZaak = createZaak()
         val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-        val createdZaakInformatieobject = createZaakInformatieobject()
+        val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
         val zaakafhandelParameters = createZaakafhandelParameters(
             zaaktypeUUID = zaakTypeUUID,
         )
@@ -274,7 +274,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         } returns createdZaakInformatieobject
         every { cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any()) } just Runs
         every { ztcClientService.findRoltypen(any(), "Initiator") } returns listOf(rolTypeInitiator)
-        every { zrcClientService.createRol(capture(roleToBeCreated)) } just runs
+        every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
         every { configuratieService.readBronOrganisatie() } returns "123443210"
 
         When("the productaanvraag is handled") {
@@ -331,7 +331,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakType = createZaakType()
         val createdZaak = createZaak()
         val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-        val createdZaakInformatieobject = createZaakInformatieobject()
+        val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
         val zaakafhandelParameters = createZaakafhandelParameters(
             zaaktypeUUID = zaakTypeUUID,
         )
@@ -377,7 +377,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         } returns createdZaakInformatieobject
         every { cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any()) } just Runs
         every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.INITIATOR) } returns listOf(rolType)
-        every { zrcClientService.createRol(capture(roleToBeCreated)) } just runs
+        every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
         every { configuratieService.readBronOrganisatie() } returns "123443210"
 
         When("the productaanvraag is handled") {
@@ -422,7 +422,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakType = createZaakType()
         val createdZaak = createZaak()
         val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-        val createdZaakInformatieobject = createZaakInformatieobject()
+        val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
         val zaakafhandelParameters = createZaakafhandelParameters(
             zaaktypeUUID = zaakTypeUUID
         )
@@ -503,7 +503,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakType = createZaakType()
         val createdZaak = createZaak()
         val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-        val createdZaakInformatieobject = createZaakInformatieobject()
+        val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
         val zaakafhandelParameters = createZaakafhandelParameters(
             zaaktypeUUID = zaakTypeUUID
         )
@@ -576,7 +576,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakType = createZaakType()
         val createdZaak = createZaak()
         val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-        val createdZaakInformatieobject = createZaakInformatieobject()
+        val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
         val zaakafhandelParameters = createZaakafhandelParameters(
             zaaktypeUUID = zaakTypeUUID
         )
@@ -723,7 +723,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every {
                 ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.ZAAKCOORDINATOR)
             } returns listOf(rolTypeZaakcoordinator)
-            every { zrcClientService.createRol(capture(rolesToBeCreated)) } just runs
+            every { zrcClientService.createRol(capture(rolesToBeCreated)) } returns mockk()
             every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
             every {
                 zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
@@ -935,7 +935,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             createEnkelvoudigInformatieObject(),
             createEnkelvoudigInformatieObject()
         )
-        val zaakInformatieobjecten = listOf(createZaakInformatieobject(), createZaakInformatieobject())
+        val zaakInformatieobjecten = listOf(
+            createZaakInformatieobjectForCreatesAndUpdates(),
+            createZaakInformatieobjectForCreatesAndUpdates()
+        )
         val zaakUrl = URI("fakeZaakUrl")
         val createdZaakInformatieobjectSlot = slot<ZaakInformatieobject>()
         val beschrijving = "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"

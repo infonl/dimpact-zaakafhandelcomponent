@@ -1,39 +1,30 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { GeneratedType } from "../utils/generated-types";
 import { EmptyPipe } from "./empty.pipe";
 
-describe("EmptyPipe", () => {
-  let pipe;
+describe(EmptyPipe.name, () => {
+  const pipe = new EmptyPipe();
 
-  beforeEach(() => {
-    pipe = new EmptyPipe();
-  });
+  it.each([
+    [undefined, undefined, "-"],
+    [undefined, "naam", "-"],
+    [{ naam: undefined }, "naam", "-"],
+    [{ naam: "" }, "naam", "-"],
+    [{ naam: "Jaap" }, "naam", "Jaap"],
+    ["", undefined, "-"],
+    ["", "naam", "-"],
+    ["Jaap", undefined, "Jaap"],
+    ["Jaap", "naam", "Jaap"],
+    [[], undefined, "-"],
+    [[], "naam", "-"],
+    [["Jaap"], undefined, "Jaap"],
+    [["Jaap"], "naam", "-"],
+  ])("%p with key %p should return %s", (object, key, exected) => {
+    const result = pipe.transform(object, key);
 
-  it("create an instance", () => {
-    expect(pipe).toBeTruthy();
-  });
-
-  it("should return -", () => {
-    const medewerker: Partial<GeneratedType<"RestUser">> = {};
-
-    expect(pipe.transform(medewerker.naam)).toBe("-");
-  });
-
-  it("should return Jaap", () => {
-    const medewerker = { naam: "Jaap" };
-
-    expect(pipe.transform(medewerker.naam)).toBe("Jaap");
-  });
-
-  it("should return -", () => {
-    expect(pipe.transform("")).toBe("-");
-  });
-
-  it("should return - because value does not contain existing args", () => {
-    expect(pipe.transform("naam", "Jaap")).toBe("-");
+    expect(result).toBe(exected);
   });
 });

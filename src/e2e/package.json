@@ -1,6 +1,10 @@
 {
   "name": "app",
   "version": "0.0.1",
+  "engines": {
+    "node": "22.15.1",
+    "npm": "10.9.2"
+  },
   "scripts": {
     "e2e:run": "./node_modules/.bin/cucumber-js -p default",
     "e2e:start": "npm ci && npm run e2e:run",
@@ -13,10 +17,10 @@
     "cross-fetch": "4.1.0",
     "pdf-parse": "1.1.1",
     "uniqid": "5.4.0",
-    "zod": "3.24.4"
+    "zod": "3.25.28"
   },
   "devDependencies": {
-    "@types/node": "22.15.18",
+    "@types/node": "22.15.21",
     "@playwright/test": "1.52.0",
     "cucumber-html-reporter": "7.2.0",
     "cucumber-pretty": "6.0.1",

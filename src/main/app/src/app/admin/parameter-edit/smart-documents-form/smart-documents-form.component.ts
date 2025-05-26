@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -15,7 +15,6 @@ import { firstValueFrom, Observable } from "rxjs";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
-  MappedSmartDocumentsTemplateFlattenedGroupWithParentId,
   MappedSmartDocumentsTemplateGroupWithParentId,
   MappedSmartDocumentsTemplateWithParentId,
   SmartDocumentsService,
@@ -64,7 +63,11 @@ export class SmartDocumentsFormComponent {
         this.currentTemplateMappingsQuery.data(),
       );
 
-    this.informationObjectTypes = this.informationObjectTypesQuery.data();
+    const informationObjectTypesQueryData =
+      this.informationObjectTypesQuery.data();
+    if (informationObjectTypesQueryData) {
+      this.informationObjectTypes = informationObjectTypesQueryData;
+    }
 
     this.newTemplateMappings = this.smartDocumentsService.addTemplateMappings(
       allSmartDocumentTemplateGroups,
@@ -107,14 +110,16 @@ export class SmartDocumentsFormComponent {
       ),
   }));
 
-  private _transformer = (node: any, level: number) => {
+  private _transformer = (node: Record<string, unknown>, level: number) => {
     return {
-      id: node.id,
-      name: node.name,
-      parentGroupId: node.parentGroupId,
-      informatieObjectTypeUUID: node.informatieObjectTypeUUID,
+      ...node,
+      name: String(node.name),
       level: level,
-      expandable: !!node.templates && node.templates.length > 0,
+      expandable: Boolean(
+        "templates" in node &&
+          Array.isArray(node.templates) &&
+          node.templates.length,
+      ),
     };
   };
 
@@ -127,7 +132,7 @@ export class SmartDocumentsFormComponent {
     this._transformer,
     (node) => node.level,
     (node) => node.expandable,
-    (node) => node.templates,
+    (node) => node.templates as Record<string, unknown>[],
   );
 
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
@@ -135,11 +140,15 @@ export class SmartDocumentsFormComponent {
   hasChild = (_: number, node: { expandable: boolean }) => node.expandable;
 
   hasSelected(id: string): boolean {
-    const hasInformationObjectType = this.dataSource.data
-      .find((node) => node.id === id)
-      ?.templates.some((_node) => _node.informatieObjectTypeUUID);
+    const templates = this.dataSource.data.find(
+      (node) => node.id === id,
+    )?.templates;
 
-    return !!hasInformationObjectType;
+    if (!templates) return false;
+
+    return (templates as { informatieObjectTypeUUID: string }[]).some(
+      (templateNode) => templateNode.informatieObjectTypeUUID,
+    );
   }
 
   handleMatTreeNodeChange({
@@ -149,21 +158,23 @@ export class SmartDocumentsFormComponent {
   }: FlatNode & MappedSmartDocumentsTemplateWithParentId): void {
     let nodeUpdated = false;
 
-    this.dataSource.data.forEach(
+    this.dataSource.data.forEach((node) => {
       (
-        node: FlatNode & MappedSmartDocumentsTemplateFlattenedGroupWithParentId,
-      ) => {
-        node.templates.forEach((templateNode) => {
-          if (
-            templateNode.id === id &&
-            templateNode.parentGroupId === parentGroupId
-          ) {
-            templateNode.informatieObjectTypeUUID = informatieObjectTypeUUID;
-            nodeUpdated = true;
-          }
-        });
-      },
-    );
+        node.templates as {
+          id: string;
+          parentGroupId: string;
+          informatieObjectTypeUUID: string;
+        }[]
+      )?.forEach((templateNode) => {
+        if (
+          templateNode.id === id &&
+          templateNode.parentGroupId === parentGroupId
+        ) {
+          templateNode.informatieObjectTypeUUID = informatieObjectTypeUUID;
+          nodeUpdated = true;
+        }
+      });
+    });
 
     if (!nodeUpdated) {
       throw new Error(

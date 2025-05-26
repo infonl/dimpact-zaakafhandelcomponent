@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.csv
@@ -11,11 +11,11 @@ import io.mockk.every
 import io.mockk.mockk
 import jakarta.ws.rs.core.StreamingOutput
 import net.atos.zac.csv.CsvService
-import net.atos.zac.policy.PolicyService
 import nl.info.zac.app.search.converter.RestZoekParametersConverter
 import nl.info.zac.app.search.createRESTZoekParameters
 import nl.info.zac.app.search.createZoekParameters
 import nl.info.zac.app.search.createZoekResultaatForZaakZoekObjecten
+import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.SearchService
 
 class CsvRESTServiceTest : BehaviorSpec({

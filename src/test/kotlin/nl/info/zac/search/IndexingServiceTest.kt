@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -16,11 +16,11 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.model.Results
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.client.zgw.zrc.model.ZaakUuid
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.search.converter.AbstractZoekObjectConverter
 import nl.info.zac.search.converter.ZaakZoekObjectConverter

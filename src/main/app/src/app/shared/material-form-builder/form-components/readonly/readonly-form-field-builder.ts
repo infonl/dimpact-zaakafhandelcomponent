@@ -6,10 +6,12 @@
 import { AbstractFormFieldBuilder } from "../../model/abstract-form-field-builder";
 import { ReadonlyFormField } from "./readonly-form-field";
 
-export class ReadonlyFormFieldBuilder extends AbstractFormFieldBuilder {
-  readonly formField: ReadonlyFormField;
+export class ReadonlyFormFieldBuilder<
+  T extends string = string,
+> extends AbstractFormFieldBuilder<T> {
+  readonly formField: ReadonlyFormField<T>;
 
-  constructor(value?: any) {
+  constructor(value?: T | null) {
     super();
     this.formField = new ReadonlyFormField();
     this.formField.initControl(value);

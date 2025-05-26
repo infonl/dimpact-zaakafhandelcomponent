@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024-2025 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024-2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable, throwError } from "rxjs";
+import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
@@ -53,12 +53,10 @@ export class ZaakafhandelParametersService {
       );
   }
 
-  listZaakbeeindigRedenenForZaaktype(
-    zaaktypeUuid: string,
-  ): Observable<ZaakbeeindigReden[]> {
+  listZaakbeeindigRedenenForZaaktype(zaaktypeUuid: string) {
     return this.http
       .get<
-        ZaakbeeindigReden[]
+        GeneratedType<"RESTZaakbeeindigReden">[]
       >(`${this.basepath}/zaakbeeindigredenen/${zaaktypeUuid}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
@@ -96,14 +94,10 @@ export class ZaakafhandelParametersService {
   updateZaakafhandelparameters(
     zaakafhandelparameters: GeneratedType<"RestZaakafhandelParameters">,
   ) {
-    return this.zacHttpClient
-      .PUT("/rest/zaakafhandelparameters", zaakafhandelparameters)
-      .pipe(
-        catchError((err) => {
-          this.foutAfhandelingService.foutAfhandelen(err);
-          return throwError(() => err);
-        }),
-      );
+    return this.zacHttpClient.PUT(
+      "/rest/zaakafhandelparameters",
+      zaakafhandelparameters,
+    );
   }
 
   listFormulierDefinities(): Observable<FormulierDefinitie[]> {
@@ -125,13 +119,9 @@ export class ZaakafhandelParametersService {
   listSmartDocumentsGroupTemplateNames(
     path: GeneratedType<"RestSmartDocumentsPath">,
   ): Observable<string[]> {
-    return this.zacHttpClient
-      .PUT(
-        "/rest/zaakafhandelparameters/smartdocuments-group-template-names",
-        path,
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.PUT(
+      "/rest/zaakafhandelparameters/smartdocuments-group-template-names",
+      path,
+    );
   }
 }

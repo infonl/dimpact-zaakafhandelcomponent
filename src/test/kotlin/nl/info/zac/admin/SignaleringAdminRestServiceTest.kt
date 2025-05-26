@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2025 Lifely
+ * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.admin
@@ -55,7 +55,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                     id shouldBe "FG"
                     firstName shouldBe ""
                     lastName shouldBe "Functionele gebruiker"
-                    roles shouldBe setOf("functionele_gebruiker")
+                    roles shouldBe emptySet()
                 }
             }
 

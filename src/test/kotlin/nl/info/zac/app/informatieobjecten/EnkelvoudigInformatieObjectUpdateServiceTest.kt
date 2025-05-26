@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.informatieobjecten
@@ -20,14 +20,14 @@ import net.atos.zac.flowable.createTestTask
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.output.createTaakRechten
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
-import nl.info.client.zgw.model.createZaakInformatieobject
+import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.output.createTaakRechten
 import java.util.UUID
 
 class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
@@ -51,7 +51,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
 
     val zaak = Zaak()
     val enkelvoudigInformatieObjectCreateLockRequest = createEnkelvoudigInformatieObjectCreateLockRequest()
-    val zaakInformatieObject = createZaakInformatieobject()
+    val zaakInformatieObject = createZaakInformatieobjectForCreatesAndUpdates()
     val taskId = "1234"
     val task = createTestTask()
 

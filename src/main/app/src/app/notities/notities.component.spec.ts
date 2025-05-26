@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -34,7 +34,7 @@ const mockNotitieService = {
   listNotities(): Observable<Notitie[]> {
     return of([]);
   },
-  updateNotitie(notitie: Notitie) {
+  updateNotitie(notitie: GeneratedType<"RestNote">) {
     return of(notitie);
   },
 };
@@ -70,6 +70,7 @@ describe("NotitiesComponent", () => {
 
     fixture = TestBed.createComponent(NotitiesComponent);
     component = fixture.componentInstance;
+    component.notitieRechten = { lezen: true, wijzigen: true };
     fixture.detectChanges();
   });
 

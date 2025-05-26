@@ -1,33 +1,31 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.zaak.converter
 
-import jakarta.annotation.Nullable
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType.NATUURLIJK_PERSOON
 import net.atos.client.zgw.zrc.model.BetrokkeneType.NIET_NATUURLIJK_PERSOON
 import net.atos.client.zgw.zrc.model.BetrokkeneType.VESTIGING
 import net.atos.client.zgw.zrc.model.Status
 import net.atos.client.zgw.zrc.model.Verlenging
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend
-import net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake
-import net.atos.zac.app.policy.converter.RestRechtenConverter
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.policy.PolicyService
 import net.atos.zac.util.time.PeriodUtil
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.util.isHeropend
+import nl.info.client.zgw.zrc.util.isIntake
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.model.RESTZaakKenmerk
 import nl.info.zac.app.zaak.model.RESTZaakVerlengGegevens
 import nl.info.zac.app.zaak.model.RelatieType
@@ -38,6 +36,7 @@ import nl.info.zac.app.zaak.model.toRestGeometry
 import nl.info.zac.app.zaak.model.toRestZaakStatus
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.ZaakIndicatie.DEELZAAK
 import nl.info.zac.search.model.ZaakIndicatie.HEROPEND
@@ -142,16 +141,16 @@ class RestZaakConverter @Inject constructor(
             isHoofdzaak = zaak.is_Hoofdzaak,
             isDeelzaak = zaak.isDeelzaak,
             isOpen = zaak.isOpen,
-            isHeropend = isHeropend(statustype),
-            isInIntakeFase = isIntake(statustype),
+            isHeropend = statustype.isHeropend(),
+            isInIntakeFase = statustype.isIntake(),
             isBesluittypeAanwezig = zaaktype.besluittypen?.isNotEmpty() ?: false,
             isProcesGestuurd = bpmnService.isProcessDriven(zaak.uuid),
-            rechten = policyService.readZaakRechten(zaak, zaaktype).let(RestRechtenConverter::convert),
+            rechten = policyService.readZaakRechten(zaak, zaaktype).toRestZaakRechten(),
             zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid),
             indicaties = noneOf(ZaakIndicatie::class.java).apply {
                 if (zaak.is_Hoofdzaak) add(HOOFDZAAK)
                 if (zaak.isDeelzaak) add(DEELZAAK)
-                if (isHeropend(statustype)) add(HEROPEND)
+                if (statustype.isHeropend()) add(HEROPEND)
                 if (zaak.isOpgeschort) add(OPSCHORTING)
                 if (zaak.isVerlengd) add(VERLENGD)
                 if (shouldOntvangstbevestigingNietVerstuurdIndicatieBeSet(zaak, statustype)) {
@@ -226,7 +225,7 @@ class RestZaakConverter @Inject constructor(
         return gerelateerdeZaken
     }
 
-    private fun shouldOntvangstbevestigingNietVerstuurdIndicatieBeSet(zaak: Zaak, @Nullable statustype: StatusType?) =
+    private fun shouldOntvangstbevestigingNietVerstuurdIndicatieBeSet(zaak: Zaak, statustype: StatusType?) =
         !zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid).orElse(false) &&
-            !isHeropend(statustype)
+            !statustype.isHeropend()
 }

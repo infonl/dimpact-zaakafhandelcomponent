@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.zaak.model
@@ -9,10 +9,10 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Size
 import net.atos.client.zgw.zrc.model.Zaak.OMSCHRIJVING_MAX_LENGTH
 import net.atos.client.zgw.zrc.model.Zaak.TOELICHTING_MAX_LENGTH
-import net.atos.zac.app.policy.model.RestZaakRechten
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.app.policy.model.RestZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor

@@ -31,11 +31,29 @@ To do this you will first need to do the following:
     ```shell
     ./gradlew buildDockerImage
     ```
-3. If BAG integration is part of the test suite: create a 'run configuration' in your IDE where the following two environment variables are set: `BAG_API_CLIENT_MP_REST_URL` and `BAG_API_KEY`.
+3. If BAG integration is part of the test suite: create a 'Run Configuration' in IntelliJ where the following two environment variables are set: `BAG_API_CLIENT_MP_REST_URL` and `BAG_API_KEY`.
 4. Run the integration tests from your IDE using this run configuration.
 
 Running the integration tests will first start up all required services (Keycloak, Open Zaak, etc) as Docker containers using our [Docker Compose file](installDockerCompose.md),
 then start up ZAC as Docker container and finally run the integration tests.
+
+### Debugging integration tests
+
+Debugging integration tests can be difficult, because of the Docker environment used but also in large part because of the ordering dependency between many of these tests.
+The following steps can help you debug failing integration tests:
+
+1. Build the ZAC Docker Image. See instructions above.
+2. Make sure there are no running Docker containers on your computer.
+3. In IntelliJ run the integration tests in debug mode. On the `src\itest` folder right click and select `Debug Tests in Zaakafhandelcomponent `
+   1. Click on the `Instantiating tests` line in the IntelliJ Console so you can see the output of the tests.
+   2. Check for failures. Focus on the first test that fails since one failing test typically cascades into other failing tests down the line since we have lots of ordering dependencies between our integration tests.
+   3. If all tests fail this usually indicates that the ZAC Docker container itself does not even start up. In that case forget about the integration tests and first try to get ZAC starting up locally using Docker Compose. 
+   Come back here once this is fixed.
+   4. If there are tests failing add a debug breakpoint in IntelliJ just before and just after this test is run.
+      1.  When the first breakpoint is reached, tail the ZAC Docker container logs (and possibly other container logs depending on the test) so you can clearly see the output of the ZAC container. 
+      Do a `docker ps` to find the container in question since they have dynamic names in our integration tests.
+      2.  Continue running until the second breakpoint is reached. In most cases you can find out from the logs what the issue is.
+      3.  When the integration tests are on a breakpoint you can also do manual testing in the ZAC user interface from a browser to troubleshoot.
 
 ## End-to-end (e2e) tests
 
@@ -152,7 +170,7 @@ breaks the build itself.
 For simple testing we use the ACT framework. Please refer to [scripts/github/README.md](../../scripts/github/README.md).
 This contains the details on how to run ACT tests.
 
-## Open Policy Agent (OPA) Tests
+## Open Policy Agent (OPA) Rego Tests
 
 The tests are part of the integration tests profile and run automatically via Docker Compose. 
 
@@ -172,7 +190,7 @@ This way you can test a locally running ZAC or you can test ZAC running on e.g. 
 
 #### Set up Postman for ZAC
 
-As a Lifely developer you can use our shared Postman ZAC collection in our [ZAC API TEST Postman team workspace](https://zaakafhandelcomponent.postman.co/workspace/aec6c5c4-affd-490b-9c81-e8b1cf339d22).
+As a INFO.nl developer you can use our shared Postman ZAC collection in our [ZAC API TEST Postman team workspace](https://zaakafhandelcomponent.postman.co/workspace/aec6c5c4-affd-490b-9c81-e8b1cf339d22).
 Alternatively you can set up a Postman collection yourself using the instructions below.
 
 To use our shared Postman collection you need to be a member of our Zaakafhandelcomponent Postman team (max 3 members for the free Postman version).

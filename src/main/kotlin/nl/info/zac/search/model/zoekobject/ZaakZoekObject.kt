@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.search.model.zoekobject
@@ -13,7 +13,7 @@ import java.util.EnumSet
 import java.util.function.Supplier
 import java.util.stream.Collectors
 
-@NoArgConstructor // required for Java bean inspection
+@NoArgConstructor
 data class ZaakZoekObject(
     /**
      * The UUID of the zaak.
@@ -25,7 +25,7 @@ data class ZaakZoekObject(
     private var type: String,
 
     @Field("zaak_identificatie")
-    var identificatie: String? = null,
+    var identificatie: String,
 
     @Field(OMSCHRIJVING_FIELD)
     var omschrijving: String? = null,

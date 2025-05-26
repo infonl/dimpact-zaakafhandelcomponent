@@ -16,54 +16,106 @@
         "equalTo": "testuser1"
       }
     },
-    "bodyPatterns": [ {
-      "equalToJson": {
-        "SmartDocument": {
-          "Selection": {
-            "TemplateGroup": "root",
-            "Template": "root template 1",
-            "FixedValues": ""
-          },
-          "Variables": {
-            "OutputFormats": [ { "OutputFormat": "docx" } ],
-            "RedirectMethod": "POST",
-            "RedirectUrl": "${json-unit.any-string}"
-          }
-        },
-        "data": {
-          "aanvrager" : {
-            "naam" : "Héndrika Janse"
-          },
-          "gebruiker": {
-            "id": "testuser1",
-            "naam": "Test User1 Špëçîâl Characters"
-          },
-          "startformulier": {
-            "data": {
-              "omschrijving": "Ik heb een vraag over mijn paspoort",
-              "telefoonnummer": "0612345678",
-              "naam": "Jan Jansen"
+    "bodyPatterns": [
+      {
+        "or": [
+          {
+            "equalToJson": {
+              "SmartDocument": {
+                "Selection": {
+                  "TemplateGroup": "root",
+                  "Template": "root template 1",
+                  "FixedValues": ""
+                },
+                "Variables": {
+                  "OutputFormats": [
+                    {
+                      "OutputFormat": "docx"
+                    }
+                  ],
+                  "RedirectMethod": "POST",
+                  "RedirectUrl": "${json-unit.any-string}"
+                }
+              },
+              "data": {
+                "aanvrager": {
+                  "naam": "Héndrika Janse"
+                },
+                "gebruiker": {
+                  "id": "testuser1",
+                  "naam": "Test User1 Špëçîâl Characters"
+                },
+                "startformulier": {
+                  "data": {
+                    "omschrijving": "Ik heb een vraag over mijn paspoort",
+                    "telefoonnummer": "0612345678",
+                    "naam": "Jan Jansen"
+                  },
+                  "productAanvraagtype": "productaanvraag-type-1"
+                },
+                "zaak": {
+                  "communicatiekanaal": "E-formulier",
+                  "groep": "Test group A",
+                  "identificatie": "ZAAK-1970-0000000001",
+                  "omschrijving": "fakeZaakOmschrijving",
+                  "registratiedatum": "${json-unit.any-string}",
+                  "startdatum": "01-01-1970",
+                  "status": "Wacht op aanvullende informatie",
+                  "toelichting": "Aangemaakt vanuit open-forms met kenmerk 'f8534f13-0669-4d4d-a364-6b6c4ad3d243'. fakeZaakToelichting",
+                  "uiterlijkeEinddatumAfdoening": "${json-unit.any-string}",
+                  "verlengingReden": "fakeReason",
+                  "vertrouwelijkheidaanduiding": "openbaar",
+                  "zaaktype": "Melding evenement organiseren behandelen"
+                }
+              }
             },
-            "productAanvraagtype": "productaanvraag-type-1"
+            "ignoreArrayOrder": true
           },
-          "zaak": {
-            "communicatiekanaal": "E-formulier",
-            "groep": "Test group A",
-            "identificatie": "ZAAK-1970-0000000001",
-            "omschrijving": "fakeZaakOmschrijving",
-            "registratiedatum": "${json-unit.any-string}",
-            "startdatum": "01-01-1970",
-            "status": "Wacht op aanvullende informatie",
-            "toelichting": "Aangemaakt vanuit open-forms met kenmerk 'f8534f13-0669-4d4d-a364-6b6c4ad3d243'. fakeZaakToelichting",
-            "uiterlijkeEinddatumAfdoening": "${json-unit.any-string}",
-            "verlengingReden" : "fakeReason",
-            "vertrouwelijkheidaanduiding": "openbaar",
-            "zaaktype": "Melding evenement organiseren behandelen"
+          {
+            "equalToJson": {
+              "SmartDocument": {
+                "Selection": {
+                  "TemplateGroup": "root",
+                  "Template": "root template 1",
+                  "FixedValues": ""
+                },
+                "Variables": {
+                  "OutputFormats": [
+                    {
+                      "OutputFormat": "docx"
+                    }
+                  ],
+                  "RedirectMethod": "POST",
+                  "RedirectUrl": "${json-unit.any-string}"
+                }
+              },
+              "data": {
+                "gebruiker": {
+                  "id": "testuser1",
+                  "naam": "Test User1 Špëçîâl Characters"
+                },
+                "taak": {
+                  "naam": "User details"
+                },
+                "zaak": {
+                  "communicatiekanaal": "fakeCommunicatiekanaal1",
+                  "groep": "Test group A",
+                  "identificatie": "ZAAK-2000-0000000004",
+                  "omschrijving": "fakeOmschrijving",
+                  "registratiedatum": "${json-unit.any-string}",
+                  "startdatum": "01-01-2000",
+                  "toelichting": "null",
+                  "uiterlijkeEinddatumAfdoening": "31-01-2000",
+                  "vertrouwelijkheidaanduiding": "openbaar",
+                  "zaaktype": "BPMN test zaaktype"
+                }
+              }
+            },
+            "ignoreArrayOrder": true
           }
-        }
-      },
-      "ignoreArrayOrder": true
-    } ]
+        ]
+      }
+    ]
   },
   "response": {
     "status": 200,

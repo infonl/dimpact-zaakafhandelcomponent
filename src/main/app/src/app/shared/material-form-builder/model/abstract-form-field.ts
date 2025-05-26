@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -11,7 +11,7 @@ import {
 import { FieldType } from "./field-type.enum";
 import { FormFieldHint } from "./form-field-hint";
 
-export abstract class AbstractFormField {
+export abstract class AbstractFormField<T = unknown> {
   static formControlOptions: FormControlOptions = { nonNullable: true };
 
   id: string;
@@ -19,7 +19,7 @@ export abstract class AbstractFormField {
   label: string;
   required: boolean;
   readonly: boolean;
-  abstract formControl: AbstractControl;
+  abstract formControl: AbstractControl<T>;
   hint: FormFieldHint;
 
   abstract fieldType: FieldType;
@@ -30,7 +30,7 @@ export abstract class AbstractFormField {
     return false;
   }
 
-  value(value: any) {
+  value(value: T) {
     this.formControl.setValue(value);
     this.formControl.markAsDirty();
   }
@@ -39,10 +39,10 @@ export abstract class AbstractFormField {
     this.formControl.reset();
   }
 
-  abstract initControl(value?: any);
+  abstract initControl(value?: T): void;
 
-  static formControlInstance(value: any): FormControl {
-    return new FormControl(value, this.formControlOptions);
+  static formControlInstance<T>(value?: T) {
+    return new FormControl<T | null>(value ?? null, this.formControlOptions);
   }
 
   hasFormControl(): boolean {

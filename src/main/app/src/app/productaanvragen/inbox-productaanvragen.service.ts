@@ -1,16 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { catchError } from "rxjs/operators";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ListParameters } from "../shared/model/list-parameters";
-import { InboxProductaanvraag } from "./model/inbox-productaanvraag";
-import { InboxProductaanvraagResultaat } from "./model/inbox-productaanvraag-resultaat";
 
 @Injectable({
   providedIn: "root",
@@ -18,21 +13,16 @@ import { InboxProductaanvraagResultaat } from "./model/inbox-productaanvraag-res
 export class InboxProductaanvragenService {
   private basepath = "/rest/inbox-productaanvragen";
 
-  constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
-  ) {}
+  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
-  list(parameters: ListParameters): Observable<InboxProductaanvraagResultaat> {
-    return this.http
-      .put<InboxProductaanvraagResultaat>(this.basepath, parameters)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  list(parameters: ListParameters) {
+    return this.zacHttpClient.PUT("/rest/inbox-productaanvragen", parameters);
   }
 
-  delete(ip: InboxProductaanvraag): Observable<void> {
-    return this.http.delete<void>(`${this.basepath}/${ip.id}`);
+  delete(id: number) {
+    return this.zacHttpClient.DELETE("/rest/inbox-productaanvragen/{id}", {
+      pathParams: { path: { id } },
+    });
   }
 
   pdfPreview(aanvraagdocumentUUID: string): string {

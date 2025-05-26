@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Atos, 2024-2025 Lifely
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2024-2025 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -12,11 +12,68 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<div class="form">
-  <mfb-form
-    *ngIf="fields"
-    (formSubmit)="onFormSubmit($event)"
-    [formFields]="fields"
-    [config]="formConfig"
-  ></mfb-form>
-</div>
+<form [formGroup]="form" (submit)="onFormSubmit(form)">
+  <fieldset>
+    <section class="row">
+      <zac-auto-complete
+        [form]="form"
+        key="templateGroup"
+        class="col-12 col-md-6"
+        [options]="templateGroups"
+        optionDisplayValue="name"
+      >
+        <mat-label>{{ "sjabloonGroep" | translate }}</mat-label>
+      </zac-auto-complete>
+      <zac-auto-complete
+        [form]="form"
+        key="template"
+        class="col-12 col-md-6"
+        [options]="templates"
+        optionDisplayValue="name"
+      >
+        <mat-label>{{ "sjabloon" | translate }}</mat-label>
+      </zac-auto-complete>
+    </section>
+    <section class="row">
+      <zac-input key="title" class="col-12" [form]="form">
+        <mat-label>{{ "titel" | translate }}</mat-label>
+      </zac-input>
+      <zac-input key="description" class="col-12" [form]="form">
+        <mat-label>{{ "beschrijving" | translate }}</mat-label>
+      </zac-input>
+    </section>
+    <section class="row">
+      <zac-input
+        [form]="form"
+        class="col-12 col-md-6"
+        key="informationObjectType"
+      >
+        <mat-label>{{ "informatieobjectType" | translate }}</mat-label>
+      </zac-input>
+      <zac-input [form]="form" class="col-12 col-md-6" key="confidentiality">
+        <mat-label>{{ "vertrouwelijkheidaanduiding" | translate }}</mat-label>
+      </zac-input>
+    </section>
+    <section class="row">
+      <zac-date [form]="form" key="creationDate" class="col-12">
+        <mat-label>{{ "creatiedatum" | translate }}</mat-label>
+      </zac-date>
+      <zac-input [form]="form" key="author" class="col-12">
+        <mat-label>{{ "auteur" | translate }}</mat-label>
+      </zac-input>
+    </section>
+  </fieldset>
+  <fieldset class="flex-row">
+    <button
+      mat-raised-button
+      type="submit"
+      color="primary"
+      [disabled]="!form.valid"
+    >
+      {{ "actie.toevoegen" | translate }}
+    </button>
+    <button type="button" mat-raised-button (click)="this.sideNav.close()">
+      {{ "actie.annuleren" | translate }}
+    </button>
+  </fieldset>
+</form>

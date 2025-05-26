@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -18,15 +18,12 @@ import jakarta.enterprise.inject.Instance
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.exception.ZgwErrorException
 import net.atos.client.zgw.shared.model.ZgwError
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.output.DocumentRechten
-import net.atos.zac.policy.output.createDocumentRechtenAllDeny
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.zac.app.informatieobjecten.model.createRESTFileUpload
@@ -39,6 +36,9 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.output.DocumentRechten
+import nl.info.zac.policy.output.createDocumentRechtenAllDeny
 import org.eclipse.jetty.http.HttpStatus
 import java.net.URI
 import java.time.LocalDate

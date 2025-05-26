@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -17,15 +17,15 @@ import { NotitieService } from "./notities.service";
 export class NotitiesComponent implements OnInit {
   @Input() uuid: string;
   @Input() type: string;
+  @Input() notitieRechten?: GeneratedType<"RestNotitieRechten">;
 
   @ViewChild("notitieTekst") notitieTekst;
 
-  ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
+  ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
 
-  aantalNotities = 0;
-  laatNotitiesSchermZien = true;
-  geselecteerdeNotitieId: number;
   notities: Notitie[] = [];
+  showNotes = true;
+  geselecteerdeNotitieId: number | null = null;
   maxLengteTextArea = 1000;
 
   constructor(
@@ -41,7 +41,7 @@ export class NotitiesComponent implements OnInit {
   }
 
   toggleNotitieContainer() {
-    this.laatNotitiesSchermZien = !this.laatNotitiesSchermZien;
+    this.showNotes = !this.showNotes;
   }
 
   pasNotitieAan(id: number) {
@@ -60,11 +60,12 @@ export class NotitiesComponent implements OnInit {
             ),
           )
           .reverse();
-        this.aantalNotities = this.notities.length;
       });
   }
 
   maakNotitieAan(tekst: string) {
+    if (!this.ingelogdeMedewerker?.id) return;
+
     if (tekst.length <= this.maxLengteTextArea) {
       const notitie: Notitie = new Notitie();
       notitie.zaakUUID = this.uuid;
@@ -74,12 +75,13 @@ export class NotitiesComponent implements OnInit {
       this.notitieService.createNotitie(notitie).subscribe((notitie) => {
         this.notities.splice(0, 0, notitie);
         this.notitieTekst.nativeElement.value = "";
-        this.aantalNotities = this.notities.length;
       });
     }
   }
 
   updateNotitie(notitie: Notitie, notitieTekst: string) {
+    if (!this.ingelogdeMedewerker?.id) return;
+
     if (notitieTekst.length <= this.maxLengteTextArea) {
       notitie.tekst = notitieTekst;
       notitie.gebruikersnaamMedewerker = this.ingelogdeMedewerker.id;
@@ -101,7 +103,6 @@ export class NotitiesComponent implements OnInit {
         this.notities.findIndex((n) => n.id === id),
         1,
       );
-      this.aantalNotities = this.notities.length;
     });
   }
 }

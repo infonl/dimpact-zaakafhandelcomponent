@@ -1,12 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Component, Inject, OnDestroy } from "@angular/core";
 import { Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import moment from "moment";
+import moment, { Moment } from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { DateFormField } from "src/app/shared/material-form-builder/form-components/date/date-form-field";
 import { DateFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/date/date-form-field-builder";
@@ -27,19 +27,19 @@ export class ZaakOpschortenDialogComponent implements OnDestroy {
   formFields: AbstractFormField[][] = [];
   loading = true;
 
-  duurDagenField: InputFormField;
-  einddatumGeplandField: DateFormField | HiddenFormField;
+  duurDagenField: InputFormField<number>;
+  einddatumGeplandField: DateFormField | HiddenFormField<string | Moment>;
   uiterlijkeEinddatumAfdoeningField: DateFormField;
   redenOpschortingField: InputFormField;
 
-  private ngDestroy = new Subject<void>();
+  private ngDestroy = new Subject();
 
   constructor(
     public dialogRef: MatDialogRef<ZaakOpschortenDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { zaak: Zaak },
     private zakenService: ZakenService,
   ) {
-    this.duurDagenField = new InputFormFieldBuilder()
+    this.duurDagenField = new InputFormFieldBuilder<number>()
       .id("opschortduur")
       .label("opschortduur")
       .validators(Validators.required, Validators.min(1))
@@ -56,7 +56,7 @@ export class ZaakOpschortenDialogComponent implements OnDestroy {
               : Validators.nullValidator,
           )
           .build()
-      : new HiddenFormFieldBuilder().id("einddatumGepland").build();
+      : new HiddenFormFieldBuilder<Moment>().id("einddatumGepland").build();
 
     this.uiterlijkeEinddatumAfdoeningField = new DateFormFieldBuilder(
       data.zaak.uiterlijkeEinddatumAfdoening,
@@ -91,6 +91,7 @@ export class ZaakOpschortenDialogComponent implements OnDestroy {
       });
 
     this.einddatumGeplandField.formControl.valueChanges
+      // @ts-expect-error -- TODO TS2554: Expected 0 arguments, but got 1
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
         if (value == null) {
@@ -156,15 +157,20 @@ export class ZaakOpschortenDialogComponent implements OnDestroy {
     this.dialogRef.disableClose = true;
     this.loading = true;
 
-    const zaakOpschortGegevens: GeneratedType<"RESTZaakOpschortGegevens"> = {};
-    zaakOpschortGegevens.indicatieOpschorting = true;
-    zaakOpschortGegevens.duurDagen = this.duurDagenField.formControl.value;
-    zaakOpschortGegevens.einddatumGepland =
-      this.einddatumGeplandField.formControl.value;
-    zaakOpschortGegevens.uiterlijkeEinddatumAfdoening =
-      this.uiterlijkeEinddatumAfdoeningField.formControl.value;
-    zaakOpschortGegevens.redenOpschorting =
-      this.redenOpschortingField.formControl.value;
+    const zaakOpschortGegevens: GeneratedType<"RESTZaakOpschortGegevens"> = {
+      indicatieOpschorting: true,
+      duurDagen: this.duurDagenField.formControl.value ?? undefined,
+      einddatumGepland: moment(
+        this.einddatumGeplandField.formControl.value,
+      ).toISOString(),
+      uiterlijkeEinddatumAfdoening: this.uiterlijkeEinddatumAfdoeningField
+        .formControl.value
+        ? moment(
+            this.uiterlijkeEinddatumAfdoeningField.formControl.value,
+          ).toISOString()
+        : undefined,
+      redenOpschorting: this.redenOpschortingField.formControl.value,
+    };
 
     this.zakenService
       .opschortenZaak(this.data.zaak.uuid, zaakOpschortGegevens)
@@ -193,7 +199,7 @@ export class ZaakOpschortenDialogComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.ngDestroy.next();
+    this.ngDestroy.next(null);
     this.ngDestroy.complete();
   }
 }

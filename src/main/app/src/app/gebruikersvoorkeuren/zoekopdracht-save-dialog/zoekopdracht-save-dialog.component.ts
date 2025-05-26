@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -28,7 +28,7 @@ export class ZoekopdrachtSaveDialogComponent implements OnInit {
     public data: {
       zoekopdrachten: Zoekopdracht[];
       lijstID: Werklijst;
-      zoekopdracht: any;
+      zoekopdracht: unknown;
     },
     private gebruikersvoorkeurenService: GebruikersvoorkeurenService,
     private utilService: UtilService,
@@ -67,7 +67,7 @@ export class ZoekopdrachtSaveDialogComponent implements OnInit {
       this.data.zoekopdrachten.filter(
         (value) =>
           value.naam.toLowerCase() ===
-          this.formControl.value.toLowerCase().trim(),
+          this.formControl.value?.toLowerCase().trim(),
       ).length === 0
     );
   }
@@ -76,7 +76,7 @@ export class ZoekopdrachtSaveDialogComponent implements OnInit {
     return this.data.zoekopdrachten.filter(
       (value) =>
         value.naam.toLowerCase() ===
-        this.formControl.value.toLowerCase().trim(),
+        this.formControl.value?.toLowerCase().trim(),
     )[0];
   }
 
