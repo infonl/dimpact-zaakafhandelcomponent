@@ -23,7 +23,7 @@ Versiegeschiedenis:
 | 1.0   | Update nav sprints opgeleverd op 9-2-2023 en 23-2-2023<br><br>Heropenen zaak, Zaak koppelen, Werking van de taak: Advies extern toegevoegd |
 | 1.1   | Update nav sprints opgeleverd op 8-3-2023 en 22-3-2023                                                                                     |
 | 1.2   | Update nav sprints opgeleverd op 5-4-2023 en 19-4-2023                                                                                     |
-| 1.3   | Update nav sprints opgeleverd op 3-5-2023 en 31-5-2023              git commi                                                                       |
+| 1.3   | Update nav sprints opgeleverd op 3-5-2023 en 31-5-2023                                                                                     |
 | 1.4   | Update format wijziging en redigeerwerk van 29-8-2023                                                                                      |
 | 1.5   | Update nav sprints opgeleverd van 10-2023 tot 27-05-2024                                                                                   |
 | 1.5.1 | Update zoekfunctie bedrijf en rechtspersoon                                                                                                |
