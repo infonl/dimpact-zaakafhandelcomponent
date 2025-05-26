@@ -486,7 +486,7 @@ Met het menu item 'Zaaklocatie toevoegen' is het mogelijk om een locatie bij een
 1 In een zaak met het menu item 'Zaaklocatie toevoegen' kies je een locatie:
 - een locatie kan gezocht worden op straatnaam, huisnummer, postcode of plaatsnaam. Het is ook mogelijk om de locatie in de kaart met een muisklik te selecteren.
 
-2 Vul de verplichte reden voor het vastleggen of wijzigen van de locatie in
+2 Vul de verplichte reden voor het vastleggen van de locatie in
 
 3 Klik op ‘Opslaan’ om de locatie vast te leggen
 ![Locatie vastleggen](./images/locatie-vastleggen-wijzigen-1.png)
@@ -500,7 +500,7 @@ Met het menu item 'Zaaklocatie toevoegen' is het mogelijk om een locatie bij een
 
 2 Kies de nieuwe locatie en vul het verplichte reden veld in
 
-3 En klik op opslaan om de nieuwe locatie vast te leggen
+3 Klik op opslaan om de nieuwe locatie vast te leggen
 
 ## Locatie ontkoppelen
 
