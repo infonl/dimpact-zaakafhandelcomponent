@@ -167,7 +167,7 @@ public class MailTemplateHelper {
                 resolvedTekst.contains(ZAAK_INITIATOR_ADRES.getVariabele())) {
                 resolvedTekst = replaceInitiatorVariabelen(
                         resolvedTekst,
-                        zaak.getIdentificatie(),
+                        zaak.getIdentificatie() + "@" + ACTION,
                         Optional.ofNullable(zgwApiService.findInitiatorRoleForZaak(zaak))
                 );
             }
@@ -274,15 +274,14 @@ public class MailTemplateHelper {
         );
     }
 
-    private String replaceInitiatorVariabelen(final String resolvedTekst, String zaakNummer, final Optional<Rol<?>> initiator) {
-        String xVerwerking = zaakNummer + "@" + ACTION;
+    private String replaceInitiatorVariabelen(final String resolvedTekst, String requestContext, final Optional<Rol<?>> initiator) {
         if (initiator.isPresent()) {
             final String identificatie = initiator.get().getIdentificatienummer();
             final BetrokkeneType betrokkene = initiator.get().getBetrokkeneType();
             return switch (betrokkene) {
                 case NATUURLIJK_PERSOON -> replaceInitiatorVariabelenPersoon(
                         resolvedTekst,
-                        brpClientService.retrievePersoon(identificatie, xVerwerking)
+                        brpClientService.retrievePersoon(identificatie, requestContext)
                 );
                 case VESTIGING -> replaceInitiatorVariabelenResultaatItem(
                         resolvedTekst,

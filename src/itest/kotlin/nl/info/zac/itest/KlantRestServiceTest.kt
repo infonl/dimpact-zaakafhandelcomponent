@@ -83,10 +83,10 @@ class KlantRestServiceTest : BehaviorSpec({
         When("a person is retrieved using a BSN which is present in both the BRP and Klanten API databases") {
             val context = "ZAAK AANMAKEN"
             val action = "Zaak aanmaken"
-            val process = "$context@$action"
+            val auditEvent = "$context@$action"
 
             val headers = Headers.Builder()
-                .add(X_VERWERKING, process)
+                .add(X_VERWERKING, auditEvent)
                 .build()
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/klanten/persoon/$TEST_PERSON_HENDRIKA_JANSE_BSN",

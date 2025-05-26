@@ -63,12 +63,12 @@ class BrpClientService @Inject constructor(
         private val FIELDS_PERSOON_BEPERKT = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING)
     }
 
-    fun queryPersonen(personenQuery: PersonenQuery, process: String): PersonenQueryResponse =
+    fun queryPersonen(personenQuery: PersonenQuery, requestContext: String): PersonenQueryResponse =
         updateQuery(personenQuery).let {
             personenApi.personen(
                 personenQuery = it,
                 purpose = queryPersonenDefaultPurpose.getOrNull(),
-                process = process
+                process = requestContext
             )
         }
 
@@ -79,11 +79,11 @@ class BrpClientService @Inject constructor(
      * @return the person if found, otherwise null
      *
      */
-    fun retrievePersoon(burgerservicenummer: String, process: String): Persoon? = (
+    fun retrievePersoon(burgerservicenummer: String, requestContext: String): Persoon? = (
         personenApi.personen(
             personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer),
             purpose = retrievePersoonDefaultPurpose.getOrNull(),
-            process = process
+            process = requestContext
         ) as RaadpleegMetBurgerservicenummerResponse
         ).personen?.firstOrNull()
 
