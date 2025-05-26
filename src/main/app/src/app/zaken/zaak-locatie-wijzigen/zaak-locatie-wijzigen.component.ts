@@ -247,6 +247,7 @@ export class CaseLocationEditComponent
   clearLocation() {
     this.disableReasonControl();
     this.setLocation();
+    this.nearestAddress = {} as AddressResult;
   }
 
   private disableReasonControl() {

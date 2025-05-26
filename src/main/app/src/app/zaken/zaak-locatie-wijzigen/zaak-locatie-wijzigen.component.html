@@ -4,12 +4,12 @@
   -->
 
 <mat-toolbar role="heading" class="gap-16">
-  <mat-icon>{{ zaak.zaakgeometrie ? "place" : "add_location_alt" }}</mat-icon>
+  <mat-icon>{{ zaak.zaakgeometrie ? "edit" : "add_location_alt" }}</mat-icon>
   <span class="flex-grow-1">
     {{
       (zaak.zaakgeometrie
         ? "actie.zaak.locatie.wijzigen"
-        : "actie.zaak.locatie.toevoegen"
+        : "actie.zaak.locatie.koppelen"
       ) | translate
     }}
   </span>
@@ -62,9 +62,10 @@
         </mat-autocomplete>
       </mat-form-field>
       <zac-static-text
+        *ngIf="nearestAddress?.weergavenaam"
         class="overlay"
         [label]="'zaak.locatie.adres' | translate"
-        [value]="nearestAddress ? nearestAddress.weergavenaam : null"
+        [value]="nearestAddress.weergavenaam"
       >
       </zac-static-text>
       <div class="map-container">

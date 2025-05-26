@@ -679,7 +679,7 @@
   "actie.vrijgeven": "Release",
   "actie.zaak.aanmaken": "Create case",
   "actie.zaak.wijzigen": "Edit case details",
-  "actie.zaak.locatie.toevoegen": "Add case locatie",
+  "actie.zaak.locatie.koppelen": "Add case locatie",
   "actie.zaak.locatie.wijzigen": "Edit case location",
   "actie.zaak.afbreken": "Abort case",
   "actie.zaak.afbreken.reden": "Reason why case is aborted",

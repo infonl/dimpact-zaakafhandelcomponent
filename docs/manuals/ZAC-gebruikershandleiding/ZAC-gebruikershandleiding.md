@@ -480,11 +480,11 @@ De datums van een zaak zijn als geheel aan te passen door op het potlood van é�
 
 ## Locatie vastleggen
 
-Met het menu item 'Zaaklocatie toevoegen' is het mogelijk om een locatie bij een zaak vast te leggen. Van de gekozen locatie worden de coördinaten vastgelegd. Deze locatie kan op de kaart bekeken worden door met de muisaanwijzer op de locatie te klikken. Door de vastgelegde locatie tab te openen in de kaart kan ook het dichtstbijzijnde adres bij die locatie bekeken worden.
+Met het menu item 'Locatie koppelen' is het mogelijk om een locatie bij een zaak vast te leggen. Van de gekozen locatie worden de coördinaten vastgelegd. Deze locatie kan op de kaart bekeken worden door met de muisaanwijzer op de locatie te klikken. Door de vastgelegde locatie tab te openen in de kaart kan ook het dichtstbijzijnde adres bij die locatie bekeken worden.
 
 **Stappen:**
 
-1 In een zaak met het menu item 'Zaaklocatie toevoegen' kies je een locatie:
+1 In een zaak met het menu item 'Locatie koppelen' kies je een locatie:
 - een locatie kan gezocht worden op straatnaam, huisnummer, postcode of plaatsnaam. Het is ook mogelijk om de locatie in de kaart met een muisklik te selecteren.
 
 2 Vul de verplichte reden voor het vastleggen van de locatie in
@@ -496,7 +496,7 @@ Met het menu item 'Zaaklocatie toevoegen' is het mogelijk om een locatie bij een
 
 **Stappen**
 
-1 In de tab 'Locatie' kan je de locatie bekijken en aanpassen door op het potloodje te klikken. Hiermee opent weer hetzelfde formulier als bij 'Zaaklocatie toevoegen'
+1 In de tab 'Locatie' kan je de locatie bekijken en aanpassen door op het potloodje te klikken. Hiermee opent weer hetzelfde formulier als bij 'Locatie koppelen'
 ![Locatie wijzigen ](./images/locatie-vastleggen-wijzigen-2.png)
 
 2 Kies de nieuwe locatie en vul het verplichte reden-veld in
