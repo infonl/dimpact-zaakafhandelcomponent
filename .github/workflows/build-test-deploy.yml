@@ -55,10 +55,9 @@ jobs:
           echo "Version will be bumped to next ${{ github.event.inputs.confirm }} number."
 
       - name: Manual version bump only allowed on main branch
-        if: ${{ github.ref != 'refs/heads/main' }}
+        if: ${{ github.ref != 'refs/heads/main' && github.event_name == 'workflow_dispatch' }}
         run: |
           echo "Version can only be bumped on the main branch!"
-          echo "Please create a pull request to the main branch to bump the version."
           exit 1
 
   paths-filter:
