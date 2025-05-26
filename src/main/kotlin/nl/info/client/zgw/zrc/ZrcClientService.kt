@@ -44,9 +44,7 @@ class ZrcClientService @Inject constructor(
 
     private val configuratieService: ConfiguratieService
 ) {
-    fun createRol(rol: Rol<*>) {
-        createRol(rol, null)
-    }
+    fun createRol(rol: Rol<*>) = createRol(rol, null)
 
     fun createRol(rol: Rol<*>, toelichting: String?): Rol<*> {
         toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
