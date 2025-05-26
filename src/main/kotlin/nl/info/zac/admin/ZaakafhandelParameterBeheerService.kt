@@ -10,6 +10,7 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.BetrokkeneKoppelingen
+import net.atos.zac.admin.model.BrpDoelbindingen
 import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.admin.model.MailtemplateKoppeling
 import net.atos.zac.admin.model.UserEventListenerParameters
@@ -217,6 +218,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         mapMailtemplateKoppelingen(previousZaakafhandelparameters, zaakafhandelParameters)
         mapZaakAfzenders(previousZaakafhandelparameters, zaakafhandelParameters)
         mapBetrokkeneKoppelingen(previousZaakafhandelparameters, zaakafhandelParameters)
+        mapBetrokkeneKoppelingen(previousZaakafhandelparameters, zaakafhandelParameters)
     }
 
     private fun currentZaakafhandelParameters(zaaktypeUuid: UUID): ZaakafhandelParameters {
@@ -385,6 +387,17 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             newZaakafhandelParameters,
             previousZaakafhandelParameters.betrokkeneKoppelingen.brpKoppelen,
             previousZaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen
+        )
+    }
+
+    private fun mapBrpDoelbindingen(
+        previousZaakafhandelParameters: ZaakafhandelParameters,
+        newZaakafhandelParameters: ZaakafhandelParameters
+    ) = newZaakafhandelParameters.apply {
+        brpDoelbindingen = BrpDoelbindingen(
+            newZaakafhandelParameters,
+            previousZaakafhandelParameters.brpDoelbindingen.zoekWaarde,
+            previousZaakafhandelParameters.brpDoelbindingen.raadpleegWaarde
         )
     }
 }
