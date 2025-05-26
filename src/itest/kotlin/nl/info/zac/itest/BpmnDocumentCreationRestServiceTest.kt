@@ -145,7 +145,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                 "?userName=" + TEST_USER_1_NAME.urlEncode() +
                 "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                 "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
-                "&templateGrouName=$SMART_DOCUMENTS_ROOT_GROUP_NAME" +
+                "&templateGroupName=$SMART_DOCUMENTS_ROOT_GROUP_NAME" +
                 "&templateName=" + SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME.urlEncode() +
                 "&informatieobjecttypeUuid=$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
 
