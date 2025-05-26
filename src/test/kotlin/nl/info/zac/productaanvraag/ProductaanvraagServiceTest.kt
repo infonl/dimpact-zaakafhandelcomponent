@@ -274,7 +274,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         } returns createdZaakInformatieobject
         every { cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any()) } just Runs
         every { ztcClientService.findRoltypen(any(), "Initiator") } returns listOf(rolTypeInitiator)
-        every { zrcClientService.createRol(capture(roleToBeCreated)) } just runs
+        every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
         every { configuratieService.readBronOrganisatie() } returns "123443210"
 
         When("the productaanvraag is handled") {
@@ -377,7 +377,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         } returns createdZaakInformatieobject
         every { cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any()) } just Runs
         every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.INITIATOR) } returns listOf(rolType)
-        every { zrcClientService.createRol(capture(roleToBeCreated)) } just runs
+        every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
         every { configuratieService.readBronOrganisatie() } returns "123443210"
 
         When("the productaanvraag is handled") {
@@ -723,7 +723,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every {
                 ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.ZAAKCOORDINATOR)
             } returns listOf(rolTypeZaakcoordinator)
-            every { zrcClientService.createRol(capture(rolesToBeCreated)) } just runs
+            every { zrcClientService.createRol(capture(rolesToBeCreated)) } returns mockk()
             every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
             every {
                 zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
