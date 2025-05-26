@@ -5,9 +5,9 @@
 package nl.info.zac.shared.helper
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.flowable.ZaakVariabelenService
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Opschorting
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy

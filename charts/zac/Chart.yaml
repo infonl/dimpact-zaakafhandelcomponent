@@ -14,12 +14,6 @@ dependencies:
   repository: '@opentelemetry'
   condition: opentelemetry-collector.enabled
   version: 0.125.0
-  # Deprecated, will be removed in the near future
-- name: solr
-  version: 9.6.4
-  repository: '@bitnami'
-  condition: solr.enabled
-  # Will be used instead of solr
 - name: solr-operator
   repository: '@solr'
   version: 0.9.1

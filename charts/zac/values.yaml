@@ -316,55 +316,15 @@ opa:
   affinity: {}
   tolerations: []
 
+# If an external solr instance is used, configure the URL here
+solr:
+  # -- The location of an existing solr instance to be used by zac
+  url: ""
 
 # It is recommended to use solr-operator to help provision a solr-cloud cluster,
 # you will have to configure the zac core seperately then.
 # See the zaakafhandelcomponent wiki on more information about this.
 #
-
-# Solr enable to use the included solr helm chart to provision a solr to use with zac
-solr:
-  # -- set enabled to true to provision bitnami solr version with the zac core
-  enabled: false
-  # you only need to set the url if the solr url cannot be automatically determined
-  # the solr url should be the url solr can be reached on from ZAC ( for example: http://release-solr.default.svc.cluster.local )
-  # url: ""
-  # all settings below are only used when enabled is set to true
-  coreNames: ["zac"]
-  persistence:
-    size: 1Gi
-  replicaCount: 1
-  collectionReplicas: 1
-  cloudBootstrap: false
-  cloudEnabled: false
-  customReadinessProbe:
-    httpGet:
-      port: http
-      path: /solr/zac/admin/ping
-    initialDelaySeconds: 60
-    periodSeconds: 10
-    timeoutSeconds: 15
-    failureThreshold: 6
-    successThreshold: 1
-  customLivenessProbe:
-    httpGet:
-      port: http
-      path: /solr/zac/admin/ping
-    initialDelaySeconds: 40
-    periodSeconds: 10
-    timeoutSeconds: 15
-    failureThreshold: 6
-    successThreshold: 1
-  service:
-    ports:
-      http: 80
-  auth:
-    enabled: false
-  extraEnvVars:
-    - name: ZK_CREATE_CHROOT
-      value: "true"
-  zookeeper:
-    enabled: false
 
 # requires the installation of the solr-operator crds: kubectl create -f https://solr.apache.org/operator/downloads/crds/v0.8.1/all-with-dependencies.yaml
 solr-operator:

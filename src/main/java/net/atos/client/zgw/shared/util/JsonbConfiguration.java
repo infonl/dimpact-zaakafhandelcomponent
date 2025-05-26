@@ -10,10 +10,10 @@ import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbConfig;
 import jakarta.ws.rs.ext.ContextResolver;
 
-import net.atos.client.zgw.zrc.util.GeometryJsonbDeserializer;
-import net.atos.client.zgw.zrc.util.RolJsonbDeserializer;
-import net.atos.client.zgw.zrc.util.ZaakObjectJsonbDeserializer;
 import nl.info.client.zgw.zrc.jsonb.GeometryJsonbSerializer;
+import nl.info.client.zgw.zrc.util.GeometryJsonbDeserializer;
+import nl.info.client.zgw.zrc.util.RolJsonbDeserializer;
+import nl.info.client.zgw.zrc.util.ZaakObjectJsonbDeserializer;
 
 public class JsonbConfiguration implements ContextResolver<Jsonb> {
 

@@ -9,6 +9,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.net.URI;
 import java.util.Objects;
+import java.util.UUID;
 
 import jakarta.annotation.Nullable;
 
@@ -21,11 +22,21 @@ public class RolMedewerker extends Rol<Medewerker> {
     public RolMedewerker() {
     }
 
+    /**
+     * For testing purposes only.
+     */
+    public RolMedewerker(
+            final UUID uuid,
+            final RolType roltype
+    ) {
+        super(uuid, roltype, BetrokkeneType.MEDEWERKER);
+    }
+
     public RolMedewerker(
             final URI zaak,
             final RolType roltype,
             final String roltoelichting,
-            // it is possible in the ZGW API to have a RolMedewerker without a Medewerker
+            // it is possible in the ZGW API to have a RolMedewerker without a Medewerker,
             // and this does occur in practice in certain circumstances
             @Nullable final Medewerker betrokkeneIdentificatie
     ) {

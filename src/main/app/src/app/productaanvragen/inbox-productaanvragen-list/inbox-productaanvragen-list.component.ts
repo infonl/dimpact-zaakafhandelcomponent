@@ -35,7 +35,6 @@ import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { DatumRange } from "../../zoeken/model/datum-range";
 import { InboxProductaanvragenService } from "../inbox-productaanvragen.service";
-import { InboxProductaanvraagListParameters } from "../model/inbox-productaanvraag-list-parameters";
 
 @Component({
   templateUrl: "./inbox-productaanvragen-list.component.html",
@@ -68,7 +67,10 @@ export class InboxProductaanvragenListComponent
     "aantal_bijlagen_filter",
     "actions_filter",
   ];
-  listParameters: InboxProductaanvraagListParameters;
+  listParameters = SessionStorageUtil.getItem(
+    Werklijst.INBOX_PRODUCTAANVRAGEN + "_ZOEKPARAMETERS",
+    this.createDefaultParameters(),
+  );
   expandedRow: GeneratedType<"RESTInboxProductaanvraag"> | null = null;
   filterType: string[] = [];
   filterChange = new EventEmitter<void>();
@@ -91,10 +93,6 @@ export class InboxProductaanvragenListComponent
   ngOnInit(): void {
     super.ngOnInit();
     this.utilService.setTitle("title.productaanvragen.inboxProductaanvragen");
-    this.listParameters = SessionStorageUtil.getItem(
-      Werklijst.INBOX_PRODUCTAANVRAGEN + "_ZOEKPARAMETERS",
-      this.createDefaultParameters(),
-    );
   }
 
   ngAfterViewInit(): void {
@@ -138,12 +136,12 @@ export class InboxProductaanvragenListComponent
 
   filtersChanged(options: {
     event: MatSelectChange | string | DatumRange;
-    filter: keyof typeof this.listParameters;
+    filter: keyof GeneratedType<"RESTInboxProductaanvraagListParameters">;
   }): void {
     this.listParameters[options.filter] =
       typeof options.event === "object" && "value" in options.event
-        ? options.event.value
-        : null;
+        ? (options.event.value as never)
+        : (undefined as never);
     this.paginator.pageIndex = 0;
     this.clearZoekopdracht.emit();
     this.filterChange.emit();
@@ -154,8 +152,9 @@ export class InboxProductaanvragenListComponent
       Werklijst.INBOX_PRODUCTAANVRAGEN + "_ZOEKPARAMETERS",
       this.createDefaultParameters(),
     );
-    this.sort.active = this.listParameters.sort;
-    this.sort.direction = this.listParameters.order;
+    this.sort.active = this.listParameters.sort ?? "id";
+    this.sort.direction = this.listParameters
+      .order as typeof this.sort.direction;
     this.paginator.pageIndex = 0;
     this.filterChange.emit();
   }
@@ -163,8 +162,9 @@ export class InboxProductaanvragenListComponent
   zoekopdrachtChanged(actieveZoekopdracht: Zoekopdracht): void {
     if (actieveZoekopdracht) {
       this.listParameters = JSON.parse(actieveZoekopdracht.json);
-      this.sort.active = this.listParameters.sort;
-      this.sort.direction = this.listParameters.order;
+      this.sort.active = this.listParameters.sort ?? "id";
+      this.sort.direction = this.listParameters
+        .order as typeof this.sort.direction;
       this.paginator.pageIndex = 0;
       this.filterChange.emit();
     } else if (actieveZoekopdracht === null) {
@@ -174,8 +174,8 @@ export class InboxProductaanvragenListComponent
     }
   }
 
-  createDefaultParameters(): InboxProductaanvraagListParameters {
-    return new InboxProductaanvraagListParameters("id", "desc");
+  createDefaultParameters(): GeneratedType<"RESTInboxProductaanvraagListParameters"> {
+    return { sort: "id", order: "desc" };
   }
 
   getWerklijst(): Werklijst {

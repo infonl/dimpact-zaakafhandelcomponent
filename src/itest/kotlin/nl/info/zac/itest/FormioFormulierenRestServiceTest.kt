@@ -9,6 +9,7 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TASK_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -56,7 +57,7 @@ class FormioFormulierenRestServiceTest : BehaviorSpec({
                     {
                         "id": 1,
                         "name": "testForm",
-                        "title": "User details"
+                        "title": "$BPMN_TASK_NAAM"
                     }
                 ]
                 """.trimIndent()

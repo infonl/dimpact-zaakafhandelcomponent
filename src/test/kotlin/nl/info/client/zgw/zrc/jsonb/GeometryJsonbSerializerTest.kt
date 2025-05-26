@@ -7,6 +7,7 @@ package nl.info.client.zgw.zrc.jsonb
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -24,6 +25,10 @@ class GeometryJsonbSerializerTest : BehaviorSpec({
     val geometryJsonbSerializer = GeometryJsonbSerializer()
     val jsonGenerator = mockk<JsonGenerator>()
     val serializationContext = mockk<SerializationContext>()
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given("A point geometry object") {
         val point = createPoint(

@@ -31,7 +31,7 @@
   </button>
 
   <button
-    *ngIf="this.overigeRechten.startenZaak"
+    *ngIf="overigeRechten?.startenZaak"
     routerLink="/zaken/create"
     mat-mini-fab
     title="{{ 'actie.zaak.aanmaken' | translate }}"
@@ -41,7 +41,7 @@
   </button>
 
   <button
-    *ngIf="this.werklijstRechten.zakenTaken"
+    *ngIf="werklijstRechten?.zakenTaken"
     [matMenuTriggerFor]="zakenMenu"
     mat-flat-button
     [ngClass]="{ active: isCaseRouteActive() }"
@@ -67,7 +67,7 @@
   </button>
 
   <button
-    *ngIf="this.werklijstRechten.zakenTaken"
+    *ngIf="werklijstRechten?.zakenTaken"
     [matMenuTriggerFor]="takenMenu"
     mat-flat-button
     [ngClass]="{ active: isTaskRouteActive() }"
@@ -89,7 +89,7 @@
   </button>
 
   <button
-    *ngIf="this.werklijstRechten.inbox"
+    *ngIf="werklijstRechten?.inbox"
     [matMenuTriggerFor]="inboxMenu"
     mat-flat-button
     color="primary"
@@ -122,7 +122,7 @@
     subscriptSizing="dynamic"
     class="search-field hide-sm"
     color="primary"
-    *ngIf="this.overigeRechten.zoeken"
+    *ngIf="overigeRechten?.zoeken"
   >
     <mat-label>{{ "actie.zoeken" | translate }}</mat-label>
     <input
@@ -152,7 +152,7 @@
     </button>
   </mat-form-field>
   <button
-    *ngIf="this.overigeRechten.zoeken"
+    *ngIf="overigeRechten?.zoeken"
     mat-mini-fab
     class="hide-gt-sm"
     (click)="zoekenSideNav.open()"
@@ -162,7 +162,7 @@
     <mat-icon outlined>search</mat-icon>
   </button>
   <button
-    *ngIf="this.overigeRechten.beheren"
+    *ngIf="overigeRechten?.beheren"
     routerLink="/admin"
     routerLinkActive="active"
     mat-icon-button

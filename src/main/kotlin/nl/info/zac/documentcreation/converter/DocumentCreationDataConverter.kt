@@ -6,7 +6,6 @@ package nl.info.zac.documentcreation.converter
 
 import jakarta.inject.Inject
 import net.atos.client.or.`object`.ObjectsClientService
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Objecttype
 import net.atos.client.zgw.zrc.model.Rol
@@ -34,18 +33,19 @@ import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.productaanvraag.ProductaanvraagService
-import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.decodedBase64StringLength
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.Objects
+import java.util.UUID
 
 private const val ACTION = "Document aanmaken"
 
@@ -61,7 +61,6 @@ class DocumentCreationDataConverter @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
     private val identityService: IdentityService,
     private val productaanvraagService: ProductaanvraagService,
-    private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
     private val configuratieService: ConfiguratieService
 ) {
     companion object {
@@ -207,13 +206,11 @@ class DocumentCreationDataConverter @Inject constructor(
         }
 
     fun toEnkelvoudigInformatieObjectCreateLockRequest(
-        zaak: Zaak,
         file: File,
         format: String,
-        smartDocumentsTemplateGroupId: String,
-        smartDocumentsTemplateId: String,
         title: String,
         description: String?,
+        informatieobjecttypeUuid: UUID,
         creationDate: ZonedDateTime,
         userName: String
     ) = EnkelvoudigInformatieObjectCreateLockRequest().apply {
@@ -225,13 +222,7 @@ class DocumentCreationDataConverter @Inject constructor(
         beschrijving = description
         status = StatusEnum.IN_BEWERKING
         vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
-        informatieobjecttype = smartDocumentsTemplatesService.getInformationObjectTypeUUID(
-            zaakafhandelParametersUUID = zaak.zaaktype.extractUuid(),
-            templateGroupId = smartDocumentsTemplateGroupId,
-            templateId = smartDocumentsTemplateId
-        ).let {
-            ztcClientService.readInformatieobjecttype(it).url
-        }
+        informatieobjecttype = ztcClientService.readInformatieobjecttype(informatieobjecttypeUuid).url
         bestandsnaam = file.fileName
         formaat = format
         inhoud = file.document.data

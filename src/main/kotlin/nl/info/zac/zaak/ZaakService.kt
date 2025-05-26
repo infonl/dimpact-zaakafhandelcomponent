@@ -7,7 +7,6 @@ package nl.info.zac.zaak
 import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.NatuurlijkPersoon
@@ -21,10 +20,11 @@ import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolVestiging
 import net.atos.client.zgw.zrc.model.Vestiging
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.zrc.util.StatusTypeUtil
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
@@ -235,7 +235,7 @@ class ZaakService @Inject constructor(
             val status = zrcClientService.readStatus(statusUuid)
             ztcClientService.readStatustype(status.statustype)
         }
-        if (!StatusTypeUtil.isHeropend(statusType)) {
+        if (!statusType.isHeropend()) {
             zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, Boolean.TRUE)
         }
     }

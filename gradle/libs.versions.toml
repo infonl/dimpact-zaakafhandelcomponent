@@ -15,7 +15,7 @@ spotless-eclipse-formatter = "4.21"
 spotless-prettier-base = "3.4.2"
 spotless-prettier-organize-imports = "4.1.0"
 jacoco = "0.8.13"
-glassfish-expressly = "5.0.0"
+glassfish-expressly = "6.0.0"
 keycloak = "25.0.6"
 
 apache-commons-lang = "3.17.0"

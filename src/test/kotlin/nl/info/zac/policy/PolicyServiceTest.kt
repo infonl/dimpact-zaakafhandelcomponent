@@ -14,13 +14,13 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.client.opa.model.RuleQuery
 import net.atos.client.opa.model.RuleResponse
-import net.atos.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.Ondertekening
 import nl.info.client.zgw.drc.model.generated.SoortEnum
 import nl.info.client.zgw.model.createVerlenging
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatus
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -58,7 +58,9 @@ class PolicyServiceTest : BehaviorSpec({
     )
 
     Given("zaak with no status") {
-        val zaak = createZaak()
+        val zaak = createZaak(
+            status = URI("https://example.com/status/${UUID.randomUUID()}")
+        )
         val zaakType = createZaakType()
         val zaakStatus = createZaakStatus()
         val statusType = createStatusType()
@@ -132,7 +134,8 @@ class PolicyServiceTest : BehaviorSpec({
 
     Given("locked zaak with no status that is now in intake") {
         val zaak = createZaak(
-            verlenging = createVerlenging()
+            verlenging = createVerlenging(),
+            status = URI("https://example.com/status/${UUID.randomUUID()}"),
         )
         val zaakType = createZaakType()
         val zaakStatus = createZaakStatus()
@@ -160,7 +163,7 @@ class PolicyServiceTest : BehaviorSpec({
                     opgeschort shouldBe zaak.isOpgeschort
                     verlengd shouldBe zaak.isVerlengd
                     besloten shouldBe false
-                    intake shouldBe false
+                    intake shouldBe true
                     heropend shouldBe false
                 }
             }

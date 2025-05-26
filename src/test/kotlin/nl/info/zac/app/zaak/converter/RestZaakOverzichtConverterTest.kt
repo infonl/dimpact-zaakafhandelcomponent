@@ -10,9 +10,9 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.identity.converter.RestGroupConverter

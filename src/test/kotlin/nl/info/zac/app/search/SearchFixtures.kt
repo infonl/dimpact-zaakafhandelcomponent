@@ -15,11 +15,11 @@ import nl.info.zac.search.model.FilterVeld
 import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.search.model.ZoekParameters
 import nl.info.zac.search.model.ZoekResultaat
+import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
 import java.util.EnumMap
-import java.util.UUID
 
 @Suppress("LongParameterList")
 fun createRESTZoekParameters(
@@ -53,17 +53,6 @@ fun createRESTZoekParameters(
     alleenAfgeslotenZaken = alleenAfgeslotenZaken,
     alleenMijnTaken = alleenMijnTaken
 )
-
-fun createZaakZoekObject(
-    uuid: UUID = UUID.randomUUID(),
-    type: ZoekObjectType = ZoekObjectType.ZAAK,
-    behandelaarGebruikersnaam: String = "fakeBehandelaarGebruikersnaam"
-) = ZaakZoekObject(
-    id = uuid.toString(),
-    type = type.name
-).apply {
-    this.behandelaarGebruikersnaam = behandelaarGebruikersnaam
-}
 
 @Suppress("LongParameterList")
 fun createZoekParameters(

@@ -31,6 +31,7 @@ Versiegeschiedenis:
 | 1.6.1 | Toevoeging indicaties voor personen |
 | 1.6.2 | Laatste veranderingen tekstueel verwerkt; opschorten, verlengen en andere kleine aanpassingen |
 | 1.6.3 | Screendumps vernieuwd naar aanleiding van menu en detailveld, en kleine tekstuele aanpassingen |
+| 1.6.4 | Nieuwe screendumps, koppeling aanpassingen tekstueel verwerkt
 
 <div style="page-break-after: always"></div>
 
@@ -95,8 +96,8 @@ Versiegeschiedenis:
     - [Zaak koppelen om een zaakrelatie te leggen](#zaak-koppelen-om-een-zaakrelatie-te-leggen)
     - [Inzien gekoppelde zaken](#inzien-gekoppelde-zaken)
     - [Ontkoppelen zaken](#ontkoppelen-zaken)
-    - [Zaak afhandelen](#zaak-afhandelen)
-    - [Besluit vastleggen](#besluit-vastleggen)
+- [Zaak afhandelen](#zaak-afhandelen)
+- [Besluit vastleggen](#besluit-vastleggen)
     - [Besluit wijzigen](#besluit-wijzigen)
     - [Besluit intrekken](#besluit-intrekken)
     - [Zaak afhandelen](#zaak-afhandelen)
@@ -163,7 +164,7 @@ Zodra een werklijst, zaak, taak of document geopend is, dan verschijnt deze in h
 
 De beschikbaarheid van functionaliteit voor een gebruiker in het ZAC is verbonden aan rechten. Er wordt momenteel gewerkt met drie rollen voor gebruikers, hieronder volgt een korte omschrijving. Deze rollen zijn nog in ontwikkeling. Het komt dus voor dat functionaliteit, zoals beschreven in deze handleiding, niet beschikbaar voor jou is omdat een rol niet aan jou is toegewezen.
 
-Raadpleger: heeft rechten om zaken, taken en documenten te raadplegen, maar niet om deze te wijzigen.
+Raadpleger: heeft rechten om zaken, taken, notities en documenten te raadplegen, maar niet om deze te wijzigen.
 
 Behandelaar: heeft alle rechten om met de werklijsten, zaken, taken en documenten te werken. Er zijn enkele beperkingen op het gebied van werk verdelen, definitieve documenten en beëindigde zaken.
 
@@ -477,26 +478,34 @@ De datums van een zaak zijn als geheel aan te passen door op het potlood van é�
 
 3 Klik op het vink icoon om de wijziging op te slaan. As je wilt annuleren dan klik je op het kruis icoon en blijft de huidige waarde staan.
 
-## Locatie vastleggen of wijzigen
+## Locatie vastleggen
 
-Met het potlood icoon in het zaakdetail veld is het mogelijk om een locatie in het tabblad 'Locatie'bij een zaak vast te leggen. Van de gekozen locatie worden de coördinaten vastgelegd. Deze locatie kan op de kaart bekeken worden door met de muisaanwijzer op de locatie te klikken. Door de vastgelegde locatie te openen in de kaart kan ook het dichtstbijzijnde adres bij die locatie bekeken worden.
-![Locatie vastleggen wijzigen 1](./images/locatie-vastleggen-wijzigen-1.png)
-
-![Locatie vastleggen wijzigen 2](./images/locatie-vastleggen-wijzigen-2.png)
+Met het menu item 'Zaaklocatie toevoegen' is het mogelijk om een locatie bij een zaak vast te leggen. Van de gekozen locatie worden de coördinaten vastgelegd. Deze locatie kan op de kaart bekeken worden door met de muisaanwijzer op de locatie te klikken. Door de vastgelegde locatie tab te openen in de kaart kan ook het dichtstbijzijnde adres bij die locatie bekeken worden.
 
 **Stappen:**
 
-1 In een zaak in het tabblad ‘Locatie’ kies je een locatie:
+1 In een zaak met het menu item 'Zaaklocatie toevoegen' kies je een locatie:
 - een locatie kan gezocht worden op straatnaam, huisnummer, postcode of plaatsnaam. Het is ook mogelijk om de locatie in de kaart met een muisklik te selecteren.
 
-2 Vul de verplichte reden voor het vastleggen of wijzigen van de locatie in
+2 Vul de verplichte reden voor het vastleggen van de locatie in
 
 3 Klik op ‘Opslaan’ om de locatie vast te leggen
+![Locatie vastleggen](./images/locatie-vastleggen-wijzigen-1.png)
+
+## Locatie wijzigen
+
+**Stappen**
+
+1 In de tab 'Locatie' kan je de locatie bekijken en aanpassen door op het potloodje te klikken. Hiermee opent weer hetzelfde formulier als bij 'Zaaklocatie toevoegen'
+![Locatie wijzigen ](./images/locatie-vastleggen-wijzigen-2.png)
+
+2 Kies de nieuwe locatie en vul het verplichte reden-veld in
+
+3 Klik op opslaan om de nieuwe locatie vast te leggen
 
 ## Locatie ontkoppelen
 
 Het is ook mogelijk een locatie te ontkoppelen.
-![Locatie verwijderen](./images/locatie-verwijderen.png)
 
 **Stappen:**
 
@@ -505,6 +514,7 @@ Het is ook mogelijk een locatie te ontkoppelen.
 2 Vul de verplichte reden voor het ontkoppelen van de locatie in
 
 3 Klik op ‘Opslaan’ om de locatie te ontkoppelen
+![Locatie verwijderen](./images/locatie-verwijderen.png)
 
 ## Zaak opschorten
 
@@ -1052,55 +1062,38 @@ Nadat de actie is afgerond is het document voorzien van een ‘is verzonden’ i
 
 ### Werking van zaakrelaties
 
-In sommige werkprocessen of -situaties komt het voor dat zaken een relatie met elkaar hebben. Het is in de ZAC mogelijk om twee zaken aan elkaar te koppelen. Hiervoor zijn meerdere soorten relaties tussen zaken mogelijk. Of een bepaalde relatie gelegd mag worden is afhankelijk van of dit in de zaaktypen is ingesteld. Als dit niet is ingesteld dan biedt de ZAC ook niet de mogelijkheid om deze koppeling te maken.
-
-De ZAC kent de volgende soorten relaties tussen twee zaken:
-
-- Hoofd- en deelzaak
-- Relevante andere zaak
+In sommige werkprocessen of -situaties komt het voor dat zaken een relatie met elkaar hebben. Het is in de ZAC mogelijk om twee zaken aan elkaar te koppelen. Of een bepaalde relatie gelegd mag worden is afhankelijk van of dit in de zaaktypen is ingesteld. Als dit niet is ingesteld dan biedt de ZAC ook niet de mogelijkheid om deze koppeling te maken.
+ZAC kent Hoofd- en deelzaak relaties tussen twee zaken.
 
 Toelichting op de afhankelijkheid van zaaktype inrichting:
 
-- Om een hoofd-deelzaakrelatie te leggen moet in het zaaktype van de hoofdzaak zijn ingesteld dat deze relatie gelegd mag worden.
-- Om een relevante andere zaak relatie te leggen moet in het zaaktype van de zaak die je wilt koppelen een zaaktyperelatie gelegd zijn met het zaaktype van de zaak waaraan je deze wilt koppelen.
+- Om een hoofd-deelzaakrelatie te leggen moet in het zaaktype van de hoofdzaak zijn ingesteld dat deze relatie gelegd mag worden en een zaak mag niet zowel hoofd als deelzaak zijn.
 
 Een deelzaak wordt gebruikt om een deel van het proces dat tot de uitkomst van de hoofdzaak leidt tot stand te laten komen. Hierbij geldt dat de hoofdzaak pas mag worden afgehandeld als de deelzaak is afgehandeld. Deze relatie mag dan ook alleen tussen openstaande zaken gelegd worden. Verder heeft een deelzaak in de ZAC dezelfde functionaliteit als een reguliere zaak beschikbaar.
 
-Een relevante andere zaak wordt gebruikt om een relatie tussen twee zaken duidelijk te maken. Er zijn 3 soorten relevante andere zaken mogelijk:
-
-- Onderwerp: De andere zaak is relevant voor c.q. is onderwerp van de onderhanden zaak
-- Vervolg: De andere zaak gaf aanleiding tot het starten van de onderhanden zaak
-- Bijdrage: Aan het bereiken van de uitkomst van de andere zaak levert de onderhanden zaak een bijdrage
-
-Een andere relevante zaak relatie tussen zaken kan één- of tweezijdig gelegd worden waarbij, afhankelijk van de zaaktype inrichting, in de ZAC de volgende relaties mogelijk zijn om te leggen:
-
-- Onderwerp-onderwerp
-- Bijdrage-vervolg
-- Vervolg-bijdrage
-
 ### Zaak koppelen om een zaakrelatie te leggen
 
-Voor het koppelen van zaken wordt de klembord functionaliteit gebruikt.
 
 **Stappen:**
 
-1 In een zaak kies je actie *Zaak koppelen*
+1 In een zaak kies je de optie onder koppelen *Zaak koppelen*
 
-2 De geopende zaak is nu op het klembord gezet. Het klembord vind je onderaan het scherm.
+2 In de zaak opent een formulier, waarin je de keuze kunt maken tussen de 2 verschillende koppelingen:
 
-3 Zoek de zaak waaraan je de zaak wilt koppelen en open deze
+- Hoofdzaak koppelen aan deelzaak
+- Deelzaak koppelen aan hoofdzaak
 
-4 In de geopende zaak klik je in het klembord op het koppelen icoon
-![Zaak koppelen](./images/zaak-koppelen.png)
+3 In het zoekveld kan je een deel van of de volledige naam van de zaak invoeren
 
-5 Kies de relatie die de zaak op het klembord moet krijgen ten opzichte van de geopende zaak. Merk op, hier worden alleen de mogelijke opties getoond.
-![Koppel relatie](./images/koppel-relatie.png)
+4 In het zoekresultaat komen als er meerdere resultaten zijn er alleen de eerste 10 resultaten te staan. Bij deze zullen zaken die niet de koppelmogelijkheid bieden niet te kiezen zijn. Alleen de zaken met een blauw koppelteken zijn te kiezen.
 
-6 Klik op ‘Koppelen’ om de koppeling te leggen
+5 Klik op het Koppelteken om de koppeling te leggen
+![koppeling](./images/koppelformulier.png)
+
 
 ### Inzien gekoppelde zaken
 
-Als een zaak een gekoppelde zaak heeft, is deze bij een geopende zaak te benaderen via het tabblad ‘Gerelateerde zaken’. Deze tab is alleen aanwezig als er een gekoppelde zaak is. Daarnaast heeft bij en hoofd-deelzaak relatie een gekoppelde zaak de indicatie ‘Is hoofdzaak’ of ‘Is deelzaak’ op de zaakgegevenspagina. Relevante andere zaken hebben dit niet. Om naar de gekoppelde zaak te gaan kan op het oog icoon geklikt worden.
+Als een zaak een gekoppelde zaak heeft, is deze bij een geopende zaak te benaderen via het tabblad ‘Gerelateerde zaken’. Deze tab is alleen aanwezig als er een gekoppelde zaak is. Daarnaast heeft bij en hoofd-deelzaak relatie een gekoppelde zaak de indicatie ‘Is hoofdzaak’ of ‘Is deelzaak’ op de zaakgegevenspagina. Om naar de gekoppelde zaak te gaan kan op het oog icoon geklikt worden.
 
 Het is ook mogelijk om vanuit een zaak de documenten van de gekoppelde zaak te bekijken. Deze kunnen in het zaakdocumentenoverzichten worden weergegeven door het ‘Toon documenten van gerelateerde zaken’ schuifje aan te zetten.
 ![koppeling](./images/koppeling-inzien.png)
@@ -1179,7 +1172,7 @@ Een besluit kan ingetrokken worden door deze een vervaldatum en -reden te geven.
 
 4 Klik op ‘Wijzigen’ om het besluit weer op te slaan
 
-### Zaak afhandelen
+## Zaak afhandelen
 
 Met deze actie kan een zaak die helemaal gereed is worden afgehandeld. Deze actie is dan ook alleen beschikbaar als alle taken zijn afgerond.
 
@@ -1386,6 +1379,8 @@ Een document kan verwijderd worden door het document vanuit een zaak of de werkl
 Er kan op ieder moment bij een zaak een notitie worden vastgelegd. Een notitie kan handig zijn om bijvoorbeeld een aantekening vast te leggen die tijdens de behandeling kan helpen maar geen informatie bevat over de uiteindelijke uitkomst van de zaak.
 
 De notities functie wordt geactiveerd met het Notities icoon rechtsonder in het zaakscherm. Als er notities bij een zaak aanwezig zijn dan geeft het icoon aan hoeveel er zijn.
+
+De raadpleger mag notities alleen inzien, niet aanpassen of verwijderen. Een behandelaar mag notities van andere behandelaren inzien, maar niet aanpassen of verwijderen. 
 
 ## Notitie aanmaken
 

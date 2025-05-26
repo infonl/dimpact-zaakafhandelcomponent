@@ -49,7 +49,6 @@ import org.flowable.identitylink.api.IdentityLinkInfo;
 import org.flowable.identitylink.api.IdentityLinkType;
 import org.flowable.task.api.TaskInfo;
 
-import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.BetrokkeneType;
 import net.atos.client.zgw.zrc.model.Rol;
 import net.atos.client.zgw.zrc.model.RolMedewerker;
@@ -70,6 +69,7 @@ import nl.info.client.kvk.zoeken.model.generated.BinnenlandsAdres;
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.shared.ZGWApiService;
+import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.client.zgw.ztc.model.generated.StatusType;
 import nl.info.client.zgw.ztc.model.generated.ZaakType;

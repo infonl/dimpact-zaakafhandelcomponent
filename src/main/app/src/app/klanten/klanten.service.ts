@@ -8,7 +8,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
 import { Resultaat } from "../shared/model/resultaat";
 import { BSN_LENGTH } from "../shared/utils/constants";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -16,8 +16,6 @@ import { Bedrijf } from "./model/bedrijven/bedrijf";
 import { ListBedrijvenParameters } from "./model/bedrijven/list-bedrijven-parameters";
 import { Vestigingsprofiel } from "./model/bedrijven/vestigingsprofiel";
 import { ContactGegevens } from "./model/klanten/contact-gegevens";
-import { ListPersonenParameters } from "./model/personen/list-personen-parameters";
-import { PersonenParameters } from "./model/personen/personen-parameters";
 
 @Injectable({
   providedIn: "root",
@@ -85,30 +83,17 @@ export class KlantenService {
   }
 
   /* istanbul ignore next */
-  getPersonenParameters(): Observable<PersonenParameters[]> {
-    return this.http
-      .get<PersonenParameters[]>(`${this.basepath}/personen/parameters`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  getPersonenParameters() {
+    return this.zacHttpClient.GET("/rest/klanten/personen/parameters", {});
   }
 
   /* istanbul ignore next */
-  listPersonen(
-    listPersonenParameters: ListPersonenParameters,
-    audit: { context: string; action: string },
-  ) {
-    return this.zacHttpClient
-      .PUT("/rest/klanten/personen", listPersonenParameters, {
-        pathParams: {
-          header: {
-            "X-Verwerking": `${audit.context}@${audit.action}`,
-          },
-        },
-      })
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listPersonen(body: PutBody<"/rest/klanten/personen">, audit: { context: string; action: string },) {
+    return this.zacHttpClient.PUT("/rest/klanten/personen", body, {
+      header: {
+        "X-Verwerking": `${audit.context}@${audit.action}`,
+      }
+    });
   }
 
   /* istanbul ignore next */

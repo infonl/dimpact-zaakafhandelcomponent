@@ -23,7 +23,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 import net.atos.client.zgw.drc.DrcClientService;
-import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.zac.app.inboxdocumenten.converter.RESTInboxDocumentConverter;
 import net.atos.zac.app.inboxdocumenten.converter.RESTInboxDocumentListParametersConverter;
@@ -34,6 +33,7 @@ import net.atos.zac.documenten.InboxDocumentenService;
 import net.atos.zac.documenten.model.InboxDocument;
 import net.atos.zac.documenten.model.InboxDocumentListParameters;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.zac.policy.PolicyService;
 
 @Singleton

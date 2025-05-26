@@ -30,9 +30,6 @@ import {
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { CustomValidators } from "../../../shared/validators/customValidators";
 import { KlantenService } from "../../klanten.service";
-import { Cardinaliteit } from "../../model/personen/cardinaliteit";
-import { ListPersonenParameters } from "../../model/personen/list-personen-parameters";
-import { PersonenParameters } from "../../model/personen/personen-parameters";
 import { FormCommunicatieService } from "../form-communicatie-service";
 
 @Component({
@@ -59,7 +56,7 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
   postcodeFormField: AbstractFormControlField;
   huisnummerFormField: AbstractFormControlField;
   queryFields: Record<string, AbstractFormControlField>;
-  queries: PersonenParameters[] = [];
+  queries: GeneratedType<"RestPersonenParameters">[] = [];
   persoonColumns: string[] = [
     "bsn",
     "naam",
@@ -197,8 +194,7 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
   }
 
   isValid(): boolean {
-    const parameters: ListPersonenParameters =
-      this.createListPersonenParameters();
+    const parameters = this.createListPersonenParameters();
     this.updateControls(this.getValidQueries(parameters, false));
     return (
       this.formGroup.valid && 0 < this.getValidQueries(parameters, true).length
@@ -206,18 +202,18 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
   }
 
   private getValidQueries(
-    values: ListPersonenParameters,
+    values: GeneratedType<"RestListPersonenParameters">,
     compleet: boolean,
-  ): PersonenParameters[] {
-    let validQueries: PersonenParameters[] = this.queries;
+  ) {
+    let validQueries = this.queries;
     for (const key in this.queryFields) {
       if (values[key] != null) {
         // Verwijder alle queries die met dit gevulde veld niet kunnen
-        validQueries = this.exclude(validQueries, key, Cardinaliteit.NON);
+        validQueries = this.exclude(validQueries, key, "NON");
       } else {
         if (compleet) {
           // Verwijder alles queries die zonder dit lege veld niet kunnen
-          validQueries = this.exclude(validQueries, key, Cardinaliteit.REQ);
+          validQueries = this.exclude(validQueries, key, "REQ");
         }
       }
     }
@@ -225,33 +221,37 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
   }
 
   exclude(
-    queries: PersonenParameters[],
+    queries: GeneratedType<"RestPersonenParameters">[],
     key: string,
-    value: Cardinaliteit,
-  ): PersonenParameters[] {
+    value: GeneratedType<"Cardinaliteit">,
+  ) {
     return queries.filter((query) => query[key] !== value);
   }
 
   include(
-    queries: PersonenParameters[],
+    queries: GeneratedType<"RestPersonenParameters">[],
     key: string,
-    value: Cardinaliteit,
-  ): PersonenParameters[] {
+    value: GeneratedType<"Cardinaliteit">,
+  ) {
     return queries.filter((query) => query[key] === value);
   }
 
-  all(queries: PersonenParameters[], key: string, value: Cardinaliteit) {
+  all(
+    queries: GeneratedType<"RestPersonenParameters">[],
+    key: string,
+    value: GeneratedType<"Cardinaliteit">,
+  ) {
     return this.include(queries, key, value).length === queries.length;
   }
 
-  private updateControls(potential: PersonenParameters[]) {
+  private updateControls(potential: GeneratedType<"RestPersonenParameters">[]) {
     for (const key in this.queryFields) {
       const control = this.queryFields[key];
-      if (this.all(potential, key, Cardinaliteit.NON)) {
+      if (this.all(potential, key, "NON")) {
         this.requireField(control, false);
         this.enableField(control, false);
       } else {
-        this.requireField(control, this.all(potential, key, Cardinaliteit.REQ));
+        this.requireField(control, this.all(potential, key, "REQ"));
         this.enableField(control, true);
       }
     }
@@ -275,8 +275,8 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
     }
   }
 
-  createListPersonenParameters(): ListPersonenParameters {
-    const params = new ListPersonenParameters();
+  createListPersonenParameters() {
+    const params: GeneratedType<"RestListPersonenParameters"> = {};
     for (const entry of Object.entries(this.formGroup.value)) {
       const k = entry[0];
       let v = entry[1];

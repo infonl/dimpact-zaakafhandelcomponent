@@ -21,10 +21,10 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.model.createZaakafhandelParameters
-import nl.info.zac.app.search.createZaakZoekObject
 import nl.info.zac.app.search.createZoekResultaatForZaakZoekObjecten
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.search.SearchService
+import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringInstellingen
 import org.flowable.task.api.Task

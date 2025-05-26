@@ -75,7 +75,7 @@ class MailService @Inject constructor(
     private var loggedInUserInstance: Instance<LoggedInUser>,
 
     @ConfigProperty(name = "SMTP_USERNAME")
-    private val smtpUsername: Optional<String> = Optional.empty(),
+    private val smtpUsername: Optional<String> = Optional.empty()
 ) {
     companion object {
         private val LOG = Logger.getLogger(MailService::class.java.name)
@@ -248,16 +248,22 @@ class MailService @Inject constructor(
             .map { ztcClientService.readInformatieobjecttype(it) }
             .first { it.omschrijving == ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL }
 
-    private fun getAttachments(bijlagenString: Array<String>): List<Attachment> =
-        bijlagenString.map(UUIDUtil::uuid).map { uuid ->
-            val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid)
-            val byteArrayInputStream = drcClientService.downloadEnkelvoudigInformatieobject(uuid)
-            Attachment(
-                contentType = enkelvoudigInformatieobject.formaat,
-                filename = enkelvoudigInformatieobject.bestandsnaam,
-                base64Content = String(Base64.getEncoder().encode(byteArrayInputStream.readAllBytes()))
-            )
-        }
+    private fun getAttachments(attachmentUUIDs: Array<String>): List<Attachment> =
+        attachmentUUIDs
+            // currently the client is able to provide empty strings in the attachment UUID array,
+            // so we filter them out first
+            // ideally we should not allow empty strings in the first place in the corresponding ZAC API endpoint
+            .filter(String::isNotBlank)
+            .map(UUIDUtil::uuid)
+            .map { uuid ->
+                val infoObject = drcClientService.readEnkelvoudigInformatieobject(uuid)
+                val content = drcClientService.downloadEnkelvoudigInformatieobject(uuid).readAllBytes()
+                Attachment(
+                    contentType = infoObject.formaat,
+                    filename = infoObject.bestandsnaam,
+                    base64Content = Base64.getEncoder().encodeToString(content)
+                )
+            }
 
     private fun resolveVariabelen(tekst: String, bronnen: Bronnen): String =
         mailTemplateHelper.resolveVariabelen(tekst).let {

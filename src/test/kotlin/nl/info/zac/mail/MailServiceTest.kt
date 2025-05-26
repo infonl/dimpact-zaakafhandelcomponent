@@ -25,7 +25,7 @@ import net.atos.zac.mailtemplates.MailTemplateHelper
 import net.atos.zac.mailtemplates.model.createMailGegevens
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakInformatieobject
+import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
@@ -76,7 +76,7 @@ class MailServiceTest : BehaviorSpec({
             omschrijving = "e-mail"
         )
         val user = createLoggedInUser()
-        val zaakInformatieobject = createZaakInformatieobject()
+        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
         val resolvedSubject = "resolvedSubject"
 
         every { mailTemplateHelper.resolveVariabelen(mailGegevens.subject) } returns "fakeResolvedString1"
@@ -147,10 +147,12 @@ class MailServiceTest : BehaviorSpec({
         }
     }
 
-    Given("a task") {
+    Given("A task and mail gegevens with an attachment UUID array string consisting of an empty string") {
         val task = mockk<Task>()
         val mailGegevens = createMailGegevens(
-            createDocumentFromMail = true
+            createDocumentFromMail = true,
+            // test if we can correctly handle an attachment UUID array string consisting of an empty string
+            attachments = ""
         )
         val bronnen = Bronnen.Builder().add(task).build()
         val resolvedSubject = "resolvedSubject"
