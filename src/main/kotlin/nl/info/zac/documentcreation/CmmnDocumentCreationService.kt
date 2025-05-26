@@ -56,6 +56,7 @@ class CmmnDocumentCreationService @Inject constructor(
         private val LOG = Logger.getLogger(CmmnDocumentCreationService::class.java.name)
     }
 
+    @Suppress("MaxLineLength")
     fun createCmmnDocumentAttended(
         documentCreationDataAttended: CmmnDocumentCreationDataAttended
     ): DocumentCreationAttendedResponse =

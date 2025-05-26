@@ -56,6 +56,7 @@ class BpmnDocumentCreationService @Inject constructor(
         private val LOG = Logger.getLogger(BpmnDocumentCreationService::class.java.name)
     }
 
+    @Suppress("MaxLineLength")
     fun createBpmnDocumentAttended(
         documentCreationDataAttended: BpmnDocumentCreationDataAttended
     ): DocumentCreationAttendedResponse =
