@@ -71,7 +71,7 @@ class BpmnDocumentCreationService @Inject constructor(
                 )
             }
         }.onFailure {
-            LOG.log(Level.WARNING, "Failed to create document with attended flow", it)
+            LOG.log(Level.WARNING, "Failed to create SmartDocuments document for zaak with uuid: '${documentCreationDataAttended.zaak.uuid}' using attended flow", it)
         }.getOrThrow()
 
     /**
