@@ -71,7 +71,11 @@ class CmmnDocumentCreationService @Inject constructor(
                 )
             }
         }.onFailure {
-            LOG.log(Level.WARNING, "Failed to create document with attended flow", it)
+            LOG.log(
+                Level.WARNING,
+                "Failed to create SmartDocument for zaak with uuid: '${documentCreationDataAttended.zaak.uuid}' using attended flow",
+                it
+            )
         }.getOrThrow()
 
     /**
