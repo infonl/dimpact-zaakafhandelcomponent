@@ -62,6 +62,7 @@ jobs:
 
   paths-filter:
     runs-on: ubuntu-24.04
+    needs: validate-input
     outputs:
       changes-requiring-build: ${{ steps.paths-filter.outputs.changes-requiring-build }}
     steps:
