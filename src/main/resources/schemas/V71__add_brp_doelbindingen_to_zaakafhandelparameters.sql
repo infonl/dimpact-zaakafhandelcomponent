@@ -31,3 +31,95 @@ WHERE
         SELECT id_zaakafhandelparameters
         FROM ${schema}.brp_doelbindingen
     );
+
+-- add referentie tabellen voor BRP doelbindingen
+INSERT INTO ${schema}.referentie_tabel(id_referentie_tabel, code, naam)
+VALUES
+    (NEXTVAL('sq_referentie_tabel'), 'BRP_DOELBINDING_ZOEK_WAARDE', 'BRP Doelbinding Zoekwaarde'),
+    (NEXTVAL('sq_referentie_tabel'), 'BRP_DOELBINDING_RAADPLEEG_WAARDE', 'BRP Doelbinding Raadpleegwaarde');
+
+-- add referentie waarden voor BRP doelbindingen (BRP_DOELBINDING_ZOEK_WAARDE)
+INSERT INTO ${schema}.referentie_waarde(id_referentie_waarde, id_referentie_tabel, naam, is_systeem_tabel)
+VALUES
+    (NEXTVAL('sq_referentie_waarde'),
+     (SELECT id_referentie_tabel FROM ${schema}.referentie_tabel WHERE code = 'BRP_DOELBINDING_ZOEK_WAARDE'),
+     'BRPACT-ZoekenAlgemeen',
+     true),
+    (NEXTVAL('sq_referentie_waarde'),
+     (SELECT id_referentie_tabel FROM ${schema}.referentie_tabel WHERE code = 'BRP_DOELBINDING_ZOEK_WAARDE'),
+     'BRPACT-ZoekenAlgemeenAdresNL',
+     true),
+    (NEXTVAL('sq_referentie_waarde'),
+     (SELECT id_referentie_tabel FROM ${schema}.referentie_tabel WHERE code = 'BRP_DOELBINDING_ZOEK_WAARDE'),
+     'BRPACT-ZoekenAlgemeenGezag',
+     true),
+    (NEXTVAL('sq_referentie_waarde'),
+     (SELECT id_referentie_tabel FROM ${schema}.referentie_tabel WHERE code = 'BRP_DOELBINDING_ZOEK_WAARDE'),
+     'BRPACT-ZoekenAlgemeenAdresNLGezag',
+     true);
+
+-- add referentie waarden voor BRP doelbindingen (BRP_DOELBINDING_RAADPLEEG_WAARDE)
+INSERT INTO ${schema}.referentie_waarde (id_referentie_waarde, id_referentie_tabel, naam, is_systeem_waarde)
+VALUES
+    (NEXTVAL('sq_referentie_waarde'),
+     (SELECT id_referentie_tabel FROM ${schema}.referentie_tabel WHERE code = 'BRP_DOELBINDING_RAADPLEEG_WAARDE'),
+     'BRPACT-AanschrijvenZakelijkGerechtigde',
+     true),
+    (NEXTVAL('sq_referentie_waarde'),
+     (SELECT id_referentie_tabel FROM ${schema}.referentie_tabel WHERE code = 'BRP_DOELBINDING_RAADPLEEG_WAARDE'),
+     'BRPACT-AlgemeneTaken',
+     true),
+    (NEXTVAL('sq_referentie_waarde'),
+     (SELECT id_referentie_tabel FROM ${schema}.referentie_tabel WHERE code = 'BRP_DOELBINDING_RAADPLEEG_WAARDE'),
+     'BRPACT-AlleTakenSpontaan',
+     true),
+    (NEXTVAL('sq_referentie_waarde'),
+     (SELECT id_referentie_tabel FROM ${schema}.referentie_tabel WHERE code = 'BRP_DOELBINDING_RAADPLEEG_WAARDE'),
+     'BRPACT-APV',
+     true),
+    (NEXTVAL('sq_referentie_waarde'),
+     (SELECT id_referentie_tabel FROM ${schema}.referentie_tabel WHERE code = 'BRP_DOELBINDING_RAADPLEEG_WAARDE'),
+     'BRPACT-Burgerzaken',
+     true),
+    (NEXTVAL('sq_referentie_waarde'),
+     (SELECT id_referentie_tabel FROM ${schema}.referentie_tabel WHERE code = 'BRP_DOELBINDING_RAADPLEEG_WAARDE'),
+     'BRPACT-DrankHoreca',
+     true),
+    (NEXTVAL('sq_referentie_waarde'),
+     (SELECT id_referentie_tabel FROM ${schema}.referentie_tabel WHERE code = 'BRP_DOELBINDING_RAADPLEEG_WAARDE'),
+     'BRPACT-DispensatieNietOpenbareArchiefstukken',
+     true),
+    (NEXTVAL('sq_referentie_waarde'),
+     (SELECT id_referentie_tabel FROM ${schema}.referentie_tabel WHERE code = 'BRP_DOELBINDING_RAADPLEEG_WAARDE'),
+     'BRPACT-FormulierenAanvragerBasis',
+     true),
+    (NEXTVAL('sq_referentie_waarde'),
+     (SELECT id_referentie_tabel FROM ${schema}.referentie_tabel WHERE code = 'BRP_DOELBINDING_RAADPLEEG_WAARDE'),
+     'BRPACT-GehandicaptenParkeerkaart',
+     true),
+    (NEXTVAL('sq_referentie_waarde'),
+     (SELECT id_referentie_tabel FROM ${schema}.referentie_tabel WHERE code = 'BRP_DOELBINDING_RAADPLEEG_WAARDE'),
+     'BRPACT-GemeentelijkeBelastingen',
+     true),
+    (NEXTVAL('sq_referentie_waarde'),
+     (SELECT id_referentie_tabel FROM ${schema}.referentie_tabel WHERE code = 'BRP_DOELBINDING_RAADPLEEG_WAARDE'),
+     'BRPACT-GevondenVoorwerpen',
+     true),
+    (NEXTVAL('sq_referentie_waarde'),
+     (SELECT id_referentie_tabel FROM ${schema}.referentie_tabel WHERE code = 'BRP_DOELBINDING_RAADPLEEG_WAARDE'),
+     'BRPACT-Huisvesting',
+     true),
+    (NEXTVAL('sq_referentie_waarde'),
+     (SELECT id_referentie_tabel FROM ${schema}.referentie_tabel WHERE code = 'BRP_DOELBINDING_RAADPLEEG_WAARDE'),
+     'BRPACT-HuisvestingAdres',
+     true),
+    (NEXTVAL('sq_referentie_waarde'),
+     (SELECT id_referentie_tabel FROM ${schema}.referentie_tabel WHERE code = 'BRP_DOELBINDING_RAADPLEEG_WAARDE'),
+     'BRPACT-JeugdJeugdige',
+     true),
+    -- Continue adding entries for other items
+    (NEXTVAL('sq_referentie_waarde'),
+     (SELECT id_referentie_tabel FROM ${schema}.referentie_tabel WHERE code = 'BRP_DOELBINDING_RAADPLEEG_WAARDE'),
+     'BRPACT-WOZ',
+     true);
+

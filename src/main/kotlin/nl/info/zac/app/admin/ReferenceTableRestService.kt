@@ -149,6 +149,22 @@ class ReferenceTableRestService @Inject constructor(
         }
     }
 
+    @GET
+    @Path("brp-doelbinding-zoek-waarde")
+    fun listBrpDoelbindingZoekWaarden(): List<String> {
+        return referenceTableService.readReferenceTable(Systeem.BRP_DOELBINDING_ZOEK_WAARDE.name).values.let {
+            getReferenceTableValueNames(it)
+        }
+    }
+
+    @GET
+    @Path("brp-doelbinding-raadpleeg-waarde")
+    fun listBrpDoelbindingRaadpleegWaarden(): List<String> {
+        return referenceTableService.readReferenceTable(Systeem.BRP_DOELBINDING_RAADPLEEG_WAARDE.name).values.let {
+            getReferenceTableValueNames(it)
+        }
+    }
+
     private fun getReferenceTableValueNames(referenceTableValues: List<ReferenceTableValue>) =
         referenceTableValues.map(ReferenceTableValue::name)
 
