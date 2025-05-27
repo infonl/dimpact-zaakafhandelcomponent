@@ -8,6 +8,16 @@ on:
   pull_request:
   merge_group:
   workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Select the version bump.'
+        type: choice
+        required: true
+        default: 'patch'
+        options:
+          - patch
+          - minor
+          - major
   push:
     branches:
       - main
@@ -28,14 +38,31 @@ permissions:
   # Required for uploading SARIF reports
   security-events: write
 
-# Only allow a single concurrent run per branch. Cancel in-progress runs on multiple pushes when not on main branch.  
+# Only allow a single concurrent run per branch. Cancel in-progress runs on multiple pushes when not on main branch.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ !contains(github.ref, 'main')}}
 
 jobs:
+  validate-input:
+    runs-on: ubuntu-24.04
+    outputs:
+      version-bump: ${{ github.event.inputs.confirm }}
+    steps:
+      - name: Use selected version bump
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          echo "Version will be bumped to next ${{ github.event.inputs.confirm }} number."
+
+      - name: Manual version bump only allowed on main branch
+        if: ${{ github.ref != 'refs/heads/main' && github.event_name == 'workflow_dispatch' }}
+        run: |
+          echo "Version can only be bumped on the main branch!"
+          exit 1
+
   paths-filter:
     runs-on: ubuntu-24.04
+    needs: validate-input
     outputs:
       changes-requiring-build: ${{ steps.paths-filter.outputs.changes-requiring-build }}
     steps:
@@ -205,6 +232,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   next-version:
+    needs: [validate-input]
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.get-version.outputs.replaced }}
@@ -218,12 +246,12 @@ jobs:
       # Determine the next semantic version based on the commit message tags
       - name: Get next tag on main
         id: get-tag-main
-        if: ${{ github.ref == 'refs/heads/main'}}
+        if: ${{ github.ref == 'refs/heads/main' }}
         uses: anothrNick/github-tag-action@e528bc2b9628971ce0e6f823f3052d1dcd9d512c # 1.73.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PRERELEASE: false
-          DEFAULT_BUMP: patch
+          DEFAULT_BUMP: ${{ needs.validate-input.outputs.version-bump }}
           WITH_V: true
           RELEASE_BRANCHES: main
       # If not on main, Determine the next semantic version based on the commit message tags without pushing tags`
