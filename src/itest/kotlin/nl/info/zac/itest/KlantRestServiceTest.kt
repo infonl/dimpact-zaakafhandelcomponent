@@ -46,9 +46,12 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELI
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_PLAATSVERVANGER
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
+
+private const val HEADER_VERWERKING = "X-Verwerking"
 
 /**
  * This test assumes a roltype has been created in a previously run test.
@@ -78,8 +81,16 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
         When("a person is retrieved using a BSN which is present in both the BRP and Klanten API databases") {
+            val context = "ZAAK AANMAKEN"
+            val action = "Zaak aanmaken"
+            val auditEvent = "$context@$action"
+
+            val headers = Headers.Builder()
+                .add(HEADER_VERWERKING, auditEvent)
+                .build()
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/klanten/persoon/$TEST_PERSON_HENDRIKA_JANSE_BSN"
+                url = "$ZAC_API_URI/klanten/persoon/$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                headers = headers
             )
             Then(
                 """

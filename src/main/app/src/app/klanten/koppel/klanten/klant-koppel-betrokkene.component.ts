@@ -7,14 +7,13 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  input,
   Input,
   OnInit,
   Output,
   ViewChild,
 } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MatIcon } from "@angular/material/icon";
-import { MatTabLabel } from "@angular/material/tabs";
 import { TranslateModule } from "@ngx-translate/core";
 import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
 import { SharedModule } from "src/app/shared/shared.module";
@@ -35,11 +34,9 @@ import { PersoonZoekComponent } from "../../zoek/personen/persoon-zoek.component
   standalone: true,
   imports: [
     SharedModule,
-    MatIcon,
     TranslateModule,
     MaterialFormBuilderModule,
     KlantenModule,
-    MatTabLabel,
   ],
   template: `
     <div class="form">
@@ -57,6 +54,8 @@ import { PersoonZoekComponent } from "../../zoek/personen/persoon-zoek.component
     @if (type === "persoon") {
       <zac-persoon-zoek
         #zoek
+        [context]="this.context()"
+        action="klant-koppelen-betrokkene"
         [syncEnabled]="true"
         (persoon)="klantGeselecteerd($event)"
       ></zac-persoon-zoek>
@@ -75,6 +74,8 @@ export class KlantKoppelBetrokkeneComponent implements OnInit, AfterViewInit {
   @Input() zaaktypeUUID: string;
   @Output() klantGegevens = new EventEmitter<KlantGegevens>();
   @ViewChild("zoek") zoek: PersoonZoekComponent | BedrijfZoekComponent;
+
+  context = input.required<string>();
 
   betrokkeneRoltype: SelectFormField<GeneratedType<"RestRoltype">>;
   betrokkeneToelichting: InputFormField;

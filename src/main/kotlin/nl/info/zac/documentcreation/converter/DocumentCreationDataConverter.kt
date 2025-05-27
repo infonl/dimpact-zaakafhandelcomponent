@@ -47,6 +47,8 @@ import java.time.ZonedDateTime
 import java.util.Objects
 import java.util.UUID
 
+private const val ACTION = "Document aanmaken"
+
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
 class DocumentCreationDataConverter @Inject constructor(
@@ -110,11 +112,16 @@ class DocumentCreationDataConverter @Inject constructor(
         )
 
     private fun createAanvragerData(zaak: Zaak): AanvragerData? =
-        zgwApiService.findInitiatorRoleForZaak(zaak)?.let(::convertToAanvragerData)
+        zgwApiService.findInitiatorRoleForZaak(zaak)?.let { initiator ->
+            convertToAanvragerData(initiator, zaak.identificatie)
+        }
 
-    private fun convertToAanvragerData(initiator: Rol<*>): AanvragerData? =
+    private fun convertToAanvragerData(initiator: Rol<*>, zaakNummer: String): AanvragerData? =
         when (initiator.betrokkeneType) {
-            BetrokkeneType.NATUURLIJK_PERSOON -> createAanvragerDataNatuurlijkPersoon(initiator.identificatienummer)
+            BetrokkeneType.NATUURLIJK_PERSOON -> createAanvragerDataNatuurlijkPersoon(
+                initiator.identificatienummer,
+                "$zaakNummer@$ACTION"
+            )
             BetrokkeneType.VESTIGING -> createAanvragerDataVestiging(initiator.identificatienummer)
             BetrokkeneType.NIET_NATUURLIJK_PERSOON -> createAanvragerDataNietNatuurlijkPersoon(
                 initiator.identificatienummer
@@ -124,8 +131,9 @@ class DocumentCreationDataConverter @Inject constructor(
             )
         }
 
-    private fun createAanvragerDataNatuurlijkPersoon(bsn: String): AanvragerData? =
-        brpClientService.retrievePersoon(bsn)?.let { convertToAanvragerDataPersoon(it) }
+    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, requestContext: String): AanvragerData? {
+        return brpClientService.retrievePersoon(bsn, requestContext)?.let { convertToAanvragerDataPersoon(it) }
+    }
 
     private fun convertToAanvragerDataPersoon(persoon: Persoon) =
         AanvragerData(

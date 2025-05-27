@@ -15,8 +15,11 @@ import nl.info.client.brp.model.createRaadpleegMetBurgerservicenummer
 import nl.info.client.brp.model.createRaadpleegMetBurgerservicenummerResponse
 import java.util.Optional
 
+const val CONTEXT = "ZAAK-2000-00002-134"
+const val ACTION = "E-mail verzenden"
 const val QUERY_PERSONEN_PURPOSE = "testQueryPurpose"
 const val RETRIEVE_PERSOON_PURPOSE = "testRetrievePurpose"
+const val REQUEST_CONTEXT = "$CONTEXT@$ACTION"
 
 class BrpClientServiceTest : BehaviorSpec({
     val personenApi: PersonenApi = mockk<PersonenApi>()
@@ -38,11 +41,11 @@ class BrpClientServiceTest : BehaviorSpec({
             persons = listOf(person)
         )
         every {
-            personenApi.personen(any(), RETRIEVE_PERSOON_PURPOSE)
+            personenApi.personen(any(), RETRIEVE_PERSOON_PURPOSE, REQUEST_CONTEXT)
         } returns raadpleegMetBurgerservicenummerResponse
 
         When("find person is called with the BSN of the person") {
-            val personResponse = configuredBrpClientService.retrievePersoon(bsn)
+            val personResponse = configuredBrpClientService.retrievePersoon(bsn, REQUEST_CONTEXT)
 
             Then("it should return the person") {
                 personResponse shouldBe person
@@ -52,11 +55,11 @@ class BrpClientServiceTest : BehaviorSpec({
 
     Given("No person for a given BSN") {
         every {
-            personenApi.personen(any(), RETRIEVE_PERSOON_PURPOSE)
+            personenApi.personen(any(), RETRIEVE_PERSOON_PURPOSE, REQUEST_CONTEXT)
         } returns createRaadpleegMetBurgerservicenummerResponse(persons = emptyList())
 
         When("find person is called with the BSN of the person") {
-            val personResponse = configuredBrpClientService.retrievePersoon("123456789")
+            val personResponse = configuredBrpClientService.retrievePersoon("123456789", REQUEST_CONTEXT)
 
             Then("it should return null") {
                 personResponse shouldBe null
@@ -70,11 +73,11 @@ class BrpClientServiceTest : BehaviorSpec({
             createPersoon(bsn = "123456789")
         )
         every {
-            personenApi.personen(any(), RETRIEVE_PERSOON_PURPOSE)
+            personenApi.personen(any(), RETRIEVE_PERSOON_PURPOSE, REQUEST_CONTEXT)
         } returns createRaadpleegMetBurgerservicenummerResponse(persons = persons)
 
         When("find person is called with the BSN of the person") {
-            val personResponse = configuredBrpClientService.retrievePersoon("123456789")
+            val personResponse = configuredBrpClientService.retrievePersoon("123456789", REQUEST_CONTEXT)
 
             Then("it should return the first person") {
                 personResponse shouldBe persons[0]
@@ -91,12 +94,13 @@ class BrpClientServiceTest : BehaviorSpec({
             persons = listOf(person)
         )
         every {
-            personenApi.personen(any(), QUERY_PERSONEN_PURPOSE)
+            personenApi.personen(any(), QUERY_PERSONEN_PURPOSE, REQUEST_CONTEXT)
         } returns raadpleegMetBurgerservicenummerResponse
 
         When("a query is run on personen for this BSN") {
             val personResponse = configuredBrpClientService.queryPersonen(
-                createRaadpleegMetBurgerservicenummer(listOf(bsn))
+                createRaadpleegMetBurgerservicenummer(listOf(bsn)),
+                REQUEST_CONTEXT
             )
 
             Then("it should return the person") {
@@ -115,17 +119,18 @@ class BrpClientServiceTest : BehaviorSpec({
         )
         val brpClientService = BrpClientService(
             personenApi = personenApi,
-            queryPersonenPurpose = Optional.empty(),
-            retrievePersoonPurpose = Optional.of(RETRIEVE_PERSOON_PURPOSE)
+            queryPersonenDefaultPurpose = Optional.empty(),
+            retrievePersoonDefaultPurpose = Optional.of(RETRIEVE_PERSOON_PURPOSE)
         )
 
         every {
-            personenApi.personen(any(), null)
+            personenApi.personen(any(), null, REQUEST_CONTEXT)
         } returns raadpleegMetBurgerservicenummerResponse
 
         When("queryPersonen is called") {
             val personResponse = brpClientService.queryPersonen(
-                createRaadpleegMetBurgerservicenummer(listOf(bsn))
+                createRaadpleegMetBurgerservicenummer(listOf(bsn)),
+                REQUEST_CONTEXT
             )
 
             Then("it should return the person") {
@@ -144,16 +149,16 @@ class BrpClientServiceTest : BehaviorSpec({
         )
         val brpClientService = BrpClientService(
             personenApi = personenApi,
-            queryPersonenPurpose = Optional.of(QUERY_PERSONEN_PURPOSE),
-            retrievePersoonPurpose = Optional.empty()
+            queryPersonenDefaultPurpose = Optional.of(QUERY_PERSONEN_PURPOSE),
+            retrievePersoonDefaultPurpose = Optional.empty()
         )
 
         every {
-            personenApi.personen(any(), null)
+            personenApi.personen(any(), null, REQUEST_CONTEXT)
         } returns raadpleegMetBurgerservicenummerResponse
 
         When("find person is called with the BSN of the person") {
-            val personResponse = brpClientService.retrievePersoon(bsn)
+            val personResponse = brpClientService.retrievePersoon(bsn, REQUEST_CONTEXT)
 
             Then("it should return the person") {
                 personResponse shouldBe person

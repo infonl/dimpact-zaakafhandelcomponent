@@ -82,6 +82,7 @@ public class MailTemplateHelper {
     public static final Pattern PTAGS = Pattern.compile("</?p>", Pattern.CASE_INSENSITIVE);
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private static final String ACTION = "E-mail verzenden";
 
     private BrpClientService brpClientService;
     private ConfiguratieService configuratieService;
@@ -166,6 +167,7 @@ public class MailTemplateHelper {
                 resolvedTekst.contains(ZAAK_INITIATOR_ADRES.getVariabele())) {
                 resolvedTekst = replaceInitiatorVariabelen(
                         resolvedTekst,
+                        zaak.getIdentificatie() + "@" + ACTION,
                         Optional.ofNullable(zgwApiService.findInitiatorRoleForZaak(zaak))
                 );
             }
@@ -272,14 +274,14 @@ public class MailTemplateHelper {
         );
     }
 
-    private String replaceInitiatorVariabelen(final String resolvedTekst, final Optional<Rol<?>> initiator) {
+    private String replaceInitiatorVariabelen(final String resolvedTekst, String requestContext, final Optional<Rol<?>> initiator) {
         if (initiator.isPresent()) {
             final String identificatie = initiator.get().getIdentificatienummer();
             final BetrokkeneType betrokkene = initiator.get().getBetrokkeneType();
             return switch (betrokkene) {
                 case NATUURLIJK_PERSOON -> replaceInitiatorVariabelenPersoon(
                         resolvedTekst,
-                        brpClientService.retrievePersoon(identificatie)
+                        brpClientService.retrievePersoon(identificatie, requestContext)
                 );
                 case VESTIGING -> replaceInitiatorVariabelenResultaatItem(
                         resolvedTekst,
@@ -292,7 +294,7 @@ public class MailTemplateHelper {
                 default -> throw new IllegalStateException(String.format("unexpected betrokkenetype %s", betrokkene));
             };
         }
-        return replaceInitiatorVariabelen(resolvedTekst, null, null);
+        return replaceInitiatorVariabelen(resolvedTekst, null, (String) null);
     }
 
     private static String replaceInitiatorVariabelenPersoon(
@@ -355,7 +357,7 @@ public class MailTemplateHelper {
     }
 
     private static String replaceInitiatorVariabelenOnbekend(final String resolvedTekst) {
-        return replaceInitiatorVariabelen(resolvedTekst, "Onbekend", null);
+        return replaceInitiatorVariabelen(resolvedTekst, "Onbekend", (String) null);
     }
 
     private static String replaceInitiatorVariabelen(
