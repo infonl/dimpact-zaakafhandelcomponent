@@ -15,6 +15,7 @@ import { MatDrawer, MatSidenav } from "@angular/material/sidenav";
 import { MatTable, MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { UtilService } from "../../../core/service/util.service";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { BAGService } from "../../bag.service";
 import { Adres } from "../../model/adres";
 import { BAGObject } from "../../model/bagobject";
@@ -36,7 +37,7 @@ export class BagZoekComponent {
   BAGObjecttype = BAGObjecttype;
   trefwoorden = new FormControl("", [Validators.maxLength(255)]);
   bagObjecten = new MatTableDataSource<
-    (BAGObject | Adres) & { expanded?: boolean; child?: boolean }
+    GeneratedType<"RESTBAGObject"> | GeneratedType<"RESTBAGAdres">
   >();
   loading = false;
   columns: string[] = ["expand", "id", "type", "omschrijving", "acties"];
@@ -55,7 +56,7 @@ export class BagZoekComponent {
       this.bagService
         .listAdressen(new ListAdressenParameters(this.trefwoorden.value))
         .subscribe((adressen) => {
-          this.bagObjecten.data = adressen.resultaten;
+          this.bagObjecten.data = adressen.resultaten ?? [];
           this.loading = false;
           this.utilService.setLoading(false);
         });
@@ -89,14 +90,16 @@ export class BagZoekComponent {
 
   expand(bagObject: (BAGObject | Adres) & { expanded: boolean }) {
     this.bagObjecten.data = this.bagObjecten.data.filter(
-      (b) => b["child"] !== true,
+      (b) => (b as { child?: boolean })["child"] !== true,
     );
     if (bagObject.expanded) {
       bagObject.expanded = false;
       return;
     }
 
-    this.bagObjecten.data.forEach((b) => (b["expanded"] = false));
+    this.bagObjecten.data.forEach(
+      (b) => ((b as { expanded?: boolean })["expanded"] = false),
+    );
     bagObject.expanded = true;
 
     const children: ((BAGObject | Adres) & {
