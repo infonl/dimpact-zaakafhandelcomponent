@@ -917,7 +917,6 @@
   "msg.smartdocuments.wizard.subtext.unknown": "Close the tab and try again please",
   "msg.smartdocuments.form.disabled": "For this case type there is no mapping for SmartDocuments.",
   "title.smartdocuments.form": "Smartdocuments connections",
-  "title.brpDoelbinding.form": "Basic registration of persons (personal data) purpose",
   "brpDoelbinding.zoekWaarde": "Search value",
   "brpDoelbinding.raadpleegWaarde": "Consulting value",
   "msg.taak.aanvullendeInformatie.fataleDatumZaak.leeg": "Case has no fatal date!",

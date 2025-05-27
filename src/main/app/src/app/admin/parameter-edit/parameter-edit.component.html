@@ -711,7 +711,9 @@
       <mat-step
         *ngIf="parameters.smartDocuments.enabledGlobally"
         [stepControl]="smartDocumentsEnabledForm"
-        [hasError]="!isSmartDocumentsStepValid"
+        [hasError]="
+          !isSmartDocumentsStepValid || !brpDoelbindingFormGroup.valid
+        "
       >
         <ng-template matStepLabel>{{
           "gegevens.koppelingen" | translate
@@ -736,9 +738,6 @@
               [formGroup]="brpDoelbindingFormGroup"
               *ngIf="betrokkeneKoppelingen.controls.brpKoppelen.value"
             >
-              <h2>
-                {{ "title.brpDoelbinding.form" | translate }}
-              </h2>
               <p>
                 {{ "title.admin.parameters.step.brpDoelbinding" | translate }}
               </p>

@@ -479,6 +479,16 @@ export class ParameterEditComponent
 
     this.betrokkeneKoppelingen.controls.brpKoppelen.valueChanges.subscribe(
       (value) => {
+        this.brpDoelbindingFormGroup.controls.raadpleegWaarde.setValidators(
+          value ? [Validators.required] : [],
+        );
+        this.brpDoelbindingFormGroup.controls.zoekWaarde.setValidators(
+          value ? [Validators.required] : [],
+        );
+
+        this.brpDoelbindingFormGroup.updateValueAndValidity({
+          emitEvent: false,
+        });
         if (value) return;
 
         this.brpDoelbindingFormGroup.reset();
@@ -490,11 +500,15 @@ export class ParameterEditComponent
     this.brpDoelbindingFormGroup = this.formBuilder.group({
       raadpleegWaarde: [
         this.parameters.brpDoelbindingen.raadpleegWaarde ?? "",
-        Validators.required,
+        this.betrokkeneKoppelingen.controls.brpKoppelen.value
+          ? [Validators.required]
+          : [],
       ],
       zoekWaarde: [
         this.parameters.brpDoelbindingen.zoekWaarde ?? "",
-        Validators.required,
+        this.betrokkeneKoppelingen.controls.brpKoppelen.value
+          ? [Validators.required]
+          : [],
       ],
     });
   }
@@ -689,6 +703,8 @@ export class ParameterEditComponent
       this.algemeenFormGroup.valid &&
       this.humanTasksFormGroup.valid &&
       this.zaakbeeindigFormGroup.valid &&
+      this.betrokkeneKoppelingen.valid &&
+      this.brpDoelbindingFormGroup.valid &&
       this.isSmartDocumentsStepValid
     );
   }

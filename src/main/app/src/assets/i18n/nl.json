@@ -916,7 +916,6 @@
   "msg.smartdocuments.wizard.subtext.cancelled": "Sluit het tabblad en probeer het opnieuw",
   "msg.smartdocuments.wizard.subtext.unknown": "Sluit het tabblad en probeer het opnieuw",
   "title.smartdocuments.form": "Smartdocuments koppelingen",
-  "title.brpDoelbinding.form": "Basisregistratie personen (persoonsgegevens) doelbindingen",
   "brpDoelbinding.zoekWaarde": "Zoekwaarde",
   "brpDoelbinding.raadpleegWaarde": "Raadpleegwaarde",
   "msg.smartdocuments.form.disabled": "De koppeling met SmartDocuments staat uit voor dit zaaktype.",
