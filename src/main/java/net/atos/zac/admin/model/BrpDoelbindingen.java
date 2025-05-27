@@ -50,7 +50,6 @@ public class BrpDoelbindingen {
         this.raadpleegWaarde = raadpleegWaarde;
     }
 
-    // Getters and Setters
 
     public Long getId() {
         return id;
