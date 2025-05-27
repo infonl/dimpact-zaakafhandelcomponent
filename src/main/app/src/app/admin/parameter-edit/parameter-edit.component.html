@@ -717,7 +717,7 @@
           "gegevens.koppelingen" | translate
         }}</ng-template>
         <ng-template matStepContent>
-          <h2 class="flex-1">
+          <h2>
             {{ "gegevens.landelijk.koppelingen" | translate }}
           </h2>
           <p>
@@ -734,7 +734,6 @@
             </div>
             <form
               [formGroup]="brpDoelbindingFormGroup"
-              class="flex-col"
               *ngIf="betrokkeneKoppelingen.controls.brpKoppelen.value"
             >
               <h2>
@@ -743,39 +742,40 @@
               <p>
                 {{ "title.admin.parameters.step.brpDoelbinding" | translate }}
               </p>
-
-              <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
-                <mat-label>{{
-                  "brpDoelbinding.zoekWaarde" | translate
-                }}</mat-label>
-                <mat-select
-                  placeholder="{{ 'resultaat.-kies-' | translate }}"
-                  [formControl]="brpDoelbindingFormGroup.controls.zoekWaarde"
-                >
-                  <mat-option
-                    *ngFor="let value of brpSearchValues"
-                    [value]="value"
-                    >{{ value }}</mat-option
+              <section class="flex-col">
+                <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
+                  <mat-label>{{
+                    "brpDoelbinding.zoekWaarde" | translate
+                  }}</mat-label>
+                  <mat-select
+                    placeholder="{{ 'resultaat.-kies-' | translate }}"
+                    [formControl]="brpDoelbindingFormGroup.controls.zoekWaarde"
                   >
-                </mat-select>
-              </mat-form-field>
-              <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
-                <mat-label>{{
-                  "brpDoelbinding.raadpleegWaarde" | translate
-                }}</mat-label>
-                <mat-select
-                  placeholder="{{ 'resultaat.-kies-' | translate }}"
-                  [formControl]="
-                    brpDoelbindingFormGroup.controls.raadpleegWaarde
-                  "
-                >
-                  <mat-option
-                    *ngFor="let value of brpConsultingValues"
-                    [value]="value"
-                    >{{ value }}</mat-option
+                    <mat-option
+                      *ngFor="let value of brpSearchValues"
+                      [value]="value"
+                      >{{ value }}</mat-option
+                    >
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
+                  <mat-label>{{
+                    "brpDoelbinding.raadpleegWaarde" | translate
+                  }}</mat-label>
+                  <mat-select
+                    placeholder="{{ 'resultaat.-kies-' | translate }}"
+                    [formControl]="
+                      brpDoelbindingFormGroup.controls.raadpleegWaarde
+                    "
                   >
-                </mat-select>
-              </mat-form-field>
+                    <mat-option
+                      *ngFor="let value of brpConsultingValues"
+                      [value]="value"
+                      >{{ value }}</mat-option
+                    >
+                  </mat-select>
+                </mat-form-field>
+              </section>
             </form>
             <div class="flex-row items-center gap-8">
               <mat-slide-toggle
@@ -786,7 +786,6 @@
               <p>{{ "gegevens.koppelen.kvk" | translate }}</p>
             </div>
           </form>
-
           <form [formGroup]="smartDocumentsEnabledForm" class="flex-col">
             <div class="flex-row items-center">
               <section class="flex-1">
