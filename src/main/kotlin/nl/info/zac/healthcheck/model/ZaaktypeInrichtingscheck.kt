@@ -28,6 +28,7 @@ class ZaaktypeInrichtingscheck(val zaaktype: ZaakType) {
     var isBesluittypeAanwezig: Boolean = false
     val resultaattypesMetVerplichtBesluit: MutableList<String?> = ArrayList<String?>()
     var isZaakafhandelParametersValide: Boolean = false
+    var isBrpDoelbindingenAanwezig: Boolean = false
 
     fun addResultaattypesMetVerplichtBesluit(resultaattypeMetVerplichtBesluit: String?) {
         this.resultaattypesMetVerplichtBesluit.add(resultaattypeMetVerplichtBesluit)
@@ -46,5 +47,6 @@ class ZaaktypeInrichtingscheck(val zaaktype: ZaakType) {
             this.isInformatieobjecttypeEmailAanwezig &&
             this.isResultaattypeAanwezig &&
             this.isZaakafhandelParametersValide &&
+            this.isBrpDoelbindingenAanwezig &&
             (resultaattypesMetVerplichtBesluit.isEmpty() || this.isBesluittypeAanwezig)
 }

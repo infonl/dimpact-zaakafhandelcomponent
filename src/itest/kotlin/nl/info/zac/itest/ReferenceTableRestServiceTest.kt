@@ -16,6 +16,10 @@ import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_ADVIES_CODE
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_ADVIES_NAME
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_AFZENDER_CODE
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_AFZENDER_NAME
+import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_BRP_DOELBINDING_RAADPLEEG_WAARDE_CODE
+import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_BRP_DOELBINDING_RAADPLEEG_WAARDE_NAAM
+import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_CODE
+import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_COMMUNICATIEKANAAL_CODE
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_COMMUNICATIEKANAAL_NAME
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_CODE
@@ -65,6 +69,22 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                                 "aantalWaarden": 0
                             },
                             {
+                                "aantalWaarden": 15,
+                                "code": "$REFERENCE_TABLE_BRP_DOELBINDING_RAADPLEEG_WAARDE_CODE",
+                                "id": 7,
+                                "naam": "$REFERENCE_TABLE_BRP_DOELBINDING_RAADPLEEG_WAARDE_NAAM",
+                                "systeem": true,
+                                "waarden": []
+                            },
+                            {
+                                "aantalWaarden": 4,
+                                "code": "$REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_CODE",
+                                "id": 6,
+                                "naam": "$REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_NAAM",
+                                "systeem": true,
+                                "waarden": []
+                            },
+                            {
                                 "code": "$REFERENCE_TABLE_COMMUNICATIEKANAAL_CODE", 
                                 "naam": "$REFERENCE_TABLE_COMMUNICATIEKANAAL_NAME", 
                                 "systeem": true, 
@@ -87,9 +107,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                     )
                 }
                 with(JSONArray(responseBody)) {
-                    communicationChannelReferenceTableId = getJSONObject(2).getInt("id")
-                    domeinReferenceTableId = getJSONObject(3).getInt("id")
-                    serverErrorTextErrorReferenceTableId = getJSONObject(4).getInt("id")
+                    communicationChannelReferenceTableId = getJSONObject(4).getInt("id")
+                    domeinReferenceTableId = getJSONObject(5).getInt("id")
+                    serverErrorTextErrorReferenceTableId = getJSONObject(6).getInt("id")
                 }
             }
         }

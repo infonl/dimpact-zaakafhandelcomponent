@@ -7,22 +7,15 @@ package nl.info.zac.app.admin.model
 
 import net.atos.zac.admin.model.BetrokkeneKoppelingen
 import net.atos.zac.admin.model.ZaakafhandelParameters
+import nl.info.zac.util.NoArgConstructor
 
-class RestBetrokkeneKoppelingen {
-    var id: Long? = null
-    var zaakafhandelParameters: RestZaakafhandelParameters? = null
-    var brpKoppelen = false
-    var kvkKoppelen = false
-
-    constructor() {
-        // Default constructor
-    }
-
-    constructor(brpKoppelen: Boolean, kvkKoppelen: Boolean) {
-        this.brpKoppelen = brpKoppelen
-        this.kvkKoppelen = kvkKoppelen
-    }
-}
+@NoArgConstructor
+data class RestBetrokkeneKoppelingen(
+    var id: Long? = null,
+    var zaakafhandelParameters: RestZaakafhandelParameters? = null,
+    var brpKoppelen: Boolean = false,
+    var kvkKoppelen: Boolean = false,
+)
 
 fun BetrokkeneKoppelingen.toRestBetrokkeneKoppelingen(): RestBetrokkeneKoppelingen =
     RestBetrokkeneKoppelingen().apply {

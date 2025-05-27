@@ -57,6 +57,10 @@ data class RestZaakafhandelParameters(
     /**
      * The frontend currently requires this field to be non-null
      */
+    var brpDoelbindingen: RestBrpDoelbindingen = RestBrpDoelbindingen(),
+    /**
+     * The frontend currently requires this field to be non-null
+     */
     var zaakAfzenders: List<RESTZaakAfzender> = emptyList(),
 
     var smartDocuments: RestSmartDocuments

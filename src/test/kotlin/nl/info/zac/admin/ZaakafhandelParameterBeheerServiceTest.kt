@@ -409,6 +409,13 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
                 }
             }
 
+            And("The BRP doeleinden should get copied") {
+                slotPersistZaakafhandelParameters.captured.brpDoelbindingen.let {
+                    it.zoekWaarde shouldBe originalZaakafhandelParameters.brpDoelbindingen.zoekWaarde
+                    it.raadpleegWaarde shouldBe originalZaakafhandelParameters.brpDoelbindingen.raadpleegWaarde
+                }
+            }
+
             And("The new zaak type is stored") {
                 verify {
                     entityManager.persist(any<ZaakafhandelParameters>())

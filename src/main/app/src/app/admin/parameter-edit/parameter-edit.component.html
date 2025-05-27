@@ -711,13 +711,15 @@
       <mat-step
         *ngIf="parameters.smartDocuments.enabledGlobally"
         [stepControl]="smartDocumentsEnabledForm"
-        [hasError]="!isSmartDocumentsStepValid"
+        [hasError]="
+          !isSmartDocumentsStepValid || !brpDoelbindingFormGroup.valid
+        "
       >
         <ng-template matStepLabel>{{
           "gegevens.koppelingen" | translate
         }}</ng-template>
         <ng-template matStepContent>
-          <h2 class="flex-1">
+          <h2>
             {{ "gegevens.landelijk.koppelingen" | translate }}
           </h2>
           <p>
@@ -732,6 +734,48 @@
               ></mat-slide-toggle>
               <p>{{ "gegevens.koppelen.brp" | translate }}</p>
             </div>
+            <form
+              [formGroup]="brpDoelbindingFormGroup"
+              *ngIf="betrokkeneKoppelingen.controls.brpKoppelen.value"
+            >
+              <p>
+                {{ "title.admin.parameters.step.brpDoelbinding" | translate }}
+              </p>
+              <section class="flex-col">
+                <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
+                  <mat-label>{{
+                    "brpDoelbinding.zoekWaarde" | translate
+                  }}</mat-label>
+                  <mat-select
+                    placeholder="{{ 'resultaat.-kies-' | translate }}"
+                    [formControl]="brpDoelbindingFormGroup.controls.zoekWaarde"
+                  >
+                    <mat-option
+                      *ngFor="let value of brpSearchValues"
+                      [value]="value"
+                      >{{ value }}</mat-option
+                    >
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
+                  <mat-label>{{
+                    "brpDoelbinding.raadpleegWaarde" | translate
+                  }}</mat-label>
+                  <mat-select
+                    placeholder="{{ 'resultaat.-kies-' | translate }}"
+                    [formControl]="
+                      brpDoelbindingFormGroup.controls.raadpleegWaarde
+                    "
+                  >
+                    <mat-option
+                      *ngFor="let value of brpConsultingValues"
+                      [value]="value"
+                      >{{ value }}</mat-option
+                    >
+                  </mat-select>
+                </mat-form-field>
+              </section>
+            </form>
             <div class="flex-row items-center gap-8">
               <mat-slide-toggle
                 formControlName="kvkKoppelen"
@@ -743,12 +787,16 @@
           </form>
           <form [formGroup]="smartDocumentsEnabledForm" class="flex-col">
             <div class="flex-row items-center">
-              <h2 class="flex-1">
-                {{ "title.smartdocuments.form" | translate }}
-              </h2>
-              <p>
-                {{ "title.admin.parameters.step.smart-documents" | translate }}
-              </p>
+              <section class="flex-1">
+                <h2>
+                  {{ "title.smartdocuments.form" | translate }}
+                </h2>
+                <p>
+                  {{
+                    "title.admin.parameters.step.smart-documents" | translate
+                  }}
+                </p>
+              </section>
               <mat-slide-toggle
                 formControlName="enabledForZaaktype"
                 (click)="$event.stopPropagation()"
@@ -756,6 +804,7 @@
               ></mat-slide-toggle>
             </div>
           </form>
+          <mat-divider class="my-3"></mat-divider>
           <smart-documents-form
             *ngIf="smartDocumentsEnabledForm.get('enabledForZaaktype').value"
             [zaakTypeUuid]="parameters.zaaktype.uuid"
