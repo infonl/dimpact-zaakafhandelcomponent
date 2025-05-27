@@ -47,12 +47,12 @@ jobs:
   validate-input:
     runs-on: ubuntu-24.04
     outputs:
-      version-bump: ${{ github.event.inputs.confirm }}
+      version-bump: ${{ github.event.inputs.confirm || 'patch' }}
     steps:
       - name: Use selected version bump
         if: ${{ github.ref == 'refs/heads/main' }}
         run: |
-          echo "Version will be bumped to next ${{ github.event.inputs.confirm }} number."
+          echo "Version will be bumped to next ${{ github.event.inputs.confirm || 'patch' }} number."
 
       - name: Manual version bump only allowed on main branch
         if: ${{ github.ref != 'refs/heads/main' && github.event_name == 'workflow_dispatch' }}
