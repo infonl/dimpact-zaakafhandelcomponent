@@ -103,13 +103,13 @@ class NotificationReceiver @Inject constructor(
         ).also {
             LOG.info("Deleted $it zaak signaleringen for zaak with UUID '$zaakUUID'.")
         }
-        signaleringService.deleteSignaleringVerzonden(
-            SignaleringVerzondenZoekParameters(
-                SignaleringSubject.ZAAK,
-                zaakUUID.toString()
+        if (signaleringService.deleteSignaleringVerzonden(
+                SignaleringVerzondenZoekParameters(
+                    SignaleringSubject.ZAAK, zaakUUID.toString()
+                )
             )
-        ).also {
-            LOG.info("Deleted $it 'zaak signaleringen verzonden' records for zaak with UUID '$zaakUUID'.")
+        ) {
+            LOG.info("Deleted 1 'zaak signaleringen verzonden' record for zaak with UUID '$zaakUUID'.")
         }
         taskService.listTasksForZaak(zaakUUID).forEach { task ->
             signaleringService.deleteSignaleringen(
@@ -122,15 +122,16 @@ class NotificationReceiver @Inject constructor(
                     "Deleted $it taak signaleringen for task with ID '${task.id}' and zaak with UUID: '$zaakUUID'."
                 )
             }
-            signaleringService.deleteSignaleringVerzonden(
-                SignaleringVerzondenZoekParameters(
-                    SignaleringSubject.TAAK,
-                    task.id
+            if (signaleringService.deleteSignaleringVerzonden(
+                    SignaleringVerzondenZoekParameters(
+                        SignaleringSubject.TAAK,
+                        task.id
+                    )
                 )
-            ).also {
+            ) {
                 LOG.info(
                     """
-                        Deleted $it 'taak signaleringen verzonden' records for task with ID '${task.id}' and 
+                        Deleted 1 'taak signaleringen verzonden' record for task with ID '${task.id}' and 
                         zaak with UUID: '$zaakUUID'.
                     """.trimIndent()
                 )
@@ -187,7 +188,7 @@ class NotificationReceiver @Inject constructor(
     @Suppress("TooGenericExceptionCaught")
     private fun handleSignaleringen(notification: Notification) {
         try {
-            // in case of a 'zaak destroy' notification remove any existing zaak
+            // in case of a 'zaak destroy' notification, remove any existing zaak
             // and task signaleringen for this zaak
             if (notification.channel == Channel.ZAKEN &&
                 notification.resource == Resource.ZAAK &&
