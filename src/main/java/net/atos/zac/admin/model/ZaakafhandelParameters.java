@@ -114,6 +114,9 @@ public class ZaakafhandelParameters {
     @OneToOne(mappedBy = "zaakafhandelParameters", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private BetrokkeneKoppelingen betrokkeneKoppelingen;
 
+    @OneToOne(mappedBy = "zaakafhandelParameters", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private BrpDoelbindingen brpDoelbindingen;
+
     // The set is necessary for Hibernate when you have more than one eager collection on an entity.
     @OneToMany(mappedBy = "zaakafhandelParameters", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private Set<ZaakAfzender> zaakAfzenders;
@@ -336,6 +339,14 @@ public class ZaakafhandelParameters {
 
     public void setBetrokkeneKoppelingen(BetrokkeneKoppelingen betrokkeneKoppelingen) {
         this.betrokkeneKoppelingen = betrokkeneKoppelingen;
+    }
+
+    public BrpDoelbindingen getBrpDoelbindingen() {
+        return brpDoelbindingen != null ? brpDoelbindingen : new BrpDoelbindingen();
+    }
+
+    public void setBrpDoelbindingen(BrpDoelbindingen brpDoelbindingen) {
+        this.brpDoelbindingen = brpDoelbindingen;
     }
 
     /**

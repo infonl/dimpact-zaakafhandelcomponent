@@ -6,6 +6,7 @@
 package nl.info.zac.admin.model
 
 import net.atos.zac.admin.model.BetrokkeneKoppelingen
+import net.atos.zac.admin.model.BrpDoelbindingen
 import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.admin.model.HumanTaskReferentieTabel
 import net.atos.zac.admin.model.MailtemplateKoppeling
@@ -80,6 +81,10 @@ fun createZaakafhandelParameters(
     betrokkeneKoppelingen: BetrokkeneKoppelingen = BetrokkeneKoppelingen().apply {
         brpKoppelen = true
         kvkKoppelen = true
+    },
+    brpDoelbindingen: BrpDoelbindingen? = BrpDoelbindingen().apply {
+        zoekWaarde = ""
+        raadpleegWaarde = ""
     }
 ) =
     ZaakafhandelParameters().apply {
@@ -105,6 +110,9 @@ fun createZaakafhandelParameters(
         val parameters = this
         this.betrokkeneKoppelingen = betrokkeneKoppelingen.apply {
             this.zaakafhandelParameters = parameters
+        }
+        this.brpDoelbindingen = brpDoelbindingen.apply {
+            this?.zaakafhandelParameters = parameters
         }
     }
 

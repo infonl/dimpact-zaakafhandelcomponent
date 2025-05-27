@@ -9,6 +9,7 @@ import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.app.admin.model.RESTZaaktypeOverzicht
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen
+import nl.info.zac.app.admin.model.RestBrpDoelbindingen
 import nl.info.zac.app.admin.model.RestFormioFormulierContent
 import nl.info.zac.app.admin.model.RestReferenceTable
 import nl.info.zac.app.admin.model.RestReferenceTableUpdate
@@ -77,7 +78,8 @@ fun createRestZaakAfhandelParameters(
     productaanvraagtype: String? = null,
     defaultGroupId: String? = null,
     defaultBehandelaarId: String? = null,
-    restBetrokkeneKoppelingen: RestBetrokkeneKoppelingen = RestBetrokkeneKoppelingen()
+    restBetrokkeneKoppelingen: RestBetrokkeneKoppelingen = RestBetrokkeneKoppelingen(),
+    restBrpDoelbindingen: RestBrpDoelbindingen = RestBrpDoelbindingen()
 ) = RestZaakafhandelParameters(
     id = id,
     domein = domein,
@@ -89,7 +91,8 @@ fun createRestZaakAfhandelParameters(
     ),
     defaultBehandelaarId = defaultBehandelaarId,
     defaultGroepId = defaultGroupId,
-    betrokkeneKoppelingen = restBetrokkeneKoppelingen
+    betrokkeneKoppelingen = restBetrokkeneKoppelingen,
+    brpDoelbindingen = restBrpDoelbindingen
 )
 
 fun createRestBetrokkeKoppelingen(

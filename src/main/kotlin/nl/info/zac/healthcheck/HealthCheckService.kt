@@ -33,6 +33,7 @@ import java.util.UUID
 
 @Singleton
 @NoArgConstructor
+@Suppress("TooManyFunctions")
 class HealthCheckService @Inject constructor(
     @ConfigProperty(name = "BRANCH_NAME")
     private val branchName: Optional<String?>,
@@ -76,6 +77,7 @@ class HealthCheckService @Inject constructor(
                 controleerZaaktypeBesluittypeInrichting(it)
                 controleerZaaktypeRoltypeInrichting(it)
                 controleerZaaktypeInformatieobjecttypeInrichting(it)
+                controleerBrpDoelbindingenInrichting(it)
             }
         }
 
@@ -183,6 +185,16 @@ class HealthCheckService @Inject constructor(
             if (it.isNuGeldig() && ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL == it.omschrijving) {
                 zaaktypeInrichtingscheck.isInformatieobjecttypeEmailAanwezig = true
             }
+        }
+    }
+
+    private fun controleerBrpDoelbindingenInrichting(zaaktypeInrichtingscheck: ZaaktypeInrichtingscheck) {
+        val brpDoelbindingZoekWaarde =
+            referenceTableService.readReferenceTable(Systeem.BRP_DOELBINDING_ZOEK_WAARDE.name)
+        val brpDoelbindingRaadpleegWaarde =
+            referenceTableService.readReferenceTable(Systeem.BRP_DOELBINDING_RAADPLEEG_WAARDE.name)
+        if (brpDoelbindingZoekWaarde.values.isNotEmpty() && brpDoelbindingRaadpleegWaarde.values.isNotEmpty()) {
+            zaaktypeInrichtingscheck.isBrpDoelbindingenAanwezig = true
         }
     }
 }

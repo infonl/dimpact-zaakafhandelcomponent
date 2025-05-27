@@ -75,6 +75,10 @@ export class ParameterEditComponent
       brpKoppelen: false,
       kvkKoppelen: false,
     },
+    brpDoelbindingen: {
+      zoekWaarde: "",
+      raadpleegWaarde: "",
+    },
   };
 
   humanTaskParameters: GeneratedType<"RESTHumanTaskParameters">[] = [];
@@ -106,6 +110,10 @@ export class ParameterEditComponent
     intakeMail: new FormControl(),
     afrondenMail: new FormControl(),
   });
+  brpDoelbindingFormGroup = new FormGroup({
+    zoekWaarde: new FormControl(""),
+    raadpleegWaarde: new FormControl(""),
+  });
 
   zaakbeeindigFormGroup = new FormGroup({});
   smartDocumentsEnabledForm = new FormGroup({
@@ -130,6 +138,8 @@ export class ParameterEditComponent
   replyTos: ReplyTo[] = [];
   loading = false;
   subscriptions$: Subscription[] = [];
+  brpConsultingValues: string[] = [];
+  brpSearchValues: string[] = [];
 
   constructor(
     public utilService: UtilService,
@@ -168,6 +178,8 @@ export class ParameterEditComponent
         zaakafhandelParametersService.listResultaattypes(
           this.parameters.zaaktype.uuid ?? "",
         ),
+        referentieTabelService.listBrpSearchValues(),
+        referentieTabelService.listBrpViewValues(),
       ]).subscribe(
         ([
           caseDefinitions,
@@ -180,6 +192,8 @@ export class ParameterEditComponent
           zaakbeeindigRedenen,
           mailtemplates,
           resultaattypes,
+          brpSearchValues,
+          brpViewValues,
         ]) => {
           this.caseDefinitions = caseDefinitions;
           this.formulierDefinities = formulierDefinities;
@@ -191,6 +205,8 @@ export class ParameterEditComponent
           this.zaakAfzenders = afzenders;
           this.replyTos = replyTos;
           this.resultaattypes = resultaattypes;
+          this.brpSearchValues = brpSearchValues;
+          this.brpConsultingValues = brpViewValues;
           this.createForm();
         },
       );
@@ -292,6 +308,7 @@ export class ParameterEditComponent
     this.createZaakbeeindigForm();
     this.createSmartDocumentsEnabledForm();
     this.createBetrokkeneKoppelingenForm();
+    this.createBrpDoelbindingForm();
     this.setMedewerkersForGroup(this.parameters.defaultGroepId);
 
     this.subscriptions$.push(
@@ -451,13 +468,47 @@ export class ParameterEditComponent
   }
 
   createBetrokkeneKoppelingenForm() {
-    console.log(this.parameters);
     this.betrokkeneKoppelingen = this.formBuilder.group({
       kvkKoppelen: [
         this.parameters.betrokkeneKoppelingen?.kvkKoppelen ?? false,
       ],
       brpKoppelen: [
         this.parameters.betrokkeneKoppelingen?.brpKoppelen ?? false,
+      ],
+    });
+
+    this.betrokkeneKoppelingen.controls.brpKoppelen.valueChanges.subscribe(
+      (value) => {
+        this.brpDoelbindingFormGroup.controls.raadpleegWaarde.setValidators(
+          value ? [Validators.required] : [],
+        );
+        this.brpDoelbindingFormGroup.controls.zoekWaarde.setValidators(
+          value ? [Validators.required] : [],
+        );
+
+        this.brpDoelbindingFormGroup.updateValueAndValidity({
+          emitEvent: false,
+        });
+        if (value) return;
+
+        this.brpDoelbindingFormGroup.reset();
+      },
+    );
+  }
+
+  createBrpDoelbindingForm() {
+    this.brpDoelbindingFormGroup = this.formBuilder.group({
+      raadpleegWaarde: [
+        this.parameters.brpDoelbindingen.raadpleegWaarde ?? "",
+        this.betrokkeneKoppelingen.controls.brpKoppelen.value
+          ? [Validators.required]
+          : [],
+      ],
+      zoekWaarde: [
+        this.parameters.brpDoelbindingen.zoekWaarde ?? "",
+        this.betrokkeneKoppelingen.controls.brpKoppelen.value
+          ? [Validators.required]
+          : [],
       ],
     });
   }
@@ -652,6 +703,8 @@ export class ParameterEditComponent
       this.algemeenFormGroup.valid &&
       this.humanTasksFormGroup.valid &&
       this.zaakbeeindigFormGroup.valid &&
+      this.betrokkeneKoppelingen.valid &&
+      this.brpDoelbindingFormGroup.valid &&
       this.isSmartDocumentsStepValid
     );
   }
@@ -767,6 +820,8 @@ export class ParameterEditComponent
         this.betrokkeneKoppelingen.controls.brpKoppelen.value,
       ),
     };
+
+    this.parameters.brpDoelbindingen = this.brpDoelbindingFormGroup.value;
 
     this.zaakafhandelParametersService
       .updateZaakafhandelparameters(this.parameters)

@@ -17,13 +17,15 @@ class ZacClient {
     private val logger = KotlinLogging.logger {}
     private var itestHttpClient = ItestHttpClient()
 
-    @Suppress("LongMethod")
+    @Suppress("LongMethod", "LongParameterList")
     fun createZaakAfhandelParameters(
         zaakTypeIdentificatie: String,
         zaakTypeUuid: UUID,
         zaakTypeDescription: String,
         productaanvraagType: String,
-        domein: String? = null
+        domein: String? = null,
+        brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
+        brpDoelbindingenRaadpleegWaarde: String = "BRPACT-Totaal"
     ): Response {
         logger.info {
             "Creating zaakafhandelparameters in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
@@ -206,11 +208,15 @@ class ZacClient {
                 "vervaldatumBesluitVerplicht": false
               },
               "smartDocuments": {
-                 "enabledForZaaktype": true
+                "enabledForZaaktype": true
               },
               "betrokkeneKoppelingen": {
                 "brpKoppelen": true,
                 "kvkKoppelen": true
+              },
+              "brpDoelbindingen": {
+                "zoekWaarde": "$brpDoelbindingenZoekWaarde",
+                "raadpleegWaarde": "$brpDoelbindingenRaadpleegWaarde"
               }
             }
             """.trimIndent()

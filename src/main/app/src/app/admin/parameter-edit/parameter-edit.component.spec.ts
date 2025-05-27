@@ -49,6 +49,7 @@ describe(ParameterEditComponent.name, () => {
     mailtemplateKoppelingen: [],
     zaakAfzenders: [],
     smartDocuments: {},
+    brpDoelbindingen: {},
   });
 
   const users: GeneratedType<"RestUser">[] = [
@@ -112,6 +113,12 @@ describe(ParameterEditComponent.name, () => {
       .mockReturnValue(of([]));
     jest.spyOn(referentieTabelService, "listDomeinen").mockReturnValue(of([]));
     jest.spyOn(referentieTabelService, "listAfzenders").mockReturnValue(of([]));
+    jest
+      .spyOn(referentieTabelService, "listBrpViewValues")
+      .mockReturnValue(of([]));
+    jest
+      .spyOn(referentieTabelService, "listBrpSearchValues")
+      .mockReturnValue(of([]));
 
     identityService = TestBed.inject(IdentityService);
     jest.spyOn(identityService, "listGroups").mockReturnValue(of(groups));
