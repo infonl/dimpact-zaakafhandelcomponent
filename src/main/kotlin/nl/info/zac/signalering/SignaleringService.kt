@@ -169,16 +169,19 @@ class SignaleringService @Inject constructor(
     }
 
     /**
-     * Deletes signaleringen based on the given parameters and sends a screen event for each deletion.
+     * Deletes signaleringen based on the given parameters and send screen event for these deletions
+     * grouped by signalering target and type.
      */
     @Transactional(REQUIRED)
     fun deleteSignaleringen(parameters: SignaleringZoekParameters): Int {
-        val removed = listSignaleringen(parameters).associateBy { it.target + ';' + it.type.type }
-        removed.values.forEach {
-            entityManager.remove(it)
-            eventingService.send(ScreenEventType.SIGNALERINGEN.updated(it))
-        }
-        return removed.size
+        val signaleringen = listSignaleringen(parameters)
+        signaleringen.forEach(entityManager::remove)
+        // only send separate screen events when signalering target and/or type differ
+        signaleringen.associateBy { it.target + ';' + it.type.type }.values
+            .forEach { value ->
+                eventingService.send(ScreenEventType.SIGNALERINGEN.updated(value))
+            }
+        return signaleringen.size
     }
 
     /**

@@ -227,13 +227,13 @@ class SignaleringServiceTest : BehaviorSpec({
     }
     Given(
         """
-        Two zaak signaleringen each with a different target and corresponding signalering zoek parameters with a subject type and subject
+        Two zaak signaleringen each with the same target and corresponding signalering zoek parameters with a subject type and subject
         """
     ) {
         val signaleringenZoekParameters = createSignaleringZoekParameters()
         val signaleringen = listOf(
             createSignalering(targetUser = createUser(id = "fakeId1")),
-            createSignalering(targetUser = createUser(id = "fakeId2"))
+            createSignalering(targetUser = createUser(id = "fakeId1"))
         )
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
@@ -256,9 +256,15 @@ class SignaleringServiceTest : BehaviorSpec({
         When("signaleringen are requested to be deleted") {
             signaleringService.deleteSignaleringen(signaleringenZoekParameters)
 
-            Then("the two signaleringen are deleted and two screen events are sent") {
+            Then("the two signaleringen are deleted") {
                 verify(exactly = 2) {
                     entityManager.remove(any<Signalering>())
+                }
+            }
+            And("only one screen event is sent") {
+                verify(exactly = 1) {
+                    // we expect only one screen event since it concerns to signaleringen
+                    // with the same target and type
                     eventingService.send(any<ScreenEvent>())
                 }
             }
