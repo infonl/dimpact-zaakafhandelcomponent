@@ -295,18 +295,15 @@ export class TaakViewComponent
   }
 
   private initializeFormioGroepSmartDocumentsFieldsetComponent(
-    component: ExtendedComponentSchema,
+    fieldsetComponent: ExtendedComponentSchema,
   ): void {
-    component.type = "fieldset";
-    const componentWithProperties = component.components?.find(
-      (component: ExtendedComponentSchema) =>
-        Object.keys(component.properties || []).length > 0,
-    );
-    const smartDocumentsPath: GeneratedType<"RestSmartDocumentsPath"> = {
-      path: this.formioGetSmartDocumentsGroups(componentWithProperties),
-    };
+    fieldsetComponent.type = "fieldset";
+    const smartDocumentsPath = this.findSmartDocumentsPath(fieldsetComponent);
 
-    const smartDocumentsTemplateComponent = component.components[0];
+    console.log("fieldset component = %O", fieldsetComponent);
+    const smartDocumentsTemplateComponent = fieldsetComponent.components?.find(
+      (component: ExtendedComponentSchema) => component.key === fieldsetComponent.key + "_Template"
+    );
     smartDocumentsTemplateComponent.valueProperty = "id";
     smartDocumentsTemplateComponent.template = "{{ item.naam }}";
     smartDocumentsTemplateComponent.data = {
@@ -317,6 +314,17 @@ export class TaakViewComponent
             .pipe(tap((value) => value.sort())),
         ),
     };
+  }
+
+  private findSmartDocumentsPath(fieldsetComponent: ExtendedComponentSchema) {
+    const componentWithProperties = fieldsetComponent.components?.find(
+      (component: ExtendedComponentSchema) =>
+        Object.keys(component.properties || []).length > 0,
+    );
+    const smartDocumentsPath: GeneratedType<"RestSmartDocumentsPath"> = {
+      path: this.formioGetSmartDocumentsGroups(componentWithProperties),
+    };
+    return smartDocumentsPath;
   }
 
   private formioGetSmartDocumentsGroups(
