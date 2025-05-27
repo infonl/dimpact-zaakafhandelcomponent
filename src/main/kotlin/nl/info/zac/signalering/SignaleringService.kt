@@ -196,15 +196,15 @@ class SignaleringService @Inject constructor(
         )
 
     /**
-     * Deletes the first 'signalering verzonden' record found based on the given parameters, if any.
-     * Returns the number of records deleted (0 or 1).
+     * Deletes the (first) 'signalering verzonden' record found based on the given parameters, if any.
+     * Returns `true` if a record was deleted, `false` otherwise.
      */
     @Transactional(REQUIRED)
-    fun deleteSignaleringVerzonden(verzonden: SignaleringVerzondenZoekParameters): Int =
-        findSignaleringVerzonden(verzonden)?.run {
-            entityManager.remove(this)
-            1
-        } ?: 0
+    fun deleteSignaleringVerzonden(verzonden: SignaleringVerzondenZoekParameters): Boolean =
+        findSignaleringVerzonden(verzonden)?.let {
+            entityManager.remove(it)
+            true
+        } ?: false
 
     fun listSignaleringen(parameters: SignaleringZoekParameters): List<Signalering> {
         val builder = entityManager.criteriaBuilder

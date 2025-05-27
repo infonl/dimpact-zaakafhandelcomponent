@@ -105,7 +105,7 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         every { signaleringService.createSignaleringVerzonden(zaakVerlopendSignalering) } returns mockk()
         every { flowableTaskService.listOpenTasksDueLater() } returns emptyList()
         every { searchService.zoek(any()) } returns zoekResultaat
-        every { signaleringService.deleteSignaleringVerzonden(any()) } returns 1
+        every { signaleringService.deleteSignaleringVerzonden(any()) } returns true
 
         When("the send due date email notifications method is called") {
             zaakTaskDueDateEmailNotificationService.sendDueDateEmailNotifications()
