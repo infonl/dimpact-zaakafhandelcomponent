@@ -155,11 +155,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             it.setZaakAfzenders(
                 convertRESTZaakAfzenders(restZaakafhandelParameters.zaakAfzenders)
             )
-            restZaakafhandelParameters.betrokkeneKoppelingen.let { restBetrokkeneKoppelingen ->
-                it.betrokkeneKoppelingen = restBetrokkeneKoppelingen.toBetrokkeneKoppelingen(it)
-            }
-            restZaakafhandelParameters.brpDoelbindingen.let { restBrpDoelbindingen ->
-                it.brpDoelbindingen = restBrpDoelbindingen.toBrpDoelbindingen(it)
-            }
+            it.betrokkeneKoppelingen = restZaakafhandelParameters.betrokkeneKoppelingen.toBetrokkeneKoppelingen(it)
+            it.brpDoelbindingen = restZaakafhandelParameters.brpDoelbindingen.toBrpDoelbindingen(it)
         }
 }
