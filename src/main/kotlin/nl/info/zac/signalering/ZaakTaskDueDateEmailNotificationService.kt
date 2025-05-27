@@ -6,7 +6,6 @@ package nl.info.zac.signalering
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import jakarta.inject.Named
 import jakarta.transaction.Transactional
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.admin.ZaakafhandelParameterService
