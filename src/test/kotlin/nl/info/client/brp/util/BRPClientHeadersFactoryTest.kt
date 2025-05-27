@@ -27,12 +27,10 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("Protocolering disabled") {
+    Given("originOin is empty") {
         val brpClientHeadersFactory = BRPClientHeadersFactory(
             Optional.of(apiKey),
-            Optional.of(false),
-            Optional.of(originOin),
-            Optional.of(purpose),
+            Optional.empty(),
             loggedInUserInstance
         )
         val existingHeaders = Headers<String>().apply {
@@ -48,14 +46,12 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
         }
     }
 
-    Given("BRP headers not set, no custom doelbinding and verwerking, protocolering enabled and a valid user") {
+    Given("originOIN is present and a valid user exists") {
         every { loggedInUserInstance.get().id } returns "username"
 
         val brpClientHeadersFactory = BRPClientHeadersFactory(
             Optional.of(apiKey),
-            Optional.of(true),
             Optional.of(originOin),
-            Optional.empty(),
             loggedInUserInstance
         )
 
@@ -74,14 +70,12 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
         }
     }
 
-    Given("BRP headers not set, no custom doelbinding or verwerking, protocolering enabled and a missing active user") {
+    Given("originOIN is present, no custom doelbinding or verwerking and a missing active user") {
         every { loggedInUserInstance.get().id } throws UnsatisfiedResolutionException()
 
         val brpClientHeadersFactory = BRPClientHeadersFactory(
             Optional.of(apiKey),
-            Optional.of(true),
             Optional.of(originOin),
-            Optional.empty(),
             loggedInUserInstance
         )
 
@@ -100,32 +94,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
         }
     }
 
-    Given("No BRP headers, custom doelbinding and verwerking, protocolering enabled an active user") {
-        every { loggedInUserInstance.get().id } returns "username"
-
-        val brpClientHeadersFactory = BRPClientHeadersFactory(
-            Optional.of(apiKey),
-            Optional.of(true),
-            Optional.of(originOin),
-            Optional.of(purpose),
-            loggedInUserInstance
-        )
-
-        When("headers are updated") {
-            val headers = brpClientHeadersFactory.update(Headers(), Headers())
-
-            Then("correct BRP protocollering headers are generated") {
-                with(headers) {
-                    shouldContain("X-API-KEY", listOf(apiKey))
-                    shouldContain("X-ORIGIN-OIN", listOf(originOin))
-                    shouldContain("X-VERWERKING", listOf(purpose))
-                    shouldContain("X-GEBRUIKER", listOf("username"))
-                }
-            }
-        }
-    }
-
-    Given("Previously set BRP headers, no custom doelbinding and verwerking, protocolering enabled  and a valid user") {
+    Given("Previously set BRP headers, no custom doelbinding and verwerking, protocolering enabled and a valid user") {
         val outgoingHeaders = Headers<String>().apply {
             add("X-API-KEY", apiKey)
             add("X-DOELBINDING", purpose)
@@ -134,9 +103,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
 
         val brpClientHeadersFactory = BRPClientHeadersFactory(
             Optional.of(apiKey),
-            Optional.of(true),
             Optional.of(originOin),
-            Optional.empty(),
             loggedInUserInstance
         )
 

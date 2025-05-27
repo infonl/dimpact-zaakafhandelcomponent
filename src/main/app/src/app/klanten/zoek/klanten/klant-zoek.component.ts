@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Output } from "@angular/core";
+import { Component, EventEmitter, input, Output } from "@angular/core";
 import { Klant } from "../../model/klanten/klant";
 
 @Component({
@@ -13,6 +13,7 @@ import { Klant } from "../../model/klanten/klant";
 })
 export class KlantZoekComponent {
   @Output() klant = new EventEmitter<Klant>();
+  context = input.required<string>();
 
   constructor() {}
 
