@@ -50,6 +50,10 @@ export type PatchBody<
   Path extends PathsWithMethod<Paths, Method>,
   Method extends Methods = "patch",
 > = Body<Path, Method>;
+export type DeleteBody<
+  Path extends PathsWithMethod<Paths, Method>,
+  Method extends Methods = "delete",
+> = Body<Path, Method>;
 
 @Injectable({
   providedIn: "root",
@@ -119,7 +123,7 @@ export class ZacHttpClient {
   >(
     url: Path,
     parameters: PathParameters<Path, Method>,
-    body?: Body<Path, Method>,
+    body?: DeleteBody<Path, Method>,
   ) {
     return this.http
       .delete<Response<Path, Method>>(this.formatUrl(url, parameters), {
