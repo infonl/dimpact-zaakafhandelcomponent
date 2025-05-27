@@ -16,28 +16,28 @@ import { GeneratedType } from "../shared/utils/generated-types";
   providedIn: "root",
 })
 export class BAGService {
-  constructor(private readonly zacHtppClient: ZacHttpClient) {}
+  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   listAdressen(body: PutBody<"/rest/bag/adres">) {
-    return this.zacHtppClient.PUT("/rest/bag/adres", body, {});
+    return this.zacHttpClient.PUT("/rest/bag/adres", body, {});
   }
 
   create(body: PostBody<"/rest/bag">) {
-    return this.zacHtppClient.POST("/rest/bag", body, {});
+    return this.zacHttpClient.POST("/rest/bag", body, {});
   }
 
   list(zaakUuid: string) {
-    return this.zacHtppClient.GET("/rest/bag/zaak/{zaakUuid}", {
+    return this.zacHttpClient.GET("/rest/bag/zaak/{zaakUuid}", {
       path: { zaakUuid },
     });
   }
 
   delete(body: DeleteBody<"/rest/bag">) {
-    return this.zacHtppClient.DELETE("/rest/bag", {}, body);
+    return this.zacHttpClient.DELETE("/rest/bag", {}, body);
   }
 
   read(type: GeneratedType<"BAGObjectType">, id: string) {
-    return this.zacHtppClient.GET("/rest/bag/{type}/{id}", {
+    return this.zacHttpClient.GET("/rest/bag/{type}/{id}", {
       path: { type, id },
     });
   }
