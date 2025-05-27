@@ -196,10 +196,14 @@ class SignaleringService @Inject constructor(
                 .subject(zaak)
         )
 
+    /**
+     * Deletes the first 'signalering verzonden' record found based on the given parameters, if any.
+     * Returns the number of records deleted (0 or 1).
+     */
     @Transactional(REQUIRED)
     fun deleteSignaleringVerzonden(verzonden: SignaleringVerzondenZoekParameters): Int =
         findSignaleringVerzonden(verzonden)?.run {
-            entityManager::remove
+            entityManager.remove(this)
             1
         } ?: 0
 
