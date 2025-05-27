@@ -30,9 +30,14 @@ export class KlantenService {
   private basepath = "/rest/klanten";
 
   /* istanbul ignore next */
-  readPersoon(bsn: string): Observable<GeneratedType<"RestPersoon">> {
-    return this.http
-      .get<GeneratedType<"RestPersoon">>(`${this.basepath}/persoon/${bsn}`)
+  readPersoon(bsn: string, audit: { context: string; action: string }) {
+    return this.zacHttpClient
+      .GET("/rest/klanten/persoon/{bsn}", {
+        path: { bsn },
+        header: {
+          "X-Verwerking": `${audit.context}@${audit.action}`,
+        },
+      })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -81,8 +86,15 @@ export class KlantenService {
   }
 
   /* istanbul ignore next */
-  listPersonen(body: PutBody<"/rest/klanten/personen">) {
-    return this.zacHttpClient.PUT("/rest/klanten/personen", body, {});
+  listPersonen(
+    body: PutBody<"/rest/klanten/personen">,
+    audit: { context: string; action: string },
+  ) {
+    return this.zacHttpClient.PUT("/rest/klanten/personen", body, {
+      header: {
+        "X-Verwerking": `${audit.context}@${audit.action}`,
+      },
+    });
   }
 
   /* istanbul ignore next */

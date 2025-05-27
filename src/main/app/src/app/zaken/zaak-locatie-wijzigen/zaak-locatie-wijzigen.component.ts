@@ -249,7 +249,6 @@ export class CaseLocationEditComponent
     this.view.setZoom(this.DEFAULT_ZOOM);
     this.view.setCenter(this.DEFAULT_CENTER);
     this.nearestAddress = {} as AddressResult;
-    this.disableReasonControl();
   }
 
   private disableReasonControl() {

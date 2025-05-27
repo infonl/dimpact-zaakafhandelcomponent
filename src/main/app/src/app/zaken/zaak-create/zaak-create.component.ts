@@ -207,7 +207,10 @@ export class ZaakCreateComponent {
     const { initiatorID } = productRequest;
     switch (initiatorID.length) {
       case BSN_LENGTH:
-        observable = this.klantenService.readPersoon(initiatorID);
+        observable = this.klantenService.readPersoon(initiatorID, {
+          context: "ZAAK_AANMAKEN",
+          action: "find user",
+        });
         break;
       case VESTIGINGSNUMMER_LENGTH:
         observable = this.klantenService.readVestiging(initiatorID);
