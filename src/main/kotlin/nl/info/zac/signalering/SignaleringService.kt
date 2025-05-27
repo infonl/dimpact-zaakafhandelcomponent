@@ -42,7 +42,6 @@ import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
-import java.util.Optional
 import java.util.UUID
 import java.util.logging.Logger
 
