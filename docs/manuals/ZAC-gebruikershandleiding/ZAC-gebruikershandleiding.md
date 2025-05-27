@@ -32,6 +32,7 @@ Versiegeschiedenis:
 | 1.6.2 | Laatste veranderingen tekstueel verwerkt; opschorten, verlengen en andere kleine aanpassingen |
 | 1.6.3 | Screendumps vernieuwd naar aanleiding van menu en detailveld, en kleine tekstuele aanpassingen |
 | 1.6.4 | Nieuwe screendumps, koppeling aanpassingen tekstueel verwerkt
+| 1.6.5 | Aanpassingen locatie scherm en werking verwerkt
 
 <div style="page-break-after: always"></div>
 
