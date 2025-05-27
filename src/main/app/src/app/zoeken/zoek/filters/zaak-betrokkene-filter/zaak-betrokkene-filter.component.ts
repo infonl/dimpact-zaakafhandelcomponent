@@ -1,9 +1,16 @@
 /*
- * SPDX-FileCopyrightText: 2021-2022 Atos
+ * SPDX-FileCopyrightText: 2021-2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  input,
+  Input,
+  OnInit,
+  Output,
+} from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { ZoekParameters } from "../../../model/zoek-parameters";
@@ -24,6 +31,8 @@ export class ZaakBetrokkeneFilterComponent implements OnInit {
   huidigeRoltype: ZoekVeld;
   ZoekVeld = ZoekVeld;
 
+  context = input.required<string>();
+
   constructor(public dialog: MatDialog) {}
 
   ngOnInit(): void {
@@ -38,6 +47,7 @@ export class ZaakBetrokkeneFilterComponent implements OnInit {
     const dialogRef = this.dialog.open(KlantZoekDialog, {
       minWidth: "750px",
       backdropClass: "noColor",
+      data: { context: this.context() },
     });
     dialogRef.afterClosed().subscribe((result) => {
       this.dialogOpen = false;

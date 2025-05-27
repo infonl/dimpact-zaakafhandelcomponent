@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.71](https://img.shields.io/badge/Version-1.0.71-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
+![Version: 1.0.72](https://img.shields.io/badge/Version-1.0.72-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -63,7 +63,6 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | brpApi.protocollering.doelbinding.raadpleegmet | string | `"BRPACT-Totaal"` |  |
 | brpApi.protocollering.doelbinding.zoekmet | string | `"BRPACT-ZoekenAlgemeen"` |  |
 | brpApi.protocollering.originOin | string | `""` |  |
-| brpApi.protocollering.verwerking | string | `"zaakafhandelcomponent"` |  |
 | brpApi.url | string | `""` |  |
 | catalogusDomein | string | `"ALG"` | ZAC OpenZaak Catalogus Domein |
 | contextUrl | string | `""` | External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com) |
