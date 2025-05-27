@@ -105,7 +105,8 @@ class NotificationReceiver @Inject constructor(
         }
         if (signaleringService.deleteSignaleringVerzonden(
                 SignaleringVerzondenZoekParameters(
-                    SignaleringSubject.ZAAK, zaakUUID.toString()
+                    SignaleringSubject.ZAAK,
+                    zaakUUID.toString()
                 )
             )
         ) {
@@ -130,10 +131,8 @@ class NotificationReceiver @Inject constructor(
                 )
             ) {
                 LOG.info(
-                    """
-                        Deleted 1 'taak signaleringen verzonden' record for task with ID '${task.id}' and 
-                        zaak with UUID: '$zaakUUID'.
-                    """.trimIndent()
+                    "Deleted 1 'taak signaleringen verzonden' record for task with ID '${task.id}' and " +
+                        "zaak with UUID: '$zaakUUID'."
                 )
             }
         }
