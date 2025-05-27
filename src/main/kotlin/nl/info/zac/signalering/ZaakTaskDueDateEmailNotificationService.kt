@@ -146,13 +146,14 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     private fun hasZaakSignaleringTarget(zaakZoekObject: ZaakZoekObject, detail: SignaleringDetail): Boolean =
         zaakZoekObject.behandelaarGebruikersnaam?.let {
             signaleringService.readInstellingenUser(SignaleringType.Type.ZAAK_VERLOPEND, it).isMail &&
-                !signaleringService.findSignaleringVerzonden(
+                // only send signalering if it was not already sent before
+                signaleringService.findSignaleringVerzonden(
                     getZaakSignaleringVerzondenParameters(
                         it,
                         zaakZoekObject.getObjectId(),
                         detail
                     )
-                ).isPresent
+                ) == null
         } == true
 
     private fun buildZaakSignalering(
@@ -261,10 +262,10 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
             SignaleringType.Type.TAAK_VERLOPEN,
             task.assignee
         ).isMail &&
-            // skip signalering if it was already sent
-            !signaleringService.findSignaleringVerzonden(
+            // only send signalering if it was not already sent before
+            signaleringService.findSignaleringVerzonden(
                 getTaskSignaleringSentParameters(task.assignee, task.id)
-            ).isPresent
+            ) == null
 
     private fun buildTaskSignalering(target: String, task: Task): Signalering =
         signaleringService.signaleringInstance(

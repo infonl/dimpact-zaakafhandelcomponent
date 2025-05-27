@@ -202,8 +202,8 @@ class NotificationReceiverTest : BehaviorSpec({
         every { zaakVariabelenService.deleteAllCaseVariables(zaakUUID) } just Runs
         every { indexingService.removeZaak(zaakUUID) } just Runs
         every { indexingService.removeTaak(taskId) } just Runs
-        every { signaleringService.deleteSignaleringen(capture(signaleringZoekParametersSlot)) } just Runs
-        every { signaleringService.deleteSignaleringVerzonden(capture(signaleringVerzondenZoekParameters)) } just Runs
+        every { signaleringService.deleteSignaleringen(capture(signaleringZoekParametersSlot)) } returns 2
+        every { signaleringService.deleteSignaleringVerzonden(capture(signaleringVerzondenZoekParameters)) } returns true
         every { taskService.listTasksForZaak(zaakUUID) } returns tasks
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
