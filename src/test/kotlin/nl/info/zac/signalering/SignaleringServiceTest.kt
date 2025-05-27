@@ -218,8 +218,8 @@ class SignaleringServiceTest : BehaviorSpec({
             Then("paging is used to return the signalering") {
                 result.size shouldBe 1
                 verify(exactly = 1) {
-                    typedQuery.setFirstResult(pageNumber)
-                    typedQuery.setMaxResults(pageSize)
+                    typedQuery.firstResult = pageNumber
+                    typedQuery.maxResults = pageSize
                     typedQuery.resultList
                 }
             }
@@ -227,13 +227,13 @@ class SignaleringServiceTest : BehaviorSpec({
     }
     Given(
         """
-        Two zaak signaleringen and corresponding signalering zoek parameters with a subject type and subject
+        Two zaak signaleringen each with a different target and corresponding signalering zoek parameters with a subject type and subject
         """
     ) {
         val signaleringenZoekParameters = createSignaleringZoekParameters()
         val signaleringen = listOf(
-            createSignalering(),
-            createSignalering()
+            createSignalering(targetUser = createUser(id = "fakeId1")),
+            createSignalering(targetUser = createUser(id = "fakeId2"))
         )
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
@@ -256,13 +256,9 @@ class SignaleringServiceTest : BehaviorSpec({
         When("signaleringen are requested to be deleted") {
             signaleringService.deleteSignaleringen(signaleringenZoekParameters)
 
-            Then("the two signaleringen are deleted and one screen event is sent") {
+            Then("the two signaleringen are deleted and two screen events are sent") {
                 verify(exactly = 2) {
                     entityManager.remove(any<Signalering>())
-                }
-                verify(exactly = 1) {
-                    // we expect only one screen event since it concerns to signaleringen
-                    // with the same target and type
                     eventingService.send(any<ScreenEvent>())
                 }
             }

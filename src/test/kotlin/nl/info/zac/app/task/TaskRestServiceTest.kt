@@ -437,7 +437,7 @@ class TaskRestServiceTest : BehaviorSpec({
             formioFormulier = Json.createReader("{}".reader()).readObject()
         )
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { signaleringService.deleteSignaleringen(any()) } just Runs
+        every { signaleringService.deleteSignaleringen(any()) } returns 2
         every { flowableTaskService.readTask(taskId) } returns taskInfo
         every { policyService.readTaakRechten(taskInfo).lezen } returns true
         every { restTaskConverter.convert(taskInfo) } returns restTask

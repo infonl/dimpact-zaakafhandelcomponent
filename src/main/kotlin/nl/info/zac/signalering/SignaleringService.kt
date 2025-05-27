@@ -172,17 +172,13 @@ class SignaleringService @Inject constructor(
      * Deletes signaleringen based on the given parameters and sends a screen event for each deletion.
      */
     @Transactional(REQUIRED)
-    fun deleteSignaleringen(parameters: SignaleringZoekParameters) {
-        val removed = mutableMapOf<String, Signalering>()
-        listSignaleringen(parameters)
-            .forEach {
-                removed[it.target + ';' + it.type.type] = it
-                entityManager.remove(it)
-            }
-        removed.values
-            .forEach {
-                eventingService.send(ScreenEventType.SIGNALERINGEN.updated(it))
-            }
+    fun deleteSignaleringen(parameters: SignaleringZoekParameters): Int {
+        val removed = listSignaleringen(parameters).associateBy { it.target + ';' + it.type.type }
+        removed.values.forEach {
+            entityManager.remove(it)
+            eventingService.send(ScreenEventType.SIGNALERINGEN.updated(it))
+        }
+        return removed.size
     }
 
     /**
@@ -198,9 +194,11 @@ class SignaleringService @Inject constructor(
         )
 
     @Transactional(REQUIRED)
-    fun deleteSignaleringVerzonden(verzonden: SignaleringVerzondenZoekParameters) {
-        findSignaleringVerzonden(verzonden).ifPresent(entityManager::remove)
-    }
+    fun deleteSignaleringVerzonden(verzonden: SignaleringVerzondenZoekParameters): Int =
+        findSignaleringVerzonden(verzonden)?.run {
+            entityManager::remove
+            1
+        } ?: 0
 
     fun listSignaleringen(parameters: SignaleringZoekParameters): List<Signalering> {
         val builder = entityManager.criteriaBuilder
@@ -355,16 +353,20 @@ class SignaleringService @Inject constructor(
         return entityManager.merge(signaleringVerzonden)
     }
 
+    /**
+     * Finds the first SignaleringVerzonden record based on the given parameters.
+     * Returns null if no matching record is found.
+     */
     fun findSignaleringVerzonden(
         parameters: SignaleringVerzondenZoekParameters
-    ): Optional<SignaleringVerzonden> {
+    ): SignaleringVerzonden? {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(SignaleringVerzonden::class.java)
         val root = query.from(SignaleringVerzonden::class.java)
         val result = entityManager.createQuery(
             query.select(root).where(getSignaleringVerzondenWhere(parameters, builder, root))
         ).resultList
-        return if (result.isEmpty()) { Optional.empty() } else { Optional.of(result[0]) }
+        return result.firstOrNull()
     }
 
     /**
