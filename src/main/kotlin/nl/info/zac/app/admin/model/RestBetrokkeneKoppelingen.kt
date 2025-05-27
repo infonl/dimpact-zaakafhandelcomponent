@@ -10,7 +10,7 @@ import net.atos.zac.admin.model.ZaakafhandelParameters
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
-data class RestBetrokkeneKoppelingen (
+data class RestBetrokkeneKoppelingen(
     var id: Long? = null,
     var zaakafhandelParameters: RestZaakafhandelParameters? = null,
     var brpKoppelen: Boolean = false,
