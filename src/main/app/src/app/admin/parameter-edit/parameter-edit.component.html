@@ -732,6 +732,51 @@
               ></mat-slide-toggle>
               <p>{{ "gegevens.koppelen.brp" | translate }}</p>
             </div>
+            <form
+              [formGroup]="brpDoelbindingFormGroup"
+              class="flex-col"
+              *ngIf="betrokkeneKoppelingen.controls.brpKoppelen.value"
+            >
+              <h2>
+                {{ "title.brpDoelbinding.form" | translate }}
+              </h2>
+              <p>
+                {{ "title.admin.parameters.step.brpDoelbinding" | translate }}
+              </p>
+
+              <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
+                <mat-label>{{
+                  "brpDoelbinding.zoekWaarde" | translate
+                }}</mat-label>
+                <mat-select
+                  placeholder="{{ 'resultaat.-kies-' | translate }}"
+                  [formControl]="brpDoelbindingFormGroup.controls.zoekWaarde"
+                >
+                  <mat-option
+                    *ngFor="let value of brpSearchValues"
+                    [value]="value"
+                    >{{ value }}</mat-option
+                  >
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
+                <mat-label>{{
+                  "brpDoelbinding.raadpleegWaarde" | translate
+                }}</mat-label>
+                <mat-select
+                  placeholder="{{ 'resultaat.-kies-' | translate }}"
+                  [formControl]="
+                    brpDoelbindingFormGroup.controls.raadpleegWaarde
+                  "
+                >
+                  <mat-option
+                    *ngFor="let value of brpConsultingValues"
+                    [value]="value"
+                    >{{ value }}</mat-option
+                  >
+                </mat-select>
+              </mat-form-field>
+            </form>
             <div class="flex-row items-center gap-8">
               <mat-slide-toggle
                 formControlName="kvkKoppelen"
@@ -741,47 +786,7 @@
               <p>{{ "gegevens.koppelen.kvk" | translate }}</p>
             </div>
           </form>
-          <mat-divider class="my-3"></mat-divider>
-          <form [formGroup]="brpDoelbindingFormGroup" class="flex-col">
-            <h2>
-              {{ "title.brpDoelbinding.form" | translate }}
-            </h2>
-            <p>
-              {{ "title.admin.parameters.step.brpDoelbinding" | translate }}
-            </p>
 
-            <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
-              <mat-label>{{
-                "brpDoelbinding.zoekWaarde" | translate
-              }}</mat-label>
-              <mat-select
-                placeholder="{{ 'resultaat.-kies-' | translate }}"
-                [formControl]="brpDoelbindingFormGroup.controls.zoekWaarde"
-              >
-                <mat-option
-                  *ngFor="let value of brpSearchValues"
-                  [value]="value"
-                  >{{ value }}</mat-option
-                >
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
-              <mat-label>{{
-                "brpDoelbinding.raadpleegWaarde" | translate
-              }}</mat-label>
-              <mat-select
-                placeholder="{{ 'resultaat.-kies-' | translate }}"
-                [formControl]="brpDoelbindingFormGroup.controls.raadpleegWaarde"
-              >
-                <mat-option
-                  *ngFor="let value of brpConsultingValues"
-                  [value]="value"
-                  >{{ value }}</mat-option
-                >
-              </mat-select>
-            </mat-form-field>
-          </form>
-          <mat-divider class="my-3"></mat-divider>
           <form [formGroup]="smartDocumentsEnabledForm" class="flex-col">
             <div class="flex-row items-center">
               <section class="flex-1">
@@ -801,6 +806,7 @@
               ></mat-slide-toggle>
             </div>
           </form>
+          <mat-divider class="my-3"></mat-divider>
           <smart-documents-form
             *ngIf="smartDocumentsEnabledForm.get('enabledForZaaktype').value"
             [zaakTypeUuid]="parameters.zaaktype.uuid"

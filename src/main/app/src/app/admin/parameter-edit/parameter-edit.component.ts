@@ -476,6 +476,12 @@ export class ParameterEditComponent
         this.parameters.betrokkeneKoppelingen?.brpKoppelen ?? false,
       ],
     });
+
+    this.betrokkeneKoppelingen.controls.brpKoppelen.valueChanges.subscribe((value) => {
+      if(value) return
+
+      this.brpDoelbindingFormGroup.reset();
+    })
   }
 
   createBrpDoelbindingForm() {
@@ -797,6 +803,7 @@ export class ParameterEditComponent
       ),
     };
 
+    console.log(this.brpDoelbindingFormGroup.value)
     this.parameters.brpDoelbindingen = this.brpDoelbindingFormGroup.value;
 
     this.zaakafhandelParametersService
