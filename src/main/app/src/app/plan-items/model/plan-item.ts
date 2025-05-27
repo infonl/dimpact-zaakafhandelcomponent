@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { FormulierDefinitieID } from "../../admin/model/formulier-definitie";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { PlanItemType } from "./plan-item-type.enum";
 import { UserEventListenerActie } from "./user-event-listener-actie-enum";
 
@@ -13,7 +13,7 @@ export class PlanItem {
   actief: boolean;
   type: PlanItemType;
   groepId: string;
-  formulierDefinitie: FormulierDefinitieID;
+  formulierDefinitie: GeneratedType<"FormulierDefinitie">;
   tabellen: { [key: string]: string[] };
   zaakUuid: string;
   userEventListenerActie: UserEventListenerActie;

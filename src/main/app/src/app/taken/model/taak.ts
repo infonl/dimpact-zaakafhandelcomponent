@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { FormulierDefinitieID } from "../../admin/model/formulier-definitie";
 import { FormulierDefinitie } from "../../admin/model/formulieren/formulier-definitie";
 import { TaakRechten } from "../../policy/model/taak-rechten";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -23,7 +22,7 @@ export class Taak {
   zaakIdentificatie: string;
   zaaktypeOmschrijving: string;
   status: TaakStatus;
-  formulierDefinitieId: FormulierDefinitieID;
+  formulierDefinitieId: GeneratedType<"FormulierDefinitie">;
   formulierDefinitie: FormulierDefinitie;
   formioFormulier: unknown;
   tabellen: Record<string, string[]>;

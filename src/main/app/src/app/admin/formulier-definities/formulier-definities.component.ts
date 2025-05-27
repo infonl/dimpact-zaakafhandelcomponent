@@ -9,11 +9,11 @@ import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
-import { IdentityService } from "../../identity/identity.service";
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { FormulierDefinitieService } from "../formulier-defintie.service";
 import { FormulierDefinitie } from "../model/formulieren/formulier-definitie";
@@ -26,8 +26,8 @@ export class FormulierDefinitiesComponent
   extends AdminComponent
   implements OnInit
 {
-  @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
-  @ViewChild("menuSidenav") menuSidenav: MatSidenav;
+  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
+  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
 
   isLoadingResults = false;
   columns: string[] = [
@@ -39,15 +39,15 @@ export class FormulierDefinitiesComponent
     "aantal",
     "id",
   ];
-  dataSource: MatTableDataSource<FormulierDefinitie> =
-    new MatTableDataSource<FormulierDefinitie>();
+  dataSource = new MatTableDataSource<
+    GeneratedType<"RESTFormulierDefinitie">
+  >();
 
   constructor(
     public dialog: MatDialog,
     public utilService: UtilService,
     public configuratieService: ConfiguratieService,
-    private identityService: IdentityService,
-    private service: FormulierDefinitieService,
+    private formulierDefinitieService: FormulierDefinitieService,
   ) {
     super(utilService, configuratieService);
   }
@@ -60,7 +60,7 @@ export class FormulierDefinitiesComponent
   ophalenFormulierDefinities(): void {
     this.isLoadingResults = true;
     this.utilService.setLoading(true);
-    this.service.list().subscribe((definities) => {
+    this.formulierDefinitieService.list().subscribe((definities) => {
       this.dataSource.data = definities;
       this.isLoadingResults = false;
       this.utilService.setLoading(false);
@@ -75,7 +75,7 @@ export class FormulierDefinitiesComponent
             key: "msg.formulierdefinitie.verwijderen.bevestigen",
             args: { naam: formulierDefinitie.systeemnaam },
           },
-          this.service.delete(formulierDefinitie.id),
+          this.formulierDefinitieService.delete(formulierDefinitie.id),
         ),
       })
       .afterClosed()

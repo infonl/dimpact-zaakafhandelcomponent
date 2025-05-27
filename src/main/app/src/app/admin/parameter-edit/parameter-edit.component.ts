@@ -30,10 +30,8 @@ import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakStatusmailOptie } from "../../zaken/model/zaak-statusmail-optie";
 import { AdminComponent } from "../admin/admin.component";
+import { FormulierDefinitieService } from "../formulier-defintie.service";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
-import { FormulierDefinitie } from "../model/formulier-definitie";
-import { FormulierVeldDefinitie } from "../model/formulier-veld-definitie";
-import { HumanTaskReferentieTabel } from "../model/human-task-referentie-tabel";
 import {
   MailtemplateKoppelingMail,
   MailtemplateKoppelingMailUtil,
@@ -132,7 +130,7 @@ export class ParameterEditComponent
   medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
   resultaattypes: GeneratedType<"RestResultaattype">[] = [];
   referentieTabellen: ReferentieTabel[] = [];
-  formulierDefinities: FormulierDefinitie[] = [];
+  formulierDefinities: GeneratedType<"RESTFormulierDefinitie">[] = [];
   zaakbeeindigRedenen: GeneratedType<"RESTZaakbeeindigReden">[] = [];
   mailtemplates: GeneratedType<"RESTMailtemplate">[] = [];
   replyTos: ReplyTo[] = [];
@@ -151,6 +149,7 @@ export class ParameterEditComponent
     mailtemplateBeheerService: MailtemplateBeheerService,
     private formBuilder: FormBuilder,
     private cdr: ChangeDetectorRef,
+    private readonly formulierDefinitieService: FormulierDefinitieService,
   ) {
     super(utilService, configuratieService);
     this.route.data.subscribe((data) => {
@@ -167,7 +166,7 @@ export class ParameterEditComponent
 
       forkJoin([
         zaakafhandelParametersService.listCaseDefinitions(),
-        zaakafhandelParametersService.listFormulierDefinities(),
+        formulierDefinitieService.list(),
         referentieTabelService.listReferentieTabellen(),
         referentieTabelService.listDomeinen(),
         referentieTabelService.listAfzenders(),
@@ -388,7 +387,7 @@ export class ParameterEditComponent
         humanTaskParameters.formulierDefinitieId,
       ) ?? []) {
         humanTaskFormGroup.addControl(
-          "referentieTabel" + veld.naam,
+          "referentieTabel" + veld.systeemnaam,
           this.formBuilder.control(
             this.getReferentieTabel(humanTaskParameters, veld),
             Validators.required,
@@ -413,15 +412,17 @@ export class ParameterEditComponent
 
   private getReferentieTabel(
     humanTaskParameters: GeneratedType<"RESTHumanTaskParameters">,
-    veldDefinitie: FormulierVeldDefinitie,
+    veldDefinitie: GeneratedType<"RESTFormulierVeldDefinitie">,
   ) {
     const humanTaskReferentieTabel =
       humanTaskParameters.referentieTabellen?.find(
-        ({ veld }) => veld === veldDefinitie.naam,
+        ({ veld }) => veld === veldDefinitie.systeemnaam,
       );
     return (
       humanTaskReferentieTabel?.tabel ??
-      this.referentieTabellen.find(({ code }) => code === veldDefinitie.naam)
+      this.referentieTabellen.find(
+        ({ code }) => code === veldDefinitie.systeemnaam,
+      )
     );
   }
 
@@ -738,12 +739,14 @@ export class ParameterEditComponent
       this.getVeldDefinities(param.formulierDefinitieId ?? "")?.forEach(
         (value) => {
           const bestaandeHumanTaskReferentieTabel =
-            bestaandeReferentietabellen?.find((o) => o.veld === value.naam);
+            bestaandeReferentietabellen?.find(
+              (o) => o.veld === value.systeemnaam,
+            );
           const tabel =
             bestaandeHumanTaskReferentieTabel != null
               ? bestaandeHumanTaskReferentieTabel
-              : new HumanTaskReferentieTabel();
-          tabel.veld = value.naam;
+              : ({} satisfies GeneratedType<"RestHumanTaskReferenceTable">);
+          tabel.veld = value.systeemnaam ?? "";
           tabel.tabel = this.getHumanTaskControl(
             param,
             "referentieTabel" + tabel.veld,
@@ -873,8 +876,9 @@ export class ParameterEditComponent
 
   getVeldDefinities(formulierDefinitieId: string) {
     if (formulierDefinitieId) {
-      return this.formulierDefinities.find((f) => f.id === formulierDefinitieId)
-        ?.veldDefinities;
+      return this.formulierDefinities.find(
+        (f) => String(f.id) === formulierDefinitieId,
+      )?.veldDefinities;
     } else {
       return [];
     }

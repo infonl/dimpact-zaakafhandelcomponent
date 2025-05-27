@@ -18,6 +18,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { FormulierDefinitieService } from "../formulier-defintie.service";
 import { FormulierDefinitie } from "../model/formulieren/formulier-definitie";
@@ -37,7 +38,7 @@ export class FormulierDefinitieEditComponent
   @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
   @ViewChild("menuSidenav") menuSidenav: MatSidenav;
 
-  definitie: FormulierDefinitie;
+  definitie: GeneratedType<"RESTFormulierDefinitie">;
   definitieFormGroup: FormGroup;
   veldColumns = [
     "label",
@@ -198,7 +199,6 @@ export class FormulierDefinitieEditComponent
   opslaan(): void {
     this.bezigMetOpslaan = true;
     const val = this.definitieFormGroup.value as FormulierDefinitie;
-    console.log(val);
     if (val.id) {
       this.service.update(val).subscribe((data) => {
         this.definitie = data;

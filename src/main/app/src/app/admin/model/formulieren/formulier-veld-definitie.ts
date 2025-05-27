@@ -4,6 +4,7 @@
  */
 
 import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { FormulierVeldtype } from "./formulier-veld-type.enum";
 
 export class FormulierVeldDefinitie {
@@ -19,7 +20,9 @@ export class FormulierVeldDefinitie {
   meerkeuzeOpties: string;
   validaties: string[];
 
-  static asFormGroup(vd: FormulierVeldDefinitie): FormGroup {
+  static asFormGroup(
+    vd: GeneratedType<"RESTFormulierVeldDefinitie">,
+  ): FormGroup {
     return new FormGroup({
       id: new FormControl(vd.id),
       label: new FormControl(vd.label, Validators.required),
@@ -84,13 +87,16 @@ export class FormulierVeldDefinitie {
     return new Date();
   }
 
-  static isMeerkeuzeVeld(veldtype: FormulierVeldtype) {
-    return (
-      veldtype === FormulierVeldtype.CHECKBOXES ||
-      veldtype === FormulierVeldtype.RADIO ||
-      veldtype === FormulierVeldtype.KEUZELIJST ||
-      veldtype === FormulierVeldtype.DOCUMENTEN_LIJST
-    );
+  static isMeerkeuzeVeld(veldtype: GeneratedType<"FormulierVeldtype">) {
+    switch (veldtype) {
+      case "CHECKBOX":
+      case "RADIO":
+      case "KEUZELIJST":
+      case "DOCUMENTEN_LIJST":
+        return true;
+      default:
+        return false;
+    }
   }
 
   static isFataldatum(fvd: FormulierVeldDefinitie) {

@@ -22,6 +22,7 @@ import { PipesModule } from "../../shared/pipes/pipes.module";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { FormulierDefinitieService } from "../formulier-defintie.service";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
@@ -30,6 +31,7 @@ import { ParameterEditComponent } from "./parameter-edit.component";
 describe(ParameterEditComponent.name, () => {
   let fixture: ComponentFixture<ParameterEditComponent>;
   let zaakafhandelParametersService: ZaakafhandelParametersService;
+  let formulierDefinietiesService: FormulierDefinitieService;
   let referentieTabelService: ReferentieTabelService;
   let identityService: IdentityService;
   let mailtemplateBeheerService: MailtemplateBeheerService;
@@ -95,9 +97,6 @@ describe(ParameterEditComponent.name, () => {
       .spyOn(zaakafhandelParametersService, "listCaseDefinitions")
       .mockReturnValue(of([]));
     jest
-      .spyOn(zaakafhandelParametersService, "listFormulierDefinities")
-      .mockReturnValue(of([]));
-    jest
       .spyOn(zaakafhandelParametersService, "listReplyTos")
       .mockReturnValue(of([]));
     jest
@@ -106,6 +105,9 @@ describe(ParameterEditComponent.name, () => {
     jest
       .spyOn(zaakafhandelParametersService, "listResultaattypes")
       .mockReturnValue(of([]));
+
+    formulierDefinietiesService = TestBed.inject(FormulierDefinitieService);
+    jest.spyOn(formulierDefinietiesService, "list").mockReturnValue(of([]));
 
     referentieTabelService = TestBed.inject(ReferentieTabelService);
     jest
