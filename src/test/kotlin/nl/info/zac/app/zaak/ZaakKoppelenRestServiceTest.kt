@@ -10,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.zrc.model.Zaak
@@ -21,7 +22,9 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.ZaakIndicatie.DEELZAAK
 import nl.info.zac.search.model.ZaakIndicatie.HOOFDZAAK
+import nl.info.zac.search.model.ZoekParameters
 import nl.info.zac.search.model.ZoekResultaat
+import nl.info.zac.search.model.ZoekVeld
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType.ZAAK
@@ -793,42 +796,48 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
         }
 
         Given("A source deelzaak and target not linked zaak") {
+            val zaakSearchTextTrimmed = "ZAAK-2000-00002"
+            val zaakSearchText = " ZAAK-2000-00002  "
             val deelzaakUuid = UUID.randomUUID()
-
             val deelzaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
                 archiefnominatie = Archiefnominatie.BLIJVEND_BEWAREN,
                 zaakTypeURI = zaakTypeURI,
                 hoofdzaakUri = URI("https://example.com/deelzaak/$deelzaakUuid")
             )
-
             val zaakZoekObject = createZaakZoekObject(
                 type = ZAAK,
                 zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
-                identificatie = zoekZaakIdentifier,
+                identificatie = zaakSearchTextTrimmed,
                 omschrijving = OMSCHRIJVING,
                 statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
                 zaaktypeUuid = zaakZoekObjectTypeUuid,
                 archiefNominatie = Archiefnominatie.BLIJVEND_BEWAREN.toString()
             )
-
             val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+            val zoekParametersSlot = slot<ZoekParameters>()
 
             every { zrcClientService.readZaak(deelzaak.uuid) } returns deelzaak
-            every { searchService.zoek(any()) } returns zoekResultaat
+            every { searchService.zoek(capture(zoekParametersSlot)) } returns zoekResultaat
             every { policyService.readZaakRechten(deelzaak).koppelen } returns true
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
 
             When("findLinkableZaken with HOOFDZAAK link is called") {
                 val result = zaakKoppelenRestService.findLinkableZaken(
                     zaakUuid = deelzaak.uuid,
-                    zoekZaakIdentifier = zoekZaakIdentifier,
+                    zoekZaakIdentifier = zaakSearchText,
                     relationType = RelatieType.HOOFDZAAK,
                     page = page,
                     rows = rows
                 )
 
-                Then("a single linkable zaak should be returned") {
+                Then("the used search parameters should be as expected") {
+                    with(zoekParametersSlot.captured) {
+                        getZoeken()[ZoekVeld.ZAAK_IDENTIFICATIE] shouldBe zaakSearchTextTrimmed
+                    }
+                }
+
+                And("a single linkable zaak should be returned") {
                     result.resultCount shouldBe 1
                 }
 
@@ -836,7 +845,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                     with(result.results.first()) {
                         id shouldBe zaakZoekObject.getObjectId()
                         type shouldBe zaakZoekObject.getType()
-                        identificatie shouldBe zoekZaakIdentifier
+                        identificatie shouldBe zaakSearchTextTrimmed
                         omschrijving shouldBe OMSCHRIJVING
                         zaaktypeOmschrijving shouldBe ZAAK_TYPE_OMSCHRIJVING
                         statustypeOmschrijving shouldBe STATUS_TYPE_OMSCHRIJVING
