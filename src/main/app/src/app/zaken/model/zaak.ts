@@ -11,6 +11,9 @@ import { ZaakKenmerk } from "./zaak-kenmerk";
 import { ZaakStatus } from "./zaak-status";
 import { Zaaktype } from "./zaaktype";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class Zaak {
   uuid: string;
   identificatie: string;

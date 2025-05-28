@@ -7,6 +7,9 @@ import { ObjectType } from "./object-type";
 import { Opcode } from "./opcode";
 import { ScreenEventId } from "./screen-event-id";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class ScreenEvent {
   private _timestamp: number;
   opcode: Opcode;

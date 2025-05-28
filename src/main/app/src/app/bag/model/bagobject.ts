@@ -5,6 +5,9 @@
 
 import { BAGObjecttype } from "./bagobjecttype";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export abstract class BAGObject {
   url: string;
   identificatie: string;

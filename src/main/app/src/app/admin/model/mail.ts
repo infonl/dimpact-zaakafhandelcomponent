@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export enum Mail {
   "ZAAK_ALGEMEEN" = "ZAAK_ALGEMEEN",
   "ZAAK_ONTVANKELIJK" = "ZAAK_ONTVANKELIJK",

@@ -5,6 +5,9 @@
 
 import { Werklijst } from "./werklijst";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class Zoekopdracht {
   id: number;
   naam: string;
