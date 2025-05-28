@@ -875,13 +875,11 @@ export class ParameterEditComponent
   }
 
   getVeldDefinities(formulierDefinitieId: string) {
-    if (formulierDefinitieId) {
-      return this.formulierDefinities.find(
+    return (
+      this.formulierDefinities.find(
         (f) => String(f.id) === formulierDefinitieId,
-      )?.veldDefinities;
-    } else {
-      return [];
-    }
+      )?.veldDefinities ?? []
+    );
   }
 
   getBeschikbareMailtemplates(mailtemplate: MailtemplateKoppelingMail) {

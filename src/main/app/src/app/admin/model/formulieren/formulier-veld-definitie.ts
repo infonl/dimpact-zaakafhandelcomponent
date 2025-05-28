@@ -89,7 +89,7 @@ export class FormulierVeldDefinitie {
 
   static isMeerkeuzeVeld(veldtype: GeneratedType<"FormulierVeldtype">) {
     switch (veldtype) {
-      case "CHECKBOX":
+      case "CHECKBOXES":
       case "RADIO":
       case "KEUZELIJST":
       case "DOCUMENTEN_LIJST":

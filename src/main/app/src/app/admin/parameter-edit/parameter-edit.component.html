@@ -293,11 +293,11 @@
                 >
                   <mat-form-field class="w33 w100-md" floatLabel="always">
                     <mat-label>{{
-                      "referentietabel." + veld.naam | translate
+                      "referentietabel." + veld.systeemnaam | translate
                     }}</mat-label>
                     <mat-select
                       placeholder="{{ 'referentietabel.-geen-' | translate }}"
-                      [formControlName]="'referentieTabel' + veld.naam"
+                      [formControlName]="'referentieTabel' + veld.systeemnaam"
                       [compareWith]="compareObject"
                     >
                       <mat-option
