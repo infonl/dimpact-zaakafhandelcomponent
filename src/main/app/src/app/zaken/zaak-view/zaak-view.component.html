@@ -978,8 +978,8 @@
 
     <zac-notities
       *ngIf="notitieRechten?.lezen || notitieRechten?.wijzigen"
-      [uuid]="zaak.uuid"
-      [type]="notitieType"
+      [zaakUuid]="zaak.uuid"
+      [notitieType]="notitieType"
       [notitieRechten]="notitieRechten"
     ></zac-notities>
   </mat-drawer-content>

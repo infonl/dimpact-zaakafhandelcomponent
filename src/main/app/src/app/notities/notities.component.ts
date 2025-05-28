@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Input, OnInit, ViewChild } from "@angular/core";
+import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import { IdentityService } from "../identity/identity.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { Notitie } from "./model/notitie";
@@ -15,11 +15,12 @@ import { NotitieService } from "./notities.service";
   styleUrls: ["./notities.component.less"],
 })
 export class NotitiesComponent implements OnInit {
-  @Input() uuid: string;
-  @Input() type: string;
+  @Input({ required: true }) zaakUuid!: string;
+  @Input({ required: true }) notitieType!: string;
   @Input() notitieRechten?: GeneratedType<"RestNotitieRechten">;
 
-  @ViewChild("notitieTekst") notitieTekst;
+  @ViewChild("scrollTarget") scrollTarget!: ElementRef;
+  @ViewChild("notitieTekst") notitieTekst!: ElementRef;
 
   ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
 
@@ -50,7 +51,7 @@ export class NotitiesComponent implements OnInit {
 
   haalNotitiesOp() {
     this.notitieService
-      .listNotities(this.type, this.uuid)
+      .listNotities(this.notitieType, this.zaakUuid)
       .subscribe((notities) => {
         this.notities = notities;
         this.notities
@@ -68,13 +69,17 @@ export class NotitiesComponent implements OnInit {
 
     if (tekst.length <= this.maxLengteTextArea) {
       const notitie: Notitie = new Notitie();
-      notitie.zaakUUID = this.uuid;
+      notitie.zaakUUID = this.zaakUuid;
       notitie.tekst = tekst;
       notitie.gebruikersnaamMedewerker = this.ingelogdeMedewerker.id;
 
       this.notitieService.createNotitie(notitie).subscribe((notitie) => {
         this.notities.splice(0, 0, notitie);
         this.notitieTekst.nativeElement.value = "";
+        this.scrollTarget.nativeElement.scrollIntoView({
+          behavior: "auto",
+          block: "start",
+        });
       });
     }
   }
