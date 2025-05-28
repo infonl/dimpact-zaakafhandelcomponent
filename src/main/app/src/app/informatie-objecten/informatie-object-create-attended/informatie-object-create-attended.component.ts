@@ -124,6 +124,8 @@ export class InformatieObjectCreateAttendedComponent implements OnInit {
     });
 
     this.form.controls.templateGroup.valueChanges.subscribe((value) => {
+      this.templates = value?.templates ?? [];
+
       if (!value?.templates) {
         this.form.controls.template.setValue(null);
         this.form.controls.template.disable();
