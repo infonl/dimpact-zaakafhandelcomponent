@@ -18,7 +18,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectDownloadService
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
@@ -36,6 +35,7 @@ import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
@@ -233,7 +233,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
     Given("an enkelvoudig informatieobject has been uploaded, and the zaak is closed") {
         val closedZaak = createZaak(
-            archiefnominatie = Archiefnominatie.VERNIETIGEN
+            archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
         )
         val documentReferentieId = "fakeDocumentReferentieId"
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
@@ -407,7 +407,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         )
         val deelzaak = createZaak()
         val zaak = createZaak(
-            deelzaken = setOf(deelzaak.url)
+            deelzaken = listOf(deelzaak.url)
         )
         val restEnkelvoudigInformatieobjecten = listOf(
             createRestEnkelvoudigInformatieobject(

@@ -17,7 +17,6 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import nl.info.client.zgw.zrc.model.generated.Zaak;
 import net.atos.zac.admin.ZaakafhandelParameterService;
 import net.atos.zac.admin.model.ZaakafhandelParameters;
 import net.atos.zac.app.admin.converter.RESTMailtemplateConverter;
@@ -25,6 +24,7 @@ import net.atos.zac.app.admin.model.RESTMailtemplate;
 import net.atos.zac.mailtemplates.MailTemplateService;
 import net.atos.zac.mailtemplates.model.Mail;
 import nl.info.client.zgw.zrc.ZrcClientService;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 
 @Singleton
 @Path("mailtemplates")

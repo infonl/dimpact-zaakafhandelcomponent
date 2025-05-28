@@ -12,7 +12,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.zgw.shared.model.Archiefnominatie.VERNIETIGEN
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
@@ -23,6 +22,10 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
+import nl.info.client.zgw.zrc.util.isEerderOpgeschort
+import nl.info.client.zgw.zrc.util.isOpgeschort
+import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -121,9 +124,9 @@ class RestZaakConverterTest : BehaviorSpec({
                     omschrijving shouldBe zaak.omschrijving
                     toelichting shouldBe zaak.toelichting
                     this.zaaktype shouldBe zaaktype
-                    isVerlengd shouldBe zaak.isVerlengd
-                    isOpgeschort shouldBe zaak.isOpgeschort
-                    isEerderOpgeschort shouldBe zaak.isEerderOpgeschort
+                    isVerlengd shouldBe zaak.isVerlengd()
+                    isOpgeschort shouldBe zaak.isOpgeschort()
+                    isEerderOpgeschort shouldBe zaak.isEerderOpgeschort()
                     indicaties shouldContainExactly EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
             }
@@ -138,7 +141,7 @@ class RestZaakConverterTest : BehaviorSpec({
                 omschrijving = STATUSTYPE_OMSCHRIJVING_HEROPEND
             }
         val zaak = createZaak().apply {
-            archiefnominatie = VERNIETIGEN
+            archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
         }
         val zaakType = createZaakType()
         val rolOrganistorischeEenheid = createRolOrganisatorischeEenheid()
@@ -185,9 +188,9 @@ class RestZaakConverterTest : BehaviorSpec({
                     omschrijving shouldBe zaak.omschrijving
                     toelichting shouldBe zaak.toelichting
                     this.zaaktype shouldBe zaaktype
-                    isVerlengd shouldBe zaak.isVerlengd
-                    isOpgeschort shouldBe zaak.isOpgeschort
-                    isEerderOpgeschort shouldBe zaak.isEerderOpgeschort
+                    isVerlengd shouldBe zaak.isVerlengd()
+                    isOpgeschort shouldBe zaak.isOpgeschort()
+                    isEerderOpgeschort shouldBe zaak.isEerderOpgeschort()
                     indicaties shouldNotContain EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
             }

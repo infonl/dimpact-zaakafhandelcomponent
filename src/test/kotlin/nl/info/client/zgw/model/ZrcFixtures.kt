@@ -4,7 +4,6 @@
  */
 package nl.info.client.zgw.model
 
-import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.zrc.model.AardRelatieWeergave
 import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.NatuurlijkPersoon
@@ -15,21 +14,22 @@ import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.Status
-import net.atos.client.zgw.zrc.model.Verlenging
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
-import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.Opschorting
 import nl.info.client.zgw.zrc.model.generated.Resultaat
+import nl.info.client.zgw.zrc.model.generated.Verlenging
+import nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.generated.RolType
 import java.net.URI
 import java.time.LocalDate
-import java.time.Period
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -152,12 +152,14 @@ fun createRolOrganisatorischeEenheidForReads(
 
 @Suppress("LongParameterList")
 fun createZaak(
+    uuid: UUID = UUID.randomUUID(),
     zaakTypeURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     startDate: LocalDate = LocalDate.now(),
+    endDate: LocalDate? = null,
     bronOrganisatie: String = "fakeBronOrganisatie",
     verantwoordelijkeOrganisatie: String = "fakeVerantwoordelijkeOrganisatie",
     // an archiefnominatie which is not null means that the zaak is closed
-    archiefnominatie: Archiefnominatie? = null,
+    archiefnominatie: ArchiefnominatieEnum? = null,
     opschorting: Opschorting? = null,
     einddatumGepland: LocalDate? = null,
     identificatie: String = "fakeIdentificatie",
@@ -168,30 +170,35 @@ fun createZaak(
     status: URI? = null,
     verlenging: Verlenging? = null,
     hoofdzaakUri: URI? = null,
-    deelzaken: Set<URI>? = null,
-    uuid: UUID = UUID.randomUUID(),
+    deelzaken: List<URI>? = null,
     omschrijving: String = "fakeOmschrijving"
 ) = Zaak(
-    zaakTypeURI,
-    startDate,
-    bronOrganisatie,
-    verantwoordelijkeOrganisatie
+    URI("https://example.com/zaak/$uuid"),
+    uuid,
+    endDate,
+    null,
+    deelzaken,
+    null,
+    null,
+    status,
+    null,
+    null,
+    resultaat
 ).apply {
-    this.url = URI("https://example.com/zaak/${UUID.randomUUID()}")
-    this.uuid = uuid
+    this.zaaktype = zaakTypeURI
+    this.startdatum = startDate
     this.archiefnominatie = archiefnominatie
     this.opschorting = opschorting
     this.einddatumGepland = einddatumGepland
     this.identificatie = identificatie
     this.registratiedatum = registratiedatum
-    this.resultaat = resultaat
     this.uiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening
     this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
-    this.status = status
     this.verlenging = verlenging
-    this.deelzaken = deelzaken
     this.hoofdzaak = hoofdzaakUri
     this.omschrijving = omschrijving
+    this.bronorganisatie = bronOrganisatie
+    this.verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie
 }
 
 fun createZaakobjectOpenbareRuimte(
@@ -256,5 +263,8 @@ fun createZaakStatus(
 
 fun createVerlenging(
     reden: String = "fakeReden",
-    duur: Period = Period.ZERO
-) = Verlenging(reden, duur)
+    duur: String = "0"
+) = Verlenging().apply {
+    this.reden = reden
+    this.duur = duur
+}

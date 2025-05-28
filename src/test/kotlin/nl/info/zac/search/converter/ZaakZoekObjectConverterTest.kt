@@ -23,6 +23,7 @@ import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.shared.model.createResultsOfZaakObjecten
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
@@ -115,7 +116,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                     toelichting shouldBe zaak.toelichting
                     registratiedatum shouldBe Date.from(zaak.registratiedatum.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
                     vertrouwelijkheidaanduiding shouldBe zaak.vertrouwelijkheidaanduiding.name
-                    isAfgehandeld shouldBe !zaak.isOpen
+                    isAfgehandeld shouldBe !zaak.isOpen()
                     initiatorIdentificatie shouldBe rolInitiator.identificatienummer
                     // locatie conversion is not implemented yet
                     locatie shouldBe null
@@ -194,7 +195,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                     toelichting shouldBe zaak.toelichting
                     registratiedatum shouldBe Date.from(zaak.registratiedatum.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
                     vertrouwelijkheidaanduiding shouldBe zaak.vertrouwelijkheidaanduiding.name
-                    isAfgehandeld shouldBe !zaak.isOpen
+                    isAfgehandeld shouldBe !zaak.isOpen()
                     initiatorIdentificatie shouldBe rolInitiator.identificatienummer
                     // locatie conversion is not implemented (yet?)
                     locatie shouldBe null

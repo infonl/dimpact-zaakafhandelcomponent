@@ -31,6 +31,7 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateL
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.InformatieObjectType
 import nl.info.zac.authentication.LoggedInUser
@@ -60,7 +61,6 @@ import kotlin.Suppress
 import kotlin.apply
 import kotlin.let
 import kotlin.takeIf
-import nl.info.client.zgw.zrc.model.generated.Zaak
 
 @ApplicationScoped
 @NoArgConstructor

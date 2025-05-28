@@ -23,6 +23,7 @@ import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
 import nl.info.zac.documentcreation.BpmnDocumentCreationService
@@ -40,7 +41,6 @@ import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
-import nl.info.client.zgw.zrc.model.generated.Zaak
 
 @Singleton
 @Path("document-creation")

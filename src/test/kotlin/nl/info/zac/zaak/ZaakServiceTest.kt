@@ -17,7 +17,6 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.zac.event.EventingService
@@ -31,6 +30,7 @@ import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createStatusType
@@ -125,7 +125,7 @@ class ZaakServiceTest : BehaviorSpec({
     Given("One open and one closed zaak and a group and a user") {
         val openZaak = createZaak()
         val closedZaak = createZaak(
-            archiefnominatie = Archiefnominatie.VERNIETIGEN
+            archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
         )
         val zakenList = listOf(openZaak, closedZaak)
         zakenList.map {
@@ -208,7 +208,7 @@ class ZaakServiceTest : BehaviorSpec({
     Given("One open and one closed zaak and a screen event resource id") {
         val openZaak = createZaak()
         val closedZaak = createZaak(
-            archiefnominatie = Archiefnominatie.VERNIETIGEN
+            archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
         )
         val zakenList = listOf(openZaak, closedZaak)
         zakenList.map {
@@ -506,10 +506,10 @@ class ZaakServiceTest : BehaviorSpec({
     Given("a zaak that is not heropend") {
         val zaakUuid = UUID.randomUUID()
         val statusUuid = UUID.randomUUID()
-        val zaak = createZaak().apply {
-            uuid = zaakUuid
+        val zaak = createZaak(
+            uuid = zaakUuid,
             status = URI(statusUuid.toString())
-        }
+        )
         val statusType = createStatusType().apply {
             omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING
         }
@@ -541,10 +541,10 @@ class ZaakServiceTest : BehaviorSpec({
     Given("a zaak is heropend") {
         val zaakUuid = UUID.randomUUID()
         val statusUuid = UUID.randomUUID()
-        val zaak = createZaak().apply {
-            uuid = zaakUuid
+        val zaak = createZaak(
+            uuid = zaakUuid,
             status = URI(statusUuid.toString())
-        }
+        )
         val statusType = createStatusType().apply {
             omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND
         }

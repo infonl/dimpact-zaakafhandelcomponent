@@ -7,6 +7,8 @@ package net.atos.client.zgw.zrc.model;
 
 
 import static net.atos.client.zgw.shared.util.DateTimeUtil.DATE_TIME_FORMAT;
+import static nl.info.client.zgw.zrc.util.ZaakUtilKt.OMSCHRIJVING_MAX_LENGTH;
+import static nl.info.client.zgw.zrc.util.ZaakUtilKt.TOELICHTING_MAX_LENGTH;
 
 import java.net.URI;
 import java.time.LocalDate;
@@ -32,9 +34,6 @@ import nl.info.client.zgw.zrc.model.generated.ZaakKenmerk;
  */
 public class Zaak {
 
-    public static final int OMSCHRIJVING_MAX_LENGTH = 80;
-
-    public static final int TOELICHTING_MAX_LENGTH = 1000;
 
     /**
      * URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object.
@@ -60,13 +59,11 @@ public class Zaak {
 
     /**
      * Een korte omschrijving van de zaak.
-     * maxLength: {@link Zaak#OMSCHRIJVING_MAX_LENGTH}
      */
     private String omschrijving;
 
     /**
      * Een toelichting op de zaak.
-     * maxLength: {@link Zaak#TOELICHTING_MAX_LENGTH}
      */
     private String toelichting;
 

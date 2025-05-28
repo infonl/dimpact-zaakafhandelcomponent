@@ -15,8 +15,15 @@ import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Verlenging
 import nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.util.isDeelzaak
+import nl.info.client.zgw.zrc.util.isEerderOpgeschort
 import nl.info.client.zgw.zrc.util.isHeropend
+import nl.info.client.zgw.zrc.util.isHoofdzaak
 import nl.info.client.zgw.zrc.util.isIntake
+import nl.info.client.zgw.zrc.util.isOpen
+import nl.info.client.zgw.zrc.util.isOpgeschort
+import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
@@ -43,17 +50,9 @@ import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUUR
 import nl.info.zac.search.model.ZaakIndicatie.OPSCHORTING
 import nl.info.zac.search.model.ZaakIndicatie.VERLENGD
 import java.time.LocalDate
-import java.time.Period
 import java.util.EnumSet.noneOf
 import java.util.UUID
 import java.util.logging.Logger
-import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.client.zgw.zrc.util.isDeelzaak
-import nl.info.client.zgw.zrc.util.isEerderOpgeschort
-import nl.info.client.zgw.zrc.util.isHoofdzaak
-import nl.info.client.zgw.zrc.util.isOpen
-import nl.info.client.zgw.zrc.util.isOpgeschort
-import nl.info.client.zgw.zrc.util.isVerlengd
 
 @Suppress("LongParameterList")
 class RestZaakConverter @Inject constructor(
@@ -181,8 +180,8 @@ class RestZaakConverter @Inject constructor(
     ).apply {
         // TODO:
         // restZaak.startdatum,
-        //configuratieService.readBronOrganisatie(),
-        //configuratieService.readVerantwoordelijkeOrganisatie()
+        // configuratieService.readBronOrganisatie(),
+        // configuratieService.readVerantwoordelijkeOrganisatie()
         this.communicatiekanaalNaam = restZaak.communicatiekanaal
         this.omschrijving = restZaak.omschrijving
         this.toelichting = restZaak.toelichting

@@ -12,6 +12,7 @@ import nl.info.client.smartdocuments.model.document.StartformulierData
 import nl.info.client.smartdocuments.model.document.TaskData
 import nl.info.client.smartdocuments.model.document.ZaakData
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID

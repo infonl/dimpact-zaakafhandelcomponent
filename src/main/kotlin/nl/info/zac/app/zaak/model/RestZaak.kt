@@ -7,7 +7,6 @@ package nl.info.zac.app.zaak.model
 import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Size
-
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.klant.model.klant.IdentificatieType

@@ -33,6 +33,8 @@ import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import nl.info.client.zgw.model.createZaakobjectProductaanvraag
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -302,7 +304,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     toelichting shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'. $zaakExplanation"
                         .take(1000)
                     with(zaakgeometrie) {
-                        type.toValue() shouldBe Geometry.Type.POINT.value()
+                        type shouldBe GeometryTypeEnum.POINT
                         with((this as Point).coordinates) {
                             latitude.toDouble() shouldBe coordinates[0]
                             longitude.toDouble() shouldBe coordinates[1]

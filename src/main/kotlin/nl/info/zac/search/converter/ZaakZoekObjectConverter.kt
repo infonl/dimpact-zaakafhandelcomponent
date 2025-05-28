@@ -11,7 +11,13 @@ import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.util.isDeelzaak
 import nl.info.client.zgw.zrc.util.isHeropend
+import nl.info.client.zgw.zrc.util.isHoofdzaak
+import nl.info.client.zgw.zrc.util.isOpen
+import nl.info.client.zgw.zrc.util.isOpgeschort
+import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
@@ -21,12 +27,6 @@ import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import java.util.UUID
-import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.client.zgw.zrc.util.isDeelzaak
-import nl.info.client.zgw.zrc.util.isHoofdzaak
-import nl.info.client.zgw.zrc.util.isOpen
-import nl.info.client.zgw.zrc.util.isOpgeschort
-import nl.info.client.zgw.zrc.util.isVerlengd
 
 class ZaakZoekObjectConverter @Inject constructor(
     private val zrcClientService: ZrcClientService,
