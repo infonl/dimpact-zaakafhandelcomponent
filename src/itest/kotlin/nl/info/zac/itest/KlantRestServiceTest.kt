@@ -53,6 +53,8 @@ import java.net.HttpURLConnection.HTTP_OK
 
 private const val HEADER_VERWERKING = "X-Verwerking"
 
+private const val RESPONSE_DESCRIPTION = "the response should be ok and the test company should be returned without contact data"
+
 /**
  * This test assumes a roltype has been created in a previously run test.
  */
@@ -252,7 +254,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/klanten/rechtspersoon/$TEST_KVK_RSIN_1",
             )
-            Then("the response should be ok and the test company should be returned without contact data") {
+            Then(RESPONSE_DESCRIPTION) {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -277,7 +279,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/klanten/personen/parameters",
             )
-            Then("the response should be ok and the test company should be returned without contact data") {
+            Then(RESPONSE_DESCRIPTION) {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -350,7 +352,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/klanten/roltype/$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID/betrokkene",
             )
-            Then("the response should be ok and the test company should be returned without contact data") {
+            Then(RESPONSE_DESCRIPTION) {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
