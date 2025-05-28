@@ -12,7 +12,6 @@ import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import net.atos.zac.event.EventingService
@@ -44,6 +43,7 @@ import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Logger
+import nl.info.client.zgw.zrc.model.generated.Zaak
 
 @ApplicationScoped
 @Transactional(SUPPORTS)

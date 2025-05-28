@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import net.atos.client.opa.model.RuleQuery
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.util.TaskUtil
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
@@ -45,6 +44,10 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import org.flowable.task.api.TaskInfo
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.util.isOpen
+import nl.info.client.zgw.zrc.util.isOpgeschort
+import nl.info.client.zgw.zrc.util.isVerlengd
 
 @ApplicationScoped
 @NoArgConstructor
@@ -72,10 +75,10 @@ class PolicyService @Inject constructor(
             ztcClientService.readStatustype(zrcClientService.readStatus(it).statustype)
         }
         val zaakData = ZaakData().apply {
-            this.open = zaak.isOpen
+            this.open = zaak.isOpen()
             this.zaaktype = zaaktype.getOmschrijving()
-            this.opgeschort = zaak.isOpgeschort
-            this.verlengd = zaak.isVerlengd
+            this.opgeschort = zaak.isOpgeschort()
+            this.verlengd = zaak.isVerlengd()
             this.besloten = zaaktype.getBesluittypen()?.isNotEmpty() == true
             this.intake = statusType.isIntake()
             this.heropend = statusType.isHeropend()

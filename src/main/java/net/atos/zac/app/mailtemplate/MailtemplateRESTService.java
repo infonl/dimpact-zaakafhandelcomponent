@@ -17,7 +17,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.client.zgw.zrc.model.Zaak;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 import net.atos.zac.admin.ZaakafhandelParameterService;
 import net.atos.zac.admin.model.ZaakafhandelParameters;
 import net.atos.zac.app.admin.converter.RESTMailtemplateConverter;

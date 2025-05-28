@@ -5,7 +5,6 @@
 package nl.info.zac.search.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
@@ -22,6 +21,12 @@ import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import java.util.UUID
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.util.isDeelzaak
+import nl.info.client.zgw.zrc.util.isHoofdzaak
+import nl.info.client.zgw.zrc.util.isOpen
+import nl.info.client.zgw.zrc.util.isOpgeschort
+import nl.info.client.zgw.zrc.util.isVerlengd
 
 class ZaakZoekObjectConverter @Inject constructor(
     private val zrcClientService: ZrcClientService,
@@ -54,24 +59,24 @@ class ZaakZoekObjectConverter @Inject constructor(
             publicatiedatum = convertToDate(zaak.publicatiedatum)
             // we use the name of this enum in the search index
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name
-            isAfgehandeld = !zaak.isOpen
+            isAfgehandeld = !zaak.isOpen()
             zgwApiService.findInitiatorRoleForZaak(zaak)?.also(::setInitiator)
             // locatie is not yet supported
             locatie = null
             communicatiekanaal = zaak.communicatiekanaalNaam
             archiefActiedatum = convertToDate(zaak.archiefactiedatum)
-            if (zaak.isVerlengd) {
+            if (zaak.isVerlengd()) {
                 setIndicatie(ZaakIndicatie.VERLENGD, true)
                 duurVerlenging = zaak.verlenging.duur.toString()
                 redenVerlenging = zaak.verlenging.reden
             }
-            if (zaak.isOpgeschort) {
+            if (zaak.isOpgeschort()) {
                 redenOpschorting = zaak.opschorting.reden
                 setIndicatie(ZaakIndicatie.OPSCHORTING, true)
             }
             zaak.archiefnominatie?.let { archiefNominatie = it.toString() }
-            setIndicatie(ZaakIndicatie.DEELZAAK, zaak.isDeelzaak)
-            setIndicatie(ZaakIndicatie.HOOFDZAAK, zaak.is_Hoofdzaak)
+            setIndicatie(ZaakIndicatie.DEELZAAK, zaak.isDeelzaak())
+            setIndicatie(ZaakIndicatie.HOOFDZAAK, zaak.isHoofdzaak())
         }
         addBetrokkenen(zaak, zaakZoekObject)
         findGroup(zaak)?.let {

@@ -11,7 +11,6 @@ import jakarta.json.JsonObject
 import jakarta.json.JsonString
 import jakarta.json.JsonValue
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.formulieren.model.FormulierData
 import net.atos.zac.app.formulieren.model.RESTFormulierVeldDefinitie
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -22,6 +21,8 @@ import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.model.ReferenceTableValue
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
@@ -117,7 +118,7 @@ class FormulierRuntimeService @Inject constructor(
             }
             task = flowableTaskService.updateTask(task)
         }
-        if (formulierData.zaakOpschorten && !zaak.isOpgeschort) {
+        if (formulierData.zaakOpschorten && !zaak.isOpgeschort()) {
             suspensionZaakHelper.suspendZaak(
                 zaak,
                 ChronoUnit.DAYS.between(LocalDate.now(), DateTimeConverterUtil.convertToLocalDate(task.dueDate)),
@@ -128,7 +129,7 @@ class FormulierRuntimeService @Inject constructor(
                 }
             )
         }
-        if (formulierData.zaakHervatten && zaak.isOpgeschort) {
+        if (formulierData.zaakHervatten && zaak.isOpgeschort()) {
             suspensionZaakHelper.resumeZaak(zaak, REDEN_ZAAK_HERVATTEN)
         }
         markDocumentAsSent(formulierData)
@@ -201,7 +202,7 @@ class FormulierRuntimeService @Inject constructor(
             "ZAAK:BEHANDELAAR" -> getBehandelaarForZaakDefaultValue(context.zaak)
             else ->
                 if (defaultValue.startsWith(":")) {
-                    context.zaakData?.getOrDefault(defaultValue.substring(1), "").toString()
+                    context.zaakData.getOrDefault(defaultValue.substring(1), "").toString()
                 } else {
                     defaultValue
                 }

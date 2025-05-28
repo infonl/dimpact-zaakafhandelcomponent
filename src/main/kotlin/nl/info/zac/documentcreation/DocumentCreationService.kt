@@ -7,9 +7,9 @@ package nl.info.zac.documentcreation
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.UriBuilder
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.util.MediaTypes
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter

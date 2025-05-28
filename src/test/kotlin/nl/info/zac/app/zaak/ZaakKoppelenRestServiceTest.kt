@@ -13,7 +13,6 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import net.atos.client.zgw.shared.model.Archiefnominatie
-import net.atos.client.zgw.zrc.model.Zaak
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService

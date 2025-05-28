@@ -19,12 +19,13 @@ import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolVestiging
 import net.atos.client.zgw.zrc.model.Vestiging
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isHeropend
+import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
@@ -116,11 +117,11 @@ class ZaakService @Inject constructor(
         zaakUUIDs
             .map(zrcClientService::readZaak)
             .filter {
-                if (!it.isOpen) {
+                if (!it.isOpen()) {
                     LOG.fine("Zaak with UUID '${it.uuid} is not open. Therefore it is skipped and not assigned.")
                     eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it))
                 }
-                it.isOpen
+                it.isOpen()
             }
             .map { zaak ->
                 zrcClientService.updateRol(
@@ -203,11 +204,11 @@ class ZaakService @Inject constructor(
         zaakUUIDs
             .map(zrcClientService::readZaak)
             .filter {
-                if (!it.isOpen) {
+                if (!it.isOpen()) {
                     LOG.fine("Zaak with UUID '${it.uuid} is not open. Therefore it is not released.")
                     eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it))
                 }
-                it.isOpen
+                it.isOpen()
             }
             .forEach { zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation) }
         LOG.fine { "Successfully released  ${zaakUUIDs.size} zaken." }

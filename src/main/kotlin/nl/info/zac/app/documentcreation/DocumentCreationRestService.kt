@@ -18,7 +18,6 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
@@ -41,6 +40,7 @@ import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
+import nl.info.client.zgw.zrc.model.generated.Zaak
 
 @Singleton
 @Path("document-creation")

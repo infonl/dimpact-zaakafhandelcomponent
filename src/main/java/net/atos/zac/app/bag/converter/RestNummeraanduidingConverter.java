@@ -8,7 +8,7 @@ package net.atos.zac.app.bag.converter;
 
 import java.net.URI;
 
-import net.atos.client.zgw.zrc.model.Zaak;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectNummeraanduiding;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding;
 import net.atos.zac.app.bag.model.RESTNummeraanduiding;

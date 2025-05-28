@@ -20,7 +20,6 @@ import jakarta.mail.Message
 import jakarta.mail.Transport
 import jakarta.mail.internet.MimeMultipart
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.mailtemplates.MailTemplateHelper
 import net.atos.zac.mailtemplates.model.createMailGegevens
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject

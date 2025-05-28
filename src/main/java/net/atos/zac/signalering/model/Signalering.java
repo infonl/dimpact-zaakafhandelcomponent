@@ -31,7 +31,7 @@ import jakarta.validation.constraints.NotNull;
 
 import org.flowable.task.api.TaskInfo;
 
-import net.atos.client.zgw.zrc.model.Zaak;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.zac.identity.model.Group;

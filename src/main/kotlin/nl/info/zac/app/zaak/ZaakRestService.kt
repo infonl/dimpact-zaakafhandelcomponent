@@ -8,6 +8,7 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.validation.Valid
+import jakarta.ws.rs.BadRequestException
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.GET
@@ -32,7 +33,6 @@ import net.atos.client.zgw.zrc.model.HoofdzaakZaakPatch
 import net.atos.client.zgw.zrc.model.RelevanteZaak
 import net.atos.client.zgw.zrc.model.RelevantezaakZaakPatch
 import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.admin.ZaakafhandelParameterService
@@ -96,7 +96,7 @@ import nl.info.zac.app.zaak.model.RestZaakLocatieGegevens
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.app.zaak.model.RestZaakUnlinkData
 import nl.info.zac.app.zaak.model.RestZaaktype
-import nl.info.zac.app.zaak.model.toGeometry
+import nl.info.zac.app.zaak.model.toGeoJSONGeometry
 import nl.info.zac.app.zaak.model.toRestDecisionTypes
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
 import nl.info.zac.app.zaak.model.toRestZaakBetrokkenen
@@ -125,6 +125,8 @@ import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.stream.Collectors
 import java.util.stream.Stream
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.util.isOpen
 
 @Path("zaken")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -370,7 +372,8 @@ class ZaakRestService @Inject constructor(
     ): RestZaak {
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).wijzigenLocatie)
         val zaakPatch = Zaak().apply {
-            zaakgeometrie = restZaakLocatieGegevens.geometrie?.toGeometry() ?: GeometryToBeDeleted()
+            // TODO: solution for geometry to be deleted
+            zaakgeometrie = restZaakLocatieGegevens.geometrie?.toGeoJSONGeometry()
         }
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID,
@@ -509,7 +512,7 @@ class ZaakRestService @Inject constructor(
             rolBetrokkeneIdentificatieMedewerkerIdentificatie = loggedInUserInstance.get().id
         }
         return zrcClientService.listZaken(zaakListParameters).results
-            .filter { it.isOpen }
+            .filter { it.isOpen() }
             .filter {
                 isWaarschuwing(
                     it,
@@ -657,7 +660,7 @@ class ZaakRestService @Inject constructor(
             null
         }
         assertPolicy(policyService.readZaakRechten(zaak).afbreken)
-        assertPolicy(zaak.isOpen && !statustype.isHeropend())
+        assertPolicy(zaak.isOpen() && !statustype.isHeropend())
         zaakService.checkZaakAfsluitbaar(zaak)
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
             zaak.zaaktype.extractUuid()
@@ -693,7 +696,7 @@ class ZaakRestService @Inject constructor(
         heropenenGegevens: RESTZaakHeropenenGegevens
     ) {
         val zaak = zrcClientService.readZaak(zaakUUID)
-        assertPolicy(!zaak.isOpen && policyService.readZaakRechten(zaak).heropenen)
+        assertPolicy(!zaak.isOpen() && policyService.readZaakRechten(zaak).heropenen)
         zgwApiService.createStatusForZaak(
             zaak,
             ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND,
@@ -711,7 +714,7 @@ class ZaakRestService @Inject constructor(
         afsluitenGegevens: RESTZaakAfsluitenGegevens
     ) {
         val zaak = zrcClientService.readZaak(zaakUUID)
-        assertPolicy(zaak.isOpen && policyService.readZaakRechten(zaak).behandelen)
+        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).behandelen)
         zaakService.checkZaakAfsluitbaar(zaak)
         zgwApiService.updateResultaatForZaak(
             zaak,
@@ -726,7 +729,7 @@ class ZaakRestService @Inject constructor(
     fun linkZaak(restZaakLinkData: RestZaakLinkData) {
         val zaak = zrcClientService.readZaak(restZaakLinkData.zaakUuid)
         val zaakToLinkTo = zrcClientService.readZaak(restZaakLinkData.teKoppelenZaakUuid)
-        assertPolicy(zaak.isOpen == zaakToLinkTo.isOpen)
+        assertPolicy(zaak.isOpen() == zaakToLinkTo.isOpen())
         assertPolicy(policyService.readZaakRechten(zaak).koppelen)
         assertPolicy(policyService.readZaakRechten(zaakToLinkTo).koppelen)
 
@@ -736,6 +739,7 @@ class ZaakRestService @Inject constructor(
             RelatieType.VERVOLG -> koppelRelevantezaken(zaak, zaakToLinkTo, AardRelatie.VERVOLG)
             RelatieType.ONDERWERP -> koppelRelevantezaken(zaak, zaakToLinkTo, AardRelatie.ONDERWERP)
             RelatieType.BIJDRAGE -> koppelRelevantezaken(zaak, zaakToLinkTo, AardRelatie.BIJDRAGE)
+            RelatieType.OVERIG -> throw BadRequestException("Relatie type 'OVERIG' is not supported.")
         }
         restZaakLinkData.reverseRelatieType?.let { reverseRelatieType ->
             when (reverseRelatieType) {
@@ -776,6 +780,9 @@ class ZaakRestService @Inject constructor(
                 AardRelatie.BIJDRAGE,
                 restZaakUnlinkData.reden
             )
+            RelatieType.OVERIG -> {
+                throw BadRequestException("Relatie type 'OVERIG' is not supported.")
+            }
         }
     }
 
@@ -885,7 +892,7 @@ class ZaakRestService @Inject constructor(
     fun intrekkenBesluit(@Valid restDecisionWithdrawalData: RestDecisionWithdrawalData) =
         decisionService.readDecision(restDecisionWithdrawalData).let { besluit ->
             zrcClientService.readZaak(besluit.zaak).let { zaak ->
-                assertPolicy(zaak.isOpen && policyService.readZaakRechten(zaak).behandelen)
+                assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).behandelen)
 
                 decisionService.withdrawDecision(besluit, restDecisionWithdrawalData.reden).let {
                     restDecisionConverter.convertToRestDecision(it).also {
@@ -985,6 +992,7 @@ class ZaakRestService @Inject constructor(
         )
     }
 
+    // TODO: refactor..
     private fun addRelevanteZaak(
         relevanteZaken: MutableList<RelevanteZaak>?,
         andereZaak: URI,
@@ -1002,7 +1010,7 @@ class ZaakRestService @Inject constructor(
         zaakUUID: UUID,
         reason: String?
     ): Zaak = zrcClientService.readZaak(zaakUUID).let { zaak ->
-        assertPolicy(zaak.isOpen && policyService.readZaakRechten(zaak).toekennen)
+        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).toekennen)
         identityService.readUser(loggedInUserInstance.get().id).let { user ->
             zrcClientService.updateRol(
                 zaak,
@@ -1044,7 +1052,8 @@ class ZaakRestService @Inject constructor(
         datum.isBefore(datumWaarschuwing)
 
     private fun koppelHoofdEnDeelzaak(hoofdZaak: Zaak, deelZaak: Zaak) {
-        zrcClientService.patchZaak(deelZaak.uuid, HoofdzaakZaakPatch(hoofdZaak.url))
+        // TODO: check
+        zrcClientService.patchZaak(deelZaak.uuid, hoofdZaak)
         // Hiervoor wordt door open zaak alleen voor de deelzaak een notificatie verstuurd.
         // Dus zelf het ScreenEvent versturen voor de hoofdzaak!
         indexingService.addOrUpdateZaak(hoofdZaak.uuid, false)
@@ -1081,15 +1090,15 @@ class ZaakRestService @Inject constructor(
         andereZaak: Zaak,
         aardRelatie: AardRelatie
     ) {
+        // TODO: fix. aardrelatie moet gezet worden
         zrcClientService.patchZaak(
             zaak.uuid,
-            RelevantezaakZaakPatch(
-                addRelevanteZaak(
-                    zaak.relevanteAndereZaken,
-                    andereZaak.url,
-                    aardRelatie
-                )
-            )
+            andereZaak
+//            addRelevanteZaak(
+//                    zaak.relevanteAndereZaken,
+//                    andereZaak.url,
+//                    aardRelatie
+//                )
         )
     }
 
@@ -1098,7 +1107,8 @@ class ZaakRestService @Inject constructor(
         deelZaak: Zaak,
         reden: String
     ) {
-        zrcClientService.patchZaak(deelZaak.uuid, HoofdzaakZaakPatch(null), reden)
+        // TODO: fix
+        zrcClientService.patchZaak(deelZaak.uuid, hoofdZaak, reden)
         // Hiervoor wordt door open zaak alleen voor de deelzaak een notificatie verstuurd.
         // Dus zelf het ScreenEvent versturen voor de hoofdzaak!
         indexingService.addOrUpdateZaak(hoofdZaak.uuid, false)
@@ -1111,11 +1121,13 @@ class ZaakRestService @Inject constructor(
         aardRelatie: AardRelatie,
         reden: String
     ) {
+        // TODO: fix
         zrcClientService.patchZaak(
             zaak.uuid,
-            RelevantezaakZaakPatch(
-                removeRelevanteZaak(zaak.relevanteAndereZaken, andereZaak.url, aardRelatie)
-            ),
+            andereZaak,
+//            RelevantezaakZaakPatch(
+//                removeRelevanteZaak(zaak.relevanteAndereZaken, andereZaak.url, aardRelatie)
+//            ),
             reden
         )
     }

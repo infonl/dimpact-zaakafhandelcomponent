@@ -4,8 +4,24 @@
  */
 package nl.info.zac.productaanvraag.util
 
-import net.atos.client.zgw.zrc.model.Point
-import net.atos.client.zgw.zrc.model.Point2D
+import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
+import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
 import nl.info.zac.productaanvraag.model.generated.Geometry
 
-fun Geometry.convertToZgwPoint() = Point(Point2D(this.coordinates[0], this.coordinates[1]))
+fun Geometry.toGeoJSONGeometry() =
+    when (this.type) {
+        Geometry.Type.POINT -> GeoJSONGeometry().apply {
+            type = GeometryTypeEnum.POINT
+            coordinates = listOf(
+                listOf(
+                    listOf(
+                        listOf(
+                            this@toGeoJSONGeometry.coordinates[0].toBigDecimal(),
+                            this@toGeoJSONGeometry.coordinates[1].toBigDecimal()
+                        )
+                    )
+                )
+            )
+        }
+        else -> throw IllegalArgumentException("Unsupported geometry type: ${this.type}")
+    }

@@ -5,6 +5,7 @@
 package net.atos.zac.flowable.cmmn
 
 import net.atos.zac.flowable.FlowableHelper
+import nl.info.client.zgw.zrc.util.isOpen
 import org.flowable.cmmn.api.listener.CaseInstanceLifecycleListener
 import org.flowable.cmmn.api.runtime.CaseInstance
 import java.util.UUID
@@ -28,7 +29,7 @@ class EndCaseLifecycleListener(
 
     override fun stateChanged(caseInstance: CaseInstance, oldState: String, newState: String) {
         val zaakUUID = UUID.fromString(caseInstance.businessKey)
-        if (FlowableHelper.getInstance().zrcClientService.readZaak(zaakUUID).isOpen) {
+        if (FlowableHelper.getInstance().zrcClientService.readZaak(zaakUUID).isOpen()) {
             LOG.info("Zaak %${caseInstance.businessKey}: End Zaak")
             FlowableHelper.getInstance().zgwApiService.endZaak(zaakUUID, EINDSTATUS_TOELICHTING)
         }

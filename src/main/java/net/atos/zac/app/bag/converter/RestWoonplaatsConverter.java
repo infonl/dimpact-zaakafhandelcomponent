@@ -7,7 +7,7 @@ package net.atos.zac.app.bag.converter;
 
 import java.net.URI;
 
-import net.atos.client.zgw.zrc.model.Zaak;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectWoonplaats;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats;
 import net.atos.zac.app.bag.model.RESTWoonplaats;
