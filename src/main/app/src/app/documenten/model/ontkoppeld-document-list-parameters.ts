@@ -9,6 +9,9 @@ import { ListParameters } from "../../shared/model/list-parameters";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { DatumRange } from "../../zoeken/model/datum-range";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class OntkoppeldDocumentListParameters
   extends ListParameters
   implements ZoekFilters

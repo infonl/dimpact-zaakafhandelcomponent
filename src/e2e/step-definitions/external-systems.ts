@@ -47,8 +47,7 @@ When(
       .getByRole("option", { name: "Melding evenement organiseren behandelen" })
       .click();
 
-    await this.page.getByLabel("Sjabloon").last().click();
-    await this.page.getByRole("option", { name: "OpenZaakTest" }).click();
+    // The only existing template is selected by default, so no need to click on it.
 
     const inputTitle = this.page.getByLabel(/Titel/i);
     await inputTitle.fill(documentInput.title);

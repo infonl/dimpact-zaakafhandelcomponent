@@ -5,6 +5,9 @@
 
 import { Adres } from "./adres";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class Vestigingsprofiel {
   vestigingsnummer: string;
   kvkNummer: string;

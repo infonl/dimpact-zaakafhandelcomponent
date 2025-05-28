@@ -7,6 +7,9 @@ import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/ver
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaaktypeRelatie } from "./zaaktype-relatie";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class Zaaktype {
   uuid: string;
   identificatie: string;

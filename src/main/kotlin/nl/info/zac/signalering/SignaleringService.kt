@@ -42,7 +42,6 @@ import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
-import java.util.Optional
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -169,20 +168,19 @@ class SignaleringService @Inject constructor(
     }
 
     /**
-     * Deletes signaleringen based on the given parameters and sends a screen event for each deletion.
+     * Deletes signaleringen based on the given parameters and send screen event for these deletions
+     * grouped by signalering target and type.
      */
     @Transactional(REQUIRED)
-    fun deleteSignaleringen(parameters: SignaleringZoekParameters) {
-        val removed = mutableMapOf<String, Signalering>()
-        listSignaleringen(parameters)
-            .forEach {
-                removed[it.target + ';' + it.type.type] = it
-                entityManager.remove(it)
+    fun deleteSignaleringen(parameters: SignaleringZoekParameters): Int {
+        val signaleringen = listSignaleringen(parameters)
+        signaleringen.forEach(entityManager::remove)
+        // only send separate screen events when signalering target and/or type differ
+        signaleringen.associateBy { it.target + ';' + it.type.type }.values
+            .forEach { value ->
+                eventingService.send(ScreenEventType.SIGNALERINGEN.updated(value))
             }
-        removed.values
-            .forEach {
-                eventingService.send(ScreenEventType.SIGNALERINGEN.updated(it))
-            }
+        return signaleringen.size
     }
 
     /**
@@ -197,10 +195,16 @@ class SignaleringService @Inject constructor(
                 .subject(zaak)
         )
 
+    /**
+     * Deletes the (first) 'signalering verzonden' record found based on the given parameters, if any.
+     * Returns `true` if a record was deleted, `false` otherwise.
+     */
     @Transactional(REQUIRED)
-    fun deleteSignaleringVerzonden(verzonden: SignaleringVerzondenZoekParameters) {
-        findSignaleringVerzonden(verzonden).ifPresent(entityManager::remove)
-    }
+    fun deleteSignaleringVerzonden(verzonden: SignaleringVerzondenZoekParameters): Boolean =
+        findSignaleringVerzonden(verzonden)?.let {
+            entityManager.remove(it)
+            true
+        } ?: false
 
     fun listSignaleringen(parameters: SignaleringZoekParameters): List<Signalering> {
         val builder = entityManager.criteriaBuilder
@@ -355,16 +359,20 @@ class SignaleringService @Inject constructor(
         return entityManager.merge(signaleringVerzonden)
     }
 
+    /**
+     * Finds the first SignaleringVerzonden record based on the given parameters.
+     * Returns null if no matching record is found.
+     */
     fun findSignaleringVerzonden(
         parameters: SignaleringVerzondenZoekParameters
-    ): Optional<SignaleringVerzonden> {
+    ): SignaleringVerzonden? {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(SignaleringVerzonden::class.java)
         val root = query.from(SignaleringVerzonden::class.java)
         val result = entityManager.createQuery(
             query.select(root).where(getSignaleringVerzondenWhere(parameters, builder, root))
         ).resultList
-        return if (result.isEmpty()) { Optional.empty() } else { Optional.of(result[0]) }
+        return result.firstOrNull()
     }
 
     /**

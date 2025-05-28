@@ -1185,7 +1185,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         )
         every { zrcClientService.readZaak(zaakUUID) } returns zaak
         every { restZaakConverter.toRestZaak(zaak) } returns restZaak
-        every { signaleringService.deleteSignaleringenForZaak(zaak) } just runs
+        every { signaleringService.deleteSignaleringenForZaak(zaak) } returns 1
 
         When("the zaak is read") {
             val returnedRestZaak = zaakRestService.readZaak(zaakUUID)

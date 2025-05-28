@@ -5,6 +5,9 @@
 
 import { GeneratedType } from "../../shared/utils/generated-types";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class OntkoppeldDocument {
   id: number;
   documentUUID: string;

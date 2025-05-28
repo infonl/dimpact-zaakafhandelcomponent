@@ -5,6 +5,9 @@
 
 import { ReferentieTabelWaarde } from "./referentie-tabel-waarde";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class ReferentieTabel {
   id: number;
   code: string;

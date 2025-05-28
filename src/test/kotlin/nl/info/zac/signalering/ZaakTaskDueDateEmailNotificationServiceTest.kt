@@ -29,7 +29,6 @@ import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringInstellingen
 import org.flowable.task.api.Task
 import java.net.URI
-import java.util.Optional
 import java.util.UUID
 
 class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
@@ -53,7 +52,7 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("An open zaak which is approaching it's target date") {
+    Given("An open zaak which is approaching its target date and for which a signalering was not yet sent") {
         val defaultCatalogusURI = URI("https://example.com/dummeCatalogusURI")
         val zaakTypeUUID1 = UUID.randomUUID()
         val zaakTypeUUID2 = UUID.randomUUID()
@@ -99,13 +98,14 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         every {
             signaleringService.readInstellingenUser(SignaleringType.Type.ZAAK_VERLOPEND, assigneeName)
         } returns signaleringInstellingen
-        every { signaleringService.findSignaleringVerzonden(any()) } returns Optional.empty()
+        // no signalering was sent yet
+        every { signaleringService.findSignaleringVerzonden(any()) } returns null
         every { signaleringService.signaleringInstance(any<SignaleringType.Type>()) } returns zaakVerlopendSignalering
         every { signaleringService.sendSignalering(zaakVerlopendSignalering) } just runs
         every { signaleringService.createSignaleringVerzonden(zaakVerlopendSignalering) } returns mockk()
         every { flowableTaskService.listOpenTasksDueLater() } returns emptyList()
         every { searchService.zoek(any()) } returns zoekResultaat
-        every { signaleringService.deleteSignaleringVerzonden(any()) } just runs
+        every { signaleringService.deleteSignaleringVerzonden(any()) } returns true
 
         When("the send due date email notifications method is called") {
             zaakTaskDueDateEmailNotificationService.sendDueDateEmailNotifications()
@@ -119,7 +119,7 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("An open task which is due now") {
+    Given("An open task which is due now and for which a signalering was not yet sent") {
         val defaultCatalogusURI = URI("https://example.com/dummeCatalogusURI")
         val zaakTypeUUID1 = UUID.randomUUID()
         val zaakTypeUUID2 = UUID.randomUUID()
@@ -160,7 +160,8 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         every {
             signaleringService.readInstellingenUser(any<SignaleringType.Type>(), assigneeName)
         } returns signaleringInstellingen
-        every { signaleringService.findSignaleringVerzonden(any()) } returns Optional.empty()
+        // signalering was not yet sent
+        every { signaleringService.findSignaleringVerzonden(any()) } returns null
         every { signaleringService.signaleringInstance(any<SignaleringType.Type>()) } returns taakOpNaamVerlopenSignalering1
         every { signaleringService.sendSignalering(taakOpNaamVerlopenSignalering1) } just runs
         every { signaleringService.createSignaleringVerzonden(taakOpNaamVerlopenSignalering1) } returns mockk()

@@ -5,6 +5,9 @@
 
 import { ReferentieTabel } from "./referentie-tabel";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class HumanTaskReferentieTabel {
   id: number;
   veld: string;

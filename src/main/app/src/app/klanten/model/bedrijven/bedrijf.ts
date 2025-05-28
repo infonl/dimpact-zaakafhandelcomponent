@@ -6,6 +6,9 @@
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { Klant } from "../klanten/klant";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class Bedrijf implements Klant {
   vestigingsnummer: string;
   kvkNummer: string;

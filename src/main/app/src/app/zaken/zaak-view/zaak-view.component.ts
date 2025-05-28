@@ -28,7 +28,6 @@ import { ZaakbeeindigReden } from "../../admin/model/zaakbeeindig-reden";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
 import { BAGObject } from "../../bag/model/bagobject";
-import { BAGObjectGegevens } from "../../bag/model/bagobject-gegevens";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
@@ -123,8 +122,10 @@ export class ZaakViewComponent
     "roltoelichting",
     "actions",
   ] as const;
-  bagObjectenDataSource = new MatTableDataSource<BAGObjectGegevens>();
-  gekoppeldeBagObjecten: BAGObject[] = [];
+  bagObjectenDataSource = new MatTableDataSource<
+    GeneratedType<"RESTBAGObjectGegevens">
+  >();
+  gekoppeldeBagObjecten: GeneratedType<"RESTBAGObject">[] = [];
   bagObjectenColumns = [
     "identificatie",
     "type",
@@ -953,7 +954,9 @@ export class ZaakViewComponent
 
   private loadBagObjecten(): void {
     this.bagService.list(this.zaak.uuid).subscribe((bagObjecten) => {
-      this.gekoppeldeBagObjecten = bagObjecten.map((bg) => bg.zaakobject);
+      this.gekoppeldeBagObjecten = bagObjecten
+        .map((bg) => bg.zaakobject!)
+        .filter(Boolean);
       this.bagObjectenDataSource.data = bagObjecten;
     });
   }
@@ -1186,7 +1189,10 @@ export class ZaakViewComponent
   adresGeselecteerd(bagObject: BAGObject): void {
     this.websocketService.suspendListener(this.zaakListener);
     this.bagService
-      .create(new BAGObjectGegevens(this.zaak.uuid, bagObject))
+      .create({
+        zaakUuid: this.zaak.uuid,
+        zaakobject: bagObject,
+      })
       .subscribe(() => {
         this.utilService.openSnackbar("msg.bagObject.gekoppeld");
         this.loadHistorie();
@@ -1379,7 +1385,9 @@ export class ZaakViewComponent
     }
   }
 
-  bagObjectVerwijderen(bagObjectGegevens: BAGObjectGegevens): void {
+  bagObjectVerwijderen(
+    bagObjectGegevens: GeneratedType<"RESTBAGObjectGegevens">,
+  ): void {
     const bagObject = bagObjectGegevens.zaakobject;
     const reden = new InputFormFieldBuilder()
       .maxlength(80)
@@ -1391,19 +1399,17 @@ export class ZaakViewComponent
       formFields: [reden],
       callback: ({ reden }) =>
         this.bagService
-          .delete(
-            new BAGObjectGegevens(
-              this.zaak.uuid,
-              bagObject,
-              bagObjectGegevens.uuid,
-              reden,
-            ),
-          )
+          .delete({
+            redenWijzigen: reden,
+            bagObject,
+            uuid: bagObjectGegevens.uuid,
+            zaakUuid: this.zaak.uuid,
+          })
           .pipe(
             tap(() => this.websocketService.suspendListener(this.zaakListener)),
           ),
       uitleg: this.translate.instant("msg.bagObject.ontkoppelen.bevestigen", {
-        omschrijving: bagObject.omschrijving,
+        omschrijving: bagObject?.omschrijving,
       }),
       confirmButtonActionKey: "actie.bagObject.ontkoppelen",
       icon: "link_off",
@@ -1419,7 +1425,7 @@ export class ZaakViewComponent
           this.loadBagObjecten();
           this.utilService.openSnackbar(
             "msg.bagObject.ontkoppelen.uitgevoerd",
-            { omschrijving: bagObject.omschrijving },
+            { omschrijving: bagObject?.omschrijving },
           );
         }
       });

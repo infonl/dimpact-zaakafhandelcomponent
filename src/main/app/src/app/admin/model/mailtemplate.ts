@@ -5,6 +5,9 @@
 
 import { MailtemplateVariabele } from "./mailtemplate-variabele";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class Mailtemplate {
   id: number;
   mailTemplateNaam: string;
