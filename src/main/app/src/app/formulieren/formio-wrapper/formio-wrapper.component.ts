@@ -58,3 +58,7 @@ export interface FormioCustomEvent {
   data: Record<string, object>;
   event?: Event;
 }
+
+export interface FormioChangeEvent {
+  data: Record<string, string>;
+}

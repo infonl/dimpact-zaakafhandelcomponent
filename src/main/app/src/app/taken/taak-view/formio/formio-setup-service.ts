@@ -1,0 +1,200 @@
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+import { Injectable } from "@angular/core";
+import { ExtendedComponentSchema, FormioForm } from "@formio/angular";
+import { lastValueFrom } from "rxjs";
+import { tap } from "rxjs/operators";
+import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
+import { UtilService } from "../../../core/service/util.service";
+import { FormioCustomEvent } from "../../../formulieren/formio-wrapper/formio-wrapper.component";
+import { IdentityService } from "../../../identity/identity.service";
+import { OrderUtil } from "../../../shared/order/order-util";
+import { GeneratedType } from "../../../shared/utils/generated-types";
+import { Taak } from "../../model/taak";
+
+@Injectable({
+  providedIn: "root",
+})
+export class FormioSetupService {
+  private taak: Taak | undefined;
+  private formioChangeData: Record<string, string> | undefined;
+
+  constructor(
+    public utilService: UtilService,
+    private identityService: IdentityService,
+    private zaakafhandelParametersService: ZaakafhandelParametersService,
+  ) {
+  }
+
+  createFormioForm(
+    formioFormulier: FormioForm,
+    taak: Taak,
+  ): void {
+    this.taak = taak;
+
+    this.initializeSpecializedFormioComponents(formioFormulier.components);
+    this.utilService.setTitle("title.taak", {
+      taak: formioFormulier.title,
+    });
+  }
+
+  private initializeSpecializedFormioComponents(
+    components: ExtendedComponentSchema[] | undefined,
+  ): void {
+    components?.forEach((component) => {
+      switch (component.type) {
+        case "groepMedewerkerFieldset":
+          this.initializeFormioGroepMedewerkerFieldsetComponent(component);
+          break;
+        case "groepSmartDocumentsFieldset":
+          this.initializeFormioGroepSmartDocumentsFieldsetComponent(component);
+          break;
+      }
+      if ("components" in component) {
+        this.initializeSpecializedFormioComponents(component.components);
+      }
+    });
+  }
+
+  private initializeFormioGroepMedewerkerFieldsetComponent(
+    component: ExtendedComponentSchema,
+  ): void {
+    component.type = "fieldset";
+    const groepComponent = component.components[0];
+    const medewerkerComponent = component.components[1];
+    this.initializeFormioGroepMedewerkerFieldsetGroepComponent(groepComponent);
+    this.initializeFormioGroepMedewerkerFieldsetMedewerkerComponent(
+      medewerkerComponent,
+      groepComponent.key,
+    );
+  }
+
+  private initializeFormioGroepMedewerkerFieldsetGroepComponent(
+    groepComponent: ExtendedComponentSchema,
+  ): void {
+    groepComponent.valueProperty = "id";
+    groepComponent.template = "{{ item.naam }}";
+    groepComponent.data = {
+      custom: () =>
+        lastValueFrom(
+          this.identityService
+            .listGroups(this.taak.zaaktypeUUID)
+            .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam")))),
+        ),
+    };
+  }
+
+  private initializeFormioGroepMedewerkerFieldsetMedewerkerComponent(
+    medewerkerComponent: ExtendedComponentSchema,
+    groepComponentKey: string,
+  ): void {
+    medewerkerComponent.valueProperty = "id";
+    medewerkerComponent.template = "{{ item.naam }}";
+    medewerkerComponent.data = {
+      custom: () => {
+        if (
+          this.formioChangeData &&
+          groepComponentKey in this.formioChangeData &&
+          this.formioChangeData[groepComponentKey] != ""
+        ) {
+          console.log("Loading users in group %O", this.formioChangeData[groepComponentKey])
+
+          return lastValueFrom(
+            this.identityService
+              .listUsersInGroup(this.formioChangeData[groepComponentKey])
+              .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam")))),
+          );
+        } else {
+          return Promise.resolve([]);
+        }
+      },
+    };
+  }
+
+  private initializeFormioGroepSmartDocumentsFieldsetComponent(
+    fieldsetComponent: ExtendedComponentSchema,
+  ): void {
+    fieldsetComponent.type = "fieldset";
+    const smartDocumentsPath = this.findSmartDocumentsPath(fieldsetComponent);
+    const smartDocumentsTemplateComponent = fieldsetComponent.components?.find(
+      (component: ExtendedComponentSchema) =>
+        component.key === fieldsetComponent.key + "_Template",
+    );
+    smartDocumentsTemplateComponent.valueProperty = "id";
+    smartDocumentsTemplateComponent.template = "{{ item.naam }}";
+    smartDocumentsTemplateComponent.data = {
+      custom: () =>
+        lastValueFrom(
+          this.zaakafhandelParametersService
+            .listSmartDocumentsGroupTemplateNames(smartDocumentsPath)
+            .pipe(tap((value) => value.sort())),
+        ),
+    };
+  }
+
+  private findSmartDocumentsPath(fieldsetComponent: ExtendedComponentSchema) {
+    const componentWithProperties = fieldsetComponent.components?.find(
+      (component: ExtendedComponentSchema) =>
+        Object.keys(component.properties || []).length > 0,
+    );
+    const smartDocumentsPath: GeneratedType<"RestSmartDocumentsPath"> = {
+      path: this.formioGetSmartDocumentsGroups(componentWithProperties),
+    };
+    return smartDocumentsPath;
+  }
+
+  formioGetSmartDocumentsGroups(component: ExtendedComponentSchema): string[] {
+    return component?.properties["SmartDocuments_Group"].split("/");
+  }
+
+  /**
+   * Returns the key name of the fieldset group using the key of the button. We assume that all components in the
+   * fieldset have the same prefix as the key of the fieldset and that the separator is an underscore.
+   *
+   * If the name of the button is "AM_SmartDocuments_Create", the expected component base name is "AM_SmartDocuments".
+   *
+   * @example
+   *     {
+   *       "legend": "SmartDocuments",
+   *       "type": "groepSmartDocumentsFieldset",
+   *       "key": "AM_SmartDocuments",
+   *       "components": [
+   *         { "label": "Template", "type": "select", "key": "AM_SmartDocuments_Template", <.. more fields ..> },
+   *         { "label": "Create", "key": "AM_SmartDocuments_Create", "type": "button", <.. more fields ..> }
+   *       ]
+   *     }
+   */
+  extractFieldsetName(component: ExtendedComponentSchema): string {
+    return component.key.split("_").slice(0, -1).join("_");
+  }
+
+  extractSmartDocumentsTemplateName(event: FormioCustomEvent): string {
+    return event.data[
+      this.extractFieldsetName(event.component) + "_Template"
+    ].toString();
+  }
+
+  normalizeSmartDocumentsTemplateName(
+    smartDocumentsTemplateName: string,
+  ): string {
+    return smartDocumentsTemplateName?.replace(" ", "_").trim();
+  }
+
+  getInformatieobjecttypeUuid(
+    event: FormioCustomEvent,
+    normalizedTemplateName: string,
+  ): string {
+    return (
+      event.component.properties[
+        `SmartDocuments_${normalizedTemplateName}_InformatieobjecttypeUuid`
+      ] || event.component.properties["SmartDocuments_InformatieobjecttypeUuid"]
+    );
+  }
+
+  setFormioChangeData(data: Record<string, string>) {
+    this.formioChangeData = data;
+  }
+}
