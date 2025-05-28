@@ -77,7 +77,7 @@ export class NotitiesComponent implements OnInit {
         this.notities.splice(0, 0, notitie);
         this.notitieTekst.nativeElement.value = "";
         this.scrollTarget.nativeElement.scrollIntoView({
-          behavior: "auto",
+          behavior: "smooth",
           block: "start",
         });
       });
