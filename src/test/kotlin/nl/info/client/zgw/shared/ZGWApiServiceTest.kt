@@ -18,7 +18,6 @@ import io.mockk.verify
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.zrc.model.RolListParameters
-import net.atos.client.zgw.zrc.model.Zaak
 import nl.info.client.zgw.model.createResultaat
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon

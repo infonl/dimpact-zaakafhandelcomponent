@@ -9,7 +9,7 @@ import java.net.URI;
 
 import org.apache.commons.lang3.BooleanUtils;
 
-import net.atos.client.zgw.zrc.model.Zaak;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectAdres;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdres;
 import net.atos.zac.app.bag.model.RESTBAGAdres;

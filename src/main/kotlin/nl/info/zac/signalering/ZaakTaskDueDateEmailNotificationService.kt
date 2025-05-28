@@ -7,7 +7,6 @@ package nl.info.zac.signalering
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
@@ -18,6 +17,7 @@ import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringVerzendInfo
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.configuratie.ConfiguratieService
@@ -161,7 +161,20 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
         zaakZoekObject: ZaakZoekObject,
         detail: SignaleringDetail
     ): Signalering {
-        val zaak = Zaak().apply { uuid = UUID.fromString(zaakZoekObject.getObjectId()) }
+        // TODO: refactor this. silly to create a Zaak object just to set it as subject
+        val zaak = Zaak(
+            null,
+            UUID.fromString(zaakZoekObject.getObjectId()),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
         return signaleringService.signaleringInstance(SignaleringType.Type.ZAAK_VERLOPEND).apply {
             setTargetUser(target)
             setSubject(zaak)

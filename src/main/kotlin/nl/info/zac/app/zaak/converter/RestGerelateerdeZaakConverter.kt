@@ -5,10 +5,10 @@
 package nl.info.zac.app.zaak.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.AardRelatie
-import net.atos.client.zgw.zrc.model.RelevanteZaak
-import net.atos.client.zgw.zrc.model.Zaak
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
+import nl.info.client.zgw.zrc.model.generated.RelevanteZaak
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.model.RelatieType
@@ -44,9 +44,10 @@ class RestGerelateerdeZaakConverter @Inject constructor(
         return convert(zaak, convertToRelatieType(relevanteZaak.aardRelatie))
     }
 
-    fun convertToRelatieType(aardRelatie: AardRelatie) = when (aardRelatie) {
-        AardRelatie.VERVOLG -> RelatieType.VERVOLG
-        AardRelatie.BIJDRAGE -> RelatieType.BIJDRAGE
-        AardRelatie.ONDERWERP -> RelatieType.ONDERWERP
+    fun convertToRelatieType(aardRelatie: AardRelatieEnum) = when (aardRelatie) {
+        AardRelatieEnum.VERVOLG -> RelatieType.VERVOLG
+        AardRelatieEnum.BIJDRAGE -> RelatieType.BIJDRAGE
+        AardRelatieEnum.ONDERWERP -> RelatieType.ONDERWERP
+        AardRelatieEnum.OVERIG -> RelatieType.OVERIG
     }
 }

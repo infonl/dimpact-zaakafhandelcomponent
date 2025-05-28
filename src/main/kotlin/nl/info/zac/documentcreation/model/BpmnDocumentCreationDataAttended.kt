@@ -4,9 +4,9 @@
  */
 package nl.info.zac.documentcreation.model
 
-import net.atos.client.zgw.zrc.model.Zaak
 import java.time.ZonedDateTime
 import java.util.UUID
+import nl.info.client.zgw.zrc.model.generated.Zaak
 
 data class BpmnDocumentCreationDataAttended(
     val zaak: Zaak,

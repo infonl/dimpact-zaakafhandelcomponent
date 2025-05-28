@@ -9,7 +9,6 @@ import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Objecttype
 import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
@@ -34,6 +33,9 @@ import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.util.isOpgeschort
+import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
@@ -91,7 +93,7 @@ class DocumentCreationDataConverter @Inject constructor(
             groep = zgwApiService.findGroepForZaak(zaak)?.naam,
             identificatie = zaak.identificatie,
             omschrijving = zaak.omschrijving,
-            opschortingReden = if (zaak.isOpgeschort) { zaak.opschorting.reden } else null,
+            opschortingReden = if (zaak.isOpgeschort()) { zaak.opschorting.reden } else null,
             registratiedatum = zaak.registratiedatum,
             resultaat = zaak.resultaat?.let {
                 zrcClientService.readResultaat(it).let { resultaat ->
@@ -107,7 +109,7 @@ class DocumentCreationDataConverter @Inject constructor(
             toelichting = zaak.toelichting,
             uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding?.toString(),
-            verlengingReden = if (zaak.isVerlengd) { zaak.verlenging.reden } else null,
+            verlengingReden = if (zaak.isVerlengd()) { zaak.verlenging.reden } else null,
             zaaktype = ztcClientService.readZaaktype(zaak.zaaktype).omschrijving
         )
 

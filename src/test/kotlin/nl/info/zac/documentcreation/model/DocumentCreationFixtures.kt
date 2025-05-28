@@ -5,7 +5,6 @@
 
 package nl.info.zac.documentcreation.model
 
-import net.atos.client.zgw.zrc.model.Zaak
 import nl.info.client.smartdocuments.model.document.AanvragerData
 import nl.info.client.smartdocuments.model.document.Data
 import nl.info.client.smartdocuments.model.document.GebruikerData

@@ -9,5 +9,6 @@ enum class RelatieType {
     DEELZAAK,
     VERVOLG,
     ONDERWERP,
-    BIJDRAGE
+    BIJDRAGE,
+    OVERIG
 }

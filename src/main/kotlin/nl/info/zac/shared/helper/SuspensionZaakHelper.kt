@@ -5,10 +5,11 @@
 package nl.info.zac.shared.helper
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Opschorting
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
@@ -52,7 +53,7 @@ class SuspensionZaakHelper @Inject constructor(
     fun resumeZaak(zaak: Zaak, resumeReason: String?): Zaak {
         policyService.readZaakRechten(zaak).let {
             assertPolicy(it.hervatten)
-            assertPolicy(zaak.isOpgeschort)
+            assertPolicy(zaak.isOpgeschort())
         }
 
         val zaakUUID = zaak.uuid

@@ -6,10 +6,10 @@ package nl.info.zac.app.zaak.model
 
 import net.atos.client.zgw.zrc.model.Geometry
 import net.atos.client.zgw.zrc.model.GeometryCollection
-import net.atos.client.zgw.zrc.model.GeometryType
 import net.atos.client.zgw.zrc.model.Point
-import net.atos.client.zgw.zrc.model.Point2D
 import net.atos.client.zgw.zrc.model.Polygon
+import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
+import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -25,39 +25,53 @@ data class RestGeometry(
     var geometrycollection: List<RestGeometry>? = null
 )
 
-fun RestGeometry.toGeometry(): Geometry =
-    when (GeometryType.fromValue(this.type)) {
-        GeometryType.POINT -> createPoint(this)
-        GeometryType.POLYGON -> createPolygon(this)
-        GeometryType.GEOMETRYCOLLECTION -> createGeometryCollection(this)
+// TODO
+fun RestGeometry.toGeoJSONGeometry(): GeoJSONGeometry =
+    when (this.type) {
+        "Point" -> GeoJSONGeometry().apply {
+            type = GeometryTypeEnum.POINT
+            coordinates = listOf(
+                listOf(
+                    listOf(
+                        listOf(
+                            this@toGeoJSONGeometry.point!!.latitude.toBigDecimal(),
+                            this@toGeoJSONGeometry.point!!.longitude.toBigDecimal()
+                        )
+                    )
+                )
+            )
+        }
+        else -> {
+            throw IllegalArgumentException("Unsupported geometry type: ${this.type}")
+        }
     }
 
 fun Geometry.toRestGeometry() = RestGeometry(
     type = this.type.toValue(),
-    point = (this as? Point)?.let { createRESTPoint(it) },
+    point = (this as? Point)?.let { createRestCoordinates(it) },
     polygon = (this as? Polygon)?.let { createRestPolygon(it) },
     geometrycollection = (this as? GeometryCollection)?.let { createRestGeometryCollection(it) }
 )
 
-private fun createPoint(restGeometry: RestGeometry) = Point(
-    Point2D(restGeometry.point!!.latitude, restGeometry.point!!.longitude)
-)
-
-private fun createPolygon(restGeometry: RestGeometry) =
-    Polygon(
-        restGeometry.polygon?.map { polygon ->
-            polygon.map { Point2D(it.latitude, it.longitude) }
-        }
-    )
-
-private fun createGeometryCollection(restGeometry: RestGeometry): GeometryCollection =
-    GeometryCollection(
-        restGeometry.geometrycollection?.map { it.toGeometry() }
-    )
-
-private fun createRESTPoint(point: Point) = RestCoordinates(
+private fun createRestCoordinates(point: Point) = RestCoordinates(
     point.coordinates.latitude.toDouble(),
     point.coordinates.longitude.toDouble(),
+)
+
+fun GeoJSONGeometry.toRestGeometry() = RestGeometry(
+    type = this.type.name,
+    point = if (this.type == GeometryTypeEnum.POINT) {
+        RestCoordinates(
+            latitude = this.coordinates.first().first().first()[0].toDouble(),
+            longitude = this.coordinates.first().first().first()[1].toDouble()
+        )
+    } else {
+        null
+    },
+    // not supported in ZAC
+    polygon = null,
+    // not supported in ZAC
+    geometrycollection = null
 )
 
 private fun createRestPolygon(polygon: Polygon) =

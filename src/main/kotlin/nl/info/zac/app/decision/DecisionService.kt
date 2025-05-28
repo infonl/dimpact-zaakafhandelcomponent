@@ -6,7 +6,6 @@ package nl.info.zac.app.decision
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.util.time.PeriodUtil
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.generated.Besluit
@@ -27,6 +26,7 @@ import java.time.LocalDate
 import java.time.Period
 import java.util.UUID
 import java.util.logging.Logger
+import nl.info.client.zgw.zrc.model.generated.Zaak
 
 class DecisionService @Inject constructor(
     private val brcClientService: BrcClientService,

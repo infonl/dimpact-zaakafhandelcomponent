@@ -9,14 +9,12 @@ import net.atos.client.zgw.zrc.model.BetrokkeneType.NATUURLIJK_PERSOON
 import net.atos.client.zgw.zrc.model.BetrokkeneType.NIET_NATUURLIJK_PERSOON
 import net.atos.client.zgw.zrc.model.BetrokkeneType.VESTIGING
 import net.atos.client.zgw.zrc.model.Status
-import net.atos.client.zgw.zrc.model.Verlenging
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.util.time.PeriodUtil
 import nl.info.client.zgw.brc.BrcClientService
-import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Verlenging
+import nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isIntake
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -31,7 +29,7 @@ import nl.info.zac.app.zaak.model.RESTZaakVerlengGegevens
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
 import nl.info.zac.app.zaak.model.RestZaak
-import nl.info.zac.app.zaak.model.toGeometry
+import nl.info.zac.app.zaak.model.toGeoJSONGeometry
 import nl.info.zac.app.zaak.model.toRestGeometry
 import nl.info.zac.app.zaak.model.toRestZaakStatus
 import nl.info.zac.configuratie.ConfiguratieService
@@ -49,6 +47,13 @@ import java.time.Period
 import java.util.EnumSet.noneOf
 import java.util.UUID
 import java.util.logging.Logger
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.util.isDeelzaak
+import nl.info.client.zgw.zrc.util.isEerderOpgeschort
+import nl.info.client.zgw.zrc.util.isHoofdzaak
+import nl.info.client.zgw.zrc.util.isOpen
+import nl.info.client.zgw.zrc.util.isOpgeschort
+import nl.info.client.zgw.zrc.util.isVerlengd
 
 @Suppress("LongParameterList")
 class RestZaakConverter @Inject constructor(
@@ -110,12 +115,12 @@ class RestZaakConverter @Inject constructor(
             zaaktype = restZaaktypeConverter.convert(zaaktype),
             status = status?.let { toRestZaakStatus(it, statustype!!) },
             resultaat = zaak.resultaat?.let(restZaakResultaatConverter::convert),
-            isOpgeschort = zaak.isOpgeschort,
-            isEerderOpgeschort = zaak.isEerderOpgeschort,
-            redenOpschorting = takeIf { zaak.isOpgeschort }?.let { zaak.opschorting?.reden },
-            isVerlengd = zaak.isVerlengd,
-            duurVerlenging = if (zaak.isVerlengd) PeriodUtil.format(zaak.verlenging.duur) else null,
-            redenVerlenging = if (zaak.isVerlengd) zaak.verlenging.reden else null,
+            isOpgeschort = zaak.isOpgeschort(),
+            isEerderOpgeschort = zaak.isEerderOpgeschort(),
+            redenOpschorting = takeIf { zaak.isOpgeschort() }?.let { zaak.opschorting?.reden },
+            isVerlengd = zaak.isVerlengd(),
+            duurVerlenging = if (zaak.isVerlengd()) zaak.verlenging.duur else null,
+            redenVerlenging = if (zaak.isVerlengd()) zaak.verlenging.reden else null,
             gerelateerdeZaken = toRestGerelateerdeZaken(zaak),
             zaakgeometrie = zaak.zaakgeometrie?.toRestGeometry(),
             kenmerken = zaak.kenmerken?.map { RESTZaakKenmerk(it.kenmerk, it.bron) },
@@ -138,9 +143,9 @@ class RestZaakConverter @Inject constructor(
                     null
                 }
             },
-            isHoofdzaak = zaak.is_Hoofdzaak,
-            isDeelzaak = zaak.isDeelzaak,
-            isOpen = zaak.isOpen,
+            isHoofdzaak = zaak.isHoofdzaak(),
+            isDeelzaak = zaak.isDeelzaak(),
+            isOpen = zaak.isOpen(),
             isHeropend = statustype.isHeropend(),
             isInIntakeFase = statustype.isIntake(),
             isBesluittypeAanwezig = zaaktype.besluittypen?.isNotEmpty() ?: false,
@@ -148,11 +153,11 @@ class RestZaakConverter @Inject constructor(
             rechten = policyService.readZaakRechten(zaak, zaaktype).toRestZaakRechten(),
             zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid),
             indicaties = noneOf(ZaakIndicatie::class.java).apply {
-                if (zaak.is_Hoofdzaak) add(HOOFDZAAK)
-                if (zaak.isDeelzaak) add(DEELZAAK)
+                if (zaak.isHoofdzaak()) add(HOOFDZAAK)
+                if (zaak.isDeelzaak()) add(DEELZAAK)
                 if (statustype.isHeropend()) add(HEROPEND)
-                if (zaak.isOpgeschort) add(OPSCHORTING)
-                if (zaak.isVerlengd) add(VERLENGD)
+                if (zaak.isOpgeschort()) add(OPSCHORTING)
+                if (zaak.isVerlengd()) add(VERLENGD)
                 if (shouldOntvangstbevestigingNietVerstuurdIndicatieBeSet(zaak, statustype)) {
                     add(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
@@ -160,12 +165,24 @@ class RestZaakConverter @Inject constructor(
         )
     }
 
+    // TODO: check..
     fun toZaak(restZaak: RestZaak, zaaktype: ZaakType) = Zaak(
         zaaktype.url,
-        restZaak.startdatum,
-        configuratieService.readBronOrganisatie(),
-        configuratieService.readVerantwoordelijkeOrganisatie()
+        restZaak.uuid,
+        restZaak.einddatum,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
     ).apply {
+        // TODO:
+        // restZaak.startdatum,
+        //configuratieService.readBronOrganisatie(),
+        //configuratieService.readVerantwoordelijkeOrganisatie()
         this.communicatiekanaalNaam = restZaak.communicatiekanaal
         this.omschrijving = restZaak.omschrijving
         this.toelichting = restZaak.toelichting
@@ -174,7 +191,7 @@ class RestZaakConverter @Inject constructor(
             // convert this enum to uppercase in case the client sends it in lowercase
             VertrouwelijkheidaanduidingEnum.valueOf(it.uppercase())
         }
-        this.zaakgeometrie = restZaak.zaakgeometrie?.toGeometry()
+        this.zaakgeometrie = restZaak.zaakgeometrie?.toGeoJSONGeometry()
     }
 
     fun convertToPatch(restZaak: RestZaak): Zaak {
@@ -189,19 +206,20 @@ class RestZaakConverter @Inject constructor(
             VertrouwelijkheidaanduidingEnum.valueOf(it.uppercase())
         }
         zaak.communicatiekanaalNaam = restZaak.communicatiekanaal
-        zaak.zaakgeometrie = restZaak.zaakgeometrie?.toGeometry()
+        zaak.zaakgeometrie = restZaak.zaakgeometrie?.toGeoJSONGeometry()
         return zaak
     }
 
+    @Suppress("NestedBlockDepth")
     fun convertToPatch(zaakUUID: UUID, verlengGegevens: RESTZaakVerlengGegevens) =
         zrcClientService.readZaak(zaakUUID).let { zaak ->
             Zaak().apply {
                 einddatumGepland = verlengGegevens.einddatumGepland
                 uiterlijkeEinddatumAfdoening = verlengGegevens.uiterlijkeEinddatumAfdoening
-                verlenging = Verlenging(
-                    verlengGegevens.redenVerlenging,
-                    zaak.verlenging?.duur?.plusDays(verlengGegevens.duurDagen.toLong()) ?: Period.ofDays(verlengGegevens.duurDagen)
-                )
+                verlenging = Verlenging().apply {
+                    reden = verlengGegevens.redenVerlenging
+                    duur = zaak.verlenging?.duur?.let { it + verlengGegevens.duurDagen.toString() } ?: verlengGegevens.duurDagen.toString()
+                }
             }
         }
 

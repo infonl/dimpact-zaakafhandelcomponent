@@ -4,8 +4,8 @@
  */
 package nl.info.zac.mail.model
 
-import net.atos.client.zgw.zrc.model.Zaak
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import org.flowable.task.api.TaskInfo
 
 class Bronnen private constructor(

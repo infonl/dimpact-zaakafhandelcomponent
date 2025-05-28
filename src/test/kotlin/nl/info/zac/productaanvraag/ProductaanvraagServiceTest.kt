@@ -21,7 +21,6 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Point
 import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.documenten.InboxDocumentenService

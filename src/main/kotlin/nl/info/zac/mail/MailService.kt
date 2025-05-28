@@ -24,7 +24,6 @@ import jakarta.mail.MessagingException
 import jakarta.mail.Session
 import jakarta.mail.Transport
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.mailtemplates.MailTemplateHelper
 import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.util.MediaTypes
@@ -61,6 +60,7 @@ import kotlin.Suppress
 import kotlin.apply
 import kotlin.let
 import kotlin.takeIf
+import nl.info.client.zgw.zrc.model.generated.Zaak
 
 @ApplicationScoped
 @NoArgConstructor

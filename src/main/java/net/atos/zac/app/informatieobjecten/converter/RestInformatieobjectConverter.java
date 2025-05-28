@@ -21,12 +21,12 @@ import java.util.logging.Logger;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 import org.eclipse.jetty.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 
 import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.shared.exception.ZgwErrorException;
-import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.zac.app.informatieobjecten.model.RESTFileUpload;
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens;
