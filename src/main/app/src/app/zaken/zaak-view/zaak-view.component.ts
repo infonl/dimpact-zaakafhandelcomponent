@@ -1191,7 +1191,7 @@ export class ZaakViewComponent
     this.bagService
       .create({
         zaakUuid: this.zaak.uuid,
-        bagObject,
+        zaakobject: bagObject,
       })
       .subscribe(() => {
         this.utilService.openSnackbar("msg.bagObject.gekoppeld");
