@@ -5,6 +5,9 @@
 
 import { Zaaktype } from "../../zaken/model/zaaktype";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class ZaaktypeInrichtingscheck {
   zaaktype: Zaaktype;
   statustypeIntakeAanwezig: boolean;

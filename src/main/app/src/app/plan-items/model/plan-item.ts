@@ -7,6 +7,9 @@ import { FormulierDefinitieID } from "../../admin/model/formulier-definitie";
 import { PlanItemType } from "./plan-item-type.enum";
 import { UserEventListenerActie } from "./user-event-listener-actie-enum";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class PlanItem {
   id: string;
   naam: string;

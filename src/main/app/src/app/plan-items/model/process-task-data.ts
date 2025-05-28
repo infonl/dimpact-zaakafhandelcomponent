@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class ProcessTaskData {
   planItemInstanceId: string;
   data: Record<string, unknown>;

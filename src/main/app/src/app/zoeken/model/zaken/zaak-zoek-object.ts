@@ -9,6 +9,9 @@ import { AardVanRol } from "../../../shared/model/aard-van-rol";
 import { ZoekObject } from "../zoek-object";
 import { ZoekObjectType } from "../zoek-object-type";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class ZaakZoekObject implements ZoekObject {
   id: string;
   type: ZoekObjectType;

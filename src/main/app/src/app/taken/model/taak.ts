@@ -10,6 +10,9 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakStatus } from "./taak-status.enum";
 import { Taakinformatie } from "./taakinformatie";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class Taak {
   id: string;
   naam: string;

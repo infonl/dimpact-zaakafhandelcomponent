@@ -6,6 +6,9 @@
 import { ScreenEvent } from "./screen-event";
 import { SubscriptionType } from "./subscription-type";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class SubscriptionMessage {
   subscriptionType: SubscriptionType;
   event: ScreenEvent;

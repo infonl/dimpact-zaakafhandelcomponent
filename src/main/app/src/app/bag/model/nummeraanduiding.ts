@@ -7,6 +7,9 @@ import { BAGObject } from "./bagobject";
 import { OpenbareRuimte } from "./openbare-ruimte";
 import { Woonplaats } from "./woonplaats";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class Nummeraanduiding extends BAGObject {
   postcode: string;
   huisnummerWeergave: string;

@@ -6,6 +6,9 @@
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { Klant } from "./klant";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class KlantGegevens {
   constructor(public klant: Klant) {}
 

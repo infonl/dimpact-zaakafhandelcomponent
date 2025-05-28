@@ -8,6 +8,9 @@ import { InformatieobjectIndicatie } from "../../../shared/indicaties/informatie
 import { ZoekObject } from "../zoek-object";
 import { ZoekObjectType } from "../zoek-object-type";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class DocumentZoekObject implements ZoekObject {
   id: string;
   type: ZoekObjectType;

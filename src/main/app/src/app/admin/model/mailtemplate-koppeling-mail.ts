@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export enum MailtemplateKoppelingMail {
   ZAAK_ALGEMEEN = "ZAAK_ALGEMEEN",
   ZAAK_ONTVANKELIJK = "ZAAK_ONTVANKELIJK",
@@ -13,6 +16,9 @@ export enum MailtemplateKoppelingMail {
   TAAK_ADVIES_EXTERN = "TAAK_ADVIES_EXTERN",
 }
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class MailtemplateKoppelingMailUtil {
   static getBeschikbareMailtemplateKoppelingen() {
     return [
