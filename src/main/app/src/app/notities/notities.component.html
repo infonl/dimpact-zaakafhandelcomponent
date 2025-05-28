@@ -22,44 +22,53 @@
   </button>
 </div>
 
-<div class="notitie-container" [hidden]="showNotes">
-  <div class="notitie-header flex-row justify-content-between">
-    <div class="flex-row">
-      <mat-icon class="notitie-header-icon">sticky_note_2</mat-icon>
-      <span class="notitie-header-text">{{ "notities" | translate }}</span>
+<mat-card *ngIf="!showNotes" class="notitie-container">
+  <mat-card-header class="flex-row justify-content-between notitie-header">
+    <div class="flex-row items-center gap-10">
+      <mat-icon>sticky_note_2</mat-icon>
+      <mat-card-title>
+        {{ "notities" | translate }}
+      </mat-card-title>
     </div>
-    <span
+    <button
+      mat-icon-button
       (click)="toggleNotitieContainer()"
-      class="minimize-button"
       title="{{ 'actie.minimaliseren' | translate }}"
     >
       <mat-icon>remove</mat-icon>
-    </span>
-  </div>
-  <div class="notitie-body">
+    </button>
+  </mat-card-header>
+
+  <mat-card-content class="notitie-body">
     <ng-container *ngFor="let notitie of notities">
-      <div class="notitie">
-        <div
-          class="notitie-content-header flex-row justify-content-between align-items-baseline"
-        >
-          <span class="notitie-title">{{
-            notitie.voornaamAchternaamMedewerker
-          }}</span>
-          <span class="notitie-subtitle">{{
-            notitie.tijdstipLaatsteWijziging | datum
-          }}</span>
-        </div>
-        <div class="notitie-content-body">
+      <mat-card class="notitie">
+        <mat-card-header>
+          <div
+            class="flex-row justify-content-between align-items-baseline full-width"
+          >
+            <mat-card-title>
+              {{ notitie.voornaamAchternaamMedewerker }}
+            </mat-card-title>
+            <mat-card-subtitle class="notitie-subtitle">
+              {{ notitie.tijdstipLaatsteWijziging | datum }}
+            </mat-card-subtitle>
+          </div>
+        </mat-card-header>
+
+        <mat-card-content>
           <p *ngIf="geselecteerdeNotitieId !== notitie.id">
             {{ notitie.tekst }}
           </p>
+
           <div
             *ngIf="
               notitieRechten.wijzigen && geselecteerdeNotitieId === notitie.id
             "
           >
-            <mat-form-field class="textarea-notitie" appearance="fill">
-              <mat-label>{{ "actie.notitie.wijzigen" | translate }}</mat-label>
+            <mat-form-field appearance="fill" class="full-width">
+              <mat-label>
+                {{ "actie.notitie.wijzigen" | translate }}
+              </mat-label>
               <textarea
                 #notitieTekst
                 matInput
@@ -68,16 +77,14 @@
                 [maxLength]="maxLengteTextArea"
                 >{{ notitie.tekst }}</textarea
               >
-              <mat-hint align="end"
-                >{{ notitieTekst.value?.length ?? 0 }}/{{
-                  maxLengteTextArea
-                }}</mat-hint
-              >
+              <mat-hint align="end">
+                {{ notitieTekst.value?.length ?? 0 }}/{{ maxLengteTextArea }}
+              </mat-hint>
             </mat-form-field>
-            <div class="notitie-content-footer">
+
+            <mat-card-actions class="flex-row justify-content-end">
               <button
                 mat-icon-button
-                aria-label="Opslaan"
                 color="primary"
                 (click)="updateNotitie(notitie, notitieTekst.value)"
                 id="notitieUpdate_button"
@@ -87,7 +94,6 @@
               </button>
               <button
                 mat-icon-button
-                aria-label="Annuleren"
                 color="primary"
                 (click)="annuleerUpdateNotitie()"
                 id="notitieBewerkenAnnuleren_button"
@@ -95,41 +101,41 @@
               >
                 <mat-icon>close</mat-icon>
               </button>
-            </div>
+            </mat-card-actions>
           </div>
-        </div>
-        <div
+        </mat-card-content>
+
+        <mat-card-actions
           *ngIf="
             notitieRechten.wijzigen &&
             notitie.bewerkenToegestaan &&
             geselecteerdeNotitieId !== notitie.id
           "
-          class="notitie-content-footer"
+          class="flex-row justify-content-end"
         >
-          <ng-container>
-            <button
-              (click)="pasNotitieAan(notitie.id)"
-              id="notitieBewerk_button"
-              mat-icon-button
-              title="{{ 'actie.bewerken' | translate }}"
-            >
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button
-              (click)="verwijderNotitie(notitie.id)"
-              id="notitieVerwijder_button"
-              mat-icon-button
-              title="{{ 'actie.verwijderen' | translate }}"
-            >
-              <mat-icon>delete</mat-icon>
-            </button>
-          </ng-container>
-        </div>
-      </div>
+          <button
+            (click)="pasNotitieAan(notitie.id)"
+            id="notitieBewerk_button"
+            mat-icon-button
+            title="{{ 'actie.bewerken' | translate }}"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            (click)="verwijderNotitie(notitie.id)"
+            id="notitieVerwijder_button"
+            mat-icon-button
+            title="{{ 'actie.verwijderen' | translate }}"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-card-actions>
+      </mat-card>
     </ng-container>
-  </div>
-  <div *ngIf="notitieRechten.wijzigen" class="notitie-footer flex-row">
-    <mat-form-field class="textarea-notitie">
+  </mat-card-content>
+
+  <mat-card-actions *ngIf="notitieRechten.wijzigen">
+    <mat-form-field appearance="fill" class="full-width">
       <mat-label>{{ "actie.notitie.aanmaken" | translate }}</mat-label>
       <textarea
         #notitieTekst
@@ -140,15 +146,14 @@
         [maxlength]="maxLengteTextArea"
         [disabled]="geselecteerdeNotitieId != null"
       ></textarea>
-      <mat-hint align="end"
-        >{{ notitieTekst.value?.length ?? 0 }}/{{ maxLengteTextArea }}</mat-hint
-      >
+      <mat-hint align="end">
+        {{ notitieTekst.value?.length ?? 0 }}/{{ maxLengteTextArea }}
+      </mat-hint>
       <button
         id="notitieOpslaan_button"
-        aria-label="Opslaan"
-        color="primary"
         matSuffix
         mat-mini-fab
+        color="primary"
         title="{{ 'actie.opslaan' | translate }}"
         [disabled]="
           notitieTekst.value.length == 0 || geselecteerdeNotitieId != null
@@ -158,5 +163,5 @@
         <mat-icon>send</mat-icon>
       </button>
     </mat-form-field>
-  </div>
-</div>
+  </mat-card-actions>
+</mat-card>

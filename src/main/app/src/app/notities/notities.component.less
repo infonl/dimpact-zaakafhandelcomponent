@@ -31,38 +31,24 @@
 }
 
 .notitie-header {
-  padding: 2px;
-  min-height: 30px;
-  font-size: 14px;
+  padding: 0 8px 0 16px;
   color: @primary-text-color;
   background: @primary-background-color;
   border-bottom: 1px solid @border-color;
-}
 
-.notitie-header-icon {
-  margin-top: 3px;
-  margin-left: 5px;
-}
-
-.notitie-header-text {
-  margin-left: 5px;
-  margin-top: 7px;
+  ::ng-deep .mat-mdc-card-header-text {
+    // added by mat-card but should not be visible
+    display: none;
+  }
 }
 
 .notitie-body {
   width: 100%;
   min-height: 300px;
   max-height: 420px;
+  padding: 0;
+  border-bottom: 1px solid @border-color;
   overflow-y: auto;
-}
-
-.notitie-footer {
-  padding: 5px;
-  border-top: 1px solid @border-color;
-}
-
-.textarea-notitie {
-  width: 100%;
 }
 
 .minimize-button {
@@ -72,43 +58,6 @@
 }
 
 .notitie {
-  background: white;
+  background: #fff;
   border-bottom: 1px solid @border-color;
-
-  .notitie-content-header {
-    margin-bottom: 8px;
-    padding: 16px 16px 0 16px;
-  }
-
-  .notitie-content-body {
-    font-size: 13px;
-    margin-bottom: 8px;
-    padding: 0 16px;
-
-    p {
-      white-space: pre-wrap;
-    }
-  }
-
-  .notitie-content-footer {
-    display: flex;
-    justify-content: flex-end;
-
-    .material-icons {
-      font-size: 18px;
-    }
-  }
-
-  .notitie-title {
-    font-size: 14px;
-    font-weight: 500;
-  }
-
-  .notitie-subtitle {
-    font-size: 12px;
-    color: @title-color;
-    display: flex;
-    justify-content: flex-end;
-    margin-top: -15px;
-  }
 }
