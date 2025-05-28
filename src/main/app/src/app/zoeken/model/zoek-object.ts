@@ -5,6 +5,9 @@
 
 import { ZoekObjectType } from "./zoek-object-type";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export interface ZoekObject {
   id: string;
   type: ZoekObjectType;

@@ -6,6 +6,9 @@
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { Mailtemplate } from "./mailtemplate";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class MailtemplateKoppeling {
   id: number;
   zaakafhandelParameters: GeneratedType<"RestZaakafhandelParameters">;

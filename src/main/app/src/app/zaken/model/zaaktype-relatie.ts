@@ -5,6 +5,9 @@
 
 import { ZaakRelatietype } from "./zaak-relatietype";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class ZaaktypeRelatie {
   zaaktypeUuid: string;
   relatieType: ZaakRelatietype;

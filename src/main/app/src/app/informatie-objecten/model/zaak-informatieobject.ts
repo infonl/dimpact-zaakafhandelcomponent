@@ -6,6 +6,9 @@
 import { ZaakRechten } from "../../policy/model/zaak-rechten";
 import { ZaakStatus } from "../../zaken/model/zaak-status";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class ZaakInformatieobject {
   zaakIdentificatie: string;
   zaakStatus: ZaakStatus;
