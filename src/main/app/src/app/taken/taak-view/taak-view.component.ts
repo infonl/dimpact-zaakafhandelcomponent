@@ -24,7 +24,10 @@ import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
-import {FormioChangeEvent, FormioCustomEvent} from "../../formulieren/formio-wrapper/formio-wrapper.component";
+import {
+  FormioChangeEvent,
+  FormioCustomEvent,
+} from "../../formulieren/formio-wrapper/formio-wrapper.component";
 import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-formulier";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -45,7 +48,7 @@ import { ZakenService } from "../../zaken/zaken.service";
 import { Taak } from "../model/taak";
 import { TaakStatus } from "../model/taak-status.enum";
 import { TakenService } from "../taken.service";
-import {FormioSetupService} from "./formio/formio-setup-service";
+import { FormioSetupService } from "./formio/formio-setup-service";
 
 @Component({
   templateUrl: "./taak-view.component.html",
@@ -369,14 +372,19 @@ export class TaakViewComponent
 
   onDocumentCreate(event: FormioCustomEvent) {
     this.activeSideAction = "actie.document.maken";
-    this.smartDocumentsGroupPath = this.formioSetupService.formioGetSmartDocumentsGroups(
-      event.component,
-    );
-    this.smartDocumentsTemplateName = this.formioSetupService.extractSmartDocumentsTemplateName(event)
-    const normalizedTemplateName = this.formioSetupService.normalizeSmartDocumentsTemplateName(this.smartDocumentsTemplateName);
-    this.smartDocumentsInformatieobjecttypeUuid = this.formioSetupService.getInformatieobjecttypeUuid(
-      event, normalizedTemplateName
-    )
+    this.smartDocumentsGroupPath =
+      this.formioSetupService.formioGetSmartDocumentsGroups(event.component);
+    this.smartDocumentsTemplateName =
+      this.formioSetupService.extractSmartDocumentsTemplateName(event);
+    const normalizedTemplateName =
+      this.formioSetupService.normalizeSmartDocumentsTemplateName(
+        this.smartDocumentsTemplateName,
+      );
+    this.smartDocumentsInformatieobjecttypeUuid =
+      this.formioSetupService.getInformatieobjecttypeUuid(
+        event,
+        normalizedTemplateName,
+      );
 
     if (normalizedTemplateName.length > 0) {
       this.actionsSidenav.open();

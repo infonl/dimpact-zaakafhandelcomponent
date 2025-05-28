@@ -26,13 +26,9 @@ export class FormioSetupService {
     public utilService: UtilService,
     private identityService: IdentityService,
     private zaakafhandelParametersService: ZaakafhandelParametersService,
-  ) {
-  }
+  ) {}
 
-  createFormioForm(
-    formioFormulier: FormioForm,
-    taak: Taak,
-  ): void {
+  createFormioForm(formioFormulier: FormioForm, taak: Taak): void {
     this.taak = taak;
 
     this.initializeSpecializedFormioComponents(formioFormulier.components);
@@ -100,8 +96,6 @@ export class FormioSetupService {
           groepComponentKey in this.formioChangeData &&
           this.formioChangeData[groepComponentKey] != ""
         ) {
-          console.log("Loading users in group %O", this.formioChangeData[groepComponentKey])
-
           return lastValueFrom(
             this.identityService
               .listUsersInGroup(this.formioChangeData[groepComponentKey])
