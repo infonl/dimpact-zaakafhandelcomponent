@@ -14,8 +14,12 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isIntake
+import nl.info.client.zgw.zrc.util.isOpen
+import nl.info.client.zgw.zrc.util.isOpgeschort
+import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.authentication.LoggedInUser
@@ -44,10 +48,6 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import org.flowable.task.api.TaskInfo
-import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.client.zgw.zrc.util.isOpen
-import nl.info.client.zgw.zrc.util.isOpgeschort
-import nl.info.client.zgw.zrc.util.isVerlengd
 
 @ApplicationScoped
 @NoArgConstructor

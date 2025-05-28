@@ -30,6 +30,7 @@ import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.util.ValidationUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.app.shared.RestPageParameters
 import nl.info.zac.app.signalering.converter.toRestSignaleringTaakSummary
 import nl.info.zac.app.signalering.model.RestSignaleringTaskSummary
@@ -43,7 +44,6 @@ import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Logger
-import nl.info.client.zgw.zrc.model.generated.Zaak
 
 @ApplicationScoped
 @Transactional(SUPPORTS)

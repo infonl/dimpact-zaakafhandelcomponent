@@ -12,9 +12,9 @@ import java.util.Set;
 
 import org.flowable.task.api.TaskInfo;
 
-import nl.info.client.zgw.zrc.model.generated.Zaak;
 import net.atos.zac.signalering.model.SignaleringType;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.zac.identity.model.User;
 import nl.info.zac.notification.Action;
 import nl.info.zac.notification.Channel;

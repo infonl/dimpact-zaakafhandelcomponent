@@ -24,7 +24,6 @@ import kotlinx.coroutines.test.runTest
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.GeometryToBeDeleted
@@ -61,6 +60,8 @@ import nl.info.client.zgw.model.createZaakobjectPand
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -231,7 +232,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         val zaakAfhandelParameters = createZaakafhandelParameters()
         val zaakObjectPand = createZaakobjectPand()
         val zaakObjectOpenbareRuimte = createZaakobjectOpenbareRuimte()
-        val zaak = createZaak(zaakType.url)
+        val zaak = createZaak(zaakTypeURI = zaakType.url)
 
         every { configuratieService.featureFlagBpmnSupport() } returns false
         every { cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null) } just runs
@@ -630,7 +631,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     Given("An open zaak and a closed zaak") {
         val zaak = createZaak()
-        val teKoppelenZaak = createZaak(archiefnominatie = Archiefnominatie.BLIJVEND_BEWAREN)
+        val teKoppelenZaak = createZaak(archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN)
         val restZakenVerdeelGegevens = createRestZaakLinkData(
             zaakUuid = zaak.uuid,
             teKoppelenZaakUuid = teKoppelenZaak.uuid,

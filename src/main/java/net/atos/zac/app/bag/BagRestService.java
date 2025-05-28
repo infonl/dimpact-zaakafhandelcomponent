@@ -29,7 +29,6 @@ import net.atos.client.bag.BagClientService;
 import net.atos.client.bag.model.BevraagAdressenParameters;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.zrc.model.Objecttype;
-import nl.info.client.zgw.zrc.model.generated.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters;
 import net.atos.zac.app.bag.converter.RestAdresConverter;
@@ -45,6 +44,7 @@ import net.atos.zac.app.bag.model.RESTBAGObjectGegevens;
 import net.atos.zac.app.bag.model.RESTListAdressenParameters;
 import net.atos.zac.app.shared.RESTResultaat;
 import nl.info.client.zgw.zrc.ZrcClientService;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.zac.policy.PolicyService;
 
 @Path("bag")

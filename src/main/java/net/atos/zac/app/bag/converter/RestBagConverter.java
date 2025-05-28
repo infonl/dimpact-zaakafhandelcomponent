@@ -13,7 +13,6 @@ import java.util.List;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 
-import nl.info.client.zgw.zrc.model.generated.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdres;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding;
@@ -30,6 +29,7 @@ import net.atos.zac.app.bag.model.RESTWoonplaats;
 import nl.info.client.bag.model.generated.PointGeoJSON;
 import nl.info.client.bag.model.generated.PuntOfVlak;
 import nl.info.client.bag.model.generated.Surface;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.zac.app.zaak.model.RestCoordinates;
 import nl.info.zac.app.zaak.model.RestGeometry;
 

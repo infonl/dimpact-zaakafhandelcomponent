@@ -15,6 +15,7 @@ import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.util.extractedUuidIsEqual
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.zaak.converter.RestDecisionConverter
 import nl.info.zac.app.zaak.model.RestDecisionChangeData
@@ -26,7 +27,6 @@ import java.time.LocalDate
 import java.time.Period
 import java.util.UUID
 import java.util.logging.Logger
-import nl.info.client.zgw.zrc.model.generated.Zaak
 
 class DecisionService @Inject constructor(
     private val brcClientService: BrcClientService,

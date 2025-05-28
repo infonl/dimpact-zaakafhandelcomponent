@@ -48,6 +48,7 @@ import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
@@ -64,7 +65,6 @@ import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
 import java.io.IOException
 import java.net.URI
 import java.util.UUID
-import nl.info.client.zgw.zrc.model.generated.Zaak
 
 @Singleton
 @Path("informatieobjecten")

@@ -21,7 +21,6 @@ import java.util.logging.Logger;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
-import nl.info.client.zgw.zrc.model.generated.Zaak;
 import org.eclipse.jetty.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,6 +38,7 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLoc
 import nl.info.client.zgw.drc.model.generated.StatusEnum;
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
 import nl.info.client.zgw.zrc.ZrcClientService;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.zac.app.task.model.RestTaskDocumentData;
 import nl.info.zac.app.zaak.model.RelatieType;

@@ -30,11 +30,11 @@ import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.zgw.shared.util.DateTimeUtil;
-import nl.info.client.zgw.zrc.model.generated.Zaak;
 import net.atos.zac.documenten.model.OntkoppeldDocument;
 import net.atos.zac.documenten.model.OntkoppeldDocumentListParameters;
 import net.atos.zac.documenten.model.OntkoppeldeDocumentenResultaat;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.zac.authentication.LoggedInUser;
 import nl.info.zac.search.model.DatumRange;
 import nl.info.zac.shared.model.SorteerRichting;

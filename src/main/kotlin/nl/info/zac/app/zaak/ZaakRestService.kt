@@ -28,10 +28,7 @@ import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.BetrokkeneType
-import net.atos.client.zgw.zrc.model.GeometryToBeDeleted
-import net.atos.client.zgw.zrc.model.HoofdzaakZaakPatch
 import net.atos.client.zgw.zrc.model.RelevanteZaak
-import net.atos.client.zgw.zrc.model.RelevantezaakZaakPatch
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.client.zgw.zrc.model.ZaakListParameters
@@ -56,7 +53,9 @@ import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isHeropend
+import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.decision.DecisionService
@@ -125,8 +124,6 @@ import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.stream.Collectors
 import java.util.stream.Stream
-import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.client.zgw.zrc.util.isOpen
 
 @Path("zaken")
 @Consumes(MediaType.APPLICATION_JSON)
