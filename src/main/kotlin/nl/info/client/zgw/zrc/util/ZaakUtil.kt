@@ -22,10 +22,10 @@ fun Zaak.isOpgeschort() = opschorting != null && opschorting.getIndicatie()
  * A new flag to handle this "suspended in the past" case was requested with:
  * https://github.com/open-zaak/open-zaak/issues/1920
 **/
-fun Zaak.isEerderOpgeschort() = opschorting != null && StringUtils.isNotEmpty(opschorting.getReden())
+fun Zaak.isEerderOpgeschort() = opschorting?.getReden()?.isNotEmpty() == true
 
-fun Zaak.isVerlengd() = verlenging != null && verlenging.getDuur() != null
+fun Zaak.isVerlengd() = verlenging?.getDuur() != null
 
-fun Zaak.isHoofdzaak() = deelzaken.isNotEmpty()
+fun Zaak.isHoofdzaak() = !deelzaken.isNullOrEmpty()
 
 fun Zaak.isDeelzaak() = hoofdzaak != null

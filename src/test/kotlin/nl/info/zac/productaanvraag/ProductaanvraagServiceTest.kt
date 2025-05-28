@@ -305,9 +305,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         .take(1000)
                     with(zaakgeometrie) {
                         type shouldBe GeometryTypeEnum.POINT
-                        with((this as Point).coordinates) {
-                            latitude.toDouble() shouldBe coordinates[0]
-                            longitude.toDouble() shouldBe coordinates[1]
+                        with(this.coordinates) {
+                            first().first().first()[0].toDouble() shouldBe coordinates[0]
+                            first().first().first()[1].toDouble() shouldBe coordinates[1]
                         }
                     }
                 }
