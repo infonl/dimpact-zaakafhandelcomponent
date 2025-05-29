@@ -6,7 +6,8 @@
 import { Injectable } from "@angular/core";
 import { ExtendedComponentSchema, FormioForm } from "@formio/angular";
 import { lastValueFrom } from "rxjs";
-import {map, tap} from "rxjs/operators";
+import { map, tap } from "rxjs/operators";
+import { ReferentieTabelService } from "../../../admin/referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../../core/service/util.service";
 import { FormioCustomEvent } from "../../../formulieren/formio-wrapper/formio-wrapper.component";
@@ -14,7 +15,6 @@ import { IdentityService } from "../../../identity/identity.service";
 import { OrderUtil } from "../../../shared/order/order-util";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { Taak } from "../../model/taak";
-import { ReferentieTabelService } from "../../../admin/referentie-tabel.service";
 
 @Injectable({
   providedIn: "root",
@@ -174,9 +174,7 @@ export class FormioSetupService {
   }
 
   extractSmartDocumentsTemplateName(event: FormioCustomEvent): string {
-    return event.data[
-      this.extractFieldsetName(event.component) + "_Template"
-    ];
+    return event.data[this.extractFieldsetName(event.component) + "_Template"];
   }
 
   normalizeSmartDocumentsTemplateName(
@@ -196,14 +194,19 @@ export class FormioSetupService {
     );
   }
 
-  private initializeGroepReferenceTableFieldsetComponent(fieldsetComponent: ExtendedComponentSchema) {
+  private initializeGroepReferenceTableFieldsetComponent(
+    fieldsetComponent: ExtendedComponentSchema,
+  ) {
     fieldsetComponent.type = "fieldset";
     const referenceTableSelector = fieldsetComponent.components[0];
     this.initializeReferenceTableSelectorComponent(referenceTableSelector);
   }
 
-  private initializeReferenceTableSelectorComponent(referenceTableSelector: ExtendedComponentSchema) {
-    const referenceTableCode = referenceTableSelector.properties["ReferenceTable_Code"];
+  private initializeReferenceTableSelectorComponent(
+    referenceTableSelector: ExtendedComponentSchema,
+  ) {
+    const referenceTableCode =
+      referenceTableSelector.properties["ReferenceTable_Code"];
 
     referenceTableSelector.valueProperty = "id";
     referenceTableSelector.template = "{{ item.naam }}";
@@ -212,9 +215,8 @@ export class FormioSetupService {
         lastValueFrom(
           this.referenceTableService
             .readReferentieTabelByCode(referenceTableCode)
-            .pipe(map(table => table.waarden.map(value => value)))
+            .pipe(map((table) => table.waarden.map((value) => value))),
         ),
     };
   }
-
 }
