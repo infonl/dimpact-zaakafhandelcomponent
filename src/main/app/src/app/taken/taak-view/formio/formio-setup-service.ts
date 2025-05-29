@@ -215,7 +215,7 @@ export class FormioSetupService {
         lastValueFrom(
           this.referenceTableService
             .readReferentieTabelByCode(referenceTableCode)
-            .pipe(map((table) => table.waarden.map((value) => value))),
+            .pipe(map((table) => table.waarden.map((value) => value.naam))),
         ),
     };
   }
