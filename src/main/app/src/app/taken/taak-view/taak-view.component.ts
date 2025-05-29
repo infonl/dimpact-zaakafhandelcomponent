@@ -373,7 +373,7 @@ export class TaakViewComponent
   onDocumentCreate(event: FormioCustomEvent) {
     this.activeSideAction = "actie.document.maken";
     this.smartDocumentsGroupPath =
-      this.formioSetupService.formioGetSmartDocumentsGroups(event.component);
+      this.formioSetupService.getSmartDocumentsGroups(event.component);
     this.smartDocumentsTemplateName =
       this.formioSetupService.extractSmartDocumentsTemplateName(event);
     const normalizedTemplateName =

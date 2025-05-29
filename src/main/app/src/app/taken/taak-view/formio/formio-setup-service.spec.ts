@@ -15,7 +15,6 @@ import {FormioSetupService} from "./formio-setup-service";
 import {UtilService} from "../../../core/service/util.service";
 import {IdentityService} from "../../../identity/identity.service";
 import {ZaakafhandelParametersService} from "../../../admin/zaakafhandel-parameters.service";
-import {FormioCustomEvent} from "../../../formulieren/formio-wrapper/formio-wrapper.component";
 import {ExtendedComponentSchema} from "@formio/angular";
 
 describe(FormioSetupService.name, () => {
@@ -150,9 +149,9 @@ describe(FormioSetupService.name, () => {
     })
   })
 
-  describe(FormioSetupService.prototype.formioGetSmartDocumentsGroups.name, () => {
+  describe(FormioSetupService.prototype.getSmartDocumentsGroups.name, () => {
     it('should return the smart documents groups', () => {
-      const smartDocumentsGroups: ExtendedComponentSchema[] = formioSetupService.formioGetSmartDocumentsGroups({
+      const smartDocumentsGroups: ExtendedComponentSchema[] = formioSetupService.getSmartDocumentsGroups({
         properties: {
           "SmartDocuments_Group": "root/sub1/sub2",
         }

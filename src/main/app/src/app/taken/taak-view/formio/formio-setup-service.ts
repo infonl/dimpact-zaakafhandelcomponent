@@ -6,7 +6,7 @@
 import { Injectable } from "@angular/core";
 import { ExtendedComponentSchema, FormioForm } from "@formio/angular";
 import { lastValueFrom } from "rxjs";
-import { tap } from "rxjs/operators";
+import {map, tap} from "rxjs/operators";
 import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../../core/service/util.service";
 import { FormioCustomEvent } from "../../../formulieren/formio-wrapper/formio-wrapper.component";
@@ -14,6 +14,7 @@ import { IdentityService } from "../../../identity/identity.service";
 import { OrderUtil } from "../../../shared/order/order-util";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { Taak } from "../../model/taak";
+import { ReferentieTabelService } from "../../../admin/referentie-tabel.service";
 
 @Injectable({
   providedIn: "root",
@@ -26,6 +27,7 @@ export class FormioSetupService {
     public utilService: UtilService,
     private identityService: IdentityService,
     private zaakafhandelParametersService: ZaakafhandelParametersService,
+    private referenceTableService: ReferentieTabelService,
   ) {}
 
   createFormioForm(formioFormulier: FormioForm, taak: Taak): void {
@@ -37,17 +39,23 @@ export class FormioSetupService {
     });
   }
 
+  setFormioChangeData(data: Record<string, string>) {
+    this.formioChangeData = data;
+  }
+
   private initializeSpecializedFormioComponents(
     components: ExtendedComponentSchema[] | undefined,
   ): void {
     components?.forEach((component) => {
       switch (component.type) {
         case "groepMedewerkerFieldset":
-          this.initializeFormioGroepMedewerkerFieldsetComponent(component);
+          this.initializeGroepMedewerkerFieldsetComponent(component);
           break;
         case "groepSmartDocumentsFieldset":
-          this.initializeFormioGroepSmartDocumentsFieldsetComponent(component);
+          this.initializeGroepSmartDocumentsFieldsetComponent(component);
           break;
+        case "groepReferenceTableFieldset":
+          this.initializeGroepReferenceTableFieldsetComponent(component);
       }
       if ("components" in component) {
         this.initializeSpecializedFormioComponents(component.components);
@@ -55,20 +63,20 @@ export class FormioSetupService {
     });
   }
 
-  private initializeFormioGroepMedewerkerFieldsetComponent(
-    component: ExtendedComponentSchema,
+  private initializeGroepMedewerkerFieldsetComponent(
+    fieldsetComponent: ExtendedComponentSchema,
   ): void {
-    component.type = "fieldset";
-    const groepComponent = component.components[0];
-    const medewerkerComponent = component.components[1];
-    this.initializeFormioGroepMedewerkerFieldsetGroepComponent(groepComponent);
-    this.initializeFormioGroepMedewerkerFieldsetMedewerkerComponent(
+    fieldsetComponent.type = "fieldset";
+    const groepComponent = fieldsetComponent.components[0];
+    const medewerkerComponent = fieldsetComponent.components[1];
+    this.initializeGroepMedewerkerFieldsetGroepComponent(groepComponent);
+    this.initializeGroepMedewerkerFieldsetMedewerkerComponent(
       medewerkerComponent,
       groepComponent.key,
     );
   }
 
-  private initializeFormioGroepMedewerkerFieldsetGroepComponent(
+  private initializeGroepMedewerkerFieldsetGroepComponent(
     groepComponent: ExtendedComponentSchema,
   ): void {
     groepComponent.valueProperty = "id";
@@ -83,7 +91,7 @@ export class FormioSetupService {
     };
   }
 
-  private initializeFormioGroepMedewerkerFieldsetMedewerkerComponent(
+  private initializeGroepMedewerkerFieldsetMedewerkerComponent(
     medewerkerComponent: ExtendedComponentSchema,
     groepComponentKey: string,
   ): void {
@@ -108,7 +116,7 @@ export class FormioSetupService {
     };
   }
 
-  private initializeFormioGroepSmartDocumentsFieldsetComponent(
+  private initializeGroepSmartDocumentsFieldsetComponent(
     fieldsetComponent: ExtendedComponentSchema,
   ): void {
     fieldsetComponent.type = "fieldset";
@@ -135,12 +143,12 @@ export class FormioSetupService {
         Object.keys(component.properties || []).length > 0,
     );
     const smartDocumentsPath: GeneratedType<"RestSmartDocumentsPath"> = {
-      path: this.formioGetSmartDocumentsGroups(componentWithProperties),
+      path: this.getSmartDocumentsGroups(componentWithProperties),
     };
     return smartDocumentsPath;
   }
 
-  formioGetSmartDocumentsGroups(component: ExtendedComponentSchema): string[] {
+  getSmartDocumentsGroups(component: ExtendedComponentSchema): string[] {
     return component?.properties["SmartDocuments_Group"].split("/");
   }
 
@@ -188,7 +196,25 @@ export class FormioSetupService {
     );
   }
 
-  setFormioChangeData(data: Record<string, string>) {
-    this.formioChangeData = data;
+  private initializeGroepReferenceTableFieldsetComponent(fieldsetComponent: ExtendedComponentSchema) {
+    fieldsetComponent.type = "fieldset";
+    const referenceTableSelector = fieldsetComponent.components[0];
+    this.initializeReferenceTableSelectorComponent(referenceTableSelector);
   }
+
+  private initializeReferenceTableSelectorComponent(referenceTableSelector: ExtendedComponentSchema) {
+    const referenceTableCode = referenceTableSelector.properties["ReferenceTable_Code"];
+
+    referenceTableSelector.valueProperty = "id";
+    referenceTableSelector.template = "{{ item.naam }}";
+    referenceTableSelector.data = {
+      custom: () =>
+        lastValueFrom(
+          this.referenceTableService
+            .readReferentieTabelByCode(referenceTableCode)
+            .pipe(map(table => table.waarden.map(value => value)))
+        ),
+    };
+  }
+
 }

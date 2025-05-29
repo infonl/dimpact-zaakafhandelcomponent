@@ -105,7 +105,7 @@
       "input": false,
       "components": [
         {
-          "label": "Template",
+          "label": "Communication channel",
           "type": "select",
           "key": "RT_ReferenceTable_Values",
           "input": true,
@@ -115,7 +115,7 @@
           },
           "dataSrc": "custom",
           "properties": {
-            "ReferenceTable_Code": "Demo_ReferenceTable"
+            "ReferenceTable_Code": "COMMUNICATIEKANAAL"
           }
         }
       ]
