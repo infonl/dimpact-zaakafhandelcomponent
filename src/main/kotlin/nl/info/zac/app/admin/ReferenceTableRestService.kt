@@ -77,9 +77,18 @@ class ReferenceTableRestService @Inject constructor(
 
     @GET
     @Path("{id}")
-    fun readReferenceTable(@PathParam("id") id: Long): RestReferenceTable {
+    fun readReferenceTableById(@PathParam("id") id: Long): RestReferenceTable {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return referenceTableService.readReferenceTable(id).toRestReferenceTable(
+            true
+        )
+    }
+
+    @GET
+    @Path("code/{code}")
+    fun readReferenceTableByCode(@PathParam("code") code: String): RestReferenceTable {
+        assertPolicy(policyService.readOverigeRechten().beheren)
+        return referenceTableService.readReferenceTable(code).toRestReferenceTable(
             true
         )
     }

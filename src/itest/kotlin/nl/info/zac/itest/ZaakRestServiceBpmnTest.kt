@@ -12,8 +12,11 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
+import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
+import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_COORDINATORS_ID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
@@ -67,11 +70,13 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                 "taakdata":{
                     "zaakIdentificatie":"$zaakIdentificatie",
                     "initiator":null,
-                    "zaaktypeOmschrijving":"BPMN test zaaktype",
+                    "zaaktypeOmschrijving":"$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
                     "firstName":"Name",
-                    "AM_TeamBehandelaar_Groep": "test-group-co",
-                    "AM_TeamBehandelaar_Medewerker": "coordinator1",
-                    "AM_SmartDocuments_Template": "Advies oud"
+                    "AM_TeamBehandelaar_Groep": "$TEST_GROUP_COORDINATORS_ID",
+                    "AM_TeamBehandelaar_Medewerker": "$TEST_COORDINATOR_1_USERNAME",
+                    "SD_SmartDocuments_Template": "OpenZaakTest",
+                    "SD_SmartDocuments_Create": false,
+                    "RT_ReferenceTable_Values": "Post"
                 }
                 """.trimIndent()
             )

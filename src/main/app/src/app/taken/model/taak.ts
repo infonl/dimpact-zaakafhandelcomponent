@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { FormioForm } from "@formio/angular";
 import { FormulierDefinitieID } from "../../admin/model/formulier-definitie";
 import { FormulierDefinitie } from "../../admin/model/formulieren/formulier-definitie";
 import { TaakRechten } from "../../policy/model/taak-rechten";
@@ -28,7 +29,7 @@ export class Taak {
   status: TaakStatus;
   formulierDefinitieId: FormulierDefinitieID;
   formulierDefinitie: FormulierDefinitie;
-  formioFormulier: unknown;
+  formioFormulier: FormioForm;
   tabellen: Record<string, string[]>;
   taakdata: Record<string, string>;
   taakinformatie: Taakinformatie;

@@ -4,7 +4,7 @@
  */
 
 export class FormConfig {
-  partialButtonText: string;
+  partialButtonText: string | null = null;
   saveButtonText: string;
   cancelButtonText: string;
 

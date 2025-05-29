@@ -47,6 +47,14 @@ export class ReferentieTabelService {
       );
   }
 
+  readReferentieTabelByCode(code: string): Observable<ReferentieTabel> {
+    return this.http
+      .get<ReferentieTabel>(`${this.basepath}/code/${code}`)
+      .pipe(
+        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+      );
+  }
+
   updateReferentieTabel(tabel: ReferentieTabel): Observable<ReferentieTabel> {
     return this.http
       .put<ReferentieTabel>(`${this.basepath}/${tabel.id}`, tabel)

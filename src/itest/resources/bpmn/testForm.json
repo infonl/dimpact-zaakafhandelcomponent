@@ -65,13 +65,13 @@
     {
       "legend": "SmartDocuments",
       "type": "groepSmartDocumentsFieldset",
-      "key": "AM_SmartDocuments",
+      "key": "SD_SmartDocuments",
       "input": false,
       "components": [
         {
           "label": "Template",
           "type": "select",
-          "key": "AM_SmartDocuments_Template",
+          "key": "SD_SmartDocuments_Template",
           "input": true,
           "widget": "html5",
           "validate": {
@@ -86,7 +86,7 @@
           "showValidations": false,
           "block": true,
           "tableView": false,
-          "key": "AM_SmartDocuments_Create",
+          "key": "SD_SmartDocuments_Create",
           "type": "button",
           "event": "createDocument",
           "input": true,
@@ -94,6 +94,28 @@
             "SmartDocuments_Group": "Dimpact/OpenZaak",
             "SmartDocuments_Data_Test_InformatieobjecttypeUuid": "efc332f2-be3b-4bad-9e3c-49a6219c92ad",
             "SmartDocuments_OpenZaakTest_InformatieobjecttypeUuid": "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
+          }
+        }
+      ]
+    },
+    {
+      "legend": "Reference table",
+      "type": "groepReferenceTableFieldset",
+      "key": "RT_ReferenceTable",
+      "input": false,
+      "components": [
+        {
+          "label": "Communication channel",
+          "type": "select",
+          "key": "RT_ReferenceTable_Values",
+          "input": true,
+          "widget": "html5",
+          "validate": {
+            "required": true
+          },
+          "dataSrc": "custom",
+          "properties": {
+            "ReferenceTable_Code": "COMMUNICATIEKANAAL"
           }
         }
       ]
