@@ -168,13 +168,13 @@ export class FormioSetupService {
   extractSmartDocumentsTemplateName(event: FormioCustomEvent): string {
     return event.data[
       this.extractFieldsetName(event.component) + "_Template"
-    ].toString();
+    ];
   }
 
   normalizeSmartDocumentsTemplateName(
     smartDocumentsTemplateName: string,
   ): string {
-    return smartDocumentsTemplateName?.replace(" ", "_").trim();
+    return smartDocumentsTemplateName?.replaceAll(" ", "_").trim();
   }
 
   getInformatieobjecttypeUuid(
