@@ -60,7 +60,9 @@ import nl.info.client.zgw.model.createZaakobjectPand
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
+import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
@@ -577,14 +579,14 @@ class ZaakRestServiceTest : BehaviorSpec({
                     relevanteAndereZaken shouldHaveSize(1)
                     with(relevanteAndereZaken[0]) {
                         url shouldBe teKoppelenZaak.url
-                        aardRelatie shouldBe AardRelatie.BIJDRAGE
+                        aardRelatie shouldBe AardRelatieEnum.BIJDRAGE
                     }
                 }
                 with(patchZaakSlot[1]) {
                     relevanteAndereZaken shouldHaveSize(1)
                     with(relevanteAndereZaken[0]) {
                         url shouldBe zaak.url
-                        aardRelatie shouldBe AardRelatie.ONDERWERP
+                        aardRelatie shouldBe AardRelatieEnum.ONDERWERP
                     }
                 }
             }
@@ -855,10 +857,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
                 restZaak shouldBe updatedRestZaak
                 with(patchZaakSlot.captured) {
-                    zaakgeometrie.shouldBeInstanceOf<Point>()
-                    with((zaakgeometrie as Point).coordinates) {
-                        latitude.toDouble() shouldBe restGeometry.point!!.latitude
-                        longitude.toDouble() shouldBe restGeometry.point!!.longitude
+                    zaakgeometrie.shouldBeInstanceOf<GeoJSONGeometry>()
+                    with((zaakgeometrie as GeoJSONGeometry).coordinates) {
+                        first().first().first()[0].toDouble() shouldBe restGeometry.point!!.latitude
+                        first().first().first()[1].toDouble() shouldBe restGeometry.point!!.longitude
                     }
                 }
             }

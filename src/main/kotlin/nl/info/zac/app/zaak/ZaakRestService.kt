@@ -28,7 +28,9 @@ import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.BetrokkeneType
-import net.atos.client.zgw.zrc.model.RelevanteZaak
+import net.atos.client.zgw.zrc.model.GeometryToBeDeleted
+import net.atos.client.zgw.zrc.model.HoofdzaakZaakPatch
+import net.atos.client.zgw.zrc.model.RelevantezaakZaakPatch
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.client.zgw.zrc.model.ZaakListParameters
@@ -53,6 +55,8 @@ import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
+import nl.info.client.zgw.zrc.model.generated.RelevanteZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isOpen
@@ -370,6 +374,7 @@ class ZaakRestService @Inject constructor(
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).wijzigenLocatie)
         val zaakPatch = Zaak().apply {
             // TODO: solution for geometry to be deleted
+            // zaakgeometrie = restZaakLocatieGegevens.geometrie?.toGeometry() ?: GeometryToBeDeleted()
             zaakgeometrie = restZaakLocatieGegevens.geometrie?.toGeoJSONGeometry()
         }
         val updatedZaak = zrcClientService.patchZaak(
@@ -733,16 +738,16 @@ class ZaakRestService @Inject constructor(
         when (restZaakLinkData.relatieType) {
             RelatieType.HOOFDZAAK -> koppelHoofdEnDeelzaak(zaakToLinkTo, zaak)
             RelatieType.DEELZAAK -> koppelHoofdEnDeelzaak(zaak, zaakToLinkTo)
-            RelatieType.VERVOLG -> koppelRelevantezaken(zaak, zaakToLinkTo, AardRelatie.VERVOLG)
-            RelatieType.ONDERWERP -> koppelRelevantezaken(zaak, zaakToLinkTo, AardRelatie.ONDERWERP)
-            RelatieType.BIJDRAGE -> koppelRelevantezaken(zaak, zaakToLinkTo, AardRelatie.BIJDRAGE)
+            RelatieType.VERVOLG -> koppelRelevantezaken(zaak, zaakToLinkTo, AardRelatieEnum.VERVOLG)
+            RelatieType.ONDERWERP -> koppelRelevantezaken(zaak, zaakToLinkTo, AardRelatieEnum.ONDERWERP)
+            RelatieType.BIJDRAGE -> koppelRelevantezaken(zaak, zaakToLinkTo, AardRelatieEnum.BIJDRAGE)
             RelatieType.OVERIG -> throw BadRequestException("Relatie type 'OVERIG' is not supported.")
         }
         restZaakLinkData.reverseRelatieType?.let { reverseRelatieType ->
             when (reverseRelatieType) {
-                RelatieType.VERVOLG -> koppelRelevantezaken(zaakToLinkTo, zaak, AardRelatie.VERVOLG)
-                RelatieType.ONDERWERP -> koppelRelevantezaken(zaakToLinkTo, zaak, AardRelatie.ONDERWERP)
-                RelatieType.BIJDRAGE -> koppelRelevantezaken(zaakToLinkTo, zaak, AardRelatie.BIJDRAGE)
+                RelatieType.VERVOLG -> koppelRelevantezaken(zaakToLinkTo, zaak, AardRelatieEnum.VERVOLG)
+                RelatieType.ONDERWERP -> koppelRelevantezaken(zaakToLinkTo, zaak, AardRelatieEnum.ONDERWERP)
+                RelatieType.BIJDRAGE -> koppelRelevantezaken(zaakToLinkTo, zaak, AardRelatieEnum.BIJDRAGE)
                 else -> error("Reverse relatie type $reverseRelatieType is not supported")
             }
         }
@@ -989,15 +994,17 @@ class ZaakRestService @Inject constructor(
         )
     }
 
-    // TODO: refactor..
     private fun addRelevanteZaak(
         relevanteZaken: MutableList<RelevanteZaak>?,
-        andereZaak: URI,
-        aardRelatie: AardRelatie
+        andereZaakURI: URI,
+        aardRelatie: AardRelatieEnum
     ): List<RelevanteZaak> {
-        val relevanteZaak = RelevanteZaak(andereZaak, aardRelatie)
+        val relevanteZaak = RelevanteZaak().apply {
+            this.url = andereZaakURI
+            this.aardRelatie = aardRelatie
+        }
         return relevanteZaken?.apply {
-            if (none { it.`is`(andereZaak, aardRelatie) }) add(relevanteZaak)
+            if (none { it.aardRelatie == aardRelatie && it.url == andereZaakURI }) add(relevanteZaak)
         } ?: listOf(relevanteZaak)
     }
 
@@ -1050,9 +1057,9 @@ class ZaakRestService @Inject constructor(
 
     private fun koppelHoofdEnDeelzaak(hoofdZaak: Zaak, deelZaak: Zaak) {
         // TODO: check
-        zrcClientService.patchZaak(deelZaak.uuid, hoofdZaak)
-        // Hiervoor wordt door open zaak alleen voor de deelzaak een notificatie verstuurd.
-        // Dus zelf het ScreenEvent versturen voor de hoofdzaak!
+        zrcClientService.patchZaak(deelZaak.uuid, HoofdzaakZaakPatch(hoofdZaak.url))
+        // Open Zaak only sends a notification for the subcase.
+        // So we manually send a ScreenEvent for the main case.
         indexingService.addOrUpdateZaak(hoofdZaak.uuid, false)
         eventingService.send(ScreenEventType.ZAAK.updated(hoofdZaak.uuid))
     }
@@ -1085,17 +1092,18 @@ class ZaakRestService @Inject constructor(
     private fun koppelRelevantezaken(
         zaak: Zaak,
         andereZaak: Zaak,
-        aardRelatie: AardRelatie
+        aardRelatie: AardRelatieEnum
     ) {
         // TODO: fix. aardrelatie moet gezet worden
         zrcClientService.patchZaak(
             zaak.uuid,
-            andereZaak
-//            addRelevanteZaak(
-//                    zaak.relevanteAndereZaken,
-//                    andereZaak.url,
-//                    aardRelatie
-//                )
+            RelevantezaakZaakPatch(
+                addRelevanteZaak(
+                    zaak.relevanteAndereZaken,
+                    andereZaak.url,
+                    aardRelatie
+                )
+            )
         )
     }
 
@@ -1187,14 +1195,13 @@ class ZaakRestService @Inject constructor(
                 count()
             }
 
+
     private fun removeRelevanteZaak(
         relevanteZaken: MutableList<RelevanteZaak>?,
-        andereZaak: URI,
-        aardRelatie: AardRelatie
+        andereZaakURI: URI,
+        aardRelatie: AardRelatieEnum
     ): List<RelevanteZaak>? {
-        relevanteZaken?.removeAll(
-            relevanteZaken.filter { it.`is`(andereZaak, aardRelatie) }
-        )
+        relevanteZaken?.removeIf { it.aardRelatie == aardRelatie && it.url == andereZaakURI }
         return relevanteZaken
     }
 

@@ -11234,8 +11234,8 @@ components:
       enum:
       - blijvend_bewaren
       - vernietigen
-      # manual changed by INFO.nl: need to allow for empty values returned by the API
-      # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
+      # manual change by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+      # OpenAPI Generator does not support the `oneOf` construct fully yet
       - ''
       type: string
     ArchiefstatusEnum:
@@ -11439,8 +11439,8 @@ components:
 
             * `gemachtigde` - De betrokkene in de rol bij de zaak is door een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
             * `machtiginggever` - De betrokkene in de rol bij de zaak heeft een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
-          # manual changed by INFO.nl: need to allow for empty values returned by the API
-          # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
+          # manual change by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+          # OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
           - $ref: '#/components/schemas/IndicatieMachtigingEnum'
           #- $ref: '#/components/schemas/BlankEnum'
@@ -11532,8 +11532,8 @@ components:
 
             * `gemachtigde` - De betrokkene in de rol bij de zaak is door een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
             * `machtiginggever` - De betrokkene in de rol bij de zaak heeft een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
-          # manual changed by INFO.nl: need to allow for empty values returned by the API
-          # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
+          # manual change by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+          # OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
             - $ref: '#/components/schemas/IndicatieMachtigingEnum'
             # - $ref: '#/components/schemas/BlankEnum'
@@ -11750,8 +11750,8 @@ components:
       - nog_niet
       - gedeeltelijk
       - geheel
-      # manual changed by INFO.nl: need to allow for empty values returned by the API
-      # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
+      # manual change by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+      #  OpenAPI Generator does not support the `oneOf` construct fully yet
       - ''
       type: string
     BetrokkeneTypeEnum:
@@ -11762,8 +11762,8 @@ components:
         - organisatorische_eenheid
         - medewerker
       type: string
-      # manual changed by INFO.nl: need to allow for empty values returned by the API
-      # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
+      # manual change by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+      # OpenAPI Generator does not support the `oneOf` construct fully yet
 #    BlankEnum:
 #      enum:
 #        - ''
@@ -12193,16 +12193,16 @@ components:
       - m
       - v
       - o
-      # manual changed by INFO.nl: need to allow for empty values returned by the API
-      # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
+      # manual change by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+      # OpenAPI Generator does not support the `oneOf` construct fully yet
       - ''
       type: string
     IndicatieMachtigingEnum:
       enum:
       - gemachtigde
       - machtiginggever
-      # manual changed by INFO.nl: need to allow for empty values returned by the API
-      # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
+      # manual change by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+      # OpenAPI Generator does not support the `oneOf` construct fully yet
       - ''
       type: string
     InnRechtsvormEnum:
@@ -12226,8 +12226,8 @@ components:
       - kapitaalvennootschap_binnen_eer
       - overige_buitenlandse_rechtspersoon_vennootschap
       - kapitaalvennootschap_buiten_eer
-      # manual changed by INFO.nl: need to allow for empty values returned by the API
-      # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
+      # manual change by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+      # OpenAPI Generator does not support the `oneOf` construct fully yet
       - ''
       type: string
     KlantContact:
@@ -12466,8 +12466,8 @@ components:
             * `m` - Man
             * `v` - Vrouw
             * `o` - Onbekend
-          # manual changed by INFO.nl: need to allow for empty values returned by the API
-          # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
+          # manual change by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+          # OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
             - $ref: '#/components/schemas/GeslachtsaanduidingEnum'
             #- $ref: '#/components/schemas/BlankEnum'
@@ -12525,8 +12525,8 @@ components:
             * `m` - Man
             * `v` - Vrouw
             * `o` - Onbekend
-          # manual changed by INFO.nl: need to allow for empty values returned by the API
-          # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
+          # manual change by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+          # OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
             - $ref: '#/components/schemas/GeslachtsaanduidingEnum'
             #- $ref: '#/components/schemas/BlankEnum'
@@ -12571,8 +12571,8 @@ components:
           maxLength: 500
         innRechtsvorm:
           description: De juridische vorm van de NIET-NATUURLIJK PERSOON.
-          # manual changed by INFO.nl: need to allow for empty values returned by the API
-          # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
+          # manual change by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+          # OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
             - $ref: '#/components/schemas/InnRechtsvormEnum'
             #- $ref: '#/components/schemas/BlankEnum'
@@ -12619,8 +12619,8 @@ components:
           maxLength: 500
         innRechtsvorm:
           description: De juridische vorm van de NIET-NATUURLIJK PERSOON.
-          # manual changed by INFO.nl: need to allow for empty values returned by the API
-          # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
+          # manual change by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+          # OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
             - $ref: '#/components/schemas/InnRechtsvormEnum'
             #- $ref: '#/components/schemas/BlankEnum'
@@ -14138,8 +14138,8 @@ components:
             * `nog_niet` - De met de zaak gemoeide kosten zijn (nog) niet betaald.
             * `gedeeltelijk` - De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
             * `geheel` - De met de zaak gemoeide kosten zijn geheel betaald.
-          # manual changed by INFO.nl: need to allow for empty values returned by the API
-          # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
+          # manual change by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+          # OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
             - $ref: '#/components/schemas/BetalingsindicatieEnum'
             #- $ref: '#/components/schemas/BlankEnum'
@@ -14204,8 +14204,8 @@ components:
 
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
-          # manual changed by INFO.nl: need to allow for empty values returned by the API
-          # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
+          # manual change by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+          # OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
             - $ref: '#/components/schemas/ArchiefnominatieEnum'
             #- $ref: '#/components/schemas/BlankEnum'
@@ -15394,8 +15394,8 @@ components:
 
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
-          # manual changed by INFO.nl: need to allow for empty values returned by the API
-          # and unfortunately OpenAPI Generator does not support the `oneOf` construct fully yet
+          # manual change by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
+          # OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
             - $ref: '#/components/schemas/ArchiefnominatieEnum'
             #- $ref: '#/components/schemas/BlankEnum'

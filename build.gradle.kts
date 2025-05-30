@@ -608,7 +608,7 @@ tasks {
         inputSpec.set("$rootDir/src/main/resources/api-specs/bag/bag-openapi.yaml")
         outputDir.set("$rootDir/src/generated/bag/java")
         modelPackage.set("nl.info.client.bag.model.generated")
-        // we need to use the java8-localdatetime date library for this client
+        // we need to use the java8-localdatetime date library for this client,
         // or else certain date time fields for this client cannot be deserialized
         configOptions.set(
             mapOf(

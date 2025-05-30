@@ -15,6 +15,7 @@ import net.atos.client.zgw.zrc.model.Point
 import net.atos.client.zgw.zrc.model.Polygon
 import java.lang.reflect.Type
 
+// TODO: refactor this. or can it be removed even?
 class GeometryJsonbDeserializer : JsonbDeserializer<Geometry> {
     override fun deserialize(
         parser: JsonParser,
