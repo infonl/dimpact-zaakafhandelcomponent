@@ -7,7 +7,9 @@ package net.atos.client.zgw.zrc.model;
 import java.net.URI;
 
 import jakarta.json.bind.annotation.JsonbNillable;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 
+// TODO: still needed? if so, convert to Kotlin
 public class HoofdzaakZaakPatch extends Zaak {
 
     @JsonbNillable

@@ -164,9 +164,8 @@ class RestZaakConverter @Inject constructor(
         )
     }
 
-    // TODO: check..
     fun toZaak(restZaak: RestZaak, zaaktype: ZaakType) = Zaak(
-        zaaktype.url,
+        null,
         restZaak.uuid,
         restZaak.einddatum,
         null,
@@ -178,10 +177,10 @@ class RestZaakConverter @Inject constructor(
         null,
         null
     ).apply {
-        // TODO:
-        // restZaak.startdatum,
-        // configuratieService.readBronOrganisatie(),
-        // configuratieService.readVerantwoordelijkeOrganisatie()
+        this.bronorganisatie = configuratieService.readBronOrganisatie()
+        this.verantwoordelijkeOrganisatie = configuratieService.readVerantwoordelijkeOrganisatie()
+        this.startdatum = restZaak.startdatum
+        this.zaaktype = zaaktype.url
         this.communicatiekanaalNaam = restZaak.communicatiekanaal
         this.omschrijving = restZaak.omschrijving
         this.toelichting = restZaak.toelichting
