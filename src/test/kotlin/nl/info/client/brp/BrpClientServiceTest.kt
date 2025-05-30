@@ -19,6 +19,7 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.admin.model.createZaakafhandelParameters
+import java.util.Optional
 
 const val ZAAK = "ZAAK-2000-00002"
 const val CONTEXT = "$ZAAK-134"
@@ -33,8 +34,8 @@ class BrpClientServiceTest : BehaviorSpec({
     val zaakafhandelParameterService: ZaakafhandelParameterService = mockk()
     val configuredBrpClientService = BrpClientService(
         personenApi,
-        QUERY_PERSONEN_PURPOSE,
-        RETRIEVE_PERSOON_PURPOSE,
+        Optional.of(QUERY_PERSONEN_PURPOSE),
+        Optional.of(RETRIEVE_PERSOON_PURPOSE),
         zrcClientService,
         zaakafhandelParameterService
     )
@@ -165,8 +166,8 @@ class BrpClientServiceTest : BehaviorSpec({
         )
         val brpClientService = BrpClientService(
             personenApi = personenApi,
-            queryPersonenDefaultPurpose = null,
-            retrievePersoonDefaultPurpose = RETRIEVE_PERSOON_PURPOSE,
+            queryPersonenDefaultPurpose = Optional.empty(),
+            retrievePersoonDefaultPurpose = Optional.of(RETRIEVE_PERSOON_PURPOSE),
             zrcClientService = zrcClientService,
             zaakafhandelParameterService = zaakafhandelParameterService
         )
@@ -197,8 +198,8 @@ class BrpClientServiceTest : BehaviorSpec({
         )
         val brpClientService = BrpClientService(
             personenApi = personenApi,
-            queryPersonenDefaultPurpose = QUERY_PERSONEN_PURPOSE,
-            retrievePersoonDefaultPurpose = null,
+            queryPersonenDefaultPurpose = Optional.of(QUERY_PERSONEN_PURPOSE),
+            retrievePersoonDefaultPurpose = Optional.empty(),
             zrcClientService = zrcClientService,
             zaakafhandelParameterService = zaakafhandelParameterService
         )

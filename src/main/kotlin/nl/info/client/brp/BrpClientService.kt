@@ -30,6 +30,8 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
+import java.util.Optional
+import kotlin.jvm.optionals.getOrNull
 
 @ApplicationScoped
 @AllOpen
@@ -38,10 +40,10 @@ class BrpClientService @Inject constructor(
     @RestClient val personenApi: PersonenApi,
 
     @ConfigProperty(name = ENV_VAR_BRP_DOELBINDING_ZOEKMET)
-    private val queryPersonenDefaultPurpose: String?,
+    private val queryPersonenDefaultPurpose: Optional<String>,
 
     @ConfigProperty(name = ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET)
-    private val retrievePersoonDefaultPurpose: String?,
+    private val retrievePersoonDefaultPurpose: Optional<String>,
 
     private val zrcClientService: ZrcClientService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService
@@ -74,7 +76,7 @@ class BrpClientService @Inject constructor(
                 personenQuery = updatedQuery,
                 purpose = resolvePurposeFromContext(
                     auditEvent,
-                    queryPersonenDefaultPurpose
+                    queryPersonenDefaultPurpose.getOrNull()
                 ) { it.brpDoelbindingen?.zoekWaarde },
                 auditEvent = auditEvent
             )
@@ -92,7 +94,7 @@ class BrpClientService @Inject constructor(
             personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer),
             purpose = resolvePurposeFromContext(
                 auditEvent,
-                retrievePersoonDefaultPurpose
+                retrievePersoonDefaultPurpose.getOrNull()
             ) { it.brpDoelbindingen?.raadpleegWaarde },
             auditEvent = auditEvent
         ) as RaadpleegMetBurgerservicenummerResponse
@@ -102,23 +104,18 @@ class BrpClientService @Inject constructor(
         auditEvent: String,
         defaultPurpose: String?,
         extractPurpose: (ZaakafhandelParameters) -> String?
-    ): String? {
-        val match = Regex("""ZAAK-\d{4}-\d+""")
-            .find(auditEvent)
-        val zaakIdentificatie = if (match != null) {
-            match.value
-        } else {
-            return defaultPurpose
-        }
-
-        return runCatching {
-            val zaak = zrcClientService.readZaakByID(zaakIdentificatie)
-            val parameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                zaak.zaaktype.extractUuid()
-            )
-            extractPurpose(parameters)
-        }.getOrNull() ?: defaultPurpose
-    }
+    ): String? = Regex("""ZAAK-\d{4}-\d+""")
+        .find(auditEvent)
+        ?.value
+        ?.let { zaakIdentificatie ->
+            runCatching {
+                val zaak = zrcClientService.readZaakByID(zaakIdentificatie)
+                val parameters = zaakafhandelParameterService.readZaakafhandelParameters(
+                    zaak.zaaktype.extractUuid()
+                )
+                extractPurpose(parameters)
+            }.getOrNull()
+        } ?: defaultPurpose
 
     private fun createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer: String) =
         RaadpleegMetBurgerservicenummer().apply {
