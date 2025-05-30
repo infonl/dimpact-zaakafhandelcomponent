@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-@file:Suppress("StringLiteralDuplication")
-
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -60,6 +58,7 @@ private const val HEADER_VERWERKING = "X-Verwerking"
  * This test assumes a roltype has been created in a previously run test.
  */
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
+@Suppress("LongParameterList")
 class KlantRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
