@@ -68,15 +68,15 @@ class BrpClientService @Inject constructor(
         private val FIELDS_PERSOON_BEPERKT = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING)
     }
 
-    fun queryPersonen(personenQuery: PersonenQuery, requestContext: String): PersonenQueryResponse =
+    fun queryPersonen(personenQuery: PersonenQuery, auditEvent: String): PersonenQueryResponse =
         updateQuery(personenQuery).let { updatedQuery ->
             personenApi.personen(
                 personenQuery = updatedQuery,
                 purpose = resolvePurposeFromContext(
-                    requestContext,
+                    auditEvent,
                     queryPersonenDefaultPurpose
                 ) { it.brpDoelbindingen?.zoekWaarde },
-                process = requestContext
+                auditEvent = auditEvent
             )
         }
 
@@ -87,14 +87,14 @@ class BrpClientService @Inject constructor(
      * @return the person if found, otherwise null
      *
      */
-    fun retrievePersoon(burgerservicenummer: String, requestContext: String): Persoon? = (
+    fun retrievePersoon(burgerservicenummer: String, auditEvent: String): Persoon? = (
         personenApi.personen(
             personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer),
             purpose = resolvePurposeFromContext(
-                requestContext,
+                auditEvent,
                 retrievePersoonDefaultPurpose
             ) { it.brpDoelbindingen?.raadpleegWaarde },
-            process = requestContext
+            auditEvent = auditEvent
         ) as RaadpleegMetBurgerservicenummerResponse
         ).personen?.firstOrNull()
 
@@ -103,9 +103,13 @@ class BrpClientService @Inject constructor(
         defaultPurpose: String?,
         extractPurpose: (ZaakafhandelParameters) -> String?
     ): String? {
-        val zaakIdentificatie = Regex("""ZAAK-\d{4}-\d+""")
+        val match = Regex("""ZAAK-\d{4}-\d+""")
             .find(auditEvent)
-            ?.value ?: return defaultPurpose
+        val zaakIdentificatie = if (match != null) {
+            match.value
+        } else {
+            return defaultPurpose
+        }
 
         return runCatching {
             val zaak = zrcClientService.readZaakByID(zaakIdentificatie)

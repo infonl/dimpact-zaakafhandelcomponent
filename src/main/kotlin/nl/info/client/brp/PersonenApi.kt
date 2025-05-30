@@ -63,6 +63,6 @@ interface PersonenApi {
     fun personen(
         personenQuery: PersonenQuery,
         @HeaderParam(BRPClientHeadersFactory.X_DOELBINDING) purpose: String?,
-        @HeaderParam(BRPClientHeadersFactory.X_VERWERKING) process: String?
+        @HeaderParam(BRPClientHeadersFactory.X_VERWERKING) auditEvent: String?
     ): PersonenQueryResponse
 }
