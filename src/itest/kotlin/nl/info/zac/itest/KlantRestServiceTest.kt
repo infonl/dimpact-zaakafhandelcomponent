@@ -2,6 +2,9 @@
  * SPDX-FileCopyrightText: 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
+@file:Suppress("StringLiteralDuplication")
+
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
