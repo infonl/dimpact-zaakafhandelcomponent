@@ -30,8 +30,6 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
-import java.util.Optional
-import kotlin.jvm.optionals.getOrNull
 
 @ApplicationScoped
 @AllOpen
@@ -40,10 +38,10 @@ class BrpClientService @Inject constructor(
     @RestClient val personenApi: PersonenApi,
 
     @ConfigProperty(name = ENV_VAR_BRP_DOELBINDING_ZOEKMET)
-    private val queryPersonenDefaultPurpose: Optional<String>,
+    private val queryPersonenDefaultPurpose: String?,
 
     @ConfigProperty(name = ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET)
-    private val retrievePersoonDefaultPurpose: Optional<String>,
+    private val retrievePersoonDefaultPurpose: String?,
 
     private val zrcClientService: ZrcClientService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService
@@ -76,7 +74,7 @@ class BrpClientService @Inject constructor(
                 personenQuery = updatedQuery,
                 purpose = resolvePurposeFromContext(
                     requestContext,
-                    queryPersonenDefaultPurpose.getOrNull()
+                    queryPersonenDefaultPurpose
                 ) { it.brpDoelbindingen?.zoekWaarde },
                 process = requestContext
             )
@@ -94,7 +92,7 @@ class BrpClientService @Inject constructor(
             personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer),
             purpose = resolvePurposeFromContext(
                 requestContext,
-                retrievePersoonDefaultPurpose.getOrNull()
+                retrievePersoonDefaultPurpose
             ) { it.brpDoelbindingen?.raadpleegWaarde },
             process = requestContext
         ) as RaadpleegMetBurgerservicenummerResponse
