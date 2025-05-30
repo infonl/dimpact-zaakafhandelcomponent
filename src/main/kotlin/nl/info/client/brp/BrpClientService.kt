@@ -6,6 +6,8 @@ package nl.info.client.brp
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.ZaakafhandelParameters
 import nl.info.client.brp.model.generated.PersonenQuery
 import nl.info.client.brp.model.generated.PersonenQueryResponse
 import nl.info.client.brp.model.generated.Persoon
@@ -22,6 +24,8 @@ import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_NUMMERAANDUIDING_IDENTIFICATIE
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_POSTCODE_EN_HUISNUMMER
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -39,7 +43,10 @@ class BrpClientService @Inject constructor(
     private val queryPersonenDefaultPurpose: Optional<String>,
 
     @ConfigProperty(name = ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET)
-    private val retrievePersoonDefaultPurpose: Optional<String>
+    private val retrievePersoonDefaultPurpose: Optional<String>,
+
+    private val zrcClientService: ZrcClientService,
+    private val zaakafhandelParameterService: ZaakafhandelParameterService
 ) {
     companion object {
         private const val ENV_VAR_BRP_DOELBINDING_ZOEKMET = "brp.doelbinding.zoekmet"
@@ -63,12 +70,15 @@ class BrpClientService @Inject constructor(
         private val FIELDS_PERSOON_BEPERKT = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING)
     }
 
-    fun queryPersonen(personenQuery: PersonenQuery, requestContext: String): PersonenQueryResponse =
-        updateQuery(personenQuery).let {
+    fun queryPersonen(personenQuery: PersonenQuery, auditEvent: String): PersonenQueryResponse =
+        updateQuery(personenQuery).let { updatedQuery ->
             personenApi.personen(
-                personenQuery = it,
-                purpose = queryPersonenDefaultPurpose.getOrNull(),
-                process = requestContext
+                personenQuery = updatedQuery,
+                purpose = resolvePurposeFromContext(
+                    auditEvent,
+                    queryPersonenDefaultPurpose.getOrNull()
+                ) { it.brpDoelbindingen?.zoekWaarde },
+                auditEvent = auditEvent
             )
         }
 
@@ -79,13 +89,33 @@ class BrpClientService @Inject constructor(
      * @return the person if found, otherwise null
      *
      */
-    fun retrievePersoon(burgerservicenummer: String, requestContext: String): Persoon? = (
+    fun retrievePersoon(burgerservicenummer: String, auditEvent: String): Persoon? = (
         personenApi.personen(
             personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer),
-            purpose = retrievePersoonDefaultPurpose.getOrNull(),
-            process = requestContext
+            purpose = resolvePurposeFromContext(
+                auditEvent,
+                retrievePersoonDefaultPurpose.getOrNull()
+            ) { it.brpDoelbindingen?.raadpleegWaarde },
+            auditEvent = auditEvent
         ) as RaadpleegMetBurgerservicenummerResponse
         ).personen?.firstOrNull()
+
+    private fun resolvePurposeFromContext(
+        auditEvent: String,
+        defaultPurpose: String?,
+        extractPurpose: (ZaakafhandelParameters) -> String?
+    ): String? = Regex("""ZAAK-\d{4}-\d+""")
+        .find(auditEvent)
+        ?.value
+        ?.let { zaakIdentificatie ->
+            runCatching {
+                val zaak = zrcClientService.readZaakByID(zaakIdentificatie)
+                val parameters = zaakafhandelParameterService.readZaakafhandelParameters(
+                    zaak.zaaktype.extractUuid()
+                )
+                extractPurpose(parameters)
+            }.getOrNull()
+        } ?: defaultPurpose
 
     private fun createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer: String) =
         RaadpleegMetBurgerservicenummer().apply {

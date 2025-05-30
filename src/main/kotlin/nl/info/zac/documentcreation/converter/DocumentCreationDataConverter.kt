@@ -131,8 +131,8 @@ class DocumentCreationDataConverter @Inject constructor(
             )
         }
 
-    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, requestContext: String): AanvragerData? {
-        return brpClientService.retrievePersoon(bsn, requestContext)?.let { convertToAanvragerDataPersoon(it) }
+    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, auditEvent: String): AanvragerData? {
+        return brpClientService.retrievePersoon(bsn, auditEvent)?.let { convertToAanvragerDataPersoon(it) }
     }
 
     private fun convertToAanvragerDataPersoon(persoon: Persoon) =

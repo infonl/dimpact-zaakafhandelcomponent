@@ -10,12 +10,19 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.BrpDoelbindingen
 import nl.info.client.brp.model.createPersoon
 import nl.info.client.brp.model.createRaadpleegMetBurgerservicenummer
 import nl.info.client.brp.model.createRaadpleegMetBurgerservicenummerResponse
+import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.zac.admin.model.createZaakafhandelParameters
 import java.util.Optional
 
-const val CONTEXT = "ZAAK-2000-00002-134"
+const val ZAAK = "ZAAK-2000-00002"
+const val CONTEXT = "$ZAAK-134"
 const val ACTION = "E-mail verzenden"
 const val QUERY_PERSONEN_PURPOSE = "testQueryPurpose"
 const val RETRIEVE_PERSOON_PURPOSE = "testRetrievePurpose"
@@ -23,10 +30,14 @@ const val REQUEST_CONTEXT = "$CONTEXT@$ACTION"
 
 class BrpClientServiceTest : BehaviorSpec({
     val personenApi: PersonenApi = mockk<PersonenApi>()
-    var configuredBrpClientService = BrpClientService(
+    val zrcClientService: ZrcClientService = mockk()
+    val zaakafhandelParameterService: ZaakafhandelParameterService = mockk()
+    val configuredBrpClientService = BrpClientService(
         personenApi,
         Optional.of(QUERY_PERSONEN_PURPOSE),
-        Optional.of(RETRIEVE_PERSOON_PURPOSE)
+        Optional.of(RETRIEVE_PERSOON_PURPOSE),
+        zrcClientService,
+        zaakafhandelParameterService
     )
     beforeEach {
         checkUnnecessaryStub()
@@ -40,8 +51,26 @@ class BrpClientServiceTest : BehaviorSpec({
         val raadpleegMetBurgerservicenummerResponse = createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
         )
+        val zaak = createZaak()
+        val retrievePersoonPurpose = "raadpleegWaarde"
+        val zaakafhandelParameters = createZaakafhandelParameters(
+            brpDoelbindingen = BrpDoelbindingen().apply {
+                raadpleegWaarde = retrievePersoonPurpose
+            }
+        )
+
         every {
-            personenApi.personen(any(), RETRIEVE_PERSOON_PURPOSE, REQUEST_CONTEXT)
+            zrcClientService.readZaakByID(ZAAK)
+        } returns zaak
+        every {
+            zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid())
+        } returns zaakafhandelParameters
+        every {
+            personenApi.personen(
+                any(),
+                eq(retrievePersoonPurpose),
+                eq(REQUEST_CONTEXT)
+            )
         } returns raadpleegMetBurgerservicenummerResponse
 
         When("find person is called with the BSN of the person") {
@@ -93,8 +122,26 @@ class BrpClientServiceTest : BehaviorSpec({
         val raadpleegMetBurgerservicenummerResponse = createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
         )
+        val zaak = createZaak()
+        val queryPersonenPurpose = "zoekWaarde"
+        val zaakafhandelParameters = createZaakafhandelParameters(
+            brpDoelbindingen = BrpDoelbindingen().apply {
+                zoekWaarde = queryPersonenPurpose
+            }
+        )
+
         every {
-            personenApi.personen(any(), QUERY_PERSONEN_PURPOSE, REQUEST_CONTEXT)
+            zrcClientService.readZaakByID(ZAAK)
+        } returns zaak
+        every {
+            zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid())
+        } returns zaakafhandelParameters
+        every {
+            personenApi.personen(
+                any(),
+                eq(queryPersonenPurpose),
+                eq(REQUEST_CONTEXT)
+            )
         } returns raadpleegMetBurgerservicenummerResponse
 
         When("a query is run on personen for this BSN") {
@@ -120,7 +167,9 @@ class BrpClientServiceTest : BehaviorSpec({
         val brpClientService = BrpClientService(
             personenApi = personenApi,
             queryPersonenDefaultPurpose = Optional.empty(),
-            retrievePersoonDefaultPurpose = Optional.of(RETRIEVE_PERSOON_PURPOSE)
+            retrievePersoonDefaultPurpose = Optional.of(RETRIEVE_PERSOON_PURPOSE),
+            zrcClientService = zrcClientService,
+            zaakafhandelParameterService = zaakafhandelParameterService
         )
 
         every {
@@ -150,7 +199,9 @@ class BrpClientServiceTest : BehaviorSpec({
         val brpClientService = BrpClientService(
             personenApi = personenApi,
             queryPersonenDefaultPurpose = Optional.of(QUERY_PERSONEN_PURPOSE),
-            retrievePersoonDefaultPurpose = Optional.empty()
+            retrievePersoonDefaultPurpose = Optional.empty(),
+            zrcClientService = zrcClientService,
+            zaakafhandelParameterService = zaakafhandelParameterService
         )
 
         every {
