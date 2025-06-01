@@ -28,7 +28,6 @@ import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.BetrokkeneType
-import net.atos.client.zgw.zrc.model.GeometryToBeDeleted
 import net.atos.client.zgw.zrc.model.HoofdzaakZaakPatch
 import net.atos.client.zgw.zrc.model.RelevantezaakZaakPatch
 import net.atos.client.zgw.zrc.model.Rol
@@ -348,20 +347,16 @@ class ZaakRestService @Inject constructor(
                 }
             }
         }
-
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID,
             restZaakConverter.convertToPatch(restZaakEditMetRedenGegevens.zaak),
             restZaakEditMetRedenGegevens.reden
         )
-
-        val oldFinalDate = zaak.uiterlijkeEinddatumAfdoening
         restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening?.let { newFinalDate ->
-            if (newFinalDate.isBefore(oldFinalDate) && adjustFinalDateForOpenTasks(zaakUUID, newFinalDate) > 0) {
+            if (newFinalDate.isBefore(zaak.uiterlijkeEinddatumAfdoening) && adjustFinalDateForOpenTasks(zaakUUID, newFinalDate) > 0) {
                 eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak))
             }
         }
-
         return restZaakConverter.toRestZaak(updatedZaak)
     }
 
@@ -378,9 +373,9 @@ class ZaakRestService @Inject constructor(
             zaakgeometrie = restZaakLocatieGegevens.geometrie?.toGeoJSONGeometry()
         }
         val updatedZaak = zrcClientService.patchZaak(
-            zaakUUID,
-            zaakPatch,
-            restZaakLocatieGegevens.reden
+            zaakUUID = zaakUUID,
+            zaak = zaakPatch,
+            toelichting = restZaakLocatieGegevens.reden
         )
         return restZaakConverter.toRestZaak(updatedZaak)
     }
@@ -1194,7 +1189,6 @@ class ZaakRestService @Inject constructor(
                 }
                 count()
             }
-
 
     private fun removeRelevanteZaak(
         relevanteZaken: MutableList<RelevanteZaak>?,

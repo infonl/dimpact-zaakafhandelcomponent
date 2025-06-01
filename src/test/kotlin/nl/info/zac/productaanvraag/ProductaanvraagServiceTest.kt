@@ -19,7 +19,6 @@ import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.or.`object`.model.createObjectRecord
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
-import net.atos.client.zgw.zrc.model.Point
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.admin.ZaakafhandelParameterService
@@ -305,10 +304,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         .take(1000)
                     with(zaakgeometrie) {
                         type shouldBe GeometryTypeEnum.POINT
-                        with(this.coordinates) {
-                            first().first().first()[0].toDouble() shouldBe coordinates[0]
-                            first().first().first()[1].toDouble() shouldBe coordinates[1]
-                        }
+                        coordinates[0].toDouble() shouldBe coordinates[0]
+                        coordinates[1].toDouble() shouldBe coordinates[1]
                     }
                 }
                 with(roleToBeCreated.captured) {

@@ -12133,14 +12133,19 @@ components:
     GeoJSONGeometry:
       title: GeoJSONGeometry
       type: object
-      oneOf:
+      # manual change by INFO.nl:
+      # With 'oneOf' incorrect Java client code is generated, which cannot be used for 'Point' geometries.
+      # OpenAPI Generator does not support the `oneOf` construct fully yet.
+      # At the moment ZAC only supports 'Point' geometries anyway.
+      # oneOf:
+      allOf:
         - $ref: '#/components/schemas/Point'
-        - $ref: '#/components/schemas/MultiPoint'
-        - $ref: '#/components/schemas/LineString'
-        - $ref: '#/components/schemas/MultiLineString'
-        - $ref: '#/components/schemas/Polygon'
-        - $ref: '#/components/schemas/MultiPolygon'
-        - $ref: '#/components/schemas/GeometryCollection'
+#        - $ref: '#/components/schemas/MultiPoint'
+#        - $ref: '#/components/schemas/LineString'
+#        - $ref: '#/components/schemas/MultiLineString'
+#        - $ref: '#/components/schemas/Polygon'
+#        - $ref: '#/components/schemas/MultiPolygon'
+#        - $ref: '#/components/schemas/GeometryCollection'
       discriminator:
         propertyName: type
     GeoWithinRequest:

@@ -192,20 +192,18 @@ class RestZaakConverter @Inject constructor(
         this.zaakgeometrie = restZaak.zaakgeometrie?.toGeoJSONGeometry()
     }
 
-    fun convertToPatch(restZaak: RestZaak): Zaak {
-        val zaak = Zaak()
-        zaak.toelichting = restZaak.toelichting
-        zaak.omschrijving = restZaak.omschrijving
-        zaak.startdatum = restZaak.startdatum
-        zaak.einddatumGepland = restZaak.einddatumGepland
-        zaak.uiterlijkeEinddatumAfdoening = restZaak.uiterlijkeEinddatumAfdoening
-        zaak.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
+    fun convertToPatch(restZaak: RestZaak) = Zaak().apply {
+        toelichting = restZaak.toelichting
+        omschrijving = restZaak.omschrijving
+        startdatum = restZaak.startdatum
+        einddatumGepland = restZaak.einddatumGepland
+        uiterlijkeEinddatumAfdoening = restZaak.uiterlijkeEinddatumAfdoening
+        vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
             // convert this enum to uppercase in case the client sends it in lowercase
             VertrouwelijkheidaanduidingEnum.valueOf(it.uppercase())
         }
-        zaak.communicatiekanaalNaam = restZaak.communicatiekanaal
-        zaak.zaakgeometrie = restZaak.zaakgeometrie?.toGeoJSONGeometry()
-        return zaak
+        communicatiekanaalNaam = restZaak.communicatiekanaal
+        zaakgeometrie = restZaak.zaakgeometrie?.toGeoJSONGeometry()
     }
 
     @Suppress("NestedBlockDepth")

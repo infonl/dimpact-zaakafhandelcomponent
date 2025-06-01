@@ -18,7 +18,14 @@ import java.time.LocalDate
 import java.util.EnumSet
 import java.util.UUID
 
+/**
+ * Maximum length of the zaak 'omschrijving' field as defined by the ZGW ZRC API specification.
+ */
 const val OMSCHRIJVING_MAX_LENGTH = 80
+
+/**
+ * Maximum length of the zaak 'toelichting' field as defined by the ZGW ZRC API specification.
+ */
 const val TOELICHTING_MAX_LENGTH = 1000
 
 @NoArgConstructor

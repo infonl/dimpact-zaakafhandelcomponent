@@ -5,11 +5,6 @@
 package nl.info.client.zgw.zrc.util
 
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import org.apache.commons.lang3.StringUtils
-
-const val OMSCHRIJVING_MAX_LENGTH = 80
-
-const val TOELICHTING_MAX_LENGTH = 1000
 
 fun Zaak.isOpen() = archiefnominatie == null
 

@@ -24,12 +24,10 @@ import kotlinx.coroutines.test.runTest
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.GeometryToBeDeleted
 import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.Point
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
@@ -858,9 +856,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                 restZaak shouldBe updatedRestZaak
                 with(patchZaakSlot.captured) {
                     zaakgeometrie.shouldBeInstanceOf<GeoJSONGeometry>()
-                    with((zaakgeometrie as GeoJSONGeometry).coordinates) {
-                        first().first().first()[0].toDouble() shouldBe restGeometry.point!!.latitude
-                        first().first().first()[1].toDouble() shouldBe restGeometry.point!!.longitude
+                    with(zaakgeometrie as GeoJSONGeometry) {
+                        coordinates[0].toDouble() shouldBe restGeometry.point!!.longitude
+                        coordinates[1].toDouble() shouldBe restGeometry.point!!.latitude
                     }
                 }
             }

@@ -25,24 +25,21 @@ data class RestGeometry(
     var geometrycollection: List<RestGeometry>? = null
 )
 
-// TODO
+/**
+ * Converts a [RestGeometry] to a [GeoJSONGeometry].
+ * Only supports [GeometryTypeEnum.POINT] geometry type for now.
+ */
 fun RestGeometry.toGeoJSONGeometry(): GeoJSONGeometry =
-    when (this.type) {
-        "Point" -> GeoJSONGeometry().apply {
+    when (this.type.uppercase()) {
+        GeometryTypeEnum.POINT.name -> GeoJSONGeometry().apply {
             type = GeometryTypeEnum.POINT
             coordinates = listOf(
-                listOf(
-                    listOf(
-                        listOf(
-                            this@toGeoJSONGeometry.point!!.latitude.toBigDecimal(),
-                            this@toGeoJSONGeometry.point!!.longitude.toBigDecimal()
-                        )
-                    )
-                )
+                this@toGeoJSONGeometry.point?.longitude?.toBigDecimal(),
+                this@toGeoJSONGeometry.point?.latitude?.toBigDecimal(),
             )
         }
         else -> {
-            throw IllegalArgumentException("Unsupported geometry type: ${this.type}")
+            throw IllegalArgumentException("Unsupported geometry type: ${this.type.uppercase()}")
         }
     }
 
@@ -62,8 +59,8 @@ fun GeoJSONGeometry.toRestGeometry() = RestGeometry(
     type = this.type.name,
     point = if (this.type == GeometryTypeEnum.POINT) {
         RestCoordinates(
-            latitude = this.coordinates.first().first().first()[0].toDouble(),
-            longitude = this.coordinates.first().first().first()[1].toDouble()
+            latitude = this.coordinates[0].toDouble(),
+            longitude = this.coordinates[1].toDouble()
         )
     } else {
         null
