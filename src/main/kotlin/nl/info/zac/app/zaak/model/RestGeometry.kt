@@ -43,44 +43,18 @@ fun RestGeometry.toGeoJSONGeometry(): GeoJSONGeometry =
         }
     }
 
-fun Geometry.toRestGeometry() = RestGeometry(
-    type = this.type.toValue(),
-    point = (this as? Point)?.let { createRestCoordinates(it) },
-    polygon = (this as? Polygon)?.let { createRestPolygon(it) },
-    geometrycollection = (this as? GeometryCollection)?.let { createRestGeometryCollection(it) }
-)
-
-private fun createRestCoordinates(point: Point) = RestCoordinates(
-    point.coordinates.latitude.toDouble(),
-    point.coordinates.longitude.toDouble(),
-)
-
 fun GeoJSONGeometry.toRestGeometry() = RestGeometry(
     type = this.type.name,
     point = if (this.type == GeometryTypeEnum.POINT) {
         RestCoordinates(
-            latitude = this.coordinates[0].toDouble(),
-            longitude = this.coordinates[1].toDouble()
+            longitude = this.coordinates[0].toDouble(),
+            latitude = this.coordinates[1].toDouble(),
         )
     } else {
         null
     },
-    // not supported in ZAC
+    // not supported currently
     polygon = null,
-    // not supported in ZAC
+    // not supported currently
     geometrycollection = null
 )
-
-private fun createRestPolygon(polygon: Polygon) =
-    polygon.coordinates
-        .map { point2D ->
-            point2D.map {
-                RestCoordinates(
-                    it.latitude.toDouble(),
-                    it.longitude.toDouble()
-                )
-            }
-        }
-
-private fun createRestGeometryCollection(geometryCollection: GeometryCollection): List<RestGeometry> =
-    geometryCollection.geometries.map { it.toRestGeometry() }

@@ -8,20 +8,21 @@ import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.bind.serializer.JsonbDeserializer
 import jakarta.json.stream.JsonParser
 import net.atos.client.zgw.shared.util.JsonbUtil.JSONB
-import net.atos.client.zgw.zrc.model.Geometry
-import net.atos.client.zgw.zrc.model.GeometryCollection
-import net.atos.client.zgw.zrc.model.GeometryType
-import net.atos.client.zgw.zrc.model.Point
-import net.atos.client.zgw.zrc.model.Polygon
+import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
+import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
 import java.lang.reflect.Type
 
-// TODO: refactor this. or can it be removed even?
-class GeometryJsonbDeserializer : JsonbDeserializer<Geometry> {
+// TODO: at least add doc
+class GeoJSONGeometryJsonbDeserializer : JsonbDeserializer<GeoJSONGeometry> {
+    companion object {
+        const val GEOMETRY_TYPE_JSON_FIELD_NAME = "type"
+    }
+
     override fun deserialize(
         parser: JsonParser,
         ctx: DeserializationContext,
         rtType: Type
-    ): Geometry? {
+    ): GeoJSONGeometry? {
         if (!parser.hasNext()) {
             // workaround for WildFly 30 (?) issue
             // jakarta.ws.rs.ProcessingException: RESTEASY008200: JSON Binding deserialization
@@ -30,17 +31,16 @@ class GeometryJsonbDeserializer : JsonbDeserializer<Geometry> {
             return null
         }
         val jsonObject = parser.getObject()
-        val geometryType = GeometryType.fromValue(
-            jsonObject.getJsonString(Geometry.GEOMETRY_TYPE_NAAM).string
+        val geometryType = GeometryTypeEnum.fromValue(
+            jsonObject.getJsonString(GEOMETRY_TYPE_JSON_FIELD_NAME).string
         )
-
         return when (geometryType) {
-            GeometryType.POINT -> JSONB.fromJson(jsonObject.toString(), Point::class.java)
-            GeometryType.POLYGON -> JSONB.fromJson(jsonObject.toString(), Polygon::class.java)
-            GeometryType.GEOMETRYCOLLECTION -> JSONB.fromJson(
-                jsonObject.toString(),
-                GeometryCollection::class.java
-            )
+            GeometryTypeEnum.POINT -> JSONB.fromJson(jsonObject.toString(), GeoJSONGeometry::class.java)
+            else -> {
+                throw IllegalArgumentException(
+                    "Geometry type '$geometryType' is currently not supported."
+                )
+            }
         }
     }
 }
