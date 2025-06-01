@@ -4,10 +4,6 @@
  */
 package nl.info.zac.app.zaak.model
 
-import net.atos.client.zgw.zrc.model.Geometry
-import net.atos.client.zgw.zrc.model.GeometryCollection
-import net.atos.client.zgw.zrc.model.Point
-import net.atos.client.zgw.zrc.model.Polygon
 import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
 import nl.info.zac.util.AllOpen

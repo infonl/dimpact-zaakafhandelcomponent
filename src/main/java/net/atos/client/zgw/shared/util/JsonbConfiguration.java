@@ -10,7 +10,7 @@ import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbConfig;
 import jakarta.ws.rs.ext.ContextResolver;
 
-import nl.info.client.zgw.zrc.jsonb.GeoJSONGeometryJsonbSerializer;
+import nl.info.client.zgw.zrc.jsonb.GeoJSONGeometryWithDeletionSupportJsonbSerializer;
 import nl.info.client.zgw.zrc.util.GeoJSONGeometryJsonbDeserializer;
 import nl.info.client.zgw.zrc.util.RolJsonbDeserializer;
 import nl.info.client.zgw.zrc.util.ZaakObjectJsonbDeserializer;
@@ -28,7 +28,7 @@ public class JsonbConfiguration implements ContextResolver<Jsonb> {
                         new URIJsonbDeserializer()
                 )
                 .withSerializers(
-                        new GeoJSONGeometryJsonbSerializer()
+                        new GeoJSONGeometryWithDeletionSupportJsonbSerializer()
                 );
         jsonb = JsonbBuilder.create(jsonbConfig);
     }

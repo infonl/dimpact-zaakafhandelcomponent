@@ -54,6 +54,7 @@ import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.GeoJSONGeometryWithDeletionSupport
 import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
 import nl.info.client.zgw.zrc.model.generated.RelevanteZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -371,6 +372,7 @@ class ZaakRestService @Inject constructor(
             // TODO: solution for geometry to be deleted
             // zaakgeometrie = restZaakLocatieGegevens.geometrie?.toGeometry() ?: GeometryToBeDeleted()
             zaakgeometrie = restZaakLocatieGegevens.geometrie?.toGeoJSONGeometry()
+                ?: GeoJSONGeometryWithDeletionSupport(markGeometryForDeletion = true)
         }
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID = zaakUUID,

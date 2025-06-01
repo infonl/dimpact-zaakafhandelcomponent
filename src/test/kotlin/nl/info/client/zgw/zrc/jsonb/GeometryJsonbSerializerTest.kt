@@ -22,7 +22,7 @@ import nl.info.client.zgw.model.createPoint2D
 import java.lang.IllegalArgumentException
 
 class GeometryJsonbSerializerTest : BehaviorSpec({
-    val geoJSONGeometryJsonbSerializer = GeoJSONGeometryJsonbSerializer()
+    val geoJSONGeometryWithDeletionSupportJsonbSerializer = GeoJSONGeometryWithDeletionSupportJsonbSerializer()
     val jsonGenerator = mockk<JsonGenerator>()
     val serializationContext = mockk<SerializationContext>()
 
@@ -41,7 +41,7 @@ class GeometryJsonbSerializerTest : BehaviorSpec({
         every { jsonGenerator.write(capture(jsonStringSlot)) } returns jsonGenerator
 
         When("the object is serialized using the geometry JSONB serializer") {
-            geoJSONGeometryJsonbSerializer.serialize(point, jsonGenerator, serializationContext)
+            geoJSONGeometryWithDeletionSupportJsonbSerializer.serialize(point, jsonGenerator, serializationContext)
 
             Then("the object should be serialised to a point JSON string") {
                 jsonStringSlot.captured shouldBe """
@@ -56,7 +56,11 @@ class GeometryJsonbSerializerTest : BehaviorSpec({
         every { jsonGenerator.writeNull() } returns jsonGenerator
 
         When("the object is serialized using the geometry JSONB serializer") {
-            geoJSONGeometryJsonbSerializer.serialize(geometryToBeDeleted, jsonGenerator, serializationContext)
+            geoJSONGeometryWithDeletionSupportJsonbSerializer.serialize(
+                geometryToBeDeleted,
+                jsonGenerator,
+                serializationContext
+            )
 
             Then("the object should be serialised to a null value") {
                 verify(exactly = 1) { jsonGenerator.writeNull() }
@@ -69,7 +73,11 @@ class GeometryJsonbSerializerTest : BehaviorSpec({
 
         When("the object is serialized using the geometry JSONB serializer") {
             val exception = shouldThrow<IllegalArgumentException> {
-                geoJSONGeometryJsonbSerializer.serialize(polygon, jsonGenerator, serializationContext)
+                geoJSONGeometryWithDeletionSupportJsonbSerializer.serialize(
+                    polygon,
+                    jsonGenerator,
+                    serializationContext
+                )
             }
 
             Then("an exception should be thrown") {
@@ -83,7 +91,11 @@ class GeometryJsonbSerializerTest : BehaviorSpec({
 
         When("the object is serialized using the geometry JSONB serializer") {
             val exception = shouldThrow<IllegalArgumentException> {
-                geoJSONGeometryJsonbSerializer.serialize(geometryCollection, jsonGenerator, serializationContext)
+                geoJSONGeometryWithDeletionSupportJsonbSerializer.serialize(
+                    geometryCollection,
+                    jsonGenerator,
+                    serializationContext
+                )
             }
 
             Then("an exception should be thrown") {

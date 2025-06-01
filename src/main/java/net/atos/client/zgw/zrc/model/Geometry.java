@@ -9,11 +9,11 @@ import jakarta.json.bind.annotation.JsonbTransient;
 import jakarta.json.bind.annotation.JsonbTypeDeserializer;
 import jakarta.json.bind.annotation.JsonbTypeSerializer;
 
-import nl.info.client.zgw.zrc.jsonb.GeoJSONGeometryJsonbSerializer;
+import nl.info.client.zgw.zrc.jsonb.GeoJSONGeometryWithDeletionSupportJsonbSerializer;
 import nl.info.client.zgw.zrc.util.GeoJSONGeometryJsonbDeserializer;
 
 @JsonbTypeDeserializer(GeoJSONGeometryJsonbDeserializer.class)
-@JsonbTypeSerializer(GeoJSONGeometryJsonbSerializer.class)
+@JsonbTypeSerializer(GeoJSONGeometryWithDeletionSupportJsonbSerializer.class)
 public abstract class Geometry {
     public static final String GEOMETRY_TYPE_NAAM = "type";
 
@@ -21,7 +21,7 @@ public abstract class Geometry {
 
     /**
      * If set to true indicates that the geometry should be deleted.
-     * Used in {@link GeoJSONGeometryJsonbSerializer}.
+     * Used in {@link GeoJSONGeometryWithDeletionSupportJsonbSerializer}.
      * Note that the @JsonbNillable annotation cannot be used here because
      * that is a static annotation, and we need to set this value dynamically.
      */
