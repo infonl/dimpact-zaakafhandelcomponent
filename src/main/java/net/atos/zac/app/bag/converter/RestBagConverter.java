@@ -109,6 +109,9 @@ public class RestBagConverter {
     }
 
     public static RestCoordinates convertCoordinates(List<BigDecimal> coordinates) {
-        return new RestCoordinates(coordinates.get(1).doubleValue(), coordinates.get(0).doubleValue());
+        return new RestCoordinates(
+                coordinates.get(0).doubleValue(), // longitude
+                coordinates.get(1).doubleValue()  // latitude
+        );
     }
 }

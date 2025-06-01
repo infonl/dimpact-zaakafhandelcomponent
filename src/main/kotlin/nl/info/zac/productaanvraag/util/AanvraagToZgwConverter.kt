@@ -15,13 +15,13 @@ import nl.info.zac.productaanvraag.model.generated.Geometry
  * @return a [GeoJSONGeometry] representation of the [Geometry].
  * @throws IllegalArgumentException if the geometry type is not supported.
  */
-fun Geometry.toGeoJSONGeometry() =
+fun Geometry.toGeoJSONGeometry(): GeoJSONGeometry =
     when (this.type) {
         Geometry.Type.POINT -> GeoJSONGeometry().apply {
             type = GeometryTypeEnum.POINT
             coordinates = listOf(
-                this@toGeoJSONGeometry.coordinates[0].toBigDecimal(),
-                this@toGeoJSONGeometry.coordinates[1].toBigDecimal()
+                this@toGeoJSONGeometry.coordinates[1].toBigDecimal(), // longitude
+                this@toGeoJSONGeometry.coordinates[0].toBigDecimal()  // latitude
             )
         }
         else -> throw IllegalArgumentException("Unsupported geometry type: ${this.type}")

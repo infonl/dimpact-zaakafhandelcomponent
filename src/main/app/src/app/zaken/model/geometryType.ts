@@ -7,7 +7,7 @@
  * @deprecated - use the `GeneratedType`
  */
 export enum GeometryType {
-  POINT = "POINT",
-  POLYGON = "POLYGON",
-  GEOMETRY_COLLECTION = "GEOMETRY_COLLECTION",
+  POINT = "Point",
+  POLYGON = "Polygon",
+  GEOMETRY_COLLECTION = "GeometryCollection",
 }

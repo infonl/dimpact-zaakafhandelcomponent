@@ -12,6 +12,11 @@ import nl.info.zac.util.NoArgConstructor
 @AllOpen
 @NoArgConstructor
 data class RestGeometry(
+    /**
+     * The type of the geometry as defined by the values of [GeometryTypeEnum].
+     * E.g. "Point", "Polygon", etc.
+     * We should refactor this to use [GeometryTypeEnum] directly in the future.
+     */
     var type: String,
 
     var point: RestCoordinates? = null,
@@ -40,7 +45,8 @@ fun RestGeometry.toGeoJSONGeometry(): GeoJSONGeometry =
     }
 
 fun GeoJSONGeometry.toRestGeometry() = RestGeometry(
-    type = this.type.name,
+    // we currently use the value of [GeometryTypeEnum] as a string
+    type = this.type.toString(),
     point = if (this.type == GeometryTypeEnum.POINT) {
         RestCoordinates(
             longitude = this.coordinates[0].toDouble(),
