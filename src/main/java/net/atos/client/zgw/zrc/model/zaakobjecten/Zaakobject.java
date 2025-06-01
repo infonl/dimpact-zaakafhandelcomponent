@@ -14,7 +14,7 @@ import jakarta.json.bind.annotation.JsonbTypeDeserializer;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import net.atos.client.zgw.zrc.model.Objecttype;
-import nl.info.client.zgw.zrc.util.ZaakObjectJsonbDeserializer;
+import nl.info.client.zgw.zrc.jsonb.ZaakObjectJsonbDeserializer;
 
 /**
  * Zaakobject

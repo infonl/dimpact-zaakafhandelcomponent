@@ -8,8 +8,6 @@ import net.atos.client.zgw.zrc.model.AardRelatieWeergave
 import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.NatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.Point
-import net.atos.client.zgw.zrc.model.Point2D
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
@@ -20,7 +18,9 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
+import nl.info.client.zgw.zrc.model.GeoJSONGeometryToBeDeleted
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
+import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Opschorting
 import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.zrc.model.generated.Verlenging
@@ -28,6 +28,7 @@ import nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.generated.RolType
+import java.math.BigDecimal
 import java.net.URI
 import java.time.LocalDate
 import java.time.ZonedDateTime
@@ -75,17 +76,16 @@ fun createOrganisatorischeEenheid(
     this.naam = naam
 }
 
-fun createPoint(
-    coordinates: Point2D = createPoint2D()
-) = Point(coordinates)
-
-fun createPoint2D(
-    latitude: Double = 1.23,
-    longitude: Double = 4.56
-) = Point2D(
-    latitude,
-    longitude
-)
+fun createGeoJSONGeometryWithDeletionSupport(
+    longitude: BigDecimal = BigDecimal("4.56"),
+    latitude: BigDecimal = BigDecimal("1.23")
+) = GeoJSONGeometryToBeDeleted().apply {
+    this.type = GeometryTypeEnum.POINT
+    this.coordinates = listOf(
+        longitude,
+        latitude
+    )
+}
 
 fun createResultaat(
     url: URI = URI("http://example.com/resultaat/${UUID.randomUUID()}"),

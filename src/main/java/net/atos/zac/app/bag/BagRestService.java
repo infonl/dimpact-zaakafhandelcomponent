@@ -123,7 +123,7 @@ public class BagRestService {
 
     @GET
     @Path("zaak/{zaakUuid}")
-    public List<RESTBAGObjectGegevens> listBagobjectenVoorZaak(@PathParam("zaakUuid") final UUID zaakUUID) {
+    public List<RESTBAGObjectGegevens> listBagObjectsForZaak(@PathParam("zaakUuid") final UUID zaakUUID) {
         final ZaakobjectListParameters zaakobjectListParameters = new ZaakobjectListParameters();
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
         assertPolicy(policyService.readZaakRechten(zaak).getLezen());

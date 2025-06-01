@@ -161,7 +161,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
         zaakZoekObject: ZaakZoekObject,
         detail: SignaleringDetail
     ): Signalering {
-        // TODO: refactor this. silly to create a Zaak object just to set it as subject
+        // refactor this? silly to create an entire Zaak object just to set it as a signalering subject
         val zaak = Zaak(
             null,
             UUID.fromString(zaakZoekObject.getObjectId()),

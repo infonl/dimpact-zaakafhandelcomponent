@@ -25,7 +25,6 @@ import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
-import net.atos.client.zgw.zrc.model.GeometryToBeDeleted
 import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.Rol
@@ -58,6 +57,7 @@ import nl.info.client.zgw.model.createZaakobjectPand
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.GeoJSONGeometryToBeDeleted
 import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
@@ -889,7 +889,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
                 restZaak shouldBe updatedRestZaak
                 with(patchZaakSlot.captured) {
-                    zaakgeometrie.shouldBeInstanceOf<GeometryToBeDeleted>()
+                    zaakgeometrie.shouldBeInstanceOf<GeoJSONGeometryToBeDeleted>()
                 }
             }
         }

@@ -2,12 +2,12 @@
  * SPDX-FileCopyrightText: 2023 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.client.zgw.zrc.util
+package nl.info.client.zgw.zrc.jsonb
 
 import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.bind.serializer.JsonbDeserializer
 import jakarta.json.stream.JsonParser
-import net.atos.client.zgw.shared.util.JsonbUtil.JSONB
+import net.atos.client.zgw.shared.util.JsonbUtil
 import net.atos.client.zgw.zrc.model.Objecttype
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdres
@@ -26,16 +26,19 @@ class ZaakObjectJsonbDeserializer : JsonbDeserializer<Zaakobject> {
         val objecttype = Objecttype.fromValue(jsonObject.getString("objectType"))
         val objecttypeOverige = jsonObject.getString("objectTypeOverige")
         return when (objecttype) {
-            Objecttype.ADRES -> JSONB.fromJson(jsonObject.toString(), ZaakobjectAdres::class.java)
-            Objecttype.PAND -> JSONB.fromJson(jsonObject.toString(), ZaakobjectPand::class.java)
-            Objecttype.OPENBARE_RUIMTE -> JSONB.fromJson(jsonObject.toString(), ZaakobjectOpenbareRuimte::class.java)
-            Objecttype.WOONPLAATS -> JSONB.fromJson(jsonObject.toString(), ZaakobjectWoonplaats::class.java)
+            Objecttype.ADRES -> JsonbUtil.JSONB.fromJson(jsonObject.toString(), ZaakobjectAdres::class.java)
+            Objecttype.PAND -> JsonbUtil.JSONB.fromJson(jsonObject.toString(), ZaakobjectPand::class.java)
+            Objecttype.OPENBARE_RUIMTE -> JsonbUtil.JSONB.fromJson(
+                jsonObject.toString(),
+                ZaakobjectOpenbareRuimte::class.java
+            )
+            Objecttype.WOONPLAATS -> JsonbUtil.JSONB.fromJson(jsonObject.toString(), ZaakobjectWoonplaats::class.java)
             Objecttype.OVERIGE -> when (objecttypeOverige) {
-                ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE -> JSONB.fromJson(
+                ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE -> JsonbUtil.JSONB.fromJson(
                     jsonObject.toString(),
                     ZaakobjectProductaanvraag::class.java
                 )
-                ZaakobjectNummeraanduiding.OBJECT_TYPE_OVERIGE -> JSONB.fromJson(
+                ZaakobjectNummeraanduiding.OBJECT_TYPE_OVERIGE -> JsonbUtil.JSONB.fromJson(
                     jsonObject.toString(),
                     ZaakobjectNummeraanduiding::class.java
                 )
