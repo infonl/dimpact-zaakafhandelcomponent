@@ -129,8 +129,8 @@ class ZrcClientService @Inject constructor(
     fun listZaakobjecten(zaakobjectListParameters: ZaakobjectListParameters): Results<Zaakobject> =
         zrcClient.zaakobjectList(zaakobjectListParameters)
 
-    fun patchZaak(zaakUUID: UUID, zaak: Zaak, toelichting: String?): Zaak {
-        toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
+    fun patchZaak(zaakUUID: UUID, zaak: Zaak, explanation: String?): Zaak {
+        explanation?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
         return patchZaak(zaakUUID, zaak)
     }
 

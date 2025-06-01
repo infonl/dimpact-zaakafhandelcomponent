@@ -67,7 +67,7 @@ class ZaakZoekObjectConverter @Inject constructor(
             archiefActiedatum = convertToDate(zaak.archiefactiedatum)
             if (zaak.isVerlengd()) {
                 setIndicatie(ZaakIndicatie.VERLENGD, true)
-                duurVerlenging = zaak.verlenging.duur.toString()
+                duurVerlenging = zaak.verlenging.duur
                 redenVerlenging = zaak.verlenging.reden
             }
             if (zaak.isOpgeschort()) {

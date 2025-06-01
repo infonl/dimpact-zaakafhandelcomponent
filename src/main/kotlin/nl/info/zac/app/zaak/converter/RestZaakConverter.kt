@@ -10,6 +10,7 @@ import net.atos.client.zgw.zrc.model.BetrokkeneType.NIET_NATUURLIJK_PERSOON
 import net.atos.client.zgw.zrc.model.BetrokkeneType.VESTIGING
 import net.atos.client.zgw.zrc.model.Status
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.util.time.PeriodUtil
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -50,6 +51,7 @@ import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUUR
 import nl.info.zac.search.model.ZaakIndicatie.OPSCHORTING
 import nl.info.zac.search.model.ZaakIndicatie.VERLENGD
 import java.time.LocalDate
+import java.time.Period
 import java.util.EnumSet.noneOf
 import java.util.UUID
 import java.util.logging.Logger
@@ -118,7 +120,9 @@ class RestZaakConverter @Inject constructor(
             isEerderOpgeschort = zaak.isEerderOpgeschort(),
             redenOpschorting = takeIf { zaak.isOpgeschort() }?.let { zaak.opschorting?.reden },
             isVerlengd = zaak.isVerlengd(),
-            duurVerlenging = if (zaak.isVerlengd()) zaak.verlenging.duur else null,
+            // 'duur' has the ISO-8601 period format ('P(n)Y(n)M(n)D') in the ZGW ZRC API,
+            // so we use [Period.parse] to convert the duration string to a [Period] object
+            duurVerlenging = if (zaak.isVerlengd()) PeriodUtil.format(Period.parse(zaak.verlenging.duur)) else null,
             redenVerlenging = if (zaak.isVerlengd()) zaak.verlenging.reden else null,
             gerelateerdeZaken = toRestGerelateerdeZaken(zaak),
             zaakgeometrie = zaak.zaakgeometrie?.toRestGeometry(),
@@ -214,7 +218,10 @@ class RestZaakConverter @Inject constructor(
                 uiterlijkeEinddatumAfdoening = verlengGegevens.uiterlijkeEinddatumAfdoening
                 verlenging = Verlenging().apply {
                     reden = verlengGegevens.redenVerlenging
-                    duur = zaak.verlenging?.duur?.let { it + verlengGegevens.duurDagen.toString() } ?: verlengGegevens.duurDagen.toString()
+                    // 'duur' has the ISO-8601 period format ('P(n)Y(n)M(n)D') in the ZGW ZRC API,
+                    // so we use [Period.toString] to convert the duration to that format
+                    duur = zaak.verlenging?.duur?.let { Period.ofDays(it.toInt() + verlengGegevens.duurDagen).toString() }
+                        ?: Period.ofDays(verlengGegevens.duurDagen).toString()
                 }
             }
         }

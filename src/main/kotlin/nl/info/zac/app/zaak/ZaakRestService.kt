@@ -374,7 +374,7 @@ class ZaakRestService @Inject constructor(
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID = zaakUUID,
             zaak = zaakPatch,
-            toelichting = restZaakLocatieGegevens.reden
+            explanation = restZaakLocatieGegevens.reden
         )
         return restZaakConverter.toRestZaak(updatedZaak)
     }
@@ -423,12 +423,12 @@ class ZaakRestService @Inject constructor(
         assertPolicy(policyService.readZaakRechten(zaak).verlengen)
         val toelichting = "$VERLENGING: ${restZaakVerlengGegevens.redenVerlenging}"
         val updatedZaak = zrcClientService.patchZaak(
-            zaakUUID,
-            restZaakConverter.convertToPatch(
+            zaakUUID = zaakUUID,
+            zaak = restZaakConverter.convertToPatch(
                 zaakUUID,
                 restZaakVerlengGegevens
             ),
-            toelichting
+            explanation = toelichting
         )
         if (restZaakVerlengGegevens.takenVerlengen) {
             val aantalTakenVerlengd = verlengOpenTaken(zaakUUID, restZaakVerlengGegevens.duurDagen.toLong())
@@ -436,16 +436,8 @@ class ZaakRestService @Inject constructor(
                 eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak))
             }
         }
-        val status = if (zaak.status != null) {
-            zrcClientService.readStatus(zaak.status)
-        } else {
-            null
-        }
-        val statustype = if (status != null) {
-            ztcClientService.readStatustype(status.statustype)
-        } else {
-            null
-        }
+        val status = zaak.status?.let { zrcClientService.readStatus(it) }
+        val statustype = status?.let { ztcClientService.readStatustype(it.statustype) }
         return restZaakConverter.toRestZaak(updatedZaak, status, statustype)
     }
 
@@ -1130,7 +1122,7 @@ class ZaakRestService @Inject constructor(
             zaak = RelevantezaakZaakPatch(
                 removeRelevanteZaak(zaak.relevanteAndereZaken, andereZaak.url, aardRelatie)
             ),
-            toelichting = explanation
+            explanation = explanation
         )
     }
 
