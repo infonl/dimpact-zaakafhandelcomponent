@@ -257,15 +257,15 @@ export class ZakenWerkvoorraadComponent
     dialogComponent: ComponentType<T>,
     release = false,
   ) {
-    let cases = this.selection.selected;
+    let zaken = this.selection.selected;
     if (release) {
-      cases = cases.filter(
+      zaken = zaken.filter(
         ({ behandelaarGebruikersnaam }) => !!behandelaarGebruikersnaam,
       );
     }
 
     this.batchProcessService.subscribe({
-      ids: cases.map(({ id }) => id),
+      ids: zaken.map(({ id }) => id),
       progressSubscription: {
         opcode: Opcode.ANY,
         objectType: ObjectType.ZAAK_ROLLEN,
@@ -294,33 +294,35 @@ export class ZakenWerkvoorraadComponent
         }),
     });
     const dialogRef = this.dialog.open(dialogComponent, {
-      data: cases,
+      data: zaken,
     });
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.toekenning = result;
-        this.zakenLoading.set(true);
-        const message = cases.length
+      if (!result) {
+        this.batchProcessService.stop();
+        return;
+      }
+
+      this.toekenning = result;
+      this.zakenLoading.set(true);
+      const message =
+        zaken.length === 1
           ? this.translateService.instant("msg.vrijgegeven.zaak")
           : this.translateService.instant("msg.vrijgegeven.zaken", {
-              aantal: cases.length,
+              aantal: zaken.length,
             });
-        this.batchProcessService.showProgress(message, {
-          onTimeout: () => {
-            this.utilService.openSnackbar("msg.error.timeout");
-          },
-        });
-        const notChanged = cases
-          .filter(
-            (x) =>
-              this.toekenning?.groep?.id === x.groepId &&
-              this.toekenning.medewerker?.id === x.behandelaarGebruikersnaam,
-          )
-          .map(({ id }) => id);
-        this.batchProcessService.update(notChanged);
-      } else {
-        this.batchProcessService.stop();
-      }
+      this.batchProcessService.showProgress(message, {
+        onTimeout: () => {
+          this.utilService.openSnackbar("msg.error.timeout");
+        },
+      });
+      const notChanged = zaken
+        .filter(
+          (x) =>
+            this.toekenning?.groep?.id === x.groepId &&
+            this.toekenning.medewerker?.id === x.behandelaarGebruikersnaam,
+        )
+        .map(({ id }) => id);
+      this.batchProcessService.update(notChanged);
     });
   }
 
