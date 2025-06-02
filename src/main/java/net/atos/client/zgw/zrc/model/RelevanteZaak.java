@@ -45,7 +45,6 @@ public class RelevanteZaak {
         return aardRelatie;
     }
 
-    // TODO: make Kotlin function for this? or just use the equals method in RelevanteZaak?
     public boolean is(final URI url, final AardRelatie aardRelatie) {
         return this.aardRelatie == aardRelatie && this.url.equals(url);
     }
