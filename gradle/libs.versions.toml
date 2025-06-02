@@ -64,7 +64,7 @@ kotest-runner-junit5 = "5.9.1"
 kotest-assertions-json = "5.9.1"
 mockk = "1.14.2"
 
-testcontainers = "1.21.0"
+testcontainers = "1.21.1"
 
 json-json = "20250517"
 slf4j-simple = "2.0.17"
