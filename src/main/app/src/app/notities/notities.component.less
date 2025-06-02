@@ -18,7 +18,7 @@
   right: 15px;
   width: 380px;
   box-shadow: 6px 6px 25px -8px @box-shadow-color;
-  background: @table-hover-background-color;
+  background: @body-foreground-color;
   z-index: 1;
 }
 
@@ -31,15 +31,11 @@
 }
 
 .notitie-header {
-  padding: 0 8px 0 16px;
+  font-size: 14px;
+  font-weight: 500;
   color: @primary-text-color;
+  padding: 0 8px 0 16px;
   background: @primary-background-color;
-  border-bottom: 1px solid @border-color;
-
-  ::ng-deep .mat-mdc-card-header-text {
-    // added by mat-card but should not be visible
-    display: none;
-  }
 }
 
 .notitie-body {
@@ -53,12 +49,6 @@
   p {
     white-space: pre-wrap;
   }
-}
-
-.minimize-button {
-  margin-right: 10px;
-  margin-top: 2px;
-  cursor: pointer;
 }
 
 .notitie {

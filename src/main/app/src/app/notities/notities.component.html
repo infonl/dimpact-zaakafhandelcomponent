@@ -23,12 +23,12 @@
 </div>
 
 <mat-card *ngIf="!showNotes" class="notitie-container">
-  <mat-card-header class="flex-row justify-content-between notitie-header">
+  <div class="flex-row justify-content-between notitie-header">
     <div class="flex-row items-center gap-10">
       <mat-icon>sticky_note_2</mat-icon>
-      <mat-card-title>
+      <span>
         {{ "notities" | translate }}
-      </mat-card-title>
+      </span>
     </div>
     <button
       mat-icon-button
@@ -37,7 +37,7 @@
     >
       <mat-icon>remove</mat-icon>
     </button>
-  </mat-card-header>
+  </div>
 
   <mat-card-content class="notitie-body">
     <div #scrollTarget></div>
