@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.documenten;
 
 import static net.atos.zac.util.ValidationUtil.valideerObject;
@@ -38,7 +37,6 @@ import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.zac.authentication.LoggedInUser;
 import nl.info.zac.search.model.DatumRange;
 import nl.info.zac.shared.model.SorteerRichting;
-
 
 @ApplicationScoped
 @Transactional

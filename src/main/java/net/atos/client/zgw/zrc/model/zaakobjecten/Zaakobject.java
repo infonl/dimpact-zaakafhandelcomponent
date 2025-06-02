@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.zrc.model.zaakobjecten;
 
 import java.net.URI;
