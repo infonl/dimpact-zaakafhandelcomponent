@@ -12,18 +12,11 @@ import jakarta.json.bind.annotation.JsonbProperty;
 
 /**
  * Een relevante andere zaak.
+ *
+ * @param url         URL-referentie naar de ZAAK.
+ * @param aardRelatie 'Benamingen van de aard van de relaties van andere zaken tot (onderhanden) zaken.
  */
-public class RelevanteZaak {
-
-    /**
-     * URL-referentie naar de ZAAK.
-     */
-    private final URI url;
-
-    /**
-     * 'Benamingen van de aard van de relaties van andere zaken tot (onderhanden) zaken.
-     */
-    private final AardRelatie aardRelatie;
+public record RelevanteZaak(URI url, AardRelatie aardRelatie) {
 
     /**
      * Constructor with required attributes for POST and PUT requests and GET response
@@ -35,14 +28,6 @@ public class RelevanteZaak {
     ) {
         this.url = url;
         this.aardRelatie = aardRelatie;
-    }
-
-    public URI getUrl() {
-        return url;
-    }
-
-    public AardRelatie getAardRelatie() {
-        return aardRelatie;
     }
 
     public boolean is(final URI url, final AardRelatie aardRelatie) {
