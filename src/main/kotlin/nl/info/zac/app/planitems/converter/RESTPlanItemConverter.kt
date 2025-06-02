@@ -5,11 +5,11 @@
 package nl.info.zac.app.planitems.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.FormulierDefinitie
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.admin.model.ReferenceTableValue
 import nl.info.zac.app.planitems.model.PlanItemType
 import nl.info.zac.app.planitems.model.RESTPlanItem

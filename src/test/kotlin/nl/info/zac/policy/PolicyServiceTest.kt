@@ -21,6 +21,8 @@ import nl.info.client.zgw.model.createVerlenging
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.util.isOpgeschort
+import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -85,8 +87,8 @@ class PolicyServiceTest : BehaviorSpec({
                 with(ruleQuerySlot.captured.input.zaak) {
                     open shouldBe true
                     zaaktype shouldBe zaakType.omschrijving
-                    opgeschort shouldBe zaak.isOpgeschort
-                    verlengd shouldBe zaak.isVerlengd
+                    opgeschort shouldBe zaak.isOpgeschort()
+                    verlengd shouldBe zaak.isVerlengd()
                     besloten shouldBe false
                     intake shouldBe false
                     heropend shouldBe false
@@ -122,8 +124,8 @@ class PolicyServiceTest : BehaviorSpec({
                 with(ruleQuerySlot.captured.input.zaak) {
                     open shouldBe true
                     zaaktype shouldBe zaakType.omschrijving
-                    opgeschort shouldBe zaak.isOpgeschort
-                    verlengd shouldBe zaak.isVerlengd
+                    opgeschort shouldBe zaak.isOpgeschort()
+                    verlengd shouldBe zaak.isVerlengd()
                     besloten shouldBe false
                     intake shouldBe false
                     heropend shouldBe false
@@ -160,8 +162,8 @@ class PolicyServiceTest : BehaviorSpec({
                 with(ruleQuerySlot.captured.input.zaak) {
                     open shouldBe true
                     zaaktype shouldBe zaakType.omschrijving
-                    opgeschort shouldBe zaak.isOpgeschort
-                    verlengd shouldBe zaak.isVerlengd
+                    opgeschort shouldBe zaak.isOpgeschort()
+                    verlengd shouldBe zaak.isVerlengd()
                     besloten shouldBe false
                     intake shouldBe true
                     heropend shouldBe false
@@ -198,8 +200,8 @@ class PolicyServiceTest : BehaviorSpec({
                 with(ruleQuerySlot.captured.input.zaak) {
                     open shouldBe true
                     zaaktype shouldBe zaakType.omschrijving
-                    opgeschort shouldBe zaak.isOpgeschort
-                    verlengd shouldBe zaak.isVerlengd
+                    opgeschort shouldBe zaak.isOpgeschort()
+                    verlengd shouldBe zaak.isVerlengd()
                     besloten shouldBe false
                     intake shouldBe false
                     heropend shouldBe true

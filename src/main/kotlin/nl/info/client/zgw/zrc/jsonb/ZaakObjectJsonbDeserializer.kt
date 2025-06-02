@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2023 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.client.zgw.zrc.util
+package nl.info.client.zgw.zrc.jsonb
 
 import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.bind.serializer.JsonbDeserializer
@@ -26,10 +26,22 @@ class ZaakObjectJsonbDeserializer : JsonbDeserializer<Zaakobject> {
         val objecttype = Objecttype.fromValue(jsonObject.getString("objectType"))
         val objecttypeOverige = jsonObject.getString("objectTypeOverige")
         return when (objecttype) {
-            Objecttype.ADRES -> JSONB.fromJson(jsonObject.toString(), ZaakobjectAdres::class.java)
-            Objecttype.PAND -> JSONB.fromJson(jsonObject.toString(), ZaakobjectPand::class.java)
-            Objecttype.OPENBARE_RUIMTE -> JSONB.fromJson(jsonObject.toString(), ZaakobjectOpenbareRuimte::class.java)
-            Objecttype.WOONPLAATS -> JSONB.fromJson(jsonObject.toString(), ZaakobjectWoonplaats::class.java)
+            Objecttype.ADRES -> JSONB.fromJson(
+                jsonObject.toString(),
+                ZaakobjectAdres::class.java
+            )
+            Objecttype.PAND -> JSONB.fromJson(
+                jsonObject.toString(),
+                ZaakobjectPand::class.java
+            )
+            Objecttype.OPENBARE_RUIMTE -> JSONB.fromJson(
+                jsonObject.toString(),
+                ZaakobjectOpenbareRuimte::class.java
+            )
+            Objecttype.WOONPLAATS -> JSONB.fromJson(
+                jsonObject.toString(),
+                ZaakobjectWoonplaats::class.java
+            )
             Objecttype.OVERIGE -> when (objecttypeOverige) {
                 ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE -> JSONB.fromJson(
                     jsonObject.toString(),

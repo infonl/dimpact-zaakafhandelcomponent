@@ -8,6 +8,12 @@ import java.net.URI;
 
 import jakarta.json.bind.annotation.JsonbNillable;
 
+import nl.info.client.zgw.zrc.model.generated.Zaak;
+
+/**
+ * Extension of [Zaak] to be able to delete the hoofdzaak of a zaak.
+ * As per the ZGW ZRC API, to remove the hoofdzaak from a zaak, the hoofdzaak needs to be set to `null`.
+ */
 public class HoofdzaakZaakPatch extends Zaak {
 
     @JsonbNillable

@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.bag.converter;
 
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
@@ -13,7 +12,6 @@ import java.util.List;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 
-import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdres;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding;
@@ -30,6 +28,7 @@ import net.atos.zac.app.bag.model.RESTWoonplaats;
 import nl.info.client.bag.model.generated.PointGeoJSON;
 import nl.info.client.bag.model.generated.PuntOfVlak;
 import nl.info.client.bag.model.generated.Surface;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.zac.app.zaak.model.RestCoordinates;
 import nl.info.zac.app.zaak.model.RestGeometry;
 
@@ -109,6 +108,9 @@ public class RestBagConverter {
     }
 
     public static RestCoordinates convertCoordinates(List<BigDecimal> coordinates) {
-        return new RestCoordinates(coordinates.get(1).doubleValue(), coordinates.get(0).doubleValue());
+        return new RestCoordinates(
+                coordinates.get(0).doubleValue(), // longitude
+                coordinates.get(1).doubleValue()  // latitude
+        );
     }
 }
