@@ -1,11 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.zgw.zrc.model
+package nl.info.client.zgw.zrc.model
 
 import jakarta.json.bind.annotation.JsonbCreator
 import jakarta.json.bind.annotation.JsonbProperty
+import net.atos.client.zgw.zrc.model.AardRelatie
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI
