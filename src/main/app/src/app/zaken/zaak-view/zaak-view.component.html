@@ -195,6 +195,7 @@
               }}</mat-card-subtitle>
             </div>
             <button
+              *ngIf="zaak.isProcesGestuurd && zaak.isOpen && !zaak.isHeropend"
               class="proces-button"
               (click)="showProces()"
               [title]="'actie.proces.bekijken' | translate"
