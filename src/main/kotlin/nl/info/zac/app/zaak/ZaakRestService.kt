@@ -632,7 +632,7 @@ class ZaakRestService @Inject constructor(
     @Path("lijst/vrijgeven")
     fun releaseZakenFromList(@Valid restZakenVrijgevenGegevens: RESTZakenVrijgevenGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
-        // this can be a long-running operation so run it asynchronously
+        // this can be a long-running operation, so run it asynchronously
         CoroutineScope(dispatcher).launch {
             zaakService.releaseZaken(
                 zaakUUIDs = restZakenVrijgevenGegevens.uuids,
