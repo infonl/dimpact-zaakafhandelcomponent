@@ -7,7 +7,7 @@ package nl.info.client.zgw.zrc.jsonb
 import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.bind.serializer.JsonbDeserializer
 import jakarta.json.stream.JsonParser
-import net.atos.client.zgw.shared.util.JsonbUtil
+import net.atos.client.zgw.shared.util.JsonbUtil.JSONB
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolMedewerker
@@ -23,27 +23,27 @@ class RolJsonbDeserializer : JsonbDeserializer<Rol<*>> {
         val betrokkenetype = BetrokkeneType.fromValue(jsonObject.getJsonString(Rol.BETROKKENE_TYPE_NAAM).string)
 
         return when (betrokkenetype) {
-            BetrokkeneType.VESTIGING -> JsonbUtil.JSONB.fromJson(
+            BetrokkeneType.VESTIGING -> JSONB.fromJson(
                 jsonObject.toString(),
                 RolVestiging::class.java
             )
 
-            BetrokkeneType.MEDEWERKER -> JsonbUtil.JSONB.fromJson(
+            BetrokkeneType.MEDEWERKER -> JSONB.fromJson(
                 jsonObject.toString(),
                 RolMedewerker::class.java
             )
 
-            BetrokkeneType.NATUURLIJK_PERSOON -> JsonbUtil.JSONB.fromJson(
+            BetrokkeneType.NATUURLIJK_PERSOON -> JSONB.fromJson(
                 jsonObject.toString(),
                 RolNatuurlijkPersoon::class.java
             )
 
-            BetrokkeneType.NIET_NATUURLIJK_PERSOON -> JsonbUtil.JSONB.fromJson(
+            BetrokkeneType.NIET_NATUURLIJK_PERSOON -> JSONB.fromJson(
                 jsonObject.toString(),
                 RolNietNatuurlijkPersoon::class.java
             )
 
-            BetrokkeneType.ORGANISATORISCHE_EENHEID -> JsonbUtil.JSONB.fromJson(
+            BetrokkeneType.ORGANISATORISCHE_EENHEID -> JSONB.fromJson(
                 jsonObject.toString(),
                 RolOrganisatorischeEenheid::class.java
             )
