@@ -16,7 +16,7 @@ import jakarta.annotation.Nullable;
 import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.json.bind.annotation.JsonbTypeDeserializer;
 
-import nl.info.client.zgw.zrc.util.RolJsonbDeserializer;
+import nl.info.client.zgw.zrc.jsonb.RolJsonbDeserializer;
 import nl.info.client.zgw.ztc.model.generated.RolType;
 
 @JsonbTypeDeserializer(RolJsonbDeserializer.class)

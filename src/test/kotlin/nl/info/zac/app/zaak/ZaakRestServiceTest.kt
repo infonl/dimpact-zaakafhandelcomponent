@@ -24,16 +24,11 @@ import kotlinx.coroutines.test.runTest
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.shared.model.Archiefnominatie
-import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.BetrokkeneType
-import net.atos.client.zgw.zrc.model.GeometryToBeDeleted
 import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.Point
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
@@ -62,6 +57,11 @@ import nl.info.client.zgw.model.createZaakobjectPand
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
+import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
+import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
+import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -232,7 +232,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         val zaakAfhandelParameters = createZaakafhandelParameters()
         val zaakObjectPand = createZaakobjectPand()
         val zaakObjectOpenbareRuimte = createZaakobjectOpenbareRuimte()
-        val zaak = createZaak(zaakType.url)
+        val zaak = createZaak(zaakTypeURI = zaakType.url)
 
         every { configuratieService.featureFlagBpmnSupport() } returns false
         every { cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null) } just runs
@@ -577,14 +577,14 @@ class ZaakRestServiceTest : BehaviorSpec({
                     relevanteAndereZaken shouldHaveSize(1)
                     with(relevanteAndereZaken[0]) {
                         url shouldBe teKoppelenZaak.url
-                        aardRelatie shouldBe AardRelatie.BIJDRAGE
+                        aardRelatie shouldBe AardRelatieEnum.BIJDRAGE
                     }
                 }
                 with(patchZaakSlot[1]) {
                     relevanteAndereZaken shouldHaveSize(1)
                     with(relevanteAndereZaken[0]) {
                         url shouldBe zaak.url
-                        aardRelatie shouldBe AardRelatie.ONDERWERP
+                        aardRelatie shouldBe AardRelatieEnum.ONDERWERP
                     }
                 }
             }
@@ -631,7 +631,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     Given("An open zaak and a closed zaak") {
         val zaak = createZaak()
-        val teKoppelenZaak = createZaak(archiefnominatie = Archiefnominatie.BLIJVEND_BEWAREN)
+        val teKoppelenZaak = createZaak(archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN)
         val restZakenVerdeelGegevens = createRestZaakLinkData(
             zaakUuid = zaak.uuid,
             teKoppelenZaakUuid = teKoppelenZaak.uuid,
@@ -855,10 +855,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
                 restZaak shouldBe updatedRestZaak
                 with(patchZaakSlot.captured) {
-                    zaakgeometrie.shouldBeInstanceOf<Point>()
-                    with((zaakgeometrie as Point).coordinates) {
-                        latitude.toDouble() shouldBe restGeometry.point!!.latitude
-                        longitude.toDouble() shouldBe restGeometry.point!!.longitude
+                    zaakgeometrie.shouldBeInstanceOf<GeoJSONGeometry>()
+                    with(zaakgeometrie as GeoJSONGeometry) {
+                        coordinates[0].toDouble() shouldBe restGeometry.point!!.longitude
+                        coordinates[1].toDouble() shouldBe restGeometry.point!!.latitude
                     }
                 }
             }
@@ -889,7 +889,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
                 restZaak shouldBe updatedRestZaak
                 with(patchZaakSlot.captured) {
-                    zaakgeometrie.shouldBeInstanceOf<GeometryToBeDeleted>()
+                    zaakgeometrie.shouldBeInstanceOf<DeleteGeoJSONGeometry>()
                 }
             }
         }

@@ -4,7 +4,7 @@
  */
 package nl.info.zac.documentcreation.model
 
-import net.atos.client.zgw.zrc.model.Zaak
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import java.time.ZonedDateTime
 import java.util.UUID
 

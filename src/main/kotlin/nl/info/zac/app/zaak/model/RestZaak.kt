@@ -7,8 +7,6 @@ package nl.info.zac.app.zaak.model
 import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Size
-import net.atos.client.zgw.zrc.model.Zaak.OMSCHRIJVING_MAX_LENGTH
-import net.atos.client.zgw.zrc.model.Zaak.TOELICHTING_MAX_LENGTH
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.klant.model.klant.IdentificatieType
@@ -19,6 +17,16 @@ import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 import java.util.EnumSet
 import java.util.UUID
+
+/**
+ * Maximum length of the zaak 'omschrijving' field as defined by the ZGW ZRC API specification.
+ */
+const val OMSCHRIJVING_MAX_LENGTH = 80
+
+/**
+ * Maximum length of the zaak 'toelichting' field as defined by the ZGW ZRC API specification.
+ */
+const val TOELICHTING_MAX_LENGTH = 1000
 
 @NoArgConstructor
 @AllOpen

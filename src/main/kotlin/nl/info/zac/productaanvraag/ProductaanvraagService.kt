@@ -18,8 +18,6 @@ import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolVestiging
 import net.atos.client.zgw.zrc.model.Vestiging
-import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.zrc.model.Zaak.TOELICHTING_MAX_LENGTH
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.zac.admin.ZaakafhandelParameterService
@@ -37,6 +35,7 @@ import nl.info.client.or.objects.model.generated.ModelObject
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
@@ -47,13 +46,15 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
-import nl.info.zac.productaanvraag.util.convertToZgwPoint
+import nl.info.zac.productaanvraag.util.toGeoJSONGeometry
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI
 import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
+
+const val TOELICHTING_MAX_LENGTH = 1000
 
 @ApplicationScoped
 @NoArgConstructor
@@ -540,7 +541,7 @@ class ProductaanvraagService @Inject constructor(
             productaanvraag.zaakgegevens?.let { zaakgegevens ->
                 // we currently only support 'POINT' geometries
                 zaakgegevens.geometry?.takeIf { it.type == Geometry.Type.POINT }?.let {
-                    zaakgeometrie = it.convertToZgwPoint()
+                    zaakgeometrie = it.toGeoJSONGeometry()
                 }
                 zaakgegevens.omschrijving?.let { omschrijving = it }
             }

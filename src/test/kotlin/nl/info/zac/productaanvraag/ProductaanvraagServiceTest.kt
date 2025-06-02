@@ -19,9 +19,7 @@ import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.or.`object`.model.createObjectRecord
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
-import net.atos.client.zgw.zrc.model.Point
 import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.documenten.InboxDocumentenService
@@ -34,6 +32,8 @@ import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import nl.info.client.zgw.model.createZaakobjectProductaanvraag
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -303,11 +303,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     toelichting shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'. $zaakExplanation"
                         .take(1000)
                     with(zaakgeometrie) {
-                        type.toValue() shouldBe Geometry.Type.POINT.value()
-                        with((this as Point).coordinates) {
-                            latitude.toDouble() shouldBe coordinates[0]
-                            longitude.toDouble() shouldBe coordinates[1]
-                        }
+                        type shouldBe GeometryTypeEnum.POINT
+                        coordinates[0].toDouble() shouldBe coordinates[0]
+                        coordinates[1].toDouble() shouldBe coordinates[1]
                     }
                 }
                 with(roleToBeCreated.captured) {
