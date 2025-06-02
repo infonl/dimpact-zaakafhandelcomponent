@@ -23,6 +23,7 @@ import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.shared.model.createResultsOfZaakObjecten
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
@@ -57,7 +58,12 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a zaak with betrokkenen, without open tasks, zaak objecten and communication channels") {
+    Given(
+        """
+        A zaak with betrokkenen, without open tasks, zaak objecten, an archief nominatie, 
+        and communication channels
+        """
+    ) {
         val zaakType = createZaakType()
         val resultaatType = createResultaatType()
         val resultaat = createResultaat(
@@ -65,7 +71,8 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         )
         val zaak = createZaak(
             resultaat = resultaat.url,
-            zaakTypeURI = zaakType.url
+            zaakTypeURI = zaakType.url,
+            archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
         )
         val rolInitiator = createRolNatuurlijkPersoon(
             rolType = createRolType(omschrijving = "fake_role_initiator")
@@ -84,8 +91,6 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         val userBehandelaar = createUser()
         val zaakObjectenList = emptyList<Zaakobject>()
 
-        // combine multiple every calls below into one every call
-
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { zrcClientService.listRollen(zaak) } returns rollenZaak
         every { zrcClientService.listZaakobjecten(any()) } returns createResultsOfZaakObjecten(
@@ -93,7 +98,6 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
             count = zaakObjectenList.size
         )
         every { zrcClientService.readResultaat(zaak.resultaat) } returns resultaat
-
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolInitiator
         every { zgwApiService.findGroepForZaak(zaak) } returns null
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerkerBehandelaar
@@ -111,6 +115,8 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                 with(zaakZoekObject) {
                     getObjectId() shouldBe zaak.uuid.toString()
                     getType() shouldBe ZoekObjectType.ZAAK
+                    archiefNominatie shouldBe "VERNIETIGEN"
+                    archiefActiedatum shouldBe null
                     identificatie shouldBe zaak.identificatie
                     omschrijving shouldBe zaak.omschrijving
                     toelichting shouldBe zaak.toelichting
