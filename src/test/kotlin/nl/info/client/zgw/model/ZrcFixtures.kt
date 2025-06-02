@@ -18,7 +18,7 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
-import nl.info.client.zgw.zrc.model.GeoJSONGeometryToBeDeleted
+import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Opschorting
@@ -79,7 +79,7 @@ fun createOrganisatorischeEenheid(
 fun createGeoJSONGeometryWithDeletionSupport(
     longitude: BigDecimal = BigDecimal("4.56"),
     latitude: BigDecimal = BigDecimal("1.23")
-) = GeoJSONGeometryToBeDeleted().apply {
+) = DeleteGeoJSONGeometry().apply {
     this.type = GeometryTypeEnum.POINT
     this.coordinates = listOf(
         longitude,

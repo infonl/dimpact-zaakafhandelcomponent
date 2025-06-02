@@ -53,7 +53,7 @@ import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.client.zgw.zrc.model.GeoJSONGeometryToBeDeleted
+import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
 import nl.info.client.zgw.zrc.model.generated.RelevanteZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -369,7 +369,7 @@ class ZaakRestService @Inject constructor(
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).wijzigenLocatie)
         val zaakPatch = Zaak().apply {
             zaakgeometrie = restZaakLocatieGegevens.geometrie?.toGeoJSONGeometry()
-                ?: GeoJSONGeometryToBeDeleted()
+                ?: DeleteGeoJSONGeometry()
         }
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID = zaakUUID,

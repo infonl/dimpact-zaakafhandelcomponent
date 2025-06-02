@@ -57,7 +57,7 @@ import nl.info.client.zgw.model.createZaakobjectPand
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.client.zgw.zrc.model.GeoJSONGeometryToBeDeleted
+import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
@@ -889,7 +889,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
                 restZaak shouldBe updatedRestZaak
                 with(patchZaakSlot.captured) {
-                    zaakgeometrie.shouldBeInstanceOf<GeoJSONGeometryToBeDeleted>()
+                    zaakgeometrie.shouldBeInstanceOf<DeleteGeoJSONGeometry>()
                 }
             }
         }
