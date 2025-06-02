@@ -2,14 +2,18 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.zgw.zrc.model;
+package net.atos.client.zgw.zrc.model
 
-import java.util.UUID;
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
+import java.util.UUID
 
 /**
- * Zaak UUID
+ * Zaak UUID class as used by [nl.info.client.zgw.ztc.ZtcClient].
+ * The variable requires a setter function for the Eclipse MicroProfile REST Client library.
  *
  * @param uuid Unieke resource identifier (UUID4)
  */
-public record ZaakUuid(UUID uuid) {
-}
+@NoArgConstructor
+@AllOpen
+data class ZaakUuid(var uuid: UUID)

@@ -2,35 +2,26 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.client.zgw.zrc.model
 
-package net.atos.client.zgw.zrc.model;
+import jakarta.json.bind.annotation.JsonbCreator
+import jakarta.json.bind.annotation.JsonbProperty
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
+import java.net.URI
 
-import java.net.URI;
-
-import jakarta.json.bind.annotation.JsonbCreator;
-import jakarta.json.bind.annotation.JsonbProperty;
-
-/**
- * Een relevante andere zaak.
- *
- * @param url         URL-referentie naar de ZAAK.
- * @param aardRelatie 'Benamingen van de aard van de relaties van andere zaken tot (onderhanden) zaken.
- */
-public record RelevanteZaak(URI url, AardRelatie aardRelatie) {
+@NoArgConstructor
+@AllOpen
+data class RelevanteZaak @JsonbCreator constructor(
+    /**
+     * URL-referentie naar de ZAAK.
+     */
+    @param:JsonbProperty("url") val url: URI,
 
     /**
-     * Constructor with required attributes for POST and PUT requests and GET response
+     * 'Benamingen van de aard van de relaties van andere zaken tot (onderhanden) zaken.'
      */
-    @JsonbCreator
-    public RelevanteZaak(
-            @JsonbProperty("url") final URI url,
-            @JsonbProperty("aardRelatie") final AardRelatie aardRelatie
-    ) {
-        this.url = url;
-        this.aardRelatie = aardRelatie;
-    }
-
-    public boolean is(final URI url, final AardRelatie aardRelatie) {
-        return this.aardRelatie == aardRelatie && this.url.equals(url);
-    }
+    @param:JsonbProperty("aardRelatie") val aardRelatie: AardRelatie
+) {
+    fun `is`(url: URI, aardRelatie: AardRelatie): Boolean = this.aardRelatie == aardRelatie && this.url == url
 }

@@ -1050,7 +1050,7 @@ class ZaakRestService @Inject constructor(
         datum.isBefore(datumWaarschuwing)
 
     private fun koppelHoofdEnDeelzaak(hoofdZaak: Zaak, deelZaak: Zaak) {
-        zrcClientService.patchZaak(deelZaak.uuid, HoofdzaakZaakPatch(hoofdZaak.url))
+        zrcClientService.patchZaak(deelZaak.uuid, Zaak().apply { hoofdzaak = hoofdZaak.url })
         // Open Zaak only sends a notification for the subcase.
         // So we manually send a ScreenEvent for the main case.
         indexingService.addOrUpdateZaak(hoofdZaak.uuid, false)
