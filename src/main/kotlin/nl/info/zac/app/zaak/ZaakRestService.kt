@@ -27,8 +27,6 @@ import kotlinx.coroutines.launch
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
-import net.atos.client.zgw.zrc.model.HoofdzaakZaakPatch
-import net.atos.client.zgw.zrc.model.RelevantezaakZaakPatch
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.client.zgw.zrc.model.ZaakListParameters
@@ -54,6 +52,8 @@ import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
+import nl.info.client.zgw.zrc.model.NillableHoofdzaakZaakPatch
+import nl.info.client.zgw.zrc.model.NillableRelevanteZakenZaakPatch
 import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
 import nl.info.client.zgw.zrc.model.generated.RelevanteZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -1050,9 +1050,12 @@ class ZaakRestService @Inject constructor(
         datum.isBefore(datumWaarschuwing)
 
     private fun koppelHoofdEnDeelzaak(hoofdZaak: Zaak, deelZaak: Zaak) {
-        zrcClientService.patchZaak(deelZaak.uuid, HoofdzaakZaakPatch(hoofdZaak.url))
-        // Open Zaak only sends a notification for the subcase.
-        // So we manually send a ScreenEvent for the main case.
+        zrcClientService.patchZaak(
+            zaakUUID = deelZaak.uuid,
+            zaak = NillableHoofdzaakZaakPatch(hoofdzaak = hoofdZaak.url)
+        )
+        // Open Zaak only sends a notification for the deelzaak.
+        // So we manually send a ScreenEvent for the hoofdzaak.
         indexingService.addOrUpdateZaak(hoofdZaak.uuid, false)
         eventingService.send(ScreenEventType.ZAAK.updated(hoofdZaak.uuid))
     }
@@ -1089,13 +1092,13 @@ class ZaakRestService @Inject constructor(
     ) {
         zrcClientService.patchZaak(
             zaak.uuid,
-            RelevantezaakZaakPatch(
-                addRelevanteZaak(
+            Zaak().apply {
+                relevanteAndereZaken = addRelevanteZaak(
                     zaak.relevanteAndereZaken,
                     andereZaak.url,
                     aardRelatie
                 )
-            )
+            }
         )
     }
 
@@ -1104,7 +1107,11 @@ class ZaakRestService @Inject constructor(
         deelZaak: Zaak,
         explanation: String
     ) {
-        zrcClientService.patchZaak(deelZaak.uuid, HoofdzaakZaakPatch(null), explanation)
+        zrcClientService.patchZaak(
+            zaakUUID = deelZaak.uuid,
+            zaak = NillableHoofdzaakZaakPatch(hoofdzaak = null),
+            explanation = explanation
+        )
         // Hiervoor wordt door open zaak alleen voor de deelzaak een notificatie verstuurd.
         // Dus zelf het ScreenEvent versturen voor de hoofdzaak!
         indexingService.addOrUpdateZaak(hoofdZaak.uuid, false)
@@ -1119,8 +1126,8 @@ class ZaakRestService @Inject constructor(
     ) {
         zrcClientService.patchZaak(
             zaakUUID = zaak.uuid,
-            zaak = RelevantezaakZaakPatch(
-                removeRelevanteZaak(zaak.relevanteAndereZaken, andereZaak.url, aardRelatie)
+            zaak = NillableRelevanteZakenZaakPatch(
+                relevanteAndereZaken = removeRelevanteZaak(zaak.relevanteAndereZaken, andereZaak.url, aardRelatie)
             ),
             explanation = explanation
         )
