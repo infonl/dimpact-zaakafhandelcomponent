@@ -27,7 +27,6 @@ import jakarta.ws.rs.core.MediaType;
 import net.atos.client.bag.BagClientService;
 import net.atos.client.bag.model.BevraagAdressenParameters;
 import net.atos.client.zgw.shared.model.Results;
-import net.atos.client.zgw.zrc.model.Objecttype;
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters;
 import net.atos.zac.app.bag.converter.RestAdresConverter;
@@ -43,6 +42,7 @@ import net.atos.zac.app.bag.model.RESTBAGObjectGegevens;
 import net.atos.zac.app.bag.model.RESTListAdressenParameters;
 import net.atos.zac.app.shared.RESTResultaat;
 import nl.info.client.zgw.zrc.ZrcClientService;
+import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.zac.policy.PolicyService;
 
@@ -149,11 +149,11 @@ public class BagRestService {
         zaakobjectListParameters.setZaak(zaak.getUrl());
         zaakobjectListParameters.setObject(restbagObject.url);
         switch (restbagObject.getBagObjectType()) {
-            case ADRES -> zaakobjectListParameters.setObjectType(Objecttype.ADRES);
-            case NUMMERAANDUIDING -> zaakobjectListParameters.setObjectType(Objecttype.OVERIGE);
-            case WOONPLAATS -> zaakobjectListParameters.setObjectType(Objecttype.WOONPLAATS);
-            case PAND -> zaakobjectListParameters.setObjectType(Objecttype.PAND);
-            case OPENBARE_RUIMTE -> zaakobjectListParameters.setObjectType(Objecttype.OPENBARE_RUIMTE);
+            case ADRES -> zaakobjectListParameters.setObjectType(ObjectTypeEnum.ADRES);
+            case NUMMERAANDUIDING -> zaakobjectListParameters.setObjectType(ObjectTypeEnum.OVERIGE);
+            case WOONPLAATS -> zaakobjectListParameters.setObjectType(ObjectTypeEnum.WOONPLAATS);
+            case PAND -> zaakobjectListParameters.setObjectType(ObjectTypeEnum.PAND);
+            case OPENBARE_RUIMTE -> zaakobjectListParameters.setObjectType(ObjectTypeEnum.OPENBARE_RUIMTE);
         }
         final Results<Zaakobject> zaakobjecten = zrcClientService.listZaakobjecten(zaakobjectListParameters);
         return zaakobjecten.getResults().isEmpty();

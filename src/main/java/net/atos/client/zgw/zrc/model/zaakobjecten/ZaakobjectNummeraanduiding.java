@@ -1,13 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.zrc.model.zaakobjecten;
 
 import java.net.URI;
 
-import net.atos.client.zgw.zrc.model.Objecttype;
+import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum;
 
 /**
  * ZaakobjectNummeraanduiding
@@ -26,7 +25,7 @@ public class ZaakobjectNummeraanduiding extends ZaakobjectMetObjectIdentificatie
      * Constructor with required attributes
      */
     public ZaakobjectNummeraanduiding(final URI zaak, final URI bagObjectUri, final ObjectNummeraanduiding nummeraanduiding) {
-        super(zaak, bagObjectUri, Objecttype.OVERIGE, new ObjectOverige<>(nummeraanduiding));
+        super(zaak, bagObjectUri, ObjectTypeEnum.OVERIGE, new ObjectOverige<>(nummeraanduiding));
         setObjectTypeOverige(OBJECT_TYPE_OVERIGE);
     }
 
