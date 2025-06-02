@@ -22,6 +22,4 @@ data class RelevanteZaak @JsonbCreator constructor(
      * 'Benamingen van de aard van de relaties van andere zaken tot (onderhanden) zaken.'
      */
     @param:JsonbProperty("aardRelatie") val aardRelatie: AardRelatie
-) {
-    fun `is`(url: URI, aardRelatie: AardRelatie): Boolean = this.aardRelatie == aardRelatie && this.url == url
-}
+)

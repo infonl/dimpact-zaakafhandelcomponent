@@ -10,10 +10,13 @@ import java.net.URI
 
 /**
  * Extension of [Zaak] to be able to delete the hoofdzaak of a zaak.
- * As per the ZGW ZRC API, to remove the hoofdzaak from a zaak, the hoofdzaak needs to be set to `null`.
  */
-class HoofdzaakZaakPatch(@field:JsonbNillable private val hoofdzaak: URI?) : Zaak() {
-    override fun getHoofdzaak(): URI? {
-        return hoofdzaak
-    }
+class HoofdzaakZaakPatch(
+    // As per the ZGW ZRC API, to remove the hoofdzaak from a zaak, the hoofdzaak needs to be set to `null`
+    // in the ZGW API JSON request body.
+    // Therefore, we override the parent `hoofdzaak` property that can it can output a `null` JSON value.
+    @field:JsonbNillable
+    private val hoofdzaak: URI? = null
+) : Zaak() {
+    override fun getHoofdzaak(): URI? = hoofdzaak
 }

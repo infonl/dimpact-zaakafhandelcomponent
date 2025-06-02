@@ -7,8 +7,13 @@ package net.atos.client.zgw.zrc.model
 import jakarta.json.bind.annotation.JsonbNillable
 import nl.info.client.zgw.zrc.model.generated.RelevanteZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.zac.util.AllOpen
 
-class RelevantezaakZaakPatch(@field:JsonbNillable private val relevanteAndereZaken: List<RelevanteZaak>?) : Zaak() {
+class RelevantezaakZaakPatch(
+    // As per the ZGW ZRC API, to remove the relevante zaken from a zaak, the relevante zaken list needs to be set to `null`
+    // in the ZGW API JSON request body.
+    // Therefore, we override the parent `relevanteAndereZaken` property so that it can output a `null` JSON value.
+    @field:JsonbNillable
+    private val relevanteAndereZaken: List<RelevanteZaak>?
+) : Zaak() {
     override fun getRelevanteAndereZaken() = relevanteAndereZaken
 }
