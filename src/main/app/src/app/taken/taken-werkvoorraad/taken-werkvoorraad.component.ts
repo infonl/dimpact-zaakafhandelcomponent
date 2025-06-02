@@ -286,7 +286,7 @@ export class TakenWerkvoorraadComponent
       }
 
       this.toekenning = result;
-      const message = tasks.length
+      const message = tasks.length === 1
         ? this.translateService.instant("msg.verdeeld.taak")
         : this.translateService.instant("msg.vrijgegeven.taken", {
             aantal: tasks.length,
