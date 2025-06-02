@@ -74,7 +74,8 @@ class ZaakZoekObjectConverter @Inject constructor(
                 redenOpschorting = zaak.opschorting.reden
                 setIndicatie(ZaakIndicatie.OPSCHORTING, true)
             }
-            zaak.archiefnominatie?.let { archiefNominatie = it.toString() }
+            // we use the name of this enum in the search index (i.e., capitalized)
+            zaak.archiefnominatie?.let { archiefNominatie = it.name }
             setIndicatie(ZaakIndicatie.DEELZAAK, zaak.isDeelzaak())
             setIndicatie(ZaakIndicatie.HOOFDZAAK, zaak.isHoofdzaak())
         }
