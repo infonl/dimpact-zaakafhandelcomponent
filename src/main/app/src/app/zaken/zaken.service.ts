@@ -171,7 +171,7 @@ export class ZakenService {
     );
   }
 
-  vrijgevenVanuitLijst(uuids: string[], reden?: string): Observable<void> {
+  vrijgevenVanuitLijst(uuids: string[], reden?: string) {
     return this.zacHttpClient.PUT(
       "/rest/zaken/lijst/vrijgeven",
       {

@@ -11,6 +11,7 @@ import { HttpClient } from "@angular/common/http";
 import { DashboardCardInstelling } from "../dashboard/model/dashboard-card-instelling";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { TabelGegevens } from "../shared/dynamic-table/model/tabel-gegevens";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { Werklijst } from "./model/werklijst";
 import { Zoekopdracht } from "./model/zoekopdracht";
 
@@ -76,7 +77,7 @@ export class GebruikersvoorkeurenService {
   }
 
   updateAantalPerPagina(
-    werklijst: Werklijst,
+    werklijst: GeneratedType<"Werklijst">,
     aantal: number,
   ): Observable<void> {
     return this.http
