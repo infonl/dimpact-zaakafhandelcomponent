@@ -138,14 +138,28 @@ export class FormioSetupService {
   }
 
   private findSmartDocumentsPath(fieldsetComponent: ExtendedComponentSchema) {
-    const componentWithProperties = fieldsetComponent.components?.find(
-      (component: ExtendedComponentSchema) =>
-        Object.keys(component.properties || []).length > 0,
-    );
+    const componentWithProperties =
+      this.getComponentWithProperties(fieldsetComponent);
     const smartDocumentsPath: GeneratedType<"RestSmartDocumentsPath"> = {
       path: this.getSmartDocumentsGroups(componentWithProperties),
     };
     return smartDocumentsPath;
+  }
+
+  /**
+   * Find the first subcomponent that has properties
+   *
+   * @param component Parent component
+   * @return sub-component with at least one property
+   * @private
+   */
+  private getComponentWithProperties(
+    component: ExtendedComponentSchema,
+  ): ExtendedComponentSchema {
+    return component.components?.find(
+      (component: ExtendedComponentSchema) =>
+        Object.keys(component.properties || []).length > 0,
+    );
   }
 
   getSmartDocumentsGroups(component: ExtendedComponentSchema): string[] {
@@ -198,7 +212,8 @@ export class FormioSetupService {
     fieldsetComponent: ExtendedComponentSchema,
   ) {
     fieldsetComponent.type = "fieldset";
-    const referenceTableSelector = fieldsetComponent.components[0];
+    const referenceTableSelector =
+      this.getComponentWithProperties(fieldsetComponent);
     this.initializeReferenceTableSelectorComponent(referenceTableSelector);
   }
 
