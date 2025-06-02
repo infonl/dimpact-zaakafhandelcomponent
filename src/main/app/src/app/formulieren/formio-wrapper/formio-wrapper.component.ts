@@ -55,6 +55,10 @@ export class FormioWrapperComponent {
 export interface FormioCustomEvent {
   type: string;
   component: ExtendedComponentSchema;
-  data: Record<string, object>;
+  data: Record<string, string>;
   event?: Event;
+}
+
+export interface FormioChangeEvent {
+  data: Record<string, string>;
 }
