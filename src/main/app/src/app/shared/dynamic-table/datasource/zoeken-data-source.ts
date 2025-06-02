@@ -11,7 +11,6 @@ import { MatSort } from "@angular/material/sort";
 import { BehaviorSubject, Observable, Subscription, merge } from "rxjs";
 import { finalize, tap } from "rxjs/operators";
 import { UtilService } from "../../../core/service/util.service";
-import { Werklijst } from "../../../gebruikersvoorkeuren/model/werklijst";
 import { Zoekopdracht } from "../../../gebruikersvoorkeuren/model/zoekopdracht";
 import { FilterResultaat } from "../../../zoeken/model/filter-resultaat";
 import { FilterVeld } from "../../../zoeken/model/filter-veld";
@@ -21,6 +20,7 @@ import { ZoekParameters } from "../../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../../zoeken/model/zoek-resultaat";
 import { ZoekenService } from "../../../zoeken/zoeken.service";
 import { SessionStorageUtil } from "../../storage/session-storage.util";
+import { GeneratedType } from "../../utils/generated-types";
 import { ColumnPickerValue } from "../column-picker/column-picker-value";
 import { ZoekenColumn } from "../model/zoeken-column";
 
@@ -46,7 +46,7 @@ export abstract class ZoekenDataSource<
   private subscriptions$: Subscription[] = [];
 
   protected constructor(
-    public werklijst: Werklijst,
+    public werklijst: GeneratedType<"Werklijst">,
     private zoekenService: ZoekenService,
     private utilService: UtilService,
   ) {

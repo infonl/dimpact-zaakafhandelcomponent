@@ -28,8 +28,8 @@ export class TaakZoekObject implements ZoekObject {
   fataledatum: string;
   groepID: string;
   groepNaam: string;
-  behandelaarNaam: string;
-  behandelaarGebruikersnaam: string;
+  behandelaarNaam?: string;
+  behandelaarGebruikersnaam?: string;
   taakData: string[];
   taakInformatie: string[];
   rechten: TaakRechten;

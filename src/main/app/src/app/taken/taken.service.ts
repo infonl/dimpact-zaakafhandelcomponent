@@ -7,10 +7,10 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
-import { WebsocketService } from "../core/websocket/websocket.service";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { TableRequest } from "../shared/dynamic-table/datasource/table-request";
 import { TaakHistorieRegel } from "../shared/historie/model/taak-historie-regel";
+import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { TaakZoekObject } from "../zoeken/model/taken/taak-zoek-object";
 import { Taak } from "./model/taak";
@@ -22,9 +22,9 @@ import { TaakVerdelenGegevens } from "./model/taak-verdelen-gegevens";
 })
 export class TakenService {
   constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
-    private websocketService: WebsocketService,
+    private readonly http: HttpClient,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
+    private readonly zacHttpClient: ZacHttpClient,
   ) {}
 
   private basepath = "/rest/taken";
@@ -149,22 +149,7 @@ export class TakenService {
       );
   }
 
-  vrijgevenVanuitLijst(
-    taken: TaakZoekObject[],
-    reden: string,
-    screenEventResourceId: string,
-  ): Observable<void> {
-    const taakBody: TaakVerdelenGegevens = new TaakVerdelenGegevens();
-    taakBody.taken = taken.map((taak) => ({
-      taakId: taak.id,
-      zaakUuid: taak.zaakUuid,
-    }));
-    taakBody.reden = reden;
-    taakBody.screenEventResourceId = screenEventResourceId;
-    return this.http
-      .put<void>(`${this.basepath}/lijst/vrijgeven`, taakBody)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  vrijgevenVanuitLijst(body: PutBody<"/rest/taken/lijst/vrijgeven">) {
+    return this.zacHttpClient.PUT("/rest/taken/lijst/vrijgeven", body, {});
   }
 }
