@@ -18,7 +18,6 @@ import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.or.`object`.model.createObjectRecord
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.admin.ZaakafhandelParameterService
@@ -32,6 +31,7 @@ import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import nl.info.client.zgw.model.createZaakobjectProductaanvraag
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -309,7 +309,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     }
                 }
                 with(roleToBeCreated.captured) {
-                    betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.NATUURLIJK_PERSOON
                     identificatienummer shouldBe bsnNumber
                     roltype shouldBe rolTypeInitiator.url
                     zaak shouldBe createdZaak.url
@@ -400,7 +400,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     toelichting shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'."
                 }
                 with(roleToBeCreated.captured) {
-                    betrokkeneType shouldBe BetrokkeneType.VESTIGING
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.VESTIGING
                     identificatienummer shouldBe vestigingsNummer
                     roltype shouldBe rolType.url
                     zaak shouldBe createdZaak.url
@@ -770,37 +770,37 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     it.zaak shouldBe createdZaak.url
                 }
                 with(rolesToBeCreated[0]) {
-                    betrokkeneType shouldBe BetrokkeneType.VESTIGING
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.VESTIGING
                     identificatienummer shouldBe belanghebbendeVestigingsnummer1
                     roltype shouldBe rolTypeBelanghebbende.url
                 }
                 with(rolesToBeCreated[1]) {
-                    betrokkeneType shouldBe BetrokkeneType.VESTIGING
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.VESTIGING
                     identificatienummer shouldBe belanghebbendeVestigingsnummer2
                     roltype shouldBe rolTypeBelanghebbende.url
                 }
                 with(rolesToBeCreated[2]) {
-                    betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.NATUURLIJK_PERSOON
                     identificatienummer shouldBe beslisserBsn
                     roltype shouldBe rolTypeBeslisser.url
                 }
                 with(rolesToBeCreated[3]) {
-                    betrokkeneType shouldBe BetrokkeneType.VESTIGING
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.VESTIGING
                     identificatienummer shouldBe beslisserVestigingsnummer
                     roltype shouldBe rolTypeBeslisser.url
                 }
                 with(rolesToBeCreated[4]) {
-                    betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.NATUURLIJK_PERSOON
                     identificatienummer shouldBe klantcontacterBsn
                     roltype shouldBe rolTypeKlantcontacter1.url
                 }
                 with(rolesToBeCreated[5]) {
-                    betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.NATUURLIJK_PERSOON
                     identificatienummer shouldBe medeInitiatorBsn
                     roltype shouldBe rolTypeMedeInitiator.url
                 }
                 with(rolesToBeCreated[6]) {
-                    betrokkeneType shouldBe BetrokkeneType.VESTIGING
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.VESTIGING
                     identificatienummer shouldBe zaakcoordinatorVestigingsnummer
                     roltype shouldBe rolTypeZaakcoordinator.url
                 }

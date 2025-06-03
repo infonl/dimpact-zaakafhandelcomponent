@@ -24,7 +24,6 @@ import kotlinx.coroutines.test.runTest
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.Rol
@@ -60,6 +59,7 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -312,7 +312,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaakCreatedSlot.captured shouldBe zaak
                 with(rolGroupSlotOrganisatorischeEenheidSlot.captured) {
                     this.zaak shouldBe rolOrganisatorischeEenheid.zaak
-                    betrokkeneType shouldBe BetrokkeneType.ORGANISATORISCHE_EENHEID
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
                 }
             }
         }
@@ -402,7 +402,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                 }
                 with(rolSlot[0]) {
-                    betrokkeneType shouldBe BetrokkeneType.MEDEWERKER
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
                     with(betrokkeneIdentificatie as Medewerker) {
                         identificatie shouldBe rolMedewerker.betrokkeneIdentificatie!!.identificatie
                     }
@@ -410,7 +410,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     omschrijving shouldBe rolType.omschrijving
                 }
                 with(rolSlot[1]) {
-                    betrokkeneType shouldBe BetrokkeneType.ORGANISATORISCHE_EENHEID
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
                     with(betrokkeneIdentificatie as OrganisatorischeEenheid) {
                         identificatie shouldBe rolGroup.betrokkeneIdentificatie!!.identificatie
                     }
@@ -494,7 +494,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                 }
                 with(rolSlot[0]) {
-                    betrokkeneType shouldBe BetrokkeneType.MEDEWERKER
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
                     with(betrokkeneIdentificatie as Medewerker) {
                         identificatie shouldBe rolMedewerker.betrokkeneIdentificatie!!.identificatie
                     }
@@ -502,7 +502,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     omschrijving shouldBe rolType.omschrijving
                 }
                 with(rolSlot[1]) {
-                    betrokkeneType shouldBe BetrokkeneType.ORGANISATORISCHE_EENHEID
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
                     with(betrokkeneIdentificatie as OrganisatorischeEenheid) {
                         identificatie shouldBe rolGroup.betrokkeneIdentificatie!!.identificatie
                     }

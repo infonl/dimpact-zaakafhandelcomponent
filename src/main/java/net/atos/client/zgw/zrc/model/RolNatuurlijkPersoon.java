@@ -10,6 +10,7 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
 import nl.info.client.zgw.ztc.model.generated.RolType;
 
 public class RolNatuurlijkPersoon extends Rol<NatuurlijkPersoon> {
@@ -23,7 +24,7 @@ public class RolNatuurlijkPersoon extends Rol<NatuurlijkPersoon> {
             final String roltoelichting,
             final NatuurlijkPersoon betrokkeneIdentificatie
     ) {
-        super(zaak, roltype, BetrokkeneType.NATUURLIJK_PERSOON, betrokkeneIdentificatie, roltoelichting);
+        super(zaak, roltype, BetrokkeneTypeEnum.NATUURLIJK_PERSOON, betrokkeneIdentificatie, roltoelichting);
     }
 
     @Override
