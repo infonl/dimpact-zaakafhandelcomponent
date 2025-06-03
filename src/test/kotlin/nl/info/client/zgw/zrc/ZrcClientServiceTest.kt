@@ -14,7 +14,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
-import nl.info.client.zgw.model.createMedewerker
+import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolMedewerkerForReads
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
@@ -57,7 +57,7 @@ class ZrcClientServiceTest : BehaviorSpec({
         val zaak = createZaak()
         val existingRoles = listOf(createRolMedewerker(), createRolOrganisatorischeEenheid())
         val newRole = createRolMedewerker(
-            betrokkeneIdentificatie = createMedewerker(identificatie = "fakeIdentificatie123")
+            betrokkeneIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeIdentificatie123")
         )
         val description = "fakeDescription"
         every { zrcClient.rolList(any()) } returns Results(existingRoles, existingRoles.size)

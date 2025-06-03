@@ -14,7 +14,7 @@ import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.zac.flowable.task.FlowableTaskService
-import nl.info.client.zgw.model.createNatuurlijkPersoon
+import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createResultaat
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
@@ -79,11 +79,11 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         )
         val rolAdviseur = createRolNatuurlijkPersoon(
             rolType = createRolType(omschrijving = "fake_role_adviseur"),
-            natuurlijkPersoon = createNatuurlijkPersoon(bsn = "fakeBsnAdviseur")
+            natuurlijkPersoon = createNatuurlijkPersoonIdentificatie(bsn = "fakeBsnAdviseur")
         )
         val rolBelanghebbende = createRolNatuurlijkPersoon(
             rolType = createRolType(omschrijving = "fake_role_belanghebbende"),
-            natuurlijkPersoon = createNatuurlijkPersoon(bsn = "fakeBsnBelanghebbende")
+            natuurlijkPersoon = createNatuurlijkPersoonIdentificatie(bsn = "fakeBsnBelanghebbende")
 
         )
         val rollenZaak = listOf(rolAdviseur, rolBelanghebbende)
@@ -157,11 +157,11 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         )
         val rolAdviseur = createRolNatuurlijkPersoon(
             rolType = createRolType(omschrijving = "fake_role_adviseur"),
-            natuurlijkPersoon = createNatuurlijkPersoon(bsn = "fakeBsnAdviseur")
+            natuurlijkPersoon = createNatuurlijkPersoonIdentificatie(bsn = "fakeBsnAdviseur")
         )
         val rolBelanghebbende = createRolNatuurlijkPersoon(
             rolType = createRolType(omschrijving = "fake_role_belanghebbende"),
-            natuurlijkPersoon = createNatuurlijkPersoon(bsn = "fakeBsnBelanghebbende")
+            natuurlijkPersoon = createNatuurlijkPersoonIdentificatie(bsn = "fakeBsnBelanghebbende")
 
         )
         val rollenZaak = listOf(rolAdviseur, rolBelanghebbende)

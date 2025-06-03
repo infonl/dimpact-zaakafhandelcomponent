@@ -5,6 +5,8 @@
 package net.atos.zac.signalering.event;
 
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
+import static nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.MEDEWERKER;
+import static nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID;
 
 import java.net.URI;
 import java.util.Optional;

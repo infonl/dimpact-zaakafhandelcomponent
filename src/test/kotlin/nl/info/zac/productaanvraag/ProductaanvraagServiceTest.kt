@@ -304,8 +304,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         .take(1000)
                     with(zaakgeometrie) {
                         type shouldBe GeometryTypeEnum.POINT
-                        coordinates[0].toDouble() shouldBe coordinates[0]
-                        coordinates[1].toDouble() shouldBe coordinates[1]
+                        // productaanvraag coordinates have the order [latitude, longitude]
+                        // but the ZGW API expects them in the order [longitude, latitude]
+                        this.coordinates[0].toDouble() shouldBe coordinates[1]
+                        this.coordinates[1].toDouble() shouldBe coordinates[0]
                     }
                 }
                 with(roleToBeCreated.captured) {

@@ -31,7 +31,9 @@ import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NATUURLIJK_PERSOON
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING
 import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isOpgeschort
@@ -120,12 +122,12 @@ class DocumentCreationDataConverter @Inject constructor(
 
     private fun convertToAanvragerData(initiator: Rol<*>, zaakNummer: String): AanvragerData? =
         when (initiator.betrokkeneType) {
-            BetrokkeneTypeEnum.NATUURLIJK_PERSOON -> createAanvragerDataNatuurlijkPersoon(
+            NATUURLIJK_PERSOON -> createAanvragerDataNatuurlijkPersoon(
                 initiator.identificatienummer,
                 "$zaakNummer@$ACTION"
             )
-            BetrokkeneTypeEnum.VESTIGING -> createAanvragerDataVestiging(initiator.identificatienummer)
-            BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON -> createAanvragerDataNietNatuurlijkPersoon(
+            VESTIGING -> createAanvragerDataVestiging(initiator.identificatienummer)
+            NIET_NATUURLIJK_PERSOON -> createAanvragerDataNietNatuurlijkPersoon(
                 initiator.identificatienummer
             )
             else -> error(

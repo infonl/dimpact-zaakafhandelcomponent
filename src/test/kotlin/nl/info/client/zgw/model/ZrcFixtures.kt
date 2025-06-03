@@ -5,12 +5,10 @@
 package nl.info.client.zgw.model
 
 import net.atos.client.zgw.zrc.model.AardRelatieWeergave
-import net.atos.client.zgw.zrc.model.Medewerker
-import net.atos.client.zgw.zrc.model.NatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
+import net.atos.client.zgw.zrc.model.RolVestiging
 import net.atos.client.zgw.zrc.model.Status
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte
@@ -21,10 +19,14 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
+import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
+import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Opschorting
+import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.zrc.model.generated.Verlenging
 import nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.generated.RolType
@@ -34,19 +36,21 @@ import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
 
-fun createMedewerker(
+fun createMedewerkerIdentificatie(
     identificatie: String = "fakeIdentificatie",
     achternaam: String = "fakeAchternaam",
     voorletters: String = "fakeVoorletters",
     voorvoegselAchternaam: String? = null
-) = Medewerker().apply {
+) = MedewerkerIdentificatie().apply {
     this.identificatie = identificatie
     this.achternaam = achternaam
     this.voorletters = voorletters
     this.voorvoegselAchternaam = voorvoegselAchternaam
 }
 
-fun createNatuurlijkPersoon(bsn: String = "fakeBsn") = NatuurlijkPersoon(bsn)
+fun createNatuurlijkPersoonIdentificatie(bsn: String = "fakeBsn") = NatuurlijkPersoonIdentificatie().apply {
+    this.inpBsn = bsn
+}
 
 fun createObjectOpenbareRuimte(
     identificatie: String = "fakeIdentificatie",
@@ -71,7 +75,7 @@ fun createOpschorting(
 fun createOrganisatorischeEenheid(
     identificatie: String = "fakeIdentificatie",
     naam: String = "fakeNaam"
-) = OrganisatorischeEenheid().apply {
+) = OrganisatorischeEenheidIdentificatie().apply {
     this.identificatie = identificatie
     this.naam = naam
 }
@@ -102,7 +106,7 @@ fun createRolMedewerker(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(),
     roltoelichting: String = "fakeToelichting",
-    betrokkeneIdentificatie: Medewerker? = createMedewerker()
+    betrokkeneIdentificatie: MedewerkerIdentificatie? = createMedewerkerIdentificatie()
 ) = RolMedewerker(
     zaakURI,
     rolType,
@@ -122,7 +126,7 @@ fun createRolNatuurlijkPersoon(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(zaakTypeUri = zaakURI),
     toelichting: String = "fakeToelichting",
-    natuurlijkPersoon: NatuurlijkPersoon = createNatuurlijkPersoon()
+    natuurlijkPersoon: NatuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie()
 ) = RolNatuurlijkPersoon(
     zaakURI,
     rolType,
@@ -134,7 +138,7 @@ fun createRolOrganisatorischeEenheid(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(),
     toelichting: String = "fakeToelichting",
-    organisatorischeEenheid: OrganisatorischeEenheid = createOrganisatorischeEenheid()
+    organisatorischeEenheid: OrganisatorischeEenheidIdentificatie = createOrganisatorischeEenheid()
 ) = RolOrganisatorischeEenheid(
     zaakURI,
     rolType,
@@ -149,6 +153,28 @@ fun createRolOrganisatorischeEenheidForReads(
     uuid,
     rolType
 )
+
+fun createRolVestiging(
+    zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    rolType: RolType = createRolType(),
+    toelichting: String = "fakeToelichting",
+    vestigingIdentificatie: VestigingIdentificatie = createVestigingIdentificatie()
+) = RolVestiging(
+    zaakURI,
+    rolType,
+    toelichting,
+    vestigingIdentificatie
+)
+
+fun createVestigingIdentificatie(
+    vestigingsNummer: String = "fakeVestigingsNummer",
+    handelsnaam: List<String>? = listOf("fakeHandelsnaam1", "fakeHandelsnaam2"),
+    kvkNummer: String = "fakeKvkNummer"
+) = VestigingIdentificatie().apply {
+    this.vestigingsNummer = vestigingsNummer
+    this.handelsnaam = handelsnaam
+    this.kvkNummer = kvkNummer
+}
 
 @Suppress("LongParameterList")
 fun createZaak(
