@@ -6,8 +6,8 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { UtilService } from "../../core/service/util.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
-import { Bedrijf } from "../model/bedrijven/bedrijf";
 import { Vestigingsprofiel } from "../model/bedrijven/vestigingsprofiel";
 
 @Component({
@@ -15,7 +15,7 @@ import { Vestigingsprofiel } from "../model/bedrijven/vestigingsprofiel";
   styleUrls: ["./bedrijf-view.component.less"],
 })
 export class BedrijfViewComponent implements OnInit {
-  bedrijf: Bedrijf;
+  bedrijf: GeneratedType<"RestBedrijf">;
   vestigingsprofiel: Vestigingsprofiel = null;
   vestigingsprofielOphalenMogelijk = true;
 
@@ -35,6 +35,7 @@ export class BedrijfViewComponent implements OnInit {
 
   ophalenVestigingsprofiel() {
     this.vestigingsprofielOphalenMogelijk = false;
+    if (!this.bedrijf.vestigingsnummer) return;
     this.klantenService
       .readVestigingsprofiel(this.bedrijf.vestigingsnummer)
       .subscribe((value) => {

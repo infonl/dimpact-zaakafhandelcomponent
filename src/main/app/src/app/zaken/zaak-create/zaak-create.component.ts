@@ -18,7 +18,6 @@ import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { KlantenService } from "../../klanten/klanten.service";
-import { Bedrijf } from "../../klanten/model/bedrijven/bedrijf";
 import { Klant } from "../../klanten/model/klanten/klant";
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import {
@@ -201,7 +200,7 @@ export class ZaakCreateComponent {
     );
 
     let observable:
-      | Observable<GeneratedType<"RestPersoon"> | Bedrijf>
+      | Observable<GeneratedType<"RestPersoon"> | GeneratedType<"RestBedrijf">>
       | undefined = undefined;
 
     const { initiatorID } = productRequest;
