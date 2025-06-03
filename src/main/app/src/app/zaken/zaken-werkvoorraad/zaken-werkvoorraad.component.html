@@ -445,7 +445,7 @@
         <zac-facet-filter
           label="indicaties"
           [filter]="dataSource.zoekParameters.filters.ZAAK_INDICATIES"
-          [opties]="dataSource.beschikbareFilters.ZAAK_INDICATIES"
+          [opties]="dataSource.beschikbareFilters.ZAAK_INDICATIES ?? []"
           (changed)="
             dataSource.zoekParameters.filters.ZAAK_INDICATIES = $event;
             filtersChange()
@@ -530,7 +530,7 @@
       >
         <div
           class="row-detail"
-          [@detailExpand]="row == expandedRow ? 'expanded' : 'collapsed'"
+          [@detailExpand]="row === expandedRow ? 'expanded' : 'collapsed'"
         >
           <div class="flex-row flex-wrap">
             <ng-container

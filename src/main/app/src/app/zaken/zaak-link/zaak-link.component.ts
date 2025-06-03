@@ -13,12 +13,10 @@ import {
 import { FormBuilder, FormControl, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
-import { TranslateService } from "@ngx-translate/core";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
-import { ZaakRelatietype } from "../model/zaak-relatietype";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -44,14 +42,17 @@ export class ZaakLinkComponent implements OnDestroy {
   ] as const;
   public loading = false;
 
-  protected caseRelationOptionsList = [
+  protected caseRelationOptionsList: {
+    label: `zaak.koppelen.link.type.${GeneratedType<"RelatieType">}`;
+    value: GeneratedType<"RelatieType">;
+  }[] = [
     {
-      label: `zaak.koppelen.link.type.${ZaakRelatietype.DEELZAAK}`,
-      value: ZaakRelatietype.DEELZAAK,
+      label: "zaak.koppelen.link.type.DEELZAAK",
+      value: "DEELZAAK",
     },
     {
-      label: `zaak.koppelen.link.type.${ZaakRelatietype.HOOFDZAAK}`,
-      value: ZaakRelatietype.HOOFDZAAK,
+      label: "zaak.koppelen.link.type.HOOFDZAAK",
+      value: "HOOFDZAAK",
     },
   ];
 
@@ -70,7 +71,6 @@ export class ZaakLinkComponent implements OnDestroy {
   constructor(
     private zoekenService: ZoekenService,
     private zakenService: ZakenService,
-    private translate: TranslateService,
     private utilService: UtilService,
     private readonly formBuilder: FormBuilder,
   ) {
@@ -108,7 +108,7 @@ export class ZaakLinkComponent implements OnDestroy {
       .subscribe(
         (result) => {
           this.cases.data = result.resultaten;
-          this.totalCases = result.totaal;
+          this.totalCases = result.totaal ?? 0;
           this.loading = false;
           this.utilService.setLoading(false);
         },
@@ -171,6 +171,4 @@ export class ZaakLinkComponent implements OnDestroy {
     this.ngDestroy.next();
     this.ngDestroy.complete();
   }
-
-  protected readonly ZaakRelatietype = ZaakRelatietype;
 }
