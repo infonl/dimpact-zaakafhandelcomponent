@@ -11,19 +11,9 @@ import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.ser
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { Resultaat } from "../shared/model/resultaat";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { ZaakRelatietype } from "../zaken/model/zaak-relatietype";
 import { ZoekObject } from "./model/zoek-object";
 import { ZoekParameters } from "./model/zoek-parameters";
 import { ZoekResultaat } from "./model/zoek-resultaat";
-
-export type DocumentKoppelbaarAanZaakListItem = {
-  documentKoppelbaar: boolean;
-  id: string;
-  identificatie: string;
-  omschrijving: string;
-  toelichting: string;
-  type: string;
-};
 
 @Injectable({
   providedIn: "root",
@@ -70,7 +60,7 @@ export class ZoekenService {
   findLinkableZaken(
     zaakUuid: string,
     zoekZaakIdentifier: string,
-    relationType: ZaakRelatietype, // TODO: `ZaakRelatietype` needs to be generated in the interface
+    relationType: GeneratedType<"RelatieType">,
   ) {
     return this.zacHttpClient.GET(
       "/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken",
