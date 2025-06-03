@@ -213,7 +213,7 @@ class ZaakService @Inject constructor(
             .forEach { zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation) }
         LOG.fine { "Successfully released  ${zaakUUIDs.size} zaken." }
 
-        // if a screen event resource ID was specified, send an 'updated zaken_verdelen' screen event
+        // if a screen event resource ID was specified, send a screen event
         // with the job UUID so that it can be picked up by a client
         // that has created a websocket subscription to this event
         screenEventResourceId?.let {
