@@ -1128,12 +1128,13 @@ export class ZaakViewComponent
     this.websocketService.suspendListener(this.zaakRollenListener);
     void this.actionsSidenav.close();
     this.zakenService
-      .createBetrokkene(
-        this.zaak,
-        betrokkene.klant,
-        betrokkene.betrokkeneRoltype,
-        betrokkene.betrokkeneToelichting,
-      )
+      .createBetrokkene({
+        zaakUUID: this.zaak.uuid,
+        roltypeUUID: betrokkene.betrokkeneRoltype.uuid!,
+        roltoelichting: betrokkene.betrokkeneToelichting,
+        betrokkeneIdentificatie: betrokkene.klant.identificatie!,
+        betrokkeneIdentificatieType: betrokkene.klant.identificatieType!,
+      })
       .subscribe((zaak) => {
         this.zaak = zaak;
         this.utilService.openSnackbar("msg.betrokkene.toegevoegd", {
