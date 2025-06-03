@@ -243,7 +243,7 @@ class IndexingService @Inject constructor(
                 page = pageNumber
             }
         )
-        val ids = zaakResults.results.map { it.uuid().toString() }
+        val ids = zaakResults.results.map { it.uuid.toString() }
         indexeerDirect(
             objectIds = ids,
             objectType = ZoekObjectType.ZAAK,
