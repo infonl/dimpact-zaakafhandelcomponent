@@ -16,9 +16,10 @@ import jakarta.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
+import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie;
 import nl.info.client.zgw.ztc.model.generated.RolType;
 
-public class RolMedewerker extends Rol<Medewerker> {
+public class RolMedewerker extends Rol<MedewerkerIdentificatie> {
 
     public RolMedewerker() {
     }
@@ -39,7 +40,7 @@ public class RolMedewerker extends Rol<Medewerker> {
             final String roltoelichting,
             // it is possible in the ZGW API to have a RolMedewerker without a Medewerker,
             // and this does occur in practice in certain circumstances
-            @Nullable final Medewerker betrokkeneIdentificatie
+            @Nullable final MedewerkerIdentificatie betrokkeneIdentificatie
     ) {
         super(zaak, roltype, BetrokkeneTypeEnum.MEDEWERKER, betrokkeneIdentificatie, roltoelichting);
     }
@@ -48,7 +49,7 @@ public class RolMedewerker extends Rol<Medewerker> {
         if (getBetrokkeneIdentificatie() == null) {
             return null;
         }
-        final Medewerker medewerker = getBetrokkeneIdentificatie();
+        final MedewerkerIdentificatie medewerker = getBetrokkeneIdentificatie();
         if (isNotBlank(medewerker.getAchternaam())) {
             final StringBuilder naam = new StringBuilder();
             if (isNotBlank(medewerker.getVoorletters())) {
@@ -67,8 +68,8 @@ public class RolMedewerker extends Rol<Medewerker> {
     }
 
     @Override
-    protected boolean equalBetrokkeneIdentificatie(final Medewerker identificatie) {
-        final Medewerker betrokkeneIdentificatie = getBetrokkeneIdentificatie();
+    protected boolean equalBetrokkeneIdentificatie(final MedewerkerIdentificatie identificatie) {
+        final MedewerkerIdentificatie betrokkeneIdentificatie = getBetrokkeneIdentificatie();
         if (betrokkeneIdentificatie == identificatie) {
             return true;
         }

@@ -7,22 +7,22 @@ package nl.info.zac.zaak
 import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.Medewerker
-import net.atos.client.zgw.zrc.model.NatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.NietNatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolVestiging
-import net.atos.client.zgw.zrc.model.Vestiging
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
+import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
+import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
+import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
+import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
+import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isOpen
@@ -156,7 +156,7 @@ class ZaakService @Inject constructor(
                 OmschrijvingGeneriekEnum.BEHANDELAAR
             ),
             "Behandelend groep van de zaak",
-            OrganisatorischeEenheid().apply {
+            OrganisatorischeEenheidIdentificatie().apply {
                 identificatie = group.id
                 naam = group.name
             }
@@ -170,7 +170,7 @@ class ZaakService @Inject constructor(
                 OmschrijvingGeneriekEnum.BEHANDELAAR
             ),
             "Behandelaar van de zaak",
-            Medewerker().apply {
+            MedewerkerIdentificatie().apply {
                 identificatie = user.id
                 voorletters = user.firstName
                 achternaam = user.lastName
@@ -254,7 +254,7 @@ class ZaakService @Inject constructor(
                     zaak.url,
                     roleType,
                     explanation,
-                    NatuurlijkPersoon(identification)
+                    NatuurlijkPersoonIdentificatie().apply { inpBsn = identification }
                 )
 
             IdentificatieType.VN ->
@@ -262,7 +262,7 @@ class ZaakService @Inject constructor(
                     zaak.url,
                     roleType,
                     explanation,
-                    Vestiging(identification)
+                    VestigingIdentificatie().apply { vestigingsNummer = identification }
                 )
 
             IdentificatieType.RSIN ->
@@ -270,7 +270,7 @@ class ZaakService @Inject constructor(
                     zaak.url,
                     roleType,
                     explanation,
-                    NietNatuurlijkPersoon(identification)
+                    NietNatuurlijkPersoonIdentificatie().apply { this.innNnpId = identification }
                 )
         }
         zrcClientService.createRol(role, explanation)

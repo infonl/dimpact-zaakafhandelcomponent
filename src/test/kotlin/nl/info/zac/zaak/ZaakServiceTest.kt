@@ -23,7 +23,7 @@ import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
-import nl.info.client.zgw.model.createNatuurlijkPersoon
+import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
@@ -358,7 +358,7 @@ class ZaakServiceTest : BehaviorSpec({
         val roleAdviseur = createRolNatuurlijkPersoon(
             zaakURI = zaak.url,
             rolType = roleTypeAdviseur,
-            natuurlijkPersoon = createNatuurlijkPersoon(bsn = identification)
+            natuurlijkPersoon = createNatuurlijkPersoonIdentificatie(bsn = identification)
         )
         val roleSlot = slot<Rol<*>>()
         every { ztcClientService.readRoltype(roleTypeUUID) } returns roleTypeBelanghebbende
@@ -399,7 +399,7 @@ class ZaakServiceTest : BehaviorSpec({
         val roleAdviseur = createRolNatuurlijkPersoon(
             zaakURI = zaak.zaaktype,
             rolType = roleTypeAdviseur,
-            natuurlijkPersoon = createNatuurlijkPersoon(bsn = identification)
+            natuurlijkPersoon = createNatuurlijkPersoonIdentificatie(bsn = identification)
         )
         every { ztcClientService.readRoltype(roleTypeUUID) } returns roleTypeAdviseur
         every { zrcClientService.listRollen(zaak) } returns listOf(roleAdviseur)
