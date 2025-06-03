@@ -169,8 +169,12 @@ export class ZakenWerkvoorraadComponent
     return this.selection.selected.length > 0;
   }
 
-  countSelected() {
-    return this.selection.selected.length;
+  countSelected(checkIfZaakHasHandler = false): number {
+    return this.selection.selected.filter(({ behandelaarGebruikersnaam }) => {
+      if (checkIfZaakHasHandler) return !!behandelaarGebruikersnaam;
+
+      return !behandelaarGebruikersnaam;
+    }).length;
   }
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */
@@ -257,12 +261,13 @@ export class ZakenWerkvoorraadComponent
     dialogComponent: ComponentType<T>,
     release = false,
   ) {
-    let zaken = this.selection.selected;
-    if (release) {
-      zaken = zaken.filter(
-        ({ behandelaarGebruikersnaam }) => !!behandelaarGebruikersnaam,
-      );
-    }
+    const zaken = this.selection.selected.filter(
+      ({ behandelaarGebruikersnaam }) => {
+        if (release) return !!behandelaarGebruikersnaam;
+
+        return !behandelaarGebruikersnaam;
+      },
+    );
 
     this.batchProcessService.subscribe({
       ids: zaken.map(({ id }) => id),

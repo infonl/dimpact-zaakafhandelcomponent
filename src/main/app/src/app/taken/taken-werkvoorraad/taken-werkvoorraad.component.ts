@@ -169,8 +169,12 @@ export class TakenWerkvoorraadComponent
     return this.selection.selected.length > 0;
   }
 
-  countSelected(): number {
-    return this.selection.selected.length;
+  countSelected(checkIfTaskHasHandler = false): number {
+    return this.selection.selected.filter(({ behandelaarGebruikersnaam }) => {
+      if (checkIfTaskHasHandler) return !!behandelaarGebruikersnaam;
+
+      return !behandelaarGebruikersnaam;
+    }).length;
   }
 
   openVerdelenScherm() {
@@ -231,15 +235,16 @@ export class TakenWerkvoorraadComponent
 
   private handleAssignOrReleaseWorkflow<T>(
     dialogComponent: ComponentType<T>,
-    realease: boolean = false,
+    release = false,
   ) {
     const screenEventResourceId = crypto.randomUUID();
-    let tasks = this.selection.selected;
-    if (realease) {
-      tasks = tasks.filter(
-        ({ behandelaarGebruikersnaam }) => !!behandelaarGebruikersnaam,
-      );
-    }
+    const tasks = this.selection.selected.filter(
+      ({ behandelaarGebruikersnaam }) => {
+        if (release) return !!behandelaarGebruikersnaam;
+
+        return !behandelaarGebruikersnaam;
+      },
+    );
 
     this.batchProcessService.subscribe({
       ids: tasks.map(({ id }) => id),
