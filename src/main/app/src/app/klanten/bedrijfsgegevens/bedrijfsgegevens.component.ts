@@ -12,7 +12,6 @@ import {
 } from "@angular/core";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
-import { Vestigingsprofiel } from "../model/bedrijven/vestigingsprofiel";
 
 @Component({
   selector: "zac-bedrijfsgegevens",
@@ -20,14 +19,14 @@ import { Vestigingsprofiel } from "../model/bedrijven/vestigingsprofiel";
   styleUrls: ["./bedrijfsgegevens.component.less"],
 })
 export class BedrijfsgegevensComponent implements OnChanges {
-  @Input() isVerwijderbaar: boolean;
-  @Input() isWijzigbaar: boolean;
-  @Input() rsinOfVestigingsnummer: string;
+  @Input() isVerwijderbaar?: boolean = false;
+  @Input() isWijzigbaar?: boolean = false;
+  @Input() rsinOfVestigingsnummer?: string | null = null;
   @Output() delete = new EventEmitter<GeneratedType<"RestBedrijf">>();
   @Output() edit = new EventEmitter<GeneratedType<"RestBedrijf">>();
 
   vestigingsprofielOphalenMogelijk = true;
-  vestigingsprofiel: Vestigingsprofiel | null = null;
+  vestigingsprofiel: GeneratedType<"RestVestigingsprofiel"> | null = null;
   bedrijf: GeneratedType<"RestBedrijf"> | null = null;
   klantExpanded = false;
 
@@ -36,16 +35,15 @@ export class BedrijfsgegevensComponent implements OnChanges {
   ngOnChanges(): void {
     this.bedrijf = null;
     this.vestigingsprofiel = null;
-    if (this.rsinOfVestigingsnummer) {
-      this.klantenService
-        .readBedrijf(this.rsinOfVestigingsnummer)
-        .subscribe((bedrijf) => {
-          this.bedrijf = bedrijf;
-          this.klantExpanded = true;
-          this.vestigingsprofielOphalenMogelijk =
-            !!this.bedrijf.vestigingsnummer;
-        });
-    }
+    if (!this.rsinOfVestigingsnummer) return;
+
+    this.klantenService
+      .readBedrijf(this.rsinOfVestigingsnummer)
+      .subscribe((bedrijf) => {
+        this.bedrijf = bedrijf;
+        this.klantExpanded = true;
+        this.vestigingsprofielOphalenMogelijk = !!this.bedrijf.vestigingsnummer;
+      });
   }
 
   ophalenVestigingsprofiel() {

@@ -11,7 +11,6 @@ import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.ser
 import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
 import { BSN_LENGTH } from "../shared/utils/constants";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { Vestigingsprofiel } from "./model/bedrijven/vestigingsprofiel";
 import { ContactGegevens } from "./model/klanten/contact-gegevens";
 
 @Injectable({
@@ -57,16 +56,13 @@ export class KlantenService {
   }
 
   /* istanbul ignore next */
-  readVestigingsprofiel(
-    vestigingsnummer: string,
-  ): Observable<Vestigingsprofiel> {
-    return this.http
-      .get<Vestigingsprofiel>(
-        `${this.basepath}/vestigingsprofiel/${vestigingsnummer}`,
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readVestigingsprofiel(vestigingsnummer: string) {
+    return this.zacHttpClient.GET(
+      "/rest/klanten/vestigingsprofiel/{vestigingsnummer}",
+      {
+        path: { vestigingsnummer },
+      },
+    );
   }
 
   /* istanbul ignore next */
