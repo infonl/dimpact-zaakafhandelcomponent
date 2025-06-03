@@ -279,6 +279,7 @@ export class TakenWerkvoorraadComponent
         screenEventResourceId,
       },
     });
+
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) {
         this.batchProcessService.stop();

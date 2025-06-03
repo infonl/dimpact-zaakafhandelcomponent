@@ -23,7 +23,7 @@
 </div>
 <div mat-dialog-actions>
   <button
-    [disabled]="loading"
+    [disabled]="loading || !data.taken.length"
     mat-button
     color="primary"
     (click)="vrijgeven()"

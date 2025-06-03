@@ -293,9 +293,11 @@ export class ZakenWerkvoorraadComponent
           this.batchProcessService.stop();
         }),
     });
+
     const dialogRef = this.dialog.open(dialogComponent, {
       data: zaken,
     });
+
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) {
         this.batchProcessService.stop();
