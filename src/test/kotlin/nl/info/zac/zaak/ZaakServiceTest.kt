@@ -17,7 +17,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.client.zgw.zrc.model.BetrokkeneType
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode

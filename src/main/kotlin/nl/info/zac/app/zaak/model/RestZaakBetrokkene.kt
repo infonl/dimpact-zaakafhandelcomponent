@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.zaak.model
 
-import net.atos.client.zgw.zrc.model.BetrokkeneType
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
@@ -35,11 +35,11 @@ fun Rol<*>.toRestZaakBetrokkene() = RestZaakBetrokkene(
     roltoelichting = this.roltoelichting,
     type = this.betrokkeneType.name,
     identificatie = when (this.betrokkeneType) {
-        BetrokkeneType.NATUURLIJK_PERSOON -> (this as RolNatuurlijkPersoon).betrokkeneIdentificatie?.inpBsn
-        BetrokkeneType.NIET_NATUURLIJK_PERSOON -> (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie?.innNnpId
-        BetrokkeneType.VESTIGING -> (this as RolVestiging).betrokkeneIdentificatie?.vestigingsNummer
-        BetrokkeneType.ORGANISATORISCHE_EENHEID -> (this as RolOrganisatorischeEenheid).betrokkeneIdentificatie?.naam
-        BetrokkeneType.MEDEWERKER -> (this as RolMedewerker).betrokkeneIdentificatie?.identificatie
+        BetrokkeneTypeEnum.NATUURLIJK_PERSOON -> (this as RolNatuurlijkPersoon).betrokkeneIdentificatie?.inpBsn
+        BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON -> (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie?.innNnpId
+        BetrokkeneTypeEnum.VESTIGING -> (this as RolVestiging).betrokkeneIdentificatie?.vestigingsNummer
+        BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID -> (this as RolOrganisatorischeEenheid).betrokkeneIdentificatie?.naam
+        BetrokkeneTypeEnum.MEDEWERKER -> (this as RolMedewerker).betrokkeneIdentificatie?.identificatie
     }
 )
 

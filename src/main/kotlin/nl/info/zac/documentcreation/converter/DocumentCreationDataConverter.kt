@@ -6,7 +6,7 @@ package nl.info.zac.documentcreation.converter
 
 import jakarta.inject.Inject
 import net.atos.client.or.`object`.ObjectsClientService
-import net.atos.client.zgw.zrc.model.BetrokkeneType
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
@@ -120,16 +120,16 @@ class DocumentCreationDataConverter @Inject constructor(
 
     private fun convertToAanvragerData(initiator: Rol<*>, zaakNummer: String): AanvragerData? =
         when (initiator.betrokkeneType) {
-            BetrokkeneType.NATUURLIJK_PERSOON -> createAanvragerDataNatuurlijkPersoon(
+            BetrokkeneTypeEnum.NATUURLIJK_PERSOON -> createAanvragerDataNatuurlijkPersoon(
                 initiator.identificatienummer,
                 "$zaakNummer@$ACTION"
             )
-            BetrokkeneType.VESTIGING -> createAanvragerDataVestiging(initiator.identificatienummer)
-            BetrokkeneType.NIET_NATUURLIJK_PERSOON -> createAanvragerDataNietNatuurlijkPersoon(
+            BetrokkeneTypeEnum.VESTIGING -> createAanvragerDataVestiging(initiator.identificatienummer)
+            BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON -> createAanvragerDataNietNatuurlijkPersoon(
                 initiator.identificatienummer
             )
             else -> error(
-                "Initiator of type '${initiator.betrokkeneType.toValue()}' is not supported"
+                "Initiator of type '${initiator.betrokkeneType}' is not supported"
             )
         }
 

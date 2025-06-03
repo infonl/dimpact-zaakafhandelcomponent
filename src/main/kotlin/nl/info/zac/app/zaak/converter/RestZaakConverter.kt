@@ -5,9 +5,9 @@
 package nl.info.zac.app.zaak.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.BetrokkeneType.NATUURLIJK_PERSOON
-import net.atos.client.zgw.zrc.model.BetrokkeneType.NIET_NATUURLIJK_PERSOON
-import net.atos.client.zgw.zrc.model.BetrokkeneType.VESTIGING
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NATUURLIJK_PERSOON
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING
 import net.atos.client.zgw.zrc.model.Status
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.util.time.PeriodUtil

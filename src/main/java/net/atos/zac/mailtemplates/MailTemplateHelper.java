@@ -49,7 +49,7 @@ import org.flowable.identitylink.api.IdentityLinkInfo;
 import org.flowable.identitylink.api.IdentityLinkType;
 import org.flowable.task.api.TaskInfo;
 
-import net.atos.client.zgw.zrc.model.BetrokkeneType;
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
 import net.atos.client.zgw.zrc.model.Rol;
 import net.atos.client.zgw.zrc.model.RolMedewerker;
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;

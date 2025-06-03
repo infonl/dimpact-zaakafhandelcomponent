@@ -7,7 +7,7 @@ package nl.info.zac.zaak
 import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.BetrokkeneType
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.NatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.NietNatuurlijkPersoon

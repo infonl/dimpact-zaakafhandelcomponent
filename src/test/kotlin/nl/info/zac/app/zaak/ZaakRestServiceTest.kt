@@ -24,7 +24,7 @@ import kotlinx.coroutines.test.runTest
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.model.BetrokkeneType
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.Rol
