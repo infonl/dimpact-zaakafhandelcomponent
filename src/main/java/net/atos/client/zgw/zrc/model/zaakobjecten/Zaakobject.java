@@ -12,8 +12,8 @@ import jakarta.json.bind.annotation.JsonbTypeDeserializer;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-import net.atos.client.zgw.zrc.model.Objecttype;
 import nl.info.client.zgw.zrc.jsonb.ZaakObjectJsonbDeserializer;
+import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum;
 
 /**
  * Zaakobject
@@ -48,7 +48,7 @@ public abstract class Zaakobject {
      * Beschrijft het type OBJECT gerelateerd aan de ZAAK
      * - required
      */
-    private Objecttype objectType;
+    private ObjectTypeEnum objectType;
 
     /**
      * Beschrijft het type OBJECT als `objectType` de waarde "overige" heeft
@@ -72,7 +72,7 @@ public abstract class Zaakobject {
     /**
      * Constructor with required attributes
      */
-    public Zaakobject(final URI zaakUri, final URI objectUri, final Objecttype objectType) {
+    public Zaakobject(final URI zaakUri, final URI objectUri, final ObjectTypeEnum objectType) {
         this.zaak = zaakUri;
         this.object = objectUri;
         this.objectType = objectType;
@@ -110,11 +110,11 @@ public abstract class Zaakobject {
         this.object = object;
     }
 
-    public Objecttype getObjectType() {
+    public ObjectTypeEnum getObjectType() {
         return objectType;
     }
 
-    public void setObjectType(final Objecttype objectType) {
+    public void setObjectType(final ObjectTypeEnum objectType) {
         this.objectType = objectType;
     }
 
