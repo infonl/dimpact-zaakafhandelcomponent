@@ -70,7 +70,7 @@ export class TaakViewComponent
   protected formulier: AbstractTaakFormulier;
   protected formConfig: FormConfig | null = null;
   formulierDefinitie: FormulierDefinitie;
-  formioFormulier: FormioForm = {};
+  formioFormulier: FormioForm | undefined;
 
   smartDocumentsGroupPath: string[] = [];
   smartDocumentsTemplateName?: string;
@@ -172,7 +172,7 @@ export class TaakViewComponent
       this.createHardCodedTaakForm(taak, zaak);
     } else if (taak.formulierDefinitie) {
       this.createConfigurableTaakForm(taak.formulierDefinitie);
-    } else {
+    } else if (!this.formioFormulier) {
       this.formioFormulier = taak.formioFormulier;
       this.formioSetupService.createFormioForm(this.formioFormulier, taak);
     }
