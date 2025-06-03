@@ -10,8 +10,8 @@ import {
   OnChanges,
   Output,
 } from "@angular/core";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
-import { Bedrijf } from "../model/bedrijven/bedrijf";
 import { Vestigingsprofiel } from "../model/bedrijven/vestigingsprofiel";
 
 @Component({
@@ -23,13 +23,13 @@ export class BedrijfsgegevensComponent implements OnChanges {
   @Input() isVerwijderbaar: boolean;
   @Input() isWijzigbaar: boolean;
   @Input() rsinOfVestigingsnummer: string;
-  @Output() delete = new EventEmitter<Bedrijf>();
-  @Output() edit = new EventEmitter<Bedrijf>();
+  @Output() delete = new EventEmitter<GeneratedType<"RestBedrijf">>();
+  @Output() edit = new EventEmitter<GeneratedType<"RestBedrijf">>();
 
   vestigingsprofielOphalenMogelijk = true;
-  vestigingsprofiel: Vestigingsprofiel = null;
-  bedrijf: Bedrijf;
-  klantExpanded: boolean;
+  vestigingsprofiel: Vestigingsprofiel | null = null;
+  bedrijf: GeneratedType<"RestBedrijf"> | null = null;
+  klantExpanded = false;
 
   constructor(private klantenService: KlantenService) {}
 
@@ -50,6 +50,8 @@ export class BedrijfsgegevensComponent implements OnChanges {
 
   ophalenVestigingsprofiel() {
     this.vestigingsprofielOphalenMogelijk = false;
+    if (!this.bedrijf?.vestigingsnummer) return;
+
     this.klantenService
       .readVestigingsprofiel(this.bedrijf.vestigingsnummer)
       .subscribe((value) => {

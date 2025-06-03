@@ -29,8 +29,6 @@ import {
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { CustomValidators } from "../../../shared/validators/customValidators";
 import { KlantenService } from "../../klanten.service";
-import { Bedrijf } from "../../model/bedrijven/bedrijf";
-import { ListBedrijvenParameters } from "../../model/bedrijven/list-bedrijven-parameters";
 import { FormCommunicatieService } from "../form-communicatie-service";
 
 @Component({
@@ -39,10 +37,10 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   styleUrls: ["./bedrijf-zoek.component.less"],
 })
 export class BedrijfZoekComponent implements OnInit, OnDestroy {
-  @Output() bedrijf? = new EventEmitter<Bedrijf>();
+  @Output() bedrijf? = new EventEmitter<GeneratedType<"RestBedrijf">>();
   @Input() sideNav?: MatSidenav;
   @Input() syncEnabled: boolean = false;
-  bedrijven = new MatTableDataSource<Bedrijf>();
+  bedrijven = new MatTableDataSource<GeneratedType<"RestBedrijf">>();
   foutmelding: string;
   formGroup: FormGroup;
   bedrijfColumns: string[] = [
@@ -173,11 +171,13 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
     );
   }
 
-  createListParameters(): ListBedrijvenParameters {
-    return this.removeEmpty(this.formGroup.value);
+  createListParameters() {
+    return this.removeEmpty<
+      GeneratedType<"RestBedrijf"> & { type: GeneratedType<"BedrijfType"> }
+    >(this.formGroup.value);
   }
 
-  removeEmpty<T>(parameters: T): T {
+  removeEmpty<T extends Record<string, unknown>>(parameters: T): T {
     return Object.fromEntries(
       Object.entries(parameters).filter(([, v]) => !!v),
     ) as T;
@@ -190,8 +190,10 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
     this.klantenService
       .listBedrijven(this.createListParameters())
       .subscribe((bedrijven) => {
-        this.bedrijven.data = bedrijven.resultaten;
-        this.foutmelding = bedrijven.foutmelding;
+        this.bedrijven.data = bedrijven.resultaten ?? [];
+        if (bedrijven.foutmelding) {
+          this.foutmelding = bedrijven.foutmelding;
+        }
         this.loading = false;
         this.utilService.setLoading(false);
       });
@@ -201,13 +203,13 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
     this.rsinFormField.required = type === "RECHTSPERSOON";
   }
 
-  openBedrijfPagina(bedrijf: Bedrijf): void {
+  openBedrijfPagina(bedrijf: GeneratedType<"RestBedrijf">): void {
     this.sideNav?.close();
     this.router.navigate(["/bedrijf/", bedrijf.identificatie]);
   }
 
-  selectBedrijf(bedrijf: Bedrijf): void {
-    this.bedrijf.emit(bedrijf);
+  selectBedrijf(bedrijf: GeneratedType<"RestBedrijf">): void {
+    this.bedrijf?.emit(bedrijf);
     this.wissen();
 
     if (this.syncEnabled) {
