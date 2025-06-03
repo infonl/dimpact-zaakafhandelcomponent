@@ -42,6 +42,7 @@ import java.lang.Boolean
 import java.util.Locale
 import java.util.UUID
 import java.util.logging.Logger
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 
 private val LOG = Logger.getLogger(ZaakService::class.java.name)
 
@@ -135,7 +136,7 @@ class ZaakService @Inject constructor(
                         bepaalRolMedewerker(it, zaak),
                         explanation
                     )
-                } ?: zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER, explanation)
+                } ?: zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, explanation)
                 zakenAssignedList.add(zaak.uuid)
             }
         LOG.fine { "Successfully assigned ${zakenAssignedList.size} zaken." }
@@ -210,7 +211,7 @@ class ZaakService @Inject constructor(
                 }
                 it.isOpen()
             }
-            .forEach { zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation) }
+            .forEach { zrcClientService.deleteRol(it, BetrokkeneTypeEnum.MEDEWERKER, explanation) }
         LOG.fine { "Successfully released  ${zaakUUIDs.size} zaken." }
 
         // if a screen event resource ID was specified, send an 'updated zaken_verdelen' screen event
@@ -249,29 +250,51 @@ class ZaakService @Inject constructor(
         explanation: String
     ) {
         val role = when (identificationType) {
-            IdentificatieType.BSN ->
-                RolNatuurlijkPersoon(
-                    zaak.url,
-                    roleType,
-                    explanation,
-                    NatuurlijkPersoon(identification)
-                )
-
-            IdentificatieType.VN ->
-                RolVestiging(
-                    zaak.url,
-                    roleType,
-                    explanation,
-                    Vestiging(identification)
-                )
-
-            IdentificatieType.RSIN ->
-                RolNietNatuurlijkPersoon(
-                    zaak.url,
-                    roleType,
-                    explanation,
-                    NietNatuurlijkPersoon(identification)
-                )
+            IdentificatieType.BSN -> RolNatuurlijkPersoon(
+                zaak.url,
+                roleType,
+                explanation,
+                NatuurlijkPersoon().apply {
+                    this.bsn = identification
+                    this.betrokkeneType = BetrokkeneTypeEnum.NATUURLIJK_PERSOON
+                }
+            )
+            IdentificatieType.RSIN -> RolNietNatuurlijkPersoon(
+                zaak.url,
+                roleType,
+                explanation,
+                NietNatuurlijkPersoon().apply {
+                    this.kvkNummer = identification
+                    this.betrokkeneType = BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
+                }
+            )
+            IdentificatieType.VESTIGINGSNUMMER -> RolVestiging(
+                zaak.url,
+                roleType,
+                explanation,
+                Vestiging().apply {
+                    this.vestigingsnummer = identification
+                    this.betrokkeneType = BetrokkeneTypeEnum.VESTIGING
+                }
+            )
+            IdentificatieType.ORGANISATORISCHE_EENHEID_ID -> RolOrganisatorischeEenheid(
+                zaak.url,
+                roleType,
+                explanation,
+                OrganisatorischeEenheid().apply {
+                    this.identificatie = identification
+                    this.betrokkeneType = BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
+                }
+            )
+            IdentificatieType.MEDEWERKER_ID -> RolMedewerker(
+                zaak.url,
+                roleType,
+                explanation,
+                Medewerker().apply {
+                    this.identificatie = identification
+                    this.betrokkeneType = BetrokkeneTypeEnum.MEDEWERKER
+                }
+            )
         }
         zrcClientService.createRol(role, explanation)
     }

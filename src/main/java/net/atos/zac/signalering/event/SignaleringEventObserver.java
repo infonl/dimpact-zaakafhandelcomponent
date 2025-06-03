@@ -19,7 +19,7 @@ import jakarta.inject.Named;
 
 import org.flowable.task.api.TaskInfo;
 
-import net.atos.client.zgw.zrc.model.BetrokkeneType;
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
 import net.atos.client.zgw.zrc.model.Rol;
 import net.atos.client.zgw.zrc.model.RolListParameters;
 import net.atos.client.zgw.zrc.model.RolMedewerker;
@@ -215,7 +215,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
                 new RolListParameters(
                         zaak.getUrl(),
                         getRoltypeBehandelaar(zaak).getUrl(),
-                        BetrokkeneType.MEDEWERKER)
+                        BetrokkeneTypeEnum.MEDEWERKER)
         ).getSingleResult();
     }
 
@@ -230,7 +230,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
                 return addTargetGroup(signalering, rolGroep.getBetrokkeneIdentificatie().getIdentificatie());
             }
             default -> {
-                LOG.log(Level.WARNING, "Unknown BetrokkeneType '{0}'", rol.getBetrokkeneType());
+                LOG.log(Level.WARNING, "Unknown BetrokkeneType ''{0}''", rol.getBetrokkeneType());
                 return null;
             }
         }

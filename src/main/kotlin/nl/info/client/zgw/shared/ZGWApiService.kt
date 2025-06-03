@@ -8,7 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.util.DateTimeUtil.convertToDateTime
-import net.atos.client.zgw.zrc.model.BetrokkeneType
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolListParameters
 import net.atos.client.zgw.zrc.model.RolMedewerker
@@ -250,21 +250,63 @@ class ZGWApiService @Inject constructor(
      * Find [RolOrganisatorischeEenheid] for [Zaak] with behandelaar [OmschrijvingGeneriekEnum].
      *
      * @param zaak [Zaak]
+     * @param behandelaar [OmschrijvingGeneriekEnum]
+     * @return [RolOrganisatorischeEenheid] or 'null'.
+     */
+    fun findRolOrganisatorischeEenheidForZaak(
+        zaak: Zaak,
+        behandelaar: OmschrijvingGeneriekEnum
+    ): RolOrganisatorischeEenheid? {
+        val rollen = zrcClientService.listRollen(
+            RolListParameters(
+                zaakUrl = zaak.url,
+                omschrijvingGeneriek = behandelaar.toString(),
+                betrokkeneType = BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
+            )
+        )
+        return rollen.results.firstOrNull() as RolOrganisatorischeEenheid?
+    }
+
+    /**
+     * Find [RolOrganisatorischeEenheid] for [Zaak] with initiator [OmschrijvingGeneriekEnum].
+     *
+     * @param zaak [Zaak].
      * @return [RolOrganisatorischeEenheid] or 'null'.
      */
     fun findGroepForZaak(zaak: Zaak): RolOrganisatorischeEenheid? =
-        findBehandelaarRoleForZaak(zaak, BetrokkeneType.ORGANISATORISCHE_EENHEID)?.let {
+        findBehandelaarRoleForZaak(zaak, BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID)?.let {
             it as RolOrganisatorischeEenheid
         }
 
     /**
      * Find [RolMedewerker] for [Zaak] with behandelaar [OmschrijvingGeneriekEnum].
      *
+     * @param zaak [Zaak].
+     * @param behandelaar [OmschrijvingGeneriekEnum]
+     * @return [RolMedewerker] if found.
+     */
+    fun findRolMedewerkerForZaak(
+        zaak: Zaak,
+        behandelaar: OmschrijvingGeneriekEnum
+    ): RolMedewerker? {
+        val rollen = zrcClientService.listRollen(
+            RolListParameters(
+                zaakUrl = zaak.url,
+                omschrijvingGeneriek = behandelaar.toString(),
+                betrokkeneType = BetrokkeneTypeEnum.MEDEWERKER
+            )
+        )
+        return rollen.results.firstOrNull() as RolMedewerker?
+    }
+
+    /**
+     * Find [RolMedewerker] for [Zaak] with initiator [OmschrijvingGeneriekEnum].
+     *
      * @param zaak [Zaak]
      * @return [RolMedewerker] or 'null' if the rol medewerker could not be found.
      */
     fun findBehandelaarMedewerkerRoleForZaak(zaak: Zaak): RolMedewerker? =
-        findBehandelaarRoleForZaak(zaak, BetrokkeneType.MEDEWERKER)?.let {
+        findBehandelaarRoleForZaak(zaak, BetrokkeneTypeEnum.MEDEWERKER)?.let {
             it as RolMedewerker
         }
 
@@ -288,7 +330,7 @@ class ZGWApiService @Inject constructor(
 
     private fun findBehandelaarRoleForZaak(
         zaak: Zaak,
-        betrokkeneType: BetrokkeneType
+        betrokkeneType: BetrokkeneTypeEnum
     ): Rol<*>? {
         val roleTypes = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR).also {
             if (it.size > 1) {

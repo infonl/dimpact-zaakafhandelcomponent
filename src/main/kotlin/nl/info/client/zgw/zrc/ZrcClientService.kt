@@ -9,7 +9,7 @@ import jakarta.inject.Inject
 import jakarta.ws.rs.NotFoundException
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
-import net.atos.client.zgw.zrc.model.BetrokkeneType
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolListParameters
 import net.atos.client.zgw.zrc.model.Status
@@ -100,7 +100,7 @@ class ZrcClientService @Inject constructor(
         updateRollen(zaak, rollen, toelichting)
     }
 
-    fun deleteRol(zaak: Zaak, betrokkeneType: BetrokkeneType?, toelichting: String?) {
+    fun deleteRol(zaak: Zaak, betrokkeneType: BetrokkeneTypeEnum?, toelichting: String?) {
         val rollen = listRollen(zaak).toMutableList().apply {
             firstOrNull { it.betrokkeneType == betrokkeneType }?.let { betrokkene ->
                 removeAll { it.equalBetrokkeneRol(betrokkene) }
