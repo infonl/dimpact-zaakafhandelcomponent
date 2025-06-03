@@ -68,9 +68,9 @@ export class TaakViewComponent
   protected taak: Taak;
   protected zaak: GeneratedType<"RestZaak">;
   protected formulier: AbstractTaakFormulier;
-  protected formConfig: FormConfig | null = null;
+  protected formConfig?: FormConfig;
   formulierDefinitie: FormulierDefinitie;
-  formioFormulier: FormioForm | undefined;
+  formioFormulier?: FormioForm;
 
   smartDocumentsGroupPath: string[] = [];
   smartDocumentsTemplateName?: string;
