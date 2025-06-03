@@ -194,7 +194,7 @@ class ZaakServiceTest : BehaviorSpec({
             ) {
                 zaken.map {
                     verify(exactly = 1) {
-                        zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation)
+                        zrcClientService.deleteRol(it, BetrokkeneTypeEnum.MEDEWERKER, explanation)
                     }
                 }
                 with(screenEventSlot.captured) {
@@ -232,7 +232,7 @@ class ZaakServiceTest : BehaviorSpec({
                     a screen event of type 'zaken vrijgeven' should sent"""
             ) {
                 verify(exactly = 1) {
-                    zrcClientService.deleteRol(openZaak, BetrokkeneType.MEDEWERKER, explanation)
+                    zrcClientService.deleteRol(openZaak, BetrokkeneTypeEnum.MEDEWERKER, explanation)
                     eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(closedZaak))
                     eventingService.send(ScreenEventType.ZAKEN_VRIJGEVEN.updated(screenEventResourceId))
                 }

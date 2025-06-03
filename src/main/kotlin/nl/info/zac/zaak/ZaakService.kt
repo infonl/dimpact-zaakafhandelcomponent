@@ -42,7 +42,6 @@ import java.lang.Boolean
 import java.util.Locale
 import java.util.UUID
 import java.util.logging.Logger
-import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 
 private val LOG = Logger.getLogger(ZaakService::class.java.name)
 
@@ -250,51 +249,29 @@ class ZaakService @Inject constructor(
         explanation: String
     ) {
         val role = when (identificationType) {
-            IdentificatieType.BSN -> RolNatuurlijkPersoon(
-                zaak.url,
-                roleType,
-                explanation,
-                NatuurlijkPersoon().apply {
-                    this.bsn = identification
-                    this.betrokkeneType = BetrokkeneTypeEnum.NATUURLIJK_PERSOON
-                }
-            )
-            IdentificatieType.RSIN -> RolNietNatuurlijkPersoon(
-                zaak.url,
-                roleType,
-                explanation,
-                NietNatuurlijkPersoon().apply {
-                    this.kvkNummer = identification
-                    this.betrokkeneType = BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
-                }
-            )
-            IdentificatieType.VESTIGINGSNUMMER -> RolVestiging(
-                zaak.url,
-                roleType,
-                explanation,
-                Vestiging().apply {
-                    this.vestigingsnummer = identification
-                    this.betrokkeneType = BetrokkeneTypeEnum.VESTIGING
-                }
-            )
-            IdentificatieType.ORGANISATORISCHE_EENHEID_ID -> RolOrganisatorischeEenheid(
-                zaak.url,
-                roleType,
-                explanation,
-                OrganisatorischeEenheid().apply {
-                    this.identificatie = identification
-                    this.betrokkeneType = BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
-                }
-            )
-            IdentificatieType.MEDEWERKER_ID -> RolMedewerker(
-                zaak.url,
-                roleType,
-                explanation,
-                Medewerker().apply {
-                    this.identificatie = identification
-                    this.betrokkeneType = BetrokkeneTypeEnum.MEDEWERKER
-                }
-            )
+            IdentificatieType.BSN ->
+                RolNatuurlijkPersoon(
+                    zaak.url,
+                    roleType,
+                    explanation,
+                    NatuurlijkPersoon(identification)
+                )
+
+            IdentificatieType.VN ->
+                RolVestiging(
+                    zaak.url,
+                    roleType,
+                    explanation,
+                    Vestiging(identification)
+                )
+
+            IdentificatieType.RSIN ->
+                RolNietNatuurlijkPersoon(
+                    zaak.url,
+                    roleType,
+                    explanation,
+                    NietNatuurlijkPersoon(identification)
+                )
         }
         zrcClientService.createRol(role, explanation)
     }

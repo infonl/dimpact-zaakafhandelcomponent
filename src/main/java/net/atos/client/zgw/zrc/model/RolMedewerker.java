@@ -15,6 +15,7 @@ import jakarta.annotation.Nullable;
 
 import org.apache.commons.lang3.StringUtils;
 
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
 import nl.info.client.zgw.ztc.model.generated.RolType;
 
 public class RolMedewerker extends Rol<Medewerker> {
@@ -29,7 +30,7 @@ public class RolMedewerker extends Rol<Medewerker> {
             final UUID uuid,
             final RolType roltype
     ) {
-        super(uuid, roltype, BetrokkeneType.MEDEWERKER);
+        super(uuid, roltype, BetrokkeneTypeEnum.MEDEWERKER);
     }
 
     public RolMedewerker(
@@ -40,7 +41,7 @@ public class RolMedewerker extends Rol<Medewerker> {
             // and this does occur in practice in certain circumstances
             @Nullable final Medewerker betrokkeneIdentificatie
     ) {
-        super(zaak, roltype, BetrokkeneType.MEDEWERKER, betrokkeneIdentificatie, roltoelichting);
+        super(zaak, roltype, BetrokkeneTypeEnum.MEDEWERKER, betrokkeneIdentificatie, roltoelichting);
     }
 
     public String getNaam() {

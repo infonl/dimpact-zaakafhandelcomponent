@@ -109,7 +109,7 @@ public abstract class Rol<T> {
     public Rol(
             final UUID uuid,
             final RolType roltype,
-            final BetrokkeneType betrokkeneType
+            final BetrokkeneTypeEnum betrokkeneType
     ) {
         this.uuid = uuid;
         this.roltype = roltype.getUrl();

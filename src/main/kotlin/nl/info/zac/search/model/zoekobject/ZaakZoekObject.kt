@@ -160,7 +160,7 @@ data class ZaakZoekObject(
 
     fun setInitiator(initiatorRole: Rol<*>) {
         this.initiatorIdentificatie = initiatorRole.getIdentificatienummer()
-        this.initiatorType = initiatorRole.betrokkeneType.toValue()
+        this.initiatorType = initiatorRole.betrokkeneType.toString() // toValue() is not available in the generated code
     }
 
     fun isIndicatie(indicatie: ZaakIndicatie) = indicaties?.contains(indicatie.name) == true

@@ -46,7 +46,7 @@ public class RolListParameters extends AbstractListParameters {
 
     public RolListParameters(final URI zaak, final URI roltype, final BetrokkeneTypeEnum betrokkeneType) {
         this.zaak = zaak;
-        this.betrokkeneType = betrokkeneType.toString(); // toValue() is not available in generated enum
+        this.betrokkeneType = betrokkeneType.toString(); // toValue() is not available in the generated enum
         this.roltype = roltype;
     }
 
@@ -62,8 +62,8 @@ public class RolListParameters extends AbstractListParameters {
         return betrokkeneType;
     }
 
-    public void setBetrokkeneType(final BetrokkeneType betrokkeneType) {
-        this.betrokkeneType = betrokkeneType.toValue();
+    public void setBetrokkeneType(final BetrokkeneTypeEnum betrokkeneType) {
+        this.betrokkeneType = betrokkeneType.toString(); // toValue() is not available in the generated enum
     }
 
     public URI getRoltype() {

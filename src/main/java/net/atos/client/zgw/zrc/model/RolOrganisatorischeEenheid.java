@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
 import nl.info.client.zgw.ztc.model.generated.RolType;
 
 public class RolOrganisatorischeEenheid extends Rol<OrganisatorischeEenheid> {
@@ -25,7 +26,7 @@ public class RolOrganisatorischeEenheid extends Rol<OrganisatorischeEenheid> {
             final UUID uuid,
             final RolType roltype
     ) {
-        super(uuid, roltype, BetrokkeneType.ORGANISATORISCHE_EENHEID);
+        super(uuid, roltype, BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID);
     }
 
     public RolOrganisatorischeEenheid(
@@ -34,7 +35,7 @@ public class RolOrganisatorischeEenheid extends Rol<OrganisatorischeEenheid> {
             final String roltoelichting,
             final OrganisatorischeEenheid organisatorischeEenheid
     ) {
-        super(zaak, roltype, BetrokkeneType.ORGANISATORISCHE_EENHEID, organisatorischeEenheid, roltoelichting);
+        super(zaak, roltype, BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID, organisatorischeEenheid, roltoelichting);
     }
 
     @Override
