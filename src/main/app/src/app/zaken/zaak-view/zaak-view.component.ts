@@ -37,7 +37,6 @@ import { IdentityService } from "../../identity/identity.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { KlantGegevens } from "../../klanten/model/klanten/klant-gegevens";
 import { ViewResourceUtil } from "../../locatie/view-resource.util";
-import { NotitieType } from "../../notities/model/notitietype.enum";
 import { PlanItem } from "../../plan-items/model/plan-item";
 import { UserEventListenerActie } from "../../plan-items/model/user-event-listener-actie-enum";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
@@ -139,7 +138,6 @@ export class ZaakViewComponent
     "startdatum",
     "relatieType",
   ] as const;
-  notitieType = NotitieType.ZAAK;
   notitieRechten!: GeneratedType<"RestNotitieRechten">;
   dateFieldIcon = new Map<string, TextIcon>();
   viewInitialized = false;
