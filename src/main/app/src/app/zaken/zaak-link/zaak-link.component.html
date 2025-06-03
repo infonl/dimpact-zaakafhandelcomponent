@@ -28,17 +28,11 @@
     ></zac-select>
     <zac-input [form]="form" label="zaak.identificatie" key="caseToSearchFor">
       <mat-hint
-        *ngIf="
-          form.controls.caseRelationType.value?.value ===
-          ZaakRelatietype.HOOFDZAAK
-        "
+        *ngIf="form.controls.caseRelationType.value?.value === 'HOOFDZAAK'"
         >{{ "zaak.koppelen.hint.hoofdzaak-aan-deelzaak" | translate }}</mat-hint
       >
       <mat-hint
-        *ngIf="
-          form.controls.caseRelationType.value?.value ===
-          ZaakRelatietype.DEELZAAK
-        "
+        *ngIf="form.controls.caseRelationType.value?.value === 'DEELZAAK'"
         >{{ "zaak.koppelen.hint.deelzaak-aan-hoofdzaak" | translate }}</mat-hint
       >
     </zac-input>
@@ -121,9 +115,6 @@
   </table>
 
   <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
-  <p *ngIf="!loading && cases.data.length == 0">
-    {{ foutmelding ? foutmelding : ("msg.geen.gegevens.gevonden" | translate) }}
-  </p>
   <p
     *ngIf="!loading && cases.data.length > 0 && totalCases > 10"
     class="feedback"
