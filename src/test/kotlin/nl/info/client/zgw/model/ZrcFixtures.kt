@@ -8,6 +8,7 @@ import net.atos.client.zgw.zrc.model.AardRelatieWeergave
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
+import net.atos.client.zgw.zrc.model.RolVestiging
 import net.atos.client.zgw.zrc.model.Status
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte
@@ -25,6 +26,7 @@ import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificat
 import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.zrc.model.generated.Verlenging
 import nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.generated.RolType
@@ -151,6 +153,28 @@ fun createRolOrganisatorischeEenheidForReads(
     uuid,
     rolType
 )
+
+fun createRolVestiging(
+    zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    rolType: RolType = createRolType(),
+    toelichting: String = "fakeToelichting",
+    vestigingIdentificatie: VestigingIdentificatie = createVestigingIdentificatie()
+) = RolVestiging(
+    zaakURI,
+    rolType,
+    toelichting,
+    vestigingIdentificatie
+)
+
+fun createVestigingIdentificatie(
+    vestigingsNummer: String = "fakeVestigingsNummer",
+    handelsnaam: List<String>? = listOf("fakeHandelsnaam1", "fakeHandelsnaam2"),
+    kvkNummer: String = "fakeKvkNummer"
+) = VestigingIdentificatie().apply {
+    this.vestigingsNummer = vestigingsNummer
+    this.handelsnaam = handelsnaam
+    this.kvkNummer = kvkNummer
+}
 
 @Suppress("LongParameterList")
 fun createZaak(
