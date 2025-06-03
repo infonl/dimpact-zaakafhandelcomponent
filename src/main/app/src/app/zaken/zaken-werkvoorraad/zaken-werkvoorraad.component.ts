@@ -313,10 +313,15 @@ export class ZakenWerkvoorraadComponent
       this.zakenLoading.set(true);
       const message =
         zaken.length === 1
-          ? this.translateService.instant("msg.vrijgegeven.zaak")
-          : this.translateService.instant("msg.vrijgegeven.zaken", {
-              aantal: zaken.length,
-            });
+          ? this.translateService.instant(
+              release ? "msg.vrijgegeven.zaak" : "msg.verdeeld.zaak",
+            )
+          : this.translateService.instant(
+              release ? "msg.vrijgegeven.zaken" : "msg.verdeeld.zaken",
+              {
+                aantal: zaken.length,
+              },
+            );
       this.batchProcessService.showProgress(message, {
         onTimeout: () => {
           this.utilService.openSnackbar("msg.error.timeout");
