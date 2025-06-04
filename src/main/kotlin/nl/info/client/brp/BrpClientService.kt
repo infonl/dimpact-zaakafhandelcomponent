@@ -31,6 +31,7 @@ import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.util.Optional
+import java.util.logging.Logger
 import kotlin.jvm.optionals.getOrNull
 
 @ApplicationScoped
@@ -49,6 +50,7 @@ class BrpClientService @Inject constructor(
     private val zaakafhandelParameterService: ZaakafhandelParameterService
 ) {
     companion object {
+        private val LOG = Logger.getLogger(BrpClientService::class.java.name)
         private const val ENV_VAR_BRP_DOELBINDING_ZOEKMET = "brp.doelbinding.zoekmet"
         private const val ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET = "brp.doelbinding.raadpleegmet"
         private const val BURGERSERVICENUMMER = "burgerservicenummer"
@@ -104,18 +106,25 @@ class BrpClientService @Inject constructor(
         auditEvent: String,
         defaultPurpose: String?,
         extractPurpose: (ZaakafhandelParameters) -> String?
-    ): String? = Regex("""ZAAK-\d{4}-\d+""")
-        .find(auditEvent)
-        ?.value
-        ?.let { zaakIdentificatie ->
-            runCatching {
-                val zaak = zrcClientService.readZaakByID(zaakIdentificatie)
-                val parameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                    zaak.zaaktype.extractUuid()
-                )
-                extractPurpose(parameters)
-            }.getOrNull()
-        } ?: defaultPurpose
+    ): String? {
+        LOG.fine("Resolving BRP purpose using auditEvent='$auditEvent', defaultPurpose='$defaultPurpose'.")
+        val resolvedPurpose = Regex("""ZAAK-\d{4}-\d+""")
+            .find(auditEvent)
+            ?.value
+            ?.let { zaakIdentificatie ->
+                runCatching {
+                    val zaak = zrcClientService.readZaakByID(zaakIdentificatie)
+                    val parameters = zaakafhandelParameterService.readZaakafhandelParameters(
+                        zaak.zaaktype.extractUuid()
+                    )
+                    extractPurpose(parameters)
+                }.getOrNull()
+            } ?: defaultPurpose
+
+        LOG.fine("Resolved 'x-doelbinding' header value for persoon retrieval: '$resolvedPurpose'.")
+
+        return resolvedPurpose
+    }
 
     private fun createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer: String) =
         RaadpleegMetBurgerservicenummer().apply {
