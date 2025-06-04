@@ -35,12 +35,13 @@ When(
 );
 
 When(
-  "{string} distributes the zaken to the first group available",
+  "{string} distributes the zaken to the first group and user available",
   async function (this: CustomWorld, s: string) {
     await this.page.getByRole("button", { name: "Verdelen" }).click();
-    const expectedLabel = "Zaak toekennen aan groep";
-    await this.page.getByLabel(expectedLabel).click();
-    await this.page.getByRole("option", { name: "test gr" }).first().click();
+    await this.page.getByLabel("Zaak toekennen aan groep").click();
+    await this.page.getByRole("option").first().click();
+    await this.page.getByLabel("Taak toekennen aan medewerker").click();
+    await this.page.getByRole("option").first().click();
     await this.page.getByLabel("Reden").fill("Fake reason");
     await this.page.getByRole("button", { name: /Verdelen/ }).click();
   },

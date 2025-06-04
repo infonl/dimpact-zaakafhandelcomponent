@@ -170,11 +170,10 @@ export class ZakenWerkvoorraadComponent
   }
 
   countSelected(checkIfZaakHasHandler = false): number {
-    return this.selection.selected.filter(({ behandelaarGebruikersnaam }) => {
-      if (checkIfZaakHasHandler) return !!behandelaarGebruikersnaam;
-
-      return !behandelaarGebruikersnaam;
-    }).length;
+    return this.selection.selected.filter(
+      ({ behandelaarGebruikersnaam }) =>
+        !checkIfZaakHasHandler || !!behandelaarGebruikersnaam,
+    ).length;
   }
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */
@@ -262,11 +261,8 @@ export class ZakenWerkvoorraadComponent
     release = false,
   ) {
     const zaken = this.selection.selected.filter(
-      ({ behandelaarGebruikersnaam }) => {
-        if (release) return !!behandelaarGebruikersnaam;
-
-        return !behandelaarGebruikersnaam;
-      },
+      ({ behandelaarGebruikersnaam }) =>
+        !release || !!behandelaarGebruikersnaam,
     );
 
     this.batchProcessService.subscribe({
