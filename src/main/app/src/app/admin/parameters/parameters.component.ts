@@ -14,7 +14,6 @@ import { ClientMatcher } from "../../shared/dynamic-table/filter/clientMatcher";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { Zaaktype } from "../../zaken/model/zaaktype";
 import { AdminComponent } from "../admin/admin.component";
 import { CaseDefinition } from "../model/case-definition";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
@@ -198,7 +197,10 @@ export class ParametersComponent
       });
   }
 
-  compareZaaktype = (zaaktype1: Zaaktype, zaaktype2: Zaaktype): boolean => {
+  compareZaaktype = (
+    zaaktype1: GeneratedType<"RestZaaktype">,
+    zaaktype2: GeneratedType<"RestZaaktype">,
+  ) => {
     return zaaktype1?.identificatie === zaaktype2?.identificatie;
   };
   compareCaseDefinition = (

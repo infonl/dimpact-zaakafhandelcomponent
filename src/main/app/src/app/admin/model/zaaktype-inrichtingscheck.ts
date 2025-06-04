@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Zaaktype } from "../../zaken/model/zaaktype";
+import { GeneratedType } from "../../shared/utils/generated-types";
 
 /**
  * @deprecated - use the `GeneratedType`
  */
 export class ZaaktypeInrichtingscheck {
-  zaaktype: Zaaktype;
+  zaaktype: GeneratedType<"RestZaaktype">;
   statustypeIntakeAanwezig: boolean;
   statustypeInBehandelingAanwezig: boolean;
   statustypeHeropendAanwezig: boolean;

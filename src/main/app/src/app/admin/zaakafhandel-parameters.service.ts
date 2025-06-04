@@ -13,7 +13,6 @@ import { GeneratedType } from "../shared/utils/generated-types";
 import { CaseDefinition } from "./model/case-definition";
 import { FormulierDefinitie } from "./model/formulier-definitie";
 import { ReplyTo } from "./model/replyto";
-import { ZaakbeeindigReden } from "./model/zaakbeeindig-reden";
 
 @Injectable({
   providedIn: "root",
@@ -45,12 +44,11 @@ export class ZaakafhandelParametersService {
       );
   }
 
-  listZaakbeeindigRedenen(): Observable<ZaakbeeindigReden[]> {
-    return this.http
-      .get<ZaakbeeindigReden[]>(`${this.basepath}/zaakbeeindigredenen`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listZaakbeeindigRedenen() {
+    return this.zacHttpClient.GET(
+      "/rest/zaakafhandelparameters/zaakbeeindigredenen",
+      {},
+    );
   }
 
   listZaakbeeindigRedenenForZaaktype(zaaktypeUuid: string) {
