@@ -552,7 +552,7 @@ class ZaakServiceTest : BehaviorSpec({
             uuid = statusUuid,
             uri = URI(statusUuid.toString()),
             zaakURI = zaak.url,
-            statustype = statusType.url,
+            statustypeURI = statusType.url,
             datumStatusGezet = ZonedDateTime.now().toOffsetDateTime()
         )
 

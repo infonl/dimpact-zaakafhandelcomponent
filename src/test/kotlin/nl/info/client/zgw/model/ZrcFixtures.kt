@@ -284,7 +284,7 @@ fun createZaakStatus(
     uuid: UUID = UUID.randomUUID(),
     uri: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
     zaakURI: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
-    statustype: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
+    statustypeURI: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
     datumStatusGezet: OffsetDateTime = ZonedDateTime.now().toOffsetDateTime()
 ) = Status(
     uri,
@@ -293,7 +293,7 @@ fun createZaakStatus(
     emptyList()
 ).apply {
     this.zaak = zaakURI
-    this.statustype = statustype
+    this.statustype = statustypeURI
     this.datumStatusGezet = datumStatusGezet
 }
 
