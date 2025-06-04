@@ -53,14 +53,13 @@ export class NotitiesComponent implements OnInit {
       this.notities = notities;
       this.notities
         .sort((a, b) => {
-          if (!a.tijdstipLaatsteWijziging) return 1;
-          if (!b.tijdstipLaatsteWijziging) return -1;
+          if (!a.tijdstipLaatsteWijziging) return -1;
+          if (!b.tijdstipLaatsteWijziging) return 1;
 
-          return a.tijdstipLaatsteWijziging.localeCompare(
-            b.tijdstipLaatsteWijziging,
+          return b.tijdstipLaatsteWijziging.localeCompare(
+            a.tijdstipLaatsteWijziging,
           );
         })
-        .reverse();
     });
   }
 
