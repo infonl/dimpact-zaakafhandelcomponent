@@ -463,7 +463,7 @@ export class TaakViewComponent
       this.taak.zaakUuid,
       () => {
         this.websocketService.removeListener(listener);
-        this.reloadTaak();
+        this.loadHistorie();
       },
     );
   }
