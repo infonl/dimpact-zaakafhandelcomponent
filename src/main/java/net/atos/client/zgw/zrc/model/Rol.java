@@ -18,6 +18,7 @@ import jakarta.json.bind.annotation.JsonbTypeDeserializer;
 
 import nl.info.client.zgw.zrc.jsonb.RolJsonbDeserializer;
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
+import nl.info.client.zgw.zrc.model.generated.IndicatieMachtigingEnum;
 import nl.info.client.zgw.ztc.model.generated.RolType;
 
 @JsonbTypeDeserializer(RolJsonbDeserializer.class)
@@ -98,7 +99,7 @@ public abstract class Rol<T> {
     @JsonbDateFormat(DATE_TIME_FORMAT_WITH_MILLISECONDS)
     private ZonedDateTime registratiedatum;
 
-    private IndicatieMachtiging indicatieMachtiging;
+    private IndicatieMachtigingEnum indicatieMachtiging;
 
     public Rol() {
     }
@@ -179,11 +180,11 @@ public abstract class Rol<T> {
         return registratiedatum;
     }
 
-    public IndicatieMachtiging getIndicatieMachtiging() {
+    public IndicatieMachtigingEnum getIndicatieMachtiging() {
         return indicatieMachtiging;
     }
 
-    public void setIndicatieMachtiging(final IndicatieMachtiging indicatieMachtiging) {
+    public void setIndicatieMachtiging(final IndicatieMachtigingEnum indicatieMachtiging) {
         this.indicatieMachtiging = indicatieMachtiging;
     }
 

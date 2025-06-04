@@ -18,6 +18,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import net.atos.client.zgw.shared.model.AbstractListParameters;
 import net.atos.client.zgw.shared.model.Archiefnominatie;
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
+import nl.info.client.zgw.zrc.model.generated.ArchiefstatusEnum;
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 
@@ -68,9 +69,9 @@ public class ZaakListParameters extends AbstractListParameters {
     /**
      * Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.
      */
-    private Archiefstatus archiefstatus;
+    private ArchiefstatusEnum archiefstatus;
 
-    private Set<Archiefstatus> archiefstatusIn;
+    private Set<ArchiefstatusEnum> archiefstatusIn;
 
     /**
      * De datum waarop met de uitvoering van de zaak is gestart
@@ -210,10 +211,10 @@ public class ZaakListParameters extends AbstractListParameters {
 
     @QueryParam("archiefstatus")
     public String getArchiefstatus() {
-        return archiefstatus != null ? archiefstatus.toValue() : null;
+        return archiefstatus != null ? archiefstatus.toString() : null;
     }
 
-    public void setArchiefstatus(final Archiefstatus archiefstatus) {
+    public void setArchiefstatus(final ArchiefstatusEnum archiefstatus) {
         this.archiefstatus = archiefstatus;
     }
 
@@ -221,14 +222,14 @@ public class ZaakListParameters extends AbstractListParameters {
     public String getArchiefstatusIn() {
         if (CollectionUtils.isNotEmpty(archiefstatusIn)) {
             return archiefstatusIn.stream()
-                    .map(Archiefstatus::toValue)
+                    .map(ArchiefstatusEnum::toString)
                     .collect(joining(","));
         } else {
             return null;
         }
     }
 
-    public void setArchiefstatusIn(final Set<Archiefstatus> archiefstatusIn) {
+    public void setArchiefstatusIn(final Set<ArchiefstatusEnum> archiefstatusIn) {
         this.archiefstatusIn = archiefstatusIn;
     }
 

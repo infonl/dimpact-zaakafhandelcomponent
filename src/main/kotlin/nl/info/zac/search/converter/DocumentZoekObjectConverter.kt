@@ -60,7 +60,7 @@ class DocumentZoekObjectConverter @Inject constructor(
             zaaktypeIdentificatie = zaaktype.identificatie
             zaakIdentificatie = zaak.identificatie
             zaakUuid = zaak.uuid.toString()
-            gekoppeldeZaakInformatieobject.aardRelatieWeergave?.let { zaakRelatie = it.toValue() }
+            gekoppeldeZaakInformatieobject.aardRelatieWeergave?.let { zaakRelatie = it.toString() }
             isZaakAfgehandeld = zaak.isOpen()
             creatiedatum = convertToDate(informatieobject.creatiedatum)
             registratiedatum = convertToDate(informatieobject.beginRegistratie.toZonedDateTime())
