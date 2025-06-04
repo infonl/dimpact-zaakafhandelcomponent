@@ -107,7 +107,7 @@ class BrpClientService @Inject constructor(
         defaultPurpose: String?,
         extractPurpose: (ZaakafhandelParameters) -> String?
     ): String? {
-        LOG.fine("Resolving BRP purpose using auditEvent='$auditEvent', defaultPurpose='$defaultPurpose'.")
+        LOG.warning("Resolving BRP purpose using auditEvent='$auditEvent', defaultPurpose='$defaultPurpose'.")
         val resolvedPurpose = Regex("""ZAAK-\d{4}-\d+""")
             .find(auditEvent)
             ?.value
@@ -121,7 +121,7 @@ class BrpClientService @Inject constructor(
                 }.getOrNull()
             } ?: defaultPurpose
 
-        LOG.fine("Resolved 'x-doelbinding' header value for persoon retrieval: '$resolvedPurpose'.")
+        LOG.warning("Resolved 'x-doelbinding' header value for persoon retrieval: '$resolvedPurpose'.")
 
         return resolvedPurpose
     }
