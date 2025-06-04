@@ -51,15 +51,14 @@ export class NotitiesComponent implements OnInit {
   haalNotitiesOp() {
     this.notitieService.listNotities(this.zaakUuid).subscribe((notities) => {
       this.notities = notities;
-      this.notities
-        .sort((a, b) => {
-          if (!a.tijdstipLaatsteWijziging) return -1;
-          if (!b.tijdstipLaatsteWijziging) return 1;
+      this.notities.sort((a, b) => {
+        if (!a.tijdstipLaatsteWijziging) return -1;
+        if (!b.tijdstipLaatsteWijziging) return 1;
 
-          return b.tijdstipLaatsteWijziging.localeCompare(
-            a.tijdstipLaatsteWijziging,
-          );
-        })
+        return b.tijdstipLaatsteWijziging.localeCompare(
+          a.tijdstipLaatsteWijziging,
+        );
+      });
     });
   }
 
