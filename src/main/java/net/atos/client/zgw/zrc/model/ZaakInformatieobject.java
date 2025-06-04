@@ -16,6 +16,7 @@ import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.json.bind.annotation.JsonbProperty;
 import jakarta.json.bind.annotation.JsonbTransient;
+import nl.info.client.zgw.zrc.model.generated.AardRelatieWeergaveEnum;
 
 /**
  *
@@ -48,7 +49,7 @@ public class ZaakInformatieobject {
     /**
      * Aard relatie weergave
      */
-    private AardRelatieWeergave aardRelatieWeergave;
+    private AardRelatieWeergaveEnum aardRelatieWeergave;
 
     /**
      * De naam waaronder het INFORMATIEOBJECT binnen het OBJECT bekend is.
@@ -89,7 +90,7 @@ public class ZaakInformatieobject {
     public ZaakInformatieobject(
             @JsonbProperty("url") final URI url,
             @JsonbProperty("uuid") final UUID uuid,
-            @JsonbProperty("aardRelatieWeergave") final AardRelatieWeergave aardRelatieWeergave,
+            @JsonbProperty("aardRelatieWeergave") final AardRelatieWeergaveEnum aardRelatieWeergave,
             @JsonbProperty("registratiedatum") final ZonedDateTime registratiedatum
     ) {
         this.url = url;
@@ -122,7 +123,7 @@ public class ZaakInformatieobject {
         this.zaak = zaak;
     }
 
-    public AardRelatieWeergave getAardRelatieWeergave() {
+    public AardRelatieWeergaveEnum getAardRelatieWeergave() {
         return aardRelatieWeergave;
     }
 

@@ -4,7 +4,6 @@
  */
 package nl.info.client.zgw.model
 
-import net.atos.client.zgw.zrc.model.AardRelatieWeergave
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
@@ -17,6 +16,7 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
+import nl.info.client.zgw.zrc.model.generated.AardRelatieWeergaveEnum
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
 import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
@@ -250,7 +250,7 @@ fun createZaakInformatieobjectForCreatesAndUpdates(
 fun createZaakInformatieobjectForReads(
     url: URI = URI("https://example.com/${UUID.randomUUID()}"),
     uuid: UUID = UUID.randomUUID(),
-    aardRelatieWeergave: AardRelatieWeergave = AardRelatieWeergave.HOORT_BIJ,
+    aardRelatieWeergave: AardRelatieWeergaveEnum = AardRelatieWeergaveEnum.HOORT_BIJ_OMGEKEERD_KENT,
     registratiedatum: ZonedDateTime = ZonedDateTime.now()
 ) = ZaakInformatieobject(
     url,
