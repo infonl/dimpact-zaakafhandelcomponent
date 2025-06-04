@@ -16,6 +16,7 @@ import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.json.bind.annotation.JsonbProperty;
 import jakarta.json.bind.annotation.JsonbTransient;
+
 import nl.info.client.zgw.zrc.model.generated.AardRelatieWeergaveEnum;
 
 /**
