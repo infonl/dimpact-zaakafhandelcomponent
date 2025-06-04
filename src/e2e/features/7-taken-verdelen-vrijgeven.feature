@@ -4,7 +4,7 @@
 # 
 Feature: Taken verdelen / vrijgeven
 
-  Scenario: Bob distributes taken to a group
+  Scenario: Bob distributes taken to a group and user
     Given "Bob" is logged in to zac
     And "Bob" navigates to "zac" with path "/taken/werkvoorraad"
     And the page is done searching
