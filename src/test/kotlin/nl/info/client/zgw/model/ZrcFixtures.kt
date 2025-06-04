@@ -8,7 +8,6 @@ import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolVestiging
-import net.atos.client.zgw.zrc.model.Status
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectPand
@@ -24,6 +23,7 @@ import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Opschorting
 import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Resultaat
+import nl.info.client.zgw.zrc.model.generated.Status
 import nl.info.client.zgw.zrc.model.generated.Verlenging
 import nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
@@ -33,6 +33,8 @@ import nl.info.client.zgw.ztc.model.generated.RolType
 import java.math.BigDecimal
 import java.net.URI
 import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.time.OffsetTime
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -284,8 +286,17 @@ fun createZaakStatus(
     uri: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
     zaak: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
     statustype: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
-    datumStatusGezet: ZonedDateTime = ZonedDateTime.now()
-) = Status(uri, uuid, zaak, statustype, datumStatusGezet)
+    datumStatusGezet: OffsetDateTime = ZonedDateTime.now().toOffsetDateTime()
+) = Status(
+    uri,
+    uuid,
+    false,
+    emptyList()
+).apply {
+    this.zaak = zaak
+    this.statustype = statustype
+    this.datumStatusGezet = datumStatusGezet
+}
 
 fun createVerlenging(
     reden: String = "fakeReden",

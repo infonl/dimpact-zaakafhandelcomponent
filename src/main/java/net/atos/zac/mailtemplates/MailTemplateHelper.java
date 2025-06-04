@@ -43,6 +43,7 @@ import java.util.regex.Pattern;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 
+import nl.info.client.zgw.zrc.model.generated.Status;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.flowable.identitylink.api.IdentityLinkInfo;
@@ -52,7 +53,6 @@ import org.flowable.task.api.TaskInfo;
 import net.atos.client.zgw.zrc.model.Rol;
 import net.atos.client.zgw.zrc.model.RolMedewerker;
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
-import net.atos.client.zgw.zrc.model.Status;
 import net.atos.zac.mailtemplates.model.MailLink;
 import net.atos.zac.mailtemplates.model.MailTemplateVariabelen;
 import net.atos.zac.util.time.DateTimeConverterUtil;
