@@ -43,7 +43,6 @@ import java.util.regex.Pattern;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 
-import nl.info.client.zgw.zrc.model.generated.Status;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.flowable.identitylink.api.IdentityLinkInfo;
@@ -69,6 +68,7 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.shared.ZGWApiService;
 import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
+import nl.info.client.zgw.zrc.model.generated.Status;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.client.zgw.ztc.model.generated.StatusType;
