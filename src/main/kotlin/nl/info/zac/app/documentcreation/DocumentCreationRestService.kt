@@ -18,12 +18,12 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
 import nl.info.zac.documentcreation.BpmnDocumentCreationService

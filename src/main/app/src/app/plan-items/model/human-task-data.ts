@@ -6,6 +6,9 @@
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakStuurGegevens } from "./taak-stuur-gegevens";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class HumanTaskData {
   planItemInstanceId: string;
   groep: GeneratedType<"RestGroup">;

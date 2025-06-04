@@ -10,9 +10,8 @@ import {
   OnChanges,
   Output,
 } from "@angular/core";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
-import { Bedrijf } from "../model/bedrijven/bedrijf";
-import { Vestigingsprofiel } from "../model/bedrijven/vestigingsprofiel";
 
 @Component({
   selector: "zac-bedrijfsgegevens",
@@ -20,36 +19,37 @@ import { Vestigingsprofiel } from "../model/bedrijven/vestigingsprofiel";
   styleUrls: ["./bedrijfsgegevens.component.less"],
 })
 export class BedrijfsgegevensComponent implements OnChanges {
-  @Input() isVerwijderbaar: boolean;
-  @Input() isWijzigbaar: boolean;
-  @Input() rsinOfVestigingsnummer: string;
-  @Output() delete = new EventEmitter<Bedrijf>();
-  @Output() edit = new EventEmitter<Bedrijf>();
+  @Input() isVerwijderbaar?: boolean = false;
+  @Input() isWijzigbaar?: boolean = false;
+  @Input() rsinOfVestigingsnummer?: string | null = null;
+  @Output() delete = new EventEmitter<GeneratedType<"RestBedrijf">>();
+  @Output() edit = new EventEmitter<GeneratedType<"RestBedrijf">>();
 
   vestigingsprofielOphalenMogelijk = true;
-  vestigingsprofiel: Vestigingsprofiel = null;
-  bedrijf: Bedrijf;
-  klantExpanded: boolean;
+  vestigingsprofiel: GeneratedType<"RestVestigingsprofiel"> | null = null;
+  bedrijf: GeneratedType<"RestBedrijf"> | null = null;
+  klantExpanded = false;
 
   constructor(private klantenService: KlantenService) {}
 
   ngOnChanges(): void {
     this.bedrijf = null;
     this.vestigingsprofiel = null;
-    if (this.rsinOfVestigingsnummer) {
-      this.klantenService
-        .readBedrijf(this.rsinOfVestigingsnummer)
-        .subscribe((bedrijf) => {
-          this.bedrijf = bedrijf;
-          this.klantExpanded = true;
-          this.vestigingsprofielOphalenMogelijk =
-            !!this.bedrijf.vestigingsnummer;
-        });
-    }
+    if (!this.rsinOfVestigingsnummer) return;
+
+    this.klantenService
+      .readBedrijf(this.rsinOfVestigingsnummer)
+      .subscribe((bedrijf) => {
+        this.bedrijf = bedrijf;
+        this.klantExpanded = true;
+        this.vestigingsprofielOphalenMogelijk = !!this.bedrijf.vestigingsnummer;
+      });
   }
 
   ophalenVestigingsprofiel() {
     this.vestigingsprofielOphalenMogelijk = false;
+    if (!this.bedrijf?.vestigingsnummer) return;
+
     this.klantenService
       .readVestigingsprofiel(this.bedrijf.vestigingsnummer)
       .subscribe((value) => {

@@ -4,13 +4,17 @@
  */
 package nl.info.zac.app.zaak.model
 
-import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolVestiging
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.MEDEWERKER
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NATUURLIJK_PERSOON
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -35,11 +39,11 @@ fun Rol<*>.toRestZaakBetrokkene() = RestZaakBetrokkene(
     roltoelichting = this.roltoelichting,
     type = this.betrokkeneType.name,
     identificatie = when (this.betrokkeneType) {
-        BetrokkeneType.NATUURLIJK_PERSOON -> (this as RolNatuurlijkPersoon).betrokkeneIdentificatie?.inpBsn
-        BetrokkeneType.NIET_NATUURLIJK_PERSOON -> (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie?.innNnpId
-        BetrokkeneType.VESTIGING -> (this as RolVestiging).betrokkeneIdentificatie?.vestigingsNummer
-        BetrokkeneType.ORGANISATORISCHE_EENHEID -> (this as RolOrganisatorischeEenheid).betrokkeneIdentificatie?.naam
-        BetrokkeneType.MEDEWERKER -> (this as RolMedewerker).betrokkeneIdentificatie?.identificatie
+        NATUURLIJK_PERSOON -> (this as RolNatuurlijkPersoon).betrokkeneIdentificatie?.inpBsn
+        NIET_NATUURLIJK_PERSOON -> (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie?.innNnpId
+        VESTIGING -> (this as RolVestiging).betrokkeneIdentificatie?.vestigingsNummer
+        ORGANISATORISCHE_EENHEID -> (this as RolOrganisatorischeEenheid).betrokkeneIdentificatie?.naam
+        MEDEWERKER -> (this as RolMedewerker).betrokkeneIdentificatie?.identificatie
     }
 )
 

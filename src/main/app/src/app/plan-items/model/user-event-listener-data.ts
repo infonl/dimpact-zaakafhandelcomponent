@@ -6,6 +6,9 @@
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { UserEventListenerActie } from "./user-event-listener-actie-enum";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class UserEventListenerData {
   zaakUuid: string;
   planItemInstanceId: string;

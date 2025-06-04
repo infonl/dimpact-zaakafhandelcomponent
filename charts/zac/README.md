@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.73](https://img.shields.io/badge/Version-1.0.73-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
+![Version: 1.0.76](https://img.shields.io/badge/Version-1.0.76-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.125.0 |
+| @opentelemetry | opentelemetry-collector | 0.126.0 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -162,7 +162,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.existingConfigmap | string | `nil` | mount existing nginx vhost config |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.28.0@sha256:aa538e1dc81068827c28ad5855bbd721f0f17a3d303f4b5d6737ddc219d1c8c6"` |  |
+| nginx.image.tag | string | `"1.28.0@sha256:4261dc9185179b459771f28d95c1dee3b182fa1511528b4cfb6c2a0fdd3577c3"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -211,7 +211,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.4.2-static@sha256:3c995dc8a59f6ddfd92eb7404d2f7ff9fe71cd025d9251199957a8a6afbfd76e"` |  |
+| opa.image.tag | string | `"1.5.0-static@sha256:a37e86a1556e6c90f885b0ae83ac272d1e43bd963271f56b2724f6f504843263"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
@@ -295,11 +295,11 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.annotations | object | `{}` | annotations for solr in solrcloud |
 | solr-operator.solr.busyBoxImage.pullPolicy | string | `"IfNotPresent"` | solr busybox image imagePullPolicy |
 | solr-operator.solr.busyBoxImage.repository | string | `"library/busybox"` | solr busybox image reposity |
-| solr-operator.solr.busyBoxImage.tag | string | `"1.37.0-glibc@sha256:47ac99f1ae0afb8d83d8cd8aac5461be8103cac932f2631b5acce9122236adb1"` | solr busybox image tag |
+| solr-operator.solr.busyBoxImage.tag | string | `"1.37.0-glibc@sha256:210ce53959959e79523b8cb0f0bb1cf1c49bf9747cdedb47db1cf0db8e642f61"` | solr busybox image tag |
 | solr-operator.solr.enabled | bool | `true` | enable configuration of a solrcloud |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
-| solr-operator.solr.image.tag | string | `"9.8.1@sha256:05332e172bd3335eb36f2477e22cecae99f1f8e3b1bc4d1c148cb5373f1abaae"` | solr image tag |
+| solr-operator.solr.image.tag | string | `"9.8.1@sha256:94d55618bc3173605d0b6bf0da21fad8c4adf76d57999cae71ad4603ecbd560b"` | solr image tag |
 | solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` | solr memory settings |
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |

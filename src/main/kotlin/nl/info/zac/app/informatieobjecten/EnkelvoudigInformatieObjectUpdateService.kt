@@ -10,7 +10,6 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
@@ -24,6 +23,7 @@ import nl.info.client.zgw.drc.model.generated.SoortEnum
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService

@@ -4,6 +4,7 @@
  */
 
 /**
+ * @deprecated - use the `GeneratedType`
  * Maps to SubscriptionType.java
  */
 export enum SubscriptionType {

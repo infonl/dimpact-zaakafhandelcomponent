@@ -8,13 +8,11 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.util.DateTimeUtil.convertToDateTime
-import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolListParameters
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.Status
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
@@ -23,7 +21,9 @@ import nl.info.client.zgw.shared.exception.ResultTypeNotFoundException
 import nl.info.client.zgw.shared.exception.StatusTypeNotFoundException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Resultaat
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
@@ -247,24 +247,24 @@ class ZGWApiService @Inject constructor(
     }
 
     /**
-     * Find [RolOrganisatorischeEenheid] for [Zaak] with behandelaar [OmschrijvingGeneriekEnum].
+     * Find [RolOrganisatorischeEenheid] for [Zaak] with initiator [OmschrijvingGeneriekEnum].
      *
-     * @param zaak [Zaak]
+     * @param zaak [Zaak].
      * @return [RolOrganisatorischeEenheid] or 'null'.
      */
     fun findGroepForZaak(zaak: Zaak): RolOrganisatorischeEenheid? =
-        findBehandelaarRoleForZaak(zaak, BetrokkeneType.ORGANISATORISCHE_EENHEID)?.let {
+        findBehandelaarRoleForZaak(zaak, BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID)?.let {
             it as RolOrganisatorischeEenheid
         }
 
     /**
-     * Find [RolMedewerker] for [Zaak] with behandelaar [OmschrijvingGeneriekEnum].
+     * Find [RolMedewerker] for [Zaak] with initiator [OmschrijvingGeneriekEnum].
      *
      * @param zaak [Zaak]
      * @return [RolMedewerker] or 'null' if the rol medewerker could not be found.
      */
     fun findBehandelaarMedewerkerRoleForZaak(zaak: Zaak): RolMedewerker? =
-        findBehandelaarRoleForZaak(zaak, BetrokkeneType.MEDEWERKER)?.let {
+        findBehandelaarRoleForZaak(zaak, BetrokkeneTypeEnum.MEDEWERKER)?.let {
             it as RolMedewerker
         }
 
@@ -288,7 +288,7 @@ class ZGWApiService @Inject constructor(
 
     private fun findBehandelaarRoleForZaak(
         zaak: Zaak,
-        betrokkeneType: BetrokkeneType
+        betrokkeneType: BetrokkeneTypeEnum
     ): Rol<*>? {
         val roleTypes = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR).also {
             if (it.size > 1) {

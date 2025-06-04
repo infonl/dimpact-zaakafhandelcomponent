@@ -24,7 +24,7 @@
 <div mat-dialog-actions>
   <button
     (click)="verdeel()"
-    [disabled]="isDisabled()"
+    [disabled]="isDisabled() || !data.taken.length"
     color="primary"
     id="takenVerdelen_button"
     mat-button

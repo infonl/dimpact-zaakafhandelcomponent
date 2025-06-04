@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export enum Werklijst {
   WERKVOORRAAD_ZAKEN = "WERKVOORRAAD_ZAKEN",
   WERKVOORRAAD_TAKEN = "WERKVOORRAAD_TAKEN",

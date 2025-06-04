@@ -10,8 +10,6 @@ import nl.info.zac.util.NoArgConstructor
 import org.apache.solr.client.solrj.beans.Field
 import java.util.Date
 import java.util.EnumSet
-import java.util.function.Supplier
-import java.util.stream.Collectors
 
 @NoArgConstructor
 data class ZaakZoekObject(
@@ -160,24 +158,14 @@ data class ZaakZoekObject(
 
     fun setInitiator(initiatorRole: Rol<*>) {
         this.initiatorIdentificatie = initiatorRole.getIdentificatienummer()
-        this.initiatorType = initiatorRole.betrokkeneType.toValue()
+        this.initiatorType = initiatorRole.betrokkeneType.toString()
     }
 
     fun isIndicatie(indicatie: ZaakIndicatie) = indicaties?.contains(indicatie.name) == true
 
     fun getZaakIndicaties(): EnumSet<ZaakIndicatie> =
-        if (indicaties == null) {
-            EnumSet.noneOf<ZaakIndicatie>(ZaakIndicatie::class.java)
-        } else {
-            indicaties!!.stream().map<ZaakIndicatie>(ZaakIndicatie::valueOf)
-                .collect(
-                    Collectors.toCollection(
-                        Supplier {
-                            EnumSet.noneOf<ZaakIndicatie>(ZaakIndicatie::class.java)
-                        }
-                    )
-                )
-        }
+        indicaties?.mapTo(EnumSet.noneOf(ZaakIndicatie::class.java)) { ZaakIndicatie.valueOf(it) }
+            ?: EnumSet.noneOf(ZaakIndicatie::class.java)
 
     fun setIndicatie(indicatie: ZaakIndicatie, value: Boolean) {
         updateIndicaties(indicatie, value)

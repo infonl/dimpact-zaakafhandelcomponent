@@ -2,7 +2,7 @@
   "name": "app",
   "version": "0.0.1",
   "engines": {
-    "node": "22.15.1",
+    "node": "22.16.0",
     "npm": "10.9.2"
   },
   "scripts": {
@@ -17,10 +17,10 @@
     "cross-fetch": "4.1.0",
     "pdf-parse": "1.1.1",
     "uniqid": "5.4.0",
-    "zod": "3.25.30"
+    "zod": "3.25.50"
   },
   "devDependencies": {
-    "@types/node": "22.15.21",
+    "@types/node": "22.15.29",
     "@playwright/test": "1.52.0",
     "cucumber-html-reporter": "7.2.0",
     "cucumber-pretty": "6.0.1",

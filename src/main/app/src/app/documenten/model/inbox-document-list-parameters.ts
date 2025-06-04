@@ -8,6 +8,9 @@ import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters
 import { ListParameters } from "../../shared/model/list-parameters";
 import { DatumRange } from "../../zoeken/model/datum-range";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class InboxDocumentListParameters
   extends ListParameters
   implements ZoekFilters

@@ -169,8 +169,12 @@ export class ZakenWerkvoorraadComponent
     return this.selection.selected.length > 0;
   }
 
-  countSelected() {
-    return this.selection.selected.length;
+  countSelected(checkIfZaakHasHandler = false): number {
+    return this.selection.selected.filter(({ behandelaarGebruikersnaam }) => {
+      if (checkIfZaakHasHandler) return !!behandelaarGebruikersnaam;
+
+      return !behandelaarGebruikersnaam;
+    }).length;
   }
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */
@@ -243,27 +247,28 @@ export class ZakenWerkvoorraadComponent
   }
 
   openVerdelenScherm(): void {
-    this.handleAssigmentOrReleasementWorkflow(
-      ZakenVerdelenDialogComponent,
-      "msg.verdeeld.zaak",
-      "msg.verdeeld.zaken",
-    );
+    this.handleAssigmentOrReleasementWorkflow(ZakenVerdelenDialogComponent);
   }
 
   openVrijgevenScherm(): void {
     this.handleAssigmentOrReleasementWorkflow(
       ZakenVrijgevenDialogComponent,
-      "msg.vrijgegeven.zaak",
-      "msg.vrijgegeven.zaken",
+      true,
     );
   }
 
   private handleAssigmentOrReleasementWorkflow<T>(
     dialogComponent: ComponentType<T>,
-    singleToken: string,
-    multipleToken: string,
+    release = false,
   ) {
-    const zaken = this.selection.selected;
+    const zaken = this.selection.selected.filter(
+      ({ behandelaarGebruikersnaam }) => {
+        if (release) return !!behandelaarGebruikersnaam;
+
+        return !behandelaarGebruikersnaam;
+      },
+    );
+
     this.batchProcessService.subscribe({
       ids: zaken.map(({ id }) => id),
       progressSubscription: {
@@ -273,14 +278,14 @@ export class ZakenWerkvoorraadComponent
           if (event.opcode !== Opcode.UPDATED) return;
 
           const zaak = this.dataSource.data.find((x) => x.id === id);
-          if (this.toekenning && zaak) {
-            zaak.groepNaam = this.toekenning.groep?.naam || zaak.groepNaam;
-            zaak.groepId = this.toekenning.groep?.id || zaak.groepId;
-            if (this.toekenning.medewerker) {
-              zaak.behandelaarGebruikersnaam = this.toekenning.medewerker.id;
-              zaak.behandelaarNaam = this.toekenning.medewerker.naam;
-            }
-          }
+          if (!this.toekenning || !zaak) return;
+
+          zaak.groepNaam = this.toekenning.groep?.naam || zaak.groepNaam;
+          zaak.groepId = this.toekenning.groep?.id || zaak.groepId;
+
+          if (!this.toekenning.medewerker) return;
+          zaak.behandelaarGebruikersnaam = this.toekenning.medewerker.id;
+          zaak.behandelaarNaam = this.toekenning.medewerker.naam;
         },
       },
       finally: () =>
@@ -293,35 +298,43 @@ export class ZakenWerkvoorraadComponent
           this.batchProcessService.stop();
         }),
     });
+
     const dialogRef = this.dialog.open(dialogComponent, {
       data: zaken,
     });
+
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.toekenning = result;
-        this.zakenLoading.set(true);
-        const message =
-          zaken.length === 1
-            ? this.translateService.instant(singleToken)
-            : this.translateService.instant(multipleToken, {
-                aantal: zaken.length,
-              });
-        this.batchProcessService.showProgress(message, {
-          onTimeout: () => {
-            this.utilService.openSnackbar("msg.error.timeout");
-          },
-        });
-        const notChanged = zaken
-          .filter(
-            (x) =>
-              this.toekenning?.groep?.id === x.groepId &&
-              this.toekenning.medewerker?.id === x.behandelaarGebruikersnaam,
-          )
-          .map(({ id }) => id);
-        this.batchProcessService.update(notChanged);
-      } else {
+      if (!result) {
         this.batchProcessService.stop();
+        return;
       }
+
+      this.toekenning = result;
+      this.zakenLoading.set(true);
+      const message =
+        zaken.length === 1
+          ? this.translateService.instant(
+              release ? "msg.vrijgegeven.zaak" : "msg.verdeeld.zaak",
+            )
+          : this.translateService.instant(
+              release ? "msg.vrijgegeven.zaken" : "msg.verdeeld.zaken",
+              {
+                aantal: zaken.length,
+              },
+            );
+      this.batchProcessService.showProgress(message, {
+        onTimeout: () => {
+          this.utilService.openSnackbar("msg.error.timeout");
+        },
+      });
+      const notChanged = zaken
+        .filter(
+          (x) =>
+            this.toekenning?.groep?.id === x.groepId &&
+            this.toekenning.medewerker?.id === x.behandelaarGebruikersnaam,
+        )
+        .map(({ id }) => id);
+      this.batchProcessService.update(notChanged);
     });
   }
 

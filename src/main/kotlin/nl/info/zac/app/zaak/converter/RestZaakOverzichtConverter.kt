@@ -5,9 +5,9 @@
 package nl.info.zac.app.zaak.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.Zaak
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter

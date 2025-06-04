@@ -5,6 +5,9 @@
 
 import { BAGObject } from "./bagobject";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class Woonplaats extends BAGObject {
   naam: string;
   status: "AANGEWEZEN" | "INGETROKKEN";

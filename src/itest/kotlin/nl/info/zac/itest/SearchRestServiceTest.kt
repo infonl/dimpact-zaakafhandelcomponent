@@ -89,8 +89,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
-                // we only test on the total number of results and the filters, not on the actual results,
-                // in order to keep the test maintainable
+                // we only test on the total number of results and the filters, not on the actual results, to keep the test maintainable
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                         "foutmelding": "",                      

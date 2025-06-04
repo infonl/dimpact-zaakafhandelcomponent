@@ -9,22 +9,23 @@ import jakarta.inject.Inject
 import jakarta.ws.rs.NotFoundException
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
-import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolListParameters
 import net.atos.client.zgw.zrc.model.Status
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.client.zgw.zrc.model.ZaakListParameters
-import net.atos.client.zgw.zrc.model.ZaakUuid
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.util.validateZgwApiUri
+import nl.info.client.zgw.zrc.model.ZaakUuid
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Resultaat
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -99,7 +100,7 @@ class ZrcClientService @Inject constructor(
         updateRollen(zaak, rollen, toelichting)
     }
 
-    fun deleteRol(zaak: Zaak, betrokkeneType: BetrokkeneType?, toelichting: String?) {
+    fun deleteRol(zaak: Zaak, betrokkeneType: BetrokkeneTypeEnum?, toelichting: String?) {
         val rollen = listRollen(zaak).toMutableList().apply {
             firstOrNull { it.betrokkeneType == betrokkeneType }?.let { betrokkene ->
                 removeAll { it.equalBetrokkeneRol(betrokkene) }
@@ -128,8 +129,8 @@ class ZrcClientService @Inject constructor(
     fun listZaakobjecten(zaakobjectListParameters: ZaakobjectListParameters): Results<Zaakobject> =
         zrcClient.zaakobjectList(zaakobjectListParameters)
 
-    fun patchZaak(zaakUUID: UUID, zaak: Zaak, toelichting: String?): Zaak {
-        toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
+    fun patchZaak(zaakUUID: UUID, zaak: Zaak, explanation: String?): Zaak {
+        explanation?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
         return patchZaak(zaakUUID, zaak)
     }
 
@@ -240,7 +241,7 @@ class ZrcClientService @Inject constructor(
     }
 
     fun heeftOpenDeelzaken(zaak: Zaak): Boolean =
-        zaak.deelzaken.map { zaakURI -> this.readZaak(zaakURI) }.any { it.isOpen }
+        zaak.deelzaken.map { zaakURI -> this.readZaak(zaakURI) }.any { it.isOpen() }
 
     private fun deleteDeletedRollen(
         currentRoles: List<Rol<*>>,

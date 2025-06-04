@@ -7,6 +7,9 @@ import { Resultaat } from "../../shared/model/resultaat";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { OntkoppeldDocument } from "./ontkoppeld-document";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class OntkoppeldeDocumentenResultaat extends Resultaat<OntkoppeldDocument> {
   filterOntkoppeldDoor: GeneratedType<"RestUser">[];
 }

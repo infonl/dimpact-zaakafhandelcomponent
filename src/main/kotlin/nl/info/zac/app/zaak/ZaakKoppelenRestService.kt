@@ -14,9 +14,12 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
-import net.atos.client.zgw.zrc.model.Zaak
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.util.isDeelzaak
+import nl.info.client.zgw.zrc.util.isHoofdzaak
+import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
 import nl.info.zac.app.search.model.RestZoekResultaat
@@ -122,10 +125,10 @@ class ZaakKoppelenRestService @Inject constructor(
             targetZaak.hasMatchingZaaktypeWith(sourceZaak, relationType)
 
     private fun areBothOpen(sourceZaak: Zaak, targetZaak: ZaakZoekObject) =
-        sourceZaak.isOpen && targetZaak.archiefNominatie == null
+        sourceZaak.isOpen() && targetZaak.archiefNominatie == null
 
     private fun areBothClosed(sourceZaak: Zaak, targetZaak: ZaakZoekObject) =
-        !sourceZaak.isOpen && targetZaak.archiefNominatie != null
+        !sourceZaak.isOpen() && targetZaak.archiefNominatie != null
 
     private fun ZaakZoekObject.hasLinkRights() = policyService.readZaakRechtenForZaakZoekObject(this).koppelen
 
@@ -136,14 +139,14 @@ class ZaakKoppelenRestService @Inject constructor(
             // "The case you are searching for here will become the main case"
             RelatieType.HOOFDZAAK ->
                 // hoofdzaak to hoofdzaak link not allowed
-                !this.is_Hoofdzaak && !targetZaak.isIndicatie(HOOFDZAAK) &&
+                !this.isHoofdzaak() && !targetZaak.isIndicatie(HOOFDZAAK) &&
                     // a zaak cannot have two hoofdzaken
-                    !this.isDeelzaak && !targetZaak.isIndicatie(DEELZAAK)
+                    !this.isDeelzaak() && !targetZaak.isIndicatie(DEELZAAK)
             // "The case you are searching for here will become the subcase"
             RelatieType.DEELZAAK ->
                 // As per https://vng-realisatie.github.io/gemma-zaken/standaard/zaken
                 // "deelzaken van deelzaken zijn NIET toegestaan"
-                !this.isDeelzaak && !targetZaak.isIndicatie(DEELZAAK) &&
+                !this.isDeelzaak() && !targetZaak.isIndicatie(DEELZAAK) &&
                     // a hoofdzaak cannot be both a hoofdzaak and a deelzaak
                     !targetZaak.isIndicatie(HOOFDZAAK)
             else -> throw UnsupportedOperationException(

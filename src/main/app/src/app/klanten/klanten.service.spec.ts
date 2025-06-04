@@ -4,7 +4,6 @@
  */
 
 import {
-  HttpClient,
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
@@ -15,11 +14,12 @@ import { Router } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { UtilService } from "../core/service/util.service";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { KlantenService } from "./klanten.service";
 
 describe(KlantenService.name, () => {
   let service: KlantenService;
-  let http: HttpClient;
+  let zacHttpClient: ZacHttpClient;
 
   const mockTranslateService = {
     instant: (arg: string) => {
@@ -41,26 +41,25 @@ describe(KlantenService.name, () => {
       ],
     });
 
-    http = TestBed.inject(HttpClient);
+    zacHttpClient = TestBed.inject(ZacHttpClient);
     service = TestBed.inject(KlantenService);
   });
 
   describe(KlantenService.prototype.readBedrijf.name, () => {
     test.each([
-      ["123456789", "rechtspersoon"],
-      ["12345678", "vestiging"],
-      ["1234567890", "vestiging"],
+      ["123456789", "rechtspersoon", { rsin: "123456789" }],
+      ["12345678", "vestiging", { vestigingsnummer: "12345678" }],
+      ["1234567890", "vestiging", { vestigingsnummer: "1234567890" }],
     ])(
       "for the rsinOfVestigingsnummer %i it should call the %s endpoint",
-      (rsinOfVestigingsnummer, endpoint) => {
-        const get = jest.spyOn(http, "get");
+      (rsinOfVestigingsnummer, endpoint, path) => {
+        const get = jest.spyOn(zacHttpClient, "GET");
 
         service.readBedrijf(rsinOfVestigingsnummer);
 
-        expect(get).toHaveBeenCalledTimes(1);
-        expect(get).toHaveBeenCalledWith(
-          expect.stringContaining(`${endpoint}/${rsinOfVestigingsnummer}`),
-        );
+        expect(get).toHaveBeenCalledWith(expect.stringContaining(endpoint), {
+          path,
+        });
       },
     );
   });

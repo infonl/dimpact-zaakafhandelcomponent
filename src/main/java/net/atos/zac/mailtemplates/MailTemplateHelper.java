@@ -49,12 +49,10 @@ import org.flowable.identitylink.api.IdentityLinkInfo;
 import org.flowable.identitylink.api.IdentityLinkType;
 import org.flowable.task.api.TaskInfo;
 
-import net.atos.client.zgw.zrc.model.BetrokkeneType;
 import net.atos.client.zgw.zrc.model.Rol;
 import net.atos.client.zgw.zrc.model.RolMedewerker;
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
 import net.atos.client.zgw.zrc.model.Status;
-import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.mailtemplates.model.MailLink;
 import net.atos.zac.mailtemplates.model.MailTemplateVariabelen;
 import net.atos.zac.util.time.DateTimeConverterUtil;
@@ -70,6 +68,8 @@ import nl.info.client.kvk.zoeken.model.generated.ResultaatItem;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.shared.ZGWApiService;
 import nl.info.client.zgw.zrc.ZrcClientService;
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.client.zgw.ztc.model.generated.StatusType;
 import nl.info.client.zgw.ztc.model.generated.ZaakType;
@@ -274,14 +274,14 @@ public class MailTemplateHelper {
         );
     }
 
-    private String replaceInitiatorVariabelen(final String resolvedTekst, String requestContext, final Optional<Rol<?>> initiator) {
+    private String replaceInitiatorVariabelen(final String resolvedTekst, String auditEvent, final Optional<Rol<?>> initiator) {
         if (initiator.isPresent()) {
             final String identificatie = initiator.get().getIdentificatienummer();
-            final BetrokkeneType betrokkene = initiator.get().getBetrokkeneType();
+            final BetrokkeneTypeEnum betrokkene = initiator.get().getBetrokkeneType();
             return switch (betrokkene) {
                 case NATUURLIJK_PERSOON -> replaceInitiatorVariabelenPersoon(
                         resolvedTekst,
-                        brpClientService.retrievePersoon(identificatie, requestContext)
+                        brpClientService.retrievePersoon(identificatie, auditEvent)
                 );
                 case VESTIGING -> replaceInitiatorVariabelenResultaatItem(
                         resolvedTekst,

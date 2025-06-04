@@ -18,6 +18,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import net.atos.client.zgw.shared.model.AbstractListParameters;
 import net.atos.client.zgw.shared.model.Archiefnominatie;
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 
 /**
@@ -92,7 +93,7 @@ public class ZaakListParameters extends AbstractListParameters {
     /**
      * Type van de `betrokkene`
      */
-    private BetrokkeneType rolBetrokkeneType;
+    private BetrokkeneTypeEnum rolBetrokkeneType;
 
     /**
      * URL-referentie naar een betrokkene gerelateerd aan de ZAAK.
@@ -273,10 +274,10 @@ public class ZaakListParameters extends AbstractListParameters {
 
     @QueryParam("rol__betrokkeneType")
     public String getRolBetrokkeneType() {
-        return rolBetrokkeneType != null ? rolBetrokkeneType.toValue() : null;
+        return rolBetrokkeneType != null ? rolBetrokkeneType.toString() : null;
     }
 
-    public void setRolBetrokkeneType(final BetrokkeneType rolBetrokkeneType) {
+    public void setRolBetrokkeneType(final BetrokkeneTypeEnum rolBetrokkeneType) {
         this.rolBetrokkeneType = rolBetrokkeneType;
     }
 

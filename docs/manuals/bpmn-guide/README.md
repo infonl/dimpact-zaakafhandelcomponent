@@ -171,3 +171,36 @@ Example:
       ]
     }
 ```
+
+### Reference Table values
+To display and use values from a reference table you can use:
+* a fieldset with type `groepReferenceTableFieldset`
+* `select` type component with:
+   * custom data source
+   * properties containing `ReferenceTable_Code`
+
+Example:
+```json
+    {
+      "legend": "Reference table",
+      "type": "groepReferenceTableFieldset",
+      "key": "RT_ReferenceTable",
+      "input": false,
+      "components": [
+        {
+          "label": "Communication channel",
+          "type": "select",
+          "key": "RT_ReferenceTable_Values",
+          "input": true,
+          "widget": "html5",
+          "validate": {
+            "required": true
+          },
+          "dataSrc": "custom",
+          "properties": {
+            "ReferenceTable_Code": "COMMUNICATIEKANAAL"
+          }
+        }
+      ]
+    }
+```

@@ -2,10 +2,11 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.signalering.event;
 
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
+import static nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.MEDEWERKER;
+import static nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID;
 
 import java.net.URI;
 import java.util.Optional;
@@ -20,18 +21,18 @@ import jakarta.inject.Named;
 
 import org.flowable.task.api.TaskInfo;
 
-import net.atos.client.zgw.zrc.model.BetrokkeneType;
 import net.atos.client.zgw.zrc.model.Rol;
 import net.atos.client.zgw.zrc.model.RolListParameters;
 import net.atos.client.zgw.zrc.model.RolMedewerker;
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
-import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.zac.event.AbstractEventObserver;
 import net.atos.zac.flowable.task.FlowableTaskService;
 import net.atos.zac.signalering.model.Signalering;
 import net.atos.zac.signalering.model.SignaleringInstellingen;
 import nl.info.client.zgw.zrc.ZrcClientService;
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 import nl.info.client.zgw.ztc.model.generated.RolType;
@@ -216,7 +217,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
                 new RolListParameters(
                         zaak.getUrl(),
                         getRoltypeBehandelaar(zaak).getUrl(),
-                        BetrokkeneType.MEDEWERKER)
+                        BetrokkeneTypeEnum.MEDEWERKER)
         ).getSingleResult();
     }
 
@@ -231,7 +232,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
                 return addTargetGroup(signalering, rolGroep.getBetrokkeneIdentificatie().getIdentificatie());
             }
             default -> {
-                LOG.log(Level.WARNING, "Unknown BetrokkeneType '{0}'", rol.getBetrokkeneType());
+                LOG.log(Level.WARNING, "Unknown BetrokkeneType ''{0}''", rol.getBetrokkeneType());
                 return null;
             }
         }
