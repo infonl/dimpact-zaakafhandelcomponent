@@ -106,25 +106,24 @@ class BrpClientService @Inject constructor(
         auditEvent: String,
         defaultPurpose: String?,
         extractPurpose: (ZaakafhandelParameters) -> String?
-    ): String? {
-        LOG.info("Resolving BRP purpose using auditEvent='$auditEvent', defaultPurpose='$defaultPurpose'.")
-        val resolvedPurpose = Regex("""ZAAK-\d{4}-\d+""")
-            .find(auditEvent)
-            ?.value
-            ?.let { zaakIdentificatie ->
-                runCatching {
-                    val zaak = zrcClientService.readZaakByID(zaakIdentificatie)
-                    val parameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                        zaak.zaaktype.extractUuid()
-                    )
-                    extractPurpose(parameters)
-                }.getOrNull()
-            } ?: defaultPurpose
-
-        LOG.info("Resolved 'x-doelbinding' header value for persoon retrieval: '$resolvedPurpose'.")
-
-        return resolvedPurpose
-    }
+    ): String? =
+        auditEvent
+            .also { LOG.info("Resolving purpose for audit event: $it") }
+            .let { """ZAAK-\d{4}-\d+""".toRegex().find(it)?.value }
+            ?.runCatching {
+                zrcClientService.readZaakByID(this)
+                    .zaaktype.extractUuid()
+                    .let(zaakafhandelParameterService::readZaakafhandelParameters)
+                    .let(extractPurpose)
+            }?.onFailure {
+                LOG.warning("Failed to resolve purpose from audit event '$auditEvent': ${it.message}")
+            }?.getOrElse {
+                LOG.warning("Using default purpose '$defaultPurpose' for audit event '$auditEvent'")
+                null
+            } ?: run {
+            LOG.info("No purpose found in audit event '$auditEvent', using default purpose '$defaultPurpose'")
+            defaultPurpose
+        }
 
     private fun createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer: String) =
         RaadpleegMetBurgerservicenummer().apply {
