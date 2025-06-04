@@ -36,12 +36,8 @@ class NoteRestService @Inject constructor(
     private val noteConverter: NoteConverter,
     private val policyService: PolicyService
 ) {
-    /**
-     * List notes for a given case UUID.
-     * The `type' path parameter is not used currently.
-     */
     @GET
-    @Path("{type}/{uuid}")
+    @Path("/zaken/{uuid}")
     fun listNotes(@PathParam("uuid") zaakUUID: UUID): List<RestNote> {
         assertPolicy(policyService.readNotitieRechten().lezen)
         return noteService.listNotesForZaak(zaakUUID)

@@ -55,7 +55,7 @@ class NoteServiceTest : BehaviorSpec({
         }
         When("the 'get notes' endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/notities/ZAAK/$zaakProductaanvraag1Uuid"
+                url = "$ZAC_API_URI/notities/zaken/$zaakProductaanvraag1Uuid"
             )
             Then(
                 "the just created note should be returned"
