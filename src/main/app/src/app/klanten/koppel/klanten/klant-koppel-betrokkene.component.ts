@@ -13,18 +13,16 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { FormBuilder, Validators } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
 import { SharedModule } from "src/app/shared/shared.module";
-import { InputFormField } from "../../../shared/material-form-builder/form-components/input/input-form-field";
 import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { SelectFormField } from "../../../shared/material-form-builder/form-components/select/select-form-field";
 import { SelectFormFieldBuilder } from "../../../shared/material-form-builder/form-components/select/select-form-field-builder";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { KlantenModule } from "../../klanten.module";
 import { KlantenService } from "../../klanten.service";
-import { Klant } from "../../model/klanten/klant";
 import { KlantGegevens } from "../../model/klanten/klant-gegevens";
 import { BedrijfZoekComponent } from "../../zoek/bedrijven/bedrijf-zoek.component";
 import { PersoonZoekComponent } from "../../zoek/personen/persoon-zoek.component";
@@ -70,16 +68,23 @@ import { PersoonZoekComponent } from "../../zoek/personen/persoon-zoek.component
   `,
 })
 export class KlantKoppelBetrokkeneComponent implements OnInit, AfterViewInit {
-  @Input() type: "persoon" | "bedrijf" = "persoon";
-  @Input() zaaktypeUUID: string;
+  @Input({ required: true }) type: "persoon" | "bedrijf" = "persoon";
+  @Input({ required: true }) zaaktypeUUID!: string;
   @Output() klantGegevens = new EventEmitter<KlantGegevens>();
-  @ViewChild("zoek") zoek: PersoonZoekComponent | BedrijfZoekComponent;
+  @ViewChild("zoek") zoek!: PersoonZoekComponent | BedrijfZoekComponent;
 
   context = input.required<string>();
 
-  betrokkeneRoltype: SelectFormField<GeneratedType<"RestRoltype">>;
-  betrokkeneToelichting: InputFormField;
-  formGroup: FormGroup;
+  betrokkeneRoltype!: SelectFormField<GeneratedType<"RestRoltype">>;
+  betrokkeneToelichting = new InputFormFieldBuilder()
+    .id("betrokkenToelichting")
+    .label("toelichting")
+    .maxlength(75)
+    .build();
+  formGroup = this.formBuilder.group({
+    rol: this.betrokkeneRoltype.formControl,
+    toelichting: this.betrokkeneToelichting.formControl,
+  });
 
   constructor(
     private klantenService: KlantenService,
@@ -87,11 +92,13 @@ export class KlantKoppelBetrokkeneComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    this.buildFormFields();
-    this.formGroup = this.formBuilder.group({
-      rol: this.betrokkeneRoltype.formControl,
-      toelichting: this.betrokkeneToelichting.formControl,
-    });
+    this.betrokkeneRoltype = new SelectFormFieldBuilder()
+      .id("betrokkeneType")
+      .label("betrokkeneRoltype")
+      .optionLabel("naam")
+      .options(this.klantenService.listBetrokkeneRoltypen(this.zaaktypeUUID))
+      .validators(Validators.required)
+      .build();
   }
 
   ngAfterViewInit(): void {
@@ -105,22 +112,7 @@ export class KlantKoppelBetrokkeneComponent implements OnInit, AfterViewInit {
     );
   }
 
-  private buildFormFields() {
-    this.betrokkeneRoltype = new SelectFormFieldBuilder()
-      .id("betrokkeneType")
-      .label("betrokkeneRoltype")
-      .optionLabel("naam")
-      .options(this.klantenService.listBetrokkeneRoltypen(this.zaaktypeUUID))
-      .validators(Validators.required)
-      .build();
-    this.betrokkeneToelichting = new InputFormFieldBuilder()
-      .id("betrokkenToelichting")
-      .label("toelichting")
-      .maxlength(75)
-      .build();
-  }
-
-  klantGeselecteerd(klant: Klant): void {
+  klantGeselecteerd(klant: GeneratedType<"RestPersoon" | "RestBedrijf">): void {
     const klantGegevens = new KlantGegevens(klant);
     klantGegevens.betrokkeneRoltype = this.betrokkeneRoltype.formControl.value!;
     klantGegevens.betrokkeneToelichting =

@@ -3,27 +3,20 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
-import { BSN_LENGTH } from "../shared/utils/constants";
-import { GeneratedType } from "../shared/utils/generated-types";
-import { ContactGegevens } from "./model/klanten/contact-gegevens";
+import { BSN_LENGTH, VESTIGINGSNUMMER_LENGTH } from "../shared/utils/constants";
 
 @Injectable({
   providedIn: "root",
 })
 export class KlantenService {
   constructor(
-    private readonly http: HttpClient,
     private readonly foutAfhandelingService: FoutAfhandelingService,
     private readonly zacHttpClient: ZacHttpClient,
   ) {}
-
-  private basepath = "/rest/klanten";
 
   /* istanbul ignore next */
   readPersoon(bsn: string, audit: { context: string; action: string }) {
@@ -40,9 +33,13 @@ export class KlantenService {
   }
 
   readBedrijf(rsinOfVestigingsnummer: string) {
-    return rsinOfVestigingsnummer.length === BSN_LENGTH
-      ? this.readRechtspersoon(rsinOfVestigingsnummer)
-      : this.readVestiging(rsinOfVestigingsnummer);
+    switch (rsinOfVestigingsnummer.length) {
+      case BSN_LENGTH:
+        return this.readRechtspersoon(rsinOfVestigingsnummer);
+      case VESTIGINGSNUMMER_LENGTH:
+      default:
+        return this.readVestiging(rsinOfVestigingsnummer);
+    }
   }
 
   /* istanbul ignore next */
@@ -96,34 +93,26 @@ export class KlantenService {
 
   /* istanbul ignore next */
   listBetrokkeneRoltypen(zaaktypeUuid: string) {
-    return this.http
-      .get<
-        GeneratedType<"RestRoltype">[]
-      >(`${this.basepath}/roltype/${zaaktypeUuid}/betrokkene`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.GET(
+      "/rest/klanten/roltype/{zaaktypeUuid}/betrokkene",
+      {
+        path: { zaaktypeUuid },
+      },
+    );
   }
 
   /* istanbul ignore next */
   listRoltypen() {
-    return this.http
-      .get<GeneratedType<"RestRoltype">[]>(`${this.basepath}/roltype`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.GET("/rest/klanten/roltype", {});
   }
 
   /* istanbul ignore next */
-  ophalenContactGegevens(
-    initiatorIdentificatie: string,
-  ): Observable<ContactGegevens> {
-    return this.http
-      .get<ContactGegevens>(
-        `${this.basepath}/contactgegevens/${initiatorIdentificatie}`,
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  ophalenContactGegevens(initiatorIdentificatie: string) {
+    return this.zacHttpClient.GET(
+      "/rest/klanten/contactgegevens/{initiatorIdentificatie}",
+      {
+        path: { initiatorIdentificatie },
+      },
+    );
   }
 }
