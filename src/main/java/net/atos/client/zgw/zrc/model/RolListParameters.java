@@ -10,6 +10,7 @@ import java.net.URI;
 import jakarta.ws.rs.QueryParam;
 
 import net.atos.client.zgw.shared.model.AbstractListParameters;
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
 
 /**
  *
@@ -43,9 +44,9 @@ public class RolListParameters extends AbstractListParameters {
         this.roltype = roltype;
     }
 
-    public RolListParameters(final URI zaak, final URI roltype, final BetrokkeneType betrokkeneType) {
+    public RolListParameters(final URI zaak, final URI roltype, final BetrokkeneTypeEnum betrokkeneType) {
         this.zaak = zaak;
-        this.betrokkeneType = betrokkeneType.toValue();
+        this.betrokkeneType = betrokkeneType.toString();
         this.roltype = roltype;
     }
 
@@ -61,8 +62,8 @@ public class RolListParameters extends AbstractListParameters {
         return betrokkeneType;
     }
 
-    public void setBetrokkeneType(final BetrokkeneType betrokkeneType) {
-        this.betrokkeneType = betrokkeneType.toValue();
+    public void setBetrokkeneType(final BetrokkeneTypeEnum betrokkeneType) {
+        this.betrokkeneType = betrokkeneType.toString();
     }
 
     public URI getRoltype() {

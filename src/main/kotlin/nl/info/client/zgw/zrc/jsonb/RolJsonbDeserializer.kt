@@ -8,42 +8,42 @@ import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.bind.serializer.JsonbDeserializer
 import jakarta.json.stream.JsonParser
 import net.atos.client.zgw.shared.util.JsonbUtil.JSONB
-import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolVestiging
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import java.lang.reflect.Type
 
 class RolJsonbDeserializer : JsonbDeserializer<Rol<*>> {
     override fun deserialize(parser: JsonParser, ctx: DeserializationContext, rtType: Type): Rol<*> {
         val jsonObject = parser.getObject()
-        val betrokkenetype = BetrokkeneType.fromValue(jsonObject.getJsonString(Rol.BETROKKENE_TYPE_NAAM).string)
+        val betrokkenetype = BetrokkeneTypeEnum.fromValue(jsonObject.getJsonString(Rol.BETROKKENE_TYPE_NAAM).string)
 
         return when (betrokkenetype) {
-            BetrokkeneType.VESTIGING -> JSONB.fromJson(
+            BetrokkeneTypeEnum.VESTIGING -> JSONB.fromJson(
                 jsonObject.toString(),
                 RolVestiging::class.java
             )
 
-            BetrokkeneType.MEDEWERKER -> JSONB.fromJson(
+            BetrokkeneTypeEnum.MEDEWERKER -> JSONB.fromJson(
                 jsonObject.toString(),
                 RolMedewerker::class.java
             )
 
-            BetrokkeneType.NATUURLIJK_PERSOON -> JSONB.fromJson(
+            BetrokkeneTypeEnum.NATUURLIJK_PERSOON -> JSONB.fromJson(
                 jsonObject.toString(),
                 RolNatuurlijkPersoon::class.java
             )
 
-            BetrokkeneType.NIET_NATUURLIJK_PERSOON -> JSONB.fromJson(
+            BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON -> JSONB.fromJson(
                 jsonObject.toString(),
                 RolNietNatuurlijkPersoon::class.java
             )
 
-            BetrokkeneType.ORGANISATORISCHE_EENHEID -> JSONB.fromJson(
+            BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID -> JSONB.fromJson(
                 jsonObject.toString(),
                 RolOrganisatorischeEenheid::class.java
             )

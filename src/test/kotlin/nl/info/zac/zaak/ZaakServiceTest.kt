@@ -17,20 +17,20 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
-import nl.info.client.zgw.model.createNatuurlijkPersoon
+import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createStatusType
@@ -194,7 +194,7 @@ class ZaakServiceTest : BehaviorSpec({
             ) {
                 zaken.map {
                     verify(exactly = 1) {
-                        zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation)
+                        zrcClientService.deleteRol(it, BetrokkeneTypeEnum.MEDEWERKER, explanation)
                     }
                 }
                 with(screenEventSlot.captured) {
@@ -232,7 +232,7 @@ class ZaakServiceTest : BehaviorSpec({
                     a screen event of type 'zaken vrijgeven' should sent"""
             ) {
                 verify(exactly = 1) {
-                    zrcClientService.deleteRol(openZaak, BetrokkeneType.MEDEWERKER, explanation)
+                    zrcClientService.deleteRol(openZaak, BetrokkeneTypeEnum.MEDEWERKER, explanation)
                     eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(closedZaak))
                     eventingService.send(ScreenEventType.ZAKEN_VRIJGEVEN.updated(screenEventResourceId))
                 }
@@ -358,7 +358,7 @@ class ZaakServiceTest : BehaviorSpec({
         val roleAdviseur = createRolNatuurlijkPersoon(
             zaakURI = zaak.url,
             rolType = roleTypeAdviseur,
-            natuurlijkPersoon = createNatuurlijkPersoon(bsn = identification)
+            natuurlijkPersoon = createNatuurlijkPersoonIdentificatie(bsn = identification)
         )
         val roleSlot = slot<Rol<*>>()
         every { ztcClientService.readRoltype(roleTypeUUID) } returns roleTypeBelanghebbende
@@ -399,7 +399,7 @@ class ZaakServiceTest : BehaviorSpec({
         val roleAdviseur = createRolNatuurlijkPersoon(
             zaakURI = zaak.zaaktype,
             rolType = roleTypeAdviseur,
-            natuurlijkPersoon = createNatuurlijkPersoon(bsn = identification)
+            natuurlijkPersoon = createNatuurlijkPersoonIdentificatie(bsn = identification)
         )
         every { ztcClientService.readRoltype(roleTypeUUID) } returns roleTypeAdviseur
         every { zrcClientService.listRollen(zaak) } returns listOf(roleAdviseur)

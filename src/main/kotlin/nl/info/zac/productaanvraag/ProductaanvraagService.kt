@@ -10,14 +10,10 @@ import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.model.Medewerker
-import net.atos.client.zgw.zrc.model.NatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolVestiging
-import net.atos.client.zgw.zrc.model.Vestiging
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.zac.admin.ZaakafhandelParameterService
@@ -35,6 +31,10 @@ import nl.info.client.or.objects.model.generated.ModelObject
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
+import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
+import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
+import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
@@ -359,7 +359,7 @@ class ProductaanvraagService @Inject constructor(
             zaak,
             rolType,
             ROL_TOELICHTING,
-            NatuurlijkPersoon(bsn)
+            NatuurlijkPersoonIdentificatie().apply { this.inpBsn = bsn }
         )
     )
 
@@ -372,7 +372,7 @@ class ProductaanvraagService @Inject constructor(
             zaak,
             rolType,
             ROL_TOELICHTING,
-            Vestiging(vestigingsNummer)
+            VestigingIdentificatie().apply { this.vestigingsNummer = vestigingsNummer }
         )
     )
 
@@ -389,7 +389,7 @@ class ProductaanvraagService @Inject constructor(
 
     private fun creeerRolGroep(groepID: String, zaak: Zaak): RolOrganisatorischeEenheid {
         val group = identityService.readGroup(groepID)
-        val organisatieEenheid = OrganisatorischeEenheid().apply {
+        val organisatieEenheid = OrganisatorischeEenheidIdentificatie().apply {
             identificatie = group.id
             naam = group.name
         }
@@ -403,7 +403,7 @@ class ProductaanvraagService @Inject constructor(
 
     private fun creeerRolMedewerker(behandelaarGebruikersnaam: String, zaak: Zaak): RolMedewerker =
         identityService.readUser(behandelaarGebruikersnaam).let {
-            Medewerker().apply {
+            MedewerkerIdentificatie().apply {
                 identificatie = it.id
                 voorletters = it.firstName
                 achternaam = it.lastName

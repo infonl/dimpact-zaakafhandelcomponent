@@ -17,6 +17,7 @@ import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.json.bind.annotation.JsonbTypeDeserializer;
 
 import nl.info.client.zgw.zrc.jsonb.RolJsonbDeserializer;
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
 import nl.info.client.zgw.ztc.model.generated.RolType;
 
 @JsonbTypeDeserializer(RolJsonbDeserializer.class)
@@ -56,7 +57,7 @@ public abstract class Rol<T> {
      * Betrokkene type
      * - Required
      */
-    private BetrokkeneType betrokkeneType;
+    private BetrokkeneTypeEnum betrokkeneType;
 
     /**
      * URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.
@@ -108,7 +109,7 @@ public abstract class Rol<T> {
     public Rol(
             final UUID uuid,
             final RolType roltype,
-            final BetrokkeneType betrokkeneType
+            final BetrokkeneTypeEnum betrokkeneType
     ) {
         this.uuid = uuid;
         this.roltype = roltype.getUrl();
@@ -121,7 +122,7 @@ public abstract class Rol<T> {
     public Rol(
             final URI zaak,
             final RolType roltype,
-            final BetrokkeneType betrokkeneType,
+            final BetrokkeneTypeEnum betrokkeneType,
             final T betrokkeneIdentificatie,
             final String roltoelichting
     ) {
@@ -154,7 +155,7 @@ public abstract class Rol<T> {
         this.betrokkene = betrokkene;
     }
 
-    public BetrokkeneType getBetrokkeneType() {
+    public BetrokkeneTypeEnum getBetrokkeneType() {
         return betrokkeneType;
     }
 

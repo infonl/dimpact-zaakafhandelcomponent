@@ -24,9 +24,6 @@ import kotlinx.coroutines.test.runTest
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.model.BetrokkeneType
-import net.atos.client.zgw.zrc.model.Medewerker
-import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
@@ -46,7 +43,7 @@ import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
-import nl.info.client.zgw.model.createMedewerker
+import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createOrganisatorischeEenheid
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
@@ -60,7 +57,10 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
+import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
+import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
@@ -312,7 +312,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaakCreatedSlot.captured shouldBe zaak
                 with(rolGroupSlotOrganisatorischeEenheidSlot.captured) {
                     this.zaak shouldBe rolOrganisatorischeEenheid.zaak
-                    betrokkeneType shouldBe BetrokkeneType.ORGANISATORISCHE_EENHEID
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
                 }
             }
         }
@@ -402,16 +402,16 @@ class ZaakRestServiceTest : BehaviorSpec({
                     indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                 }
                 with(rolSlot[0]) {
-                    betrokkeneType shouldBe BetrokkeneType.MEDEWERKER
-                    with(betrokkeneIdentificatie as Medewerker) {
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
+                    with(betrokkeneIdentificatie as MedewerkerIdentificatie) {
                         identificatie shouldBe rolMedewerker.betrokkeneIdentificatie!!.identificatie
                     }
                     this.zaak shouldBe rolMedewerker.zaak
                     omschrijving shouldBe rolType.omschrijving
                 }
                 with(rolSlot[1]) {
-                    betrokkeneType shouldBe BetrokkeneType.ORGANISATORISCHE_EENHEID
-                    with(betrokkeneIdentificatie as OrganisatorischeEenheid) {
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
+                    with(betrokkeneIdentificatie as OrganisatorischeEenheidIdentificatie) {
                         identificatie shouldBe rolGroup.betrokkeneIdentificatie!!.identificatie
                     }
                     this.zaak shouldBe rolGroup.zaak
@@ -453,14 +453,13 @@ class ZaakRestServiceTest : BehaviorSpec({
         val existingRolMedewerker = createRolMedewerker()
         val rolMedewerker = createRolMedewerker(
             zaakURI = zaak.url,
-            betrokkeneIdentificatie = createMedewerker(identificatie = "newUser")
+            betrokkeneIdentificatie = createMedewerkerIdentificatie(identificatie = "newUser")
         )
         val group = createGroup()
         val existingRolGroup = createRolOrganisatorischeEenheid()
         val rolGroup = createRolOrganisatorischeEenheid(
             zaakURI = zaak.url,
             organisatorischeEenheid = createOrganisatorischeEenheid(identificatie = "newGroup")
-
         )
 
         every { zrcClientService.readZaak(restZaakToekennenGegevens.zaakUUID) } returns zaak
@@ -494,16 +493,16 @@ class ZaakRestServiceTest : BehaviorSpec({
                     indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                 }
                 with(rolSlot[0]) {
-                    betrokkeneType shouldBe BetrokkeneType.MEDEWERKER
-                    with(betrokkeneIdentificatie as Medewerker) {
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
+                    with(betrokkeneIdentificatie as MedewerkerIdentificatie) {
                         identificatie shouldBe rolMedewerker.betrokkeneIdentificatie!!.identificatie
                     }
                     this.zaak shouldBe rolMedewerker.zaak
                     omschrijving shouldBe rolType.omschrijving
                 }
                 with(rolSlot[1]) {
-                    betrokkeneType shouldBe BetrokkeneType.ORGANISATORISCHE_EENHEID
-                    with(betrokkeneIdentificatie as OrganisatorischeEenheid) {
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
+                    with(betrokkeneIdentificatie as OrganisatorischeEenheidIdentificatie) {
                         identificatie shouldBe rolGroup.betrokkeneIdentificatie!!.identificatie
                     }
                     this.zaak shouldBe rolGroup.zaak

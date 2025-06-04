@@ -68,9 +68,9 @@ export class TaakViewComponent
   protected taak: Taak;
   protected zaak: GeneratedType<"RestZaak">;
   protected formulier: AbstractTaakFormulier;
-  protected formConfig: FormConfig | null = null;
+  protected formConfig?: FormConfig;
   formulierDefinitie: FormulierDefinitie;
-  formioFormulier: FormioForm = {};
+  formioFormulier?: FormioForm;
 
   smartDocumentsGroupPath: string[] = [];
   smartDocumentsTemplateName?: string;
@@ -172,7 +172,7 @@ export class TaakViewComponent
       this.createHardCodedTaakForm(taak, zaak);
     } else if (taak.formulierDefinitie) {
       this.createConfigurableTaakForm(taak.formulierDefinitie);
-    } else {
+    } else if (!this.formioFormulier) {
       this.formioFormulier = taak.formioFormulier;
       this.formioSetupService.createFormioForm(this.formioFormulier, taak);
     }
