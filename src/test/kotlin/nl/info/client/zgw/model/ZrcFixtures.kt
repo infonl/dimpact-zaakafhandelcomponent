@@ -34,7 +34,6 @@ import java.math.BigDecimal
 import java.net.URI
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import java.time.OffsetTime
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -284,7 +283,7 @@ fun createZaakobjectPand(
 fun createZaakStatus(
     uuid: UUID = UUID.randomUUID(),
     uri: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
-    zaak: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
+    zaakURI: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
     statustype: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
     datumStatusGezet: OffsetDateTime = ZonedDateTime.now().toOffsetDateTime()
 ) = Status(
@@ -293,7 +292,7 @@ fun createZaakStatus(
     false,
     emptyList()
 ).apply {
-    this.zaak = zaak
+    this.zaak = zaakURI
     this.statustype = statustype
     this.datumStatusGezet = datumStatusGezet
 }

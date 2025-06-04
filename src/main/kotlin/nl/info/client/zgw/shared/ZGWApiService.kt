@@ -315,7 +315,7 @@ class ZGWApiService @Inject constructor(
             statustype = statustypeURI
             datumStatusGezet = ZonedDateTime.now().toOffsetDateTime()
         }
-        status. statustoelichting = toelichting
+        status.statustoelichting = toelichting
         return zrcClientService.createStatus(status)
     }
 

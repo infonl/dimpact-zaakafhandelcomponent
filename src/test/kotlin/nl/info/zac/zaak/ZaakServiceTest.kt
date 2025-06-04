@@ -551,7 +551,7 @@ class ZaakServiceTest : BehaviorSpec({
         val status = createZaakStatus(
             uuid = statusUuid,
             uri = URI(statusUuid.toString()),
-            zaak = zaak.url,
+            zaakURI = zaak.url,
             statustype = statusType.url,
             datumStatusGezet = ZonedDateTime.now().toOffsetDateTime()
         )
