@@ -170,11 +170,10 @@ export class TakenWerkvoorraadComponent
   }
 
   countSelected(checkIfTaskHasHandler = false): number {
-    return this.selection.selected.filter(({ behandelaarGebruikersnaam }) => {
-      if (checkIfTaskHasHandler) return !!behandelaarGebruikersnaam;
-
-      return !behandelaarGebruikersnaam;
-    }).length;
+    return this.selection.selected.filter(
+      ({ behandelaarGebruikersnaam }) =>
+        !checkIfTaskHasHandler || !!behandelaarGebruikersnaam,
+    ).length;
   }
 
   openVerdelenScherm() {
@@ -220,10 +219,6 @@ export class TakenWerkvoorraadComponent
     this.selection.clear();
   }
 
-  resetSearch(): void {
-    this.dataSource.reset();
-  }
-
   resetColumns(): void {
     this.dataSource.resetColumns();
   }
@@ -239,11 +234,8 @@ export class TakenWerkvoorraadComponent
   ) {
     const screenEventResourceId = crypto.randomUUID();
     const tasks = this.selection.selected.filter(
-      ({ behandelaarGebruikersnaam }) => {
-        if (release) return !!behandelaarGebruikersnaam;
-
-        return !behandelaarGebruikersnaam;
-      },
+      ({ behandelaarGebruikersnaam }) =>
+        !release || !!behandelaarGebruikersnaam,
     );
 
     this.batchProcessService.subscribe({
