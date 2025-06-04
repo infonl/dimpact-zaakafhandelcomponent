@@ -56,6 +56,10 @@ export class FormioSetupService {
           break;
         case "groepReferenceTableFieldset":
           this.initializeGroepReferenceTableFieldsetComponent(component);
+          break;
+        case "groepDocumentsFieldset":
+          this.initializeAvailableDocumentsFieldsetComponent(component);
+          break;
       }
       if ("components" in component) {
         this.initializeSpecializedFormioComponents(component.components);
@@ -233,5 +237,11 @@ export class FormioSetupService {
             .pipe(map((table) => table.waarden.map((value) => value.naam))),
         ),
     };
+  }
+
+  private initializeAvailableDocumentsFieldsetComponent(
+    fieldsetComponent: ExtendedComponentSchema
+  ) {
+    fieldsetComponent.type = "fieldset";
   }
 }
