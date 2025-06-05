@@ -121,10 +121,11 @@ class BrpClientService @Inject constructor(
             }?.getOrElse {
                 LOG.warning("Using default purpose '$defaultPurpose' for audit event '$auditEvent'")
                 null
-            } ?: run {
-            LOG.info("No purpose found in audit event '$auditEvent', using default purpose '$defaultPurpose'")
-            defaultPurpose
-        }
+            }
+            ?: run {
+                LOG.info("No purpose found in audit event '$auditEvent', using default purpose '$defaultPurpose'")
+                defaultPurpose
+            }
 
     private fun createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer: String) =
         RaadpleegMetBurgerservicenummer().apply {
