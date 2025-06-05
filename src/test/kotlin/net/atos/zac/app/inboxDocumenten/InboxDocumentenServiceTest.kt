@@ -49,7 +49,7 @@ class InboxDocumentenServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a UUID for an EnkelvoudigInformatieObject") {
+    Given("an EnkelvoudigInformatieObject is available from the DRC service by UUID") {
         val uuid = UUID.randomUUID()
         val identificatie = "DOC-123"
         val creatiedatum = LocalDate.now()
@@ -66,10 +66,10 @@ class InboxDocumentenServiceTest : BehaviorSpec({
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
         every { entityManager.persist(any<InboxDocument>()) } just Runs
 
-        When("create is called") {
+        When("the Inbox Document Service retrieves creates a Document from the EnkelvoudigInformatieObject's UUID") {
             val result = inboxDocumentenService.create(uuid)
 
-            Then("it should create and persist an InboxDocument with expected values") {
+            Then("the Service should have stored an Inbox Document") {
                 result.enkelvoudiginformatieobjectUUID shouldBe uuid
                 result.enkelvoudiginformatieobjectID shouldBe identificatie
                 result.creatiedatum shouldBe creatiedatum

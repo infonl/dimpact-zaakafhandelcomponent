@@ -14,7 +14,7 @@ import java.util.UUID
 
 class RESTInboxDocumentConverterTest : BehaviorSpec({
 
-    Given("an InboxDocument and a UUID") {
+    Given("a valid Inbox Document") {
         val document = InboxDocument().apply {
             id = 1L
             enkelvoudiginformatieobjectUUID = UUID.randomUUID()
@@ -26,10 +26,10 @@ class RESTInboxDocumentConverterTest : BehaviorSpec({
 
         val informatieobjectTypeUUID = UUID.randomUUID()
 
-        When("convert is called") {
+        When("RESTInboxDocumentConverter method convert is invoked") {
             val result = RESTInboxDocumentConverter.convert(document, informatieobjectTypeUUID)
 
-            Then("it should convert to a RESTInboxDocument with the same values") {
+            Then("the resulting RESTInboxDocument should end up with the same values") {
                 result.id shouldBe document.id
                 result.enkelvoudiginformatieobjectUUID shouldBe document.enkelvoudiginformatieobjectUUID
                 result.enkelvoudiginformatieobjectID shouldBe document.enkelvoudiginformatieobjectID
