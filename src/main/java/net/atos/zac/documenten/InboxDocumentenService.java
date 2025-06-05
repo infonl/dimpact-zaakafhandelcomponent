@@ -44,11 +44,18 @@ public class InboxDocumentenService {
     @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
     private EntityManager entityManager;
 
-    @Inject
     private ZrcClientService zrcClientService;
 
-    @Inject
     private DrcClientService drcClientService;
+
+    @Inject
+    public InboxDocumentenService(
+            ZrcClientService zrcClientService,
+            DrcClientService drcClientService
+    ) {
+        this.zrcClientService = zrcClientService;
+        this.drcClientService = drcClientService;
+    }
 
     public InboxDocument create(final UUID enkelvoudiginformatieobjectUUID) {
         final EnkelvoudigInformatieObject informatieobject = drcClientService.readEnkelvoudigInformatieobject(
