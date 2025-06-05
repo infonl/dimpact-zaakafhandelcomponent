@@ -18,6 +18,19 @@ import net.atos.zac.mailtemplates.model.MailTemplate
 import java.time.ZonedDateTime
 import java.util.UUID
 
+fun createBetrokkeneKoppelingen(
+    id: Long? = 1234L,
+    // Do not add default `= createZaakafhandelParameters()` as it will cause infinite loop
+    zaakafhandelParameters: ZaakafhandelParameters? = null,
+    brpKoppelen: Boolean = true,
+    kvkKoppelen: Boolean = true
+) = BetrokkeneKoppelingen().apply {
+    this.id = id
+    this.zaakafhandelParameters = zaakafhandelParameters
+    this.brpKoppelen = brpKoppelen
+    this.kvkKoppelen = kvkKoppelen
+}
+
 fun createHumanTaskParameters(
     id: Long = 1234L,
     zaakafhandelParameters: ZaakafhandelParameters = createZaakafhandelParameters(),
@@ -78,10 +91,7 @@ fun createZaakafhandelParameters(
     nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
     zaakbeeindigParameters: Set<ZaakbeeindigParameter>? = emptySet(),
     caseDefinitionId: String = "fakeCaseDefinitionId",
-    betrokkeneKoppelingen: BetrokkeneKoppelingen = BetrokkeneKoppelingen().apply {
-        brpKoppelen = true
-        kvkKoppelen = true
-    },
+    betrokkeneKoppelingen: BetrokkeneKoppelingen = createBetrokkeneKoppelingen(),
     brpDoelbindingen: BrpDoelbindingen? = BrpDoelbindingen().apply {
         zoekWaarde = ""
         raadpleegWaarde = ""
@@ -148,16 +158,4 @@ fun createZaakAfzender(
     this.isDefault = defaultMail
     this.mail = mail
     this.replyTo = replyTo
-}
-
-fun createBetrokkeneKoppelingen(
-    id: Long = 1234L,
-    zaakafhandelParameters: ZaakafhandelParameters,
-    brpKoppelen: Boolean = true,
-    kvkKoppelen: Boolean = true
-) = BetrokkeneKoppelingen().apply {
-    this.id = id
-    this.zaakafhandelParameters = zaakafhandelParameters
-    this.brpKoppelen = brpKoppelen
-    this.kvkKoppelen = kvkKoppelen
 }

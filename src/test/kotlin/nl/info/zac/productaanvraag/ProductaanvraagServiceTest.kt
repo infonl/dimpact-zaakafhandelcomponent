@@ -39,8 +39,8 @@ import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
+import nl.info.zac.admin.model.createBetrokkeneKoppelingen
 import nl.info.zac.admin.model.createZaakafhandelParameters
-import nl.info.zac.app.admin.createBetrokkeneKoppelingen
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.productaanvraag.model.generated.Geometry
@@ -322,7 +322,67 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     Given(
         """
         a productaanvraag-dimpact object registration object for which zaakafhandelparameters exist
-        containing a betrokkene with role initiator and type vestiging
+        containing a betrokkene with role initiator and type vestiging and zaakafhandelparameters
+        that have the KVK koppeling disabled
+        """
+    ) {
+        val productAanvraagObjectUUID = UUID.randomUUID()
+        val zaakTypeUUID = UUID.randomUUID()
+        val productAanvraagType = "productaanvraag"
+        val zaakafhandelParameters = createZaakafhandelParameters(
+            zaaktypeUUID = zaakTypeUUID,
+            betrokkeneKoppelingen = createBetrokkeneKoppelingen(
+                brpKoppelen = false,
+                kvkKoppelen = false
+            )
+        )
+        val formulierBron = createBron()
+        val vestigingsNummer = "fakeVestigingsNummer"
+        val productAanvraagORObject = createORObject(
+            record = createObjectRecord(
+                data = mapOf(
+                    "bron" to formulierBron,
+                    "type" to productAanvraagType,
+                    // aanvraaggegevens must contain at least one key with a map value
+                    "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue")),
+                    "betrokkenen" to listOf(
+                        mapOf(
+                            "vestigingsNummer" to vestigingsNummer,
+                            "rolOmschrijvingGeneriek" to "initiator"
+                        )
+                    )
+                )
+            )
+        )
+        every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+        every {
+            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                productAanvraagType
+            )
+        } returns listOf(zaakafhandelParameters)
+
+        When("the productaanvraag is handled") {
+            productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+            Then(
+                """
+                    no zaak should be created, and a CMMN case process should not be started and a warning should be logged
+                    """
+            ) {
+                verify(exactly = 0) {
+                    zgwApiService.createZaak(any())
+                    zrcClientService.createZaakobject(any())
+                    cmmnService.startCase(any(), any(), any(), any())
+                }
+            }
+        }
+    }
+
+    Given(
+        """
+        a productaanvraag-dimpact object registration object for which zaakafhandelparameters exist
+        containing a betrokkene with role initiator and type vestiging and zaakafhandelparameters
+        that have the BRP koppeling enabled
         """
     ) {
         val productAanvraagObjectUUID = UUID.randomUUID()
@@ -410,6 +470,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """
         a productaanvraag-dimpact object registration object for which zaakafhandelparameters exist
@@ -491,6 +552,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """
         a productaanvraag-dimpact object registration object for which zaakafhandelparameters exist 
@@ -564,6 +626,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """
         a productaanvraag-dimpact object registration object for which zaakafhandelparameters exist
@@ -809,6 +872,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("a productaanvraag-dimpact object registration object missing required aanvraaggegevens") {
         val productAanvraagObjectUUID = UUID.randomUUID()
         val productAanvraagType = "productaanvraag"
@@ -904,6 +968,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """
         a productaanvraag-dimpact object registration object is not a productaanvraag type
@@ -929,6 +994,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("a list of bijlage URIs and a zaak URI") {
         val bijlageURIs = listOf(URI("fakeURI1"), URI("fakeURI2"))
         val enkelvoudigInformatieobjecten = listOf(

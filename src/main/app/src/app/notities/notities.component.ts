@@ -6,7 +6,6 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import { IdentityService } from "../identity/identity.service";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { Notitie } from "./model/notitie";
 import { NotitieService } from "./notities.service";
 
 @Component({
@@ -16,17 +15,19 @@ import { NotitieService } from "./notities.service";
 })
 export class NotitiesComponent implements OnInit {
   @Input({ required: true }) zaakUuid!: string;
-  @Input({ required: true }) notitieType!: string;
   @Input() notitieRechten?: GeneratedType<"RestNotitieRechten">;
 
+  @ViewChild("notitieTekst") notitieTekst!: {
+    nativeElement: HTMLTextAreaElement;
+  };
   @ViewChild("scrollTarget") scrollTarget!: ElementRef;
-  @ViewChild("notitieTekst") notitieTekst!: ElementRef;
 
   ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
 
-  notities: Notitie[] = [];
+  notities: GeneratedType<"RestNote">[] = [];
   showNotes = false;
-  geselecteerdeNotitieId: number | null = null;
+
+geselecteerdeNotitieId: number | null = null;
   maxLengteTextArea = 1000;
 
   constructor(
@@ -51,30 +52,31 @@ export class NotitiesComponent implements OnInit {
   }
 
   haalNotitiesOp() {
-    this.notitieService
-      .listNotities(this.notitieType, this.zaakUuid)
-      .subscribe((notities) => {
-        this.notities = notities;
-        this.notities
-          .sort((a, b) =>
-            a.tijdstipLaatsteWijziging.localeCompare(
-              b.tijdstipLaatsteWijziging,
-            ),
-          )
-          .reverse();
+    this.notitieService.listNotities(this.zaakUuid).subscribe((notities) => {
+      this.notities = notities;
+      this.notities.sort((a, b) => {
+        if (!a.tijdstipLaatsteWijziging) return -1;
+        if (!b.tijdstipLaatsteWijziging) return 1;
+
+        return b.tijdstipLaatsteWijziging.localeCompare(
+          a.tijdstipLaatsteWijziging,
+        );
       });
+    });
   }
 
   maakNotitieAan(tekst: string) {
     if (!this.ingelogdeMedewerker?.id) return;
+    if (tekst.length === 0) return;
+    if (tekst.length > this.maxLengteTextArea) return;
 
-    if (tekst.length <= this.maxLengteTextArea) {
-      const notitie: Notitie = new Notitie();
-      notitie.zaakUUID = this.zaakUuid;
-      notitie.tekst = tekst;
-      notitie.gebruikersnaamMedewerker = this.ingelogdeMedewerker.id;
-
-      this.notitieService.createNotitie(notitie).subscribe((notitie) => {
+    this.notitieService
+      .createNotitie({
+        zaakUUID: this.zaakUuid,
+        tekst,
+        gebruikersnaamMedewerker: this.ingelogdeMedewerker.id,
+      })
+      .subscribe((notitie) => {
         this.notities.splice(0, 0, notitie);
         this.notitieTekst.nativeElement.value = "";
         this.scrollTarget.nativeElement.scrollIntoView({
@@ -82,20 +84,24 @@ export class NotitiesComponent implements OnInit {
           block: "start",
         });
       });
-    }
   }
 
-  updateNotitie(notitie: Notitie, notitieTekst: string) {
+  updateNotitie(notitie: GeneratedType<"RestNote">, tekst: string) {
     if (!this.ingelogdeMedewerker?.id) return;
 
-    if (notitieTekst.length <= this.maxLengteTextArea) {
-      notitie.tekst = notitieTekst;
-      notitie.gebruikersnaamMedewerker = this.ingelogdeMedewerker.id;
-      this.notitieService.updateNotitie(notitie).subscribe((updatedNotitie) => {
+    if (tekst.length === 0) return;
+    if (tekst.length > this.maxLengteTextArea) return;
+
+    this.notitieService
+      .updateNotitie({
+        ...notitie,
+        tekst,
+        gebruikersnaamMedewerker: this.ingelogdeMedewerker.id,
+      })
+      .subscribe((updatedNotitie) => {
         Object.assign(notitie, updatedNotitie);
         this.geselecteerdeNotitieId = null;
       });
-    }
   }
 
   annuleerUpdateNotitie() {

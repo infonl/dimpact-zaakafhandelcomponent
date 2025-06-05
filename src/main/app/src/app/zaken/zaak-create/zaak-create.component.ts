@@ -18,7 +18,6 @@ import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { KlantenService } from "../../klanten/klanten.service";
-import { Klant } from "../../klanten/model/klanten/klant";
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import {
   BSN_LENGTH,
@@ -52,7 +51,9 @@ export class ZaakCreateComponent {
     zaaktype: new FormControl<GeneratedType<"RestZaaktype"> | null>(null, [
       Validators.required,
     ]),
-    initiator: new FormControl<Klant | null | undefined>(null),
+    initiator: new FormControl<
+      GeneratedType<"RestPersoon" | "RestBedrijf"> | null | undefined
+    >(null),
     startdatum: new FormControl(moment(), [Validators.required]),
     bagObjecten: new FormControl<BAGObject[]>([]),
     groep: new FormControl<GeneratedType<"RestGroup"> | null | undefined>(
@@ -154,7 +155,7 @@ export class ZaakCreateComponent {
       );
   }
 
-  async initiatorSelected(user: Klant) {
+  async initiatorSelected(user: GeneratedType<"RestPersoon" | "RestBedrijf">) {
     this.form.controls.initiator.setValue(user);
     await this.actionsSidenav.close();
   }
@@ -217,7 +218,7 @@ export class ZaakCreateComponent {
     }
 
     observable?.subscribe((result) => {
-      this.form.controls.initiator.setValue(result as Klant);
+      this.form.controls.initiator.setValue(result);
     });
   }
 

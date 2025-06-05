@@ -51,11 +51,12 @@ export class FormioSetupService {
         case "groepMedewerkerFieldset":
           this.initializeGroepMedewerkerFieldsetComponent(component);
           break;
-        case "groepSmartDocumentsFieldset":
-          this.initializeGroepSmartDocumentsFieldsetComponent(component);
+        case "smartDocumentsFieldset":
+          this.initializeSmartDocumentsFieldsetComponent(component);
           break;
-        case "groepReferenceTableFieldset":
-          this.initializeGroepReferenceTableFieldsetComponent(component);
+        case "referenceTableFieldset":
+          this.initializeReferenceTableFieldsetComponent(component);
+          break;
       }
       if ("components" in component) {
         this.initializeSpecializedFormioComponents(component.components);
@@ -116,7 +117,7 @@ export class FormioSetupService {
     };
   }
 
-  private initializeGroepSmartDocumentsFieldsetComponent(
+  private initializeSmartDocumentsFieldsetComponent(
     fieldsetComponent: ExtendedComponentSchema,
   ): void {
     fieldsetComponent.type = "fieldset";
@@ -208,7 +209,7 @@ export class FormioSetupService {
     );
   }
 
-  private initializeGroepReferenceTableFieldsetComponent(
+  private initializeReferenceTableFieldsetComponent(
     fieldsetComponent: ExtendedComponentSchema,
   ) {
     fieldsetComponent.type = "fieldset";
