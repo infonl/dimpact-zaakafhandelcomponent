@@ -12,7 +12,7 @@ import java.net.URI
  * Extension of [nl.info.client.zgw.zrc.model.generated.Zaak] to be able to delete the hoofdzaak of a zaak
  * in ZGW JSON requests.
  */
-class NillableHoofdzaakZaakPatch(
+open class NillableHoofdzaakZaakPatch(
     /**
      * As per the ZGW ZRC API, to remove the hoofdzaak from a zaak, the hoofdzaak needs to be set to `null`
      * in the ZGW API JSON request body.
