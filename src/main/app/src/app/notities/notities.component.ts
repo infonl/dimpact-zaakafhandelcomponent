@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Input, OnInit, ViewChild } from "@angular/core";
+import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import { IdentityService } from "../identity/identity.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { NotitieService } from "./notities.service";
@@ -20,11 +20,13 @@ export class NotitiesComponent implements OnInit {
   @ViewChild("notitieTekst") notitieTekst!: {
     nativeElement: HTMLTextAreaElement;
   };
+  @ViewChild("scrollTarget") scrollTarget!: ElementRef;
 
   ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
 
   notities: GeneratedType<"RestNote">[] = [];
-  showNotes = true;
+  showNotes = false;
+
   geselecteerdeNotitieId: number | null = null;
   maxLengteTextArea = 1000;
 
@@ -42,6 +44,7 @@ export class NotitiesComponent implements OnInit {
 
   toggleNotitieContainer() {
     this.showNotes = !this.showNotes;
+    console.log("Notitie container toggled:", this.showNotes);
   }
 
   pasNotitieAan(id: number) {
@@ -64,7 +67,6 @@ export class NotitiesComponent implements OnInit {
 
   maakNotitieAan(tekst: string) {
     if (!this.ingelogdeMedewerker?.id) return;
-
     if (tekst.length === 0) return;
     if (tekst.length > this.maxLengteTextArea) return;
 
@@ -77,6 +79,10 @@ export class NotitiesComponent implements OnInit {
       .subscribe((notitie) => {
         this.notities.splice(0, 0, notitie);
         this.notitieTekst.nativeElement.value = "";
+        this.scrollTarget.nativeElement.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
       });
   }
 
