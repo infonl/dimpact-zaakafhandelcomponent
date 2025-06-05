@@ -22,7 +22,7 @@ import { Taak } from "../../model/taak";
   providedIn: "root",
 })
 export class FormioSetupService {
-  private taak: Taak | undefined;
+  private taak?: Taak;
   private formioChangeData: Record<string, string> | undefined;
 
   constructor(
@@ -92,7 +92,7 @@ export class FormioSetupService {
       custom: () =>
         lastValueFrom(
           this.identityService
-            .listGroups(this.taak.zaaktypeUUID)
+            .listGroups(this.taak?.zaaktypeUUID)
             .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam")))),
         ),
     };
@@ -245,9 +245,6 @@ export class FormioSetupService {
   private initializeAvailableDocumentsFieldsetComponent(
     fieldsetComponent: ExtendedComponentSchema,
   ): void {
-    if (!this.taak) {
-      return;
-    }
 
     const documentViewComponent = fieldsetComponent.components?.find(
       (component: { type: string }) => component.type === "select",
@@ -260,7 +257,7 @@ export class FormioSetupService {
     fieldsetComponent.type = "fieldset";
 
     const zoekParameters = new InformatieobjectZoekParameters();
-    zoekParameters.zaakUUID = this.taak.zaakUuid;
+    zoekParameters.zaakUUID = this.taak!.zaakUuid;
     zoekParameters.gekoppeldeZaakDocumenten = false;
 
     documentViewComponent.valueProperty = "uuid";
