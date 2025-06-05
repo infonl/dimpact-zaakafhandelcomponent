@@ -12,7 +12,7 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
  * Extension of [nl.info.client.zgw.zrc.model.generated.Zaak] to be able to delete the 'relevante zaken' of a zaak
  * in ZGW JSON requests.
  */
-class NillableRelevanteZakenZaakPatch(
+open class NillableRelevanteZakenZaakPatch(
     /**
      * As per the ZGW ZRC API, to remove the relevante zaken from a zaak, the relevante zaken list needs to be set to `null`
      * in the ZGW API JSON request body.
