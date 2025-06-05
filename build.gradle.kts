@@ -569,7 +569,7 @@ tasks {
         // Specify custom Mustache template dir as temporary workaround for issues we have with the OpenAPI Generator.
         // Both issues have to do with the support for JSON-B polymorphism type annotations introduced by
         // https://github.com/OpenAPITools/openapi-generator/pull/20164 in OpenAPI Generator version 7.11.
-        // Instead of overriding these Mustache templates the obvious workaround seems to set the additional property
+        // Instead of overriding these Mustache templates, the obvious workaround seems to set the additional property
         // 'jsonbPolymorphism' to false in this Gradle build file. However, that does not seem to work.
         // Probably because this property is set by the OpenAPI Generator library itself regardless of our configuration.
         templateDir.set("$rootDir/src/main/resources/openapi-generator-templates")
@@ -608,7 +608,7 @@ tasks {
         inputSpec.set("$rootDir/src/main/resources/api-specs/bag/bag-openapi.yaml")
         outputDir.set("$rootDir/src/generated/bag/java")
         modelPackage.set("nl.info.client.bag.model.generated")
-        // we need to use the java8-localdatetime date library for this client
+        // we need to use the java8-localdatetime date library for this client,
         // or else certain date time fields for this client cannot be deserialized
         configOptions.set(
             mapOf(

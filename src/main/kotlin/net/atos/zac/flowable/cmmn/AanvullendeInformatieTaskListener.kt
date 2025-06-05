@@ -4,9 +4,9 @@
  */
 package net.atos.zac.flowable.cmmn
 
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.processengine.ProcessEngineLookupImpl
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.runtime.PlanItemInstance
@@ -81,7 +81,7 @@ class AanvullendeInformatieTaskListener : TaskListener {
             }
         }
 
-    private fun getZaak(planItemInstance: PlanItemInstance) =
+    private fun getZaak(planItemInstance: PlanItemInstance): Zaak =
         withFlowableHelper { flowableHelper ->
             flowableHelper.zaakVariabelenService.readZaakUUID(planItemInstance).let { zaakUUID ->
                 flowableHelper.zrcClientService.readZaak(zaakUUID)

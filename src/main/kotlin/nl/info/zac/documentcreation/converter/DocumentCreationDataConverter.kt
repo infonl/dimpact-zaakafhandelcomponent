@@ -6,10 +6,7 @@ package nl.info.zac.documentcreation.converter
 
 import jakarta.inject.Inject
 import net.atos.client.or.`object`.ObjectsClientService
-import net.atos.client.zgw.zrc.model.BetrokkeneType
-import net.atos.client.zgw.zrc.model.Objecttype
 import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
@@ -34,6 +31,13 @@ import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NATUURLIJK_PERSOON
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING
+import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.util.isOpgeschort
+import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
@@ -91,7 +95,7 @@ class DocumentCreationDataConverter @Inject constructor(
             groep = zgwApiService.findGroepForZaak(zaak)?.naam,
             identificatie = zaak.identificatie,
             omschrijving = zaak.omschrijving,
-            opschortingReden = if (zaak.isOpgeschort) { zaak.opschorting.reden } else null,
+            opschortingReden = if (zaak.isOpgeschort()) { zaak.opschorting.reden } else null,
             registratiedatum = zaak.registratiedatum,
             resultaat = zaak.resultaat?.let {
                 zrcClientService.readResultaat(it).let { resultaat ->
@@ -107,7 +111,7 @@ class DocumentCreationDataConverter @Inject constructor(
             toelichting = zaak.toelichting,
             uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding?.toString(),
-            verlengingReden = if (zaak.isVerlengd) { zaak.verlenging.reden } else null,
+            verlengingReden = if (zaak.isVerlengd()) { zaak.verlenging.reden } else null,
             zaaktype = ztcClientService.readZaaktype(zaak.zaaktype).omschrijving
         )
 
@@ -118,21 +122,21 @@ class DocumentCreationDataConverter @Inject constructor(
 
     private fun convertToAanvragerData(initiator: Rol<*>, zaakNummer: String): AanvragerData? =
         when (initiator.betrokkeneType) {
-            BetrokkeneType.NATUURLIJK_PERSOON -> createAanvragerDataNatuurlijkPersoon(
+            NATUURLIJK_PERSOON -> createAanvragerDataNatuurlijkPersoon(
                 initiator.identificatienummer,
                 "$zaakNummer@$ACTION"
             )
-            BetrokkeneType.VESTIGING -> createAanvragerDataVestiging(initiator.identificatienummer)
-            BetrokkeneType.NIET_NATUURLIJK_PERSOON -> createAanvragerDataNietNatuurlijkPersoon(
+            VESTIGING -> createAanvragerDataVestiging(initiator.identificatienummer)
+            NIET_NATUURLIJK_PERSOON -> createAanvragerDataNietNatuurlijkPersoon(
                 initiator.identificatienummer
             )
             else -> error(
-                "Initiator of type '${initiator.betrokkeneType.toValue()}' is not supported"
+                "Initiator of type '${initiator.betrokkeneType}' is not supported"
             )
         }
 
-    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, requestContext: String): AanvragerData? {
-        return brpClientService.retrievePersoon(bsn, requestContext)?.let { convertToAanvragerDataPersoon(it) }
+    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, auditEvent: String): AanvragerData? {
+        return brpClientService.retrievePersoon(bsn, auditEvent)?.let { convertToAanvragerDataPersoon(it) }
     }
 
     private fun convertToAanvragerDataPersoon(persoon: Persoon) =
@@ -183,7 +187,7 @@ class DocumentCreationDataConverter @Inject constructor(
     private fun createStartformulierData(zaakUri: URI): StartformulierData? =
         ZaakobjectListParameters().apply {
             zaak = zaakUri
-            objectType = Objecttype.OVERIGE
+            objectType = ObjectTypeEnum.OVERIGE
         }.let { zrcClientService.listZaakobjecten(it) }.results
             .filter { ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE == it.objectTypeOverige }
             .map { convertToStartformulierData(it) }

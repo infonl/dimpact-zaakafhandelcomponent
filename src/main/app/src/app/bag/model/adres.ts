@@ -11,6 +11,9 @@ import { OpenbareRuimte } from "./openbare-ruimte";
 import { Pand } from "./pand";
 import { Woonplaats } from "./woonplaats";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class Adres extends BAGObject {
   postcode: string;
   huisnummerWeergave: string;

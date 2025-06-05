@@ -9,12 +9,8 @@ import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
-import { Resultaat } from "../shared/model/resultaat";
 import { BSN_LENGTH } from "../shared/utils/constants";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { Bedrijf } from "./model/bedrijven/bedrijf";
-import { ListBedrijvenParameters } from "./model/bedrijven/list-bedrijven-parameters";
-import { Vestigingsprofiel } from "./model/bedrijven/vestigingsprofiel";
 import { ContactGegevens } from "./model/klanten/contact-gegevens";
 
 @Injectable({
@@ -43,41 +39,37 @@ export class KlantenService {
       );
   }
 
-  readBedrijf(rsinOfVestigingsnummer: string): Observable<Bedrijf> {
+  readBedrijf(rsinOfVestigingsnummer: string) {
     return rsinOfVestigingsnummer.length === BSN_LENGTH
       ? this.readRechtspersoon(rsinOfVestigingsnummer)
       : this.readVestiging(rsinOfVestigingsnummer);
   }
 
   /* istanbul ignore next */
-  readVestiging(vestigingsnummer: string): Observable<Bedrijf> {
-    return this.http
-      .get<Bedrijf>(`${this.basepath}/vestiging/${vestigingsnummer}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readVestiging(vestigingsnummer: string) {
+    return this.zacHttpClient.GET(
+      "/rest/klanten/vestiging/{vestigingsnummer}",
+      {
+        path: { vestigingsnummer },
+      },
+    );
   }
 
   /* istanbul ignore next */
-  readVestigingsprofiel(
-    vestigingsnummer: string,
-  ): Observable<Vestigingsprofiel> {
-    return this.http
-      .get<Vestigingsprofiel>(
-        `${this.basepath}/vestigingsprofiel/${vestigingsnummer}`,
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readVestigingsprofiel(vestigingsnummer: string) {
+    return this.zacHttpClient.GET(
+      "/rest/klanten/vestigingsprofiel/{vestigingsnummer}",
+      {
+        path: { vestigingsnummer },
+      },
+    );
   }
 
   /* istanbul ignore next */
-  readRechtspersoon(rsin: string): Observable<Bedrijf> {
-    return this.http
-      .get<Bedrijf>(`${this.basepath}/rechtspersoon/${rsin}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readRechtspersoon(rsin: string) {
+    return this.zacHttpClient.GET("/rest/klanten/rechtspersoon/{rsin}", {
+      path: { rsin },
+    });
   }
 
   /* istanbul ignore next */
@@ -98,16 +90,8 @@ export class KlantenService {
   }
 
   /* istanbul ignore next */
-  listBedrijven(
-    listBedrijvenParameters: ListBedrijvenParameters,
-  ): Observable<Resultaat<Bedrijf>> {
-    return this.http
-      .put<
-        Resultaat<Bedrijf>
-      >(`${this.basepath}/bedrijven`, listBedrijvenParameters)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listBedrijven(body: PutBody<"/rest/klanten/bedrijven">) {
+    return this.zacHttpClient.PUT("/rest/klanten/bedrijven", body, {});
   }
 
   /* istanbul ignore next */

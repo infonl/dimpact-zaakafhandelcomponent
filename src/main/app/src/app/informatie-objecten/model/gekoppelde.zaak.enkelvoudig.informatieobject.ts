@@ -9,6 +9,9 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { EnkelvoudigInformatieobjectOndertekening } from "./enkelvoudig-informatieobject-ondertekening";
 import { FileFormat } from "./file-format";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class GekoppeldeZaakEnkelvoudigInformatieobject
   implements GeneratedType<"RestEnkelvoudigInformatieobject">
 {

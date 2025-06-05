@@ -5,8 +5,10 @@
 
 import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZaaktypeRelatie } from "./zaaktype-relatie";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class Zaaktype {
   uuid: string;
   identificatie: string;
@@ -22,7 +24,7 @@ export class Zaaktype {
   opschortingMogelijk: boolean;
   verlengingMogelijk: boolean;
   verlengingstermijn: number;
-  zaaktypeRelaties: ZaaktypeRelatie[];
+  zaaktypeRelaties: GeneratedType<"RestZaaktypeRelatie">[];
   informatieobjecttypes?: string[];
   zaakafhandelparameters: GeneratedType<"RestZaakafhandelParameters">;
 }

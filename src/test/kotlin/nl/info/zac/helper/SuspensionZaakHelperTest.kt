@@ -15,11 +15,12 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.model.createOpschorting
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.util.isEerderOpgeschort
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
@@ -105,7 +106,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                     opschorting.reden shouldBe postPonementReason
                     einddatumGepland shouldBe null
                     uiterlijkeEinddatumAfdoening shouldBe postponedZaak.uiterlijkeEinddatumAfdoening
-                    isEerderOpgeschort shouldBe true
+                    isEerderOpgeschort() shouldBe true
                 }
             }
         }
@@ -173,7 +174,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                     opschorting.reden shouldBe reasonResumed
                     einddatumGepland shouldBe null
                     uiterlijkeEinddatumAfdoening shouldBe resumedZaak.uiterlijkeEinddatumAfdoening
-                    isEerderOpgeschort shouldBe true
+                    isEerderOpgeschort() shouldBe true
                 }
             }
         }

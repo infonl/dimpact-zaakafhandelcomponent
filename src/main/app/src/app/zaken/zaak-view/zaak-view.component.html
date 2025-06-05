@@ -178,16 +178,22 @@
         </zac-bedrijfsgegevens>
       </section>
       <mat-card class="zaken-card w50 flex-1">
-        <mat-card-header class="flex-row space-between">
-          <mat-card-title>{{ zaak.identificatie }}</mat-card-title>
-          <mat-card-subtitle>{{
-            zaak.zaaktype.omschrijving
-          }}</mat-card-subtitle>
+        <mat-card-header class="flex-col gap-8 space-between">
           <div class="flex-row">
             <zac-zaak-indicaties
               [layout]="indicatiesLayout.VIEW"
               [zaak]="zaak"
             ></zac-zaak-indicaties>
+          </div>
+          <section class="flex-row space-between items-center">
+            <div>
+              <mat-card-title>
+                {{ zaak.identificatie }}
+              </mat-card-title>
+              <mat-card-subtitle>{{
+                zaak.zaaktype.omschrijving
+              }}</mat-card-subtitle>
+            </div>
             <button
               *ngIf="zaak.isProcesGestuurd && zaak.isOpen && !zaak.isHeropend"
               class="proces-button"
@@ -197,7 +203,7 @@
             >
               <mat-icon> play_shapes </mat-icon>
             </button>
-          </div>
+          </section>
         </mat-card-header>
         <mat-card-content>
           <mat-tab-group mat-stretch-tabs="false">

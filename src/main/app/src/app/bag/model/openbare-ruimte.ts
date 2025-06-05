@@ -6,6 +6,9 @@
 import { BAGObject } from "./bagobject";
 import { Woonplaats } from "./woonplaats";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class OpenbareRuimte extends BAGObject {
   naam: string;
   woonplaatsNaam: string;

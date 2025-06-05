@@ -3,9 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ZoekObjectType } from "./zoek-object-type";
+import { GeneratedType } from "../../shared/utils/generated-types";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export interface ZoekObject {
   id: string;
-  type: ZoekObjectType;
+  type: GeneratedType<"ZoekObjectType">;
 }

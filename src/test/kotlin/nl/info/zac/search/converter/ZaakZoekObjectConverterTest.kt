@@ -14,7 +14,7 @@ import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.zac.flowable.task.FlowableTaskService
-import nl.info.client.zgw.model.createNatuurlijkPersoon
+import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createResultaat
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
@@ -23,6 +23,8 @@ import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.shared.model.createResultsOfZaakObjecten
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
+import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
@@ -56,7 +58,12 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a zaak with betrokkenen, without open tasks, zaak objecten and communication channels") {
+    Given(
+        """
+        A zaak with betrokkenen, without open tasks, zaak objecten, an archief nominatie, 
+        and communication channels
+        """
+    ) {
         val zaakType = createZaakType()
         val resultaatType = createResultaatType()
         val resultaat = createResultaat(
@@ -64,26 +71,25 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         )
         val zaak = createZaak(
             resultaat = resultaat.url,
-            zaakTypeURI = zaakType.url
+            zaakTypeURI = zaakType.url,
+            archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
         )
         val rolInitiator = createRolNatuurlijkPersoon(
             rolType = createRolType(omschrijving = "fake_role_initiator")
         )
         val rolAdviseur = createRolNatuurlijkPersoon(
             rolType = createRolType(omschrijving = "fake_role_adviseur"),
-            natuurlijkPersoon = createNatuurlijkPersoon(bsn = "fakeBsnAdviseur")
+            natuurlijkPersoon = createNatuurlijkPersoonIdentificatie(bsn = "fakeBsnAdviseur")
         )
         val rolBelanghebbende = createRolNatuurlijkPersoon(
             rolType = createRolType(omschrijving = "fake_role_belanghebbende"),
-            natuurlijkPersoon = createNatuurlijkPersoon(bsn = "fakeBsnBelanghebbende")
+            natuurlijkPersoon = createNatuurlijkPersoonIdentificatie(bsn = "fakeBsnBelanghebbende")
 
         )
         val rollenZaak = listOf(rolAdviseur, rolBelanghebbende)
         val rolMedewerkerBehandelaar = createRolMedewerker()
         val userBehandelaar = createUser()
         val zaakObjectenList = emptyList<Zaakobject>()
-
-        // combine multiple every calls below into one every call
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { zrcClientService.listRollen(zaak) } returns rollenZaak
@@ -92,7 +98,6 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
             count = zaakObjectenList.size
         )
         every { zrcClientService.readResultaat(zaak.resultaat) } returns resultaat
-
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolInitiator
         every { zgwApiService.findGroepForZaak(zaak) } returns null
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerkerBehandelaar
@@ -110,12 +115,14 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                 with(zaakZoekObject) {
                     getObjectId() shouldBe zaak.uuid.toString()
                     getType() shouldBe ZoekObjectType.ZAAK
+                    archiefNominatie shouldBe "VERNIETIGEN"
+                    archiefActiedatum shouldBe null
                     identificatie shouldBe zaak.identificatie
                     omschrijving shouldBe zaak.omschrijving
                     toelichting shouldBe zaak.toelichting
                     registratiedatum shouldBe Date.from(zaak.registratiedatum.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
                     vertrouwelijkheidaanduiding shouldBe zaak.vertrouwelijkheidaanduiding.name
-                    isAfgehandeld shouldBe !zaak.isOpen
+                    isAfgehandeld shouldBe !zaak.isOpen()
                     initiatorIdentificatie shouldBe rolInitiator.identificatienummer
                     // locatie conversion is not implemented yet
                     locatie shouldBe null
@@ -150,11 +157,11 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         )
         val rolAdviseur = createRolNatuurlijkPersoon(
             rolType = createRolType(omschrijving = "fake_role_adviseur"),
-            natuurlijkPersoon = createNatuurlijkPersoon(bsn = "fakeBsnAdviseur")
+            natuurlijkPersoon = createNatuurlijkPersoonIdentificatie(bsn = "fakeBsnAdviseur")
         )
         val rolBelanghebbende = createRolNatuurlijkPersoon(
             rolType = createRolType(omschrijving = "fake_role_belanghebbende"),
-            natuurlijkPersoon = createNatuurlijkPersoon(bsn = "fakeBsnBelanghebbende")
+            natuurlijkPersoon = createNatuurlijkPersoonIdentificatie(bsn = "fakeBsnBelanghebbende")
 
         )
         val rollenZaak = listOf(rolAdviseur, rolBelanghebbende)
@@ -194,7 +201,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                     toelichting shouldBe zaak.toelichting
                     registratiedatum shouldBe Date.from(zaak.registratiedatum.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
                     vertrouwelijkheidaanduiding shouldBe zaak.vertrouwelijkheidaanduiding.name
-                    isAfgehandeld shouldBe !zaak.isOpen
+                    isAfgehandeld shouldBe !zaak.isOpen()
                     initiatorIdentificatie shouldBe rolInitiator.identificatienummer
                     // locatie conversion is not implemented (yet?)
                     locatie shouldBe null

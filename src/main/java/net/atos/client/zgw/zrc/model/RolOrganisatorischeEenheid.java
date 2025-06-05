@@ -11,9 +11,11 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
+import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie;
 import nl.info.client.zgw.ztc.model.generated.RolType;
 
-public class RolOrganisatorischeEenheid extends Rol<OrganisatorischeEenheid> {
+public class RolOrganisatorischeEenheid extends Rol<OrganisatorischeEenheidIdentificatie> {
 
     public RolOrganisatorischeEenheid() {
     }
@@ -25,21 +27,21 @@ public class RolOrganisatorischeEenheid extends Rol<OrganisatorischeEenheid> {
             final UUID uuid,
             final RolType roltype
     ) {
-        super(uuid, roltype, BetrokkeneType.ORGANISATORISCHE_EENHEID);
+        super(uuid, roltype, BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID);
     }
 
     public RolOrganisatorischeEenheid(
             final URI zaak,
             final RolType roltype,
             final String roltoelichting,
-            final OrganisatorischeEenheid organisatorischeEenheid
+            final OrganisatorischeEenheidIdentificatie organisatorischeEenheid
     ) {
-        super(zaak, roltype, BetrokkeneType.ORGANISATORISCHE_EENHEID, organisatorischeEenheid, roltoelichting);
+        super(zaak, roltype, BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID, organisatorischeEenheid, roltoelichting);
     }
 
     @Override
-    protected boolean equalBetrokkeneIdentificatie(final OrganisatorischeEenheid identificatie) {
-        final OrganisatorischeEenheid betrokkeneIdentificatie = getBetrokkeneIdentificatie();
+    protected boolean equalBetrokkeneIdentificatie(final OrganisatorischeEenheidIdentificatie identificatie) {
+        final OrganisatorischeEenheidIdentificatie betrokkeneIdentificatie = getBetrokkeneIdentificatie();
         if (betrokkeneIdentificatie == identificatie) {
             return true;
         }

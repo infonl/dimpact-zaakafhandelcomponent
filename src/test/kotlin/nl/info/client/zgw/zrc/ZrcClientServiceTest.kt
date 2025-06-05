@@ -14,13 +14,13 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
-import net.atos.client.zgw.zrc.model.BetrokkeneType
-import nl.info.client.zgw.model.createMedewerker
+import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolMedewerkerForReads
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheidForReads
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.zac.configuratie.ConfiguratieService
 import java.util.UUID
 
@@ -57,7 +57,7 @@ class ZrcClientServiceTest : BehaviorSpec({
         val zaak = createZaak()
         val existingRoles = listOf(createRolMedewerker(), createRolOrganisatorischeEenheid())
         val newRole = createRolMedewerker(
-            betrokkeneIdentificatie = createMedewerker(identificatie = "fakeIdentificatie123")
+            betrokkeneIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeIdentificatie123")
         )
         val description = "fakeDescription"
         every { zrcClient.rolList(any()) } returns Results(existingRoles, existingRoles.size)
@@ -88,7 +88,7 @@ class ZrcClientServiceTest : BehaviorSpec({
         every { zgwClientHeadersFactory.setAuditToelichting(description) } just Runs
 
         When("deleteRol is called for betrokkeneType 'Medewerker'") {
-            zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER, description)
+            zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, description)
 
             Then("it should remove only the first role of the matching betrokkene type") {
                 verify(exactly = 1) {

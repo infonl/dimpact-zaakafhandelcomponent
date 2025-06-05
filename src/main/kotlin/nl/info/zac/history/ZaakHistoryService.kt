@@ -5,13 +5,13 @@
 package nl.info.zac.history
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.Objecttype
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.history.converter.ZaakHistoryPartialUpdateConverter
 import nl.info.zac.history.model.HistoryAction
@@ -147,9 +147,9 @@ class ZaakHistoryService @Inject constructor(
         else -> null
     }
 
-    private fun getObjectType(obj: Zaakobject): String? = when {
-        obj is ZaakobjectProductaanvraag -> null
-        obj.objectType == Objecttype.OVERIGE -> obj.objectTypeOverige
-        else -> obj.objectType.toString()
+    private fun getObjectType(zaakobject: Zaakobject): String? = when {
+        zaakobject is ZaakobjectProductaanvraag -> null
+        zaakobject.objectType == ObjectTypeEnum.OVERIGE -> zaakobject.objectTypeOverige
+        else -> zaakobject.objectType.name
     }
 }

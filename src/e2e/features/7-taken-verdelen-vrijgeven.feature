@@ -10,7 +10,7 @@ Feature: Taken verdelen / vrijgeven
     And the page is done searching
     And there are at least 3 taken
     When "Bob" selects that number of taken
-    And "Bob" distributes the taken to the first group available
+    And "Bob" distributes the taken to the first group and user available
     Then "Bob" gets a message confirming that the distribution of taken is starting
     And after a while the snackbar disappears
 

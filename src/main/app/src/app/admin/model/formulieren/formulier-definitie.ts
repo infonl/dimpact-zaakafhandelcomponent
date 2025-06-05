@@ -5,6 +5,9 @@
 
 import { FormulierVeldDefinitie } from "./formulier-veld-definitie";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class FormulierDefinitie {
   id: number;
   systeemnaam: string;

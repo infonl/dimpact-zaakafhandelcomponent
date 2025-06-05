@@ -5,10 +5,11 @@
 package nl.info.zac.history.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.Geometry
 import net.atos.zac.util.time.LocalDateUtil
 import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
+import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
 import nl.info.zac.history.model.HistoryAction
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.util.asMapWithKeyOfString
@@ -84,8 +85,15 @@ class ZaakHistoryPartialUpdateConverter @Inject constructor(
             resource == RESOURCE_STARTDATUM -> LocalDateUtil.format(item as? String)
             resource == RESOURCE_UITERLIJKE_EINDDATUM_AFDOENING -> LocalDateUtil.format(item as? String)
             resource == RESOURCE_ZAAKGEOMETRIE && item is Map<*, *> ->
-                item.asMapWithKeyOfString().getTypedValue(Geometry::class.java)?.toString()
+                item.asMapWithKeyOfString().getTypedValue(GeoJSONGeometry::class.java)?.toHistoryLineString()
             resource == RESOURCE_EXTENSION -> null
             else -> item.toString()
         }
+}
+
+fun GeoJSONGeometry.toHistoryLineString() = when {
+    this.type == GeometryTypeEnum.POINT -> "POINT(${this.coordinates[0]} ${this.coordinates[1]})"
+    else -> throw IllegalArgumentException(
+        "Geometry type '${this.type}' is currently not supported."
+    )
 }

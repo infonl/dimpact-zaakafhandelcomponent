@@ -6,6 +6,9 @@
 import { GeometryCoordinate } from "./geometryCoordinate";
 import { GeometryType } from "./geometryType";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class Geometry {
   constructor(type: GeometryType) {
     this.type = type;

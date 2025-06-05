@@ -28,7 +28,6 @@ import { BatchProcessService } from "src/app/shared/batch-progress/batch-process
 import { SorteerVeld } from "src/app/zoeken/model/sorteer-veld";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { IdentityService } from "../../identity/identity.service";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
@@ -54,15 +53,15 @@ export class TakenWerkvoorraadComponent
 {
   selection = new SelectionModel<TaakZoekObject>(true, []);
   dataSource: TakenWerkvoorraadDatasource;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild(MatTable) table: MatTable<TaakZoekObject>;
-  ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
-  expandedRow: TaakZoekObject | null;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatTable) table!: MatTable<TaakZoekObject>;
+  ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
+  expandedRow: TaakZoekObject | null = null;
   readonly zoekenColumn = ZoekenColumn;
   sorteerVeld = SorteerVeld;
 
-  fataledatumIcon: TextIcon = new TextIcon(
+  fataledatumIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
     "report_problem",
     "warningVerlopen_icon",
@@ -71,12 +70,10 @@ export class TakenWerkvoorraadComponent
   );
 
   takenLoading = signal(false);
-  toekenning:
-    | {
-        groep?: GeneratedType<"RestGroup">;
-        medewerker?: GeneratedType<"RestUser">;
-      }
-    | undefined;
+  toekenning?: {
+    groep?: GeneratedType<"RestGroup">;
+    medewerker?: GeneratedType<"RestUser">;
+  };
 
   constructor(
     public route: ActivatedRoute,
@@ -113,25 +110,28 @@ export class TakenWerkvoorraadComponent
     });
   }
 
-  showAssignToMe(taakZoekObject: TaakZoekObject): boolean {
+  showAssignToMe(taakZoekObject: TaakZoekObject) {
     return (
       taakZoekObject.rechten.toekennen &&
-      this.ingelogdeMedewerker &&
-      this.ingelogdeMedewerker.id !==
+      this.ingelogdeMedewerker?.id !==
         taakZoekObject.behandelaarGebruikersnaam &&
-      this.ingelogdeMedewerker.groupIds.indexOf(taakZoekObject.groepID) >= 0
+      Boolean(
+        this.ingelogdeMedewerker?.groupIds?.includes(taakZoekObject.groepID),
+      )
     );
   }
 
-  assignToMe(taakZoekObject: TaakZoekObject, event): void {
+  assignToMe(taakZoekObject: TaakZoekObject, event: MouseEvent) {
     event.stopPropagation();
     this.takenService
       .toekennenAanIngelogdeMedewerkerVanuitLijst(taakZoekObject)
-      .subscribe((returnTaak) => {
-        taakZoekObject.behandelaarNaam = returnTaak.behandelaar.naam;
-        taakZoekObject.behandelaarGebruikersnaam = returnTaak.behandelaar.id;
+      .subscribe(({ behandelaar }) => {
+        if (!behandelaar) return;
+
+        taakZoekObject.behandelaarNaam = behandelaar.naam;
+        taakZoekObject.behandelaarGebruikersnaam = behandelaar.id;
         this.utilService.openSnackbar("msg.taak.toegekend", {
-          behandelaar: returnTaak.behandelaar.naam,
+          behandelaar: behandelaar.naam,
         });
       });
   }
@@ -169,27 +169,23 @@ export class TakenWerkvoorraadComponent
     return this.selection.selected.length > 0;
   }
 
-  countSelected(): number {
-    return this.selection.selected.length;
+  countSelected(checkIfTaskHasHandler = false): number {
+    return this.selection.selected.filter(({ behandelaarGebruikersnaam }) => {
+      if (checkIfTaskHasHandler) return !!behandelaarGebruikersnaam;
+
+      return !behandelaarGebruikersnaam;
+    }).length;
   }
 
-  openVerdelenScherm(): void {
-    this.handleAssignOrReleaseWorkflow(
-      TakenVerdelenDialogComponent,
-      "msg.verdeeld.taak",
-      "msg.verdeeld.taken",
-    );
+  openVerdelenScherm() {
+    this.handleAssignOrReleaseWorkflow(TakenVerdelenDialogComponent);
   }
 
-  openVrijgevenScherm(): void {
-    this.handleAssignOrReleaseWorkflow(
-      TakenVrijgevenDialogComponent,
-      "msg.vrijgegeven.taak",
-      "msg.vrijgegeven.taken",
-    );
+  openVrijgevenScherm() {
+    this.handleAssignOrReleaseWorkflow(TakenVrijgevenDialogComponent, true);
   }
 
-  isAfterDate(datum): boolean {
+  isAfterDate(datum: Date) {
     return DateConditionals.isExceeded(datum);
   }
 
@@ -215,8 +211,8 @@ export class TakenWerkvoorraadComponent
     return columns;
   }
 
-  getWerklijst(): Werklijst {
-    return Werklijst.WERKVOORRAAD_TAKEN;
+  getWerklijst(): GeneratedType<"Werklijst"> {
+    return "WERKVOORRAAD_TAKEN";
   }
 
   paginatorChanged($event: PageEvent): void {
@@ -239,26 +235,34 @@ export class TakenWerkvoorraadComponent
 
   private handleAssignOrReleaseWorkflow<T>(
     dialogComponent: ComponentType<T>,
-    singleToken: string,
-    multipleToken: string,
+    release = false,
   ) {
     const screenEventResourceId = crypto.randomUUID();
-    const taken = this.selection.selected;
+    const tasks = this.selection.selected.filter(
+      ({ behandelaarGebruikersnaam }) => {
+        if (release) return !!behandelaarGebruikersnaam;
+
+        return !behandelaarGebruikersnaam;
+      },
+    );
 
     this.batchProcessService.subscribe({
-      ids: taken.map(({ id }) => id),
+      ids: tasks.map(({ id }) => id),
       progressSubscription: {
         opcode: Opcode.ANY,
         objectType: ObjectType.TAAK,
         onNotification: (id, event) => {
           if (event.opcode !== Opcode.UPDATED) return;
 
-          const taak = this.dataSource.data.find((x) => x.id === id);
+          const taak = this.dataSource.data.find((task) => task.id === id);
+
           if (!taak || !this.toekenning) return;
           taak.groepNaam = this.toekenning.groep?.naam || taak.groepNaam;
           taak.groepID = this.toekenning.groep?.id || taak.groepID;
-          taak.behandelaarGebruikersnaam = this.toekenning.medewerker?.id;
-          taak.behandelaarNaam = this.toekenning.medewerker?.naam;
+
+          taak.behandelaarGebruikersnaam =
+            this.toekenning.medewerker?.id ?? undefined;
+          taak.behandelaarNaam = this.toekenning.medewerker?.naam ?? undefined;
         },
       },
       finalSubscription: {
@@ -276,27 +280,34 @@ export class TakenWerkvoorraadComponent
 
     const dialogRef = this.dialog.open(dialogComponent, {
       data: {
-        taken,
+        taken: tasks,
         screenEventResourceId,
       },
     });
+
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.toekenning = result;
-        const message =
-          taken.length === 1
-            ? this.translateService.instant(singleToken)
-            : this.translateService.instant(multipleToken, {
-                aantal: taken.length,
-              });
-        this.batchProcessService.showProgress(message, {
-          onTimeout: () => {
-            this.utilService.openSnackbar("msg.error.timeout");
-          },
-        });
-      } else {
+      if (!result) {
         this.batchProcessService.stop();
+        return;
       }
+
+      this.toekenning = result;
+      const message =
+        tasks.length === 1
+          ? this.translateService.instant(
+              release ? "msg.vrijgegeven.taak" : "msg.verdeeld.taak",
+            )
+          : this.translateService.instant(
+              release ? "msg.vrijgegeven.taken" : "msg.verdeeld.taken",
+              {
+                aantal: tasks.length,
+              },
+            );
+      this.batchProcessService.showProgress(message, {
+        onTimeout: () => {
+          this.utilService.openSnackbar("msg.error.timeout");
+        },
+      });
     });
   }
 

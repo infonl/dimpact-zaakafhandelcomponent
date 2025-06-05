@@ -15,6 +15,7 @@ import { HistorieRegel } from "../shared/historie/model/historie-regel";
 import {
   PatchBody,
   PostBody,
+  PutBody,
   ZacHttpClient,
 } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -171,15 +172,8 @@ export class ZakenService {
     );
   }
 
-  vrijgevenVanuitLijst(uuids: string[], reden?: string): Observable<void> {
-    return this.zacHttpClient.PUT(
-      "/rest/zaken/lijst/vrijgeven",
-      {
-        uuids,
-        reden,
-      },
-      {},
-    );
+  vrijgevenVanuitLijst(body: PutBody<"/rest/zaken/lijst/vrijgeven">) {
+    return this.zacHttpClient.PUT("/rest/zaken/lijst/vrijgeven", body, {});
   }
 
   toekennenAanIngelogdeMedewerker(zaakUUID: string, reden?: string) {

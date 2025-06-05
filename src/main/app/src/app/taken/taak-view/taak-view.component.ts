@@ -15,19 +15,19 @@ import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
-import { ExtendedComponentSchema, FormioForm } from "@formio/angular";
+import { FormioForm } from "@formio/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { lastValueFrom } from "rxjs";
-import { tap } from "rxjs/operators";
 import { ZaakDocumentenComponent } from "src/app/zaken/zaak-documenten/zaak-documenten.component";
 import { FormulierDefinitie } from "../../admin/model/formulieren/formulier-definitie";
-import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
-import { FormioCustomEvent } from "../../formulieren/formio-wrapper/formio-wrapper.component";
+import {
+  FormioChangeEvent,
+  FormioCustomEvent,
+} from "../../formulieren/formio-wrapper/formio-wrapper.component";
 import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-formulier";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -39,7 +39,6 @@ import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { OrderUtil } from "../../shared/order/order-util";
 import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
@@ -49,6 +48,7 @@ import { ZakenService } from "../../zaken/zaken.service";
 import { Taak } from "../model/taak";
 import { TaakStatus } from "../model/taak-status.enum";
 import { TakenService } from "../taken.service";
+import { FormioSetupService } from "./formio/formio-setup-service";
 
 @Component({
   templateUrl: "./taak-view.component.html",
@@ -68,10 +68,9 @@ export class TaakViewComponent
   protected taak: Taak;
   protected zaak: GeneratedType<"RestZaak">;
   protected formulier: AbstractTaakFormulier;
-  protected formConfig: FormConfig;
+  protected formConfig?: FormConfig;
   formulierDefinitie: FormulierDefinitie;
-  formioFormulier: FormioForm = {};
-  formioChangeData;
+  formioFormulier?: FormioForm;
 
   smartDocumentsGroupPath: string[] = [];
   smartDocumentsTemplateName?: string;
@@ -107,8 +106,8 @@ export class TaakViewComponent
     private websocketService: WebsocketService,
     private taakFormulierenService: TaakFormulierenService,
     private identityService: IdentityService,
-    private zaakafhandelParametersService: ZaakafhandelParametersService,
     protected translate: TranslateService,
+    private formioSetupService: FormioSetupService,
   ) {
     super();
   }
@@ -173,8 +172,9 @@ export class TaakViewComponent
       this.createHardCodedTaakForm(taak, zaak);
     } else if (taak.formulierDefinitie) {
       this.createConfigurableTaakForm(taak.formulierDefinitie);
-    } else {
-      this.createFormioForm(taak.formioFormulier);
+    } else if (!this.formioFormulier) {
+      this.formioFormulier = taak.formioFormulier;
+      this.formioSetupService.createFormioForm(this.formioFormulier, taak);
     }
   }
 
@@ -213,125 +213,6 @@ export class TaakViewComponent
     this.utilService.setTitle("title.taak", {
       taak: formulierDefinitie.naam,
     });
-  }
-
-  private createFormioForm(formioFormulier: FormioForm): void {
-    this.formioFormulier = formioFormulier;
-    this.initializeSpecializedFormioComponents(formioFormulier.components);
-    this.utilService.setTitle("title.taak", {
-      taak: formioFormulier.title,
-    });
-  }
-
-  private initializeSpecializedFormioComponents(
-    components: ExtendedComponentSchema[] | undefined,
-  ): void {
-    components?.forEach((component) => {
-      switch (component.type) {
-        case "groepMedewerkerFieldset":
-          this.initializeFormioGroepMedewerkerFieldsetComponent(component);
-          break;
-        case "groepSmartDocumentsFieldset":
-          this.initializeFormioGroepSmartDocumentsFieldsetComponent(component);
-          break;
-      }
-      if ("components" in component) {
-        this.initializeSpecializedFormioComponents(component.components);
-      }
-    });
-  }
-
-  private initializeFormioGroepMedewerkerFieldsetComponent(
-    component: ExtendedComponentSchema,
-  ): void {
-    component.type = "fieldset";
-    const groepComponent = component.components[0];
-    const medewerkerComponent = component.components[1];
-    this.initializeFormioGroepMedewerkerFieldsetGroepComponent(groepComponent);
-    this.initializeFormioGroepMedewerkerFieldsetMedewerkerComponent(
-      medewerkerComponent,
-      groepComponent.key,
-    );
-  }
-
-  private initializeFormioGroepMedewerkerFieldsetGroepComponent(
-    groepComponent: ExtendedComponentSchema,
-  ): void {
-    groepComponent.valueProperty = "id";
-    groepComponent.template = "{{ item.naam }}";
-    groepComponent.data = {
-      custom: () =>
-        lastValueFrom(
-          this.identityService
-            .listGroups(this.taak.zaaktypeUUID)
-            .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam")))),
-        ),
-    };
-  }
-
-  private initializeFormioGroepMedewerkerFieldsetMedewerkerComponent(
-    medewerkerComponent: ExtendedComponentSchema,
-    groepComponentKey: string,
-  ): void {
-    medewerkerComponent.valueProperty = "id";
-    medewerkerComponent.template = "{{ item.naam }}";
-    medewerkerComponent.data = {
-      custom: () => {
-        if (
-          this.formioChangeData &&
-          groepComponentKey in this.formioChangeData &&
-          this.formioChangeData[groepComponentKey] !== ""
-        ) {
-          return lastValueFrom(
-            this.identityService
-              .listUsersInGroup(this.formioChangeData[groepComponentKey])
-              .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam")))),
-          );
-        } else {
-          return Promise.resolve([]);
-        }
-      },
-    };
-  }
-
-  private initializeFormioGroepSmartDocumentsFieldsetComponent(
-    fieldsetComponent: ExtendedComponentSchema,
-  ): void {
-    fieldsetComponent.type = "fieldset";
-    const smartDocumentsPath = this.findSmartDocumentsPath(fieldsetComponent);
-
-    console.log("fieldset component = %O", fieldsetComponent);
-    const smartDocumentsTemplateComponent = fieldsetComponent.components?.find(
-      (component: ExtendedComponentSchema) =>
-        component.key === fieldsetComponent.key + "_Template",
-    );
-    smartDocumentsTemplateComponent.valueProperty = "id";
-    smartDocumentsTemplateComponent.template = "{{ item.naam }}";
-    smartDocumentsTemplateComponent.data = {
-      custom: () =>
-        lastValueFrom(
-          this.zaakafhandelParametersService
-            .listSmartDocumentsGroupTemplateNames(smartDocumentsPath)
-            .pipe(tap((value) => value.sort())),
-        ),
-    };
-  }
-
-  private findSmartDocumentsPath(fieldsetComponent: ExtendedComponentSchema) {
-    const componentWithProperties = fieldsetComponent.components?.find(
-      (component: ExtendedComponentSchema) =>
-        Object.keys(component.properties || []).length > 0,
-    );
-    const smartDocumentsPath: GeneratedType<"RestSmartDocumentsPath"> = {
-      path: this.formioGetSmartDocumentsGroups(componentWithProperties),
-    };
-    return smartDocumentsPath;
-  }
-
-  private formioGetSmartDocumentsGroups(
-    component: ExtendedComponentSchema,
-  ): string[] {
-    return component?.properties["SmartDocuments_Group"].split("/");
   }
 
   isReadonly() {
@@ -485,8 +366,29 @@ export class TaakViewComponent
     }
   }
 
-  onFormioFormChange(event: { data: unknown }) {
-    this.formioChangeData = event.data;
+  onFormioFormChange(event: FormioChangeEvent) {
+    this.formioSetupService.setFormioChangeData(event.data);
+  }
+
+  onDocumentCreate(event: FormioCustomEvent) {
+    this.activeSideAction = "actie.document.maken";
+    this.smartDocumentsGroupPath =
+      this.formioSetupService.getSmartDocumentsGroups(event.component);
+    this.smartDocumentsTemplateName =
+      this.formioSetupService.extractSmartDocumentsTemplateName(event);
+    const normalizedTemplateName =
+      this.formioSetupService.normalizeSmartDocumentsTemplateName(
+        this.smartDocumentsTemplateName,
+      );
+    this.smartDocumentsInformatieobjecttypeUuid =
+      this.formioSetupService.getInformatieobjecttypeUuid(
+        event,
+        normalizedTemplateName,
+      );
+
+    if (normalizedTemplateName.length > 0) {
+      this.actionsSidenav.open();
+    }
   }
 
   // TODO add the correct type
@@ -593,49 +495,5 @@ export class TaakViewComponent
       uuid: taak.zaakUuid,
       zaaktype,
     } satisfies Partial<GeneratedType<"RestZaak">> as GeneratedType<"RestZaak">;
-  }
-
-  onDocumentCreate(event: FormioCustomEvent) {
-    this.activeSideAction = "actie.document.maken";
-    this.smartDocumentsGroupPath = this.formioGetSmartDocumentsGroups(
-      event.component,
-    );
-    this.smartDocumentsTemplateName =
-      event.data[
-        this.extractFieldsetName(event.component) + "_Template"
-      ].toString();
-    const normalizedTemplateName = this.smartDocumentsTemplateName
-      ?.replace(" ", "_")
-      .trim();
-    this.smartDocumentsInformatieobjecttypeUuid =
-      event.component.properties[
-        `SmartDocuments_${normalizedTemplateName}_InformatieobjecttypeUuid`
-      ] ||
-      event.component.properties["SmartDocuments_InformatieobjecttypeUuid"];
-
-    if (normalizedTemplateName.length > 0) {
-      this.actionsSidenav.open();
-    }
-  }
-
-  /**
-   * Returns the key name of the fieldset group using the key of the button. We assume that all components in the
-   * fieldset have the same prefix as the key of the fieldset and that the separator is an underscore.
-   *
-   * If the name of the button is "AM_SmartDocuments_Create", the expected component base name is "AM_SmartDocuments".
-   *
-   * @example
-   *     {
-   *       "legend": "SmartDocuments",
-   *       "type": "groepSmartDocumentsFieldset",
-   *       "key": "AM_SmartDocuments",
-   *       "components": [
-   *         { "label": "Template", "type": "select", "key": "AM_SmartDocuments_Template", <.. more fields ..> },
-   *         { "label": "Create", "key": "AM_SmartDocuments_Create", "type": "button", <.. more fields ..> }
-   *       ]
-   *     }
-   */
-  extractFieldsetName(component: ExtendedComponentSchema): string {
-    return component.key.split("_").slice(0, -1).join("_");
   }
 }

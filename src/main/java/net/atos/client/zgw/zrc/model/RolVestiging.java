@@ -10,9 +10,11 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
+import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie;
 import nl.info.client.zgw.ztc.model.generated.RolType;
 
-public class RolVestiging extends Rol<Vestiging> {
+public class RolVestiging extends Rol<VestigingIdentificatie> {
 
     public RolVestiging() {
     }
@@ -21,14 +23,14 @@ public class RolVestiging extends Rol<Vestiging> {
             final URI zaak,
             final RolType roltype,
             final String roltoelichting,
-            final Vestiging betrokkeneIdentificatie
+            final VestigingIdentificatie betrokkeneIdentificatie
     ) {
-        super(zaak, roltype, BetrokkeneType.VESTIGING, betrokkeneIdentificatie, roltoelichting);
+        super(zaak, roltype, BetrokkeneTypeEnum.VESTIGING, betrokkeneIdentificatie, roltoelichting);
     }
 
     @Override
-    protected boolean equalBetrokkeneIdentificatie(final Vestiging identificatie) {
-        final Vestiging betrokkeneIdentificatie = getBetrokkeneIdentificatie();
+    protected boolean equalBetrokkeneIdentificatie(final VestigingIdentificatie identificatie) {
+        final VestigingIdentificatie betrokkeneIdentificatie = getBetrokkeneIdentificatie();
         if (betrokkeneIdentificatie == identificatie) {
             return true;
         }

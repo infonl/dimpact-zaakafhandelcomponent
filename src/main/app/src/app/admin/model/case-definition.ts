@@ -5,6 +5,9 @@
 
 import { PlanItemDefinition } from "./plan-item-definition";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class CaseDefinition {
   key: string;
   naam: string;

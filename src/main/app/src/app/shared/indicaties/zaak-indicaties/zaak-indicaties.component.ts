@@ -5,7 +5,6 @@
 
 import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { ZaakRelatietype } from "../../../zaken/model/zaak-relatietype";
 import { ZaakZoekObject } from "../../../zoeken/model/zaken/zaak-zoek-object";
 import { Indicatie } from "../../model/indicatie";
 import { GeneratedType } from "../../utils/generated-types";
@@ -29,8 +28,8 @@ export class ZaakIndicatiesComponent
   extends IndicatiesComponent
   implements OnChanges
 {
-  @Input() zaakZoekObject: ZaakZoekObject;
-  @Input() zaak: GeneratedType<"RestZaak">;
+  @Input() zaakZoekObject?: ZaakZoekObject;
+  @Input() zaak?: GeneratedType<"RestZaak">;
 
   constructor(private translateService: TranslateService) {
     super();
@@ -44,9 +43,8 @@ export class ZaakIndicatiesComponent
 
   loadIndicaties(): void {
     this.indicaties = [];
-    const indicaties = this.zaak
-      ? this.zaak.indicaties
-      : this.zaakZoekObject.indicaties;
+    const indicaties =
+      this.zaak?.indicaties ?? this.zaakZoekObject?.indicaties ?? [];
     indicaties.forEach((indicatie) => {
       switch (indicatie) {
         case ZaakIndicatie.OPSCHORTING:
@@ -109,51 +107,53 @@ export class ZaakIndicatiesComponent
     });
   }
 
-  private getRedenOpschorting(): string {
-    return this.zaakZoekObject
-      ? this.zaakZoekObject.redenOpschorting
-      : (this.zaak.redenOpschorting ?? "");
+  private getRedenOpschorting() {
+    return (
+      this.zaakZoekObject?.redenOpschorting ?? this.zaak?.redenOpschorting ?? ""
+    );
   }
 
-  private getStatusToelichting(): string {
-    return this.zaakZoekObject
-      ? this.zaakZoekObject.statusToelichting
-      : (this.zaak.status?.toelichting ?? "");
+  private getStatusToelichting() {
+    return (
+      this.zaakZoekObject?.statusToelichting ??
+      this.zaak?.status?.toelichting ??
+      ""
+    );
   }
 
   private getDeelZaakToelichting(): string {
-    if (this.zaak.gerelateerdeZaken?.length) {
-      const hoofdzaakID = this.zaak.gerelateerdeZaken.find(
-        (gerelateerdeZaak) =>
-          gerelateerdeZaak.relatieType === ZaakRelatietype.HOOFDZAAK,
-      )?.identificatie;
-      return this.translateService.instant("msg.zaak.relatie", {
-        identificatie: hoofdzaakID,
-      });
+    if (!this.zaak?.gerelateerdeZaken?.length) {
+      return "";
     }
-    return "";
+
+    const hoofdzaakID = this.zaak.gerelateerdeZaken.find(
+      ({ relatieType }) => relatieType === "HOOFDZAAK",
+    )?.identificatie;
+
+    return this.translateService.instant("msg.zaak.relatie", {
+      identificatie: hoofdzaakID,
+    });
   }
 
   private getHoofdzaakToelichting(): string {
-    if (this.zaak.gerelateerdeZaken?.length) {
-      const deelzaken = this.zaak.gerelateerdeZaken.filter(
-        (gerelateerdeZaak) =>
-          gerelateerdeZaak.relatieType === ZaakRelatietype.DEELZAAK,
-      );
-      const toelichting =
-        deelzaken.length === 1 ? "msg.zaak.relatie" : "msg.zaak.relaties";
-      const args =
-        deelzaken.length === 1
-          ? { identificatie: deelzaken[0].identificatie }
-          : { aantal: deelzaken.length };
-      return this.translateService.instant(toelichting, args);
+    if (!this.zaak?.gerelateerdeZaken?.length) {
+      return "";
     }
-    return "";
+
+    const deelzaken = this.zaak.gerelateerdeZaken.filter(
+      ({ relatieType }) => relatieType === "DEELZAAK",
+    );
+
+    const toelichting =
+      deelzaken.length === 1 ? "msg.zaak.relatie" : "msg.zaak.relaties";
+    const args =
+      deelzaken.length === 1
+        ? { identificatie: deelzaken[0].identificatie }
+        : { aantal: deelzaken.length };
+    return this.translateService.instant(toelichting, args);
   }
 
   private getRedenVerlenging() {
-    return this.zaakZoekObject
-      ? this.zaakZoekObject.redenVerlenging
-      : this.zaak.redenVerlenging;
+    return this.zaakZoekObject?.redenVerlenging ?? this.zaak?.redenVerlenging;
   }
 }

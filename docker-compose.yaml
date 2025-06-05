@@ -45,7 +45,7 @@ services:
       - "--health-enabled=true"
 
   keycloak-database:
-    image: docker.io/postgres:17.5@sha256:864831322bf2520e7d03d899b01b542de6de9ece6fe29c89f19dc5e1d5568ccf
+    image: docker.io/postgres:17.5@sha256:6efd0df010dc3cb40d5e33e3ef84acecc5e73161bd3df06029ee8698e5e12c60
     ports:
       - "54326:5432"
     healthcheck:
@@ -62,7 +62,7 @@ services:
       - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
 
   zac-database:
-    image: docker.io/postgres:17.5@sha256:864831322bf2520e7d03d899b01b542de6de9ece6fe29c89f19dc5e1d5568ccf
+    image: docker.io/postgres:17.5@sha256:6efd0df010dc3cb40d5e33e3ef84acecc5e73161bd3df06029ee8698e5e12c60
     ports:
       - "54320:5432"
     healthcheck:
@@ -103,7 +103,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   openzaak.local:
-    image: docker.io/openzaak/open-zaak:1.21.0@sha256:627c293ac5f4b8c27b7f1afd088d4df3f7b03bb8a63a665c643de5467e47089f
+    image: docker.io/openzaak/open-zaak:1.21.1@sha256:b7d1f5b72c55f54bc4d6a10da2aeac41bbcf941b046204810d231bdc92fc36ed
     platform: linux/amd64
     environment: &openzaak-env
       - ALLOWED_HOSTS="*"
@@ -152,7 +152,7 @@ services:
   # Open Zaak Celery worker
   # Used for sending notifications from Open Zaak to Open Notificaties
   openzaak-celery:
-    image: docker.io/openzaak/open-zaak:1.21.0@sha256:627c293ac5f4b8c27b7f1afd088d4df3f7b03bb8a63a665c643de5467e47089f
+    image: docker.io/openzaak/open-zaak:1.21.1@sha256:b7d1f5b72c55f54bc4d6a10da2aeac41bbcf941b046204810d231bdc92fc36ed
     platform: linux/amd64
     environment: *openzaak-env
     command: /celery_worker.sh
@@ -168,7 +168,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   redis:
-    image: redis:7.4.3@sha256:7df1eeff67eb0ba84f6b9d2940765a6bb1158081426745c185a03b1507de6a09
+    image: redis:7.4.4@sha256:386e6c443372b9ba651d593baa881c802f3d3f093e2586602e05d6ba47ea733e
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -233,7 +233,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   solr:
-    image: docker.io/solr:9.8.1-slim@sha256:113a4b5f96fd941e2e22dbfc1ddf31bf70ad7777b68b169e02fb5528880e13f4
+    image: docker.io/solr:9.8.1-slim@sha256:04d4cfd1c38492ced8631e2de0c6e63cd233f61cd684d3090523dcf5076e7174
     platform: linux/amd64
     ports:
       - "8983:8983"
@@ -249,14 +249,14 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:1.4.2-static@sha256:3c995dc8a59f6ddfd92eb7404d2f7ff9fe71cd025d9251199957a8a6afbfd76e
+    image: docker.io/openpolicyagent/opa:1.5.0-static@sha256:a37e86a1556e6c90f885b0ae83ac272d1e43bd963271f56b2724f6f504843263
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
 
   brp-personen-mock:
     # We use the 'latest' tag here because an unconventional versioning scheme is used for these Docker images which Renovate does not support
-    image: ghcr.io/brp-api/personen-mock:2.6.0-latest@sha256:cfa6f238f37c748595b336d0582ecf9685b67096ad625d8c9b13c84f8914c64c
+    image: ghcr.io/brp-api/personen-mock:2.6.0-latest@sha256:5dae43e332b6da510744f3aa7b4667beb98d2a89916c60fe948fe873be1083f9
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
@@ -264,7 +264,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: docker.io/postgres:17.5@sha256:864831322bf2520e7d03d899b01b542de6de9ece6fe29c89f19dc5e1d5568ccf
+    image: docker.io/postgres:17.5@sha256:6efd0df010dc3cb40d5e33e3ef84acecc5e73161bd3df06029ee8698e5e12c60
     ports:
       - "54325:5432"
     healthcheck:
@@ -343,7 +343,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:1.4.2@sha256:35a093d9ae828373cf88f68ecaa8189ab26287468074a3b78f0601d9c8b7a4f5
+    image: docker.io/openpolicyagent/opa:1.5.0@sha256:09a86c8bb25e68603fe011cdb8ee8909b37f479eac95c0f3f1053d48fa9521eb
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -389,7 +389,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: docker.io/prom/prometheus:v3.4.0@sha256:78ed1f9050eb9eaf766af6e580230b1c4965728650e332cd1ee918c0c4699775
+    image: docker.io/prom/prometheus:v3.4.1@sha256:9abc6cf6aea7710d163dbb28d8eeb7dc5baef01e38fa4cd146a406dd9f07f70d
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -440,7 +440,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.1.0-alpine@sha256:834ceb903a42b768ba713881b88b7a532f32541d2a28944579f1eb120963f9f3
+    image: rabbitmq:4.1.0-alpine@sha256:8a73e9185f8420247c5b3c19231df18dfac28a8d5706203e13b291934044966d
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 30s
@@ -658,7 +658,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginx:1.28.0@sha256:0ad9e58f00f6a0d92f8c0a2a32285366a0ee948d9f91aee4a2c965a5516c59d5
+    image: nginx:1.28.0@sha256:eaa7e36decc3421fc04478c586dfea0d931cebe47d5bc0b15d758a32ba51126f
     ports:
       - "8005:80"
     volumes:

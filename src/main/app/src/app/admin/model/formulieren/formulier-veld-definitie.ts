@@ -6,6 +6,9 @@
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { FormulierVeldtype } from "./formulier-veld-type.enum";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class FormulierVeldDefinitie {
   id: number;
   systeemnaam: string;
