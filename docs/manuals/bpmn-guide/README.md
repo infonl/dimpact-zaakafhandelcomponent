@@ -207,11 +207,11 @@ Example:
 
 ```
 ### Avaliable Documents section
-To display linked documents of a case (zaak) you can use:
+To display linked documents of a zaak you can use:
 * a fieldset with type `documentsFieldset`
 * `select` type component with:
   * custom data source
-  * should have the multi select attribute (`type=select` with `multiple=true`) 
+  * multi select attribute (`type=select` with `multiple=true`) 
 
 Example:
 ```json
