@@ -63,7 +63,6 @@ export class FormioSetupService {
         case "documentsFieldset":
           this.initializeAvailableDocumentsFieldsetComponent(component);
           break;
-
       }
       if ("components" in component) {
         this.initializeSpecializedFormioComponents(component.components);
@@ -251,7 +250,7 @@ export class FormioSetupService {
     }
 
     const documentViewComponent = fieldsetComponent.components?.find(
-      (component: { key: string }) => component.key === "ZAC_Documents",
+      (component: { type: string }) => component.type === "select",
     );
 
     if (!documentViewComponent) {

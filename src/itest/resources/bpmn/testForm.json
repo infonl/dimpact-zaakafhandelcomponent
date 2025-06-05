@@ -86,13 +86,13 @@
         {
           "legend": "Available Documents",
           "type": "documentsFieldset",
-          "key": "ZAC_Documents",
+          "key": "ZAAK_Documents",
           "input": false,
           "components": [
             {
               "label": "Documents",
               "type": "select",
-              "key": "ZAC_Documents",
+              "key": "ZAAK_Documents_Select",
               "input": true,
               "widget": "html5",
               "validate": {
