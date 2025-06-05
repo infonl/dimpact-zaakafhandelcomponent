@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 package net.atos.zac.app.inboxDocumenten.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
