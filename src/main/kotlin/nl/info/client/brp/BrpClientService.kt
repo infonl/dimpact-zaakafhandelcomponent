@@ -31,6 +31,7 @@ import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.util.Optional
+import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.jvm.optionals.getOrNull
 
@@ -108,7 +109,7 @@ class BrpClientService @Inject constructor(
         extractPurpose: (ZaakafhandelParameters) -> String?
     ): String? =
         auditEvent
-            .also { LOG.info("Resolving purpose for audit event: $it") }
+            .also { LOG.info("Resolving purpose for audit event: $auditEvent") }
             .let { """ZAAK-\d{4}-\d+""".toRegex().find(it)?.value }
             ?.runCatching {
                 zrcClientService.readZaakByID(this)
@@ -116,7 +117,7 @@ class BrpClientService @Inject constructor(
                     .let(zaakafhandelParameterService::readZaakafhandelParameters)
                     .let(extractPurpose)
             }?.onFailure {
-                LOG.warning("Failed to resolve purpose from audit event '$auditEvent': ${it.message}")
+                LOG.log(Level.WARNING, "Failed to resolve purpose from audit event '$auditEvent'", it)
             }?.getOrElse {
                 LOG.warning("Using default purpose '$defaultPurpose' for audit event '$auditEvent'")
                 null
