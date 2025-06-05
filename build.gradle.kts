@@ -563,7 +563,8 @@ tasks {
                 "sourceFolder" to "",
                 "dateLibrary" to "java8",
                 "disallowAdditionalPropertiesIfNotPresent" to "false",
-                "useJakartaEe" to "true"
+                "useJakartaEe" to "true",
+                "useBeanValidation" to "true"
             )
         )
         // Specify custom Mustache template dir as temporary workaround for issues we have with the OpenAPI Generator.
@@ -617,7 +618,8 @@ tasks {
                 "sourceFolder" to "",
                 "dateLibrary" to "java8-localdatetime",
                 "disallowAdditionalPropertiesIfNotPresent" to "false",
-                "useJakartaEe" to "true"
+                "useJakartaEe" to "true",
+                "useBeanValidation" to "true"
             )
         )
     }
