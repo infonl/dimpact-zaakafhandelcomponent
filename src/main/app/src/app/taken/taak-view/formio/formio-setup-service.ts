@@ -257,7 +257,6 @@ export class FormioSetupService {
 
     const zoekParameters = new InformatieobjectZoekParameters();
     zoekParameters.zaakUUID = this.taak!.zaakUuid;
-    zoekParameters.gekoppeldeZaakDocumenten = false;
 
     documentViewComponent.valueProperty = "uuid";
     documentViewComponent.template = "{{ item.titel }}";
