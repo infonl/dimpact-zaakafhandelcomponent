@@ -59,7 +59,6 @@ mail:
 # ZGW API configuration for integration with the ZGW APIs provider (OpenZaak)
 zgwApis:
   url: ""
-  urlExtern: ""
   clientId: ""
   secret: ""
 
@@ -291,7 +290,7 @@ opa:
     annotations: {}
   image:
     repository: openpolicyagent/opa
-    tag: "1.5.0-static@sha256:a37e86a1556e6c90f885b0ae83ac272d1e43bd963271f56b2724f6f504843263"
+    tag: "1.5.1-static@sha256:72c5186ef74bc7a88faf88204109476be41cdc392ff1de722f7d8ecb08f18c4d"
     pullPolicy: IfNotPresent
   # The settings below will be ignored when running as a sidecar (the zac values will be used instead)
   autoscaling:

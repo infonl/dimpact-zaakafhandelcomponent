@@ -9,7 +9,6 @@ import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { ZaakbeeindigReden } from "../admin/model/zaakbeeindig-reden";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { Klant } from "../klanten/model/klanten/klant";
 import { TableRequest } from "../shared/dynamic-table/datasource/table-request";
 import { HistorieRegel } from "../shared/historie/model/historie-regel";
 import {
@@ -217,23 +216,8 @@ export class ZakenService {
     );
   }
 
-  createBetrokkene(
-    zaak: GeneratedType<"RestZaak">,
-    betrokkene: Klant,
-    roltype: GeneratedType<"RestRoltype">,
-    roltoelichting: string,
-  ) {
-    return this.zacHttpClient.POST(
-      "/rest/zaken/betrokkene",
-      {
-        zaakUUID: zaak.uuid,
-        roltypeUUID: roltype.uuid!,
-        roltoelichting,
-        betrokkeneIdentificatieType: betrokkene.identificatieType,
-        betrokkeneIdentificatie: betrokkene.identificatie,
-      },
-      {},
-    );
+  createBetrokkene(body: PostBody<"/rest/zaken/betrokkene">) {
+    return this.zacHttpClient.POST("/rest/zaken/betrokkene", body, {});
   }
 
   deleteBetrokkene(rolUUID: string, reden: string): Observable<Zaak> {

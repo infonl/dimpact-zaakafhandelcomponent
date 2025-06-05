@@ -3,10 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Input, OnInit, ViewChild } from "@angular/core";
+import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import { IdentityService } from "../identity/identity.service";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { Notitie } from "./model/notitie";
 import { NotitieService } from "./notities.service";
 
 @Component({
@@ -15,16 +14,19 @@ import { NotitieService } from "./notities.service";
   styleUrls: ["./notities.component.less"],
 })
 export class NotitiesComponent implements OnInit {
-  @Input() uuid: string;
-  @Input() type: string;
+  @Input({ required: true }) zaakUuid!: string;
   @Input() notitieRechten?: GeneratedType<"RestNotitieRechten">;
 
-  @ViewChild("notitieTekst") notitieTekst;
+  @ViewChild("notitieTekst") notitieTekst!: {
+    nativeElement: HTMLTextAreaElement;
+  };
+  @ViewChild("scrollTarget") scrollTarget!: ElementRef;
 
   ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
 
-  notities: Notitie[] = [];
-  showNotes = true;
+  notities: GeneratedType<"RestNote">[] = [];
+  showNotes = false;
+
   geselecteerdeNotitieId: number | null = null;
   maxLengteTextArea = 1000;
 
@@ -42,6 +44,7 @@ export class NotitiesComponent implements OnInit {
 
   toggleNotitieContainer() {
     this.showNotes = !this.showNotes;
+    console.log("Notitie container toggled:", this.showNotes);
   }
 
   pasNotitieAan(id: number) {
@@ -49,47 +52,56 @@ export class NotitiesComponent implements OnInit {
   }
 
   haalNotitiesOp() {
-    this.notitieService
-      .listNotities(this.type, this.uuid)
-      .subscribe((notities) => {
-        this.notities = notities;
-        this.notities
-          .sort((a, b) =>
-            a.tijdstipLaatsteWijziging.localeCompare(
-              b.tijdstipLaatsteWijziging,
-            ),
-          )
-          .reverse();
+    this.notitieService.listNotities(this.zaakUuid).subscribe((notities) => {
+      this.notities = notities;
+      this.notities.sort((a, b) => {
+        if (!a.tijdstipLaatsteWijziging) return -1;
+        if (!b.tijdstipLaatsteWijziging) return 1;
+
+        return b.tijdstipLaatsteWijziging.localeCompare(
+          a.tijdstipLaatsteWijziging,
+        );
       });
+    });
   }
 
   maakNotitieAan(tekst: string) {
     if (!this.ingelogdeMedewerker?.id) return;
+    if (tekst.length === 0) return;
+    if (tekst.length > this.maxLengteTextArea) return;
 
-    if (tekst.length <= this.maxLengteTextArea) {
-      const notitie: Notitie = new Notitie();
-      notitie.zaakUUID = this.uuid;
-      notitie.tekst = tekst;
-      notitie.gebruikersnaamMedewerker = this.ingelogdeMedewerker.id;
-
-      this.notitieService.createNotitie(notitie).subscribe((notitie) => {
+    this.notitieService
+      .createNotitie({
+        zaakUUID: this.zaakUuid,
+        tekst,
+        gebruikersnaamMedewerker: this.ingelogdeMedewerker.id,
+      })
+      .subscribe((notitie) => {
         this.notities.splice(0, 0, notitie);
         this.notitieTekst.nativeElement.value = "";
+        this.scrollTarget.nativeElement.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
       });
-    }
   }
 
-  updateNotitie(notitie: Notitie, notitieTekst: string) {
+  updateNotitie(notitie: GeneratedType<"RestNote">, tekst: string) {
     if (!this.ingelogdeMedewerker?.id) return;
 
-    if (notitieTekst.length <= this.maxLengteTextArea) {
-      notitie.tekst = notitieTekst;
-      notitie.gebruikersnaamMedewerker = this.ingelogdeMedewerker.id;
-      this.notitieService.updateNotitie(notitie).subscribe((updatedNotitie) => {
+    if (tekst.length === 0) return;
+    if (tekst.length > this.maxLengteTextArea) return;
+
+    this.notitieService
+      .updateNotitie({
+        ...notitie,
+        tekst,
+        gebruikersnaamMedewerker: this.ingelogdeMedewerker.id,
+      })
+      .subscribe((updatedNotitie) => {
         Object.assign(notitie, updatedNotitie);
         this.geselecteerdeNotitieId = null;
       });
-    }
   }
 
   annuleerUpdateNotitie() {

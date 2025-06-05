@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.zaak.model
 
-import net.atos.client.zgw.zrc.model.Status
+import nl.info.client.zgw.zrc.model.generated.Status
 import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor

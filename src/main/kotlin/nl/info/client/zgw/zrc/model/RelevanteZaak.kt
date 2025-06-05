@@ -6,7 +6,7 @@ package nl.info.client.zgw.zrc.model
 
 import jakarta.json.bind.annotation.JsonbCreator
 import jakarta.json.bind.annotation.JsonbProperty
-import net.atos.client.zgw.zrc.model.AardRelatie
+import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI
@@ -22,5 +22,5 @@ data class RelevanteZaak @JsonbCreator constructor(
     /**
      * 'Benamingen van de aard van de relaties van andere zaken tot (onderhanden) zaken.'
      */
-    @param:JsonbProperty("aardRelatie") val aardRelatie: AardRelatie
+    @param:JsonbProperty("aardRelatie") val aardRelatie: AardRelatieEnum
 )

@@ -4,12 +4,10 @@
  */
 package nl.info.client.zgw.model
 
-import net.atos.client.zgw.zrc.model.AardRelatieWeergave
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolVestiging
-import net.atos.client.zgw.zrc.model.Status
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectPand
@@ -17,6 +15,7 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
+import nl.info.client.zgw.zrc.model.generated.AardRelatieWeergaveEnum
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
 import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
@@ -24,6 +23,7 @@ import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Opschorting
 import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Resultaat
+import nl.info.client.zgw.zrc.model.generated.Status
 import nl.info.client.zgw.zrc.model.generated.Verlenging
 import nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
@@ -33,6 +33,7 @@ import nl.info.client.zgw.ztc.model.generated.RolType
 import java.math.BigDecimal
 import java.net.URI
 import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -250,7 +251,7 @@ fun createZaakInformatieobjectForCreatesAndUpdates(
 fun createZaakInformatieobjectForReads(
     url: URI = URI("https://example.com/${UUID.randomUUID()}"),
     uuid: UUID = UUID.randomUUID(),
-    aardRelatieWeergave: AardRelatieWeergave = AardRelatieWeergave.HOORT_BIJ,
+    aardRelatieWeergave: AardRelatieWeergaveEnum = AardRelatieWeergaveEnum.HOORT_BIJ_OMGEKEERD_KENT,
     registratiedatum: ZonedDateTime = ZonedDateTime.now()
 ) = ZaakInformatieobject(
     url,
@@ -282,10 +283,19 @@ fun createZaakobjectPand(
 fun createZaakStatus(
     uuid: UUID = UUID.randomUUID(),
     uri: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
-    zaak: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
-    statustype: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
-    datumStatusGezet: ZonedDateTime = ZonedDateTime.now()
-) = Status(uri, uuid, zaak, statustype, datumStatusGezet)
+    zaakURI: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
+    statustypeURI: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
+    datumStatusGezet: OffsetDateTime = ZonedDateTime.now().toOffsetDateTime()
+) = Status(
+    uri,
+    uuid,
+    false,
+    emptyList()
+).apply {
+    this.zaak = zaakURI
+    this.statustype = statustypeURI
+    this.datumStatusGezet = datumStatusGezet
+}
 
 fun createVerlenging(
     reden: String = "fakeReden",
