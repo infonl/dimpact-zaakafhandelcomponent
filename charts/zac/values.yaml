@@ -59,7 +59,6 @@ mail:
 # ZGW API configuration for integration with the ZGW APIs provider (OpenZaak)
 zgwApis:
   url: ""
-  urlExtern: ""
   clientId: ""
   secret: ""
 

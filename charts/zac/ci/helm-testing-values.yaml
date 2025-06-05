@@ -54,7 +54,6 @@ mail:
 # zgwApis Configuration of ZGW API's provider (Open Zaak)
 zgwApis:
   url: "http://openzaak.local:8000/"  # http://open-zaak.internal
-  urlExtern: "http://localhost:8001/"  # https://open-zaak.example.com
   clientId: "zac_client"
   secret: "openzaakZaakafhandelcomponentClientSecret"
 
