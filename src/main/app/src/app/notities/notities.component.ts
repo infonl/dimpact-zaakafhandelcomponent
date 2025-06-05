@@ -27,7 +27,7 @@ export class NotitiesComponent implements OnInit {
   notities: GeneratedType<"RestNote">[] = [];
   showNotes = false;
 
-geselecteerdeNotitieId: number | null = null;
+  geselecteerdeNotitieId: number | null = null;
   maxLengteTextArea = 1000;
 
   constructor(

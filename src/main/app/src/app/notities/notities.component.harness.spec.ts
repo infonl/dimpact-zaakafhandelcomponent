@@ -9,16 +9,15 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { of } from "rxjs";
 
-import { HarnessLoader } from "@angular/cdk/testing";
+import { ComponentHarness, HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { ComponentHarness } from "@angular/cdk/testing";
 
-import { NotitiesComponent } from "./notities.component";
-import { NotitieService } from "./notities.service";
 import { IdentityService } from "../identity/identity.service";
 import { MaterialModule } from "../shared/material/material.module";
 import { PipesModule } from "../shared/pipes/pipes.module";
 import { GeneratedType } from "../shared/utils/generated-types";
+import { NotitiesComponent } from "./notities.component";
+import { NotitieService } from "./notities.service";
 
 @Component({
   template: `<zac-notities></zac-notities>`,
