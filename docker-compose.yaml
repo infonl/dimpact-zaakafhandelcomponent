@@ -721,7 +721,6 @@ services:
       - ZGW_API_CLIENT_MP_REST_URL=http://openzaak.local:8000/
       - ZGW_API_CLIENTID=zac_client
       - ZGW_API_SECRET=openzaakZaakafhandelcomponentClientSecret
-      - ZGW_API_URL_EXTERN=http://localhost:8001/
     ports:
       - "8080:8080"
       - "9990:9990"
