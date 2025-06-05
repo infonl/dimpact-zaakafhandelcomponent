@@ -21,7 +21,6 @@ import net.atos.client.zgw.shared.util.JsonbConfiguration
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolListParameters
-import net.atos.client.zgw.zrc.model.Status
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.client.zgw.zrc.model.ZaakListParameters
@@ -31,6 +30,7 @@ import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import nl.info.client.zgw.zrc.exception.ZrcResponseExceptionMapper
 import nl.info.client.zgw.zrc.model.ZaakUuid
 import nl.info.client.zgw.zrc.model.generated.Resultaat
+import nl.info.client.zgw.zrc.model.generated.Status
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam

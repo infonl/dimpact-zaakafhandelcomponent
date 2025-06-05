@@ -518,7 +518,7 @@ class ZaakServiceTest : BehaviorSpec({
             URI(statusUuid.toString()),
             zaak.url,
             statusType.url,
-            ZonedDateTime.now()
+            ZonedDateTime.now().toOffsetDateTime()
         )
 
         every { zrcClientService.readStatus(zaak.status) } returns status
@@ -549,11 +549,11 @@ class ZaakServiceTest : BehaviorSpec({
             omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND
         }
         val status = createZaakStatus(
-            statusUuid,
-            URI(statusUuid.toString()),
-            zaak.url,
-            statusType.url,
-            ZonedDateTime.now()
+            uuid = statusUuid,
+            uri = URI(statusUuid.toString()),
+            zaakURI = zaak.url,
+            statustypeURI = statusType.url,
+            datumStatusGezet = ZonedDateTime.now().toOffsetDateTime()
         )
 
         every { zrcClientService.readStatus(zaak.status) } returns status

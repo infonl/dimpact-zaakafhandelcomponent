@@ -249,7 +249,7 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:1.5.0-static@sha256:a37e86a1556e6c90f885b0ae83ac272d1e43bd963271f56b2724f6f504843263
+    image: docker.io/openpolicyagent/opa:1.5.1-static@sha256:72c5186ef74bc7a88faf88204109476be41cdc392ff1de722f7d8ecb08f18c4d
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
@@ -343,7 +343,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:1.5.0@sha256:09a86c8bb25e68603fe011cdb8ee8909b37f479eac95c0f3f1053d48fa9521eb
+    image: docker.io/openpolicyagent/opa:1.5.1@sha256:7d30d984125161b7f30599c6bdf80a6f2301dbbd526725714c231aad8179e4b9
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -440,7 +440,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.1.0-alpine@sha256:8a73e9185f8420247c5b3c19231df18dfac28a8d5706203e13b291934044966d
+    image: rabbitmq:4.1.1-alpine@sha256:373ac15a5060f5831bd143cbd5829ee8ec16c6aaa8ea6eedd2816fcb4f18ee1b
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 30s

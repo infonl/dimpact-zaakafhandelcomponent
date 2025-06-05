@@ -102,8 +102,11 @@ describe(TaakViewComponent.name, () => {
       );
     });
 
-    it(`should reload the "taak" when a ${Opcode.UPDATED} on ${ObjectType.ZAAK_INFORMATIEOBJECTEN} is received`, () => {
-      const readTaak = jest.spyOn(takenService, "readTaak");
+    it(`should reload the history when a ${Opcode.UPDATED} on ${ObjectType.ZAAK_INFORMATIEOBJECTEN} is received`, () => {
+      const listHistorieVoorTaak = jest.spyOn(
+        takenService,
+        "listHistorieVoorTaak",
+      );
 
       component.documentCreated();
 
@@ -113,8 +116,8 @@ describe(TaakViewComponent.name, () => {
         objectId: new ScreenEventId(taak.zaakUuid),
       });
 
-      expect(readTaak).toHaveBeenCalledTimes(1);
-      expect(readTaak).toHaveBeenCalledWith(taak.id);
+      expect(listHistorieVoorTaak).toHaveBeenCalledTimes(1);
+      expect(listHistorieVoorTaak).toHaveBeenCalledWith(taak.id);
     });
   });
 });

@@ -3,53 +3,36 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { catchError } from "rxjs/operators";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { Notitie } from "./model/notitie";
+import {
+  PatchBody,
+  PostBody,
+  ZacHttpClient,
+} from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class NotitieService {
-  private basepath = "/rest/notities";
+  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
-  constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
-  ) {}
-
-  listNotities(type: string, uuid: string): Observable<Notitie[]> {
-    return this.http
-      .get<Notitie[]>(`${this.basepath}/${type}/${uuid}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listNotities(uuid: string) {
+    return this.zacHttpClient.GET("/rest/notities/zaken/{uuid}", {
+      path: { uuid },
+    });
   }
 
-  createNotitie(notitie: Notitie): Observable<Notitie> {
-    return this.http
-      .post<Notitie>(`${this.basepath}`, notitie)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  createNotitie(body: PostBody<"/rest/notities">) {
+    return this.zacHttpClient.POST("/rest/notities", body, {});
   }
 
-  updateNotitie(notitie: Notitie): Observable<Notitie> {
-    return this.http
-      .patch<Notitie>(`${this.basepath}`, notitie)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  updateNotitie(body: PatchBody<"/rest/notities">) {
+    return this.zacHttpClient.PATCH("/rest/notities", body, {});
   }
 
   deleteNotitie(id: number) {
-    return this.http
-      .delete(`${this.basepath}/${id}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.DELETE("/rest/notities/{id}", {
+      path: { id },
+    });
   }
 }

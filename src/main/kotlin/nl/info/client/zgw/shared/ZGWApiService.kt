@@ -12,7 +12,6 @@ import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolListParameters
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.Status
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
@@ -23,6 +22,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Resultaat
+import nl.info.client.zgw.zrc.model.generated.Status
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
@@ -310,7 +310,11 @@ class ZGWApiService @Inject constructor(
     }
 
     private fun createStatusForZaak(zaakURI: URI, statustypeURI: URI, toelichting: String?): Status {
-        val status = Status(zaakURI, statustypeURI, ZonedDateTime.now())
+        val status = Status().apply {
+            zaak = zaakURI
+            statustype = statustypeURI
+            datumStatusGezet = ZonedDateTime.now().toOffsetDateTime()
+        }
         status.statustoelichting = toelichting
         return zrcClientService.createStatus(status)
     }

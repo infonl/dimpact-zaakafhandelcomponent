@@ -43,6 +43,7 @@ import nl.info.zac.admin.ZaakafhandelParameterBeheerService
 import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowed
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.productaanvraag.exception.ProductaanvraagNotSupportedException
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
@@ -286,7 +287,7 @@ class ProductaanvraagService @Inject constructor(
 
     private fun addBetrokkene(
         betrokkene: Betrokkene,
-        roltypeOmschrijving: String?,
+        roltypeOmschrijving: String,
         zaak: Zaak
     ) {
         ztcClientService.findRoltypen(zaak.zaaktype, roltypeOmschrijving)
@@ -322,26 +323,14 @@ class ProductaanvraagService @Inject constructor(
         betrokkene: Betrokkene,
         type: RolType,
         zaak: Zaak,
-        roltypeOmschrijving: String?,
-        generiek: Boolean = false
+        roltypeOmschrijving: String,
+        genericRolType: Boolean = false
     ) {
-        val prefix = if (generiek) "generic " else ""
         when {
-            betrokkene.inpBsn != null -> {
-                addNatuurlijkPersoonRole(
-                    type,
-                    betrokkene.inpBsn,
-                    zaak.url
-                )
-            }
-            betrokkene.vestigingsNummer != null -> {
-                addVestigingRole(
-                    type,
-                    betrokkene.vestigingsNummer,
-                    zaak.url
-                )
-            }
+            betrokkene.inpBsn != null -> addNatuurlijkPersoonRole(type, betrokkene.inpBsn, zaak.url)
+            betrokkene.vestigingsNummer != null -> addVestigingRole(type, betrokkene.vestigingsNummer, zaak.url)
             else -> {
+                val prefix = if (genericRolType) "generic " else ""
                 LOG.warning(
                     "Betrokkene with ${prefix}roletype description `$roltypeOmschrijving` does not contain a BSN " +
                         "or KVK vestigingsnummer. No betrokkene role created for zaak '$zaak'."
@@ -450,14 +439,12 @@ class ProductaanvraagService @Inject constructor(
                 )
             }
             val firstZaakafhandelparameters = zaakafhandelparameters.first()
-            productaanvraag.betrokkenen?.forEach {
-                it.inpBsn
-                    ?.takeUnless { firstZaakafhandelparameters.betrokkeneKoppelingen.brpKoppelen }
-                    ?.let { throw BetrokkeneNotAllowed() }
-
-                it.innNnpId
-                    ?.takeUnless { firstZaakafhandelparameters.betrokkeneKoppelingen.kvkKoppelen }
-                    ?.let { throw BetrokkeneNotAllowed() }
+            productaanvraag.betrokkenen?.run {
+                validateBetrokkenenForZaakafhandelparameters(
+                    betrokkenen = this,
+                    productaanvraagObject = productaanvraagObject,
+                    zaakafhandelparameters = firstZaakafhandelparameters
+                )
             }
             LOG.fine {
                 "Creating a zaak using a CMMN case with zaaktype UUID: '${firstZaakafhandelparameters.zaakTypeUUID}'"
@@ -571,5 +558,34 @@ class ProductaanvraagService @Inject constructor(
             "Failed to create a zaak of process type: '$processType' for productaanvraag with PDF '${productaanvraag.pdf}'",
             exception
         )
+    }
+
+    private fun validateBetrokkenenForZaakafhandelparameters(
+        betrokkenen: List<Betrokkene>,
+        productaanvraagObject: ModelObject,
+        zaakafhandelparameters: ZaakafhandelParameters
+    ) {
+        betrokkenen.forEach {
+            if (!zaakafhandelparameters.betrokkeneKoppelingen.brpKoppelen) {
+                it.inpBsn?.run {
+                    throw ProductaanvraagNotSupportedException(
+                        "The BRP koppeling is not enabled for zaakafhandelparameters with zaaktype UUID " +
+                            "'${zaakafhandelparameters.zaakTypeUUID}'. " +
+                            "Productaanvraag with URL '${productaanvraagObject.url}' cannot be processed because " +
+                            "it contains one or more betrokkenen with a BSN identifier."
+                    )
+                }
+            }
+            if (!zaakafhandelparameters.betrokkeneKoppelingen.kvkKoppelen) {
+                it.vestigingsNummer?.run {
+                    throw ProductaanvraagNotSupportedException(
+                        "The KVK koppeling is not enabled for zaakafhandelparameters with zaaktype UUID " +
+                            "'${zaakafhandelparameters.zaakTypeUUID}'. " +
+                            "Productaanvraag with URL '${productaanvraagObject.url}' cannot be processed because " +
+                            "it contains one or more betrokkenen with a KVK vestigingsnummer identifier."
+                    )
+                }
+            }
+        }
     }
 }
