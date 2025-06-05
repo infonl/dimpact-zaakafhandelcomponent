@@ -117,7 +117,7 @@ class BrpClientService @Inject constructor(
                     .let(zaakafhandelParameterService::readZaakafhandelParameters)
                     .let(extractPurpose)
             }?.onFailure {
-                LOG.log(Level.SEVERE, "Failed to resolve purpose from audit event '$auditEvent'", it)
+                LOG.log(Level.WARNING, "Failed to resolve purpose from audit event '$auditEvent'", it)
             }?.getOrElse {
                 LOG.warning("Using default purpose '$defaultPurpose' for audit event '$auditEvent'")
                 null
