@@ -1,7 +1,7 @@
 {
   "display": "wizard",
   "name": "testForm",
-  "title": "User details",
+  "title": "Test form",
   "settings": {
     "pdf": {
       "id": "1ec0f8ee-6685-5d98-a847-26f67b67d6f0",
