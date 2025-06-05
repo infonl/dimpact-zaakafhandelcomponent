@@ -13,7 +13,7 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
 import { SharedModule } from "src/app/shared/shared.module";
@@ -81,10 +81,7 @@ export class KlantKoppelBetrokkeneComponent implements OnInit, AfterViewInit {
     .label("toelichting")
     .maxlength(75)
     .build();
-  formGroup = this.formBuilder.group({
-    rol: this.betrokkeneRoltype.formControl,
-    toelichting: this.betrokkeneToelichting.formControl,
-  });
+  formGroup!: FormGroup;
 
   constructor(
     private klantenService: KlantenService,
@@ -99,6 +96,11 @@ export class KlantKoppelBetrokkeneComponent implements OnInit, AfterViewInit {
       .options(this.klantenService.listBetrokkeneRoltypen(this.zaaktypeUUID))
       .validators(Validators.required)
       .build();
+
+    this.formGroup = this.formBuilder.group({
+      rol: this.betrokkeneRoltype.formControl,
+      toelichting: this.betrokkeneToelichting.formControl,
+    });
   }
 
   ngAfterViewInit(): void {
