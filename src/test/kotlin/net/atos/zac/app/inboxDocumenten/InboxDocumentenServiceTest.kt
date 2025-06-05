@@ -26,14 +26,24 @@ class InboxDocumentenServiceTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
 
-    val inboxDocumentenService = InboxDocumentenService(
-        zrcClientService,
-        drcClientService
-    )
+    val inboxDocumentenService = InboxDocumentenService()
 
-    val field = InboxDocumentenService::class.java.getDeclaredField("entityManager")
-    field.isAccessible = true
-    field.set(inboxDocumentenService, entityManager)
+    beforeTest {
+        InboxDocumentenService::class.java.getDeclaredField("entityManager").apply {
+            isAccessible = true
+            set(inboxDocumentenService, entityManager)
+        }
+
+        InboxDocumentenService::class.java.getDeclaredField("drcClientService").apply {
+            isAccessible = true
+            set(inboxDocumentenService, drcClientService)
+        }
+
+        InboxDocumentenService::class.java.getDeclaredField("zrcClientService").apply {
+            isAccessible = true
+            set(inboxDocumentenService, zrcClientService)
+        }
+    }
 
     beforeEach {
         checkUnnecessaryStub()
