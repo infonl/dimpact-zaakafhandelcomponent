@@ -245,7 +245,6 @@ export class FormioSetupService {
   private initializeAvailableDocumentsFieldsetComponent(
     fieldsetComponent: ExtendedComponentSchema,
   ): void {
-
     const documentViewComponent = fieldsetComponent.components?.find(
       (component: { type: string }) => component.type === "select",
     );
