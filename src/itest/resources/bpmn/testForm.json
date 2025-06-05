@@ -106,7 +106,7 @@
         },
         {
           "legend": "Reference table",
-          "type": "groepReferenceTableFieldset",
+          "type": "referenceTableFieldset",
           "key": "RT_ReferenceTable",
           "input": false,
           "components": [
