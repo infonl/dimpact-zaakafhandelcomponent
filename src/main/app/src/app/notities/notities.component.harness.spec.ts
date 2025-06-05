@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
