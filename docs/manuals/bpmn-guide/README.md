@@ -206,7 +206,7 @@ Example:
 
 
 ```
-### Avaliable Documents section
+### Available documents section
 To display linked documents of a zaak you can use:
 * a fieldset with type `documentsFieldset`
 * `select` type component with:
