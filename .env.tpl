@@ -60,7 +60,6 @@ ZAC_INTERNAL_ENDPOINTS_API_KEY=fakeZacInternalEndpointsApiKey
 ZGW_API_CLIENT_MP_REST_URL=http://localhost:8001/
 ZGW_API_CLIENTID=zac_client
 ZGW_API_SECRET=openzaakZaakafhandelcomponentClientSecret
-ZGW_API_URL_EXTERN=http://localhost:8001/
 
 # -----------------------------------------
 # e2e only environment variables

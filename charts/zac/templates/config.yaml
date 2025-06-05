@@ -76,4 +76,3 @@ data:
   ZAC_INTERNAL_ENDPOINTS_API_KEY: {{ required "Valid .Values.zacInternalEndpointsApiKey entry required!" .Values.zacInternalEndpointsApiKey }}
   ZGW_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.zgwApis.url entry required!" .Values.zgwApis.url }}
   ZGW_API_CLIENTID: {{ required "Valid .Values.zgwApis.clientId entry required!" .Values.zgwApis.clientId }}
-  ZGW_API_URL_EXTERN: {{ required "Valid .Values.zgwApis.urlExtern entry required!" .Values.zgwApis.urlExtern }}
