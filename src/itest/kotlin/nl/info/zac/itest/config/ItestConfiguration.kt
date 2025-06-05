@@ -53,7 +53,7 @@ object ItestConfiguration {
     const val DOMEIN_TEST_1 = "domein_test_1"
     const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
-    const val BPMN_TASK_NAAM = "User details"
+    const val BPMN_TASK_NAAM = "Test form"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING = "bijlage"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
     const val INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING = "factuur"

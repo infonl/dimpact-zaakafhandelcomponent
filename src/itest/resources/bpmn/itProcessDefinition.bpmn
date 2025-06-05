@@ -7,7 +7,7 @@
       <design:creationdate><![CDATA[2025-04-15T11:10:56.214Z]]></design:creationdate>
       <design:modificationdate><![CDATA[2025-04-15T11:21:52.302Z]]></design:modificationdate>
     </extensionElements>
-    <userTask id="userTask" name="User details" flowable:candidateGroups="group" flowable:formKey="testForm" flowable:formFieldValidation="false">
+    <userTask id="userTask" name="Test form" flowable:candidateGroups="group" flowable:formKey="testForm" flowable:formFieldValidation="false">
       <extensionElements>
         <flowable:static-form-key><![CDATA[testForm]]></flowable:static-form-key>
         <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>

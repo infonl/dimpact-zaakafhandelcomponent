@@ -1,7 +1,7 @@
 {
   "display": "wizard",
   "name": "testForm",
-  "title": "User details",
+  "title": "Test form",
   "settings": {
     "pdf": {
       "id": "1ec0f8ee-6685-5d98-a847-26f67b67d6f0",
@@ -10,123 +10,132 @@
   },
   "components": [
     {
-      "title": "Name",
-      "label": "nameDetails",
+      "title": "Form page",
+      "label": "Form page",
       "type": "panel",
-      "key": "testPage",
+      "key": "form",
+      "input": false,
+      "tableView": false,
       "components": [
         {
-          "label": "First name",
-          "placeholder": "Your first name",
-          "applyMaskOn": "change",
-          "tableView": true,
-          "validateWhenHidden": false,
-          "key": "firstName",
-          "type": "textfield",
-          "input": true
-        }
-      ],
-      "input": false,
-      "tableView": false
-    },
-    {
-      "legend": "Approval by:",
-      "type": "groepMedewerkerFieldset",
-      "key": "AM_TeamBehandelaar",
-      "input": false,
-      "components": [
-        {
-          "label": "Group",
-          "type": "select",
-          "key": "AM_TeamBehandelaar_Groep",
-          "input": true,
-          "widget": "html5",
-          "validate": {
-            "required": true
-          },
-          "dataSrc": "custom",
-          "clearOnRefresh": true
+          "legend": "Approval by:",
+          "type": "groepMedewerkerFieldset",
+          "key": "AM_TeamBehandelaar",
+          "input": false,
+          "components": [
+            {
+              "label": "Group",
+              "type": "select",
+              "key": "AM_TeamBehandelaar_Groep",
+              "input": true,
+              "widget": "html5",
+              "validate": {
+                "required": true
+              },
+              "dataSrc": "custom",
+              "clearOnRefresh": true
+            },
+            {
+              "label": "User",
+              "type": "select",
+              "key": "AM_TeamBehandelaar_Medewerker",
+              "widget": "html5",
+              "input": true,
+              "validate": {
+                "required": true
+              },
+              "dataSrc": "custom",
+              "refreshOn": "AM_TeamBehandelaar_Groep",
+              "clearOnRefresh": true
+            }
+          ]
         },
         {
-          "label": "User",
-          "type": "select",
-          "key": "AM_TeamBehandelaar_Medewerker",
-          "widget": "html5",
-          "input": true,
-          "validate": {
-            "required": true
-          },
-          "dataSrc": "custom",
-          "refreshOn": "AM_TeamBehandelaar_Groep",
-          "clearOnRefresh": true
-        }
-      ]
-    },
-    {
-      "legend": "SmartDocuments",
-      "type": "groepSmartDocumentsFieldset",
-      "key": "SD_SmartDocuments",
-      "input": false,
-      "components": [
-        {
-          "label": "Template",
-          "type": "select",
-          "key": "SD_SmartDocuments_Template",
-          "input": true,
-          "widget": "html5",
-          "validate": {
-            "required": true
-          },
-          "dataSrc": "custom",
-          "clearOnRefresh": true
+          "legend": "SmartDocuments",
+          "type": "smartDocumentsFieldset",
+          "key": "SD_SmartDocuments",
+          "input": false,
+          "components": [
+            {
+              "label": "Template",
+              "type": "select",
+              "key": "SD_SmartDocuments_Template",
+              "input": true,
+              "widget": "html5",
+              "dataSrc": "custom",
+              "clearOnRefresh": true
+            },
+            {
+              "label": "Create",
+              "action": "event",
+              "showValidations": false,
+              "block": true,
+              "tableView": false,
+              "key": "SD_SmartDocuments_Create",
+              "type": "button",
+              "event": "createDocument",
+              "input": true,
+              "properties": {
+                "SmartDocuments_Group": "Dimpact/OpenZaak",
+                "SmartDocuments_Data_Test_InformatieobjecttypeUuid": "efc332f2-be3b-4bad-9e3c-49a6219c92ad",
+                "SmartDocuments_OpenZaakTest_InformatieobjecttypeUuid": "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
+              }
+            }
+          ]
         },
         {
-          "label": "Create",
-          "action": "event",
-          "showValidations": false,
-          "block": true,
-          "tableView": false,
-          "key": "SD_SmartDocuments_Create",
+          "legend": "Reference table",
+          "type": "referenceTableFieldset",
+          "key": "RT_ReferenceTable",
+          "input": false,
+          "components": [
+            {
+              "label": "Communication channel",
+              "type": "select",
+              "key": "RT_ReferenceTable_Values",
+              "input": true,
+              "widget": "html5",
+              "validate": {
+                "required": true
+              },
+              "dataSrc": "custom",
+              "properties": {
+                "ReferenceTable_Code": "COMMUNICATIEKANAAL"
+              }
+            }
+          ]
+        },
+        {
+          "legend": "Reference table",
+          "type": "groepReferenceTableFieldset",
+          "key": "RT_ReferenceTable",
+          "input": false,
+          "components": [
+            {
+              "label": "Communication channel",
+              "type": "select",
+              "key": "RT_ReferenceTable_Values",
+              "input": true,
+              "widget": "html5",
+              "validate": {
+                "required": true
+              },
+              "dataSrc": "custom",
+              "properties": {
+                "ReferenceTable_Code": "COMMUNICATIEKANAAL"
+              }
+            }
+          ]
+        },
+        {
           "type": "button",
-          "event": "createDocument",
+          "label": "Submit",
+          "key": "submit",
+          "disableOnInvalid": true,
           "input": true,
-          "properties": {
-            "SmartDocuments_Group": "Dimpact/OpenZaak",
-            "SmartDocuments_Data_Test_InformatieobjecttypeUuid": "efc332f2-be3b-4bad-9e3c-49a6219c92ad",
-            "SmartDocuments_OpenZaakTest_InformatieobjecttypeUuid": "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
-          }
+          "tableView": false
         }
       ]
-    },
-    {
-      "legend": "Reference table",
-      "type": "groepReferenceTableFieldset",
-      "key": "RT_ReferenceTable",
-      "input": false,
-      "components": [
-        {
-          "label": "Communication channel",
-          "type": "select",
-          "key": "RT_ReferenceTable_Values",
-          "input": true,
-          "widget": "html5",
-          "validate": {
-            "required": true
-          },
-          "dataSrc": "custom",
-          "properties": {
-            "ReferenceTable_Code": "COMMUNICATIEKANAAL"
-          }
-        }
-      ]
-    },
-    {
-      "type": "button",
-      "label": "Submit",
-      "key": "submit",
-      "disableOnInvalid": true,
-      "input": true,
-      "tableView": false
     }
   ]
 }
