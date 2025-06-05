@@ -3,7 +3,7 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div [hidden]="!showNotes">
+<div [hidden]="showNotes">
   <button
     mat-mini-fab
     aria-label="Notities"
@@ -22,7 +22,7 @@
   </button>
 </div>
 
-<mat-card *ngIf="!showNotes" class="notitie-container">
+<mat-card *ngIf="showNotes" class="notitie-container">
   <div class="flex-row justify-content-between notitie-header">
     <div class="flex-row items-center gap-10">
       <mat-icon>sticky_note_2</mat-icon>

@@ -25,7 +25,7 @@ export class NotitiesComponent implements OnInit {
   ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
 
   notities: Notitie[] = [];
-  showNotes = true;
+  showNotes = false;
   geselecteerdeNotitieId: number | null = null;
   maxLengteTextArea = 1000;
 
@@ -43,6 +43,7 @@ export class NotitiesComponent implements OnInit {
 
   toggleNotitieContainer() {
     this.showNotes = !this.showNotes;
+    console.log("Notitie container toggled:", this.showNotes);
   }
 
   pasNotitieAan(id: number) {
