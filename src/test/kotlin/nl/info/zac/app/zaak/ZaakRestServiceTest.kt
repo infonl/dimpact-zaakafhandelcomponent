@@ -66,8 +66,8 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import nl.info.zac.admin.model.createBetrokkeneKoppelingen
 import nl.info.zac.admin.model.createZaakafhandelParameters
-import nl.info.zac.app.admin.createBetrokkeneKoppelingen
 import nl.info.zac.app.decision.DecisionService
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.AANVULLENDE_INFORMATIE_TASK_NAME

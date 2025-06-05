@@ -4,8 +4,6 @@
  */
 package nl.info.zac.app.admin
 
-import net.atos.zac.admin.model.BetrokkeneKoppelingen
-import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.app.admin.model.RESTZaaktypeOverzicht
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen
@@ -99,12 +97,6 @@ fun createRestBetrokkeKoppelingen(
     brpKoppelen: Boolean = false,
     kvkKoppelen: Boolean = false
 ) = RestBetrokkeneKoppelingen(brpKoppelen = brpKoppelen, kvkKoppelen = kvkKoppelen)
-
-fun createBetrokkeneKoppelingen(
-    brpKoppelen: Boolean = false,
-    kvkKoppelen: Boolean = false,
-    zaakafhandelParameters: ZaakafhandelParameters // Do not add default `= createZaakafhandelParameters()` as it will cause infinite loop
-) = BetrokkeneKoppelingen(zaakafhandelParameters, brpKoppelen, kvkKoppelen)
 
 @Suppress("LongParameterList")
 fun createRestZaaktypeOverzicht(
