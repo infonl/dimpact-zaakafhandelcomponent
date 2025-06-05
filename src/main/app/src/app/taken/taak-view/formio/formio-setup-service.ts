@@ -12,6 +12,8 @@ import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-param
 import { UtilService } from "../../../core/service/util.service";
 import { FormioCustomEvent } from "../../../formulieren/formio-wrapper/formio-wrapper.component";
 import { IdentityService } from "../../../identity/identity.service";
+import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
+import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { OrderUtil } from "../../../shared/order/order-util";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { Taak } from "../../model/taak";
@@ -28,6 +30,7 @@ export class FormioSetupService {
     private identityService: IdentityService,
     private zaakafhandelParametersService: ZaakafhandelParametersService,
     private referenceTableService: ReferentieTabelService,
+    private informatieObjectenService: InformatieObjectenService,
   ) {}
 
   createFormioForm(formioFormulier: FormioForm, taak: Taak): void {
@@ -240,8 +243,42 @@ export class FormioSetupService {
   }
 
   private initializeAvailableDocumentsFieldsetComponent(
-    fieldsetComponent: ExtendedComponentSchema
-  ) {
+    fieldsetComponent: ExtendedComponentSchema,
+  ): void {
+    if (!this.taak) {
+      return;
+    }
+
+    const documentViewComponent = fieldsetComponent.components?.find(
+      (component: { key: string }) => component.key === "ZAC_Documents",
+    );
+
+    if (!documentViewComponent) {
+      return;
+    }
+
     fieldsetComponent.type = "fieldset";
+
+    const zoekParameters = new InformatieobjectZoekParameters();
+    zoekParameters.zaakUUID = this.taak.zaakUuid;
+    zoekParameters.gekoppeldeZaakDocumenten = false;
+
+    documentViewComponent.valueProperty = "uuid";
+    documentViewComponent.template = "{{ item.titel }}";
+    documentViewComponent.data = {
+      custom: () =>
+        lastValueFrom(
+          this.informatieObjectenService
+            .listEnkelvoudigInformatieobjecten(zoekParameters)
+            .pipe(
+              map((docs) =>
+                docs.map((doc) => ({
+                  titel: doc.titel,
+                  uuid: doc.uuid,
+                })),
+              ),
+            ),
+        ),
+    };
   }
 }
