@@ -238,7 +238,7 @@ class ZaakRestService @Inject constructor(
             identificationType = gegevens.betrokkeneIdentificatieType,
             identification = gegevens.betrokkeneIdentificatie,
             explanation = gegevens.roltoelichting?.ifEmpty { ROL_TOEVOEGEN_REDEN } ?: ROL_TOEVOEGEN_REDEN,
-            zaak
+            zaak = zaak
         )
         return restZaakConverter.toRestZaak(zaak)
     }

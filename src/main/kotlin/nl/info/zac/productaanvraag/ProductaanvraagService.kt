@@ -287,7 +287,7 @@ class ProductaanvraagService @Inject constructor(
 
     private fun addBetrokkene(
         betrokkene: Betrokkene,
-        roltypeOmschrijving: String?,
+        roltypeOmschrijving: String,
         zaak: Zaak
     ) {
         ztcClientService.findRoltypen(zaak.zaaktype, roltypeOmschrijving)
@@ -323,17 +323,19 @@ class ProductaanvraagService @Inject constructor(
         betrokkene: Betrokkene,
         type: RolType,
         zaak: Zaak,
-        roltypeOmschrijving: String?,
-        generiek: Boolean = false
+        roltypeOmschrijving: String,
+        genericRolType: Boolean = false
     ) {
-        val prefix = if (generiek) "generic " else ""
         when {
             betrokkene.inpBsn != null -> addNatuurlijkPersoonRole(type, betrokkene.inpBsn, zaak.url)
             betrokkene.vestigingsNummer != null -> addVestigingRole(type, betrokkene.vestigingsNummer, zaak.url)
-            else -> LOG.warning(
-                "Betrokkene with ${prefix}roletype description `$roltypeOmschrijving` does not contain a BSN " +
-                    "or KVK vestigingsnummer. No betrokkene role created for zaak '$zaak'."
-            )
+            else -> {
+                val prefix = if (genericRolType) "generic " else ""
+                LOG.warning(
+                    "Betrokkene with ${prefix}roletype description `$roltypeOmschrijving` does not contain a BSN " +
+                        "or KVK vestigingsnummer. No betrokkene role created for zaak '$zaak'."
+                )
+            }
         }
     }
 
@@ -566,7 +568,6 @@ class ProductaanvraagService @Inject constructor(
         betrokkenen.forEach {
             if (!zaakafhandelparameters.betrokkeneKoppelingen.brpKoppelen) {
                 it.inpBsn?.run {
-                    // TODO: should we throw an exception or just log a warning and skip the betrokkenen?
                     throw ProductaanvraagNotSupportedException(
                         "The BRP koppeling is not enabled for zaakafhandelparameters with zaaktype UUID " +
                             "'${zaakafhandelparameters.zaakTypeUUID}'. " +
@@ -577,7 +578,6 @@ class ProductaanvraagService @Inject constructor(
             }
             if (!zaakafhandelparameters.betrokkeneKoppelingen.kvkKoppelen) {
                 it.vestigingsNummer?.run {
-                    // TODO: should we throw an exception or just log a warning and skip the betrokkenen?
                     throw ProductaanvraagNotSupportedException(
                         "The KVK koppeling is not enabled for zaakafhandelparameters with zaaktype UUID " +
                             "'${zaakafhandelparameters.zaakTypeUUID}'. " +
