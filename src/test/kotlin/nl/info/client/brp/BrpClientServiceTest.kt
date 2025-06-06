@@ -10,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import jakarta.ws.rs.NotFoundException
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.BrpDoelbindingen
 import nl.info.client.brp.model.createPersoon
@@ -210,6 +211,36 @@ class BrpClientServiceTest : BehaviorSpec({
 
         When("find person is called with the BSN of the person") {
             val personResponse = brpClientService.retrievePersoon(bsn, REQUEST_CONTEXT)
+
+            Then("it should return the person") {
+                personResponse shouldBe person
+            }
+        }
+    }
+
+    Given("A person for a given BSN with an exception from zrc client") {
+        val bsn = "123456789"
+        val person = createPersoon(
+            bsn = bsn
+        )
+        val raadpleegMetBurgerservicenummerResponse = createRaadpleegMetBurgerservicenummerResponse(
+            persons = listOf(person)
+        )
+
+        every {
+            zrcClientService.readZaakByID(ZAAK)
+        } throws NotFoundException("Zaak not found")
+
+        every {
+            personenApi.personen(
+                any(),
+                eq(RETRIEVE_PERSOON_PURPOSE),
+                eq(REQUEST_CONTEXT)
+            )
+        } returns raadpleegMetBurgerservicenummerResponse
+
+        When("find person is called with the BSN of the person default purpose is set") {
+            val personResponse = configuredBrpClientService.retrievePersoon(bsn, REQUEST_CONTEXT)
 
             Then("it should return the person") {
                 personResponse shouldBe person
