@@ -12,6 +12,8 @@ import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-param
 import { UtilService } from "../../../core/service/util.service";
 import { FormioCustomEvent } from "../../../formulieren/formio-wrapper/formio-wrapper.component";
 import { IdentityService } from "../../../identity/identity.service";
+import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
+import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { OrderUtil } from "../../../shared/order/order-util";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { Taak } from "../../model/taak";
@@ -20,7 +22,7 @@ import { Taak } from "../../model/taak";
   providedIn: "root",
 })
 export class FormioSetupService {
-  private taak: Taak | undefined;
+  private taak?: Taak;
   private formioChangeData: Record<string, string> | undefined;
 
   constructor(
@@ -28,6 +30,7 @@ export class FormioSetupService {
     private identityService: IdentityService,
     private zaakafhandelParametersService: ZaakafhandelParametersService,
     private referenceTableService: ReferentieTabelService,
+    private informatieObjectenService: InformatieObjectenService,
   ) {}
 
   createFormioForm(formioFormulier: FormioForm, taak: Taak): void {
@@ -56,6 +59,9 @@ export class FormioSetupService {
           break;
         case "referenceTableFieldset":
           this.initializeReferenceTableFieldsetComponent(component);
+          break;
+        case "documentsFieldset":
+          this.initializeAvailableDocumentsFieldsetComponent(component);
           break;
       }
       if ("components" in component) {
@@ -86,7 +92,7 @@ export class FormioSetupService {
       custom: () =>
         lastValueFrom(
           this.identityService
-            .listGroups(this.taak.zaaktypeUUID)
+            .listGroups(this.taak?.zaaktypeUUID)
             .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam")))),
         ),
     };
@@ -232,6 +238,41 @@ export class FormioSetupService {
           this.referenceTableService
             .readReferentieTabelByCode(referenceTableCode)
             .pipe(map((table) => table.waarden.map((value) => value.naam))),
+        ),
+    };
+  }
+
+  private initializeAvailableDocumentsFieldsetComponent(
+    fieldsetComponent: ExtendedComponentSchema,
+  ): void {
+    const documentViewComponent = fieldsetComponent.components?.find(
+      (component: { type: string }) => component.type === "select",
+    );
+
+    if (!documentViewComponent) {
+      return;
+    }
+
+    fieldsetComponent.type = "fieldset";
+
+    const zoekParameters = new InformatieobjectZoekParameters();
+    zoekParameters.zaakUUID = this.taak!.zaakUuid;
+
+    documentViewComponent.valueProperty = "uuid";
+    documentViewComponent.template = "{{ item.titel }}";
+    documentViewComponent.data = {
+      custom: () =>
+        lastValueFrom(
+          this.informatieObjectenService
+            .listEnkelvoudigInformatieobjecten(zoekParameters)
+            .pipe(
+              map((docs) =>
+                docs.map((doc) => ({
+                  titel: doc.titel,
+                  uuid: doc.uuid,
+                })),
+              ),
+            ),
         ),
     };
   }
