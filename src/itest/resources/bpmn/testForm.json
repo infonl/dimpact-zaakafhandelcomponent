@@ -84,30 +84,29 @@
           ]
         },
         {
-          "legend": "Reference table",
-          "type": "referenceTableFieldset",
-          "key": "RT_ReferenceTable",
+          "legend": "Available Documents",
+          "type": "documentsFieldset",
+          "key": "ZAAK_Documents",
           "input": false,
           "components": [
             {
-              "label": "Communication channel",
+              "label": "Documents",
               "type": "select",
-              "key": "RT_ReferenceTable_Values",
+              "key": "ZAAK_Documents_Select",
               "input": true,
               "widget": "html5",
               "validate": {
                 "required": true
               },
               "dataSrc": "custom",
-              "properties": {
-                "ReferenceTable_Code": "COMMUNICATIEKANAAL"
-              }
+              "multiple": true,
+              "clearOnRefresh": true
             }
           ]
         },
         {
           "legend": "Reference table",
-          "type": "groepReferenceTableFieldset",
+          "type": "referenceTableFieldset",
           "key": "RT_ReferenceTable",
           "input": false,
           "components": [
