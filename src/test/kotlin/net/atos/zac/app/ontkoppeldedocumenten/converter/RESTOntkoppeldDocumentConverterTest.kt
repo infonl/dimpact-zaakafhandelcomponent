@@ -7,6 +7,7 @@ package net.atos.zac.app.ontkoppeldedocumenten.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.zac.documenten.model.OntkoppeldDocument
@@ -14,6 +15,7 @@ import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.model.createRESTUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.model.createEnkelvoudigInformatieObjectLock
+import nl.info.zac.model.createOntkoppeldDocument
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -37,22 +39,18 @@ class RESTOntkoppeldDocumentConverterTest : BehaviorSpec({
         }
     }
 
+    beforeEach {
+        checkUnnecessaryStub()
+    }
+
     Given("a valid OntkoppeldDocument and informatieobjectTypeUUID") {
         val uuid = UUID.randomUUID()
         val informatieobjectTypeUUID = UUID.randomUUID()
         val userId = "user-123"
-        val ontkoppeldDocument = OntkoppeldDocument().apply {
-            id = 1L
-            documentUUID = uuid
-            documentID = "DOC-456"
-            titel = "Test Titel"
-            zaakID = "ZAAK-001"
-            creatiedatum = LocalDate.now()
-            bestandsnaam = "test.pdf"
-            ontkoppeldDoor = userId
-            ontkoppeldOp = ZonedDateTime.now()
-            reden = "Reden van ontkoppeling"
-        }
+        val ontkoppeldDocument = createOntkoppeldDocument(
+            uuid = uuid,
+            userId = userId
+        )
 
         val convertedUser = createRESTUser(id = userId)
         val lock = createEnkelvoudigInformatieObjectLock(
@@ -70,13 +68,13 @@ class RESTOntkoppeldDocumentConverterTest : BehaviorSpec({
                 result.documentUUID shouldBe uuid
                 result.documentID shouldBe "DOC-456"
                 result.informatieobjectTypeUUID shouldBe informatieobjectTypeUUID
-                result.titel shouldBe "Test Titel"
+                result.titel shouldBe "fakeTitel"
                 result.zaakID shouldBe "ZAAK-001"
                 result.creatiedatum shouldBe ontkoppeldDocument.creatiedatum
                 result.bestandsnaam shouldBe "test.pdf"
                 result.ontkoppeldDoor shouldBe convertedUser
                 result.ontkoppeldOp shouldBe ontkoppeldDocument.ontkoppeldOp
-                result.reden shouldBe "Reden van ontkoppeling"
+                result.reden shouldBe "fakeReason"
                 result.isVergrendeld shouldBe true
             }
         }
