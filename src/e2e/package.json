@@ -17,7 +17,7 @@
     "cross-fetch": "4.1.0",
     "pdf-parse": "1.1.1",
     "uniqid": "5.4.0",
-    "zod": "3.25.51"
+    "zod": "3.25.55"
   },
   "devDependencies": {
     "@types/node": "22.15.30",
