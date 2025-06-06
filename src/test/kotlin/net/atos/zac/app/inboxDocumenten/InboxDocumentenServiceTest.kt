@@ -53,7 +53,7 @@ class InboxDocumentenServiceTest : BehaviorSpec({
         val uuid = UUID.randomUUID()
         val identificatie = "DOC-123"
         val creatiedatum = LocalDate.now()
-        val titel = "Test Document"
+        val titel = "fakeDocument"
         val bestandsnaam = "document.pdf"
 
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject().apply {

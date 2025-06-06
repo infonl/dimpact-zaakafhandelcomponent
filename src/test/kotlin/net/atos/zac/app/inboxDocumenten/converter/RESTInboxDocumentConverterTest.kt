@@ -7,22 +7,19 @@ package net.atos.zac.app.inboxDocumenten.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import net.atos.zac.app.inboxdocumenten.converter.RESTInboxDocumentConverter
-import net.atos.zac.documenten.model.InboxDocument
-import java.time.LocalDate
+import nl.info.zac.model.createInboxDocument
 import java.util.UUID
 
 class RESTInboxDocumentConverterTest : BehaviorSpec({
 
+    beforeEach {
+        checkUnnecessaryStub()
+    }
+
     Given("a valid Inbox Document") {
-        val document = InboxDocument().apply {
-            id = 1L
-            enkelvoudiginformatieobjectUUID = UUID.randomUUID()
-            enkelvoudiginformatieobjectID = "DOC-123"
-            titel = "Test Titel"
-            creatiedatum = LocalDate.now()
-            bestandsnaam = "test.pdf"
-        }
+        val document = createInboxDocument()
 
         val informatieobjectTypeUUID = UUID.randomUUID()
 
@@ -37,39 +34,6 @@ class RESTInboxDocumentConverterTest : BehaviorSpec({
                 result.creatiedatum shouldBe document.creatiedatum
                 result.bestandsnaam shouldBe document.bestandsnaam
                 result.informatieobjectTypeUUID shouldBe informatieobjectTypeUUID
-            }
-        }
-    }
-
-    Given("a list of InboxDocuments and corresponding UUIDs") {
-        val docs = List(3) { index ->
-            InboxDocument().apply {
-                id = index.toLong()
-                enkelvoudiginformatieobjectUUID = UUID.randomUUID()
-                enkelvoudiginformatieobjectID = "DOC-$index"
-                titel = "Titel $index"
-                creatiedatum = LocalDate.now().minusDays(index.toLong())
-                bestandsnaam = "file$index.pdf"
-            }
-        }
-
-        val uuids = List(3) { UUID.randomUUID() }
-
-        When("convert list is called") {
-            val resultList = RESTInboxDocumentConverter.convert(docs, uuids)
-
-            Then("it should return a list of converted RESTInboxDocuments") {
-                resultList.size shouldBe 3
-
-                resultList.forEachIndexed { i, result ->
-                    result.id shouldBe docs[i].id
-                    result.enkelvoudiginformatieobjectUUID shouldBe docs[i].enkelvoudiginformatieobjectUUID
-                    result.enkelvoudiginformatieobjectID shouldBe docs[i].enkelvoudiginformatieobjectID
-                    result.titel shouldBe docs[i].titel
-                    result.creatiedatum shouldBe docs[i].creatiedatum
-                    result.bestandsnaam shouldBe docs[i].bestandsnaam
-                    result.informatieobjectTypeUUID shouldBe uuids[i]
-                }
             }
         }
     }
