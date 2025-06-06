@@ -16,7 +16,7 @@ import jakarta.persistence.EntityManager
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.model.InboxDocument
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.zrc.ZrcClientService
 import java.time.LocalDate
 import java.util.UUID
@@ -56,7 +56,7 @@ class InboxDocumentenServiceTest : BehaviorSpec({
         val titel = "Test Document"
         val bestandsnaam = "document.pdf"
 
-        val enkelvoudigInformatieObject = EnkelvoudigInformatieObject().apply {
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject().apply {
             setIdentificatie(identificatie)
             setCreatiedatum(creatiedatum)
             setTitel(titel)
