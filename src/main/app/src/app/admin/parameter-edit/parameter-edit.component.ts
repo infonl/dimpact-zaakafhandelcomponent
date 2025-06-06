@@ -28,7 +28,6 @@ import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZaakStatusmailOptie } from "../../zaken/model/zaak-statusmail-optie";
 import { AdminComponent } from "../admin/admin.component";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { FormulierDefinitie } from "../model/formulier-definitie";
@@ -124,7 +123,14 @@ export class ParameterEditComponent
     kvkKoppelen: new FormControl(false),
   });
 
-  mailOpties: { label: string; value: string }[] = [];
+  mailOpties: {
+    label: `statusmail.optie.${GeneratedType<"RESTZaakStatusmailOptie">}`;
+    value: GeneratedType<"RESTZaakStatusmailOptie">;
+  }[] = [
+    { label: "statusmail.optie.BESCHIKBAAR_AAN", value: "BESCHIKBAAR_AAN" },
+    { label: "statusmail.optie.BESCHIKBAAR_UIT", value: "BESCHIKBAAR_UIT" },
+    { label: "statusmail.optie.NIET_BESCHIKBAAR", value: "NIET_BESCHIKBAAR" },
+  ];
 
   caseDefinitions: GeneratedType<"RESTCaseDefinition">[] = [];
   domeinen: string[] = [];
@@ -157,10 +163,10 @@ export class ParameterEditComponent
       this.parameters = data.parameters;
       this.parameters.intakeMail = this.parameters.intakeMail
         ? this.parameters.intakeMail
-        : ZaakStatusmailOptie.BESCHIKBAAR_UIT;
+        : "BESCHIKBAAR_UIT";
       this.parameters.afrondenMail = this.parameters.afrondenMail
         ? this.parameters.afrondenMail
-        : ZaakStatusmailOptie.BESCHIKBAAR_UIT;
+        : "BESCHIKBAAR_UIT";
       this.userEventListenerParameters =
         this.parameters.userEventListenerParameters;
       this.humanTaskParameters = this.parameters.humanTaskParameters;
@@ -214,10 +220,6 @@ export class ParameterEditComponent
   }
 
   ngOnInit(): void {
-    this.mailOpties = this.utilService.getEnumAsSelectList(
-      "statusmail.optie",
-      ZaakStatusmailOptie,
-    );
     this.setupMenu("title.parameters.wijzigen");
   }
 

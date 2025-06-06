@@ -7,7 +7,6 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
-import { ZaakbeeindigReden } from "../admin/model/zaakbeeindig-reden";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { TableRequest } from "../shared/dynamic-table/datasource/table-request";
 import { HistorieRegel } from "../shared/historie/model/historie-regel";
@@ -20,18 +19,15 @@ import {
 import { GeneratedType } from "../shared/utils/generated-types";
 import { ZaakZoekObject } from "../zoeken/model/zaken/zaak-zoek-object";
 import { Zaak } from "./model/zaak";
-import { ZaakAfbrekenGegevens } from "./model/zaak-afbreken-gegevens";
-import { ZaakAfsluitenGegevens } from "./model/zaak-afsluiten-gegevens";
 import { ZaakBetrokkene } from "./model/zaak-betrokkene";
-import { ZaakHeropenenGegevens } from "./model/zaak-heropenen-gegevens";
 
 @Injectable({
   providedIn: "root",
 })
 export class ZakenService {
   constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
+    private readonly http: HttpClient,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
     private readonly zacHttpClient: ZacHttpClient,
   ) {}
 
@@ -302,41 +298,28 @@ export class ZakenService {
       );
   }
 
-  afbreken(uuid: string, beeindigReden: ZaakbeeindigReden): Observable<void> {
-    return this.http
-      .patch<void>(
-        `${this.basepath}/zaak/${uuid}/afbreken`,
-        new ZaakAfbrekenGegevens(beeindigReden.id),
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  afbreken(uuid: string, body: PatchBody<"/rest/zaken/zaak/{uuid}/afbreken">) {
+    return this.zacHttpClient.PATCH("/rest/zaken/zaak/{uuid}/afbreken", body, {
+      path: { uuid },
+    });
   }
 
-  heropenen(uuid: string, heropenReden: string): Observable<void> {
-    return this.http
-      .patch<void>(
-        `${this.basepath}/zaak/${uuid}/heropenen`,
-        new ZaakHeropenenGegevens(heropenReden),
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  heropenen(
+    uuid: string,
+    body: PatchBody<"/rest/zaken/zaak/{uuid}/heropenen">,
+  ) {
+    return this.zacHttpClient.PATCH("/rest/zaken/zaak/{uuid}/heropenen", body, {
+      path: { uuid },
+    });
   }
 
   afsluiten(
     uuid: string,
-    afsluitenReden: string,
-    resultaattypeUuid: string,
-  ): Observable<void> {
-    return this.http
-      .patch<void>(
-        `${this.basepath}/zaak/${uuid}/afsluiten`,
-        new ZaakAfsluitenGegevens(afsluitenReden, resultaattypeUuid),
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    body: PatchBody<"/rest/zaken/zaak/{uuid}/afsluiten">,
+  ) {
+    return this.zacHttpClient.PATCH("/rest/zaken/zaak/{uuid}/afsluiten", body, {
+      path: { uuid },
+    });
   }
 
   createBesluit(

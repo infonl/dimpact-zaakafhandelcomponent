@@ -10,15 +10,6 @@ import { Indicatie } from "../../model/indicatie";
 import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
 
-export enum ZaakIndicatie {
-  OPSCHORTING = "OPSCHORTING",
-  HEROPEND = "HEROPEND",
-  HOOFDZAAK = "HOOFDZAAK",
-  DEELZAAK = "DEELZAAK",
-  VERLENGD = "VERLENGD",
-  ONTVANGSTBEVESTIGING_NIET_VERSTUURD = "ONTVANGSTBEVESTIGING_NIET_VERSTUURD",
-}
-
 @Component({
   selector: "zac-zaak-indicaties",
   templateUrl: "../indicaties.component.html",
@@ -47,7 +38,7 @@ export class ZaakIndicatiesComponent
       this.zaak?.indicaties ?? this.zaakZoekObject?.indicaties ?? [];
     indicaties.forEach((indicatie) => {
       switch (indicatie) {
-        case ZaakIndicatie.OPSCHORTING:
+        case "OPSCHORTING":
           this.indicaties.push(
             new Indicatie(
               indicatie,
@@ -56,7 +47,7 @@ export class ZaakIndicatiesComponent
             ).temporary(),
           );
           break;
-        case ZaakIndicatie.HEROPEND:
+        case "HEROPEND":
           this.indicaties.push(
             new Indicatie(
               indicatie,
@@ -65,7 +56,7 @@ export class ZaakIndicatiesComponent
             ).temporary(),
           );
           break;
-        case ZaakIndicatie.HOOFDZAAK:
+        case "HOOFDZAAK":
           this.indicaties.push(
             new Indicatie(
               indicatie,
@@ -74,7 +65,7 @@ export class ZaakIndicatiesComponent
             ),
           );
           break;
-        case ZaakIndicatie.DEELZAAK:
+        case "DEELZAAK":
           this.indicaties.push(
             new Indicatie(
               indicatie,
@@ -83,7 +74,7 @@ export class ZaakIndicatiesComponent
             ).alternate(),
           );
           break;
-        case ZaakIndicatie.VERLENGD:
+        case "VERLENGD":
           this.indicaties.push(
             new Indicatie(
               indicatie,
@@ -92,7 +83,7 @@ export class ZaakIndicatiesComponent
             ),
           );
           break;
-        case ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD:
+        case "ONTVANGSTBEVESTIGING_NIET_VERSTUURD":
           this.indicaties.push(
             new Indicatie(
               indicatie,

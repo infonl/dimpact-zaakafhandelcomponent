@@ -3,17 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ZaakRechten } from "../../policy/model/zaak-rechten";
-import { ZaakStatus } from "../../zaken/model/zaak-status";
+import { GeneratedType } from "../../shared/utils/generated-types";
 
 /**
  * @deprecated - use the `GeneratedType`
  */
 export class ZaakInformatieobject {
   zaakIdentificatie: string;
-  zaakStatus: ZaakStatus;
+  zaakStatus: GeneratedType<"RestZaakStatus">;
   zaakStartDatum: string;
   zaakEinddatumGepland: string;
   zaaktypeOmschrijving: string;
-  zaakRechten: ZaakRechten;
+  zaakRechten: GeneratedType<"RestZaakRechten">;
 }

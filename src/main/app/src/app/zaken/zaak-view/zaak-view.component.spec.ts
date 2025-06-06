@@ -28,7 +28,6 @@ import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { Zaak } from "../model/zaak";
-import { Zaaktype } from "../model/zaaktype";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZakenService } from "../zaken.service";
@@ -48,7 +47,7 @@ describe(ZaakViewComponent.name, () => {
   };
 
   const zaak = fromPartial<Zaak>({
-    zaaktype: fromPartial<Zaaktype>({
+    zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
       omschrijving: "mock description",
     }),
     indicaties: [],
