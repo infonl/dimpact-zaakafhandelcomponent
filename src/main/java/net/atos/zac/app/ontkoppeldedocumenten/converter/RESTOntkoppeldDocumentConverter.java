@@ -32,7 +32,7 @@ public class RESTOntkoppeldDocumentConverter {
         restDocument.informatieobjectTypeUUID = informatieobjectTypeUUID;
         restDocument.titel = document.getTitel();
         restDocument.zaakID = document.getZaakID();
-        restDocument.creatiedatum = document.getCreatiedatum().toLocalDate();
+        restDocument.creatiedatum = document.getCreatiedatum();
         restDocument.bestandsnaam = document.getBestandsnaam();
         restDocument.ontkoppeldDoor = userConverter.convertUserId(document.getOntkoppeldDoor());
         restDocument.ontkoppeldOp = document.getOntkoppeldOp();
