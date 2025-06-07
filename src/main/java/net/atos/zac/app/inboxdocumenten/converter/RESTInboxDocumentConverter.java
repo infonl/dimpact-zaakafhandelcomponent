@@ -20,7 +20,7 @@ public class RESTInboxDocumentConverter {
         restDocument.enkelvoudiginformatieobjectID = document.getEnkelvoudiginformatieobjectID();
         restDocument.informatieobjectTypeUUID = informatieobjectTypeUUID;
         restDocument.titel = document.getTitel();
-        restDocument.creatiedatum = document.getCreatiedatum().toLocalDate();
+        restDocument.creatiedatum = document.getCreatiedatum();
         restDocument.bestandsnaam = document.getBestandsnaam();
         return restDocument;
     }

@@ -7,7 +7,6 @@ package net.atos.zac.documenten;
 
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -58,7 +57,7 @@ public class InboxDocumentenService {
         final InboxDocument inboxDocument = new InboxDocument();
         inboxDocument.setEnkelvoudiginformatieobjectID(informatieobject.getIdentificatie());
         inboxDocument.setEnkelvoudiginformatieobjectUUID(enkelvoudiginformatieobjectUUID);
-        inboxDocument.setCreatiedatum(informatieobject.getCreatiedatum().atStartOfDay(ZoneId.systemDefault()));
+        inboxDocument.setCreatiedatum(informatieobject.getCreatiedatum());
         inboxDocument.setTitel(informatieobject.getTitel());
         inboxDocument.setBestandsnaam(informatieobject.getBestandsnaam());
         entityManager.persist(inboxDocument);

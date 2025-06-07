@@ -7,7 +7,7 @@ package net.atos.zac.documenten.model;
 
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDate;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -57,7 +57,7 @@ public class InboxDocument {
     private String enkelvoudiginformatieobjectID;
 
     @NotNull @Column(name = "creatiedatum", nullable = false)
-    private ZonedDateTime creatiedatum;
+    private LocalDate creatiedatum;
 
     @NotBlank @Column(name = "titel", nullable = false)
     private String titel;
@@ -91,11 +91,11 @@ public class InboxDocument {
         this.enkelvoudiginformatieobjectID = enkelvoudiginformatieobjectID;
     }
 
-    public ZonedDateTime getCreatiedatum() {
+    public LocalDate getCreatiedatum() {
         return creatiedatum;
     }
 
-    public void setCreatiedatum(final ZonedDateTime creatiedatum) {
+    public void setCreatiedatum(final LocalDate creatiedatum) {
         this.creatiedatum = creatiedatum;
     }
 
