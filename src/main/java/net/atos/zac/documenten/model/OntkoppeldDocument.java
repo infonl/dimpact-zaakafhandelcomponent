@@ -7,6 +7,7 @@ package net.atos.zac.documenten.model;
 
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
 
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -58,7 +59,7 @@ public class OntkoppeldDocument {
     private String zaakID;
 
     @NotNull @Column(name = "creatiedatum", nullable = false)
-    private ZonedDateTime creatiedatum;
+    private LocalDate creatiedatum;
 
     @NotBlank @Column(name = "titel", nullable = false)
     private String titel;
@@ -99,11 +100,11 @@ public class OntkoppeldDocument {
         this.documentID = documentID;
     }
 
-    public ZonedDateTime getCreatiedatum() {
+    public LocalDate getCreatiedatum() {
         return creatiedatum;
     }
 
-    public void setCreatiedatum(final ZonedDateTime creatiedatum) {
+    public void setCreatiedatum(final LocalDate creatiedatum) {
         this.creatiedatum = creatiedatum;
     }
 

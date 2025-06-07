@@ -7,7 +7,6 @@ package net.atos.zac.documenten;
 import static net.atos.zac.util.ValidationUtil.valideerObject;
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +58,7 @@ public class OntkoppeldeDocumentenService {
         final OntkoppeldDocument ontkoppeldDocument = new OntkoppeldDocument();
         ontkoppeldDocument.setDocumentID(informatieobject.getIdentificatie());
         ontkoppeldDocument.setDocumentUUID(extractUuid(informatieobject.getUrl()));
-        ontkoppeldDocument.setCreatiedatum(informatieobject.getCreatiedatum().atStartOfDay(ZoneId.systemDefault()));
+        ontkoppeldDocument.setCreatiedatum(informatieobject.getCreatiedatum());
         ontkoppeldDocument.setTitel(informatieobject.getTitel());
         ontkoppeldDocument.setBestandsnaam(informatieobject.getBestandsnaam());
         ontkoppeldDocument.setOntkoppeldOp(ZonedDateTime.now());
