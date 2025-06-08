@@ -608,18 +608,13 @@ tasks {
         inputSpec.set("$rootDir/src/main/resources/api-specs/bag/bag-openapi.yaml")
         outputDir.set("$rootDir/src/generated/bag/java")
         modelPackage.set("nl.info.client.bag.model.generated")
-        // we need to use the java8-localdatetime date library for this client,
-        // or else certain date time fields for this client cannot be deserialized
-        configOptions.set(
-            mapOf(
-                "library" to "microprofile",
-                "microprofileRestClientVersion" to libs.versions.openapi.generator.eclipse.microprofile.rest.client.api.get(),
-                "sourceFolder" to "",
-                "dateLibrary" to "java8-localdatetime",
-                "useJakartaEe" to "true",
-                "useBeanValidation" to "true"
-            )
-        )
+        // We need to use the `java8-localdatetime` date library for this client,
+        // or else certain date time fields for this client cannot be deserialized.
+        // This is because the BAG API uses the ISO 8601 standard for `date-time` fields, where a trailing time zone is optional,
+        // instead of the more commonly used RFC 3339 extension, where a trailing time zone is required.
+        // E.g., the BAG API uses `2024-01-01T00:00:00` instead of `2024-01-01T00:00:00Z` for `date-time` fields.
+        // See: https://github.com/lvbag/BAG-API/blob/master/Getting%20started.md
+        configOptions.put("dateLibrary", "java8-localdatetime")
     }
 
     register<GenerateTask>("generateKlantenClient") {
