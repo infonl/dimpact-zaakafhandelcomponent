@@ -7,6 +7,8 @@ package nl.info.zac.app.zaak.model
 import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Size
+import nl.info.client.zgw.zrc.model.generated.Zaak.OMSCHRIJVING_MAX_LENGTH
+import nl.info.client.zgw.zrc.model.generated.Zaak.TOELICHTING_MAX_LENGTH
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.klant.model.klant.IdentificatieType
@@ -18,15 +20,6 @@ import java.time.LocalDate
 import java.util.EnumSet
 import java.util.UUID
 
-/**
- * Maximum length of the zaak 'omschrijving' field as defined by the ZGW ZRC API specification.
- */
-const val OMSCHRIJVING_MAX_LENGTH = 80
-
-/**
- * Maximum length of the zaak 'toelichting' field as defined by the ZGW ZRC API specification.
- */
-const val TOELICHTING_MAX_LENGTH = 1000
 
 @NoArgConstructor
 @AllOpen
@@ -74,7 +67,7 @@ data class RestZaak(
 
     /**
      * Indicates whether the case is driven using a BPMN process or not.
-     * If not it is in most cases driven by the ZAC CMMN model.
+     * If not, it is in most cases driven by the ZAC CMMN model.
      */
     @get:JsonbProperty("isProcesGestuurd")
     var isProcesGestuurd: Boolean,

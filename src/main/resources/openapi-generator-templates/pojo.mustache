@@ -1,4 +1,5 @@
-{{! INFO.nl temporary workaround for the issue where the OpenAPI Generator Gradle plugin }}
+{{! INFO.nl - manual changes made to the original OpenAPI Generator template }}
+{{! 1. temporary workaround for the issue where the OpenAPI Generator Gradle plugin }}
 {{! incorrectly generates '@JsonbTransient' annotations for certain 'type' fields in polymorphic model classes }}
 {{! which has the result that these fields are not serialized and deserialized leading to errors in the various APIs we use. }}
 {{! For example in the generated BRP 'PersonenQuery.java' class the 'type' String field was given the '@JsonbTransient' annotation }}
@@ -6,10 +7,8 @@
 {{! This was most likely introduced by: https://github.com/OpenAPITools/openapi-generator/pull/20164 }}
 {{! It may also be that the BRP OpenAPI spec does not use the discriminator keyword correctly since these 'type' fields are simple strings. }}
 {{! and not polymorphic structures. Also see: https://apidog.com/blog/openapi-discriminator-guide/ }}
-
 {{! This template is based on a copy of the Java Mustache model template of the main branch of https://github.com/OpenAPITools/openapi-generator }}
-{{! This workaround can be removed once we have migrated to a version of the OpenAPI Generator Gradle plugin that has solved this issue. }}
-
+{{! 2. Added custom Java constants for values used in bean validation annotations }}
 {{#withXml}}
 {{#hasVars}}@XmlType(name = "{{classname}}", propOrder =
     { {{#vars}}"{{name}}"{{^-last}}, {{/-last}}{{/vars}} }
@@ -39,6 +38,9 @@
 {{{vendorExtensions.x-class-extra-annotation}}}
 {{/vendorExtensions.x-class-extra-annotation}}
 public class {{classname}} {{#parent}}extends {{{.}}}{{/parent}}{{#vendorExtensions.x-implements}}{{#-first}} implements {{{.}}}{{/-first}}{{^-first}}, {{{.}}}{{/-first}}{{/vendorExtensions.x-implements}} {
+{{! INFO.nl }}
+{{>infonlBeanValidationConstants}}
+{{! /INFO.nl }}
   {{#vars}}{{#isEnum}}{{^isContainer}}
 {{>enumClass}}{{/isContainer}}{{#isContainer}}{{#mostInnerItems}}
 {{>enumClass}}{{/mostInnerItems}}{{/isContainer}}{{/isEnum}}
@@ -59,7 +61,7 @@ public class {{classname}} {{#parent}}extends {{{.}}}{{/parent}}{{#vendorExtensi
   {{^withXml}}
   {{! INFO.nl. Changed this line to prevent the generation of the @JsonbTransient annotation for polymorphism. See reasons above. }}
   {{#jsonb}}@JsonbProperty("{{baseName}}"){{/jsonb}}
-  {{! INFO.nl. End of change. }}
+  {{! /INFO.nl}}
   {{/withXml}}
 {{#vendorExtensions.x-field-extra-annotation}}
 {{{vendorExtensions.x-field-extra-annotation}}}
