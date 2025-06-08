@@ -562,7 +562,6 @@ tasks {
                 "microprofileRestClientVersion" to libs.versions.openapi.generator.eclipse.microprofile.rest.client.api.get(),
                 "sourceFolder" to "",
                 "dateLibrary" to "java8",
-                "disallowAdditionalPropertiesIfNotPresent" to "false",
                 "useJakartaEe" to "true",
                 "useBeanValidation" to "true"
             )
@@ -617,7 +616,6 @@ tasks {
                 "microprofileRestClientVersion" to libs.versions.openapi.generator.eclipse.microprofile.rest.client.api.get(),
                 "sourceFolder" to "",
                 "dateLibrary" to "java8-localdatetime",
-                "disallowAdditionalPropertiesIfNotPresent" to "false",
                 "useJakartaEe" to "true",
                 "useBeanValidation" to "true"
             )
