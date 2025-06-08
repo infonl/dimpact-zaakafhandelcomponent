@@ -20,7 +20,6 @@ import java.time.LocalDate
 import java.util.EnumSet
 import java.util.UUID
 
-
 @NoArgConstructor
 @AllOpen
 data class RestZaak(
