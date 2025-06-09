@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.drc;
 
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
@@ -29,16 +28,27 @@ import nl.info.zac.configuratie.ConfiguratieService;
 
 @ApplicationScoped
 public class DrcClientService {
-
-    @Inject
-    @RestClient
     private DrcClient drcClient;
-
-    @Inject
     private ZGWClientHeadersFactory zgwClientHeadersFactory;
+    private ConfiguratieService configuratieService;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public DrcClientService() {
+    }
 
     @Inject
-    private ConfiguratieService configuratieService;
+    public DrcClientService(
+            @RestClient
+            final DrcClient drcClient,
+            final ZGWClientHeadersFactory zgwClientHeadersFactory,
+            final ConfiguratieService configuratieService
+    ) {
+        this.drcClient = drcClient;
+        this.zgwClientHeadersFactory = zgwClientHeadersFactory;
+        this.configuratieService = configuratieService;
+    }
 
     /**
      * Read {@link EnkelvoudigInformatieObject} via its UUID.

@@ -2,13 +2,13 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package nl.info.client.zgw.drc.model
 
 import nl.info.client.zgw.drc.model.generated.BestandsDeel
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
+import nl.info.client.zgw.drc.model.generated.LockEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import java.net.URI
@@ -76,3 +76,7 @@ fun createEnkelvoudigInformatieObjectWithLockRequest(
     this.titel = titel
     this.inhoud = inhoud
 }
+
+fun createLockEnkelvoudigInformatieObject(
+    lock: String = "fakeLock"
+) = LockEnkelvoudigInformatieObject(lock)
