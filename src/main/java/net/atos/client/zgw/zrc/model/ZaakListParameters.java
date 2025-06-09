@@ -13,11 +13,11 @@ import java.util.Set;
 
 import jakarta.ws.rs.QueryParam;
 
-import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum;
 import org.apache.commons.collections4.CollectionUtils;
 
 import net.atos.client.zgw.shared.model.AbstractListParameters;
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
+import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum;
 import nl.info.client.zgw.zrc.model.generated.ArchiefstatusEnum;
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;

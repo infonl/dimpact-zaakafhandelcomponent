@@ -16,13 +16,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
-import nl.info.client.zgw.drc.model.generated.*;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
+import nl.info.client.zgw.drc.model.generated.*;
 import nl.info.zac.configuratie.ConfiguratieService;
 
 
@@ -40,8 +40,7 @@ public class DrcClientService {
 
     @Inject
     public DrcClientService(
-            @RestClient
-            final DrcClient drcClient,
+            @RestClient final DrcClient drcClient,
             final ZGWClientHeadersFactory zgwClientHeadersFactory,
             final ConfiguratieService configuratieService
     ) {

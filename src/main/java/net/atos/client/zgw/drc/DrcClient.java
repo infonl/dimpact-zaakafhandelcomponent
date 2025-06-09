@@ -22,7 +22,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
 
-import nl.info.client.zgw.drc.model.generated.*;
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
@@ -36,6 +35,7 @@ import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import net.atos.client.zgw.shared.util.JsonbConfiguration;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
+import nl.info.client.zgw.drc.model.generated.*;
 
 @RegisterRestClient(configKey = "ZGW-API-Client")
 @RegisterClientHeaders(ZGWClientHeadersFactory.class)
