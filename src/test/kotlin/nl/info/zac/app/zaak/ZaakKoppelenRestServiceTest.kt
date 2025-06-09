@@ -12,7 +12,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.client.zgw.shared.model.Archiefnominatie
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
@@ -88,7 +87,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 omschrijving = OMSCHRIJVING,
                 statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
                 zaaktypeUuid = zaakZoekObjectTypeUuid,
-                archiefNominatie = Archiefnominatie.BLIJVEND_BEWAREN.toString()
+                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
             )
 
             val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
@@ -187,7 +186,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 omschrijving = OMSCHRIJVING,
                 statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
                 zaaktypeUuid = zaakZoekObjectTypeUuid,
-                archiefNominatie = Archiefnominatie.BLIJVEND_BEWAREN.toString(),
+                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
                 indicatie = HOOFDZAAK
             )
 
@@ -273,7 +272,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 omschrijving = OMSCHRIJVING,
                 statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
                 zaaktypeUuid = zaakZoekObjectTypeUuid,
-                archiefNominatie = Archiefnominatie.BLIJVEND_BEWAREN.toString(),
+                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
                 indicatie = DEELZAAK
             )
 
@@ -362,7 +361,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 omschrijving = OMSCHRIJVING,
                 statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
                 zaaktypeUuid = zaakZoekObjectTypeUuid,
-                archiefNominatie = Archiefnominatie.BLIJVEND_BEWAREN.toString(),
+                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
                 indicatie = HOOFDZAAK
             )
 
@@ -451,7 +450,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 omschrijving = OMSCHRIJVING,
                 statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
                 zaaktypeUuid = zaakZoekObjectTypeUuid,
-                archiefNominatie = Archiefnominatie.BLIJVEND_BEWAREN.toString(),
+                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
                 indicatie = DEELZAAK
             )
 
@@ -540,7 +539,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 omschrijving = OMSCHRIJVING,
                 statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
                 zaaktypeUuid = zaakZoekObjectTypeUuid,
-                archiefNominatie = Archiefnominatie.BLIJVEND_BEWAREN.toString()
+                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
             )
 
             val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
@@ -635,7 +634,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 omschrijving = OMSCHRIJVING,
                 statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
                 zaaktypeUuid = zaakZoekObjectTypeUuid,
-                archiefNominatie = Archiefnominatie.BLIJVEND_BEWAREN.toString(),
+                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
                 indicatie = HOOFDZAAK
             )
 
@@ -724,7 +723,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 omschrijving = OMSCHRIJVING,
                 statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
                 zaaktypeUuid = zaakZoekObjectTypeUuid,
-                archiefNominatie = Archiefnominatie.BLIJVEND_BEWAREN.toString(),
+                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
                 indicatie = DEELZAAK
             )
 
@@ -813,7 +812,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 omschrijving = OMSCHRIJVING,
                 statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
                 zaaktypeUuid = zaakZoekObjectTypeUuid,
-                archiefNominatie = Archiefnominatie.BLIJVEND_BEWAREN.toString()
+                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
             )
             val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
             val zoekParametersSlot = slot<ZoekParameters>()

@@ -17,17 +17,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
+import nl.info.client.zgw.drc.model.generated.*;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters;
-import net.atos.client.zgw.drc.model.Lock;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest;
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest;
-import nl.info.client.zgw.drc.model.generated.Gebruiksrechten;
 import nl.info.zac.configuratie.ConfiguratieService;
 
 
@@ -110,7 +106,10 @@ public class DrcClientService {
      */
     public String lockEnkelvoudigInformatieobject(final UUID enkelvoudigInformatieobjectUUID) {
         // If the EnkelvoudigInformatieobject is already locked, a ValidationException is thrown.
-        return drcClient.enkelvoudigInformatieobjectLock(enkelvoudigInformatieobjectUUID, new Lock()).getLock();
+        return drcClient.enkelvoudigInformatieobjectLock(
+                enkelvoudigInformatieobjectUUID,
+                new LockEnkelvoudigInformatieObject(UUID.randomUUID().toString())
+        ).getLock();
     }
 
     /**
@@ -120,7 +119,7 @@ public class DrcClientService {
      * @param lock                            The lock id
      */
     public void unlockEnkelvoudigInformatieobject(final UUID enkelvoudigInformatieobjectUUID, String lock) {
-        drcClient.enkelvoudigInformatieobjectUnlock(enkelvoudigInformatieobjectUUID, new Lock(lock));
+        drcClient.enkelvoudigInformatieobjectUnlock(enkelvoudigInformatieobjectUUID, new LockEnkelvoudigInformatieObject(lock));
     }
 
     /**
