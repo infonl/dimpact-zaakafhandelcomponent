@@ -638,31 +638,28 @@ tasks {
     }
 
     register<GenerateTask>("generateZgwBrcClient") {
-        description = "Generates Java client code for the BRC API"
+        description = "Generates Java client code for the ZGW BRC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/brc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/brc/java")
         modelPackage.set("nl.info.client.zgw.brc.model.generated")
     }
 
     register<GenerateTask>("generateZgwDrcClient") {
-        description = "Generates Java client code for the DRC API"
+        description = "Generates Java client code for the ZGW DRC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/drc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/drc/java")
-        // this OpenAPI spec contains a schema validation error: `schema: null`
-        // so we disable the schema validation for this spec until this is fixed in a future version of this spec
-        validateSpec.set(false)
         modelPackage.set("nl.info.client.zgw.drc.model.generated")
     }
 
     register<GenerateTask>("generateZgwZrcClient") {
-        description = "Generates Java client code for the ZRC API"
+        description = "Generates Java client code for the ZGW ZRC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/zrc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/zrc/java")
         modelPackage.set("nl.info.client.zgw.zrc.model.generated")
     }
 
     register<GenerateTask>("generateZgwZtcClient") {
-        description = "Generates Java client code for the ZTC API"
+        description = "Generates Java client code for the ZGW ZTC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/ztc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/ztc/java")
         modelPackage.set("nl.info.client.zgw.ztc.model.generated")
