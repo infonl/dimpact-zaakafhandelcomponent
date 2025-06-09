@@ -56,7 +56,7 @@ class DrcClientServiceTest : BehaviorSpec({
                 generated from a (random) UUID
                 """
             ) {
-                UUID.fromString(lockEnkelvoudigInformatieObjectSlot.captured.lock.toString()).shouldBeInstanceOf<UUID>()
+                UUID.fromString(lockEnkelvoudigInformatieObjectSlot.captured.lock).shouldBeInstanceOf<UUID>()
             }
 
             And("it should return the lock ID") {
