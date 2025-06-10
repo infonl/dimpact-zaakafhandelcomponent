@@ -92,8 +92,7 @@ public class WebdavStore implements IWebdavStore {
     public InputStream getResourceContent(final ITransaction transaction, final String resourceUri) {
         final String token = extraheerToken(resourceUri);
         if (StringUtils.isNotEmpty(token)) {
-            final UUID enkelvoudigInformatieobjectUUID = webdavHelper.readGegevens(token)
-                    .enkelvoudigInformatieibjectUUID();
+            final UUID enkelvoudigInformatieobjectUUID = webdavHelper.readGegevens(token).enkelvoudigInformatieibjectUUID();
             return drcClientService.downloadEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID);
         } else {
             return null;

@@ -52,10 +52,17 @@ public class WebdavHelper {
     public URI createRedirectURL(final UUID enkelvoudigInformatieobjectUUID, final UriInfo uriInfo) {
         final EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
                 enkelvoudigInformatieobjectUUID);
-        final String scheme = format("%s:%s", getWebDAVApp(enkelvoudigInformatieobject.getFormaat()), uriInfo.getBaseUri().getScheme());
-        final String filename = format("%s.%s", createToken(enkelvoudigInformatieobjectUUID), getExtension(enkelvoudigInformatieobject
-                .getBestandsnaam()));
-        return uriInfo.getBaseUriBuilder().scheme(scheme).replacePath("webdav/folder/{filename}").build(filename);
+        final String scheme = format(
+                "%s:%s",
+                getWebDAVApp(enkelvoudigInformatieobject.getFormaat()),
+                uriInfo.getBaseUri().getScheme()
+        );
+        final String token = format(
+                "%s.%s",
+                createToken(enkelvoudigInformatieobjectUUID),
+                getExtension(enkelvoudigInformatieobject.getBestandsnaam())
+        );
+        return uriInfo.getBaseUriBuilder().scheme(scheme).replacePath("webdav/folder/{token}").build(token);
     }
 
     public Gegevens readGegevens(final String token) {
