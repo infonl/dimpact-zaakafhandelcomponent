@@ -30,9 +30,10 @@
         {
           "label": "Documents",
           "labelPosition": "left-left",
-          "type": "textfield",
+          "type": "select",
           "key": "ZAAK_Documents_Select",
           "input": false,
+          "multiple": true,
           "disabled": true
         },
         {
