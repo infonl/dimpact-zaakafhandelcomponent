@@ -27,7 +27,6 @@ import { ActionIcon } from "../../shared/edit/action-icon";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { Zaak } from "../model/zaak";
-import { ZaakStatusmailOptie } from "../model/zaak-statusmail-optie";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -43,7 +42,7 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
   mailtemplate?: Mailtemplate;
   planItem: PlanItem;
   initiatorEmail?: string;
-  initiatorToevoegenIcon: ActionIcon = new ActionIcon(
+  initiatorToevoegenIcon = new ActionIcon(
     "person",
     "actie.initiator.email.toevoegen",
     new Subject<void>(),
@@ -76,10 +75,8 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
         this.mailtemplate = mailtemplate;
       });
     const zap = this.data.zaak.zaaktype.zaakafhandelparameters;
-    this.mailBeschikbaar =
-      zap.afrondenMail !== ZaakStatusmailOptie.NIET_BESCHIKBAAR;
-    this.sendMailDefault =
-      zap.afrondenMail === ZaakStatusmailOptie.BESCHIKBAAR_AAN;
+    this.mailBeschikbaar = zap.afrondenMail !== "NIET_BESCHIKBAAR";
+    this.sendMailDefault = zap.afrondenMail === "BESCHIKBAAR_AAN";
 
     if (
       this.data.zaak.initiatorIdentificatieType &&

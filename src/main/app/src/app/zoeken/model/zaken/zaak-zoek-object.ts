@@ -3,9 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ZaakRechten } from "../../../policy/model/zaak-rechten";
-import { ZaakIndicatie } from "../../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { AardVanRol } from "../../../shared/model/aard-van-rol";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZoekObject } from "../zoek-object";
 import { ZoekObjectType } from "../zoek-object-type";
 
@@ -49,7 +48,7 @@ export class ZaakZoekObject implements ZoekObject {
   indicatieHoofdzaak: boolean;
   indicatieHeropend: boolean;
   statusToelichting: string;
-  rechten: ZaakRechten;
-  indicaties: ZaakIndicatie[];
+  rechten: GeneratedType<"RestZaakRechten">;
+  indicaties: GeneratedType<"ZaakIndicatie">[];
   betrokkenen: Map<AardVanRol, string[]>;
 }

@@ -24,7 +24,6 @@ import { map, tap } from "rxjs/operators";
 import { ActieOnmogelijkDialogComponent } from "src/app/fout-afhandeling/dialog/actie-onmogelijk-dialog.component";
 import { PolicyService } from "src/app/policy/policy.service";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
-import { ZaakbeeindigReden } from "../../admin/model/zaakbeeindig-reden";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
 import { BAGObject } from "../../bag/model/bagobject";
@@ -701,7 +700,10 @@ export class ZaakViewComponent
       return;
     }
 
-    const dialogData = new DialogData<unknown, { reden: ZaakbeeindigReden }>({
+    const dialogData = new DialogData<
+      unknown,
+      { reden: GeneratedType<"RESTZaakbeeindigReden"> }
+    >({
       formFields: [
         new SelectFormFieldBuilder()
           .id("reden")
@@ -717,7 +719,7 @@ export class ZaakViewComponent
       ],
       callback: ({ reden }) =>
         this.zakenService
-          .afbreken(this.zaak.uuid, reden)
+          .afbreken(this.zaak.uuid, { zaakbeeindigRedenId: reden.id! })
           .pipe(
             tap(() => this.websocketService.suspendListener(this.zaakListener)),
           ),
@@ -750,7 +752,7 @@ export class ZaakViewComponent
       ],
       callback: ({ reden }) =>
         this.zakenService
-          .heropenen(this.zaak.uuid, reden)
+          .heropenen(this.zaak.uuid, { reden })
           .pipe(
             tap(() => this.websocketService.suspendListener(this.zaakListener)),
           ),
@@ -795,7 +797,10 @@ export class ZaakViewComponent
       ],
       callback: ({ toelichting, resultaattype: { id } }) =>
         this.zakenService
-          .afsluiten(this.zaak.uuid, toelichting, id)
+          .afsluiten(this.zaak.uuid, {
+            reden: toelichting,
+            resultaattypeUuid: id,
+          })
           .pipe(
             tap(() => this.websocketService.suspendListener(this.zaakListener)),
           ),
