@@ -40,7 +40,7 @@ services:
       - "start-dev"
       - "--import-realm"
       - "--features=hostname:v1"
-      - "--hostname-url=http://localhost:8081"
+      - "--hostname-url=http://192.168.138.1:8081"
       - "--http-enabled=true"
       - "--health-enabled=true"
 

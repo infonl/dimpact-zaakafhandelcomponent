@@ -866,13 +866,15 @@
         "http://localhost:8080/*",
         "http://localhost:4200/*",
         "http://host.docker.internal:4200/*",
-        "http://host.docker.internal:8080/*"
+        "http://host.docker.internal:8080/*",
+        "http://192.168.138.1:8080/*"
       ],
       "webOrigins": [
         "http://localhost:8080",
         "http://localhost:4200",
         "http://host.docker.internal:8080",
-        "http://host.docker.internal:4200"
+        "http://host.docker.internal:4200",
+        "http://192.168.138.1:8080/*"
       ],
       "notBefore": 0,
       "bearerOnly": false,
