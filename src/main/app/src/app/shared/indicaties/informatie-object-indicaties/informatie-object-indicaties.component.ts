@@ -8,7 +8,7 @@ import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { DocumentZoekObject } from "../../../zoeken/model/documenten/document-zoek-object";
 import { MaterialModule } from "../../material/material.module";
-import { Indicatie } from "../../model/indicatie";
+import { IndicatieItem } from "../../model/indicatie-item";
 import { DatumPipe } from "../../pipes/datum.pipe";
 import { PipesModule } from "../../pipes/pipes.module";
 import { GeneratedType } from "../../utils/generated-types";
@@ -58,7 +58,7 @@ export class InformatieObjectIndicatiesComponent
       switch (indicatie) {
         case InformatieobjectIndicatie.VERGRENDELD:
           this.indicaties.push(
-            new Indicatie(
+            new IndicatieItem(
               indicatie,
               "lock",
               this.getVergrendeldToelichting(),
@@ -67,7 +67,7 @@ export class InformatieObjectIndicatiesComponent
           break;
         case InformatieobjectIndicatie.ONDERTEKEND:
           this.indicaties.push(
-            new Indicatie(
+            new IndicatieItem(
               indicatie,
               "fact_check",
               this.getOndertekeningToelichting(),
@@ -76,7 +76,7 @@ export class InformatieObjectIndicatiesComponent
           break;
         case InformatieobjectIndicatie.BESLUIT:
           this.indicaties.push(
-            new Indicatie(
+            new IndicatieItem(
               indicatie,
               "gavel",
               this.translateService.instant("msg.document.besluit"),
@@ -85,12 +85,12 @@ export class InformatieObjectIndicatiesComponent
           break;
         case InformatieobjectIndicatie.GEBRUIKSRECHT:
           this.indicaties.push(
-            new Indicatie(indicatie, "privacy_tip", "").temporary(),
+            new IndicatieItem(indicatie, "privacy_tip", "").temporary(),
           );
           break;
         case InformatieobjectIndicatie.VERZONDEN:
           this.indicaties.push(
-            new Indicatie(
+            new IndicatieItem(
               indicatie,
               "local_post_office",
               this.getVerzondenToelichting()?.toString() ?? "",
