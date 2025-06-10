@@ -17,7 +17,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -43,11 +42,22 @@ public class OntkoppeldeDocumentenService {
 
     private static final String LIKE = "%%%s%%";
 
-    @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
     private EntityManager entityManager;
+    private Instance<LoggedInUser> loggedInUserInstance;
+
+    @SuppressWarnings("unused")
+    public OntkoppeldeDocumentenService() {
+        // Default constructor for CDI
+    }
 
     @Inject
-    private Instance<LoggedInUser> loggedInUserInstance;
+    public OntkoppeldeDocumentenService(
+            final EntityManager entityManager,
+            final Instance<LoggedInUser> loggedInUserInstance
+    ) {
+        this.entityManager = entityManager;
+        this.loggedInUserInstance = loggedInUserInstance;
+    }
 
 
     public OntkoppeldDocument create(

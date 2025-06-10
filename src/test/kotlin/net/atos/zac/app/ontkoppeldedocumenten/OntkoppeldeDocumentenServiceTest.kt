@@ -24,22 +24,6 @@ import java.time.LocalDate
 import java.util.UUID
 
 class OntkoppeldeDocumentenServiceTest : BehaviorSpec({
-    val entityManager = mockk<EntityManager>(relaxed = true)
-    val loggedInUser = mockk<LoggedInUser>()
-    val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-
-    val ontkoppeldeDocumentenService = OntkoppeldeDocumentenService()
-
-    beforeTest {
-        OntkoppeldeDocumentenService::class.java.getDeclaredField("entityManager").apply {
-            isAccessible = true
-            set(ontkoppeldeDocumentenService, entityManager)
-        }
-        OntkoppeldeDocumentenService::class.java.getDeclaredField("loggedInUserInstance").apply {
-            isAccessible = true
-            set(ontkoppeldeDocumentenService, loggedInUserInstance)
-        }
-    }
 
     beforeEach {
         checkUnnecessaryStub()
@@ -64,9 +48,19 @@ class OntkoppeldeDocumentenServiceTest : BehaviorSpec({
             setBestandsnaam(bestandsnaam)
         }
 
-        every { loggedInUser.id } returns userId
-        every { loggedInUserInstance.get() } returns loggedInUser
-        every { entityManager.persist(any<OntkoppeldDocument>()) } just Runs
+        val entityManager = mockk<EntityManager>(relaxed = true) {
+            every { persist(any<OntkoppeldDocument>()) } just Runs
+        }
+        val loggedInUserInstance = mockk<Instance<LoggedInUser>>() {
+            every { get() } returns mockk<LoggedInUser>() {
+                every { id } returns userId
+            }
+        }
+
+        val ontkoppeldeDocumentenService = OntkoppeldeDocumentenService(
+            entityManager,
+            loggedInUserInstance
+        )
 
         When("the ontkoppelde documenten create is invoked") {
             val result = ontkoppeldeDocumentenService.create(informatieobject, zaak, reden)
