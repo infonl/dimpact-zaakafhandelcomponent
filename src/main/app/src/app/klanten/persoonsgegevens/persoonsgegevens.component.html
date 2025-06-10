@@ -13,7 +13,11 @@
           class="zac-persoon-indicaties"
           (click)="$event.stopPropagation()"
           [persoon]="persoon"
-          [layout]="indicatiesLayout.VIEW"
+          [layout]="
+            persoon.indicaties?.length > 1
+              ? indicatiesLayout.COMPACT
+              : indicatiesLayout.EXTENDED
+          "
         ></zac-persoon-indicaties>
         <button
           *ngIf="persoon && isWijzigbaar()"

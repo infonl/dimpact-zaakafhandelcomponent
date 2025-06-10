@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -9,14 +9,14 @@
 export class Indicatie {
   naam: string;
   icon: string;
-  outlined: boolean;
-  primary: boolean;
+  outlined = false;
+  primary = false;
   toelichting: string;
 
-  constructor(naam: string, icon: string, toelichting: string) {
+  constructor(naam: string, icon: string, toelichting?: string) {
     this.naam = naam;
     this.icon = icon;
-    this.toelichting = toelichting;
+    this.toelichting = toelichting ?? "";
   }
 
   temporary(): Indicatie {

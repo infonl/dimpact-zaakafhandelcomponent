@@ -23,13 +23,15 @@ export class PersoonIndicatiesComponent
     super();
   }
 
-  @Input() persoon: GeneratedType<"RestPersoon">;
+  @Input({ required: true }) persoon!: GeneratedType<"RestPersoon">;
 
   ngOnInit() {
     this.loadIndicaties();
   }
 
   loadIndicaties(): void {
+    console.log("persoon", this.persoon);
+
     this.indicaties = this.persoon.indicaties.reduce((acc, indicatie) => {
       let icon = "info";
       switch (indicatie) {
@@ -59,14 +61,7 @@ export class PersoonIndicatiesComponent
           break;
       }
 
-      return [
-        ...acc,
-        new Indicatie(
-          indicatie,
-          icon,
-          this.translateService.instant(`indicatie.${indicatie}`),
-        ).temporary(),
-      ];
+      return [...acc, new Indicatie(indicatie, icon).temporary()];
     }, [] satisfies Indicatie[]);
   }
 
