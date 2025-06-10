@@ -30,8 +30,6 @@ export class PersoonIndicatiesComponent
   }
 
   loadIndicaties(): void {
-    console.log("persoon", this.persoon);
-
     this.indicaties = this.persoon.indicaties.reduce((acc, indicatie) => {
       let icon = "info";
       switch (indicatie) {
