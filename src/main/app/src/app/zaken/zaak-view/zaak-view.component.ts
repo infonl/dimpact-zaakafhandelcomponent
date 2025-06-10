@@ -1111,6 +1111,7 @@ export class ZaakViewComponent
           melding: this.translate.instant(
             "msg.initiator.ontkoppelen.bevestigen",
           ),
+          confirmButtonActionKey: "actie.initiator.ontkoppelen",
           icon: "link_off",
         }),
       })
@@ -1170,6 +1171,7 @@ export class ZaakViewComponent
               betrokkene: betrokkeneIdentificatie,
             },
           ),
+          confirmButtonActionKey: "actie.betrokkene.ontkoppelen",
           icon: "link_off",
         }),
       })

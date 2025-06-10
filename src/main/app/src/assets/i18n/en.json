@@ -625,6 +625,7 @@
   "actie.initiator.email.toevoegen": "Add initiator email address",
   "actie.initiator.toevoegen": "Assign initiator",
   "actie.initiator.wijzigen": "Change initiator",
+  "actie.initiator.ontkoppelen": "Unlink initiator",
   "actie.koppelen": "Link",
   "actie.locatie.bekijken": "View location",
   "actie.locatie.toevoegen": "Set location",

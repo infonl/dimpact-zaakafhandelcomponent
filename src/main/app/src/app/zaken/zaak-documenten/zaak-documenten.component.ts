@@ -252,6 +252,7 @@ export class ZaakDocumentenComponent
               reden: reden,
             }),
           melding,
+          confirmButtonActionKey: "actie.document.ontkoppelen",
           icon: "link_off",
         });
         this.dialog
