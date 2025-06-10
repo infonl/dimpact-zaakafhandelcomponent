@@ -5,7 +5,7 @@
 
 package nl.info.zac.search.model
 
-import net.atos.client.zgw.shared.model.Archiefnominatie
+import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import java.util.UUID
@@ -19,7 +19,7 @@ fun createZaakZoekObject(
     omschrijving: String = "fakeOmschrijving",
     statustypeOmschrijving: String = "fakeStatustypeOmschrijving",
     zaaktypeUuid: String = UUID.randomUUID().toString(),
-    archiefNominatie: String = Archiefnominatie.BLIJVEND_BEWAREN.toString(),
+    archiefNominatie: String = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
     indicatie: ZaakIndicatie? = null,
     behandelaarGebruikersnaam: String? = null
 ) = ZaakZoekObject(

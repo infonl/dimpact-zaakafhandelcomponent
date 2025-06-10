@@ -16,8 +16,8 @@ import jakarta.ws.rs.QueryParam;
 import org.apache.commons.collections4.CollectionUtils;
 
 import net.atos.client.zgw.shared.model.AbstractListParameters;
-import net.atos.client.zgw.shared.model.Archiefnominatie;
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
+import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum;
 import nl.info.client.zgw.zrc.model.generated.ArchiefstatusEnum;
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
@@ -49,9 +49,9 @@ public class ZaakListParameters extends AbstractListParameters {
     /**
      * Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.
      */
-    private Archiefnominatie archiefnominatie;
+    private ArchiefnominatieEnum archiefnominatie;
 
-    private Set<Archiefnominatie> archiefnominatieIn;
+    private Set<ArchiefnominatieEnum> archiefnominatieIn;
 
     /**
      * De datum waarop het gearchiveerde zaakdossier vernietigd moet worden dan wel overgebracht moet worden naar een archiefbewaarplaats.
@@ -163,10 +163,10 @@ public class ZaakListParameters extends AbstractListParameters {
 
     @QueryParam("archiefnominatie")
     public String getArchiefnominatie() {
-        return archiefnominatie != null ? archiefnominatie.getValue() : null;
+        return archiefnominatie != null ? archiefnominatie.toString() : null;
     }
 
-    public void setArchiefnominatie(final Archiefnominatie archiefnominatie) {
+    public void setArchiefnominatie(final ArchiefnominatieEnum archiefnominatie) {
         this.archiefnominatie = archiefnominatie;
     }
 
@@ -174,14 +174,14 @@ public class ZaakListParameters extends AbstractListParameters {
     public String getArchiefnominatieIn() {
         if (CollectionUtils.isNotEmpty(archiefnominatieIn)) {
             return archiefnominatieIn.stream()
-                    .map(Archiefnominatie::getValue)
+                    .map(ArchiefnominatieEnum::toString)
                     .collect(joining(","));
         } else {
             return null;
         }
     }
 
-    public void setArchiefnominatieIn(final Set<Archiefnominatie> archiefnominatieIn) {
+    public void setArchiefnominatieIn(final Set<ArchiefnominatieEnum> archiefnominatieIn) {
         this.archiefnominatieIn = archiefnominatieIn;
     }
 
