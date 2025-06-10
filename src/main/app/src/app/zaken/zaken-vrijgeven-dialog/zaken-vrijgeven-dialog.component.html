@@ -17,12 +17,12 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<div mat-dialog-content>
+<mat-dialog-content>
   <mfb-form-field [field]="redenFormField"></mfb-form-field>
   <p *ngIf="data.length === 1">{{ "msg.vrijgeven.zaak" | translate }}</p>
   <p *ngIf="data.length !== 1">{{ "msg.vrijgeven.zaken" | translate }}</p>
-</div>
-<div mat-dialog-actions>
+</mat-dialog-content>
+<mat-dialog-actions>
   <button
     [disabled]="loading || !data.length"
     mat-button
@@ -38,4 +38,4 @@
   <button [disabled]="loading" mat-button (click)="close()">
     {{ "actie.annuleren" | translate }}
   </button>
-</div>
+</mat-dialog-actions>

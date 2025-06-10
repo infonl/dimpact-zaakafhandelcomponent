@@ -8,7 +8,6 @@ import { MatDialogRef } from "@angular/material/dialog";
 
 @Component({
   templateUrl: "actie-onmogelijk-dialog.component.html",
-  styleUrls: ["./dialog.component.less"],
 })
 export class ActieOnmogelijkDialogComponent {
   constructor(public dialogRef: MatDialogRef<ActieOnmogelijkDialogComponent>) {}

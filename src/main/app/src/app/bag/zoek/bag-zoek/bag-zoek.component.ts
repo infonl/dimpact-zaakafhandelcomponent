@@ -150,4 +150,9 @@ export class BagZoekComponent {
       bagObject.identificatie,
     ]);
   }
+
+  wissen() {
+    this.trefwoorden.reset();
+    this.bagObjecten.data = [];
+  }
 }

@@ -17,11 +17,11 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<div mat-dialog-content>
+<mat-dialog-content>
   <mfb-form-field [field]="medewerkerGroepFormField"></mfb-form-field>
   <mfb-form-field [field]="redenFormField"></mfb-form-field>
-</div>
-<div mat-dialog-actions>
+</mat-dialog-content>
+<mat-dialog-actions>
   <button
     (click)="verdeel()"
     [disabled]="isDisabled() || !data.taken.length"
@@ -42,4 +42,4 @@
   >
     {{ "actie.annuleren" | translate }}
   </button>
-</div>
+</mat-dialog-actions>

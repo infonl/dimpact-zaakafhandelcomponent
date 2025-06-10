@@ -46,8 +46,20 @@
 
   --mdc-dialog-subhead-color: @primary-background-color;
   --mat-dialog-headline-padding: 0 24px;
+  --mat-dialog-actions-padding: 20px 24px;
 
   .mat-mdc-standard-chip {
     --mdc-chip-container-shape-radius: 4px 4px 4px 4px;
+  }
+
+  .mat-action-row {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-start;
+    padding: 16px 0;
+
+    .mat-mdc-button-base {
+      margin-left: 0;
+    }
   }
 }

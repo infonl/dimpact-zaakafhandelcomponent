@@ -49,9 +49,6 @@
     <button mat-raised-button (click)="reset()">
       {{ "actie.wissen" | translate }}
     </button>
-    <button mat-raised-button (click)="close()">
-      {{ "actie.annuleren" | translate }}
-    </button>
   </fieldset>
 </form>
 
@@ -122,4 +119,9 @@
     <mat-divider class="mat-divider-wrapper"></mat-divider>
     {{ "msg.zaak.koppelem.meer-dan-10-gevonden" | translate }}
   </p>
+  <mat-action-row class="px-3">
+    <button mat-raised-button (click)="close()">
+      {{ "actie.annuleren" | translate }}
+    </button>
+  </mat-action-row>
 </div>

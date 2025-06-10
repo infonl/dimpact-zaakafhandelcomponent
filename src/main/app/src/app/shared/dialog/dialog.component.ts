@@ -10,7 +10,6 @@ import { DialogData } from "./dialog-data";
 
 @Component({
   templateUrl: "dialog.component.html",
-  styleUrls: ["./dialog.component.less"],
 })
 export class DialogComponent implements OnInit {
   loading = true;

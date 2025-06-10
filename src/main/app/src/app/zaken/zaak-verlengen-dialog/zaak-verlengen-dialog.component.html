@@ -14,11 +14,11 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<div mat-dialog-content>
+<mat-dialog-content>
   <mfb-form [formFields]="formFields"></mfb-form>
-</div>
+</mat-dialog-content>
 
-<div mat-dialog-actions>
+<mat-dialog-actions>
   <button
     mat-raised-button
     color="primary"
@@ -34,4 +34,4 @@
   <button autofocus mat-raised-button [disabled]="loading" (click)="close()">
     {{ "actie.annuleren" | translate }}
   </button>
-</div>
+</mat-dialog-actions>

@@ -26,9 +26,6 @@
   <button mat-raised-button (click)="reset()">
     {{ "actie.wissen" | translate }}
   </button>
-  <button mat-raised-button (click)="close()">
-    {{ "actie.annuleren" | translate }}
-  </button>
 
   <div class="table-wrapper">
     <table mat-table [dataSource]="cases" matSort>
@@ -90,9 +87,7 @@
     </table>
     <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
     <p *ngIf="!loading && cases.data.length === 0">
-      {{
-        foutmelding ? foutmelding : ("msg.geen.gegevens.gevonden" | translate)
-      }}
+      {{ "msg.geen.gegevens.gevonden" | translate }}
     </p>
     <p
       *ngIf="!loading && cases.data.length > 0 && totalCases > 10"
@@ -105,4 +100,9 @@
       }}
     </p>
   </div>
+  <mat-action-row>
+    <button mat-raised-button (click)="sideNav.close()">
+      {{ "actie.annuleren" | translate }}
+    </button>
+  </mat-action-row>
 </div>

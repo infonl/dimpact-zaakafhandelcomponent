@@ -184,7 +184,7 @@ export class InformatieObjectLinkComponent
     return !row.isKoppelbaar || row.identificatie === this.source;
   }
 
-  private reset() {
+  protected reset() {
     this.caseSearchField?.formControl.reset();
     this.cases.data = [];
     this.totalCases = 0;
