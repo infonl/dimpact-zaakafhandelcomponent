@@ -6,7 +6,7 @@
 
 import { Component, Input, OnChanges, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { Indicatie } from "../../model/indicatie";
+import { IndicatieItem } from "../../model/indicatie-item";
 import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
 
@@ -23,7 +23,7 @@ export class PersoonIndicatiesComponent
     super();
   }
 
-  @Input() persoon: GeneratedType<"RestPersoon">;
+  @Input({ required: true }) persoon!: GeneratedType<"RestPersoon">;
 
   ngOnInit() {
     this.loadIndicaties();
@@ -59,15 +59,8 @@ export class PersoonIndicatiesComponent
           break;
       }
 
-      return [
-        ...acc,
-        new Indicatie(
-          indicatie,
-          icon,
-          this.translateService.instant(`indicatie.${indicatie}`),
-        ).temporary(),
-      ];
-    }, [] satisfies Indicatie[]);
+      return [...acc, new IndicatieItem(indicatie, icon).temporary()];
+    }, [] satisfies IndicatieItem[]);
   }
 
   ngOnChanges() {
