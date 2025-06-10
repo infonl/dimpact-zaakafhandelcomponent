@@ -15,16 +15,12 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
-
-import org.apache.commons.lang3.StringUtils;
-
 import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.shared.util.DateTimeUtil;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
@@ -34,6 +30,7 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.zac.search.model.DatumRange;
 import nl.info.zac.shared.model.SorteerRichting;
+import org.apache.commons.lang3.StringUtils;
 
 @ApplicationScoped
 @Transactional
@@ -41,13 +38,21 @@ public class InboxDocumentenService {
 
     private static final String LIKE = "%%%s%%";
 
-    @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
+    // Default constructor for CDI
+    public InboxDocumentenService() { }
+
+    @Inject
+    public InboxDocumentenService(
+            final EntityManager entityManager,
+            final ZrcClientService zrcClientService,
+            final DrcClientService drcClientService) {
+        this.entityManager = entityManager;
+        this.zrcClientService = zrcClientService;
+        this.drcClientService = drcClientService;
+    }
+
     private EntityManager entityManager;
-
-    @Inject
     private ZrcClientService zrcClientService;
-
-    @Inject
     private DrcClientService drcClientService;
 
     public InboxDocument create(final UUID enkelvoudiginformatieobjectUUID) {

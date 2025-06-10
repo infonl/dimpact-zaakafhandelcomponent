@@ -12,6 +12,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.verify
 import jakarta.persistence.EntityManager
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.documenten.InboxDocumentenService
@@ -26,24 +27,7 @@ class InboxDocumentenServiceTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
 
-    val inboxDocumentenService = InboxDocumentenService()
-
-    beforeTest {
-        InboxDocumentenService::class.java.getDeclaredField("entityManager").apply {
-            isAccessible = true
-            set(inboxDocumentenService, entityManager)
-        }
-
-        InboxDocumentenService::class.java.getDeclaredField("drcClientService").apply {
-            isAccessible = true
-            set(inboxDocumentenService, drcClientService)
-        }
-
-        InboxDocumentenService::class.java.getDeclaredField("zrcClientService").apply {
-            isAccessible = true
-            set(inboxDocumentenService, zrcClientService)
-        }
-    }
+    val inboxDocumentenService = InboxDocumentenService(entityManager, zrcClientService, drcClientService)
 
     beforeEach {
         checkUnnecessaryStub()
@@ -70,6 +54,7 @@ class InboxDocumentenServiceTest : BehaviorSpec({
             val result = inboxDocumentenService.create(uuid)
 
             Then("the Service should have stored an Inbox Document") {
+                verify { entityManager.persist(result) }
                 result.enkelvoudiginformatieobjectUUID shouldBe uuid
                 result.enkelvoudiginformatieobjectID shouldBe identificatie
                 result.creatiedatum shouldBe creatiedatum
