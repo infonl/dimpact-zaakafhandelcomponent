@@ -1,0 +1,26 @@
+{
+  "display": "form",
+  "name": "summaryForm",
+  "title": "Summary form",
+  "type": "form",
+  "components": [
+    {
+      "title": "Summary page",
+      "label": "Summary page",
+      "type": "panel",
+      "key": "form",
+      "input": false,
+      "components": [
+        {
+          "label": "Group",
+          "labelPosition": "left-left",
+          "key": "AM_TeamBehandelaar_Groep",
+          "type": "textfield",
+          "tableView": false,
+          "input": false,
+          "disabled": true
+        }
+      ]
+    }
+  ]
+}

@@ -104,36 +104,6 @@
               }
             }
           ]
-        },
-        {
-          "legend": "Reference table",
-          "type": "groepReferenceTableFieldset",
-          "key": "RT_ReferenceTable",
-          "input": false,
-          "components": [
-            {
-              "label": "Communication channel",
-              "type": "select",
-              "key": "RT_ReferenceTable_Values",
-              "input": true,
-              "widget": "html5",
-              "validate": {
-                "required": true
-              },
-              "dataSrc": "custom",
-              "properties": {
-                "ReferenceTable_Code": "COMMUNICATIEKANAAL"
-              }
-            }
-          ]
-        },
-        {
-          "type": "button",
-          "label": "Submit",
-          "key": "submit",
-          "disableOnInvalid": true,
-          "input": true,
-          "tableView": false
         }
       ]
     }
