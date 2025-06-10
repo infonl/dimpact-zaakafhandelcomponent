@@ -84,15 +84,7 @@ export class ZaakIndicatiesComponent
           );
           break;
         case "ONTVANGSTBEVESTIGING_NIET_VERSTUURD":
-          this.indicaties.push(
-            new Indicatie(
-              indicatie,
-              "unsubscribe",
-              this.translateService.instant(
-                "indicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD",
-              ),
-            ),
-          );
+          this.indicaties.push(new Indicatie(indicatie, "unsubscribe"));
           break;
       }
     });
