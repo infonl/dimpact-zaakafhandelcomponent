@@ -562,7 +562,6 @@ tasks {
                 "microprofileRestClientVersion" to libs.versions.openapi.generator.eclipse.microprofile.rest.client.api.get(),
                 "sourceFolder" to "",
                 "dateLibrary" to "java8",
-                "disallowAdditionalPropertiesIfNotPresent" to "false",
                 "useJakartaEe" to "true",
                 "useBeanValidation" to "true"
             )
@@ -609,19 +608,13 @@ tasks {
         inputSpec.set("$rootDir/src/main/resources/api-specs/bag/bag-openapi.yaml")
         outputDir.set("$rootDir/src/generated/bag/java")
         modelPackage.set("nl.info.client.bag.model.generated")
-        // we need to use the java8-localdatetime date library for this client,
-        // or else certain date time fields for this client cannot be deserialized
-        configOptions.set(
-            mapOf(
-                "library" to "microprofile",
-                "microprofileRestClientVersion" to libs.versions.openapi.generator.eclipse.microprofile.rest.client.api.get(),
-                "sourceFolder" to "",
-                "dateLibrary" to "java8-localdatetime",
-                "disallowAdditionalPropertiesIfNotPresent" to "false",
-                "useJakartaEe" to "true",
-                "useBeanValidation" to "true"
-            )
-        )
+        // We need to use the `java8-localdatetime` date library for this client,
+        // or else certain date time fields for this client cannot be deserialized.
+        // This is because the BAG API uses the ISO 8601 standard for `date-time` fields, where a trailing time zone is optional,
+        // instead of the more commonly used RFC 3339 extension, where a trailing time zone is required.
+        // E.g., the BAG API uses `2024-01-01T00:00:00` instead of `2024-01-01T00:00:00Z` for `date-time` fields.
+        // See: https://github.com/lvbag/BAG-API/blob/master/Getting%20started.md
+        configOptions.put("dateLibrary", "java8-localdatetime")
     }
 
     register<GenerateTask>("generateKlantenClient") {
@@ -645,31 +638,28 @@ tasks {
     }
 
     register<GenerateTask>("generateZgwBrcClient") {
-        description = "Generates Java client code for the BRC API"
+        description = "Generates Java client code for the ZGW BRC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/brc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/brc/java")
         modelPackage.set("nl.info.client.zgw.brc.model.generated")
     }
 
     register<GenerateTask>("generateZgwDrcClient") {
-        description = "Generates Java client code for the DRC API"
+        description = "Generates Java client code for the ZGW DRC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/drc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/drc/java")
-        // this OpenAPI spec contains a schema validation error: `schema: null`
-        // so we disable the schema validation for this spec until this is fixed in a future version of this spec
-        validateSpec.set(false)
         modelPackage.set("nl.info.client.zgw.drc.model.generated")
     }
 
     register<GenerateTask>("generateZgwZrcClient") {
-        description = "Generates Java client code for the ZRC API"
+        description = "Generates Java client code for the ZGW ZRC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/zrc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/zrc/java")
         modelPackage.set("nl.info.client.zgw.zrc.model.generated")
     }
 
     register<GenerateTask>("generateZgwZtcClient") {
-        description = "Generates Java client code for the ZTC API"
+        description = "Generates Java client code for the ZGW ZTC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/ztc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/ztc/java")
         modelPackage.set("nl.info.client.zgw.ztc.model.generated")
