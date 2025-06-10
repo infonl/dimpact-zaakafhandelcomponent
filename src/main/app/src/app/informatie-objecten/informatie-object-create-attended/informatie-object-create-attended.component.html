@@ -63,17 +63,19 @@
       </zac-input>
     </section>
   </fieldset>
-  <fieldset class="flex-row">
-    <button
-      mat-raised-button
-      type="submit"
-      color="primary"
-      [disabled]="!form.valid"
-    >
-      {{ "actie.toevoegen" | translate }}
-    </button>
-    <button type="button" mat-raised-button (click)="this.sideNav.close()">
-      {{ "actie.annuleren" | translate }}
-    </button>
+  <fieldset>
+    <mat-action-row>
+      <button
+        mat-raised-button
+        type="submit"
+        color="primary"
+        [disabled]="!form.valid"
+      >
+        {{ "actie.toevoegen" | translate }}
+      </button>
+      <button type="button" mat-raised-button (click)="this.sideNav.close()">
+        {{ "actie.annuleren" | translate }}
+      </button>
+    </mat-action-row>
   </fieldset>
 </form>

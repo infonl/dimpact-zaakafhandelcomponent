@@ -95,19 +95,20 @@
           >{{ reasonControl.value?.length ?? 0 }}/80</mat-hint
         >
       </mat-form-field>
-      <div *ngIf="!readonly" class="full-width">
-        <button
-          mat-raised-button
-          color="primary"
-          [disabled]="!reasonControl.valid"
-          (click)="save()"
-        >
-          {{ "actie.opslaan" | translate }}
-        </button>
-        <button mat-raised-button (click)="cancel()">
-          {{ "actie.annuleren" | translate }}
-        </button>
-      </div>
     </div>
   </div>
 </div>
+
+<mat-action-row class="px-3" *ngIf="!readonly">
+  <button
+    mat-raised-button
+    color="primary"
+    [disabled]="!reasonControl.valid"
+    (click)="save()"
+  >
+    {{ "actie.opslaan" | translate }}
+  </button>
+  <button mat-raised-button (click)="cancel()">
+    {{ "actie.annuleren" | translate }}
+  </button>
+</mat-action-row>

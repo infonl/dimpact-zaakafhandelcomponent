@@ -41,6 +41,17 @@
         >
       </mat-form-field>
     </div>
+    <button
+      mat-flat-button
+      color="primary"
+      [disabled]="trefwoorden.invalid || loading"
+      (click)="zoek()"
+    >
+      {{ "actie.zoeken" | translate }}
+    </button>
+    <button mat-flat-button (click)="wissen()">
+      {{ "actie.wissen" | translate }}
+    </button>
   </div>
 </div>
 
@@ -147,4 +158,9 @@
     {{ "msg.geen.gegevens.gevonden" | translate }}
   </p>
   <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
+  <mat-action-row class="px-3">
+    <button mat-raised-button (click)="sideNav.close()">
+      {{ "actie.annuleren" | translate }}
+    </button>
+  </mat-action-row>
 </div>

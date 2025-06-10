@@ -3,7 +3,7 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div mat-dialog-content>
+<mat-dialog-content>
   <mat-form-field
     class="full-width"
     floatLabel="always"
@@ -17,13 +17,13 @@
       (change)="updateData()"
     ></textarea>
   </mat-form-field>
-</div>
+</mat-dialog-content>
 
-<div mat-dialog-actions>
+<mat-dialog-actions>
   <button mat-raised-button color="primary" [mat-dialog-close]="data['value']">
     {{ "actie.opslaan" | translate }}
   </button>
   <button mat-raised-button [mat-dialog-close]="undefined">
     {{ "actie.annuleren" | translate }}
   </button>
-</div>
+</mat-dialog-actions>

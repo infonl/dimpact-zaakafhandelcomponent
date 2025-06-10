@@ -88,6 +88,12 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
           />
         </mat-tab>
       </mat-tab-group>
+
+      <mat-action-row class="px-3">
+        <button mat-raised-button (click)="sideNav.close()">
+          {{ "actie.annuleren" | translate }}
+        </button>
+      </mat-action-row>
     </div>
   `,
   standalone: true,

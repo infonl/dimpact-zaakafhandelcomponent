@@ -126,22 +126,24 @@
       <zac-input key="omschrijving" [form]="form"> </zac-input>
       <zac-textarea key="toelichting" [form]="form"></zac-textarea>
     </fieldset>
-    <fieldset class="flex-row">
-      <button
-        mat-raised-button
-        type="submit"
-        color="primary"
-        [disabled]="!form.valid"
-      >
-        {{ "actie.aanmaken" | translate }}
-      </button>
-      <button
-        type="button"
-        mat-raised-button
-        (click)="navigationService.back()"
-      >
-        {{ "actie.annuleren" | translate }}
-      </button>
+    <fieldset>
+      <mat-action-row>
+        <button
+          mat-raised-button
+          type="submit"
+          color="primary"
+          [disabled]="!form.valid"
+        >
+          {{ "actie.aanmaken" | translate }}
+        </button>
+        <button
+          type="button"
+          mat-raised-button
+          (click)="navigationService.back()"
+        >
+          {{ "actie.annuleren" | translate }}
+        </button>
+      </mat-action-row>
     </fieldset>
   </form>
 </mat-sidenav-container>

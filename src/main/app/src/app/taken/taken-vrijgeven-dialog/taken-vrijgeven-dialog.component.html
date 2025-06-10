@@ -4,7 +4,7 @@
   -->
 
 <mat-toolbar role="heading" class="gap-16" mat-dialog-title>
-  <mat-icon>clear_all</mat-icon>
+  <mat-icon>save</mat-icon>
   <span class="flex-grow-1">
     {{ "title.taken.vrijgeven" | translate }}
   </span>
@@ -14,14 +14,14 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<div mat-dialog-content>
+<mat-dialog-content>
   <mfb-form-field [field]="redenFormField"></mfb-form-field>
   <p *ngIf="data.taken.length === 1">{{ "msg.vrijgeven.taak" | translate }}</p>
   <p *ngIf="data.taken.length !== 1">
     {{ "msg.vrijgeven.taken" | translate: { aantal: data.taken.length } }}
   </p>
-</div>
-<div mat-dialog-actions>
+</mat-dialog-content>
+<mat-dialog-actions>
   <button
     [disabled]="loading || !data.taken.length"
     mat-button
@@ -42,4 +42,4 @@
   >
     {{ "actie.annuleren" | translate }}
   </button>
-</div>
+</mat-dialog-actions>

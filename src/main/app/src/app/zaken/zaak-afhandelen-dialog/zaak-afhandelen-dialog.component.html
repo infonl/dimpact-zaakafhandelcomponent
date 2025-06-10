@@ -14,7 +14,7 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<div mat-dialog-content [formGroup]="formGroup">
+<mat-dialog-content [formGroup]="formGroup">
   <p
     *ngIf="data.planItem.toelichting"
     class="readonly"
@@ -133,8 +133,8 @@
     </mat-expansion-panel-header>
     <p class="readonly" [innerHTML]="mailtemplate?.body"></p>
   </mat-expansion-panel>
-</div>
-<div mat-dialog-actions>
+</mat-dialog-content>
+<mat-dialog-actions>
   <button
     *ngIf="!besluitVastleggen"
     mat-raised-button
@@ -162,4 +162,4 @@
   <button mat-raised-button [disabled]="loading" (click)="close()">
     {{ "actie.annuleren" | translate }}
   </button>
-</div>
+</mat-dialog-actions>
