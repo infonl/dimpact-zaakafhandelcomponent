@@ -3,7 +3,16 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<h1 mat-dialog-title>{{ "title.zaak.ontkoppelen" | translate }}</h1>
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  <mat-icon>link_off</mat-icon>
+  <span class="flex-grow-1">
+    {{ "title.zaak.ontkoppelen" | translate }}
+  </span>
+  <button mat-icon-button (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
 <mat-dialog-content>
   <mfb-form-field [field]="redenFormField"></mfb-form-field>
@@ -21,7 +30,7 @@
     </mat-icon>
     {{ "actie.ontkoppelen" | translate }}
   </button>
-  <button [disabled]="loading" autofocus mat-button (click)="close()">
+  <button [disabled]="loading" mat-button (click)="close()">
     {{ "actie.annuleren" | translate }}
   </button>
 </mat-dialog-actions>
