@@ -25,19 +25,7 @@ class RESTOntkoppeldDocumentConverterTest : BehaviorSpec({
     val userConverter = mockk<RestUserConverter>()
     val lockService = mockk<EnkelvoudigInformatieObjectLockService>()
 
-    val converter = RESTOntkoppeldDocumentConverter()
-
-    beforeTest {
-        RESTOntkoppeldDocumentConverter::class.java.getDeclaredField("userConverter").apply {
-            isAccessible = true
-            set(converter, userConverter)
-        }
-
-        RESTOntkoppeldDocumentConverter::class.java.getDeclaredField("lockService").apply {
-            isAccessible = true
-            set(converter, lockService)
-        }
-    }
+    val converter = RESTOntkoppeldDocumentConverter(userConverter, lockService)
 
     beforeEach {
         checkUnnecessaryStub()

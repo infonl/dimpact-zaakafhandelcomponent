@@ -18,11 +18,22 @@ import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObject
 
 public class RESTOntkoppeldDocumentConverter {
 
-    @Inject
     private RestUserConverter userConverter;
+    private EnkelvoudigInformatieObjectLockService lockService;
+
+    @SuppressWarnings("unused")
+    public RESTOntkoppeldDocumentConverter() {
+        // Default constructor for CDI
+    }
 
     @Inject
-    private EnkelvoudigInformatieObjectLockService lockService;
+    public RESTOntkoppeldDocumentConverter(
+            final RestUserConverter userConverter,
+            final EnkelvoudigInformatieObjectLockService lockService
+    ) {
+        this.userConverter = userConverter;
+        this.lockService = lockService;
+    }
 
     public RESTOntkoppeldDocument convert(final OntkoppeldDocument document, final UUID informatieobjectTypeUUID) {
         final RESTOntkoppeldDocument restDocument = new RESTOntkoppeldDocument();
