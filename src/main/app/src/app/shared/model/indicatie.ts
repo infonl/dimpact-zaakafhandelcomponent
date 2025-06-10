@@ -3,29 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-/**
- * @deprecated - use the `GeneratedType`
- */
-export class Indicatie {
-  naam: string;
-  icon: string;
-  outlined = false;
-  primary = false;
-  toelichting: string;
+import { GeneratedType } from "../utils/generated-types";
 
-  constructor(naam: string, icon: string, toelichting?: string) {
-    this.naam = naam;
-    this.icon = icon;
-    this.toelichting = toelichting ?? "";
-  }
-
-  temporary(): Indicatie {
-    this.primary = true;
-    return this;
-  }
-
-  alternate(): Indicatie {
-    this.outlined = true;
-    return this;
-  }
+export enum BesluitIndicatie {
+  INGETROKKEN = "INGETROKKEN",
 }
+
+export type Indicatie =
+  | GeneratedType<"DocumentIndicatie">
+  | GeneratedType<"RestPersoonIndicaties">
+  | GeneratedType<"ZaakIndicatie">
+  | BesluitIndicatie;
