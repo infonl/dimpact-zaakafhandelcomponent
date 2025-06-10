@@ -31,6 +31,8 @@ import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.util.Optional
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlin.jvm.optionals.getOrNull
 
 @ApplicationScoped
@@ -49,6 +51,7 @@ class BrpClientService @Inject constructor(
     private val zaakafhandelParameterService: ZaakafhandelParameterService
 ) {
     companion object {
+        private val LOG = Logger.getLogger(BrpClientService::class.java.name)
         private const val ENV_VAR_BRP_DOELBINDING_ZOEKMET = "brp.doelbinding.zoekmet"
         private const val ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET = "brp.doelbinding.raadpleegmet"
         private const val BURGERSERVICENUMMER = "burgerservicenummer"
@@ -104,18 +107,25 @@ class BrpClientService @Inject constructor(
         auditEvent: String,
         defaultPurpose: String?,
         extractPurpose: (ZaakafhandelParameters) -> String?
-    ): String? = Regex("""ZAAK-\d{4}-\d+""")
-        .find(auditEvent)
-        ?.value
-        ?.let { zaakIdentificatie ->
-            runCatching {
-                val zaak = zrcClientService.readZaakByID(zaakIdentificatie)
-                val parameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                    zaak.zaaktype.extractUuid()
-                )
-                extractPurpose(parameters)
-            }.getOrNull()
-        } ?: defaultPurpose
+    ): String? =
+        auditEvent
+            .also { LOG.info("Resolving purpose for audit event: $auditEvent") }
+            .let { """ZAAK-\d{4}-\d+""".toRegex().find(it)?.value }
+            ?.runCatching {
+                zrcClientService.readZaakByID(this)
+                    .zaaktype.extractUuid()
+                    .let(zaakafhandelParameterService::readZaakafhandelParameters)
+                    .let(extractPurpose)
+            }?.onFailure {
+                LOG.log(Level.WARNING, "Failed to resolve purpose from audit event '$auditEvent'", it)
+            }?.getOrElse {
+                LOG.warning("Using default purpose '$defaultPurpose' for audit event '$auditEvent'")
+                null
+            }
+            ?: run {
+                LOG.info("No purpose found in audit event '$auditEvent', using default purpose '$defaultPurpose'")
+                defaultPurpose
+            }
 
     private fun createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer: String) =
         RaadpleegMetBurgerservicenummer().apply {

@@ -681,6 +681,7 @@
   "actie.zaak.aanmaken": "Zaak aanmaken",
   "actie.zaak.locatie.koppelen": "Locatie koppelen",
   "actie.zaak.locatie.wijzigen": "Locatie wijzigen",
+  "actie.zaak.locatie.wijzigen.uitleg": "Een locatie is een punt op de kaart (coördinaten). Een locatie kun je toevoegen of wijzigen door te klikken op de kaart of door te zoeken op het (dichtstbijzijnde) adres. De kaart kun je in- en uitzoomen door te scrollen met de muis.",
   "actie.zaak.wijzigen": "Zaakgegevens bewerken",
   "actie.zaak.afbreken": "Zaak afbreken",
   "actie.zaak.afbreken.reden": "Reden waarom zaak wordt afgebroken",

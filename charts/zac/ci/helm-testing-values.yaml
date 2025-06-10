@@ -54,7 +54,6 @@ mail:
 # zgwApis Configuration of ZGW API's provider (Open Zaak)
 zgwApis:
   url: "http://openzaak.local:8000/"  # http://open-zaak.internal
-  urlExtern: "http://localhost:8001/"  # https://open-zaak.example.com
   clientId: "zac_client"
   secret: "openzaakZaakafhandelcomponentClientSecret"
 
@@ -265,7 +264,7 @@ opa:
     annotations: {}
   image:
     repository: openpolicyagent/opa
-    tag: "1.5.0-static@sha256:a37e86a1556e6c90f885b0ae83ac272d1e43bd963271f56b2724f6f504843263"
+    tag: "1.5.1-static@sha256:72c5186ef74bc7a88faf88204109476be41cdc392ff1de722f7d8ecb08f18c4d"
     pullPolicy: IfNotPresent
   # The settings below will be ignored when running as a sidecar (the zac values will be used instead)
   autoscaling:
@@ -346,7 +345,7 @@ solr-operator:
       # -- solr image repository
       repository: library/solr
       # -- solr image tag
-      tag: 9.8.1@sha256:94d55618bc3173605d0b6bf0da21fad8c4adf76d57999cae71ad4603ecbd560b
+      tag: 9.8.1@sha256:d5e424e1ccdb52e9cf24bb03f4dd9c7c73b8459318eb58db43249ded0e3a48c3
     # -- solr memory settings
     javaMem: -Xms512m -Xmx768m
     # jobs settings
@@ -528,7 +527,7 @@ nginx:
   image:
     repository: nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.28.0@sha256:4261dc9185179b459771f28d95c1dee3b182fa1511528b4cfb6c2a0fdd3577c3
+    tag: 1.28.0@sha256:fe7beb9c152991f058e9312804d6e13acd7dc29a799632c4dcb868e1253644e5
   service:
     type: ClusterIP
     port: 80

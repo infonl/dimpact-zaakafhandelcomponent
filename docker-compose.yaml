@@ -233,7 +233,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   solr:
-    image: docker.io/solr:9.8.1-slim@sha256:04d4cfd1c38492ced8631e2de0c6e63cd233f61cd684d3090523dcf5076e7174
+    image: docker.io/solr:9.8.1-slim@sha256:adabd8455c84acdc96ba81a1ef4a97ca9974647e9f1496e91eebc887d9ca79b6
     platform: linux/amd64
     ports:
       - "8983:8983"
@@ -249,14 +249,14 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:1.5.0-static@sha256:a37e86a1556e6c90f885b0ae83ac272d1e43bd963271f56b2724f6f504843263
+    image: docker.io/openpolicyagent/opa:1.5.1-static@sha256:72c5186ef74bc7a88faf88204109476be41cdc392ff1de722f7d8ecb08f18c4d
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
 
   brp-personen-mock:
     # We use the 'latest' tag here because an unconventional versioning scheme is used for these Docker images which Renovate does not support
-    image: ghcr.io/brp-api/personen-mock:2.6.0-latest@sha256:5dae43e332b6da510744f3aa7b4667beb98d2a89916c60fe948fe873be1083f9
+    image: ghcr.io/brp-api/personen-mock:2.6.0-latest@sha256:342d74255eed308aadc9aab2f6f1ea21b7c192969eee67e846e4512ba983e704
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
@@ -343,7 +343,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:1.5.0@sha256:09a86c8bb25e68603fe011cdb8ee8909b37f479eac95c0f3f1053d48fa9521eb
+    image: docker.io/openpolicyagent/opa:1.5.1@sha256:7d30d984125161b7f30599c6bdf80a6f2301dbbd526725714c231aad8179e4b9
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -440,7 +440,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.1.0-alpine@sha256:8a73e9185f8420247c5b3c19231df18dfac28a8d5706203e13b291934044966d
+    image: rabbitmq:4.1.1-alpine@sha256:630aac0de820002b391b1c511a98c180780509e2a2f73cf1d393088b16a46edc
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 30s
@@ -721,7 +721,6 @@ services:
       - ZGW_API_CLIENT_MP_REST_URL=http://openzaak.local:8000/
       - ZGW_API_CLIENTID=zac_client
       - ZGW_API_SECRET=openzaakZaakafhandelcomponentClientSecret
-      - ZGW_API_URL_EXTERN=http://localhost:8001/
     ports:
       - "8080:8080"
       - "9990:9990"
