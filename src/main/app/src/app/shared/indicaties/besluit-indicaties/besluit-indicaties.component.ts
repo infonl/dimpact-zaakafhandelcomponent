@@ -5,10 +5,10 @@
 
 import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
+import { BesluitIndicatie } from "../../model/indicatie";
 import { IndicatieItem } from "../../model/indicatie-item";
 import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
-import { BesluitIndicatie } from "../../model/indicatie";
 @Component({
   selector: "zac-besluit-indicaties",
   templateUrl: "../indicaties.component.html",
