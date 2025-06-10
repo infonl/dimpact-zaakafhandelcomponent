@@ -11,14 +11,80 @@ import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { MatSidenav } from "@angular/material/sidenav";
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { ExtendedComponentSchema } from "@formio/angular";
+import { ExtendedComponentSchema, FormioForm } from "@formio/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../../core/service/util.service";
 import { IdentityService } from "../../../identity/identity.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
+import { Taak } from "../../model/taak";
 import { FormioSetupService } from "./formio-setup-service";
+
+const groepMedewerkerFieldset: ExtendedComponentSchema = {
+  type: "groepMedewerkerFieldset",
+  key: "AM_TeamBehandelaar",
+  components: [
+    {
+      type: "select",
+      key: "AM_TeamBehandelaar_Groep",
+      input: true,
+    },
+    {
+      type: "select",
+      key: "AM_TeamBehandelaar_Medewerker",
+      input: true,
+    },
+  ],
+};
+
+const smartDocumentsFieldset: ExtendedComponentSchema = {
+  type: "smartDocumentsFieldset",
+  key: "SD_SmartDocuments",
+  components: [
+    {
+      type: "select",
+      key: "SD_SmartDocuments_Template",
+      input: true,
+    },
+    {
+      type: "button",
+      key: "SD_SmartDocuments_Create",
+      input: true,
+      properties: {
+        SmartDocuments_Group: "Dimpact/OpenZaak",
+      },
+    },
+  ],
+};
+
+const documentsFieldset: ExtendedComponentSchema = {
+  type: "documentsFieldset",
+  key: "ZAAK_Documents",
+  components: [
+    {
+      type: "select",
+      key: "ZAAK_Documents_Select",
+      input: true,
+      multiple: true,
+    },
+  ],
+};
+
+const referenceTableFieldset: ExtendedComponentSchema = {
+  type: "referenceTableFieldset",
+  key: "RT_ReferenceTable",
+  components: [
+    {
+      type: "select",
+      key: "RT_ReferenceTable_Values",
+      input: true,
+      properties: {
+        ReferenceTable_Code: "COMMUNICATIEKANAAL",
+      },
+    },
+  ],
+};
 
 describe(FormioSetupService.name, () => {
   let formioSetupService: FormioSetupService;
@@ -173,6 +239,51 @@ describe(FormioSetupService.name, () => {
           },
         });
       expect(smartDocumentsGroups).toStrictEqual(["root", "sub1", "sub2"]);
+    });
+  });
+
+  describe(FormioSetupService.prototype.createFormioForm.name, () => {
+    it("should initialize components for all defined component types", async () => {
+      const mockedComponentsService = formioSetupService as unknown as {
+        initializeGroepMedewerkerFieldsetComponent: jest.Mock;
+        initializeSmartDocumentsFieldsetComponent: jest.Mock;
+        initializeReferenceTableFieldsetComponent: jest.Mock;
+        initializeAvailableDocumentsFieldsetComponent: jest.Mock;
+      };
+
+      const groepMedewerkerSpy = jest.spyOn(
+        mockedComponentsService,
+        "initializeGroepMedewerkerFieldsetComponent",
+      );
+      const smartDocumentsSpy = jest.spyOn(
+        mockedComponentsService,
+        "initializeSmartDocumentsFieldsetComponent",
+      );
+      const referenceTableSpy = jest.spyOn(
+        mockedComponentsService,
+        "initializeReferenceTableFieldsetComponent",
+      );
+      const availableDocumentsSpy = jest.spyOn(
+        mockedComponentsService,
+        "initializeAvailableDocumentsFieldsetComponent",
+      );
+
+      const mockFormComponents: ExtendedComponentSchema[] = [
+        groepMedewerkerFieldset,
+        smartDocumentsFieldset,
+        referenceTableFieldset,
+        documentsFieldset,
+      ];
+
+      formioSetupService.createFormioForm(
+        { components: mockFormComponents } as FormioForm,
+        taak as unknown as Taak,
+      );
+
+      expect(groepMedewerkerSpy).toHaveBeenCalledWith(mockFormComponents[0]);
+      expect(smartDocumentsSpy).toHaveBeenCalledWith(mockFormComponents[1]);
+      expect(referenceTableSpy).toHaveBeenCalledWith(mockFormComponents[2]);
+      expect(availableDocumentsSpy).toHaveBeenCalledWith(mockFormComponents[3]);
     });
   });
 });

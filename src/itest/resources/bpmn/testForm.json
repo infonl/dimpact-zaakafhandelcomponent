@@ -84,6 +84,27 @@
           ]
         },
         {
+          "legend": "Available Documents",
+          "type": "documentsFieldset",
+          "key": "ZAAK_Documents",
+          "input": false,
+          "components": [
+            {
+              "label": "Documents",
+              "type": "select",
+              "key": "ZAAK_Documents_Select",
+              "input": true,
+              "widget": "html5",
+              "validate": {
+                "required": true
+              },
+              "dataSrc": "custom",
+              "multiple": true,
+              "clearOnRefresh": true
+            }
+          ]
+        },
+        {
           "legend": "Reference table",
           "type": "referenceTableFieldset",
           "key": "RT_ReferenceTable",
@@ -104,6 +125,14 @@
               }
             }
           ]
+        },
+        {
+          "type": "button",
+          "label": "Submit",
+          "key": "submit",
+          "disableOnInvalid": true,
+          "input": true,
+          "tableView": false
         }
       ]
     }

@@ -371,7 +371,7 @@ solr-operator:
       # -- solr image repository
       repository: library/solr
       # -- solr image tag
-      tag: 9.8.1@sha256:94d55618bc3173605d0b6bf0da21fad8c4adf76d57999cae71ad4603ecbd560b
+      tag: 9.8.1@sha256:d5e424e1ccdb52e9cf24bb03f4dd9c7c73b8459318eb58db43249ded0e3a48c3
     # -- solr memory settings
     javaMem: -Xms512m -Xmx768m
     # jobs settings
@@ -524,7 +524,7 @@ opentelemetry-collector:
   image:
     repository: otel/opentelemetry-collector-contrib
     pullPolicy: IfNotPresent
-    tag: "0.127.0@sha256:e94cfd92357aa21f4101dda3c0c01f90e6f24115ba91b263c4d09fed7911ae68"
+    tag: "0.128.0@sha256:1ab0baba0ee3695d823c46653d8a6e8894896e668ce8bd7ebe002e948d827bc7"
   presets:
     clusterMetrics:
       enabled: false
@@ -555,7 +555,7 @@ nginx:
   image:
     repository: nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.28.0@sha256:4261dc9185179b459771f28d95c1dee3b182fa1511528b4cfb6c2a0fdd3577c3
+    tag: 1.28.0@sha256:fe7beb9c152991f058e9312804d6e13acd7dc29a799632c4dcb868e1253644e5
   service:
     type: ClusterIP
     port: 80

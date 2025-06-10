@@ -3,13 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ZaakRechten } from "../../policy/model/zaak-rechten";
-import { ZaakIndicatie } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { Geometry } from "./geometry";
-import { ZaakKenmerk } from "./zaak-kenmerk";
-import { ZaakStatus } from "./zaak-status";
-import { Zaaktype } from "./zaaktype";
 
 /**
  * @deprecated - use the `GeneratedType`
@@ -19,8 +14,8 @@ export class Zaak {
   identificatie: string;
   omschrijving: string;
   toelichting: string;
-  zaaktype: Zaaktype;
-  status: ZaakStatus;
+  zaaktype: GeneratedType<"RestZaaktype">;
+  status: GeneratedType<"RestZaakStatus">;
   resultaat: GeneratedType<"RestZaakResultaat">;
   besluiten: GeneratedType<"RestDecision">[];
   bronorganisatie: string;
@@ -45,7 +40,7 @@ export class Zaak {
   groep: GeneratedType<"RestGroup">;
   behandelaar?: GeneratedType<"RestUser">;
   gerelateerdeZaken: GeneratedType<"RestGerelateerdeZaak">[];
-  kenmerken: ZaakKenmerk[];
+  kenmerken: GeneratedType<"RESTZaakKenmerk">[];
   initiatorIdentificatieType: GeneratedType<"IdentificatieType">;
   initiatorIdentificatie: string;
   isOpen: boolean;
@@ -55,7 +50,7 @@ export class Zaak {
   isBesluittypeAanwezig: boolean;
   isInIntakeFase: boolean;
   isProcesGestuurd: boolean;
-  rechten: ZaakRechten;
-  indicaties: ZaakIndicatie[];
+  rechten: GeneratedType<"RestZaakRechten">;
+  indicaties: GeneratedType<"ZaakIndicatie">[];
   zaakdata: Record<string, unknown>;
 }

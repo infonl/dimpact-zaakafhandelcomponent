@@ -6,6 +6,7 @@ package nl.info.zac.app.zaak.model
 
 import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.validation.constraints.Size
+import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie.IDENTIFICATIE_MAX_LENGTH
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
@@ -17,10 +18,10 @@ data class RestZaakAssignmentData(
 
     /**
      * Since this is used for the 'identificatie' field in
-     * [net.atos.client.zgw.zrc.model.OrganisatorischeEenheid]
+     * [nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie]
      * we need to make sure it adheres to the same constraints.
      */
-    @field:Size(max = 24)
+    @field:Size(max = IDENTIFICATIE_MAX_LENGTH)
     @field:JsonbProperty("groepId")
     var groupId: String,
 

@@ -682,6 +682,7 @@
   "actie.zaak.wijzigen": "Edit case details",
   "actie.zaak.locatie.koppelen": "Add case locatie",
   "actie.zaak.locatie.wijzigen": "Edit case location",
+  "actie.zaak.locatie.wijzigen.uitleg": "A location is a point on the map (coordinates). You can add or change a location by clicking on the map or by searching for the (nearest) address. You can zoom in and out on the map by scrolling with the mouse.",
   "actie.zaak.afbreken": "Abort case",
   "actie.zaak.afbreken.reden": "Reason why case is aborted",
   "actie.zaak.afbreken.reden.-kies-": "- Select a reason why case is aborted -",

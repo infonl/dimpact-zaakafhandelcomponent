@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -7,7 +7,6 @@ package net.atos.zac.documenten;
 
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +15,6 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -42,13 +40,23 @@ public class InboxDocumentenService {
 
     private static final String LIKE = "%%%s%%";
 
-    @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
+    // Default constructor for CDI
+    public InboxDocumentenService() {
+    }
+
+    @Inject
+    public InboxDocumentenService(
+            final EntityManager entityManager,
+            final ZrcClientService zrcClientService,
+            final DrcClientService drcClientService
+    ) {
+        this.entityManager = entityManager;
+        this.zrcClientService = zrcClientService;
+        this.drcClientService = drcClientService;
+    }
+
     private EntityManager entityManager;
-
-    @Inject
     private ZrcClientService zrcClientService;
-
-    @Inject
     private DrcClientService drcClientService;
 
     public InboxDocument create(final UUID enkelvoudiginformatieobjectUUID) {
@@ -58,7 +66,7 @@ public class InboxDocumentenService {
         final InboxDocument inboxDocument = new InboxDocument();
         inboxDocument.setEnkelvoudiginformatieobjectID(informatieobject.getIdentificatie());
         inboxDocument.setEnkelvoudiginformatieobjectUUID(enkelvoudiginformatieobjectUUID);
-        inboxDocument.setCreatiedatum(informatieobject.getCreatiedatum().atStartOfDay(ZoneId.systemDefault()));
+        inboxDocument.setCreatiedatum(informatieobject.getCreatiedatum());
         inboxDocument.setTitel(informatieobject.getTitel());
         inboxDocument.setBestandsnaam(informatieobject.getBestandsnaam());
         entityManager.persist(inboxDocument);
