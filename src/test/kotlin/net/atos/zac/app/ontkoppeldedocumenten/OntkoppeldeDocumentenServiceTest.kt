@@ -51,8 +51,8 @@ class OntkoppeldeDocumentenServiceTest : BehaviorSpec({
         val entityManager = mockk<EntityManager>(relaxed = true) {
             every { persist(any<OntkoppeldDocument>()) } just Runs
         }
-        val loggedInUserInstance = mockk<Instance<LoggedInUser>>() {
-            every { get() } returns mockk<LoggedInUser>() {
+        val loggedInUserInstance = mockk<Instance<LoggedInUser>> {
+            every { get() } returns mockk<LoggedInUser> {
                 every { id } returns userId
             }
         }
