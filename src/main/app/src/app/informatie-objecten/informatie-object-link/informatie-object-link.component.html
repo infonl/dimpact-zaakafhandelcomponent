@@ -86,6 +86,9 @@
       ></tr>
     </table>
     <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
+    <p *ngIf="!loading && cases.data.length === 0">
+      {{ "msg.geen.gegevens.gevonden" | translate }}
+    </p>
     <p
       *ngIf="!loading && cases.data.length > 0 && totalCases > 10"
       class="feedback"
