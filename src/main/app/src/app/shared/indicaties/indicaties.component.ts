@@ -4,7 +4,7 @@
  */
 
 import { Component, Input } from "@angular/core";
-import { Indicatie } from "../model/indicatie";
+import { IndicatieItem } from "../model/indicatie-item";
 
 export enum IndicatiesLayout {
   SEARCH = "SEARCH",
@@ -16,5 +16,5 @@ export enum IndicatiesLayout {
 export abstract class IndicatiesComponent {
   Layout = IndicatiesLayout;
   @Input({ required: true }) layout!: IndicatiesLayout;
-  indicaties: Indicatie[] = [];
+  indicaties: IndicatieItem[] = [];
 }

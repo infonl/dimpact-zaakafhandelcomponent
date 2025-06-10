@@ -6,7 +6,7 @@
 import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { ZaakZoekObject } from "../../../zoeken/model/zaken/zaak-zoek-object";
-import { Indicatie } from "../../model/indicatie";
+import { IndicatieItem } from "../../model/indicatie-item";
 import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
 
@@ -40,7 +40,7 @@ export class ZaakIndicatiesComponent
       switch (indicatie) {
         case "OPSCHORTING":
           this.indicaties.push(
-            new Indicatie(
+            new IndicatieItem(
               indicatie,
               "pause",
               `${this.translateService.instant("reden")}: ${this.getRedenOpschorting()}`,
@@ -49,7 +49,7 @@ export class ZaakIndicatiesComponent
           break;
         case "HEROPEND":
           this.indicaties.push(
-            new Indicatie(
+            new IndicatieItem(
               indicatie,
               "restart_alt",
               this.getStatusToelichting(),
@@ -58,7 +58,7 @@ export class ZaakIndicatiesComponent
           break;
         case "HOOFDZAAK":
           this.indicaties.push(
-            new Indicatie(
+            new IndicatieItem(
               indicatie,
               "account_tree",
               this.getHoofdzaakToelichting(),
@@ -67,7 +67,7 @@ export class ZaakIndicatiesComponent
           break;
         case "DEELZAAK":
           this.indicaties.push(
-            new Indicatie(
+            new IndicatieItem(
               indicatie,
               "account_tree",
               this.getDeelZaakToelichting(),
@@ -76,7 +76,7 @@ export class ZaakIndicatiesComponent
           break;
         case "VERLENGD":
           this.indicaties.push(
-            new Indicatie(
+            new IndicatieItem(
               indicatie,
               "update",
               `${this.translateService.instant("reden")}: ${this.getRedenVerlenging()}`,
@@ -84,7 +84,7 @@ export class ZaakIndicatiesComponent
           );
           break;
         case "ONTVANGSTBEVESTIGING_NIET_VERSTUURD":
-          this.indicaties.push(new Indicatie(indicatie, "unsubscribe"));
+          this.indicaties.push(new IndicatieItem(indicatie, "unsubscribe"));
           break;
       }
     });
