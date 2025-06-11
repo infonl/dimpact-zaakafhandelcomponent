@@ -54,6 +54,9 @@ class SmartDocumentsService @Inject constructor(
     @ConfigProperty(name = "SMARTDOCUMENTS_FIXED_USER_NAME")
     private val fixedUserName: Optional<String> = Optional.empty(),
 
+    @ConfigProperty(name = "SMARTDOCUMENTS_WIZARD_AUTH_ENABLED", defaultValue = "true")
+    private val authorisation: Optional<Boolean> = Optional.empty(),
+
     private val loggedInUserInstance: Instance<LoggedInUser>,
 ) {
     init {
@@ -68,6 +71,7 @@ class SmartDocumentsService @Inject constructor(
     }
 
     fun isEnabled() = enabled.getOrDefault(false)
+    fun useAuthorisation() = authorisation.getOrDefault(false)
 
     /**
      * Sends a request to SmartDocuments to create a document using the Smart Documents wizard (= attended mode).
