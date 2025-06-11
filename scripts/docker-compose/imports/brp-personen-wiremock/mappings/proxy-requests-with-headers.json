@@ -1,0 +1,21 @@
+{
+  "priority": 20,
+  "request": {
+    "urlPathPattern": "/haalcentraal/api/brp/personen.*",
+    "headers": {
+      "X-DOELBINDING": {
+        "matches": "BRP.+"
+      },
+      "X-VERWERKING": {
+        "matches": ".+@.+"
+      }
+    }
+  },
+  "response": {
+    "proxyBaseUrl": "http://brp-personen-mock:5010",
+    "removeProxyRequestHeaders": [
+      "X-DOELBINDING",
+      "X-VERWERKING"
+    ]
+  }
+}
