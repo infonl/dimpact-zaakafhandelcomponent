@@ -95,7 +95,7 @@ class SmartDocumentsService @Inject constructor(
             )
         } else {
             smartDocumentsClient.get().attendedDepositWithoutUsername(
-                authenticationToken = "", // or omit if method doesn't need it
+                authenticationToken = "",
                 deposit = deposit
             )
         }).also {
