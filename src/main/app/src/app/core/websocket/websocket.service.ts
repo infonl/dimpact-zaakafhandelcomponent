@@ -1,19 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Injectable, OnDestroy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { Observable, Subject, forkJoin, of, throwError } from "rxjs";
-import {
-  catchError,
-  delay,
-  retryWhen,
-  switchMap,
-  takeUntil,
-  timeout,
-} from "rxjs/operators";
+import { Subject, forkJoin, of } from "rxjs";
+import { delay, retryWhen, switchMap, takeUntil } from "rxjs/operators";
 import { WebSocketSubject, webSocket } from "rxjs/webSocket";
 import { UtilService } from "../service/util.service";
 import { EventCallback } from "./model/event-callback";
@@ -59,13 +52,13 @@ export class WebsocketService implements OnDestroy {
 
   private destroyed$ = new Subject<void>();
 
-  private listeners: EventCallback[][] = [];
+  private listeners = new Map<string, Map<string, EventCallback>>();
 
-  private suspended: EventSuspension[] = [];
+  private suspended = new Map<string, EventSuspension>();
 
   constructor(
-    private translate: TranslateService,
-    private utilService: UtilService,
+    private readonly translateService: TranslateService,
+    private readonly utilService: UtilService,
   ) {
     this.receive(this.URL);
   }
@@ -94,24 +87,23 @@ export class WebsocketService implements OnDestroy {
       .pipe(takeUntil(this.destroyed$))
       .subscribe({
         next: (message) => this.onMessage(message as SocketMessage),
-        error: this.onError,
+        error: (error) => console.error("Websocket error:", error),
       });
   }
 
   private send(data: SubscriptionMessage) {
-    if (this.connection$) {
-      this.connection$.next(data);
-    } else {
+    if (!this.connection$) {
       console.error("Websocket is niet open");
+      return;
     }
+
+    this.connection$.next(data);
   }
 
   private close() {
-    if (this.connection$) {
-      this.connection$.complete();
-      console.warn("Websocket gesloten");
-      this.connection$ = null;
-    }
+    this.connection$?.complete();
+    this.connection$ = null;
+    console.info("Websocket gesloten");
   }
 
   private onMessage = (message: SocketMessage) => {
@@ -129,24 +121,19 @@ export class WebsocketService implements OnDestroy {
   };
 
   private dispatch(event: ScreenEvent, key: string) {
-    const callbacks: EventCallback[] = this.getCallbacks(key);
+    const callbacks = this.getCallbacks(key);
     for (const listenerId in callbacks) {
       try {
-        if (!this.isSuspended(listenerId)) {
-          console.debug("listener call: " + key);
-          callbacks[listenerId](event);
+        if (this.isSuspended(listenerId)) {
+          return;
         }
+        console.debug("listener call: " + key);
+        callbacks.get(listenerId)?.(event);
       } catch (error) {
-        console.warn("Websocket callback error: ");
-        console.error(error);
+        console.warn("Websocket callback error: ", error);
       }
     }
   }
-
-  private onError = (error: unknown) => {
-    console.error("Websocket error:");
-    console.error(error);
-  };
 
   public addListener(
     opcode: Opcode,
@@ -173,16 +160,18 @@ export class WebsocketService implements OnDestroy {
   ) {
     return this.addListener(opcode, objectType, objectId, (event) => {
       forkJoin({
-        msgPart1: this.translate.get(
+        msgPart1: this.translateService.get(
           "msg.gewijzigd.objecttype." + event.objectType,
         ),
-        msgPart2: this.translate.get(
+        msgPart2: this.translateService.get(
           event.objectType.indexOf("_") < 0
             ? "msg.gewijzigd.2"
             : "msg.gewijzigd.2.details",
         ),
-        msgPart3: this.translate.get("msg.gewijzigd.operatie." + event.opcode),
-        msgPart4: this.translate.get("msg.gewijzigd.4"),
+        msgPart3: this.translateService.get(
+          "msg.gewijzigd.operatie." + event.opcode,
+        ),
+        msgPart4: this.translateService.get("msg.gewijzigd.4"),
       }).subscribe((result) => {
         callback(event);
         this.utilService.openSnackbar(
@@ -193,18 +182,18 @@ export class WebsocketService implements OnDestroy {
   }
 
   public suspendListener(
-    listener: WebsocketListener,
-    timeout: number = WebsocketService.DEFAULT_SUSPENSION_TIMEOUT,
-  ): void {
-    if (listener) {
-      const suspension: EventSuspension = this.suspended[listener.id];
-      if (suspension) {
-        suspension.increment();
-      } else {
-        this.suspended[listener.id] = new EventSuspension(timeout);
-      }
-      console.debug("listener suspended: " + listener.key);
+    listener?: WebsocketListener,
+    timeout = WebsocketService.DEFAULT_SUSPENSION_TIMEOUT,
+  ) {
+    if (!listener) return;
+
+    const suspension = this.suspended.get(listener.id);
+    if (suspension) {
+      suspension.increment();
+    } else {
+      this.suspended.set(listener.id, new EventSuspension(timeout));
     }
+    console.debug("listener suspended: " + listener.key);
   }
 
   public doubleSuspendListener(listener: WebsocketListener) {
@@ -212,85 +201,47 @@ export class WebsocketService implements OnDestroy {
     this.suspendListener(listener);
   }
 
-  public removeListener(listener: WebsocketListener): void {
-    if (listener) {
-      this.removeCallback(listener);
-      this.send(
-        new SubscriptionMessage(SubscriptionType.DELETE, listener.event),
-      );
-      console.debug("listener removed: " + listener.key);
-    }
+  public removeListener(listener?: WebsocketListener) {
+    if (!listener) return;
+
+    this.removeCallback(listener);
+    this.send(new SubscriptionMessage(SubscriptionType.DELETE, listener.event));
+    console.debug("listener removed: " + listener.key);
   }
 
-  public removeListeners(listeners: WebsocketListener[]): void {
+  public removeListeners(listeners: WebsocketListener[]) {
     listeners.forEach((listener) => {
       this.removeListener(listener);
     });
   }
 
-  public longRunningOperation<T = void>(
-    opcode: Opcode,
-    objectType: ObjectType,
-    objectId: string,
-    operation: () => Observable<void>,
-  ): Observable<T> {
-    /**
-     * In the unlikely scenario that the back end never responds with an event,
-     * we want to eventually clean up the websocket connection to prevent memory leaks
-     * The back end process can take quite a while, so we chose a timeout of one hour.
-     */
-    const ARBITRARY_ONE_HOUR_TIMEOUT_TO_PREVENT_MEMORY_LEAKS_IN_EDGE_CASES =
-      60 * 60 * 1000;
-
-    const subject = new Subject<T>();
-
-    const subscription = this.addListener(opcode, objectType, objectId, (e) => {
-      this.removeListener(subscription);
-      const response = e.objectId.detail && JSON.parse(e.objectId.detail);
-      subject.next(response);
-      subject.complete();
-    });
-
-    return operation().pipe(
-      switchMap(() => subject),
-      timeout(ARBITRARY_ONE_HOUR_TIMEOUT_TO_PREVENT_MEMORY_LEAKS_IN_EDGE_CASES),
-      catchError((e) => {
-        this.removeListener(subscription);
-        return throwError(() => e);
-      }),
-    );
-  }
-
   private addCallback(event: ScreenEvent, callback: EventCallback) {
     const listener: WebsocketListener = new WebsocketListener(event, callback);
-    const callbacks: EventCallback[] = this.getCallbacks(event.key);
-    callbacks[listener.id] = callback;
+    const callbacks = this.getCallbacks(event.key);
+    callbacks.set(listener.id, callback);
     return listener;
   }
 
-  private removeCallback(listener: WebsocketListener): void {
-    const callbacks: EventCallback[] = this.getCallbacks(listener.event.key);
-    delete callbacks[listener.id];
-    delete this.suspended[listener.id];
+  private removeCallback(listener: WebsocketListener) {
+    const callbacks = this.getCallbacks(listener.event.key);
+    callbacks.delete(listener.id);
+    this.suspended.delete(listener.id);
   }
 
-  private getCallbacks(key: string): EventCallback[] {
-    if (!this.listeners[key]) {
-      this.listeners[key] = [];
-    }
-    return this.listeners[key];
+  private getCallbacks(key: string) {
+    return this.listeners.get(key) ?? new Map<string, EventCallback>();
   }
 
-  private isSuspended(listenerId: string): boolean {
-    const suspension: EventSuspension = this.suspended[listenerId];
-    if (suspension) {
-      const expired: boolean = suspension.isExpired();
-      const done = suspension.isDone(); // Do not short circuit calling this method (here be side effects)
-      if (done || expired) {
-        delete this.suspended[listenerId];
-      }
-      return !expired;
+  private isSuspended(listenerId: string) {
+    const suspension = this.suspended.get(listenerId);
+
+    if (!suspension) return false;
+
+    const expired: boolean = suspension.isExpired();
+    const done = suspension.isDone(); // Do not short circuit calling this method (here be side effects)
+    if (done || expired) {
+      this.suspended.delete(listenerId);
     }
-    return false;
+    return !expired;
   }
 }
