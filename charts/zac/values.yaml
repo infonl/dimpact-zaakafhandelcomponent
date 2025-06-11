@@ -67,7 +67,7 @@ notificationsSecretKey: ""
 
 # Integration with the Klantinteracties API provider (OpenKlant)
 klantinteractiesApi:
-  url: "" # http://open-klant.internal/klantinteracties
+  url: ""  # http://open-klant.internal/klantinteracties
   token: ""
 
 # Supported feature flags
@@ -90,14 +90,15 @@ brpApi:
       zoekmet: "BRPACT-ZoekenAlgemeen"
       raadpleegmet: "BRPACT-Totaal"
 
+
 # Integration with the KVK API provider (KVK)
 kvkApi:
-  url: "" # https://developers.kvk.nl/test
+  url: ""  # https://developers.kvk.nl/test
   apiKey: ""
 
 # Integration with the BAG API provider (Kadaster)
 bagApi:
-  url: "" # https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2
+  url: ""  # https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2
   apiKey: ""
 
 # Integration with Open Formulieren.
@@ -156,6 +157,7 @@ opentelemetry_zaakafhandelcomponent:
   # -- OpenTelemetry collector endpoint URL
   endpoint: ""
 
+
 # -- Maximum size (in Mega Bytes) of files that can be uploaded.
 maxFileSizeMB: 80
 
@@ -204,12 +206,11 @@ podSecurityContext: {}
 # fsGroup: 2000
 
 # -- generic security context
-securityContext:
-  {}
+securityContext: {}
   # capabilities:
   #   drop:
   #   - ALL
-  # readOnlyRootFilesystem: true
+# readOnlyRootFilesystem: true
 # runAsNonRoot: true
 # runAsUser: 1000
 
@@ -512,6 +513,7 @@ office_converter:
   nodeSelector: {}
   affinity: {}
   tolerations: []
+
 
 # -- Extra objects to deploy (value evaluated as a template)
 extraDeploy: []
