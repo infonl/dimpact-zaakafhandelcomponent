@@ -3,10 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject } from "@angular/core";
 import { Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { TextareaFormField } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
@@ -14,9 +13,14 @@ import { ZakenService } from "../zaken.service";
 @Component({
   templateUrl: "zaak-ontkoppelen-dialog.component.html",
 })
-export class ZaakOntkoppelenDialogComponent implements OnInit {
-  redenFormField: TextareaFormField;
-  loading: boolean;
+export class ZaakOntkoppelenDialogComponent {
+  protected readonly redenFormField = new TextareaFormFieldBuilder()
+    .id("reden")
+    .label("reden")
+    .maxlength(100)
+    .validators(Validators.required)
+    .build();
+  protected loading = false;
 
   constructor(
     public dialogRef: MatDialogRef<ZaakOntkoppelenDialogComponent>,
@@ -27,15 +31,6 @@ export class ZaakOntkoppelenDialogComponent implements OnInit {
 
   close(): void {
     this.dialogRef.close();
-  }
-
-  ngOnInit(): void {
-    this.redenFormField = new TextareaFormFieldBuilder()
-      .id("reden")
-      .label("reden")
-      .maxlength(100)
-      .validators(Validators.required)
-      .build();
   }
 
   ontkoppel(): void {
