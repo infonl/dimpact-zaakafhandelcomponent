@@ -77,6 +77,26 @@ class ItestHttpClient {
         return okHttpClient.newCall(request).execute()
     }
 
+    fun performHeadRequest(
+        url: String,
+        headers: Headers = buildHeaders(acceptType = null),
+        addAuthorizationHeader: Boolean = true
+    ): Response {
+        logger.info { "Performing HEAD request on: '$url'" }
+        val request = Request.Builder()
+            .headers(
+                if (addAuthorizationHeader) {
+                    cloneHeadersWithAuthorization(headers, url)
+                } else {
+                    headers
+                }
+            )
+            .url(url)
+            .head()
+            .build()
+        return okHttpClient.newCall(request).execute()
+    }
+
     fun performPostRequest(
         url: String,
         headers: Headers = buildHeaders(),

@@ -85,15 +85,12 @@
     </security-constraint>
 
     <security-constraint>
-        <display-name>Deny all HTTP methods on '/webdav/*' except GET</display-name>
+        <display-name>Allow unchecked access on '/webdav/*'</display-name>
         <web-resource-collection>
             <web-resource-name>webdav</web-resource-name>
-            <description>WebDAV endpoints offering functionality for synchronizing Microsoft Office documents with Microsoft Office Desktop Apps. These resources are secured using a custom authentication token mechanism. See the WebdavHelper class for details.</description>
-            <description>For allowing WebDAV</description>
+            <description>WebDAV servlet endpoints</description>
             <url-pattern>/webdav/*</url-pattern>
-            <http-method-omission>GET</http-method-omission>
         </web-resource-collection>
-        <auth-constraint/>
     </security-constraint>
 
     <security-constraint>
