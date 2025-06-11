@@ -71,7 +71,7 @@ class SmartDocumentsService @Inject constructor(
     }
 
     fun isEnabled() = enabled.getOrDefault(false)
-    fun useAuthorisation() = authorisation.getOrDefault(false)
+    fun useAuthorisation() = authorisation.getOrDefault(true)
 
     /**
      * Sends a request to SmartDocuments to create a document using the Smart Documents wizard (= attended mode).
@@ -87,11 +87,18 @@ class SmartDocumentsService @Inject constructor(
         val userName = fixedUserName.orElse(loggedInUserInstance.get().id).also {
             LOG.fine("Starting Smart Documents wizard for user: '$it'")
         }
-        return smartDocumentsClient.get().attendedDeposit(
-            authenticationToken = "Basic ${authenticationToken.get()}",
-            userName = userName,
-            deposit = deposit
-        ).also {
+        return (if (useAuthorisation()) {
+            smartDocumentsClient.get().attendedDeposit(
+                authenticationToken = "Basic ${authenticationToken.get()}",
+                userName = userName,
+                deposit = deposit
+            )
+        } else {
+            smartDocumentsClient.get().attendedDepositWithoutUsername(
+                authenticationToken = "", // or omit if method doesn't need it
+                deposit = deposit
+            )
+        }).also {
             LOG.fine("SmartDocuments attended document creation response: $it")
         }.let {
             DocumentCreationAttendedResponse(
