@@ -13,7 +13,6 @@ import { Observable, of } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
-import { BAGObject } from "../../bag/model/bagobject";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
@@ -55,7 +54,7 @@ export class ZaakCreateComponent {
       GeneratedType<"RestPersoon" | "RestBedrijf"> | null | undefined
     >(null),
     startdatum: new FormControl(moment(), [Validators.required]),
-    bagObjecten: new FormControl<BAGObject[]>([]),
+    bagObjecten: new FormControl<GeneratedType<"RESTBAGObject">[]>([]),
     groep: new FormControl<GeneratedType<"RestGroup"> | null | undefined>(
       null,
       [Validators.required],
@@ -222,7 +221,7 @@ export class ZaakCreateComponent {
     });
   }
 
-  protected bagDisplayValue(bagObjects: BAGObject[]) {
+  protected bagDisplayValue(bagObjects: GeneratedType<"RESTBAGObject">[]) {
     const value = bagObjects
       .map(({ omschrijving }) => omschrijving)
       .join(" | ");

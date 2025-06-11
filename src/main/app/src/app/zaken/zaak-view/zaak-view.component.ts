@@ -26,7 +26,6 @@ import { PolicyService } from "src/app/policy/policy.service";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
-import { BAGObject } from "../../bag/model/bagobject";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
@@ -1192,7 +1191,7 @@ export class ZaakViewComponent
       });
   }
 
-  adresGeselecteerd(bagObject: BAGObject): void {
+  adresGeselecteerd(bagObject: GeneratedType<"RESTBAGObject">): void {
     this.websocketService.suspendListener(this.zaakListener);
     this.bagService
       .create({

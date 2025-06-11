@@ -17,10 +17,6 @@ import { Router } from "@angular/router";
 import { UtilService } from "../../../core/service/util.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { BAGService } from "../../bag.service";
-import { Adres } from "../../model/adres";
-import { BAGObject } from "../../model/bagobject";
-import { BAGObjecttype } from "../../model/bagobjecttype";
-import { ListAdressenParameters } from "../../model/list-adressen-parameters";
 
 @Component({
   selector: "zac-bag-zoek",
@@ -28,13 +24,12 @@ import { ListAdressenParameters } from "../../model/list-adressen-parameters";
   styleUrls: ["./bag-zoek.component.less"],
 })
 export class BagZoekComponent {
-  @Output() bagObject = new EventEmitter<BAGObject>();
+  @Output() bagObject = new EventEmitter<GeneratedType<"RESTBAGObject">>();
   @Input() gekoppeldeBagObjecten:
-    | BAGObject[]
-    | FormControl<BAGObject[] | null> = [];
+    | GeneratedType<"RESTBAGObject">[]
+    | FormControl<GeneratedType<"RESTBAGObject">[] | null> = [];
   @Input({ required: true }) sideNav!: MatSidenav | MatDrawer;
-  @ViewChild(MatTable) table!: MatTable<BAGObject>;
-  BAGObjecttype = BAGObjecttype;
+  @ViewChild(MatTable) table!: MatTable<GeneratedType<"RESTBAGObject">>;
   trefwoorden = new FormControl("", [Validators.maxLength(255)]);
   bagObjecten = new MatTableDataSource<
     GeneratedType<"RESTBAGObject"> | GeneratedType<"RESTBAGAdres">
@@ -54,7 +49,10 @@ export class BagZoekComponent {
       this.loading = true;
       this.utilService.setLoading(true);
       this.bagService
-        .listAdressen(new ListAdressenParameters(this.trefwoorden.value))
+        .listAdressen({
+          trefwoorden: this.trefwoorden.value,
+        })
+
         .subscribe((adressen) => {
           this.bagObjecten.data = adressen.resultaten ?? [];
           this.loading = false;
@@ -63,7 +61,7 @@ export class BagZoekComponent {
     }
   }
 
-  selectBagObject(bagObject: BAGObject): void {
+  selectBagObject(bagObject: GeneratedType<"RESTBAGObject">): void {
     if (this.gekoppeldeBagObjecten instanceof FormControl) {
       this.gekoppeldeBagObjecten.setValue([
         ...(this.gekoppeldeBagObjecten.value ?? []),
@@ -75,20 +73,25 @@ export class BagZoekComponent {
     this.bagObject.emit(bagObject);
   }
 
-  expandable(bagObject: BAGObject) {
-    if (bagObject.bagObjectType === BAGObjecttype.ADRES) {
-      const adres: Adres = bagObject as Adres;
-      return (
-        adres.openbareRuimte ||
-        adres.nummeraanduiding ||
-        adres.woonplaats ||
-        adres.panden?.length
-      );
+  expandable(bagObject: GeneratedType<"RESTBAGObject">) {
+    if (bagObject.bagObjectType !== "ADRES") {
+      return false;
     }
-    return false;
+
+    const adres: GeneratedType<"RESTBAGAdres"> = bagObject;
+    return (
+      adres.openbareRuimte ||
+      adres.nummeraanduiding ||
+      adres.woonplaats ||
+      adres.panden?.length
+    );
   }
 
-  expand(bagObject: (BAGObject | Adres) & { expanded: boolean }) {
+  expand(
+    bagObject: GeneratedType<"RESTBAGObject" | "RESTBAGAdres"> & {
+      expanded: boolean;
+    },
+  ) {
     this.bagObjecten.data = this.bagObjecten.data.filter(
       (b) => (b as { child?: boolean })["child"] !== true,
     );
@@ -102,12 +105,12 @@ export class BagZoekComponent {
     );
     bagObject.expanded = true;
 
-    const children: ((BAGObject | Adres) & {
+    const children: (GeneratedType<"RESTBAGObject" | "RESTBAGAdres"> & {
       expanded?: boolean;
       child?: boolean;
     })[] = [];
-    if (bagObject.bagObjectType === BAGObjecttype.ADRES) {
-      const adres: Adres = bagObject as Adres;
+    if (bagObject.bagObjectType === "ADRES") {
+      const adres: GeneratedType<"RESTBAGAdres"> = bagObject;
       if (adres.nummeraanduiding) {
         children.push(adres.nummeraanduiding);
       }
@@ -130,7 +133,7 @@ export class BagZoekComponent {
     this.table.renderRows();
   }
 
-  reedsGekoppeld(row: BAGObject): boolean {
+  reedsGekoppeld(row: GeneratedType<"RESTBAGObject">): boolean {
     const objects =
       this.gekoppeldeBagObjecten instanceof FormControl
         ? (this.gekoppeldeBagObjecten.value ?? [])
@@ -142,11 +145,11 @@ export class BagZoekComponent {
     );
   }
 
-  openBagTonenPagina(bagObject: BAGObject): void {
+  openBagTonenPagina(bagObject: GeneratedType<"RESTBAGObject">): void {
     this.sideNav?.close();
     this.router.navigate([
       "/bag-objecten",
-      bagObject.bagObjectType.toLowerCase(),
+      bagObject.bagObjectType?.toLowerCase(),
       bagObject.identificatie,
     ]);
   }
