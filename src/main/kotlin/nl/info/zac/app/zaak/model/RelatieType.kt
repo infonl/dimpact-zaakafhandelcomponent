@@ -10,5 +10,5 @@ enum class RelatieType {
     VERVOLG,
     ONDERWERP,
     BIJDRAGE,
-    OVERIG
+    OVERIG,
 }
