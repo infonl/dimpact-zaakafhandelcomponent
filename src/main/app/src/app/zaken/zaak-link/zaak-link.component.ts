@@ -54,6 +54,10 @@ export class ZaakLinkComponent implements OnDestroy {
       label: "zaak.koppelen.link.type.HOOFDZAAK",
       value: "HOOFDZAAK",
     },
+    {
+      label: "zaak.koppelen.link.type.OVERIG",
+      value: "OVERIG",
+    },
   ];
 
   protected readonly form = this.formBuilder.group({
