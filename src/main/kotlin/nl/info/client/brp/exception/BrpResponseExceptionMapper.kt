@@ -4,7 +4,6 @@
  */
 package nl.info.client.brp.exception
 
-import jakarta.ws.rs.core.MultivaluedMap
 import jakarta.ws.rs.core.Response
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper
 
