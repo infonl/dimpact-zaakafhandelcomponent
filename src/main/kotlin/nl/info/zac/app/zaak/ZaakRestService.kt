@@ -727,13 +727,15 @@ class ZaakRestService @Inject constructor(
             RelatieType.VERVOLG -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.VERVOLG)
             RelatieType.ONDERWERP -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.ONDERWERP)
             RelatieType.BIJDRAGE -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.BIJDRAGE)
-            RelatieType.OVERIG -> throw BadRequestException("Relatie type 'OVERIG' is not supported.")
+            RelatieType.OVERIG -> koppelOverigeZaken(zaak, zaakToLinkTo)
+            else -> error("Reverse relatie type $restZaakLinkData.relatieType is not supported")
         }
         restZaakLinkData.reverseRelatieType?.let { reverseRelatieType ->
             when (reverseRelatieType) {
                 RelatieType.VERVOLG -> koppelRelevanteZaken(zaakToLinkTo, zaak, AardRelatieEnum.VERVOLG)
                 RelatieType.ONDERWERP -> koppelRelevanteZaken(zaakToLinkTo, zaak, AardRelatieEnum.ONDERWERP)
                 RelatieType.BIJDRAGE -> koppelRelevanteZaken(zaakToLinkTo, zaak, AardRelatieEnum.BIJDRAGE)
+                RelatieType.OVERIG -> koppelOverigeZaken(zaakToLinkTo, zaak)
                 else -> error("Reverse relatie type $reverseRelatieType is not supported")
             }
         }
@@ -777,7 +779,12 @@ class ZaakRestService @Inject constructor(
                 explanation = restZaakUnlinkData.reden
             )
             RelatieType.OVERIG -> {
-                throw BadRequestException("Relatie type 'OVERIG' is not supported.")
+                ontkoppelOverigeZaken(
+                    zaak = zaak,
+                    andereZaak = linkedZaak,
+                    aardRelatie = AardRelatieEnum.OVERIG,
+                    explanation = restZaakUnlinkData.reden
+                )
             }
         }
     }
@@ -991,11 +998,15 @@ class ZaakRestService @Inject constructor(
     private fun addRelevanteZaak(
         relevanteZaken: MutableList<RelevanteZaak>?,
         andereZaakURI: URI,
-        aardRelatie: AardRelatieEnum
+        aardRelatie: AardRelatieEnum,
+        overigeRelatie: String? = null,
+        toelichting: String? = null
     ): List<RelevanteZaak> {
         val relevanteZaak = RelevanteZaak().apply {
             this.url = andereZaakURI
             this.aardRelatie = aardRelatie
+            this.overigeRelatie = overigeRelatie
+            this.toelichting = toelichting
         }
         return relevanteZaken?.apply {
             if (none { it.aardRelatie == aardRelatie && it.url == andereZaakURI }) add(relevanteZaak)
@@ -1102,6 +1113,24 @@ class ZaakRestService @Inject constructor(
         )
     }
 
+    private fun koppelOverigeZaken(
+        zaak: Zaak,
+        andereZaak: Zaak,
+    ) {
+        zrcClientService.patchZaak(
+            zaak.uuid,
+            Zaak().apply {
+                relevanteAndereZaken = addRelevanteZaak(
+                    zaak.relevanteAndereZaken,
+                    andereZaak.url,
+                    aardRelatie= AardRelatieEnum.OVERIG,
+                    "Gekoppelde zaak",
+                    "Gekoppelde zaak met aard relatie overig"
+                )
+            }
+        )
+    }
+
     private fun ontkoppelHoofdEnDeelzaak(
         hoofdZaak: Zaak,
         deelZaak: Zaak,
@@ -1116,6 +1145,29 @@ class ZaakRestService @Inject constructor(
         // Dus zelf het ScreenEvent versturen voor de hoofdzaak!
         indexingService.addOrUpdateZaak(hoofdZaak.uuid, false)
         eventingService.send(ScreenEventType.ZAAK.updated(hoofdZaak.uuid))
+    }
+
+    private fun ontkoppelOverigeZaken(
+        zaak: Zaak,
+        andereZaak: Zaak,
+        aardRelatie: AardRelatieEnum,
+        explanation: String
+    ) {
+        zrcClientService.patchZaak(
+            zaakUUID = zaak.uuid,
+            zaak = NillableRelevanteZakenZaakPatch(
+                relevanteAndereZaken = removeRelevanteZaak(zaak.relevanteAndereZaken, andereZaak.url, aardRelatie)
+            ),
+            explanation = explanation
+        )
+//        // Unlink the zaak from the other zaak as well
+//        zrcClientService.patchZaak(
+//            zaakUUID = andereZaak.uuid,
+//            zaak = NillableRelevanteZakenZaakPatch(
+//                relevanteAndereZaken = removeRelevanteZaak(andereZaak.relevanteAndereZaken, zaak.url, aardRelatie)
+//            ),
+//            explanation = explanation
+//        )
     }
 
     private fun ontkoppelRelevantezaken(
