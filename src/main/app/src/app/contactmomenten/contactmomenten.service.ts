@@ -3,35 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { catchError } from "rxjs/operators";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { Resultaat } from "../shared/model/resultaat";
-import { Contactmoment } from "./model/contactmoment";
-import { ListContactmomentenParameters } from "./model/list-contactmomenten-parameters";
+import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class ContactmomentenService {
-  constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
-  ) {}
+  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
-  private basepath = "/rest/klanten/contactmomenten";
-
-  listContactmomenten(
-    listContactmomentenParameters: ListContactmomentenParameters,
-  ): Observable<Resultaat<Contactmoment>> {
-    return this.http
-      .put<
-        Resultaat<Contactmoment>
-      >(`${this.basepath}`, listContactmomentenParameters)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listContactmomenten(body: PutBody<"/rest/klanten/contactmomenten">) {
+    return this.zacHttpClient.PUT("/rest/klanten/contactmomenten", body, {});
   }
 }
