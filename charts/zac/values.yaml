@@ -243,13 +243,13 @@ backendConfig:
 
 # specify resource limits and requests if needed, prefilled values are the minimum recommended
 resources:
-# We usually recommend not specifying default resources and to leave this as a conscious
-# choice for the user. This also increases the chances charts run on environments with little
-# resources, such as Minikube. If you do want to specify resources, uncomment the following
-# lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-# limits:
-#   cpu: 100m
-#   memory: 128Mi
+  # We usually recommend not specifying default resources and to leave this as a conscious
+  # choice for the user. This also increases the chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
   requests:
     cpu: 100m
     memory: 1Gi
