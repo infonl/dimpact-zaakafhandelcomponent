@@ -379,13 +379,9 @@ export class ZakenService {
   }
 
   koppelZaak(
-    restZaakLinkData: GeneratedType<"RestZaakLinkData">,
-  ): Observable<void> {
-    return this.http
-      .patch<void>(`${this.basepath}/zaak/koppel`, restZaakLinkData)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+      body: PatchBody<"/rest/zaken/zaak/koppel">
+  ) {
+    return this.zacHttpClient.PATCH("/rest/zaken/zaak/koppel", body, {});
   }
 
   ontkoppelZaak(

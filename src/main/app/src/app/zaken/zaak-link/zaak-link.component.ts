@@ -127,13 +127,12 @@ export class ZaakLinkComponent implements OnDestroy {
   protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
     if (!row.id || !this.form.controls.caseRelationType.value?.value) return;
 
-    const caseLinkDetails: GeneratedType<"RestZaakLinkData"> = {
+    this.zakenService.koppelZaak({
       zaakUuid: this.zaak.uuid,
       teKoppelenZaakUuid: row.id,
       relatieType: this.form.controls.caseRelationType.value.value,
-    };
-
-    this.zakenService.koppelZaak(caseLinkDetails).subscribe({
+      reverseRelatieType: this.form.controls.caseRelationType.value.value === "OVERIG" ? "OVERIG" : undefined,
+    }).subscribe({
       next: () => {
         this.utilService.openSnackbar("msg.zaak.gekoppeld", {
           case: row.identificatie,
