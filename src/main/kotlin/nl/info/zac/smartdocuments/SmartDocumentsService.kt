@@ -87,18 +87,20 @@ class SmartDocumentsService @Inject constructor(
         val userName = fixedUserName.orElse(loggedInUserInstance.get().id).also {
             LOG.fine("Starting Smart Documents wizard for user: '$it'")
         }
-        return (if (useWizardAuthEnabled()) {
-            smartDocumentsClient.get().attendedDeposit(
-                authenticationToken = "Basic ${authenticationToken.get()}",
-                userName = userName,
-                deposit = deposit
-            )
-        } else {
-            smartDocumentsClient.get().attendedDepositWithoutUsername(
-                authenticationToken = "",
-                deposit = deposit
-            )
-        }).also {
+        return (
+            if (useWizardAuthEnabled()) {
+                smartDocumentsClient.get().attendedDeposit(
+                    authenticationToken = "Basic ${authenticationToken.get()}",
+                    userName = userName,
+                    deposit = deposit
+                )
+            } else {
+                smartDocumentsClient.get().attendedDepositWithoutUsername(
+                    authenticationToken = "",
+                    deposit = deposit
+                )
+            }
+            ).also {
             LOG.fine("SmartDocuments attended document creation response: $it")
         }.let {
             DocumentCreationAttendedResponse(
