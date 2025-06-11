@@ -15,12 +15,12 @@ import { ZakenService } from "../zaken.service";
 })
 export class ZaakOntkoppelenDialogComponent {
   protected readonly redenFormField = new TextareaFormFieldBuilder()
-      .id("reden")
-      .label("reden")
-      .maxlength(100)
-      .validators(Validators.required)
-      .build();
-  protected loading = false
+    .id("reden")
+    .label("reden")
+    .maxlength(100)
+    .validators(Validators.required)
+    .build();
+  protected loading = false;
 
   constructor(
     public dialogRef: MatDialogRef<ZaakOntkoppelenDialogComponent>,
