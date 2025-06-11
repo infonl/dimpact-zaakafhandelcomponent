@@ -54,7 +54,7 @@ class SmartDocumentsService @Inject constructor(
     @ConfigProperty(name = "SMARTDOCUMENTS_FIXED_USER_NAME")
     private val fixedUserName: Optional<String> = Optional.empty(),
 
-    @ConfigProperty(name = "SMARTDOCUMENTS_WIZARD_AUTH_ENABLED", defaultValue = "true")
+    @ConfigProperty(name = "SMARTDOCUMENTS_WIZARD_AUTH_ENABLED")
     private val authorisation: Optional<Boolean> = Optional.empty(),
 
     private val loggedInUserInstance: Instance<LoggedInUser>,
