@@ -218,7 +218,7 @@ class BrpClientServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A person for a given BSN with an exception from zrc client") {
+    Given("A person exists for a given BSN") {
         val bsn = "123456789"
         val person = createPersoon(
             bsn = bsn
@@ -228,10 +228,6 @@ class BrpClientServiceTest : BehaviorSpec({
         )
 
         every {
-            zrcClientService.readZaakByID(ZAAK)
-        } throws NotFoundException("Zaak not found")
-
-        every {
             personenApi.personen(
                 any(),
                 eq(RETRIEVE_PERSOON_PURPOSE),
@@ -239,10 +235,13 @@ class BrpClientServiceTest : BehaviorSpec({
             )
         } returns raadpleegMetBurgerservicenummerResponse
 
-        When("find person is called with the BSN of the person default purpose is set") {
-            val personResponse = configuredBrpClientService.retrievePersoon(bsn, REQUEST_CONTEXT)
+        When("no zaak exists for the given audit event") {
+            every {
+                zrcClientService.readZaakByID(ZAAK)
+            } throws NotFoundException("Zaak not found")
 
-            Then("it should return the person") {
+            Then("retrieving a person should still work") {
+                val personResponse = configuredBrpClientService.retrievePersoon(bsn, REQUEST_CONTEXT)
                 personResponse shouldBe person
             }
         }
