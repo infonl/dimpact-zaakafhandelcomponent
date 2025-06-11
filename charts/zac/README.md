@@ -282,6 +282,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | smartDocuments.enabled | bool | `false` | Enable SmartDocuments integration for creating a new document |
 | smartDocuments.fixedUserName | string | `""` | If set this overrides the sending of the username of the user that is logged in to ZAC to SmartDocuments with a fixed value. This username is sent to SmartDocuments when creating a new document as an HTTP header. For most target environments this should not be set, assuming that all users that are available in ZAC are also available in the SmartDocuments environment with the same username. If this setting is set, then templates in SmartDocuments cannot use user-specific values. |
 | smartDocuments.url | string | `""` | URL to SmartDocuments instance. For example: https://partners.smartdocuments.com |
+| smartDocuments.wizardAuthEnabled | bool | `true` | When omitted or set to true, the SmartDocuments call will include user name; when set to false, a request will be done to a different SmartDocuments URL without user name (for Groningen setup) |
 | solr-operator.affinity | object | `{}` | affinity for solr-operator |
 | solr-operator.annotations | object | `{}` | annotations for solr-operator |
 | solr-operator.enabled | bool | `false` | set enabled to actually use the solr-operator helm chart |

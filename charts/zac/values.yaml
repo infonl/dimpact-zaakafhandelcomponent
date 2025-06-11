@@ -67,7 +67,7 @@ notificationsSecretKey: ""
 
 # Integration with the Klantinteracties API provider (OpenKlant)
 klantinteractiesApi:
-  url: ""  # http://open-klant.internal/klantinteracties
+  url: "" # http://open-klant.internal/klantinteracties
   token: ""
 
 # Supported feature flags
@@ -90,15 +90,14 @@ brpApi:
       zoekmet: "BRPACT-ZoekenAlgemeen"
       raadpleegmet: "BRPACT-Totaal"
 
-
 # Integration with the KVK API provider (KVK)
 kvkApi:
-  url: ""  # https://developers.kvk.nl/test
+  url: "" # https://developers.kvk.nl/test
   apiKey: ""
 
 # Integration with the BAG API provider (Kadaster)
 bagApi:
-  url: ""  # https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2
+  url: "" # https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2
   apiKey: ""
 
 # Integration with Open Formulieren.
@@ -122,6 +121,8 @@ smartDocuments:
   # SmartDocuments environment with the same username.
   # If this setting is set, then templates in SmartDocuments cannot use user-specific values.
   fixedUserName: ""
+  # -- Normal attemded wizard flow started with user; when set to false no user added to the request and a special no_auth SmartDopcuments URL is used
+  wizardAuthEnabled: true
 
 # Signaleringen cronjob configuration
 signaleringen:
@@ -154,7 +155,6 @@ opentelemetry_zaakafhandelcomponent:
   disabled: "-true"
   # -- OpenTelemetry collector endpoint URL
   endpoint: ""
-
 
 # -- Maximum size (in Mega Bytes) of files that can be uploaded.
 maxFileSizeMB: 80
@@ -204,7 +204,8 @@ podSecurityContext: {}
 # fsGroup: 2000
 
 # -- generic security context
-securityContext: {}
+securityContext:
+  {}
   # capabilities:
   #   drop:
   #   - ALL
@@ -297,13 +298,13 @@ opa:
     enabled: false
   replicas: 1
   resources:
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
     requests:
       cpu: 10m
       memory: 20Mi
@@ -512,7 +513,6 @@ office_converter:
   affinity: {}
   tolerations: []
 
-
 # -- Extra objects to deploy (value evaluated as a template)
 extraDeploy: []
 
@@ -567,7 +567,7 @@ nginx:
   securityContext:
     capabilities:
       drop:
-      - ALL
+        - ALL
     readOnlyRootFilesystem: false
     runAsNonRoot: true
     runAsUser: 101
