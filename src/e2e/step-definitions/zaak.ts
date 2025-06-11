@@ -117,13 +117,19 @@ When(
 );
 
 When(
-  "{string} wants to create a new zaak",
+  "{string} wants to create a new {string} zaak",
   { timeout: ONE_MINUTE_IN_MS },
-  async function (this: CustomWorld, user) {
+  async function (
+    this: CustomWorld,
+    user: z.infer<typeof worldUsers>,
+    zaakType: string,
+  ) {
+    const zaakTypeName: string = zaakType === "CMMN" ? "Zaaktype voor e2e testen" : "Zaaktype voor BPMN e2e testen";
+
     await this.page.getByLabel("Zaak toevoegen").click();
     await this.page.getByLabel("Zaaktype").click();
     await this.page
-      .getByRole("option", { name: "Zaaktype voor e2e testen" })
+      .getByRole("option", { name:  zaakTypeName })
       .click();
     await this.page
       .locator("div")
