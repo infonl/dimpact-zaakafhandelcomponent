@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
@@ -23,9 +23,18 @@ import net.atos.zac.admin.model.MailtemplateKoppeling;
 @ApplicationScoped
 @Transactional
 public class MailTemplateKoppelingenService {
-
-    @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
     private EntityManager entityManager;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public MailTemplateKoppelingenService() {
+    }
+
+    @Inject
+    public MailTemplateKoppelingenService(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
     public Optional<MailtemplateKoppeling> find(final long id) {
         final var mailtemplateKoppeling = entityManager.find(MailtemplateKoppeling.class, id);

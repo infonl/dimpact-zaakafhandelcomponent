@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -29,11 +29,20 @@ import nl.info.zac.shared.model.SorteerRichting;
 @ApplicationScoped
 @Transactional
 public class InboxProductaanvraagService {
-
     private static final String LIKE = "%%%s%%";
 
-    @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
     private EntityManager entityManager;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public InboxProductaanvraagService() {
+    }
+
+    @Inject
+    public InboxProductaanvraagService(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
     public void create(final InboxProductaanvraag inboxProductaanvraag) {
         entityManager.persist(inboxProductaanvraag);

@@ -13,7 +13,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -35,12 +34,23 @@ import nl.info.zac.signalering.SignaleringService;
 @ApplicationScoped
 @Transactional
 public class GebruikersvoorkeurenService {
-
-    @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
     private EntityManager entityManager;
+    private SignaleringService signaleringService;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public GebruikersvoorkeurenService() {
+    }
 
     @Inject
-    private SignaleringService signaleringService;
+    public GebruikersvoorkeurenService(
+            EntityManager entityManager,
+            SignaleringService signaleringService
+    ) {
+        this.entityManager = entityManager;
+        this.signaleringService = signaleringService;
+    }
 
     public Zoekopdracht createZoekopdracht(final Zoekopdracht zoekopdracht) {
         if (zoekopdracht.getId() != null) {

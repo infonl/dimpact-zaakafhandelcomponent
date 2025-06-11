@@ -7,7 +7,6 @@ package nl.info.zac.enkelvoudiginformatieobject
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
@@ -25,12 +24,10 @@ import java.util.UUID
 @AllOpen
 @NoArgConstructor
 class EnkelvoudigInformatieObjectLockService @Inject constructor(
+    private val entityManager: EntityManager,
     private val drcClientService: DrcClientService,
     private val zrcClientService: ZrcClientService
 ) {
-    @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
-    private lateinit var entityManager: EntityManager
-
     @Transactional(REQUIRED)
     fun createLock(informationObjectUUID: UUID, userID: String): EnkelvoudigInformatieObjectLock =
         EnkelvoudigInformatieObjectLock().apply {
