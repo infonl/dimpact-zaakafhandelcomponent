@@ -228,6 +228,10 @@ class BrpClientServiceTest : BehaviorSpec({
         )
 
         every {
+            zrcClientService.readZaakByID(ZAAK)
+        } throws NotFoundException("Zaak not found")
+
+        every {
             personenApi.personen(
                 any(),
                 eq(RETRIEVE_PERSOON_PURPOSE),
@@ -235,13 +239,10 @@ class BrpClientServiceTest : BehaviorSpec({
             )
         } returns raadpleegMetBurgerservicenummerResponse
 
-        When("no zaak exists for the given audit event") {
-            every {
-                zrcClientService.readZaakByID(ZAAK)
-            } throws NotFoundException("Zaak not found")
+        When("no zaak is found for the given audit event and retrieve persoon is called") {
+            val personResponse = configuredBrpClientService.retrievePersoon(bsn, REQUEST_CONTEXT)
 
             Then("retrieving a person should still work") {
-                val personResponse = configuredBrpClientService.retrievePersoon(bsn, REQUEST_CONTEXT)
                 personResponse shouldBe person
             }
         }
