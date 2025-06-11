@@ -125,23 +125,23 @@ When(
     zaakType: string,
   ) {
     const bpmnZaakType: boolean = zaakType === "BPMN";
-    const zaakTypeName: string = bpmnZaakType ? "Zaaktype voor BPMN e2e testen" : "Zaaktype voor e2e testen";
+    const zaakTypeName: string = bpmnZaakType
+      ? "Zaaktype voor BPMN e2e testen"
+      : "Zaaktype voor e2e testen";
 
     await this.page.getByLabel("Zaak toevoegen").click();
     await this.page.getByLabel("Zaaktype").click();
-    await this.page
-      .getByRole("option", { name:  zaakTypeName })
-      .click();
+    await this.page.getByRole("option", { name: zaakTypeName }).click();
     if (!bpmnZaakType) {
       await this.page
         .locator("div")
-        .filter({hasText: /^person$/})
+        .filter({ hasText: /^person$/ })
         .click();
       await this.page.getByLabel("BSN").click();
       await this.page.getByLabel("BSN").fill(TEST_PERSON_HENDRIKA_JANSE_BSN);
       await this.page
         .getByLabel("emoji_people Persoon")
-        .getByRole("button", {name: "Zoeken"})
+        .getByRole("button", { name: "Zoeken" })
         .click();
       await this.page.getByRole("button", { name: "Select" }).click();
     }
