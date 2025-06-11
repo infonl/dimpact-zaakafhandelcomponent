@@ -229,7 +229,10 @@ export class WebsocketService implements OnDestroy {
   }
 
   private getCallbacks(key: string) {
-    return this.listeners.get(key) ?? new Map<string, EventCallback>();
+    if (!this.listeners.has(key)) {
+      this.listeners.set(key, new Map<string, EventCallback>());
+    }
+    return this.listeners.get(key)!;
   }
 
   private isSuspended(listenerId: string) {
