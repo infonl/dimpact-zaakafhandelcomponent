@@ -136,7 +136,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                 },
                                 {
                                     "aantal": 1,
-                                    "naam": "group"
+                                    "naam": "groepa"
                                 }
                             ],
                             "TOEGEKEND": [
@@ -547,7 +547,7 @@ class SearchRestServiceTest : BehaviorSpec({
                         "foutmelding": "",
                         "resultaten": [
                             {
-                              "groepNaam": "group",
+                              "groepNaam": "groepa",
                               "id": "173",
                               "naam": "$BPMN_TASK_NAAM",
                               "rechten": {
@@ -632,7 +632,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                 },
                                 {
                                     "aantal": 1,
-                                    "naam": "group"
+                                    "naam": "groepa"
                                 }
                             ],
                             "TAAK_NAAM": [
