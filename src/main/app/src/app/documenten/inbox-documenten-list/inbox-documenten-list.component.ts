@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -17,24 +17,23 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
-import { TranslateService } from "@ngx-translate/core";
 import { merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { Zoekopdracht } from "../../gebruikersvoorkeuren/model/zoekopdracht";
+import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
+import { PutBody } from "../../shared/http/zac-http-client";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { InboxDocumentenService } from "../inbox-documenten.service";
-import { InboxDocument } from "../model/inbox-document";
-import { InboxDocumentListParameters } from "../model/inbox-document-list-parameters";
-import { OntkoppeldDocument } from "../model/ontkoppeld-document";
 
 @Component({
   templateUrl: "./inbox-documenten-list.component.html",
@@ -45,35 +44,43 @@ export class InboxDocumentenListComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   isLoadingResults = true;
-  dataSource: MatTableDataSource<InboxDocument> =
-    new MatTableDataSource<InboxDocument>();
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
+  dataSource = new MatTableDataSource<GeneratedType<"RESTInboxDocument">>();
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
   @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
 
-  displayedColumns: string[] = [
+  displayedColumns = [
     "enkelvoudiginformatieobjectID",
     "creatiedatum",
     "titel",
     "actions",
-  ];
-  filterColumns: string[] = [
+  ] as const;
+  filterColumns = [
     "identificatie_filter",
     "creatiedatum_filter",
     "titel_filter",
     "actions_filter",
-  ];
-  listParameters: InboxDocumentListParameters;
-  filterChange: EventEmitter<void> = new EventEmitter<void>();
-  clearZoekopdracht: EventEmitter<void> = new EventEmitter<void>();
-  selectedInformationObject: OntkoppeldDocument | null = null;
+  ] as const;
+  listParameters: PutBody<"/rest/inboxdocumenten"> = {};
+  listParametersSort: {
+    sort: keyof PutBody<"/rest/inboxdocumenten">;
+    order: "desc" | "asc";
+    filtersType: ZoekFilters["filtersType"];
+  } = {
+    sort: "creatiedatum",
+    order: "desc",
+    filtersType: "InboxDocumentListParameters",
+  };
+  filterChange = new EventEmitter<void>();
+  clearZoekopdracht = new EventEmitter<void>();
+  selectedInformationObject: GeneratedType<"RESTOntkoppeldDocument"> | null =
+    null;
 
   constructor(
     private inboxDocumentenService: InboxDocumentenService,
     private infoService: InformatieObjectenService,
     private utilService: UtilService,
     public dialog: MatDialog,
-    private translate: TranslateService,
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
     public route: ActivatedRoute,
   ) {
@@ -82,7 +89,7 @@ export class InboxDocumentenListComponent
 
   ngOnInit(): void {
     super.ngOnInit();
-    this.listParameters = SessionStorageUtil.getItem(
+    this.listParametersSort = SessionStorageUtil.getItem(
       Werklijst.INBOX_DOCUMENTEN + "_ZOEKPARAMETERS",
       this.createDefaultParameters(),
     );
@@ -98,7 +105,10 @@ export class InboxDocumentenListComponent
           this.isLoadingResults = true;
           this.utilService.setLoading(true);
           this.updateListParameters();
-          return this.inboxDocumentenService.list(this.listParameters);
+          return this.inboxDocumentenService.list({
+            ...this.listParameters,
+            ...this.listParametersSort,
+          });
         }),
         map((data) => {
           this.isLoadingResults = false;
@@ -107,14 +117,14 @@ export class InboxDocumentenListComponent
         }),
       )
       .subscribe((data) => {
-        this.paginator.length = data.totaal;
-        this.dataSource.data = data.resultaten;
+        this.paginator.length = data.totaal ?? 0;
+        this.dataSource.data = data.resultaten ?? [];
       });
   }
 
   updateListParameters(): void {
-    this.listParameters.sort = this.sort.active;
-    this.listParameters.order = this.sort.direction;
+    this.listParameters.sort = this.sort.active ?? "creatiedatum";
+    this.listParameters.order = this.sort.direction ?? "desc";
     this.listParameters.page = this.paginator.pageIndex;
     this.listParameters.maxResults = this.paginator.pageSize;
     SessionStorageUtil.setItem(
@@ -123,11 +133,14 @@ export class InboxDocumentenListComponent
     );
   }
 
-  getDownloadURL(id: InboxDocument): string {
-    return this.infoService.getDownloadURL(id.enkelvoudiginformatieobjectUUID);
+  getDownloadURL(inboxDocument: GeneratedType<"RESTInboxDocument">) {
+    if (!inboxDocument.enkelvoudiginformatieobjectUUID) return null;
+    return this.infoService.getDownloadURL(
+      inboxDocument.enkelvoudiginformatieobjectUUID,
+    );
   }
 
-  documentVerwijderen(inboxDocument: InboxDocument): void {
+  documentVerwijderen(inboxDocument: GeneratedType<"RESTInboxDocument">) {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
@@ -135,7 +148,7 @@ export class InboxDocumentenListComponent
             key: "msg.document.verwijderen.bevestigen",
             args: { document: inboxDocument.titel },
           },
-          this.inboxDocumentenService.delete(inboxDocument),
+          this.inboxDocumentenService.delete(inboxDocument.id!),
         ),
       })
       .afterClosed()
@@ -156,12 +169,12 @@ export class InboxDocumentenListComponent
   }
 
   resetSearch(): void {
-    this.listParameters = SessionStorageUtil.setItem(
+    this.listParametersSort = SessionStorageUtil.setItem(
       Werklijst.INBOX_DOCUMENTEN + "_ZOEKPARAMETERS",
       this.createDefaultParameters(),
     );
-    this.sort.active = this.listParameters.sort;
-    this.sort.direction = this.listParameters.order;
+    this.sort.active = this.listParametersSort.sort;
+    this.sort.direction = this.listParametersSort.order;
     this.paginator.pageIndex = 0;
     this.filterChange.emit();
   }
@@ -170,15 +183,19 @@ export class InboxDocumentenListComponent
     this.filterChange.emit();
   }
 
-  createDefaultParameters(): InboxDocumentListParameters {
-    return new InboxDocumentListParameters("creatiedatum", "desc");
+  createDefaultParameters() {
+    return {
+      sort: "creatiedatum",
+      order: "desc",
+      filtersType: "InboxDocumentListParameters",
+    } satisfies typeof this.listParametersSort;
   }
 
   zoekopdrachtChanged(actieveZoekopdracht: Zoekopdracht): void {
     if (actieveZoekopdracht) {
       this.listParameters = JSON.parse(actieveZoekopdracht.json);
-      this.sort.active = this.listParameters.sort;
-      this.sort.direction = this.listParameters.order;
+      this.sort.active = this.listParametersSort.sort;
+      this.sort.direction = this.listParametersSort.order;
       this.paginator.pageIndex = 0;
       this.filterChange.emit();
     } else if (actieveZoekopdracht === null) {
@@ -188,13 +205,15 @@ export class InboxDocumentenListComponent
     }
   }
 
-  getWerklijst(): Werklijst {
+  getWerklijst() {
     return Werklijst.INBOX_DOCUMENTEN;
   }
 
-  openDrawer(selectedInformationObject: OntkoppeldDocument) {
-    this.selectedInformationObject = { ...selectedInformationObject };
-    this.actionsSidenav.open();
+  openDrawer(
+    selectedInformationObject: GeneratedType<"RESTOntkoppeldDocument">,
+  ) {
+    this.selectedInformationObject = selectedInformationObject;
+    void this.actionsSidenav.open();
   }
 
   ngOnDestroy(): void {

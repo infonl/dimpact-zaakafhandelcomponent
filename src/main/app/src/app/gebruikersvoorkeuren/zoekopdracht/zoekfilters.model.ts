@@ -7,7 +7,10 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { DatumRange } from "../../zoeken/model/datum-range";
 
 export type ZoekFilters = {
-  readonly filtersType: string;
+  readonly filtersType:
+    | "ZoekParameters"
+    | "OntkoppeldDocumentListParameters"
+    | "InboxDocumentListParameters";
   zoeken?: Record<string, unknown>;
   filters?: Record<string, undefined | { values: Array<unknown> }>;
   datums?: Record<string, DatumRange>;

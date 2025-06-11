@@ -22,15 +22,15 @@
           mat-table
           [dataSource]="dataSource"
           matSort
-          [matSortActive]="listParameters.sort"
+          [matSortActive]="listParametersSort.sort"
           matSortDisableClear
-          [matSortDirection]="listParameters.order"
+          [matSortDirection]="listParametersSort.order"
         >
           <ng-container matColumnDef="titel_filter">
             <th mat-header-cell *matHeaderCellDef>
               <zac-tekst-filter
                 [value]="listParameters.titel"
-                (changed)="filtersChanged({ event: $event, filter: 'titel' })"
+                (changed)="filtersChanged()"
               ></zac-tekst-filter>
             </th>
           </ng-container>
@@ -39,9 +39,7 @@
               <zac-date-range-filter
                 label="creatiedatum"
                 [range]="listParameters.creatiedatum"
-                (changed)="
-                  filtersChanged({ event: $event, filter: 'creatiedatum' })
-                "
+                (changed)="filtersChanged()"
               ></zac-date-range-filter>
             </th>
           </ng-container>
@@ -49,7 +47,7 @@
             <th mat-header-cell *matHeaderCellDef>
               <zac-tekst-filter
                 [value]="listParameters.zaakID"
-                (changed)="filtersChanged({ event: $event, filter: 'zaakID' })"
+                (changed)="filtersChanged()"
               ></zac-tekst-filter>
             </th>
           </ng-container>
@@ -58,9 +56,7 @@
               <mat-form-field subscriptSizing="dynamic">
                 <mat-select
                   [compareWith]="compareUser"
-                  (selectionChange)="
-                    filtersChanged({ event: $event, filter: 'ontkoppeldDoor' })
-                  "
+                  (selectionChange)="filtersChanged()"
                   id="ontkoppeldDoor_filter"
                   placeholder="{{ 'filter.-alle-' | translate }}"
                   [value]="listParameters.ontkoppeldDoor"
@@ -80,9 +76,7 @@
               <zac-date-range-filter
                 label="ontkoppeldOp"
                 [range]="listParameters.ontkoppeldOp"
-                (changed)="
-                  filtersChanged({ event: $event, filter: 'ontkoppeldOp' })
-                "
+                (changed)="filtersChanged()"
               ></zac-date-range-filter>
             </th>
           </ng-container>
@@ -90,7 +84,7 @@
             <th mat-header-cell *matHeaderCellDef>
               <zac-tekst-filter
                 [value]="listParameters.reden"
-                (changed)="filtersChanged({ event: $event, filter: 'reden' })"
+                (changed)="filtersChanged()"
               ></zac-tekst-filter>
             </th>
           </ng-container>
@@ -98,7 +92,7 @@
             <th mat-header-cell *matHeaderCellDef>
               <zac-zoekopdracht
                 [werklijst]="getWerklijst()"
-                [zoekFilters]="listParameters"
+                [zoekFilters]="listParametersSort"
                 [filtersChanged]="clearZoekopdracht"
                 (zoekopdracht)="zoekopdrachtChanged($event)"
               ></zac-zoekopdracht>

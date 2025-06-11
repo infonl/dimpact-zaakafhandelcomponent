@@ -1,37 +1,24 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { catchError } from "rxjs/operators";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { ListParameters } from "../shared/model/list-parameters";
-import { OntkoppeldDocument } from "./model/ontkoppeld-document";
-import { OntkoppeldeDocumentenResultaat } from "./model/ontkoppelde-documenten-resultaat";
+import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class OntkoppeldeDocumentenService {
-  private basepath = "/rest/ontkoppeldedocumenten";
+  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
-  constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
-  ) {}
-
-  list(parameters: ListParameters): Observable<OntkoppeldeDocumentenResultaat> {
-    return this.http
-      .put<OntkoppeldeDocumentenResultaat>(this.basepath, parameters)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  list(body: PutBody<"/rest/ontkoppeldedocumenten">) {
+    return this.zacHttpClient.PUT("/rest/ontkoppeldedocumenten", body, {});
   }
 
-  delete(od: OntkoppeldDocument): Observable<void> {
-    return this.http.delete<void>(`${this.basepath}/${od.id}`);
+  delete(id: number) {
+    return this.zacHttpClient.DELETE("/rest/ontkoppeldedocumenten/{id}", {
+      path: { id },
+    });
   }
 }
