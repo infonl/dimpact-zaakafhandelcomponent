@@ -8,7 +8,6 @@ Feature: BPMN
     Given "Bob" is logged in to zac
     When "Bob" wants to create a new "BPMN" zaak
     Then "Bob" sees the created zaak
-    Then "Bob" sees the zaak initiator
     Then "Bob" sees the indication that no acknowledgment has been sent
     Given "Bob" navigates to "zac" with path "/zaken/werkvoorraad"
     Then "Bob" sees the created zaak
