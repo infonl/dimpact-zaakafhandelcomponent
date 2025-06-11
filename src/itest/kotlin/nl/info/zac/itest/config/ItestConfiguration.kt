@@ -24,7 +24,7 @@ object ItestConfiguration {
     /**
      * Temporarily increase the HTTP read timeout to 60 seconds to allow for
      * the slow 'document-creation/create-document-attended' endpoint to complete on slower computers.
-     * In the long run we should change this endpoint to be asynchronous.
+     * In the long run, we should change this endpoint to be asynchronous.
      */
     const val HTTP_READ_TIMEOUT_SECONDS = 60L
 
@@ -147,6 +147,7 @@ object ItestConfiguration {
     const val TEST_TXT_FILE_NAME = "tëstTextDocument.txt"
     const val TEST_TXT_CONVERTED_TO_PDF_FILE_NAME = "tëstTextDocument.pdf"
     const val TEST_TXT_FILE_SIZE = 62
+    const val TEST_WORD_FILE_NAME = "fakeWordDocument.docx"
     const val TEST_USER_1_USERNAME = "testuser1"
     const val TEST_USER_1_PASSWORD = "testuser1"
     const val TEST_USER_1_EMAIL = "testuser1@example.com"
@@ -222,6 +223,7 @@ object ItestConfiguration {
      * Constants used in the Informatieobjecten tests
      */
     const val DOCUMENT_FILE_TITLE = "fakeTitel"
+    const val WORD_DOCUMENT_FILE_TITLE = "fakeWordTitel"
     const val DOCUMENT_UPDATED_FILE_TITLE = "updated title with Špëcîål characters"
     const val DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK = "ZAAKVERTROUWELIJK"
     const val DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR = "OPENBAAR"
