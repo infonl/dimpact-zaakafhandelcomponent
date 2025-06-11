@@ -6,27 +6,20 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { UtilService } from "../../core/service/util.service";
-import { Geometry } from "../../zaken/model/geometry";
-import { Adres } from "../model/adres";
-import { BAGObject } from "../model/bagobject";
-import { BAGObjecttype } from "../model/bagobjecttype";
-import { Nummeraanduiding } from "../model/nummeraanduiding";
-import { OpenbareRuimte } from "../model/openbare-ruimte";
-import { Pand } from "../model/pand";
-import { Woonplaats } from "../model/woonplaats";
+import { GeneratedType } from "../../shared/utils/generated-types";
 
 @Component({
   templateUrl: "./bag-view.component.html",
   styleUrls: ["./bag-view.component.less"],
 })
 export class BAGViewComponent implements OnInit {
-  bagObject: BAGObject;
-  adres: Adres;
-  openbareRuimte: OpenbareRuimte;
-  woonplaats: Woonplaats;
-  pand: Pand;
-  nummeraanduiding: Nummeraanduiding;
-  geometrie: Geometry;
+  bagObject!: GeneratedType<"RESTBAGObject">;
+  adres?: GeneratedType<"RESTBAGAdres">;
+  openbareRuimte?: GeneratedType<"RESTOpenbareRuimte">;
+  woonplaats?: GeneratedType<"RESTWoonplaats">;
+  pand?: GeneratedType<"RESTPand">;
+  nummeraanduiding?: GeneratedType<"RESTNummeraanduiding">;
+  geometrie?: GeneratedType<"RestGeometry">;
 
   constructor(
     private utilService: UtilService,
@@ -38,24 +31,24 @@ export class BAGViewComponent implements OnInit {
     this._route.data.subscribe((data) => {
       this.bagObject = data.bagObject;
       switch (this.bagObject.bagObjectType) {
-        case BAGObjecttype.ADRES:
-          this.adres = this.bagObject as Adres;
+        case "ADRES":
+          this.adres = this.bagObject;
           this.geometrie = this.adres.geometry;
           break;
-        case BAGObjecttype.ADRESSEERBAAR_OBJECT:
+        case "ADRESSEERBAAR_OBJECT":
           break; // (Nog) geen zelfstandige entiteit
-        case BAGObjecttype.WOONPLAATS:
-          this.woonplaats = this.bagObject as Woonplaats;
+        case "WOONPLAATS":
+          this.woonplaats = this.bagObject;
           break;
-        case BAGObjecttype.PAND:
-          this.pand = this.bagObject as Pand;
+        case "PAND":
+          this.pand = this.bagObject;
           this.geometrie = this.pand.geometry;
           break;
-        case BAGObjecttype.OPENBARE_RUIMTE:
-          this.openbareRuimte = this.bagObject as OpenbareRuimte;
+        case "OPENBARE_RUIMTE":
+          this.openbareRuimte = this.bagObject;
           break;
-        case BAGObjecttype.NUMMERAANDUIDING:
-          this.nummeraanduiding = this.bagObject as Nummeraanduiding;
+        case "NUMMERAANDUIDING":
+          this.nummeraanduiding = this.bagObject;
           break;
       }
     });
