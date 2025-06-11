@@ -7,7 +7,7 @@
   <mat-drawer-content>
     <div class="flex-row gap-10 flex-wrap">
       <div class="bag-gegevens flex-col">
-        <mat-card *ngIf="bagObject.bagObjectType === 'ADRES'">
+        <mat-card *ngIf="adres">
           <mat-card-header>
             <mat-card-title>{{
               "objecttype.ADRES" | translate
@@ -31,7 +31,7 @@
               ></zac-static-text>
               <zac-static-text
                 [label]="'bouwjaar' | translate"
-                [value]="adres.panden[0]?.oorspronkelijkBouwjaar"
+                [value]="adres.panden?.[0]?.oorspronkelijkBouwjaar"
               ></zac-static-text>
               <zac-static-text
                 [label]="'oppervlakte' | translate"
@@ -52,7 +52,7 @@
               <zac-static-text
                 [label]="'status' | translate"
                 [value]="
-                  'bagObject.status.' + adres.nummeraanduiding.status
+                  'bagObject.status.' + adres.nummeraanduiding?.status
                     | translate
                 "
               ></zac-static-text>
@@ -61,51 +61,52 @@
             <div class="content flex-row flex-wrap">
               <zac-static-text
                 [label]="'identificatie' | translate"
-                [value]="adres.panden[0].identificatie"
+                [value]="adres.panden?.[0].identificatie"
               ></zac-static-text>
               <zac-static-text
                 [label]="'bouwjaar' | translate"
-                [value]="adres.panden[0]?.oorspronkelijkBouwjaar"
+                [value]="adres.panden?.[0]?.oorspronkelijkBouwjaar"
               ></zac-static-text>
               <zac-static-text
                 [label]="'status' | translate"
                 [value]="
-                  'bagObject.pand.status.' + adres.panden[0]?.status | translate
+                  'bagObject.pand.status.' + adres.panden?.[0]?.status
+                    | translate
                 "
               ></zac-static-text>
             </div>
             <div class="rule title">
               {{
                 "AdresseerbaarObject." +
-                  adres.adresseerbaarObject.typeAdresseerbaarObject | translate
+                  adres.adresseerbaarObject?.typeAdresseerbaarObject | translate
               }}
             </div>
             <div class="content flex-row flex-wrap">
               <zac-static-text
                 [label]="'identificatie' | translate"
-                [value]="adres.adresseerbaarObject.identificatie"
+                [value]="adres.adresseerbaarObject?.identificatie"
               ></zac-static-text>
               <zac-static-text
                 *ngIf="
-                  adres.adresseerbaarObject.typeAdresseerbaarObject ===
+                  adres.adresseerbaarObject?.typeAdresseerbaarObject ===
                   'VERBLIJFSOBJECT'
                 "
                 class="w50 w100-lg"
                 [label]="'gebruiksdoel' | translate"
-                [value]="adres.adresseerbaarObject.vboDoel"
+                [value]="adres.adresseerbaarObject?.vboDoel"
               ></zac-static-text>
               <zac-static-text
                 [label]="'status' | translate"
-                [value]="adres.adresseerbaarObject.status"
+                [value]="adres.adresseerbaarObject?.status"
               ></zac-static-text>
               <zac-static-text
                 *ngIf="
-                  adres.adresseerbaarObject.typeAdresseerbaarObject ===
+                  adres.adresseerbaarObject?.typeAdresseerbaarObject ===
                   'VERBLIJFSOBJECT'
                 "
                 class="w50 w100-lg"
                 [label]="'oppervlakte' | translate"
-                [value]="adres.adresseerbaarObject.vboOppervlakte + ' m2'"
+                [value]="adres.adresseerbaarObject?.vboOppervlakte + ' m2'"
               ></zac-static-text>
             </div>
             <div class="rule title">
@@ -114,22 +115,22 @@
             <div class="content flex-row flex-wrap">
               <zac-static-text
                 [label]="'identificatie' | translate"
-                [value]="adres.nummeraanduiding.identificatie"
+                [value]="adres.nummeraanduiding?.identificatie"
               ></zac-static-text>
               <zac-static-text
                 [label]="'postcode' | translate"
-                [value]="adres.nummeraanduiding.postcode"
+                [value]="adres.nummeraanduiding?.postcode"
               ></zac-static-text>
               <zac-static-text
                 [label]="'status' | translate"
                 [value]="
-                  'bagObject.status.' + adres.nummeraanduiding.status
+                  'bagObject.status.' + adres.nummeraanduiding?.status
                     | translate
                 "
               ></zac-static-text>
               <zac-static-text
                 [label]="'huisnummer' | translate"
-                [value]="adres.nummeraanduiding.huisnummerWeergave"
+                [value]="adres.nummeraanduiding?.huisnummerWeergave"
               ></zac-static-text>
             </div>
             <div class="rule title">
@@ -138,16 +139,16 @@
             <div class="content flex-row flex-wrap">
               <zac-static-text
                 [label]="'identificatie' | translate"
-                [value]="adres.openbareRuimte.identificatie"
+                [value]="adres.openbareRuimte?.identificatie"
               ></zac-static-text>
               <zac-static-text
                 [label]="'naam' | translate"
-                [value]="adres.openbareRuimte.naam"
+                [value]="adres.openbareRuimte?.naam"
               ></zac-static-text>
               <zac-static-text
                 [label]="'status' | translate"
                 [value]="
-                  'bagObject.status.' + adres.openbareRuimte.status | translate
+                  'bagObject.status.' + adres.openbareRuimte?.status | translate
                 "
               ></zac-static-text>
             </div>
@@ -157,23 +158,23 @@
             <div class="content flex-row flex-wrap">
               <zac-static-text
                 [label]="'identificatie' | translate"
-                [value]="adres.woonplaats.identificatie"
+                [value]="adres.woonplaats?.identificatie"
               ></zac-static-text>
               <zac-static-text
                 [label]="'naam' | translate"
-                [value]="adres.woonplaats.naam"
+                [value]="adres.woonplaats?.naam"
               ></zac-static-text>
               <zac-static-text
                 [label]="'status' | translate"
                 [value]="
-                  'bagObject.status.' + adres.woonplaats.status | translate
+                  'bagObject.status.' + adres.woonplaats?.status | translate
                 "
               ></zac-static-text>
             </div>
           </mat-card-content>
         </mat-card>
 
-        <mat-card *ngIf="bagObject.bagObjectType === 'OPENBARE_RUIMTE'">
+        <mat-card *ngIf="openbareRuimte">
           <mat-card-header>
             <mat-card-title>{{
               "objecttype.OPENBARE_RUIMTE" | translate
@@ -229,16 +230,16 @@
             <div class="content flex-row flex-wrap">
               <zac-static-text
                 [label]="'identificatie' | translate"
-                [value]="openbareRuimte.woonplaats.identificatie"
+                [value]="openbareRuimte.woonplaats?.identificatie"
               ></zac-static-text>
               <zac-static-text
                 [label]="'naam' | translate"
-                [value]="openbareRuimte.woonplaats.naam"
+                [value]="openbareRuimte.woonplaats?.naam"
               ></zac-static-text>
               <zac-static-text
                 [label]="'status' | translate"
                 [value]="
-                  'bagObject.status.' + openbareRuimte.woonplaats.status
+                  'bagObject.status.' + openbareRuimte.woonplaats?.status
                     | translate
                 "
               ></zac-static-text>
@@ -246,7 +247,7 @@
           </mat-card-content>
         </mat-card>
 
-        <mat-card *ngIf="bagObject.bagObjectType === 'WOONPLAATS'">
+        <mat-card *ngIf="woonplaats">
           <mat-card-header>
             <mat-card-title>{{
               "objecttype.WOONPLAATS" | translate
@@ -272,7 +273,7 @@
           </mat-card-content>
         </mat-card>
 
-        <mat-card *ngIf="bagObject.bagObjectType === 'PAND'">
+        <mat-card *ngIf="pand">
           <mat-card-header>
             <mat-card-title>{{ "objecttype.PAND" | translate }}</mat-card-title>
             <mat-card-subtitle>{{ pand.omschrijving }}</mat-card-subtitle>
@@ -299,7 +300,7 @@
           </mat-card-content>
         </mat-card>
 
-        <mat-card *ngIf="bagObject.bagObjectType === 'NUMMERAANDUIDING'">
+        <mat-card *ngIf="nummeraanduiding">
           <mat-card-header>
             <mat-card-title>{{
               "objecttype.NUMMERAANDUIDING" | translate
@@ -325,11 +326,11 @@
               ></zac-static-text>
               <zac-static-text
                 [label]="'straat' | translate"
-                [value]="nummeraanduiding.openbareRuimte.naam"
+                [value]="nummeraanduiding.openbareRuimte?.naam"
               ></zac-static-text>
               <zac-static-text
                 [label]="'woonplaats' | translate"
-                [value]="nummeraanduiding.woonplaats.naam"
+                [value]="nummeraanduiding.woonplaats?.naam"
               ></zac-static-text>
               <zac-static-text
                 [label]="'status' | translate"
@@ -344,16 +345,16 @@
             <div class="content flex-row flex-wrap">
               <zac-static-text
                 [label]="'identificatie' | translate"
-                [value]="nummeraanduiding.openbareRuimte.identificatie"
+                [value]="nummeraanduiding.openbareRuimte?.identificatie"
               ></zac-static-text>
               <zac-static-text
                 [label]="'naam' | translate"
-                [value]="nummeraanduiding.openbareRuimte.naam"
+                [value]="nummeraanduiding.openbareRuimte?.naam"
               ></zac-static-text>
               <zac-static-text
                 [label]="'status' | translate"
                 [value]="
-                  'bagObject.status.' + nummeraanduiding.openbareRuimte.status
+                  'bagObject.status.' + nummeraanduiding.openbareRuimte?.status
                     | translate
                 "
               ></zac-static-text>
@@ -364,16 +365,16 @@
             <div class="content flex-row flex-wrap">
               <zac-static-text
                 [label]="'identificatie' | translate"
-                [value]="nummeraanduiding.woonplaats.identificatie"
+                [value]="nummeraanduiding.woonplaats?.identificatie"
               ></zac-static-text>
               <zac-static-text
                 [label]="'naam' | translate"
-                [value]="nummeraanduiding.woonplaats.naam"
+                [value]="nummeraanduiding.woonplaats?.naam"
               ></zac-static-text>
               <zac-static-text
                 [label]="'status' | translate"
                 [value]="
-                  'bagObject.status.' + nummeraanduiding.woonplaats.status
+                  'bagObject.status.' + nummeraanduiding.woonplaats?.status
                     | translate
                 "
               ></zac-static-text>
@@ -383,7 +384,7 @@
       </div>
       <div class="main-content flex-col gap-16">
         <zac-bag-zaken-tabel
-          [BagObjectIdentificatie]="bagObject.identificatie"
+          [BagObjectIdentificatie]="bagIdentificatie"
         ></zac-bag-zaken-tabel>
         <zac-bag-locatie
           *ngIf="geometrie"
