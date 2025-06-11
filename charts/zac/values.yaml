@@ -121,7 +121,7 @@ smartDocuments:
   # SmartDocuments environment with the same username.
   # If this setting is set, then templates in SmartDocuments cannot use user-specific values.
   fixedUserName: ""
-  # -- Normal attemded wizard flow started with user; when set to false no user added to the request and a special no_auth SmartDopcuments URL is used
+  # -- [OPTIONAL] Normal attended wizard flow started with user; when set to false no user added to the request and a special no_auth SmartDocuments URL is used
   wizardAuthEnabled: true
 
 # Signaleringen cronjob configuration
