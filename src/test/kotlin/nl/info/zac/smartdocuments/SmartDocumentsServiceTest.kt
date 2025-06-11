@@ -241,5 +241,4 @@ class SmartDocumentsServiceTest : BehaviorSpec({
             }
         }
     }
-
 })
