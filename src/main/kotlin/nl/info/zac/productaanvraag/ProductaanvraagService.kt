@@ -10,6 +10,7 @@ import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
+import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
@@ -27,6 +28,7 @@ import net.atos.zac.productaanvraag.util.GeometryTypeEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.IndicatieMachtigingEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter
 import net.atos.zac.util.JsonbUtil
+import nl.info.client.kvk.util.isValidKvkVestigingsnummer
 import nl.info.client.or.objects.model.generated.ModelObject
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
@@ -356,14 +358,22 @@ class ProductaanvraagService @Inject constructor(
         rolType: RolType,
         vestigingsNummer: String,
         zaak: URI
-    ) = zrcClientService.createRol(
-        RolVestiging(
-            zaak,
-            rolType,
-            ROL_TOELICHTING,
-            VestigingIdentificatie().apply { this.vestigingsNummer = vestigingsNummer }
+    ): Rol<*> {
+        if (!vestigingsNummer.isValidKvkVestigingsnummer()) {
+            throw ProductaanvraagNotSupportedException(
+                "Invalid KVK vestigingsnummer: '$vestigingsNummer'. " +
+                    "It should be a 12-digit number."
+            )
+        }
+        return zrcClientService.createRol(
+            RolVestiging(
+                zaak,
+                rolType,
+                ROL_TOELICHTING,
+                VestigingIdentificatie().apply { this.vestigingsNummer = vestigingsNummer }
+            )
         )
-    )
+    }
 
     private fun assignZaak(zaak: Zaak, zaakafhandelParameters: ZaakafhandelParameters) {
         zaakafhandelParameters.groepID?.let {

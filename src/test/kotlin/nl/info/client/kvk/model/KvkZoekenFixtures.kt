@@ -10,6 +10,7 @@ import nl.info.client.kvk.zoeken.model.generated.Adres
 import nl.info.client.kvk.zoeken.model.generated.AdresType
 import nl.info.client.kvk.zoeken.model.generated.BinnenlandsAdres
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
+import kotlin.random.Random
 
 @Suppress("LongParameterList")
 fun createAdresWithBinnenlandsAdres(
@@ -99,4 +100,10 @@ fun createVestigingsAdres(
     this.type = type
     this.indAfgeschermd = indAfgeschermd
     this.volledigAdres = volledigAdres
+}
+
+fun createRandomVestigingsNumber() = createRandomDigitsString(12)
+
+fun createRandomDigitsString(length: Int): String {
+    return (1..length).map { Random.nextInt(0, 10) }.joinToString("")
 }
