@@ -194,7 +194,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         }
     }
 
-    Given("SmartDocuments is enabled and wizardAuthEnabled is disabled") {
+    Given("SmartDocuments is enabled and wizard authentication is disabled") {
         val loggedInUser = createLoggedInUser()
         val data = createData()
         val variables = Variables(
