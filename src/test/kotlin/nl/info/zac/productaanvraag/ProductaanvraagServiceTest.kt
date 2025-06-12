@@ -407,7 +407,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue")),
                     "betrokkenen" to listOf(
                         mapOf(
-                            "vestigingsNummer" to vestigingsNummer,
+                            "vestigingsNummer" to invalidVestigingsNummer,
                             "rolOmschrijvingGeneriek" to "initiator"
                         )
                     )
