@@ -49,6 +49,13 @@ async function checkZaakAssignment(
   ).toBeVisible();
 }
 
+async function openZaak(this: CustomWorld, user: z.infer<typeof worldUsers>) {
+  worldUsers.parse(user);
+  const caseNumber = this.testStorage.get("caseNumber");
+
+  await this.page.goto(`${this.worldParameters.urls.zac}/zaken/${caseNumber}`);
+}
+
 Given(
   "Employee {string} is on the newly created zaak with status {string}",
   { timeout: ONE_MINUTE_IN_MS },
@@ -57,18 +64,20 @@ Given(
     user: z.infer<typeof worldUsers>,
     status: z.infer<typeof zaakStatus>,
   ) {
-    worldUsers.parse(user);
-    const caseNumber = this.testStorage.get("caseNumber");
+    await openZaak.call(this, user, status);
 
     const parsedStatus = zaakStatus.parse(status);
-
-    await this.page.goto(
-      `${this.worldParameters.urls.zac}/zaken/${caseNumber}`,
-    );
-
     await this.expect(
       this.page.getByText(`Status ${parsedStatus}`),
     ).toBeVisible();
+  },
+);
+
+Given(
+  "Employee {string} is on the newly created zaak",
+  { timeout: ONE_MINUTE_IN_MS },
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await openZaak.call(this, user);
   },
 );
 

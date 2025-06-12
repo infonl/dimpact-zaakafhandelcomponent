@@ -4,7 +4,7 @@
 # 
 Feature: BPMN
 
-  Scenario: Bob wants to create a new zaak
+  Scenario: Bob wants to create a new BPMN zaak
     Given "Bob" is logged in to zac
     When "Bob" wants to create a new "BPMN" zaak
     Then "Bob" sees the created zaak
@@ -14,25 +14,34 @@ Feature: BPMN
 
   Scenario: Bob fills the initial task form
     Given "Bob" is logged in to zac
-    When "Bob" opens the first task
+    When Employee "Bob" is on the newly created zaak
+    And "Bob" opens the active task
     Then "Bob" sees the form associated with the task
 
   Scenario: Bob creates two SmartDocuments Word files
-    When "Bob" creates a SmartDocuments Word file named "file A"
-    And "Bob" creates a SmartDocuments Word file named "file B"
-    And "Bob" reloads the page
+    Given "Bob" is logged in to zac
+    When Employee "Bob" is on the newly created zaak
+    And "Bob" opens the active task
+    Given "Bob" creates a SmartDocuments Word file named "file A"
+    When "Bob" reloads the page
     Then "Bob" sees document "file A" in the documents list
+    Given "Bob" creates a SmartDocuments Word file named "file B"
+    When "Bob" reloads the page
     Then "Bob" sees document "file B" in the documents list
 
   Scenario: Bob submits the task form
     Given "Bob" is logged in to zac
-    When "Bob" fills all mandatory form fields
+    When Employee "Bob" is on the newly created zaak
+    And "Bob" opens the active task
+    Then "Bob" sees the desired form fields values
+    Given "Bob" fills all mandatory form fields
     And "Bob" submits the filled-in form
-    When Employee "Bob" is on the newly created zaak with status "-"
+    When Employee "Bob" is on the newly created zaak
     Then "Bob" sees that the initial task is completed
-    And "Bob" sees that the summary task is started
+    Then "Bob" sees that the summary task is started
 
   Scenario: Bob inspects the summary task form
     Given "Bob" is logged in to zac
-    When "Bob" opens the summary form
-    Then "Bob" sees that the form contains all filled-in data
+    When Employee "Bob" is on the newly created zaak
+    And "Bob" opens the active task
+    Then "Bob" sees that the summary form contains all filled-in data

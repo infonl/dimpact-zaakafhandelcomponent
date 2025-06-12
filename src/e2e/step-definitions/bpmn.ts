@@ -3,19 +3,22 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Then, When } from "@cucumber/cucumber";
+import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 import { z } from "zod";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers } from "../utils/schemes";
 
 const ONE_MINUTE_IN_MS = 60_000;
+const TWENTY_SECOND_IN_MS = 20_000;
 
 When(
-  "{string} opens the first task",
+  "{string} opens the active task",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await this.page.getByRole("link", { name: "View task" }).click();
+    const viewTaskLink = this.page.getByRole("link", { name: "Taak bekijken" });
+    await viewTaskLink.scrollIntoViewIfNeeded();
+    await viewTaskLink.click();
   },
 );
 
@@ -34,7 +37,7 @@ Then(
   },
 );
 
-When(
+Given(
   "{string} creates a SmartDocuments Word file named {string}",
   { timeout: ONE_MINUTE_IN_MS },
   async function (
@@ -42,18 +45,31 @@ When(
     user: z.infer<typeof worldUsers>,
     fileName: string,
   ) {
+    // BPMN form: create a document
     await this.page.getByLabel("Template").selectOption("Data Test");
     await this.page.getByRole("button", { name: "Create" }).click();
-    await this.page.getByRole("textbox", { name: "Title" }).click();
-    await this.page.getByRole("textbox", { name: "Title" }).fill(fileName);
 
+    // ZAC: Create document sidebar
+    await this.page.getByRole("textbox", { name: "Titel" }).click();
+    await this.page.getByRole("textbox", { name: "Titel" }).fill(fileName);
+    await this.page
+      .getByRole("button", { name: "Toevoegen", exact: true })
+      .click();
+
+    // SmartDocuments wizard
     const smartDocumentsWizardPromise = this.page.waitForEvent("popup");
-    await this.page.getByRole("button", { name: "Add", exact: true }).click();
-
     const smartDocumentsWizardPage = await smartDocumentsWizardPromise;
     await smartDocumentsWizardPage
-      .getByRole("button", { name: "Finish" })
+      .getByRole("button", {
+        name: /Klaar/i,
+      })
       .click();
+    const wizardResultDiv = smartDocumentsWizardPage.locator(
+      '[role="status"][aria-live="polite"]',
+    );
+    await wizardResultDiv.waitFor({ state: "attached" });
+    await expect(wizardResultDiv.getByText("succes")).toBeVisible();
+    await smartDocumentsWizardPage.close();
   },
 );
 
@@ -65,7 +81,7 @@ When(
   },
 );
 
-When(
+Then(
   "{string} sees document {string} in the documents list",
   { timeout: ONE_MINUTE_IN_MS },
   async function (
@@ -73,7 +89,25 @@ When(
     user: z.infer<typeof worldUsers>,
     documentName: string,
   ) {
-    await expect(this.page.getByLabel("Documents")).toContainText(documentName);
+    await expect(this.page.getByLabel("Documents")).toContainText(
+      documentName,
+      { timeout: ONE_MINUTE_IN_MS },
+    );
+  },
+);
+
+Then(
+  "{string} sees the desired form fields values",
+  { timeout: ONE_MINUTE_IN_MS },
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await expect(this.page.getByLabel("Group")).toContainText(
+      "Functioneelbeheerders",
+      { timeout: TWENTY_SECOND_IN_MS },
+    );
+    await expect(this.page.getByLabel("Communication channel")).toContainText(
+      "E-mail",
+      { timeout: TWENTY_SECOND_IN_MS },
+    );
   },
 );
 
@@ -81,11 +115,10 @@ When(
   "{string} fills all mandatory form fields",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await this.page.getByLabel("Group").selectOption("test-group-fb");
-    await this.page.getByLabel("Group").selectOption("functioneelbeheerder1");
-    await this.page.getByLabel("Documents").selectOption({ index: 1 });
-    await this.page.getByLabel("Documents").selectOption({ index: 2 });
-    await this.page.getByLabel("Documents").selectOption("E-mail");
+    await this.page.getByLabel("Group").selectOption("functioneelbeheerders");
+    await this.page.getByLabel("User").selectOption("functioneelbeheerder2");
+    await this.page.getByLabel("Documents").selectOption(["file A", "file B"]);
+    await this.page.getByLabel("Communication channel").selectOption("E-mail");
   },
 );
 
@@ -104,13 +137,13 @@ Then(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await this.page
-      .getByRole("switch", { name: "Show finished tasks" })
+      .getByRole("switch", { name: "Toon afgeronde taken" })
       .click();
     await expect(
       this.page.getByRole("cell", { name: "Test form" }),
     ).toBeVisible();
     await expect(
-      this.page.locator("span").filter({ hasText: "Finished" }).nth(1),
+      this.page.locator("span").filter({ hasText: "Afgerond" }).nth(1),
     ).toBeVisible();
   },
 );
@@ -123,40 +156,26 @@ Then(
       this.page.getByRole("cell", { name: "Summary" }),
     ).toBeVisible();
     await expect(
-      this.page.locator("span").filter({ hasText: "Unassigned" }).nth(1),
+      this.page.locator("span").filter({ hasText: "Niet toegekend" }).nth(1),
     ).toBeVisible();
   },
 );
 
-When(
-  "{string} opens the summary form",
-  { timeout: ONE_MINUTE_IN_MS },
-  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await this.page
-      .getByRole("switch", { name: "Show finished tasks" })
-      .click();
-    await this.page.getByRole("link", { name: "View task" }).click();
-  },
-);
-
 Then(
-  "{string} sees that the form contains all filled-in data",
+  "{string} sees that the summary form contains all filled-in data",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await expect(this.page.getByRole("textbox", { name: "Group" })).toHaveValue(
-      "test-group-co",
+      "functioneelbeheerders",
     );
     await expect(this.page.getByRole("textbox", { name: "User" })).toHaveValue(
-      "coordinator1",
+      "functioneelbeheerder2",
     );
-    await expect(this.page.getByRole("combobox").nth(1)).toContainText(
-      /^[a-z,0-9,-]{36}$/,
-    );
-    await expect(this.page.getByRole("combobox").nth(2)).toContainText(
-      /^[a-z,0-9,-]{36}$/,
+    await expect(this.page.getByRole("combobox").nth(0)).toContainText(
+      /^[a-z,0-9-]{36}/,
     );
     await expect(
       this.page.getByRole("textbox", { name: "Reference table value" }),
-    ).toHaveValue("Balie");
+    ).toHaveValue("E-mail");
   },
 );
