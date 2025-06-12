@@ -279,7 +279,7 @@ Vanuit de werklijst kunnen de documenten met het 'Document koppelen' formulier g
 
 Het is ook mogelijk om een document te openen.
 
-**Inbox documenten (Coördinator)**
+**_Inbox documenten (Coördinator)_**
 
 Alle documenten die nog niet bij een zaak hebben gehoord, maar wel aan een zaak toegevoegd moeten worden zijn te vinden in de Inbox documenten.
 
@@ -287,7 +287,7 @@ Vanuit de werklijst kunnen de documenten met het 'Document koppelen' formulier g
 
 Het is ook mogelijk om een document te openen.
 
-**Inbox productaanvragen (Coördinator)**
+**_Inbox productaanvragen (Coördinator)_**
 
 Productaanvragen die niet tot een zaak hebben geleid komen in deze Inbox terecht. Vanuit de werklijst kan het bijbehorende aanvraagdocument bekeken worden.
 
@@ -715,10 +715,10 @@ Als ‘Ja’ wordt gekozen ga dan verder met stap 3 en 4. Bij ‘Nee’ ga je na
 
 De initiator van een zaak is de persoon of het bedrijf die het verzoek heeft geïnitieerd. Een zaak kan bij het aanmaken deze initiator al toegekend hebben. Als dit niet het geval is dan kan handmatig een initiator worden toegevoegd.
 
-Als aanwezig bij het betreffende zaaktype, dan is de initiator bij een zaak bovenaan het zaakgegevensscherm te vinden. Als er geen initiator is toegekend dan staat in dit blok ‘geen initiator’ vermeld. Met het ‘Initiator toevoegen’ icoon kan een persoon of bedrijf worden gezocht en worden toegekend.
+Als geconfigureerd bij het betreffende zaaktype, dan is de initiator bij een zaak bovenaan het zaakgegevensscherm te vinden. Als er geen initiator is toegekend dan staat in dit blok ‘geen initiator’ vermeld. Met het ‘Initiator toevoegen’ icoon kan een persoon of bedrijf worden gezocht en worden toegekend.
 ![Initiator toekennen](./images/initiator-toekennen.png)
 
-Als een zaak wel een initiator heeft toegekend gekregen dan kan deze gewijzigd worden met het potlood icoon, of ontkoppeld worden met het 'ontkoppel' icoon deze zijn dan beschikbaar in plaats van het ‘initiator toekennen’ icoon.
+Als een zaak wel een initiator heeft toegekend gekregen dan kan deze gewijzigd worden met het potlood icoon, of ontkoppeld worden met het 'ontkoppel' icoon, deze zijn dan beschikbaar in plaats van het ‘initiator toekennen’ icoon.
 ![Initiator wijzigen](./images/initiator-wijzigen.png)
 
 Als relevant voor de toegekende initiator zal er een indicatie zichtbaar worden in de vorm van een icoon. De volgende indicatoren zijn er mogelijk:
@@ -771,7 +771,7 @@ Als de initiator een bedrijf is dan kunnen extra gegevens over het bedrijf worde
 
 ### Betrokkene toevoegen
 
-Een betrokkene is een persoon of bedrijf die een rol speelt bij een zaak. Deze kunnen als bij het betreffende zaaktype mogfelijk, handmatig aan een zaak worden toegevoegd op een vergelijkbare wijze als het toekennen van een initiator. Een zaak kan meerdere betrokkenen hebben.
+Een betrokkene is een persoon of bedrijf die een rol speelt bij een zaak. Deze kunnen, als bij het betreffende zaaktype geconfigureerd, handmatig aan een zaak worden toegevoegd op een vergelijkbare wijze als het toekennen van een initiator. Een zaak kan meerdere betrokkenen hebben.
 
 **Stappen**
 
