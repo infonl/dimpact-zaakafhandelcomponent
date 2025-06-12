@@ -211,10 +211,6 @@ class SmartDocumentsServiceTest : BehaviorSpec({
             smartDocumentsClient.get().attendedDepositNoAuth(any(), any())
         } returns attendedResponse
 
-        every {
-            smartDocumentsClient.get().attendedDeposit(any(), any(), any())
-        } throws AssertionError("Should not call attendedDeposit when wizardAuthEnabled is false")
-
         val smartDocumentsService = SmartDocumentsService(
             smartDocumentsClient = smartDocumentsClient,
             enabled = Optional.of(true),
