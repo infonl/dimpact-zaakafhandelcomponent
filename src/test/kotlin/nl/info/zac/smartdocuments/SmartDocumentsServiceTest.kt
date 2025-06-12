@@ -208,7 +208,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         every { loggedInUserInstance.get() } returns loggedInUser
 
         every {
-            smartDocumentsClient.get().attendedDepositWizardNoAuth(any(), any())
+            smartDocumentsClient.get().attendedDepositNoAuth(any(), any())
         } returns attendedResponse
 
         every {
@@ -231,7 +231,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
                 smartDocument = smartDocument
             )
 
-            Then("it calls the attendedDepositWizardNoAuth and returns the response") {
+            Then("it calls the attendedDepositNoAuth and returns the response") {
                 with(response) {
                     redirectUrl shouldBe URI(
                         "$smartDocumentsURL/smartdocuments/wizard?ticket=${attendedResponse.ticket}"

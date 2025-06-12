@@ -36,7 +36,7 @@ interface SmartDocumentsClient {
 
     @POST
     @Path("/wsxmldeposit/deposit/wizard_no_auth")
-    fun attendedDepositWizardNoAuth(
+    fun attendedDepositNoAuth(
         @HeaderParam("Authorization") authenticationToken: String,
         deposit: Deposit
     ): AttendedResponse

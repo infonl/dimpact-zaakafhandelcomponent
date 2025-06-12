@@ -94,7 +94,7 @@ class SmartDocumentsService @Inject constructor(
                 deposit = deposit
             )
         } else {
-            smartDocumentsClient.get().attendedDepositWizardNoAuth(
+            smartDocumentsClient.get().attendedDepositNoAuth(
                 authenticationToken = "Basic ${authenticationToken.get()}",
                 deposit = deposit
             )
