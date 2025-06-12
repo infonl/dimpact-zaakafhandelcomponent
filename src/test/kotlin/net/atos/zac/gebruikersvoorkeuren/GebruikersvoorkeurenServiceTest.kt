@@ -36,7 +36,7 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             val result = gebruikersvoorkeurenService.createZoekopdracht(zoekopdracht)
 
             Then("it should merge the zoekopdracht and return the uprated zoekopdracht") {
-                result shouldBe zoekopdracht
+                result shouldBe mergedZoekopdracht
                 verify { entityManager.merge(zoekopdracht) }
             }
         }
