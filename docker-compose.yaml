@@ -255,7 +255,7 @@ services:
       - "8181:8181"
 
   brp-personen-wiremock:
-    image: docker.io/wiremock/wiremock:3.13.0@sha256:8d9a0330e4de2f9e2035fc290df0a370ac7c2a92072a6c8752a42597310edb09
+    image: docker.io/wiremock/wiremock:3.13.1@sha256:d61e7720f89483fdef5366843b58d1dfd06bcce5828179c9f2f54de5c28354b0
     volumes:
       - ./scripts/docker-compose/imports/brp-personen-wiremock/mappings:/home/wiremock/mappings
     entrypoint: [ "/docker-entrypoint.sh", "--disable-gzip", "--verbose" ]
