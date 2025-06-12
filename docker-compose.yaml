@@ -323,6 +323,7 @@ services:
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
+      - ./scripts/docker-compose/imports/smartdocuments-wiremock/__files:/home/wiremock/__files
     entrypoint: [ "/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose" ]
     ports:
       - "18080:8080"
