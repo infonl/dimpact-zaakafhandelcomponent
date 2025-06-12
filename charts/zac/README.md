@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.79](https://img.shields.io/badge/Version-1.0.79-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
+![Version: 1.0.80](https://img.shields.io/badge/Version-1.0.80-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -282,6 +282,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | smartDocuments.enabled | bool | `false` | Enable SmartDocuments integration for creating a new document |
 | smartDocuments.fixedUserName | string | `""` | If set this overrides the sending of the username of the user that is logged in to ZAC to SmartDocuments with a fixed value. This username is sent to SmartDocuments when creating a new document as an HTTP header. For most target environments this should not be set, assuming that all users that are available in ZAC are also available in the SmartDocuments environment with the same username. If this setting is set, then templates in SmartDocuments cannot use user-specific values. |
 | smartDocuments.url | string | `""` | URL to SmartDocuments instance. For example: https://partners.smartdocuments.com |
+| smartDocuments.wizardAuthEnabled | bool | `true` | [OPTIONAL] Normal attended wizard flow started with user; when set to false no user added to the request and a special no_auth SmartDocuments URL is used |
 | solr-operator.affinity | object | `{}` | affinity for solr-operator |
 | solr-operator.annotations | object | `{}` | annotations for solr-operator |
 | solr-operator.enabled | bool | `false` | set enabled to actually use the solr-operator helm chart |
