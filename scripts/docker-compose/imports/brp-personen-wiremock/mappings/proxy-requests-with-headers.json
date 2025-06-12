@@ -13,9 +13,6 @@
   },
   "response": {
     "proxyBaseUrl": "http://brp-personen-mock:5010",
-    "removeProxyRequestHeaders": [
-      "X-DOELBINDING",
-      "X-VERWERKING"
-    ]
+    "removeProxyRequestHeaders": ["X-DOELBINDING", "X-VERWERKING"]
   }
 }
