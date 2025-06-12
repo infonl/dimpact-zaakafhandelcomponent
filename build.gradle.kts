@@ -383,7 +383,8 @@ configure<SpotlessExtension> {
             "$appPath/dist/**",
             "$appPath/.angular/**",
             "src/**/package-lock.json",
-            "$appPath/coverage/**"
+            "$appPath/coverage/**",
+            "**/.venv/**"
         )
 
         prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "json"))
