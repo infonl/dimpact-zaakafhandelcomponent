@@ -78,7 +78,6 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         every {
             ztcClientService.readInformatieobjecttype(restTaakDocumentData.documentType.uuid)
         } returns providedInformatieObjectType
-
         every { configuratieService.readBronOrganisatie() } returns "123443210"
 
         When("convert is invoked") {
@@ -88,7 +87,6 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             )
             Then("the provided data is converted correctly") {
                 with(enkelvoudigInformatieObjectData) {
-                    // currently hardcoded
                     bronorganisatie shouldBe "123443210"
                     creatiedatum shouldHaveSameDayAs LocalDate.now()
                     titel shouldBe restTaakDocumentData.documentTitel
@@ -118,7 +116,6 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         every {
             ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
         } returns providedInformatieObjectType
-
         every { configuratieService.readBronOrganisatie() } returns "123443210"
 
         When("convert taak object is invoked") {
@@ -127,7 +124,6 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             )
             Then("the provided data is converted correctly") {
                 with(enkelvoudigInformatieObjectData) {
-                    // currently hardcoded
                     bronorganisatie shouldBe "123443210"
                     creatiedatum shouldHaveSameDayAs LocalDate.now()
                     titel shouldBe restEnkelvoudigInformatieobject.titel
@@ -164,7 +160,6 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         every {
             ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
         } returns providedInformatieObjectType
-
         every { configuratieService.readBronOrganisatie() } returns "123443210"
 
         When("convert zaak object is invoked") {
@@ -173,7 +168,6 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             )
             Then("the provided data is converted correctly") {
                 with(enkelvoudigInformatieObjectData) {
-                    // currently hardcoded
                     bronorganisatie shouldBe "123443210"
                     creatiedatum shouldHaveSameDayAs LocalDate.now()
                     titel shouldBe restEnkelvoudigInformatieobject.titel
