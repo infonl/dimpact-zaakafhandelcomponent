@@ -397,7 +397,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             )
         )
         val formulierBron = createBron()
-        val vestigingsNummer = "123456" // invalid vestigingsnummer
+        val invalidVestigingsNummer = "123456"
         val productAanvraagORObject = createORObject(
             record = createObjectRecord(
                 data = mapOf(
