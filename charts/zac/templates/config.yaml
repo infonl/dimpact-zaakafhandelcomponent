@@ -65,6 +65,9 @@ data:
   {{- if .Values.smartDocuments.fixedUserName }}
   SMARTDOCUMENTS_FIXED_USER_NAME: {{ .Values.smartDocuments.fixedUserName }}
   {{- end }}
+  {{- if .Values.smartDocuments.wizardAuthEnabled }}
+  SMARTDOCUMENTS_WIZARD_AUTH_ENABLED: {{ .Values.smartDocuments.wizardAuthEnabled }}
+  {{- end }}
   {{- end }}
   {{- if .Values.solr.url }}
   SOLR_URL: {{ .Values.solr.url }}

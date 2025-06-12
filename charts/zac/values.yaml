@@ -122,6 +122,8 @@ smartDocuments:
   # SmartDocuments environment with the same username.
   # If this setting is set, then templates in SmartDocuments cannot use user-specific values.
   fixedUserName: ""
+  # -- [OPTIONAL] Normal attended wizard flow started with user; when set to false no user added to the request and a special no_auth SmartDocuments URL is used
+  wizardAuthEnabled: true
 
 # Signaleringen cronjob configuration
 signaleringen:
@@ -297,13 +299,13 @@ opa:
     enabled: false
   replicas: 1
   resources:
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
     requests:
       cpu: 10m
       memory: 20Mi
