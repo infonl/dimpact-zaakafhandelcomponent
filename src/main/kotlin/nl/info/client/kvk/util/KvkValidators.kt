@@ -4,6 +4,8 @@
  */
 package nl.info.client.kvk.util
 
+import java.lang.Character.isDigit
+
 const val KVK_VESTIGINGSNUMMER_LENGTH = 12
 
-fun String.isValidKvkVestigingsnummer() = this.length == KVK_VESTIGINGSNUMMER_LENGTH && this.all { it.isDigit() }
+fun String.isValidKvkVestigingsnummer() = this.length == KVK_VESTIGINGSNUMMER_LENGTH && this.all(::isDigit)
