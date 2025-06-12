@@ -172,7 +172,7 @@ Behandelaar: heeft alle rechten om met de werklijsten, zaken, taken en documente
 
 Coördinator: heeft rechten om vanuit werklijsten werk te verdelen en zaken en taken te raadplegen
 
-Record manager: mag zaken en taken raadplegen en heeft aanvullende rechten op het gebied van documenten en beëindigde zaken zoals een zaak heropenen.
+Recordmanager: mag zaken en taken raadplegen en heeft aanvullende rechten op het gebied van documenten en beëindigde zaken zoals een zaak heropenen.
 
 ## Versie software
 
@@ -279,7 +279,7 @@ Vanuit de werklijst kunnen de documenten met het 'Document koppelen' formulier g
 
 Het is ook mogelijk om een document te openen.
 
-**_Inbox documenten (Coördinator)**
+**Inbox documenten (Coördinator)**
 
 Alle documenten die nog niet bij een zaak hebben gehoord, maar wel aan een zaak toegevoegd moeten worden zijn te vinden in de Inbox documenten.
 
@@ -287,7 +287,7 @@ Vanuit de werklijst kunnen de documenten met het 'Document koppelen' formulier g
 
 Het is ook mogelijk om een document te openen.
 
-**_Inbox productaanvragen (Coördinator)**
+**Inbox productaanvragen (Coördinator)**
 
 Productaanvragen die niet tot een zaak hebben geleid komen in deze Inbox terecht. Vanuit de werklijst kan het bijbehorende aanvraagdocument bekeken worden.
 
@@ -1205,7 +1205,7 @@ Een beëindigde zaak heeft een beperkt aantal mogelijkheden om gegevens te wijzi
 
 Het afhandelproces is niet beschikbaar bij een heropende zaak wat betekent dat er geen nieuwe taken gestart kunnen worden. Ook is andere proces gerelateerde functionaliteit zoals opschorten en verlengen niet beschikbaar
 
-De heropenen optie is alleen mogelijk als een gebruiker een bepaalde rol heeft, dat is nu de 'Recordmanager' rol.
+De heropenen optie is alleen mogelijk als een gebruiker een bepaalde rol heeft, dat is de 'Recordmanager' rol.
 
 **Stappen:**
 
@@ -1377,7 +1377,7 @@ Er kan op ieder moment bij een zaak een notitie worden vastgelegd. Een notitie k
 
 De notities functie wordt geactiveerd met het Notities icoon rechtsonder in het zaakscherm. Als er notities bij een zaak aanwezig zijn dan geeft het icoon aan hoeveel er zijn.
 
-De raadpleger mag notities alleen inzien, niet aanpassen of verwijderen. Een behandelaar mag notities van andere behandelaren inzien, maar niet aanpassen of verwijderen. 
+> De raadpleger mag notities alleen inzien, niet aanpassen of verwijderen. Een behandelaar mag notities van andere behandelaren inzien, maar niet aanpassen of verwijderen. 
 
 ## Notitie aanmaken
 
