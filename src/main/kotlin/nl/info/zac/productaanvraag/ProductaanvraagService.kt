@@ -28,6 +28,7 @@ import net.atos.zac.productaanvraag.util.GeometryTypeEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.IndicatieMachtigingEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter
 import net.atos.zac.util.JsonbUtil
+import nl.info.client.kvk.util.KVK_VESTIGINGSNUMMER_LENGTH
 import nl.info.client.kvk.util.isValidKvkVestigingsnummer
 import nl.info.client.or.objects.model.generated.ModelObject
 import nl.info.client.zgw.shared.ZGWApiService
@@ -362,7 +363,7 @@ class ProductaanvraagService @Inject constructor(
         if (!vestigingsNummer.isValidKvkVestigingsnummer()) {
             throw ProductaanvraagNotSupportedException(
                 "Invalid KVK vestigingsnummer: '$vestigingsNummer'. " +
-                    "It should be a 12-digit number."
+                    "It should be a $KVK_VESTIGINGSNUMMER_LENGTH-digit number."
             )
         }
         return zrcClientService.createRol(
