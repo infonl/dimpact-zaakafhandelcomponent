@@ -50,6 +50,11 @@ When(
 When(
   "{string} releases the zaken",
   async function (this: CustomWorld, s: string) {
+    const badge = await this.page
+      .locator('button:has-text("Vrijgeven") >> span')
+      .first();
+    _noOfZaken = Number(await badge.textContent());
+
     await this.page.getByRole("button", { name: "Vrijgeven" }).click();
     await this.page.getByLabel("Reden").fill("Fake reason");
     await this.page.getByRole("button", { name: "Vrijgeven" }).click();
@@ -71,7 +76,11 @@ Then(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, s: string) {
     await this.page
-      .getByText(`${_noOfZaken} zaken worden vrijgegeven...`)
+      .getByText(
+        _noOfZaken > 1
+          ? `${_noOfZaken} zaken worden vrijgegeven...`
+          : "De zaak wordt vrijgegeven...",
+      )
       .waitFor({ timeout: ONE_MINUTE_IN_MS });
   },
 );
