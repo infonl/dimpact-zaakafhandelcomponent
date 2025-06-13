@@ -51,7 +51,8 @@ When(
   "{string} releases the zaken",
   async function (this: CustomWorld, s: string) {
     const badge = await this.page
-      .locator('button:has-text("Vrijgeven") >> span')
+      .getByRole("button", { name: "Vrijgeven" })
+      .locator("span")
       .first();
     _noOfZaken = Number(await badge.textContent());
 
