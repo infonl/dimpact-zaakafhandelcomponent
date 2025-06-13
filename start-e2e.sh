@@ -9,11 +9,14 @@ set -e
 
 echo "Change Directory to e2e test directory .."
 cd ./src/e2e
-echo "Install dependencies ..."
-npm ci
 
-echo "Install Playwright Browsers ..."
-npx playwright install --with-deps
+if [ "$SKIP_INSTALL" != "true" ]; then
+  echo "Install dependencies ..."
+  npm ci
+
+  echo "Install Playwright Browsers ..."
+  npx playwright install --with-deps
+fi
 
 echo "Cleanup screenshots ..."
 rm -rf reports/*
