@@ -65,6 +65,30 @@ For example, the emails can be validated by specifying `validate` and `type` key
 
 ### ZAC extensions
 
+#### Zaak status
+To change zaak status you have to:
+* create service task
+* set class `net.atos.zac.flowable.delegate.UpdateZaakJavaDelegate`
+* add fields
+   * `statustypeOmschrijving` to `stringvalue` equal to your desired zaak statustype omschrijving
+   * `resultaattypeOmschrijving` to a valid `stringvalue`, required by your zaak statustype
+
+For example:
+```xml
+    <serviceTask id="ServiceTask_357" name="Status to &quot;Verleend&quot;" flowable:class="net.atos.zac.flowable.delegate.UpdateZaakJavaDelegate">
+      <extensionElements>
+        <flowable:field name="statustypeOmschrijving">
+          <flowable:string><![CDATA[Afgerond]]></flowable:string>
+        </flowable:field>
+        <flowable:field name="resultaattypeOmschrijving">
+          <flowable:string><![CDATA[Verleend]]></flowable:string>
+        </flowable:field>
+        <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
+        <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+      </extensionElements>
+    </serviceTask>
+```
+
 #### User/group
 To list the ZAC groups and users (groep / medewerker) you should use a `fieldset` layout component with:
 * `"type": "groepMedewerkerFieldset"`
