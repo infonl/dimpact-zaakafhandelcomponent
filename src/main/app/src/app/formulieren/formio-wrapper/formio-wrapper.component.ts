@@ -38,7 +38,7 @@ export class FormioWrapperComponent {
 
   onSubmit(event: object) {
     this.formSubmit.emit(event);
-    this.submissionDone.emit(true)
+    this.submissionDone.emit(true);
   }
 
   onChange(event: object) {

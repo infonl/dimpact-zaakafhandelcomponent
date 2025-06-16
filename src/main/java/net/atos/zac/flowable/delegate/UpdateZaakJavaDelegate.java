@@ -35,7 +35,7 @@ public class UpdateZaakJavaDelegate extends AbstractDelegate {
         if (resultaattypeOmschrijving != null) {
             final var resultaattypeOmschrijving = this.resultaattypeOmschrijving.getExpressionText();
             LOG.info("Zaak '%s': Aanmaken Status met resultaattype omschrijving '%s'"
-                         .formatted(zaak.getUuid(), resultaattypeOmschrijving));
+                    .formatted(zaak.getUuid(), resultaattypeOmschrijving));
             flowableHelper.getZgwApiService().createResultaatForZaak(zaak, resultaattypeOmschrijving, TOELICHTING);
         }
 
