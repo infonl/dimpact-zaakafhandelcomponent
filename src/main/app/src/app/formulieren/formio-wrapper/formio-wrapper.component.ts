@@ -31,12 +31,14 @@ export class FormioWrapperComponent {
   @Output() formSubmit = new EventEmitter<object>();
   @Output() formChange = new EventEmitter<{ data: unknown }>();
   @Output() createDocument = new EventEmitter<FormioCustomEvent>();
+  @Output() submissionDone = new EventEmitter<boolean>();
 
   @ViewChild(FormioComponent, { static: false })
   formioComponent!: FormioComponent;
 
   onSubmit(event: object) {
     this.formSubmit.emit(event);
+    this.submissionDone.emit(true)
   }
 
   onChange(event: object) {

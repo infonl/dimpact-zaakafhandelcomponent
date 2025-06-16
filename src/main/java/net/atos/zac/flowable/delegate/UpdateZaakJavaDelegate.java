@@ -32,18 +32,18 @@ public class UpdateZaakJavaDelegate extends AbstractDelegate {
         final var flowableHelper = FlowableHelper.getInstance();
         final var zaak = flowableHelper.getZrcClientService().readZaakByID(getZaakIdentificatie(execution));
 
+        if (resultaattypeOmschrijving != null) {
+            final var resultaattypeOmschrijving = this.resultaattypeOmschrijving.getExpressionText();
+            LOG.info("Zaak '%s': Aanmaken Status met resultaattype omschrijving '%s'"
+                         .formatted(zaak.getUuid(), resultaattypeOmschrijving));
+            flowableHelper.getZgwApiService().createResultaatForZaak(zaak, resultaattypeOmschrijving, TOELICHTING);
+        }
+
         if (statustypeOmschrijving != null) {
             final var statustypeOmschrijving = this.statustypeOmschrijving.getExpressionText();
             LOG.info("Zaak '%s': Aanmaken Status met statustype omschrijving '%s'"
                     .formatted(zaak.getUuid(), statustypeOmschrijving));
             flowableHelper.getZgwApiService().createStatusForZaak(zaak, statustypeOmschrijving, TOELICHTING);
-        }
-
-        if (resultaattypeOmschrijving != null) {
-            final var resultaattypeOmschrijving = this.resultaattypeOmschrijving.getExpressionText();
-            LOG.info("Zaak '%s': Aanmaken Status met statustype omschrijving '%s'"
-                    .formatted(zaak.getUuid(), resultaattypeOmschrijving));
-            flowableHelper.getZgwApiService().createResultaatForZaak(zaak, resultaattypeOmschrijving, TOELICHTING);
         }
     }
 }
