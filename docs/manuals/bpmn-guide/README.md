@@ -67,7 +67,7 @@ For example, the emails can be validated by specifying `validate` and `type` key
 
 #### Zaak status
 To change zaak status you have to:
-* create service task
+* create a service task
 * set class `net.atos.zac.flowable.delegate.UpdateZaakJavaDelegate`
 * add fields
    * `statustypeOmschrijving` to `stringvalue` equal to your desired zaak statustype omschrijving
