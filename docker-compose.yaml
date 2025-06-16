@@ -254,6 +254,18 @@ services:
     ports:
       - "8181:8181"
 
+  brp-personen-wiremock:
+    image: docker.io/wiremock/wiremock:3.13.1@sha256:d61e7720f89483fdef5366843b58d1dfd06bcce5828179c9f2f54de5c28354b0
+    volumes:
+      - ./scripts/docker-compose/imports/brp-personen-wiremock/mappings:/home/wiremock/mappings
+    entrypoint: [ "/docker-entrypoint.sh", "--disable-gzip", "--verbose" ]
+    ports:
+      - "5052:8080"
+    depends_on:
+      brp-personen-mock:
+        condition: service_started
+
+
   brp-personen-mock:
     # We use the 'latest' tag here because an unconventional versioning scheme is used for these Docker images which Renovate does not support
     image: ghcr.io/brp-api/personen-mock:2.6.0-latest@sha256:342d74255eed308aadc9aab2f6f1ea21b7c192969eee67e846e4512ba983e704
@@ -679,7 +691,10 @@ services:
       - AUTH_SERVER=http://keycloak:8080
       - BAG_API_CLIENT_MP_REST_URL=${BAG_API_CLIENT_MP_REST_URL:-https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/}
       - BAG_API_KEY=${BAG_API_KEY:-fakeBagApiKey}
-      - BRP_API_CLIENT_MP_REST_URL=http://brp-personen-mock:5010/haalcentraal/api/brp
+      - BRP_API_CLIENT_MP_REST_URL=http://brp-personen-wiremock:8080/haalcentraal/api/brp
+      - BRP_ORIGIN_OIN=${BRON_ORGANISATIE_RSIN:-123443210}
+      - BRP_DOELBINDING_ZOEKMET=BRPACT-Totaal
+      - BRP_DOELBINDING_RAADPLEEGMET=BRPACT-Totaal
       - BRON_ORGANISATIE_RSIN=${BRON_ORGANISATIE_RSIN:-123443210}
       - CONTEXT_URL=http://localhost:8080
       - DB_HOST=zac-database

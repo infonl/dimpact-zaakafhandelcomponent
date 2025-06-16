@@ -25,6 +25,7 @@ import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
+import nl.info.client.kvk.model.createRandomVestigingsNumber
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
@@ -337,7 +338,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             )
         )
         val formulierBron = createBron()
-        val vestigingsNummer = "fakeVestigingsNummer"
+        val vestigingsNummer = createRandomVestigingsNumber()
         val productAanvraagORObject = createORObject(
             record = createObjectRecord(
                 data = mapOf(
@@ -381,6 +382,65 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     Given(
         """
         a productaanvraag-dimpact object registration object for which zaakafhandelparameters exist
+        containing a betrokkene with role initiator and type vestiging with an invalid vestigingsnummer
+        and zaakafhandelparameters that have the KVK koppeling enabled 
+        """
+    ) {
+        val productAanvraagObjectUUID = UUID.randomUUID()
+        val zaakTypeUUID = UUID.randomUUID()
+        val productAanvraagType = "productaanvraag"
+        val zaakafhandelParameters = createZaakafhandelParameters(
+            zaaktypeUUID = zaakTypeUUID,
+            betrokkeneKoppelingen = createBetrokkeneKoppelingen(
+                brpKoppelen = false,
+                kvkKoppelen = true
+            )
+        )
+        val formulierBron = createBron()
+        val invalidVestigingsNummer = "123456"
+        val productAanvraagORObject = createORObject(
+            record = createObjectRecord(
+                data = mapOf(
+                    "bron" to formulierBron,
+                    "type" to productAanvraagType,
+                    // aanvraaggegevens must contain at least one key with a map value
+                    "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue")),
+                    "betrokkenen" to listOf(
+                        mapOf(
+                            "vestigingsNummer" to invalidVestigingsNummer,
+                            "rolOmschrijvingGeneriek" to "initiator"
+                        )
+                    )
+                )
+            )
+        )
+        every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+        every {
+            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                productAanvraagType
+            )
+        } returns listOf(zaakafhandelParameters)
+
+        When("the productaanvraag is handled") {
+            productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+            Then(
+                """
+                    no zaak should be created and no CMMN case process should be started
+                    """
+            ) {
+                verify(exactly = 0) {
+                    zgwApiService.createZaak(any())
+                    zrcClientService.createZaakobject(any())
+                    cmmnService.startCase(any(), any(), any(), any())
+                }
+            }
+        }
+    }
+
+    Given(
+        """
+        a productaanvraag-dimpact object registration object for which zaakafhandelparameters exist
         containing a betrokkene with role initiator and type vestiging and zaakafhandelparameters
         that have the BRP koppeling enabled
         """
@@ -396,7 +456,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             zaaktypeUUID = zaakTypeUUID,
         )
         val formulierBron = createBron()
-        val vestigingsNummer = "fakeVestigingsNummer"
+        val vestigingsNummer = createRandomVestigingsNumber()
         val productAanvraagORObject = createORObject(
             record = createObjectRecord(
                 data = mapOf(
@@ -649,10 +709,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val beslisserBsn = "fakeBsn4"
         val klantcontacterBsn = "fakeBsn5"
         val medeInitiatorBsn = "fakeBsn6"
-        val belanghebbendeVestigingsnummer1 = "fakeVestigingsNummer1"
-        val belanghebbendeVestigingsnummer2 = "fakeVestigingsNummer2"
-        val beslisserVestigingsnummer = "fakeVestigingsNummer3"
-        val zaakcoordinatorVestigingsnummer = "fakeVestigingsNummer4"
+        val belanghebbendeVestigingsnummer1 = createRandomVestigingsNumber()
+        val belanghebbendeVestigingsnummer2 = createRandomVestigingsNumber()
+        val beslisserVestigingsnummer = createRandomVestigingsNumber()
+        val zaakcoordinatorVestigingsnummer = createRandomVestigingsNumber()
         val rolTypeBelanghebbende = createRolType(
             zaakTypeUri = zaakType.url,
             omschrijvingGeneriek = OmschrijvingGeneriekEnum.BELANGHEBBENDE

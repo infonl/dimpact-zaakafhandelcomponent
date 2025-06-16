@@ -219,7 +219,12 @@
     </div>
   </ng-container>
   <ng-container *ngIf="zoekType === ZoekType.PERSONEN">
-    <zac-persoon-zoek [sideNav]="zoekenSideNav"></zac-persoon-zoek>
+    <zac-persoon-zoek
+      context="ZOEKEN"
+      action="persoon-zoeken"
+      [sideNav]="zoekenSideNav"
+    >
+    </zac-persoon-zoek>
   </ng-container>
   <ng-container *ngIf="zoekType === ZoekType.BEDRIJVEN">
     <zac-bedrijf-zoek [sideNav]="zoekenSideNav"></zac-bedrijf-zoek>

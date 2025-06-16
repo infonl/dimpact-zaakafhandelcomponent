@@ -193,4 +193,48 @@ class SmartDocumentsServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("SmartDocuments is enabled and wizard authentication is disabled") {
+        val loggedInUser = createLoggedInUser()
+        val data = createData()
+        val variables = Variables(
+            outputFormats = listOf(OutputFormat("DOCX")),
+            redirectMethod = "POST",
+            redirectUrl = "url"
+        )
+        val smartDocument = createSmartDocument(variables)
+        val attendedResponse = createAttendedResponse()
+
+        every { loggedInUserInstance.get() } returns loggedInUser
+
+        every {
+            smartDocumentsClient.get().attendedDepositNoAuth(any(), any())
+        } returns attendedResponse
+
+        val smartDocumentsService = SmartDocumentsService(
+            smartDocumentsClient = smartDocumentsClient,
+            enabled = Optional.of(true),
+            smartDocumentsURL = Optional.of(smartDocumentsURL),
+            authenticationToken = Optional.of(authenticationToken),
+            loggedInUserInstance = loggedInUserInstance,
+            fixedUserName = fixedUserName,
+            wizardAuthEnabled = Optional.of(false)
+        )
+
+        When("the 'createDocumentAttended' method is called without authorisation") {
+            val response = smartDocumentsService.createDocumentAttended(
+                data = data,
+                smartDocument = smartDocument
+            )
+
+            Then("it calls the attendedDepositNoAuth and returns the response") {
+                with(response) {
+                    redirectUrl shouldBe URI(
+                        "$smartDocumentsURL/smartdocuments/wizard?ticket=${attendedResponse.ticket}"
+                    )
+                    message shouldBe null
+                }
+            }
+        }
+    }
 })
