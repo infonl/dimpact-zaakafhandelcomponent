@@ -371,11 +371,16 @@ export class TaakViewComponent
   }
 
   onDocumentCreate(event: FormioCustomEvent) {
+    this.smartDocumentsTemplateName =
+      this.formioSetupService.extractSmartDocumentsTemplateName(event);
+    if (this.smartDocumentsTemplateName.length == 0) {
+      console.log("No SmartDocuments template name selected!");
+      return;
+    }
+
     this.activeSideAction = "actie.document.maken";
     this.smartDocumentsGroupPath =
       this.formioSetupService.getSmartDocumentsGroups(event.component);
-    this.smartDocumentsTemplateName =
-      this.formioSetupService.extractSmartDocumentsTemplateName(event);
     const normalizedTemplateName =
       this.formioSetupService.normalizeSmartDocumentsTemplateName(
         this.smartDocumentsTemplateName,
@@ -385,10 +390,7 @@ export class TaakViewComponent
         event,
         normalizedTemplateName,
       );
-
-    if (normalizedTemplateName.length > 0) {
-      this.actionsSidenav.open();
-    }
+    this.actionsSidenav.open();
   }
 
   // TODO add the correct type
