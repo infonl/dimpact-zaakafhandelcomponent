@@ -49,6 +49,13 @@ async function checkZaakAssignment(
   ).toBeVisible();
 }
 
+async function openZaak(this: CustomWorld, user: z.infer<typeof worldUsers>) {
+  worldUsers.parse(user);
+  const caseNumber = this.testStorage.get("caseNumber");
+
+  await this.page.goto(`${this.worldParameters.urls.zac}/zaken/${caseNumber}`);
+}
+
 Given(
   "Employee {string} is on the newly created zaak with status {string}",
   { timeout: ONE_MINUTE_IN_MS },
@@ -57,18 +64,20 @@ Given(
     user: z.infer<typeof worldUsers>,
     status: z.infer<typeof zaakStatus>,
   ) {
-    worldUsers.parse(user);
-    const caseNumber = this.testStorage.get("caseNumber");
+    await openZaak.call(this, user, status);
 
     const parsedStatus = zaakStatus.parse(status);
-
-    await this.page.goto(
-      `${this.worldParameters.urls.zac}/zaken/${caseNumber}`,
-    );
-
     await this.expect(
       this.page.getByText(`Status ${parsedStatus}`),
     ).toBeVisible();
+  },
+);
+
+Given(
+  "Employee {string} is on the newly created zaak",
+  { timeout: ONE_MINUTE_IN_MS },
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await openZaak.call(this, user);
   },
 );
 
@@ -117,25 +126,34 @@ When(
 );
 
 When(
-  "{string} wants to create a new zaak",
+  "{string} wants to create a new {string} zaak",
   { timeout: ONE_MINUTE_IN_MS },
-  async function (this: CustomWorld, user) {
+  async function (
+    this: CustomWorld,
+    user: z.infer<typeof worldUsers>,
+    zaakType: string,
+  ) {
+    const bpmnZaakType: boolean = zaakType === "BPMN";
+    const zaakTypeName: string = bpmnZaakType
+      ? "Zaaktype voor BPMN e2e testen"
+      : "Zaaktype voor e2e testen";
+
     await this.page.getByLabel("Zaak toevoegen").click();
     await this.page.getByLabel("Zaaktype").click();
-    await this.page
-      .getByRole("option", { name: "Zaaktype voor e2e testen" })
-      .click();
-    await this.page
-      .locator("div")
-      .filter({ hasText: /^person$/ })
-      .click();
-    await this.page.getByLabel("BSN").click();
-    await this.page.getByLabel("BSN").fill(TEST_PERSON_HENDRIKA_JANSE_BSN);
-    await this.page
-      .getByLabel("emoji_people Persoon")
-      .getByRole("button", { name: "Zoeken" })
-      .click();
-    await this.page.getByRole("button", { name: "Select" }).click();
+    await this.page.getByRole("option", { name: zaakTypeName }).click();
+    if (!bpmnZaakType) {
+      await this.page
+        .locator("div")
+        .filter({ hasText: /^person$/ })
+        .click();
+      await this.page.getByLabel("BSN").click();
+      await this.page.getByLabel("BSN").fill(TEST_PERSON_HENDRIKA_JANSE_BSN);
+      await this.page
+        .getByLabel("emoji_people Persoon")
+        .getByRole("button", { name: "Zoeken" })
+        .click();
+      await this.page.getByRole("button", { name: "Select" }).click();
+    }
     await this.page
       .locator("div")
       .filter({ hasText: /^gps_fixed$/ })
