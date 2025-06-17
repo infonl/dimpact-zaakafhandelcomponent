@@ -14,13 +14,11 @@ import {
 } from "@angular/core";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatTableDataSource } from "@angular/material/table";
-import { Observable } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
-import { Resultaat } from "../../shared/model/resultaat";
+import { PutBody } from "../../shared/http/zac-http-client";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ContactmomentenService } from "../contactmomenten.service";
-import { Contactmoment } from "../model/contactmoment";
-import { ListContactmomentenParameters } from "../model/list-contactmomenten-parameters";
 
 @Component({
   selector: "zac-klant-contactmomenten-tabel",
@@ -30,11 +28,10 @@ import { ListContactmomentenParameters } from "../model/list-contactmomenten-par
 export class KlantContactmomentenTabelComponent
   implements OnInit, AfterViewInit, OnChanges
 {
-  @Input() bsn: string;
-  @Input() vestigingsnummer: string;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  dataSource: MatTableDataSource<Contactmoment> =
-    new MatTableDataSource<Contactmoment>();
+  @Input() bsn?: string;
+  @Input() vestigingsnummer?: string;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  dataSource = new MatTableDataSource<GeneratedType<"RestContactmoment">>();
   columns: string[] = [
     "registratiedatum",
     "kanaal",
@@ -42,14 +39,13 @@ export class KlantContactmomentenTabelComponent
     "medewerker",
     "tekst",
   ];
-  listParameters = new ListContactmomentenParameters();
-  resultaat: Resultaat<Contactmoment> = new Resultaat<Contactmoment>();
-  init: boolean;
+  listParameters: PutBody<"/rest/klanten/contactmomenten"> = {};
+  init = false;
   isLoadingResults = true;
 
   constructor(
-    private contactmomentenService: ContactmomentenService,
-    private utilService: UtilService,
+    private readonly contactmomentenService: ContactmomentenService,
+    private readonly utilService: UtilService,
   ) {}
 
   ngOnInit(): void {
@@ -74,9 +70,8 @@ export class KlantContactmomentenTabelComponent
         }),
       )
       .subscribe((resultaat) => {
-        this.resultaat = resultaat;
-        this.paginator.length = resultaat.totaal;
-        this.dataSource.data = resultaat.resultaten;
+        this.paginator.length = resultaat.totaal ?? 0;
+        this.dataSource.data = resultaat.resultaten ?? [];
       });
   }
 
@@ -89,9 +84,8 @@ export class KlantContactmomentenTabelComponent
     }
   }
 
-  private loadContactmomenten(): Observable<Resultaat<Contactmoment>> {
+  private loadContactmomenten() {
     this.listParameters.page = this.paginator.pageIndex;
-    this.listParameters.pageSize = this.paginator.pageSize;
     return this.contactmomentenService.listContactmomenten(this.listParameters);
   }
 }
