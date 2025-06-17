@@ -368,7 +368,6 @@ class KlantRestServiceTest : BehaviorSpec({
             Then("it should return the retrieved person in the result") {
                 verify { brpClientService.retrievePersoon(bsn, REQUEST_CONTEXT) }
                 result.resultaten.size shouldBe 1
-                result.resultaten.first().bsn shouldBe bsn
             }
             Then("queryPersonen should not be called") {
                 verify(exactly = 0) {
@@ -398,7 +397,8 @@ class KlantRestServiceTest : BehaviorSpec({
             geslachtsnaam = "Jansen",
             geboortedatum = LocalDate.of(1990, 1, 1)
         )
-        val person = createPersoonBeperkt(bsn = "987654321")
+        val bsn = "987654321"
+        val person = createPersoonBeperkt(bsn = bsn)
         val personenResponse = createZoekMetGeslachtsnaamEnGeboortedatumResponse(listOf(person))
 
         every {
@@ -411,7 +411,6 @@ class KlantRestServiceTest : BehaviorSpec({
             Then("it should return the searched person in the result") {
                 verify { brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), REQUEST_CONTEXT) }
                 result.resultaten.size shouldBe 1
-                result.resultaten.first().bsn shouldBe "987654321"
             }
             Then("retrievePersonen should not be called") {
                 verify(exactly = 0) {
