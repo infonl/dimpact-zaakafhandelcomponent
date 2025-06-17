@@ -147,15 +147,18 @@ class KlantRestService @Inject constructor(
         @HeaderParam(HEADER_VERWERKING) auditEvent: String,
         restListPersonenParameters: RestListPersonenParameters
     ): RESTResultaat<RestPersoon> =
-        if (!restListPersonenParameters.bsn.isNullOrBlank()) {
-            listOfNotNull(brpClientService.retrievePersoon(restListPersonenParameters.bsn!!, auditEvent))
-                .map { it.toRestPersoon() }
+        restListPersonenParameters.bsn
+            ?.takeIf { it.isNotBlank() }
+            ?.let { bsn ->
+                listOfNotNull(brpClientService.retrievePersoon(bsn, auditEvent))
+                    .map { it.toRestPersoon() }
+                    .toRestResultaat()
+            }
+            ?: brpClientService.queryPersonen(
+                restListPersonenParameters.toPersonenQuery(),
+                auditEvent
+            ).toRechtsPersonen()
                 .toRestResultaat()
-        } else {
-            brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), auditEvent)
-                .toRechtsPersonen()
-                .toRestResultaat()
-        }
 
     @PUT
     @Path("bedrijven")
