@@ -122,6 +122,8 @@ smartDocuments:
   # SmartDocuments environment with the same username.
   # If this setting is set, then templates in SmartDocuments cannot use user-specific values.
   fixedUserName: ""
+  # -- [OPTIONAL] Normal attended wizard flow started with user; when set to false no user added to the request and a special no_auth SmartDocuments URL is used
+  wizardAuthEnabled: true
 
 # Signaleringen cronjob configuration
 signaleringen:
@@ -138,7 +140,7 @@ signaleringen:
   restartPolicy: Never
   image:
     repository: curlimages/curl
-    tag: 8.13.0@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd
+    tag: 8.14.1@sha256:9a1ed35addb45476afa911696297f8e115993df459278ed036182dd2cd22b67b
     pullPolicy: IfNotPresent
   imagePullSecrets: []
   resources: {}
@@ -274,7 +276,7 @@ initContainer:
   enabled: true
   image:
     repository: curlimages/curl
-    tag: 8.13.0@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd
+    tag: 8.14.1@sha256:9a1ed35addb45476afa911696297f8e115993df459278ed036182dd2cd22b67b
 
 # Open Policy Agent (OPA) configuration, prefilled resources values are the minimum recommended
 opa:
@@ -297,13 +299,13 @@ opa:
     enabled: false
   replicas: 1
   resources:
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
     requests:
       cpu: 10m
       memory: 20Mi
@@ -389,7 +391,7 @@ solr-operator:
         # -- solr jobs repository
         repository: curlimages/curl
         # -- solr jobs tag
-        tag: 8.13.0@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd
+        tag: 8.14.1@sha256:9a1ed35addb45476afa911696297f8e115993df459278ed036182dd2cd22b67b
       # -- nodeSelector for jobs
       nodeSelector: {}
       # -- tolerations for jobs

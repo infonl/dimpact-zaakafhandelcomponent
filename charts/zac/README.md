@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.79](https://img.shields.io/badge/Version-1.0.79-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
+![Version: 1.0.82](https://img.shields.io/badge/Version-1.0.82-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -89,7 +89,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | ingress.tls | list | `[]` |  |
 | initContainer.enabled | bool | `true` |  |
 | initContainer.image.repository | string | `"curlimages/curl"` |  |
-| initContainer.image.tag | string | `"8.13.0@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd"` |  |
+| initContainer.image.tag | string | `"8.14.1@sha256:9a1ed35addb45476afa911696297f8e115993df459278ed036182dd2cd22b67b"` |  |
 | keycloak.adminClient.id | string | `""` | Keycloak ZAC admin client name |
 | keycloak.adminClient.secret | string | `""` | Keycloak ZAC admin client secret |
 | klantinteractiesApi.token | string | `""` |  |
@@ -268,7 +268,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | signaleringen.failedJobsHistoryLimit | int | `3` |  |
 | signaleringen.image.pullPolicy | string | `"IfNotPresent"` |  |
 | signaleringen.image.repository | string | `"curlimages/curl"` |  |
-| signaleringen.image.tag | string | `"8.13.0@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd"` |  |
+| signaleringen.image.tag | string | `"8.14.1@sha256:9a1ed35addb45476afa911696297f8e115993df459278ed036182dd2cd22b67b"` |  |
 | signaleringen.imagePullSecrets | list | `[]` |  |
 | signaleringen.nodeSelector | object | `{}` |  |
 | signaleringen.podSecurityContext | object | `{}` |  |
@@ -282,6 +282,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | smartDocuments.enabled | bool | `false` | Enable SmartDocuments integration for creating a new document |
 | smartDocuments.fixedUserName | string | `""` | If set this overrides the sending of the username of the user that is logged in to ZAC to SmartDocuments with a fixed value. This username is sent to SmartDocuments when creating a new document as an HTTP header. For most target environments this should not be set, assuming that all users that are available in ZAC are also available in the SmartDocuments environment with the same username. If this setting is set, then templates in SmartDocuments cannot use user-specific values. |
 | smartDocuments.url | string | `""` | URL to SmartDocuments instance. For example: https://partners.smartdocuments.com |
+| smartDocuments.wizardAuthEnabled | bool | `true` | [OPTIONAL] Normal attended wizard flow started with user; when set to false no user added to the request and a special no_auth SmartDocuments URL is used |
 | solr-operator.affinity | object | `{}` | affinity for solr-operator |
 | solr-operator.annotations | object | `{}` | annotations for solr-operator |
 | solr-operator.enabled | bool | `false` | set enabled to actually use the solr-operator helm chart |
@@ -306,7 +307,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.jobs.createZacCore | bool | `true` | enable createZacCore to have a curl statement generate the zac core in the provided solrcloud if it does not exist yet |
 | solr-operator.solr.jobs.image.pullPolicy | string | `"IfNotPresent"` | solr jobs imagePullPolicy |
 | solr-operator.solr.jobs.image.repository | string | `"curlimages/curl"` | solr jobs repository |
-| solr-operator.solr.jobs.image.tag | string | `"8.13.0@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd"` | solr jobs tag |
+| solr-operator.solr.jobs.image.tag | string | `"8.14.1@sha256:9a1ed35addb45476afa911696297f8e115993df459278ed036182dd2cd22b67b"` | solr jobs tag |
 | solr-operator.solr.jobs.nodeSelector | object | `{}` | nodeSelector for jobs |
 | solr-operator.solr.jobs.tolerations | list | `[]` | tolerations for jobs |
 | solr-operator.solr.logLevel | string | `"INFO"` | solr loglevel |
