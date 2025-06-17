@@ -1476,7 +1476,7 @@ export class ZaakViewComponent
     this.activeSideAction = event;
   }
 
-  protected showInitiator() {
+  public showInitiator() {
     if (!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen)
       return false;
 
@@ -1486,7 +1486,7 @@ export class ZaakViewComponent
     return Boolean(brpKoppelen || kvkKoppelen);
   }
 
-  protected showPersoonsgegevens() {
+  public showPersoonsgegevens() {
     if (!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen)
       return false;
 
@@ -1499,7 +1499,7 @@ export class ZaakViewComponent
     );
   }
 
-  protected showBedrijfsgegevens() {
+  public showBedrijfsgegevens() {
     if (!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen)
       return false;
 
@@ -1512,7 +1512,7 @@ export class ZaakViewComponent
     );
   }
 
-  protected allowedToAddBetrokkene() {
+  public allowedToAddBetrokkene() {
     const brpAllowed =
       !!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
         ?.brpKoppelen && this.zaak.rechten.toevoegenInitiatorPersoon;
@@ -1523,7 +1523,7 @@ export class ZaakViewComponent
     return Boolean(brpAllowed || kvkAllowed);
   }
 
-  protected allowBedrijf() {
+  public allowBedrijf() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorBedrijf &&
         this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
@@ -1531,7 +1531,7 @@ export class ZaakViewComponent
     );
   }
 
-  protected allowPersoon() {
+  public allowPersoon() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorPersoon &&
         this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
@@ -1539,7 +1539,7 @@ export class ZaakViewComponent
     );
   }
 
-  protected showBetrokkeneKoppelingen() {
+  public showBetrokkeneKoppelingen() {
     const brpAllowed =
       !!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
         ?.brpKoppelen;
