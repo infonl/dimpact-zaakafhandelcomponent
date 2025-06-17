@@ -11,7 +11,6 @@ import { MatTableDataSource } from "@angular/material/table";
 import { Observable, of } from "rxjs";
 import { FormulierVeldDefinitie } from "../../../../admin/model/formulieren/formulier-veld-definitie";
 import { InformatieObjectenService } from "../../../../informatie-objecten/informatie-objecten.service";
-import { InformatieobjectZoekParameters } from "../../../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { Zaak } from "../../../../zaken/model/zaak";
 
@@ -61,12 +60,10 @@ export class DocumentenFormulierVeldComponent implements OnInit {
           this.zaak.uuid,
         );
     } else if (this.veldDefinitie.meerkeuzeOpties === "ZAAK") {
-      const zoekparameters = new InformatieobjectZoekParameters();
-      zoekparameters.zaakUUID = this.zaak.uuid;
       observable =
-        this.informatieObjectenService.listEnkelvoudigInformatieobjecten(
-          zoekparameters,
-        );
+        this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+          zaakUUID: this.zaak.uuid,
+        });
     } else {
       observable = this.getDocumentenVariable();
     }
@@ -106,13 +103,10 @@ export class DocumentenFormulierVeldComponent implements OnInit {
     const uuids = String(
       this.zaak.zaakdata[this.veldDefinitie.meerkeuzeOpties],
     );
-    if (uuids) {
-      const zoekparameters = new InformatieobjectZoekParameters();
-      zoekparameters.informatieobjectUUIDs = uuids.split(";");
-      return this.informatieObjectenService.listEnkelvoudigInformatieobjecten(
-        zoekparameters,
-      );
-    }
-    return of([]);
+    if (!uuids?.length) return of([]);
+
+    return this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+      informatieobjectUUIDs: uuids.split(";"),
+    });
   }
 }

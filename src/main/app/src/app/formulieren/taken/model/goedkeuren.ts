@@ -7,14 +7,12 @@ import { Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { Observable, of } from "rxjs";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
-import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { DocumentenLijstFieldBuilder } from "../../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { DocumentenOndertekenenFieldBuilder } from "../../../shared/material-form-builder/form-components/documenten-ondertekenen/documenten-ondertekenen-field-builder";
 import { ParagraphFormFieldBuilder } from "../../../shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
 import { RadioFormFieldBuilder } from "../../../shared/material-form-builder/form-components/radio/radio-form-field-builder";
 import { ReadonlyFormFieldBuilder } from "../../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
 import { TextareaFormFieldBuilder } from "../../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
-import { GeneratedType } from "../../../shared/utils/generated-types";
 import { TakenService } from "../../../taken/taken.service";
 import { AbstractTaakFormulier } from "../abstract-taak-formulier";
 import { Goedkeuring } from "../goedkeuring.enum";
@@ -43,12 +41,10 @@ export class Goedkeuren extends AbstractTaakFormulier {
   }
 
   protected _initStartForm() {
-    const zoekparameters = new InformatieobjectZoekParameters();
-    zoekparameters.zaakUUID = this.zaak.uuid;
     const documenten =
-      this.informatieObjectenService.listEnkelvoudigInformatieobjecten(
-        zoekparameters,
-      );
+      this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+        zaakUUID: this.zaak.uuid,
+      });
     const fields = this.fields;
     this.form.push(
       [
@@ -114,39 +110,33 @@ export class Goedkeuren extends AbstractTaakFormulier {
     );
   }
 
-  private getDocumenten$(
-    field: string,
-  ): Observable<GeneratedType<"RestEnkelvoudigInformatieobject">[]> {
+  private getDocumenten$(field: string) {
     const dataElement = this.getDataElement(field);
-    if (dataElement) {
-      const zoekParameters = new InformatieobjectZoekParameters();
-      if (dataElement) {
-        zoekParameters.zaakUUID = this.zaak.uuid;
-        zoekParameters.informatieobjectUUIDs = dataElement.split(
-          AbstractTaakFormulier.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER,
-        );
-        return this.informatieObjectenService.listEnkelvoudigInformatieobjecten(
-          zoekParameters,
-        );
-      }
-    }
-    return of([]);
+    if (!dataElement) return of([]);
+
+    return this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+      zaakUUID: this.zaak.uuid,
+      informatieobjectUUIDs: dataElement.split(
+        AbstractTaakFormulier.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER,
+      ),
+    });
   }
 
   private getDocumentenChecked(field: string): string[] {
     const dataElement = this.getDataElement(field);
-    if (dataElement) {
-      return dataElement.split(
-        AbstractTaakFormulier.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER,
-      );
-    }
-    return [];
+    if (!dataElement) return [];
+
+    return dataElement.split(
+      AbstractTaakFormulier.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER,
+    );
   }
 
   private getGoedkeurenOpties$(): Observable<string[]> {
     return of(
       Object.keys(Goedkeuring).map(
-        (k) => this.GOEDKEUREN_ENUM_PREFIX + Goedkeuring[k],
+        (k) =>
+          this.GOEDKEUREN_ENUM_PREFIX +
+          Goedkeuring[k as keyof typeof Goedkeuring],
       ),
     );
   }

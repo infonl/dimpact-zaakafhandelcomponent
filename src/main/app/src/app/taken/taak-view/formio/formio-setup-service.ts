@@ -13,7 +13,6 @@ import { UtilService } from "../../../core/service/util.service";
 import { FormioCustomEvent } from "../../../formulieren/formio-wrapper/formio-wrapper.component";
 import { IdentityService } from "../../../identity/identity.service";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
-import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { OrderUtil } from "../../../shared/order/order-util";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { Taak } from "../../model/taak";
@@ -255,14 +254,13 @@ export class FormioSetupService {
 
     fieldsetComponent.type = "fieldset";
 
-    const zoekParameters = new InformatieobjectZoekParameters();
-    zoekParameters.zaakUUID = this.taak!.zaakUuid;
-
     documentViewComponent.data = {
       custom: () =>
         lastValueFrom(
           this.informatieObjectenService
-            .listEnkelvoudigInformatieobjecten(zoekParameters)
+            .listEnkelvoudigInformatieobjecten({
+              zaakUUID: this.taak!.zaakUuid,
+            })
             .pipe(
               map((docs) =>
                 docs.map((doc) => ({

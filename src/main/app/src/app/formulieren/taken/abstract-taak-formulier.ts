@@ -6,7 +6,6 @@
 import { FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
@@ -127,23 +126,13 @@ export abstract class AbstractTaakFormulier {
   }
 
   private getTaakdocumentenEnBijlagen(bijlagen: string) {
-    const zoekParameters = new InformatieobjectZoekParameters();
-    zoekParameters.zaakUUID = this.zaak.uuid;
-    zoekParameters.informatieobjectUUIDs = [];
+    const taakDocumenten = this.taak?.taakdocumenten ?? [];
+    const bijlagenArray = bijlagen?.split(";") ?? [];
 
-    if (this.taak?.taakdocumenten) {
-      this.taak.taakdocumenten.forEach((uuid) => {
-        zoekParameters.informatieobjectUUIDs.push(uuid);
-      });
-    }
-
-    bijlagen?.split(";").forEach((uuid) => {
-      zoekParameters.informatieobjectUUIDs.push(uuid);
+    return this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+      zaakUUID: this.zaak.uuid,
+      informatieobjectUUIDs: [...taakDocumenten, ...bijlagenArray],
     });
-
-    return this.informatieObjectenService.listEnkelvoudigInformatieobjecten(
-      zoekParameters,
-    );
   }
 
   private getDocumentInformatie() {

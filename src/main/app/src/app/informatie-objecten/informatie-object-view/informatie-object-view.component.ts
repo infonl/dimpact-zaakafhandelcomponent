@@ -17,7 +17,7 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { Observable, throwError } from "rxjs";
+import { Observable, of, throwError } from "rxjs";
 import { catchError, tap } from "rxjs/operators";
 import { AsyncButtonMenuItem } from "src/app/shared/side-nav/menu-item/subscription-button-menu-item";
 import { UtilService } from "../../core/service/util.service";
@@ -45,7 +45,6 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
 import { FileFormat, FileFormatUtil } from "../model/file-format";
 import { FileIcon } from "../model/file-icon";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
-import { ZaakInformatieobject } from "../model/zaak-informatieobject";
 
 @Component({
   templateUrl: "./informatie-object-view.component.html",
@@ -58,7 +57,7 @@ export class InformatieObjectViewComponent
   readonly indicatiesLayout = IndicatiesLayout;
   infoObject?: GeneratedType<"RestEnkelvoudigInformatieobject">;
   laatsteVersieInfoObject: GeneratedType<"RestEnkelvoudigInformatieobject">;
-  zaakInformatieObjecten: ZaakInformatieobject[] = [];
+  zaakInformatieObjecten: GeneratedType<"RestZaakInformatieobject">[] = [];
   zaak?: GeneratedType<"RestZaak">;
   documentNieuweVersieGegevens?: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
   documentPreviewBeschikbaar = false;
@@ -430,12 +429,12 @@ export class InformatieObjectViewComponent
   }
 
   private deleteEnkelvoudigInformatieObject$(reden?: string): Observable<void> {
+    if (!this.infoObject?.uuid) return of();
     return this.informatieObjectenService
-      .deleteEnkelvoudigInformatieObject(
-        this.infoObject.uuid,
-        this.zaak?.uuid,
+      .deleteEnkelvoudigInformatieObject(this.infoObject.uuid, {
+        zaakUuid: this.zaak?.uuid,
         reden,
-      )
+      })
       .pipe(
         tap(() => this.websocketService.suspendListener(this.documentListener)),
       );

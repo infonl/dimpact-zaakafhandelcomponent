@@ -13,7 +13,6 @@ import { Mail } from "../../admin/model/mail";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { ActionIcon } from "../../shared/edit/action-icon";
@@ -90,12 +89,11 @@ export class MailCreateComponent implements OnInit {
       Mail.ZAAK_ALGEMEEN,
       this.zaak.uuid,
     );
-    const zoekparameters = new InformatieobjectZoekParameters();
-    zoekparameters.zaakUUID = this.zaak.uuid;
+
     const documenten =
-      this.informatieObjectenService.listEnkelvoudigInformatieobjecten(
-        zoekparameters,
-      );
+      this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+        zaakUUID: this.zaak.uuid,
+      });
 
     this.verzenderFormField = new SelectFormFieldBuilder()
       .id(this.fieldNames.VERZENDER)
