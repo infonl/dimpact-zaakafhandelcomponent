@@ -32,7 +32,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
 
   zoekopdrachten: Zoekopdracht[] = [];
   actieveZoekopdracht: Zoekopdracht | null = null;
-  actieveFilters = false
+  actieveFilters = false;
   filtersChangedSubscription$ = this.filtersChanged.subscribe(() => {
     this.clearActief();
   });
