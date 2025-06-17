@@ -1,12 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { WerklijstRechten } from "../../../policy/model/werklijst-rechten";
+import { GeneratedType } from "../../utils/generated-types";
 
 export class TabelGegevens {
   aantalPerPagina: number;
   pageSizeOptions: number[];
-  werklijstRechten: WerklijstRechten;
+  werklijstRechten: GeneratedType<"RestWerklijstRechten">;
 }

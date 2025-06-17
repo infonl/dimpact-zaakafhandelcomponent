@@ -1,9 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { DocumentRechten } from "../../policy/model/document-rechten";
 import { InformatieobjectIndicatie } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { EnkelvoudigInformatieobjectOndertekening } from "./enkelvoudig-informatieobject-ondertekening";
@@ -45,6 +44,6 @@ export class GekoppeldeZaakEnkelvoudigInformatieobject
   indicatieGebruiksrecht: boolean;
   gelockedDoor: GeneratedType<"RestUser">;
   indicaties: InformatieobjectIndicatie[];
-  rechten: DocumentRechten;
+  rechten: GeneratedType<"RestDocumentRechten">;
   isBesluitDocument: boolean;
 }
