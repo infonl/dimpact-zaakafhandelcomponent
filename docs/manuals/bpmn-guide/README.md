@@ -250,13 +250,23 @@ Example:
           "type": "select",
           "key": "ZAAK_Documents_Select",
           "input": true,
-          "widget": "html5",
+          "widget": "choicesjs",
+          "multiple": true,
+          "defaultValue": [],
+          "clearOnRefresh": true,
+          "dataSrc": "custom",
+          "placeholder": "Select one or more documents",
+          "customOptions": {
+            "choicesOptions": {
+              "removeItemButton": true,
+              "placeholder": false,
+              "searchEnabled": true,
+              "shouldSort": false
+            }
+          },
           "validate": {
             "required": true
-          },
-          "dataSrc": "custom",
-          "multiple": true,
-          "clearOnRefresh": true
+          }
         }
       ]
     }
