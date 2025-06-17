@@ -12,7 +12,7 @@ Feature: BPMN
     Given "Bob" navigates to "zac" with path "/zaken/werkvoorraad"
     Then "Bob" sees the created zaak
 
-  Scenario: Bob fills the initial task form
+  Scenario: Bob opens the initial task form
     Given "Bob" is logged in to zac
     When Employee "Bob" is on the newly created zaak
     And "Bob" opens the active task
@@ -29,7 +29,7 @@ Feature: BPMN
     When "Bob" reloads the page
     Then "Bob" sees document "file B" in the documents list
 
-  Scenario: Bob submits the task form
+  Scenario: Bob fills-in and submits the task form
     Given "Bob" is logged in to zac
     When Employee "Bob" is on the newly created zaak
     And "Bob" opens the active task
@@ -42,6 +42,14 @@ Feature: BPMN
 
   Scenario: Bob inspects the summary task form
     Given "Bob" is logged in to zac
-    When Employee "Bob" is on the newly created zaak
-    And "Bob" opens the active task
+    And Employee "Bob" is on the newly created zaak with status "In behandeling"
+    When "Bob" opens the active task
     Then "Bob" sees that the summary form contains all filled-in data
+
+  Scenario: Bob confirms the data in the summary form
+    Given "Bob" is logged in to zac
+    And Employee "Bob" is on the newly created zaak
+    When "Bob" opens the active task
+    And "Bob" confirms the data in the form
+    When Employee "Bob" is on the newly created zaak with status "Afgerond"
+    Then "Bob" sees the zaak result is set to "Verleend"

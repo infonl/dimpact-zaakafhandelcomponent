@@ -7,7 +7,7 @@ import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 import { z } from "zod";
 import { CustomWorld } from "../support/worlds/world";
-import { worldUsers } from "../utils/schemes";
+import {worldUsers, zaakResult, zaakStatus} from "../utils/schemes";
 
 const ONE_MINUTE_IN_MS = 60_000;
 const TWENTY_SECOND_IN_MS = 20_000;
@@ -177,5 +177,43 @@ Then(
     await expect(
       this.page.getByRole("textbox", { name: "Reference table value" }),
     ).toHaveValue("E-mail");
+  },
+);
+
+When(
+  "{string} confirms the data in the form",
+  { timeout: ONE_MINUTE_IN_MS },
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await this.page
+      .getByRole("button", { name: "Confirm" })
+      .click();
+  },
+);
+
+Then(
+  "{string} sees the zaak status changed to {string}",
+  { timeout: ONE_MINUTE_IN_MS },
+  async function (
+    this: CustomWorld,
+    user: z.infer<typeof worldUsers>,
+    status: z.infer<typeof zaakStatus>,
+  ) {
+    const parsedStatus = zaakStatus.parse(status);
+    await expect(this.page.locator('zac-zaak-verkort')).toContainText(parsedStatus);
+  },
+);
+
+Then(
+  "{string} sees the zaak result is set to {string}",
+  { timeout: ONE_MINUTE_IN_MS },
+  async function (
+    this: CustomWorld,
+    user: z.infer<typeof worldUsers>,
+    result: z.infer<typeof zaakStatus>,
+  ) {
+    const parsedResult = zaakResult.parse(result);
+    await this.expect(
+      this.page.getByText(`Resultaat ${parsedResult}`),
+    ).toBeVisible();
   },
 );
