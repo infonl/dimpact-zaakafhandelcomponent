@@ -11,11 +11,15 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import net.atos.client.klant.KlantClientService
 import net.atos.client.klant.createDigitalAddresses
 import nl.info.client.brp.BrpClientService
+import nl.info.client.brp.REQUEST_CONTEXT
 import nl.info.client.brp.exception.BrpPersonNotFoundException
 import nl.info.client.brp.model.createPersoon
+import nl.info.client.brp.model.createPersoonBeperkt
+import nl.info.client.brp.model.createZoekMetGeslachtsnaamEnGeboortedatumResponse
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.model.createAdresWithBinnenlandsAdres
 import nl.info.client.kvk.model.createResultaatItem
@@ -24,7 +28,9 @@ import nl.info.client.kvk.model.createVestiging
 import nl.info.client.kvk.model.createVestigingsAdres
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.klant.exception.VestigingNotFoundException
+import nl.info.zac.app.klant.model.personen.RestListPersonenParameters
 import nl.info.zac.app.klant.model.personen.createRestListBedrijvenParameters
+import java.time.LocalDate
 import java.util.Optional
 
 const val NON_BREAKING_SPACE = '\u00A0'.toString()
@@ -342,6 +348,55 @@ class KlantRestServiceTest : BehaviorSpec({
                     // the type should be converted to uppercase in the response
                     this.type shouldBe "FAKETYPE"
                     this.vestigingsnummer shouldBe "fakeVestigingsnummer"
+                }
+            }
+        }
+    }
+    Given("A person is looked up with a BSN") {
+        val bsn = "123456789"
+        val person = createPersoon(bsn = bsn)
+        val restListPersonenParameters = RestListPersonenParameters(bsn = bsn)
+
+        every {
+            brpClientService.retrievePersoon(bsn, REQUEST_CONTEXT)
+        } returns person
+
+        When("listPersonen is called") {
+            val result = klantRestService.listPersonen(REQUEST_CONTEXT, restListPersonenParameters)
+
+            Then("it should return the retrieved person in the result") {
+                result.resultaten.size shouldBe 1
+                result.resultaten.first().bsn shouldBe bsn
+            }
+            Then("queryPersonen should not be called") {
+                verify(exactly = 0) {
+                    brpClientService.queryPersonen(any(), any())
+                }
+            }
+        }
+    }
+    Given("Persons are queried using search parameters (no BSN)") {
+        val restListPersonenParameters = RestListPersonenParameters(
+            geslachtsnaam = "Jansen",
+            geboortedatum = LocalDate.of(1990, 1, 1)
+        )
+        val person = createPersoonBeperkt(bsn = "987654321")
+        val personenResponse = createZoekMetGeslachtsnaamEnGeboortedatumResponse(listOf(person))
+
+        every {
+            brpClientService.queryPersonen(any(), REQUEST_CONTEXT)
+        } returns personenResponse
+
+        When("listPersonen is called") {
+            val result = klantRestService.listPersonen(REQUEST_CONTEXT, restListPersonenParameters)
+
+            Then("it should return the searched person in the result") {
+                result.resultaten.size shouldBe 1
+                result.resultaten.first().bsn shouldBe "987654321"
+            }
+            Then("retrievePersonen should not be called") {
+                verify(exactly = 0) {
+                    brpClientService.retrievePersoon(any(), any())
                 }
             }
         }
