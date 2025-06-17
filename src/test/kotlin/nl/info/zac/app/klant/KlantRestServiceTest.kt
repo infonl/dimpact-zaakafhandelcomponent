@@ -375,6 +375,22 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
     }
+    Given("A person is looked up with a BSN") {
+        val bsn = "123456789"
+        val restListPersonenParameters = RestListPersonenParameters(bsn = bsn)
+
+        every {
+            brpClientService.retrievePersoon(bsn, REQUEST_CONTEXT)
+        } returns null
+
+        When("listPersonen is called no persoon is found") {
+            val result = klantRestService.listPersonen(REQUEST_CONTEXT, restListPersonenParameters)
+
+            Then("the result should be empty") {
+                result.resultaten shouldBe emptyList()
+            }
+        }
+    }
     Given("Persons are queried using search parameters (no BSN)") {
         val restListPersonenParameters = RestListPersonenParameters(
             geslachtsnaam = "Jansen",
