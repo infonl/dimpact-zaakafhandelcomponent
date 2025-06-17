@@ -45,6 +45,14 @@
           "disabled": true
         }
       ]
+    },
+    {
+      "type": "button",
+      "label": "Confirm",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
     }
   ]
 }

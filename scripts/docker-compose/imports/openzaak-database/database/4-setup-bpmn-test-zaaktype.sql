@@ -148,6 +148,58 @@ VALUES
 -- For the second JSON object
 INSERT INTO catalogi_resultaattype
 (
+    id,
+    uuid,
+    omschrijving,
+    resultaattypeomschrijving,
+    omschrijving_generiek,
+    selectielijstklasse,
+    archiefnominatie,
+    archiefactietermijn,
+    brondatum_archiefprocedure_afleidingswijze,
+    brondatum_archiefprocedure_datumkenmerk,
+    brondatum_archiefprocedure_einddatum_bekend,
+    brondatum_archiefprocedure_objecttype,
+    brondatum_archiefprocedure_registratie,
+    brondatum_archiefprocedure_procestermijn,
+    toelichting,
+    zaaktype_id,
+    _etag,
+    indicatie_specifiek,
+    procesobjectaard,
+    procestermijn,
+    datum_begin_geldigheid,
+    datum_einde_geldigheid
+)
+VALUES
+(
+    (SELECT COALESCE(MAX(id),0) FROM catalogi_resultaattype) + 1,
+    '538fa40d-3b83-4b32-8e03-d5e0b8fa0e8b',
+    'Verleend',
+    'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/45a3fcff-4898-4d63-8dcc-cb3fdc506b08',
+    'Verleend',
+    'https://selectielijst.openzaak.nl/api/v1/resultaten/f49b00e6-0612-4480-aaf5-8390be88d9f8',
+    'vernietigen',
+    'P1Y',
+    'afgehandeld',
+    '',
+    false,
+    '',
+    '',
+    NULL,
+    'Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen',
+    (SELECT id FROM catalogi_zaaktype WHERE uuid = '26076928-ce07-4d5d-8638-c2d276f6caca'), -- Zaaktype ID
+    '_etag',
+    NULL,
+    '',
+    NULL,
+    NULL,
+    NULL
+);
+
+-- For the third JSON object
+INSERT INTO catalogi_resultaattype
+(
   id,
   uuid,
   omschrijving,
@@ -806,5 +858,3 @@ VALUES
 (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = 'ecdb5ee6-846e-4afe-bb87-bee2a87109a9'),
 NULL,
 (SELECT id FROM catalogi_zaaktype WHERE uuid = '26076928-ce07-4d5d-8638-c2d276f6caca'), '_etag');
-
-
