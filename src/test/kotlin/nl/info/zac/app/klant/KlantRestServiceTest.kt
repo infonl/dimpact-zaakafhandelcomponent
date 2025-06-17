@@ -30,6 +30,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.klant.exception.VestigingNotFoundException
 import nl.info.zac.app.klant.model.personen.RestListPersonenParameters
 import nl.info.zac.app.klant.model.personen.createRestListBedrijvenParameters
+import nl.info.zac.app.klant.model.personen.toPersonenQuery
 import java.time.LocalDate
 import java.util.Optional
 
@@ -365,6 +366,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val result = klantRestService.listPersonen(REQUEST_CONTEXT, restListPersonenParameters)
 
             Then("it should return the retrieved person in the result") {
+                verify { brpClientService.retrievePersoon(bsn, REQUEST_CONTEXT) }
                 result.resultaten.size shouldBe 1
                 result.resultaten.first().bsn shouldBe bsn
             }
@@ -407,6 +409,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val result = klantRestService.listPersonen(REQUEST_CONTEXT, restListPersonenParameters)
 
             Then("it should return the searched person in the result") {
+                verify { brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), REQUEST_CONTEXT) }
                 result.resultaten.size shouldBe 1
                 result.resultaten.first().bsn shouldBe "987654321"
             }
