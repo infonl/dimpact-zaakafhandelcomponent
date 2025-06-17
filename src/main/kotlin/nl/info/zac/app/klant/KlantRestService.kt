@@ -146,12 +146,16 @@ class KlantRestService @Inject constructor(
     fun listPersonen(
         @HeaderParam(HEADER_VERWERKING) auditEvent: String,
         restListPersonenParameters: RestListPersonenParameters
-    ): RESTResultaat<RestPersoon> {
-        val isBsnQuery = !restListPersonenParameters.bsn.isNullOrBlank()
-        return brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), isBsnQuery, auditEvent)
-            .toRechtsPersonen()
-            .toRestResultaat()
-    }
+    ): RESTResultaat<RestPersoon> =
+        if (!restListPersonenParameters.bsn.isNullOrBlank()) {
+            listOfNotNull(brpClientService.retrievePersoon(restListPersonenParameters.bsn!!, auditEvent))
+                .map { it.toRestPersoon() }
+                .toRestResultaat()
+        } else {
+            brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), auditEvent)
+                .toRechtsPersonen()
+                .toRestResultaat()
+        }
 
     @PUT
     @Path("bedrijven")

@@ -73,21 +73,17 @@ class BrpClientService @Inject constructor(
         private val FIELDS_PERSOON_BEPERKT = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING)
     }
 
-    fun queryPersonen(personenQuery: PersonenQuery, isBsnQuery: Boolean, auditEvent: String): PersonenQueryResponse {
-        val updatedQuery = updateQuery(personenQuery)
-        val purpose = resolvePurposeFromContext(
-            auditEvent,
-            if (isBsnQuery) { retrievePersoonDefaultPurpose.getOrNull() } else { queryPersonenDefaultPurpose.getOrNull() }
-        ) {
-            if (isBsnQuery) { it.brpDoelbindingen?.raadpleegWaarde } else { it.brpDoelbindingen?.zoekWaarde }
+    fun queryPersonen(personenQuery: PersonenQuery, auditEvent: String): PersonenQueryResponse =
+        updateQuery(personenQuery).let { updatedQuery ->
+            personenApi.personen(
+                personenQuery = updatedQuery,
+                purpose = resolvePurposeFromContext(
+                    auditEvent,
+                    queryPersonenDefaultPurpose.getOrNull()
+                ) { it.brpDoelbindingen?.zoekWaarde },
+                auditEvent = auditEvent
+            )
         }
-        LOG.info("Resolved purpose: '$purpose' for auditEvent: '$auditEvent' (isBsnQuery=$isBsnQuery)")
-        return personenApi.personen(
-            personenQuery = updatedQuery,
-            purpose = purpose,
-            auditEvent = auditEvent
-        )
-    }
 
     /**
      * Retrieves a person by burgerservicenummer from the BRP Personen API.

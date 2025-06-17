@@ -148,7 +148,6 @@ class BrpClientServiceTest : BehaviorSpec({
         When("a query is run on personen for this BSN") {
             val personResponse = configuredBrpClientService.queryPersonen(
                 createRaadpleegMetBurgerservicenummer(listOf(bsn)),
-                false,
                 REQUEST_CONTEXT
             )
 
@@ -181,40 +180,6 @@ class BrpClientServiceTest : BehaviorSpec({
         When("queryPersonen is called") {
             val personResponse = brpClientService.queryPersonen(
                 createRaadpleegMetBurgerservicenummer(listOf(bsn)),
-                false,
-                REQUEST_CONTEXT
-            )
-
-            Then("it should return the person") {
-                personResponse shouldBe raadpleegMetBurgerservicenummerResponse
-            }
-        }
-    }
-
-    Given("a BSN lookup is performed, the 'raadpleegWaarde' purpose is used") {
-        val bsn = "123456789"
-        val person = createPersoon(
-            bsn = bsn
-        )
-        val raadpleegMetBurgerservicenummerResponse = createRaadpleegMetBurgerservicenummerResponse(
-            persons = listOf(person)
-        )
-        val brpClientService = BrpClientService(
-            personenApi = personenApi,
-            queryPersonenDefaultPurpose = Optional.empty(),
-            retrievePersoonDefaultPurpose = Optional.of(RETRIEVE_PERSOON_PURPOSE),
-            zrcClientService = zrcClientService,
-            zaakafhandelParameterService = zaakafhandelParameterService
-        )
-
-        every {
-            personenApi.personen(any(), RETRIEVE_PERSOON_PURPOSE, REQUEST_CONTEXT)
-        } returns raadpleegMetBurgerservicenummerResponse
-
-        When("queryPersonen is called") {
-            val personResponse = brpClientService.queryPersonen(
-                createRaadpleegMetBurgerservicenummer(listOf(bsn)),
-                true,
                 REQUEST_CONTEXT
             )
 
