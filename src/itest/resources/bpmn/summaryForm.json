@@ -32,8 +32,18 @@
           "labelPosition": "left-left",
           "type": "select",
           "key": "ZAAK_Documents_Select",
-          "input": false,
+          "input": true,
+          "widget": "choicesjs",
           "multiple": true,
+          "dataSrc": "custom",
+          "customOptions": {
+            "choicesOptions": {
+              "removeItemButton": true,
+              "placeholder": false,
+              "searchEnabled": true,
+              "shouldSort": false
+            }
+          },
           "disabled": true
         },
         {
