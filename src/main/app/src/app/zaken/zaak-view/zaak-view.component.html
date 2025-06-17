@@ -149,7 +149,7 @@
       <section class="w100 flex-1" *ngIf="showInitiator()">
         <zac-zaak-initiator-toevoegen
           class="w100 flex-1"
-          *ngIf="!(this.showPersoonsgegevens() || this.showBedrijfsgegevens())"
+          *ngIf="!(showPersoonsgegevens() || showBedrijfsgegevens())"
           [toevoegenToegestaan]="allowedToAddBetrokkene()"
           (add)="addOrEditZaakInitiator()"
         >
