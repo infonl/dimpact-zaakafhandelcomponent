@@ -258,8 +258,6 @@ export class FormioSetupService {
     const zoekParameters = new InformatieobjectZoekParameters();
     zoekParameters.zaakUUID = this.taak!.zaakUuid;
 
-    documentViewComponent.valueProperty = "uuid";
-    documentViewComponent.template = "{{ item.titel }}";
     documentViewComponent.data = {
       custom: () =>
         lastValueFrom(
@@ -268,8 +266,8 @@ export class FormioSetupService {
             .pipe(
               map((docs) =>
                 docs.map((doc) => ({
-                  titel: doc.titel,
-                  uuid: doc.uuid,
+                  label: String(doc.titel),
+                  value: String(doc.uuid),
                 })),
               ),
             ),
