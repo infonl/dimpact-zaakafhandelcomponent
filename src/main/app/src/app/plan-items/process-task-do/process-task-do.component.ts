@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -11,8 +11,6 @@ import { AbstractFormField } from "../../shared/material-form-builder/model/abst
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { PlanItem } from "../model/plan-item";
-import { ProcessTaskData } from "../model/process-task-data";
 import { PlanItemsService } from "../plan-items.service";
 
 @Component({
@@ -24,7 +22,7 @@ export class ProcessTaskDoComponent implements OnInit {
   formItems: Array<AbstractFormField[]>;
   formConfig: FormConfig;
   private formulier: AbstractProcessFormulier;
-  @Input() planItem: PlanItem;
+  @Input() planItem: GeneratedType<"RESTPlanItem">;
   @Input() zaak: GeneratedType<"RestZaak">;
   @Output() done = new EventEmitter<void>();
 
@@ -44,19 +42,19 @@ export class ProcessTaskDoComponent implements OnInit {
       .build();
   }
 
-  onFormSubmit(formGroup: FormGroup): void {
-    if (formGroup) {
-      const processTaskData: ProcessTaskData =
-        this.formulier.getData(formGroup);
-      processTaskData.planItemInstanceId = this.planItem.id;
-      this.planItemsService
-        .doProcessTaskPlanItem(processTaskData)
-        .subscribe(() => {
-          this.done.emit();
-        });
-    } else {
-      // cancel button clicked
+  onFormSubmit(formGroup?: FormGroup) {
+    if (!formGroup) {
       this.done.emit();
+      return;
     }
+
+    this.planItemsService
+      .doProcessTaskPlanItem({
+        ...this.formulier.getData(formGroup),
+        planItemInstanceId: this.planItem.id,
+      })
+      .subscribe(() => {
+        this.done.emit();
+      });
   }
 }

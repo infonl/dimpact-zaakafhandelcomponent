@@ -19,9 +19,6 @@ import { Mailtemplate } from "../../admin/model/mailtemplate";
 import { UtilService } from "../../core/service/util.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
-import { PlanItem } from "../../plan-items/model/plan-item";
-import { UserEventListenerActie } from "../../plan-items/model/user-event-listener-actie-enum";
-import { UserEventListenerData } from "../../plan-items/model/user-event-listener-data";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { ActionIcon } from "../../shared/edit/action-icon";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -40,7 +37,7 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
   formGroup: FormGroup;
   besluitVastleggen = false;
   mailtemplate?: Mailtemplate;
-  planItem: PlanItem;
+  planItem: GeneratedType<"RESTPlanItem">;
   initiatorEmail?: string;
   initiatorToevoegenIcon = new ActionIcon(
     "person",
@@ -53,7 +50,8 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
 
   constructor(
     public dialogRef: MatDialogRef<ZaakAfhandelenDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { zaak: Zaak; planItem: PlanItem },
+    @Inject(MAT_DIALOG_DATA)
+    public data: { zaak: Zaak; planItem: GeneratedType<"RESTPlanItem"> },
     private formBuilder: FormBuilder,
     private translateService: TranslateService,
     private zakenService: ZakenService,
@@ -75,8 +73,8 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
         this.mailtemplate = mailtemplate;
       });
     const zap = this.data.zaak.zaaktype.zaakafhandelparameters;
-    this.mailBeschikbaar = zap.afrondenMail !== "NIET_BESCHIKBAAR";
-    this.sendMailDefault = zap.afrondenMail === "BESCHIKBAAR_AAN";
+    this.mailBeschikbaar = zap?.afrondenMail !== "NIET_BESCHIKBAAR";
+    this.sendMailDefault = zap?.afrondenMail === "BESCHIKBAAR_AAN";
 
     if (
       this.data.zaak.initiatorIdentificatieType &&
@@ -153,31 +151,27 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
     this.dialogRef.disableClose = true;
     this.loading = true;
     const values = this.formGroup.value;
-    const userEventListenerData = new UserEventListenerData(
-      UserEventListenerActie.ZaakAfhandelen,
-      this.planItem.id,
-      this.data.zaak.uuid,
-    );
-    userEventListenerData.resultaattypeUuid = this.data.zaak.resultaat
-      ? this.data.zaak.resultaat.resultaattype?.id
-      : values.resultaattype.id;
-    userEventListenerData.resultaatToelichting = values.toelichting;
-
-    if (values.sendMail && this.mailtemplate) {
-      const restMailGegevens: GeneratedType<"RESTMailGegevens"> = {
-        verzender: values.verzender.mail,
-        replyTo: values.verzender.replyTo,
-        ontvanger: values.ontvanger,
-        onderwerp: this.mailtemplate.onderwerp,
-        body: this.mailtemplate.body,
-        createDocumentFromMail: true,
-      };
-
-      Object.assign(userEventListenerData, { restMailGegevens });
-    }
 
     this.planItemsService
-      .doUserEventListenerPlanItem(userEventListenerData)
+      .doUserEventListenerPlanItem({
+        actie: "ZAAK_AFHANDELEN",
+        planItemInstanceId: this.planItem.id,
+        zaakUuid: this.data.zaak.uuid,
+        resultaattypeUuid:
+          this.data.zaak.resultaat.resultaattype?.id ?? values.resultaattype.id,
+        resultaatToelichting: values.toelichting,
+        restMailGegevens:
+          values.sendMail && this.mailtemplate
+            ? {
+                verzender: values.verzender.mail,
+                replyTo: values.verzender.replyTo,
+                ontvanger: values.ontvanger,
+                onderwerp: this.mailtemplate.onderwerp,
+                body: this.mailtemplate.body,
+                createDocumentFromMail: true,
+              }
+            : null,
+      })
       .subscribe({
         next: () => {
           this.dialogRef.close(true);
