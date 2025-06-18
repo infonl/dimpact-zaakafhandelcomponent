@@ -68,4 +68,19 @@ export class ZacInput<
 
   protected getErrorMessage = () =>
     FormHelper.getErrorMessage(this.control, this.translateService);
+
+  protected onInput(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const value = target.value;
+    switch (this.type) {
+      case "text":
+        if (value !== "") break;
+        this.control?.reset(); // Ensure we send over `null` instead of an empty string
+        break;
+      case "number":
+      default:
+        // Nothing to do...
+        break;
+    }
+  }
 }
