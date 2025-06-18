@@ -108,7 +108,6 @@ export class ZacSelect<
       });
       return;
     }
-    console.log(options);
     this.availableOptions = options;
   }
 }
