@@ -36,7 +36,6 @@ import { Opcode } from "src/app/core/websocket/model/opcode";
 import { IndexingService } from "src/app/indexing/indexing.service";
 import { BatchProcessService } from "src/app/shared/batch-progress/batch-process.service";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
-import { SorteerVeld } from "src/app/zoeken/model/sorteer-veld";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
@@ -65,7 +64,7 @@ export class ZakenWerkvoorraadComponent
   ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
   expandedRow: ZaakZoekObject | null = null;
   readonly zoekenColumn = ZoekenColumn;
-  sorteerVeld = SorteerVeld;
+  sorteerVeld: GeneratedType<"SorteerVeld"> | null = null;
 
   einddatumGeplandIcon: TextIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.isExceeded),

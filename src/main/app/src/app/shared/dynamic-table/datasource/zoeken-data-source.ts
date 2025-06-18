@@ -14,7 +14,6 @@ import { UtilService } from "../../../core/service/util.service";
 import { Zoekopdracht } from "../../../gebruikersvoorkeuren/model/zoekopdracht";
 import { FilterResultaat } from "../../../zoeken/model/filter-resultaat";
 import { FilterVeld } from "../../../zoeken/model/filter-veld";
-import { SorteerVeld } from "../../../zoeken/model/sorteer-veld";
 import { ZoekObject } from "../../../zoeken/model/zoek-object";
 import { ZoekParameters } from "../../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../../zoeken/model/zoek-resultaat";
@@ -64,7 +63,8 @@ export abstract class ZoekenDataSource<
     this.zoekParameters.page = this.paginator.pageIndex;
     this.zoekParameters.rows = this.paginator.pageSize;
     this.zoekParameters.sorteerRichting = this.sort.direction;
-    this.zoekParameters.sorteerVeld = SorteerVeld[this.sort.active];
+    this.zoekParameters.sorteerVeld = this.sort
+      .active as GeneratedType<"SorteerVeld">;
 
     return SessionStorageUtil.setItem(
       this.werklijst + "_ZOEKPARAMETERS",

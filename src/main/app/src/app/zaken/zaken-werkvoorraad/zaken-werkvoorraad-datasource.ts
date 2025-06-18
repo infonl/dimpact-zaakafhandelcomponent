@@ -7,7 +7,6 @@ import { UtilService } from "../../core/service/util.service";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { ZoekenDataSource } from "../../shared/dynamic-table/datasource/zoeken-data-source";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
-import { ZoekObjectType } from "../../zoeken/model/zoek-object-type";
 import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 
@@ -20,7 +19,7 @@ export class ZakenWerkvoorraadDatasource extends ZoekenDataSource<ZaakZoekObject
   }
 
   protected initZoekparameters(zoekParameters: ZoekParameters) {
-    zoekParameters.type = ZoekObjectType.ZAAK;
+    zoekParameters.type = "ZAAK";
     zoekParameters.alleenOpenstaandeZaken = true;
   }
 }

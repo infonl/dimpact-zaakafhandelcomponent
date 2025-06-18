@@ -25,7 +25,6 @@ import { TranslateService } from "@ngx-translate/core";
 import { ObjectType } from "src/app/core/websocket/model/object-type";
 import { Opcode } from "src/app/core/websocket/model/opcode";
 import { BatchProcessService } from "src/app/shared/batch-progress/batch-process.service";
-import { SorteerVeld } from "src/app/zoeken/model/sorteer-veld";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -59,7 +58,7 @@ export class TakenWerkvoorraadComponent
   ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
   expandedRow: TaakZoekObject | null = null;
   readonly zoekenColumn = ZoekenColumn;
-  sorteerVeld = SorteerVeld;
+  sorteerVeld: GeneratedType<"SorteerVeld"> | null = null;
 
   fataledatumIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
