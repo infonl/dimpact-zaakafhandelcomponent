@@ -21,7 +21,6 @@ import { DividerFormFieldBuilder } from "src/app/shared/material-form-builder/fo
 import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { DateFormField } from "../../shared/material-form-builder/form-components/date/date-form-field";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
@@ -46,7 +45,7 @@ export class BesluitEditComponent implements OnDestroy, OnInit {
   @Input({ required: true }) sideNav!: MatDrawer;
   @Output() besluitGewijzigd = new EventEmitter<boolean>();
 
-  fields: Array<AbstractFormField[]>;
+  fields: Array<AbstractFormField[]> = [];
 
   private ngDestroy = new Subject<void>();
 
@@ -101,9 +100,7 @@ export class BesluitEditComponent implements OnDestroy, OnInit {
       .id("documenten")
       .label("documenten")
       .documentenChecked(
-        this.besluit.informatieobjecten
-          ? this.besluit.informatieobjecten.map((i) => i.uuid)
-          : [],
+        this.besluit.informatieobjecten?.map(({ uuid }) => uuid!) ?? [],
       )
       .documenten(
         this.besluit.besluittype?.id
@@ -200,12 +197,10 @@ export class BesluitEditComponent implements OnDestroy, OnInit {
   }
 
   listInformatieObjecten(besluittypeUUID: string) {
-    const zoekparameters = new InformatieobjectZoekParameters();
-    zoekparameters.zaakUUID = this.zaak.uuid;
-    zoekparameters.besluittypeUUID = besluittypeUUID;
-    return this.informatieObjectenService.listEnkelvoudigInformatieobjecten(
-      zoekparameters,
-    );
+    return this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+      zaakUUID: this.zaak.uuid,
+      besluittypeUUID: besluittypeUUID,
+    });
   }
 
   onFormSubmit(formGroup?: FormGroup): void {
