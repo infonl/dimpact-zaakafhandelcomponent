@@ -18,6 +18,7 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import net.atos.client.zgw.zrc.model.Rol
+import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -28,6 +29,7 @@ import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatus
+import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
@@ -35,11 +37,13 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_OPEN_SUBCASES
+import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
@@ -55,6 +59,8 @@ class ZaakServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val lockService = mockk<EnkelvoudigInformatieObjectLockService>()
+    val identityService = mockk<IdentityService>()
+    val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
 
     val zaakService = ZaakService(
         eventingService = eventingService,
@@ -62,6 +68,8 @@ class ZaakServiceTest : BehaviorSpec({
         ztcClientService = ztcClientService,
         zaakVariabelenService = zaakVariabelenService,
         lockService = lockService,
+        identityService = identityService,
+        zaakafhandelParameterService = zaakafhandelParameterService
     )
     val explanation = "fakeExplanation"
     val screenEventResourceId = "fakeResourceId"
@@ -74,6 +82,7 @@ class ZaakServiceTest : BehaviorSpec({
     val rolTypeBehandelaar = createRolType(
         omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
     )
+    val zaakafhandelParameters = createZaakafhandelParameters()
 
     beforeEach {
         checkUnnecessaryStub()
@@ -84,6 +93,9 @@ class ZaakServiceTest : BehaviorSpec({
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
             every {
+                zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
+            } returns zaakafhandelParameters
+            every {
                 ztcClientService.readRoltype(
                     it.zaaktype,
                     OmschrijvingGeneriekEnum.BEHANDELAAR
@@ -92,10 +104,9 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.updateRol(it, any(), explanation) } just Runs
             every { eventingService.send(capture(screenEventSlot)) } just Runs
         }
-        When(
-            """the assign zaken function is called with a group, a user
-                and a screen event resource id"""
-        ) {
+        every { identityService.isUserInGroup(user.id, group.id) } returns true
+
+        When("the assign zaken function is called with a group, a user and a screen event resource id") {
             zaakService.assignZaken(
                 zaakUUIDs = zaken.map { it.uuid },
                 explanation = explanation,
@@ -106,8 +117,8 @@ class ZaakServiceTest : BehaviorSpec({
 
             Then(
                 """for both zaken the group and user roles 
-                    and the search index should be updated and
-                    a screen event of type 'zaken verdelen' should sent"""
+                and the search index should be updated and
+                a screen event of type 'zaken verdelen' should sent"""
             ) {
                 zaken.map {
                     verify(exactly = 2) {
@@ -122,6 +133,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("One open and one closed zaak and a group and a user") {
         val openZaak = createZaak()
         val closedZaak = createZaak(
@@ -132,6 +144,9 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(it.uuid) } returns it
         }
         every {
+            zaakafhandelParameterService.readZaakafhandelParameters(openZaak.zaaktype.extractUuid())
+        } returns zaakafhandelParameters
+        every {
             ztcClientService.readRoltype(
                 openZaak.zaaktype,
                 OmschrijvingGeneriekEnum.BEHANDELAAR
@@ -139,6 +154,8 @@ class ZaakServiceTest : BehaviorSpec({
         } returns rolTypeBehandelaar
         every { zrcClientService.updateRol(openZaak, any(), explanation) } just Runs
         every { eventingService.send(any<ScreenEvent>()) } just Runs
+        every { identityService.isUserInGroup(user.id, group.id) } returns true
+
         When(
             """the assign zaken function is called with a group, a user
                 and a screen event resource id"""
@@ -170,6 +187,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("A list of zaken and a screen event resource id") {
         val screenEventSlot = slot<ScreenEvent>()
         zaken.map {
@@ -205,6 +223,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("One open and one closed zaak and a screen event resource id") {
         val openZaak = createZaak()
         val closedZaak = createZaak(
@@ -239,10 +258,10 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """
-            A list of zaken and a failing ZRC client service that throws an exception 
-            when retrieving the second zaak 
+         A list of zaken and a failing ZRC client service that throws an exception when retrieving the second zaak 
             """
     ) {
         every { zrcClientService.readZaak(zaken[0].uuid) } returns zaken[0]
@@ -271,10 +290,14 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("A list of zaken") {
         val screenEventSlot = slot<ScreenEvent>()
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
+            every {
+                zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
+            } returns zaakafhandelParameters
             every {
                 ztcClientService.readRoltype(
                     it.zaaktype,
@@ -309,6 +332,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("A zaak without any betrokkenen") {
         val zaak = createZaak()
         val roleTypeUUID = UUID.randomUUID()
@@ -344,6 +368,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("A zaak with a betrokkenen of type natuurlijk persoon and role type 'adviseur'") {
         val zaak = createZaak()
         val roleTypeUUID = UUID.randomUUID()
@@ -388,6 +413,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("A zaak with a betrokkenen of type natuurlijk persoon and role type adviseur") {
         val zaak = createZaak()
         val roleTypeUUID = UUID.randomUUID()
@@ -425,10 +451,11 @@ class ZaakServiceTest : BehaviorSpec({
         }
     }
     Given(
-        "A zaak with one initiator, one behandelaar and two other betrokkenen roles not of type initiator or behandelaar"
+        """A zaak with one initiator, one behandelaar and two other betrokkenen roles
+            not of type initiator or behandelaar"""
     ) {
         val zaak = createZaak()
-        val rolNatuurlijkPersonen = listOf<Rol<*>>(
+        val rolNatuurlijkPersonen = listOf(
             createRolNatuurlijkPersoon(
                 zaakURI = zaak.zaaktype,
                 rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BELANGHEBBENDE)

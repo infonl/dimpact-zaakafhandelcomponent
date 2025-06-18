@@ -13,9 +13,11 @@ import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolVestiging
+import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
@@ -54,7 +56,8 @@ class ZaakService @Inject constructor(
     private var eventingService: EventingService,
     private var zaakVariabelenService: ZaakVariabelenService,
     private val lockService: EnkelvoudigInformatieObjectLockService,
-    private val identityService: IdentityService
+    private val identityService: IdentityService,
+    private val zaakafhandelParameterService: ZaakafhandelParameterService
 ) {
     fun addBetrokkeneToZaak(
         roleTypeUUID: UUID,
@@ -116,29 +119,13 @@ class ZaakService @Inject constructor(
         LOG.fine {
             "Started to assign ${zaakUUIDs.size} zaken with screen event resource ID: '$screenEventResourceId'."
         }
-        if (user != null && !identityService.isUserInGroup(user.id, group.name)) {
-            zaakUUIDs
-                .map(zrcClientService::readZaak)
-                .forEach { zaak ->
-                    LOG.fine(
-                        "Zaak with UUID '${zaak.uuid}' is skipped and not assigned. " +
-                                "User '${user.displayName}' (id: {$user.id}) is not in the group '${group.name}'"
-                    )
-                    eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
-                }
-            return
-        }
+        if (!isUserInGroup(user, group, zaakUUIDs)) return
 
         val zakenAssignedList = mutableListOf<UUID>()
         zaakUUIDs
             .map(zrcClientService::readZaak)
-            .filter {
-                if (!it.isOpen()) {
-                    LOG.fine("Zaak with UUID '${it.uuid} is not open. Therefore it is skipped and not assigned.")
-                    eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it))
-                }
-                it.isOpen()
-            }
+            .filter { isZaakOpen(it) }
+            .filter { sameDomain(it, group) }
             .map { zaak ->
                 zrcClientService.updateRol(
                     zaak,
@@ -163,6 +150,47 @@ class ZaakService @Inject constructor(
             eventingService.send(ScreenEventType.ZAKEN_VERDELEN.updated(it))
         }
     }
+
+    private fun isUserInGroup(
+        user: User?,
+        group: Group,
+        zaakUUIDs: List<UUID>
+    ) =
+        user?.let {
+            val inGroup = identityService.isUserInGroup(user.id, group.id)
+            if (!inGroup) {
+                LOG.warning(
+                    "User '${user.displayName}' (id: {$user.id}) is not in the group '${group.name}'. " +
+                        "Skipping all zaken."
+                )
+                zaakUUIDs
+                    .map(zrcClientService::readZaak)
+                    .forEach { eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it)) }
+            }
+            inGroup
+        } ?: true
+
+    private fun isZaakOpen(zaak: Zaak) =
+        zaak.let {
+            if (!it.isOpen()) {
+                LOG.fine("Zaak with UUID '${zaak.uuid} is not open. Therefore it is skipped and not assigned.")
+                eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
+            }
+            it.isOpen()
+        }
+
+    private fun sameDomain(zaak: Zaak, group: Group) =
+        zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid()).let { params ->
+            val sameDomain = group.zacClientRoles.contains(params.domein)
+            if (!sameDomain) {
+                LOG.fine(
+                    "Zaak with UUID '${zaak.uuid}' is skipped and not assigned. " +
+                        "Group '${group.name}' is not part of the zaaktype domain '${params.domein}'"
+                )
+                eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
+            }
+            sameDomain
+        }
 
     fun bepaalRolGroep(group: Group, zaak: Zaak) =
         RolOrganisatorischeEenheid(
