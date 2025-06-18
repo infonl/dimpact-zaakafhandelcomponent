@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -22,9 +22,9 @@
           mat-table
           [dataSource]="dataSource"
           matSort
-          [matSortActive]="listParameters.sort"
+          [matSortActive]="listParametersSort.sort"
           matSortDisableClear
-          [matSortDirection]="listParameters.order"
+          [matSortDirection]="listParametersSort.order"
         >
           <ng-container matColumnDef="identificatie_filter">
             <th mat-header-cell *matHeaderCellDef>
@@ -58,7 +58,7 @@
               <zac-zoekopdracht
                 class="flex-row justify-end"
                 [werklijst]="getWerklijst()"
-                [zoekFilters]="listParameters"
+                [zoekFilters]="listParametersSort"
                 [filtersChanged]="clearZoekopdracht"
                 (zoekopdracht)="zoekopdrachtChanged($event)"
               ></zac-zoekopdracht>
@@ -108,6 +108,7 @@
                 </a>
                 <a
                   mat-icon-button
+                  [disabled]="row.enkelvoudiginformatieobjectUUID"
                   [href]="getDownloadURL(row)"
                   title="{{ 'actie.downloaden' | translate }}"
                 >

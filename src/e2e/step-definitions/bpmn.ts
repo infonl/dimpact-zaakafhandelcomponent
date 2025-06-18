@@ -32,7 +32,9 @@ Then(
     await expect(
       this.page.getByRole("button", { name: "Create" }),
     ).toBeVisible();
-    await expect(this.page.getByLabel("Documents")).toBeVisible();
+    await expect(
+      this.page.getByRole("textbox", { name: "Select one or more documents" }),
+    ).toBeVisible();
     await expect(this.page.getByLabel("Communication channel")).toBeVisible();
   },
 );
@@ -89,10 +91,12 @@ Then(
     user: z.infer<typeof worldUsers>,
     documentName: string,
   ) {
-    await expect(this.page.getByLabel("Documents")).toContainText(
-      documentName,
-      { timeout: ONE_MINUTE_IN_MS },
-    );
+    await this.page
+      .getByRole("textbox", { name: "Select one or more documents" })
+      .fill("");
+    await expect(
+      this.page.getByRole("option", { name: documentName, exact: true }),
+    ).toContainText(documentName, { timeout: TWENTY_SECOND_IN_MS });
   },
 );
 
@@ -117,7 +121,11 @@ When(
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await this.page.getByLabel("Group").selectOption("functioneelbeheerders");
     await this.page.getByLabel("User").selectOption("functioneelbeheerder2");
-    await this.page.getByLabel("Documents").selectOption(["file A", "file B"]);
+    await this.page
+      .getByRole("textbox", { name: "Select one or more documents" })
+      .fill("");
+    await this.page.getByLabel("Test form").getByText("file A").click();
+    await this.page.getByLabel("Test form").getByText("file B").click();
     await this.page.getByLabel("Communication channel").selectOption("E-mail");
   },
 );
@@ -171,9 +179,12 @@ Then(
     await expect(this.page.getByRole("textbox", { name: "User" })).toHaveValue(
       "functioneelbeheerder2",
     );
-    await expect(this.page.getByRole("combobox").nth(0)).toContainText(
-      /^[a-z,0-9-]{36}/,
-    );
+    await expect(this.page.getByRole("combobox")).toContainText("file A", {
+      timeout: TWENTY_SECOND_IN_MS,
+    });
+    await expect(this.page.getByRole("combobox")).toContainText("file B", {
+      timeout: TWENTY_SECOND_IN_MS,
+    });
     await expect(
       this.page.getByRole("textbox", { name: "Reference table value" }),
     ).toHaveValue("E-mail");
