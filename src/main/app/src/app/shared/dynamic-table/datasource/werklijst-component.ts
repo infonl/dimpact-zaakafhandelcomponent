@@ -15,8 +15,8 @@ import { TabelGegevens } from "../model/tabel-gegevens";
 export abstract class WerklijstComponent implements OnInit {
   abstract gebruikersvoorkeurenService: GebruikersvoorkeurenService;
   abstract route: ActivatedRoute;
-  aantalPerPagina: number;
-  pageSizeOptions: number[];
+  aantalPerPagina = 0;
+  pageSizeOptions = [0];
   werklijstRechten: GeneratedType<"RestWerklijstRechten">;
 
   protected constructor() {}

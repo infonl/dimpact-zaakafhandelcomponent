@@ -12,7 +12,8 @@ import {
   Output,
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
-import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
+import { Subscription } from "rxjs";
+import { heeftActieveZoekFilters } from "../../zoeken/model/zoek-parameters";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
 import { Werklijst } from "../model/werklijst";
 import { Zoekopdracht } from "../model/zoekopdracht";
@@ -33,9 +34,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   zoekopdrachten: Zoekopdracht[] = [];
   actieveZoekopdracht: Zoekopdracht | null = null;
   actieveFilters = false;
-  filtersChangedSubscription$ = this.filtersChanged.subscribe(() => {
-    this.clearActief();
-  });
+  filtersChangedSubscription$!: Subscription;
 
   constructor(
     private gebruikersvoorkeurenService: GebruikersvoorkeurenService,
@@ -47,6 +46,9 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.filtersChangedSubscription$ = this.filtersChanged.subscribe(() => {
+      this.clearActief();
+    });
     this.loadZoekopdrachten();
   }
 
@@ -112,7 +114,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   private heeftActieveFilters(): boolean {
     switch (this.zoekFilters.filtersType) {
       case "ZoekParameters":
-        return ZoekParameters.heeftActieveFilters(this.zoekFilters);
+        return heeftActieveZoekFilters(this.zoekFilters);
       case "OntkoppeldDocumentListParameters":
         if (this.zoekFilters.zaakID) return true;
         if (this.zoekFilters.ontkoppeldDoor) return true;

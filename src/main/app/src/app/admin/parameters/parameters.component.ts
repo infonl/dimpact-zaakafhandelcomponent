@@ -156,7 +156,6 @@ export class ParametersComponent
     event: ToggleSwitchOptions | MatSelectChange | string | number | undefined;
     filter?: keyof ZaakafhandelParametersListParameters;
   }): void {
-    console.log("applyFilter typeof", options?.event);
     if (options) {
       const value =
         typeof options.event === "object"

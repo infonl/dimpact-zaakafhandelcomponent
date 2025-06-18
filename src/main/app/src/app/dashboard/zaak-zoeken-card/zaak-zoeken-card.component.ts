@@ -9,8 +9,7 @@ import { firstValueFrom } from "rxjs";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { ZakenMijnDatasource } from "../../zaken/zaken-mijn/zaken-mijn-datasource";
-import { ZoekObject } from "../../zoeken/model/zoek-object";
-import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
+import { DEFAULT_ZOEK_PARAMETERS } from "../../zoeken/model/zoek-parameters";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 
@@ -22,7 +21,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     "./zaak-zoeken-card.component.less",
   ],
 })
-export class ZaakZoekenCardComponent extends DashboardCardComponent<ZoekObject> {
+export class ZaakZoekenCardComponent extends DashboardCardComponent {
   columns = [
     "identificatie",
     "startdatum",
@@ -35,7 +34,7 @@ export class ZaakZoekenCardComponent extends DashboardCardComponent<ZoekObject> 
 
   zoekParameters = computed(() => {
     const zoekParameters = ZakenMijnDatasource.mijnLopendeZaken(
-      new ZoekParameters(),
+      DEFAULT_ZOEK_PARAMETERS,
     );
     zoekParameters.sorteerVeld = "ZAAK_STREEFDATUM";
     zoekParameters.sorteerRichting = "asc";
@@ -59,7 +58,7 @@ export class ZaakZoekenCardComponent extends DashboardCardComponent<ZoekObject> 
     effect(() => {
       const { resultaten = [], totaal = 0 } = this.zoekQuery.data() ?? {};
       this.dataSource.data = resultaten;
-      this.paginator.length = totaal;
+      if (this.paginator) this.paginator.length = totaal;
     });
   }
 

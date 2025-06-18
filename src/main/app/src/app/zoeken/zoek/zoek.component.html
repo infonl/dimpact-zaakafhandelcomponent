@@ -192,17 +192,17 @@
         <ng-container *ngFor="let zoekObject of zoekResultaat.resultaten">
           <ng-container [ngSwitch]="zoekObject.type">
             <zac-zaak-zoek-object
-              *ngSwitchCase="zoekObjectType.ZAAK"
+              *ngSwitchCase="'ZAAK'"
               [sideNav]="zoekenSideNav"
               [zaak]="getZaakZoekObject(zoekObject)"
             ></zac-zaak-zoek-object>
             <zac-taak-zoek-object
-              *ngSwitchCase="zoekObjectType.TAAK"
+              *ngSwitchCase="'TAAK'"
               [sideNav]="zoekenSideNav"
               [taak]="getTaakZoekObject(zoekObject)"
             ></zac-taak-zoek-object>
             <zac-document-zoek-object
-              *ngSwitchCase="zoekObjectType.DOCUMENT"
+              *ngSwitchCase="'DOCUMENT'"
               [sideNav]="zoekenSideNav"
               [document]="getDocumentZoekObject(zoekObject)"
             ></zac-document-zoek-object>

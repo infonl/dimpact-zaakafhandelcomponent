@@ -198,7 +198,6 @@ export class FormulierDefinitieEditComponent
   opslaan(): void {
     this.bezigMetOpslaan = true;
     const val = this.definitieFormGroup.value as FormulierDefinitie;
-    console.log(val);
     if (val.id) {
       this.service.update(val).subscribe((data) => {
         this.definitie = data;

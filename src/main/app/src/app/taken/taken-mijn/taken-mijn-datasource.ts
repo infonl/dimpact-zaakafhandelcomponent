@@ -6,8 +6,8 @@
 import { UtilService } from "../../core/service/util.service";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { ZoekenDataSource } from "../../shared/dynamic-table/datasource/zoeken-data-source";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
-import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 
 export class TakenMijnDatasource extends ZoekenDataSource<TaakZoekObject> {
@@ -15,15 +15,19 @@ export class TakenMijnDatasource extends ZoekenDataSource<TaakZoekObject> {
     super(Werklijst.MIJN_TAKEN, zoekenService, utilService);
   }
 
-  protected initZoekparameters(zoekParameters: ZoekParameters) {
-    TakenMijnDatasource.mijnLopendeTaken(zoekParameters);
+  protected initZoekparameters(
+    zoekParameters: GeneratedType<"RestZoekParameters">,
+  ) {
+    return TakenMijnDatasource.mijnLopendeTaken(zoekParameters);
   }
 
   public static mijnLopendeTaken(
-    zoekParameters: ZoekParameters,
-  ): ZoekParameters {
-    zoekParameters.type = "TAAK";
-    zoekParameters.alleenMijnTaken = true;
-    return zoekParameters;
+    zoekParameters: GeneratedType<"RestZoekParameters">,
+  ) {
+    return {
+      ...zoekParameters,
+      type: "TAAK",
+      alleenMijnTaken: true,
+    } satisfies GeneratedType<"RestZoekParameters">;
   }
 }

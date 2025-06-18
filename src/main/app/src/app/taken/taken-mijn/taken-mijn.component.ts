@@ -30,7 +30,6 @@ import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruike
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
-import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenMijnDatasource } from "./taken-mijn-datasource";
 
 @Component({
@@ -48,7 +47,6 @@ export class TakenMijnComponent
   @ViewChild(MatTable) table: MatTable<TaakZoekObject>;
   expandedRow: TaakZoekObject | null;
   readonly zoekenColumn = ZoekenColumn;
-  sorteerVeld: GeneratedType<"SorteerVeld"> | null = null;
 
   fataledatumIcon: TextIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
