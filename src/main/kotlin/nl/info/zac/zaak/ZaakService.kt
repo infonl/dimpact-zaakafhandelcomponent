@@ -119,29 +119,31 @@ class ZaakService @Inject constructor(
         LOG.fine {
             "Started to assign ${zaakUUIDs.size} zaken with screen event resource ID: '$screenEventResourceId'."
         }
-        if (!isUserInGroup(user, group, zaakUUIDs)) return
 
-        val zakenAssignedList = mutableListOf<UUID>()
-        zaakUUIDs
-            .map(zrcClientService::readZaak)
-            .filter { isZaakOpen(it) }
-            .filter { sameDomain(it, group) }
-            .map { zaak ->
-                zrcClientService.updateRol(
-                    zaak,
-                    bepaalRolGroep(group, zaak),
-                    explanation
-                )
-                user?.let {
+        if (isUserInGroup(user, group, zaakUUIDs)) {
+            val zakenAssignedList = mutableListOf<UUID>()
+            zaakUUIDs
+                .map(zrcClientService::readZaak)
+                .filter { isZaakOpen(it) }
+                .filter { sameDomain(it, group) }
+                .map { zaak ->
                     zrcClientService.updateRol(
                         zaak,
-                        bepaalRolMedewerker(it, zaak),
+                        bepaalRolGroep(group, zaak),
                         explanation
                     )
-                } ?: zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, explanation)
-                zakenAssignedList.add(zaak.uuid)
-            }
-        LOG.fine { "Successfully assigned ${zakenAssignedList.size} zaken." }
+                    user?.let {
+                        zrcClientService.updateRol(
+                            zaak,
+                            bepaalRolMedewerker(it, zaak),
+                            explanation
+                        )
+                    } ?: zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, explanation)
+                    zakenAssignedList.add(zaak.uuid)
+                }
+            LOG.fine { "Successfully assigned ${zakenAssignedList.size} zaken." }
+        }
+
         // if a screen event resource ID was specified, send an 'updated zaken_verdelen' screen event
         // with the job UUID so that it can be picked up by a client
         // that has created a websocket subscription to this event

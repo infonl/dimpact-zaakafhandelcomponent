@@ -118,7 +118,7 @@ class ZaakServiceTest : BehaviorSpec({
             Then(
                 """for both zaken the group and user roles 
                 and the search index should be updated and
-                a screen event of type 'zaken verdelen' should sent"""
+                a screen event of type 'zaken verdelen' should be sent"""
             ) {
                 zaken.map {
                     verify(exactly = 2) {
@@ -328,6 +328,103 @@ class ZaakServiceTest : BehaviorSpec({
                         zrcClientService.updateRol(it, any(), explanation)
                         zrcClientService.deleteRol(it, any(), explanation)
                     }
+                }
+            }
+        }
+    }
+
+    Given("A list of zaken and a user not belonging to a group") {
+        val screenEventSlot = slot<ScreenEvent>()
+        zaken.map {
+            every { zrcClientService.readZaak(it.uuid) } returns it
+            every {
+                ztcClientService.readRoltype(
+                    it.zaaktype,
+                    OmschrijvingGeneriekEnum.BEHANDELAAR
+                )
+            } returns rolTypeBehandelaar
+            every { zrcClientService.updateRol(it, any(), explanation) } just Runs
+            every { eventingService.send(capture(screenEventSlot)) } just Runs
+        }
+        every { identityService.isUserInGroup(user.id, group.id) } returns true
+
+        When("the assign zaken function is called") {
+            zaakService.assignZaken(
+                zaakUUIDs = zaken.map { it.uuid },
+                explanation = explanation,
+                group = group,
+                user = user,
+                screenEventResourceId = screenEventResourceId
+            )
+
+            Then("all the zaken should be skipped") {
+                verify(exactly = 1) {
+                    eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaken[0]))
+                    eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaken[1]))
+                }
+            }
+
+            And("a final screen event of type 'zaken verdelen' should be sent") {
+                with(screenEventSlot.captured) {
+                    opcode shouldBe Opcode.UPDATED
+                    objectType shouldBe ScreenEventType.ZAKEN_VERDELEN
+                    objectId.resource shouldBe screenEventResourceId
+                }
+            }
+        }
+    }
+
+    Given("A list of zaken and the second one has a group not matching the requested one") {
+        val screenEventSlot = slot<ScreenEvent>()
+        zaken.map {
+            every { zrcClientService.readZaak(it.uuid) } returns it
+            every { eventingService.send(capture(screenEventSlot)) } just Runs
+        }
+        every { identityService.isUserInGroup(user.id, group.id) } returns true
+
+        zaken[0].let {
+            every {
+                ztcClientService.readRoltype(
+                    it.zaaktype,
+                    OmschrijvingGeneriekEnum.BEHANDELAAR
+                )
+            } returns rolTypeBehandelaar
+            every { zrcClientService.updateRol(it, any(), explanation) } just Runs
+            every {
+                zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
+            } returns zaakafhandelParameters
+        }
+
+        every {
+            zaakafhandelParameterService.readZaakafhandelParameters(zaken[1].zaaktype.extractUuid())
+        } returns createZaakafhandelParameters(domein = "another_domein")
+
+        When("the assign zaken function is called") {
+            zaakService.assignZaken(
+                zaakUUIDs = zaken.map { it.uuid },
+                explanation = explanation,
+                group = group,
+                user = user,
+                screenEventResourceId = screenEventResourceId
+            )
+
+            Then("group and user roles are updated") {
+                verify(exactly = 2) {
+                    zrcClientService.updateRol(zaken[0], any(), explanation)
+                }
+            }
+
+            And("one skip event is generated") {
+                verify(exactly = 1) {
+                    eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaken[1]))
+                }
+            }
+
+            And("a final screen event of type 'zaken verdelen' should be sent") {
+                with(screenEventSlot.captured) {
+                    opcode shouldBe Opcode.UPDATED
+                    objectType shouldBe ScreenEventType.ZAKEN_VERDELEN
+                    objectId.resource shouldBe screenEventResourceId
                 }
             }
         }
