@@ -6,7 +6,6 @@
 import { UtilService } from "../../core/service/util.service";
 import { ZoekenDataSource } from "../../shared/dynamic-table/datasource/zoeken-data-source";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
-import { ZoekObjectType } from "../../zoeken/model/zoek-object-type";
 import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 
@@ -19,6 +18,6 @@ export class TakenWerkvoorraadDatasource extends ZoekenDataSource<TaakZoekObject
   }
 
   protected initZoekparameters(zoekParameters: ZoekParameters) {
-    zoekParameters.type = ZoekObjectType.TAAK;
+    zoekParameters.type = "TAAK";
   }
 }

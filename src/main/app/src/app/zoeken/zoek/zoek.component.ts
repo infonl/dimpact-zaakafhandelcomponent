@@ -18,11 +18,11 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { merge } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { DocumentZoekObject } from "../model/documenten/document-zoek-object";
 import { TaakZoekObject } from "../model/taken/taak-zoek-object";
 import { ZaakZoekObject } from "../model/zaken/zaak-zoek-object";
 import { ZoekObject } from "../model/zoek-object";
-import { ZoekObjectType } from "../model/zoek-object-type";
 import { ZoekParameters } from "../model/zoek-parameters";
 import { ZoekResultaat } from "../model/zoek-resultaat";
 import { ZoekType } from "../model/zoek-type";
@@ -41,7 +41,7 @@ export class ZoekComponent implements AfterViewInit, OnInit {
   zoekType: ZoekType = ZoekType.ZAC;
   ZoekType = ZoekType;
   ZoekVeld = ZoekVeld;
-  readonly zoekObjectType = ZoekObjectType;
+  readonly zoekObjectType: GeneratedType<"ZoekObjectType">;
   zoekResultaat = new ZoekResultaat<ZoekObject>();
   zoekParameters: ZoekParameters = new ZoekParameters();
   isLoadingResults = true;
@@ -115,30 +115,31 @@ export class ZoekComponent implements AfterViewInit, OnInit {
 
   bepaalContext(): void {
     this.hasZaken = !!this.zoekResultaat.filters.TYPE?.find(
-      ({ naam }) => naam === ZoekObjectType.ZAAK,
+      ({ naam }) => naam === ("ZAAK" satisfies GeneratedType<"ZoekObjectType">),
     )?.aantal;
     this.hasTaken = !!this.zoekResultaat.filters.TYPE?.find(
-      ({ naam }) => naam === ZoekObjectType.TAAK,
+      ({ naam }) => naam === ("TAAK" satisfies GeneratedType<"ZoekObjectType">),
     )?.aantal;
     this.hasDocument = !!this.zoekResultaat.filters.TYPE?.find(
-      ({ naam }) => naam === ZoekObjectType.DOCUMENT,
+      ({ naam }) =>
+        naam === ("DOCUMENT" satisfies GeneratedType<"ZoekObjectType">),
     )?.aantal;
 
     if (this.zoekParameters.filters.TYPE?.values?.length) {
       if (this.hasZaken) {
         this.hasZaken = this.zoekParameters.filters.TYPE.values.includes(
-          ZoekObjectType.ZAAK,
+          "ZAAK" satisfies GeneratedType<"ZoekObjectType">,
         );
       }
       if (this.hasTaken) {
         this.hasTaken = this.zoekParameters.filters.TYPE.values.includes(
-          ZoekObjectType.TAAK,
+          "TAAK" satisfies GeneratedType<"ZoekObjectType">,
         );
       }
       if (this.hasDocument) {
         this.hasDocument =
           this.zoekParameters.filters.TYPE?.values.includes(
-            ZoekObjectType.DOCUMENT,
+            "DOCUMENT" satisfies GeneratedType<"ZoekObjectType">,
           ) ?? false;
       }
     }

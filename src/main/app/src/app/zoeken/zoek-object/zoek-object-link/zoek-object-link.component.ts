@@ -12,7 +12,6 @@ import { DocumentZoekObject } from "../../model/documenten/document-zoek-object"
 import { TaakZoekObject } from "../../model/taken/taak-zoek-object";
 import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
 import { ZoekObject } from "../../model/zoek-object";
-import { ZoekObjectType } from "../../model/zoek-object-type";
 
 @Component({
   selector: "zac-zoek-object-link",
@@ -43,23 +42,31 @@ export class ZoekObjectLinkComponent {
 
   getLink() {
     switch (this.zoekObject.type) {
-      case ZoekObjectType.ZAAK:
+      case "ZAAK":
         return ["/zaken/", (this.zoekObject as ZaakZoekObject).identificatie];
-      case ZoekObjectType.TAAK:
+      case "TAAK":
         return ["/taken/", this.zoekObject.id];
-      case ZoekObjectType.DOCUMENT:
+      case "DOCUMENT":
         return ["/informatie-objecten/", this.zoekObject.id];
+      default:
+        throw new Error(
+          `Search object type ${this.zoekObject.type} is not supported`,
+        );
     }
   }
 
   getName(): string {
     switch (this.zoekObject.type) {
-      case ZoekObjectType.ZAAK:
+      case "ZAAK":
         return (this.zoekObject as ZaakZoekObject).identificatie;
-      case ZoekObjectType.TAAK:
+      case "TAAK":
         return (this.zoekObject as TaakZoekObject).naam;
-      case ZoekObjectType.DOCUMENT:
+      case "DOCUMENT":
         return (this.zoekObject as DocumentZoekObject).titel;
+      default:
+        throw new Error(
+          `Search object type ${this.zoekObject.type} is not supported`,
+        );
     }
   }
 }

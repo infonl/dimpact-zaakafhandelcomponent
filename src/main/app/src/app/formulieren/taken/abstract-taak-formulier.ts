@@ -7,8 +7,6 @@ import { FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
-import { HumanTaskData } from "../../plan-items/model/human-task-data";
-import { TaakStuurGegevens } from "../../plan-items/model/taak-stuur-gegevens";
 import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
@@ -26,7 +24,7 @@ export abstract class AbstractTaakFormulier {
 
   zaak: GeneratedType<"RestZaak">;
   taakNaam: string;
-  humanTaskData: HumanTaskData;
+  humanTaskData: Partial<GeneratedType<"RESTHumanTaskData">>;
   taak: Taak;
   tabellen: Record<string, string[]>;
   abstract taakinformatieMapping: {
@@ -46,7 +44,7 @@ export abstract class AbstractTaakFormulier {
   ) {}
 
   initStartForm() {
-    this.humanTaskData.taakStuurGegevens = new TaakStuurGegevens();
+    this.humanTaskData.taakStuurGegevens = {};
     this.form = [];
     this._initStartForm();
   }
@@ -75,7 +73,7 @@ export abstract class AbstractTaakFormulier {
     }
   }
 
-  getHumanTaskData(formGroup: FormGroup): HumanTaskData {
+  getHumanTaskData(formGroup: FormGroup) {
     const values = formGroup.value;
     const toekenning = values[AbstractTaakFormulier.TAAK_TOEKENNING];
     const fataledatum = values[AbstractTaakFormulier.TAAK_FATALEDATUM];
@@ -85,7 +83,7 @@ export abstract class AbstractTaakFormulier {
     this.humanTaskData.fataledatum = fataledatum;
     this.humanTaskData.toelichting = toelichting;
     this.humanTaskData.taakdata = this.getDataElementen(formGroup);
-    return this.humanTaskData;
+    return this.humanTaskData as GeneratedType<"RESTHumanTaskData">;
   }
 
   getTaak(formGroup: FormGroup): Taak {

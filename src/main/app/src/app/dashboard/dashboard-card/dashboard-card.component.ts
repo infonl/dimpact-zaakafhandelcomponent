@@ -27,7 +27,10 @@ import { DashboardCard } from "../model/dashboard-card";
   template: "",
   styleUrls: ["./dashboard-card.component.less"],
 })
-export abstract class DashboardCardComponent<T>
+export abstract class DashboardCardComponent<
+    T,
+    C extends readonly string[] = readonly string[],
+  >
   implements OnInit, AfterViewInit, OnDestroy
 {
   private readonly RELOAD_INTERVAL: number = 60; // 1 min.
@@ -41,7 +44,7 @@ export abstract class DashboardCardComponent<T>
   protected reload: Observable<unknown> | null = null;
   private reloader: Subscription;
 
-  abstract columns: string[];
+  abstract readonly columns: C;
 
   constructor(
     protected identityService: IdentityService,

@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HumanTaskData } from "../../plan-items/model/human-task-data";
-import { PlanItem } from "../../plan-items/model/plan-item";
 import { DividerFormFieldBuilder } from "../../shared/material-form-builder/form-components/divider/divider-form-field-builder";
 import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -20,20 +18,20 @@ export class TaakFormulierBuilder {
   }
 
   startForm(
-    planItem: PlanItem,
+    planItem: GeneratedType<"RESTPlanItem">,
     zaak: GeneratedType<"RestZaak">,
   ): TaakFormulierBuilder {
     this._formulier.tabellen = planItem.tabellen;
     this._formulier.zaak = zaak;
     this._formulier.taakNaam = planItem.naam;
-    this._formulier.humanTaskData = new HumanTaskData();
-    this._formulier.humanTaskData.planItemInstanceId = planItem.id;
-    if (planItem.fataleDatum) {
-      this._formulier.humanTaskData.fataledatum = planItem.fataleDatum;
-    }
+    this._formulier.humanTaskData = {
+      planItemInstanceId: planItem.id,
+      fataledatum: planItem.fataleDatum,
+    };
+
     this._formulier.initStartForm();
     const groep: GeneratedType<"RestGroup"> | undefined = planItem
-      ? { id: planItem.groepId, naam: planItem.naam }
+      ? { id: planItem.groepId!, naam: planItem.naam! }
       : undefined;
 
     this._formulier.form.push(

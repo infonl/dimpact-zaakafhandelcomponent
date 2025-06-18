@@ -35,8 +35,6 @@ import { IdentityService } from "../../identity/identity.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { KlantGegevens } from "../../klanten/model/klanten/klant-gegevens";
 import { ViewResourceUtil } from "../../locatie/view-resource.util";
-import { PlanItem } from "../../plan-items/model/plan-item";
-import { UserEventListenerActie } from "../../plan-items/model/user-event-listener-actie-enum";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
 import { detailExpand } from "../../shared/animations/animations";
@@ -81,7 +79,7 @@ export class ZaakViewComponent
   zaak!: GeneratedType<"RestZaak">;
   zaakOpschorting!: GeneratedType<"RESTZaakOpschorting">;
   menu: MenuItem[] = [];
-  actiefPlanItem: PlanItem | null = null;
+  actiefPlanItem: GeneratedType<"RESTPlanItem"> | null = null;
   activeSideAction: string | null = null;
   teWijzigenBesluit!: GeneratedType<"RestDecision">;
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
@@ -314,7 +312,7 @@ export class ZaakViewComponent
   }
 
   private createUserEventListenerPlanItemMenuItem(
-    userEventListenerPlanItem: PlanItem,
+    userEventListenerPlanItem: GeneratedType<"RESTPlanItem">,
   ): MenuItem {
     return new ButtonMenuItem(
       "planitem." + userEventListenerPlanItem.userEventListenerActie,
@@ -325,7 +323,10 @@ export class ZaakViewComponent
     );
   }
 
-  private createPlanItemMenuItem(planItem: PlanItem, icon: string): MenuItem {
+  private createPlanItemMenuItem(
+    planItem: GeneratedType<"RESTPlanItem">,
+    icon: string,
+  ): MenuItem {
     return new ButtonMenuItem(
       planItem.naam,
       () => {
@@ -348,12 +349,12 @@ export class ZaakViewComponent
   }
 
   private getuserEventListenerPlanItemMenuItemIcon(
-    userEventListenerActie: UserEventListenerActie,
+    userEventListenerActie?: GeneratedType<"UserEventListenerActie"> | null,
   ): string {
     switch (userEventListenerActie) {
-      case UserEventListenerActie.IntakeAfronden:
+      case "INTAKE_AFRONDEN":
         return "thumbs_up_down";
-      case UserEventListenerActie.ZaakAfhandelen:
+      case "ZAAK_AFHANDELEN":
         return "thumb_up_alt";
       default:
         return "fact_check";
@@ -634,7 +635,7 @@ export class ZaakViewComponent
     return actionMenuItems;
   }
 
-  openPlanItemStartenDialog(planItem: PlanItem): void {
+  openPlanItemStartenDialog(planItem: GeneratedType<"RESTPlanItem">): void {
     this.actionsSidenav.close();
     this.websocketService.doubleSuspendListener(this.zaakListener);
     const userEventListenerDialog =
@@ -659,14 +660,17 @@ export class ZaakViewComponent
       });
   }
 
-  createUserEventListenerDialog(planItem: PlanItem): {
+  createUserEventListenerDialog(planItem: GeneratedType<"RESTPlanItem">): {
     dialogComponent: ComponentType<unknown>;
-    dialogData: { zaak: GeneratedType<"RestZaak">; planItem: PlanItem };
+    dialogData: {
+      zaak: GeneratedType<"RestZaak">;
+      planItem: GeneratedType<"RESTPlanItem">;
+    };
   } {
     switch (planItem.userEventListenerActie) {
-      case UserEventListenerActie.IntakeAfronden:
+      case "INTAKE_AFRONDEN":
         return this.createUserEventListenerIntakeAfrondenDialog(planItem);
-      case UserEventListenerActie.ZaakAfhandelen:
+      case "ZAAK_AFHANDELEN":
         return this.createUserEventListenerZaakAfhandelenDialog(planItem);
       default:
         throw new Error(
@@ -675,14 +679,18 @@ export class ZaakViewComponent
     }
   }
 
-  createUserEventListenerIntakeAfrondenDialog(planItem: PlanItem) {
+  createUserEventListenerIntakeAfrondenDialog(
+    planItem: GeneratedType<"RESTPlanItem">,
+  ) {
     return {
       dialogComponent: IntakeAfrondenDialogComponent,
       dialogData: { zaak: this.zaak, planItem: planItem },
     };
   }
 
-  createUserEventListenerZaakAfhandelenDialog(planItem: PlanItem) {
+  createUserEventListenerZaakAfhandelenDialog(
+    planItem: GeneratedType<"RESTPlanItem">,
+  ) {
     return {
       dialogComponent: this.zaak.isOpgeschort
         ? ActieOnmogelijkDialogComponent
@@ -1477,21 +1485,21 @@ export class ZaakViewComponent
   }
 
   protected showInitiator() {
-    const betrokkeneKoppelingen =
-      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen;
-    if (!betrokkeneKoppelingen) return false;
+    if (!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen)
+      return false;
 
-    const { brpKoppelen, kvkKoppelen } = betrokkeneKoppelingen;
+    const { brpKoppelen, kvkKoppelen } =
+      this.zaak.zaaktype.zaakafhandelparameters.betrokkeneKoppelingen;
 
     return Boolean(brpKoppelen || kvkKoppelen);
   }
 
   protected showPersoonsgegevens() {
-    const betrokkeneKoppelingen =
-      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen;
-    if (!betrokkeneKoppelingen) return false;
+    if (!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen)
+      return false;
 
-    const { brpKoppelen } = betrokkeneKoppelingen;
+    const { brpKoppelen } =
+      this.zaak.zaaktype.zaakafhandelparameters.betrokkeneKoppelingen;
 
     return Boolean(
       brpKoppelen &&
@@ -1500,38 +1508,16 @@ export class ZaakViewComponent
   }
 
   protected showBedrijfsgegevens() {
-    const betrokkeneKoppelingen =
-      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen;
-    if (!betrokkeneKoppelingen) return false;
+    if (!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen)
+      return false;
 
-    const { kvkKoppelen } = betrokkeneKoppelingen;
+    const { kvkKoppelen } =
+      this.zaak.zaaktype.zaakafhandelparameters.betrokkeneKoppelingen;
 
     return Boolean(
       kvkKoppelen &&
         ["VN", "RSIN"].includes(this.zaak.initiatorIdentificatieType ?? ""),
     );
-  }
-
-  protected canAddInitiator() {
-    const initiatorIdentificatieType = String(
-      this.zaak.initiatorIdentificatieType,
-    );
-
-    if (
-      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-        ?.brpKoppelen
-    ) {
-      return !["BSN"].includes(initiatorIdentificatieType);
-    }
-
-    if (
-      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-        ?.kvkKoppelen
-    ) {
-      return !["VN", "RSIN"].includes(initiatorIdentificatieType);
-    }
-
-    return false;
   }
 
   protected allowedToAddBetrokkene() {
