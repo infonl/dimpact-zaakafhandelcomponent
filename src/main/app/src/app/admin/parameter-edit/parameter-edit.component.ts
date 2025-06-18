@@ -300,7 +300,6 @@ export class ParameterEditComponent
   }
 
   async createForm() {
-    console.log(this.parameters);
     this.algemeenFormGroup.setValue(
       {
         caseDefinition: this.parameters.caseDefinition ?? null,
