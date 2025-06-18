@@ -10,15 +10,14 @@ import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { HistorieRegel } from "../shared/historie/model/historie-regel";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
+import {
+  DeleteBody,
+  PostBody,
+  PutBody,
+  ZacHttpClient,
+} from "../shared/http/zac-http-client";
 import { createFormData } from "../shared/utils/form-data";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { DocumentCreationResponse } from "./model/document-creation-response";
-import { DocumentVerwijderenGegevens } from "./model/document-verwijderen-gegevens";
-import { DocumentVerzendGegevens } from "./model/document-verzend-gegevens";
-import { InformatieobjectZoekParameters } from "./model/informatieobject-zoek-parameters";
-import { Informatieobjecttype } from "./model/informatieobjecttype";
-import { ZaakInformatieobject } from "./model/zaak-informatieobject";
 
 const formatDateForFormData = ([k, v]: [string, string]) =>
   [k, v && moment(v).format("YYYY-MM-DDThh:mmZ")] as const;
@@ -56,16 +55,13 @@ export class InformatieObjectenService {
       );
   }
 
-  listInformatieobjecttypes(
-    zaakTypeID: string,
-  ): Observable<Informatieobjecttype[]> {
-    return this.http
-      .get<
-        Informatieobjecttype[]
-      >(`${this.basepath}/informatieobjecttypes/${zaakTypeID}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listInformatieobjecttypes(zaakTypeUuid: string) {
+    return this.zacHttpClient.GET(
+      "/rest/informatieobjecten/informatieobjecttypes/{zaakTypeUuid}",
+      {
+        path: { zaakTypeUuid },
+      },
+    );
   }
 
   listInformatieobjecttypesForZaak(zaakUUID: string) {
@@ -187,15 +183,13 @@ export class InformatieObjectenService {
   }
 
   listEnkelvoudigInformatieobjecten(
-    zoekParameters: InformatieobjectZoekParameters,
+    body: PutBody<"/rest/informatieobjecten/informatieobjectenList">,
   ) {
-    return this.http
-      .put<
-        GeneratedType<"RestEnkelvoudigInformatieobject">[]
-      >(`${this.basepath}/informatieobjectenList`, zoekParameters)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.PUT(
+      "/rest/informatieobjecten/informatieobjectenList",
+      body,
+      {},
+    );
   }
 
   readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(uuid: string) {
@@ -208,14 +202,13 @@ export class InformatieObjectenService {
       );
   }
 
-  listZaakInformatieobjecten(uuid: string): Observable<ZaakInformatieobject[]> {
-    return this.http
-      .get<
-        ZaakInformatieobject[]
-      >(`${this.basepath}/informatieobject/${uuid}/zaakinformatieobjecten`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listZaakInformatieobjecten(uuid: string) {
+    return this.zacHttpClient.GET(
+      "/rest/informatieobjecten/informatieobject/{uuid}/zaakinformatieobjecten",
+      {
+        path: { uuid },
+      },
+    );
   }
 
   listInformatieobjectenVoorVerzenden(zaakUuid: string) {
@@ -229,16 +222,13 @@ export class InformatieObjectenService {
   }
 
   verzenden(
-    gegevens: DocumentVerzendGegevens,
-  ): Observable<DocumentCreationResponse> {
-    return this.http
-      .post<DocumentCreationResponse>(
-        `${this.basepath}/informatieobjecten/verzenden`,
-        gegevens,
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    body: PostBody<"/rest/informatieobjecten/informatieobjecten/verzenden">,
+  ) {
+    return this.zacHttpClient.POST(
+      "/rest/informatieobjecten/informatieobjecten/verzenden",
+      body,
+      {},
+    );
   }
 
   listHistorie(uuid: string): Observable<HistorieRegel[]> {
@@ -351,16 +341,13 @@ export class InformatieObjectenService {
 
   deleteEnkelvoudigInformatieObject(
     uuid: string,
-    zaakUuid: string,
-    reden: string,
-  ): Observable<void> {
-    return this.http
-      .delete<void>(`${this.basepath}/informatieobject/${uuid}`, {
-        body: new DocumentVerwijderenGegevens(zaakUuid, reden),
-      })
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    body: DeleteBody<"/rest/informatieobjecten/informatieobject/{uuid}">,
+  ) {
+    return this.zacHttpClient.DELETE(
+      "/rest/informatieobjecten/informatieobject/{uuid}",
+      { path: { uuid } },
+      body,
+    );
   }
 
   listZaakIdentificatiesForInformatieobject(
