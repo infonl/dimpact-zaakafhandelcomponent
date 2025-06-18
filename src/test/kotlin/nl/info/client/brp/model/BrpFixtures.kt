@@ -19,6 +19,7 @@ import nl.info.client.brp.model.generated.RaadpleegMetBurgerservicenummerRespons
 import nl.info.client.brp.model.generated.RniDeelnemer
 import nl.info.client.brp.model.generated.VerblijfadresBinnenland
 import nl.info.client.brp.model.generated.Waardetabel
+import nl.info.client.brp.model.generated.ZoekMetGeslachtsnaamEnGeboortedatumResponse
 
 fun createAdres(
     verblijfAdresBinnenland: VerblijfadresBinnenland = createVerblijfadresBinnenland()
@@ -74,7 +75,6 @@ fun createPersoonBeperkt(
 ) = PersoonBeperkt().apply {
     burgerservicenummer = bsn
     leeftijd = age
-    burgerservicenummer = "burgerservicenummer"
     geheimhoudingPersoonsgegevens = confidentialPersonalData
     inOnderzoek = personInResearch
     opschortingBijhouding = suspensionMaintenance
@@ -91,6 +91,12 @@ fun createRaadpleegMetBurgerservicenummer(
 fun createRaadpleegMetBurgerservicenummerResponse(
     persons: List<Persoon> = listOf(createPersoon())
 ) = RaadpleegMetBurgerservicenummerResponse().apply {
+    personen = persons
+}
+
+fun createZoekMetGeslachtsnaamEnGeboortedatumResponse(
+    persons: List<PersoonBeperkt> = listOf(createPersoonBeperkt())
+) = ZoekMetGeslachtsnaamEnGeboortedatumResponse().apply {
     personen = persons
 }
 

@@ -21,13 +21,13 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
 export class InformatieobjectenCardComponent extends DashboardCardComponent<
   GeneratedType<"RestEnkelvoudigInformatieobject">
 > {
-  columns: string[] = [
+  columns = [
     "titel",
     "registratiedatumTijd",
     "informatieobjectType",
     "auteur",
     "url",
-  ];
+  ] as const;
 
   constructor(
     private signaleringenService: SignaleringenService,

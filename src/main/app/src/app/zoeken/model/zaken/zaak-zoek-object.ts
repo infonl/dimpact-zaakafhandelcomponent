@@ -6,14 +6,13 @@
 import { AardVanRol } from "../../../shared/model/aard-van-rol";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZoekObject } from "../zoek-object";
-import { ZoekObjectType } from "../zoek-object-type";
 
 /**
  * @deprecated - use the `GeneratedType`
  */
 export class ZaakZoekObject implements ZoekObject {
   id: string;
-  type: ZoekObjectType;
+  type: GeneratedType<"ZoekObjectType">;
   identificatie: string;
   omschrijving: string;
   toelichting: string;

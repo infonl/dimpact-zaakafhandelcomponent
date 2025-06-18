@@ -3,15 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { catchError } from "rxjs/operators";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { HumanTaskData } from "./model/human-task-data";
-import { PlanItem } from "./model/plan-item";
-import { ProcessTaskData } from "./model/process-task-data";
-import { UserEventListenerData } from "./model/user-event-listener-data";
+import { PostBody, ZacHttpClient } from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",
@@ -19,83 +12,78 @@ import { UserEventListenerData } from "./model/user-event-listener-data";
 export class PlanItemsService {
   private basepath = "/rest/planitems";
 
-  constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
-  ) {}
+  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
-  readHumanTaskPlanItem(planItemId: string): Observable<PlanItem> {
-    return this.http
-      .get<PlanItem>(`${this.basepath}/humanTaskPlanItem/${planItemId}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readHumanTaskPlanItem(planItemId: string) {
+    return this.zacHttpClient.GET("/rest/planitems/humanTaskPlanItem/{id}", {
+      path: { id: planItemId },
+    });
   }
 
-  readProcessTaskPlanItem(planItemId: string): Observable<PlanItem> {
-    return this.http
-      .get<PlanItem>(`${this.basepath}/processTaskPlanItem/${planItemId}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readProcessTaskPlanItem(planItemId: string) {
+    return this.zacHttpClient.GET("/rest/planitems/processTaskPlanItem/{id}", {
+      path: { id: planItemId },
+    });
   }
 
-  listHumanTaskPlanItems(zaakUuid: string): Observable<PlanItem[]> {
-    return this.http
-      .get<PlanItem[]>(`${this.basepath}/zaak/${zaakUuid}/humanTaskPlanItems`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listHumanTaskPlanItems(zaakUuid: string) {
+    return this.zacHttpClient.GET(
+      "/rest/planitems/zaak/{uuid}/humanTaskPlanItems",
+      {
+        path: { uuid: zaakUuid },
+      },
+    );
   }
 
-  listProcessTaskPlanItems(zaakUuid: string): Observable<PlanItem[]> {
-    return this.http
-      .get<PlanItem[]>(`${this.basepath}/zaak/${zaakUuid}/processTaskPlanItems`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listProcessTaskPlanItems(zaakUuid: string) {
+    return this.zacHttpClient.GET(
+      "/rest/planitems/zaak/{uuid}/processTaskPlanItems",
+      {
+        path: { uuid: zaakUuid },
+      },
+    );
   }
 
-  listUserEventListenerPlanItems(zaakUuid: string): Observable<PlanItem[]> {
-    return this.http
-      .get<
-        PlanItem[]
-      >(`${this.basepath}/zaak/${zaakUuid}/userEventListenerPlanItems`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listUserEventListenerPlanItems(zaakUuid: string) {
+    return this.zacHttpClient.GET(
+      "/rest/planitems/zaak/{uuid}/userEventListenerPlanItems",
+      {
+        path: { uuid: zaakUuid },
+      },
+    );
   }
 
-  doHumanTaskPlanItem(humanTaskData: HumanTaskData): Observable<void> {
+  doHumanTaskPlanItem(
+    humanTaskData: PostBody<"/rest/planitems/doHumanTaskPlanItem">,
+  ) {
     if (!humanTaskData.medewerker?.id) {
       humanTaskData.medewerker = null;
     }
 
-    return this.http
-      .post<void>(`${this.basepath}/doHumanTaskPlanItem`, humanTaskData)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.POST(
+      "/rest/planitems/doHumanTaskPlanItem",
+      humanTaskData,
+      {},
+    );
   }
 
-  doProcessTaskPlanItem(processTaskData: ProcessTaskData): Observable<void> {
-    return this.http
-      .post<void>(`${this.basepath}/doProcessTaskPlanItem`, processTaskData)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  doProcessTaskPlanItem(
+    body: PostBody<"/rest/planitems/doProcessTaskPlanItem">,
+  ) {
+    return this.zacHttpClient.POST(
+      "/rest/planitems/doProcessTaskPlanItem",
+      body,
+      {},
+    );
   }
 
   doUserEventListenerPlanItem(
-    userEventListenerData: UserEventListenerData,
-  ): Observable<void> {
-    return this.http
-      .post<void>(
-        `${this.basepath}/doUserEventListenerPlanItem`,
-        userEventListenerData,
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    body: PostBody<"/rest/planitems/doUserEventListenerPlanItem">,
+  ) {
+    return this.zacHttpClient.POST(
+      "/rest/planitems/doUserEventListenerPlanItem",
+      body,
+      {},
+    );
   }
 }
