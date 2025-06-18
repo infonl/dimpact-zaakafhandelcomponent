@@ -31,6 +31,7 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
 import nl.info.zac.util.AllOpen
@@ -52,7 +53,8 @@ class ZaakService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private var eventingService: EventingService,
     private var zaakVariabelenService: ZaakVariabelenService,
-    private val lockService: EnkelvoudigInformatieObjectLockService
+    private val lockService: EnkelvoudigInformatieObjectLockService,
+    private val identityService: IdentityService
 ) {
     fun addBetrokkeneToZaak(
         roleTypeUUID: UUID,
@@ -100,6 +102,7 @@ class ZaakService @Inject constructor(
      * This can be a long-running operation.
      *
      * Zaken that are not open will be skipped.
+     * In case the provided user is not part of the group, all zaken will be skipped
      */
     @WithSpan
     @Suppress("LongParameterList")
@@ -113,6 +116,19 @@ class ZaakService @Inject constructor(
         LOG.fine {
             "Started to assign ${zaakUUIDs.size} zaken with screen event resource ID: '$screenEventResourceId'."
         }
+        if (user != null && !identityService.isUserInGroup(user.id, group.name)) {
+            zaakUUIDs
+                .map(zrcClientService::readZaak)
+                .forEach { zaak ->
+                    LOG.fine(
+                        "Zaak with UUID '${zaak.uuid}' is skipped and not assigned. " +
+                                "User '${user.displayName}' (id: {$user.id}) is not in the group '${group.name}'"
+                    )
+                    eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
+                }
+            return
+        }
+
         val zakenAssignedList = mutableListOf<UUID>()
         zaakUUIDs
             .map(zrcClientService::readZaak)

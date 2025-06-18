@@ -97,8 +97,11 @@ class IdentityService @Inject constructor(
             .map { it.name }
     }
 
-    fun checkIfUserIsInGroup(userId: String, groupId: String) {
-        if (!listGroupNamesForUser(userId).contains(groupId)) {
+    fun isUserInGroup(userId: String, groupId: String) =
+        listGroupNamesForUser(userId).contains(groupId)
+
+    fun validateIfUserIsInGroup(userId: String, groupId: String) {
+        if (!isUserInGroup(userId, groupId)) {
             throw UserNotInGroupException()
         }
     }
