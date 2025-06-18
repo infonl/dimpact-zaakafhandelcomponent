@@ -1,9 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { TaakRechten } from "../../../policy/model/taak-rechten";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZoekObject } from "../zoek-object";
 import { ZoekObjectType } from "../zoek-object-type";
 
@@ -32,5 +32,5 @@ export class TaakZoekObject implements ZoekObject {
   behandelaarGebruikersnaam?: string;
   taakData: string[];
   taakInformatie: string[];
-  rechten: TaakRechten;
+  rechten: GeneratedType<"RestTaakRechten">;
 }

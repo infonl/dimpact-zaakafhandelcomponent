@@ -6,7 +6,6 @@
 import { FormioForm } from "@formio/angular";
 import { FormulierDefinitieID } from "../../admin/model/formulier-definitie";
 import { FormulierDefinitie } from "../../admin/model/formulieren/formulier-definitie";
-import { TaakRechten } from "../../policy/model/taak-rechten";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakStatus } from "./taak-status.enum";
 import { Taakinformatie } from "./taakinformatie";
@@ -34,6 +33,6 @@ export class Taak {
   taakdata: Record<string, string>;
   taakinformatie: Taakinformatie;
   taakdocumenten: string[];
-  rechten: TaakRechten;
+  rechten: GeneratedType<"RestTaakRechten">;
   zaaktypeUUID: string;
 }
