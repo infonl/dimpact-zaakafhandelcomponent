@@ -19,9 +19,6 @@ import { Mailtemplate } from "../../admin/model/mailtemplate";
 import { UtilService } from "../../core/service/util.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
-import { PlanItem } from "../../plan-items/model/plan-item";
-import { UserEventListenerActie } from "../../plan-items/model/user-event-listener-actie-enum";
-import { UserEventListenerData } from "../../plan-items/model/user-event-listener-data";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { ActionIcon } from "../../shared/edit/action-icon";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -51,7 +48,8 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
 
   constructor(
     public dialogRef: MatDialogRef<IntakeAfrondenDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { zaak: Zaak; planItem: PlanItem },
+    @Inject(MAT_DIALOG_DATA)
+    public data: { zaak: Zaak; planItem: GeneratedType<"RESTPlanItem"> },
     private formBuilder: FormBuilder,
     private translateService: TranslateService,
     private planItemsService: PlanItemsService,
@@ -150,32 +148,29 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     this.dialogRef.disableClose = true;
     this.loading = true;
     const values = this.formGroup.value;
-    const userEventListenerData = new UserEventListenerData(
-      UserEventListenerActie.IntakeAfronden,
-      this.data.planItem.id,
-      this.data.zaak.uuid,
-    );
-    userEventListenerData.zaakOntvankelijk = values.ontvankelijk;
-    userEventListenerData.resultaatToelichting = values.reden;
-
     const mailtemplate = values.ontvankelijk
       ? this.zaakOntvankelijkMail
       : this.zaakNietOntvankelijkMail;
-    if (values.sendMail && mailtemplate) {
-      const restMailGegevens: GeneratedType<"RESTMailGegevens"> = {
-        verzender: values.verzender.mail,
-        replyTo: values.verzender.replyTo,
-        ontvanger: values.ontvanger,
-        onderwerp: mailtemplate.onderwerp,
-        body: mailtemplate.body,
-        createDocumentFromMail: true,
-      };
-
-      Object.assign(userEventListenerData, { restMailGegevens });
-    }
 
     this.planItemsService
-      .doUserEventListenerPlanItem(userEventListenerData)
+      .doUserEventListenerPlanItem({
+        actie: "INTAKE_AFRONDEN",
+        planItemInstanceId: this.data.planItem.id,
+        zaakUuid: this.data.zaak.uuid,
+        zaakOntvankelijk: values.zaakOntvankelijk,
+        resultaatToelichting: values.reden,
+        restMailGegevens:
+          values.sendMail && mailtemplate
+            ? {
+                verzender: values.verzender.mail,
+                replyTo: values.verzender.replyTo,
+                ontvanger: values.ontvanger,
+                onderwerp: mailtemplate.onderwerp,
+                body: mailtemplate.body,
+                createDocumentFromMail: true,
+              }
+            : null,
+      })
       .subscribe({
         next: () => {
           this.dialogRef.close(true);

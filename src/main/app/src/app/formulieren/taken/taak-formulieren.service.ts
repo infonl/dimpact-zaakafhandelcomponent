@@ -5,10 +5,10 @@
 
 import { Injectable } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { FormulierDefinitieID } from "../../admin/model/formulier-definitie";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../../taken/taken.service";
 import { ZakenService } from "../../zaken/zaken.service";
 import { AanvullendeInformatie } from "./model/aanvullende-informatie";
@@ -34,7 +34,7 @@ export class TaakFormulierenService {
   ) {}
 
   public getFormulierBuilder(
-    formulierDefinitie: FormulierDefinitieID,
+    formulierDefinitie?: GeneratedType<"FormulierDefinitie"> | null,
   ): TaakFormulierBuilder {
     switch (formulierDefinitie) {
       case "DEFAULT_TAAKFORMULIER":
