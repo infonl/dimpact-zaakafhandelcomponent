@@ -6,7 +6,7 @@
 import { Component, Input } from "@angular/core";
 import { UtilService } from "../../core/service/util.service";
 import { CsvService } from "../../csv/csv.service";
-import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
+import { GeneratedType } from "../utils/generated-types";
 
 @Component({
   selector: "zac-export-button[zoekParameters][filename]",
@@ -14,7 +14,7 @@ import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
   styleUrls: ["./export-button.component.less"],
 })
 export class ExportButtonComponent {
-  @Input() zoekParameters: ZoekParameters;
+  @Input() zoekParameters: GeneratedType<"RestZoekParameters">;
   @Input() filename: string;
 
   constructor(

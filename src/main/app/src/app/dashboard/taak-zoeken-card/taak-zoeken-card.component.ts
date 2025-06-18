@@ -9,8 +9,7 @@ import { firstValueFrom } from "rxjs";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { TakenMijnDatasource } from "../../taken/taken-mijn/taken-mijn-datasource";
-import { ZoekObject } from "../../zoeken/model/zoek-object";
-import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
+import { DEFAULT_ZOEK_PARAMETERS } from "../../zoeken/model/zoek-parameters";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 
@@ -22,7 +21,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     "./taak-zoeken-card.component.less",
   ],
 })
-export class TaakZoekenCardComponent extends DashboardCardComponent<ZoekObject> {
+export class TaakZoekenCardComponent extends DashboardCardComponent {
   columns = [
     "naam",
     "creatiedatum",
@@ -35,7 +34,7 @@ export class TaakZoekenCardComponent extends DashboardCardComponent<ZoekObject> 
 
   zoekParameters = computed(() => {
     const zoekParameters = TakenMijnDatasource.mijnLopendeTaken(
-      new ZoekParameters(),
+      DEFAULT_ZOEK_PARAMETERS,
     );
     zoekParameters.sorteerVeld = "TAAK_FATALEDATUM";
     zoekParameters.sorteerRichting = "asc";
@@ -59,7 +58,7 @@ export class TaakZoekenCardComponent extends DashboardCardComponent<ZoekObject> 
     effect(() => {
       const { resultaten = [], totaal = 0 } = this.zoekQuery.data() ?? {};
       this.dataSource.data = resultaten;
-      this.paginator.length = totaal;
+      if (this.paginator) this.paginator.length = totaal;
     });
   }
 

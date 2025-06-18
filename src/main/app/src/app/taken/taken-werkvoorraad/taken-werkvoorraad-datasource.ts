@@ -5,8 +5,8 @@
 
 import { UtilService } from "../../core/service/util.service";
 import { ZoekenDataSource } from "../../shared/dynamic-table/datasource/zoeken-data-source";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
-import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 
 /**
@@ -17,7 +17,12 @@ export class TakenWerkvoorraadDatasource extends ZoekenDataSource<TaakZoekObject
     super("WERKVOORRAAD_TAKEN", zoekenService, utilService);
   }
 
-  protected initZoekparameters(zoekParameters: ZoekParameters) {
-    zoekParameters.type = "TAAK";
+  protected initZoekparameters(
+    zoekParameters: GeneratedType<"RestZoekParameters">,
+  ) {
+    return {
+      ...zoekParameters,
+      type: "TAAK",
+    } satisfies GeneratedType<"RestZoekParameters">;
   }
 }
