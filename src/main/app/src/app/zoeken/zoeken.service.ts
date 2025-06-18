@@ -8,12 +8,9 @@ import { Injectable } from "@angular/core";
 import { Observable, Subject } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
 import { Resultaat } from "../shared/model/resultaat";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { ZoekObject } from "./model/zoek-object";
-import { ZoekParameters } from "./model/zoek-parameters";
-import { ZoekResultaat } from "./model/zoek-resultaat";
 
 @Injectable({
   providedIn: "root",
@@ -30,12 +27,8 @@ export class ZoekenService {
     private readonly foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
-  list(zoekParameters: ZoekParameters): Observable<ZoekResultaat<ZoekObject>> {
-    return this.http
-      .put<ZoekResultaat<ZoekObject>>(`${this.basepath}/list`, zoekParameters)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  list(body: PutBody<"/rest/zoeken/list">) {
+    return this.zacHttpClient.PUT("/rest/zoeken/list", body, {});
   }
 
   listDocumentKoppelbareZaken(
