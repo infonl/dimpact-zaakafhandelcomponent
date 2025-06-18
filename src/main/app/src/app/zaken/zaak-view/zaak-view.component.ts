@@ -1485,21 +1485,21 @@ export class ZaakViewComponent
   }
 
   protected showInitiator() {
-    const betrokkeneKoppelingen =
-      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen;
-    if (!betrokkeneKoppelingen) return false;
+    if (!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen)
+      return false;
 
-    const { brpKoppelen, kvkKoppelen } = betrokkeneKoppelingen;
+    const { brpKoppelen, kvkKoppelen } =
+      this.zaak.zaaktype.zaakafhandelparameters.betrokkeneKoppelingen;
 
     return Boolean(brpKoppelen || kvkKoppelen);
   }
 
   protected showPersoonsgegevens() {
-    const betrokkeneKoppelingen =
-      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen;
-    if (!betrokkeneKoppelingen) return false;
+    if (!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen)
+      return false;
 
-    const { brpKoppelen } = betrokkeneKoppelingen;
+    const { brpKoppelen } =
+      this.zaak.zaaktype.zaakafhandelparameters.betrokkeneKoppelingen;
 
     return Boolean(
       brpKoppelen &&
@@ -1508,38 +1508,16 @@ export class ZaakViewComponent
   }
 
   protected showBedrijfsgegevens() {
-    const betrokkeneKoppelingen =
-      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen;
-    if (!betrokkeneKoppelingen) return false;
+    if (!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen)
+      return false;
 
-    const { kvkKoppelen } = betrokkeneKoppelingen;
+    const { kvkKoppelen } =
+      this.zaak.zaaktype.zaakafhandelparameters.betrokkeneKoppelingen;
 
     return Boolean(
       kvkKoppelen &&
         ["VN", "RSIN"].includes(this.zaak.initiatorIdentificatieType ?? ""),
     );
-  }
-
-  protected canAddInitiator() {
-    const initiatorIdentificatieType = String(
-      this.zaak.initiatorIdentificatieType,
-    );
-
-    if (
-      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-        ?.brpKoppelen
-    ) {
-      return !["BSN"].includes(initiatorIdentificatieType);
-    }
-
-    if (
-      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-        ?.kvkKoppelen
-    ) {
-      return !["VN", "RSIN"].includes(initiatorIdentificatieType);
-    }
-
-    return false;
   }
 
   protected allowedToAddBetrokkene() {
