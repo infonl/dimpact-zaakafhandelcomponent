@@ -20,7 +20,6 @@ export const DEFAULT_ZOEK_PARAMETERS: GeneratedType<"RestZoekParameters"> = {
 };
 
 export function heeftActieveZoekFilters(zoekFilters: ZoekFilters) {
-  console.log(zoekFilters);
   if (zoekFilters.zoeken) {
     return Object.values(zoekFilters.zoeken).some(Boolean);
   }

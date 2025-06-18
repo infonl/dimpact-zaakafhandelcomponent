@@ -23,7 +23,6 @@ export abstract class WerklijstComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.data.subscribe((data) => {
-      console.log(data);
       const tabelGegevens: TabelGegevens = data.tabelGegevens;
       this.aantalPerPagina = tabelGegevens.aantalPerPagina;
       this.pageSizeOptions = tabelGegevens.pageSizeOptions;

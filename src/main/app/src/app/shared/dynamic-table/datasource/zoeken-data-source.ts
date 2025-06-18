@@ -61,7 +61,6 @@ export abstract class ZoekenDataSource<
   ): GeneratedType<"RestZoekParameters">;
 
   private updateZoekParameters() {
-    console.log(">>>>updateZoekParameters");
     this.zoekParameters = this.initZoekparameters(this.zoekParameters);
     this.zoekParameters.page = this.paginator.pageIndex;
     this.zoekParameters.rows = this.paginator.pageSize;
@@ -69,7 +68,6 @@ export abstract class ZoekenDataSource<
     this.zoekParameters.sorteerVeld = this.sort
       .active as GeneratedType<"SorteerVeld">;
 
-    console.log(">>>>", this.zoekParameters);
     return SessionStorageUtil.setItem(
       this.werklijst + "_ZOEKPARAMETERS",
       this.zoekParameters,
@@ -100,7 +98,6 @@ export abstract class ZoekenDataSource<
   }
 
   load(): void {
-    console.log(">>>>load");
     this.utilService.setLoading(true);
     this.zoekenService
       .list(this.updateZoekParameters())
@@ -239,7 +236,6 @@ export abstract class ZoekenDataSource<
   }
 
   zoekopdrachtChanged(actieveZoekopdracht: Zoekopdracht): void {
-    console.log(">>>>zoekopdrachtChanged");
     if (!this._drop) {
       // view is reinitialized after a drop event, but the data doesn't change, so don't reload the data after a drop event.
       if (actieveZoekopdracht) {
