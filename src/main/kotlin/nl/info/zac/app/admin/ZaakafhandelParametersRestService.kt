@@ -37,6 +37,7 @@ import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
 import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_VALIDATION_GENERIC
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identity.IdentityService
@@ -137,13 +138,16 @@ class ZaakafhandelParametersRestService @Inject constructor(
      * if the `id` field is null, a new zaakafhandelparameters will be created,
      * otherwise the existing zaakafhandelparameters will be updated
      * @throws InputValidationFailedException if the productaanvraagtype is already in use by another active zaaktype
+     * @throws InputValidationFailedException if the productaanvraagtype is an empty string
      */
     @PUT
     fun createOrUpdateZaakafhandelparameters(
         restZaakafhandelParameters: RestZaakafhandelParameters
     ): RestZaakafhandelParameters {
         assertPolicy(policyService.readOverigeRechten().beheren)
+
         restZaakafhandelParameters.productaanvraagtype?.also {
+            checkIfProductaanvraagtypeIsNotAnEmptyString(it)
             checkIfProductaanvraagtypeIsNotAlreadyInUse(it, restZaakafhandelParameters.zaaktype.omschrijving)
         }
         restZaakafhandelParameters.defaultBehandelaarId?.let { defaultBehandelaarId ->
@@ -332,5 +336,14 @@ class ZaakafhandelParametersRestService @Inject constructor(
             )
             throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
         }
+    }
+
+    private fun checkIfProductaanvraagtypeIsNotAnEmptyString(productaanvraagtype: String) {
+        if(productaanvraagtype.isNotEmpty()) return
+
+        throw InputValidationFailedException(
+            errorCode = ERROR_CODE_VALIDATION_GENERIC,
+            message = "Productaanvraagtype cannot be an empty string"
+        )
     }
 }
