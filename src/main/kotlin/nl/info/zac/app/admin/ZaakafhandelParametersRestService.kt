@@ -339,7 +339,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
     }
 
     private fun checkIfProductaanvraagtypeIsNotAnEmptyString(productaanvraagtype: String) {
-        if(productaanvraagtype.isNotEmpty()) return
+        if(productaanvraagtype.trim().isNotEmpty()) return
 
         throw InputValidationFailedException(
             errorCode = ERROR_CODE_VALIDATION_GENERIC,
