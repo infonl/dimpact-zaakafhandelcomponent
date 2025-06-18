@@ -21,9 +21,8 @@ import { injectQuery } from "@tanstack/angular-query-experimental";
 import { Observable, lastValueFrom, merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
-import { SorteerVeld } from "../../zoeken/model/sorteer-veld";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
-import { ZoekObjectType } from "../../zoeken/model/zoek-object-type";
 import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
 import { ZoekVeld } from "../../zoeken/model/zoek-veld";
@@ -43,7 +42,7 @@ export class KlantZakenTabelComponent
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<ZaakZoekObject> =
     new MatTableDataSource<ZaakZoekObject>();
-  columns: string[] = [
+  columns = [
     "identificatie",
     "betrokkene",
     "status",
@@ -53,10 +52,10 @@ export class KlantZakenTabelComponent
     "zaaktype",
     "omschrijving",
     "url",
-  ];
-  filterColumns: string[] = this.columns.map((n) => n + "_filter");
+  ] as const;
+  filterColumns = this.columns.map((n) => n + "_filter");
   isLoadingResults = true;
-  sorteerVeld = SorteerVeld;
+  sorteerVeld: GeneratedType<"SorteerVeld"> | null = null;
   filterChange = new EventEmitter<void>();
   zoekParameters = new ZoekParameters();
   actieveFilters = false;
@@ -79,7 +78,7 @@ export class KlantZakenTabelComponent
   ) {}
 
   ngOnInit(): void {
-    this.zoekParameters.type = ZoekObjectType.ZAAK;
+    this.zoekParameters.type = "ZAAK";
   }
 
   private distinct<T>(values: T[]): T[] {
@@ -108,7 +107,8 @@ export class KlantZakenTabelComponent
     }
     this.zoekParameters.page = this.paginator.pageIndex;
     this.zoekParameters.sorteerRichting = this.sort.direction;
-    this.zoekParameters.sorteerVeld = SorteerVeld[this.sort.active];
+    this.zoekParameters.sorteerVeld = this.sort
+      .active as GeneratedType<"SorteerVeld">;
     this.zoekParameters.rows = this.paginator.pageSize;
     this.zoekParameters.alleenOpenstaandeZaken =
       !this.inclusiefAfgerondeZaken.value;

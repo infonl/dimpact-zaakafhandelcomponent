@@ -5,15 +5,15 @@
 
 import { DocumentRechten } from "../../../policy/model/document-rechten";
 import { InformatieobjectIndicatie } from "../../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZoekObject } from "../zoek-object";
-import { ZoekObjectType } from "../zoek-object-type";
 
 /**
  * @deprecated - use the `GeneratedType`
  */
 export class DocumentZoekObject implements ZoekObject {
   id: string;
-  type: ZoekObjectType;
+  type: GeneratedType<"ZoekObjectType">;
   identificatie: string;
   titel: string;
   beschrijving: string;

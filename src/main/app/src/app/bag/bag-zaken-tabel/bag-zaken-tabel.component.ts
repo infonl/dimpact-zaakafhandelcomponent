@@ -20,9 +20,8 @@ import { MatTableDataSource } from "@angular/material/table";
 import { Observable, merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
-import { SorteerVeld } from "../../zoeken/model/sorteer-veld";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
-import { ZoekObjectType } from "../../zoeken/model/zoek-object-type";
 import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
 import { ZoekVeld } from "../../zoeken/model/zoek-veld";
@@ -49,10 +48,10 @@ export class BagZakenTabelComponent
     "zaaktype",
     "omschrijving",
     "url",
-  ];
+  ] as const;
   filterColumns = this.columns.map((n) => n + "_filter");
   isLoadingResults = true;
-  sorteerVeld = SorteerVeld;
+  sorteerVeld: GeneratedType<"SorteerVeld"> | null = null;
   filterChange = new EventEmitter<void>();
   zoekParameters = new ZoekParameters();
   zoekResultaat = new ZoekResultaat<ZaakZoekObject>();
@@ -66,7 +65,7 @@ export class BagZakenTabelComponent
   ) {}
 
   ngOnInit(): void {
-    this.zoekParameters.type = ZoekObjectType.ZAAK;
+    this.zoekParameters.type = "ZAAK";
     this.zoekParameters.zoeken.ZAAK_BAGOBJECTEN = this.BagObjectIdentificatie;
   }
 
@@ -77,7 +76,8 @@ export class BagZakenTabelComponent
     this.zoekParameters.zoeken.ZAAK_BAGOBJECTEN = this.BagObjectIdentificatie;
     this.zoekParameters.page = this.paginator.pageIndex;
     this.zoekParameters.sorteerRichting = this.sort.direction;
-    this.zoekParameters.sorteerVeld = SorteerVeld[this.sort.active];
+    this.zoekParameters.sorteerVeld = this.sort
+      .active as GeneratedType<"SorteerVeld">;
     this.zoekParameters.rows = this.paginator.pageSize;
     this.zoekParameters.alleenOpenstaandeZaken =
       !this.inclusiefAfgerondeZaken.value;
