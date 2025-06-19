@@ -5,15 +5,13 @@
 
 import { Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { Observable, of } from "rxjs";
+import { of } from "rxjs";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
-import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { DocumentenLijstFieldBuilder } from "../../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { ParagraphFormFieldBuilder } from "../../../shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
 import { RadioFormFieldBuilder } from "../../../shared/material-form-builder/form-components/radio/radio-form-field-builder";
 import { ReadonlyFormFieldBuilder } from "../../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
 import { TextareaFormFieldBuilder } from "../../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
-import { GeneratedType } from "../../../shared/utils/generated-types";
 import { TakenService } from "../../../taken/taken.service";
 import { AbstractTaakFormulier } from "../abstract-taak-formulier";
 
@@ -38,12 +36,10 @@ export class Advies extends AbstractTaakFormulier {
   }
 
   _initStartForm() {
-    const zoekparameters = new InformatieobjectZoekParameters();
-    zoekparameters.zaakUUID = this.zaak.uuid;
     const documenten =
-      this.informatieObjectenService.listEnkelvoudigInformatieobjecten(
-        zoekparameters,
-      );
+      this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+        zaakUUID: this.zaak.uuid,
+      });
     const fields = this.fields;
     this.form.push(
       [
@@ -95,20 +91,15 @@ export class Advies extends AbstractTaakFormulier {
     );
   }
 
-  getDocumenten$(
-    field: string,
-  ): Observable<GeneratedType<"RestEnkelvoudigInformatieobject">[]> {
+  getDocumenten$(field: string) {
     const dataElement = this.getDataElement(field);
-    if (dataElement) {
-      const zoekParameters = new InformatieobjectZoekParameters();
-      zoekParameters.zaakUUID = this.zaak.uuid;
-      zoekParameters.informatieobjectUUIDs = dataElement.split(
+    if (!dataElement) return of([]);
+
+    return this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+      zaakUUID: this.zaak.uuid,
+      informatieobjectUUIDs: dataElement.split(
         AbstractTaakFormulier.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER,
-      );
-      return this.informatieObjectenService.listEnkelvoudigInformatieobjecten(
-        zoekParameters,
-      );
-    }
-    return of([]);
+      ),
+    });
   }
 }
