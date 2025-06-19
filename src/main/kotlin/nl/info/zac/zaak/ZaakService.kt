@@ -36,6 +36,7 @@ import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockSe
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
+import nl.info.zac.identity.model.hasAccessTo
 import nl.info.zac.util.AllOpen
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.exception.CaseHasLockedInformationObjectsException
@@ -49,7 +50,7 @@ import java.util.logging.Logger
 private val LOG = Logger.getLogger(ZaakService::class.java.name)
 
 @AllOpen
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 class ZaakService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
@@ -125,7 +126,7 @@ class ZaakService @Inject constructor(
             zaakUUIDs
                 .map(zrcClientService::readZaak)
                 .filter { isZaakOpen(it) }
-                .filter { sameDomain(it, group) }
+                .filter { domainAccess(it, group) }
                 .map { zaak ->
                     zrcClientService.updateRol(
                         zaak,
@@ -181,17 +182,17 @@ class ZaakService @Inject constructor(
             it.isOpen()
         }
 
-    private fun sameDomain(zaak: Zaak, group: Group) =
+    private fun domainAccess(zaak: Zaak, group: Group) =
         zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid()).let { params ->
-            val sameDomain = group.zacClientRoles.contains(params.domein)
-            if (!sameDomain) {
+            val hasAccess = group.hasAccessTo(params.domein)
+            if (!hasAccess) {
                 LOG.fine(
-                    "Zaak with UUID '${zaak.uuid}' is skipped and not assigned. " +
-                        "Group '${group.name}' is not part of the zaaktype domain '${params.domein}'"
+                    "Zaak with UUID '${zaak.uuid}' is skipped and not assigned. Group '${group.name}' " +
+                        "with roles '${group.zacClientRoles}' has no access to domain '${params.domein}'"
                 )
                 eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
             }
-            sameDomain
+            hasAccess
         }
 
     fun bepaalRolGroep(group: Group, zaak: Zaak) =

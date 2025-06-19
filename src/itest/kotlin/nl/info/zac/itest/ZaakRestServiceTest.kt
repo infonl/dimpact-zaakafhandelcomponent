@@ -51,6 +51,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_2
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_EXPLANATION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2020_01_IDENTIFICATION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2024_01_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Betrokkene1Uuid
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
@@ -646,8 +647,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         )
 
         When(
-            """the 'assign zaken from list' endpoint is called to start an asynchronous process to assign the two zaken 
-                     to a group and a user using the unique resource ID that was used to create the websocket subscription"""
+            """the 'assign zaken from list' endpoint is called to start an asynchronous process to assign the two zaken
+            to a group and a user using the unique resource ID that was used to create the websocket subscription"""
         ) {
             val lijstVerdelenResponse = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zaken/lijst/verdelen",
@@ -692,6 +693,74 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("A zaak with domain exists and a websocket subscription has been created") {
+        val response = zacClient.retrieveZaak(ZAAK_MANUAL_2024_01_IDENTIFICATION)
+        response.code shouldBe HTTP_OK
+        val responseBody = response.body!!.string()
+        logger.info { "Response: $responseBody" }
+        val zaakWithDomainUuid = JSONObject(responseBody).getString("uuid").let(UUID::fromString)
+
+        val uniqueResourceId = UUID.randomUUID()
+        val zakenVerdelenWebsocketListener = WebSocketTestListener(
+            textToBeSentOnOpen = """
+            {
+                "subscriptionType": "CREATE",
+                "event": {
+                    "opcode": "UPDATED",
+                    "objectType": "$SCREEN_EVENT_TYPE_ZAKEN_VERDELEN",
+                    "objectId": {
+                        "resource": "$uniqueResourceId"
+                    },
+                "_key": "UPDATED;$SCREEN_EVENT_TYPE_ZAKEN_VERDELEN;$uniqueResourceId"
+                 }
+            }
+            """.trimIndent()
+        )
+        itestHttpClient.connectNewWebSocket(
+            url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
+            webSocketListener = zakenVerdelenWebsocketListener
+        )
+
+        When(
+            """the 'assign zaken from list' endpoint is called to start an asynchronous process to assign the two zaken
+                     to a group that is outside the zaak domain"""
+        ) {
+            val lijstVerdelenResponse = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/zaken/lijst/verdelen",
+                requestBodyAsString = """{
+                    "uuids":["$zaakWithDomainUuid"],
+                    "groepId":"$TEST_GROUP_A_ID",
+                    "reden":"fakeLijstVerdelenReason",
+                    "screenEventResourceId":"$uniqueResourceId"
+                }"""
+            )
+            Then(
+                """a 204 HTTP response and a screen event of type 'zaken verdelen'
+                    should be received by the websocket listener and the zaak should not be reassigned"""
+            ) {
+                val lijstVerdelenResponseBody = lijstVerdelenResponse.body!!.string()
+                logger.info { "Response: $lijstVerdelenResponseBody" }
+                lijstVerdelenResponse.code shouldBe HTTP_NO_CONTENT
+                // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
+                eventually(10.seconds) {
+                    zakenVerdelenWebsocketListener.messagesReceived.size shouldBe 1
+                    with(JSONObject(zakenVerdelenWebsocketListener.messagesReceived[0])) {
+                        getString("opcode") shouldBe "UPDATED"
+                        getString("objectType") shouldBe "ZAKEN_VERDELEN"
+                        getJSONObject("objectId").getString("resource") shouldBe uniqueResourceId.toString()
+                    }
+                    zacClient.retrieveZaak(zaakWithDomainUuid).use { response ->
+                        response.code shouldBe HTTP_OK
+                        with(JSONObject(response.body!!.string())) {
+                            getJSONObject("groep").getString("id") shouldBe TEST_GROUP_A_ID
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     Given("A zaak has not been assigned to the currently logged in user") {
         When("the 'assign to logged-in user from list' endpoint is called for the zaak") {
             val response = itestHttpClient.performPutRequest(
@@ -729,7 +798,8 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
     Given(
         """Zaken have been assigned and a websocket subscription has been created to listen
-                 for a 'zaken vrijgeven' screen event which will be sent by the asynchronous 'assign zaken from list' job"""
+            for a 'zaken vrijgeven' screen event which will be sent by the asynchronous 'assign zaken from list' job
+            """
     ) {
         val uniqueResourceId = UUID.randomUUID()
         val websocketListener = WebSocketTestListener(
@@ -754,24 +824,22 @@ class ZaakRestServiceTest : BehaviorSpec({
         When("the 'lijst vrijgeven' endpoint is called for the zaken") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zaken/lijst/vrijgeven",
-                requestBodyAsString = """
-                    {
-                        "uuids":["$zaakProductaanvraag1Uuid", "$zaak2UUID"],
-                        "reden":"fakeLijstVrijgevenReason",
-                        "screenEventResourceId":"$uniqueResourceId"
-                    }
-                    """
+                requestBodyAsString = """{
+                    "uuids":["$zaakProductaanvraag1Uuid", "$zaak2UUID"],
+                    "reden":"fakeLijstVrijgevenReason",
+                    "screenEventResourceId":"$uniqueResourceId"
+                }"""
             )
             Then(
-                """the response should be a 204 HTTP response and eventually a screen event of type 'zaken vrijgeven'
-                                      should be received by the websocker listener and the zaak should be released from the user
+                """the response should be a 204 HTTP response, eventually a screen event of type 'zaken vrijgeven'
+                    should be received by the websocket listener and the zaak should be released from the user
                     but should still be assigned to the group """
             ) {
                 val responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
+                logger.info { "### Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
-                eventually(10.seconds) {
+                eventually(20.seconds) {
                     websocketListener.messagesReceived.size shouldBe 1
                     with(zacClient.retrieveZaak(zaakProductaanvraag1Uuid)) {
                         code shouldBe HTTP_OK

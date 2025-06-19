@@ -39,6 +39,7 @@ import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.authentication.UserPrincipalFilter
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
@@ -53,6 +54,7 @@ import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
 
+@Suppress("LargeClass")
 class ZaakServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val zrcClientService = mockk<ZrcClientService>()
@@ -337,16 +339,9 @@ class ZaakServiceTest : BehaviorSpec({
         val screenEventSlot = slot<ScreenEvent>()
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
-            every {
-                ztcClientService.readRoltype(
-                    it.zaaktype,
-                    OmschrijvingGeneriekEnum.BEHANDELAAR
-                )
-            } returns rolTypeBehandelaar
-            every { zrcClientService.updateRol(it, any(), explanation) } just Runs
             every { eventingService.send(capture(screenEventSlot)) } just Runs
         }
-        every { identityService.isUserInGroup(user.id, group.id) } returns true
+        every { identityService.isUserInGroup(user.id, group.id) } returns false
 
         When("the assign zaken function is called") {
             zaakService.assignZaken(
@@ -365,6 +360,56 @@ class ZaakServiceTest : BehaviorSpec({
             }
 
             And("a final screen event of type 'zaken verdelen' should be sent") {
+                with(screenEventSlot.captured) {
+                    opcode shouldBe Opcode.UPDATED
+                    objectType shouldBe ScreenEventType.ZAKEN_VERDELEN
+                    objectId.resource shouldBe screenEventResourceId
+                }
+            }
+        }
+    }
+
+    Given("A list of zaken with no domain") {
+        val screenEventSlot = slot<ScreenEvent>()
+        zaken.map {
+            every { zrcClientService.readZaak(it.uuid) } returns it
+            every { eventingService.send(capture(screenEventSlot)) } just Runs
+            every {
+                ztcClientService.readRoltype(
+                    it.zaaktype,
+                    OmschrijvingGeneriekEnum.BEHANDELAAR
+                )
+            } returns rolTypeBehandelaar
+            every { zrcClientService.updateRol(it, any(), explanation) } just Runs
+            every {
+                zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
+            } returns createZaakafhandelParameters(domein = UserPrincipalFilter.ROL_DOMEIN_ELK_ZAAKTYPE)
+        }
+        every { identityService.isUserInGroup(user.id, group.id) } returns true
+
+        When("the assign zaken function is called") {
+            zaakService.assignZaken(
+                zaakUUIDs = zaken.map { it.uuid },
+                explanation = explanation,
+                group = group,
+                user = user,
+                screenEventResourceId = screenEventResourceId
+            )
+
+            Then("group and user roles are updated") {
+                verify(exactly = 2) {
+                    zrcClientService.updateRol(zaken[0], any(), explanation)
+                    zrcClientService.updateRol(zaken[1], any(), explanation)
+                }
+            }
+
+            And("no skip event is generated") {
+                verify(exactly = 0) {
+                    eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaken[1]))
+                }
+            }
+
+            And("a final screen event of type 'zaken verdelen' is sent") {
                 with(screenEventSlot.captured) {
                     opcode shouldBe Opcode.UPDATED
                     objectType shouldBe ScreenEventType.ZAKEN_VERDELEN

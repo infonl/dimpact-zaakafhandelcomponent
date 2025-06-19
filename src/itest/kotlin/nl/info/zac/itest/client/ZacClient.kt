@@ -279,4 +279,13 @@ class ZacClient {
             url = "${ZAC_API_URI}/zaken/zaak/$zaakUUID"
         )
     }
+
+    fun retrieveZaak(id: String): Response {
+        logger.info {
+            "Retrieving zaak with id: $id"
+        }
+        return itestHttpClient.performGetRequest(
+            url = "${ZAC_API_URI}/zaken/zaak/id/$id"
+        )
+    }
 }
