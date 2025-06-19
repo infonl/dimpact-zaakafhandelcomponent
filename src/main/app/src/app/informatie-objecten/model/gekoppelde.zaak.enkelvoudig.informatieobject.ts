@@ -5,7 +5,6 @@
 
 import { InformatieobjectIndicatie } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { EnkelvoudigInformatieobjectOndertekening } from "./enkelvoudig-informatieobject-ondertekening";
 import { FileFormat } from "./file-format";
 
 /**
@@ -40,7 +39,7 @@ export class GekoppeldeZaakEnkelvoudigInformatieobject
   bestand: File;
   bestandsomvang: number;
   link: string;
-  ondertekening: EnkelvoudigInformatieobjectOndertekening;
+  ondertekening: GeneratedType<"RESTOndertekening">;
   indicatieGebruiksrecht: boolean;
   gelockedDoor: GeneratedType<"RestUser">;
   indicaties: InformatieobjectIndicatie[];

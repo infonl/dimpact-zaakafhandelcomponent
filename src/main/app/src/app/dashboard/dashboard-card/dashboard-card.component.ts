@@ -28,7 +28,8 @@ import { DashboardCard } from "../model/dashboard-card";
   styleUrls: ["./dashboard-card.component.less"],
 })
 export abstract class DashboardCardComponent<
-    T,
+    T extends
+      GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject"> = GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">,
     C extends readonly string[] = readonly string[],
   >
   implements OnInit, AfterViewInit, OnDestroy
@@ -37,12 +38,12 @@ export abstract class DashboardCardComponent<
 
   @Input() data: DashboardCard;
 
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatPaginator) paginator?: MatPaginator;
+  @ViewChild(MatSort) sort?: MatSort;
   dataSource: MatTableDataSource<T> = new MatTableDataSource<T>();
 
   protected reload: Observable<unknown> | null = null;
-  private reloader: Subscription;
+  private reloader?: Subscription;
 
   abstract readonly columns: C;
 
@@ -69,14 +70,14 @@ export abstract class DashboardCardComponent<
   }
 
   ngOnDestroy(): void {
-    this.reloader.unsubscribe();
+    this.reloader?.unsubscribe();
   }
 
   protected abstract onLoad(afterLoad: () => void): void;
 
   private readonly afterLoad = () => {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    if (this.paginator) this.dataSource.paginator = this.paginator;
+    if (this.sort) this.dataSource.sort = this.sort;
   };
 
   protected refreshTimed(seconds: number) {

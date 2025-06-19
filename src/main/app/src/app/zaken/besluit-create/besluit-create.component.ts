@@ -25,7 +25,6 @@ import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/
 import { FormComponent } from "src/app/shared/material-form-builder/form/form/form.component";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { DateFormField } from "../../shared/material-form-builder/form-components/date/date-form-field";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
@@ -134,18 +133,16 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
     besluittypeField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
-        if (value) {
-          const zoekparameters = new InformatieobjectZoekParameters();
-          zoekparameters.zaakUUID = this.zaak.uuid;
-          zoekparameters.besluittypeUUID = value.id;
-          documentenField.updateDocumenten(
-            this.informatieObjectenService.listEnkelvoudigInformatieobjecten(
-              zoekparameters,
-            ),
-          );
+        if (!value) return;
 
-          this.updatePublicationsFormPart(value);
-        }
+        documentenField.updateDocumenten(
+          this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+            zaakUUID: this.zaak.uuid,
+            besluittypeUUID: value.id,
+          }),
+        );
+
+        this.updatePublicationsFormPart(value);
       });
   }
 
