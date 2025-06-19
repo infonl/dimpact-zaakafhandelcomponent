@@ -7,7 +7,6 @@ import { Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { Observable, of } from "rxjs";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
-import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { DateFormFieldBuilder } from "../../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { DocumentenLijstFieldBuilder } from "../../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { ParagraphFormFieldBuilder } from "../../../shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
@@ -101,28 +100,22 @@ export class DocumentVerzendenPost extends AbstractTaakFormulier {
     field: string,
   ): Observable<GeneratedType<"RestEnkelvoudigInformatieobject">[]> {
     const dataElement = this.getDataElement(field);
-    if (dataElement) {
-      const zoekParameters = new InformatieobjectZoekParameters();
-      if (dataElement) {
-        zoekParameters.zaakUUID = this.zaak.uuid;
-        zoekParameters.informatieobjectUUIDs = dataElement.split(
-          AbstractTaakFormulier.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER,
-        );
-        return this.informatieObjectenService.listEnkelvoudigInformatieobjecten(
-          zoekParameters,
-        );
-      }
-    }
-    return of([]);
+    if (!dataElement) return of([]);
+
+    return this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+      zaakUUID: this.zaak.uuid,
+      informatieobjectUUIDs: dataElement.split(
+        AbstractTaakFormulier.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER,
+      ),
+    });
   }
 
   private getDocumentenChecked(field: string): string[] {
     const dataElement = this.getDataElement(field);
-    if (dataElement) {
-      return dataElement.split(
-        AbstractTaakFormulier.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER,
-      );
-    }
-    return [];
+    if (!dataElement) return [];
+
+    return dataElement.split(
+      AbstractTaakFormulier.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER,
+    );
   }
 }

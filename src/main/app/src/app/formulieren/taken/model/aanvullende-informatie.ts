@@ -12,7 +12,6 @@ import { MessageLevel } from "src/app/shared/material-form-builder/form-componen
 import { Mail } from "../../../admin/model/mail";
 import { Mailtemplate } from "../../../admin/model/mailtemplate";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
-import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { KlantenService } from "../../../klanten/klanten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
 import { ActionIcon } from "../../../shared/edit/action-icon";
@@ -85,12 +84,10 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
 
     this.humanTaskData.taakStuurGegevens.mail =
       Mail.TAAK_AANVULLENDE_INFORMATIE;
-    const zoekparameters = new InformatieobjectZoekParameters();
-    zoekparameters.zaakUUID = this.zaak.uuid;
     const documenten =
-      this.informatieObjectenService.listEnkelvoudigInformatieobjecten(
-        zoekparameters,
-      );
+      this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+        zaakUUID: this.zaak.uuid,
+      });
 
     const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1));
 

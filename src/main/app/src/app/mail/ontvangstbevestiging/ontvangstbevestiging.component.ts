@@ -11,7 +11,6 @@ import { Subject } from "rxjs";
 import { Mail } from "../../admin/model/mail";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { ActionIcon } from "../../shared/edit/action-icon";
@@ -57,12 +56,10 @@ export class OntvangstbevestigingComponent implements OnInit {
       .cancelText("actie.annuleren")
       .build();
 
-    const zoekparameters = new InformatieobjectZoekParameters();
-    zoekparameters.zaakUUID = this.zaak.uuid;
     const documenten =
-      this.informatieObjectenService.listEnkelvoudigInformatieobjecten(
-        zoekparameters,
-      );
+      this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+        zaakUUID: this.zaak.uuid,
+      });
     const mailtemplate = this.mailtemplateService.findMailtemplate(
       Mail.TAAK_ONTVANGSTBEVESTIGING,
       this.zaak.uuid,
