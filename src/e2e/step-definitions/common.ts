@@ -49,7 +49,6 @@ Given(
   async function (this: CustomWorld) {
     await this.page.waitForResponse(/zoeken\/list/);
     await this.page.waitForTimeout(ONE_SECOND_IN_MS);
-
   },
 );
 
@@ -60,7 +59,7 @@ Given(
     await this.page.waitForTimeout(THREE_SECONDS_IN_MS);
     await this.page.reload();
     await this.page.waitForLoadState("networkidle", { timeout: 5000 });
-    },
+  },
 );
 
 Then(
