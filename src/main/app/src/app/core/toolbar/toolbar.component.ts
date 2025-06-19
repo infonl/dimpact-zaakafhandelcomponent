@@ -73,7 +73,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
         this.zoekenService.trefwoorden$.next(trefwoorden || "");
       });
     this.zoekenService.reset$.pipe(takeUntil(this.destroy$)).subscribe(() => {
-      this.zoekenFormControl.setValue(null);
+      this.zoekenFormControl.setValue("");
     });
 
     this.headerTitle$ = this.utilService.headerTitle$;
