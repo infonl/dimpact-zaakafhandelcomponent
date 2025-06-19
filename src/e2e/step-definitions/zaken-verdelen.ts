@@ -50,15 +50,16 @@ When(
 When(
   "{string} releases the zaken",
   async function (this: CustomWorld, s: string) {
-    const badge = await this.page
-      .getByRole("button", { name: "Vrijgeven" })
-      .locator("span")
-      .first();
-    _noOfZaken = Number(await badge.textContent());
+      await this.page
+        .getByRole("button", { name: "Vrijgeven" })
+        .locator("span")
+        .first().click();
 
-    await this.page.getByRole("button", { name: "Vrijgeven" }).click();
-    await this.page.getByLabel("Reden").fill("Fake reason");
-    await this.page.getByRole("button", { name: "Vrijgeven" }).click();
+      await this.page.getByLabel("Reden").fill("Fake reason");
+
+      await this.page.getByRole("button", { name: "Vrijgeven" }).click();
+
+      await this.page.waitForTimeout(3000)
   },
 );
 
@@ -76,7 +77,7 @@ Then(
   "{string} gets a message confirming that the releasement of zaken is starting",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, s: string) {
-    await this.page
+      await this.page
       .getByText(
         _noOfZaken > 1
           ? `${_noOfZaken} zaken worden vrijgegeven...`
