@@ -4,40 +4,29 @@
  */
 
 import { Component, Input, OnInit } from "@angular/core";
-import {
-  AbstractControl,
-  FormBuilder,
-  ValidatorFn,
-  Validators,
-} from "@angular/forms";
+import { FormBuilder, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import moment, { Moment } from "moment";
 import { Observable, of } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { UtilService } from "src/app/core/service/util.service";
 import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
-import { DateFormField } from "src/app/shared/material-form-builder/form-components/date/date-form-field";
-import { DateFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/date/date-form-field-builder";
-import { InputFormField } from "src/app/shared/material-form-builder/form-components/input/input-form-field";
 import { AbstractFormField } from "src/app/shared/material-form-builder/model/abstract-form-field";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { IdentityService } from "../../identity/identity.service";
+import { FormHelper } from "../../shared/form/helpers";
 import { ZakenService } from "../zaken.service";
 
 @Component({
   selector: "zac-case-details-edit",
   templateUrl: "./zaak-details-wijzigen.component.html",
 })
-export class CaseDetailsEditComponent implements  OnInit {
+export class CaseDetailsEditComponent implements OnInit {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input({ required: true }) loggedInUser!: GeneratedType<"RestLoggedInUser">;
   @Input({ required: true }) sideNav!: MatDrawer;
 
   formFields: Array<AbstractFormField[]> = [];
-
-  private startDatumField!: DateFormField;
-  private einddatumGeplandField!: DateFormField | InputFormField;
-  private uiterlijkeEinddatumAfdoeningField!: DateFormField;
 
   protected groups: Observable<GeneratedType<"RestGroup">[]> = of([]);
   protected users: GeneratedType<"RestUser">[] = [];
@@ -52,7 +41,9 @@ export class CaseDetailsEditComponent implements  OnInit {
     groep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [
       Validators.required,
     ]),
-    behandelaar: this.formBuilder.control<GeneratedType<"RestUser"> | null>(null),
+    behandelaar: this.formBuilder.control<GeneratedType<"RestUser"> | null>(
+      null,
+    ),
     communicatiekanaal: this.formBuilder.control<string | null>(null, [
       Validators.required,
     ]),
@@ -93,7 +84,6 @@ export class CaseDetailsEditComponent implements  OnInit {
         this.zaak.rechten.wijzigenDoorlooptijd,
     );
 
-    // Form stuff
     this.groups = this.identityService.listGroups(this.zaak.zaaktype.uuid);
 
     if (!this.zaak.rechten.wijzigen) {
@@ -118,19 +108,10 @@ export class CaseDetailsEditComponent implements  OnInit {
     }
 
     this.form.controls.reden.disable();
-    this.form.valueChanges.subscribe((form) => {
-      console.log(form);
+    this.form.valueChanges.subscribe(() => {
       if (!this.form.dirty) return;
-      this.form.controls.reden.enable();
-
-      // TODO handle validity of dates
+      this.form.controls.reden.enable({ emitEvent: false });
     });
-
-    console.log(
-      this.zaak,
-      this.confidentialityDesignations,
-      this.zaak.vertrouwelijkheidaanduiding,
-    );
 
     this.form.setValue({
       startdatum: moment(this.zaak.startdatum),
@@ -152,8 +133,9 @@ export class CaseDetailsEditComponent implements  OnInit {
     });
 
     this.communicationChannels.subscribe((channels) => {
-      // TODO: validate this actually works
-      this.communicationChannels = of(Array.from(new Set(...channels, this.zaak.communicatiekanaal)))
+      this.communicationChannels = of(
+        Array.from(new Set(...channels, this.zaak.communicatiekanaal)),
+      );
     });
 
     this.form.controls.groep.valueChanges.subscribe((group) => {
@@ -170,7 +152,8 @@ export class CaseDetailsEditComponent implements  OnInit {
       this.identityService.listUsersInGroup(group.id).subscribe((users) => {
         this.users = users;
 
-        if (!this.zaak.behandelaar && !this.form.controls.behandelaar.value) return;
+        if (!this.zaak.behandelaar && !this.form.controls.behandelaar.value)
+          return;
 
         const zaakUser = users.find(
           ({ id }) => id === this.zaak.behandelaar?.id,
@@ -178,7 +161,9 @@ export class CaseDetailsEditComponent implements  OnInit {
         const changedUser = users.find(
           ({ id }) => id === this.form.controls.behandelaar.value?.id,
         );
-        this.form.controls.behandelaar.setValue(changedUser ?? zaakUser ?? null);
+        this.form.controls.behandelaar.setValue(
+          changedUser ?? zaakUser ?? null,
+        );
       });
     });
 
@@ -187,116 +172,73 @@ export class CaseDetailsEditComponent implements  OnInit {
       this.form.controls.groep.setValue(group ?? null);
     });
 
-    // TODO move this logic to state change
-    this.formFields.flat().forEach((field) => {
-      // Subscription(s) to revalidate 'other' enabled date field(s) after a date change, so 'other' date error messages are updated
-      if (field instanceof DateFormField && field.formControl.enabled) {
-        if (field.formControl.enabled) {
-          field.formControl.valueChanges
-            .subscribe(() => {
-              this.formFields
-                .flat()
-                .filter(
-                  (f) =>
-                    f instanceof DateFormField &&
-                    f.id !== field.id &&
-                    f.formControl.hasError("custom"),
-                )
-                .forEach((otherDateField) =>
-                  otherDateField.formControl.updateValueAndValidity({
-                    emitEvent: false,
-                  }),
-                );
-            });
-        }
-      }
-    });
-  }
+    const { startdatum, einddatumGepland, uiterlijkeEinddatumAfdoening } =
+      this.zaak;
 
-  private createDateFormField(
-    id: string,
-    enabled: boolean,
-    validators: ValidatorFn[],
-    value?: string | null,
-  ): DateFormField {
-    return new DateFormFieldBuilder(value)
-      .id(id)
-      .label(id)
-      .validators(...validators)
-      .disabled(!enabled)
-      .build();
-  }
-
-  private validateStartDatum(control: AbstractControl) {
-    const startDatum = moment(control.value);
-    const einddatumGepland = moment(
-      this.einddatumGeplandField.formControl.value,
+    this.form.controls.startdatum.setValidators(
+      startdatum ? [Validators.required] : [],
     );
-    const uiterlijkeEinddatumAfdoening = moment(
-      this.uiterlijkeEinddatumAfdoeningField.formControl.value,
+    this.form.controls.einddatumGepland.setValidators(
+      einddatumGepland ? [Validators.required] : [],
+    );
+    this.form.controls.uiterlijkeEinddatumAfdoening.setValidators(
+      uiterlijkeEinddatumAfdoening ? [Validators.required] : [],
     );
 
-    if (startDatum.isAfter(uiterlijkeEinddatumAfdoening)) {
-      return {
-        custom: { message: "msg.error.date.invalid.datum.start-na-fatale" },
-      };
-    }
-
-    if (!this.einddatumGeplandField.formControl.value) return null;
-
-    if (startDatum.isAfter(einddatumGepland)) {
-      return {
-        custom: { message: "msg.error.date.invalid.datum.start-na-streef" },
-      };
-    }
-
-    return null;
+    this.form.controls.startdatum.valueChanges.subscribe(
+      this.validateDates.bind(this),
+    );
+    this.form.controls.einddatumGepland.valueChanges.subscribe(
+      this.validateDates.bind(this),
+    );
+    this.form.controls.uiterlijkeEinddatumAfdoening.valueChanges.subscribe(
+      this.validateDates.bind(this),
+    );
   }
 
-  private validateEinddatumGepland(control: AbstractControl) {
-    const startDatum = moment(this.startDatumField.formControl.value);
-    const einddatumGepland = moment(control.value);
-    const uiterlijkeEinddatumAfdoening = moment(
-      this.uiterlijkeEinddatumAfdoeningField.formControl.value,
-    );
+  private validateDates() {
+    const { startdatum, einddatumGepland, uiterlijkeEinddatumAfdoening } =
+      this.form.getRawValue();
 
-    if (einddatumGepland.isBefore(startDatum)) {
-      return {
-        custom: { message: "msg.error.date.invalid.datum.streef-voor-start" },
-      };
+    this.form.controls.startdatum.setErrors(null);
+    this.form.controls.einddatumGepland.setErrors(null);
+    this.form.controls.uiterlijkeEinddatumAfdoening.setErrors(null);
+
+    if (
+      startdatum &&
+      einddatumGepland &&
+      moment(startdatum).isAfter(moment(einddatumGepland))
+    ) {
+      this.form.controls.startdatum.setErrors(
+        FormHelper.CustomErrorMessage(
+          "msg.error.date.invalid.datum.start-na-streef",
+        ),
+      );
     }
 
-    if (einddatumGepland.isAfter(uiterlijkeEinddatumAfdoening)) {
-      return {
-        custom: { message: "msg.error.date.invalid.datum.streef-na-fatale" },
-      };
+    if (
+      startdatum &&
+      uiterlijkeEinddatumAfdoening &&
+      startdatum.isAfter(moment(uiterlijkeEinddatumAfdoening))
+    ) {
+      this.form.controls.startdatum.setErrors(
+        FormHelper.CustomErrorMessage(
+          "msg.error.date.invalid.datum.start-na-fatale",
+        ),
+      );
     }
 
-    return null;
-  }
-
-  private validateUiterlijkeEinddatumAfdoening(control: AbstractControl) {
-    const startDatum = moment(this.startDatumField.formControl.value);
-    const einddatumGepland = moment(
-      this.einddatumGeplandField.formControl.value,
-    );
-    const uiterlijkeEinddatumAfdoening = moment(control.value);
-
-    if (uiterlijkeEinddatumAfdoening.isBefore(startDatum)) {
-      return {
-        custom: { message: "msg.error.date.invalid.datum.fatale-voor-start" },
-      };
+    if (
+      einddatumGepland &&
+      uiterlijkeEinddatumAfdoening &&
+      moment(einddatumGepland).isAfter(moment(uiterlijkeEinddatumAfdoening))
+    ) {
+      this.form.controls.einddatumGepland.setErrors(
+        FormHelper.CustomErrorMessage(
+          "msg.error.date.invalid.datum.streef-na-fatale",
+        ),
+      );
     }
-
-    if (!this.einddatumGeplandField.formControl.value) return null;
-
-    if (uiterlijkeEinddatumAfdoening.isBefore(einddatumGepland)) {
-      return {
-        custom: { message: "msg.error.date.invalid.datum.fatale-voor-streef" },
-      };
-    }
-
-    return null;
   }
 
   protected onSubmit(form: typeof this.form): void {
@@ -305,26 +247,27 @@ export class CaseDetailsEditComponent implements  OnInit {
     this.patchBehandelaar(form.value, reason);
 
     this.zakenService
-        .updateZaak(this.zaak.uuid, {
-          zaak: {
-            ...form.value,
-            vertrouwelijkheidaanduiding: form.value.vertrouwelijkheidaanduiding?.value,
-            startdatum: form.value.startdatum?.toISOString(),
-            einddatumGepland: form.value.einddatumGepland?.toISOString(),
-            uiterlijkeEinddatumAfdoening: form.value.einddatumGepland?.toISOString(),
-            omschrijving: form.value.omschrijving ?? undefined
-          },
-          reden: reason
-        })
-        .subscribe({
-          next: () => {
-            void this.sideNav.close();
-          },
-          error: (err) => {
-            console.error("Fout bij bijwerken zaak:", err);
-          },
-        });
-
+      .updateZaak(this.zaak.uuid, {
+        zaak: {
+          ...form.value,
+          vertrouwelijkheidaanduiding:
+            form.value.vertrouwelijkheidaanduiding?.value,
+          startdatum: form.value.startdatum?.toISOString(),
+          einddatumGepland: form.value.einddatumGepland?.toISOString(),
+          uiterlijkeEinddatumAfdoening:
+            form.value.einddatumGepland?.toISOString(),
+          omschrijving: form.value.omschrijving ?? undefined,
+        },
+        reden: reason,
+      })
+      .subscribe({
+        next: () => {
+          void this.sideNav.close();
+        },
+        error: (err) => {
+          console.error("Fout bij bijwerken zaak:", err);
+        },
+      });
   }
 
   private patchBehandelaar(
