@@ -58,7 +58,9 @@ Given(
   async function (this: CustomWorld) {
     await this.page.waitForTimeout(TEN_SECONDS_IN_MS);
     await this.page.reload();
-    await this.page.waitForLoadState("networkidle", { timeout: TEN_SECONDS_IN_MS });
+    await this.page.waitForLoadState("networkidle", {
+      timeout: TEN_SECONDS_IN_MS,
+    });
   },
 );
 
