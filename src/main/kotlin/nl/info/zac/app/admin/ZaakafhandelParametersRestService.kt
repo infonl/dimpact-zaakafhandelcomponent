@@ -148,7 +148,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
         }
         restZaakafhandelParameters.defaultBehandelaarId?.let { defaultBehandelaarId ->
             restZaakafhandelParameters.defaultGroepId?.let { defaultGroepId ->
-                identityService.checkIfUserIsInGroup(defaultBehandelaarId, defaultGroepId)
+                identityService.validateIfUserIsInGroup(defaultBehandelaarId, defaultGroepId)
             }
         }
         return zaakafhandelParametersConverter.toZaakafhandelParameters(

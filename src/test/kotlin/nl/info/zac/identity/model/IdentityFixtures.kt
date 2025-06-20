@@ -9,7 +9,7 @@ fun createGroup(
     id: String = "fakeId",
     name: String = "fakeName",
     email: String = "fake-group@example.com",
-    zacClientRoles: List<String> = emptyList()
+    zacClientRoles: List<String> = listOf("fakeDomein")
 ) = Group(
     id = id,
     name = name,

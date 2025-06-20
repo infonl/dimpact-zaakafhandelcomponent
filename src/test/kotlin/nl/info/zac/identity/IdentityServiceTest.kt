@@ -194,7 +194,7 @@ class IdentityServiceTest : BehaviorSpec({
         }
 
         When("a check if an existing user is in a group is performed") {
-            identityService.checkIfUserIsInGroup(userName1, groupId)
+            identityService.validateIfUserIsInGroup(userName1, groupId)
 
             Then("the check succeeds") {}
         }
@@ -233,7 +233,7 @@ class IdentityServiceTest : BehaviorSpec({
 
         When("a check if a user is in an unknown group is performed") {
             shouldThrow<UserNotInGroupException> {
-                identityService.checkIfUserIsInGroup(userName1, unknownGroupName)
+                identityService.validateIfUserIsInGroup(userName1, unknownGroupName)
             }
 
             Then("an exception is thrown") {}
@@ -249,7 +249,7 @@ class IdentityServiceTest : BehaviorSpec({
 
         When("a check if an unknown user is in a group is performed") {
             shouldThrow<UserNotFoundException> {
-                identityService.checkIfUserIsInGroup(unknownUserName, groupId)
+                identityService.validateIfUserIsInGroup(unknownUserName, groupId)
             }
 
             Then("an exception is thrown") {}
