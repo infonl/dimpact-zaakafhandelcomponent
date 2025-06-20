@@ -12,11 +12,77 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<div class="form">
-  <mfb-form
-    *ngIf="formFields"
-    [formFields]="formFields"
-    [config]="formConfig"
-    (formSubmit)="onSubmit($event)"
-  ></mfb-form>
-</div>
+<form [formGroup]="form" (ngSubmit)="onSubmit(form)">
+  <fieldset>
+    <section class="row">
+      <zac-select
+        class="col-12 col-md-4"
+        [form]="form"
+        key="groep"
+        [options]="groups"
+        optionDisplayValue="naam"
+      >
+      </zac-select>
+      <zac-select
+        class="col-12 col-md-4"
+        [form]="form"
+        key="behandelaar"
+        [options]="users"
+        optionDisplayValue="naam"
+      ></zac-select>
+      <zac-select
+        class="col-12 col-md-4"
+        [form]="form"
+        key="communicatiekanaal"
+        [options]="communicationChannels"
+      ></zac-select>
+    </section>
+    <section class="row">
+      <zac-date
+        class="col-12 col-md-4"
+        [form]="form"
+        key="startdatum"
+      ></zac-date>
+      <zac-date
+        class="col-12 col-md-4"
+        [form]="form"
+        key="einddatumGepland"
+      ></zac-date>
+      <zac-date
+        class="col-12 col-md-4"
+        [form]="form"
+        key="uiterlijkeEinddatumAfdoening"
+      ></zac-date>
+      <zac-select
+        class="col-12"
+        [form]="form"
+        key="vertrouwelijkheidaanduiding"
+        [options]="confidentialityDesignations"
+        optionDisplayValue="label"
+      >
+      </zac-select>
+      <zac-input class="col-12" [form]="form" key="omschrijving"> </zac-input>
+      <zac-textarea
+        class="col-12"
+        [form]="form"
+        key="toelichting"
+      ></zac-textarea>
+      <zac-input class="col-12" [form]="form" key="reden"> </zac-input>
+    </section>
+  </fieldset>
+  <fieldset>
+    <mat-action-row>
+      <button
+        mat-raised-button
+        type="submit"
+        color="primary"
+        [disabled]="!form.valid"
+      >
+        {{ "actie.opslaan" | translate }}
+      </button>
+      <button type="button" mat-raised-button (click)="sideNav.close()">
+        {{ "actie.annuleren" | translate }}
+      </button>
+    </mat-action-row>
+  </fieldset>
+</form>
