@@ -186,8 +186,8 @@ class ZaakService @Inject constructor(
      * Checks if the group has access to the domain associated with the specified zaak.
      *
      * Domain access is granted if any of these conditions are met:
-     * - The zaak's domain parameter is null
-     * - The zaak's domain is ROL_DOMEIN_ELK_ZAAKTYPE
+     * - The zaaktype's domain parameter is null
+     * - The zaaktype's domain is ROL_DOMEIN_ELK_ZAAKTYPE
      * - The group has the ROL_DOMEIN_ELK_ZAAKTYPE role
      * - The group has no roles defined
      * - The group has a role matching the zaak's domain
@@ -197,8 +197,7 @@ class ZaakService @Inject constructor(
      */
     private fun Group.hasDomainAccess(zaak: Zaak) =
         zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid()).let { params ->
-            val hasAccess = params.domein == null ||
-                params.domein == UserPrincipalFilter.ROL_DOMEIN_ELK_ZAAKTYPE ||
+            val hasAccess = params.domein == UserPrincipalFilter.ROL_DOMEIN_ELK_ZAAKTYPE ||
                 this.zacClientRoles.contains(UserPrincipalFilter.ROL_DOMEIN_ELK_ZAAKTYPE) ||
                 this.zacClientRoles.isEmpty() ||
                 params.domein?.let {
