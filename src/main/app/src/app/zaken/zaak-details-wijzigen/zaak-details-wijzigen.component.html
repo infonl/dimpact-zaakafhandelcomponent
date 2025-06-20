@@ -76,7 +76,7 @@
         mat-raised-button
         type="submit"
         color="primary"
-        [disabled]="!form.valid"
+        [disabled]="!form.valid || form.pristine"
       >
         {{ "actie.opslaan" | translate }}
       </button>
