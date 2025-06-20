@@ -16,6 +16,7 @@ import { InformatieObjectenService } from "../../../informatie-objecten/informat
 import { OrderUtil } from "../../../shared/order/order-util";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { Taak } from "../../model/taak";
+import {injectQuery} from "@tanstack/angular-query-experimental";
 
 @Injectable({
   providedIn: "root",
@@ -261,33 +262,33 @@ export class FormioSetupService {
   }
 
   private initializeReferenceTableSelectorComponent(
-    referenceTableSelector: ExtendedComponentSchema,
+      referenceTableSelector: ExtendedComponentSchema,
   ) {
-    const referenceTableCode = referenceTableSelector.properties[
-      "ReferenceTable_Code"
-    ] as string;
+    const referenceTableCode =
+        referenceTableSelector.properties["ReferenceTable_Code"];
 
     referenceTableSelector.valueProperty = "id";
     referenceTableSelector.template = "{{ item.naam }}";
-
-    if (!this.referenceTableCache.has(referenceTableCode)) {
-      const communicationChannelList = this.referenceTableService
-        .readReferentieTabelByCode(referenceTableCode)
-        .pipe(
-          map((table) => table.waarden.map((value) => value.naam)),
-          shareReplay(1),
-        );
-      this.referenceTableCache.set(
-        referenceTableCode,
-        communicationChannelList,
-      );
-    }
-
     referenceTableSelector.data = {
-      custom: () =>
-        lastValueFrom(this.referenceTableCache.get(referenceTableCode)!),
+      custom: () => {
+        console.log(`initializeReferenceTableSelectorComponent ${referenceTableCode}` )
+        this.allSmartDocumentTemplateGroupsQuery(referenceTableCode).data()
+      }
     };
   }
+
+  allSmartDocumentTemplateGroupsQuery = (referenceTableCode: string) => injectQuery(() => ({
+    queryKey: ["allSmartDocumentTemplateGroupsQuery", referenceTableCode],
+    refetchOnWindowFocus: false,
+    queryFn: () => {
+      console.log(`allSmartDocumentTemplateGroupsQuery ${referenceTableCode}` )
+      return lastValueFrom(
+          this.referenceTableService
+              .readReferentieTabelByCode(referenceTableCode)
+              .pipe(map((table) => table.waarden.map((value) => value.naam))),
+      )
+    }
+  }));
 
   private initializeAvailableDocumentsFieldsetComponent(
     fieldsetComponent: ExtendedComponentSchema,
