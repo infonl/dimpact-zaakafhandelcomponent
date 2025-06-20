@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import {inject, Injectable, Injector, runInInjectionContext} from "@angular/core";
 import { ExtendedComponentSchema, FormioForm } from "@formio/angular";
-import { lastValueFrom } from "rxjs";
-import { map, tap } from "rxjs/operators";
+import { lastValueFrom, Observable } from "rxjs";
+import { map, shareReplay, tap } from "rxjs/operators";
 import { ReferentieTabelService } from "../../../admin/referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../../core/service/util.service";
@@ -16,13 +16,23 @@ import { InformatieObjectenService } from "../../../informatie-objecten/informat
 import { OrderUtil } from "../../../shared/order/order-util";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { Taak } from "../../model/taak";
+import {injectQuery} from "@tanstack/angular-query-experimental";
 
 @Injectable({
   providedIn: "root",
 })
 export class FormioSetupService {
   private taak?: Taak;
-  private formioChangeData: Record<string, string> | undefined;
+  private formioChangeData?: Record<string, string>;
+  private smartDocumentsGroupTemplateNamesCache = new Map<
+    string,
+    Observable<string[]>
+  >();
+  private userGroupsCache = new Map<
+    string,
+    Observable<{ id: string; naam: string }[]>
+  >();
+  private injector = inject(Injector)
 
   constructor(
     public utilService: UtilService,
@@ -87,13 +97,20 @@ export class FormioSetupService {
   ): void {
     groepComponent.valueProperty = "id";
     groepComponent.template = "{{ item.naam }}";
+
+    if (!this.userGroupsCache.has(this.taak!.zaaktypeUUID)) {
+      const userGroupsList = this.identityService
+        .listGroups(this.taak?.zaaktypeUUID)
+        .pipe(
+          tap((value) => value.sort(OrderUtil.orderBy("naam"))),
+          shareReplay(1),
+        );
+      this.userGroupsCache.set(this.taak!.zaaktypeUUID, userGroupsList);
+    }
+
     groepComponent.data = {
       custom: () =>
-        lastValueFrom(
-          this.identityService
-            .listGroups(this.taak?.zaaktypeUUID)
-            .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam")))),
-        ),
+        lastValueFrom(this.userGroupsCache.get(this.taak!.zaaktypeUUID)!),
     };
   }
 
@@ -127,18 +144,39 @@ export class FormioSetupService {
   ): void {
     fieldsetComponent.type = "fieldset";
     const smartDocumentsPath = this.findSmartDocumentsPath(fieldsetComponent);
+    const smartDocumentsPathCacheKey = JSON.stringify(smartDocumentsPath);
     const smartDocumentsTemplateComponent = fieldsetComponent.components?.find(
       (component: ExtendedComponentSchema) =>
         component.key === fieldsetComponent.key + "_Template",
     );
     smartDocumentsTemplateComponent.valueProperty = "id";
     smartDocumentsTemplateComponent.template = "{{ item.naam }}";
+
+    if (
+      !this.smartDocumentsGroupTemplateNamesCache.has(
+        smartDocumentsPathCacheKey,
+      )
+    ) {
+      const smartDocumentsGroupTemplateNameList =
+        this.zaakafhandelParametersService
+          .listSmartDocumentsGroupTemplateNames(smartDocumentsPath)
+          .pipe(
+            tap((value) => value.sort()),
+            shareReplay(1),
+          );
+
+      this.smartDocumentsGroupTemplateNamesCache.set(
+        smartDocumentsPathCacheKey,
+        smartDocumentsGroupTemplateNameList,
+      );
+    }
+
     smartDocumentsTemplateComponent.data = {
       custom: () =>
         lastValueFrom(
-          this.zaakafhandelParametersService
-            .listSmartDocumentsGroupTemplateNames(smartDocumentsPath)
-            .pipe(tap((value) => value.sort())),
+          this.smartDocumentsGroupTemplateNamesCache.get(
+            smartDocumentsPathCacheKey,
+          )!,
         ),
     };
   }
@@ -224,21 +262,37 @@ export class FormioSetupService {
   }
 
   private initializeReferenceTableSelectorComponent(
-    referenceTableSelector: ExtendedComponentSchema,
+      referenceTableSelector: ExtendedComponentSchema,
   ) {
     const referenceTableCode =
-      referenceTableSelector.properties["ReferenceTable_Code"];
+        referenceTableSelector.properties["ReferenceTable_Code"];
 
     referenceTableSelector.valueProperty = "id";
     referenceTableSelector.template = "{{ item.naam }}";
     referenceTableSelector.data = {
-      custom: () =>
-        lastValueFrom(
-          this.referenceTableService
-            .readReferentieTabelByCode(referenceTableCode)
-            .pipe(map((table) => table.waarden.map((value) => value.naam))),
-        ),
+      custom: () => {
+        console.log(`initializeReferenceTableSelectorComponent ${referenceTableCode}` )
+        return this.allSmartDocumentTemplateGroupsQuery(referenceTableCode).data()
+      }
     };
+  }
+
+  private allSmartDocumentTemplateGroupsQuery(referenceTableCode: string) {
+    return runInInjectionContext(this.injector, () => {
+      console.log(`allSmartDocumentTemplateGroupsQuery ${referenceTableCode}` )
+      return injectQuery(() => ({
+        queryKey: ["allSmartDocumentTemplateGroupsQuery", referenceTableCode],
+        refetchOnWindowFocus: false,
+        queryFn: () => {
+          console.log(`actually querying ${referenceTableCode}` )
+          return lastValueFrom(
+              this.referenceTableService
+                  .readReferentieTabelByCode(referenceTableCode)
+                  .pipe(map((table) => table.waarden.map((value) => value.naam))),
+          )
+        }
+      }));
+    })
   }
 
   private initializeAvailableDocumentsFieldsetComponent(
