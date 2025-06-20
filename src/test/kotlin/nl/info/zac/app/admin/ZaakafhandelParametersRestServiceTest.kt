@@ -245,7 +245,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         val behandelaarGroupId = "fakeBehandelaarGroupId"
         every { policyService.readOverigeRechten().beheren } returns true
         every {
-            identityService.checkIfUserIsInGroup(behandelaarId, behandelaarGroupId)
+            identityService.validateIfUserIsInGroup(behandelaarId, behandelaarGroupId)
         } throws UserNotInGroupException()
 
         When("zaakafhandelparameters are created") {

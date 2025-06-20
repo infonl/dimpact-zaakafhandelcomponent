@@ -385,7 +385,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         When("the zaak is assigned to a user and a group") {
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(toekennen = true)
             every {
-                identityService.checkIfUserIsInGroup(
+                identityService.validateIfUserIsInGroup(
                     restZaakToekennenGegevens.assigneeUserName!!,
                     restZaakToekennenGegevens.groupId
                 )
@@ -428,7 +428,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(restZaakToekennenGegevensUnknownGroup.zaakUUID) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(toekennen = true)
         every {
-            identityService.checkIfUserIsInGroup(
+            identityService.validateIfUserIsInGroup(
                 restZaakToekennenGegevensUnknownGroup.assigneeUserName!!,
                 restZaakToekennenGegevensUnknownGroup.groupId
             )
@@ -476,7 +476,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         When("the zaak is assigned to a user and a group") {
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(toekennen = true)
             every {
-                identityService.checkIfUserIsInGroup(
+                identityService.validateIfUserIsInGroup(
                     restZaakToekennenGegevens.assigneeUserName!!,
                     restZaakToekennenGegevens.groupId
                 )
@@ -707,7 +707,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { task.id } returns "id"
         every { eventingService.send(any<ScreenEvent>()) } just runs
         every { restZaakConverter.toRestZaak(patchedZaak) } returns restZaak
-        every { identityService.checkIfUserIsInGroup(restZaak.behandelaar!!.id, restZaak.groep!!.id) } just runs
+        every { identityService.validateIfUserIsInGroup(restZaak.behandelaar!!.id, restZaak.groep!!.id) } just runs
         every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
         When("zaak final date is set to a later date") {
@@ -741,7 +741,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
-        every { identityService.checkIfUserIsInGroup(any(), any()) } throws InputValidationFailedException()
+        every { identityService.validateIfUserIsInGroup(any(), any()) } throws InputValidationFailedException()
         every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
         When("zaak update is requested") {
@@ -775,7 +775,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         When("zaak update is requested without a new final date") {
             val zaakWithoutDateChange = restZaak.copy(uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening)
-            every { identityService.checkIfUserIsInGroup(any(), any()) } just runs
+            every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
             every { restZaakConverter.convertToPatch(zaakWithoutDateChange) } returns zaak
             every { restZaakConverter.toRestZaak(any()) } returns zaakWithoutDateChange
             every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
@@ -813,7 +813,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         When("zaak update is requested without a new final date") {
             val zaakWithoutDateChange = restZaak.copy(uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening)
-            every { identityService.checkIfUserIsInGroup(any(), any()) } just runs
+            every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
             every { restZaakConverter.convertToPatch(zaakWithoutDateChange) } returns zaak
             every { restZaakConverter.toRestZaak(any()) } returns zaakWithoutDateChange
             every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak

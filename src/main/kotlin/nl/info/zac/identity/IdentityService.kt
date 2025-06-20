@@ -8,13 +8,13 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.inject.Named
 import net.atos.zac.admin.ZaakafhandelParameterService
-import nl.info.zac.authentication.UserPrincipalFilter.Companion.ROL_DOMEIN_ELK_ZAAKTYPE
 import nl.info.zac.identity.exception.GroupNotFoundException
 import nl.info.zac.identity.exception.UserNotFoundException
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
 import nl.info.zac.identity.model.getFullName
+import nl.info.zac.identity.model.hasAccessTo
 import nl.info.zac.identity.model.toGroup
 import nl.info.zac.identity.model.toUser
 import nl.info.zac.util.AllOpen
@@ -58,7 +58,7 @@ class IdentityService @Inject constructor(
             .map { it.toGroup(zacKeycloakClientId) }
         val domein = zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid).domein
         return groups
-            .filter { (domein == null || domein == ROL_DOMEIN_ELK_ZAAKTYPE) || it.zacClientRoles.contains(domein) }
+            .filter { it.hasAccessTo(domein) }
             .sortedBy { it.name }
     }
 
@@ -97,8 +97,11 @@ class IdentityService @Inject constructor(
             .map { it.name }
     }
 
-    fun checkIfUserIsInGroup(userId: String, groupId: String) {
-        if (!listGroupNamesForUser(userId).contains(groupId)) {
+    fun isUserInGroup(userId: String, groupId: String) =
+        listGroupNamesForUser(userId).contains(groupId)
+
+    fun validateIfUserIsInGroup(userId: String, groupId: String) {
+        if (!isUserInGroup(userId, groupId)) {
             throw UserNotInGroupException()
         }
     }
