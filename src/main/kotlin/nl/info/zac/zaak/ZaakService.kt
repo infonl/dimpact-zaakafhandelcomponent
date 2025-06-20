@@ -185,12 +185,11 @@ class ZaakService @Inject constructor(
     /**
      * Checks if the group has access to the domain associated with the specified zaak.
      *
-     * Domain access is granted if any of these conditions are met:
-     * - The zaaktype's domain parameter is null
-     * - The zaaktype's domain is ROL_DOMEIN_ELK_ZAAKTYPE
-     * - The group has the ROL_DOMEIN_ELK_ZAAKTYPE role
-     * - The group has no roles defined
-     * - The group has a role matching the zaak's domain
+     * Domain access is granted to a:
+     * - zaaktype without domain
+     * - zaaktype with domain/role DOMEIN_ELK_ZAAKTYPE
+     * - group with domain/role DOMEIN_ELK_ZAAKTYPE has access to all domains
+     * - group with one (or more) specific domains only access to zaaktype with this certain (or more) domain
      *
      * @param zaak The zaak to check domain access for
      * @return true if the group has access to the zaak's domain, false otherwise
