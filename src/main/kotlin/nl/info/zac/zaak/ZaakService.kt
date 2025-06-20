@@ -182,13 +182,28 @@ class ZaakService @Inject constructor(
             it.isOpen()
         }
 
+    /**
+     * Checks if the group has access to the domain associated with the specified zaak.
+     *
+     * Domain access is granted if any of these conditions are met:
+     * - The zaak's domain parameter is null
+     * - The zaak's domain is ROL_DOMEIN_ELK_ZAAKTYPE
+     * - The group has the ROL_DOMEIN_ELK_ZAAKTYPE role
+     * - The group has no roles defined
+     * - The group has a role matching the zaak's domain
+     *
+     * @param zaak The zaak to check domain access for
+     * @return true if the group has access to the zaak's domain, false otherwise
+     */
     private fun Group.hasDomainAccess(zaak: Zaak) =
         zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid()).let { params ->
-            val hasAccess = params.domein == UserPrincipalFilter.ROL_DOMEIN_ELK_ZAAKTYPE ||
+            val hasAccess = params.domein == null ||
+                params.domein == UserPrincipalFilter.ROL_DOMEIN_ELK_ZAAKTYPE ||
                 this.zacClientRoles.contains(UserPrincipalFilter.ROL_DOMEIN_ELK_ZAAKTYPE) ||
+                this.zacClientRoles.isEmpty() ||
                 params.domein?.let {
                     this.zacClientRoles.contains(it)
-                } ?: false
+                } ?: true
             if (!hasAccess) {
                 LOG.fine(
                     "Zaak with UUID '${zaak.uuid}' is skipped and not assigned. Group '${this.name}' " +

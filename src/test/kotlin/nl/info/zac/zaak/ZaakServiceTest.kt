@@ -378,7 +378,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { eventingService.send(capture(screenEventSlot)) } just Runs
             every {
                 zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
-            } returns createZaakafhandelParameters()
+            } returns createZaakafhandelParameters(domein = null)
             every {
                 ztcClientService.readRoltype(
                     it.zaaktype,
@@ -446,6 +446,51 @@ class ZaakServiceTest : BehaviorSpec({
             Then("no roles are updated") {
                 verify(exactly = 0) {
                     zrcClientService.updateRol(any<Zaak>(), any<RolMedewerker>(), explanation)
+                }
+            }
+
+            And("a final screen event of type 'zaken verdelen' is sent") {
+                with(screenEventSlot.captured) {
+                    opcode shouldBe Opcode.UPDATED
+                    objectType shouldBe ScreenEventType.ZAKEN_VERDELEN
+                    objectId.resource shouldBe screenEventResourceId
+                }
+            }
+        }
+    }
+
+    Given("A list of zaken with no domain and a group with no domain") {
+        val screenEventSlot = slot<ScreenEvent>()
+        zaken.map {
+            every { zrcClientService.readZaak(it.uuid) } returns it
+            every { eventingService.send(capture(screenEventSlot)) } just Runs
+            every {
+                zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
+            } returns createZaakafhandelParameters()
+            every {
+                ztcClientService.readRoltype(
+                    it.zaaktype,
+                    OmschrijvingGeneriekEnum.BEHANDELAAR
+                )
+            } returns rolTypeBehandelaar
+            every { zrcClientService.updateRol(it, any(), explanation) } just Runs
+        }
+        val groupWithNoDomain = createGroup(zacClientRoles = emptyList())
+        every { identityService.isUserInGroup(user.id, groupWithNoDomain.id) } returns true
+
+        When("the assign zaken function is called") {
+            zaakService.assignZaken(
+                zaakUUIDs = zaken.map { it.uuid },
+                explanation = explanation,
+                group = groupWithNoDomain,
+                user = user,
+                screenEventResourceId = screenEventResourceId
+            )
+
+            Then("all zaken roles are updated") {
+                verify(exactly = 2) {
+                    zrcClientService.updateRol(zaken[0], any(), explanation)
+                    zrcClientService.updateRol(zaken[1], any(), explanation)
                 }
             }
 
