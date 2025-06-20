@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import {inject, Injectable, Injector, runInInjectionContext} from "@angular/core";
 import { ExtendedComponentSchema, FormioForm } from "@formio/angular";
 import { lastValueFrom, Observable } from "rxjs";
 import { map, shareReplay, tap } from "rxjs/operators";
@@ -24,7 +24,6 @@ import {injectQuery} from "@tanstack/angular-query-experimental";
 export class FormioSetupService {
   private taak?: Taak;
   private formioChangeData?: Record<string, string>;
-  private referenceTableCache = new Map<string, Observable<string[]>>();
   private smartDocumentsGroupTemplateNamesCache = new Map<
     string,
     Observable<string[]>
@@ -33,6 +32,7 @@ export class FormioSetupService {
     string,
     Observable<{ id: string; naam: string }[]>
   >();
+  private injector = inject(Injector)
 
   constructor(
     public utilService: UtilService,
@@ -272,23 +272,28 @@ export class FormioSetupService {
     referenceTableSelector.data = {
       custom: () => {
         console.log(`initializeReferenceTableSelectorComponent ${referenceTableCode}` )
-        this.allSmartDocumentTemplateGroupsQuery(referenceTableCode).data()
+        return this.allSmartDocumentTemplateGroupsQuery(referenceTableCode).data()
       }
     };
   }
 
-  allSmartDocumentTemplateGroupsQuery = (referenceTableCode: string) => injectQuery(() => ({
-    queryKey: ["allSmartDocumentTemplateGroupsQuery", referenceTableCode],
-    refetchOnWindowFocus: false,
-    queryFn: () => {
+  private allSmartDocumentTemplateGroupsQuery(referenceTableCode: string) {
+    return runInInjectionContext(this.injector, () => {
       console.log(`allSmartDocumentTemplateGroupsQuery ${referenceTableCode}` )
-      return lastValueFrom(
-          this.referenceTableService
-              .readReferentieTabelByCode(referenceTableCode)
-              .pipe(map((table) => table.waarden.map((value) => value.naam))),
-      )
-    }
-  }));
+      return injectQuery(() => ({
+        queryKey: ["allSmartDocumentTemplateGroupsQuery", referenceTableCode],
+        refetchOnWindowFocus: false,
+        queryFn: () => {
+          console.log(`actually querying ${referenceTableCode}` )
+          return lastValueFrom(
+              this.referenceTableService
+                  .readReferentieTabelByCode(referenceTableCode)
+                  .pipe(map((table) => table.waarden.map((value) => value.naam))),
+          )
+        }
+      }));
+    })
+  }
 
   private initializeAvailableDocumentsFieldsetComponent(
     fieldsetComponent: ExtendedComponentSchema,
