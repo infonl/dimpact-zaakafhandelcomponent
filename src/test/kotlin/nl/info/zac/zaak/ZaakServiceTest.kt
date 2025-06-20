@@ -467,13 +467,6 @@ class ZaakServiceTest : BehaviorSpec({
             every {
                 zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
             } returns createZaakafhandelParameters()
-            every {
-                ztcClientService.readRoltype(
-                    it.zaaktype,
-                    OmschrijvingGeneriekEnum.BEHANDELAAR
-                )
-            } returns rolTypeBehandelaar
-            every { zrcClientService.updateRol(it, any(), explanation) } just Runs
         }
         val groupWithNoDomain = createGroup(zacClientRoles = emptyList())
         every { identityService.isUserInGroup(user.id, groupWithNoDomain.id) } returns true
@@ -487,8 +480,8 @@ class ZaakServiceTest : BehaviorSpec({
                 screenEventResourceId = screenEventResourceId
             )
 
-            Then("all zaken roles are updated") {
-                verify(exactly = 2) {
+            Then("no zaken roles are updated") {
+                verify(exactly = 0) {
                     zrcClientService.updateRol(zaken[0], any(), explanation)
                     zrcClientService.updateRol(zaken[1], any(), explanation)
                 }

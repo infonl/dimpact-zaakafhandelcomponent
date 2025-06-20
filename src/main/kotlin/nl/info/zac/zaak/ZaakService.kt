@@ -198,7 +198,6 @@ class ZaakService @Inject constructor(
         zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid()).let { params ->
             val hasAccess = params.domein == UserPrincipalFilter.ROL_DOMEIN_ELK_ZAAKTYPE ||
                 this.zacClientRoles.contains(UserPrincipalFilter.ROL_DOMEIN_ELK_ZAAKTYPE) ||
-                this.zacClientRoles.isEmpty() ||
                 params.domein?.let {
                     this.zacClientRoles.contains(it)
                 } ?: true
