@@ -311,6 +311,8 @@
   "zaps.step.algemeen.zaaktype.hint": "De groep en eventueel medewerker plus vertrouwelijkheidaanduiding worden gezet na het kiezen van het zaaktype",
   " 4 ": ">>--> ENTITEITEN <--<<",
   "-geen-": "- Geen -",
+  "-geen.generiek-": "Geen {{label}}",
+  "-kies.generiek-": "Kies een {{label}}",
   "informatieobject": "Document",
   "enkelvoudigInformatieObjecten": "Documenten",
   "informatieobjectType": "Documenttype",

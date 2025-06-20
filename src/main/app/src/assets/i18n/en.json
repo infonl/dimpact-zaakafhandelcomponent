@@ -311,6 +311,8 @@
   "zaps.step.algemeen.zaaktype.hint": "The group and optionally employee plus confidentiality notice are set after selecting the case type",
   " 4 ": ">>--> ENTITEITEN <--<<",
   "-geen-": "- None -",
+  "-geen.generiek-": "No {{label}}",
+  "-kies.generiek-": "Pick a {{label}}",
   "informatieobject": "Document",
   "enkelvoudigInformatieObjecten": "Documents",
   "informatieobjectType": "Document type",
