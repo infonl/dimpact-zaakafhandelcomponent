@@ -18,6 +18,7 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import net.atos.client.zgw.zrc.model.Rol
+import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
@@ -33,13 +34,14 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.app.klant.model.klant.IdentificatieType
-import nl.info.zac.authentication.UserPrincipalFilter
+import nl.info.zac.authentication.UserPrincipalFilter.Companion.ROL_DOMEIN_ELK_ZAAKTYPE
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
@@ -369,11 +371,14 @@ class ZaakServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A list of zaken with no domain") {
+    Given("A list of zaken with no domain and a group with ROL_DOMEIN_ELK_ZAAKTYPE") {
         val screenEventSlot = slot<ScreenEvent>()
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
             every { eventingService.send(capture(screenEventSlot)) } just Runs
+            every {
+                zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
+            } returns createZaakafhandelParameters(domein = null)
             every {
                 ztcClientService.readRoltype(
                     it.zaaktype,
@@ -381,17 +386,15 @@ class ZaakServiceTest : BehaviorSpec({
                 )
             } returns rolTypeBehandelaar
             every { zrcClientService.updateRol(it, any(), explanation) } just Runs
-            every {
-                zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
-            } returns createZaakafhandelParameters(domein = UserPrincipalFilter.ROL_DOMEIN_ELK_ZAAKTYPE)
         }
-        every { identityService.isUserInGroup(user.id, group.id) } returns true
+        val groupWithAllDomains = createGroup(zacClientRoles = listOf(ROL_DOMEIN_ELK_ZAAKTYPE))
+        every { identityService.isUserInGroup(user.id, groupWithAllDomains.id) } returns true
 
         When("the assign zaken function is called") {
             zaakService.assignZaken(
                 zaakUUIDs = zaken.map { it.uuid },
                 explanation = explanation,
-                group = group,
+                group = groupWithAllDomains,
                 user = user,
                 screenEventResourceId = screenEventResourceId
             )
@@ -419,14 +422,87 @@ class ZaakServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A list of zaken and the second one has a group not matching the requested one") {
+    Given("A list of zaken with no domain and a group with domain") {
+        val screenEventSlot = slot<ScreenEvent>()
+        zaken.map {
+            every { zrcClientService.readZaak(it.uuid) } returns it
+            every { eventingService.send(capture(screenEventSlot)) } just Runs
+            every {
+                zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
+            } returns createZaakafhandelParameters()
+        }
+        val groupWithDomain = createGroup(zacClientRoles = listOf("another_domain"))
+        every { identityService.isUserInGroup(user.id, groupWithDomain.id) } returns true
+
+        When("the assign zaken function is called") {
+            zaakService.assignZaken(
+                zaakUUIDs = zaken.map { it.uuid },
+                explanation = explanation,
+                group = groupWithDomain,
+                user = user,
+                screenEventResourceId = screenEventResourceId
+            )
+
+            Then("no roles are updated") {
+                verify(exactly = 0) {
+                    zrcClientService.updateRol(any<Zaak>(), any<RolMedewerker>(), explanation)
+                }
+            }
+
+            And("a final screen event of type 'zaken verdelen' is sent") {
+                with(screenEventSlot.captured) {
+                    opcode shouldBe Opcode.UPDATED
+                    objectType shouldBe ScreenEventType.ZAKEN_VERDELEN
+                    objectId.resource shouldBe screenEventResourceId
+                }
+            }
+        }
+    }
+
+    Given("A list of zaken with no domain and a group with no domain") {
+        val screenEventSlot = slot<ScreenEvent>()
+        zaken.map {
+            every { zrcClientService.readZaak(it.uuid) } returns it
+            every { eventingService.send(capture(screenEventSlot)) } just Runs
+            every {
+                zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
+            } returns createZaakafhandelParameters()
+        }
+        val groupWithNoDomain = createGroup(zacClientRoles = emptyList())
+        every { identityService.isUserInGroup(user.id, groupWithNoDomain.id) } returns true
+
+        When("the assign zaken function is called") {
+            zaakService.assignZaken(
+                zaakUUIDs = zaken.map { it.uuid },
+                explanation = explanation,
+                group = groupWithNoDomain,
+                user = user,
+                screenEventResourceId = screenEventResourceId
+            )
+
+            Then("no zaken roles are updated") {
+                verify(exactly = 0) {
+                    zrcClientService.updateRol(zaken[0], any(), explanation)
+                    zrcClientService.updateRol(zaken[1], any(), explanation)
+                }
+            }
+
+            And("a final screen event of type 'zaken verdelen' is sent") {
+                with(screenEventSlot.captured) {
+                    opcode shouldBe Opcode.UPDATED
+                    objectType shouldBe ScreenEventType.ZAKEN_VERDELEN
+                    objectId.resource shouldBe screenEventResourceId
+                }
+            }
+        }
+    }
+
+    Given("A list of two zaken and the second one has a group not matching the requested one") {
         val screenEventSlot = slot<ScreenEvent>()
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
             every { eventingService.send(capture(screenEventSlot)) } just Runs
         }
-        every { identityService.isUserInGroup(user.id, group.id) } returns true
-
         zaken[0].let {
             every {
                 ztcClientService.readRoltype(
@@ -437,12 +513,15 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.updateRol(it, any(), explanation) } just Runs
             every {
                 zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
-            } returns zaakafhandelParameters
+            } returns createZaakafhandelParameters(domein = "zaaktype_domain")
         }
-
-        every {
-            zaakafhandelParameterService.readZaakafhandelParameters(zaken[1].zaaktype.extractUuid())
-        } returns createZaakafhandelParameters(domein = "another_domein")
+        zaken[1].let {
+            every {
+                zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
+            } returns createZaakafhandelParameters(domein = "another_domein")
+        }
+        val group = createGroup(zacClientRoles = listOf("zaaktype_domain"))
+        every { identityService.isUserInGroup(user.id, group.id) } returns true
 
         When("the assign zaken function is called") {
             zaakService.assignZaken(
@@ -453,7 +532,7 @@ class ZaakServiceTest : BehaviorSpec({
                 screenEventResourceId = screenEventResourceId
             )
 
-            Then("group and user roles are updated") {
+            Then("group and user roles of the first zaak are updated") {
                 verify(exactly = 2) {
                     zrcClientService.updateRol(zaken[0], any(), explanation)
                 }

@@ -32,11 +32,11 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.authentication.UserPrincipalFilter
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
-import nl.info.zac.identity.model.hasAccessTo
 import nl.info.zac.util.AllOpen
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.exception.CaseHasLockedInformationObjectsException
@@ -126,7 +126,7 @@ class ZaakService @Inject constructor(
             zaakUUIDs
                 .map(zrcClientService::readZaak)
                 .filter { isZaakOpen(it) }
-                .filter { domainAccess(it, group) }
+                .filter { group.hasDomainAccess(it) }
                 .map { zaak ->
                     zrcClientService.updateRol(
                         zaak,
@@ -182,13 +182,29 @@ class ZaakService @Inject constructor(
             it.isOpen()
         }
 
-    private fun domainAccess(zaak: Zaak, group: Group) =
+    /**
+     * Checks if the group has access to the domain associated with the specified zaak.
+     *
+     * Domain access is granted to a:
+     * - zaaktype without domain
+     * - zaaktype with domain/role DOMEIN_ELK_ZAAKTYPE
+     * - group with domain/role DOMEIN_ELK_ZAAKTYPE has access to all domains
+     * - group with one (or more) specific domains only access to zaaktype with this certain (or more) domain
+     *
+     * @param zaak The zaak to check domain access for
+     * @return true if the group has access to the zaak's domain, false otherwise
+     */
+    private fun Group.hasDomainAccess(zaak: Zaak) =
         zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid()).let { params ->
-            val hasAccess = group.hasAccessTo(params.domein)
+            val hasAccess = params.domein == UserPrincipalFilter.ROL_DOMEIN_ELK_ZAAKTYPE ||
+                this.zacClientRoles.contains(UserPrincipalFilter.ROL_DOMEIN_ELK_ZAAKTYPE) ||
+                params.domein?.let {
+                    this.zacClientRoles.contains(it)
+                } ?: true
             if (!hasAccess) {
                 LOG.fine(
-                    "Zaak with UUID '${zaak.uuid}' is skipped and not assigned. Group '${group.name}' " +
-                        "with roles '${group.zacClientRoles}' has no access to domain '${params.domein}'"
+                    "Zaak with UUID '${zaak.uuid}' is skipped and not assigned. Group '${this.name}' " +
+                        "with roles '${this.zacClientRoles}' has no access to domain '${params.domein}'"
                 )
                 eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
             }
