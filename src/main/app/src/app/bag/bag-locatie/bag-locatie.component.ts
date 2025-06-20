@@ -36,14 +36,14 @@ import { GeometryType } from "../../zaken/model/geometryType";
   styleUrls: ["./bag-locatie.component.less"],
 })
 export class BagLocatieComponent implements OnInit, AfterViewInit, OnChanges {
-  @Input() bagGeometrie: Geometry;
-  @ViewChild("openLayersMap", { static: true }) openLayersMapRef: ElementRef;
+  @Input() bagGeometrie?: Geometry;
+  @ViewChild("openLayersMap", { static: true }) openLayersMapRef!: ElementRef;
 
-  private map: ol.Map;
+  private map?: ol.Map;
   private geometrieSource = new source.Vector();
-  private readonly RDNEW: string = "EPSG:28992";
-  private readonly DEFAULT_ZOOM: number = 14;
-  private readonly MAX_ZOOM: number = 14;
+  private readonly RDNEW = "EPSG:28992" as const;
+  private readonly DEFAULT_ZOOM = 14;
+  private readonly MAX_ZOOM = 14;
 
   private defaultStyle: style.Style = new style.Style({
     fill: new style.Fill({
@@ -72,21 +72,35 @@ export class BagLocatieComponent implements OnInit, AfterViewInit, OnChanges {
     );
     register(proj4);
     proj
-      .get(this.RDNEW)
-      .setExtent([-285401.92, 22598.08, 595401.92, 903401.92]);
+      ?.get(this.RDNEW)
+      ?.setExtent([-285401.92, 22598.08, 595401.92, 903401.92]);
   }
 
   ngOnInit(): void {
     const projection = proj.get(this.RDNEW);
-    const extentMatrix = 20;
+
+    if (!projection) {
+      console.warn(`Projection '${this.RDNEW}' not found`);
+      return;
+    }
     const projectionExtent = projection.getExtent();
+
+    if (!projectionExtent) {
+      console.warn("Projection extent not found");
+      return;
+    }
+
     const width = extent.getWidth(projectionExtent) / 256;
+    const extentMatrix = 20;
+
     const resolutions = new Array(extentMatrix);
     const matrixIds = new Array(extentMatrix);
+
     for (let z = 0; z < extentMatrix; ++z) {
       matrixIds[z] = z;
       resolutions[z] = width / Math.pow(2, z);
     }
+
     const kaartSource = new source.WMTS({
       layer: "standaard",
       format: "image/png",
@@ -107,8 +121,9 @@ export class BagLocatieComponent implements OnInit, AfterViewInit, OnChanges {
       source: this.geometrieSource,
       style: this.defaultStyle,
     });
+
     const view = new ol.View({
-      projection: proj.get(this.RDNEW),
+      projection: projection,
       constrainResolution: true,
       zoom: this.DEFAULT_ZOOM,
       minZoom: 3,
@@ -127,7 +142,7 @@ export class BagLocatieComponent implements OnInit, AfterViewInit, OnChanges {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.map.setTarget(this.openLayersMapRef.nativeElement);
+      this.map?.setTarget(this.openLayersMapRef.nativeElement);
     }, 0);
     if (this.bagGeometrie) {
       this.draw(this.bagGeometrie);
@@ -169,7 +184,7 @@ export class BagLocatieComponent implements OnInit, AfterViewInit, OnChanges {
 
   private zoom(): void {
     const locationExtent = this.geometrieSource.getExtent();
-    this.map.getView().fit(locationExtent, {
+    this.map?.getView().fit(locationExtent, {
       size: this.map.getSize(),
       maxZoom: this.DEFAULT_ZOOM,
     });
