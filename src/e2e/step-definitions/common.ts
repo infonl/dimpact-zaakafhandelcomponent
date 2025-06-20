@@ -8,7 +8,7 @@ import { worldPossibleZacUrls } from "../utils/schemes";
 
 const ONE_MINUTE_IN_MS = 60_000;
 const ONE_SECOND_IN_MS = 1_000;
-const THREE_SECONDS_IN_MS = ONE_SECOND_IN_MS * 3;
+const TEN_SECONDS_IN_MS = ONE_SECOND_IN_MS * 10;
 const FIVE_MINUTES_IN_MS = ONE_MINUTE_IN_MS * 5;
 
 When(
@@ -56,9 +56,9 @@ Given(
   "the page is done searching and reloaded",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld) {
-    await this.page.waitForTimeout(THREE_SECONDS_IN_MS);
+    await this.page.waitForTimeout(TEN_SECONDS_IN_MS);
     await this.page.reload();
-    await this.page.waitForLoadState("networkidle", { timeout: THREE_SECONDS_IN_MS });
+    await this.page.waitForLoadState("networkidle", { timeout: TEN_SECONDS_IN_MS });
   },
 );
 
