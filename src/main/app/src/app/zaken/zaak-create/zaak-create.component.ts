@@ -4,7 +4,7 @@
  */
 
 import { Component, ViewChild } from "@angular/core";
-import { FormBuilder, FormControl, Validators } from "@angular/forms";
+import { FormBuilder, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -37,7 +37,7 @@ export class ZaakCreateComponent {
 
   private readonly inboxProductaanvraag: GeneratedType<"RESTInboxProductaanvraag">;
 
-  protected groups: Observable<GeneratedType<"RestGroup">[]> | null = null;
+  protected groups: Observable<GeneratedType<"RestGroup">[]> = of([]);
   protected users: GeneratedType<"RestUser">[] = [];
   protected caseTypes = this.zakenService.listZaaktypes();
   protected communicationChannels: string[] = [];
@@ -47,30 +47,30 @@ export class ZaakCreateComponent {
   );
 
   protected readonly form = this.formBuilder.group({
-    zaaktype: new FormControl<GeneratedType<"RestZaaktype"> | null>(null, [
-      Validators.required,
-    ]),
-    initiator: new FormControl<
-      GeneratedType<"RestPersoon" | "RestBedrijf"> | null | undefined
-    >(null),
-    startdatum: new FormControl(moment(), [Validators.required]),
-    bagObjecten: new FormControl<GeneratedType<"RESTBAGObject">[]>([]),
-    groep: new FormControl<GeneratedType<"RestGroup"> | null | undefined>(
+    zaaktype: this.formBuilder.control<GeneratedType<"RestZaaktype"> | null>(
       null,
       [Validators.required],
     ),
-    behandelaar: new FormControl<GeneratedType<"RestUser"> | null | undefined>(
-      null,
-    ),
-    communicatiekanaal: new FormControl("", [Validators.required]),
-    vertrouwelijkheidaanduiding: new FormControl<
+    initiator: this.formBuilder.control<
+      GeneratedType<"RestPersoon" | "RestBedrijf"> | null | undefined
+    >(null),
+    startdatum: this.formBuilder.control(moment(), [Validators.required]),
+    bagObjecten: this.formBuilder.control<GeneratedType<"RESTBAGObject">[]>([]),
+    groep: this.formBuilder.control<
+      GeneratedType<"RestGroup"> | null | undefined
+    >(null, [Validators.required]),
+    behandelaar: this.formBuilder.control<
+      GeneratedType<"RestUser"> | null | undefined
+    >(null),
+    communicatiekanaal: this.formBuilder.control("", [Validators.required]),
+    vertrouwelijkheidaanduiding: this.formBuilder.control<
       (typeof this.confidentialityNotices)[number] | null | undefined
     >(null, [Validators.required]),
-    omschrijving: new FormControl("", [
+    omschrijving: this.formBuilder.control("", [
       Validators.maxLength(80),
       Validators.required,
     ]),
-    toelichting: new FormControl("", [Validators.maxLength(1000)]),
+    toelichting: this.formBuilder.control("", [Validators.maxLength(1000)]),
   });
 
   constructor(

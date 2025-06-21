@@ -99,13 +99,13 @@ export class ZacAutoComplete<
   protected getErrorMessage = () =>
     FormHelper.getErrorMessage(this.control, this.translateService);
 
-  private setOptions(input: Array<Option> | Observable<Array<Option>>) {
-    if (input instanceof Observable) {
-      input
+  private setOptions(options: Array<Option> | Observable<Array<Option>>) {
+    if (options instanceof Observable) {
+      options
         .pipe(takeUntil(this.destroy$))
         .subscribe((options) => this.setOptions(options));
       return;
     }
-    this.availableOptions = this.filteredOptions = input;
+    this.availableOptions = this.filteredOptions = options;
   }
 }

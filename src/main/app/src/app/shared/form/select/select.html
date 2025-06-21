@@ -11,7 +11,10 @@
     </ng-content>
   </mat-label>
   <mat-select
-    placeholder="{{ placeholder | translate }}"
+    placeholder="{{
+      '-kies.generiek-'
+        | translate: { label: (label ?? key | translate | lowercase) }
+    }}"
     [compareWith]="compareWith"
     [formControlName]="key"
   >
@@ -19,7 +22,10 @@
       {{ displayWith(control?.value) | translate }}
     </mat-select-trigger>
     <mat-option [value]="" *ngIf="!isRequired()">
-      {{ (label ?? key) + ".-geen-" | translate }}
+      {{
+        "-geen.generiek-"
+          | translate: { label: (label ?? key | translate | lowercase) }
+      }}
     </mat-option>
     <mat-option *ngFor="let option of availableOptions" [value]="option">
       {{ displayWith(option) | translate }}
