@@ -126,26 +126,26 @@
   >
     <mat-label>{{ "actie.zoeken" | translate }}</mat-label>
     <input
-      (keyup.enter)="zoekenSideNav.open()"
-      [formControl]="zoekenFormControl"
       matInput
       placeholder="{{ 'msg.zoeken.trefwoorden.placeholder' | translate }}"
+      [formControl]="zoekenFormControl"
+      (keyup.enter)="zoekenSideNav.open()"
     />
     <button
       *ngIf="hasSearched"
-      [title]="'actie.zoekopdracht.wissen' | translate"
-      (click)="resetSearch()"
       mat-icon-button
       matSuffix
+      [title]="'actie.zoekopdracht.wissen' | translate"
+      (click)="resetSearch()"
     >
-      <mat-icon outlined>backspace</mat-icon>
+      <mat-icon outlined>close</mat-icon>
     </button>
     <button
       *ngIf="!hasSearched"
       mat-icon-button
-      type="button"
       matSuffix
-      title="{{ 'actie.zoeken' | translate }}"
+      type="button"
+      [title]="'actie.zoeken' | translate"
       (click)="zoekenSideNav.open()"
     >
       <mat-icon>search</mat-icon>
@@ -155,9 +155,9 @@
     *ngIf="overigeRechten?.zoeken"
     mat-mini-fab
     class="hide-gt-sm"
-    (click)="zoekenSideNav.open()"
     color="primary"
-    title="{{ 'actie.zoeken' | translate }}"
+    [title]="'actie.zoeken' | translate"
+    (click)="zoekenSideNav.open()"
   >
     <mat-icon outlined>search</mat-icon>
   </button>
@@ -166,17 +166,17 @@
     routerLink="/admin"
     routerLinkActive="active"
     mat-icon-button
-    title="{{ 'actie.admin' | translate }}"
+    [title]="'actie.admin' | translate"
   >
     <mat-icon>settings</mat-icon>
   </button>
   <button
     [matMenuTriggerFor]="accountMenu"
-    title="{{ 'toolbar.profiel' | translate }}"
     color="primary"
     mat-flat-button
     routerLinkActive="active"
     aria-label="Gebruikers profiel"
+    [title]="'toolbar.profiel' | translate"
   >
     <div class="flex-col items-center" [matTooltip]="ingelogdeMedewerker?.naam">
       <mat-icon>account_circle</mat-icon>
