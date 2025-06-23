@@ -66,7 +66,7 @@ export class ZacAutoComplete<
 
   ngOnChanges(changes: SimpleChanges) {
     if ("options" in changes) {
-      this.setOptions(this.options);
+      this.setOptions(changes.options.currentValue);
     }
   }
 
@@ -99,7 +99,7 @@ export class ZacAutoComplete<
   protected getErrorMessage = () =>
     FormHelper.getErrorMessage(this.control, this.translateService);
 
-  private setOptions(options: Array<Option> | Observable<Array<Option>>) {
+  private setOptions(options: Array<Option> | Observable<Array<Option>> = []) {
     if (options instanceof Observable) {
       options
         .pipe(takeUntil(this.destroy$))

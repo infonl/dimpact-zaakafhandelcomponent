@@ -102,9 +102,9 @@ export class ZacSelect<
 
   private setOptions(options: Array<Option> | Observable<Array<Option>> = []) {
     if (options instanceof Observable) {
-      options.pipe(takeUntil(this.destroy$)).subscribe((options) => {
-        this.setOptions(options);
-      });
+      options
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((options) => this.setOptions(options));
       return;
     }
 

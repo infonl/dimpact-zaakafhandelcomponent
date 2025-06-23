@@ -16,6 +16,13 @@ export class FormHelper {
 
     const [error, parameters] = Object.entries(control.errors)[0];
 
+    if (error === "custom") {
+      const { message, ...rest } = parameters as ReturnType<
+        typeof FormHelper.CustomErrorMessage
+      >["custom"];
+      return translateService?.instant(String(message), rest);
+    }
+
     return translateService?.instant(`validators.${error}`, parameters);
   }
 
@@ -43,5 +50,14 @@ export class FormHelper {
       default:
         return null;
     }
+  }
+
+  static CustomErrorMessage(key: string, params?: Record<string, unknown>) {
+    return {
+      custom: {
+        message: key,
+        ...params,
+      },
+    };
   }
 }
