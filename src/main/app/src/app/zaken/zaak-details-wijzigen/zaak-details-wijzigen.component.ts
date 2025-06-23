@@ -16,6 +16,7 @@ import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
 import { ZakenService } from "../zaken.service";
+import {map} from "rxjs/operators";
 
 @Component({
   selector: "zac-case-details-edit",
@@ -30,8 +31,7 @@ export class CaseDetailsEditComponent implements OnInit {
 
   protected groups: Observable<GeneratedType<"RestGroup">[]> = of([]);
   protected users: GeneratedType<"RestUser">[] = [];
-  protected communicationChannels =
-    this.referentieTabelService.listCommunicatiekanalen();
+  protected communicationChannels: string[] = []
   protected confidentialityDesignations = this.utilService.getEnumAsSelectList(
     "vertrouwelijkheidaanduiding",
     Vertrouwelijkheidaanduiding,
@@ -119,7 +119,7 @@ export class CaseDetailsEditComponent implements OnInit {
         this.zaak.uiterlijkeEinddatumAfdoening,
       ),
       behandelaar: null,
-      communicatiekanaal: this.zaak.communicatiekanaal ?? null,
+      communicatiekanaal: "foo bar" ?? this.zaak.communicatiekanaal ?? null,
       einddatumGepland: moment(this.zaak.einddatumGepland),
       groep: null,
       omschrijving: this.zaak.omschrijving,
@@ -132,11 +132,14 @@ export class CaseDetailsEditComponent implements OnInit {
         ) ?? null,
     });
 
-    this.communicationChannels.subscribe((channels) => {
-      this.communicationChannels = of(
-        Array.from(new Set(...channels, this.zaak.communicatiekanaal)),
-      );
-    });
+    this.referentieTabelService.listCommunicatiekanalen().subscribe(channels => {
+      if(!this.zaak.communicatiekanaal) {
+        this.communicationChannels = channels
+        return
+      }
+
+      this.communicationChannels = Array.from(new Set([...channels, this.zaak.communicatiekanaal, "foo bar"]))
+    })
 
     this.form.controls.groep.valueChanges.subscribe((group) => {
       if (!group) {
@@ -151,9 +154,6 @@ export class CaseDetailsEditComponent implements OnInit {
 
       this.identityService.listUsersInGroup(group.id).subscribe((users) => {
         this.users = users;
-
-        if (!this.zaak.behandelaar && !this.form.controls.behandelaar.value)
-          return;
 
         const zaakUser = users.find(
           ({ id }) => id === this.zaak.behandelaar?.id,
@@ -242,23 +242,29 @@ export class CaseDetailsEditComponent implements OnInit {
   }
 
   protected onSubmit(form: typeof this.form): void {
-    const reason = this.form.controls.reden.value ?? undefined;
+    const data = form.getRawValue();
+    const {
+      reden,
+      vertrouwelijkheidaanduiding,
+      startdatum,
+      einddatumGepland,
+      omschrijving,
+    } = data;
 
-    this.patchBehandelaar(form.value, reason);
+    this.patchBehandelaar(form.getRawValue(), reden ?? undefined);
 
     this.zakenService
       .updateZaak(this.zaak.uuid, {
         zaak: {
-          ...form.value,
-          vertrouwelijkheidaanduiding:
-            form.value.vertrouwelijkheidaanduiding?.value,
-          startdatum: form.value.startdatum?.toISOString(),
-          einddatumGepland: form.value.einddatumGepland?.toISOString(),
+          ...data,
+          vertrouwelijkheidaanduiding: vertrouwelijkheidaanduiding?.value,
+          startdatum: startdatum?.toISOString(),
+          einddatumGepland: einddatumGepland?.toISOString(),
           uiterlijkeEinddatumAfdoening:
             form.value.einddatumGepland?.toISOString(),
-          omschrijving: form.value.omschrijving ?? undefined,
+          omschrijving: omschrijving ?? undefined,
         },
-        reden: reason,
+        reden: reden ?? undefined,
       })
       .subscribe({
         next: () => {
