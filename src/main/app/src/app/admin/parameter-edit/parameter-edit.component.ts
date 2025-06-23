@@ -243,11 +243,6 @@ export class ParameterEditComponent
     }
   }
 
-  caseDefinitionChanged(event: MatSelectChange): void {
-    this.readHumanTaskParameters(event.value);
-    this.readUserEventListenerParameters(event.value);
-  }
-
   private async readHumanTaskParameters(
     caseDefinition: GeneratedType<"RESTCaseDefinition">,
   ) {
@@ -319,7 +314,6 @@ export class ParameterEditComponent
 
     this.algemeenFormGroup.controls.defaultGroep.valueChanges.subscribe(
       (group) => {
-        console.log({ group });
         if (!group) return;
 
         this.identityService.listUsersInGroup(group.id).subscribe((users) => {
@@ -343,6 +337,14 @@ export class ParameterEditComponent
         defaultGroup ?? null,
       );
     }
+
+    this.algemeenFormGroup.controls.caseDefinition.valueChanges.subscribe(
+      (caseDefinition) => {
+        if (!caseDefinition) return;
+        this.readHumanTaskParameters(caseDefinition);
+        this.readUserEventListenerParameters(caseDefinition);
+      },
+    );
 
     this.createHumanTasksForm();
     this.createUserEventListenerForm();

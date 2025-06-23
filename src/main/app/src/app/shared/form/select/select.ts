@@ -53,13 +53,12 @@ export class ZacSelect<
 
   ngOnInit() {
     this.control = this.form.get(String(this.key))!;
-
     this.setOptions(this.options);
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if ("options" in changes) {
-      this.setOptions(this.options);
+      this.setOptions(changes.options.currentValue);
     }
   }
 
@@ -101,13 +100,14 @@ export class ZacSelect<
   protected getErrorMessage = () =>
     FormHelper.getErrorMessage(this.control, this.translateService);
 
-  private setOptions(options: Array<Option> | Observable<Array<Option>>) {
+  private setOptions(options: Array<Option> | Observable<Array<Option>> = []) {
     if (options instanceof Observable) {
       options.pipe(takeUntil(this.destroy$)).subscribe((options) => {
         this.setOptions(options);
       });
       return;
     }
+
     this.availableOptions = options;
   }
 }
