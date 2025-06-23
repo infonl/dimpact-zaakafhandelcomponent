@@ -145,7 +145,7 @@ export class FormioSetupService {
   ): void {
     fieldsetComponent.type = "fieldset";
     const smartDocumentsPath = this.findSmartDocumentsPath(fieldsetComponent);
-    const smartDocumentsPathKey = smartDocumentsPath.path.join('/')
+    const smartDocumentsPathKey = smartDocumentsPath.path.join("/");
     const smartDocumentsTemplateComponent = fieldsetComponent.components?.find(
       (component: ExtendedComponentSchema) =>
         component.key === fieldsetComponent.key + "_Template",

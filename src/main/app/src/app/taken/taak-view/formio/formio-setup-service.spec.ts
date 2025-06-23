@@ -303,20 +303,20 @@ describe(FormioSetupService.name, () => {
 
       formioSetupService.setFormioChangeData({ GroepKey: "group-uuid" });
       const identityServiceSpy = jest
-          .spyOn(formioSetupService["identityService"], "listUsersInGroup")
-          .mockReturnValue(of([]));
+        .spyOn(formioSetupService["identityService"], "listUsersInGroup")
+        .mockReturnValue(of([]));
 
       formioSetupService.createFormioForm(
-          {
-            components: [
-              {
-                type: "groepMedewerkerFieldset",
-                key: "fieldset",
-                components: [groepComponent, medewerkerComponent],
-              },
-            ],
-          } as FormioForm,
-          taak as unknown as Taak
+        {
+          components: [
+            {
+              type: "groepMedewerkerFieldset",
+              key: "fieldset",
+              components: [groepComponent, medewerkerComponent],
+            },
+          ],
+        } as FormioForm,
+        taak as unknown as Taak,
       );
 
       await medewerkerComponent.data.custom();
