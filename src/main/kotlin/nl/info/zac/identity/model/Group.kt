@@ -16,7 +16,7 @@ data class Group(
     val zacClientRoles: List<String> = emptyList()
 ) {
     /**
-     * Constructor for creating an unknown Group, a group with a given group id which is not known in the identity system.
+     * Constructor for creating a group not known in the identity system.
      *
      * @param id ID of the group which is unknown
      */
