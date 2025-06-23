@@ -249,8 +249,9 @@ Then(
   "{string} sees the created zaak",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await this.page.waitForTimeout(3000);
+    await this.page.reload();
     const caseNumber = this.testStorage.get("caseNumber");
-
     await this.page
       .getByText(caseNumber)
       .first()

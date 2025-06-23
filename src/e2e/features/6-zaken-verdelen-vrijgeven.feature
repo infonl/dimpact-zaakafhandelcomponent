@@ -17,7 +17,7 @@ Feature: Zaken verdelen / vrijgeven
   Scenario: Bob releases zaken
     Given "Bob" is logged in to zac
     And "Bob" navigates to "zac" with path "/zaken/werkvoorraad"
-    And the page is done searching
+    And the page is done searching and reloaded
     And there are at least 3 zaken
     When "Bob" selects that number of zaken
     And "Bob" releases the zaken
