@@ -29,6 +29,8 @@ import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
 import nl.info.zac.app.zaak.model.RESTZaakStatusmailOptie
 import nl.info.zac.app.zaak.model.toRestResultaatType
+import nl.info.zac.exception.ErrorCode
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -125,8 +127,14 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             nietOntvankelijkResultaattype = restZaakafhandelParameters.zaakNietOntvankelijkResultaattype!!.id
             intakeMail = restZaakafhandelParameters.intakeMail?.name
             afrondenMail = restZaakafhandelParameters.afrondenMail?.name
-            // trim to make sure accidentally added whitespace is removed
-            productaanvraagtype = restZaakafhandelParameters.productaanvraagtype?.trim()
+            productaanvraagtype = restZaakafhandelParameters.productaanvraagtype?.trim()?.also {
+                if (it.isBlank()) {
+                    throw InputValidationFailedException(
+                        errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
+                        message = "Productaanvraagtype mag niet leeg zijn.",
+                    )
+                }
+            }
             domein = restZaakafhandelParameters.domein
             gebruikersnaamMedewerker = restZaakafhandelParameters.defaultBehandelaarId
             einddatumGeplandWaarschuwing = restZaakafhandelParameters.einddatumGeplandWaarschuwing
