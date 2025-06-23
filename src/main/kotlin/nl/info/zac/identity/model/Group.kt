@@ -4,7 +4,6 @@
  */
 package nl.info.zac.identity.model
 
-import nl.info.zac.authentication.UserPrincipalFilter.Companion.ROL_DOMEIN_ELK_ZAAKTYPE
 import org.keycloak.representations.idm.GroupRepresentation
 
 data class Group(
@@ -46,17 +45,3 @@ fun GroupRepresentation.toGroup(keycloakClientId: String): Group =
         email = attributes?.get("email")?.singleOrNull(),
         zacClientRoles = clientRoles[keycloakClientId].orEmpty()
     )
-
-/**
- * Checks if the group has access to the specified domain.
- *
- * Access is granted if any of these conditions are met:
- * - The domain parameter is null
- * - The domain equals the default domain [ROL_DOMEIN_ELK_ZAAKTYPE]
- * - The group's [zacClientRoles] contains the specified domain
- *
- * @param domain The domain to check access for
- * @return true if the group has access to the domain, false otherwise
- */
-fun Group.hasAccessTo(domain: String?) =
-    (domain == null || domain == ROL_DOMEIN_ELK_ZAAKTYPE) || this.zacClientRoles.contains(domain)
