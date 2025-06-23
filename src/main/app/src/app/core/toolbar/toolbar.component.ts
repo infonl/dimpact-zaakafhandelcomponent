@@ -81,7 +81,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
       this.ingelogdeMedewerker = medewerker;
       this.medewerkerNaamToolbar = medewerker.naam
         .split(" ")
-        .map((n: string) => n[0])
+        .map((n) => n[0])
         .join("");
 
       this.signaleringListener = this.websocketService.addListener(
