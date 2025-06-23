@@ -66,7 +66,7 @@ export class ZacAutoComplete<
 
   ngOnChanges(changes: SimpleChanges) {
     if ("options" in changes) {
-      this.setOptions(this.options);
+      this.setOptions(changes.options.currentValue);
     }
   }
 
