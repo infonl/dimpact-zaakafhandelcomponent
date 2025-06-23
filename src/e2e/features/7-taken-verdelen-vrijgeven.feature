@@ -17,7 +17,7 @@ Feature: Taken verdelen / vrijgeven
   Scenario: Bob releases taken
     Given "Bob" is logged in to zac
     And "Bob" navigates to "zac" with path "/taken/werkvoorraad"
-    And the page is done searching
+    And the page is done searching and reloaded
     And there are at least 3 taken
     When "Bob" selects that number of taken
     And "Bob" releases the taken
