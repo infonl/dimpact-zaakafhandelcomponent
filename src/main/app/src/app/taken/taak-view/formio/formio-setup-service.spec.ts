@@ -13,6 +13,7 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { ExtendedComponentSchema, FormioForm } from "@formio/angular";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../../core/service/util.service";
@@ -92,6 +93,7 @@ describe(FormioSetupService.name, () => {
   const taak: GeneratedType<"RestTask"> = {
     id: "test-id",
     zaakUuid: "test-zaakUuid",
+    zaaktypeUUID: "test-zaaktype-uuid",
     behandelaar: undefined,
     groep: undefined,
     naam: "test-taak",
@@ -129,6 +131,7 @@ describe(FormioSetupService.name, () => {
         IdentityService,
         ZaakafhandelParametersService,
         FormioSetupService,
+        QueryClient,
         {
           provide: ActivatedRoute,
           useValue: { data: of({ taak }) },
@@ -284,6 +287,121 @@ describe(FormioSetupService.name, () => {
       expect(smartDocumentsSpy).toHaveBeenCalledWith(mockFormComponents[1]);
       expect(referenceTableSpy).toHaveBeenCalledWith(mockFormComponents[2]);
       expect(availableDocumentsSpy).toHaveBeenCalledWith(mockFormComponents[3]);
+    });
+
+    it("handle cases for components with no children or properties", () => {
+      const components: ExtendedComponentSchema[] = [
+        {
+          type: "referenceTableFieldset",
+          key: "RT_Fail",
+          components: [
+            {
+              key: "RT_Fail_Values",
+              type: "select",
+              properties: {
+                ReferenceTable_Code: "dummy",
+              },
+            },
+          ],
+        },
+        {
+          type: "smartDocumentsFieldset",
+          key: "SD_Fail",
+          components: [
+            {
+              key: "SD_Fail_Template",
+              type: "select",
+              input: true,
+            },
+            {
+              key: "SD_Fail_Create",
+              type: "button",
+              properties: {
+                SmartDocuments_Group: "groep1/groep2",
+              },
+            },
+          ],
+        },
+      ];
+
+      expect(() => {
+        formioSetupService.createFormioForm(
+          { components } as FormioForm,
+          taak as unknown as Taak,
+        );
+      }).not.toThrow();
+    });
+
+    it("should invoke userGroupsQuery with zaakTypeUUID", async () => {
+      const identityServiceSpy = jest
+        .spyOn(formioSetupService["identityService"], "listGroups")
+        .mockReturnValue(of([]));
+
+      const groepComponent: ExtendedComponentSchema = {
+        key: "groep",
+        type: "select",
+        input: true,
+      };
+
+      const medewerkerComponent: ExtendedComponentSchema = {
+        key: "medewerker",
+        type: "select",
+        input: true,
+      };
+
+      formioSetupService.createFormioForm(
+        {
+          components: [
+            {
+              type: "groepMedewerkerFieldset",
+              key: "fieldset",
+              components: [groepComponent, medewerkerComponent],
+            },
+          ],
+        } as FormioForm,
+        taak as unknown as Taak,
+      );
+
+      await groepComponent.data.custom();
+
+      expect(identityServiceSpy).toHaveBeenCalledWith("test-zaaktype-uuid");
+    });
+  });
+
+  describe(FormioSetupService.prototype.setFormioChangeData.name, () => {
+    it("should update formioChangeData", async () => {
+      const groepComponent: ExtendedComponentSchema = {
+        key: "GroepKey",
+        type: "select",
+        input: true,
+      };
+
+      const medewerkerComponent: ExtendedComponentSchema = {
+        key: "MedewerkerKey",
+        type: "select",
+        input: true,
+      };
+
+      formioSetupService.setFormioChangeData({ GroepKey: "group-uuid" });
+      const identityServiceSpy = jest
+        .spyOn(formioSetupService["identityService"], "listUsersInGroup")
+        .mockReturnValue(of([]));
+
+      formioSetupService.createFormioForm(
+        {
+          components: [
+            {
+              type: "groepMedewerkerFieldset",
+              key: "fieldset",
+              components: [groepComponent, medewerkerComponent],
+            },
+          ],
+        } as FormioForm,
+        taak as unknown as Taak,
+      );
+
+      await medewerkerComponent.data.custom();
+      expect(identityServiceSpy).toHaveBeenCalledWith("group-uuid");
     });
   });
 });
