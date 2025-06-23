@@ -200,7 +200,7 @@ class ZaakService @Inject constructor(
                 this.zacClientRoles.contains(UserPrincipalFilter.ROL_DOMEIN_ELK_ZAAKTYPE) ||
                 params.domein?.let {
                     this.zacClientRoles.contains(it)
-                } ?: true
+                } ?: false
             if (!hasAccess) {
                 LOG.fine(
                     "Zaak with UUID '${zaak.uuid}' is skipped and not assigned. Group '${this.name}' " +

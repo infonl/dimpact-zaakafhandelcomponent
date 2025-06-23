@@ -53,13 +53,12 @@ export class ZacSelect<
 
   ngOnInit() {
     this.control = this.form.get(String(this.key))!;
-
     this.setOptions(this.options);
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if ("options" in changes) {
-      this.setOptions(this.options);
+      this.setOptions(changes.options.currentValue);
     }
   }
 
@@ -90,24 +89,25 @@ export class ZacSelect<
   // Needs to be an arrow function in order to de-link the reference to `this`
   // when used in the template `[compareWith]="compareWith"`
   protected compareWith = (a: Option, b: Option) => {
-    return this.compare?.(a, b) ?? a === b;
+    if (this.compare) return this.compare(a, b);
+
+    if (this.optionDisplayValue)
+      return this.displayWith(a) === this.displayWith(b);
+
+    return a === b;
   };
 
   protected getErrorMessage = () =>
     FormHelper.getErrorMessage(this.control, this.translateService);
 
-  protected get placeholder() {
-    const key = this.label ?? this.key;
-    return this.isRequired() ? `${key}.-kies-` : `${key}.-geen-`;
-  }
-
-  private setOptions(input: Array<Option> | Observable<Array<Option>>) {
-    if (input instanceof Observable) {
-      input.pipe(takeUntil(this.destroy$)).subscribe((options) => {
+  private setOptions(options: Array<Option> | Observable<Array<Option>> = []) {
+    if (options instanceof Observable) {
+      options.pipe(takeUntil(this.destroy$)).subscribe((options) => {
         this.setOptions(options);
       });
       return;
     }
-    this.availableOptions = input;
+
+    this.availableOptions = options;
   }
 }

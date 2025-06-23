@@ -466,7 +466,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { eventingService.send(capture(screenEventSlot)) } just Runs
             every {
                 zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
-            } returns createZaakafhandelParameters()
+            } returns createZaakafhandelParameters(domein = null)
         }
         val groupWithNoDomain = createGroup(zacClientRoles = emptyList())
         every { identityService.isUserInGroup(user.id, groupWithNoDomain.id) } returns true
