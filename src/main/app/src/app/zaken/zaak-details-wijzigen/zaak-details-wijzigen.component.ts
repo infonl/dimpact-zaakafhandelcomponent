@@ -16,7 +16,6 @@ import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
 import { ZakenService } from "../zaken.service";
-import {map} from "rxjs/operators";
 
 @Component({
   selector: "zac-case-details-edit",
@@ -31,7 +30,7 @@ export class CaseDetailsEditComponent implements OnInit {
 
   protected groups: Observable<GeneratedType<"RestGroup">[]> = of([]);
   protected users: GeneratedType<"RestUser">[] = [];
-  protected communicationChannels: string[] = []
+  protected communicationChannels: string[] = [];
   protected confidentialityDesignations = this.utilService.getEnumAsSelectList(
     "vertrouwelijkheidaanduiding",
     Vertrouwelijkheidaanduiding,
@@ -119,7 +118,7 @@ export class CaseDetailsEditComponent implements OnInit {
         this.zaak.uiterlijkeEinddatumAfdoening,
       ),
       behandelaar: null,
-      communicatiekanaal: "foo bar" ?? this.zaak.communicatiekanaal ?? null,
+      communicatiekanaal: this.zaak.communicatiekanaal ?? null,
       einddatumGepland: moment(this.zaak.einddatumGepland),
       groep: null,
       omschrijving: this.zaak.omschrijving,
@@ -132,14 +131,14 @@ export class CaseDetailsEditComponent implements OnInit {
         ) ?? null,
     });
 
-    this.referentieTabelService.listCommunicatiekanalen().subscribe(channels => {
-      if(!this.zaak.communicatiekanaal) {
-        this.communicationChannels = channels
-        return
-      }
-
-      this.communicationChannels = Array.from(new Set([...channels, this.zaak.communicatiekanaal, "foo bar"]))
-    })
+    this.referentieTabelService
+      .listCommunicatiekanalen()
+      .subscribe((channels) => {
+        if (this.zaak.communicatiekanaal) {
+          channels.push(this.zaak.communicatiekanaal);
+        }
+        this.communicationChannels = Array.from(new Set(channels));
+      });
 
     this.form.controls.groep.valueChanges.subscribe((group) => {
       if (!group) {
