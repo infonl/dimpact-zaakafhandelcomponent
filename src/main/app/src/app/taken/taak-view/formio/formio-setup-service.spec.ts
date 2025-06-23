@@ -286,4 +286,41 @@ describe(FormioSetupService.name, () => {
       expect(availableDocumentsSpy).toHaveBeenCalledWith(mockFormComponents[3]);
     });
   });
+
+  describe(FormioSetupService.prototype.setFormioChangeData.name, () => {
+    it("should update formioChangeData and affect component data logic", async () => {
+      const groepComponent: ExtendedComponentSchema = {
+        key: "GroepKey",
+        type: "select",
+        input: true,
+      };
+
+      const medewerkerComponent: ExtendedComponentSchema = {
+        key: "MedewerkerKey",
+        type: "select",
+        input: true,
+      };
+
+      formioSetupService.setFormioChangeData({ GroepKey: "group-uuid" });
+      const identityServiceSpy = jest
+          .spyOn(formioSetupService["identityService"], "listUsersInGroup")
+          .mockReturnValue(of([]));
+
+      formioSetupService.createFormioForm(
+          {
+            components: [
+              {
+                type: "groepMedewerkerFieldset",
+                key: "fieldset",
+                components: [groepComponent, medewerkerComponent],
+              },
+            ],
+          } as FormioForm,
+          taak as unknown as Taak
+      );
+
+      await medewerkerComponent.data.custom();
+      expect(identityServiceSpy).toHaveBeenCalledWith("group-uuid");
+    });
+  });
 });
