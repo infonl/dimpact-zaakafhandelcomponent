@@ -23,7 +23,6 @@ import { UtilService } from "../../core/service/util.service";
 import { DialogData } from "../../shared/dialog/dialog-data";
 import { DialogComponent } from "../../shared/dialog/dialog.component";
 import { TextIcon } from "../../shared/edit/text-icon";
-import { HistorieRegel } from "../../shared/historie/model/historie-regel";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
@@ -49,7 +48,10 @@ export class BesluitViewComponent implements OnInit, OnChanges {
   @Output() besluitWijzigen = new EventEmitter<GeneratedType<"RestDecision">>();
   @Output() doIntrekking = new EventEmitter();
   readonly indicatiesLayout = IndicatiesLayout;
-  histories: Record<string, MatTableDataSource<HistorieRegel>> = {};
+  histories: Record<
+    string,
+    MatTableDataSource<GeneratedType<"RestTaskHistoryLine">>
+  > = {};
 
   besluitInformatieobjecten: Record<string, DocumentenLijstFormField> = {};
   toolTipIcon = new TextIcon(
@@ -112,7 +114,9 @@ export class BesluitViewComponent implements OnInit, OnChanges {
 
   private loadHistorie(uuid: string) {
     this.zakenService.listBesluitHistorie(uuid).subscribe((historie) => {
-      this.histories[uuid] = new MatTableDataSource<HistorieRegel>();
+      this.histories[uuid] = new MatTableDataSource<
+        GeneratedType<"RestTaskHistoryLine">
+      >();
       this.histories[uuid].data = historie;
     });
   }

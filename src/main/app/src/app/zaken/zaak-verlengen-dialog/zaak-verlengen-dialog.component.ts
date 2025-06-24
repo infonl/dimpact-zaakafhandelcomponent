@@ -50,11 +50,11 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       .validators(
         Validators.required,
         Validators.min(1),
-        Validators.max(data.zaak.zaaktype.verlengingstermijn),
+        Validators.max(Number(data.zaak.zaaktype.verlengingstermijn)),
       )
       .hint(
         this.translateService.instant(
-          `hint.zaak.dialoog.verlengen.verlengduur${data.zaak.zaaktype.verlengingstermijn > 1 ? ".meervoud" : ""}`,
+          `hint.zaak.dialoog.verlengen.verlengduur${Number(data.zaak.zaaktype.verlengingstermijn) > 1 ? ".meervoud" : ""}`,
           {
             verlengDuur: data.zaak.zaaktype.verlengingstermijn,
           },

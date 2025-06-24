@@ -3,12 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { InputFormField } from "../../shared/material-form-builder/form-components/input/input-form-field";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
-import { MedewerkerGroepFormField } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-form-field";
 import { MaterialFormBuilderService } from "../../shared/material-form-builder/material-form-builder.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
@@ -18,10 +16,18 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "zaken-verdelen-dialog.component.html",
   styleUrls: ["./zaken-verdelen-dialog.component.less"],
 })
-export class ZakenVerdelenDialogComponent implements OnInit {
-  medewerkerGroepFormField: MedewerkerGroepFormField;
-  redenFormField: InputFormField;
-  loading: boolean;
+export class ZakenVerdelenDialogComponent {
+  medewerkerGroepFormField = new MedewerkerGroepFieldBuilder()
+    .id("toekenning")
+    .groepLabel("actie.zaak.toekennen.groep")
+    .medewerkerLabel("actie.zaak.toekennen.medewerker")
+    .build();
+  redenFormField = new InputFormFieldBuilder()
+    .id("reden")
+    .label("reden")
+    .maxlength(100)
+    .build();
+  loading = false;
 
   constructor(
     public dialogRef: MatDialogRef<ZakenVerdelenDialogComponent>,
@@ -32,19 +38,6 @@ export class ZakenVerdelenDialogComponent implements OnInit {
 
   close(): void {
     this.dialogRef.close(false);
-  }
-
-  ngOnInit(): void {
-    this.medewerkerGroepFormField = new MedewerkerGroepFieldBuilder()
-      .id("toekenning")
-      .groepLabel("actie.zaak.toekennen.groep")
-      .medewerkerLabel("actie.zaak.toekennen.medewerker")
-      .build();
-    this.redenFormField = new InputFormFieldBuilder()
-      .id("reden")
-      .label("reden")
-      .maxlength(100)
-      .build();
   }
 
   isDisabled(): boolean {
@@ -65,13 +58,13 @@ export class ZakenVerdelenDialogComponent implements OnInit {
     this.dialogRef.disableClose = true;
     this.loading = true;
     this.zakenService
-      .verdelenVanuitLijst(
-        this.data.map((zaak) => zaak.id),
-        crypto.randomUUID(),
-        toekenning.groep,
-        toekenning.medewerker,
-        this.redenFormField.formControl.value,
-      )
+      .verdelenVanuitLijst({
+        uuids: this.data.map((zaak) => zaak.id),
+        screenEventResourceId: crypto.randomUUID(),
+        groepId: toekenning.groep?.id ?? "",
+        behandelaarGebruikersnaam: toekenning.medewerker?.id,
+        reden: this.redenFormField.formControl.value,
+      })
       .subscribe(() => {
         this.dialogRef.close(toekenning);
       });

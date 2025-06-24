@@ -261,9 +261,9 @@ export class CaseDetailsEditComponent implements OnInit {
           einddatumGepland: einddatumGepland?.toISOString(),
           uiterlijkeEinddatumAfdoening:
             form.value.einddatumGepland?.toISOString(),
-          omschrijving: omschrijving ?? undefined,
+          omschrijving: omschrijving ?? "",
         },
-        reden: reden ?? undefined,
+        reden: reden ?? "",
       })
       .subscribe({
         next: () => {
@@ -284,15 +284,18 @@ export class CaseDetailsEditComponent implements OnInit {
     const isSameGroup = zaak.groep?.id === this.zaak.groep?.id;
     if (isSameBehandelaar && isSameGroup) return;
 
-    if (zaak.behandelaar?.id === this.loggedInUser.id) {
-      this.zakenService.toekennenAanIngelogdeMedewerker(this.zaak.uuid, reason);
-      return;
+    if (zaak.behandelaar?.id && zaak.behandelaar.id === this.loggedInUser.id) {
+      return this.zakenService.toekennenAanIngelogdeMedewerker({
+        zaakUUID: this.zaak.uuid,
+        reden: reason,
+      });
     }
 
-    this.zakenService.toekennen(this.zaak.uuid, {
-      reason,
-      groupId: zaak.groep?.id,
-      behandelaarId: zaak?.behandelaar?.id,
+    this.zakenService.toekennen({
+      zaakUUID: this.zaak.uuid,
+      groepId: zaak.groep?.id ?? "",
+      behandelaarGebruikersnaam: zaak.behandelaar?.id ?? "",
+      reden: reason ?? "",
     });
   }
 }
