@@ -284,11 +284,11 @@ export class CaseDetailsEditComponent implements OnInit {
     const isSameGroup = zaak.groep?.id === this.zaak.groep?.id;
     if (isSameBehandelaar && isSameGroup) return EMPTY;
 
-    if (zaak.behandelaar?.id && zaak.behandelaar.id === this.loggedInUser.id) {
-      return this.zakenService.toekennenAanIngelogdeMedewerker(
-        this.zaak.uuid,
-        reason,
-      );
+    if (zaak.behandelaar?.id === this.loggedInUser.id) {
+      return this.zakenService.toekennenAanIngelogdeMedewerker({
+        zaakUUID: this.zaak.uuid,
+        reden: reason,
+      });
     }
 
     return this.zakenService.toekennen({
