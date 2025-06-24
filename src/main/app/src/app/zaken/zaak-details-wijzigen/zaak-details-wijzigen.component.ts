@@ -7,7 +7,7 @@ import { Component, Input, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import moment, { Moment } from "moment";
-import { EMPTY, Observable, of } from "rxjs";
+import { EMPTY, firstValueFrom, Observable, of } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { UtilService } from "src/app/core/service/util.service";
 import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
@@ -250,7 +250,7 @@ export class CaseDetailsEditComponent implements OnInit {
       omschrijving,
     } = data;
 
-    await this.patchBehandelaar(data, reden ?? undefined).toPromise();
+    await firstValueFrom(this.patchBehandelaar(data, reden ?? undefined));
 
     this.zakenService
       .updateZaak(this.zaak.uuid, {
