@@ -113,11 +113,11 @@ When(
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     for (let attempt = 0; attempt < PAGE_RELOAD_RETRIES; attempt++) {
       await this.page.reload();
-      await this.page.waitForTimeout(attempt * TWO_SECONDS_IN_MS);
+      await this.page.waitForURL(this.page.url());
       if (!(await this.page.isVisible("text='Bad Request'"))) {
         break;
       }
-      console.log("Bad request, retrying...");
+      await this.page.waitForTimeout(attempt * TWO_SECONDS_IN_MS);
     }
   },
 );
