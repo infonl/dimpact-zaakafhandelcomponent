@@ -125,7 +125,6 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             nietOntvankelijkResultaattype = restZaakafhandelParameters.zaakNietOntvankelijkResultaattype!!.id
             intakeMail = restZaakafhandelParameters.intakeMail?.name
             afrondenMail = restZaakafhandelParameters.afrondenMail?.name
-            // trim to make sure accidentally added whitespace is removed
             productaanvraagtype = restZaakafhandelParameters.productaanvraagtype?.trim()
             domein = restZaakafhandelParameters.domein
             gebruikersnaamMedewerker = restZaakafhandelParameters.defaultBehandelaarId

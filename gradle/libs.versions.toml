@@ -22,7 +22,7 @@ apache-commons-lang = "3.17.0"
 apache-commons-text = "1.13.1"
 apache-commons-collections = "4.5.0"
 commons-io = "2.19.0"
-opencsv = "5.11.1"
+opencsv = "5.11.2"
 flowable = "7.1.0"
 slf4j = "2.0.17"
 auth0-java-jwt = "4.5.0"
@@ -62,7 +62,7 @@ eclipse-yasson = "3.0.4"
 
 kotest-runner-junit5 = "5.9.1"
 kotest-assertions-json = "5.9.1"
-mockk = "1.14.2"
+mockk = "1.14.4"
 
 testcontainers = "1.21.2"
 

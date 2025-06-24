@@ -1072,6 +1072,7 @@ export class ZaakViewComponent
               naam: initiator.naam,
             }),
             icon: "link",
+            confirmButtonActionKey: "actie.initiator.wijzigen",
           }),
         })
         .afterClosed()

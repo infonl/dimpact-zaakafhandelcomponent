@@ -4,6 +4,8 @@
  */
 package nl.info.zac.app.admin.model
 
+import jakarta.annotation.Nullable
+import jakarta.validation.constraints.Size
 import net.atos.zac.app.admin.model.RESTCaseDefinition
 import net.atos.zac.app.admin.model.RESTHumanTaskParameters
 import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling
@@ -31,6 +33,8 @@ data class RestZaakafhandelParameters(
     var zaakNietOntvankelijkResultaattype: RestResultaattype? = null,
     var intakeMail: RESTZaakStatusmailOptie? = null,
     var afrondenMail: RESTZaakStatusmailOptie? = null,
+    @field:Nullable
+    @field:Size(min = 1)
     var productaanvraagtype: String? = null,
     var domein: String? = null,
     var valide: Boolean = false,

@@ -16,7 +16,7 @@
 
 <div mat-dialog-content>
   <p *ngIf="data.error">{{ data.error }}</p>
-  <p *ngIf="data.details">{{ data.details }}</p>
+  <p *ngIf="data.details" style="white-space: pre-line">{{ data.details }}</p>
   <ng-container *ngIf="data.showServerErrorTexts">
     <p *ngFor="let serverErrorText of serverErrorTexts | async">
       {{ serverErrorText }}

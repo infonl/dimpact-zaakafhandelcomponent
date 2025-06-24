@@ -6,6 +6,7 @@ package nl.info.zac.app.admin
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
@@ -137,12 +138,14 @@ class ZaakafhandelParametersRestService @Inject constructor(
      * if the `id` field is null, a new zaakafhandelparameters will be created,
      * otherwise the existing zaakafhandelparameters will be updated
      * @throws InputValidationFailedException if the productaanvraagtype is already in use by another active zaaktype
+     * @throws InputValidationFailedException if the productaanvraagtype is an empty string
      */
     @PUT
     fun createOrUpdateZaakafhandelparameters(
-        restZaakafhandelParameters: RestZaakafhandelParameters
+        @Valid restZaakafhandelParameters: RestZaakafhandelParameters
     ): RestZaakafhandelParameters {
         assertPolicy(policyService.readOverigeRechten().beheren)
+
         restZaakafhandelParameters.productaanvraagtype?.also {
             checkIfProductaanvraagtypeIsNotAlreadyInUse(it, restZaakafhandelParameters.zaaktype.omschrijving)
         }
