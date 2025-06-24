@@ -78,6 +78,7 @@ export class ParameterEditComponent
       zoekWaarde: "",
       raadpleegWaarde: "",
     },
+    productaanvraagtype: null,
   };
 
   humanTaskParameters: GeneratedType<"RESTHumanTaskParameters">[] = [];

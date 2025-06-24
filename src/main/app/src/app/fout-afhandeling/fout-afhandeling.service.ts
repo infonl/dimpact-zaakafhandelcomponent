@@ -8,7 +8,7 @@ import { Injectable, isDevMode } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { Observable, throwError } from "rxjs";
+import { EMPTY, Observable, throwError } from "rxjs";
 import { P, match } from "ts-pattern";
 import { UtilService } from "../core/service/util.service";
 import { HttpParamsError } from "../shared/http/zac-http-client";
@@ -23,7 +23,7 @@ const ViolationPattern = {
 };
 
 const ValidationErrorPattern = {
-  statusText: "Bad Request",
+  statusText: "Bad Request" as const,
   error: {
     classViolations: P.array(ViolationPattern),
     parameterViolations: P.array(ViolationPattern),
@@ -38,39 +38,36 @@ type JakartaBeanValidationError = P.infer<typeof ValidationErrorPattern>;
   providedIn: "root",
 })
 export class FoutAfhandelingService {
-  foutmelding: string;
-  bericht: string;
+  foutmelding = "";
+  bericht = "";
 
   constructor(
-    private router: Router,
-    private dialog: MatDialog,
-    private utilService: UtilService,
-    private translate: TranslateService,
+    private readonly router: Router,
+    private readonly dialog: MatDialog,
+    private readonly utilService: UtilService,
+    private readonly translateService: TranslateService,
   ) {}
 
-  public foutAfhandelen(
-    err: HttpErrorResponse | JakartaBeanValidationError,
-  ): Observable<never> {
+  foutAfhandelen(
+    err: HttpErrorResponse | HttpParamsError | JakartaBeanValidationError,
+  ) {
     return match(err)
       .with(ValidationErrorPattern, (e: JakartaBeanValidationError) =>
         this.validatieErrorAfhandelen(e),
       )
-      .otherwise((err: HttpErrorResponse) => this.httpErrorAfhandelen(err));
+      .otherwise((err) => this.httpErrorAfhandelen(err));
   }
 
-  public validatieErrorAfhandelen(err: JakartaBeanValidationError) {
-    const flattenedErrorList = [
-      err.error.propertyViolations,
-      err.error.returnValueViolations,
-      err.error.classViolations,
-      err.error.parameterViolations,
-    ].flat();
-    const firstError = flattenedErrorList.find(Boolean);
-    return firstError
-      ? this.openFoutDetailedDialog(
-          "Validatie fout",
-          JSON.stringify(firstError),
-        )
+  public validatieErrorAfhandelen(error: JakartaBeanValidationError) {
+    const flattenedErrorList = Object.values(error.error).flat();
+    console.warn("Received a `JakartaBeanValidationError`", error);
+
+    const details = flattenedErrorList.reduce((acc, violation) => {
+      return `${acc}- ${violation.constraintType}: ${violation.message} (path: ${violation.path}, value: "${violation.value}")\n`;
+    }, "");
+
+    return details.length
+      ? this.openFoutDetailedDialog("Validatie fout", details)
       : throwError(() => new Error("No violations found"));
   }
 
@@ -118,7 +115,7 @@ export class FoutAfhandelingService {
     }
   }
 
-  public httpErrorAfhandelen(err: HttpErrorResponse): Observable<never> {
+  public httpErrorAfhandelen(err: HttpErrorResponse | HttpParamsError) {
     if (err instanceof HttpParamsError) {
       return throwError(() => err.message);
     }
@@ -128,38 +125,49 @@ export class FoutAfhandelingService {
 
     if (err.status === 400) {
       return this.openFoutDialog(
-        this.translate.instant(errorDetail || "dialoog.error.body.technisch"),
+        this.translateService.instant(
+          errorDetail || "dialoog.error.body.technisch",
+        ),
       );
     }
 
     this.foutmelding = err.message;
     if (err.error instanceof ErrorEvent) {
       // client-side error
-      this.foutmelding = this.translate.instant("dialoog.error.body.fout");
+      this.foutmelding = this.translateService.instant(
+        "dialoog.error.body.fout",
+      );
       this.bericht = err.error.message;
       void this.router.navigate(["/fout-pagina"]);
-    } else if (err.status === 0 && err.url.startsWith("/rest/")) {
+      return EMPTY;
+    }
+
+    if (err.status === 0 && err.url?.startsWith("/rest/")) {
       // status 0 means that the user is no longer logged in
       if (!isDevMode()) {
         window.location.reload();
-        return;
+        return throwError(() => "User logged out");
       }
-      this.foutmelding = this.translate.instant("dialoog.error.body.loggedout");
+      this.foutmelding = this.translateService.instant(
+        "dialoog.error.body.loggedout",
+      );
       this.bericht = "";
       void this.router.navigate(["/fout-pagina"]);
-    } else {
-      // only show server error texts in case of a server error (500 family of errors)
-      // or in case of a 403 Forbidden error
-      const showServerErrorTexts = err.status >= 500 || err.status === 403;
-
-      // show error in context and do not redirect to error-page
-      return this.openFoutDetailedDialog(
-        this.translate.instant(errorDetail || "dialoog.error.body.technisch"),
-        err.error?.exception ??
-          this.translate.instant("dialoog.error.body.fout"),
-        showServerErrorTexts,
-      );
+      return EMPTY;
     }
-    return throwError(() => `${this.foutmelding}: ${this.bericht}`);
+
+    // only show server error texts in case of a server error (500 family of errors)
+    // or in case of a 403 Forbidden error
+    const showServerErrorTexts = err.status >= 500 || err.status === 403;
+
+    // show error in context and do not redirect to error-page
+    return this.openFoutDetailedDialog(
+      this.translateService.instant(
+        errorDetail || "dialoog.error.body.technisch",
+      ),
+      err.error?.exception ??
+        this.translateService.instant("dialoog.error.body.fout"),
+      showServerErrorTexts,
+    );
   }
 }

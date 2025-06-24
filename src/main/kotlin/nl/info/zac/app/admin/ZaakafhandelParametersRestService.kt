@@ -6,6 +6,7 @@ package nl.info.zac.app.admin
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
@@ -141,7 +142,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
      */
     @PUT
     fun createOrUpdateZaakafhandelparameters(
-        restZaakafhandelParameters: RestZaakafhandelParameters
+        @Valid restZaakafhandelParameters: RestZaakafhandelParameters
     ): RestZaakafhandelParameters {
         assertPolicy(policyService.readOverigeRechten().beheren)
 

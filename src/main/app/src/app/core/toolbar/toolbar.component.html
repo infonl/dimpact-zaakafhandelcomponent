@@ -43,7 +43,7 @@
   <button
     *ngIf="werklijstRechten?.zakenTaken"
     [matMenuTriggerFor]="zakenMenu"
-    mat-flat-button
+    mat-raised-button
     [ngClass]="{ active: isCaseRouteActive() }"
     color="primary"
     aria-label="Menu voor zaken"
@@ -69,7 +69,7 @@
   <button
     *ngIf="werklijstRechten?.zakenTaken"
     [matMenuTriggerFor]="takenMenu"
-    mat-flat-button
+    mat-raised-button
     [ngClass]="{ active: isTaskRouteActive() }"
     color="primary"
     aria-label="Menu voor taken"
@@ -91,7 +91,7 @@
   <button
     *ngIf="werklijstRechten?.inbox"
     [matMenuTriggerFor]="inboxMenu"
-    mat-flat-button
+    mat-raised-button
     color="primary"
     routerLinkActive="active"
     aria-label="Menu voor inboxen"
@@ -173,7 +173,7 @@
   <button
     [matMenuTriggerFor]="accountMenu"
     color="primary"
-    mat-flat-button
+    mat-raised-button
     routerLinkActive="active"
     aria-label="Gebruikers profiel"
     [title]="'toolbar.profiel' | translate"
