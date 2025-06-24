@@ -16,7 +16,7 @@
   <p>{{ intro }}</p>
   <mfb-form-field class="flex-1" [field]="caseSearchField"></mfb-form-field>
   <button
-    mat-flat-button
+    mat-raised-button
     color="primary"
     [disabled]="!isValid || loading"
     (click)="searchCases()"
