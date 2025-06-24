@@ -5,10 +5,10 @@
 
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
+import playwright from "playwright";
 import { z } from "zod";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
-import playwright from "playwright";
 
 const ONE_MINUTE_IN_MS = 60_000;
 const TWENTY_SECOND_IN_MS = 20_000;
@@ -81,15 +81,21 @@ Given(
   },
 );
 
-async function triggerDataLoad(page: playwright.Page, componentLabel: string, options?: { text?: string }) {
-  await expect(page.getByLabel(componentLabel)).toBeVisible({ timeout: TWENTY_SECOND_IN_MS });
+async function triggerDataLoad(
+  page: playwright.Page,
+  componentLabel: string,
+  options?: { text?: string },
+) {
+  await expect(page.getByLabel(componentLabel)).toBeVisible({
+    timeout: TWENTY_SECOND_IN_MS,
+  });
 
   // First click
   await page.getByLabel(componentLabel).click();
   await page.getByLabel(componentLabel).press("ArrowDown");
 
   if (options?.text) {
-    await page.getByText(options?.text).focus()
+    await page.getByText(options?.text).focus();
     await page.getByText(options?.text).click();
   }
 
@@ -99,7 +105,6 @@ async function triggerDataLoad(page: playwright.Page, componentLabel: string, op
   await page.getByLabel(componentLabel).press("Escape");
   await page.getByLabel(componentLabel).press("ArrowDown");
 }
-
 
 When(
   "{string} reloads the page",
