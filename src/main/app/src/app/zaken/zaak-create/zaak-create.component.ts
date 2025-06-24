@@ -9,7 +9,7 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
-import { Observable, of } from "rxjs";
+import { EMPTY, Observable, of } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
@@ -89,6 +89,7 @@ export class ZaakCreateComponent {
       router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
     this.form.controls.groep.disable();
     this.form.controls.behandelaar.disable();
+    this.form.controls.initiator.disable();
 
     referentieTabelService
       .listCommunicatiekanalen(Boolean(this.inboxProductaanvraag))
@@ -102,9 +103,17 @@ export class ZaakCreateComponent {
         }
       });
 
-    this.form.controls.zaaktype.valueChanges.subscribe((caseType) =>
-      this.caseTypeSelected(caseType),
-    );
+    this.form.controls.zaaktype.valueChanges.subscribe((caseType) => {
+      this.caseTypeSelected(caseType);
+
+      if (!this.canAddInitiator()) {
+        this.form.controls.initiator.setValue(null);
+        this.form.controls.initiator.disable();
+        return;
+      }
+
+      this.form.controls.initiator.enable();
+    });
     this.form.controls.groep.valueChanges.subscribe((value) => {
       if (!value) {
         this.form.controls.behandelaar.setValue(null);
@@ -146,7 +155,7 @@ export class ZaakCreateComponent {
       .pipe(
         catchError(() => {
           this.form.reset();
-          return of();
+          return EMPTY;
         }),
       )
       .subscribe((zaak) =>
