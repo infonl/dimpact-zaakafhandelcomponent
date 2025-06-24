@@ -113,7 +113,7 @@ When(
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     for (let attempt = 0; attempt < PAGE_RELOAD_RETRIES; attempt++) {
       await this.page.reload();
-      await this.page.waitForTimeout(ONE_SECOND_IN_MS);
+      await this.page.waitForTimeout(attempt * ONE_SECOND_IN_MS);
       if (!await this.page.isVisible("text='Bad Request'")) {
         break;
       }
