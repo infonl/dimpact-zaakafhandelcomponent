@@ -132,19 +132,19 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
       });
   }
 
-  getError(fc: AbstractControl, label: string) {
+  protected getError(fc: AbstractControl, label: string) {
     return CustomValidators.getErrorMessage(fc, label, this.translateService);
   }
 
-  setInitatorEmail() {
+  protected setInitatorEmail() {
     this.formGroup.get("ontvanger")?.setValue(this.initiatorEmail);
   }
 
-  close(): void {
+  protected close(): void {
     this.dialogRef.close();
   }
 
-  afronden(): void {
+  protected afronden(): void {
     this.dialogRef.disableClose = true;
     this.loading = true;
     const values = this.formGroup.value;
@@ -157,7 +157,7 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
         actie: "INTAKE_AFRONDEN",
         planItemInstanceId: this.data.planItem.id,
         zaakUuid: this.data.zaak.uuid,
-        zaakOntvankelijk: values.zaakOntvankelijk,
+        zaakOntvankelijk: values.ontvankelijk,
         resultaatToelichting: values.reden,
         restMailGegevens:
           values.sendMail && mailtemplate
@@ -184,5 +184,6 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     this.ngDestroy.complete();
   }
 
-  compareObject = (a: unknown, b: unknown) => this.utilService.compare(a, b);
+  protected compareObject = (a: unknown, b: unknown) =>
+    this.utilService.compare(a, b);
 }
