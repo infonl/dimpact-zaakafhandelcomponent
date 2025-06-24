@@ -11,7 +11,7 @@ import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
 
 const ONE_MINUTE_IN_MS = 60_000;
 const TWENTY_SECOND_IN_MS = 20_000;
-const ONE_SECOND_IN_MS = 5_000;
+const FIVE_SECOND_IN_MS = 5_000;
 
 When(
   "{string} opens the active task",
@@ -107,7 +107,7 @@ Then(
       timeout: TWENTY_SECOND_IN_MS
     });
     await this.page.getByLabel("Select one or more documents").press("ArrowDown");
-    await this.page.waitForTimeout(ONE_SECOND_IN_MS);
+    await this.page.waitForTimeout(FIVE_SECOND_IN_MS);
 
     await this.page.getByLabel("Select one or more documents").press("Escape");
     await this.page.getByLabel("Select one or more documents").press("ArrowDown");
