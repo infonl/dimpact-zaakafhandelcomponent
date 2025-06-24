@@ -8,7 +8,7 @@ import { Injectable, isDevMode } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { Observable, of, throwError } from "rxjs";
+import { EMPTY, Observable, throwError } from "rxjs";
 import { P, match } from "ts-pattern";
 import { UtilService } from "../core/service/util.service";
 import { HttpParamsError } from "../shared/http/zac-http-client";
@@ -63,10 +63,7 @@ export class FoutAfhandelingService {
     console.warn("Received a `JakartaBeanValidationError`", error);
 
     const details = flattenedErrorList.reduce((acc, violation) => {
-      return (
-        acc +
-        `- ${violation.constraintType}: ${violation.message} (path: ${violation.path}, value: "${violation.value}")\n`
-      );
+      return `${acc}- ${violation.constraintType}: ${violation.message} (path: ${violation.path}, value: "${violation.value}")\n`;
     }, "");
 
     return details.length
@@ -142,7 +139,7 @@ export class FoutAfhandelingService {
       );
       this.bericht = err.error.message;
       void this.router.navigate(["/fout-pagina"]);
-      return of(); // Return an empty observable to avoid further processing
+      return EMPTY;
     }
 
     if (err.status === 0 && err.url?.startsWith("/rest/")) {
@@ -156,7 +153,7 @@ export class FoutAfhandelingService {
       );
       this.bericht = "";
       void this.router.navigate(["/fout-pagina"]);
-      return of(); // Return an empty observable to avoid further processing
+      return EMPTY;
     }
 
     // only show server error texts in case of a server error (500 family of errors)
