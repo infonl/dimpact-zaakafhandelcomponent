@@ -152,8 +152,6 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
       ? this.zaakOntvankelijkMail
       : this.zaakNietOntvankelijkMail;
 
-    console.log("afronden intake", values, mailtemplate);
-
     this.planItemsService
       .doUserEventListenerPlanItem({
         actie: "INTAKE_AFRONDEN",
