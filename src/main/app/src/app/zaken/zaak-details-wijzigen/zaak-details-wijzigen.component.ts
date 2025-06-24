@@ -7,7 +7,7 @@ import { Component, Input, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import moment, { Moment } from "moment";
-import { Observable, of } from "rxjs";
+import { EMPTY, Observable, of } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { UtilService } from "src/app/core/service/util.service";
 import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
@@ -240,7 +240,7 @@ export class CaseDetailsEditComponent implements OnInit {
     }
   }
 
-  protected onSubmit(form: typeof this.form): void {
+  protected async onSubmit(form: typeof this.form) {
     const data = form.getRawValue();
     const {
       reden,
@@ -250,7 +250,7 @@ export class CaseDetailsEditComponent implements OnInit {
       omschrijving,
     } = data;
 
-    this.patchBehandelaar(form.getRawValue(), reden ?? undefined);
+    await this.patchBehandelaar(data, reden ?? undefined).toPromise();
 
     this.zakenService
       .updateZaak(this.zaak.uuid, {
@@ -282,17 +282,20 @@ export class CaseDetailsEditComponent implements OnInit {
     const isSameBehandelaar =
       zaak.behandelaar?.id === this.zaak.behandelaar?.id;
     const isSameGroup = zaak.groep?.id === this.zaak.groep?.id;
-    if (isSameBehandelaar && isSameGroup) return;
+    if (isSameBehandelaar && isSameGroup) return EMPTY;
 
-    if (zaak.behandelaar?.id === this.loggedInUser.id) {
-      this.zakenService.toekennenAanIngelogdeMedewerker(this.zaak.uuid, reason);
-      return;
+    if (zaak.behandelaar?.id && zaak.behandelaar.id === this.loggedInUser.id) {
+      return this.zakenService.toekennenAanIngelogdeMedewerker(
+        this.zaak.uuid,
+        reason,
+      );
     }
 
-    this.zakenService.toekennen(this.zaak.uuid, {
-      reason,
-      groupId: zaak.groep?.id,
-      behandelaarId: zaak?.behandelaar?.id,
+    return this.zakenService.toekennen({
+      zaakUUID: this.zaak.uuid,
+      groepId: zaak.groep?.id as string,
+      behandelaarGebruikersnaam: zaak.behandelaar?.id,
+      reden: reason,
     });
   }
 }

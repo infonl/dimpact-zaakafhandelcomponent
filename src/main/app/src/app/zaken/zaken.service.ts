@@ -131,20 +131,8 @@ export class ZakenService {
     return this.zacHttpClient.PUT("/rest/zaken/zaakdata", zaak, {});
   }
 
-  toekennen(
-    zaakUUID: string,
-    options?: { behandelaarId?: string; groupId?: string; reason?: string },
-  ) {
-    return this.zacHttpClient.PATCH(
-      "/rest/zaken/toekennen",
-      {
-        zaakUUID,
-        groepId: options?.groupId || "", // TODO: check this interface
-        behandelaarGebruikersnaam: options?.behandelaarId,
-        reden: options?.reason,
-      },
-      {},
-    );
+  toekennen(body: PatchBody<"/rest/zaken/toekennen">) {
+    return this.zacHttpClient.PATCH("/rest/zaken/toekennen", body, {});
   }
 
   verdelenVanuitLijst(
