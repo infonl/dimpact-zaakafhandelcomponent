@@ -184,7 +184,7 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
       });
   }
 
-  protected setInitatorEmail() {
+  protected setInitiatorEmail() {
     this.formGroup.get("ontvanger")?.setValue(this.initiatorEmail);
   }
 
