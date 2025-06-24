@@ -34,7 +34,7 @@ data class RestZaakafhandelParameters(
     var intakeMail: RESTZaakStatusmailOptie? = null,
     var afrondenMail: RESTZaakStatusmailOptie? = null,
     @field:Nullable
-    @field:Size(min = 1, message = "")
+    @field:Size(min = 1)
     var productaanvraagtype: String? = null,
     var domein: String? = null,
     var valide: Boolean = false,
