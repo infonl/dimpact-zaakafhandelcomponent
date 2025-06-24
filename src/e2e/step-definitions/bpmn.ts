@@ -11,6 +11,7 @@ import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
 
 const ONE_MINUTE_IN_MS = 60_000;
 const TWENTY_SECOND_IN_MS = 20_000;
+const ONE_SECOND_IN_MS = 5_000;
 
 When(
   "{string} opens the active task",
@@ -47,8 +48,18 @@ Given(
     user: z.infer<typeof worldUsers>,
     fileName: string,
   ) {
+    // BPMN form: trigger template load data
+    await this.page.getByLabel("Template").click();
+    await this.page.getByLabel("Template").press("ArrowDown");
+    await this.page.getByLabel("Template").press("Escape");
+    await this.page.getByText("SmartDocuments").focus()
+    await this.page.getByText("SmartDocuments").click()
+
     // BPMN form: create a document
-    await this.page.getByLabel("Template").selectOption("Data Test");
+    await this.page.getByLabel("Template").click();
+    await this.page
+      .getByLabel("Template")
+      .selectOption("Data Test", { timeout: ONE_MINUTE_IN_MS });
     await this.page.getByRole("button", { name: "Create" }).click();
 
     // ZAC: Create document sidebar
@@ -91,9 +102,15 @@ Then(
     user: z.infer<typeof worldUsers>,
     documentName: string,
   ) {
-    await this.page
-      .getByRole("textbox", { name: "Select one or more documents" })
-      .fill("");
+    // Trigger load of data for available documents
+    await expect(this.page.getByLabel("Select one or more documents")).toBeVisible({
+      timeout: TWENTY_SECOND_IN_MS
+    });
+    await this.page.getByLabel("Select one or more documents").press("ArrowDown");
+    await this.page.waitForTimeout(ONE_SECOND_IN_MS);
+
+    await this.page.getByLabel("Select one or more documents").press("Escape");
+    await this.page.getByLabel("Select one or more documents").press("ArrowDown");
     await expect(
       this.page.getByRole("option", { name: documentName, exact: true }),
     ).toContainText(documentName, { timeout: TWENTY_SECOND_IN_MS });
@@ -104,10 +121,18 @@ Then(
   "{string} sees the desired form fields values",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    // trigger group data load
+    await this.page.getByLabel("Group").click();
+    await this.page.getByText("Approval by:").focus();
+    await this.page.getByText("Approval by:").click();
+
+    await this.page.getByLabel("Group").click();
     await expect(this.page.getByLabel("Group")).toContainText(
       "Functioneelbeheerders",
       { timeout: TWENTY_SECOND_IN_MS },
     );
+    await this.page.getByLabel("Communication channel").click();
+    await this.page.getByLabel("Communication channel").press("ArrowDown");
     await expect(this.page.getByLabel("Communication channel")).toContainText(
       "E-mail",
       { timeout: TWENTY_SECOND_IN_MS },
@@ -120,6 +145,8 @@ When(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await this.page.getByLabel("Group").selectOption("functioneelbeheerders");
+
+    await this.page.getByLabel("User").click();
     await this.page.getByLabel("User").selectOption("functioneelbeheerder2");
     await this.page
       .getByRole("textbox", { name: "Select one or more documents" })
