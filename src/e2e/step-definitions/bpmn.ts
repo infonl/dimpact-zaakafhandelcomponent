@@ -12,6 +12,7 @@ import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
 
 const TWO_MINUTES_IN_MS = 120_000;
 const FORTY_SECOND_IN_MS = 40_000;
+const FIVE_SECONDS_IN_MS = 5_000;
 const TWO_SECONDS_IN_MS = 2_000;
 const PAGE_RELOAD_RETRIES = 5;
 
@@ -85,7 +86,7 @@ Given(
 async function triggerDataLoad(
   page: playwright.Page,
   componentLabel: string,
-  options?: { text?: string },
+  options?: { text?: string; timeout?: number },
 ) {
   await expect(page.getByLabel(componentLabel)).toBeVisible({
     timeout: FORTY_SECOND_IN_MS,
@@ -100,7 +101,7 @@ async function triggerDataLoad(
     await page.getByText(options?.text).click();
   }
 
-  await page.waitForTimeout(TWO_SECONDS_IN_MS);
+  await page.waitForTimeout(options?.timeout || TWO_SECONDS_IN_MS);
 
   // Press arrow-down on the component again
   await page.getByLabel(componentLabel).press("Escape");
@@ -131,7 +132,10 @@ Then(
     user: z.infer<typeof worldUsers>,
     documentName: string,
   ) {
-    await triggerDataLoad(this.page, "Select one or more documents", { text: "Available Documents" });
+    await triggerDataLoad(this.page, "Select one or more documents", {
+      text: "Available Documents",
+      timeout: FIVE_SECONDS_IN_MS,
+    });
     await expect(
       this.page.getByRole("option", { name: documentName, exact: true }),
     ).toContainText(documentName, { timeout: FORTY_SECOND_IN_MS });
