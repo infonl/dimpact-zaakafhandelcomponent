@@ -111,13 +111,14 @@ When(
   "{string} reloads the page",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await this.page.reload();
     for (let attempt = 0; attempt < PAGE_RELOAD_RETRIES; attempt++) {
-      await this.page.reload();
       await this.page.waitForURL(this.page.url());
       if (!(await this.page.isVisible("text='Bad Request'"))) {
         break;
       }
       await this.page.waitForTimeout(attempt * TWO_SECONDS_IN_MS);
+      await this.page.goto(this.page.url().split("?")[0]);
     }
   },
 );
@@ -130,7 +131,7 @@ Then(
     user: z.infer<typeof worldUsers>,
     documentName: string,
   ) {
-    await triggerDataLoad(this.page, "Select one or more documents");
+    await triggerDataLoad(this.page, "Select one or more documents", { text: "Available Documents" });
     await expect(
       this.page.getByRole("option", { name: documentName, exact: true }),
     ).toContainText(documentName, { timeout: FORTY_SECOND_IN_MS });
