@@ -13,6 +13,7 @@ import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
 const ONE_MINUTE_IN_MS = 60_000;
 const TWENTY_SECOND_IN_MS = 20_000;
 const ONE_SECOND_IN_MS = 1_000;
+const PAGE_RELOAD_RETRIES = 5;
 
 When(
   "{string} opens the active task",
@@ -110,9 +111,13 @@ When(
   "{string} reloads the page",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await this.page.reload();
-    await this.page.waitForTimeout(ONE_SECOND_IN_MS);
-    await this.page.reload();
+    for (let attempt = 0; attempt < PAGE_RELOAD_RETRIES; attempt++) {
+      await this.page.reload();
+      await this.page.waitForTimeout(ONE_SECOND_IN_MS);
+      if (!await this.page.isVisible("text='Bad Request'")) {
+        break;
+      }
+    }
   },
 );
 
