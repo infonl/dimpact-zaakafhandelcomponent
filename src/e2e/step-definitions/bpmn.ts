@@ -114,7 +114,7 @@ When(
     for (let attempt = 0; attempt < PAGE_RELOAD_RETRIES; attempt++) {
       await this.page.reload();
       await this.page.waitForTimeout(attempt * TWO_SECONDS_IN_MS);
-      if (!await this.page.isVisible("text='Bad Request'")) {
+      if (!(await this.page.isVisible("text='Bad Request'"))) {
         break;
       }
       console.log("Bad request, retrying...");
