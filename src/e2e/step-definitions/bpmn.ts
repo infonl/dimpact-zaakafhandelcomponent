@@ -52,8 +52,8 @@ Given(
     await this.page.getByLabel("Template").click();
     await this.page.getByLabel("Template").press("ArrowDown");
     await this.page.getByLabel("Template").press("Escape");
-    await this.page.getByText("SmartDocuments").focus()
-    await this.page.getByText("SmartDocuments").click()
+    await this.page.getByText("SmartDocuments").focus();
+    await this.page.getByText("SmartDocuments").click();
 
     // BPMN form: create a document
     await this.page.getByLabel("Template").click();
@@ -103,14 +103,20 @@ Then(
     documentName: string,
   ) {
     // Trigger load of data for available documents
-    await expect(this.page.getByLabel("Select one or more documents")).toBeVisible({
-      timeout: TWENTY_SECOND_IN_MS
+    await expect(
+      this.page.getByLabel("Select one or more documents"),
+    ).toBeVisible({
+      timeout: TWENTY_SECOND_IN_MS,
     });
-    await this.page.getByLabel("Select one or more documents").press("ArrowDown");
+    await this.page
+      .getByLabel("Select one or more documents")
+      .press("ArrowDown");
     await this.page.waitForTimeout(FIVE_SECOND_IN_MS);
 
     await this.page.getByLabel("Select one or more documents").press("Escape");
-    await this.page.getByLabel("Select one or more documents").press("ArrowDown");
+    await this.page
+      .getByLabel("Select one or more documents")
+      .press("ArrowDown");
     await expect(
       this.page.getByRole("option", { name: documentName, exact: true }),
     ).toContainText(documentName, { timeout: TWENTY_SECOND_IN_MS });
