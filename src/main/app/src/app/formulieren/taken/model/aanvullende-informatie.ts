@@ -9,8 +9,6 @@ import moment, { Moment } from "moment/moment";
 import { Observable, of, Subject } from "rxjs";
 import { MessageFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/message/message-form-field-builder";
 import { MessageLevel } from "src/app/shared/material-form-builder/form-components/message/message-level.enum";
-import { Mail } from "../../../admin/model/mail";
-import { Mailtemplate } from "../../../admin/model/mailtemplate";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../../klanten/klanten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
@@ -27,6 +25,7 @@ import { RadioFormFieldBuilder } from "../../../shared/material-form-builder/for
 import { ReadonlyFormFieldBuilder } from "../../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
 import { SelectFormField } from "../../../shared/material-form-builder/form-components/select/select-form-field";
 import { SelectFormFieldBuilder } from "../../../shared/material-form-builder/form-components/select/select-form-field-builder";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { CustomValidators } from "../../../shared/validators/customValidators";
 import { TakenService } from "../../../taken/taken.service";
 import { ZakenService } from "../../../zaken/zaken.service";
@@ -51,7 +50,7 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
     opmerking: AbstractTaakFormulier.TOELICHTING_FIELD,
   };
 
-  mailtemplate$: Observable<Mailtemplate>;
+  mailtemplate$: Observable<GeneratedType<"RESTMailtemplate">>;
 
   constructor(
     translate: TranslateService,
@@ -75,15 +74,15 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
   }
 
   _initStartForm() {
-    this.humanTaskData.taakStuurGegevens.sendMail = true;
-
     this.mailtemplate$ = this.mailtemplateService.findMailtemplate(
-      Mail.TAAK_AANVULLENDE_INFORMATIE,
+      "TAAK_AANVULLENDE_INFORMATIE",
       this.zaak.uuid,
     );
 
-    this.humanTaskData.taakStuurGegevens.mail =
-      Mail.TAAK_AANVULLENDE_INFORMATIE;
+    if (this.humanTaskData.taakStuurGegevens) {
+      this.humanTaskData.taakStuurGegevens.sendMail = true;
+      this.humanTaskData.taakStuurGegevens.mail = "TAAK_AANVULLENDE_INFORMATIE";
+    }
     const documenten =
       this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
         zaakUUID: this.zaak.uuid,
