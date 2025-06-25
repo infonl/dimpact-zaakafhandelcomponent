@@ -45,14 +45,20 @@
           }}</mat-hint>
         </zac-auto-complete>
         <zac-input
-          *ngIf="canAddInitiator()"
           key="initiator"
           [form]="form"
           class="col-12 col-md-6"
           [displayValue]="'naam'"
-          (click)="openSideNav('actie.initiator.toevoegen')"
+          (click)="
+            canAddInitiator() && openSideNav('actie.initiator.toevoegen')
+          "
         >
-          <button mat-icon-button matSuffix type="button">
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            [disabled]="!canAddInitiator()"
+          >
             <mat-icon>person</mat-icon>
           </button>
         </zac-input>
