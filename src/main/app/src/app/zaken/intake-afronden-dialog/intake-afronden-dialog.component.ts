@@ -136,7 +136,7 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     return CustomValidators.getErrorMessage(fc, label, this.translateService);
   }
 
-  protected setInitatorEmail() {
+  protected setInitiatorEmail() {
     this.formGroup.get("ontvanger")?.setValue(this.initiatorEmail);
   }
 

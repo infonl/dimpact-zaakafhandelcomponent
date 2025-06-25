@@ -8,7 +8,7 @@ import { Injectable, isDevMode } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { EMPTY, Observable, throwError } from "rxjs";
+import { Observable, of, throwError } from "rxjs";
 import { P, match } from "ts-pattern";
 import { UtilService } from "../core/service/util.service";
 import { HttpParamsError } from "../shared/http/zac-http-client";
@@ -139,7 +139,7 @@ export class FoutAfhandelingService {
       );
       this.bericht = err.error.message;
       void this.router.navigate(["/fout-pagina"]);
-      return EMPTY;
+      return of();
     }
 
     if (err.status === 0 && err.url?.startsWith("/rest/")) {
@@ -153,7 +153,7 @@ export class FoutAfhandelingService {
       );
       this.bericht = "";
       void this.router.navigate(["/fout-pagina"]);
-      return EMPTY;
+      return of();
     }
 
     // only show server error texts in case of a server error (500 family of errors)

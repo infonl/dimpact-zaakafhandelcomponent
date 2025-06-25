@@ -7,7 +7,7 @@ import { Component, Input, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import moment, { Moment } from "moment";
-import { EMPTY, firstValueFrom, Observable, of } from "rxjs";
+import { defaultIfEmpty, EMPTY, firstValueFrom, Observable, of } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { UtilService } from "src/app/core/service/util.service";
 import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
@@ -250,7 +250,11 @@ export class CaseDetailsEditComponent implements OnInit {
       omschrijving,
     } = data;
 
-    await firstValueFrom(this.patchBehandelaar(data, reden ?? undefined));
+    await firstValueFrom(
+      this.patchBehandelaar(data, reden ?? undefined).pipe(
+        defaultIfEmpty(null),
+      ),
+    );
 
     this.zakenService
       .updateZaak(this.zaak.uuid, {
@@ -281,10 +285,11 @@ export class CaseDetailsEditComponent implements OnInit {
   ) {
     const isSameBehandelaar =
       zaak.behandelaar?.id === this.zaak.behandelaar?.id;
+
     const isSameGroup = zaak.groep?.id === this.zaak.groep?.id;
     if (isSameBehandelaar && isSameGroup) return EMPTY;
 
-    if (zaak.behandelaar?.id && zaak.behandelaar.id === this.loggedInUser.id) {
+    if (zaak.behandelaar?.id === this.loggedInUser.id) {
       return this.zakenService.toekennenAanIngelogdeMedewerker(
         this.zaak.uuid,
         reason,
