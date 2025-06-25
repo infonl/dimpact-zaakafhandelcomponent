@@ -13,13 +13,16 @@ import org.flowable.engine.impl.el.FixedValue
 import java.util.logging.Logger
 
 @Suppress("LongParameterList")
-class SendEmailDelegate: AbstractDelegate() {
+class SendEmailDelegate : AbstractDelegate() {
     // set by Flowable
     private lateinit var from: FixedValue
+
     // set by Flowable
     private lateinit var to: FixedValue
+
     // set by Flowable
     private lateinit var replyTo: FixedValue
+
     // set by Flowable
     private lateinit var template: FixedValue
 
@@ -38,8 +41,10 @@ class SendEmailDelegate: AbstractDelegate() {
             "Mail template '${template.expressionText}' not found"
         }
 
-        LOG.info("Sending mail to '${to.expressionText}' from '${from.expressionText}' for zaak " +
-                "${zaak.identificatie}, using template '${mailTemplate.mailTemplateNaam}'")
+        LOG.info(
+            "Sending mail to '${to.expressionText}' from '${from.expressionText}' for zaak " +
+                "${zaak.identificatie}, using template '${mailTemplate.mailTemplateNaam}'"
+        )
         flowableHelper.mailService.sendMail(
             mailGegevens = MailGegevens(
                 MailAdres(from.expressionText, null),
