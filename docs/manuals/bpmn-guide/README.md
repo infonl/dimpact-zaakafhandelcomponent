@@ -89,6 +89,38 @@ For example:
     </serviceTask>
 ```
 
+#### Send email
+To send email:
+* create a service task
+* set class `net.atos.zac.flowable.delegate.SendEmailDelegate`
+* add fields:
+  * `to` as `stringvalue` equal to the receiver's email address
+  * `from` as `stringvalue` - the sender's email address
+  * `replyTo` as `stringvalue` - the replyTo's email address
+  * `template` as `stringvalue` - the name of the email template you want to use
+
+For example:
+```xml
+    <serviceTask id="ServiceTask_358" name="Send email" flowable:class="net.atos.zac.flowable.delegate.SendEmailDelegate">
+      <extensionElements>
+        <flowable:field name="from">
+          <flowable:string><![CDATA[team-dimpact@info.nl]]></flowable:string>
+        </flowable:field>
+        <flowable:field name="to">
+          <flowable:string><![CDATA[shared-team-dimpact@info.nl]]></flowable:string>
+        </flowable:field>
+        <flowable:field name="replyTo">
+          <flowable:string><![CDATA[shared-team-dimpact@info.nl]]></flowable:string>
+        </flowable:field>
+        <flowable:field name="template">
+          <flowable:string><![CDATA[Algemene e-mail]]></flowable:string>
+        </flowable:field>
+        <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
+        <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+      </extensionElements>
+    </serviceTask>
+```
+
 #### User/group
 To list the ZAC groups and users (groep / medewerker) you should use a `fieldset` layout component with:
 * `"type": "groepMedewerkerFieldset"`
