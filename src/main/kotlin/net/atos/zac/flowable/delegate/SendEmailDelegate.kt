@@ -4,11 +4,8 @@
  */
 package net.atos.zac.flowable.delegate
 
-import jakarta.inject.Inject
 import net.atos.zac.flowable.FlowableHelper
-import net.atos.zac.mailtemplates.MailTemplateService
 import net.atos.zac.mailtemplates.model.MailGegevens
-import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
 import org.flowable.engine.delegate.DelegateExecution
@@ -16,18 +13,13 @@ import org.flowable.engine.impl.el.FixedValue
 import java.util.logging.Logger
 
 @Suppress("LongParameterList")
-class SendEmailDelegate @Inject constructor(
-    private val mailService: MailService,
-    private val mailTemplateService: MailTemplateService
-) : AbstractDelegate() {
+class SendEmailDelegate: AbstractDelegate() {
     // set by Flowable
     private lateinit var from: FixedValue
     // set by Flowable
     private lateinit var to: FixedValue
     // set by Flowable
     private lateinit var replyTo: FixedValue
-    // set by Flowable
-    private lateinit var subject: FixedValue
     // set by Flowable
     private lateinit var template: FixedValue
 
@@ -39,20 +31,20 @@ class SendEmailDelegate @Inject constructor(
         val flowableHelper = FlowableHelper.getInstance()
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
 
-        val mailTemplate = mailTemplateService.listMailtemplates().find {
+        val mailTemplate = flowableHelper.mailTemplateService.listMailtemplates().find {
             mailTemplate -> mailTemplate.mailTemplateNaam == template.expressionText
         }
         require(mailTemplate != null) {
             "Mail template '${template.expressionText}' not found"
         }
 
-        LOG.info("Sending mail to '$to' from '$from' for zaak ${zaak.identificatie}")
-        mailService.sendMail(
+        LOG.info("Sending mail to '${to.expressionText}' from '${from.expressionText}' for zaak ${zaak.identificatie}")
+        flowableHelper.mailService.sendMail(
             mailGegevens = MailGegevens(
                 MailAdres(from.expressionText, null),
                 MailAdres(to.expressionText, null),
                 MailAdres(replyTo.expressionText, null),
-                subject.expressionText,
+                mailTemplate.onderwerp,
                 mailTemplate.body,
                 null,
                 false
