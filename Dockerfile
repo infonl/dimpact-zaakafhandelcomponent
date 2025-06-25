@@ -44,7 +44,6 @@ USER default
 
 # Copy zaakafhandelcomponent bootable jar
 COPY target/zaakafhandelcomponent.jar /
-
 # Turn on ability to be able to override WildFly settings using environment variables
 ENV WILDFLY_OVERRIDING_ENV_VARS=1
 
