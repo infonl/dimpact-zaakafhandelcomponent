@@ -9,7 +9,7 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.BPMN_TASK_NAAM
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_TASK_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_2
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
@@ -216,7 +216,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                 },
                                 {
                                     "aantal": 1,
-                                    "naam": "$BPMN_TASK_NAAM"
+                                    "naam": "$BPMN_TEST_TASK_NAAM"
                                 }
                             ],
                             "TAAK_STATUS": [
@@ -549,7 +549,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             {
                               "groepNaam": "groepa",
                               "id": "173",
-                              "naam": "$BPMN_TASK_NAAM",
+                              "naam": "$BPMN_TEST_TASK_NAAM",
                               "rechten": {
                                 "lezen": true,
                                 "toekennen": true,
@@ -642,7 +642,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                 },
                                 {
                                     "aantal": 1,
-                                    "naam": "$BPMN_TASK_NAAM"
+                                    "naam": "$BPMN_TEST_TASK_NAAM"
                                 }
                             ],
                             "TAAK_STATUS": [
