@@ -123,26 +123,26 @@
             </section>
           </fieldset>
 
-          <div class="flex-row flex-wrap gap-5 mt-3">
+          <div class="flex-row gap-10 ml-3 mt-3">
             <mat-icon color="warn">warning</mat-icon>
             <small>{{
               "msg.zaakafhandelparameters.waarschuwing" | translate
             }}</small>
           </div>
-          <div class="button-group flex-row flex-wrap">
-            <button mat-raised-button matStepperNext>
-              {{ "actie.volgende" | translate }}
-            </button>
-            <button
-              mat-raised-button
-              color="primary"
-              [disabled]="!isValid() || loading"
-              (click)="opslaan()"
-            >
-              {{ "actie.opslaan" | translate }}
-            </button>
-          </div>
         </form>
+        <div class="button-group flex-row flex-wrap">
+          <button mat-raised-button matStepperNext>
+            {{ "actie.volgende" | translate }}
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            [disabled]="!isValid() || loading"
+            (click)="opslaan()"
+          >
+            {{ "actie.opslaan" | translate }}
+          </button>
+        </div>
       </mat-step>
       <mat-step [stepControl]="humanTasksFormGroup">
         <ng-template matStepLabel>{{
@@ -282,23 +282,23 @@
                 </div>
               </mat-expansion-panel>
             </mat-accordion>
-            <div class="button-group flex-row flex-wrap">
-              <button mat-raised-button matStepperPrevious>
-                {{ "actie.terug" | translate }}
-              </button>
-              <button mat-raised-button matStepperNext>
-                {{ "actie.volgende" | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                [disabled]="!isValid() || loading"
-                (click)="opslaan()"
-              >
-                {{ "actie.opslaan" | translate }}
-              </button>
-            </div>
           </form>
+          <div class="button-group flex-row flex-wrap">
+            <button mat-raised-button matStepperPrevious>
+              {{ "actie.terug" | translate }}
+            </button>
+            <button mat-raised-button matStepperNext>
+              {{ "actie.volgende" | translate }}
+            </button>
+            <button
+              mat-raised-button
+              color="primary"
+              [disabled]="!isValid() || loading"
+              (click)="opslaan()"
+            >
+              {{ "actie.opslaan" | translate }}
+            </button>
+          </div>
         </ng-template>
       </mat-step>
       <mat-step
@@ -317,7 +317,9 @@
                 *ngFor="let actieParameter of userEventListenerParameters"
               >
                 <mat-expansion-panel-header>
-                  <mat-panel-title> {{ actieParameter.naam }} </mat-panel-title>
+                  <mat-panel-title>
+                    {{ actieParameter.naam }}
+                  </mat-panel-title>
                 </mat-expansion-panel-header>
                 <div class="flex-row flex-wrap">
                   <mat-form-field class="w33 w100-md" floatLabel="always">
@@ -332,23 +334,23 @@
                 </div>
               </mat-expansion-panel>
             </mat-accordion>
-            <div class="button-group flex-row flex-wrap">
-              <button mat-raised-button matStepperPrevious>
-                {{ "actie.terug" | translate }}
-              </button>
-              <button mat-raised-button matStepperNext>
-                {{ "actie.volgende" | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                [disabled]="!isValid() || loading"
-                (click)="opslaan()"
-              >
-                {{ "actie.opslaan" | translate }}
-              </button>
-            </div>
           </form>
+          <div class="button-group flex-row flex-wrap">
+            <button mat-raised-button matStepperPrevious>
+              {{ "actie.terug" | translate }}
+            </button>
+            <button mat-raised-button matStepperNext>
+              {{ "actie.volgende" | translate }}
+            </button>
+            <button
+              mat-raised-button
+              color="primary"
+              [disabled]="!isValid() || loading"
+              (click)="opslaan()"
+            >
+              {{ "actie.opslaan" | translate }}
+            </button>
+          </div>
         </ng-template>
       </mat-step>
       <mat-step
@@ -572,6 +574,14 @@
                 </mat-accordion>
               </mat-card-content>
             </mat-card>
+            <mat-card *ngIf="showOntvangstbevestiging()">
+              <mat-card-header>
+                <mat-card-title>
+                  {{ "gegevens.mail.ontvangstbevestiging" | translate }}
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content> fields here </mat-card-content>
+            </mat-card>
             <div class="button-group flex-row flex-wrap">
               <button mat-raised-button matStepperPrevious>
                 {{ "actie.terug" | translate }}
@@ -599,85 +609,98 @@
           "gegevens.beeindiging" | translate
         }}</ng-template>
         <ng-template matStepContent>
-          <form [formGroup]="zaakbeeindigFormGroup" class="flex-col">
-            <div class="table-wrapper">
-              <table mat-table [dataSource]="zaakbeeindigParameters">
-                <ng-container matColumnDef="select">
-                  <th mat-header-cell *matHeaderCellDef></th>
-                  <td mat-cell *matCellDef="let parameter">
-                    <mat-checkbox
-                      (click)="$event.stopPropagation()"
-                      (change)="changeSelection($event, parameter)"
-                      [checked]="selection.isSelected(parameter)"
-                      [disabled]="isZaaknietontvankelijkParameter(parameter)"
-                    >
-                    </mat-checkbox>
-                  </td>
-                </ng-container>
-                <ng-container matColumnDef="reden">
-                  <th mat-header-cell *matHeaderCellDef translate="reden"></th>
-                  <td mat-cell *matCellDef="let parameter">
-                    {{
-                      parameter.zaakbeeindigReden?.naam ??
-                        "zaakIsNietOntvankelijk" | translate
-                    }}
-                  </td>
-                </ng-container>
-                <ng-container matColumnDef="resultaat">
-                  <th
-                    mat-header-cell
-                    *matHeaderCellDef
-                    translate="resultaat"
-                  ></th>
-                  <td mat-cell *matCellDef="let parameter">
-                    <mat-select
-                      placeholder="{{ 'resultaat.-kies-' | translate }}"
-                      [formControl]="
-                        getZaakbeeindigControl(parameter, 'beeindigResultaat')
+          <mat-card>
+            <mat-card-content>
+              <form [formGroup]="zaakbeeindigFormGroup" class="flex-col">
+                <div class="table-wrapper">
+                  <table mat-table [dataSource]="zaakbeeindigParameters">
+                    <ng-container matColumnDef="select">
+                      <th mat-header-cell *matHeaderCellDef></th>
+                      <td mat-cell *matCellDef="let parameter">
+                        <mat-checkbox
+                          (click)="$event.stopPropagation()"
+                          (change)="changeSelection($event, parameter)"
+                          [checked]="selection.isSelected(parameter)"
+                          [disabled]="
+                            isZaaknietontvankelijkParameter(parameter)
+                          "
+                        >
+                        </mat-checkbox>
+                      </td>
+                    </ng-container>
+                    <ng-container matColumnDef="reden">
+                      <th
+                        mat-header-cell
+                        *matHeaderCellDef
+                        translate="reden"
+                      ></th>
+                      <td mat-cell *matCellDef="let parameter">
+                        {{
+                          parameter.zaakbeeindigReden?.naam ??
+                            "zaakIsNietOntvankelijk" | translate
+                        }}
+                      </td>
+                    </ng-container>
+                    <ng-container matColumnDef="resultaat">
+                      <th
+                        mat-header-cell
+                        *matHeaderCellDef
+                        translate="resultaat"
+                      ></th>
+                      <td mat-cell *matCellDef="let parameter">
+                        <mat-select
+                          placeholder="{{ 'resultaat.-kies-' | translate }}"
+                          [formControl]="
+                            getZaakbeeindigControl(
+                              parameter,
+                              'beeindigResultaat'
+                            )
+                          "
+                          [compareWith]="compareObject"
+                        >
+                          <mat-option
+                            *ngFor="let resultaattype of resultaattypes"
+                            [value]="resultaattype"
+                            >{{ resultaattype.naam }}</mat-option
+                          >
+                        </mat-select>
+                      </td>
+                    </ng-container>
+                    <tr
+                      mat-header-row
+                      *matHeaderRowDef="['select', 'reden', 'resultaat']"
+                    ></tr>
+                    <tr
+                      mat-row
+                      *matRowDef="
+                        let row;
+                        columns: ['select', 'reden', 'resultaat']
                       "
-                      [compareWith]="compareObject"
-                    >
-                      <mat-option
-                        *ngFor="let resultaattype of resultaattypes"
-                        [value]="resultaattype"
-                        >{{ resultaattype.naam }}</mat-option
-                      >
-                    </mat-select>
-                  </td>
-                </ng-container>
-                <tr
-                  mat-header-row
-                  *matHeaderRowDef="['select', 'reden', 'resultaat']"
-                ></tr>
-                <tr
-                  mat-row
-                  *matRowDef="
-                    let row;
-                    columns: ['select', 'reden', 'resultaat']
-                  "
-                ></tr>
-              </table>
-              <p *ngIf="zaakbeeindigParameters.length === 0">
-                {{ "msg.geen.gegevens.gevonden" | translate }}
-              </p>
-            </div>
-            <div class="button-group flex-row flex-wrap">
-              <button mat-raised-button matStepperPrevious>
-                {{ "actie.terug" | translate }}
-              </button>
-              <button mat-raised-button matStepperNext>
-                {{ "actie.volgende" | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                [disabled]="!isValid() || loading"
-                (click)="opslaan()"
-              >
-                {{ "actie.opslaan" | translate }}
-              </button>
-            </div>
-          </form>
+                    ></tr>
+                  </table>
+                  <p *ngIf="zaakbeeindigParameters.length === 0">
+                    {{ "msg.geen.gegevens.gevonden" | translate }}
+                  </p>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+          <div class="button-group flex-row flex-wrap">
+            <button mat-raised-button matStepperPrevious>
+              {{ "actie.terug" | translate }}
+            </button>
+            <button mat-raised-button matStepperNext>
+              {{ "actie.volgende" | translate }}
+            </button>
+            <button
+              mat-raised-button
+              color="primary"
+              [disabled]="!isValid() || loading"
+              (click)="opslaan()"
+            >
+              {{ "actie.opslaan" | translate }}
+            </button>
+          </div>
         </ng-template>
       </mat-step>
       <mat-step
@@ -691,104 +714,127 @@
           "gegevens.koppelingen" | translate
         }}</ng-template>
         <ng-template matStepContent>
-          <h2>
-            {{ "gegevens.landelijk.koppelingen" | translate }}
-          </h2>
-          <p>
-            {{ "gegevens.landelijk.koppelingen.omschrijving" | translate }}
-          </p>
-          <form class="flex-col gap-12" [formGroup]="betrokkeneKoppelingen">
-            <div class="flex-row items-center gap-8">
-              <mat-slide-toggle
-                formControlName="brpKoppelen"
-                (click)="$event.stopPropagation()"
-                color="primary"
-              ></mat-slide-toggle>
-              <p>{{ "gegevens.koppelen.brp" | translate }}</p>
-            </div>
-            <form
-              [formGroup]="brpDoelbindingFormGroup"
-              *ngIf="betrokkeneKoppelingen.controls.brpKoppelen.value"
-            >
+          <mat-card>
+            <mat-card-content>
+              <h2>
+                {{ "gegevens.landelijk.koppelingen" | translate }}
+              </h2>
               <p>
-                {{ "title.admin.parameters.step.brpDoelbinding" | translate }}
+                {{ "gegevens.landelijk.koppelingen.omschrijving" | translate }}
               </p>
-              <section class="flex-col">
-                <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
-                  <mat-label>{{
-                    "brpDoelbinding.zoekWaarde" | translate
-                  }}</mat-label>
-                  <mat-select
-                    placeholder="{{ 'resultaat.-kies-' | translate }}"
-                    [formControl]="brpDoelbindingFormGroup.controls.zoekWaarde"
-                  >
-                    <mat-option
-                      *ngFor="let value of brpSearchValues"
-                      [value]="value"
-                      >{{ value }}</mat-option
+              <form class="flex-col gap-12" [formGroup]="betrokkeneKoppelingen">
+                <div class="flex-row items-center gap-8">
+                  <mat-slide-toggle
+                    formControlName="brpKoppelen"
+                    (click)="$event.stopPropagation()"
+                    color="primary"
+                  ></mat-slide-toggle>
+                  <p>{{ "gegevens.koppelen.brp" | translate }}</p>
+                </div>
+                <form
+                  [formGroup]="brpDoelbindingFormGroup"
+                  *ngIf="betrokkeneKoppelingen.controls.brpKoppelen.value"
+                >
+                  <p>
+                    {{
+                      "title.admin.parameters.step.brpDoelbinding" | translate
+                    }}
+                  </p>
+                  <section class="flex-col">
+                    <mat-form-field
+                      class="flex-1 w33 w100-md"
+                      floatLabel="always"
                     >
-                  </mat-select>
-                </mat-form-field>
-                <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
-                  <mat-label>{{
-                    "brpDoelbinding.raadpleegWaarde" | translate
-                  }}</mat-label>
-                  <mat-select
-                    placeholder="{{ 'resultaat.-kies-' | translate }}"
-                    [formControl]="
-                      brpDoelbindingFormGroup.controls.raadpleegWaarde
-                    "
-                  >
-                    <mat-option
-                      *ngFor="let value of brpConsultingValues"
-                      [value]="value"
-                      >{{ value }}</mat-option
+                      <mat-label>{{
+                        "brpDoelbinding.zoekWaarde" | translate
+                      }}</mat-label>
+                      <mat-select
+                        placeholder="{{ 'resultaat.-kies-' | translate }}"
+                        [formControl]="
+                          brpDoelbindingFormGroup.controls.zoekWaarde
+                        "
+                      >
+                        <mat-option
+                          *ngFor="let value of brpSearchValues"
+                          [value]="value"
+                          >{{ value }}</mat-option
+                        >
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field
+                      class="flex-1 w33 w100-md"
+                      floatLabel="always"
                     >
-                  </mat-select>
-                </mat-form-field>
-              </section>
-            </form>
-            <div class="flex-row items-center gap-8">
-              <mat-slide-toggle
-                formControlName="kvkKoppelen"
-                (click)="$event.stopPropagation()"
-                color="primary"
-              ></mat-slide-toggle>
-              <p>{{ "gegevens.koppelen.kvk" | translate }}</p>
-            </div>
-          </form>
-          <form [formGroup]="smartDocumentsEnabledForm" class="flex-col">
-            <div class="flex-row items-center">
-              <section class="flex-1">
-                <h2>
-                  {{ "title.smartdocuments.form" | translate }}
-                </h2>
-                <p>
-                  {{
-                    "title.admin.parameters.step.smart-documents" | translate
-                  }}
-                </p>
-              </section>
-              <mat-slide-toggle
-                formControlName="enabledForZaaktype"
-                (click)="$event.stopPropagation()"
-                color="primary"
-              ></mat-slide-toggle>
-            </div>
-          </form>
-          <mat-divider class="my-3"></mat-divider>
-          <smart-documents-form
-            *ngIf="smartDocumentsEnabledForm.get('enabledForZaaktype').value"
-            [zaakTypeUuid]="parameters.zaaktype.uuid"
-            #smartDocumentsFormRef
-          >
-          </smart-documents-form>
-          <div
-            *ngIf="!smartDocumentsEnabledForm.get('enabledForZaaktype').value"
-            class="form-disabled-feedback"
-          >
-            {{ "msg.smartdocuments.form.disabled" | translate }}
-          </div>
+                      <mat-label>{{
+                        "brpDoelbinding.raadpleegWaarde" | translate
+                      }}</mat-label>
+                      <mat-select
+                        placeholder="{{ 'resultaat.-kies-' | translate }}"
+                        [formControl]="
+                          brpDoelbindingFormGroup.controls.raadpleegWaarde
+                        "
+                      >
+                        <mat-option
+                          *ngFor="let value of brpConsultingValues"
+                          [value]="value"
+                          >{{ value }}</mat-option
+                        >
+                      </mat-select>
+                    </mat-form-field>
+                  </section>
+                </form>
+                <div class="flex-row items-center gap-8">
+                  <mat-slide-toggle
+                    formControlName="kvkKoppelen"
+                    (click)="$event.stopPropagation()"
+                    color="primary"
+                  ></mat-slide-toggle>
+                  <p>{{ "gegevens.koppelen.kvk" | translate }}</p>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+          <mat-card>
+            <mat-card-content>
+              <form [formGroup]="smartDocumentsEnabledForm" class="flex-col">
+                <div class="flex-row items-center">
+                  <section class="flex-1">
+                    <h2>
+                      {{ "title.smartdocuments.form" | translate }}
+                    </h2>
+                    <p>
+                      {{
+                        "title.admin.parameters.step.smart-documents"
+                          | translate
+                      }}
+                    </p>
+                  </section>
+                  <mat-slide-toggle
+                    formControlName="enabledForZaaktype"
+                    (click)="$event.stopPropagation()"
+                    color="primary"
+                  ></mat-slide-toggle>
+                </div>
+              </form>
+              <mat-divider class="my-3"></mat-divider>
+              <smart-documents-form
+                *ngIf="
+                  smartDocumentsEnabledForm.get('enabledForZaaktype').value
+                "
+                [zaakTypeUuid]="parameters.zaaktype.uuid"
+                #smartDocumentsFormRef
+              >
+              </smart-documents-form>
+              <div
+                *ngIf="
+                  !smartDocumentsEnabledForm.get('enabledForZaaktype').value
+                "
+                class="form-disabled-feedback"
+              >
+                {{ "msg.smartdocuments.form.disabled" | translate }}
+              </div>
+            </mat-card-content>
+          </mat-card>
           <div class="button-group flex-row flex-wrap">
             <button mat-raised-button matStepperPrevious>
               {{ "actie.terug" | translate }}
