@@ -9,6 +9,7 @@ import org.flowable.engine.delegate.DelegateExecution
 import java.util.logging.Logger
 
 class PostDelegate : AbstractDelegate() {
+    // set by Flowable
     private lateinit var template: FixedValue
 
     companion object {
@@ -16,7 +17,9 @@ class PostDelegate : AbstractDelegate() {
     }
 
     override fun execute(delegateExecution: DelegateExecution) {
-        LOG.info("Verstuur per post besluit van zaak '${getZaakIdentificatie(delegateExecution)}' via " +
-                "${PostDelegate::class.java.simpleName} met template '${template.expressionText}'.")
+        LOG.info(
+            "Verstuur per post besluit van zaak '${getZaakIdentificatie(delegateExecution)}' via " +
+                "${PostDelegate::class.java.simpleName} met template '${template.expressionText}'."
+        )
     }
 }
