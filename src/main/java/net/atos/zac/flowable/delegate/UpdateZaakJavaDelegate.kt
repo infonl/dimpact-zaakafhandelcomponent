@@ -2,48 +2,43 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.flowable.delegate;
+package net.atos.zac.flowable.delegate
 
-import java.util.logging.Logger;
+import net.atos.zac.flowable.FlowableHelper
+import org.flowable.engine.delegate.DelegateExecution
+import org.flowable.engine.impl.el.FixedValue
+import java.util.logging.Logger
 
-import org.flowable.engine.delegate.DelegateExecution;
-import org.flowable.engine.impl.el.FixedValue;
-
-import net.atos.zac.flowable.FlowableHelper;
-
-public class UpdateZaakJavaDelegate extends AbstractDelegate {
-    private static final Logger LOG = Logger.getLogger(UpdateZaakJavaDelegate.class.getName());
-    private static final String TOELICHTING = "Aangepast vanuit proces";
+class UpdateZaakJavaDelegate : AbstractDelegate() {
+    /**
+     * Set by the Flowable runtime
+     */
+    private lateinit var statustypeOmschrijving: FixedValue
 
     /**
-     * Is set by the Flowable runtime
+     * Set by the Flowable runtime
      */
-    @SuppressWarnings("UnusedDeclaration")
-    private FixedValue statustypeOmschrijving;
+    private val resultaattypeOmschrijving: FixedValue? = null
 
-    /**
-     * Is set by the Flowable runtime
-     */
-    @SuppressWarnings("UnusedDeclaration")
-    private FixedValue resultaattypeOmschrijving;
+    companion object {
+        private val LOG: Logger = Logger.getLogger(UpdateZaakJavaDelegate::class.java.name)
 
-    @Override
-    public void execute(final DelegateExecution execution) {
-        final var flowableHelper = FlowableHelper.getInstance();
-        final var zaak = flowableHelper.getZrcClientService().readZaakByID(getZaakIdentificatie(execution));
+        private const val TOELICHTING = "Aangepast vanuit proces"
+    }
+
+    override fun execute(execution: DelegateExecution) {
+        val flowableHelper = FlowableHelper.getInstance()
+        val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
 
         if (resultaattypeOmschrijving != null) {
-            final var resultaattypeOmschrijving = this.resultaattypeOmschrijving.getExpressionText();
-            LOG.info("Zaak '%s': Aanmaken Status met resultaattype omschrijving '%s'"
-                    .formatted(zaak.getUuid(), resultaattypeOmschrijving));
-            flowableHelper.getZgwApiService().createResultaatForZaak(zaak, resultaattypeOmschrijving, TOELICHTING);
+            val resultaattypeOmschrijving = this.resultaattypeOmschrijving.expressionText
+            LOG.info("Zaak '${zaak.getUuid()}': Aanmaken Status met resultaattype omschrijving " +
+                    "'$resultaattypeOmschrijving'")
+            flowableHelper.zgwApiService.createResultaatForZaak(zaak, resultaattypeOmschrijving, TOELICHTING)
         }
 
-        if (statustypeOmschrijving != null) {
-            final var statustypeOmschrijving = this.statustypeOmschrijving.getExpressionText();
-            LOG.info("Zaak '%s': Aanmaken Status met statustype omschrijving '%s'"
-                    .formatted(zaak.getUuid(), statustypeOmschrijving));
-            flowableHelper.getZgwApiService().createStatusForZaak(zaak, statustypeOmschrijving, TOELICHTING);
-        }
+        val statustypeOmschrijving = this.statustypeOmschrijving.expressionText
+        LOG.info("Zaak '${zaak.getUuid()}': Aanmaken Status met statustype omschrijving '$statustypeOmschrijving'")
+        flowableHelper.zgwApiService.createStatusForZaak(zaak, statustypeOmschrijving, TOELICHTING)
     }
 }
