@@ -576,7 +576,7 @@
   "zaak.koppelen.label.-kies-": "-- Kies een soort koppeling --",
   "zaak.koppelen.link.type.HOOFDZAAK": "Deelzaak koppelen aan hoofdzaak",
   "zaak.koppelen.link.type.DEELZAAK": "Hoofdzaak koppelen aan deelzaak",
-  "zaak.koppelen.link.type.GERELATEERD": "Deze zaak relateren aan andere zaak",
+  "zaak.koppelen.link.type.OVERIG": "Deze zaak relateren aan andere zaak",
   "zaak.koppelen.uitleg": "Koppel zaak '{{ zaakID }}' aan een andere zaak",
   "zaak.koppelen.hint.hoofdzaak-aan-deelzaak": "De zaak die je hier zoekt wordt de hoofdzaak",
   "zaak.koppelen.hint.deelzaak-aan-hoofdzaak": "De zaak die je hier zoekt wordt de deelzaak",

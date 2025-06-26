@@ -57,7 +57,6 @@ class ZaakKoppelenRestService @Inject constructor(
 
     @GET
     @Path("{zaakUuid}/zoek-koppelbare-zaken")
-    @Suppress("UnusedParameter")
     fun findLinkableZaken(
         @PathParam("zaakUuid") zaakUuid: UUID,
         @QueryParam("zoekZaakIdentifier") zoekZaakIdentifier: String,
@@ -118,11 +117,24 @@ class ZaakKoppelenRestService @Inject constructor(
         targetZaak: ZaakZoekObject,
         relationType: RelatieType
     ) =
-        (areBothOpen(sourceZaak, targetZaak) || areBothClosed(sourceZaak, targetZaak)) &&
+        checkForStatus(sourceZaak, targetZaak, relationType) &&
             sourceZaak.hasLinkRights() &&
             targetZaak.hasLinkRights() &&
             sourceZaak.isLinkableTo(targetZaak, relationType) &&
             targetZaak.hasMatchingZaaktypeWith(sourceZaak, relationType)
+
+    private fun checkForStatus(
+        sourceZaak: Zaak,
+        targetZaak: ZaakZoekObject,
+        relationType: RelatieType
+    ) = when (relationType) {
+        RelatieType.HOOFDZAAK -> areBothOpen(sourceZaak, targetZaak) || areBothClosed(sourceZaak, targetZaak)
+        RelatieType.DEELZAAK -> areBothOpen(sourceZaak, targetZaak) || areBothClosed(sourceZaak, targetZaak)
+        RelatieType.OVERIG -> true
+        else -> throw UnsupportedOperationException(
+            "Unsupported link type: $relationType for ${sourceZaak.identificatie} -> ${targetZaak.identificatie}"
+        )
+    }
 
     private fun areBothOpen(sourceZaak: Zaak, targetZaak: ZaakZoekObject) =
         sourceZaak.isOpen() && targetZaak.archiefNominatie == null
@@ -149,6 +161,7 @@ class ZaakKoppelenRestService @Inject constructor(
                 !this.isDeelzaak() && !targetZaak.isIndicatie(DEELZAAK) &&
                     // a hoofdzaak cannot be both a hoofdzaak and a deelzaak
                     !targetZaak.isIndicatie(HOOFDZAAK)
+            RelatieType.OVERIG -> true
             else -> throw UnsupportedOperationException(
                 "Unsupported link type: $relationType for ${this.identificatie} -> ${targetZaak.identificatie}"
             )
@@ -172,6 +185,7 @@ class ZaakKoppelenRestService @Inject constructor(
                         it.toString().contains(uuid)
                     }
                 } ?: false
+            RelatieType.OVERIG -> true
             else -> throw UnsupportedOperationException(
                 "Unsupported link type: $relationType for ${sourceZaak.identificatie} -> ${this.identificatie}"
             )
