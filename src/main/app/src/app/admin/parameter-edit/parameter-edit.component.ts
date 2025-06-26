@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024-2025 INFO.nl
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -132,6 +132,15 @@ export class ParameterEditComponent
   betrokkeneKoppelingen = new FormGroup({
     brpKoppelen: new FormControl(false),
     kvkKoppelen: new FormControl(false),
+  });
+
+  automatischeOntvangstbevestiging = new FormGroup({
+    active: new FormControl(false),
+  });
+  automatischeOntvangstbevestigingFormGroup = new FormGroup({
+    emailTemplate: new FormControl(""),
+    afzender: new FormControl(""),
+    replyTo: new FormControl(""),
   });
 
   mailOpties: {
@@ -273,7 +282,7 @@ export class ParameterEditComponent
     this.createUserEventListenerForm();
   }
 
-  getHumanTaskControl(
+  protected getHumanTaskControl(
     parameter: GeneratedType<"RESTHumanTaskParameters">,
     field: string,
   ): FormControl {
@@ -350,9 +359,11 @@ export class ParameterEditComponent
     this.createSmartDocumentsEnabledForm();
     this.createBetrokkeneKoppelingenForm();
     this.createBrpDoelbindingForm();
+    this.createAutomatischeOntvangsbevestiging();
+    this.createAutomatischeOntvangstbevestigingFormGroup();
   }
 
-  isHumanTaskParameterValid(
+  protected isHumanTaskParameterValid(
     humanTaskParameter: GeneratedType<"RESTHumanTaskParameters">,
   ) {
     return (
@@ -459,7 +470,7 @@ export class ParameterEditComponent
     this.initZaakAfzenders();
   }
 
-  createZaakbeeindigForm() {
+  private createZaakbeeindigForm() {
     this.zaakbeeindigFormGroup = this.formBuilder.group({});
     this.addZaakbeeindigParameter(
       this.getZaaknietontvankelijkParameter(this.parameters),
@@ -469,7 +480,7 @@ export class ParameterEditComponent
     }
   }
 
-  createBetrokkeneKoppelingenForm() {
+  private createBetrokkeneKoppelingenForm() {
     this.betrokkeneKoppelingen = this.formBuilder.group({
       kvkKoppelen: [
         this.parameters.betrokkeneKoppelingen?.kvkKoppelen ?? false,
@@ -498,7 +509,7 @@ export class ParameterEditComponent
     );
   }
 
-  createBrpDoelbindingForm() {
+  private createBrpDoelbindingForm() {
     this.brpDoelbindingFormGroup = this.formBuilder.group({
       raadpleegWaarde: [
         this.parameters.brpDoelbindingen.raadpleegWaarde ?? "",
@@ -515,13 +526,61 @@ export class ParameterEditComponent
     });
   }
 
-  createSmartDocumentsEnabledForm() {
+  private createAutomatischeOntvangsbevestiging() {
+    // @ts-expect-error ==== waiting for RESTZaak to be updated with latest contract
+    const { automatischeOntvangstbevestiging } = this.parameters;
+
+    this.automatischeOntvangstbevestiging = this.formBuilder.group({
+      active: [automatischeOntvangstbevestiging ?? false],
+    });
+
+    this.automatischeOntvangstbevestiging.controls.active.valueChanges.subscribe(
+      (value) => {
+        this.automatischeOntvangstbevestigingFormGroup.controls.emailTemplate.setValidators(
+          value ? [Validators.required] : [],
+        );
+        this.automatischeOntvangstbevestigingFormGroup.controls.afzender.setValidators(
+          value ? [Validators.required] : [],
+        );
+
+        this.automatischeOntvangstbevestigingFormGroup.updateValueAndValidity({
+          emitEvent: false,
+        });
+        if (value) return;
+
+        this.automatischeOntvangstbevestigingFormGroup.reset();
+      },
+    );
+  }
+
+  private createAutomatischeOntvangstbevestigingFormGroup() {
+    // @ts-expect-error ==== waiting for RESTZaak to be updated with latest contract
+    const { automatischeOntvangstbevestiging } = this.parameters;
+
+    this.automatischeOntvangstbevestigingFormGroup = this.formBuilder.group({
+      emailTemplate: [
+        automatischeOntvangstbevestiging?.emailTemplate ?? "",
+        this.automatischeOntvangstbevestiging.controls.active.value
+          ? [Validators.required]
+          : [],
+      ],
+      afzender: [
+        automatischeOntvangstbevestiging?.afzender ?? "",
+        this.automatischeOntvangstbevestiging.controls.active.value
+          ? [Validators.required]
+          : [],
+      ],
+      replyTo: [automatischeOntvangstbevestiging?.replyTo ?? ""],
+    });
+  }
+
+  private createSmartDocumentsEnabledForm() {
     this.smartDocumentsEnabledForm = this.formBuilder.group({
       enabledForZaaktype: this.parameters.smartDocuments.enabledForZaaktype,
     });
   }
 
-  isZaaknietontvankelijkParameter(
+  protected isZaaknietontvankelijkParameter(
     parameter: GeneratedType<"RESTZaakbeeindigParameter">,
   ) {
     return parameter.zaakbeeindigReden === undefined;
@@ -567,7 +626,7 @@ export class ParameterEditComponent
     return parameter;
   }
 
-  updateZaakbeeindigForm(
+  private updateZaakbeeindigForm(
     parameter: GeneratedType<"RESTZaakbeeindigParameter">,
   ) {
     const control = this.getZaakbeeindigControl(parameter, "beeindigResultaat");
@@ -579,7 +638,7 @@ export class ParameterEditComponent
     control?.updateValueAndValidity({ emitEvent: false });
   }
 
-  changeSelection(
+  protected changeSelection(
     $event: MatCheckboxChange,
     parameter: GeneratedType<"RESTZaakbeeindigParameter">,
   ): void {
@@ -611,7 +670,7 @@ export class ParameterEditComponent
       });
   }
 
-  addZaakAfzender(afzender: string): void {
+  protected addZaakAfzender(afzender: string): void {
     const zaakAfzender: GeneratedType<"RESTZaakAfzender"> & { index: number } =
       {
         speciaal: false,
@@ -631,13 +690,13 @@ export class ParameterEditComponent
     this.removeAfzender(afzender);
   }
 
-  updateZaakAfzenders(afzender: string): void {
+  protected updateZaakAfzenders(afzender: string): void {
     for (const zaakAfzender of this.parameters.zaakAfzenders) {
       zaakAfzender.defaultMail = zaakAfzender.mail === afzender;
     }
   }
 
-  removeZaakAfzender(afzender: string): void {
+  protected removeZaakAfzender(afzender: string): void {
     for (let i = 0; i < this.parameters.zaakAfzenders.length; i++) {
       const zaakAfzender = this.parameters.zaakAfzenders[i];
       if (zaakAfzender.mail === afzender) {
@@ -658,7 +717,7 @@ export class ParameterEditComponent
     );
   }
 
-  getZaakAfzenderControl(
+  protected getZaakAfzenderControl(
     zaakAfzender: GeneratedType<"RESTZaakAfzender"> & { index?: number },
     field: string,
   ) {
@@ -691,7 +750,7 @@ export class ParameterEditComponent
     }
   }
 
-  getZaakbeeindigControl(
+  protected getZaakbeeindigControl(
     parameter: GeneratedType<"RESTZaakbeeindigParameter">,
     field: string,
   ) {
@@ -700,18 +759,19 @@ export class ParameterEditComponent
     );
   }
 
-  isValid(): boolean {
+  protected isValid(): boolean {
     return (
       this.algemeenFormGroup.valid &&
       this.humanTasksFormGroup.valid &&
       this.zaakbeeindigFormGroup.valid &&
+      this.automatischeOntvangstbevestigingFormGroup.valid &&
       this.betrokkeneKoppelingen.valid &&
       this.brpDoelbindingFormGroup.valid &&
       this.isSmartDocumentsStepValid
     );
   }
 
-  opslaan() {
+  protected opslaan() {
     this.loading = true;
     this.parameters = {
       ...this.parameters,
@@ -831,6 +891,10 @@ export class ParameterEditComponent
 
     this.parameters.brpDoelbindingen = this.brpDoelbindingFormGroup.value;
 
+    // @ts-expect-error ==== waiting for RESTZaak to be updated with latest contract
+    this.parameters.automatischeOntvangstbevestiging =
+      this.automatischeOntvangstbevestigingFormGroup.value;
+
     this.zaakafhandelParametersService
       .updateZaakafhandelparameters(this.parameters)
       .subscribe({
@@ -866,9 +930,10 @@ export class ParameterEditComponent
     }
   }
 
-  compareObject = (a: unknown, b: unknown) => this.utilService.compare(a, b);
+  protected compareObject = (a: unknown, b: unknown) =>
+    this.utilService.compare(a, b);
 
-  formulierDefinitieChanged(
+  protected formulierDefinitieChanged(
     $event: MatSelectChange,
     humanTaskParameter: GeneratedType<"RESTHumanTaskParameters">,
   ): void {
@@ -879,7 +944,7 @@ export class ParameterEditComponent
     );
   }
 
-  getVeldDefinities(formulierDefinitieId: string) {
+  protected getVeldDefinities(formulierDefinitieId: string) {
     if (formulierDefinitieId) {
       return this.formulierDefinities.find((f) => f.id === formulierDefinitieId)
         ?.veldDefinities;
@@ -894,7 +959,15 @@ export class ParameterEditComponent
     );
   }
 
-  sanitizeNumericInput(value: number) {
+  private sanitizeNumericInput(value: number) {
     return parseInt(value?.toString(), 10);
+  }
+
+  protected showOntvangstbevestiging() {
+    return document.cookie
+      .split(";")
+      .some((c) => c.trim().startsWith("ontvangstbevestiging="))
+      ? true
+      : false;
   }
 }
