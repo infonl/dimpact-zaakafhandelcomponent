@@ -234,7 +234,7 @@ export class ZaakDocumentenComponent
             { document: informatieobject.titel },
           );
         }
-        const dialogData = new DialogData<unknown, { reden?: string }>({
+        const dialogData = new DialogData<unknown, { reden: string }>({
           formFields: [
             new TextareaFormFieldBuilder()
               .id("reden")
@@ -246,7 +246,7 @@ export class ZaakDocumentenComponent
           callback: ({ reden }) =>
             this.zakenService.ontkoppelInformatieObject({
               zaakUUID: this.zaak.uuid,
-              documentUUID: informatieobject.uuid,
+              documentUUID: informatieobject.uuid!,
               reden: reden,
             }),
           melding,
@@ -387,7 +387,7 @@ export class ZaakDocumentenComponent
   ) {
     this.informatieObjectenService
       .editEnkelvoudigInformatieObjectInhoud(
-        enkelvoudigInformatieobject.uuid,
+        enkelvoudigInformatieobject.uuid!,
         this.zaak?.uuid,
       )
       .subscribe((url) => {

@@ -42,7 +42,6 @@ import { DialogData } from "../../shared/dialog/dialog-data";
 import { DialogComponent } from "../../shared/dialog/dialog.component";
 import { ExpandableTableData } from "../../shared/dynamic-table/model/expandable-table-data";
 import { TextIcon } from "../../shared/edit/text-icon";
-import { HistorieRegel } from "../../shared/historie/model/historie-regel";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { ReadonlyFormFieldBuilder } from "../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
@@ -99,7 +98,7 @@ export class ZaakViewComponent
     "id",
   ] as const;
 
-  historie = new MatTableDataSource<HistorieRegel>();
+  historie = new MatTableDataSource<GeneratedType<"RestTaskHistoryLine">>();
   historieColumns = [
     "datum",
     "gebruiker",
@@ -109,7 +108,7 @@ export class ZaakViewComponent
     "nieuweWaarde",
     "toelichting",
   ] as const;
-  betrokkenen = new MatTableDataSource<ZaakBetrokkene>();
+  betrokkenen = new MatTableDataSource<GeneratedType<"RestZaakBetrokkene">>();
   betrokkenenColumns = [
     "roltype",
     "betrokkenegegevens",
@@ -265,9 +264,9 @@ export class ZaakViewComponent
     this.historie.sortingDataAccessor = (item, property) => {
       switch (property) {
         case "datum":
-          return item.datumTijd;
+          return String(item.datumTijd);
         case "gebruiker":
-          return item.door;
+          return (item as unknown as { door: string }).door;
         default:
           return String(item[property as keyof typeof item]);
       }
@@ -1041,12 +1040,12 @@ export class ZaakViewComponent
     this.allTakenExpanded = filter.length === 0;
   }
 
-  showAssignTaakToMe(taak: Taak): boolean {
-    return (
+  showAssignTaakToMe(taak: Taak) {
+    return Boolean(
       taak.status !== TaakStatus.Afgerond &&
-      taak.rechten.toekennen &&
-      this.loggedInUser.id !== taak.behandelaar?.id &&
-      (this.loggedInUser.groupIds ?? []).indexOf(taak.groep.id) >= 0
+        taak.rechten.toekennen &&
+        this.loggedInUser.id !== taak.behandelaar?.id &&
+        (this.loggedInUser.groupIds ?? []).indexOf(taak.groep.id) >= 0,
     );
   }
 
