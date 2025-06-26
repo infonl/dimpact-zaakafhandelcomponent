@@ -115,23 +115,22 @@ export class InformatieObjectLinkComponent
     if (!this.infoObject.informatieobjectTypeUUID) return;
 
     this.zoekenService
-      .listDocumentKoppelbareZaken(
-        this.caseSearchField?.formControl.value,
-        this.infoObject.informatieobjectTypeUUID,
-      )
-      .subscribe(
-        (result) => {
+      .listDocumentKoppelbareZaken({
+        zaakIdentificator: this.caseSearchField.formControl.value!,
+        informationObjectTypeUuid: this.infoObject.informatieobjectTypeUUID,
+      })
+      .subscribe({
+        next: (result) => {
           this.cases.data = result.resultaten;
-          this.totalCases = result.totaal;
+          this.totalCases = result.totaal ?? 0;
           this.loading = false;
           this.utilService.setLoading(false);
         },
-        () => {
-          // error handling
+        error: () => {
           this.loading = false;
           this.utilService.setLoading(false);
         },
-      );
+      });
   }
 
   selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
