@@ -267,7 +267,7 @@ jobs:
           WITH_V: true
           RELEASE_BRANCHES: main
           DRY_RUN: true
-          BRANCH_HISTORY: main
+          BRANCH_HISTORY: last
       - name: Get next version
         id: get-version
         uses: frabert/replace-string-action@b6828c5a4cb6371753ff873b0d1c4c4fbd9a63cb # v2.5
