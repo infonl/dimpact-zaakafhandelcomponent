@@ -134,6 +134,15 @@ export class ParameterEditComponent
     kvkKoppelen: new FormControl(false),
   });
 
+  automatischeOntvangstbevestiging = new FormGroup({
+    active: new FormControl(false),
+  });
+  automatischeOntvangstbevestigingFormGroup = new FormGroup({
+    emailTemplate: new FormControl(""),
+    afzender: new FormControl(""),
+    replyTo: new FormControl(""),
+  });
+
   mailOpties: {
     label: `statusmail.optie.${GeneratedType<"RESTZaakStatusmailOptie">}`;
     value: GeneratedType<"RESTZaakStatusmailOptie">;
@@ -350,6 +359,8 @@ export class ParameterEditComponent
     this.createSmartDocumentsEnabledForm();
     this.createBetrokkeneKoppelingenForm();
     this.createBrpDoelbindingForm();
+    this.createAutomatischeOntvangsbevestiging();
+    this.createAutomatischeOntvangstbevestigingFormGroup();
   }
 
   protected isHumanTaskParameterValid(
@@ -515,6 +526,59 @@ export class ParameterEditComponent
     });
   }
 
+  private createAutomatischeOntvangsbevestiging() {
+    // @ts-ignore ==== waiting for REstZaak to be updated
+    const { automatischeOntvangstbevestiging } = this.parameters;
+
+    this.automatischeOntvangstbevestiging = this.formBuilder.group({
+      active: [
+        !!(
+          automatischeOntvangstbevestiging.emailTemplate &&
+          automatischeOntvangstbevestiging.afzender
+        ),
+      ],
+    });
+
+    this.automatischeOntvangstbevestiging.controls.active.valueChanges.subscribe(
+      (value) => {
+        this.automatischeOntvangstbevestigingFormGroup.controls.emailTemplate.setValidators(
+          value ? [Validators.required] : [],
+        );
+        this.automatischeOntvangstbevestigingFormGroup.controls.afzender.setValidators(
+          value ? [Validators.required] : [],
+        );
+
+        this.automatischeOntvangstbevestigingFormGroup.updateValueAndValidity({
+          emitEvent: false,
+        });
+        if (value) return;
+
+        this.automatischeOntvangstbevestigingFormGroup.reset();
+      },
+    );
+  }
+
+  private createAutomatischeOntvangstbevestigingFormGroup() {
+    // @ts-ignore ==== waiting for REstZaak to be updated
+    const { automatischeOntvangstbevestiging } = this.parameters;
+
+    this.automatischeOntvangstbevestigingFormGroup = this.formBuilder.group({
+      emailTemplate: [
+        automatischeOntvangstbevestiging.emailTemplate ?? "",
+        this.automatischeOntvangstbevestiging.controls.active.value
+          ? [Validators.required]
+          : [],
+      ],
+      afzender: [
+        automatischeOntvangstbevestiging.afzender ?? "",
+        this.automatischeOntvangstbevestiging.controls.active.value
+          ? [Validators.required]
+          : [],
+      ],
+      replyTo: [automatischeOntvangstbevestiging.replyTo ?? ""],
+    });
+  }
+
   private createSmartDocumentsEnabledForm() {
     this.smartDocumentsEnabledForm = this.formBuilder.group({
       enabledForZaaktype: this.parameters.smartDocuments.enabledForZaaktype,
@@ -600,6 +664,7 @@ export class ParameterEditComponent
   }
 
   private loadZaakAfzenders() {
+    console.log("this.parameters.zaakAfzenders", this.parameters.zaakAfzenders);
     this.zaakAfzendersDataSource.data = this.parameters.zaakAfzenders
       .slice()
       .sort((a, b) => {
@@ -705,6 +770,7 @@ export class ParameterEditComponent
       this.algemeenFormGroup.valid &&
       this.humanTasksFormGroup.valid &&
       this.zaakbeeindigFormGroup.valid &&
+      this.automatischeOntvangstbevestigingFormGroup.valid &&
       this.betrokkeneKoppelingen.valid &&
       this.brpDoelbindingFormGroup.valid &&
       this.isSmartDocumentsStepValid
@@ -830,6 +896,10 @@ export class ParameterEditComponent
     };
 
     this.parameters.brpDoelbindingen = this.brpDoelbindingFormGroup.value;
+
+    // @ts-ignore ==== waiting for REstZaak to be updated
+    this.parameters.automatischeOntvangstbevestiging =
+      this.automatischeOntvangstbevestigingFormGroup.value;
 
     this.zaakafhandelParametersService
       .updateZaakafhandelparameters(this.parameters)
