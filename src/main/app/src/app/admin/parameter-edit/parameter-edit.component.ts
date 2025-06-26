@@ -528,15 +528,10 @@ export class ParameterEditComponent
 
   private createAutomatischeOntvangsbevestiging() {
     // @ts-ignore ==== waiting for REstZaak to be updated
-    const { automatischeOntvangstbevestiging } = this.parameters;
+    const { automatischeOntvangstbevstiging } = this.parameters;
 
     this.automatischeOntvangstbevestiging = this.formBuilder.group({
-      active: [
-        !!(
-          automatischeOntvangstbevestiging.emailTemplate &&
-          automatischeOntvangstbevestiging.afzender
-        ),
-      ],
+      active: [automatischeOntvangstbevstiging ?? false],
     });
 
     this.automatischeOntvangstbevestiging.controls.active.valueChanges.subscribe(
@@ -560,22 +555,22 @@ export class ParameterEditComponent
 
   private createAutomatischeOntvangstbevestigingFormGroup() {
     // @ts-ignore ==== waiting for REstZaak to be updated
-    const { automatischeOntvangstbevestiging } = this.parameters;
+    const { automatischeOntvangstbevstiging } = this.parameters;
 
     this.automatischeOntvangstbevestigingFormGroup = this.formBuilder.group({
       emailTemplate: [
-        automatischeOntvangstbevestiging.emailTemplate ?? "",
+        automatischeOntvangstbevstiging.emailTemplate ?? "",
         this.automatischeOntvangstbevestiging.controls.active.value
           ? [Validators.required]
           : [],
       ],
       afzender: [
-        automatischeOntvangstbevestiging.afzender ?? "",
+        automatischeOntvangstbevstiging.afzender ?? "",
         this.automatischeOntvangstbevestiging.controls.active.value
           ? [Validators.required]
           : [],
       ],
-      replyTo: [automatischeOntvangstbevestiging.replyTo ?? ""],
+      replyTo: [automatischeOntvangstbevstiging.replyTo ?? ""],
     });
   }
 
@@ -897,7 +892,7 @@ export class ParameterEditComponent
 
     this.parameters.brpDoelbindingen = this.brpDoelbindingFormGroup.value;
 
-    // @ts-ignore ==== waiting for REstZaak to be updated
+    // @ts-ignore
     this.parameters.automatischeOntvangstbevestiging =
       this.automatischeOntvangstbevestigingFormGroup.value;
 
