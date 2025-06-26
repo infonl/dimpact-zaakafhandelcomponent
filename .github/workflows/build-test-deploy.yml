@@ -281,6 +281,8 @@ jobs:
           echo "Next version tag: ${{ github.ref == 'refs/heads/main' && steps.get-tag-main.outputs.new_tag || steps.get-tag-non-main.outputs.new_tag }}"
       - name: Comment next version on PR
         if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh pr comment ${{ github.event.pull_request.number }} --body ":tada: The next version will be ${{ steps.get-version.outputs.replaced }}"
 
