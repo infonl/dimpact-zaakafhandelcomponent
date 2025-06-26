@@ -14,8 +14,6 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { TranslateService } from "@ngx-translate/core";
 import { Observable, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { Mail } from "../../admin/model/mail";
-import { Mailtemplate } from "../../admin/model/mailtemplate";
 import { UtilService } from "../../core/service/util.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
@@ -36,7 +34,7 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
   sendMailDefault = false;
   formGroup: FormGroup;
   besluitVastleggen = false;
-  mailtemplate?: Mailtemplate;
+  mailtemplate?: GeneratedType<"RESTMailtemplate">;
   planItem: GeneratedType<"RESTPlanItem">;
   initiatorEmail?: string;
   initiatorToevoegenIcon = new ActionIcon(
@@ -68,7 +66,7 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
       this.data.zaak.uuid,
     );
     this.mailtemplateService
-      .findMailtemplate(Mail.ZAAK_AFGEHANDELD, this.data.zaak.uuid)
+      .findMailtemplate("ZAAK_AFGEHANDELD", this.data.zaak.uuid)
       .subscribe((mailtemplate) => {
         this.mailtemplate = mailtemplate;
       });

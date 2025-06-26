@@ -1,13 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
-import { Observable } from "rxjs";
 import { MailtemplateBeheerService } from "./mailtemplate-beheer.service";
-import { Mailtemplate } from "./model/mailtemplate";
 
 @Injectable({
   providedIn: "root",
@@ -15,7 +13,7 @@ import { Mailtemplate } from "./model/mailtemplate";
 export class MailtemplateResolver {
   constructor(private service: MailtemplateBeheerService) {}
 
-  resolve(route: ActivatedRouteSnapshot): Observable<Mailtemplate> {
+  resolve(route: ActivatedRouteSnapshot) {
     const id = route.paramMap.get("id");
 
     if (!id) {
@@ -24,6 +22,6 @@ export class MailtemplateResolver {
       );
     }
 
-    return this.service.readMailtemplate(id);
+    return this.service.readMailtemplate(Number(id));
   }
 }

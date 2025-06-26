@@ -33,10 +33,7 @@ import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { FormulierDefinitie } from "../model/formulier-definitie";
 import { FormulierVeldDefinitie } from "../model/formulier-veld-definitie";
 import { HumanTaskReferentieTabel } from "../model/human-task-referentie-tabel";
-import {
-  MailtemplateKoppelingMail,
-  MailtemplateKoppelingMailUtil,
-} from "../model/mailtemplate-koppeling-mail";
+import { getBeschikbareMailtemplateKoppelingen } from "../model/mail-utils";
 import { ReferentieTabel } from "../model/referentie-tabel";
 import { ReplyTo } from "../model/replyto";
 import { ReferentieTabelService } from "../referentie-tabel.service";
@@ -92,8 +89,7 @@ export class ParameterEditComponent
   zaakAfzendersDataSource = new MatTableDataSource<
     GeneratedType<"RESTZaakAfzender">
   >();
-  mailtemplateKoppelingen =
-    MailtemplateKoppelingMailUtil.getBeschikbareMailtemplateKoppelingen();
+  mailtemplateKoppelingen = getBeschikbareMailtemplateKoppelingen();
 
   algemeenFormGroup = this.formBuilder.group({
     caseDefinition:
@@ -288,7 +284,7 @@ export class ParameterEditComponent
   }
 
   getMailtemplateKoppelingControl(
-    koppeling: MailtemplateKoppelingMail,
+    koppeling: GeneratedType<"Mail">,
     field: string,
   ) {
     const formGroup = this.mailFormGroup.get(koppeling);
@@ -892,7 +888,7 @@ export class ParameterEditComponent
     }
   }
 
-  getBeschikbareMailtemplates(mailtemplate: MailtemplateKoppelingMail) {
+  getBeschikbareMailtemplates(mailtemplate: GeneratedType<"Mail">) {
     return this.mailtemplates.filter(
       (template) => template.mail === mailtemplate,
     );
