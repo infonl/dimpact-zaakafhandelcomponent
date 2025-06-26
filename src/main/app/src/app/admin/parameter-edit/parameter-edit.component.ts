@@ -528,10 +528,10 @@ export class ParameterEditComponent
 
   private createAutomatischeOntvangsbevestiging() {
     // @ts-ignore ==== waiting for RESTZaak to be updated with latest contract
-    const { automatischeOntvangstbevstiging } = this.parameters;
+    const { automatischeOntvangstbevestiging } = this.parameters;
 
     this.automatischeOntvangstbevestiging = this.formBuilder.group({
-      active: [automatischeOntvangstbevstiging ?? false],
+      active: [automatischeOntvangstbevestiging ?? false],
     });
 
     this.automatischeOntvangstbevestiging.controls.active.valueChanges.subscribe(
@@ -555,22 +555,22 @@ export class ParameterEditComponent
 
   private createAutomatischeOntvangstbevestigingFormGroup() {
     // @ts-ignore ==== waiting for RESTZaak to be updated with latest contract
-    const { automatischeOntvangstbevstiging } = this.parameters;
+    const { automatischeOntvangstbevestiging } = this.parameters;
 
     this.automatischeOntvangstbevestigingFormGroup = this.formBuilder.group({
       emailTemplate: [
-        automatischeOntvangstbevstiging?.emailTemplate ?? "",
+        automatischeOntvangstbevestiging?.emailTemplate ?? "",
         this.automatischeOntvangstbevestiging.controls.active.value
           ? [Validators.required]
           : [],
       ],
       afzender: [
-        automatischeOntvangstbevstiging?.afzender ?? "",
+        automatischeOntvangstbevestiging?.afzender ?? "",
         this.automatischeOntvangstbevestiging.controls.active.value
           ? [Validators.required]
           : [],
       ],
-      replyTo: [automatischeOntvangstbevstiging?.replyTo ?? ""],
+      replyTo: [automatischeOntvangstbevestiging?.replyTo ?? ""],
     });
   }
 
