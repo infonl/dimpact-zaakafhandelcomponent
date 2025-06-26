@@ -976,6 +976,8 @@ export class ParameterEditComponent
   protected hasCookieToShowOntvangstbevestiging() {
     return document.cookie
       .split(";")
-      .some((c) => c.trim().startsWith("ontvangstbevestiging="));
+      .some((c) => c.trim().startsWith("ontvangstbevestiging="))
+      ? true
+      : false;
   }
 }
