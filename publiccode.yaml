@@ -10,8 +10,8 @@ publiccodeYmlVersion: "0.4"
 
 name: Dimpact Zaakafhandelcomponent (ZAC)
 url: "git://github.com/infonl/dimpact-zaakafhandelcomponent.git"
-softwareVersion: "v3.7.91"
-releaseDate: "2025-06-10T13:21:27.000Z"
+softwareVersion: "v3.9.1"
+releaseDate: "2025-06-25T12:29:41.000Z"
 
 platforms:
 - web
