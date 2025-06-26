@@ -44,6 +44,7 @@ object ItestConfiguration {
     const val BPMN_TEST_PROCESS_ID = "itProcessDefinition"
     const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_ID.bpmn"
     const val BPMN_TEST_FORM_RESOURCE_PATH = "bpmn/testForm.json"
+    const val BPMN_SUMMARY_FORM_RESOURCE_PATH = "bpmn/summaryForm.json"
     const val BRON_ORGANISATIE = "123443210"
     const val CONFIG_MAX_FILE_SIZE_IN_MB = 80L
     const val CONFIG_GEMEENTE_CODE = "9999"
@@ -53,7 +54,8 @@ object ItestConfiguration {
     const val DOMEIN_TEST_1 = "domein_test_1"
     const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
-    const val BPMN_TASK_NAAM = "Test form"
+    const val BPMN_TEST_TASK_NAAM = "Test form"
+    const val BPMN_SUMMARY_TASK_NAAM = "Summary form"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING = "bijlage"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
     const val INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING = "factuur"

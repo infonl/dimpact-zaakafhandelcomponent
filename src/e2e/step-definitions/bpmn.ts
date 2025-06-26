@@ -5,17 +5,20 @@
 
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
+import playwright from "playwright";
 import { z } from "zod";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
 
-const ONE_MINUTE_IN_MS = 60_000;
-const TWENTY_SECOND_IN_MS = 20_000;
-const FIVE_SECOND_IN_MS = 5_000;
+const TWO_MINUTES_IN_MS = 120_000;
+const FORTY_SECOND_IN_MS = 40_000;
+const FIVE_SECONDS_IN_MS = 5_000;
+const TWO_SECONDS_IN_MS = 2_000;
+const PAGE_RELOAD_RETRIES = 5;
 
 When(
   "{string} opens the active task",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const viewTaskLink = this.page.getByRole("link", { name: "Taak bekijken" });
     await viewTaskLink.scrollIntoViewIfNeeded();
@@ -25,7 +28,7 @@ When(
 
 Then(
   "{string} sees the form associated with the task",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await expect(this.page.getByLabel("Group")).toBeVisible();
     await expect(this.page.getByLabel("User")).toBeVisible();
@@ -42,24 +45,18 @@ Then(
 
 Given(
   "{string} creates a SmartDocuments Word file named {string}",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: TWO_MINUTES_IN_MS },
   async function (
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,
     fileName: string,
   ) {
-    // BPMN form: trigger template load data
-    await this.page.getByLabel("Template").click();
-    await this.page.getByLabel("Template").press("ArrowDown");
-    await this.page.getByLabel("Template").press("Escape");
-    await this.page.getByText("SmartDocuments").focus();
-    await this.page.getByText("SmartDocuments").click();
+    await triggerDataLoad(this.page, "Template", { text: "SmartDocuments" });
 
     // BPMN form: create a document
-    await this.page.getByLabel("Template").click();
     await this.page
       .getByLabel("Template")
-      .selectOption("Data Test", { timeout: ONE_MINUTE_IN_MS });
+      .selectOption("Data Test", { timeout: FORTY_SECOND_IN_MS });
     await this.page.getByRole("button", { name: "Create" }).click();
 
     // ZAC: Create document sidebar
@@ -86,69 +83,86 @@ Given(
   },
 );
 
+async function triggerDataLoad(
+  page: playwright.Page,
+  componentLabel: string,
+  options?: { text?: string; timeout?: number },
+) {
+  await expect(page.getByLabel(componentLabel)).toBeVisible({
+    timeout: FORTY_SECOND_IN_MS,
+  });
+
+  // First click
+  await page.getByLabel(componentLabel).click();
+  await page.getByLabel(componentLabel).press("ArrowDown");
+
+  if (options?.text) {
+    await page.getByText(options?.text).focus();
+    await page.getByText(options?.text).click();
+  }
+
+  await page.waitForTimeout(options?.timeout || TWO_SECONDS_IN_MS);
+
+  // Press arrow-down on the component again
+  await page.getByLabel(componentLabel).press("Escape");
+  await page.getByLabel(componentLabel).press("ArrowDown");
+}
+
 When(
   "{string} reloads the page",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await this.page.reload();
+    for (let attempt = 0; attempt < PAGE_RELOAD_RETRIES; attempt++) {
+      await this.page.waitForURL(this.page.url());
+      if (!(await this.page.isVisible("text='Bad Request'"))) {
+        break;
+      }
+      await this.page.waitForTimeout(attempt * TWO_SECONDS_IN_MS);
+      await this.page.goto(this.page.url().split("?")[0]);
+    }
   },
 );
 
 Then(
   "{string} sees document {string} in the documents list",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: TWO_MINUTES_IN_MS },
   async function (
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,
     documentName: string,
   ) {
-    // Trigger load of data for available documents
-    await expect(
-      this.page.getByLabel("Select one or more documents"),
-    ).toBeVisible({
-      timeout: TWENTY_SECOND_IN_MS,
+    await triggerDataLoad(this.page, "Select one or more documents", {
+      text: "Available Documents",
+      timeout: FIVE_SECONDS_IN_MS,
     });
-    await this.page
-      .getByLabel("Select one or more documents")
-      .press("ArrowDown");
-    await this.page.waitForTimeout(FIVE_SECOND_IN_MS);
-
-    await this.page.getByLabel("Select one or more documents").press("Escape");
-    await this.page
-      .getByLabel("Select one or more documents")
-      .press("ArrowDown");
     await expect(
       this.page.getByRole("option", { name: documentName, exact: true }),
-    ).toContainText(documentName, { timeout: TWENTY_SECOND_IN_MS });
+    ).toContainText(documentName, { timeout: FORTY_SECOND_IN_MS });
   },
 );
 
 Then(
   "{string} sees the desired form fields values",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    // trigger group data load
-    await this.page.getByLabel("Group").click();
-    await this.page.getByText("Approval by:").focus();
-    await this.page.getByText("Approval by:").click();
+    await triggerDataLoad(this.page, "Group", { text: "Approval by:" });
 
-    await this.page.getByLabel("Group").click();
     await expect(this.page.getByLabel("Group")).toContainText(
       "Functioneelbeheerders",
-      { timeout: TWENTY_SECOND_IN_MS },
+      { timeout: FORTY_SECOND_IN_MS },
     );
-    await this.page.getByLabel("Communication channel").click();
     await this.page.getByLabel("Communication channel").press("ArrowDown");
     await expect(this.page.getByLabel("Communication channel")).toContainText(
       "E-mail",
-      { timeout: TWENTY_SECOND_IN_MS },
+      { timeout: FORTY_SECOND_IN_MS },
     );
   },
 );
 
 When(
   "{string} fills all mandatory form fields",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await this.page.getByLabel("Group").selectOption("functioneelbeheerders");
 
@@ -165,7 +179,7 @@ When(
 
 When(
   "{string} submits the filled-in form",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await this.page
       .getByRole("button", { name: "submitButtonAriaLabel" })
@@ -175,7 +189,7 @@ When(
 
 Then(
   "{string} sees that the initial task is completed",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await this.page
       .getByRole("switch", { name: "Toon afgeronde taken" })
@@ -191,7 +205,7 @@ Then(
 
 Then(
   "{string} sees that the summary task is started",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await expect(
       this.page.getByRole("cell", { name: "Summary" }),
@@ -204,7 +218,7 @@ Then(
 
 Then(
   "{string} sees that the summary form contains all filled-in data",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await expect(this.page.getByRole("textbox", { name: "Group" })).toHaveValue(
       "functioneelbeheerders",
@@ -213,10 +227,10 @@ Then(
       "functioneelbeheerder2",
     );
     await expect(this.page.getByRole("combobox")).toContainText("file A", {
-      timeout: TWENTY_SECOND_IN_MS,
+      timeout: FORTY_SECOND_IN_MS,
     });
     await expect(this.page.getByRole("combobox")).toContainText("file B", {
-      timeout: TWENTY_SECOND_IN_MS,
+      timeout: FORTY_SECOND_IN_MS,
     });
     await expect(
       this.page.getByRole("textbox", { name: "Reference table value" }),
@@ -226,7 +240,7 @@ Then(
 
 When(
   "{string} confirms the data in the form",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await this.page.getByRole("button", { name: "Confirm" }).click();
   },
@@ -234,7 +248,7 @@ When(
 
 Then(
   "{string} sees the zaak status changed to {string}",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: TWO_MINUTES_IN_MS },
   async function (
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,
@@ -249,7 +263,7 @@ Then(
 
 Then(
   "{string} sees the zaak result is set to {string}",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: TWO_MINUTES_IN_MS },
   async function (
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,

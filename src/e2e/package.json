@@ -2,8 +2,8 @@
   "name": "app",
   "version": "0.0.1",
   "engines": {
-    "node": "22.16.0",
-    "npm": "10.9.2"
+    "node": "22.17.0",
+    "npm": "10.9.3"
   },
   "scripts": {
     "e2e:run": "./node_modules/.bin/cucumber-js -p default",
@@ -20,7 +20,7 @@
     "zod": "3.25.67"
   },
   "devDependencies": {
-    "@types/node": "22.15.32",
+    "@types/node": "22.15.33",
     "@playwright/test": "1.53.1",
     "cucumber-html-reporter": "7.2.0",
     "cucumber-pretty": "6.0.1",
