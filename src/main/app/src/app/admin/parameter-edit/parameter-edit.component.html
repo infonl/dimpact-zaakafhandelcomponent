@@ -355,7 +355,10 @@
       </mat-step>
       <mat-step
         [stepControl]="mailFormGroup"
-        [hasError]="mailFormGroup.invalid"
+        [hasError]="
+          mailFormGroup.invalid ||
+          !automatischeOntvangstbevestigingFormGroup.valid
+        "
       >
         <ng-template matStepLabel>{{
           "gegevens.mail" | translate
