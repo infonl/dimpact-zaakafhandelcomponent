@@ -582,8 +582,6 @@
                 <mat-card-title>
                   {{ "gegevens.mail.ontvangstbevestiging" | translate }}
                 </mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
                 <form
                   class="flex-col gap-12"
                   [formGroup]="automatischeOntvangstbevestiging"
@@ -594,95 +592,94 @@
                       (click)="$event.stopPropagation()"
                       color="primary"
                     ></mat-slide-toggle>
-                    <p>{{ "REMOVE" | translate }}</p>
                   </div>
-                  <form
-                    [formGroup]="automatischeOntvangstbevestigingFormGroup"
-                    *ngIf="
-                      automatischeOntvangstbevestiging.controls.active.value
-                    "
-                  >
-                    <section class="flex-col">
-                      <mat-form-field
-                        class="flex-1 w33 w100-md"
-                        floatLabel="always"
+                </form>
+              </mat-card-header>
+              <mat-card-content>
+                <form
+                  [formGroup]="automatischeOntvangstbevestigingFormGroup"
+                  *ngIf="automatischeOntvangstbevestiging.controls.active.value"
+                >
+                  <section class="flex-col">
+                    <mat-form-field
+                      class="flex-1 w33 w100-md"
+                      floatLabel="always"
+                    >
+                      <mat-label>{{
+                        "title.mailtemplate" | translate
+                      }}</mat-label>
+                      <mat-select
+                        placeholder="{{ 'mailtemplate.-kies-' | translate }}"
+                        [formControl]="
+                          automatischeOntvangstbevestigingFormGroup.controls
+                            .emailTemplate
+                        "
                       >
-                        <mat-label>{{
-                          "title.mailtemplate" | translate
-                        }}</mat-label>
-                        <mat-select
-                          placeholder="{{ 'mailtemplate.-kies-' | translate }}"
-                          [formControl]="
-                            automatischeOntvangstbevestigingFormGroup.controls
-                              .emailTemplate
+                        <mat-option
+                          *ngFor="
+                            let template of getBeschikbareMailtemplates(
+                              'TAAK_ONTVANGSTBEVESTIGING'
+                            )
                           "
+                          [value]="template.mailTemplateNaam"
+                          >{{ template.mailTemplateNaam }}</mat-option
                         >
-                          <mat-option
-                            *ngFor="
-                              let template of getBeschikbareMailtemplates(
-                                'TAAK_ONTVANGSTBEVESTIGING'
-                              )
-                            "
-                            [value]="template.mailTemplateNaam"
-                            >{{ template.mailTemplateNaam }}</mat-option
-                          >
-                        </mat-select>
-                      </mat-form-field>
-                      <mat-form-field
-                        class="flex-1 w33 w100-md"
-                        floatLabel="always"
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field
+                      class="flex-1 w33 w100-md"
+                      floatLabel="always"
+                    >
+                      <mat-label>{{ "mail.afzender" | translate }}</mat-label>
+                      <mat-select
+                        placeholder="{{ 'verzender.-kies-' | translate }}"
+                        [formControl]="
+                          automatischeOntvangstbevestigingFormGroup.controls
+                            .afzender
+                        "
                       >
-                        <mat-label>{{ "mail.afzender" | translate }}</mat-label>
-                        <mat-select
-                          placeholder="{{ 'verzender.-kies-' | translate }}"
-                          [formControl]="
-                            automatischeOntvangstbevestigingFormGroup.controls
-                              .afzender
-                          "
+                        <mat-option
+                          *ngFor="let replyTo of replyTos"
+                          [value]="replyTo.mail"
                         >
-                          <mat-option
-                            *ngFor="let replyTo of replyTos"
-                            [value]="replyTo.mail"
-                          >
-                            {{
-                              replyTo.speciaal
-                                ? ("gegevens.mail.afzender." + replyTo.mail
-                                  | translate)
-                                : replyTo.mail
-                            }}
-                          </mat-option>
-                        </mat-select>
-                      </mat-form-field>
-                      <mat-form-field
-                        class="flex-1 w33 w100-md"
-                        floatLabel="always"
+                          {{
+                            replyTo.speciaal
+                              ? ("gegevens.mail.afzender." + replyTo.mail
+                                | translate)
+                              : replyTo.mail
+                          }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field
+                      class="flex-1 w33 w100-md"
+                      floatLabel="always"
+                    >
+                      <mat-label>{{ "mail.antwoord" | translate }}</mat-label>
+                      <mat-select
+                        placeholder="{{ 'verzender.-geen-' | translate }}"
+                        [formControl]="
+                          automatischeOntvangstbevestigingFormGroup.controls
+                            .replyTo
+                        "
                       >
-                        <mat-label>{{ "mail.antwoord" | translate }}</mat-label>
-                        <mat-select
-                          placeholder="{{ 'verzender.-geen-' | translate }}"
-                          [formControl]="
-                            automatischeOntvangstbevestigingFormGroup.controls
-                              .replyTo
-                          "
+                        <mat-option>{{
+                          "verzender.-geen-" | translate
+                        }}</mat-option>
+                        <mat-option
+                          *ngFor="let replyTo of replyTos"
+                          [value]="replyTo.mail"
                         >
-                          <mat-option>{{
-                            "verzender.-geen-" | translate
-                          }}</mat-option>
-                          <mat-option
-                            *ngFor="let replyTo of replyTos"
-                            [value]="replyTo.mail"
-                          >
-                            {{
-                              replyTo.speciaal
-                                ? ("gegevens.mail.afzender." + replyTo.mail
-                                  | translate)
-                                : replyTo.mail
-                            }}
-                          </mat-option>
-                        </mat-select>
-                      </mat-form-field>
-                    </section>
-                  </form>
+                          {{
+                            replyTo.speciaal
+                              ? ("gegevens.mail.afzender." + replyTo.mail
+                                | translate)
+                              : replyTo.mail
+                          }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </section>
                 </form>
               </mat-card-content>
             </mat-card>

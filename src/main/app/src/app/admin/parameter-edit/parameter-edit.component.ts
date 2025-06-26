@@ -559,18 +559,18 @@ export class ParameterEditComponent
 
     this.automatischeOntvangstbevestigingFormGroup = this.formBuilder.group({
       emailTemplate: [
-        automatischeOntvangstbevstiging.emailTemplate ?? "",
+        automatischeOntvangstbevstiging?.emailTemplate ?? "",
         this.automatischeOntvangstbevestiging.controls.active.value
           ? [Validators.required]
           : [],
       ],
       afzender: [
-        automatischeOntvangstbevstiging.afzender ?? "",
+        automatischeOntvangstbevstiging?.afzender ?? "",
         this.automatischeOntvangstbevestiging.controls.active.value
           ? [Validators.required]
           : [],
       ],
-      replyTo: [automatischeOntvangstbevstiging.replyTo ?? ""],
+      replyTo: [automatischeOntvangstbevstiging?.replyTo ?? ""],
     });
   }
 
@@ -659,7 +659,6 @@ export class ParameterEditComponent
   }
 
   private loadZaakAfzenders() {
-    console.log("this.parameters.zaakAfzenders", this.parameters.zaakAfzenders);
     this.zaakAfzendersDataSource.data = this.parameters.zaakAfzenders
       .slice()
       .sort((a, b) => {
