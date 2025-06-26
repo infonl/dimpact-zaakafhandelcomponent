@@ -123,8 +123,8 @@
             </section>
           </fieldset>
 
-          <div class="flex-row gap-10 ml-3 mt-3">
-            <mat-icon color="warn">warning</mat-icon>
+          <div class="flex-row items-center gap-10 ml-3 mt-3">
+            <mat-icon color="warn" class="pr-3">warning</mat-icon>
             <small>{{
               "msg.zaakafhandelparameters.waarschuwing" | translate
             }}</small>
@@ -577,7 +577,7 @@
                 </mat-accordion>
               </mat-card-content>
             </mat-card>
-            <mat-card *ngIf="hasCookieToShowOntvangstbevestiging()">
+            <mat-card *ngIf="showOntvangstbevestiging()">
               <mat-card-header class="space-between mr-2 mb-2">
                 <mat-card-title>
                   {{ "gegevens.mail.ontvangstbevestiging" | translate }}

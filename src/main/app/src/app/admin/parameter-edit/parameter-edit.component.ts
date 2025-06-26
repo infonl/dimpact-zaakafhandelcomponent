@@ -964,16 +964,6 @@ export class ParameterEditComponent
   }
 
   protected showOntvangstbevestiging() {
-    if (
-      document.cookie
-        .split(";")
-        .some((c) => c.trim().startsWith("showOntvangstbevestiging="))
-    ) {
-      return true;
-    }
-  }
-
-  protected hasCookieToShowOntvangstbevestiging() {
     return document.cookie
       .split(";")
       .some((c) => c.trim().startsWith("ontvangstbevestiging="))
