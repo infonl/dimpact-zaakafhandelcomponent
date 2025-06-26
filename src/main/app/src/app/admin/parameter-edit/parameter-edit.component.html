@@ -577,7 +577,7 @@
                 </mat-accordion>
               </mat-card-content>
             </mat-card>
-            <mat-card>
+            <mat-card *ngIf="hasCookieToShowOntvangstbevestiging()">
               <mat-card-header class="space-between mr-2 mb-2">
                 <mat-card-title>
                   {{ "gegevens.mail.ontvangstbevestiging" | translate }}

@@ -972,4 +972,10 @@ export class ParameterEditComponent
       return true;
     }
   }
+
+  protected hasCookieToShowOntvangstbevestiging() {
+    return document.cookie
+      .split(";")
+      .some((c) => c.trim().startsWith("ontvangstbevestiging="));
+  }
 }
