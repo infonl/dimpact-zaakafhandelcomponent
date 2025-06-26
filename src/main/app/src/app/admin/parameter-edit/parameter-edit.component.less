@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO
  * SPDX-License-Identifier: EUPL-1.2+
  */
+@import "../../../variables";
 
 mat-card {
   margin: 6px 0;
@@ -42,4 +43,10 @@ mat-expansion-panel-header {
 
 .form-disabled-feedback {
   margin: 10px 0;
+}
+
+.form-bevestiging {
+  @media screen and (min-width: @xl) {
+    max-width: 50%;
+  }
 }
