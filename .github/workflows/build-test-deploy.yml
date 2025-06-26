@@ -254,6 +254,7 @@ jobs:
           DEFAULT_BUMP: ${{ needs.validate-input.outputs.version-bump }}
           WITH_V: true
           RELEASE_BRANCHES: main
+          BRANCH_HISTORY: last
       # If not on main, Determine the next semantic version based on the commit message tags without pushing tags`
       - name: Get next tag on non-main
         id: get-tag-non-main
@@ -262,10 +263,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PRERELEASE: false
-          DEFAULT_BUMP: patch
+          DEFAULT_BUMP: ${{ needs.validate-input.outputs.version-bump }}
           WITH_V: true
           RELEASE_BRANCHES: main
           DRY_RUN: true
+          BRANCH_HISTORY: main
       - name: Get next version
         id: get-version
         uses: frabert/replace-string-action@b6828c5a4cb6371753ff873b0d1c4c4fbd9a63cb # v2.5
