@@ -527,7 +527,7 @@ export class ParameterEditComponent
   }
 
   private createAutomatischeOntvangsbevestiging() {
-    // @ts-ignore ==== waiting for RESTZaak to be updated with latest contract
+    // @ts-expect-error ==== waiting for RESTZaak to be updated with latest contract
     const { automatischeOntvangstbevestiging } = this.parameters;
 
     this.automatischeOntvangstbevestiging = this.formBuilder.group({
@@ -554,7 +554,7 @@ export class ParameterEditComponent
   }
 
   private createAutomatischeOntvangstbevestigingFormGroup() {
-    // @ts-ignore ==== waiting for RESTZaak to be updated with latest contract
+    // @ts-expect-error ==== waiting for RESTZaak to be updated with latest contract
     const { automatischeOntvangstbevestiging } = this.parameters;
 
     this.automatischeOntvangstbevestigingFormGroup = this.formBuilder.group({
@@ -891,7 +891,7 @@ export class ParameterEditComponent
 
     this.parameters.brpDoelbindingen = this.brpDoelbindingFormGroup.value;
 
-    // @ts-ignore ==== waiting for RESTZaak to be updated with latest contract
+    // @ts-expect-error ==== waiting for RESTZaak to be updated with latest contract
     this.parameters.automatischeOntvangstbevestiging =
       this.automatischeOntvangstbevestigingFormGroup.value;
 
