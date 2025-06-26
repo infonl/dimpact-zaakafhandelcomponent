@@ -7,16 +7,14 @@ import { Component, OnInit, ViewChild } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
-import { TranslateService } from "@ngx-translate/core";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
-import { IdentityService } from "../../identity/identity.service";
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
-import { ReferentieTabel } from "../model/referentie-tabel";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 
 @Component({
@@ -32,16 +30,13 @@ export class ReferentieTabellenComponent
 
   isLoadingResults = false;
   columns: string[] = ["code", "systeem", "naam", "waarden", "id"];
-  dataSource: MatTableDataSource<ReferentieTabel> =
-    new MatTableDataSource<ReferentieTabel>();
+  dataSource = new MatTableDataSource<GeneratedType<"RestReferenceTable">>();
 
   constructor(
     public dialog: MatDialog,
     public utilService: UtilService,
     public configuratieService: ConfiguratieService,
-    private identityService: IdentityService,
     private service: ReferentieTabelService,
-    private translate: TranslateService,
   ) {
     super(utilService, configuratieService);
   }
@@ -59,7 +54,9 @@ export class ReferentieTabellenComponent
     });
   }
 
-  verwijderReferentieTabel(referentieTabel: ReferentieTabel): void {
+  verwijderReferentieTabel(
+    referentieTabel: GeneratedType<"RestReferenceTable">,
+  ): void {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
@@ -67,7 +64,7 @@ export class ReferentieTabellenComponent
             key: "msg.tabel.verwijderen.bevestigen",
             args: { tabel: referentieTabel.code },
           },
-          this.service.deleteReferentieTabel(referentieTabel.id),
+          this.service.deleteReferentieTabel(referentieTabel.id!),
         ),
       })
       .afterClosed()
