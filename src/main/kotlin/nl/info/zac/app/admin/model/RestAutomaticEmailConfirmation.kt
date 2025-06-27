@@ -29,7 +29,9 @@ fun AutomaticEmailConfirmation.toRestAutomaticEmailConfirmation(): RestAutomatic
         emailReply = this@toRestAutomaticEmailConfirmation.emailReply
     }
 
-fun RestAutomaticEmailConfirmation.toAutomaticEmailConfirmation(zaakafhandelParameters: ZaakafhandelParameters): AutomaticEmailConfirmation =
+fun RestAutomaticEmailConfirmation.toAutomaticEmailConfirmation(
+    zaakafhandelParameters: ZaakafhandelParameters
+): AutomaticEmailConfirmation =
     AutomaticEmailConfirmation().apply {
         id = this@toAutomaticEmailConfirmation.id
         enabled = this@toAutomaticEmailConfirmation.enabled
