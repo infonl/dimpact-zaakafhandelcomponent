@@ -27,7 +27,7 @@ class ZacClient {
         brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
         brpDoelbindingenRaadpleegWaarde: String = "BRPACT-Totaal",
         automaticEmailConfirmationSender: String = "sender@info.nl",
-        automaticEmailConfirmationReply: String = "reply@info.nl"
+        automaticEmailConfirmationReply: String = "reply@info.nl",
     ): Response {
         logger.info {
             "Creating zaakafhandelparameters in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
