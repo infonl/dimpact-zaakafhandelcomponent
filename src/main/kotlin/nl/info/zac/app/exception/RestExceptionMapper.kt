@@ -42,6 +42,7 @@ import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.log.log
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
+import nl.info.zac.zaak.exception.CaseWithADecisionCannotBeTerminatedException
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException
@@ -111,6 +112,11 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             exception is ServerErrorException -> generateResponse(
                 responseStatus = Response.Status.INTERNAL_SERVER_ERROR,
                 errorCode = exception.errorCode,
+                exception = exception
+            )
+            exception is CaseWithADecisionCannotBeTerminatedException -> generateResponse(
+                responseStatus = Response.Status.BAD_REQUEST,
+                errorCode = ErrorCode.ERROR_CODE_CASE_WITH_DECISION_CANNOT_BE_TERMINATION,
                 exception = exception
             )
             // fall back to generic server error

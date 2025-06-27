@@ -19,7 +19,6 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import jakarta.ws.rs.BadRequestException
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.atos.client.or.`object`.ObjectsClientService
@@ -126,6 +125,7 @@ import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.test.date.toDate
 import nl.info.zac.zaak.ZaakService
+import nl.info.zac.zaak.exception.CaseWithADecisionCannotBeTerminatedException
 import org.apache.http.HttpStatus
 import org.flowable.task.api.Task
 import java.io.ByteArrayInputStream
@@ -1003,7 +1003,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         every { zrcClientService.readZaak(zaakUuid) } returns zaak
 
-        shouldThrow<BadRequestException> {
+        shouldThrow<CaseWithADecisionCannotBeTerminatedException> {
             zaakRestService.terminateZaak(
                 zaakUuid,
                 RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)
