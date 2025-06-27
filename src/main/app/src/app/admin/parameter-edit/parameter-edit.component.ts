@@ -882,20 +882,15 @@ export class ParameterEditComponent
 
     this.parameters.brpDoelbindingen = this.brpDoelbindingFormGroup.value;
 
+    const { templateName, emailSender, emailReply, enabled } =
+      this.automatischeOntvangstbevestigingFormGroup.value;
     this.parameters.automaticEmailConfirmation = {
-      templateName:
-        this.automatischeOntvangstbevestigingFormGroup.value.templateName
-          ?.mailTemplateNaam ?? null,
-      emailReply:
-        this.automatischeOntvangstbevestigingFormGroup.value.emailReply?.mail ??
-        null,
-      emailSender:
-        this.automatischeOntvangstbevestigingFormGroup.value.emailSender
-          ?.mail ?? null,
-      enabled: Boolean(
-        this.automatischeOntvangstbevestigingFormGroup.value.enabled,
-      ),
+      templateName: templateName?.mailTemplateNaam ?? null,
+      emailReply: emailReply?.mail ?? null,
+      emailSender: emailSender?.mail ?? null,
+      enabled: Boolean(enabled),
     };
+    console.log(this.parameters.automaticEmailConfirmation);
 
     this.zaakafhandelParametersService
       .updateZaakafhandelparameters(this.parameters)

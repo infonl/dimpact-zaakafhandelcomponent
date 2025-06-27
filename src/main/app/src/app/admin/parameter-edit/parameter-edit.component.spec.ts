@@ -52,8 +52,8 @@ describe(ParameterEditComponent.name, () => {
     smartDocuments: {},
     brpDoelbindingen: {},
     automaticEmailConfirmation: {
-      enabled: false
-    }
+      enabled: false,
+    },
   });
 
   beforeEach(async () => {
