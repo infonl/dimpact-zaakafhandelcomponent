@@ -51,6 +51,9 @@ describe(ParameterEditComponent.name, () => {
     zaakAfzenders: [],
     smartDocuments: {},
     brpDoelbindingen: {},
+    automaticEmailConfirmation: {
+      enabled: false
+    }
   });
 
   beforeEach(async () => {
