@@ -18,7 +18,7 @@ data class RestAutomaticEmailConfirmation(
 fun AutomaticEmailConfirmation.toRestAutomaticEmailConfirmation(): RestAutomaticEmailConfirmation =
     RestAutomaticEmailConfirmation().apply {
         id = this@toRestAutomaticEmailConfirmation.id
-        enabled = this@toRestAutomaticEmailConfirmation.isEnabled
+        enabled = this@toRestAutomaticEmailConfirmation.enabled
         templateName = this@toRestAutomaticEmailConfirmation.templateName
         emailSender = this@toRestAutomaticEmailConfirmation.emailSender
         emailReply = this@toRestAutomaticEmailConfirmation.emailReply

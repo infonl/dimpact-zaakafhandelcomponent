@@ -68,7 +68,7 @@ public class AutomaticEmailConfirmation {
         this.zaakafhandelParameters = zaakafhandelParameters;
     }
 
-    public boolean isEnabled() {
+    public boolean getEnabled() {
         return enabled;
     }
 
