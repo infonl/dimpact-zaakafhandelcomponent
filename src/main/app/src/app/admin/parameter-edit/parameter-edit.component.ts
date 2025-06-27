@@ -364,7 +364,6 @@ export class ParameterEditComponent
     this.createSmartDocumentsEnabledForm();
     this.createBetrokkeneKoppelingenForm();
     this.createBrpDoelbindingForm();
-    // this.createAutomatischeOntvangsbevestiging();
     this.createAutomatischeOntvangstbevestigingForm();
   }
 
