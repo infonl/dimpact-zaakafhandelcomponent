@@ -224,7 +224,7 @@ class ZacClient {
                 "enabled": true,
                 "templateName": "Ontvangstbevestiging",
                 "emailSender": "$automaticEmailConfirmationSender",
-                "emailReply": "$automaticEmailConfirmationReply",
+                "emailReply": "$automaticEmailConfirmationReply"
               }
             }
             """.trimIndent()
