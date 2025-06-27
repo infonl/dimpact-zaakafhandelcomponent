@@ -19,6 +19,7 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import jakarta.ws.rs.BadRequestException
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.atos.client.or.`object`.ObjectsClientService
@@ -988,6 +989,31 @@ class ZaakRestServiceTest : BehaviorSpec({
                     cmmnService.terminateCase(zaak.uuid)
                 }
             }
+        }
+    }
+
+    Given("A zaak with a decision cannot be terminated. A bad request is returned") {
+        val zaakUuid = UUID.randomUUID()
+        val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+        val zaak = createZaak(
+            uuid = zaakUuid,
+            zaakTypeURI = zaakType.url,
+            resultaat = URI("https://example.com/${UUID.randomUUID()}")
+        )
+
+        every { zrcClientService.readZaak(zaakUuid) } returns zaak
+
+        shouldThrow<BadRequestException> {
+            zaakRestService.terminateZaak(
+                zaakUuid,
+                RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)
+            )
+        }
+
+        verify(exactly = 0) {
+            zgwApiService.createResultaatForZaak(any(), any<UUID>(), any())
+            zgwApiService.endZaak(any<Zaak>(), any())
+            cmmnService.terminateCase(any())
         }
     }
 

@@ -640,6 +640,9 @@ class ZaakRestService @Inject constructor(
         afbrekenGegevens: RESTZaakAfbrekenGegevens
     ) {
         val zaak = zrcClientService.readZaak(zaakUUID)
+        if (zaak.resultaat != null) {
+            throw BadRequestException("De zaak kan niet afgebroken worden als er een besluit aan hangt.")
+        }
         val statustype = if (zaak.status != null) {
             ztcClientService.readStatustype(
                 zrcClientService.readStatus(zaak.status).statustype
