@@ -10,8 +10,8 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { DatumRange } from "../../zoeken/model/datum-range";
 
 export class ZaakafhandelParametersListParameters extends ListParameters {
-  valide: ToggleSwitchOptions = ToggleSwitchOptions.INDETERMINATE;
-  geldig: ToggleSwitchOptions = ToggleSwitchOptions.INDETERMINATE;
+  valide: ToggleSwitchOptions = ToggleSwitchOptions.CHECKED;
+  geldig: ToggleSwitchOptions = ToggleSwitchOptions.CHECKED;
   zaaktype: Partial<GeneratedType<"RestZaaktype">> | null = null;
   caseDefinition: Partial<GeneratedType<"RESTCaseDefinition">> | null = null;
   beginGeldigheid = new DatumRange();
