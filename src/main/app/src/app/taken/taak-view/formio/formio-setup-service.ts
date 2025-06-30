@@ -83,11 +83,10 @@ export class FormioSetupService {
       fn();
     } catch (err) {
       const errorMessage =
-          err instanceof Error ? err.message : "Unknown initialization error";
+        err instanceof Error ? err.message : "Unknown initialization error";
       this.utilService.handleFormIOInitError(context, errorMessage);
     }
   }
-
 
   private initializeGroepMedewerkerFieldsetComponent(
     fieldsetComponent: ExtendedComponentSchema,
