@@ -120,6 +120,7 @@ import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakService
+import nl.info.zac.zaak.exception.CaseWithADecisionCannotBeTerminatedException
 import org.apache.commons.collections4.CollectionUtils
 import java.net.URI
 import java.time.LocalDate
@@ -640,6 +641,11 @@ class ZaakRestService @Inject constructor(
         afbrekenGegevens: RESTZaakAfbrekenGegevens
     ) {
         val zaak = zrcClientService.readZaak(zaakUUID)
+        if (zaak.resultaat != null) {
+            throw CaseWithADecisionCannotBeTerminatedException(
+                "De zaak kan niet afgebroken worden als er een besluit aan hangt."
+            )
+        }
         val statustype = if (zaak.status != null) {
             ztcClientService.readStatustype(
                 zrcClientService.readStatus(zaak.status).statustype

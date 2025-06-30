@@ -828,6 +828,7 @@
   "msg.error.case.has.open.subcases": "This case has open subcases and cannot be closed.",
   "msg.error.case.has.locked.information.objects": "This case has locked documents and cannot be closed.",
   "msg.error.case.has.no.communication.channel": "The case has no communication channel.",
+  "msg.error.case.has.decision.cannot.be.terminated": "The case cannot be terminated because a decision is already linked to it.",
   "msg.error.convert.not.possible": "This document cannot be converted.",
   "msg.email.verstuurd": "E-mail has been sent",
   "msg.extern.advies.vastleggen.behandelen": "An external advice has been requested. The answer can be recorded below.",
