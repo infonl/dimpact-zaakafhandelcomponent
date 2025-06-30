@@ -147,7 +147,7 @@
                 <div
                   class="detail flex-col"
                   [@detailExpand]="
-                    row == expandedRow ? 'expanded' : 'collapsed'
+                    row === expandedRow ? 'expanded' : 'collapsed'
                   "
                 >
                   <div *ngIf="!row.zaakafhandelParametersValide">
@@ -179,10 +179,10 @@
                   <div *ngIf="!row.resultaattypeAanwezig">
                     {{ "resultaattype" | translate }}
                   </div>
-                  <div *ngIf="!row.rolInitiatorAanwezig">
+                  <div *ngIf="row.aantalInitiatorrollen < 1">
                     {{ "rol" | translate }}
                   </div>
-                  <div *ngIf="!row.rolBehandelaarAanwezig">
+                  <div *ngIf="row.aantalBehandelaarrollen < 1">
                     {{ "rol" | translate }}
                   </div>
                   <div *ngIf="!row.rolOverigeAanwezig">
@@ -211,7 +211,7 @@
                 <div
                   class="detail flex-col"
                   [@detailExpand]="
-                    row == expandedRow ? 'expanded' : 'collapsed'
+                    row === expandedRow ? 'expanded' : 'collapsed'
                   "
                 >
                   <div *ngIf="!row.zaakafhandelParametersValide">
@@ -267,15 +267,27 @@
                         | translate
                     }}
                   </div>
-                  <div *ngIf="!row.rolInitiatorAanwezig">
+                  <div *ngIf="row.aantalInitiatorrollen < 1">
                     {{
                       "healthCheck.zaaktype.geenRolInitiatorAanwezig"
                         | translate
                     }}
                   </div>
-                  <div *ngIf="!row.rolBehandelaarAanwezig">
+                  <div *ngIf="row.aantalBehandelaarrollen < 1">
                     {{
                       "healthCheck.zaaktype.geenRolBehandelaarAanwezig"
+                        | translate
+                    }}
+                  </div>
+                  <div *ngIf="row.aantalInitiatorrollen > 1">
+                    {{
+                      "healthCheck.zaaktype.teVeelRolInitiatorAanwezig"
+                        | translate
+                    }}
+                  </div>
+                  <div *ngIf="row.aantalBehandelaarrollen > 1">
+                    {{
+                      "healthCheck.zaaktype.teVeelRolBehandelaarAanwezig"
                         | translate
                     }}
                   </div>

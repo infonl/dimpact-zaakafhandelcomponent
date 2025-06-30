@@ -21,8 +21,8 @@ class ZaaktypeInrichtingscheck(val zaaktype: ZaakType) {
     var isStatustypeAfgerondAanwezig: Boolean = false
     var isStatustypeAfgerondLaatsteVolgnummer: Boolean = false
     var isResultaattypeAanwezig: Boolean = false
-    var isRolInitiatorAanwezig: Boolean = false
-    var isRolBehandelaarAanwezig: Boolean = false
+    var aantalInitiatorrollen: Int = 0
+    var aantalBehandelaarrollen: Int = 0
     var isRolOverigeAanwezig: Boolean = false
     var isInformatieobjecttypeEmailAanwezig: Boolean = false
     var isBesluittypeAanwezig: Boolean = false
@@ -41,8 +41,8 @@ class ZaaktypeInrichtingscheck(val zaaktype: ZaakType) {
             this.isStatustypeAfgerondAanwezig &&
             this.isStatustypeAfgerondLaatsteVolgnummer &&
             this.isStatustypeAanvullendeInformatieVereist &&
-            this.isRolInitiatorAanwezig &&
-            this.isRolBehandelaarAanwezig &&
+            this.aantalInitiatorrollen == 1 &&
+            this.aantalBehandelaarrollen == 1 &&
             this.isRolOverigeAanwezig &&
             this.isInformatieobjecttypeEmailAanwezig &&
             this.isResultaattypeAanwezig &&

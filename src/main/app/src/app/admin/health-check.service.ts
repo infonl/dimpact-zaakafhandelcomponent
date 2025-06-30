@@ -8,8 +8,8 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { BuildInformatie } from "./model/build-informatie";
-import { ZaaktypeInrichtingscheck } from "./model/zaaktype-inrichtingscheck";
 
 @Injectable({
   providedIn: "root",
@@ -22,9 +22,13 @@ export class HealthCheckService {
 
   private basepath = "/rest/health-check";
 
-  listZaaktypeInrichtingschecks(): Observable<ZaaktypeInrichtingscheck[]> {
+  listZaaktypeInrichtingschecks(): Observable<
+    GeneratedType<"RESTZaaktypeInrichtingscheck">[]
+  > {
     return this.http
-      .get<ZaaktypeInrichtingscheck[]>(`${this.basepath}/zaaktypes`)
+      .get<
+        GeneratedType<"RESTZaaktypeInrichtingscheck">[]
+      >(`${this.basepath}/zaaktypes`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
