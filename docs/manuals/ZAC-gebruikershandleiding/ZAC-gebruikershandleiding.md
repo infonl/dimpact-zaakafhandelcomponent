@@ -3,37 +3,37 @@
 <div style="page-break-after: always"></div>
 
 
-***
 > **Colofon** <br>
-> Datum : 12-6-2025 <br>
-> Versie :   1.6.6 <br>
-> Verandering : ZAC v3.8 Handleiding <br>
+> Datum :30-6-2025 <br>
+> Versie :   1.6.7 <br>
+> Verandering : ZAC v3.9 Handleiding <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
 > Redacteur : Karin Masselink <br>
 > Auteur(s) : Roy Buis, Camiel Braun <br>
-****
+
 
 Versiegeschiedenis:
 
-| 0.1   | Initiële versie                                                                                                                            |
+| 0.1   | Initiële versie |
 |-------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| 0.2   | Update nav sprints opgeleverd op 30-11-2022, 14-12-2022, 11-1-2023, 25-1-2023                                                              |
+| 0.2   | Update nav sprints opgeleverd op 30-11-2022, 14-12-2022, 11-1-2023, 25-1-2023  |
 | 1.0   | Update nav sprints opgeleverd op 9-2-2023 en 23-2-2023<br><br>Heropenen zaak, Zaak koppelen, Werking van de taak: Advies extern toegevoegd |
-| 1.1   | Update nav sprints opgeleverd op 8-3-2023 en 22-3-2023                                                                                     |
-| 1.2   | Update nav sprints opgeleverd op 5-4-2023 en 19-4-2023                                                                                     |
-| 1.3   | Update nav sprints opgeleverd op 3-5-2023 en 31-5-2023                                                                                     |
-| 1.4   | Update format wijziging en redigeerwerk van 29-8-2023                                                                                      |
-| 1.5   | Update nav sprints opgeleverd van 10-2023 tot 27-05-2024                                                                                   |
-| 1.5.1 | Update zoekfunctie bedrijf en rechtspersoon                                                                                                |
-| 1.6.0 | Gebruikershandleiding geconverteerd naar Markdown                                                                                          |
+| 1.1   | Update nav sprints opgeleverd op 8-3-2023 en 22-3-2023 |
+| 1.2   | Update nav sprints opgeleverd op 5-4-2023 en 19-4-2023 |
+| 1.3   | Update nav sprints opgeleverd op 3-5-2023 en 31-5-2023 |
+| 1.4   | Update format wijziging en redigeerwerk van 29-8-2023|
+| 1.5   | Update nav sprints opgeleverd van 10-2023 tot 27-05-2024 |
+| 1.5.1 | Update zoekfunctie bedrijf en rechtspersoon 
+| 1.6.0 | Gebruikershandleiding geconverteerd naar Markdown |
 | 1.6.1 | Toevoeging indicaties voor personen |
 | 1.6.2 | Laatste veranderingen tekstueel verwerkt; opschorten, verlengen en andere kleine aanpassingen |
 | 1.6.3 | Screendumps vernieuwd naar aanleiding van menu en detailveld, en kleine tekstuele aanpassingen |
-| 1.6.4 | Nieuwe screendumps, koppeling aanpassingen tekstueel verwerkt
-| 1.6.5 | Aanpassingen locatie scherm en werking verwerkt
-| 1.6.6 | ZAC v3.8 Handleiding
+| 1.6.4 | Nieuwe screendumps, koppeling aanpassingen tekstueel verwerkt |
+| 1.6.5 | Aanpassingen locatie scherm en werking verwerkt |
+| 1.6.6 | ZAC v3.8 Handleiding |
+| 1.6.7 | ZAC v3.9 Handleiding |
 
 <div style="page-break-after: always"></div>
 
@@ -297,7 +297,7 @@ Vanuit de werklijst kan met de productaanvraag via de ‘Zaak aanmaken’ functi
 
 # Werk verdelen
 
-Vanuit de Zaken-werkvoorraad en Taken-werkvoorraad kunnen items verdeeld worden naar een groep en/of naar een behandelaar. Op deze manier kan alleen een Coördinator de werkvoorraad managen en het werk verdelen binnen de organisatie.
+Vanuit de Zaken-werkvoorraad en Taken-werkvoorraad kunnen items verdeeld worden naar een groep en eventueel ook een behandelaar. Op deze manier kan alleen een Coördinator de werkvoorraad managen en het werk verdelen binnen de organisatie.
 
 ## Werking van verdelen
 
@@ -314,6 +314,7 @@ Als de Zaken-werkvoorraad of Taken-werkvoorraad geopend is dan kan de verdeelfun
 
 4 Kies de groep en/of de behandelaar aan wie de items toegekend moeten worden. Er kan alleen een behandelaar gekozen worden die bij de gekozen groep hoort.
 ![Kies groep en / of behandelaar](./images/kies-groep-en-of-behandelaar.png)
+> De telling in de verdelen of vrijgeven keuzekoppen geven een realistisch getal van de te verdelen of vrij te geven zaken of taken.
 
 5 Vul eventueel een reden in, deze wordt als toelichting gebruikt in de historie van de zaak
 
@@ -405,6 +406,7 @@ Als je klaar bent met aanpassen dan sluit je het schuifje weer om de aanpassinge
 ZAC heeft de mogelijkheid om een nieuwe zaak aan te maken. De zaak wordt daarna beschikbaar om te behandelen.
 
 Een nieuwe zaak starten kan door op de ‘Zaak aanmaken’ map icoon boven in de werkbalk te klikken. In het scherm dat opent worden alle verplichte zaakgegevens ingevuld. Bij het aanmaken van een nieuwe zaak kan de persoon of het bedrijf die de initiator van de zaak is direct aan de zaak toegevoegd worden.  
+> De initiator is niet altijd toe te voegen, dit is per zaaktype 
 
 **Stappen**
 
