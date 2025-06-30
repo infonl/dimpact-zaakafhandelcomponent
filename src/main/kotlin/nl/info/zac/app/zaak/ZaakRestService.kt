@@ -643,7 +643,7 @@ class ZaakRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUUID)
         zaak.resultaat?.run {
             throw CaseWithADecisionCannotBeTerminatedException(
-                "De zaak kan niet afgebroken worden als er een besluit aan hangt."
+                "The zaak with UUID '${zaak.uuid}' cannot be terminated because a decision is already added to it."
             )
         }
         val statustype = if (zaak.status != null) {
