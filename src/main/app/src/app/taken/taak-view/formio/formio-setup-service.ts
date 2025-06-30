@@ -56,25 +56,38 @@ export class FormioSetupService {
     components: ExtendedComponentSchema[] | undefined,
   ): void {
     components?.forEach((component) => {
-      switch (component.type) {
-        case "groepMedewerkerFieldset":
-          this.initializeGroepMedewerkerFieldsetComponent(component);
-          break;
-        case "smartDocumentsFieldset":
-          this.initializeSmartDocumentsFieldsetComponent(component);
-          break;
-        case "referenceTableFieldset":
-          this.initializeReferenceTableFieldsetComponent(component);
-          break;
-        case "documentsFieldset":
-          this.initializeAvailableDocumentsFieldsetComponent(component);
-          break;
-      }
-      if ("components" in component) {
-        this.initializeSpecializedFormioComponents(component.components);
-      }
+      this.safeInit(component.key ?? component.type, () => {
+        switch (component.type) {
+          case "groepMedewerkerFieldset":
+            this.initializeGroepMedewerkerFieldsetComponent(component);
+            break;
+          case "smartDocumentsFieldset":
+            this.initializeSmartDocumentsFieldsetComponent(component);
+            break;
+          case "referenceTableFieldset":
+            this.initializeReferenceTableFieldsetComponent(component);
+            break;
+          case "documentsFieldset":
+            this.initializeAvailableDocumentsFieldsetComponent(component);
+            break;
+        }
+        if ("components" in component && Array.isArray(component.components)) {
+          this.initializeSpecializedFormioComponents(component.components);
+        }
+      });
     });
   }
+
+  private safeInit(context: string, fn: () => void) {
+    try {
+      fn();
+    } catch (err) {
+      const errorMessage =
+          err instanceof Error ? err.message : "Unknown initialization error";
+      this.utilService.handleFormIOInitError(context, errorMessage);
+    }
+  }
+
 
   private initializeGroepMedewerkerFieldsetComponent(
     fieldsetComponent: ExtendedComponentSchema,
@@ -274,9 +287,6 @@ export class FormioSetupService {
     referenceTableSelector.template = "{{ item.naam }}";
     referenceTableSelector.data = {
       custom: () => {
-        console.log(
-          `initializeReferenceTableSelectorComponent ${referenceTableCode}`,
-        );
         return this.allSmartDocumentTemplateGroupsQuery(
           referenceTableCode,
         ).data();
@@ -286,12 +296,10 @@ export class FormioSetupService {
 
   private allSmartDocumentTemplateGroupsQuery(referenceTableCode: string) {
     return runInInjectionContext(this.injector, () => {
-      console.log(`allSmartDocumentTemplateGroupsQuery ${referenceTableCode}`);
       return injectQuery(() => ({
         queryKey: ["allSmartDocumentTemplateGroupsQuery", referenceTableCode],
         refetchOnWindowFocus: false,
         queryFn: () => {
-          console.log(`actually querying ${referenceTableCode}`);
           return lastValueFrom(
             this.referenceTableService
               .readReferentieTabelByCode(referenceTableCode)

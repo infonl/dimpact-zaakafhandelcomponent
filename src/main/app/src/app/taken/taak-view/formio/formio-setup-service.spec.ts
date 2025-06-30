@@ -21,6 +21,7 @@ import { IdentityService } from "../../../identity/identity.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { Taak } from "../../model/taak";
 import { FormioSetupService } from "./formio-setup-service";
+import {NoopAnimationsModule} from "@angular/platform-browser/animations";
 
 const groepMedewerkerFieldset: ExtendedComponentSchema = {
   type: "groepMedewerkerFieldset",
@@ -125,6 +126,7 @@ describe(FormioSetupService.name, () => {
         MatSidenav,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
+        NoopAnimationsModule
       ],
       providers: [
         UtilService,
@@ -365,6 +367,39 @@ describe(FormioSetupService.name, () => {
       await groepComponent.data.custom();
 
       expect(identityServiceSpy).toHaveBeenCalledWith("test-zaaktype-uuid");
+    });
+
+    it("should catch errors from component initializers and call handleInitError", () => {
+      const component: ExtendedComponentSchema = {
+        type: "smartDocumentsFieldset",
+        key: "component_key",
+        components: [],
+      };
+      const errorMessage = "failed to initialize";
+      const spy = jest.spyOn(formioSetupService["utilService"], "handleFormIOInitError");
+
+      jest
+          .spyOn(
+              formioSetupService as unknown as {
+                initializeSmartDocumentsFieldsetComponent: jest.Mock;
+              },
+              "initializeSmartDocumentsFieldsetComponent",
+          )
+          .mockImplementation(() => {
+            throw new Error(errorMessage);
+          });
+
+      expect(() => {
+        formioSetupService.createFormioForm(
+            { components: [component] } as FormioForm,
+            taak as unknown as Taak,
+        );
+      }).not.toThrow();
+
+      expect(spy).toHaveBeenCalledWith(
+          "component_key",
+          errorMessage
+      );
     });
   });
 
