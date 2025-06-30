@@ -53,6 +53,10 @@ data class RestZaakafhandelParameters(
     /**
      * The frontend currently requires this field to be non-null
      */
+    var automaticEmailConfirmation: RestAutomaticEmailConfirmation = RestAutomaticEmailConfirmation(),
+    /**
+     * The frontend currently requires this field to be non-null
+     */
     var betrokkeneKoppelingen: RestBetrokkeneKoppelingen = RestBetrokkeneKoppelingen(),
     /**
      * The frontend currently requires this field to be non-null

@@ -219,7 +219,7 @@ export class ZakenWerkvoorraadComponent
     $event.stopPropagation();
 
     this.zakenService
-      .toekennenAanIngelogdeMedewerkerVanuitLijst(zaakZoekObject)
+      .toekennenAanIngelogdeMedewerkerVanuitLijst(zaakZoekObject.id)
       .subscribe((zaak) => {
         if (!zaak.behandelaar) {
           return;
