@@ -34,7 +34,6 @@ import { FormulierDefinitie } from "../model/formulier-definitie";
 import { FormulierVeldDefinitie } from "../model/formulier-veld-definitie";
 import { HumanTaskReferentieTabel } from "../model/human-task-referentie-tabel";
 import { getBeschikbareMailtemplateKoppelingen } from "../model/mail-utils";
-import { ReferentieTabel } from "../model/referentie-tabel";
 import { ReplyTo } from "../model/replyto";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
@@ -163,7 +162,7 @@ export class ParameterEditComponent
   protected groepen = this.identityService.listGroups();
   protected medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
   resultaattypes: GeneratedType<"RestResultaattype">[] = [];
-  referentieTabellen: ReferentieTabel[] = [];
+  referentieTabellen: GeneratedType<"RestReferenceTable">[] = [];
   formulierDefinities: FormulierDefinitie[] = [];
   zaakbeeindigRedenen: GeneratedType<"RESTZaakbeeindigReden">[] = [];
   mailtemplates: GeneratedType<"RESTMailtemplate">[] = [];
