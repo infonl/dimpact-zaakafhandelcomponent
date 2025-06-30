@@ -58,7 +58,6 @@ export class TakenWerkvoorraadComponent
   ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
   expandedRow: TaakZoekObject | null = null;
   readonly zoekenColumn = ZoekenColumn;
-  sorteerVeld: GeneratedType<"SorteerVeld"> | null = null;
 
   fataledatumIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.isExceeded),

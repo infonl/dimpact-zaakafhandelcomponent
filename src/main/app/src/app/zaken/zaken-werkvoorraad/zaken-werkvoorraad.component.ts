@@ -64,7 +64,6 @@ export class ZakenWerkvoorraadComponent
   ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
   expandedRow: ZaakZoekObject | null = null;
   readonly zoekenColumn = ZoekenColumn;
-  sorteerVeld: GeneratedType<"SorteerVeld"> | null = null;
 
   einddatumGeplandIcon: TextIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
@@ -220,7 +219,7 @@ export class ZakenWerkvoorraadComponent
     $event.stopPropagation();
 
     this.zakenService
-      .toekennenAanIngelogdeMedewerkerVanuitLijst(zaakZoekObject)
+      .toekennenAanIngelogdeMedewerkerVanuitLijst(zaakZoekObject.id)
       .subscribe((zaak) => {
         if (!zaak.behandelaar) {
           return;
@@ -235,7 +234,7 @@ export class ZakenWerkvoorraadComponent
 
   showAssignToMe(zaakZoekObject: ZaakZoekObject): boolean {
     return (
-      zaakZoekObject.rechten.toekennen &&
+      Boolean(zaakZoekObject.rechten.toekennen) &&
       this.ingelogdeMedewerker?.id !==
         zaakZoekObject.behandelaarGebruikersnaam &&
       Boolean(

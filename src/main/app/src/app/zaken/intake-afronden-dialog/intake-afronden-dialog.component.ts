@@ -14,8 +14,6 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { TranslateService } from "@ngx-translate/core";
 import { Observable, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { Mail } from "../../admin/model/mail";
-import { Mailtemplate } from "../../admin/model/mailtemplate";
 import { UtilService } from "../../core/service/util.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
@@ -32,8 +30,8 @@ import { ZakenService } from "../zaken.service";
 })
 export class IntakeAfrondenDialogComponent implements OnDestroy {
   loading = false;
-  zaakOntvankelijkMail?: Mailtemplate;
-  zaakNietOntvankelijkMail?: Mailtemplate;
+  zaakOntvankelijkMail?: GeneratedType<"RESTMailtemplate">;
+  zaakNietOntvankelijkMail?: GeneratedType<"RESTMailtemplate">;
   mailBeschikbaar = false;
   sendMailDefault = false;
   initiatorEmail?: string;
@@ -62,19 +60,19 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
       this.data.zaak.uuid,
     );
     this.mailtemplateService
-      .findMailtemplate(Mail.ZAAK_ONTVANKELIJK, this.data.zaak.uuid)
+      .findMailtemplate("ZAAK_ONTVANKELIJK", this.data.zaak.uuid)
       .subscribe((mailtemplate) => {
         this.zaakOntvankelijkMail = mailtemplate;
       });
     this.mailtemplateService
-      .findMailtemplate(Mail.ZAAK_NIET_ONTVANKELIJK, this.data.zaak.uuid)
+      .findMailtemplate("ZAAK_NIET_ONTVANKELIJK", this.data.zaak.uuid)
       .subscribe((mailtemplate) => {
         this.zaakNietOntvankelijkMail = mailtemplate;
       });
 
     const zap = this.data.zaak.zaaktype.zaakafhandelparameters;
-    this.mailBeschikbaar = zap.intakeMail !== "NIET_BESCHIKBAAR";
-    this.sendMailDefault = zap.intakeMail === "BESCHIKBAAR_AAN";
+    this.mailBeschikbaar = zap?.intakeMail !== "NIET_BESCHIKBAAR";
+    this.sendMailDefault = zap?.intakeMail === "BESCHIKBAAR_AAN";
 
     if (
       this.data.zaak.initiatorIdentificatieType &&
@@ -132,19 +130,19 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
       });
   }
 
-  getError(fc: AbstractControl, label: string) {
+  protected getError(fc: AbstractControl, label: string) {
     return CustomValidators.getErrorMessage(fc, label, this.translateService);
   }
 
-  setInitatorEmail() {
+  protected setInitiatorEmail() {
     this.formGroup.get("ontvanger")?.setValue(this.initiatorEmail);
   }
 
-  close(): void {
+  protected close(): void {
     this.dialogRef.close();
   }
 
-  afronden(): void {
+  protected afronden(): void {
     this.dialogRef.disableClose = true;
     this.loading = true;
     const values = this.formGroup.value;
@@ -157,7 +155,7 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
         actie: "INTAKE_AFRONDEN",
         planItemInstanceId: this.data.planItem.id,
         zaakUuid: this.data.zaak.uuid,
-        zaakOntvankelijk: values.zaakOntvankelijk,
+        zaakOntvankelijk: values.ontvankelijk,
         resultaatToelichting: values.reden,
         restMailGegevens:
           values.sendMail && mailtemplate
@@ -184,5 +182,6 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     this.ngDestroy.complete();
   }
 
-  compareObject = (a: unknown, b: unknown) => this.utilService.compare(a, b);
+  protected compareObject = (a: unknown, b: unknown) =>
+    this.utilService.compare(a, b);
 }

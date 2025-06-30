@@ -37,7 +37,6 @@ import {
 } from "../../informatie-objecten/model/file-format";
 import { FileIcon } from "../../informatie-objecten/model/file-icon";
 import { GekoppeldeZaakEnkelvoudigInformatieobject } from "../../informatie-objecten/model/gekoppelde.zaak.enkelvoudig.informatieobject";
-import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { detailExpand } from "../../shared/animations/animations";
 import { DialogData } from "../../shared/dialog/dialog-data";
 import { DialogComponent } from "../../shared/dialog/dialog.component";
@@ -176,14 +175,13 @@ export class ZaakDocumentenComponent
   }
 
   private searchEnkelvoudigeInformatieObjecten(): void {
-    const zoekParameters = new InformatieobjectZoekParameters();
-    zoekParameters.zaakUUID = this.zaak.uuid;
-    zoekParameters.gekoppeldeZaakDocumenten =
-      !!this.toonGekoppeldeZaakDocumenten.value;
     this.isLoadingResults = true;
 
     this.informatieObjectenService
-      .listEnkelvoudigInformatieobjecten(zoekParameters)
+      .listEnkelvoudigInformatieobjecten({
+        zaakUUID: this.zaak.uuid,
+        gekoppeldeZaakDocumenten: !!this.toonGekoppeldeZaakDocumenten.value,
+      })
       .subscribe((objecten) => {
         this.enkelvoudigInformatieObjecten.data =
           objecten as unknown as GekoppeldeZaakEnkelvoudigInformatieobject[];
@@ -236,7 +234,7 @@ export class ZaakDocumentenComponent
             { document: informatieobject.titel },
           );
         }
-        const dialogData = new DialogData<unknown, { reden?: string }>({
+        const dialogData = new DialogData<unknown, { reden: string }>({
           formFields: [
             new TextareaFormFieldBuilder()
               .id("reden")
@@ -248,7 +246,7 @@ export class ZaakDocumentenComponent
           callback: ({ reden }) =>
             this.zakenService.ontkoppelInformatieObject({
               zaakUUID: this.zaak.uuid,
-              documentUUID: informatieobject.uuid,
+              documentUUID: informatieobject.uuid!,
               reden: reden,
             }),
           melding,
@@ -325,10 +323,9 @@ export class ZaakDocumentenComponent
   }
 
   downloadAlsZip() {
-    const uuids: string[] = [];
-    this.downloadAlsZipSelection.selected.forEach((document) => {
-      uuids.push(document.uuid);
-    });
+    const uuids = this.downloadAlsZipSelection.selected.map(
+      ({ uuid }) => uuid!,
+    );
 
     this.downloadAlsZipSelection.clear();
     this.selectAll = false;
@@ -390,7 +387,7 @@ export class ZaakDocumentenComponent
   ) {
     this.informatieObjectenService
       .editEnkelvoudigInformatieObjectInhoud(
-        enkelvoudigInformatieobject.uuid,
+        enkelvoudigInformatieobject.uuid!,
         this.zaak?.uuid,
       )
       .subscribe((url) => {

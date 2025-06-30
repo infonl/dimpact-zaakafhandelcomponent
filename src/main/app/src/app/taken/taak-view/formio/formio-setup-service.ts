@@ -3,8 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import {
+  inject,
+  Injectable,
+  Injector,
+  runInInjectionContext,
+} from "@angular/core";
 import { ExtendedComponentSchema, FormioForm } from "@formio/angular";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { map, tap } from "rxjs/operators";
 import { ReferentieTabelService } from "../../../admin/referentie-tabel.service";
@@ -13,7 +19,6 @@ import { UtilService } from "../../../core/service/util.service";
 import { FormioCustomEvent } from "../../../formulieren/formio-wrapper/formio-wrapper.component";
 import { IdentityService } from "../../../identity/identity.service";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
-import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { OrderUtil } from "../../../shared/order/order-util";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { Taak } from "../../model/taak";
@@ -23,7 +28,8 @@ import { Taak } from "../../model/taak";
 })
 export class FormioSetupService {
   private taak?: Taak;
-  private formioChangeData: Record<string, string> | undefined;
+  private formioChangeData?: Record<string, string>;
+  private injector = inject(Injector);
 
   constructor(
     public utilService: UtilService,
@@ -88,14 +94,25 @@ export class FormioSetupService {
   ): void {
     groepComponent.valueProperty = "id";
     groepComponent.template = "{{ item.naam }}";
+
     groepComponent.data = {
-      custom: () =>
-        lastValueFrom(
-          this.identityService
-            .listGroups(this.taak?.zaaktypeUUID)
-            .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam")))),
-        ),
+      custom: () => this.userGroupsQuery(this.taak!.zaaktypeUUID).data(),
     };
+  }
+
+  private userGroupsQuery(zaaktypeUUID: string) {
+    return runInInjectionContext(this.injector, () =>
+      injectQuery(() => ({
+        queryKey: ["userGroupsQuery", zaaktypeUUID],
+        refetchOnWindowFocus: false,
+        queryFn: () =>
+          lastValueFrom(
+            this.identityService
+              .listGroups(zaaktypeUUID)
+              .pipe(map((value) => value.sort(OrderUtil.orderBy("naam")))),
+          ),
+      })),
+    );
   }
 
   private initializeGroepMedewerkerFieldsetMedewerkerComponent(
@@ -128,20 +145,43 @@ export class FormioSetupService {
   ): void {
     fieldsetComponent.type = "fieldset";
     const smartDocumentsPath = this.findSmartDocumentsPath(fieldsetComponent);
+    const smartDocumentsPathKey = smartDocumentsPath.path.join("/");
     const smartDocumentsTemplateComponent = fieldsetComponent.components?.find(
       (component: ExtendedComponentSchema) =>
         component.key === fieldsetComponent.key + "_Template",
     );
+
     smartDocumentsTemplateComponent.valueProperty = "id";
     smartDocumentsTemplateComponent.template = "{{ item.naam }}";
+
     smartDocumentsTemplateComponent.data = {
       custom: () =>
-        lastValueFrom(
-          this.zaakafhandelParametersService
-            .listSmartDocumentsGroupTemplateNames(smartDocumentsPath)
-            .pipe(tap((value) => value.sort())),
-        ),
+        this.smartDocumentsGroupTemplateNamesQuery(
+          smartDocumentsPathKey,
+          smartDocumentsPath,
+        ).data(),
     };
+  }
+
+  private smartDocumentsGroupTemplateNamesQuery(
+    smartDocumentsPathKey: string,
+    smartDocumentsPath: GeneratedType<"RestSmartDocumentsPath">,
+  ) {
+    return runInInjectionContext(this.injector, () =>
+      injectQuery(() => ({
+        queryKey: [
+          "smartDocumentsGroupTemplateNamesQuery",
+          smartDocumentsPathKey,
+        ],
+        refetchOnWindowFocus: false,
+        queryFn: () =>
+          lastValueFrom(
+            this.zaakafhandelParametersService
+              .listSmartDocumentsGroupTemplateNames(smartDocumentsPath)
+              .pipe(map((value) => value.sort())),
+          ),
+      })),
+    );
   }
 
   private findSmartDocumentsPath(fieldsetComponent: ExtendedComponentSchema) {
@@ -201,7 +241,7 @@ export class FormioSetupService {
   normalizeSmartDocumentsTemplateName(
     smartDocumentsTemplateName: string,
   ): string {
-    return smartDocumentsTemplateName?.replaceAll(" ", "_").trim();
+    return smartDocumentsTemplateName?.replace(/ /g, "_").trim();
   }
 
   getInformatieobjecttypeUuid(
@@ -233,13 +273,33 @@ export class FormioSetupService {
     referenceTableSelector.valueProperty = "id";
     referenceTableSelector.template = "{{ item.naam }}";
     referenceTableSelector.data = {
-      custom: () =>
-        lastValueFrom(
-          this.referenceTableService
-            .readReferentieTabelByCode(referenceTableCode)
-            .pipe(map((table) => table.waarden.map((value) => value.naam))),
-        ),
+      custom: () => {
+        console.log(
+          `initializeReferenceTableSelectorComponent ${referenceTableCode}`,
+        );
+        return this.allSmartDocumentTemplateGroupsQuery(
+          referenceTableCode,
+        ).data();
+      },
     };
+  }
+
+  private allSmartDocumentTemplateGroupsQuery(referenceTableCode: string) {
+    return runInInjectionContext(this.injector, () => {
+      console.log(`allSmartDocumentTemplateGroupsQuery ${referenceTableCode}`);
+      return injectQuery(() => ({
+        queryKey: ["allSmartDocumentTemplateGroupsQuery", referenceTableCode],
+        refetchOnWindowFocus: false,
+        queryFn: () => {
+          console.log(`actually querying ${referenceTableCode}`);
+          return lastValueFrom(
+            this.referenceTableService
+              .readReferentieTabelByCode(referenceTableCode)
+              .pipe(map((table) => table.waarden.map((value) => value.naam))),
+          );
+        },
+      }));
+    });
   }
 
   private initializeAvailableDocumentsFieldsetComponent(
@@ -255,23 +315,35 @@ export class FormioSetupService {
 
     fieldsetComponent.type = "fieldset";
 
-    const zoekParameters = new InformatieobjectZoekParameters();
-    zoekParameters.zaakUUID = this.taak!.zaakUuid;
-
     documentViewComponent.data = {
-      custom: () =>
-        lastValueFrom(
-          this.informatieObjectenService
-            .listEnkelvoudigInformatieobjecten(zoekParameters)
-            .pipe(
-              map((docs) =>
-                docs.map((doc) => ({
-                  label: String(doc.titel),
-                  value: String(doc.uuid),
-                })),
-              ),
-            ),
-        ),
+      custom: () => {
+        return this.availableDocumentsQuery(this.taak!.zaakUuid).data();
+      },
     };
+  }
+
+  private availableDocumentsQuery(zaakUuid: string) {
+    return runInInjectionContext(this.injector, () => {
+      return injectQuery(() => ({
+        queryKey: ["availableDocumentsQuery", zaakUuid],
+        refetchOnWindowFocus: false,
+        queryFn: () => {
+          return lastValueFrom(
+            this.informatieObjectenService
+              .listEnkelvoudigInformatieobjecten({
+                zaakUUID: this.taak!.zaakUuid,
+              })
+              .pipe(
+                map((docs) =>
+                  docs.map((doc) => ({
+                    label: String(doc.titel),
+                    value: String(doc.uuid),
+                  })),
+                ),
+              ),
+          );
+        },
+      }));
+    });
   }
 }

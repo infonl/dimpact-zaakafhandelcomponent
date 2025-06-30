@@ -21,9 +21,13 @@ import { injectQuery } from "@tanstack/angular-query-experimental";
 import { Observable, lastValueFrom, merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
+import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
-import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
+import {
+  DEFAULT_ZOEK_PARAMETERS,
+  heeftActieveZoekFilters,
+} from "../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
 import { ZoekVeld } from "../../zoeken/model/zoek-veld";
 import { ZoekenService } from "../../zoeken/zoeken.service";
@@ -40,8 +44,7 @@ export class KlantZakenTabelComponent
   @Input() klantIdentificatie: string;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
-  dataSource: MatTableDataSource<ZaakZoekObject> =
-    new MatTableDataSource<ZaakZoekObject>();
+  dataSource = new MatTableDataSource<ZaakZoekObject>();
   columns = [
     "identificatie",
     "betrokkene",
@@ -55,9 +58,8 @@ export class KlantZakenTabelComponent
   ] as const;
   filterColumns = this.columns.map((n) => n + "_filter");
   isLoadingResults = true;
-  sorteerVeld: GeneratedType<"SorteerVeld"> | null = null;
   filterChange = new EventEmitter<void>();
-  zoekParameters = new ZoekParameters();
+  zoekParameters = DEFAULT_ZOEK_PARAMETERS;
   actieveFilters = false;
   zoekResultaat = new ZoekResultaat<ZaakZoekObject>();
   init: boolean;
@@ -94,14 +96,14 @@ export class KlantZakenTabelComponent
 
   private loadZaken(): Observable<ZoekResultaat<ZaakZoekObject>> {
     if (this.laatsteBetrokkenheid) {
-      delete this.zoekParameters.zoeken[this.laatsteBetrokkenheid];
+      delete this.zoekParameters.zoeken?.[this.laatsteBetrokkenheid];
     }
     if (this.betrokkeneSelectControl.value) {
       this.setZoekParameterBetrokkenheid(this.betrokkeneSelectControl.value);
     }
-    this.actieveFilters = ZoekParameters.heeftActieveFilters(
-      this.zoekParameters,
-    ); // before default values
+    this.actieveFilters =
+      this.zoekParameters &&
+      heeftActieveZoekFilters(this.zoekParameters as unknown as ZoekFilters); // before default values
     if (!this.betrokkeneSelectControl.value) {
       this.setZoekParameterBetrokkenheid(ZoekVeld.ZAAK_BETROKKENEN);
     }

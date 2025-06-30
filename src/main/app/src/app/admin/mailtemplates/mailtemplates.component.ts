@@ -19,16 +19,14 @@ import { TranslateService } from "@ngx-translate/core";
 import { forkJoin } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
-import { IdentityService } from "../../identity/identity.service";
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { MailtemplateKoppelingService } from "../mailtemplate-koppeling.service";
-import { Mailtemplate } from "../model/mailtemplate";
-import { MailtemplateKoppeling } from "../model/mailtemplate-koppeling";
 
 @Component({
   templateUrl: "./mailtemplates.component.html",
@@ -48,29 +46,27 @@ export class MailtemplatesComponent
   extends AdminComponent
   implements OnInit, AfterViewInit
 {
-  @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
-  @ViewChild("menuSidenav") menuSidenav: MatSidenav;
+  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
+  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
 
   isLoadingResults = false;
-  columns: string[] = ["mailTemplateNaam", "mail", "defaultMailtemplate", "id"];
+  columns = ["mailTemplateNaam", "mail", "defaultMailtemplate", "id"] as const;
   columnsToDisplay = [
     "expand",
     "mailTemplateNaam",
     "mail",
     "defaultMailtemplate",
     "id",
-  ];
-  dataSource: MatTableDataSource<Mailtemplate> =
-    new MatTableDataSource<Mailtemplate>();
-  mailKoppelingen: MailtemplateKoppeling[];
+  ] as const;
+  dataSource = new MatTableDataSource<GeneratedType<"RESTMailtemplate">>();
+  mailKoppelingen: GeneratedType<"RESTMailtemplateKoppeling">[] = [];
   filterValue = "";
-  expandedRow: Mailtemplate | null;
+  expandedRow: GeneratedType<"RESTMailtemplate"> | null = null;
 
   constructor(
     public dialog: MatDialog,
     public utilService: UtilService,
     public configuratieService: ConfiguratieService,
-    private identityService: IdentityService,
     private mailtemplateBeheerService: MailtemplateBeheerService,
     private translate: TranslateService,
     private mailtemplateKoppelingService: MailtemplateKoppelingService,
@@ -95,24 +91,16 @@ export class MailtemplatesComponent
     });
   }
 
-  isDisabled(mailtemplate: Mailtemplate): boolean {
+  isDisabled(mailtemplate: GeneratedType<"RESTMailtemplate">): boolean {
     return this.getMailtemplateKoppeling(mailtemplate) != null;
   }
 
-  getDisabledTitle(mailtemplate: Mailtemplate): string {
-    return this.translate.instant("msg.mailtemplate.verwijderen.disabled", {
-      zaaktype:
-        this.getMailtemplateKoppeling(mailtemplate).zaakafhandelParameters
-          .zaaktype.omschrijving,
-    });
-  }
-
-  verwijderMailtemplate(mailtemplate: Mailtemplate): void {
+  verwijderMailtemplate(mailtemplate: GeneratedType<"RESTMailtemplate">): void {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
           "msg.mailtemplate.verwijderen.bevestigen",
-          this.mailtemplateBeheerService.deleteMailtemplate(mailtemplate.id),
+          this.mailtemplateBeheerService.deleteMailtemplate(mailtemplate.id!),
         ),
       })
       .afterClosed()
@@ -126,20 +114,20 @@ export class MailtemplatesComponent
       });
   }
 
-  getKoppelingen(mailtemplate: Mailtemplate) {
-    const koppelingen: MailtemplateKoppeling[] = [];
-    this.mailKoppelingen.forEach((koppeling) => {
-      if (koppeling.mailtemplate.id === mailtemplate.id) {
-        koppelingen.push(koppeling);
+  getKoppelingen(mailtemplate: GeneratedType<"RESTMailtemplate">) {
+    return this.mailKoppelingen.reduce((acc, koppeling) => {
+      if (koppeling.mailtemplate?.id === mailtemplate.id) {
+        acc.push(koppeling);
       }
-    });
-
-    return koppelingen;
+      return acc;
+    }, [] as GeneratedType<"RESTMailtemplateKoppeling">[]);
   }
 
-  private getMailtemplateKoppeling(mailtemplate: Mailtemplate) {
+  private getMailtemplateKoppeling(
+    mailtemplate: GeneratedType<"RESTMailtemplate">,
+  ) {
     return this.mailKoppelingen.find(
-      (koppeling) => koppeling.mailtemplate.id === mailtemplate.id,
+      (koppeling) => koppeling.mailtemplate?.id === mailtemplate.id,
     );
   }
 
@@ -163,16 +151,19 @@ export class MailtemplatesComponent
       const isAsc = sort.direction === "asc";
       switch (sort.active) {
         case "mail":
-          return this.compare(a.mail, b.mail, isAsc);
+          return this.compare(isAsc, a.mail, b.mail);
         case "mailTemplateNaam":
-          return this.compare(a.mailTemplateNaam, b.mailTemplateNaam, isAsc);
+          return this.compare(isAsc, a.mailTemplateNaam, b.mailTemplateNaam);
         default:
           return 0;
       }
     });
   }
 
-  compare(a: number | string, b: number | string, isAsc: boolean) {
-    return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
+  compare(isAsc: boolean, a?: number | string, b?: number | string) {
+    const direction = isAsc ? 1 : -1;
+
+    if (!a || !b) return direction;
+    return (a < b ? -1 : 1) * direction;
   }
 }

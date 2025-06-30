@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -8,10 +8,8 @@ import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
-import { Mail } from "../../admin/model/mail";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { ActionIcon } from "../../shared/edit/action-icon";
@@ -20,7 +18,6 @@ import { HtmlEditorFormFieldBuilder } from "../../shared/material-form-builder/f
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
@@ -34,8 +31,11 @@ import { MailService } from "../mail.service";
   styleUrls: ["./ontvangstbevestiging.component.less"],
 })
 export class OntvangstbevestigingComponent implements OnInit {
-  formConfig: FormConfig;
-  fields: Array<AbstractFormField[]>;
+  formConfig = new FormConfigBuilder()
+    .saveText("actie.versturen")
+    .cancelText("actie.annuleren")
+    .build();
+  fields: Array<AbstractFormField[]> = [];
   @Input() sideNav: MatDrawer;
   @Input() zaak: GeneratedType<"RestZaak">;
   @Output() ontvangstBevestigd = new EventEmitter<boolean>();
@@ -52,19 +52,12 @@ export class OntvangstbevestigingComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.formConfig = new FormConfigBuilder()
-      .saveText("actie.versturen")
-      .cancelText("actie.annuleren")
-      .build();
-
-    const zoekparameters = new InformatieobjectZoekParameters();
-    zoekparameters.zaakUUID = this.zaak.uuid;
     const documenten =
-      this.informatieObjectenService.listEnkelvoudigInformatieobjecten(
-        zoekparameters,
-      );
+      this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+        zaakUUID: this.zaak.uuid,
+      });
     const mailtemplate = this.mailtemplateService.findMailtemplate(
-      Mail.TAAK_ONTVANGSTBEVESTIGING,
+      "TAAK_ONTVANGSTBEVESTIGING",
       this.zaak.uuid,
     );
 
@@ -111,10 +104,10 @@ export class OntvangstbevestigingComponent implements OnInit {
         .ophalenContactGegevens(this.zaak.initiatorIdentificatie)
         .subscribe((gegevens) => {
           if (gegevens.emailadres) {
-            const initiatorToevoegenIcon = new ActionIcon(
+            const initiatorToevoegenIcon = new ActionIcon<unknown>(
               "person",
               "actie.initiator.email.toevoegen",
-              new Subject<void>(),
+              new Subject<unknown>(),
             );
             if (Array.isArray(ontvanger.icons)) {
               ontvanger.icons.push(initiatorToevoegenIcon);
@@ -122,7 +115,7 @@ export class OntvangstbevestigingComponent implements OnInit {
               ontvanger.icons = [initiatorToevoegenIcon];
             }
             initiatorToevoegenIcon.iconClicked.subscribe(() => {
-              ontvanger.value(gegevens.emailadres);
+              ontvanger.value(gegevens.emailadres ?? "");
             });
           }
         });

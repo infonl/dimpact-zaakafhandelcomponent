@@ -27,132 +27,104 @@
         <ng-template matStepLabel>{{
           "gegevens.algemeen" | translate
         }}</ng-template>
-        <form [formGroup]="algemeenFormGroup" class="flex-col">
-          <div class="flex-row flex-wrap gap-20">
-            <zac-static-text
-              class="w33 w100-md"
-              [label]="'zaaktypeOmschrijving' | translate"
-              [value]="parameters.zaaktype.omschrijving"
-            ></zac-static-text>
-            <zac-static-text
-              class="w33 w100-md"
-              [label]="'doel' | translate"
-              [value]="parameters.zaaktype.doel"
-            ></zac-static-text>
-          </div>
-          <div class="flex-row flex-wrap gap-20">
-            <zac-static-text
-              class="w33 w100-md"
-              [label]="'identificatie' | translate"
-              [value]="parameters.zaaktype.identificatie"
-            ></zac-static-text>
-            <zac-static-text
-              class="w33 w100-md"
-              [label]="'uuid' | translate"
-              [value]="parameters.zaaktype.uuid"
-            ></zac-static-text>
-          </div>
-          <div class="flex-row flex-wrap gap-20">
-            <mat-form-field class="w33 w100-md" floatLabel="always">
-              <mat-label>{{ "caseDefinition" | translate }}</mat-label>
-              <mat-select
-                placeholder="{{ 'model.-kies-' | translate }}"
-                (selectionChange)="caseDefinitionChanged($event)"
-                formControlName="caseDefinition"
-                [compareWith]="compareObject"
+        <form [formGroup]="algemeenFormGroup">
+          <fieldset>
+            <section class="row">
+              <zac-static-text
+                class="col-12 col-md-6"
+                [label]="'zaaktypeOmschrijving' | translate"
+                [value]="parameters.zaaktype.omschrijving"
+              ></zac-static-text>
+              <zac-static-text
+                class="col-12 col-md-6"
+                [label]="'doel' | translate"
+                [value]="parameters.zaaktype.doel"
+              ></zac-static-text>
+            </section>
+            <section class="row">
+              <zac-static-text
+                class="col-12 col-md-6"
+                [label]="'identificatie' | translate"
+                [value]="parameters.zaaktype.identificatie"
+              ></zac-static-text>
+              <zac-static-text
+                class="col-12 col-md-6"
+                [label]="'uuid' | translate"
+                [value]="parameters.zaaktype.uuid"
+              ></zac-static-text>
+            </section>
+          </fieldset>
+          <fieldset>
+            <section class="row">
+              <zac-select
+                class="col-12 col-md-6"
+                key="caseDefinition"
+                optionDisplayValue="naam"
+                [form]="algemeenFormGroup"
+                [options]="caseDefinitions"
               >
-                <mat-option *ngFor="let cd of caseDefinitions" [value]="cd">{{
-                  cd.naam
-                }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field class="w33 w100-md" floatLabel="always">
-              <mat-label>{{ "domein" | translate }}</mat-label>
-              <mat-select
-                placeholder="{{ 'domein.-geen-' | translate }}"
-                formControlName="domein"
-                [compareWith]="compareObject"
+              </zac-select>
+              <zac-select
+                class="col-12 col-md-6"
+                key="domein"
+                [form]="algemeenFormGroup"
+                [options]="domeinen"
               >
-                <mat-option [value]="">{{
-                  "domein.-geen-" | translate
-                }}</mat-option>
-                <mat-option *ngFor="let domein of domeinen" [value]="domein">{{
-                  domein
-                }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-          <div class="flex-row flex-wrap gap-20">
-            <mat-form-field class="w33 w100-md" floatLabel="always">
-              <mat-label>{{ "groep" | translate }}</mat-label>
-              <mat-select
-                placeholder="{{ 'groep.-kies-' | translate }}"
-                formControlName="defaultGroepId"
-                [compareWith]="compareObject"
+              </zac-select>
+            </section>
+            <section class="row">
+              <zac-select
+                class="col-12 col-md-6"
+                key="defaultGroep"
+                label="groep"
+                optionDisplayValue="naam"
+                [form]="algemeenFormGroup"
+                [options]="groepen"
               >
-                <mat-option *ngFor="let groep of groepen" [value]="groep.id">{{
-                  groep.naam
-                }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field class="w33 w100-md" floatLabel="always">
-              <mat-label>{{ "behandelaar" | translate }}</mat-label>
-              <mat-select
-                placeholder="{{ 'behandelaar.-geen-' | translate }}"
-                formControlName="defaultBehandelaarId"
-                [compareWith]="compareObject"
-              >
-                <mat-option [value]="">{{
-                  "behandelaar.-geen-" | translate
-                }}</mat-option>
-                <mat-option *ngFor="let b of medewerkers" [value]="b.id">{{
-                  b.naam
-                }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-          <div class="flex-row flex-wrap gap-20">
-            <mat-form-field
-              *ngIf="parameters.zaaktype.servicenorm"
-              class="w33 w100-md"
-              floatLabel="always"
-            >
-              <mat-label>{{
-                "einddatumGeplandWaarschuwing" | translate
-              }}</mat-label>
-              <input
-                matInput
-                type="number"
-                [attr.inputmode]="'numeric'"
-                min="0"
-                max="31"
-                formControlName="einddatumGeplandWaarschuwing"
-              />
-              <span matSuffix>{{ "kalenderdagen" | translate }}</span>
-            </mat-form-field>
-            <mat-form-field class="w33 w100-md" floatLabel="always">
-              <mat-label>{{
-                "uiterlijkeEinddatumAfdoeningWaarschuwing" | translate
-              }}</mat-label>
-              <input
-                matInput
-                type="number"
-                min="0"
-                max="31"
-                formControlName="uiterlijkeEinddatumAfdoeningWaarschuwing"
-              />
-              <span matSuffix>{{ "kalenderdagen" | translate }}</span>
-            </mat-form-field>
-          </div>
-          <div class="flex-row flex-wrap gap-20">
-            <mat-form-field class="w33 w100-md" floatLabel="always">
-              <mat-label>{{ "productaanvraagtype" | translate }}</mat-label>
-              <input matInput formControlName="productaanvraagtype" />
-            </mat-form-field>
-          </div>
+              </zac-select>
 
-          <div class="flex-row flex-wrap gap-5">
-            <mat-icon color="warn">warning</mat-icon>
+              <zac-select
+                class="col-12 col-md-6"
+                key="defaultBehandelaar"
+                label="behandelaar"
+                optionDisplayValue="naam"
+                [form]="algemeenFormGroup"
+                [options]="medewerkers"
+              >
+              </zac-select>
+            </section>
+            <section class="row">
+              <zac-input
+                class="col-12 col-md-6"
+                key="uiterlijkeEinddatumAfdoeningWaarschuwing"
+                [form]="algemeenFormGroup"
+              >
+                <span matSuffix>{{ "kalenderdagen" | translate }}</span>
+              </zac-input>
+              <zac-input
+                *ngIf="parameters.zaaktype.servicenorm"
+                class="col-12 col-md-6"
+                key="einddatumGeplandWaarschuwing"
+                [form]="algemeenFormGroup"
+              >
+                <span matSuffix>{{ "kalenderdagen" | translate }}</span>
+              </zac-input>
+            </section>
+            <section class="row">
+              <zac-input
+                class="col-12 col-md-6"
+                key="productaanvraagtype"
+                [form]="algemeenFormGroup"
+              >
+                <mat-hint>{{
+                  "msg.zaakafhandelparameters.productaanvraagtype" | translate
+                }}</mat-hint>
+              </zac-input>
+            </section>
+          </fieldset>
+
+          <div class="flex-row items-center gap-10 ml-3 mt-3">
+            <mat-icon color="warn" class="pr-3">warning</mat-icon>
             <small>{{
               "msg.zaakafhandelparameters.waarschuwing" | translate
             }}</small>
@@ -345,7 +317,9 @@
                 *ngFor="let actieParameter of userEventListenerParameters"
               >
                 <mat-expansion-panel-header>
-                  <mat-panel-title> {{ actieParameter.naam }} </mat-panel-title>
+                  <mat-panel-title>
+                    {{ actieParameter.naam }}
+                  </mat-panel-title>
                 </mat-expansion-panel-header>
                 <div class="flex-row flex-wrap">
                   <mat-form-field class="w33 w100-md" floatLabel="always">
@@ -381,7 +355,10 @@
       </mat-step>
       <mat-step
         [stepControl]="mailFormGroup"
-        [hasError]="mailFormGroup.invalid"
+        [hasError]="
+          mailFormGroup.invalid ||
+          !automatischeOntvangstbevestigingFormGroup.valid
+        "
       >
         <ng-template matStepLabel>{{
           "gegevens.mail" | translate
@@ -487,12 +464,7 @@
                             *ngFor="let replyTo of replyTos"
                             [value]="replyTo.mail"
                           >
-                            {{
-                              replyTo.speciaal
-                                ? ("gegevens.mail.afzender." + replyTo.mail
-                                  | translate)
-                                : replyTo.mail
-                            }}
+                            {{ replyToDisplayValue(replyTo) | translate }}
                           </mat-option>
                         </mat-select>
                       </td>
@@ -600,6 +572,57 @@
                 </mat-accordion>
               </mat-card-content>
             </mat-card>
+            <mat-card>
+              <form [formGroup]="automatischeOntvangstbevestigingFormGroup">
+                <mat-card-header>
+                  <zac-toggle
+                    label="gegevens.mail.ontvangstbevestiging"
+                    labelPosition="before"
+                    [form]="automatischeOntvangstbevestigingFormGroup"
+                    key="enabled"
+                  ></zac-toggle>
+                </mat-card-header>
+                <mat-card-content
+                  *ngIf="
+                    automatischeOntvangstbevestigingFormGroup.controls.enabled
+                      .value
+                  "
+                >
+                  <fieldset>
+                    <section class="row">
+                      <zac-select
+                        class="col-12"
+                        [form]="automatischeOntvangstbevestigingFormGroup"
+                        key="templateName"
+                        label="title.mailtemplate"
+                        [options]="
+                          getBeschikbareMailtemplates(
+                            'TAAK_ONTVANGSTBEVESTIGING'
+                          )
+                        "
+                        optionDisplayValue="mailTemplateNaam"
+                      ></zac-select>
+                      <zac-select
+                        class="col-12"
+                        [form]="automatischeOntvangstbevestigingFormGroup"
+                        key="emailSender"
+                        label="mail.afzender"
+                        [options]="replyTos"
+                        [optionDisplayValue]="replyToDisplayValue"
+                      ></zac-select>
+                      <zac-select
+                        class="col-12"
+                        [form]="automatischeOntvangstbevestigingFormGroup"
+                        key="emailReply"
+                        label="mail.antwoord"
+                        [options]="replyTos"
+                        [optionDisplayValue]="replyToDisplayValue"
+                      ></zac-select>
+                    </section>
+                  </fieldset>
+                </mat-card-content>
+              </form>
+            </mat-card>
             <div class="button-group flex-row flex-wrap">
               <button mat-raised-button matStepperPrevious>
                 {{ "actie.terug" | translate }}
@@ -627,85 +650,98 @@
           "gegevens.beeindiging" | translate
         }}</ng-template>
         <ng-template matStepContent>
-          <form [formGroup]="zaakbeeindigFormGroup" class="flex-col">
-            <div class="table-wrapper">
-              <table mat-table [dataSource]="zaakbeeindigParameters">
-                <ng-container matColumnDef="select">
-                  <th mat-header-cell *matHeaderCellDef></th>
-                  <td mat-cell *matCellDef="let parameter">
-                    <mat-checkbox
-                      (click)="$event.stopPropagation()"
-                      (change)="changeSelection($event, parameter)"
-                      [checked]="selection.isSelected(parameter)"
-                      [disabled]="isZaaknietontvankelijkParameter(parameter)"
-                    >
-                    </mat-checkbox>
-                  </td>
-                </ng-container>
-                <ng-container matColumnDef="reden">
-                  <th mat-header-cell *matHeaderCellDef translate="reden"></th>
-                  <td mat-cell *matCellDef="let parameter">
-                    {{
-                      parameter.zaakbeeindigReden?.naam ??
-                        "zaakIsNietOntvankelijk" | translate
-                    }}
-                  </td>
-                </ng-container>
-                <ng-container matColumnDef="resultaat">
-                  <th
-                    mat-header-cell
-                    *matHeaderCellDef
-                    translate="resultaat"
-                  ></th>
-                  <td mat-cell *matCellDef="let parameter">
-                    <mat-select
-                      placeholder="{{ 'resultaat.-kies-' | translate }}"
-                      [formControl]="
-                        getZaakbeeindigControl(parameter, 'beeindigResultaat')
+          <mat-card>
+            <mat-card-content>
+              <form [formGroup]="zaakbeeindigFormGroup" class="flex-col">
+                <div class="table-wrapper">
+                  <table mat-table [dataSource]="zaakbeeindigParameters">
+                    <ng-container matColumnDef="select">
+                      <th mat-header-cell *matHeaderCellDef></th>
+                      <td mat-cell *matCellDef="let parameter">
+                        <mat-checkbox
+                          (click)="$event.stopPropagation()"
+                          (change)="changeSelection($event, parameter)"
+                          [checked]="selection.isSelected(parameter)"
+                          [disabled]="
+                            isZaaknietontvankelijkParameter(parameter)
+                          "
+                        >
+                        </mat-checkbox>
+                      </td>
+                    </ng-container>
+                    <ng-container matColumnDef="reden">
+                      <th
+                        mat-header-cell
+                        *matHeaderCellDef
+                        translate="reden"
+                      ></th>
+                      <td mat-cell *matCellDef="let parameter">
+                        {{
+                          parameter.zaakbeeindigReden?.naam ??
+                            "zaakIsNietOntvankelijk" | translate
+                        }}
+                      </td>
+                    </ng-container>
+                    <ng-container matColumnDef="resultaat">
+                      <th
+                        mat-header-cell
+                        *matHeaderCellDef
+                        translate="resultaat"
+                      ></th>
+                      <td mat-cell *matCellDef="let parameter">
+                        <mat-select
+                          placeholder="{{ 'resultaat.-kies-' | translate }}"
+                          [formControl]="
+                            getZaakbeeindigControl(
+                              parameter,
+                              'beeindigResultaat'
+                            )
+                          "
+                          [compareWith]="compareObject"
+                        >
+                          <mat-option
+                            *ngFor="let resultaattype of resultaattypes"
+                            [value]="resultaattype"
+                            >{{ resultaattype.naam }}</mat-option
+                          >
+                        </mat-select>
+                      </td>
+                    </ng-container>
+                    <tr
+                      mat-header-row
+                      *matHeaderRowDef="['select', 'reden', 'resultaat']"
+                    ></tr>
+                    <tr
+                      mat-row
+                      *matRowDef="
+                        let row;
+                        columns: ['select', 'reden', 'resultaat']
                       "
-                      [compareWith]="compareObject"
-                    >
-                      <mat-option
-                        *ngFor="let resultaattype of resultaattypes"
-                        [value]="resultaattype"
-                        >{{ resultaattype.naam }}</mat-option
-                      >
-                    </mat-select>
-                  </td>
-                </ng-container>
-                <tr
-                  mat-header-row
-                  *matHeaderRowDef="['select', 'reden', 'resultaat']"
-                ></tr>
-                <tr
-                  mat-row
-                  *matRowDef="
-                    let row;
-                    columns: ['select', 'reden', 'resultaat']
-                  "
-                ></tr>
-              </table>
-              <p *ngIf="zaakbeeindigParameters.length === 0">
-                {{ "msg.geen.gegevens.gevonden" | translate }}
-              </p>
-            </div>
-            <div class="button-group flex-row flex-wrap">
-              <button mat-raised-button matStepperPrevious>
-                {{ "actie.terug" | translate }}
-              </button>
-              <button mat-raised-button matStepperNext>
-                {{ "actie.volgende" | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                [disabled]="!isValid() || loading"
-                (click)="opslaan()"
-              >
-                {{ "actie.opslaan" | translate }}
-              </button>
-            </div>
-          </form>
+                    ></tr>
+                  </table>
+                  <p *ngIf="zaakbeeindigParameters.length === 0">
+                    {{ "msg.geen.gegevens.gevonden" | translate }}
+                  </p>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+          <div class="button-group flex-row flex-wrap">
+            <button mat-raised-button matStepperPrevious>
+              {{ "actie.terug" | translate }}
+            </button>
+            <button mat-raised-button matStepperNext>
+              {{ "actie.volgende" | translate }}
+            </button>
+            <button
+              mat-raised-button
+              color="primary"
+              [disabled]="!isValid() || loading"
+              (click)="opslaan()"
+            >
+              {{ "actie.opslaan" | translate }}
+            </button>
+          </div>
         </ng-template>
       </mat-step>
       <mat-step
@@ -719,104 +755,127 @@
           "gegevens.koppelingen" | translate
         }}</ng-template>
         <ng-template matStepContent>
-          <h2>
-            {{ "gegevens.landelijk.koppelingen" | translate }}
-          </h2>
-          <p>
-            {{ "gegevens.landelijk.koppelingen.omschrijving" | translate }}
-          </p>
-          <form class="flex-col gap-12" [formGroup]="betrokkeneKoppelingen">
-            <div class="flex-row items-center gap-8">
-              <mat-slide-toggle
-                formControlName="brpKoppelen"
-                (click)="$event.stopPropagation()"
-                color="primary"
-              ></mat-slide-toggle>
-              <p>{{ "gegevens.koppelen.brp" | translate }}</p>
-            </div>
-            <form
-              [formGroup]="brpDoelbindingFormGroup"
-              *ngIf="betrokkeneKoppelingen.controls.brpKoppelen.value"
-            >
+          <mat-card>
+            <mat-card-content>
+              <h2>
+                {{ "gegevens.landelijk.koppelingen" | translate }}
+              </h2>
               <p>
-                {{ "title.admin.parameters.step.brpDoelbinding" | translate }}
+                {{ "gegevens.landelijk.koppelingen.omschrijving" | translate }}
               </p>
-              <section class="flex-col">
-                <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
-                  <mat-label>{{
-                    "brpDoelbinding.zoekWaarde" | translate
-                  }}</mat-label>
-                  <mat-select
-                    placeholder="{{ 'resultaat.-kies-' | translate }}"
-                    [formControl]="brpDoelbindingFormGroup.controls.zoekWaarde"
-                  >
-                    <mat-option
-                      *ngFor="let value of brpSearchValues"
-                      [value]="value"
-                      >{{ value }}</mat-option
+              <form class="flex-col gap-12" [formGroup]="betrokkeneKoppelingen">
+                <div class="flex-row items-center gap-8">
+                  <mat-slide-toggle
+                    formControlName="brpKoppelen"
+                    (click)="$event.stopPropagation()"
+                    color="primary"
+                  ></mat-slide-toggle>
+                  <p>{{ "gegevens.koppelen.brp" | translate }}</p>
+                </div>
+                <form
+                  [formGroup]="brpDoelbindingFormGroup"
+                  *ngIf="betrokkeneKoppelingen.controls.brpKoppelen.value"
+                >
+                  <p>
+                    {{
+                      "title.admin.parameters.step.brpDoelbinding" | translate
+                    }}
+                  </p>
+                  <section class="flex-col">
+                    <mat-form-field
+                      class="flex-1 w33 w100-md"
+                      floatLabel="always"
                     >
-                  </mat-select>
-                </mat-form-field>
-                <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
-                  <mat-label>{{
-                    "brpDoelbinding.raadpleegWaarde" | translate
-                  }}</mat-label>
-                  <mat-select
-                    placeholder="{{ 'resultaat.-kies-' | translate }}"
-                    [formControl]="
-                      brpDoelbindingFormGroup.controls.raadpleegWaarde
-                    "
-                  >
-                    <mat-option
-                      *ngFor="let value of brpConsultingValues"
-                      [value]="value"
-                      >{{ value }}</mat-option
+                      <mat-label>{{
+                        "brpDoelbinding.zoekWaarde" | translate
+                      }}</mat-label>
+                      <mat-select
+                        placeholder="{{ 'resultaat.-kies-' | translate }}"
+                        [formControl]="
+                          brpDoelbindingFormGroup.controls.zoekWaarde
+                        "
+                      >
+                        <mat-option
+                          *ngFor="let value of brpSearchValues"
+                          [value]="value"
+                          >{{ value }}</mat-option
+                        >
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field
+                      class="flex-1 w33 w100-md"
+                      floatLabel="always"
                     >
-                  </mat-select>
-                </mat-form-field>
-              </section>
-            </form>
-            <div class="flex-row items-center gap-8">
-              <mat-slide-toggle
-                formControlName="kvkKoppelen"
-                (click)="$event.stopPropagation()"
-                color="primary"
-              ></mat-slide-toggle>
-              <p>{{ "gegevens.koppelen.kvk" | translate }}</p>
-            </div>
-          </form>
-          <form [formGroup]="smartDocumentsEnabledForm" class="flex-col">
-            <div class="flex-row items-center">
-              <section class="flex-1">
-                <h2>
-                  {{ "title.smartdocuments.form" | translate }}
-                </h2>
-                <p>
-                  {{
-                    "title.admin.parameters.step.smart-documents" | translate
-                  }}
-                </p>
-              </section>
-              <mat-slide-toggle
-                formControlName="enabledForZaaktype"
-                (click)="$event.stopPropagation()"
-                color="primary"
-              ></mat-slide-toggle>
-            </div>
-          </form>
-          <mat-divider class="my-3"></mat-divider>
-          <smart-documents-form
-            *ngIf="smartDocumentsEnabledForm.get('enabledForZaaktype').value"
-            [zaakTypeUuid]="parameters.zaaktype.uuid"
-            #smartDocumentsFormRef
-          >
-          </smart-documents-form>
-          <div
-            *ngIf="!smartDocumentsEnabledForm.get('enabledForZaaktype').value"
-            class="form-disabled-feedback"
-          >
-            {{ "msg.smartdocuments.form.disabled" | translate }}
-          </div>
+                      <mat-label>{{
+                        "brpDoelbinding.raadpleegWaarde" | translate
+                      }}</mat-label>
+                      <mat-select
+                        placeholder="{{ 'resultaat.-kies-' | translate }}"
+                        [formControl]="
+                          brpDoelbindingFormGroup.controls.raadpleegWaarde
+                        "
+                      >
+                        <mat-option
+                          *ngFor="let value of brpConsultingValues"
+                          [value]="value"
+                          >{{ value }}</mat-option
+                        >
+                      </mat-select>
+                    </mat-form-field>
+                  </section>
+                </form>
+                <div class="flex-row items-center gap-8">
+                  <mat-slide-toggle
+                    formControlName="kvkKoppelen"
+                    (click)="$event.stopPropagation()"
+                    color="primary"
+                  ></mat-slide-toggle>
+                  <p>{{ "gegevens.koppelen.kvk" | translate }}</p>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+          <mat-card>
+            <mat-card-content>
+              <form [formGroup]="smartDocumentsEnabledForm" class="flex-col">
+                <div class="flex-row items-center">
+                  <section class="flex-1">
+                    <h2>
+                      {{ "title.smartdocuments.form" | translate }}
+                    </h2>
+                    <p>
+                      {{
+                        "title.admin.parameters.step.smart-documents"
+                          | translate
+                      }}
+                    </p>
+                  </section>
+                  <mat-slide-toggle
+                    formControlName="enabledForZaaktype"
+                    (click)="$event.stopPropagation()"
+                    color="primary"
+                  ></mat-slide-toggle>
+                </div>
+              </form>
+              <mat-divider class="my-3"></mat-divider>
+              <smart-documents-form
+                *ngIf="
+                  smartDocumentsEnabledForm.get('enabledForZaaktype').value
+                "
+                [zaakTypeUuid]="parameters.zaaktype.uuid"
+                #smartDocumentsFormRef
+              >
+              </smart-documents-form>
+              <div
+                *ngIf="
+                  !smartDocumentsEnabledForm.get('enabledForZaaktype').value
+                "
+                class="form-disabled-feedback"
+              >
+                {{ "msg.smartdocuments.form.disabled" | translate }}
+              </div>
+            </mat-card-content>
+          </mat-card>
           <div class="button-group flex-row flex-wrap">
             <button mat-raised-button matStepperPrevious>
               {{ "actie.terug" | translate }}

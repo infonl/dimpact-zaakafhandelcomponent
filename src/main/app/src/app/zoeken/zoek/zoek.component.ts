@@ -23,7 +23,7 @@ import { DocumentZoekObject } from "../model/documenten/document-zoek-object";
 import { TaakZoekObject } from "../model/taken/taak-zoek-object";
 import { ZaakZoekObject } from "../model/zaken/zaak-zoek-object";
 import { ZoekObject } from "../model/zoek-object";
-import { ZoekParameters } from "../model/zoek-parameters";
+import { DEFAULT_ZOEK_PARAMETERS } from "../model/zoek-parameters";
 import { ZoekResultaat } from "../model/zoek-resultaat";
 import { ZoekType } from "../model/zoek-type";
 import { ZoekVeld } from "../model/zoek-veld";
@@ -41,9 +41,8 @@ export class ZoekComponent implements AfterViewInit, OnInit {
   zoekType: ZoekType = ZoekType.ZAC;
   ZoekType = ZoekType;
   ZoekVeld = ZoekVeld;
-  readonly zoekObjectType: GeneratedType<"ZoekObjectType">;
   zoekResultaat = new ZoekResultaat<ZoekObject>();
-  zoekParameters: ZoekParameters = new ZoekParameters();
+  zoekParameters: GeneratedType<"RestZoekParameters"> = DEFAULT_ZOEK_PARAMETERS;
   isLoadingResults = true;
   slow = false;
   zoekveldControl = new FormControl<ZoekVeld>(ZoekVeld.ALLE);
@@ -105,10 +104,10 @@ export class ZoekComponent implements AfterViewInit, OnInit {
         }),
       )
       .subscribe((data) => {
-        this.paginator.length = data.totaal;
+        this.paginator.length = data.totaal ?? 0;
         this.hasSearched = true;
         this.zoekService.hasSearched$.next(true);
-        this.zoekResultaat = data;
+        this.zoekResultaat = data as ZoekResultaat<ZoekObject>;
         this.bepaalContext();
       });
   }
@@ -125,7 +124,7 @@ export class ZoekComponent implements AfterViewInit, OnInit {
         naam === ("DOCUMENT" satisfies GeneratedType<"ZoekObjectType">),
     )?.aantal;
 
-    if (this.zoekParameters.filters.TYPE?.values?.length) {
+    if (this.zoekParameters.filters?.TYPE?.values?.length) {
       if (this.hasZaken) {
         this.hasZaken = this.zoekParameters.filters.TYPE.values.includes(
           "ZAAK" satisfies GeneratedType<"ZoekObjectType">,
@@ -145,8 +144,12 @@ export class ZoekComponent implements AfterViewInit, OnInit {
     }
   }
 
-  getZoekParameters(): ZoekParameters {
-    if (this.zoekveldControl.value && this.trefwoordenControl.value) {
+  getZoekParameters() {
+    if (
+      this.zoekveldControl.value &&
+      this.trefwoordenControl.value &&
+      this.zoekParameters.zoeken
+    ) {
       this.zoekParameters.zoeken[this.zoekveldControl.value] =
         this.trefwoordenControl.value;
     }
@@ -178,7 +181,7 @@ export class ZoekComponent implements AfterViewInit, OnInit {
     if (
       this.zoekveldControl.value &&
       this.trefwoordenControl.value !==
-        this.zoekParameters.zoeken[this.zoekveldControl.value]
+        this.zoekParameters.zoeken?.[this.zoekveldControl.value]
     ) {
       this.zoek.emit();
     }
@@ -201,7 +204,7 @@ export class ZoekComponent implements AfterViewInit, OnInit {
     this.trefwoordenControl.setValue("");
     this.zoekveldControl.setValue(ZoekVeld.ALLE);
     this.zoekResultaat = new ZoekResultaat();
-    this.zoekParameters = new ZoekParameters();
+    this.zoekParameters = DEFAULT_ZOEK_PARAMETERS;
     this.hasSearched = false;
     this.hasTaken = false;
     this.hasZaken = false;
@@ -209,7 +212,7 @@ export class ZoekComponent implements AfterViewInit, OnInit {
   }
 
   zoekVeldChanged() {
-    delete this.zoekParameters.zoeken[this.huidigZoekVeld];
+    delete this.zoekParameters.zoeken?.[this.huidigZoekVeld];
     if (!this.zoekveldControl.value) {
       return;
     }
@@ -222,14 +225,14 @@ export class ZoekComponent implements AfterViewInit, OnInit {
 
   betrokkeneActief(): boolean {
     return !!(
-      this.zoekParameters.zoeken.ZAAK_BETROKKENEN ||
-      this.zoekParameters.zoeken.ZAAK_INITIATOR ||
-      this.zoekParameters.zoeken.ZAAK_BETROKKENE_BELANGHEBBENDE ||
-      this.zoekParameters.zoeken.ZAAK_BETROKKENE_ADVISEUR ||
-      this.zoekParameters.zoeken.ZAAK_BETROKKENE_BESLISSER ||
-      this.zoekParameters.zoeken.ZAAK_BETROKKENE_KLANTCONTACTER ||
-      this.zoekParameters.zoeken.ZAAK_BETROKKENE_ZAAKCOORDINATOR ||
-      this.zoekParameters.zoeken.ZAAK_BETROKKENE_MEDE_INITIATOR
+      this.zoekParameters.zoeken?.ZAAK_BETROKKENEN ||
+      this.zoekParameters.zoeken?.ZAAK_INITIATOR ||
+      this.zoekParameters.zoeken?.ZAAK_BETROKKENE_BELANGHEBBENDE ||
+      this.zoekParameters.zoeken?.ZAAK_BETROKKENE_ADVISEUR ||
+      this.zoekParameters.zoeken?.ZAAK_BETROKKENE_BESLISSER ||
+      this.zoekParameters.zoeken?.ZAAK_BETROKKENE_KLANTCONTACTER ||
+      this.zoekParameters.zoeken?.ZAAK_BETROKKENE_ZAAKCOORDINATOR ||
+      this.zoekParameters.zoeken?.ZAAK_BETROKKENE_MEDE_INITIATOR
     );
   }
 }

@@ -343,7 +343,7 @@ class ZaakRestService @Inject constructor(
         restZaakEditMetRedenGegevens.zaak.run {
             behandelaar?.id?.let { behandelaarId ->
                 groep?.id?.let { groepId ->
-                    identityService.checkIfUserIsInGroup(behandelaarId, groepId)
+                    identityService.validateIfUserIsInGroup(behandelaarId, groepId)
                 }
             }
         }
@@ -546,7 +546,7 @@ class ZaakRestService @Inject constructor(
         }
         toekennenGegevens.assigneeUserName?.let { behandelaarId ->
             toekennenGegevens.groupId.let { groepId ->
-                identityService.checkIfUserIsInGroup(behandelaarId, groepId)
+                identityService.validateIfUserIsInGroup(behandelaarId, groepId)
             }
         }
 
@@ -597,7 +597,7 @@ class ZaakRestService @Inject constructor(
     @Path("lijst/verdelen")
     fun assignFromList(@Valid restZakenVerdeelGegevens: RESTZakenVerdeelGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
-        // this can be a long-running operation so run it asynchronously
+        // this can be a long-running operation, so run it asynchronously
         CoroutineScope(dispatcher).launch {
             zaakService.assignZaken(
                 zaakUUIDs = restZakenVerdeelGegevens.uuids,

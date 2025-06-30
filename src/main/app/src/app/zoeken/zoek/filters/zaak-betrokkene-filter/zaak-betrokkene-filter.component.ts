@@ -13,7 +13,7 @@ import {
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
-import { ZoekParameters } from "../../../model/zoek-parameters";
+import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { ZoekVeld } from "../../../model/zoek-veld";
 import { KlantZoekDialog } from "./klant-zoek-dialog.component";
 
@@ -23,7 +23,7 @@ import { KlantZoekDialog } from "./klant-zoek-dialog.component";
   styleUrls: ["./zaak-betrokkene-filter.component.less"],
 })
 export class ZaakBetrokkeneFilterComponent implements OnInit {
-  @Input() zoekparameters: ZoekParameters;
+  @Input() zoekparameters: GeneratedType<"RestZoekParameters">;
   @Output() changed = new EventEmitter<string>();
   dialogOpen: boolean;
   betrokkeneSelectControl = new FormControl<ZoekVeld>(ZoekVeld.ZAAK_INITIATOR);

@@ -25,7 +25,9 @@ class ZacClient {
         productaanvraagType: String,
         domein: String? = null,
         brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
-        brpDoelbindingenRaadpleegWaarde: String = "BRPACT-Totaal"
+        brpDoelbindingenRaadpleegWaarde: String = "BRPACT-Totaal",
+        automaticEmailConfirmationSender: String = "sender@info.nl",
+        automaticEmailConfirmationReply: String = "reply@info.nl"
     ): Response {
         logger.info {
             "Creating zaakafhandelparameters in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
@@ -217,6 +219,12 @@ class ZacClient {
               "brpDoelbindingen": {
                 "zoekWaarde": "$brpDoelbindingenZoekWaarde",
                 "raadpleegWaarde": "$brpDoelbindingenRaadpleegWaarde"
+              },
+              "automaticEmailConfirmation": {
+                "enabled": true,
+                "templateName": "Ontvangstbevestiging",
+                "emailSender": "$automaticEmailConfirmationSender",
+                "emailReply": "$automaticEmailConfirmationReply"
               }
             }
             """.trimIndent()
@@ -277,6 +285,15 @@ class ZacClient {
         }
         return itestHttpClient.performGetRequest(
             url = "${ZAC_API_URI}/zaken/zaak/$zaakUUID"
+        )
+    }
+
+    fun retrieveZaak(id: String): Response {
+        logger.info {
+            "Retrieving zaak with id: $id"
+        }
+        return itestHttpClient.performGetRequest(
+            url = "${ZAC_API_URI}/zaken/zaak/id/$id"
         )
     }
 }

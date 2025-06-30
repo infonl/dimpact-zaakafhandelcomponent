@@ -14,8 +14,6 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { TranslateService } from "@ngx-translate/core";
 import { Observable, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { Mail } from "../../admin/model/mail";
-import { Mailtemplate } from "../../admin/model/mailtemplate";
 import { UtilService } from "../../core/service/util.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
@@ -36,7 +34,7 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
   sendMailDefault = false;
   formGroup: FormGroup;
   besluitVastleggen = false;
-  mailtemplate?: Mailtemplate;
+  mailtemplate?: GeneratedType<"RESTMailtemplate">;
   planItem: GeneratedType<"RESTPlanItem">;
   initiatorEmail?: string;
   initiatorToevoegenIcon = new ActionIcon(
@@ -68,7 +66,7 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
       this.data.zaak.uuid,
     );
     this.mailtemplateService
-      .findMailtemplate(Mail.ZAAK_AFGEHANDELD, this.data.zaak.uuid)
+      .findMailtemplate("ZAAK_AFGEHANDELD", this.data.zaak.uuid)
       .subscribe((mailtemplate) => {
         this.mailtemplate = mailtemplate;
       });
@@ -104,11 +102,13 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
           : null,
       ],
     });
+
     this.zakenService
       .readDefaultAfzenderVoorZaak(this.data.zaak.uuid)
       .subscribe((afzender) => {
         this.formGroup.get("verzender")?.setValue(afzender);
       });
+
     this.formGroup
       .get("sendMail")
       ?.valueChanges.pipe(takeUntil(this.ngDestroy))
@@ -124,6 +124,7 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
           );
         this.formGroup?.get("ontvanger")?.updateValueAndValidity();
       });
+
     this.formGroup
       ?.get("resultaattype")
       ?.valueChanges.pipe(takeUntil(this.ngDestroy))
@@ -143,11 +144,11 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
       });
   }
 
-  close(): void {
+  protected close(): void {
     this.dialogRef.close();
   }
 
-  afhandelen(): void {
+  protected afhandelen(): void {
     this.dialogRef.disableClose = true;
     this.loading = true;
     const values = this.formGroup.value;
@@ -158,7 +159,8 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
         planItemInstanceId: this.planItem.id,
         zaakUuid: this.data.zaak.uuid,
         resultaattypeUuid:
-          this.data.zaak.resultaat.resultaattype?.id ?? values.resultaattype.id,
+          this.data.zaak.resultaat?.resultaattype?.id ??
+          values.resultaattype.id,
         resultaatToelichting: values.toelichting,
         restMailGegevens:
           values.sendMail && this.mailtemplate
@@ -180,11 +182,11 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
       });
   }
 
-  setInitatorEmail() {
+  protected setInitiatorEmail() {
     this.formGroup.get("ontvanger")?.setValue(this.initiatorEmail);
   }
 
-  getError(fc: AbstractControl, label: string) {
+  protected getError(fc: AbstractControl, label: string) {
     return CustomValidators.getErrorMessage(fc, label, this.translateService);
   }
 
@@ -193,9 +195,10 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
     this.ngDestroy.complete();
   }
 
-  openBesluitVastleggen(): void {
+  protected openBesluitVastleggen(): void {
     this.dialogRef.close("openBesluitVastleggen");
   }
 
-  compareObject = (a: unknown, b: unknown) => this.utilService.compare(a, b);
+  protected compareObject = (a: unknown, b: unknown) =>
+    this.utilService.compare(a, b);
 }

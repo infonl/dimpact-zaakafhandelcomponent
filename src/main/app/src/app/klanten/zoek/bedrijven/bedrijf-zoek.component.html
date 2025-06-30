@@ -39,14 +39,14 @@
     </div>
   </div>
   <button
-    mat-flat-button
+    mat-raised-button
     color="primary"
     [disabled]="!isValid() || loading"
     (click)="zoekBedrijven()"
   >
     {{ "actie.zoeken" | translate }}
   </button>
-  <button mat-flat-button (click)="wissen()">
+  <button mat-raised-button (click)="wissen()">
     {{ "actie.wissen" | translate }}
   </button>
 </div>

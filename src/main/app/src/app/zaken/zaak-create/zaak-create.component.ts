@@ -4,12 +4,12 @@
  */
 
 import { Component, ViewChild } from "@angular/core";
-import { FormBuilder, FormControl, Validators } from "@angular/forms";
+import { FormBuilder, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
-import { Observable, of } from "rxjs";
+import { EMPTY, Observable, of } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
@@ -37,7 +37,7 @@ export class ZaakCreateComponent {
 
   private readonly inboxProductaanvraag: GeneratedType<"RESTInboxProductaanvraag">;
 
-  protected groups: Observable<GeneratedType<"RestGroup">[]> | null = null;
+  protected groups: Observable<GeneratedType<"RestGroup">[]> = of([]);
   protected users: GeneratedType<"RestUser">[] = [];
   protected caseTypes = this.zakenService.listZaaktypes();
   protected communicationChannels: string[] = [];
@@ -47,30 +47,30 @@ export class ZaakCreateComponent {
   );
 
   protected readonly form = this.formBuilder.group({
-    zaaktype: new FormControl<GeneratedType<"RestZaaktype"> | null>(null, [
-      Validators.required,
-    ]),
-    initiator: new FormControl<
-      GeneratedType<"RestPersoon" | "RestBedrijf"> | null | undefined
-    >(null),
-    startdatum: new FormControl(moment(), [Validators.required]),
-    bagObjecten: new FormControl<GeneratedType<"RESTBAGObject">[]>([]),
-    groep: new FormControl<GeneratedType<"RestGroup"> | null | undefined>(
+    zaaktype: this.formBuilder.control<GeneratedType<"RestZaaktype"> | null>(
       null,
       [Validators.required],
     ),
-    behandelaar: new FormControl<GeneratedType<"RestUser"> | null | undefined>(
-      null,
-    ),
-    communicatiekanaal: new FormControl("", [Validators.required]),
-    vertrouwelijkheidaanduiding: new FormControl<
+    initiator: this.formBuilder.control<
+      GeneratedType<"RestPersoon" | "RestBedrijf"> | null | undefined
+    >(null),
+    startdatum: this.formBuilder.control(moment(), [Validators.required]),
+    bagObjecten: this.formBuilder.control<GeneratedType<"RESTBAGObject">[]>([]),
+    groep: this.formBuilder.control<
+      GeneratedType<"RestGroup"> | null | undefined
+    >(null, [Validators.required]),
+    behandelaar: this.formBuilder.control<
+      GeneratedType<"RestUser"> | null | undefined
+    >(null),
+    communicatiekanaal: this.formBuilder.control("", [Validators.required]),
+    vertrouwelijkheidaanduiding: this.formBuilder.control<
       (typeof this.confidentialityNotices)[number] | null | undefined
     >(null, [Validators.required]),
-    omschrijving: new FormControl("", [
+    omschrijving: this.formBuilder.control("", [
       Validators.maxLength(80),
       Validators.required,
     ]),
-    toelichting: new FormControl("", [Validators.maxLength(1000)]),
+    toelichting: this.formBuilder.control("", [Validators.maxLength(1000)]),
   });
 
   constructor(
@@ -89,6 +89,7 @@ export class ZaakCreateComponent {
       router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
     this.form.controls.groep.disable();
     this.form.controls.behandelaar.disable();
+    this.form.controls.initiator.disable();
 
     referentieTabelService
       .listCommunicatiekanalen(Boolean(this.inboxProductaanvraag))
@@ -102,9 +103,17 @@ export class ZaakCreateComponent {
         }
       });
 
-    this.form.controls.zaaktype.valueChanges.subscribe((caseType) =>
-      this.caseTypeSelected(caseType),
-    );
+    this.form.controls.zaaktype.valueChanges.subscribe((caseType) => {
+      this.caseTypeSelected(caseType);
+
+      if (!this.canAddInitiator()) {
+        this.form.controls.initiator.setValue(null);
+        this.form.controls.initiator.disable();
+        return;
+      }
+
+      this.form.controls.initiator.enable();
+    });
     this.form.controls.groep.valueChanges.subscribe((value) => {
       if (!value) {
         this.form.controls.behandelaar.setValue(null);
@@ -146,7 +155,7 @@ export class ZaakCreateComponent {
       .pipe(
         catchError(() => {
           this.form.reset();
-          return of();
+          return EMPTY;
         }),
       )
       .subscribe((zaak) =>

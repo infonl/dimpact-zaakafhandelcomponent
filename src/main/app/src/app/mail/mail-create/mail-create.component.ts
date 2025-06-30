@@ -3,17 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
-import { ActivatedRoute, Router } from "@angular/router";
 import { Subject } from "rxjs";
-import { Mail } from "../../admin/model/mail";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { ActionIcon } from "../../shared/edit/action-icon";
@@ -28,7 +24,6 @@ import { AbstractFormControlField } from "../../shared/material-form-builder/mod
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { NavigationService } from "../../shared/navigation/navigation.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { TakenService } from "../../taken/taken.service";
@@ -65,10 +60,6 @@ export class MailCreateComponent implements OnInit {
   constructor(
     private zakenService: ZakenService,
     private informatieObjectenService: InformatieObjectenService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private navigation: NavigationService,
-    private http: HttpClient,
     private identityService: IdentityService,
     private mailService: MailService,
     private mailtemplateService: MailtemplateService,
@@ -87,15 +78,14 @@ export class MailCreateComponent implements OnInit {
     });
 
     const mailtemplate = this.mailtemplateService.findMailtemplate(
-      Mail.ZAAK_ALGEMEEN,
+      "ZAAK_ALGEMEEN",
       this.zaak.uuid,
     );
-    const zoekparameters = new InformatieobjectZoekParameters();
-    zoekparameters.zaakUUID = this.zaak.uuid;
+
     const documenten =
-      this.informatieObjectenService.listEnkelvoudigInformatieobjecten(
-        zoekparameters,
-      );
+      this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+        zaakUUID: this.zaak.uuid,
+      });
 
     this.verzenderFormField = new SelectFormFieldBuilder()
       .id(this.fieldNames.VERZENDER)

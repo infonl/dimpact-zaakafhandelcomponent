@@ -18,7 +18,6 @@ import { of } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
-import { IdentityService } from "../../identity/identity.service";
 import { HtmlEditorFormField } from "../../shared/material-form-builder/form-components/html-editor/html-editor-form-field";
 import { HtmlEditorFormFieldBuilder } from "../../shared/material-form-builder/form-components/html-editor/html-editor-form-field-builder";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
@@ -27,10 +26,10 @@ import { ReadonlyFormFieldBuilder } from "../../shared/material-form-builder/for
 import { SelectFormField } from "../../shared/material-form-builder/form-components/select/select-form-field";
 import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
 import { AbstractFormControlField } from "../../shared/material-form-builder/model/abstract-form-control-field";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
-import { Mail } from "../model/mail";
-import { Mailtemplate } from "../model/mailtemplate";
+import { mailSelectList } from "../model/mail-utils";
 
 @Component({
   templateUrl: "./mailtemplate.component.html",
@@ -59,15 +58,14 @@ export class MailtemplateComponent
   bodyFormField?: HtmlEditorFormField;
   defaultMailtemplateFormField?: AbstractFormControlField;
 
-  template: Mailtemplate = new Mailtemplate();
+  template?: GeneratedType<"RESTMailtemplate"> | null = null;
 
   isLoadingResults = false;
 
   constructor(
     public utilService: UtilService,
     public configuratieService: ConfiguratieService,
-    private identityService: IdentityService,
-    private service: MailtemplateBeheerService,
+    private mailTemplateBeheerService: MailtemplateBeheerService,
     private route: ActivatedRoute,
     private router: Router,
     private translateService: TranslateService,
@@ -77,18 +75,18 @@ export class MailtemplateComponent
 
   ngOnInit(): void {
     this.route.data.subscribe((data) => {
-      this.init(data?.template ?? new Mailtemplate());
+      this.init(data?.template ?? {});
     });
   }
 
-  init(mailtemplate: Mailtemplate): void {
+  init(mailtemplate: GeneratedType<"RESTMailtemplate">) {
     this.template = mailtemplate;
     this.setupMenu("title.mailtemplate");
     this.createForm(mailtemplate);
   }
 
-  createForm(mailtemplate: Mailtemplate) {
-    const mails = this.utilService.getEnumAsSelectList("mail", Mail);
+  createForm(mailtemplate: GeneratedType<"RESTMailtemplate">) {
+    // const mails = this.utilService.getEnumAsSelectList("mail", Mail);
 
     this.naamFormField = new InputFormFieldBuilder(
       mailtemplate.mailTemplateNaam,
@@ -112,7 +110,11 @@ export class MailtemplateComponent
         .id(this.fields.MAIL)
         .label(this.fields.MAIL)
         .optionLabel("label")
-        .options(mails)
+        .options(mailSelectList())
+        .settings({
+          translateLabels: true,
+          capitalizeFirstLetter: true,
+        })
         .validators(Validators.required)
         .build();
     }
@@ -121,7 +123,7 @@ export class MailtemplateComponent
     )
       .id(this.fields.ONDERWERP)
       .label(this.fields.ONDERWERP)
-      .variabelen(mailtemplate.variabelen)
+      .variabelen(mailtemplate.variabelen ?? [])
       .emptyToolbar()
       .validators(Validators.required)
       .maxlength(100)
@@ -129,7 +131,7 @@ export class MailtemplateComponent
     this.bodyFormField = new HtmlEditorFormFieldBuilder(mailtemplate.body)
       .id(this.fields.BODY)
       .label(this.fields.BODY)
-      .variabelen(mailtemplate.variabelen)
+      .variabelen(mailtemplate.variabelen ?? [])
       .validators(Validators.required)
       .build();
     this.defaultMailtemplateFormField = new InputFormFieldBuilder(
@@ -141,10 +143,12 @@ export class MailtemplateComponent
 
     this.subscriptions$.push(
       (
-        this.mailFormField.formControl as FormControl<{ value: Mail }>
+        this.mailFormField.formControl as FormControl<{
+          value: GeneratedType<"Mail">;
+        }>
       ).valueChanges.subscribe((value) => {
         if (value) {
-          this.service
+          this.mailTemplateBeheerService
             .ophalenVariabelenVoorMail(value.value)
             .subscribe((variabelen) => {
               if (this.onderwerpFormField) {
@@ -159,13 +163,12 @@ export class MailtemplateComponent
     );
   }
 
-  ngOnDestroy(): void {
-    for (const subscription of this.subscriptions$) {
-      subscription.unsubscribe();
-    }
+  ngOnDestroy() {
+    this.subscriptions$.forEach((subscription) => subscription.unsubscribe());
   }
 
-  saveMailtemplate(): void {
+  saveMailtemplate() {
+    if (!this.template) return;
     this.template.defaultMailtemplate = Boolean(
       this.defaultMailtemplateFormField?.formControl.value,
     );
@@ -184,26 +187,26 @@ export class MailtemplateComponent
     this.persistMailtemplate();
   }
 
-  private persistMailtemplate(): void {
-    this.service
-      .persistMailtemplate(this.template)
+  private persistMailtemplate() {
+    this.mailTemplateBeheerService
+      .persistMailtemplate(this.template!)
       .pipe(catchError(() => of(this.template)))
       .subscribe(() => {
         this.utilService.openSnackbar("msg.mailtemplate.opgeslagen");
-        this.router.navigate(["/admin/mailtemplates"]);
+        void this.router.navigate(["/admin/mailtemplates"]);
       });
   }
 
   cancel() {
-    this.router.navigate(["/admin/mailtemplates"]);
+    void this.router.navigate(["/admin/mailtemplates"]);
   }
 
   isInvalid() {
-    return (
+    return Boolean(
       this.naamFormField?.formControl.invalid ||
-      this.mailFormField?.formControl.invalid ||
-      this.onderwerpFormField?.formControl.invalid ||
-      this.bodyFormField?.formControl.invalid
+        this.mailFormField?.formControl.invalid ||
+        this.onderwerpFormField?.formControl.invalid ||
+        this.bodyFormField?.formControl.invalid,
     );
   }
 }

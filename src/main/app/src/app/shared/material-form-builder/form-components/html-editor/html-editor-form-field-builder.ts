@@ -4,9 +4,8 @@
  */
 
 import { Observable } from "rxjs";
-import { Mailtemplate } from "../../../../admin/model/mailtemplate";
-import { MailtemplateVariabele } from "../../../../admin/model/mailtemplate-variabele";
 import { ActionIcon } from "../../../edit/action-icon";
+import { GeneratedType } from "../../../utils/generated-types";
 import { AbstractFormFieldBuilder } from "../../model/abstract-form-field-builder";
 import { HtmlEditorFormField } from "./html-editor-form-field";
 
@@ -21,17 +20,21 @@ export class HtmlEditorFormFieldBuilder<
     this.formField.initControl(value ? value : ("" as T));
   }
 
-  mailtemplateBody(mailtemplate$: Observable<Mailtemplate>): this {
+  mailtemplateBody(
+    mailtemplate$: Observable<GeneratedType<"RESTMailtemplate">>,
+  ): this {
     this.formField.mailtemplateBody$ = mailtemplate$;
     return this;
   }
 
-  mailtemplateOnderwerp(mailtemplate$: Observable<Mailtemplate>): this {
+  mailtemplateOnderwerp(
+    mailtemplate$: Observable<GeneratedType<"RESTMailtemplate">>,
+  ): this {
     this.formField.mailtemplateOnderwerp$ = mailtemplate$;
     return this;
   }
 
-  variabelen(variabelen: MailtemplateVariabele[]): this {
+  variabelen(variabelen: string[]): this {
     this.formField.variabelen = variabelen;
     return this;
   }
