@@ -5,6 +5,7 @@
 
 package nl.info.zac.admin.model
 
+import net.atos.zac.admin.model.AutomaticEmailConfirmation
 import net.atos.zac.admin.model.BetrokkeneKoppelingen
 import net.atos.zac.admin.model.BrpDoelbindingen
 import net.atos.zac.admin.model.HumanTaskParameters
@@ -95,7 +96,8 @@ fun createZaakafhandelParameters(
     brpDoelbindingen: BrpDoelbindingen? = BrpDoelbindingen().apply {
         zoekWaarde = ""
         raadpleegWaarde = ""
-    }
+    },
+    automaticEmailConfirmation: AutomaticEmailConfirmation = createAutomaticEmailConfirmation(),
 ) =
     ZaakafhandelParameters().apply {
         this.id = id
@@ -124,6 +126,9 @@ fun createZaakafhandelParameters(
         this.brpDoelbindingen = brpDoelbindingen.apply {
             this?.zaakafhandelParameters = parameters
         }
+        this.automaticEmailConfirmation = automaticEmailConfirmation.apply {
+            this.zaakafhandelParameters = parameters
+        }
     }
 
 fun createMailtemplateKoppelingen(
@@ -134,6 +139,24 @@ fun createMailtemplateKoppelingen(
     this.id = id
     this.zaakafhandelParameters = zaakafhandelParameters
     this.mailTemplate = mailTemplate
+}
+
+@Suppress("LongParameterList")
+fun createAutomaticEmailConfirmation(
+    id: Long? = 1234L,
+    enabled: Boolean = true,
+    templateName: String? = "fakeTemplateName",
+    emailSender: String? = "sender@info.nl",
+    emailReply: String? = "reply@info.nl",
+    // Do not add default `= createZaakafhandelParameters()` as it will cause infinite loop
+    zaakafhandelParameters: ZaakafhandelParameters? = null,
+) = AutomaticEmailConfirmation().apply {
+    this.id = id
+    this.enabled = enabled
+    this.templateName = templateName
+    this.emailSender = emailSender
+    this.emailReply = emailReply
+    this.zaakafhandelParameters = zaakafhandelParameters
 }
 
 fun createMailTemplate(

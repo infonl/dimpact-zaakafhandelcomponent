@@ -30,12 +30,8 @@ import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
-import { FormulierDefinitie } from "../model/formulier-definitie";
-import { FormulierVeldDefinitie } from "../model/formulier-veld-definitie";
 import { HumanTaskReferentieTabel } from "../model/human-task-referentie-tabel";
 import { getBeschikbareMailtemplateKoppelingen } from "../model/mail-utils";
-import { ReferentieTabel } from "../model/referentie-tabel";
-import { ReplyTo } from "../model/replyto";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
@@ -76,6 +72,12 @@ export class ParameterEditComponent
       raadpleegWaarde: "",
     },
     productaanvraagtype: null,
+    automaticEmailConfirmation: {
+      enabled: false,
+      templateName: null,
+      emailSender: null,
+      emailReply: null,
+    },
   };
 
   humanTaskParameters: GeneratedType<"RESTHumanTaskParameters">[] = [];
@@ -134,13 +136,16 @@ export class ParameterEditComponent
     kvkKoppelen: new FormControl(false),
   });
 
-  automatischeOntvangstbevestiging = new FormGroup({
-    active: new FormControl(false),
-  });
-  automatischeOntvangstbevestigingFormGroup = new FormGroup({
-    emailTemplate: new FormControl(""),
-    afzender: new FormControl(""),
-    replyTo: new FormControl(""),
+  automatischeOntvangstbevestigingFormGroup = this.formBuilder.group({
+    enabled: this.formBuilder.control(false),
+    templateName:
+      this.formBuilder.control<GeneratedType<"RESTMailtemplate"> | null>(null),
+    emailSender: this.formBuilder.control<GeneratedType<"RESTReplyTo"> | null>(
+      null,
+    ),
+    emailReply: this.formBuilder.control<GeneratedType<"RESTReplyTo"> | null>(
+      null,
+    ),
   });
 
   mailOpties: {
@@ -158,11 +163,11 @@ export class ParameterEditComponent
   protected groepen = this.identityService.listGroups();
   protected medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
   resultaattypes: GeneratedType<"RestResultaattype">[] = [];
-  referentieTabellen: ReferentieTabel[] = [];
-  formulierDefinities: FormulierDefinitie[] = [];
+  formulierDefinities: GeneratedType<"RESTTaakFormulierDefinitie">[] = [];
+  referentieTabellen: GeneratedType<"RestReferenceTable">[] = [];
   zaakbeeindigRedenen: GeneratedType<"RESTZaakbeeindigReden">[] = [];
   mailtemplates: GeneratedType<"RESTMailtemplate">[] = [];
-  replyTos: ReplyTo[] = [];
+  replyTos: GeneratedType<"RESTReplyTo">[] = [];
   loading = false;
   subscriptions$: Subscription[] = [];
   brpConsultingValues: string[] = [];
@@ -359,8 +364,7 @@ export class ParameterEditComponent
     this.createSmartDocumentsEnabledForm();
     this.createBetrokkeneKoppelingenForm();
     this.createBrpDoelbindingForm();
-    this.createAutomatischeOntvangsbevestiging();
-    this.createAutomatischeOntvangstbevestigingFormGroup();
+    this.createAutomatischeOntvangstbevestigingForm();
   }
 
   protected isHumanTaskParameterValid(
@@ -426,7 +430,7 @@ export class ParameterEditComponent
 
   private getReferentieTabel(
     humanTaskParameters: GeneratedType<"RESTHumanTaskParameters">,
-    veldDefinitie: FormulierVeldDefinitie,
+    veldDefinitie: GeneratedType<"RESTTaakFormulierVeldDefinitie">,
   ) {
     const humanTaskReferentieTabel =
       humanTaskParameters.referentieTabellen?.find(
@@ -526,51 +530,38 @@ export class ParameterEditComponent
     });
   }
 
-  private createAutomatischeOntvangsbevestiging() {
-    // @ts-expect-error ==== waiting for RESTZaak to be updated with latest contract
-    const { automatischeOntvangstbevestiging } = this.parameters;
+  private createAutomatischeOntvangstbevestigingForm() {
+    const { automaticEmailConfirmation } = this.parameters;
 
-    this.automatischeOntvangstbevestiging = this.formBuilder.group({
-      active: [automatischeOntvangstbevestiging ?? false],
-    });
-
-    this.automatischeOntvangstbevestiging.controls.active.valueChanges.subscribe(
-      (value) => {
-        this.automatischeOntvangstbevestigingFormGroup.controls.emailTemplate.setValidators(
-          value ? [Validators.required] : [],
+    this.automatischeOntvangstbevestigingFormGroup.controls.enabled.valueChanges.subscribe(
+      (enabled) => {
+        const validators = enabled ? [Validators.required] : [];
+        this.automatischeOntvangstbevestigingFormGroup.controls.templateName.setValidators(
+          validators,
         );
-        this.automatischeOntvangstbevestigingFormGroup.controls.afzender.setValidators(
-          value ? [Validators.required] : [],
+        this.automatischeOntvangstbevestigingFormGroup.controls.emailSender.setValidators(
+          validators,
         );
-
-        this.automatischeOntvangstbevestigingFormGroup.updateValueAndValidity({
-          emitEvent: false,
-        });
-        if (value) return;
-
-        this.automatischeOntvangstbevestigingFormGroup.reset();
+        this.automatischeOntvangstbevestigingFormGroup.updateValueAndValidity();
       },
     );
-  }
 
-  private createAutomatischeOntvangstbevestigingFormGroup() {
-    // @ts-expect-error ==== waiting for RESTZaak to be updated with latest contract
-    const { automatischeOntvangstbevestiging } = this.parameters;
-
-    this.automatischeOntvangstbevestigingFormGroup = this.formBuilder.group({
-      emailTemplate: [
-        automatischeOntvangstbevestiging?.emailTemplate ?? "",
-        this.automatischeOntvangstbevestiging.controls.active.value
-          ? [Validators.required]
-          : [],
-      ],
-      afzender: [
-        automatischeOntvangstbevestiging?.afzender ?? "",
-        this.automatischeOntvangstbevestiging.controls.active.value
-          ? [Validators.required]
-          : [],
-      ],
-      replyTo: [automatischeOntvangstbevestiging?.replyTo ?? ""],
+    this.automatischeOntvangstbevestigingFormGroup.setValue({
+      templateName:
+        this.getBeschikbareMailtemplates("TAAK_ONTVANGSTBEVESTIGING").find(
+          (template) =>
+            template.mailTemplateNaam ===
+            automaticEmailConfirmation.templateName,
+        ) ?? null,
+      emailSender:
+        this.replyTos.find(
+          (replyTo) => replyTo.mail === automaticEmailConfirmation.emailSender,
+        ) ?? null,
+      emailReply:
+        this.replyTos.find(
+          (replyTo) => replyTo.mail === automaticEmailConfirmation.emailReply,
+        ) ?? null,
+      enabled: automaticEmailConfirmation.enabled ?? false,
     });
   }
 
@@ -891,9 +882,15 @@ export class ParameterEditComponent
 
     this.parameters.brpDoelbindingen = this.brpDoelbindingFormGroup.value;
 
-    // @ts-expect-error ==== waiting for RESTZaak to be updated with latest contract
-    this.parameters.automatischeOntvangstbevestiging =
+    const { templateName, emailSender, emailReply, enabled } =
       this.automatischeOntvangstbevestigingFormGroup.value;
+    this.parameters.automaticEmailConfirmation = {
+      templateName: templateName?.mailTemplateNaam ?? null,
+      emailReply: emailReply?.mail ?? null,
+      emailSender: emailSender?.mail ?? null,
+      enabled: Boolean(enabled),
+    };
+    console.log(this.parameters.automaticEmailConfirmation);
 
     this.zaakafhandelParametersService
       .updateZaakafhandelparameters(this.parameters)
@@ -963,11 +960,9 @@ export class ParameterEditComponent
     return parseInt(value?.toString(), 10);
   }
 
-  protected showOntvangstbevestiging() {
-    return document.cookie
-      .split(";")
-      .some((c) => c.trim().startsWith("ontvangstbevestiging="))
-      ? true
-      : false;
+  protected replyToDisplayValue(replyTo: GeneratedType<"RESTReplyTo">) {
+    return replyTo.speciaal
+      ? "gegevens.mail.afzender." + replyTo.mail
+      : replyTo.mail;
   }
 }
