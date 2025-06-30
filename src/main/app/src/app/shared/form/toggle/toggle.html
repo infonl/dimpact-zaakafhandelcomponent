@@ -1,0 +1,25 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  ~
+  -->
+
+<div [formGroup]="form" class="full-width">
+  <mat-slide-toggle
+    class="flex"
+    [formControlName]="key"
+    color="primary"
+    [required]="required"
+    [labelPosition]="labelPosition"
+  >
+    <mat-label>
+      <ng-content select="mat-label">
+        {{ label ?? key | translate | capitalizeFirstLetter }}
+      </ng-content>
+    </mat-label>
+  </mat-slide-toggle>
+  <mat-error>{{ getErrorMessage() }}</mat-error>
+  <mat-hint>
+    <ng-content select="mat-hint"></ng-content>
+  </mat-hint>
+</div>

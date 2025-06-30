@@ -9,6 +9,7 @@ import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.AutomaticEmailConfirmation
 import net.atos.zac.admin.model.BetrokkeneKoppelingen
 import net.atos.zac.admin.model.BrpDoelbindingen
 import net.atos.zac.admin.model.HumanTaskParameters
@@ -219,6 +220,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         mapZaakAfzenders(previousZaakafhandelparameters, zaakafhandelParameters)
         mapBetrokkeneKoppelingen(previousZaakafhandelparameters, zaakafhandelParameters)
         mapBrpDoelbindingen(previousZaakafhandelparameters, zaakafhandelParameters)
+        mapAutomaticEmailConfirmation(previousZaakafhandelparameters, zaakafhandelParameters)
     }
 
     private fun currentZaakafhandelParameters(zaaktypeUuid: UUID): ZaakafhandelParameters {
@@ -398,6 +400,19 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             newZaakafhandelParameters,
             previousZaakafhandelParameters.brpDoelbindingen.zoekWaarde,
             previousZaakafhandelParameters.brpDoelbindingen.raadpleegWaarde
+        )
+    }
+
+    private fun mapAutomaticEmailConfirmation(
+        previousZaakafhandelParameters: ZaakafhandelParameters,
+        newZaakafhandelParameters: ZaakafhandelParameters
+    ) = newZaakafhandelParameters.apply {
+        automaticEmailConfirmation = AutomaticEmailConfirmation(
+            newZaakafhandelParameters,
+            previousZaakafhandelParameters.automaticEmailConfirmation.enabled,
+            previousZaakafhandelParameters.automaticEmailConfirmation.templateName,
+            previousZaakafhandelParameters.automaticEmailConfirmation.emailSender,
+            previousZaakafhandelParameters.automaticEmailConfirmation.emailReply,
         )
     }
 }

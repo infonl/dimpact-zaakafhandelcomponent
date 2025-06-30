@@ -35,6 +35,7 @@ import { MatMenuModule } from "@angular/material/menu";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatRadioModule } from "@angular/material/radio";
 import { MatSelectModule } from "@angular/material/select";
+import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { MatTableModule } from "@angular/material/table";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
@@ -47,6 +48,7 @@ import { ZacDate } from "../form/date/date";
 import { ZacInput } from "../form/input/input";
 import { ZacSelect } from "../form/select/select";
 import { ZacTextarea } from "../form/textarea/textarea";
+import { ZacToggle } from "../form/toggle/toggle";
 import { InformatieObjectIndicatiesComponent } from "../indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { EnhanceMatErrorDirective } from "../material/mat-zac-error";
 import { CapitalizeFirstLetterPipe } from "../pipes/capitalizeFirstLetter.pipe";
@@ -113,6 +115,7 @@ import {
     ZacSelect,
     ZacInput,
     ZacTextarea,
+    ZacToggle,
   ],
   exports: [
     FileDragAndDropDirective,
@@ -140,6 +143,7 @@ import {
     ZacSelect,
     ZacInput,
     ZacTextarea,
+    ZacToggle,
     CapitalizeFirstLetterPipe,
   ],
   imports: [
@@ -158,6 +162,7 @@ import {
     MatDatepickerModule,
     MatAutocompleteModule,
     MatChipsModule,
+    MatSlideToggleModule,
     TranslateModule,
     PipesModule,
     MatTableModule,
