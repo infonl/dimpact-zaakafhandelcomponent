@@ -30,11 +30,8 @@ import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
-import { FormulierDefinitie } from "../model/formulier-definitie";
-import { FormulierVeldDefinitie } from "../model/formulier-veld-definitie";
 import { HumanTaskReferentieTabel } from "../model/human-task-referentie-tabel";
 import { getBeschikbareMailtemplateKoppelingen } from "../model/mail-utils";
-import { ReplyTo } from "../model/replyto";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
@@ -143,8 +140,12 @@ export class ParameterEditComponent
     enabled: this.formBuilder.control(false),
     templateName:
       this.formBuilder.control<GeneratedType<"RESTMailtemplate"> | null>(null),
-    emailSender: this.formBuilder.control<ReplyTo | null>(null),
-    emailReply: this.formBuilder.control<ReplyTo | null>(null),
+    emailSender: this.formBuilder.control<GeneratedType<"RESTReplyTo"> | null>(
+      null,
+    ),
+    emailReply: this.formBuilder.control<GeneratedType<"RESTReplyTo"> | null>(
+      null,
+    ),
   });
 
   mailOpties: {
@@ -162,11 +163,11 @@ export class ParameterEditComponent
   protected groepen = this.identityService.listGroups();
   protected medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
   resultaattypes: GeneratedType<"RestResultaattype">[] = [];
+  formulierDefinities: GeneratedType<"RESTTaakFormulierDefinitie">[] = [];
   referentieTabellen: GeneratedType<"RestReferenceTable">[] = [];
-  formulierDefinities: FormulierDefinitie[] = [];
   zaakbeeindigRedenen: GeneratedType<"RESTZaakbeeindigReden">[] = [];
   mailtemplates: GeneratedType<"RESTMailtemplate">[] = [];
-  replyTos: ReplyTo[] = [];
+  replyTos: GeneratedType<"RESTReplyTo">[] = [];
   loading = false;
   subscriptions$: Subscription[] = [];
   brpConsultingValues: string[] = [];
@@ -429,7 +430,7 @@ export class ParameterEditComponent
 
   private getReferentieTabel(
     humanTaskParameters: GeneratedType<"RESTHumanTaskParameters">,
-    veldDefinitie: FormulierVeldDefinitie,
+    veldDefinitie: GeneratedType<"RESTTaakFormulierVeldDefinitie">,
   ) {
     const humanTaskReferentieTabel =
       humanTaskParameters.referentieTabellen?.find(
@@ -959,7 +960,7 @@ export class ParameterEditComponent
     return parseInt(value?.toString(), 10);
   }
 
-  protected replyToDisplayValue(replyTo: ReplyTo) {
+  protected replyToDisplayValue(replyTo: GeneratedType<"RESTReplyTo">) {
     return replyTo.speciaal
       ? "gegevens.mail.afzender." + replyTo.mail
       : replyTo.mail;

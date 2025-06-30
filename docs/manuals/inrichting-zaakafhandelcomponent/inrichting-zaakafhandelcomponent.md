@@ -1,4 +1,24 @@
 # Inrichting Zaakafhandelcomponent
+
+
+> **Colofon** <br>
+> Datum : 30-6-2025 <br>
+> Versie :   1.0 <br>
+> Verandering : ZAC v3.9 Inrichting Zaakafhandelcomponent <br>
+> Project referentie : ZAC <br>
+> Toegangsrechten : Alleen lezen <br>
+> Status : Definitief <br>
+> Redacteur : Karin Masselink <br>
+> Auteur(s) : Roy Buis, Edgar Vonk, John Bol, Hristo LLiev, Sander Boer, Camiel Braun <br>
+
+
+Versiegeschiedenis:
+
+| 1.0   | Initiële versie     |
+|-------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| 1.1 | ZAC versie 3.7 |
+| 1.2 | ZAC versie 3.9 |
+
 # Inhoud
 
 [*Inrichting Zaakafhandelcomponent*](#inrichting-zaakafhandelcomponent)
@@ -89,13 +109,14 @@ Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
 
  
 2. Klik op een taak om de instellingen te openen. Iedere taak heeft standaard 3 instellingen:
-  - Formulierdefinitie (v) | welk formulier voor het taakbehandelformulier wordt gebruikt
-  - Groep | de groep die standaard bij taaktoewijzing wordt ingevuld als een gebruiker de taak start
-  - Doorlooptijd | bepaalt de fatale datum van de taak
+- Formulierdefinitie (v) | welk formulier voor het taakbehandelformulier wordt gebruikt
+- Groep | de groep die standaard bij taaktoewijzing wordt ingevuld als een gebruiker de taak start
+- Doorlooptijd | bepaalt de fatale datum van de taak
 In sommige taakbehandelformulieren komen keuzelijsten voor waarvan de opties via een referentietabel aangepast kunnen worden. Welke referentietabel in dat taakbehandelformulier gebruikt wordt is dan te zien bij de instelling ‘Referentietabel voor ...’. Om de opties aan te passen kun je later naar de menukeuze ‘Referentietabellen’ gaan en daar de juiste tabel te kiezen, dit wordt elders in deze handleiding omschreven. Het is ook mogelijk om zelf een referentietabel aan te maken en deze in het taakbehandelformulier te gebruiken. Na het aanmaken van de tabel kan deze in de lijst bij de instelling ‘Referentietabel voor ...’ gekozen worden.
 ![image](images/zaps_advies_intern.png)
 #### Actiegegevens
 Ga verder naar het tabblad ‘Actiegegevens’. Bij de acties waarmee een gebruiker een fase afrondt is het mogelijk om een toelichting te tonen, denk aan een herinnering aan een belangrijke handeling die in die fase moete zijn uitgevoerd. Klik op een fase om de toelichting in het veld in te vullen.
+![image](images/zaps_actiegegevens.png)
 #### Mailgegevens
 1. Ga verder naar ‘Mailgegevens’. Tijdens de zaakbehandeling gebruikt de ZAC een aantal e-mails dat verstuurd wordt, voornamelijk aan de klant. Sommige van deze mails worden verplicht verstuurd en anderen zijn optioneel. De beschikbare opties bij alle mails kunnen in 'Mailgegevens' ingesteld worden. 
 - Voor de statusmails kan bepaald worden of deze beschikbaar zijn en wat de standaard geselecteerde keuze is:
@@ -109,31 +130,40 @@ Ga verder naar het tabblad ‘Actiegegevens’. Bij de acties waarmee een gebrui
 - Iedere e-mail heeft een eigen template dat de standaard inhoud van het bericht en het onderwerp bepaalt. In dit overzicht stel je in welke e-mail welke mailtemplate gebruikt. Iedere e-mail heeft een standaard mailtemplate. Om deze te bekijken of te bewerken kun je later naar naar de menukeuze ‘Mailtemplates’ gaan. Het is ook mogelijk om zelf een mailtemplate aan te maken en deze in een van de e-mails te gebruiken. Na het aanmaken van de template kan deze in de lijst bij de instelling ‘mailtemplate’ gekozen worden. Open een e-mail door er op te klikken en stel bij iedere e-mail het gewenste template in.
 #### Zaakbeëindig gegevens
 Ga verder naar ‘Zaakbeëindig gegevens’.  In dit tabblad kan voor een aantal situaties waarin de zaak wordt beëindigd het resultaat dat de zaak krijgt bepaald worden. De mogelijke resultaten zijn ingesteld bij het zaaktype. Stel voor de volgende situaties het resultaat in:
-  - Zaak is niet ontvankelijk (v) | bepaalt het resultaat wanneer een gebruiker bij de actie ‘Intake afronden’ deze optie kiest.
-  - Verzoek is bij verkeerde organisatie ingediend | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt. 
-  - Verzoek is door initiator ingetrokken | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
-  - Zaak is een duplicaat | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
+- Zaak is niet ontvankelijk (v) | bepaalt het resultaat wanneer een gebruiker bij de actie ‘Intake afronden’ deze optie kiest.
+- Verzoek is bij verkeerde organisatie ingediend | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt. 
+- Verzoek is door initiator ingetrokken | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
+- Zaak is een duplicaat | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
     ![image](images/zaps_zaakgegevens_gegevens.png)
+
 #### Koppelingen
+
 1. Ga verder naar 'Koppelingen'. Hier kunt u Landelijke registratie koppelingen aan of uit zetten en het documenttype selecteren dat door elk Smartocuments  sjabloon moet worden verwerkt.
 
 ##### Landelijke registratie koppelingen
 
-  - Hiermee kan voor een zaaktype de BRP en of KvK koppelingen worden uitgezet, met de knoppen:
+- Hiermee kan voor een zaaktype de BRP en of KvK koppelingen worden uitgezet, met de knoppen:
   -- Basisregistratie personen (persoonsgegevens) koppelen
   -- KvK (bedrijfsgegevens) koppelen
 
+Met de dropdown keuzes Zoekwaarde en Raapleegwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
+
+- BRP_DOELBINDING_RAADPLEEG_WAARDE
+- BRP_DOELBINDING_ZOEK_WAARDE.
+
 ##### Smartdocuments
 
-  - SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen
-  - Elk SmartDocuments-sjabloon moet de plug-in "RedirectURL" ingeschakeld hebben.
-  - SmartDocuments inschakelen voor het huidige zaaktype (stap 1)
-  - De sjabloongroep uitvouwen (stap 2)
-  - Documenttype selecteren (stap 3)
-  - De configuratie opslaan (stap 4) 
+- SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen
+- Elk SmartDocuments-sjabloon moet de plug-in "RedirectURL" ingeschakeld hebben.
+- SmartDocuments inschakelen voor het huidige zaaktype (stap 1)
+- De sjabloongroep uitvouwen (stap 2)
+- Documenttype selecteren (stap 3)
+- De configuratie opslaan (stap 4) 
   
 ![image](images/zaps_koppelingen.png)
-  - Het documenttype deselecteren kan door het vinkje te verwijderen of in de dropdown "Geen documenttype" te selecteren.
+
+- Het documenttype deselecteren kan door het vinkje te verwijderen of in de dropdown "Geen documenttype" te selecteren.
+
 2. Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
 
 ## Referentietabellen
@@ -141,8 +171,11 @@ Ga verder naar ‘Zaakbeëindig gegevens’.  In dit tabblad kan voor een aantal
 Referentietabellen worden in de ZAC ondermeer gebruikt om de keuzes in keuzelijsten te beheren. Een keuzelijst heeft een standaard referentietabel gekoppeld waarin de waarden bewerkt kunnen worden. Er kan een referentietabel toegevoegd worden om deze vervolgens via de zaakafhandelparameters te koppelen aan een zaaktype en zo te gebruiken. Hiermee is het mogelijk om voor een zaaktype een van de standaard afwijkende referentietabel te gebruiken.
 ZAC maakt onderscheid tussen systeemreferentietabellen en zelf toegevoegde referentietabellen. De systeemreferentietabellen zijn standaard beschikbaar en kunnen niet verwijderd worden. De zelf toegevoegde referentietabellen kunnen wel verwijderd worden.
 ZAC kent de volgende systeemreferentietabellen:
+
 - ADVIES | bevat de mogelijk waarde voor de keuzelijst ‘Advies’ die gebruikt wordt bij het afronden van de taak ‘Intern advies’
 - AFZENDER | bevat de mogelijke afzenders van een e-mail; zie sectie 'Mailafzenders' voor meer details
+- BRP_DOELBINDING_RAADPLEEG_WAARDE | bevat de 1ste waarde die gebruikt wordt bij het configureren de BRP doelbinding voor dit zaaktype
+- BRP_DOELBINDING_ZOEK_WAARDE | bevat de 2de waarde die gebruikt worden bij het configureren de BRP doelbinding voor dit zaaktype
 - COMMUNICATIEKANAAL | bevat de mogelijke waarden voor de keuzelijst ‘Communicatiekanaal’ die gebruikt wordt bij het aanmaken of aanpassen van een zaak
 - DOMEIN | bevat de mogelijke domeinen die gebruikt kunnen worden in de zaakafhandelparameters
 - SERVER_ERROR_ERROR_PAGINA_TEKST | bevat (optionele) tekstparagrafen die getoond worden bij foutmeldingen voor 'server errors' (technische fouten afkomstig van de server of onderliggende systemen). Door een volgende waarde toe te voegen, zal deze onder de al bestaande waarde(s) worden getoond bij de foutmelding. 
@@ -197,22 +230,22 @@ Tijdens de zaakbehandeling gebruikt de ZAC een aantal e-mails dat verstuurd word
 Er zijn drie categoriën mails die verstuurd kunnen worden tijdens de zaakbehandeling. Hieronder volgt een overzicht van de mails per categorie:
 
 **Taak**
-  - Ontvangstbevestiging | deze mail wordt aan de klant verstuurd nadat de actie ‘Ontvangstbevestiging’ is uitgevoerd
-  - Taak formulierdefinitie: Aanvullende informatie | deze mail wordt aan de klant verstuurd nadat de taak is gestart
-  - Taak formulierdefinitie: Extern advies (met e-mail) | deze mail wordt aan de adviseur verstuurd nadat de taak is gestart
+- Ontvangstbevestiging | deze mail wordt aan de klant verstuurd nadat de actie ‘Ontvangstbevestiging’ is uitgevoerd
+- Taak formulierdefinitie: Aanvullende informatie | deze mail wordt aan de klant verstuurd nadat de taak is gestart
+- Taak formulierdefinitie: Extern advies (met e-mail) | deze mail wordt aan de adviseur verstuurd nadat de taak is gestart
  
 **Statusmail**
-  - Zaak ontvankelijk | deze mail wordt aan de klant verstuurd nadat de actie ‘Intake afronden’ is uitgevoerd en de gebruiker voor ontvankelijk = ‘Ja’ heeft gekozen en ‘Verzend mail’ heeft aangevinkt
-  - Zaak niet ontvankelijk | deze mail wordt aan de klant verstuurd nadat de actie ‘Intake afronden’ is uitgevoerd en de gebruiker voor ontvankelijk = ‘Nee’ heeft gekozen en ‘Verzend mail’ heeft aangevinkt
-  - Zaak afgehandeld | deze mail wordt aan de klant verstuurd nadat de actie ‘Zaak afhandelen’ is uitgevoerd en de gebruiker ‘Verzend mail’ heeft aangevinkt
+- Zaak ontvankelijk | deze mail wordt aan de klant verstuurd nadat de actie ‘Intake afronden’ is uitgevoerd en de gebruiker voor ontvankelijk = ‘Ja’ heeft gekozen en ‘Verzend mail’ heeft aangevinkt
+- Zaak niet ontvankelijk | deze mail wordt aan de klant verstuurd nadat de actie ‘Intake afronden’ is uitgevoerd en de gebruiker voor ontvankelijk = ‘Nee’ heeft gekozen en ‘Verzend mail’ heeft aangevinkt
+- Zaak afgehandeld | deze mail wordt aan de klant verstuurd nadat de actie ‘Zaak afhandelen’ is uitgevoerd en de gebruiker ‘Verzend mail’ heeft aangevinkt
 
 **Signalering**
-  - Signalering zaak op naam | deze mail wordt verstuurd aan de gebruiker op wiens naam de zaak wordt gezet
-  - Signalering zaak document toegevoegd | deze mail wordt verstuurd aan de gebruiker op wiens naam de zaak de zaak staat waar het document aan toegevoegd is
-  - Signalering zaak verlopend (streefdatum) | deze mail wordt verstuurd aan de gebruiker op wiens naam de zaak staat
-  - Signalering zaak verlopend (fatale datum) | deze mail wordt verstuurd aan de gebruiker op wiens naam de zaak staat
-  - Signalering taak op naam | deze mail wordt verstuurd aan de gebruiker op wiens naam de taak wordt gezet
-  - Signalering taak verlopen | deze mail wordt verstuurd aan de gebruiker op wiens naam de taak staat
+- Signalering zaak op naam | deze mail wordt verstuurd aan de gebruiker op wiens naam de zaak wordt gezet
+- Signalering zaak document toegevoegd | deze mail wordt verstuurd aan de gebruiker op wiens naam de zaak de zaak staat waar het document aan toegevoegd is
+- Signalering zaak verlopend (streefdatum) | deze mail wordt verstuurd aan de gebruiker op wiens naam de zaak staat
+- Signalering zaak verlopend (fatale datum) | deze mail wordt verstuurd aan de gebruiker op wiens naam de zaak staat
+- Signalering taak op naam | deze mail wordt verstuurd aan de gebruiker op wiens naam de taak wordt gezet
+- Signalering taak verlopen | deze mail wordt verstuurd aan de gebruiker op wiens naam de taak staat
 
 ### Werking van de mailtemplates
 De mailtemplates kunnen vanuit menukeuze ‘Mailtemplates’ benaderd worden. Vanuit het overzicht kan een template ingezien en bewerkt worden. Iedere mail heeft een default template dat in het overzicht te herkennen is aan de vink in de 'default' kolom. Het is ook mogelijk om zelf een template voor een  mail aan te maken. Deze templates zijn daarna in het overzicht te herkennen door de X in de 'default' kolom.
@@ -253,11 +286,11 @@ De volgende gegevens worden gesynchroniseerd: Zaaktypen, Informatieobjecttypen, 
 Hier kan voor een zaaktype dat nog niet volledig en correct is ingericht worden gecheckt welke onderdelen nog inrichting nodig hebben. Als een zaaktype niet in deze lijst voorkomt dan is de minimaal benodigde inrichting correct. Er wordt hier een validatie uitgevoerd op de ZAC zaakafhandel-parameters en de zaaktypecatalogus implementatie.
 Om een zaaktype in deze lijst te controleren klik je op de regel. Daarna worden alle inrichtingsonderdelen die aandacht nodig hebben geopend en wordt per onderdeel vermeld wat er niet correct is ingericht.
 Voor nu worden de volgende onderdelen gecheckt:
-  - Zaakafhandelparameters | er wordt gecheckt of deze volledig zijn ingericht
-  - Statustypen | er wordt gecheckt of voor de werking van de ZAC vereiste statustypen zijn toegevoegd aan het zaaktype. Dit zijn momenteel ‘Intake’, ‘In behandeling’, ‘Heropend’, ‘Wacht op aanvullende informatie’ en ‘Afgerond’ waarbij ‘Afgerond’ het hoogste volgnummer moet hebben zodat dit de eindstatus wordt.
-  - Rollen | er wordt gecheckt of de voor de werking van de ZAC vereiste rollen zijn toegevoegd aan het zaaktype. Dit zijn momenteel ‘Initiator’ en ‘Behandelaar’ die nodig zijn om de functionaliteit voor het toevoegen van een initiator aan een zaak en het op naam van een behandelaar zetten van een zaak mogelijk te maken. Daarnaast wordt gecheckt of er minimaal één andere rol is toegevoegd die gebruikt wordt bij de functionaliteit voor het toevoegen van betrokkenen aan eem zaak.
-  - Informatieobjecttype | er wordt voor de werking van de ZAC gecheckt of het zaaktype aan de vereiste informatieobjecttypen is gekoppeld. Dit is momenteel ‘e-mail’ dat gebruikt wordt voor het als document toevoegen van vanuit de ZAC verzonden e-mails.
-  - Besluittype | er wordt gecheckt of aan het zaaktype een besluittype is gekoppeld. Dit gebeurt alleen als aan het zaaktype een resultaattype is toegevoegd dat als afleidingswijze de begin- of vervaldatum van een besluit heeft.
+- Zaakafhandelparameters | er wordt gecheckt of deze volledig zijn ingericht
+- Statustypen | er wordt gecheckt of voor de werking van de ZAC vereiste statustypen zijn toegevoegd aan het zaaktype. Dit zijn momenteel ‘Intake’, ‘In behandeling’, ‘Heropend’, ‘Wacht op aanvullende informatie’ en ‘Afgerond’ waarbij ‘Afgerond’ het hoogste volgnummer moet hebben zodat dit de eindstatus wordt.
+- Rollen | er wordt gecheckt of de voor de werking van de ZAC vereiste rollen zijn toegevoegd aan het zaaktype. Dit zijn momenteel ‘Initiator’ en ‘Behandelaar’ die nodig zijn om de functionaliteit voor het toevoegen van een initiator aan een zaak en het op naam van een behandelaar zetten van een zaak mogelijk te maken. Daarnaast wordt gecheckt of er minimaal één andere rol is toegevoegd die gebruikt wordt bij de functionaliteit voor het toevoegen van betrokkenen aan eem zaak.
+- Informatieobjecttype | er wordt voor de werking van de ZAC gecheckt of het zaaktype aan de vereiste informatieobjecttypen is gekoppeld. Dit is momenteel ‘e-mail’ dat gebruikt wordt voor het als document toevoegen van vanuit de ZAC verzonden e-mails.
+- Besluittype | er wordt gecheckt of aan het zaaktype een besluittype is gekoppeld. Dit gebeurt alleen als aan het zaaktype een resultaattype is toegevoegd dat als afleidingswijze de begin- of vervaldatum van een besluit heeft.
 
 ### Roltypen
 ZAC zoekt naar een roltype met behulp van één van deze velden:
