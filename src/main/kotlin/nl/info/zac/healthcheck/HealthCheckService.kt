@@ -171,9 +171,9 @@ class HealthCheckService @Inject constructor(
                     OmschrijvingGeneriekEnum.ZAAKCOORDINATOR ->
                         zaaktypeInrichtingscheck.isRolOverigeAanwezig = true
                     OmschrijvingGeneriekEnum.BEHANDELAAR ->
-                        zaaktypeInrichtingscheck.aantalBehandelaarrollen++
+                        zaaktypeInrichtingscheck.aantalBehandelaarroltypen++
                     OmschrijvingGeneriekEnum.INITIATOR -> {
-                        zaaktypeInrichtingscheck.aantalInitiatorrollen++
+                        zaaktypeInrichtingscheck.aantalInitiatorroltypen++
                     }
                 }
             }

@@ -35,8 +35,8 @@ fun createZaaktypeInrichtingscheck(
     isStatustypeAfgerondAanwezig = statustypeAfgerondAanwezig
     isStatustypeAfgerondLaatsteVolgnummer = statustypeAfgerondLaatsteVolgnummer
     isStatustypeAanvullendeInformatieVereist = statustypeAanvullendeInformatieVereist
-    aantalInitiatorrollen = initiatorrollen
-    aantalBehandelaarrollen = behandelaarrollen
+    aantalInitiatorroltypen = initiatorrollen
+    aantalBehandelaarroltypen = behandelaarrollen
     isRolOverigeAanwezig = rolOverigeAanwezig
     isInformatieobjecttypeEmailAanwezig = informatieobjecttypeEmailAanwezig
     isResultaattypeAanwezig = resultaattypeAanwezig

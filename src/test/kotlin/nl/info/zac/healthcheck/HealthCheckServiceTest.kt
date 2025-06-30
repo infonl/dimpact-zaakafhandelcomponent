@@ -31,7 +31,7 @@ import java.util.UUID
 class HealthCheckServiceTest : BehaviorSpec({
 
     @Suppress("UNCHECKED_CAST")
-    Given("A zaaktype with two initiator roles") {
+    Given("A zaaktype with two initiator role types") {
         val branchName = Optional.of("dev") as Optional<String?>
         val commitHash = Optional.of("hash") as Optional<String?>
         val versionNumber = Optional.of("0.0.0") as Optional<String?>
@@ -103,7 +103,7 @@ class HealthCheckServiceTest : BehaviorSpec({
             }
 
             And("the number of initiator roles is detected") {
-                zaaktypeInrichtingscheck.aantalInitiatorrollen shouldBe 2
+                zaaktypeInrichtingscheck.aantalInitiatorroltypen shouldBe 2
             }
         }
     }

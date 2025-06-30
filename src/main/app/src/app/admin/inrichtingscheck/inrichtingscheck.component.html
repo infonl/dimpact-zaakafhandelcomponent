@@ -179,10 +179,10 @@
                   <div *ngIf="!row.resultaattypeAanwezig">
                     {{ "resultaattype" | translate }}
                   </div>
-                  <div *ngIf="row.aantalInitiatorrollen < 1">
+                  <div *ngIf="row.aantalInitiatorroltypen < 1">
                     {{ "rol" | translate }}
                   </div>
-                  <div *ngIf="row.aantalBehandelaarrollen < 1">
+                  <div *ngIf="row.aantalBehandelaarroltypen < 1">
                     {{ "rol" | translate }}
                   </div>
                   <div *ngIf="!row.rolOverigeAanwezig">
@@ -267,25 +267,25 @@
                         | translate
                     }}
                   </div>
-                  <div *ngIf="row.aantalInitiatorrollen < 1">
+                  <div *ngIf="row.aantalInitiatorroltypen < 1">
                     {{
                       "healthCheck.zaaktype.geenRolInitiatorAanwezig"
                         | translate
                     }}
                   </div>
-                  <div *ngIf="row.aantalBehandelaarrollen < 1">
+                  <div *ngIf="row.aantalBehandelaarroltypen < 1">
                     {{
                       "healthCheck.zaaktype.geenRolBehandelaarAanwezig"
                         | translate
                     }}
                   </div>
-                  <div *ngIf="row.aantalInitiatorrollen > 1">
+                  <div *ngIf="row.aantalInitiatorroltypen > 1">
                     {{
                       "healthCheck.zaaktype.teVeelRolInitiatorAanwezig"
                         | translate
                     }}
                   </div>
-                  <div *ngIf="row.aantalBehandelaarrollen > 1">
+                  <div *ngIf="row.aantalBehandelaarroltypen > 1">
                     {{
                       "healthCheck.zaaktype.teVeelRolBehandelaarAanwezig"
                         | translate
