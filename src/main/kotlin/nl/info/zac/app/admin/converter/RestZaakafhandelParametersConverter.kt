@@ -19,12 +19,15 @@ import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters
 import net.atos.zac.app.admin.converter.RESTZaaktypeOverzichtConverter
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.app.admin.model.RestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.RestBrpDoelbindingen
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
+import nl.info.zac.app.admin.model.toAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.toBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toBrpDoelbindingen
+import nl.info.zac.app.admin.model.toRestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
 import nl.info.zac.app.zaak.model.RESTZaakStatusmailOptie
@@ -78,6 +81,9 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             brpDoelbindingen = zaakafhandelParameters.brpDoelbindingen
                 ?.toRestBrpDoelbindingen()
                 ?: RestBrpDoelbindingen(),
+            automaticEmailConfirmation = zaakafhandelParameters.automaticEmailConfirmation
+                ?.toRestAutomaticEmailConfirmation()
+                ?: RestAutomaticEmailConfirmation(),
         )
         restZaakafhandelParameters.caseDefinition?.takeIf { inclusiefRelaties }?.let { caseDefinition ->
             zaakafhandelParameters.nietOntvankelijkResultaattype?.let {
@@ -156,5 +162,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             )
             it.betrokkeneKoppelingen = restZaakafhandelParameters.betrokkeneKoppelingen.toBetrokkeneKoppelingen(it)
             it.brpDoelbindingen = restZaakafhandelParameters.brpDoelbindingen.toBrpDoelbindingen(it)
+            it.automaticEmailConfirmation = restZaakafhandelParameters.automaticEmailConfirmation
+                .toAutomaticEmailConfirmation(it)
         }
 }

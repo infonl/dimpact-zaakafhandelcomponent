@@ -112,6 +112,9 @@ public class ZaakafhandelParameters {
     private Set<MailtemplateKoppeling> mailtemplateKoppelingen;
 
     @OneToOne(mappedBy = "zaakafhandelParameters", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private AutomaticEmailConfirmation automaticEmailConfirmation;
+
+    @OneToOne(mappedBy = "zaakafhandelParameters", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private BetrokkeneKoppelingen betrokkeneKoppelingen;
 
     @OneToOne(mappedBy = "zaakafhandelParameters", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
@@ -209,6 +212,14 @@ public class ZaakafhandelParameters {
             this.mailtemplateKoppelingen.clear();
         }
         mailtemplateKoppelingen.forEach(this::addMailtemplateKoppeling);
+    }
+
+    public AutomaticEmailConfirmation getAutomaticEmailConfirmation() {
+        return automaticEmailConfirmation;
+    }
+
+    public void setAutomaticEmailConfirmation(final AutomaticEmailConfirmation automaticEmailConfirmation) {
+        this.automaticEmailConfirmation = automaticEmailConfirmation;
     }
 
     public Set<ZaakbeeindigParameter> getZaakbeeindigParameters() {
