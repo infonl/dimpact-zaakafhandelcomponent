@@ -32,7 +32,6 @@ import { AdminComponent } from "../admin/admin.component";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { HumanTaskReferentieTabel } from "../model/human-task-referentie-tabel";
 import { getBeschikbareMailtemplateKoppelingen } from "../model/mail-utils";
-import { ReferentieTabel } from "../model/referentie-tabel";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
@@ -141,8 +140,12 @@ export class ParameterEditComponent
     enabled: this.formBuilder.control(false),
     templateName:
       this.formBuilder.control<GeneratedType<"RESTMailtemplate"> | null>(null),
-    emailSender: this.formBuilder.control<ReplyTo | null>(null),
-    emailReply: this.formBuilder.control<ReplyTo | null>(null),
+    emailSender: this.formBuilder.control<GeneratedType<"RESTReplyTo"> | null>(
+      null,
+    ),
+    emailReply: this.formBuilder.control<GeneratedType<"RESTReplyTo"> | null>(
+      null,
+    ),
   });
 
   mailOpties: {
@@ -160,8 +163,8 @@ export class ParameterEditComponent
   protected groepen = this.identityService.listGroups();
   protected medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
   resultaattypes: GeneratedType<"RestResultaattype">[] = [];
-  referentieTabellen: ReferentieTabel[] = [];
   formulierDefinities: GeneratedType<"RESTTaakFormulierDefinitie">[] = [];
+  referentieTabellen: GeneratedType<"RestReferenceTable">[] = [];
   zaakbeeindigRedenen: GeneratedType<"RESTZaakbeeindigReden">[] = [];
   mailtemplates: GeneratedType<"RESTMailtemplate">[] = [];
   replyTos: GeneratedType<"RESTReplyTo">[] = [];
@@ -957,7 +960,7 @@ export class ParameterEditComponent
     return parseInt(value?.toString(), 10);
   }
 
-  protected replyToDisplayValue(replyTo: ReplyTo) {
+  protected replyToDisplayValue(replyTo: GeneratedType<"RESTReplyTo">) {
     return replyTo.speciaal
       ? "gegevens.mail.afzender." + replyTo.mail
       : replyTo.mail;
