@@ -17,7 +17,7 @@ fun Zaak.isOpgeschort() = opschorting != null && opschorting.getIndicatie()
  * A new flag to handle this "suspended in the past" case was requested with:
  * https://github.com/open-zaak/open-zaak/issues/1920
 **/
-fun Zaak.isEerderOpgeschort() = opschorting?.getReden()?.isNotEmpty() == true
+fun Zaak.isEerderOpgeschort() = opschorting?.eerdereOpschorting == true
 
 fun Zaak.isVerlengd() = verlenging?.getDuur() != null
 

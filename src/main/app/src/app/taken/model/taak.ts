@@ -4,7 +4,6 @@
  */
 
 import { FormioForm } from "@formio/angular";
-import { FormulierDefinitieID } from "../../admin/model/formulier-definitie";
 import { FormulierDefinitie } from "../../admin/model/formulieren/formulier-definitie";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakStatus } from "./taak-status.enum";
@@ -26,7 +25,7 @@ export class Taak {
   zaakIdentificatie: string;
   zaaktypeOmschrijving: string;
   status: TaakStatus;
-  formulierDefinitieId: FormulierDefinitieID;
+  formulierDefinitieId: GeneratedType<"FormulierDefinitie">;
   formulierDefinitie: FormulierDefinitie;
   formioFormulier: FormioForm;
   tabellen: Record<string, string[]>;
