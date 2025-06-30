@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ReferentieTabel } from "./referentie-tabel";
+import { GeneratedType } from "../../shared/utils/generated-types";
 
 /**
  * @deprecated - use the `GeneratedType`
@@ -11,5 +11,5 @@ import { ReferentieTabel } from "./referentie-tabel";
 export class HumanTaskReferentieTabel {
   id: number;
   veld: string;
-  tabel: ReferentieTabel;
+  tabel: GeneratedType<"RestReferenceTable">;
 }

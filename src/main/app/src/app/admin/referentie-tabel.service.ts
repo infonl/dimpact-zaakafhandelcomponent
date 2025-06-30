@@ -3,106 +3,77 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { catchError } from "rxjs/operators";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { ReferentieTabel } from "./model/referentie-tabel";
+import {
+  PostBody,
+  PutBody,
+  ZacHttpClient,
+} from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class ReferentieTabelService {
-  private basepath = "/rest/referentietabellen";
+  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
-  constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
-    private readonly zacHttpClient: ZacHttpClient,
-  ) {}
-
-  listReferentieTabellen(): Observable<ReferentieTabel[]> {
-    return this.http
-      .get<ReferentieTabel[]>(`${this.basepath}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listReferentieTabellen() {
+    return this.zacHttpClient.GET("/rest/referentietabellen", {});
   }
 
-  createReferentieTabel(tabel: ReferentieTabel): Observable<ReferentieTabel> {
-    return this.http
-      .post<ReferentieTabel>(`${this.basepath}`, tabel)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  createReferentieTabel(body: PostBody<"/rest/referentietabellen">) {
+    return this.zacHttpClient.POST("/rest/referentietabellen", body, {});
   }
 
-  readReferentieTabel(id: string): Observable<ReferentieTabel> {
-    return this.http
-      .get<ReferentieTabel>(`${this.basepath}/${id}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readReferentieTabel(id: number) {
+    return this.zacHttpClient.GET("/rest/referentietabellen/{id}", {
+      path: { id },
+    });
   }
 
-  readReferentieTabelByCode(code: string): Observable<ReferentieTabel> {
-    return this.http
-      .get<ReferentieTabel>(`${this.basepath}/code/${code}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readReferentieTabelByCode(code: string) {
+    return this.zacHttpClient.GET("/rest/referentietabellen/code/{code}", {
+      path: { code },
+    });
   }
 
-  updateReferentieTabel(tabel: ReferentieTabel): Observable<ReferentieTabel> {
-    return this.http
-      .put<ReferentieTabel>(`${this.basepath}/${tabel.id}`, tabel)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  updateReferentieTabel(
+    id: number,
+    body: PutBody<"/rest/referentietabellen/{id}">,
+  ) {
+    return this.zacHttpClient.PUT("/rest/referentietabellen/{id}", body, {
+      path: { id },
+    });
   }
 
-  deleteReferentieTabel(id: number): Observable<void> {
-    return this.http
-      .delete<void>(`${this.basepath}/${id}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  deleteReferentieTabel(id: number) {
+    return this.zacHttpClient.DELETE("/rest/referentietabellen/{id}", {
+      path: { id },
+    });
   }
 
-  listAfzenders(): Observable<string[]> {
-    return this.http
-      .get<string[]>(`${this.basepath}/afzender`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listAfzenders() {
+    return this.zacHttpClient.GET("/rest/referentietabellen/afzender", {});
   }
 
-  listCommunicatiekanalen(inclusiefEFormulier?: boolean): Observable<string[]> {
-    return this.http
-      .get<
-        string[]
-      >(`${this.basepath}/communicatiekanaal/${inclusiefEFormulier}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listCommunicatiekanalen(inclusiefEFormulier?: boolean) {
+    return this.zacHttpClient.GET(
+      "/rest/referentietabellen/communicatiekanaal/{inclusiefEFormulier}",
+      {
+        path: { inclusiefEFormulier: inclusiefEFormulier ?? false },
+      },
+    );
   }
 
-  listDomeinen(): Observable<string[]> {
-    return this.http
-      .get<string[]>(`${this.basepath}/domein`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listDomeinen() {
+    return this.zacHttpClient.GET("/rest/referentietabellen/domein", {});
   }
 
   listServerErrorTexts(): Observable<string[]> {
-    return this.http
-      .get<string[]>(`${this.basepath}/server-error-text`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.GET(
+      "/rest/referentietabellen/server-error-text",
+      {},
+    );
   }
 
   listBrpSearchValues() {
