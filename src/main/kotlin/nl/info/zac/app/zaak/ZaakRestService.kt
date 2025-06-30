@@ -641,7 +641,7 @@ class ZaakRestService @Inject constructor(
         afbrekenGegevens: RESTZaakAfbrekenGegevens
     ) {
         val zaak = zrcClientService.readZaak(zaakUUID)
-        if (zaak.resultaat != null) {
+        zaak.resultaat?.run {
             throw CaseWithADecisionCannotBeTerminatedException(
                 "De zaak kan niet afgebroken worden als er een besluit aan hangt."
             )

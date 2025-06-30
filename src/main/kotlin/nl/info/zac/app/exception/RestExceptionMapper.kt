@@ -30,6 +30,7 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_BAG_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BRP_CLIENT
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_WITH_DECISION_CANNOT_BE_TERMINATION
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_DRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_FORBIDDEN
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_KLANTINTERACTIES_CLIENT
@@ -116,7 +117,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             )
             exception is CaseWithADecisionCannotBeTerminatedException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
-                errorCode = ErrorCode.ERROR_CODE_CASE_WITH_DECISION_CANNOT_BE_TERMINATION,
+                errorCode = ERROR_CODE_CASE_WITH_DECISION_CANNOT_BE_TERMINATION,
                 exception = exception
             )
             // fall back to generic server error
