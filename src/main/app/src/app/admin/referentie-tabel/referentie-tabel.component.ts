@@ -9,7 +9,7 @@ import { Validators } from "@angular/forms";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
-import { Observable, of } from "rxjs";
+import { of } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -17,8 +17,8 @@ import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.
 import { IdentityService } from "../../identity/identity.service";
 import { InputFormField } from "../../shared/material-form-builder/form-components/input/input-form-field";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
-import { ReferentieTabel } from "../model/referentie-tabel";
 import { ReferentieTabelWaarde } from "../model/referentie-tabel-waarde";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 
@@ -30,15 +30,16 @@ export class ReferentieTabelComponent extends AdminComponent implements OnInit {
   @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
   @ViewChild("menuSidenav") menuSidenav: MatSidenav;
 
-  tabel: ReferentieTabel;
+  tabel: GeneratedType<"RestReferenceTable">;
 
   codeFormField: InputFormField;
   naamFormField: InputFormField;
 
   isLoadingResults = false;
   columns: string[] = ["naam", "id"];
-  dataSource: MatTableDataSource<ReferentieTabelWaarde> =
-    new MatTableDataSource<ReferentieTabelWaarde>();
+  dataSource = new MatTableDataSource<
+    GeneratedType<"RestReferenceTableValue">
+  >();
 
   waardeFormField: InputFormField[] = [];
 
@@ -59,7 +60,7 @@ export class ReferentieTabelComponent extends AdminComponent implements OnInit {
     });
   }
 
-  init(tabel: ReferentieTabel): void {
+  init(tabel: GeneratedType<"RestReferenceTable">): void {
     this.tabel = tabel;
     if (this.tabel.waarden == null) {
       this.tabel.waarden = [];
@@ -93,7 +94,7 @@ export class ReferentieTabelComponent extends AdminComponent implements OnInit {
   laadTabelWaarden(): void {
     this.isLoadingResults = true;
     this.tabel.waarden.forEach((waarde) => {
-      this.waardeFormField[waarde.id] = new InputFormFieldBuilder(waarde.naam)
+      this.waardeFormField[waarde.id!] = new InputFormFieldBuilder(waarde.naam)
         .id("waarde_" + waarde.id)
         .label("waarde")
         .validators(Validators.required)
@@ -104,7 +105,7 @@ export class ReferentieTabelComponent extends AdminComponent implements OnInit {
   }
 
   nieuweTabelWaarde() {
-    const waarde: ReferentieTabelWaarde = new ReferentieTabelWaarde();
+    const waarde = new ReferentieTabelWaarde();
     waarde.naam = this.getUniqueNaam(1);
     this.tabel.waarden.push(waarde);
     this.persistTabel();
@@ -160,9 +161,9 @@ export class ReferentieTabelComponent extends AdminComponent implements OnInit {
   }
 
   private persistTabel(): void {
-    const persistReferentieTabel: Observable<ReferentieTabel> =
+    const persistReferentieTabel =
       this.tabel.id != null
-        ? this.service.updateReferentieTabel(this.tabel)
+        ? this.service.updateReferentieTabel(this.tabel.id, this.tabel)
         : this.service.createReferentieTabel(this.tabel);
     persistReferentieTabel
       .pipe(catchError(() => of(this.tabel)))
