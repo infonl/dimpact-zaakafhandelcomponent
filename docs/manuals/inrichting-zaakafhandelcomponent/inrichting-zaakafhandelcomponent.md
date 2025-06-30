@@ -1,4 +1,24 @@
 # Inrichting Zaakafhandelcomponent
+
+
+> **Colofon** <br>
+> Datum : 30-6-2025 <br>
+> Versie :   1.0 <br>
+> Verandering : ZAC v3.9 Inrichting Zaakafhandelcomponent <br>
+> Project referentie : ZAC <br>
+> Toegangsrechten : Alleen lezen <br>
+> Status : Definitief <br>
+> Redacteur : Karin Masselink <br>
+> Auteur(s) : Roy Buis, Edgar Vonk, John Bol, Hristo LLiev, Sander Boer, Camiel Braun <br>
+
+
+Versiegeschiedenis:
+
+| 1.0   | Initiële versie     |
+|-------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| 1.1 | ZAC versie 3.7 |
+| 1.2 | ZAC versie 3.9 |
+
 # Inhoud
 
 [*Inrichting Zaakafhandelcomponent*](#inrichting-zaakafhandelcomponent)
@@ -126,7 +146,10 @@ Ga verder naar ‘Zaakbeëindig gegevens’.  In dit tabblad kan voor een aantal
   -- Basisregistratie personen (persoonsgegevens) koppelen
   -- KvK (bedrijfsgegevens) koppelen
 
-Met de dropdown keuzes Zoekwaarde en Raapleegwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zij in te richten bij de Referentie-tabellen BRP_DOELBINDING_RAADPLEEG_WAARDE en BRP_DOELBINDING_ZOEK_WAARDE.
+Met de dropdown keuzes Zoekwaarde en Raapleegwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
+
+- BRP_DOELBINDING_RAADPLEEG_WAARDE
+- BRP_DOELBINDING_ZOEK_WAARDE.
 
 ##### Smartdocuments
 

@@ -3,7 +3,6 @@
 <div style="page-break-after: always"></div>
 
 
-***
 > **Colofon** <br>
 > Datum :30-6-2025 <br>
 > Versie :   1.6.7 <br>
@@ -13,21 +12,21 @@
 > Status : Definitief <br>
 > Redacteur : Karin Masselink <br>
 > Auteur(s) : Roy Buis, Camiel Braun <br>
-****
+
 
 Versiegeschiedenis:
 
-| 0.1   | Initiële versie                                                                                                                            |
+| 0.1   | Initiële versie |
 |-------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| 0.2   | Update nav sprints opgeleverd op 30-11-2022, 14-12-2022, 11-1-2023, 25-1-2023                                                              |
+| 0.2   | Update nav sprints opgeleverd op 30-11-2022, 14-12-2022, 11-1-2023, 25-1-2023  |
 | 1.0   | Update nav sprints opgeleverd op 9-2-2023 en 23-2-2023<br><br>Heropenen zaak, Zaak koppelen, Werking van de taak: Advies extern toegevoegd |
-| 1.1   | Update nav sprints opgeleverd op 8-3-2023 en 22-3-2023                                                                                     |
-| 1.2   | Update nav sprints opgeleverd op 5-4-2023 en 19-4-2023                                                                                     |
-| 1.3   | Update nav sprints opgeleverd op 3-5-2023 en 31-5-2023                                                                                     |
-| 1.4   | Update format wijziging en redigeerwerk van 29-8-2023                                                                                      |
-| 1.5   | Update nav sprints opgeleverd van 10-2023 tot 27-05-2024                                                                                   |
-| 1.5.1 | Update zoekfunctie bedrijf en rechtspersoon                                                                                                |
-| 1.6.0 | Gebruikershandleiding geconverteerd naar Markdown                                                                                          |
+| 1.1   | Update nav sprints opgeleverd op 8-3-2023 en 22-3-2023 |
+| 1.2   | Update nav sprints opgeleverd op 5-4-2023 en 19-4-2023 |
+| 1.3   | Update nav sprints opgeleverd op 3-5-2023 en 31-5-2023 |
+| 1.4   | Update format wijziging en redigeerwerk van 29-8-2023|
+| 1.5   | Update nav sprints opgeleverd van 10-2023 tot 27-05-2024 |
+| 1.5.1 | Update zoekfunctie bedrijf en rechtspersoon 
+| 1.6.0 | Gebruikershandleiding geconverteerd naar Markdown |
 | 1.6.1 | Toevoeging indicaties voor personen |
 | 1.6.2 | Laatste veranderingen tekstueel verwerkt; opschorten, verlengen en andere kleine aanpassingen |
 | 1.6.3 | Screendumps vernieuwd naar aanleiding van menu en detailveld, en kleine tekstuele aanpassingen |
