@@ -91,7 +91,7 @@ fun createZaakafhandelParameters(
     productaanvraagtype: String? = null,
     nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
     zaakbeeindigParameters: Set<ZaakbeeindigParameter>? = emptySet(),
-    groupId: String? = "fakeGroupId",
+    groupId: String? = null,
     caseDefinitionId: String = "fakeCaseDefinitionId",
     betrokkeneKoppelingen: BetrokkeneKoppelingen = createBetrokkeneKoppelingen(),
     brpDoelbindingen: BrpDoelbindingen? = BrpDoelbindingen().apply {

@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package nl.info.zac.healthcheck
 
 import io.kotest.core.spec.style.BehaviorSpec
@@ -31,6 +30,7 @@ import java.util.UUID
 
 class HealthCheckServiceTest : BehaviorSpec({
 
+    @Suppress("UNCHECKED_CAST")
     Given("A zaaktype with two initiator roles") {
         val branchName = Optional.of("dev") as Optional<String?>
         val commitHash = Optional.of("hash") as Optional<String?>
@@ -55,7 +55,7 @@ class HealthCheckServiceTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(zaaktypeUri) } returns createZaakType(zaaktypeUri)
         every {
             zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid)
-        } returns createZaakafhandelParameters()
+        } returns createZaakafhandelParameters(groupId = "fakeGroupId")
         every {
             ztcClientService.readStatustypen(zaaktypeUri)
         } returns listOf(
