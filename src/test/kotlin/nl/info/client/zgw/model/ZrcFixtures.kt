@@ -73,6 +73,14 @@ fun createOpschorting(
     this.indicatie = indicatie
 }
 
+fun createOpschorting(
+    reden: String? = null,
+    indicatie: Boolean = false,
+    eerdereOpschorting: Boolean = false
+) = Opschorting(eerdereOpschorting)
+    .indicatie(indicatie)
+    .reden(reden)
+
 fun createOrganisatorischeEenheid(
     identificatie: String = "fakeIdentificatie",
     naam: String = "fakeNaam"

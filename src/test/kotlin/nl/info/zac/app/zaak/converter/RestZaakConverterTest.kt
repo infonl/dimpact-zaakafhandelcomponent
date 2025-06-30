@@ -15,6 +15,7 @@ import io.mockk.mockk
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
+import nl.info.client.zgw.model.createOpschorting
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
@@ -36,6 +37,7 @@ import nl.info.zac.app.zaak.model.createRestGroup
 import nl.info.zac.app.zaak.model.createRestUser
 import nl.info.zac.app.zaak.model.createRestZaaktype
 import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_AFGEROND
 import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_HEROPEND
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.policy.PolicyService
@@ -191,6 +193,72 @@ class RestZaakConverterTest : BehaviorSpec({
                     isVerlengd shouldBe zaak.isVerlengd()
                     isOpgeschort shouldBe zaak.isOpgeschort()
                     isEerderOpgeschort shouldBe zaak.isEerderOpgeschort()
+                    indicaties shouldNotContain EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
+                }
+            }
+        }
+    }
+
+    Given("A zaak was previously suspended") {
+        val status = createZaakStatus()
+        status.statustoelichting = "fake status"
+        val statusType = createStatusType()
+            .apply {
+                omschrijving = STATUSTYPE_OMSCHRIJVING_AFGEROND
+            }
+        val opschorting = createOpschorting(eerdereOpschorting = true)
+        val zaak = createZaak().apply {
+            archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
+            this.opschorting = opschorting
+        }
+        val zaakType = createZaakType()
+        val rolOrganistorischeEenheid = createRolOrganisatorischeEenheid()
+        val restGroup = createRestGroup()
+        val besluit = createBesluit()
+        val restBesluit = createRestDecision()
+        val rolMedewerker = createRolMedewerker()
+        val restUser = createRestUser()
+        val rol = createRolNatuurlijkPersoon()
+        val restZaakType = createRestZaaktype()
+        val zaakrechten = createZaakRechten()
+        val zaakdata = mapOf("fakeKey" to "fakeValue")
+
+        with(ztcClientService) {
+            every { readZaaktype(zaak.zaaktype) } returns zaakType
+        }
+        with(zgwApiService) {
+            every { findGroepForZaak(zaak) } returns rolOrganistorischeEenheid
+            every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
+            every { findInitiatorRoleForZaak(zaak) } returns rol
+        }
+        with(zaakVariabelenService) {
+            every { readZaakdata(zaak.uuid) } returns zaakdata
+        }
+        every { restGroupConverter.convertGroupId(rolOrganistorischeEenheid.identificatienummer) } returns restGroup
+        every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
+        every { restDecisionConverter.convertToRestDecision(besluit) } returns restBesluit
+        every { restUserConverter.convertUserId(rolMedewerker.identificatienummer) } returns restUser
+        every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
+        every { bpmnService.isProcessDriven(zaak.uuid) } returns false
+        every { policyService.readZaakRechten(zaak, zaakType) } returns zaakrechten
+
+        When("converting a zaak to a rest zaak") {
+            every {
+                zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid)
+            } returns Optional.of(true)
+
+            val restZaak = restZaakConverter.toRestZaak(zaak, status, statusType)
+
+            Then("the zaak should be converted correctly") {
+                with(restZaak) {
+                    uuid shouldBe zaak.uuid
+                    identificatie shouldBe zaak.identificatie
+                    omschrijving shouldBe zaak.omschrijving
+                    toelichting shouldBe zaak.toelichting
+                    this.zaaktype shouldBe zaaktype
+                    isVerlengd shouldBe zaak.isVerlengd()
+                    isOpgeschort shouldBe zaak.isOpgeschort()
+                    isEerderOpgeschort shouldBe true
                     indicaties shouldNotContain EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
             }
