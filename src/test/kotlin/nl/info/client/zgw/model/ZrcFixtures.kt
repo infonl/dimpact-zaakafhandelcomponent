@@ -67,19 +67,12 @@ fun createObjectPand(identificatie: String = "fakeIdentificatie") = ObjectPand(i
 
 fun createOpschorting(
     reden: String? = null,
-    indicatie: Boolean = false
-) = Opschorting().apply {
+    indicatie: Boolean = false,
+    eerdereOpschorting: Boolean = false
+) = Opschorting(eerdereOpschorting).apply {
     this.reden = reden
     this.indicatie = indicatie
 }
-
-fun createOpschorting(
-    reden: String? = null,
-    indicatie: Boolean = false,
-    eerdereOpschorting: Boolean = false
-) = Opschorting(eerdereOpschorting)
-    .indicatie(indicatie)
-    .reden(reden)
 
 fun createOrganisatorischeEenheid(
     identificatie: String = "fakeIdentificatie",
