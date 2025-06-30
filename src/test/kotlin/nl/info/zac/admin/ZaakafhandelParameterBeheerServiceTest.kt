@@ -427,6 +427,15 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
                     entityManager.merge(any<ZaakafhandelParameters>())
                 }
             }
+
+            And("The automatic email confirmation should be copied") {
+                slotPersistZaakafhandelParameters.captured.automaticEmailConfirmation.let {
+                    it.enabled shouldBe originalZaakafhandelParameters.automaticEmailConfirmation?.enabled
+                    it.templateName shouldBe originalZaakafhandelParameters.automaticEmailConfirmation?.templateName
+                    it.emailSender shouldBe originalZaakafhandelParameters.automaticEmailConfirmation?.emailSender
+                    it.emailReply shouldBe originalZaakafhandelParameters.automaticEmailConfirmation?.emailReply
+                }
+            }
         }
     }
 })
