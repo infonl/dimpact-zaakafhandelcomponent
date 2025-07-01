@@ -20,8 +20,8 @@ fun createZaaktypeInrichtingscheck(
     statustypeAfgerondAanwezig: Boolean = true,
     statustypeAfgerondLaatsteVolgnummer: Boolean = true,
     statustypeAanvullendeInformatieVereist: Boolean = true,
-    rolInitiatorAanwezig: Boolean = true,
-    rolBehandelaarAanwezig: Boolean = true,
+    initiatorrollen: Int = 1,
+    behandelaarrollen: Int = 1,
     rolOverigeAanwezig: Boolean = true,
     informatieobjecttypeEmailAanwezig: Boolean = true,
     resultaattypeAanwezig: Boolean = true,
@@ -35,8 +35,8 @@ fun createZaaktypeInrichtingscheck(
     isStatustypeAfgerondAanwezig = statustypeAfgerondAanwezig
     isStatustypeAfgerondLaatsteVolgnummer = statustypeAfgerondLaatsteVolgnummer
     isStatustypeAanvullendeInformatieVereist = statustypeAanvullendeInformatieVereist
-    isRolInitiatorAanwezig = rolInitiatorAanwezig
-    isRolBehandelaarAanwezig = rolBehandelaarAanwezig
+    aantalInitiatorroltypen = initiatorrollen
+    aantalBehandelaarroltypen = behandelaarrollen
     isRolOverigeAanwezig = rolOverigeAanwezig
     isInformatieobjecttypeEmailAanwezig = informatieobjecttypeEmailAanwezig
     isResultaattypeAanwezig = resultaattypeAanwezig

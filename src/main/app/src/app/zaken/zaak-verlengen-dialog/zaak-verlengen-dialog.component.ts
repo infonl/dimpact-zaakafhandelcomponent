@@ -112,6 +112,7 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       [this.duurDagenField],
       [this.einddatumGeplandField],
       [this.uiterlijkeEinddatumAfdoeningField],
+      [this.takenVerlengenField],
       [this.redenVerlengingField],
     ];
 

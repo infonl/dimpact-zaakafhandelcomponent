@@ -253,7 +253,7 @@ export class FormioSetupService {
   normalizeSmartDocumentsTemplateName(
     smartDocumentsTemplateName: string,
   ): string {
-    return smartDocumentsTemplateName?.replaceAll(" ", "_").trim();
+    return smartDocumentsTemplateName?.replace(/ /g, "_").trim();
   }
 
   getInformatieobjecttypeUuid(

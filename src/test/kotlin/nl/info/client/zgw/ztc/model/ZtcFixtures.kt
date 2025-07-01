@@ -211,7 +211,8 @@ fun createStatusType(
     zaakobjecttypen: List<URI> = listOf(URI("http://example.com/catalogus/${UUID.randomUUID()}")),
     beginObject: LocalDate = LocalDate.now(),
     eindeObject: LocalDate = LocalDate.now(),
-    omschrijving: String? = null
+    omschrijving: String? = null,
+    volgnummer: Int? = 1
 ) = StatusType(
     uri,
     zaaktypeIdentificatie,
@@ -223,4 +224,5 @@ fun createStatusType(
     eindeObject
 ).apply {
     this.omschrijving = omschrijving
+    this.volgnummer = volgnummer
 }
