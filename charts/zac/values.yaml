@@ -80,7 +80,7 @@ klantinteractiesApi:
 # Supported feature flags
 featureFlags:
   # -- turns BPMN support on or off; defaults to false
-  bpmnSupport: ""
+  bpmnSupport: false
 
 # Integration with the Objecten API provider
 objectenApi:
