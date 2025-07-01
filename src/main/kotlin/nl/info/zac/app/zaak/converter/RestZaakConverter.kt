@@ -136,6 +136,7 @@ class RestZaakConverter @Inject constructor(
             initiatorIdentificatieType = when (val betrokkeneType = initiator?.betrokkeneType) {
                 NATUURLIJK_PERSOON -> IdentificatieType.BSN
                 VESTIGING -> IdentificatieType.VN
+                // TODO: niet_natuurlijk_persoon type is now also used for vestigingen
                 NIET_NATUURLIJK_PERSOON -> IdentificatieType.RSIN
                 // betrokkeneType may be null
                 null -> null
