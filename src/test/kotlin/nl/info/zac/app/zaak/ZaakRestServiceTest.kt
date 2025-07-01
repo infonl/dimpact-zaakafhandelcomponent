@@ -125,6 +125,7 @@ import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.test.date.toDate
 import nl.info.zac.zaak.ZaakService
+import nl.info.zac.zaak.exception.ZaakWithADecisionCannotBeTerminatedException
 import org.apache.http.HttpStatus
 import org.flowable.task.api.Task
 import java.io.ByteArrayInputStream
@@ -988,6 +989,31 @@ class ZaakRestServiceTest : BehaviorSpec({
                     cmmnService.terminateCase(zaak.uuid)
                 }
             }
+        }
+    }
+
+    Given("A zaak with a decision cannot be terminated. A bad request is returned") {
+        val zaakUuid = UUID.randomUUID()
+        val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+        val zaak = createZaak(
+            uuid = zaakUuid,
+            zaakTypeURI = zaakType.url,
+            resultaat = URI("https://example.com/${UUID.randomUUID()}")
+        )
+
+        every { zrcClientService.readZaak(zaakUuid) } returns zaak
+
+        shouldThrow<ZaakWithADecisionCannotBeTerminatedException> {
+            zaakRestService.terminateZaak(
+                zaakUuid,
+                RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)
+            )
+        }
+
+        verify(exactly = 0) {
+            zgwApiService.createResultaatForZaak(any(), any<UUID>(), any())
+            zgwApiService.endZaak(any<Zaak>(), any())
+            cmmnService.terminateCase(any())
         }
     }
 
