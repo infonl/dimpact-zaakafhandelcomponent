@@ -704,6 +704,7 @@ services:
       - AUTH_RESOURCE=zaakafhandelcomponent
       - AUTH_SECRET=keycloakZaakafhandelcomponentClientSecret
       - AUTH_SERVER=http://keycloak:8080
+      - AUTH_SSL_REQUIRED=${AUTH_SSL_REQUIRED:-none}
       - BAG_API_CLIENT_MP_REST_URL=${BAG_API_CLIENT_MP_REST_URL:-https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/}
       - BAG_API_KEY=${BAG_API_KEY:-fakeBagApiKey}
       - BRP_API_CLIENT_MP_REST_URL=http://brp-personen-wiremock:8080/haalcentraal/api/brp

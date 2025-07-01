@@ -52,6 +52,7 @@ class ProjectConfig : AbstractProjectConfig() {
         ZAC_DEFAULT_DOCKER_IMAGE
     }
     private val dockerComposeEnvironment = mapOf(
+        "AUTH_SSL_REQUIRED" to "none",
         "ADDITIONAL_ALLOWED_FILE_TYPES" to ADDITIONAL_ALLOWED_FILE_TYPES,
         "BAG_API_CLIENT_MP_REST_URL" to "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/",
         "FEATURE_FLAG_BPMN_SUPPORT" to "true",
