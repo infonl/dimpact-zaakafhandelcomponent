@@ -9,7 +9,7 @@
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
 > Redacteur : Karin Masselink <br>
-> Auteur(s) : Roy Buis, Edgar Vonk, John Bol, Hristo LLiev, Sander Boer, Camiel Braun <br>
+> Auteur(s) : Roy Buis, Edgar Vonk, John Bol, Hristo Iliev, Sander Boer, Camiel Braun <br>
 
 
 Versiegeschiedenis:
@@ -288,7 +288,7 @@ Om een zaaktype in deze lijst te controleren klik je op de regel. Daarna worden 
 Voor nu worden de volgende onderdelen gecheckt:
 - Zaakafhandelparameters | er wordt gecheckt of deze volledig zijn ingericht
 - Statustypen | er wordt gecheckt of voor de werking van de ZAC vereiste statustypen zijn toegevoegd aan het zaaktype. Dit zijn momenteel ‘Intake’, ‘In behandeling’, ‘Heropend’, ‘Wacht op aanvullende informatie’ en ‘Afgerond’ waarbij ‘Afgerond’ het hoogste volgnummer moet hebben zodat dit de eindstatus wordt.
-- Rollen | er wordt gecheckt of de voor de werking van de ZAC vereiste rollen zijn toegevoegd aan het zaaktype. Dit zijn momenteel ‘Initiator’ en ‘Behandelaar’ die nodig zijn om de functionaliteit voor het toevoegen van een initiator aan een zaak en het op naam van een behandelaar zetten van een zaak mogelijk te maken. Daarnaast wordt gecheckt of er minimaal één andere rol is toegevoegd die gebruikt wordt bij de functionaliteit voor het toevoegen van betrokkenen aan eem zaak.
+- Rollen | er wordt gecheckt of de voor de werking van de ZAC vereiste rollen zijn toegevoegd aan het zaaktype. Dit zijn momenteel ‘Initiator’ en ‘Behandelaar’ die nodig zijn om de functionaliteit voor het toevoegen van een initiator aan een zaak en het op naam van een behandelaar zetten van een zaak mogelijk te maken. ZAC vereist precies één roltype ‘Initiator’ en één roltype ‘Behandelaar’. Daarnaast wordt gecheckt of er minimaal één andere rol is toegevoegd die gebruikt wordt bij de functionaliteit voor het toevoegen van betrokkenen aan eem zaak.
 - Informatieobjecttype | er wordt voor de werking van de ZAC gecheckt of het zaaktype aan de vereiste informatieobjecttypen is gekoppeld. Dit is momenteel ‘e-mail’ dat gebruikt wordt voor het als document toevoegen van vanuit de ZAC verzonden e-mails.
 - Besluittype | er wordt gecheckt of aan het zaaktype een besluittype is gekoppeld. Dit gebeurt alleen als aan het zaaktype een resultaattype is toegevoegd dat als afleidingswijze de begin- of vervaldatum van een besluit heeft.
 
