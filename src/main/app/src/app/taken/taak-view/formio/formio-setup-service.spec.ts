@@ -10,6 +10,7 @@ import {
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { MatSidenav } from "@angular/material/sidenav";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { ExtendedComponentSchema, FormioForm } from "@formio/angular";
 import { TranslateModule } from "@ngx-translate/core";
@@ -89,6 +90,7 @@ const referenceTableFieldset: ExtendedComponentSchema = {
 
 describe(FormioSetupService.name, () => {
   let formioSetupService: FormioSetupService;
+  let utilService: UtilService;
 
   const taak: GeneratedType<"RestTask"> = {
     id: "test-id",
@@ -125,6 +127,7 @@ describe(FormioSetupService.name, () => {
         MatSidenav,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
+        NoopAnimationsModule,
       ],
       providers: [
         UtilService,
@@ -142,6 +145,7 @@ describe(FormioSetupService.name, () => {
     }).compileComponents();
 
     formioSetupService = TestBed.inject(FormioSetupService);
+    utilService = TestBed.inject(UtilService);
   });
 
   describe(FormioSetupService.prototype.extractFieldsetName.name, () => {
@@ -365,6 +369,36 @@ describe(FormioSetupService.name, () => {
       await groepComponent.data.custom();
 
       expect(identityServiceSpy).toHaveBeenCalledWith("test-zaaktype-uuid");
+    });
+
+    it("should catch errors from component initializers and call handleFormIOInitError", () => {
+      const component: ExtendedComponentSchema = {
+        type: "smartDocumentsFieldset",
+        key: "component_key",
+        components: [],
+      };
+      const errorMessage = "failed to initialize";
+      const spy = jest.spyOn(utilService, "handleFormIOInitError");
+
+      jest
+        .spyOn(
+          formioSetupService as unknown as {
+            initializeSmartDocumentsFieldsetComponent: jest.Mock;
+          },
+          "initializeSmartDocumentsFieldsetComponent",
+        )
+        .mockImplementation(() => {
+          throw new Error(errorMessage);
+        });
+
+      expect(() => {
+        formioSetupService.createFormioForm(
+          { components: [component] } as FormioForm,
+          taak as unknown as Taak,
+        );
+      }).not.toThrow();
+
+      expect(spy).toHaveBeenCalledWith("component_key", errorMessage);
     });
   });
 

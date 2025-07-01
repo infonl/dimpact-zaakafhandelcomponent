@@ -830,6 +830,7 @@
   "msg.error.case.has.no.communication.channel": "De zaak heeft geen communicatiekanaal.",
   "msg.error.case.has.decision.cannot.be.terminated": "De zaak kan niet afgebroken worden als er een besluit aan hangt.",
   "msg.error.convert.not.possible": "Dit document kan niet worden geconverteerd.",
+  "msg.error.formio.init": "Fout bij initialiseren van formulieronderdeel '{{context}}': {{error}}",
   "msg.email.verstuurd": "E-mail is verstuurd",
   "msg.extern.advies.vastleggen.behandelen": "Er is een extern advies aangevraagd. Hieronder kan het antwoord worden vastgelegd.",
   "msg.formioformulier.verwijderen.bevestigen": "Formulier '{{naam}}' verwijderen?",

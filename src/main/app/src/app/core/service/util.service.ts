@@ -252,6 +252,10 @@ export class UtilService {
     window.URL.revokeObjectURL(link.href);
   }
 
+  handleFormIOInitError(context: string, error: string): void {
+    this.openSnackbarError("msg.error.formio.init", { context, error });
+  }
+
   /**
    * Compares two variables, if objects it will check some `keysToCompareOn` are equal
    */
