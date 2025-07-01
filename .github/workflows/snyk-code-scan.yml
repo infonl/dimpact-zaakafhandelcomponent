@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Run Snyk to check for Node vulnerabilities
-        uses: snyk/actions/node@1bf4e4080b9a03bd506eda71d8e1a7cf269ee9a9 # master
+        uses: snyk/actions/node@efcc6132b1fc8f13a1c44f5da291119718006253 # master
         continue-on-error: true # To make sure that SARIF upload gets called
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -41,7 +41,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Run Snyk to check for Gradle vulnerabilities
-        uses: snyk/actions/gradle@1bf4e4080b9a03bd506eda71d8e1a7cf269ee9a9 # master
+        uses: snyk/actions/gradle@efcc6132b1fc8f13a1c44f5da291119718006253 # master
         continue-on-error: true # To make sure that SARIF upload gets called
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
