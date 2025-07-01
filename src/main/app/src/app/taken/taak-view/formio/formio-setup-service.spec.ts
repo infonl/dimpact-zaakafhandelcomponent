@@ -90,6 +90,7 @@ const referenceTableFieldset: ExtendedComponentSchema = {
 
 describe(FormioSetupService.name, () => {
   let formioSetupService: FormioSetupService;
+  let utilService: UtilService;
 
   const taak: GeneratedType<"RestTask"> = {
     id: "test-id",
@@ -144,6 +145,7 @@ describe(FormioSetupService.name, () => {
     }).compileComponents();
 
     formioSetupService = TestBed.inject(FormioSetupService);
+    utilService = TestBed.inject(UtilService);
   });
 
   describe(FormioSetupService.prototype.extractFieldsetName.name, () => {
@@ -369,17 +371,14 @@ describe(FormioSetupService.name, () => {
       expect(identityServiceSpy).toHaveBeenCalledWith("test-zaaktype-uuid");
     });
 
-    it("should catch errors from component initializers and call handleInitError", () => {
+    it("should catch errors from component initializers and call handleFormIOInitError", () => {
       const component: ExtendedComponentSchema = {
         type: "smartDocumentsFieldset",
         key: "component_key",
         components: [],
       };
       const errorMessage = "failed to initialize";
-      const spy = jest.spyOn(
-        formioSetupService["utilService"],
-        "handleFormIOInitError",
-      );
+      const spy = jest.spyOn(utilService, "handleFormIOInitError");
 
       jest
         .spyOn(
