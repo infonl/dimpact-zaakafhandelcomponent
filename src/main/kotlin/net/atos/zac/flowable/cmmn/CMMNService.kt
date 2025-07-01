@@ -57,14 +57,14 @@ class CMMNService @Inject constructor(
                 cmmnHistoryService.deleteHistoricCaseInstance(it.id)
             }
 
-    fun listHumanTaskPlanItems(zaakUUID: UUID): MutableList<PlanItemInstance> =
+    fun listHumanTaskPlanItems(zaakUUID: UUID): List<PlanItemInstance> =
         cmmnRuntimeService.createPlanItemInstanceQuery()
             .caseVariableValueEquals(ZaakVariabelenService.VAR_ZAAK_UUID, zaakUUID)
             .planItemInstanceStateEnabled()
             .planItemDefinitionType(PlanItemDefinitionType.HUMAN_TASK)
             .list()
 
-    fun listProcessTaskPlanItems(zaakUUID: UUID): MutableList<PlanItemInstance> =
+    fun listProcessTaskPlanItems(zaakUUID: UUID): List<PlanItemInstance> =
         cmmnRuntimeService.createPlanItemInstanceQuery()
             .caseVariableValueEquals(ZaakVariabelenService.VAR_ZAAK_UUID, zaakUUID)
             .planItemInstanceStateEnabled()
@@ -108,7 +108,7 @@ class CMMNService @Inject constructor(
      * This also terminates all open tasks related to the case,
      * This will also call {@Link EndCaseLifecycleListener}
      *
-     * @param zaakUUID UUID of the zaak for which the case should be terminated.
+     * @param zaakUUID UUID of the zaak, for which the case should be terminated.
      */
     fun terminateCase(zaakUUID: UUID) =
         cmmnRuntimeService.createCaseInstanceQuery()
@@ -119,7 +119,7 @@ class CMMNService @Inject constructor(
 
     @Suppress("LongParameterList")
     fun startHumanTaskPlanItem(
-        planItemInstanceId: String?,
+        planItemInstanceId: String,
         groupId: String,
         assignee: String?,
         dueDate: Date?,
@@ -161,7 +161,7 @@ class CMMNService @Inject constructor(
         )
     }
 
-    fun listCaseDefinitions(): MutableList<CaseDefinition> =
+    fun listCaseDefinitions(): List<CaseDefinition> =
         cmmnRepositoryService.createCaseDefinitionQuery().latestVersion().list()
 
     fun readCaseDefinition(caseDefinitionKey: String): CaseDefinition {
@@ -173,13 +173,13 @@ class CMMNService @Inject constructor(
         )
     }
 
-    fun listUserEventListeners(caseDefinitionKey: String): MutableList<UserEventListener> =
+    fun listUserEventListeners(caseDefinitionKey: String): List<UserEventListener> =
         cmmnRepositoryService.getCmmnModel(caseDefinitionKey)
             .primaryCase
-            .findPlanItemDefinitionsOfType<UserEventListener>(UserEventListener::class.java)
+            .findPlanItemDefinitionsOfType(UserEventListener::class.java)
 
-    fun listHumanTasks(caseDefinitionKey: String): MutableList<HumanTask> =
+    fun listHumanTasks(caseDefinitionKey: String): List<HumanTask> =
         cmmnRepositoryService.getCmmnModel(caseDefinitionKey)
             .primaryCase
-            .findPlanItemDefinitionsOfType<HumanTask?>(HumanTask::class.java)
+            .findPlanItemDefinitionsOfType(HumanTask::class.java)
 }

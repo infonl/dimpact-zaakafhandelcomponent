@@ -193,17 +193,17 @@ class PlanItemsRESTService @Inject constructor(
         }
 
         cmmnService.startHumanTaskPlanItem(
-            humanTaskData.planItemInstanceId,
-            humanTaskData.groep.id,
-            if (humanTaskData.medewerker != null && humanTaskData.medewerker.toString().isNotEmpty()) {
+            planItemInstanceId = humanTaskData.planItemInstanceId,
+            groupId = humanTaskData.groep.id,
+            assignee = if (humanTaskData.medewerker != null && humanTaskData.medewerker.toString().isNotEmpty()) {
                 humanTaskData.medewerker?.id
             } else {
                 null
             },
-            DateTimeConverterUtil.convertToDate(fatalDate),
-            humanTaskData.toelichting,
-            taakdata,
-            zaakUUID
+            dueDate = DateTimeConverterUtil.convertToDate(fatalDate),
+            description = humanTaskData.toelichting,
+            taakdata = taakdata,
+            zaakUUID = zaakUUID
         )
         indexingService.addOrUpdateZaak(zaakUUID, false)
     }
