@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.86](https://img.shields.io/badge/Version-1.0.86-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
+![Version: 1.0.87](https://img.shields.io/badge/Version-1.0.87-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -52,6 +52,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | auth.realm | string | `""` |  |
 | auth.secret | string | `""` |  |
 | auth.server | string | `""` |  |
+| auth.sslRequired | string | `""` | "none" - if HTTPS is not required. This should be set to "all" in production environments. |
 | autoscaling.enabled | bool | `false` |  |
 | autoscaling.maxReplicas | int | `100` |  |
 | autoscaling.minReplicas | int | `1` |  |
@@ -71,7 +72,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | db.password | string | `""` |  |
 | db.user | string | `""` |  |
 | extraDeploy | list | `[]` | Extra objects to deploy (value evaluated as a template) |
-| featureFlags.bpmnSupport | bool | `false` | turns BPMN support on or off |
+| featureFlags.bpmnSupport | string | `""` | turns BPMN support on or off; defaults to false |
 | fullnameOverride | string | `""` | fullname to use |
 | gemeente.code | string | `""` |  |
 | gemeente.mail | string | `""` |  |
@@ -90,6 +91,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | initContainer.enabled | bool | `true` |  |
 | initContainer.image.repository | string | `"curlimages/curl"` |  |
 | initContainer.image.tag | string | `"8.14.1@sha256:9a1ed35addb45476afa911696297f8e115993df459278ed036182dd2cd22b67b"` |  |
+| javaOptions | string | `""` |  |
 | keycloak.adminClient.id | string | `""` | Keycloak ZAC admin client name |
 | keycloak.adminClient.secret | string | `""` | Keycloak ZAC admin client secret |
 | klantinteractiesApi.token | string | `""` |  |
@@ -280,7 +282,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | signaleringen.tolerations | list | `[]` |  |
 | smartDocuments.authentication | string | `""` | Authentication token |
 | smartDocuments.enabled | bool | `false` | Enable SmartDocuments integration for creating a new document |
-| smartDocuments.fixedUserName | string | `""` | If set this overrides the sending of the username of the user that is logged in to ZAC to SmartDocuments with a fixed value. This username is sent to SmartDocuments when creating a new document as an HTTP header. For most target environments this should not be set, assuming that all users that are available in ZAC are also available in the SmartDocuments environment with the same username. If this setting is set, then templates in SmartDocuments cannot use user-specific values. |
+| smartDocuments.fixedUserName | string | `""` | If set this overrides the sending of the username of the user that is logged in to ZAC to SmartDocuments with a fixed value. This username is sent to SmartDocuments when creating a new document as an HTTP header. For most target environments, this should not be set, assuming that all users that are available in ZAC are also available in the SmartDocuments environment with the same username. If this setting is set, then templates in SmartDocuments cannot use user-specific values. |
 | smartDocuments.url | string | `""` | URL to SmartDocuments instance. For example: https://partners.smartdocuments.com |
 | smartDocuments.wizardAuthEnabled | bool | `true` | [OPTIONAL] Normal attended wizard flow started with user; when set to false no user added to the request and a special no_auth SmartDocuments URL is used |
 | solr-operator.affinity | object | `{}` | affinity for solr-operator |
