@@ -17,10 +17,10 @@ import { MatTableDataSource } from "@angular/material/table";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { VersionLayout } from "../../shared/version/version.component";
 import { AdminComponent } from "../admin/admin.component";
 import { HealthCheckService } from "../health-check.service";
-import { ZaaktypeInrichtingscheck } from "../model/zaaktype-inrichtingscheck";
 
 @Component({
   templateUrl: "./inrichtingscheck.component.html",
@@ -45,8 +45,9 @@ export class InrichtingscheckComponent
   @ViewChild(MatSort) sort: MatSort;
 
   readonly versionLayout = VersionLayout;
-  dataSource: MatTableDataSource<ZaaktypeInrichtingscheck> =
-    new MatTableDataSource<ZaaktypeInrichtingscheck>();
+  dataSource: MatTableDataSource<
+    GeneratedType<"RESTZaaktypeInrichtingscheck">
+  > = new MatTableDataSource<GeneratedType<"RESTZaaktypeInrichtingscheck">>();
   loadingZaaktypes = true;
   loadingCommunicatiekanaal = true;
   columnsToDisplay = [
@@ -56,8 +57,8 @@ export class InrichtingscheckComponent
     "zaaktypeDoel",
     "beginGeldigheid",
   ];
-  zaaktypes: ZaaktypeInrichtingscheck[];
-  expandedRow: ZaaktypeInrichtingscheck | null;
+  zaaktypes: GeneratedType<"RESTZaaktypeInrichtingscheck">[];
+  expandedRow: GeneratedType<"RESTZaaktypeInrichtingscheck"> | null;
   valideFilter: ToggleSwitchOptions = ToggleSwitchOptions.UNCHECKED;
   filterValue = "";
   bestaatCommunicatiekanaalEformulier: boolean;

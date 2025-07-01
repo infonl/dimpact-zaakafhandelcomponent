@@ -43,7 +43,7 @@ class HealthCheckService @Inject constructor(
     private val versionNumber: Optional<String?>,
 
     private val referenceTableService: ReferenceTableService,
-    private val zaakafhandelParameterBeheerService: ZaakafhandelParameterService,
+    private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val ztcClientService: ZtcClientService,
 ) {
     companion object {
@@ -68,7 +68,7 @@ class HealthCheckService @Inject constructor(
     }
 
     private fun inrichtingscheck(zaaktypeUuid: UUID, zaaktype: ZaakType): ZaaktypeInrichtingscheck =
-        zaakafhandelParameterBeheerService.readZaakafhandelParameters(zaaktypeUuid).let { zaakafhandelParams ->
+        zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid).let { zaakafhandelParams ->
             return ZaaktypeInrichtingscheck(zaaktype).apply {
                 isZaakafhandelParametersValide = zaakafhandelParams.isValide
             }.also {
@@ -171,9 +171,10 @@ class HealthCheckService @Inject constructor(
                     OmschrijvingGeneriekEnum.ZAAKCOORDINATOR ->
                         zaaktypeInrichtingscheck.isRolOverigeAanwezig = true
                     OmschrijvingGeneriekEnum.BEHANDELAAR ->
-                        zaaktypeInrichtingscheck.isRolBehandelaarAanwezig = true
-                    OmschrijvingGeneriekEnum.INITIATOR ->
-                        zaaktypeInrichtingscheck.isRolInitiatorAanwezig = true
+                        zaaktypeInrichtingscheck.aantalBehandelaarroltypen++
+                    OmschrijvingGeneriekEnum.INITIATOR -> {
+                        zaaktypeInrichtingscheck.aantalInitiatorroltypen++
+                    }
                 }
             }
         }

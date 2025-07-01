@@ -91,6 +91,7 @@ fun createZaakafhandelParameters(
     productaanvraagtype: String? = null,
     nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
     zaakbeeindigParameters: Set<ZaakbeeindigParameter>? = emptySet(),
+    groupId: String? = null,
     caseDefinitionId: String = "fakeCaseDefinitionId",
     betrokkeneKoppelingen: BetrokkeneKoppelingen = createBetrokkeneKoppelingen(),
     brpDoelbindingen: BrpDoelbindingen? = BrpDoelbindingen().apply {
@@ -108,6 +109,7 @@ fun createZaakafhandelParameters(
         this.einddatumGeplandWaarschuwing = einddatumGeplandWaarschuwing
         this.productaanvraagtype = productaanvraagtype
         this.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
+        this.groepID = groupId
         this.caseDefinitionID = caseDefinitionId
         setMailtemplateKoppelingen(
             setOf(
