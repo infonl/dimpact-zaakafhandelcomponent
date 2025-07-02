@@ -160,11 +160,9 @@ export class TaakViewComponent
   }
 
   private init(taak: GeneratedType<"RestTask">, initZaak: boolean) {
-    if (!initZaak) {
-      this.initTaakGegevens(taak);
-      return;
-    }
+    this.initTaakGegevens(taak);
 
+    if (!initZaak) return;
     if (!this.taak) return;
 
     this.zakenService.readZaak(this.taak.zaakUuid).subscribe((zaak) => {

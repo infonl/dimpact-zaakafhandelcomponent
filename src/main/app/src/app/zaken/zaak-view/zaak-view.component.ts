@@ -173,7 +173,7 @@ export class ZaakViewComponent
     super();
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.subscriptions$.push(
       this.route.data.subscribe((data) => {
         this.init(data["zaak"]);
@@ -254,7 +254,7 @@ export class ZaakViewComponent
     this.takenDataSource.sortingDataAccessor = (item, property) => {
       switch (property) {
         case "groep":
-          return item.data.groep.naam;
+          return item.data.groep?.naam ?? "";
         case "behandelaar":
           return item.data.behandelaar?.naam ?? "";
         default:
@@ -997,7 +997,7 @@ export class ZaakViewComponent
       .subscribe((besluiten) => (this.zaak.besluiten = besluiten));
   }
 
-  private loadTaken(): void {
+  private loadTaken() {
     this.takenLoading = true;
     this.takenService
       .listTakenVoorZaak(this.zaak.uuid)
@@ -1007,8 +1007,11 @@ export class ZaakViewComponent
       .subscribe((taken) => {
         taken = taken.sort(
           (a, b) =>
-            a.data.fataledatum?.localeCompare(b.data.fataledatum) ||
-            a.data.creatiedatumTijd?.localeCompare(b.data.creatiedatumTijd),
+            (a.data.fataledatum?.localeCompare(b.data.fataledatum ?? "") ||
+              a.data.creatiedatumTijd?.localeCompare(
+                b.data.creatiedatumTijd ?? "",
+              )) ??
+            0,
         );
         this.takenDataSource.data = taken;
         this.filterTakenOpStatus();

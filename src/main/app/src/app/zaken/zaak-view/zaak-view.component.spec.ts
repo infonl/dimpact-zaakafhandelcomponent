@@ -27,7 +27,6 @@ import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { Zaak } from "../model/zaak";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZakenService } from "../zaken.service";
@@ -43,10 +42,11 @@ describe(ZaakViewComponent.name, () => {
   let planItemsService: PlanItemsService;
 
   const mockActivatedRoute = {
-    data: new ReplaySubject<{ zaak: Zaak }>(1),
+    data: new ReplaySubject<{ zaak: GeneratedType<"RestZaak"> }>(1),
   };
 
-  const zaak = fromPartial<Zaak>({
+  const zaak = fromPartial<GeneratedType<"RestZaak">>({
+    uuid: "1234",
     zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
       omschrijving: "mock description",
     }),
@@ -134,7 +134,7 @@ describe(ZaakViewComponent.name, () => {
       isOpgeschort: false,
       isEerderOpgeschort: false,
       isProcesGestuurd: false,
-    } satisfies Zaak;
+    } satisfies GeneratedType<"RestZaak">;
 
     beforeEach(() => {
       mockActivatedRoute.data.next({ zaak: opschortenZaak });

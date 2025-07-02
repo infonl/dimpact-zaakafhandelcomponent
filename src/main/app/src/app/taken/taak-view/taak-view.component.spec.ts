@@ -9,9 +9,10 @@ import {
   withInterceptorsFromDi,
 } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { TestBed } from "@angular/core/testing";
+import { ComponentRef } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatSidenav } from "@angular/material/sidenav";
-import { provideAnimations } from "@angular/platform-browser/animations";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
@@ -19,12 +20,19 @@ import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { EditGroepBehandelaarComponent } from "../../shared/edit/edit-groep-behandelaar/edit-groep-behandelaar.component";
+import { MaterialModule } from "../../shared/material/material.module";
+import { PipesModule } from "../../shared/pipes/pipes.module";
+import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakVerkortComponent } from "../../zaken/zaak-verkort/zaak-verkort.component";
 import { TakenService } from "../taken.service";
 import { TaakViewComponent } from "./taak-view.component";
 
 describe(TaakViewComponent.name, () => {
-  let component: TaakViewComponent;
+  let fixture: ComponentFixture<TaakViewComponent>;
+  let component: ComponentRef<TaakViewComponent>;
   let websocketService: WebsocketService;
   let takenService: TakenService;
 
@@ -58,16 +66,24 @@ describe(TaakViewComponent.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
+      declarations: [
+        TaakViewComponent,
+        ZaakVerkortComponent,
+        SideNavComponent,
+        StaticTextComponent,
+        EditGroepBehandelaarComponent,
+      ],
       imports: [
+        NoopAnimationsModule,
         MatSidenav,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
+        PipesModule,
+        MaterialModule,
       ],
       providers: [
-        TaakViewComponent,
         WebsocketService,
         TakenService,
-        provideAnimations(),
         {
           provide: ActivatedRoute,
           useValue: { data: of({ taak }) },
@@ -77,21 +93,22 @@ describe(TaakViewComponent.name, () => {
       ],
     }).compileComponents();
 
-    component = TestBed.inject(TaakViewComponent);
-    component.ngOnInit();
-    component.actionsSidenav =
+    fixture = TestBed.createComponent(TaakViewComponent);
+    fixture.detectChanges();
+
+    component = fixture.componentRef;
+    component.instance.actionsSidenav =
       TestBed.createComponent(MatSidenav).componentInstance;
 
     websocketService = TestBed.inject(WebsocketService);
-
     takenService = TestBed.inject(TakenService);
   });
 
   describe(TaakViewComponent.prototype.documentCreated.name, () => {
-    it(`should subscribe to ${Opcode.UPDATED} on ${ObjectType.ZAAK_INFORMATIEOBJECTEN}`, () => {
+    it(`should subscribe to ${Opcode.UPDATED} on ${ObjectType.ZAAK_INFORMATIEOBJECTEN}`, async () => {
       const addListener = jest.spyOn(websocketService, "addListener");
 
-      component.documentCreated();
+      component.instance.documentCreated();
 
       expect(addListener).toHaveBeenCalledTimes(1);
       expect(addListener).toHaveBeenCalledWith(
@@ -108,7 +125,7 @@ describe(TaakViewComponent.name, () => {
         "listHistorieVoorTaak",
       );
 
-      component.documentCreated();
+      component.instance.documentCreated();
 
       websocketService["onMessage"]({
         opcode: Opcode.UPDATED,
