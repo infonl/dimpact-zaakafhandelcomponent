@@ -109,7 +109,7 @@ class RestZaakConverterTest : BehaviorSpec({
             every { readZaaktype(zaak.zaaktype) } returns zaakType
         }
         with(zgwApiService) {
-            every { findGroepForZaak(zaak) } returns rolOrganistorischeEenheid
+            every { findGroepForZaak(zaak) } returns rolOrganisatorischeEenheid
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
             every { findInitiatorRoleForZaak(zaak) } returns rolNatuurlijkPersoon
         }
@@ -117,7 +117,7 @@ class RestZaakConverterTest : BehaviorSpec({
             every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns Optional.of(false)
             every { readZaakdata(zaak.uuid) } returns zaakdata
         }
-        every { restGroupConverter.convertGroupId(rolOrganistorischeEenheid.identificatienummer) } returns restGroup
+        every { restGroupConverter.convertGroupId(rolOrganisatorischeEenheid.identificatienummer) } returns restGroup
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
         every { restDecisionConverter.convertToRestDecision(besluit) } returns restBesluit
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer) } returns restUser
