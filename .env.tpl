@@ -17,6 +17,7 @@ AUTH_REALM=zaakafhandelcomponent
 AUTH_RESOURCE=zaakafhandelcomponent
 AUTH_SECRET=keycloakZaakafhandelcomponentClientSecret
 AUTH_SERVER=http://localhost:8081
+AUTH_SSL_REQUIRED=none
 BAG_API_CLIENT_MP_REST_URL=op://Dimpact/ZAC-.env-$APP_ENV/BAG/API_CLIENT_MP_REST_URL
 BAG_API_KEY=op://Dimpact/ZAC-.env-$APP_ENV/BAG/API_KEY
 BRON_ORGANISATIE_RSIN=123443210
