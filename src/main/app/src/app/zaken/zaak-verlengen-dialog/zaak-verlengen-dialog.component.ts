@@ -69,12 +69,6 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       Validators.max(Number(this.data.zaak.zaaktype.verlengingstermijn)),
     ]);
 
-    console.log("data.zaak.einddatumGepland", data.zaak.einddatumGepland);
-    console.log(
-      "data.zaak.uiterlijkeEinddatumAfdoening",
-      data.zaak.uiterlijkeEinddatumAfdoening,
-    );
-
     if (this.data.zaak.einddatumGepland) {
       this.form.controls.einddatumGepland.setValue(
         moment(this.data.zaak.einddatumGepland),
@@ -220,9 +214,6 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       redenVerlenging: this.form.controls.redenVerlenging.value,
       takenVerlengen: Boolean(this.form.controls.takenVerlengen.value),
     };
-
-    console.log("zaakVerlengGegevens", zaakVerlengGegevens);
-    return;
 
     this.zakenService
       .verlengenZaak(this.data.zaak.uuid, zaakVerlengGegevens)
