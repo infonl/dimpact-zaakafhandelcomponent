@@ -79,11 +79,11 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         )
         val rolAdviseur = createRolNatuurlijkPersoon(
             rolType = createRolType(omschrijving = "fake_role_adviseur"),
-            natuurlijkPersoon = createNatuurlijkPersoonIdentificatie(bsn = "fakeBsnAdviseur")
+            natuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie(bsn = "fakeBsnAdviseur")
         )
         val rolBelanghebbende = createRolNatuurlijkPersoon(
             rolType = createRolType(omschrijving = "fake_role_belanghebbende"),
-            natuurlijkPersoon = createNatuurlijkPersoonIdentificatie(bsn = "fakeBsnBelanghebbende")
+            natuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie(bsn = "fakeBsnBelanghebbende")
 
         )
         val rollenZaak = listOf(rolAdviseur, rolBelanghebbende)
@@ -157,11 +157,11 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         )
         val rolAdviseur = createRolNatuurlijkPersoon(
             rolType = createRolType(omschrijving = "fake_role_adviseur"),
-            natuurlijkPersoon = createNatuurlijkPersoonIdentificatie(bsn = "fakeBsnAdviseur")
+            natuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie(bsn = "fakeBsnAdviseur")
         )
         val rolBelanghebbende = createRolNatuurlijkPersoon(
             rolType = createRolType(omschrijving = "fake_role_belanghebbende"),
-            natuurlijkPersoon = createNatuurlijkPersoonIdentificatie(bsn = "fakeBsnBelanghebbende")
+            natuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie(bsn = "fakeBsnBelanghebbende")
 
         )
         val rollenZaak = listOf(rolAdviseur, rolBelanghebbende)

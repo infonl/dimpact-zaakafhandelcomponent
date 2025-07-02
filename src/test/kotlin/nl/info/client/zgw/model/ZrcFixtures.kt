@@ -6,6 +6,7 @@ package nl.info.client.zgw.model
 
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
+import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolVestiging
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
@@ -20,6 +21,7 @@ import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
 import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
 import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
+import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Opschorting
 import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Resultaat
@@ -51,6 +53,14 @@ fun createMedewerkerIdentificatie(
 
 fun createNatuurlijkPersoonIdentificatie(bsn: String = "fakeBsn") = NatuurlijkPersoonIdentificatie().apply {
     this.inpBsn = bsn
+}
+
+fun createNietNatuurlijkPersoonIdentificatie(
+    innNnpId: String? = null,
+    vestigingsNummer: String? = "123456789123"
+) = NietNatuurlijkPersoonIdentificatie().apply {
+    this.innNnpId = innNnpId
+    this.vestigingsNummer = vestigingsNummer
 }
 
 fun createObjectOpenbareRuimte(
@@ -128,24 +138,36 @@ fun createRolNatuurlijkPersoon(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(zaakTypeUri = zaakURI),
     toelichting: String = "fakeToelichting",
-    natuurlijkPersoon: NatuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie()
+    natuurlijkPersoonIdentificatie: NatuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie()
 ) = RolNatuurlijkPersoon(
     zaakURI,
     rolType,
     toelichting,
-    natuurlijkPersoon
+    natuurlijkPersoonIdentificatie
+)
+
+fun createRolNietNatuurlijkPersoon(
+    zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    rolType: RolType = createRolType(zaakTypeUri = zaakURI),
+    toelichting: String = "fakeToelichting",
+    nietNatuurlijkPersoonIdentificatie: NietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie()
+) = RolNietNatuurlijkPersoon(
+    zaakURI,
+    rolType,
+    toelichting,
+    nietNatuurlijkPersoonIdentificatie
 )
 
 fun createRolOrganisatorischeEenheid(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(),
     toelichting: String = "fakeToelichting",
-    organisatorischeEenheid: OrganisatorischeEenheidIdentificatie = createOrganisatorischeEenheid()
+    organisatorischeEenheidIdentificatie: OrganisatorischeEenheidIdentificatie = createOrganisatorischeEenheid()
 ) = RolOrganisatorischeEenheid(
     zaakURI,
     rolType,
     toelichting,
-    organisatorischeEenheid
+    organisatorischeEenheidIdentificatie
 )
 
 fun createRolOrganisatorischeEenheidForReads(
