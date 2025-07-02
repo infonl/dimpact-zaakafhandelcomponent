@@ -4,28 +4,29 @@
  */
 
 import { Injectable } from "@angular/core";
-import {PutBody, ZacHttpClient} from "../shared/http/zac-http-client";
+import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class SignaleringenSettingsBeheerService {
-  constructor(
-    private readonly zacHttpClient: ZacHttpClient,
-  ) {}
+  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   list(groupId: string) {
-    return this.zacHttpClient.GET("/rest/signaleringen/group/{groupId}/instellingen", {
-      path: { groupId }
-    });
+    return this.zacHttpClient.GET(
+      "/rest/signaleringen/group/{groupId}/instellingen",
+      { path: { groupId } },
+    );
   }
 
   put(
     groupId: string,
     body: PutBody<"/rest/signaleringen/group/{groupId}/instellingen">,
   ) {
-    return this.zacHttpClient.PUT("/rest/signaleringen/group/{groupId}/instellingen", body, {
-      path: { groupId }
-    })
+    return this.zacHttpClient.PUT(
+      "/rest/signaleringen/group/{groupId}/instellingen",
+      body,
+      { path: { groupId } },
+    );
   }
 }
