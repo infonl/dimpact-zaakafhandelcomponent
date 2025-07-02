@@ -86,10 +86,10 @@ import nl.info.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
 import nl.info.zac.app.zaak.model.createRESTGeometry
 import nl.info.zac.app.zaak.model.createRESTZaakAanmaakGegevens
 import nl.info.zac.app.zaak.model.createRESTZaakAssignmentData
-import nl.info.zac.app.zaak.model.createRESTZaakBetrokkeneGegevens
 import nl.info.zac.app.zaak.model.createRESTZakenVerdeelGegevens
 import nl.info.zac.app.zaak.model.createRestDocumentOntkoppelGegevens
 import nl.info.zac.app.zaak.model.createRestGroup
+import nl.info.zac.app.zaak.model.createRestZaakInitiatorGegevens
 import nl.info.zac.app.zaak.model.createRestZaak
 import nl.info.zac.app.zaak.model.createRestZaakLinkData
 import nl.info.zac.app.zaak.model.createRestZaakLocatieGegevens
@@ -897,10 +897,10 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     Given("A zaak with an initiator and rest zaak betrokkene gegevens") {
         val zaak = createZaak()
-        val restZaakBetrokkenGegevens = createRESTZaakBetrokkeneGegevens()
+        val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens()
         val rolMedewerker = createRolMedewerker()
         val restZaak = createRestZaak()
-        every { zrcClientService.readZaak(restZaakBetrokkenGegevens.zaakUUID) } returns zaak
+        every { zrcClientService.readZaak(restZaakInitiatorGegevens.zaakUUID) } returns zaak
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolMedewerker
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten(toevoegenInitiatorPersoon = true)
         every { zrcClientService.deleteRol(any(), any()) } just runs
@@ -908,7 +908,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { restZaakConverter.toRestZaak(zaak) } returns restZaak
 
         When("an initiator is updated") {
-            val updatedRestZaak = zaakRestService.updateInitiator(restZaakBetrokkenGegevens)
+            val updatedRestZaak = zaakRestService.updateInitiator(restZaakInitiatorGegevens)
 
             Then("the old initiator should be removed and the new one should be added to the zaak") {
                 updatedRestZaak shouldBe restZaak
@@ -918,10 +918,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "Verwijderd door de medewerker tijdens het behandelen van de zaak"
                     )
                     zaakService.addInitiatorToZaak(
-                        restZaakBetrokkenGegevens.betrokkeneIdentificatieType,
-                        restZaakBetrokkenGegevens.betrokkeneIdentificatie,
+                        restZaakInitiatorGegevens.identificatieType,
+                        restZaakInitiatorGegevens.identificatie,
                         zaak,
-                        restZaakBetrokkenGegevens.roltoelichting!!
+                        restZaakInitiatorGegevens.toelichting!!
                     )
                 }
             }
@@ -1323,16 +1323,16 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Given("an initiator is being updated") {
-        val data = createRESTZaakBetrokkeneGegevens()
+        val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens()
         val zaak = createZaak()
 
-        every { zrcClientService.readZaak(data.zaakUUID) } returns zaak
+        every { zrcClientService.readZaak(restZaakInitiatorGegevens.zaakUUID) } returns zaak
         every { zgwApiService.findInitiatorRoleForZaak(any()) } returns null
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
         every {
             zaakService.addInitiatorToZaak(
-                data.betrokkeneIdentificatieType,
-                data.betrokkeneIdentificatie,
+                restZaakInitiatorGegevens.identificatieType,
+                restZaakInitiatorGegevens.identificatie,
                 zaak,
                 any()
             )
@@ -1341,16 +1341,16 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         When("a reason is passed") {
             zaakRestService.updateInitiator(
-                data.apply {
-                    roltoelichting = "test reden"
+                restZaakInitiatorGegevens.apply {
+                    toelichting = "test reden"
                 }
             )
 
             Then("the reasons should get saved") {
                 verify(exactly = 1) {
                     zaakService.addInitiatorToZaak(
-                        data.betrokkeneIdentificatieType,
-                        data.betrokkeneIdentificatie,
+                        restZaakInitiatorGegevens.identificatieType,
+                        restZaakInitiatorGegevens.identificatie,
                         any(),
                         "test reden"
                     )
@@ -1360,16 +1360,16 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         When("no reason is passed") {
             zaakRestService.updateInitiator(
-                data.apply {
-                    roltoelichting = null
+                restZaakInitiatorGegevens.apply {
+                    toelichting = null
                 }
             )
 
             Then("the reason should be set to the default") {
                 verify(exactly = 1) {
                     zaakService.addInitiatorToZaak(
-                        data.betrokkeneIdentificatieType,
-                        data.betrokkeneIdentificatie,
+                        restZaakInitiatorGegevens.identificatieType,
+                        restZaakInitiatorGegevens.identificatie,
                         any(),
                         "Toegekend door de medewerker tijdens het behandelen van de zaak"
                     )
