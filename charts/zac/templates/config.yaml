@@ -9,7 +9,7 @@ data:
   AUTH_REALM: {{ required "Valid .Values.auth.realm entry required!" .Values.auth.realm }}
   AUTH_RESOURCE: {{ required "Valid .Values.auth.clientId entry required!" .Values.auth.clientId }}
   AUTH_SERVER: {{ required "Valid .Values.auth.server entry required!" .Values.auth.server }}
-  AUTH_SSL_REQUIRED: {{ required "Valid .Values.auth.sslRequired entry required!" .Values.auth.sslRequired | default "all" | quote }}
+  AUTH_SSL_REQUIRED: {{ .Values.auth.sslRequired | default "all" | quote }}
   BAG_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.bagApi.url entry required!" .Values.bagApi.url }}
   BRON_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.bron.rsin entry required!" .Values.organizations.bron.rsin | quote }}
   BRP_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.brpApi.url entry required!" .Values.brpApi.url }}

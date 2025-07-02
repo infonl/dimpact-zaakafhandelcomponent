@@ -11,7 +11,7 @@
 # have field descriptions. Otherwise, leaf nodes with field descriptions will be ignored and will not be included in the generated README.md.
 # See: https://github.com/norwoodj/helm-docs for details.
 
-# JVM startup options. defaults to "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime"
+# -- JVM startup options. defaults to "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime"
 javaOptions: ""
 
 # -- External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com)
@@ -33,8 +33,8 @@ auth:
   clientId: ""
   secret: ""
   # -- Whether communication with the Keycloak OpenID provider should be over HTTPS.
-  # -- Valid values are: "all" - to always require HTTPS, "external" - to only require HTTPS for external requests,
-  # -- "none" - if HTTPS is not required. This should be set to "all" in production environments.
+  # Valid values are: "all" - to always require HTTPS, "external" - to only require HTTPS for external requests,
+  # "none" - if HTTPS is not required. This should be set to "all" in production environments.
   sslRequired: ""
 
 # Configuration of the ZAC admin client in Keycloak
@@ -164,7 +164,6 @@ opentelemetry_zaakafhandelcomponent:
   # -- OpenTelemetry collector endpoint URL
   endpoint: ""
 
-
 # -- Maximum size (in Mega Bytes) of files that can be uploaded.
 maxFileSizeMB: 80
 
@@ -173,9 +172,6 @@ additionalAllowedFileTypes:
 
 # -- Enable Java remote debugging
 remoteDebug: false
-
-# -- JVM options to set in the _JAVA_OPTIONS env var, recommended defaults are used if not provided and are shown below
-# javaOptions: -Xmx1024m -Xms1024m -Xlog:gc::time,uptime
 
 # -- The number of replicas to run
 replicaCount: 1
