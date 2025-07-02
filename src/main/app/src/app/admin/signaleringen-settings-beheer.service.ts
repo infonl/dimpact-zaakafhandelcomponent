@@ -3,41 +3,29 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { catchError } from "rxjs/operators";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { GeneratedType } from "../shared/utils/generated-types";
+import {PutBody, ZacHttpClient} from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class SignaleringenSettingsBeheerService {
-  private basepath = "/rest/signaleringen";
-
   constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
+    private readonly zacHttpClient: ZacHttpClient,
   ) {}
 
   list(groupId: string) {
-    return this.http
-      .get<
-        GeneratedType<"RestSignaleringInstellingen">[]
-      >(`${this.basepath}/group/${groupId}/instellingen`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.GET("/rest/signaleringen/group/{groupId}/instellingen", {
+      path: { groupId }
+    });
   }
 
   put(
     groupId: string,
-    instellingen: GeneratedType<"RestSignaleringInstellingen">,
+    body: PutBody<"/rest/signaleringen/group/{groupId}/instellingen">,
   ) {
-    return this.http
-      .put<void>(`${this.basepath}/group/${groupId}/instellingen`, instellingen)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.PUT("/rest/signaleringen/group/{groupId}/instellingen", body, {
+      path: { groupId }
+    })
   }
 }
