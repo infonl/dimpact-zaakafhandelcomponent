@@ -12,9 +12,6 @@ import jakarta.ws.rs.QueryParam;
 import net.atos.client.zgw.shared.model.AbstractListParameters;
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
 
-/**
- *
- */
 public class RolListParameters extends AbstractListParameters {
 
     /**

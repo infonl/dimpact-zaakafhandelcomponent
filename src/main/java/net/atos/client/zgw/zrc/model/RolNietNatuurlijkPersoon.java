@@ -14,6 +14,12 @@ import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie;
 import nl.info.client.zgw.ztc.model.generated.RolType;
 
+/**
+ * Manually copied from {@link nl.info.client.zgw.zrc.model.generated.RolNietNatuurlijkPersoon} and modified to allow for
+ * polymorphism using a generic base {@link Rol} class.
+ * Ideally we would use the generated class, but currently we cannot get the OpenAPI Generator framework to generate
+ * polymorphic relationships correctly.
+ */
 public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoonIdentificatie> {
 
     public RolNietNatuurlijkPersoon() {
