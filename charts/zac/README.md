@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.87](https://img.shields.io/badge/Version-1.0.87-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
+![Version: 1.0.88](https://img.shields.io/badge/Version-1.0.88-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -52,7 +52,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | auth.realm | string | `""` |  |
 | auth.secret | string | `""` |  |
 | auth.server | string | `""` |  |
-| auth.sslRequired | string | `""` | "none" - if HTTPS is not required. This should be set to "all" in production environments. |
+| auth.sslRequired | string | `""` | Whether communication with the Keycloak OpenID provider should be over HTTPS. Valid values are: "all" - to always require HTTPS, "external" - to only require HTTPS for external requests, "none" - if HTTPS is not required. This should be set to "all" in production environments. |
 | autoscaling.enabled | bool | `false` |  |
 | autoscaling.maxReplicas | int | `100` |  |
 | autoscaling.minReplicas | int | `1` |  |
@@ -91,7 +91,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | initContainer.enabled | bool | `true` |  |
 | initContainer.image.repository | string | `"curlimages/curl"` |  |
 | initContainer.image.tag | string | `"8.14.1@sha256:9a1ed35addb45476afa911696297f8e115993df459278ed036182dd2cd22b67b"` |  |
-| javaOptions | string | `""` |  |
+| javaOptions | string | `""` | JVM startup options. defaults to "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime" |
 | keycloak.adminClient.id | string | `""` | Keycloak ZAC admin client name |
 | keycloak.adminClient.secret | string | `""` | Keycloak ZAC admin client secret |
 | klantinteractiesApi.token | string | `""` |  |
