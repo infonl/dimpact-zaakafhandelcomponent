@@ -4,11 +4,17 @@
   ~
   -->
 
-<div [formGroup]="form" class="full-width">
-  <mat-checkbox class="flex" [formControlName]="key">
-    <ng-content select="mat-label">
-      {{ (label ?? key | translate) | capitalizeFirstLetter }}
-    </ng-content>
+<div [formGroup]="form" class="full-width" appearance="fill">
+  <mat-checkbox
+    [formControlName]="key"
+    [disabled]="readonly"
+    [required]="required"
+    class="w-full"
+  >
+    {{ (label ?? key | translate) | capitalizeFirstLetter }}
   </mat-checkbox>
   <mat-error>{{ getErrorMessage() }}</mat-error>
+  <mat-hint>
+    <ng-content select="mat-hint"></ng-content>
+  </mat-hint>
 </div>

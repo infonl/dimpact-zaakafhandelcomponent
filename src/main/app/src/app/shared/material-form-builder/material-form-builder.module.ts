@@ -44,7 +44,6 @@ import { NgxEditorModule } from "ngx-editor";
 import { FileDragAndDropDirective } from "../directives/file-drag-and-drop.directive";
 import { DocumentIconComponent } from "../document-icon/document-icon.component";
 import { ZacAutoComplete } from "../form/auto-complete/auto-complete";
-import { ZacCheckbox } from "../form/checkbox/checkbox";
 import { ZacDate } from "../form/date/date";
 import { ZacInput } from "../form/input/input";
 import { ZacSelect } from "../form/select/select";
@@ -82,6 +81,7 @@ import {
   BUILDER_CONFIG,
   MaterialFormBuilderConfig,
 } from "./material-form-builder-config";
+import { ZacCheckbox } from "../form/checkbox/checkbox";
 
 @NgModule({
   declarations: [

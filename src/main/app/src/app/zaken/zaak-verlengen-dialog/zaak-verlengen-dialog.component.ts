@@ -200,23 +200,21 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
     this.dialogRef.disableClose = true;
     this.loading = true;
 
-    const zaakVerlengGegevens: GeneratedType<"RESTZaakVerlengGegevens"> = {
-      duurDagen: Number(this.form.controls.duurDagen.value),
-      einddatumGepland: this.form.controls.einddatumGepland.value
-        ? moment(this.form.controls.einddatumGepland.value).toISOString()
-        : undefined,
-      uiterlijkeEinddatumAfdoening: this.form.controls
-        .uiterlijkeEinddatumAfdoening.value
-        ? moment(
-            this.form.controls.uiterlijkeEinddatumAfdoening.value,
-          ).toISOString()
-        : undefined,
-      redenVerlenging: this.form.controls.redenVerlenging.value,
-      takenVerlengen: Boolean(this.form.controls.takenVerlengen.value),
-    };
-
     this.zakenService
-      .verlengenZaak(this.data.zaak.uuid, zaakVerlengGegevens)
+      .verlengenZaak(this.data.zaak.uuid, {
+        duurDagen: Number(this.form.controls.duurDagen.value),
+        einddatumGepland: this.form.controls.einddatumGepland.value
+          ? moment(this.form.controls.einddatumGepland.value).toISOString()
+          : undefined,
+        uiterlijkeEinddatumAfdoening: this.form.controls
+          .uiterlijkeEinddatumAfdoening.value
+          ? moment(
+              this.form.controls.uiterlijkeEinddatumAfdoening.value,
+            ).toISOString()
+          : undefined,
+        redenVerlenging: this.form.controls.redenVerlenging.value,
+        takenVerlengen: Boolean(this.form.controls.takenVerlengen.value),
+      })
       .subscribe({
         next: (result) => {
           this.loading = false;
