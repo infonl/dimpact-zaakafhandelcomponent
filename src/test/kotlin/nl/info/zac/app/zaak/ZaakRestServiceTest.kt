@@ -89,8 +89,8 @@ import nl.info.zac.app.zaak.model.createRESTZaakAssignmentData
 import nl.info.zac.app.zaak.model.createRESTZakenVerdeelGegevens
 import nl.info.zac.app.zaak.model.createRestDocumentOntkoppelGegevens
 import nl.info.zac.app.zaak.model.createRestGroup
-import nl.info.zac.app.zaak.model.createRestZaakInitiatorGegevens
 import nl.info.zac.app.zaak.model.createRestZaak
+import nl.info.zac.app.zaak.model.createRestZaakInitiatorGegevens
 import nl.info.zac.app.zaak.model.createRestZaakLinkData
 import nl.info.zac.app.zaak.model.createRestZaakLocatieGegevens
 import nl.info.zac.app.zaak.model.createRestZaakRechten

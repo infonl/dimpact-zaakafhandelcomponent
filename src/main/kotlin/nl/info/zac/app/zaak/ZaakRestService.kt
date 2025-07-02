@@ -74,7 +74,6 @@ import nl.info.zac.app.zaak.model.RESTReden
 import nl.info.zac.app.zaak.model.RESTZaakAanmaakGegevens
 import nl.info.zac.app.zaak.model.RESTZaakAfbrekenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakAfsluitenGegevens
-import nl.info.zac.app.zaak.model.RestZaakBetrokkeneGegevens
 import nl.info.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakHeropenenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakOpschortGegevens
@@ -93,6 +92,7 @@ import nl.info.zac.app.zaak.model.RestZaak
 import nl.info.zac.app.zaak.model.RestZaakAssignmentData
 import nl.info.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
 import nl.info.zac.app.zaak.model.RestZaakBetrokkene
+import nl.info.zac.app.zaak.model.RestZaakBetrokkeneGegevens
 import nl.info.zac.app.zaak.model.RestZaakInitiatorGegevens
 import nl.info.zac.app.zaak.model.RestZaakLinkData
 import nl.info.zac.app.zaak.model.RestZaakLocatieGegevens
