@@ -12,7 +12,6 @@ import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.RolVestiging
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -24,7 +23,6 @@ import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
 import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
-import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isOpen
@@ -321,11 +319,11 @@ class ZaakService @Inject constructor(
                 )
 
             IdentificatieType.VN ->
-                RolVestiging(
+                RolNietNatuurlijkPersoon(
                     zaak.url,
                     roleType,
                     explanation,
-                    VestigingIdentificatie().apply { vestigingsNummer = identification }
+                    NietNatuurlijkPersoonIdentificatie().apply { vestigingsNummer = identification }
                 )
 
             IdentificatieType.RSIN ->
