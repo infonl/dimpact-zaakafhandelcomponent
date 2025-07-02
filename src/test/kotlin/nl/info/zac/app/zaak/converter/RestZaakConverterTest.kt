@@ -89,7 +89,7 @@ class RestZaakConverterTest : BehaviorSpec({
     Given("A CMMN zaak with a natuurlijk persoon as initiator, a group, a behandelaar and a besluit") {
         val zaak = createZaak()
         val zaakType = createZaakType()
-        val rolOrganistorischeEenheid = createRolOrganisatorischeEenheid()
+        val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid()
         val restGroup = createRestGroup()
         val besluit = createBesluit()
         val restBesluit = createRestDecision()
