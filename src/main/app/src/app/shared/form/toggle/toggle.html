@@ -14,7 +14,7 @@
   >
     <mat-label>
       <ng-content select="mat-label">
-        {{ label ?? key | translate | capitalizeFirstLetter }}
+        {{ (label ?? key) | translate | capitalizeFirstLetter }}
       </ng-content>
     </mat-label>
   </mat-slide-toggle>
