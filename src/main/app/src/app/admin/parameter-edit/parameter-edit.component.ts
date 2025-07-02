@@ -890,7 +890,6 @@ export class ParameterEditComponent
       emailSender: emailSender?.mail ?? null,
       enabled: Boolean(enabled),
     };
-    console.log(this.parameters.automaticEmailConfirmation);
 
     this.zaakafhandelParametersService
       .updateZaakafhandelparameters(this.parameters)

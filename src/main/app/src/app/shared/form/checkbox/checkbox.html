@@ -1,0 +1,14 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  ~
+  -->
+
+<div [formGroup]="form" class="full-width">
+  <mat-checkbox class="flex" [formControlName]="key">
+    <ng-content select="mat-label">
+      {{ (label ?? key | translate) | capitalizeFirstLetter }}
+    </ng-content>
+  </mat-checkbox>
+  <mat-error>{{ getErrorMessage() }}</mat-error>
+</div>

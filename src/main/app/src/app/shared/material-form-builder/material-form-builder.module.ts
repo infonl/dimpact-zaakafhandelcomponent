@@ -81,6 +81,7 @@ import {
   BUILDER_CONFIG,
   MaterialFormBuilderConfig,
 } from "./material-form-builder-config";
+import { ZacCheckbox } from "../form/checkbox/checkbox";
 
 @NgModule({
   declarations: [
@@ -116,6 +117,7 @@ import {
     ZacInput,
     ZacTextarea,
     ZacToggle,
+    ZacCheckbox,
   ],
   exports: [
     FileDragAndDropDirective,
@@ -144,6 +146,7 @@ import {
     ZacInput,
     ZacTextarea,
     ZacToggle,
+    ZacCheckbox,
     CapitalizeFirstLetterPipe,
   ],
   imports: [

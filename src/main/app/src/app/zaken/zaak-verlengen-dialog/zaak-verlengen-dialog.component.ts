@@ -4,7 +4,7 @@
  */
 
 import { Component, Inject, OnDestroy } from "@angular/core";
-import { Validators } from "@angular/forms";
+import { FormBuilder, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { TranslateService } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
@@ -38,23 +38,125 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
 
   private ngDestroy = new Subject<void>();
 
+  protected readonly form = this.formBuilder.group({
+    duurDagen: this.formBuilder.control("", []),
+    einddatumGepland: this.formBuilder.control<Moment | null>(null),
+    uiterlijkeEinddatumAfdoening: this.formBuilder.control<Moment | null>(null),
+    verlengingVastleggen: this.formBuilder.control<boolean>(false, []),
+    redenVerlenging: this.formBuilder.control("", [
+      Validators.required,
+      Validators.maxLength(200),
+    ]),
+    takenVerlengen: this.formBuilder.control("", []),
+  });
+  protected verlengduurHint: string;
+  protected verlengingstermijn: number | null | undefined;
+
   constructor(
+    private readonly formBuilder: FormBuilder,
     private translateService: TranslateService,
     public dialogRef: MatDialogRef<ZaakVerlengenDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { zaak: Zaak },
     private zakenService: ZakenService,
+    @Inject(MAT_DIALOG_DATA) public data: { zaak: Zaak },
   ) {
+    this.verlengingstermijn = this.data.zaak.zaaktype.verlengingstermijn;
+    this.verlengduurHint = this.translateService.instant(
+      `hint.zaak.dialoog.verlengen.verlengduur${Number(this.data.zaak.zaaktype.verlengingstermijn) > 1 ? ".meervoud" : ""}`,
+      {
+        verlengDuur: data.zaak.zaaktype.verlengingstermijn,
+      },
+    );
+
+    const maxDateEinddatumGepland = moment(this.data.zaak.einddatumGepland)
+      .add(this.data.zaak.zaaktype.verlengingstermijn, "days")
+      .toDate();
+
+    this.form.controls.duurDagen.setValidators([
+      Validators.required,
+      Validators.min(1),
+      Validators.max(Number(this.data.zaak.zaaktype.verlengingstermijn)),
+    ]);
+
+    console.log("data.zaak.einddatumGepland", data.zaak.einddatumGepland);
+    console.log(
+      "data.zaak.uiterlijkeEinddatumAfdoening",
+      data.zaak.uiterlijkeEinddatumAfdoening,
+    );
+
+    if (this.data.zaak.einddatumGepland) {
+      this.form.controls.einddatumGepland.setValue(
+        moment(this.data.zaak.einddatumGepland),
+      );
+      this.form.controls.einddatumGepland.setValidators([
+        Validators.required,
+        Validators.min(1),
+      ]);
+    }
+
+    this.form.controls.uiterlijkeEinddatumAfdoening.setValue(
+      moment(this.data.zaak.uiterlijkeEinddatumAfdoening),
+    );
+    this.form.controls.uiterlijkeEinddatumAfdoening.setValidators([
+      Validators.required,
+      Validators.min(1),
+    ]);
+
+    this.form.controls.duurDagen.valueChanges
+      .pipe(takeUntil(this.ngDestroy))
+      .subscribe((value) => {
+        let duur = Number(value);
+        if (value == null || isNaN(duur)) {
+          duur = 0;
+        }
+        this.updateDateFieldsNNNN(duur);
+      });
+
+    this.form.controls.uiterlijkeEinddatumAfdoening.valueChanges
+      .pipe(takeUntil(this.ngDestroy))
+      .subscribe((value) => {
+        if (value == null) {
+          this.resetFieldsNNNNN;
+        }
+        this.updateDateFieldsNNNN(
+          moment(value).diff(
+            this.data.zaak.uiterlijkeEinddatumAfdoening,
+            "days",
+          ),
+        );
+      });
+
+    this.form.controls.einddatumGepland.valueChanges
+      .pipe(takeUntil(this.ngDestroy))
+      .subscribe((value) => {
+        if (value == null) {
+          this.resetFieldsNNNNN;
+        }
+        this.updateDateFieldsNNNN(
+          moment(value).diff(this.data.zaak.einddatumGepland, "days"),
+        );
+      });
+
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
     this.duurDagenField = new InputFormFieldBuilder<number>()
       .id("verlengduur")
       .label("verlengduur")
       .validators(
         Validators.required,
         Validators.min(1),
-        Validators.max(Number(data.zaak.zaaktype.verlengingstermijn)),
+        Validators.max(Number(this.data.zaak.zaaktype.verlengingstermijn)),
       )
       .hint(
         this.translateService.instant(
-          `hint.zaak.dialoog.verlengen.verlengduur${Number(data.zaak.zaaktype.verlengingstermijn) > 1 ? ".meervoud" : ""}`,
+          `hint.zaak.dialoog.verlengen.verlengduur${Number(this.data.zaak.zaaktype.verlengingstermijn) > 1 ? ".meervoud" : ""}`,
           {
             verlengDuur: data.zaak.zaaktype.verlengingstermijn,
           },
@@ -63,12 +165,12 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       .styleClass("form-field-hint")
       .build();
 
-    const maxDateEinddatumGepland = moment(data.zaak.einddatumGepland)
-      .add(data.zaak.zaaktype.verlengingstermijn, "days")
-      .toDate();
+    // const maxDateEinddatumGepland = moment(this.data.zaak.einddatumGepland)
+    //   .add(this.data.zaak.zaaktype.verlengingstermijn, "days")
+    //   .toDate();
 
     this.einddatumGeplandField = data.zaak?.einddatumGepland
-      ? new DateFormFieldBuilder(data.zaak.einddatumGepland)
+      ? new DateFormFieldBuilder(this.data.zaak.einddatumGepland)
           .id("einddatumGepland")
           .label("einddatumGepland")
           .readonly(!data.zaak.einddatumGepland)
@@ -84,7 +186,7 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
     const maxDateUiterlijkeEinddatumAfdoening = moment(
       data.zaak.uiterlijkeEinddatumAfdoening,
     )
-      .add(data.zaak.zaaktype.verlengingstermijn, "days")
+      .add(this.data.zaak.zaaktype.verlengingstermijn, "days")
       .toDate();
 
     this.uiterlijkeEinddatumAfdoeningField = new DateFormFieldBuilder(
@@ -134,7 +236,7 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
           this.resetFields();
         }
         this.updateDateFields(
-          moment(value).diff(data.zaak.einddatumGepland, "days"),
+          moment(value).diff(this.data.zaak.einddatumGepland, "days"),
         );
       });
 
@@ -145,7 +247,10 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
           this.resetFields();
         }
         this.updateDateFields(
-          moment(value).diff(data.zaak.uiterlijkeEinddatumAfdoening, "days"),
+          moment(value).diff(
+            this.data.zaak.uiterlijkeEinddatumAfdoening,
+            "days",
+          ),
         );
       });
 
@@ -176,6 +281,31 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
     );
   }
 
+  private updateDateFieldsNNNN(duur: number): void {
+    if (duur <= 0) {
+      this.resetFieldsNNNNN();
+      return;
+    }
+
+    this.form.controls.duurDagen.setValue(duur.toString(), {
+      emitEvent: false,
+    });
+
+    this.form.controls.uiterlijkeEinddatumAfdoening.setValue(
+      moment(this.data.zaak.uiterlijkeEinddatumAfdoening).add(duur, "days"),
+      { emitEvent: false },
+    );
+
+    if (!this.data.zaak.einddatumGepland) {
+      return;
+    }
+
+    this.form.controls.einddatumGepland.setValue(
+      moment(this.data.zaak.einddatumGepland).add(duur, "days"),
+      { emitEvent: false },
+    );
+  }
+
   private resetFields(): void {
     this.duurDagenField.formControl.setValue(null, { emitEvent: false });
     this.einddatumGeplandField?.formControl.setValue(
@@ -185,6 +315,24 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
 
     this.uiterlijkeEinddatumAfdoeningField.formControl.setValue(
       moment(this.data.zaak.uiterlijkeEinddatumAfdoening),
+      { emitEvent: false },
+    );
+  }
+
+  private resetFieldsNNNNN(): void {
+    this.form.controls.duurDagen.setValue("", { emitEvent: false });
+
+    this.form.controls.uiterlijkeEinddatumAfdoening.setValue(
+      moment(this.data.zaak.uiterlijkeEinddatumAfdoening),
+      { emitEvent: false },
+    );
+
+    if (!this.data.zaak.einddatumGepland) {
+      return;
+    }
+
+    this.form.controls.einddatumGepland.setValue(
+      moment(this.data.zaak.einddatumGepland),
       { emitEvent: false },
     );
   }
@@ -208,6 +356,33 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       takenVerlengen: Boolean(this.takenVerlengenField.formControl.value),
     };
 
+    console.log(
+      "this.form.controls.takenVerlengen.value",
+      this.form.controls.takenVerlengen.value,
+      typeof this.form.controls.takenVerlengen.value,
+    );
+
+    const zaakVerlengGegevensNNNNNN: GeneratedType<"RESTZaakVerlengGegevens"> =
+      {
+        duurDagen: Number(this.form.controls.duurDagen.value) ?? undefined,
+        einddatumGepland: this.form.controls.einddatumGepland.value
+          ? moment(this.form.controls.einddatumGepland.value).toISOString()
+          : undefined,
+        uiterlijkeEinddatumAfdoening: this.form.controls
+          .uiterlijkeEinddatumAfdoening.value
+          ? moment(
+              this.form.controls.uiterlijkeEinddatumAfdoening.value,
+            ).toISOString()
+          : undefined,
+        redenVerlenging: this.form.controls.redenVerlenging.value,
+        takenVerlengen: Boolean(this.form.controls.takenVerlengen.value),
+      };
+
+    console.log("zaakVerlengGegevens", zaakVerlengGegevens);
+    console.log("zaakVerlengGegevensNNNNNN", zaakVerlengGegevensNNNNNN);
+
+    return;
+
     this.zakenService
       .verlengenZaak(this.data.zaak.uuid, zaakVerlengGegevens)
       .subscribe({
@@ -227,11 +402,7 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
   }
 
   disabled() {
-    return (
-      this.loading ||
-      (this.data.zaak &&
-        this.formFields.flat().some((field) => field.formControl.invalid))
-    );
+    return this.loading || (this.data.zaak && !this.form.valid);
   }
 
   ngOnDestroy(): void {

@@ -16,6 +16,51 @@
 
 <mat-dialog-content>
   <mfb-form [formFields]="formFields"></mfb-form>
+
+  <form [formGroup]="form">
+    <section class="row">
+      <zac-input
+        [form]="form"
+        key="duurDagen"
+        label="verlengduur"
+        type="number"
+        min="1"
+        max="verlengingstermijn"
+        class="col-12"
+      >
+        <mat-hint class="col-12">
+          {{ verlengduurHint }}
+        </mat-hint>
+      </zac-input>
+      <zac-date
+        *ngIf="data.zaak.einddatumGepland"
+        [form]="form"
+        key="einddatumGepland"
+        class="col-12"
+      >
+      </zac-date>
+      <zac-date
+        [form]="form"
+        key="uiterlijkeEinddatumAfdoening"
+        class="col-12"
+      ></zac-date>
+      <zac-checkbox
+        [form]="form"
+        key="verlengingVastleggen"
+        label="taken.verlengen"
+        class="col-12"
+      >
+      </zac-checkbox>
+      <zac-input
+        [form]="form"
+        key="redenVerlenging"
+        label="reden"
+        labelPosition="above"
+        class="col-12"
+      >
+      </zac-input>
+    </section>
+  </form>
 </mat-dialog-content>
 
 <mat-dialog-actions>
