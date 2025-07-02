@@ -71,7 +71,7 @@ VALUES
     false, -- publicatie_indicatie
     '', -- publicatietekst
     '{}', -- verantwoordingsrelatie (empty array)
-    '2025-01-01', -- versiedatum
+    '2025-07-01', -- versiedatum
     '{}', -- producten_of_diensten (empty array)
     'https://selectielijst.openzaak.nl/api/v1/procestypen/1e12ad30-b900-4e7f-b3b7-569673cee0b0', -- selectielijst_procestype
     'BPMN Evenementen Vooroverleg', -- referentieproces_naam
