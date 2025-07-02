@@ -260,8 +260,9 @@ Example:
       ]
     }
 
-
 ```
+:warning: prefixing the reference table with 'BPMN_' is recommended to avoid conflicts with other ZAAK types and reference tables.
+
 ### Available documents section
 To display linked documents of a zaak you can use:
 * a fieldset with type `documentsFieldset`
