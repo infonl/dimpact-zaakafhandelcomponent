@@ -66,7 +66,7 @@ import java.util.UUID
 @AllOpen
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
-class PlanItemsRESTService @Inject constructor(
+class PlanItemsRestService @Inject constructor(
     private var zaakVariabelenService: ZaakVariabelenService,
     private var cmmnService: CMMNService,
     private var zrcClientService: ZrcClientService,
@@ -195,11 +195,7 @@ class PlanItemsRESTService @Inject constructor(
         cmmnService.startHumanTaskPlanItem(
             planItemInstanceId = humanTaskData.planItemInstanceId,
             groupId = humanTaskData.groep.id,
-            assignee = if (humanTaskData.medewerker != null && humanTaskData.medewerker.toString().isNotEmpty()) {
-                humanTaskData.medewerker?.id
-            } else {
-                null
-            },
+            assignee = humanTaskData.medewerker?.id.takeIf { !it.isNullOrBlank() },
             dueDate = DateTimeConverterUtil.convertToDate(fatalDate),
             description = humanTaskData.toelichting,
             taakdata = taakdata,

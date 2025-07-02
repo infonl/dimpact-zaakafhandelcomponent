@@ -30,7 +30,7 @@ import java.time.format.DateTimeFormatter
  * This test assumes a zaak has been created in a previously run test.
  */
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
-class PlanItemsRESTServiceTest : BehaviorSpec({
+class PlanItemsRestServiceTest : BehaviorSpec({
     val humanTaskType = "HUMAN_TASK"
 
     val logger = KotlinLogging.logger {}
