@@ -352,6 +352,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("A zaak has been created") {
         When("the get zaak endpoint is called") {
             val response = zacClient.retrieveZaak(zaak2UUID)
@@ -587,6 +588,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("Betrokkenen have been added to a zaak") {
         When("the get betrokkene endpoint is called for a zaak") {
             val response = itestHttpClient.performGetRequest(

@@ -13,6 +13,7 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NATUURLIJK_PERSOON
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING
+import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Status
 import nl.info.client.zgw.zrc.model.generated.Verlenging
 import nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum
@@ -136,7 +137,14 @@ class RestZaakConverter @Inject constructor(
             initiatorIdentificatieType = when (val betrokkeneType = initiator?.betrokkeneType) {
                 NATUURLIJK_PERSOON -> IdentificatieType.BSN
                 VESTIGING -> IdentificatieType.VN
-                NIET_NATUURLIJK_PERSOON -> IdentificatieType.RSIN
+                // niet_natuurlijk_persoon rol type is used for 'RSIN-type' niet-natuurlijke personen but also for vestigingen
+                NIET_NATUURLIJK_PERSOON -> (initiator.betrokkeneIdentificatie as NietNatuurlijkPersoonIdentificatie).let {
+                    when {
+                        it.annIdentificatie != null -> IdentificatieType.RSIN
+                        it.vestigingsNummer != null -> IdentificatieType.VN
+                        else -> null
+                    }
+                }
                 // betrokkeneType may be null
                 null -> null
                 else -> {
