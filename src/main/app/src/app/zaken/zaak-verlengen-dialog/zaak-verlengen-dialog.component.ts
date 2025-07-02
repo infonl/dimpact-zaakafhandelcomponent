@@ -4,7 +4,7 @@
  */
 
 import { Component, Inject, OnDestroy } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
+import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { TranslateService } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
@@ -75,7 +75,7 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       );
       this.form.controls.einddatumGepland.setValidators([
         Validators.required,
-        (control) => {
+        (control: AbstractControl) => {
           const value = control.value;
           if (!value) return null;
           const dateValue = moment(value);
@@ -97,7 +97,7 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
     );
     this.form.controls.uiterlijkeEinddatumAfdoening.setValidators([
       Validators.required,
-      (control) => {
+      (control: AbstractControl) => {
         const value = control.value;
         if (!value) return null;
         const dateValue = moment(value);

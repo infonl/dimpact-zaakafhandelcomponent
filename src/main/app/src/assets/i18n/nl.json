@@ -769,6 +769,8 @@
   "validators.maxlength": "Gebruik maximaal {{requiredLength}} tekens",
   "validators.min": "Vul minimaal {{min}} in",
   "validators.max": "Vul maximaal {{max}} in",
+  "validators.minDate": "Gekozen datum is voor de minimum datum",
+  "validators.maxDate": "Gekozen datum is voorbij de maximum datum",
   "validators.required": "Dit veld is verplicht",
   "msg.error.required": "Het {{label}}-veld is niet ingevuld. Vul de vereiste gegevens in!",
   "msg.error.teklein": "Het {{label}}-veld bevat een te kleine waarde. Vul minimaal {{min}} in!",
