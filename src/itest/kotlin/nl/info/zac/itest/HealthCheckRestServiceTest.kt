@@ -11,6 +11,11 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_10_01
+import nl.info.zac.itest.config.ItestConfiguration.DATE_2025_01_01
+import nl.info.zac.itest.config.ItestConfiguration.DATE_2025_07_01
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
@@ -56,6 +61,34 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             And("the body contains all the performed checks") {
                 responseBody shouldEqualJson """
                     [
+                      {
+                        "aantalBehandelaarroltypen": 1,
+                        "aantalInitiatorroltypen": 1,
+                        "besluittypeAanwezig": false,
+                        "informatieobjecttypeEmailAanwezig": true,
+                        "resultaattypeAanwezig": true,
+                        "resultaattypesMetVerplichtBesluit": [],
+                        "rolOverigeAanwezig": true,
+                        "statustypeAanvullendeInformatieVereist": false,
+                        "statustypeAfgerondAanwezig": false,
+                        "statustypeAfgerondLaatsteVolgnummer": false,
+                        "statustypeHeropendAanwezig": false,
+                        "statustypeInBehandelingAanwezig": true,
+                        "statustypeIntakeAanwezig": false,
+                        "valide": false,
+                        "zaakafhandelParametersValide": false,
+                        "zaaktype": {
+                          "beginGeldigheid": "$DATE_2025_07_01",
+                          "doel": "$ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_DESCRIPTION",
+                          "identificatie": "$ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_IDENTIFICATIE",
+                          "nuGeldig": true,
+                          "omschrijving": "$ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_DESCRIPTION",
+                          "servicenorm": false,
+                          "uuid": "$ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_UUID",
+                          "versiedatum": "$DATE_2025_07_01",
+                          "vertrouwelijkheidaanduiding": "openbaar"
+                        }
+                      },
                       {                     
                         "besluittypeAanwezig": false,
                         "informatieobjecttypeEmailAanwezig": true,
@@ -73,14 +106,14 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         "valide": false,
                         "zaakafhandelParametersValide": false,
                         "zaaktype": {
-                          "beginGeldigheid": "2025-01-01",
+                          "beginGeldigheid": "$DATE_2025_01_01",
                           "doel": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
                           "identificatie": "$ZAAKTYPE_BPMN_TEST_IDENTIFICATIE",
                           "nuGeldig": true,
                           "omschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
                           "servicenorm": false,
                           "uuid": "$ZAAKTYPE_BPMN_TEST_UUID",
-                          "versiedatum": "2025-01-01",
+                          "versiedatum": "$DATE_2025_01_01",
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }
                       },  
