@@ -73,7 +73,7 @@ VALUES
     '{}', -- verantwoordingsrelatie (empty array)
     '2025-07-01', -- versiedatum
     '{}', -- producten_of_diensten (empty array)
-    'https://selectielijst.openzaak.nl/api/v1/procestypen/1e12ad30-b900-4e7f-b3b7-569673cee0b0', -- selectielijst_procestype
+    'https://selectielijst.openzaak.nl/api/v1/procestypen/8d522ad8-4365-4ae9-a74e-220f56048b54', -- selectielijst_procestype
     'BPMN Evenementen Vooroverleg', -- referentieproces_naam
     '', -- referentieproces_link
     1, -- catalogus_id, assuming a lookup is required
@@ -87,7 +87,6 @@ VALUES
     '',            -- bronzaaktype_omschrijving
     ''             -- bronzaaktype_url
 );
-
 
 -- RESULTAATTYPES
 
@@ -125,7 +124,7 @@ VALUES
   'Geweigerd', -- Omschrijving
   'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/1f750958-431c-4916-bc01-af5d3a753b41', -- Resultaattypeomschrijving
   'Geweigerd', -- Omschrijving Generiek
-  'https://selectielijst.openzaak.nl/api/v1/resultaten/2431e1ee-cacd-44af-bd12-ea7280a8928b', -- Selectielijstklasse
+  'https://selectielijst.openzaak.nl/api/v1/resultaten//de170d6e-5193-4ace-98d3-c90d51396c99', -- Selectielijstklasse
   'vernietigen', -- Archiefnominatie
   'P1Y', -- Archiefactietermijn
   'afgehandeld', -- Brondatum Archiefprocedure Afleidingswijze
@@ -140,7 +139,7 @@ VALUES
   '_etag',
   NULL,
   '',
-  NULL,
+  'P0D',
   NULL,
   NULL
 );
@@ -176,11 +175,11 @@ VALUES
     (SELECT COALESCE(MAX(id),0) FROM catalogi_resultaattype) + 1,
     '8a865de4-5927-4609-80f1-dda59fc36ecf',
     'Verleend',
-    'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/45a3fcff-4898-4d63-8dcc-cb3fdc506b08',
+    'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/f7d2dc14-1b71-4179-aed3-4e7abcfbeb0d',
     'Verleend',
-    'https://selectielijst.openzaak.nl/api/v1/resultaten/f49b00e6-0612-4480-aaf5-8390be88d9f8',
-    'vernietigen',
-    'P1Y',
+    'https://selectielijst.openzaak.nl/api/v1/resultaten/fbd3aef8-eaa0-41c5-905a-7f33303e87d9',
+    'blijvend_bewaren',
+    'P5Y',
     'afgehandeld',
     '',
     false,
@@ -192,7 +191,7 @@ VALUES
     '_etag',
     NULL,
     '',
-    NULL,
+    'P0D',
     NULL,
     NULL
 );
@@ -230,7 +229,7 @@ VALUES
   'Afgebroken',
   'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506',
   'Afgebroken',
-  'https://selectielijst.openzaak.nl/api/v1/resultaten/0d978967-6bf2-452f-951a-c16bff338f42',
+  'https://selectielijst.openzaak.nl/api/v1/resultaten/de170d6e-5193-4ace-98d3-c90d51396c99',
   'vernietigen',
   'P1Y',
   'afgehandeld',
@@ -244,7 +243,7 @@ VALUES
   '_etag',
   NULL,
   '',
-  NULL,
+  'P0D',
   NULL,
   NULL
 );
