@@ -83,7 +83,9 @@ export class ZaakViewComponent
   teWijzigenBesluit!: GeneratedType<"RestDecision">;
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
-  takenDataSource = new MatTableDataSource<ExpandableTableData<Taak>>();
+  takenDataSource = new MatTableDataSource<
+    ExpandableTableData<GeneratedType<"RestTask">>
+  >();
   allTakenExpanded = false;
   toonAfgerondeTaken = new FormControl(false);
   takenStatusFilter: GeneratedType<"TaakStatus"> | "" = "";
@@ -1213,7 +1215,7 @@ export class ZaakViewComponent
       });
   }
 
-  assignTaakToMe(taak: Taak, $event: MouseEvent) {
+  assignTaakToMe(taak: GeneratedType<"RestTask">, $event: MouseEvent) {
     $event.stopPropagation();
 
     this.websocketService.suspendListener(this.zaakTakenListener);

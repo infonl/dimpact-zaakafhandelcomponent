@@ -50,7 +50,7 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
     opmerking: AbstractTaakFormulier.TOELICHTING_FIELD,
   };
 
-  mailtemplate$: Observable<GeneratedType<"RESTMailtemplate">>;
+  mailtemplate$?: Observable<GeneratedType<"RESTMailtemplate">>;
 
   constructor(
     translate: TranslateService,
@@ -64,12 +64,12 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
   }
 
   private isZaakSuspendable(): boolean {
-    return (
+    return Boolean(
       this.zaak.zaaktype.opschortingMogelijk &&
-      !this.zaak.redenOpschorting &&
-      !this.zaak.isHeropend &&
-      this.zaak.rechten.behandelen &&
-      !this.zaak.isEerderOpgeschort
+        !this.zaak.redenOpschorting &&
+        !this.zaak.isHeropend &&
+        this.zaak.rechten.behandelen &&
+        !this.zaak.isEerderOpgeschort,
     );
   }
 
@@ -139,7 +139,9 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
       [
         new MessageFormFieldBuilder()
           .id("messageField")
-          .text(this.getMessageFieldLabel(this.humanTaskData.fataledatum))
+          .text(
+            this.getMessageFieldLabel(moment(this.humanTaskData.fataledatum)),
+          )
           .level(MessageLevel.INFO)
           .build(),
       ],
@@ -201,7 +203,7 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
               emailInput.icons = [initiatorToevoegenIcon];
             }
             initiatorToevoegenIcon.iconClicked.subscribe(() => {
-              emailInput.value(gegevens.emailadres);
+              emailInput.value(gegevens.emailadres!);
             });
           }
         });
@@ -279,7 +281,7 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
       [
         new RadioFormFieldBuilder(
           this.readonly && aanvullendeInformatieDataElement
-            ? this.translate.instant(aanvullendeInformatieDataElement)
+            ? this.translate.instant(String(aanvullendeInformatieDataElement))
             : aanvullendeInformatieDataElement,
         )
           .id(fields.AANVULLENDE_INFORMATIE)
@@ -308,10 +310,10 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
       } else {
         this.form.push([
           new RadioFormFieldBuilder(
-            this.getDataElement(fields.ZAAK_HERVATTEN) as unknown as {
+            this.getDataElement<{
               value: string;
               label: string;
-            },
+            }>(fields.ZAAK_HERVATTEN),
           )
             .id(fields.ZAAK_HERVATTEN)
             .label("actie.zaak.hervatten")

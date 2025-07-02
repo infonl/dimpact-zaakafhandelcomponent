@@ -21,13 +21,12 @@ import { IdentityService } from "../../../identity/identity.service";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { OrderUtil } from "../../../shared/order/order-util";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { Taak } from "../../model/taak";
 
 @Injectable({
   providedIn: "root",
 })
 export class FormioSetupService {
-  private taak?: Taak;
+  private taak?: GeneratedType<"RestTask">;
   private formioChangeData?: Record<string, string>;
   private injector = inject(Injector);
 
@@ -39,7 +38,10 @@ export class FormioSetupService {
     private informatieObjectenService: InformatieObjectenService,
   ) {}
 
-  createFormioForm(formioFormulier: FormioForm, taak: Taak): void {
+  createFormioForm(
+    formioFormulier: FormioForm,
+    taak: GeneratedType<"RestTask">,
+  ): void {
     this.taak = taak;
 
     this.initializeSpecializedFormioComponents(formioFormulier.components);
@@ -108,7 +110,7 @@ export class FormioSetupService {
     groepComponent.template = "{{ item.naam }}";
 
     groepComponent.data = {
-      custom: () => this.userGroupsQuery(this.taak!.zaaktypeUUID).data(),
+      custom: () => this.userGroupsQuery(this.taak!.zaaktypeUUID!).data(),
     };
   }
 

@@ -193,18 +193,18 @@ export class WebsocketService implements OnDestroy {
   }
 
   public suspendListener(
-    listener: WebsocketListener,
+    listener?: WebsocketListener,
     timeout: number = WebsocketService.DEFAULT_SUSPENSION_TIMEOUT,
   ): void {
-    if (listener) {
-      const suspension: EventSuspension = this.suspended[listener.id];
-      if (suspension) {
-        suspension.increment();
-      } else {
-        this.suspended[listener.id] = new EventSuspension(timeout);
-      }
-      console.debug("listener suspended: " + listener.key);
+    if (!listener) return;
+
+    const suspension: EventSuspension = this.suspended[listener.id];
+    if (suspension) {
+      suspension.increment();
+    } else {
+      this.suspended[listener.id] = new EventSuspension(timeout);
     }
+    console.debug("listener suspended: " + listener.key);
   }
 
   public doubleSuspendListener(listener: WebsocketListener) {
@@ -212,14 +212,12 @@ export class WebsocketService implements OnDestroy {
     this.suspendListener(listener);
   }
 
-  public removeListener(listener: WebsocketListener): void {
-    if (listener) {
-      this.removeCallback(listener);
-      this.send(
-        new SubscriptionMessage(SubscriptionType.DELETE, listener.event),
-      );
-      console.debug("listener removed: " + listener.key);
-    }
+  public removeListener(listener?: WebsocketListener) {
+    if (!listener) return;
+
+    this.removeCallback(listener);
+    this.send(new SubscriptionMessage(SubscriptionType.DELETE, listener.event));
+    console.debug("listener removed: " + listener.key);
   }
 
   public removeListeners(listeners: WebsocketListener[]): void {

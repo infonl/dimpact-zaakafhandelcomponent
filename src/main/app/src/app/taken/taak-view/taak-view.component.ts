@@ -18,7 +18,6 @@ import { ActivatedRoute } from "@angular/router";
 import { FormioForm } from "@formio/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { ZaakDocumentenComponent } from "src/app/zaken/zaak-documenten/zaak-documenten.component";
-import { FormulierDefinitie } from "../../admin/model/formulieren/formulier-definitie";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
@@ -45,7 +44,6 @@ import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
-import { Taak } from "../model/taak";
 import { TaakStatus } from "../model/taak-status.enum";
 import { TakenService } from "../taken.service";
 import { FormioSetupService } from "./formio/formio-setup-service";
@@ -65,11 +63,11 @@ export class TaakViewComponent
   @ViewChild("zaakDocumentenComponent")
   zaakDocumentenComponent!: ZaakDocumentenComponent;
 
-  protected taak: Taak;
-  protected zaak: GeneratedType<"RestZaak">;
-  protected formulier: AbstractTaakFormulier;
-  protected formConfig?: FormConfig;
-  formulierDefinitie: FormulierDefinitie;
+  protected taak?: GeneratedType<"RestTask">;
+  protected zaak?: GeneratedType<"RestZaak">;
+  protected formulier?: AbstractTaakFormulier;
+  protected formConfig?: FormConfig | null = null;
+  formulierDefinitie?: GeneratedType<"RESTFormulierDefinitie">;
   formioFormulier?: FormioForm;
 
   smartDocumentsGroupPath: string[] = [];
@@ -90,12 +88,18 @@ export class TaakViewComponent
   ] as const;
 
   editFormFields = new Map<string, unknown>();
-  fataledatumIcon: TextIcon;
+  fataledatumIcon = new TextIcon(
+    DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
+    "report_problem",
+    "errorTaakVerlopen_icon",
+    "msg.datum.overschreden",
+    "error",
+  );
   protected initialized = false;
 
   posts = 0;
-  private taakListener: WebsocketListener;
-  private ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
+  private taakListener?: WebsocketListener;
+  private ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
   readonly TaakStatusAfgerond = TaakStatus.Afgerond;
 
   constructor(
@@ -123,6 +127,8 @@ export class TaakViewComponent
   ngAfterViewInit(): void {
     super.ngAfterViewInit();
 
+    if (!this.taak?.id) return;
+
     this.taakListener = this.websocketService.addListenerWithSnackbar(
       Opcode.ANY,
       ObjectType.TAAK,
@@ -135,7 +141,7 @@ export class TaakViewComponent
         case "datum":
           return item.datumTijd;
         default:
-          return item[property];
+          return item[property as keyof typeof item];
       }
     };
     this.historieSrc.sort = this.historieSort;
@@ -146,45 +152,52 @@ export class TaakViewComponent
     this.websocketService.removeListener(this.taakListener);
   }
 
-  private initTaakGegevens(taak: Taak): void {
+  private initTaakGegevens(taak: GeneratedType<"RestTask">) {
     this.taak = taak;
     this.loadHistorie();
     this.setEditableFormFields();
     this.setupMenu();
   }
 
-  private init(taak: Taak, initZaak: boolean): void {
+  private init(taak: GeneratedType<"RestTask">, initZaak: boolean): void {
     this.initTaakGegevens(taak);
-    if (initZaak) {
-      this.zakenService.readZaak(this.taak.zaakUuid).subscribe((zaak) => {
-        this.zaak = zaak;
-        this.initialized = true;
-        this.setupMenu();
-        this.createTaakForm(taak, zaak);
-      });
-    } else {
-      this.createTaakForm(taak, this.zaak);
+    if (!initZaak) {
+      this.initTaakGegevens(taak);
+      return;
     }
+
+    if (!this.taak) return;
+
+    this.zakenService.readZaak(this.taak.zaakUuid).subscribe((zaak) => {
+      this.zaak = zaak;
+      this.initialized = true;
+      this.setupMenu();
+      this.createTaakForm(taak, zaak);
+    });
   }
 
-  private createTaakForm(taak: Taak, zaak: GeneratedType<"RestZaak">): void {
+  private createTaakForm(
+    taak: GeneratedType<"RestTask">,
+    zaak: GeneratedType<"RestZaak">,
+  ): void {
     if (taak.formulierDefinitieId) {
       this.createHardCodedTaakForm(taak, zaak);
     } else if (taak.formulierDefinitie) {
       this.createConfigurableTaakForm(taak.formulierDefinitie);
     } else if (!this.formioFormulier) {
-      this.formioFormulier = taak.formioFormulier;
+      this.formioFormulier = taak.formioFormulier ?? undefined;
+      if (!this.formioFormulier) return;
       this.formioSetupService.createFormioForm(this.formioFormulier, taak);
     }
   }
 
   private createHardCodedTaakForm(
-    taak: Taak,
+    taak: GeneratedType<"RestTask">,
     zaak: GeneratedType<"RestZaak">,
-  ): void {
+  ) {
     if (
-      this.taak.status !== TaakStatus.Afgerond &&
-      this.taak.rechten.wijzigen
+      this.taak?.status !== TaakStatus.Afgerond &&
+      this.taak?.rechten.wijzigen
     ) {
       this.formConfig = new FormConfigBuilder()
         .partialText("actie.opslaan")
@@ -195,7 +208,9 @@ export class TaakViewComponent
     }
 
     this.formulier = this.taakFormulierenService
-      .getFormulierBuilder(this.taak.formulierDefinitieId)
+      .getFormulierBuilder(
+        this.taak?.formulierDefinitieId as GeneratedType<"FormulierDefinitie">,
+      )
       .behandelForm(taak, zaak)
       .build();
     if (this.formulier.disablePartialSave && this.formConfig) {
@@ -207,8 +222,8 @@ export class TaakViewComponent
   }
 
   private createConfigurableTaakForm(
-    formulierDefinitie: FormulierDefinitie,
-  ): void {
+    formulierDefinitie: GeneratedType<"RESTFormulierDefinitie">,
+  ) {
     this.formulierDefinitie = formulierDefinitie;
     this.utilService.setTitle("title.taak", {
       taak: formulierDefinitie.naam,
@@ -217,19 +232,20 @@ export class TaakViewComponent
 
   isReadonly() {
     return (
-      this.taak.status === TaakStatus.Afgerond || !this.taak.rechten.wijzigen
+      this.taak?.status === TaakStatus.Afgerond || !this.taak?.rechten.wijzigen
     );
   }
 
   private setEditableFormFields(): void {
+    if (!this.taak) return;
     this.editFormFields.set(
       "medewerker-groep",
-      new MedewerkerGroepFieldBuilder(this.taak.groep, this.taak.behandelaar)
+      new MedewerkerGroepFieldBuilder(this.taak.groep!, this.taak.behandelaar!)
         .id("medewerker-groep")
         .groepLabel("groep.-kies-")
         .groepRequired()
         .medewerkerLabel("behandelaar.-kies-")
-        .setZaaktypeUuid(this.taak.zaaktypeUUID)
+        .setZaaktypeUuid(this.taak.zaaktypeUUID!)
         .build(),
     );
     this.editFormFields.set(
@@ -248,21 +264,13 @@ export class TaakViewComponent
         .maxlength(80)
         .build(),
     );
-
-    this.fataledatumIcon = new TextIcon(
-      DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
-      "report_problem",
-      "errorTaakVerlopen_icon",
-      "msg.datum.overschreden",
-      "error",
-    );
   }
 
   private setupMenu(): void {
     this.menu = [];
     this.menu.push(new HeaderMenuItem("taak"));
 
-    if (this.taak.rechten.toevoegenDocument) {
+    if (this.taak?.rechten.toevoegenDocument) {
       this.menu.push(
         new ButtonMenuItem(
           "actie.document.toevoegen",
@@ -272,9 +280,9 @@ export class TaakViewComponent
       );
 
       if (
-        this.zaak.zaaktype.zaakafhandelparameters?.smartDocuments
+        this.zaak?.zaaktype.zaakafhandelparameters?.smartDocuments
           .enabledGlobally &&
-        this.zaak.zaaktype?.zaakafhandelparameters.smartDocuments
+        this.zaak?.zaaktype?.zaakafhandelparameters.smartDocuments
           .enabledForZaaktype
       ) {
         this.menu.push(
@@ -288,7 +296,9 @@ export class TaakViewComponent
     }
   }
 
-  private loadHistorie(): void {
+  private loadHistorie() {
+    if (!this.taak?.id) return;
+
     this.takenService
       .listHistorieVoorTaak(this.taak.id)
       .subscribe((historie) => {
@@ -296,7 +306,9 @@ export class TaakViewComponent
       });
   }
 
-  onHardCodedFormPartial(formGroup: FormGroup): void {
+  onHardCodedFormPartial(formGroup: FormGroup) {
+    if (!this.formulier) return;
+
     this.websocketService.suspendListener(this.taakListener);
     this.takenService
       .updateTaakdata(this.formulier.getTaak(formGroup))
@@ -307,39 +319,42 @@ export class TaakViewComponent
       });
   }
 
-  onHardCodedFormSubmit(formGroup: FormGroup): void {
-    if (formGroup) {
-      this.websocketService.suspendListener(this.taakListener);
-      this.takenService
-        .complete(this.formulier.getTaak(formGroup))
-        .subscribe((taak) => {
-          this.utilService.openSnackbar("msg.taak.afgerond");
-          this.init(taak, false);
-        });
-    }
-  }
+  onHardCodedFormSubmit(formGroup?: FormGroup) {
+    if (!formGroup) return;
+    if (!this.formulier) return;
 
-  onConfigurableFormPartial(formState?: Record<string, string>): void {
-    if (formState) {
-      this.websocketService.suspendListener(this.taakListener);
-      this.taak.taakdata = formState;
-      this.takenService.updateTaakdata(this.taak).subscribe((taak) => {
-        this.utilService.openSnackbar("msg.taak.opgeslagen");
-        this.init(taak, false);
-        this.posts++;
-      });
-    }
-  }
-
-  onConfigurableFormSubmit(formState?: Record<string, string>): void {
-    if (formState) {
-      this.websocketService.suspendListener(this.taakListener);
-      this.taak.taakdata = formState;
-      this.takenService.complete(this.taak).subscribe((taak) => {
+    this.websocketService.suspendListener(this.taakListener);
+    this.takenService
+      .complete(this.formulier.getTaak(formGroup))
+      .subscribe((taak) => {
         this.utilService.openSnackbar("msg.taak.afgerond");
-        this.init(taak, true);
+        this.init(taak, false);
       });
-    }
+  }
+
+  onConfigurableFormPartial(formState?: Record<string, string>) {
+    if (!formState) return;
+    if (!this.taak) return;
+
+    this.websocketService.suspendListener(this.taakListener);
+    this.taak.taakdata = formState;
+    this.takenService.updateTaakdata(this.taak).subscribe((taak) => {
+      this.utilService.openSnackbar("msg.taak.opgeslagen");
+      this.init(taak, false);
+      this.posts++;
+    });
+  }
+
+  onConfigurableFormSubmit(formState?: Record<string, string>) {
+    if (!formState) return;
+    if (!this.taak) return;
+
+    this.websocketService.suspendListener(this.taakListener);
+    this.taak.taakdata = formState;
+    this.takenService.complete(this.taak).subscribe((taak) => {
+      this.utilService.openSnackbar("msg.taak.afgerond");
+      this.init(taak, true);
+    });
   }
 
   onFormioFormSubmit(submission: {
@@ -348,22 +363,25 @@ export class TaakViewComponent
   }) {
     this.websocketService.suspendListener(this.taakListener);
     for (const key in submission.data) {
-      if (key !== "submit" && key !== "save") {
+      if (key !== "submit" && key !== "save" && this.taak?.taakdata) {
         this.taak.taakdata[key] = submission.data[key];
       }
     }
+    if (!this.taak) return;
+
     if (submission.state === "submitted") {
       this.takenService.complete(this.taak).subscribe((taak) => {
         this.utilService.openSnackbar("msg.taak.afgerond");
         this.init(taak, true);
       });
-    } else {
-      this.takenService.updateTaakdata(this.taak).subscribe((taak) => {
-        this.utilService.openSnackbar("msg.taak.opgeslagen");
-        this.init(taak, false);
-        this.posts++;
-      });
+      return;
     }
+
+    this.takenService.updateTaakdata(this.taak).subscribe((taak) => {
+      this.utilService.openSnackbar("msg.taak.opgeslagen");
+      this.init(taak, false);
+      this.posts++;
+    });
   }
 
   onFormioFormChange(event: FormioChangeEvent) {
@@ -398,30 +416,44 @@ export class TaakViewComponent
   editToewijzing(event: any) {
     if (
       event["medewerker-groep"].medewerker &&
-      event["medewerker-groep"].medewerker.id === this.ingelogdeMedewerker.id &&
-      this.taak.groep === event["medewerker-groep"].groep
+      event["medewerker-groep"].medewerker.id ===
+        this.ingelogdeMedewerker?.id &&
+      this.taak?.groep === event["medewerker-groep"].groep
     ) {
       this.assignToMe();
-    } else {
-      this.taak.groep = event["medewerker-groep"].groep;
-      this.taak.behandelaar = event["medewerker-groep"].medewerker;
-      const reden: string = event["reden"];
-      this.websocketService.suspendListener(this.taakListener);
-      this.takenService.toekennen(this.taak, reden).subscribe(() => {
-        if (this.taak.behandelaar) {
+      return;
+    }
+
+    if (!this.taak) return;
+
+    this.taak.groep = event["medewerker-groep"].groep;
+    this.taak.behandelaar = event["medewerker-groep"].medewerker;
+    this.websocketService.suspendListener(this.taakListener);
+
+    this.takenService
+      .toekennen({
+        taakId: this.taak.id!,
+        zaakUuid: this.taak.zaakUuid,
+        groepId: this.taak.groep!.id!,
+        behandelaarId: this.taak.behandelaar?.id,
+        reden: event["reden"],
+      })
+      .subscribe(() => {
+        if (this.taak?.behandelaar) {
           this.utilService.openSnackbar("msg.taak.toegekend", {
-            behandelaar: this.taak.behandelaar?.naam,
+            behandelaar: this.taak?.behandelaar?.naam,
           });
         } else {
           this.utilService.openSnackbar("msg.vrijgegeven.taak");
         }
+        if (!this.taak) return;
         this.init(this.taak, false);
       });
-    }
   }
 
   private reloadTaak() {
-    this.takenService.readTaak(this.taak.id).subscribe((taak) => {
+    if (!this.taak) return;
+    this.takenService.readTaak(this.taak.id!).subscribe((taak) => {
       this.init(taak, true);
     });
   }
@@ -432,11 +464,14 @@ export class TaakViewComponent
     });
   }
 
-  private assignToMe(): void {
+  private assignToMe() {
+    if (!this.taak) return;
     this.websocketService.suspendListener(this.taakListener);
+
     this.takenService
       .toekennenAanIngelogdeMedewerker(this.taak)
       .subscribe((taak) => {
+        if (!this.taak) return;
         this.taak.behandelaar = taak.behandelaar;
         this.utilService.openSnackbar("msg.taak.toegekend", {
           behandelaar: taak.behandelaar?.naam,
@@ -448,17 +483,21 @@ export class TaakViewComponent
   updateTaakdocumenten(
     informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
   ) {
+    if (!this.taak) return;
+
     if (!this.taak.taakdocumenten) {
       this.taak.taakdocumenten = [];
     }
 
-    this.taak.taakdocumenten.push(informatieobject.uuid);
+    this.taak.taakdocumenten.push(informatieobject.uuid!);
+    if (!this.formulier) return;
     this.formulier.refreshTaakdocumentenEnBijlagen();
   }
 
   documentCreated(): void {
     void this.actionsSidenav.close();
 
+    if (!this.taak) return;
     const listener = this.websocketService.addListener(
       Opcode.UPDATED,
       ObjectType.ZAAK_INFORMATIEOBJECTEN,
@@ -485,7 +524,7 @@ export class TaakViewComponent
   /**
    *  Zaak is nog niet geladen, beschikbare zaak-data uit de taak vast weergeven totdat de zaak is geladen
    */
-  private createZaakFromTaak(taak: Taak): void {
+  private createZaakFromTaak(taak: GeneratedType<"RestTask">): void {
     const zaaktype = {
       omschrijving: taak.zaaktypeOmschrijving,
     } satisfies Partial<
