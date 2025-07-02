@@ -19,6 +19,7 @@ import io.mockk.slot
 import io.mockk.verify
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolMedewerker
+import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
@@ -27,6 +28,7 @@ import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
+import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatus
@@ -65,7 +67,6 @@ class ZaakServiceTest : BehaviorSpec({
     val lockService = mockk<EnkelvoudigInformatieObjectLockService>()
     val identityService = mockk<IdentityService>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
-
     val zaakService = ZaakService(
         eventingService = eventingService,
         zrcClientService = zrcClientService,
@@ -671,6 +672,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """A zaak with one initiator, one behandelaar and two other betrokkenen roles
             not of type initiator or behandelaar"""
@@ -722,6 +724,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("A zaak that has open deelzaken") {
         val zaak = createZaak()
         every { zrcClientService.heeftOpenDeelzaken(zaak) } returns true
@@ -735,6 +738,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("A zaak that has no open deelzaken but has locked information objects") {
         val zaak = createZaak()
         every { zrcClientService.heeftOpenDeelzaken(zaak) } returns false
@@ -813,6 +817,39 @@ class ZaakServiceTest : BehaviorSpec({
             Then("ontvangstbevestiging is false") {
                 verify(exactly = 0) {
                     zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, false)
+                }
+            }
+        }
+    }
+
+    Given("An existing zaak") {
+        val vestingsnummer = "fakeVestigingsnummer"
+        val explanation = "fakeExplanation"
+        val zaak = createZaak()
+        val roleType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
+        val roleSlot = slot<Rol<*>>()
+        val createdRole = createRolNietNatuurlijkPersoon()
+        every {
+            ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
+        } returns roleType
+        every { zrcClientService.createRol(capture(roleSlot), explanation) } returns createdRole
+
+        When("an initiator with a vestigingsnummer is added to the zaak") {
+            zaakService.addInitiatorToZaak(
+                identificationType = IdentificatieType.VN,
+                identification = vestingsnummer,
+                zaak = zaak,
+                explanation = explanation
+            )
+
+            Then("an initiator role of type niet-natuurlijk persoon with a vestigingsnummer is added to the zaak") {
+                with(roleSlot.captured) {
+                    this.zaak shouldBe zaak.url
+                    roltype shouldBe roleType.url
+                    roltoelichting shouldBe explanation
+                    omschrijving shouldBe zaak.omschrijving
+                    omschrijvingGeneriek shouldBe OmschrijvingGeneriekEnum.INITIATOR.toString()
+                    (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie.vestigingsNummer shouldBe vestingsnummer
                 }
             }
         }

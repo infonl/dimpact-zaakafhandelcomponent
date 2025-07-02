@@ -587,6 +587,28 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
         }
+        When("an initiator is added to the zaak with a vestigingsnummer") {
+            val vestigingsnummer = "123456789123"
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/zaken/initiator",
+                requestBodyAsString = """
+                        {
+                            "zaakUUID": "$zaak2UUID",
+                            "betrokkeneIdentificatieType": "VN",
+                            "betrokkeneIdentificatie": "$vestigingsnummer"
+                        }
+                """.trimIndent()
+            )
+            Then("the response should be a 200 HTTP response and the initiator should be added") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                with(responseBody) {
+                    shouldContainJsonKeyValue("initiatorIdentificatieType", "VN")
+                    shouldContainJsonKeyValue("initiatorIdentificatie", vestigingsnummer)
+                }
+            }
+        }
     }
 
     Given("Betrokkenen have been added to a zaak") {
@@ -620,6 +642,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """
             Two zaken have been created and two websocket subscriptions have been created to listen for both a 'zaken verdelen' 
@@ -798,6 +821,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """Zaken have been assigned and a websocket subscription has been created to listen
             for a 'zaken vrijgeven' screen event which will be sent by the asynchronous 'assign zaken from list' job

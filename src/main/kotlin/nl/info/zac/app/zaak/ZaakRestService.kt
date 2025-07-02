@@ -265,8 +265,7 @@ class ZaakRestService @Inject constructor(
 
         assertCanAddBetrokkene(restZaak)
 
-        // make sure to use the omschrijving of the zaaktype that was retrieved to perform
-        // authorisation on zaaktype
+        // make sure to use the omschrijving of the zaaktype that was retrieved to perform authorization on zaaktype
         assertPolicy(
             policyService.readOverigeRechten().startenZaak &&
                 loggedInUserInstance.get().isAuthorisedForZaaktype(zaaktype.omschrijving)
@@ -274,12 +273,14 @@ class ZaakRestService @Inject constructor(
         restZaak.communicatiekanaal?.isNotBlank() == true || throw CommunicationChannelNotFound()
         val zaak = restZaakConverter.toZaak(restZaak, zaaktype).let(zgwApiService::createZaak)
         restZaak.initiatorIdentificatie?.takeIf { it.isNotEmpty() }?.let {
-            addInitiator(
-                restZaak.initiatorIdentificatieType!!,
-                restZaak.initiatorIdentificatie!!,
-                zaak,
-                AANMAKEN_ZAAK_REDEN
-            )
+            restZaak.initiatorIdentificatieType?.let { initiatorIdentificatieType ->
+                addInitiator(
+                    identificationType = initiatorIdentificatieType,
+                    identification = it,
+                    zaak = zaak,
+                    explanation = AANMAKEN_ZAAK_REDEN
+                )
+            }
         }
         restZaak.groep?.let {
             zrcClientService.updateRol(
@@ -978,7 +979,7 @@ class ZaakRestService @Inject constructor(
         identificationType: IdentificatieType,
         identification: String,
         zaak: Zaak,
-        reden: String? = ROL_TOEVOEGEN_REDEN
+        explanation: String? = ROL_TOEVOEGEN_REDEN
     ) {
         val zaakRechten = policyService.readZaakRechten(zaak)
         when (identificationType) {
@@ -990,7 +991,7 @@ class ZaakRestService @Inject constructor(
             identificationType = identificationType,
             identification = identification,
             zaak = zaak,
-            explanation = reden?.ifEmpty { ROL_TOEVOEGEN_REDEN } ?: ROL_TOEVOEGEN_REDEN
+            explanation = explanation?.ifEmpty { ROL_TOEVOEGEN_REDEN } ?: ROL_TOEVOEGEN_REDEN
         )
     }
 
