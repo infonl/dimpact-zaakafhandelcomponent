@@ -40,15 +40,17 @@ public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoonIdentific
         if (betrokkeneIdentificatie == identificatie) {
             return true;
         }
-        if (identificatie == null) {
+        if (identificatie == null || betrokkeneIdentificatie == null) {
             return false;
         }
-        // In volgorde van voorkeur (als er 1 matcht wordt de rest overgeslagen)
         if (betrokkeneIdentificatie.getAnnIdentificatie() != null || identificatie.getAnnIdentificatie() != null) {
             return Objects.equals(betrokkeneIdentificatie.getAnnIdentificatie(), identificatie.getAnnIdentificatie());
         }
         if (betrokkeneIdentificatie.getInnNnpId() != null || identificatie.getInnNnpId() != null) {
             return Objects.equals(betrokkeneIdentificatie.getInnNnpId(), identificatie.getInnNnpId());
+        }
+        if (betrokkeneIdentificatie.getVestigingsNummer() != null || identificatie.getVestigingsNummer() != null) {
+            return Objects.equals(betrokkeneIdentificatie.getVestigingsNummer(), identificatie.getVestigingsNummer());
         }
         return true;
     }
@@ -58,26 +60,39 @@ public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoonIdentific
         if (getBetrokkeneIdentificatie() == null) {
             return null;
         }
-        return StringUtils.isNotEmpty(getBetrokkeneIdentificatie().getStatutaireNaam()) ? getBetrokkeneIdentificatie().getStatutaireNaam() :
-                getIdentificatienummer();
+        return StringUtils.isNotEmpty(getBetrokkeneIdentificatie().getStatutaireNaam()) ?
+                getBetrokkeneIdentificatie().getStatutaireNaam() : getIdentificatienummer();
     }
 
     @Override
     public String getIdentificatienummer() {
-        if (getBetrokkeneIdentificatie() == null) {
+        NietNatuurlijkPersoonIdentificatie identificatie = getBetrokkeneIdentificatie();
+        if (identificatie == null) {
             return null;
         }
-        return StringUtils.isNotEmpty(getBetrokkeneIdentificatie().getAnnIdentificatie()) ? getBetrokkeneIdentificatie()
-                .getAnnIdentificatie() : getBetrokkeneIdentificatie().getInnNnpId();
+        if (StringUtils.isNotEmpty(identificatie.getAnnIdentificatie())) {
+            return identificatie.getAnnIdentificatie();
+        }
+        if (StringUtils.isNotEmpty(identificatie.getInnNnpId())) {
+            return identificatie.getInnNnpId();
+        }
+        return identificatie.getVestigingsNummer();
     }
 
     @Override
     protected int hashCodeBetrokkeneIdentificatie() {
-        if (getBetrokkeneIdentificatie().getAnnIdentificatie() != null) {
+        NietNatuurlijkPersoonIdentificatie identificatie = getBetrokkeneIdentificatie();
+        if (identificatie == null) {
+            return 0;
+        }
+        if (identificatie.getAnnIdentificatie() != null) {
             return Objects.hash(getBetrokkeneIdentificatie().getAnnIdentificatie());
         }
-        if (getBetrokkeneIdentificatie().getInnNnpId() != null) {
+        if (identificatie.getInnNnpId() != null) {
             return Objects.hash(getBetrokkeneIdentificatie().getInnNnpId());
+        }
+        if (identificatie.getVestigingsNummer() != null) {
+            return Objects.hash(getBetrokkeneIdentificatie().getVestigingsNummer());
         }
         return 0;
     }

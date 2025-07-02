@@ -460,7 +460,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         val existingRolGroup = createRolOrganisatorischeEenheid()
         val rolGroup = createRolOrganisatorischeEenheid(
             zaakURI = zaak.url,
-            organisatorischeEenheid = createOrganisatorischeEenheid(identificatie = "newGroup")
+            organisatorischeEenheidIdentificatie = createOrganisatorischeEenheid(identificatie = "newGroup")
         )
 
         every { zrcClientService.readZaak(restZaakToekennenGegevens.zaakUUID) } returns zaak

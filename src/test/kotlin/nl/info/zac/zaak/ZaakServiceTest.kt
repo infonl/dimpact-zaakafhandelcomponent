@@ -604,7 +604,7 @@ class ZaakServiceTest : BehaviorSpec({
         val roleAdviseur = createRolNatuurlijkPersoon(
             zaakURI = zaak.url,
             rolType = roleTypeAdviseur,
-            natuurlijkPersoon = createNatuurlijkPersoonIdentificatie(bsn = identification)
+            natuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie(bsn = identification)
         )
         val roleSlot = slot<Rol<*>>()
         every { ztcClientService.readRoltype(roleTypeUUID) } returns roleTypeBelanghebbende
@@ -646,7 +646,7 @@ class ZaakServiceTest : BehaviorSpec({
         val roleAdviseur = createRolNatuurlijkPersoon(
             zaakURI = zaak.zaaktype,
             rolType = roleTypeAdviseur,
-            natuurlijkPersoon = createNatuurlijkPersoonIdentificatie(bsn = identification)
+            natuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie(bsn = identification)
         )
         every { ztcClientService.readRoltype(roleTypeUUID) } returns roleTypeAdviseur
         every { zrcClientService.listRollen(zaak) } returns listOf(roleAdviseur)

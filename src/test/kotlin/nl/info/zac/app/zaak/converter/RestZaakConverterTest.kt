@@ -15,9 +15,12 @@ import io.mockk.mockk
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
+import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
+import nl.info.client.zgw.model.createNietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createOpschorting
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
+import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatus
@@ -32,6 +35,7 @@ import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
+import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.model.createRestDecision
 import nl.info.zac.app.zaak.model.createRestGroup
 import nl.info.zac.app.zaak.model.createRestUser
@@ -82,7 +86,7 @@ class RestZaakConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A zaak") {
+    Given("A CMMN zaak with a natuurlijk persoon as initiator, a group, a behandelaar and a besluit") {
         val zaak = createZaak()
         val zaakType = createZaakType()
         val rolOrganistorischeEenheid = createRolOrganisatorischeEenheid()
@@ -91,7 +95,12 @@ class RestZaakConverterTest : BehaviorSpec({
         val restBesluit = createRestDecision()
         val rolMedewerker = createRolMedewerker()
         val restUser = createRestUser()
-        val rol = createRolNatuurlijkPersoon()
+        val bsn = "fakeBsn"
+        val rolNatuurlijkPersoon = createRolNatuurlijkPersoon(
+            natuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie(
+                bsn = bsn
+            )
+        )
         val restZaakType = createRestZaaktype()
         val zaakrechten = createZaakRechten()
         val zaakdata = mapOf("fakeKey" to "fakeValue")
@@ -102,7 +111,7 @@ class RestZaakConverterTest : BehaviorSpec({
         with(zgwApiService) {
             every { findGroepForZaak(zaak) } returns rolOrganistorischeEenheid
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
-            every { findInitiatorRoleForZaak(zaak) } returns rol
+            every { findInitiatorRoleForZaak(zaak) } returns rolNatuurlijkPersoon
         }
         with(zaakVariabelenService) {
             every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns Optional.of(false)
@@ -123,6 +132,8 @@ class RestZaakConverterTest : BehaviorSpec({
                 with(restZaak) {
                     uuid shouldBe zaak.uuid
                     identificatie shouldBe zaak.identificatie
+                    initiatorIdentificatie shouldBe bsn
+                    initiatorIdentificatieType shouldBe IdentificatieType.BSN
                     omschrijving shouldBe zaak.omschrijving
                     toelichting shouldBe zaak.toelichting
                     this.zaaktype shouldBe zaaktype
@@ -135,7 +146,63 @@ class RestZaakConverterTest : BehaviorSpec({
         }
     }
 
-    Given("A zaak was closed but reopened") {
+    Given(
+        """
+        A CMMN zaak with a niet-natuurlijk persoon with vestigingsnummer as initiator, no group, no behandelaar,
+        and no besluiten
+        """
+    ) {
+        val zaak = createZaak()
+        val zaakType = createZaakType()
+        val vestigingsNummer = "fakeVestigingsNummer"
+        val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoon(
+            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                vestigingsNummer = vestigingsNummer
+            )
+        )
+        val restZaakType = createRestZaaktype()
+        val zaakrechten = createZaakRechten()
+        val zaakdata = mapOf("fakeKey" to "fakeValue")
+
+        with(ztcClientService) {
+            every { readZaaktype(zaak.zaaktype) } returns zaakType
+        }
+        with(zgwApiService) {
+            every { findGroepForZaak(zaak) } returns null
+            every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+            every { findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+        }
+        with(zaakVariabelenService) {
+            every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns Optional.of(false)
+            every { readZaakdata(zaak.uuid) } returns zaakdata
+        }
+        every { brcClientService.listBesluiten(zaak) } returns emptyList()
+        every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
+        every { bpmnService.isProcessDriven(zaak.uuid) } returns false
+        every { policyService.readZaakRechten(zaak, zaakType) } returns zaakrechten
+
+        When("converting a zaak to a rest zaak") {
+            val restZaak = restZaakConverter.toRestZaak(zaak)
+
+            Then("the zaak should be converted correctly") {
+                with(restZaak) {
+                    uuid shouldBe zaak.uuid
+                    identificatie shouldBe zaak.identificatie
+                    initiatorIdentificatie shouldBe vestigingsNummer
+                    initiatorIdentificatieType shouldBe IdentificatieType.VN
+                    omschrijving shouldBe zaak.omschrijving
+                    toelichting shouldBe zaak.toelichting
+                    this.zaaktype shouldBe zaaktype
+                    isVerlengd shouldBe zaak.isVerlengd()
+                    isOpgeschort shouldBe zaak.isOpgeschort()
+                    isEerderOpgeschort shouldBe zaak.isEerderOpgeschort()
+                    indicaties shouldContainExactly EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
+                }
+            }
+        }
+    }
+
+    Given("A zaak that was closed and later reopened") {
         val status = createZaakStatus()
         status.statustoelichting = "fake status"
         val statusType = createStatusType()
@@ -199,7 +266,7 @@ class RestZaakConverterTest : BehaviorSpec({
         }
     }
 
-    Given("A zaak was previously suspended") {
+    Given("A zaak that was previously suspended") {
         val status = createZaakStatus()
         status.statustoelichting = "fake status"
         val statusType = createStatusType()

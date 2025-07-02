@@ -8,10 +8,10 @@ package net.atos.client.zgw.zrc.model;
 import java.net.URI;
 import java.util.Objects;
 
-import nl.info.client.zgw.zrc.model.generated.RolNietNatuurlijkPersoon;
 import org.apache.commons.lang3.StringUtils;
 
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
+import nl.info.client.zgw.zrc.model.generated.RolNietNatuurlijkPersoon;
 import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie;
 import nl.info.client.zgw.ztc.model.generated.RolType;
 
@@ -22,8 +22,9 @@ import nl.info.client.zgw.ztc.model.generated.RolType;
  * polymorphic relationships correctly.
  *
  * @deprecated the vestiging role is deprecated in the ZGW ZRC API and will be removed in a future version.
- * Please use {@link RolNietNatuurlijkPersoon} instead for vestigingen.
- * For details see: <a href="https://github.com/open-zaak/open-zaak/issues/1935">Add 'vestigingsnummer' to NNP, deprecate 'vestiging'</a>.
+ *             Please use {@link RolNietNatuurlijkPersoon} instead for vestigingen.
+ *             For details see: <a href="https://github.com/open-zaak/open-zaak/issues/1935">Add 'vestigingsnummer' to NNP, deprecate
+ *             'vestiging'</a>.
  */
 @Deprecated
 public class RolVestiging extends Rol<VestigingIdentificatie> {
