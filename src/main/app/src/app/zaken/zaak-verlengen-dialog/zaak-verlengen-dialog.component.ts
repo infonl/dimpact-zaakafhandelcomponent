@@ -133,7 +133,7 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
         if (value == null) {
-          this.resetFields;
+          this.resetFields();
         }
         this.updateDateFields(
           moment(value).diff(
@@ -147,7 +147,7 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
         if (value == null) {
-          this.resetFields;
+          this.resetFields();
         }
         this.updateDateFields(
           moment(value).diff(this.data.zaak.einddatumGepland, "days"),
@@ -207,7 +207,7 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
     this.loading = true;
 
     const zaakVerlengGegevens: GeneratedType<"RESTZaakVerlengGegevens"> = {
-      duurDagen: Number(this.form.controls.duurDagen.value) ?? undefined,
+      duurDagen: Number(this.form.controls.duurDagen.value),
       einddatumGepland: this.form.controls.einddatumGepland.value
         ? moment(this.form.controls.einddatumGepland.value).toISOString()
         : undefined,
