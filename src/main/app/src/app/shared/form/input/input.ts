@@ -44,10 +44,6 @@ export class ZacInput<
     this.min = FormHelper.getValidatorValue("min", this.control);
     this.max = FormHelper.getValidatorValue("max", this.control);
 
-    console.log(
-      "ZacInput ngOnInit",
-      FormHelper.getValidatorValue("min", this.control),
-    );
     if (Number.isFinite(this.min) || Number.isInteger(this.max)) {
       this.type = "number";
     }
