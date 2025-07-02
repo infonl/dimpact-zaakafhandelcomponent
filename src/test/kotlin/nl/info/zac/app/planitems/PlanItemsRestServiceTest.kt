@@ -54,7 +54,7 @@ import java.time.LocalDate
 import java.util.Optional
 import java.util.UUID
 
-class PlanItemsRESTServiceTest : BehaviorSpec({
+class PlanItemsRestServiceTest : BehaviorSpec({
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val cmmnService = mockk<CMMNService>()
     val zrcClientService = mockk<ZrcClientService>()
@@ -71,7 +71,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
     val restMailGegevensConverter = mockk<RESTMailGegevensConverter>()
     val zaakService = mockk<ZaakService>()
 
-    val planItemsRESTService = PlanItemsRESTService(
+    val planItemsRESTService = PlanItemsRestService(
         zaakVariabelenService,
         cmmnService,
         zrcClientService,
