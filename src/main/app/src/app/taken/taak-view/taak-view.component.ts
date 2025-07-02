@@ -159,8 +159,7 @@ export class TaakViewComponent
     this.setupMenu();
   }
 
-  private init(taak: GeneratedType<"RestTask">, initZaak: boolean): void {
-    this.initTaakGegevens(taak);
+  private init(taak: GeneratedType<"RestTask">, initZaak: boolean) {
     if (!initZaak) {
       this.initTaakGegevens(taak);
       return;
