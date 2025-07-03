@@ -24,7 +24,7 @@
 <mat-dialog-actions>
   <button
     [disabled]="loading || !data.taken.length"
-    mat-button
+    mat-raised-button
     color="primary"
     (click)="vrijgeven()"
     id="taakVrijgeven_button"
@@ -36,7 +36,7 @@
   </button>
   <button
     [disabled]="loading"
-    mat-button
+    mat-raised-button
     (click)="close()"
     id="dialogClose_button"
   >

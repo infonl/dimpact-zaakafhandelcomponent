@@ -21,5 +21,5 @@ Feature: Taken verdelen / vrijgeven
     And there are at least 3 taken
     When "Bob" selects that number of taken
     And "Bob" releases the taken
-    Then "Bob" gets a message confirming that the releasement of taken is starting
+    Then "Bob" gets a message confirming that the release of taken is starting
     And after a while the snackbar disappears

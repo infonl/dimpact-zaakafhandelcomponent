@@ -25,7 +25,7 @@
 <mat-dialog-actions>
   <button
     [disabled]="loading || !data.length"
-    mat-button
+    mat-raised-button
     color="primary"
     (click)="vrijgeven()"
     id="zakenVrijgeven_button"
@@ -35,7 +35,7 @@
     </mat-icon>
     {{ "actie.vrijgeven" | translate }}
   </button>
-  <button [disabled]="loading" mat-button (click)="close()">
+  <button [disabled]="loading" mat-raised-button (click)="close()">
     {{ "actie.annuleren" | translate }}
   </button>
 </mat-dialog-actions>

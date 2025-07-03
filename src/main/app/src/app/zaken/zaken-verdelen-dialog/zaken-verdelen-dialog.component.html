@@ -24,7 +24,7 @@
 <mat-dialog-actions>
   <button
     [disabled]="isDisabled() || !data.length"
-    mat-button
+    mat-raised-button
     color="primary"
     (click)="verdeel()"
     id="zakenVerdelen_button"
@@ -34,7 +34,7 @@
     </mat-icon>
     {{ "actie.verdelen" | translate }}
   </button>
-  <button [disabled]="loading" autofocus mat-button (click)="close()">
+  <button [disabled]="loading" autofocus mat-raised-button (click)="close()">
     {{ "actie.annuleren" | translate }}
   </button>
 </mat-dialog-actions>
