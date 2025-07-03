@@ -202,6 +202,62 @@ class RestZaakConverterTest : BehaviorSpec({
         }
     }
 
+    Given(
+        """
+        A CMMN zaak with a niet-natuurlijk persoon with RSIN (=INN NNP ID) as initiator, no group, no behandelaar,
+        and no besluiten
+        """
+    ) {
+        val zaak = createZaak()
+        val zaakType = createZaakType()
+        val rsin = "fakeRsin"
+        val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoon(
+            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                innNnpId = rsin
+            )
+        )
+        val restZaakType = createRestZaaktype()
+        val zaakrechten = createZaakRechten()
+        val zaakdata = mapOf("fakeKey" to "fakeValue")
+
+        with(ztcClientService) {
+            every { readZaaktype(zaak.zaaktype) } returns zaakType
+        }
+        with(zgwApiService) {
+            every { findGroepForZaak(zaak) } returns null
+            every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+            every { findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+        }
+        with(zaakVariabelenService) {
+            every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns Optional.of(false)
+            every { readZaakdata(zaak.uuid) } returns zaakdata
+        }
+        every { brcClientService.listBesluiten(zaak) } returns emptyList()
+        every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
+        every { bpmnService.isProcessDriven(zaak.uuid) } returns false
+        every { policyService.readZaakRechten(zaak, zaakType) } returns zaakrechten
+
+        When("converting a zaak to a rest zaak") {
+            val restZaak = restZaakConverter.toRestZaak(zaak)
+
+            Then("the zaak should be converted correctly") {
+                with(restZaak) {
+                    uuid shouldBe zaak.uuid
+                    identificatie shouldBe zaak.identificatie
+                    initiatorIdentificatie shouldBe rsin
+                    initiatorIdentificatieType shouldBe IdentificatieType.RSIN
+                    omschrijving shouldBe zaak.omschrijving
+                    toelichting shouldBe zaak.toelichting
+                    this.zaaktype shouldBe zaaktype
+                    isVerlengd shouldBe zaak.isVerlengd()
+                    isOpgeschort shouldBe zaak.isOpgeschort()
+                    isEerderOpgeschort shouldBe zaak.isEerderOpgeschort()
+                    indicaties shouldContainExactly EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
+                }
+            }
+        }
+    }
+
     Given("A zaak that was closed and later reopened") {
         val status = createZaakStatus()
         status.statustoelichting = "fake status"

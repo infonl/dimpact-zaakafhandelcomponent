@@ -20,8 +20,10 @@ import nl.info.client.brp.model.createPersoon
 import nl.info.client.brp.model.generated.Adres
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.model.createResultaatItem
+import nl.info.client.zgw.model.createNietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
+import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createRolVestiging
 import nl.info.client.zgw.model.createZaak
@@ -135,6 +137,66 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolVestiging
         every {
             kvkClientService.findVestiging(rolVestiging.identificatienummer)
+        } returns Optional.of(resultaatItem)
+        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+        every { zgwApiService.findGroepForZaak(zaak) } returns null
+        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+
+        When("SmartDocuments data is created") {
+            val data = documentCreationDataConverter.createData(
+                loggedInUser = loggedInUser,
+                zaak = zaak
+            )
+
+            Then("the data is created correctly") {
+                with(data) {
+                    with(aanvragerData!!) {
+                        naam shouldBe resultaatItem.naam
+                        straat shouldBe resultaatItem.adres.binnenlandsAdres.straatnaam
+                        huisnummer shouldBe
+                            "${resultaatItem.adres.binnenlandsAdres.huisnummer}${resultaatItem.adres.binnenlandsAdres.huisletter}"
+                        postcode shouldBe resultaatItem.adres.binnenlandsAdres.postcode
+                        woonplaats shouldBe resultaatItem.adres.binnenlandsAdres.plaats
+                    }
+                    with(gebruikerData) {
+                        id shouldBe loggedInUser.id
+                        naam shouldBe loggedInUser.getFullName()
+                    }
+                    with(zaakData) {
+                        zaaktype shouldBe zaakType.omschrijving
+                        behandelaar shouldBe null
+                        groep shouldBe null
+                    }
+                    startformulierData shouldBe null
+                    taskData shouldBe null
+                }
+            }
+        }
+    }
+
+    Given(
+        """
+        A logged-in user and a zaak without a behandelaar and an initiator of type niet-natuurlijk persoon
+        with a vestigingsnummer
+        """
+    ) {
+        val loggedInUser = createLoggedInUser()
+        val vestigingsNummer = "fakeVestigingsNummer"
+        val rolNietNatuurlijkPersoon =
+            createRolNietNatuurlijkPersoon(
+                rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR),
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                    vestigingsNummer = vestigingsNummer
+                )
+            )
+        val zaakType = createZaakType()
+        val zaak = createZaak(zaakTypeURI = zaakType.url)
+        val resultaatItem = createResultaatItem()
+
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+        every {
+            kvkClientService.findVestiging(vestigingsNummer)
         } returns Optional.of(resultaatItem)
         every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null

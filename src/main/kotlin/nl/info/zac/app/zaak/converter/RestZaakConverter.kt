@@ -140,7 +140,7 @@ class RestZaakConverter @Inject constructor(
                 // niet_natuurlijk_persoon rol type is used for 'RSIN-type' niet-natuurlijke personen but also for vestigingen
                 NIET_NATUURLIJK_PERSOON -> (initiator.betrokkeneIdentificatie as NietNatuurlijkPersoonIdentificatie).let {
                     when {
-                        it.annIdentificatie?.isNotBlank() == true -> IdentificatieType.RSIN
+                        it.innNnpId?.isNotBlank() == true -> IdentificatieType.RSIN
                         it.vestigingsNummer?.isNotBlank() == true -> IdentificatieType.VN
                         else -> null
                     }
