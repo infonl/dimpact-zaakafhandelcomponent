@@ -403,7 +403,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                 {
                     "rows": 5,
-                    "page":0,
+                    "page": 0,
                     "zaakIdentificator": "zaak",
                     "informationObjectTypeUuid": "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID"
                 }

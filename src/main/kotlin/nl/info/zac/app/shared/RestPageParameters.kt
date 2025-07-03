@@ -4,11 +4,17 @@
  */
 package nl.info.zac.app.shared
 
-import jakarta.validation.constraints.Positive
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 open class RestPageParameters(
-    @Positive open var page: Int,
-    @Positive open var rows: Int
+    /**
+     * The search result page requested, starting at 0.
+     */
+    open var page: Int,
+
+    /**
+     * The number of search result rows requested.
+     */
+    open var rows: Int
 )
