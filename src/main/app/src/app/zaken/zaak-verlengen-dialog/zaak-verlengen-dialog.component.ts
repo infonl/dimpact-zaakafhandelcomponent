@@ -75,6 +75,12 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       );
       this.form.controls.einddatumGepland.setValidators([
         Validators.required,
+        Validators.min(
+          moment(this.data.zaak.einddatumGepland)
+            .add(1, "day")
+            .startOf("day")
+            .valueOf(),
+        ),
         Validators.max(
           moment(this.data.zaak.einddatumGepland)
             .add(this.data.zaak.zaaktype.verlengingstermijn, "day")
@@ -89,6 +95,12 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
     );
     this.form.controls.uiterlijkeEinddatumAfdoening.setValidators([
       Validators.required,
+      Validators.min(
+        moment(this.data.zaak.uiterlijkeEinddatumAfdoening)
+          .add(1, "day")
+          .startOf("day")
+          .valueOf(),
+      ),
       Validators.max(
         moment(this.data.zaak.uiterlijkeEinddatumAfdoening)
           .add(this.data.zaak.zaaktype.verlengingstermijn, "day")
