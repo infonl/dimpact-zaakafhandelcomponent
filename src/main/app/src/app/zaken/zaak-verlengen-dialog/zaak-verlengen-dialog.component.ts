@@ -75,20 +75,12 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       );
       this.form.controls.einddatumGepland.setValidators([
         Validators.required,
-        (control: AbstractControl) => {
-          const value = control.value;
-          if (!value) return null;
-          const dateValue = moment(value);
-          if (dateValue.isAfter(moment(maxDateEinddatumGepland))) {
-            return {
-              maxDate: {
-                max: maxDateEinddatumGepland,
-                actual: value,
-              },
-            };
-          }
-          return null;
-        },
+        Validators.max(
+          moment(this.data.zaak.einddatumGepland)
+            .add(this.data.zaak.zaaktype.verlengingstermijn, "day")
+            .endOf("day")
+            .valueOf(),
+        ),
       ]);
     }
 
@@ -97,20 +89,12 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
     );
     this.form.controls.uiterlijkeEinddatumAfdoening.setValidators([
       Validators.required,
-      (control: AbstractControl) => {
-        const value = control.value;
-        if (!value) return null;
-        const dateValue = moment(value);
-        if (dateValue.isAfter(moment(maxDateUiterlijkeEinddatumAfdoening))) {
-          return {
-            maxDate: {
-              max: maxDateUiterlijkeEinddatumAfdoening,
-              actual: value,
-            },
-          };
-        }
-        return null;
-      },
+      Validators.max(
+        moment(this.data.zaak.uiterlijkeEinddatumAfdoening)
+          .add(this.data.zaak.zaaktype.verlengingstermijn, "day")
+          .endOf("day")
+          .valueOf(),
+      ),
     ]);
 
     this.form.controls.duurDagen.valueChanges
