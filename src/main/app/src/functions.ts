@@ -22,8 +22,8 @@ export function alterMomentToJSON(): void {
  * na:  2021-06-17T11:43:56.111111+02:00
  */
 export function alterMomentToISO(): void {
-    const originalToISOString = moment.fn.toISOString;
-    moment.fn.toISOString = function(keepOffset = true) {
-        return originalToISOString.call(this, keepOffset);
-    };
+  const originalToISOString = moment.fn.toISOString;
+  moment.fn.toISOString = function (keepOffset = true) {
+    return originalToISOString.call(this, keepOffset);
+  };
 }
