@@ -4,44 +4,72 @@
  */
 
 import moment from "moment";
-import { alterMomentToISO, alterMomentToJSON } from "./functions";
+import { alterMoment } from "./functions";
 
 describe(moment.fn.toJSON.name, () => {
-  it("should format date to JSON withouth the timezone", () => {
+  it("should format date to JSON without the timezone", () => {
     const date = moment("2021-06-17T13:43:56.111Z");
     const formattedDate = date.toJSON();
     expect(formattedDate).toBe("2021-06-17T13:43:56.111Z");
   });
 
-  describe(alterMomentToJSON.name, () => {
+  describe(alterMoment.name, () => {
     beforeEach(() => {
-      alterMomentToJSON();
+      alterMoment();
     });
 
     it("should format date to JSON with the current timezone", () => {
       const date = moment("2021-06-17T13:43:56.111Z");
       const formattedDate = date.toJSON();
-      expect(formattedDate).toBe("2021-06-17T15:43:56.111000+02:00");
+      expect(formattedDate).toBe("2021-06-17T15:43:56+02:00");
     });
   });
 });
 
 describe(moment.fn.toISOString.name, () => {
-  it("should format date to ISO withouth the timezone", () => {
+  it("should format date to ISO without the timezone", () => {
     const date = moment("2021-06-17T13:43:56.111Z");
     const formattedDate = date.toISOString();
     expect(formattedDate).toBe("2021-06-17T13:43:56.111Z");
   });
 
-  describe(alterMomentToISO.name, () => {
+  describe(alterMoment.name, () => {
     beforeEach(() => {
-      alterMomentToISO();
+      alterMoment();
     });
 
-    it("should format date to ISO with the current timezone", () => {
-      const date = moment("2021-06-17T13:43:56.111Z");
+    it.each([
+      ["2021-06-17T00:00:00.000", "2021-06-17T00:00:00.000+02:00"],
+      ["2021-06-17T00:00:00.000Z", "2021-06-17T02:00:00.000+02:00"],
+      ["2021-06-17T13:43:56.111Z", "2021-06-17T15:43:56.111+02:00"],
+      ["2021-06-17T00:00:00.000+02:00", "2021-06-17T00:00:00.000+02:00"],
+      ["2021-06-16T22:00:00.000+02:00", "2021-06-16T22:00:00.000+02:00"],
+    ])("should format %s to %s", (input, expected) => {
+      const date = moment(input);
       const formattedDate = date.toISOString();
-      expect(formattedDate).toBe("2021-06-17T15:43:56.111+02:00");
+      expect(formattedDate).toBe(expected);
+    });
+  });
+});
+
+describe(moment.fn.diff.name, () => {
+  it("calculate the difference", () => {
+    const date = moment("2021-06-18T00:00:00.000Z");
+    const otherDate = moment("2021-06-17T00:00:00.000Z");
+    const diff = date.diff(otherDate, "days");
+    expect(diff).toBe(1);
+  });
+
+  describe(alterMoment.name, () => {
+    beforeEach(() => {
+      alterMoment();
+    });
+
+    it("should use the UTC for calculating difference", () => {
+      const date = moment("2021-06-18T00:00:00.000Z");
+      const otherDate = moment("2021-06-17T00:00:00.000Z");
+      const diff = date.diff(otherDate, "days");
+      expect(diff).toBe(1);
     });
   });
 });
