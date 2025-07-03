@@ -1381,61 +1381,39 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A zaak with an initiator of type 'natuurlijk persoon'") {
-        val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens()
+    Given("A zaak with a betrokkene of type natuurlijk persoon and one of type niet-natuurlijk persoon") {
         val zaak = createZaak()
-        val rolNatuurlijkPersoon = createRolNatuurlijkPersoon()
-        val explanation = "fakeReason"
-
-        every { zrcClientService.readZaak(restZaakInitiatorGegevens.zaakUUID) } returns zaak
-        every { zgwApiService.findInitiatorRoleForZaak(any()) } returns rolNatuurlijkPersoon
+        val rolNatuurlijkPersoon = createRolNatuurlijkPersoonForReads()
+        val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoonForReads()
+        val betrokkeneRoles = listOf(
+            rolNatuurlijkPersoon,
+            rolNietNatuurlijkPersoon
+        )
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
-        every {
-            zaakService.addInitiatorToZaak(
-                restZaakInitiatorGegevens.identificatieType,
-                restZaakInitiatorGegevens.identificatie,
-                zaak,
-                any()
-            )
-        } just runs
-        every { restZaakConverter.toRestZaak(zaak) } returns createRestZaak()
-        every {
-            zrcClientService.deleteRol(
-                rolNatuurlijkPersoon,
-                "Verwijderd door de medewerker tijdens het behandelen van de zaak"
-            )
-        } just Runs
+        every { zaakService.listBetrokkenenforZaak(zaak) } returns betrokkeneRoles
 
-        When("the initiator is updated with an explanation") {
-            zaakRestService.updateInitiator(
-                restZaakInitiatorGegevens.apply {
-                    toelichting = explanation
-                }
-            )
+        When("the betrokkenen are retrieved") {
+            val returnedBetrokkenen = zaakRestService.listBetrokkenenVoorZaak(zaak.uuid)
 
-            Then("the existing initiator should be deleted and the new one should be added to the zaak") {
-                verify(exactly = 1) {
-                    zaakService.addInitiatorToZaak(
-                        restZaakInitiatorGegevens.identificatieType,
-                        restZaakInitiatorGegevens.identificatie,
-                        any(),
-                        explanation
-                    )
-                }
-            }
-        }
-
-        When("the initiator is updated without an explanation") {
-            val exception = shouldThrow<ExplanationRequiredException> {
-                zaakRestService.updateInitiator(
-                    gegevens = restZaakInitiatorGegevens.apply {
-                        toelichting = null
+            Then("the betrokkenen are returned") {
+                with(returnedBetrokkenen) {
+                    size shouldBe 2
+                    with(first()) {
+                        rolid shouldBe rolNatuurlijkPersoon.uuid.toString()
+                        roltype shouldBe rolNatuurlijkPersoon.omschrijving
+                        roltoelichting shouldBe rolNatuurlijkPersoon.roltoelichting
+                        type shouldBe "NATUURLIJK_PERSOON"
+                        identificatie shouldBe rolNatuurlijkPersoon.identificatienummer
                     }
-                )
-            }
-
-            Then("an exception should be thrown and the initiator should not be updated") {
-                exception.errorCode shouldBe ErrorCode.ERROR_CODE_CASE_EXPLANATION_REQUIRED
+                    with(last()) {
+                        rolid shouldBe rolNietNatuurlijkPersoon.uuid.toString()
+                        roltype shouldBe rolNietNatuurlijkPersoon.omschrijving
+                        roltoelichting shouldBe rolNietNatuurlijkPersoon.roltoelichting
+                        type shouldBe "NIET_NATUURLIJK_PERSOON"
+                        identificatie shouldBe rolNietNatuurlijkPersoon.identificatienummer
+                    }
+                }
             }
         }
     }
