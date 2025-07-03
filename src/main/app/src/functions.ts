@@ -5,13 +5,20 @@
 
 import moment from "moment";
 
-/**
- * toJSON aanpassen zodat de huidige tijdzone wordt megeven ipv UTC
- * voor: 2021-06-17T13:43:56.111111Z
- * na:  2021-06-17T11:43:56.111111+02:00
- */
-export function alterMomentToJSON(): void {
+export function alterMoment() {
+  /**
+   * returning an `ISO8601` string that reflects the utcOffset
+   * @source https://momentjs.com/docs/#/displaying/as-json/
+   */
   moment.fn.toJSON = function () {
     return this.format();
+  };
+  /**
+   * Prevent UTC conversion by default
+   * @source https://momentjs.com/docs/#/displaying/as-iso-string/
+   */
+  const originalToISOString = moment.fn.toISOString;
+  moment.fn.toISOString = function (keepOffset = true) {
+    return originalToISOString.call(this, keepOffset);
   };
 }
