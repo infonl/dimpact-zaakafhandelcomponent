@@ -34,6 +34,7 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NATUURLIJK_PERSOON
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING
+import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isOpgeschort
@@ -127,12 +128,8 @@ class DocumentCreationDataConverter @Inject constructor(
                 "$zaakNummer@$ACTION"
             )
             VESTIGING -> createAanvragerDataVestiging(initiator.identificatienummer)
-            NIET_NATUURLIJK_PERSOON -> createAanvragerDataNietNatuurlijkPersoon(
-                initiator.identificatienummer
-            )
-            else -> error(
-                "Initiator of type '${initiator.betrokkeneType}' is not supported"
-            )
+            NIET_NATUURLIJK_PERSOON -> createAanvragerDataNietNatuurlijkPersoon(initiator)
+            else -> error("Initiator of type '${initiator.betrokkeneType}' is not supported")
         }
 
     private fun createAanvragerDataNatuurlijkPersoon(bsn: String, auditEvent: String): AanvragerData? {
@@ -160,10 +157,26 @@ class DocumentCreationDataConverter @Inject constructor(
             .map { this.convertToAanvragerDataBedrijf(it) }
             .orElse(null)
 
-    private fun createAanvragerDataNietNatuurlijkPersoon(rsin: String): AanvragerData? =
-        kvkClientService.findRechtspersoon(rsin)
+    /**
+     * Note that niet-natuurlijke personen can be used both for KVK niet-natuurlijke personen (with an RSIN)
+     * as well as for KVK vestigingen.
+     */
+    private fun createAanvragerDataNietNatuurlijkPersoon(initiator: Rol<*>): AanvragerData? {
+        val nietNatuurlijkPersoonIdentificatie = (initiator.betrokkeneIdentificatie as NietNatuurlijkPersoonIdentificatie)
+        val kvkResultaat = if (nietNatuurlijkPersoonIdentificatie.innNnpId?.isNotBlank() == true) {
+            kvkClientService.findRechtspersoon(nietNatuurlijkPersoonIdentificatie.innNnpId)
+        } else if (nietNatuurlijkPersoonIdentificatie.vestigingsNummer?.isNotBlank() == true) {
+            kvkClientService.findVestiging(nietNatuurlijkPersoonIdentificatie.vestigingsNummer)
+        } else {
+            error(
+                "Niet-natuurlijke persoon initiator role '$initiator' with neither INN NNP ID (RSIN) " +
+                    "nor vestigingsnummer is not supported"
+            )
+        }
+        return kvkResultaat
             .map { this.convertToAanvragerDataBedrijf(it) }
             .orElse(null)
+    }
 
     private fun convertToAanvragerDataBedrijf(resultaatItem: ResultaatItem) =
         resultaatItem.adres.binnenlandsAdres.let {
