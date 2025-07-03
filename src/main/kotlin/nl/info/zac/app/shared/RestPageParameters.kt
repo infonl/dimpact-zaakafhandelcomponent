@@ -4,7 +4,6 @@
  */
 package nl.info.zac.app.shared
 
-import jakarta.validation.constraints.Positive
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
