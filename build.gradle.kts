@@ -459,6 +459,11 @@ tasks {
 
     compileKotlin {
         dependsOn("generateJavaClients")
+
+        compilerOptions {
+            // see: https://youtrack.jetbrains.com/issue/KT-73255
+            freeCompilerArgs.set(listOf("-Xannotation-default-target=param-property"))
+        }
     }
 
     jacocoTestReport {
