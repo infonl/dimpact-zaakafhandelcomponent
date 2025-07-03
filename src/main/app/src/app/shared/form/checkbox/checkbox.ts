@@ -12,6 +12,7 @@ import { FormHelper } from "../helpers";
 @Component({
   selector: "zac-checkbox",
   templateUrl: "./checkbox.html",
+  styleUrls: ["./checkbox.less"],
 })
 export class ZacCheckbox<
   Form extends Record<string, AbstractControl>,
