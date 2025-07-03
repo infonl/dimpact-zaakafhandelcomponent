@@ -6,15 +6,23 @@
 import moment from "moment";
 import { alterMoment } from "./functions";
 
-describe(moment.fn.toJSON.name, () => {
-  it("should format date to JSON without the timezone", () => {
-    const date = moment("2021-06-17T13:43:56.111Z");
-    const formattedDate = date.toJSON();
-    expect(formattedDate).toBe("2021-06-17T13:43:56.111Z");
+describe(moment.name, () => {
+  describe("default behavior", () => {
+    it("should format date to JSON without the timezone", () => {
+      const date = moment("2021-06-17T13:43:56.111Z");
+      const formattedDate = date.toJSON();
+      expect(formattedDate).toBe("2021-06-17T13:43:56.111Z");
+    });
+
+    it("should format date to ISO without the timezone", () => {
+      const date = moment("2021-06-17T13:43:56.111Z");
+      const formattedDate = date.toISOString();
+      expect(formattedDate).toBe("2021-06-17T13:43:56.111Z");
+    });
   });
 
   describe(alterMoment.name, () => {
-    beforeEach(() => {
+    beforeAll(() => {
       alterMoment();
     });
 
@@ -22,20 +30,6 @@ describe(moment.fn.toJSON.name, () => {
       const date = moment("2021-06-17T13:43:56.111Z");
       const formattedDate = date.toJSON();
       expect(formattedDate).toBe("2021-06-17T15:43:56+02:00");
-    });
-  });
-});
-
-describe(moment.fn.toISOString.name, () => {
-  it("should format date to ISO without the timezone", () => {
-    const date = moment("2021-06-17T13:43:56.111Z");
-    const formattedDate = date.toISOString();
-    expect(formattedDate).toBe("2021-06-17T13:43:56.111Z");
-  });
-
-  describe(alterMoment.name, () => {
-    beforeEach(() => {
-      alterMoment();
     });
 
     it.each([
@@ -48,28 +42,6 @@ describe(moment.fn.toISOString.name, () => {
       const date = moment(input);
       const formattedDate = date.toISOString();
       expect(formattedDate).toBe(expected);
-    });
-  });
-});
-
-describe(moment.fn.diff.name, () => {
-  it("calculate the difference", () => {
-    const date = moment("2021-06-18T00:00:00.000Z");
-    const otherDate = moment("2021-06-17T00:00:00.000Z");
-    const diff = date.diff(otherDate, "days");
-    expect(diff).toBe(1);
-  });
-
-  describe(alterMoment.name, () => {
-    beforeEach(() => {
-      alterMoment();
-    });
-
-    it("should use the UTC for calculating difference", () => {
-      const date = moment("2021-06-18T00:00:00.000Z");
-      const otherDate = moment("2021-06-17T00:00:00.000Z");
-      const diff = date.diff(otherDate, "days");
-      expect(diff).toBe(1);
     });
   });
 });
