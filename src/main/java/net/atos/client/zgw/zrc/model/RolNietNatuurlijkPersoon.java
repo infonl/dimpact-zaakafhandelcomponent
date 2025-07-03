@@ -7,6 +7,7 @@ package net.atos.client.zgw.zrc.model;
 
 import java.net.URI;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -32,6 +33,18 @@ public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoonIdentific
             final NietNatuurlijkPersoonIdentificatie betrokkeneIdentificatie
     ) {
         super(zaak, roltype, BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON, betrokkeneIdentificatie, roltoelichting);
+    }
+
+    /**
+     * For testing purposes only where we need a UUID.
+     */
+    public RolNietNatuurlijkPersoon(
+            final UUID uuid,
+            final RolType roltype,
+            final String roltoelichting,
+            final NietNatuurlijkPersoonIdentificatie betrokkeneIdentificatie
+    ) {
+        super(uuid, roltype, BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON, betrokkeneIdentificatie, roltoelichting);
     }
 
     @Override

@@ -31,13 +31,15 @@ public class RolMedewerker extends Rol<MedewerkerIdentificatie> {
     }
 
     /**
-     * For testing purposes only.
+     * For testing purposes only where we need a UUID.
      */
     public RolMedewerker(
             final UUID uuid,
-            final RolType roltype
+            final RolType roltype,
+            final String roltoelichting,
+            final MedewerkerIdentificatie betrokkeneIdentificatie
     ) {
-        super(uuid, roltype, BetrokkeneTypeEnum.MEDEWERKER);
+        super(uuid, roltype, BetrokkeneTypeEnum.MEDEWERKER, betrokkeneIdentificatie, roltoelichting);
     }
 
     public RolMedewerker(

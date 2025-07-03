@@ -40,7 +40,12 @@ fun Rol<*>.toRestZaakBetrokkene() = RestZaakBetrokkene(
     type = this.betrokkeneType.name,
     identificatie = when (this.betrokkeneType) {
         NATUURLIJK_PERSOON -> (this as RolNatuurlijkPersoon).betrokkeneIdentificatie?.inpBsn
-        NIET_NATUURLIJK_PERSOON -> (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie?.innNnpId
+        // A niet-natuurlijk persoon in the ZGW ZRC API can be either a KVK niet-natuurlijk persoon with an INN NNP ID (=RSIN)
+        // _or_ a KVK vestiging with a vestigingsnummer.
+        // If the INN NNP ID is not present (and note that it may be an empty string), we use the vestigingsnummer.
+        NIET_NATUURLIJK_PERSOON -> (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie?.let {
+            it.innNnpId.takeIf { innNnpId -> innNnpId?.isNotBlank() == true } ?: it.vestigingsNummer
+        }
         VESTIGING -> (this as RolVestiging).betrokkeneIdentificatie?.vestigingsNummer
         ORGANISATORISCHE_EENHEID -> (this as RolOrganisatorischeEenheid).betrokkeneIdentificatie?.naam
         MEDEWERKER -> (this as RolMedewerker).betrokkeneIdentificatie?.identificatie

@@ -63,6 +63,14 @@ fun createNietNatuurlijkPersoonIdentificatie(
     this.vestigingsNummer = vestigingsNummer
 }
 
+fun createOrganisatorischeEenheidIdentificatie(
+    identificatie: String = "fakeIdentificatie",
+    naam: String = "fakeNaam"
+) = OrganisatorischeEenheidIdentificatie().apply {
+    this.identificatie = identificatie
+    this.naam = naam
+}
+
 fun createObjectOpenbareRuimte(
     identificatie: String = "fakeIdentificatie",
     openbareRuimteNaam: String = "fakeopenbareRuimteNaam",
@@ -129,9 +137,13 @@ fun createRolMedewerker(
 fun createRolMedewerkerForReads(
     uuid: UUID = UUID.randomUUID(),
     rolType: RolType = createRolType(),
+    roltoelichting: String = "fakeToelichting",
+    medewerkerIdentificatie: MedewerkerIdentificatie = createMedewerkerIdentificatie()
 ) = RolMedewerker(
     uuid,
-    rolType
+    rolType,
+    roltoelichting,
+    medewerkerIdentificatie
 )
 
 fun createRolNatuurlijkPersoon(
@@ -146,6 +158,18 @@ fun createRolNatuurlijkPersoon(
     natuurlijkPersoonIdentificatie
 )
 
+fun createRolNatuurlijkPersoonForReads(
+    uuid: UUID = UUID.randomUUID(),
+    rolType: RolType = createRolType(),
+    toelichting: String = "fakeToelichting",
+    natuurlijkPersoonIdentificatie: NatuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie()
+) = RolNatuurlijkPersoon(
+    uuid,
+    rolType,
+    toelichting,
+    natuurlijkPersoonIdentificatie
+)
+
 fun createRolNietNatuurlijkPersoon(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(zaakTypeUri = zaakURI),
@@ -153,6 +177,18 @@ fun createRolNietNatuurlijkPersoon(
     nietNatuurlijkPersoonIdentificatie: NietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie()
 ) = RolNietNatuurlijkPersoon(
     zaakURI,
+    rolType,
+    toelichting,
+    nietNatuurlijkPersoonIdentificatie
+)
+
+fun createRolNietNatuurlijkPersoonForReads(
+    uuid: UUID = UUID.randomUUID(),
+    rolType: RolType = createRolType(),
+    toelichting: String = "fakeToelichting",
+    nietNatuurlijkPersoonIdentificatie: NietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie()
+) = RolNietNatuurlijkPersoon(
+    uuid,
     rolType,
     toelichting,
     nietNatuurlijkPersoonIdentificatie
@@ -173,9 +209,14 @@ fun createRolOrganisatorischeEenheid(
 fun createRolOrganisatorischeEenheidForReads(
     uuid: UUID = UUID.randomUUID(),
     rolType: RolType = createRolType(),
+    roltoelichting: String = "fakeToelichting",
+    organisatorischeEenheidIdentificatie: OrganisatorischeEenheidIdentificatie =
+        createOrganisatorischeEenheidIdentificatie()
 ) = RolOrganisatorischeEenheid(
     uuid,
-    rolType
+    rolType,
+    roltoelichting,
+    organisatorischeEenheidIdentificatie
 )
 
 fun createRolVestiging(
