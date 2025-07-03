@@ -20,7 +20,7 @@ import { ZakenService } from "../zaken.service";
 })
 export class ZaakVerlengenDialogComponent implements OnDestroy {
   formFields: AbstractFormField[][] = [];
-  loading = true;
+  loading = false;
 
   private ngDestroy = new Subject<void>();
 
@@ -147,10 +147,6 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
           moment(value).diff(this.data.zaak.einddatumGepland, "days"),
         );
       });
-
-    this.dialogRef.afterOpened().subscribe(() => {
-      this.loading = false;
-    });
   }
 
   private updateDateFields(duur: number): void {
@@ -229,10 +225,6 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
 
   close(): void {
     this.dialogRef.close();
-  }
-
-  disabled() {
-    return this.loading || (this.data.zaak && !this.form.valid);
   }
 
   ngOnDestroy(): void {
