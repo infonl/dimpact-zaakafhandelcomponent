@@ -505,14 +505,12 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
             Then(
                 """
-                    a zaak should be created, an initiator role of type 'vestiging' should be created for the zaak
-                    and a CMMN case process should be started
+                    a zaak and a zaak object should be created
                     """
             ) {
                 verify(exactly = 1) {
                     zgwApiService.createZaak(any())
                     zrcClientService.createZaakobject(any())
-                    cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any())
                 }
                 with(zaakToBeCreated.captured) {
                     zaaktype shouldBe zaakType.url
@@ -521,8 +519,15 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     omschrijving shouldBe null
                     toelichting shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'."
                 }
+            }
+            And("a CMMN process should be started for the zaak") {
+                verify(exactly = 1) {
+                    cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any())
+                }
+            }
+            And("an initiator role of type 'niet-natuurlijk persoon' should be created and linked to the zaak") {
                 with(roleToBeCreated.captured) {
-                    betrokkeneType shouldBe BetrokkeneTypeEnum.VESTIGING
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
                     identificatienummer shouldBe vestigingsNummer
                     roltype shouldBe rolType.url
                     zaak shouldBe createdZaak.url
@@ -868,20 +873,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
             productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-            Then(
-                """
-                    a zaak should be created, roles should be created for all supported betrokkenen types for which
-                    there are role types defined in the ZTC client service,
-                    except for the behandelaar betrokkene, and a CMMN case process should be started
-                    """
-            ) {
+            Then("a zaak should be created") {
                 verify(exactly = 1) {
                     zgwApiService.createZaak(any())
                     zrcClientService.createZaakobject(any())
-                    cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any())
-                }
-                verify(exactly = 7) {
-                    zrcClientService.createRol(any())
                 }
                 with(zaakToBeCreated.captured) {
                     zaaktype shouldBe zaakType.url
@@ -890,17 +885,32 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     omschrijving shouldBe null
                     toelichting shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'."
                 }
+            }
+            And("and a CMMN process should be started for the zaak") {
+                verify(exactly = 1) {
+                    cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any())
+                }
+            }
+            And(
+                """
+                    roles should be created and linked to the zaak for all supported betrokkenen types for which
+                    there are role types defined in the ZTC client service, except for the behandelaar betrokkene
+                """
+            ) {
+                verify(exactly = 7) {
+                    zrcClientService.createRol(any())
+                }
                 rolesToBeCreated.forEach {
                     it.roltoelichting shouldBe "Overgenomen vanuit de product aanvraag"
                     it.zaak shouldBe createdZaak.url
                 }
                 with(rolesToBeCreated[0]) {
-                    betrokkeneType shouldBe BetrokkeneTypeEnum.VESTIGING
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
                     identificatienummer shouldBe belanghebbendeVestigingsnummer1
                     roltype shouldBe rolTypeBelanghebbende.url
                 }
                 with(rolesToBeCreated[1]) {
-                    betrokkeneType shouldBe BetrokkeneTypeEnum.VESTIGING
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
                     identificatienummer shouldBe belanghebbendeVestigingsnummer2
                     roltype shouldBe rolTypeBelanghebbende.url
                 }
@@ -910,7 +920,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     roltype shouldBe rolTypeBeslisser.url
                 }
                 with(rolesToBeCreated[3]) {
-                    betrokkeneType shouldBe BetrokkeneTypeEnum.VESTIGING
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
                     identificatienummer shouldBe beslisserVestigingsnummer
                     roltype shouldBe rolTypeBeslisser.url
                 }
@@ -925,7 +935,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     roltype shouldBe rolTypeMedeInitiator.url
                 }
                 with(rolesToBeCreated[6]) {
-                    betrokkeneType shouldBe BetrokkeneTypeEnum.VESTIGING
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
                     identificatienummer shouldBe zaakcoordinatorVestigingsnummer
                     roltype shouldBe rolTypeZaakcoordinator.url
                 }
