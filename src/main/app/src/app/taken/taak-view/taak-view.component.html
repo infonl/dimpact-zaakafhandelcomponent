@@ -107,12 +107,12 @@
                 >
                   <zac-static-text
                     [label]="'naam' | translate"
-                    [value]="taak.naam"
+                    [value]="taak?.naam"
                     class="flex-item"
                   ></zac-static-text>
                   <zac-static-text
                     [label]="'taak.status' | translate"
-                    [value]="'taak.status.' + taak.status | translate"
+                    [value]="'taak.status.' + taak?.status | translate"
                     class="flex-item"
                   ></zac-static-text>
 
@@ -120,8 +120,8 @@
                     <zac-edit-groep-behandelaar
                       [formField]="editFormFields.get('medewerker-groep')"
                       [readonly]="
-                        this.taak.status === this.TaakStatusAfgerond ||
-                        !this.taak.rechten.toekennen
+                        this.taak?.status === this.TaakStatusAfgerond ||
+                        !this.taak?.rechten.toekennen
                       "
                       (saveField)="editToewijzing($event)"
                       [reasonField]="editFormFields.get('reden')"
@@ -134,12 +134,12 @@
                   </div>
                   <zac-static-text
                     [label]="'creatiedatum' | translate"
-                    [value]="taak.creatiedatumTijd | datum"
+                    [value]="taak?.creatiedatumTijd | datum"
                     class="flex-item"
                   ></zac-static-text>
                   <zac-static-text
                     [label]="'fataledatum' | translate"
-                    [value]="taak.fataledatum | datum"
+                    [value]="taak?.fataledatum | datum"
                     [icon]="fataledatumIcon"
                     class="flex-item"
                   ></zac-static-text>

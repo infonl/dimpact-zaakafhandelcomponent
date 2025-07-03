@@ -20,7 +20,6 @@ import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-param
 import { UtilService } from "../../../core/service/util.service";
 import { IdentityService } from "../../../identity/identity.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { Taak } from "../../model/taak";
 import { FormioSetupService } from "./formio-setup-service";
 
 const groepMedewerkerFieldset: ExtendedComponentSchema = {
@@ -284,7 +283,7 @@ describe(FormioSetupService.name, () => {
 
       formioSetupService.createFormioForm(
         { components: mockFormComponents } as FormioForm,
-        taak as unknown as Taak,
+        taak,
       );
 
       expect(groepMedewerkerSpy).toHaveBeenCalledWith(mockFormComponents[0]);
@@ -329,10 +328,7 @@ describe(FormioSetupService.name, () => {
       ];
 
       expect(() => {
-        formioSetupService.createFormioForm(
-          { components } as FormioForm,
-          taak as unknown as Taak,
-        );
+        formioSetupService.createFormioForm({ components } as FormioForm, taak);
       }).not.toThrow();
     });
 
@@ -363,7 +359,7 @@ describe(FormioSetupService.name, () => {
             },
           ],
         } as FormioForm,
-        taak as unknown as Taak,
+        taak,
       );
 
       await groepComponent.data.custom();
@@ -394,7 +390,7 @@ describe(FormioSetupService.name, () => {
       expect(() => {
         formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
-          taak as unknown as Taak,
+          taak,
         );
       }).not.toThrow();
 
@@ -431,7 +427,7 @@ describe(FormioSetupService.name, () => {
             },
           ],
         } as FormioForm,
-        taak as unknown as Taak,
+        taak,
       );
 
       await medewerkerComponent.data.custom();

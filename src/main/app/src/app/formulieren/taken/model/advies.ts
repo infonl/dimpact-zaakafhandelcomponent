@@ -92,7 +92,7 @@ export class Advies extends AbstractTaakFormulier {
   }
 
   getDocumenten$(field: string) {
-    const dataElement = this.getDataElement(field);
+    const dataElement = this.getDataElement<string | undefined>(field);
     if (!dataElement) return of([]);
 
     return this.informatieObjectenService.listEnkelvoudigInformatieobjecten({

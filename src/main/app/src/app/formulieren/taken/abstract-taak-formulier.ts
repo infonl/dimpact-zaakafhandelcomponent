@@ -10,8 +10,6 @@ import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { Taak } from "../../taken/model/taak";
-import { Taakinformatie } from "../../taken/model/taakinformatie";
 
 export abstract class AbstractTaakFormulier {
   public static TAAK_TOEKENNING = "taakToekenning";
@@ -24,16 +22,17 @@ export abstract class AbstractTaakFormulier {
   zaak: GeneratedType<"RestZaak">;
   taakNaam: string;
   humanTaskData: Partial<GeneratedType<"RESTHumanTaskData">>;
-  taak: Taak;
-  tabellen: Record<string, string[]>;
+  taak: GeneratedType<"RestTask">;
+
+  tabellen: Record<string, string[]> = {};
   abstract taakinformatieMapping: {
     uitkomst: string;
     bijlagen?: string;
     opmerking?: string;
   };
-  dataElementen: Record<string, string> = {};
-  readonly: boolean;
-  form: AbstractFormField[][];
+  dataElementen: Record<string, unknown> = {};
+  readonly = false;
+  form: AbstractFormField[][] = [];
   disablePartialSave = false;
   taakDocumenten: GeneratedType<"RestEnkelvoudigInformatieobject">[];
 
@@ -56,20 +55,20 @@ export abstract class AbstractTaakFormulier {
     this.refreshTaakdocumentenEnBijlagen();
   }
 
-  protected abstract _initStartForm();
+  protected abstract _initStartForm(): void;
 
-  protected abstract _initBehandelForm();
+  protected abstract _initBehandelForm(): void;
 
   getBehandelTitel(): string {
     if (this.readonly) {
       return this.translate.instant(`title.taak.raadplegen`, {
         taak: this.taak.naam,
       });
-    } else {
-      return this.translate.instant(`title.taak.behandelen`, {
-        taak: this.taak.naam,
-      });
     }
+
+    return this.translate.instant(`title.taak.behandelen`, {
+      taak: this.taak.naam,
+    });
   }
 
   getHumanTaskData(formGroup: FormGroup) {
@@ -81,11 +80,14 @@ export abstract class AbstractTaakFormulier {
     this.humanTaskData.groep = toekenning.groep;
     this.humanTaskData.fataledatum = fataledatum;
     this.humanTaskData.toelichting = toelichting;
-    this.humanTaskData.taakdata = this.getDataElementen(formGroup);
+    this.humanTaskData.taakdata = this.getDataElementen(formGroup) as Record<
+      string,
+      string
+    >;
     return this.humanTaskData as GeneratedType<"RESTHumanTaskData">;
   }
 
-  getTaak(formGroup: FormGroup): Taak {
+  getTaak(formGroup: FormGroup) {
     this.taak.taakdata = this.getDataElementen(formGroup);
     this.taak.toelichting = String(
       this.getFormField(AbstractTaakFormulier.TOELICHTING_FIELD).formControl
@@ -95,8 +97,10 @@ export abstract class AbstractTaakFormulier {
     return this.taak;
   }
 
-  protected getDataElement(key: string) {
-    return key in this.dataElementen ? this.dataElementen[key] : undefined;
+  protected getDataElement<T = string>(key: string): T | undefined {
+    return key in this.dataElementen
+      ? (this.dataElementen[key] as T)
+      : undefined;
   }
 
   refreshTaakdocumentenEnBijlagen() {
@@ -109,7 +113,7 @@ export abstract class AbstractTaakFormulier {
     });
 
     const bijlagen = this.dataElementen[AbstractTaakFormulier.BIJLAGEN_FIELD];
-    const taakDocumenten$ = this.getTaakdocumentenEnBijlagen(bijlagen);
+    const taakDocumenten$ = this.getTaakdocumentenEnBijlagen(String(bijlagen));
 
     this.form.push([
       new DocumentenLijstFieldBuilder()
@@ -176,13 +180,13 @@ export abstract class AbstractTaakFormulier {
     return false;
   }
 
-  private getTaakinformatie(formGroup: FormGroup): Taakinformatie {
+  private getTaakinformatie(formGroup: FormGroup) {
     return {
       uitkomst: formGroup.controls[this.taakinformatieMapping.uitkomst]?.value,
       opmerking:
         formGroup.controls[this.taakinformatieMapping.opmerking]?.value,
       bijlagen: this.getDocumentInformatie(),
-    };
+    } satisfies GeneratedType<"RestTask">["taakinformatie"];
   }
 
   getFormField(id: string) {

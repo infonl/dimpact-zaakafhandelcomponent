@@ -83,7 +83,9 @@ export class ZaakViewComponent
   teWijzigenBesluit!: GeneratedType<"RestDecision">;
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
-  takenDataSource = new MatTableDataSource<ExpandableTableData<Taak>>();
+  takenDataSource = new MatTableDataSource<
+    ExpandableTableData<GeneratedType<"RestTask">>
+  >();
   allTakenExpanded = false;
   toonAfgerondeTaken = new FormControl(false);
   takenStatusFilter: GeneratedType<"TaakStatus"> | "" = "";
@@ -171,7 +173,7 @@ export class ZaakViewComponent
     super();
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.subscriptions$.push(
       this.route.data.subscribe((data) => {
         this.init(data["zaak"]);
@@ -252,7 +254,7 @@ export class ZaakViewComponent
     this.takenDataSource.sortingDataAccessor = (item, property) => {
       switch (property) {
         case "groep":
-          return item.data.groep.naam;
+          return item.data.groep?.naam ?? "";
         case "behandelaar":
           return item.data.behandelaar?.naam ?? "";
         default:
@@ -995,7 +997,7 @@ export class ZaakViewComponent
       .subscribe((besluiten) => (this.zaak.besluiten = besluiten));
   }
 
-  private loadTaken(): void {
+  private loadTaken() {
     this.takenLoading = true;
     this.takenService
       .listTakenVoorZaak(this.zaak.uuid)
@@ -1005,8 +1007,11 @@ export class ZaakViewComponent
       .subscribe((taken) => {
         taken = taken.sort(
           (a, b) =>
-            a.data.fataledatum?.localeCompare(b.data.fataledatum) ||
-            a.data.creatiedatumTijd?.localeCompare(b.data.creatiedatumTijd),
+            (a.data.fataledatum?.localeCompare(b.data.fataledatum ?? "") ||
+              a.data.creatiedatumTijd?.localeCompare(
+                b.data.creatiedatumTijd ?? "",
+              )) ??
+            0,
         );
         this.takenDataSource.data = taken;
         this.filterTakenOpStatus();
@@ -1213,7 +1218,7 @@ export class ZaakViewComponent
       });
   }
 
-  assignTaakToMe(taak: Taak, $event: MouseEvent) {
+  assignTaakToMe(taak: GeneratedType<"RestTask">, $event: MouseEvent) {
     $event.stopPropagation();
 
     this.websocketService.suspendListener(this.zaakTakenListener);

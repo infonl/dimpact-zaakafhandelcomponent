@@ -3,14 +3,17 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { TableRequest } from "../shared/dynamic-table/datasource/table-request";
 import { TaakHistorieRegel } from "../shared/historie/model/taak-historie-regel";
-import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
+import {
+  PatchBody,
+  PutBody,
+  ZacHttpClient,
+} from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { TaakZoekObject } from "../zoeken/model/taken/taak-zoek-object";
 import { Taak } from "./model/taak";
@@ -29,24 +32,16 @@ export class TakenService {
 
   private basepath = "/rest/taken";
 
-  private static getTableParams(request: TableRequest): HttpParams {
-    return new HttpParams().set("tableRequest", JSON.stringify(request));
+  readTaak(taskId: string) {
+    return this.zacHttpClient.GET("/rest/taken/{taskId}", {
+      path: { taskId },
+    });
   }
 
-  readTaak(id: string): Observable<Taak> {
-    return this.http
-      .get<Taak>(`${this.basepath}/${id}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
-  }
-
-  listTakenVoorZaak(uuid: string): Observable<Taak[]> {
-    return this.http
-      .get<Taak[]>(`${this.basepath}/zaak/${uuid}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listTakenVoorZaak(zaakUUID: string) {
+    return this.zacHttpClient.GET("/rest/taken/zaak/{zaakUUID}", {
+      path: { zaakUUID },
+    });
   }
 
   listHistorieVoorTaak(id: string): Observable<TaakHistorieRegel[]> {
@@ -57,23 +52,13 @@ export class TakenService {
       );
   }
 
-  toekennen(taak: Taak, reden: string): Observable<void> {
-    const taakToekennenGegevens: TaakToekennenGegevens =
-      new TaakToekennenGegevens();
-    taakToekennenGegevens.taakId = taak.id;
-    taakToekennenGegevens.zaakUuid = taak.zaakUuid;
-    taakToekennenGegevens.groepId = taak.groep?.id;
-    taakToekennenGegevens.behandelaarId = taak.behandelaar?.id;
-    taakToekennenGegevens.reden = reden;
-
-    return this.http
-      .patch<void>(`${this.basepath}/toekennen`, taakToekennenGegevens)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  toekennen(body: PatchBody<"/rest/taken/toekennen">) {
+    return this.zacHttpClient.PATCH("/rest/taken/toekennen", body, {});
   }
 
-  toekennenAanIngelogdeMedewerker(taak: Taak): Observable<Taak> {
+  toekennenAanIngelogdeMedewerker(
+    taak: GeneratedType<"RestTask">,
+  ): Observable<Taak> {
     const taakToekennenGegevens: TaakToekennenGegevens =
       new TaakToekennenGegevens();
     taakToekennenGegevens.taakId = taak.id;
@@ -110,20 +95,12 @@ export class TakenService {
       );
   }
 
-  updateTaakdata(taak: Taak): Observable<Taak> {
-    return this.http
-      .put<Taak>(`${this.basepath}/taakdata`, taak)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  updateTaakdata(body: PutBody<"/rest/taken/taakdata">) {
+    return this.zacHttpClient.PUT("/rest/taken/taakdata", body, {});
   }
 
-  complete(taak: Taak): Observable<Taak> {
-    return this.http
-      .patch<Taak>(`${this.basepath}/complete`, taak)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  complete(body: PatchBody<"/rest/taken/complete">) {
+    return this.zacHttpClient.PATCH("/rest/taken/complete", body, {});
   }
 
   verdelenVanuitLijst(
