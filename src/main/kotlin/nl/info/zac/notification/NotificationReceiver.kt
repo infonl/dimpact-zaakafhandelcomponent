@@ -160,10 +160,14 @@ class NotificationReceiver @Inject constructor(
         }
     }
 
+    /**
+     * Determines whether the notification is a Dimpact productaanvraag notification and if so,
+     * handles it accordingly by creating a zaak and starting a zaakafhandel process.
+     * Only attempts to handle a productaanvraag if the notification resource is an object with 'CREATE' action
+     * and has an object type defined.
+     */
     private fun handleProductaanvraag(notification: Notification) {
         val objecttypeUri = notification.properties?.let { it[OBJECTTYPE_KENMERK] }
-        // only attempt to handle productaanvraag if the notification resource is an object with 'CREATE' action
-        // and has an object type defined
         if (notification.resource == Resource.OBJECT && notification.action == Action.CREATE && objecttypeUri?.isNotEmpty() == true) {
             productaanvraagService.handleProductaanvraag(notification.resourceUrl.extractUuid())
         }

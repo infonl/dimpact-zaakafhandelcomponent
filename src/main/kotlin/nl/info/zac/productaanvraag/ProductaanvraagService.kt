@@ -13,8 +13,8 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
+import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.RolVestiging
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.zac.admin.ZaakafhandelParameterService
@@ -36,8 +36,8 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
 import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
+import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
-import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
@@ -168,7 +168,7 @@ class ProductaanvraagService @Inject constructor(
         }
 
     /**
-     * Adds all betrokkenen which are present in the provided productaanvraag to the zaak for the set
+     * Adds all betrokkenen that are present in the provided productaanvraag to the zaak for the set
      * of provided role types, [Betrokkene.rolOmschrijvingGeneriek] or [Betrokkene.roltypeOmschrijving], but only for those
      * role types which are defined in the zaaktype of the specified zaak.
      * An exception is made for betrokkenen of role type (behandelaar)[Betrokkene.RolOmschrijvingGeneriek.BEHANDELAAR]].
@@ -178,16 +178,17 @@ class ProductaanvraagService @Inject constructor(
      * multiple betrokkenen. Either a (BSN)[Betrokkene.inpBsn] or a (KVK vestigingsnummer)[Betrokkene.vestigingsNummer]
      * are supported as identification of the betrokkene.
      *
-     * If a product request person specifies only a [Betrokkene.rolOmschrijvingGeneriek] field then that is used
-     * If a product request person specifies only a [Betrokkene.roltypeOmschrijving] field then that is used
-     * If a product request person specifies both [Betrokkene.rolOmschrijvingGeneriek] and
-     * [Betrokkene.roltypeOmschrijving] fields, then the [Betrokkene.roltypeOmschrijving] field is used,
+     * The following logic applies for adding betrokkenen:
+     * - If a betrokkene only specifies a [Betrokkene.rolOmschrijvingGeneriek] field then that is used
+     * - If a betrokkene only specifies a [Betrokkene.roltypeOmschrijving] field then that is used
+     * - If a betrokkene specifies both a [Betrokkene.rolOmschrijvingGeneriek] and a
+     * [Betrokkene.roltypeOmschrijving], then the [Betrokkene.roltypeOmschrijving] field is used,
      * because it is more specific
      *
      * @param productaanvraag the productaanvraag to add the betrokkenen from
      * @param zaak the zaak to add the betrokkenen to
      */
-    private fun addBetrokkenen(
+    private fun addInitiatorAndBetrokkenenToZaak(
         productaanvraag: ProductaanvraagDimpact,
         zaak: Zaak
     ) {
@@ -367,11 +368,13 @@ class ProductaanvraagService @Inject constructor(
             )
         }
         return zrcClientService.createRol(
-            RolVestiging(
+            // note that niet-natuurlijk persoon roles can be used both for KVK niet-natuurlijk personen (with an RSIN)
+            // as well as for KVK vestigingen
+            RolNietNatuurlijkPersoon(
                 zaak,
                 rolType,
                 ROL_TOELICHTING,
-                VestigingIdentificatie().apply { this.vestigingsNummer = vestigingsNummer }
+                NietNatuurlijkPersoonIdentificatie().apply { this.vestigingsNummer = vestigingsNummer }
             )
         )
     }
@@ -424,7 +427,7 @@ class ProductaanvraagService @Inject constructor(
      * Handles a productaanvraag-Dimpact [ModelObject] by creating a zaak and starting a CMMN process for it
      * if there is a zaakafhandelparameters configured for the productaanvraagtype.
      * Else it will create an 'inbox productaanvraag'.
-     * Note that support for starting a BPMN process from a productaanvraag is not implemented yet.
+     * Note that starting a BPMN process from a productaanvraag is not supported yet.
      */
     @Suppress("TooGenericExceptionCaught")
     private fun handleProductaanvraagDimpact(productaanvraagObject: ModelObject) {
@@ -461,9 +464,9 @@ class ProductaanvraagService @Inject constructor(
                 "Creating a zaak using a CMMN case with zaaktype UUID: '${firstZaakafhandelparameters.zaakTypeUUID}'"
             }
             startZaakWithCmmnProcess(
-                firstZaakafhandelparameters.zaakTypeUUID,
-                productaanvraag,
-                productaanvraagObject
+                zaaktypeUuid = firstZaakafhandelparameters.zaakTypeUUID,
+                productaanvraag = productaanvraag,
+                productaanvraagObject = productaanvraagObject
             )
         } catch (exception: ExplanationRequiredException) {
             logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
@@ -492,7 +495,6 @@ class ProductaanvraagService @Inject constructor(
         pairProductaanvraagWithZaak(productaanvraagObject, zaak.url)
         pairAanvraagPDFWithZaak(productaanvraag, zaak.url)
         productaanvraag.bijlagen?.let { pairBijlagenWithZaak(it, zaak.url) }
-        addBetrokkenen(productaanvraag, zaak)
     }
 
     private fun registreerInbox(productaanvraag: ProductaanvraagDimpact, productaanvraagObject: ModelObject) {
@@ -537,7 +539,7 @@ class ProductaanvraagService @Inject constructor(
             communicatiekanaalNaam = ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER
             verantwoordelijkeOrganisatie = configuratieService.readBronOrganisatie()
             productaanvraag.zaakgegevens?.let { zaakgegevens ->
-                // we currently only support 'POINT' geometries
+                // note that ZAC currently only supports 'POINT' zaakgeometries
                 zaakgegevens.geometry?.takeIf { it.type == Geometry.Type.POINT }?.let {
                     zaakgeometrie = it.toGeoJSONGeometry()
                 }
@@ -546,8 +548,9 @@ class ProductaanvraagService @Inject constructor(
             toelichting = generateZaakExplanationFromProductaanvraag(productaanvraag)
         }.let(zgwApiService::createZaak)
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid)
-        assignZaak(createdZaak, zaakafhandelParameters)
         pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, createdZaak)
+        assignZaak(createdZaak, zaakafhandelParameters)
+        addInitiatorAndBetrokkenenToZaak(productaanvraag, createdZaak)
         cmmnService.startCase(createdZaak, zaaktype, zaakafhandelParameters, formulierData)
     }
 
