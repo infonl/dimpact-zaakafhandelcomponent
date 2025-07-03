@@ -195,7 +195,7 @@ public abstract class Rol<T> {
     }
 
     /**
-     * Can be null according to the ZGW API and this does occur in practice in certain circumstances.
+     * Can be null, according to the ZGW API, and this does occur in practice in certain circumstances.
      *
      * @return the betrokkene identificatie; or null if there is none
      */
