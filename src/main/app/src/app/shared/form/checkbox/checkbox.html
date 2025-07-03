@@ -11,7 +11,7 @@
     [required]="required"
     class="w-full"
   >
-    {{ (label ?? key | translate) | capitalizeFirstLetter }}
+    {{ label ?? key | translate | capitalizeFirstLetter }}
   </mat-checkbox>
   <mat-error>{{ getErrorMessage() }}</mat-error>
   <mat-hint>
