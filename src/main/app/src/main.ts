@@ -8,13 +8,14 @@ import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
 
 import { AppModule } from "./app/app.module";
 import { environment } from "./environments/environment";
-import { alterMomentToJSON } from "./functions";
+import { alterMomentToISO, alterMomentToJSON } from "./functions";
 
 if (environment.production) {
   enableProdMode();
 }
 
 alterMomentToJSON();
+alterMomentToISO();
 
 platformBrowserDynamic()
   .bootstrapModule(AppModule)
