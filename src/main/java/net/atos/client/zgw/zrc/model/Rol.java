@@ -110,11 +110,17 @@ public abstract class Rol<T> {
     public Rol(
             final UUID uuid,
             final RolType roltype,
-            final BetrokkeneTypeEnum betrokkeneType
+            final BetrokkeneTypeEnum betrokkeneType,
+            final T betrokkeneIdentificatie,
+            final String roltoelichting
     ) {
         this.uuid = uuid;
-        this.roltype = roltype.getUrl();
+        this.betrokkeneIdentificatie = betrokkeneIdentificatie;
         this.betrokkeneType = betrokkeneType;
+        this.roltype = roltype.getUrl();
+        this.roltoelichting = roltoelichting;
+        this.omschrijving = roltype.getOmschrijving();
+        this.omschrijvingGeneriek = roltype.getOmschrijvingGeneriek().name().toLowerCase();
     }
 
     /**

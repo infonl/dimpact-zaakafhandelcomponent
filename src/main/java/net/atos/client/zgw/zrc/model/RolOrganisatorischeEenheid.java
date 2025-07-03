@@ -27,13 +27,15 @@ public class RolOrganisatorischeEenheid extends Rol<OrganisatorischeEenheidIdent
     }
 
     /**
-     * For testing purposes only.
+     * For testing purposes only where we need a UUID.
      */
     public RolOrganisatorischeEenheid(
             final UUID uuid,
-            final RolType roltype
+            final RolType roltype,
+            final String roltoelichting,
+            final OrganisatorischeEenheidIdentificatie betrokkeneIdentificatie
     ) {
-        super(uuid, roltype, BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID);
+        super(uuid, roltype, BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID, betrokkeneIdentificatie, roltoelichting);
     }
 
     public RolOrganisatorischeEenheid(
