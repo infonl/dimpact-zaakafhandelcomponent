@@ -66,7 +66,7 @@ Then(
 );
 
 Then(
-  "{string} gets a message confirming that the releasement of taken is starting",
+  "{string} gets a message confirming that the release of taken is starting",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, s: string) {
     await this.page

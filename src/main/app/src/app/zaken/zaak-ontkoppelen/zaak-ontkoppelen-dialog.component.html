@@ -20,7 +20,7 @@
 <mat-dialog-actions>
   <button
     [disabled]="redenFormField?.formControl.invalid || loading"
-    mat-button
+    mat-raised-button
     color="primary"
     (click)="ontkoppel()"
     id="zakenOntkoppelen_button"
@@ -30,7 +30,7 @@
     </mat-icon>
     {{ "actie.ontkoppelen" | translate }}
   </button>
-  <button [disabled]="loading" mat-button (click)="close()">
+  <button [disabled]="loading" mat-raised-button (click)="close()">
     {{ "actie.annuleren" | translate }}
   </button>
 </mat-dialog-actions>

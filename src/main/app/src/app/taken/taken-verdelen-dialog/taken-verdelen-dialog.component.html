@@ -27,7 +27,7 @@
     [disabled]="isDisabled() || !data.taken.length"
     color="primary"
     id="takenVerdelen_button"
-    mat-button
+    mat-raised-button
   >
     <mat-icon *ngIf="loading">
       <mat-spinner diameter="18"></mat-spinner>
@@ -38,7 +38,7 @@
     (click)="close()"
     [disabled]="loading"
     id="annuleren_button"
-    mat-button
+    mat-raised-button
   >
     {{ "actie.annuleren" | translate }}
   </button>
