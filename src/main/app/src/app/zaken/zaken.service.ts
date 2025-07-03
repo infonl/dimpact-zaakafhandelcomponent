@@ -123,10 +123,9 @@ export class ZakenService {
       "/rest/zaken/initiator",
       {
         zaakUUID: zaak.uuid,
-        betrokkeneIdentificatieType: initiator.identificatieType!,
-        betrokkeneIdentificatie: initiator.identificatie!,
-        roltypeUUID: undefined as unknown as string, // TODO: check this interface
-        roltoelichting: reason,
+        identificatieType: initiator.identificatieType!,
+        identificatie: initiator.identificatie!,
+        toelichting: reason,
       },
       {},
     );

@@ -67,14 +67,14 @@ import nl.info.zac.app.zaak.converter.RestDecisionConverter
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
-import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowed
+import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowedException
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
+import nl.info.zac.app.zaak.exception.ExplanationRequiredException
 import nl.info.zac.app.zaak.model.RESTDocumentOntkoppelGegevens
 import nl.info.zac.app.zaak.model.RESTReden
 import nl.info.zac.app.zaak.model.RESTZaakAanmaakGegevens
 import nl.info.zac.app.zaak.model.RESTZaakAfbrekenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakAfsluitenGegevens
-import nl.info.zac.app.zaak.model.RESTZaakBetrokkeneGegevens
 import nl.info.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakHeropenenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakOpschortGegevens
@@ -93,6 +93,8 @@ import nl.info.zac.app.zaak.model.RestZaak
 import nl.info.zac.app.zaak.model.RestZaakAssignmentData
 import nl.info.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
 import nl.info.zac.app.zaak.model.RestZaakBetrokkene
+import nl.info.zac.app.zaak.model.RestZaakBetrokkeneGegevens
+import nl.info.zac.app.zaak.model.RestZaakInitiatorGegevens
 import nl.info.zac.app.zaak.model.RestZaakLinkData
 import nl.info.zac.app.zaak.model.RestZaakLocatieGegevens
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
@@ -205,17 +207,17 @@ class ZaakRestService @Inject constructor(
 
     @PATCH
     @Path("initiator")
-    fun updateInitiator(gegevens: RESTZaakBetrokkeneGegevens): RestZaak {
+    fun updateInitiator(gegevens: RestZaakInitiatorGegevens): RestZaak {
         val zaak = zrcClientService.readZaak(gegevens.zaakUUID)
         zgwApiService.findInitiatorRoleForZaak(zaak)?.also {
-            requireNotNull(gegevens.roltoelichting) { throw BetrokkeneNotAllowed() }
+            requireNotNull(gegevens.toelichting) { throw ExplanationRequiredException() }
             removeInitiator(zaak, it, ROL_VERWIJDER_REDEN)
         }
         addInitiator(
-            gegevens.betrokkeneIdentificatieType,
-            gegevens.betrokkeneIdentificatie,
+            gegevens.identificatieType,
+            gegevens.identificatie,
             zaak,
-            gegevens.roltoelichting
+            gegevens.toelichting
         )
         return restZaakConverter.toRestZaak(zaak)
     }
@@ -232,7 +234,7 @@ class ZaakRestService @Inject constructor(
 
     @POST
     @Path("betrokkene")
-    fun addBetrokkene(@Valid gegevens: RESTZaakBetrokkeneGegevens): RestZaak {
+    fun addBetrokkene(@Valid gegevens: RestZaakBetrokkeneGegevens): RestZaak {
         val zaak = zrcClientService.readZaak(gegevens.zaakUUID)
         addBetrokkeneToZaak(
             roleTypeUUID = gegevens.roltypeUUID,
@@ -1236,10 +1238,10 @@ class ZaakRestService @Inject constructor(
             )
 
             if (it.isKvK && !zaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen) {
-                throw BetrokkeneNotAllowed()
+                throw BetrokkeneNotAllowedException()
             }
             if (it.isBsn && !zaakafhandelParameters.betrokkeneKoppelingen.brpKoppelen) {
-                throw BetrokkeneNotAllowed()
+                throw BetrokkeneNotAllowedException()
             }
         }
     }

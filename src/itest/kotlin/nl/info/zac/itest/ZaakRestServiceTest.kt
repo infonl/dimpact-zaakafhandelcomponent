@@ -594,8 +594,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                         {
                             "zaakUUID": "$zaak2UUID",
-                            "betrokkeneIdentificatieType": "VN",
-                            "betrokkeneIdentificatie": "$vestigingsnummer"
+                            "identificatieType": "VN",
+                            "identificatie": "$vestigingsnummer"
                         }
                 """.trimIndent()
             )

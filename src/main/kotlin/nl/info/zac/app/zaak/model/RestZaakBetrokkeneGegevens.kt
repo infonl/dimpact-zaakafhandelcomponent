@@ -12,7 +12,7 @@ import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
-data class RESTZaakBetrokkeneGegevens(
+data class RestZaakBetrokkeneGegevens(
     var zaakUUID: UUID,
 
     var roltypeUUID: UUID,

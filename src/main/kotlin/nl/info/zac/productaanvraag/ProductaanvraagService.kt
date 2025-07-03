@@ -43,7 +43,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
-import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowed
+import nl.info.zac.app.zaak.exception.ExplanationRequiredException
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.productaanvraag.exception.ProductaanvraagNotSupportedException
@@ -465,7 +465,7 @@ class ProductaanvraagService @Inject constructor(
                 productaanvraag,
                 productaanvraagObject
             )
-        } catch (exception: BetrokkeneNotAllowed) {
+        } catch (exception: ExplanationRequiredException) {
             logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
         } catch (exception: RuntimeException) {
             logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)

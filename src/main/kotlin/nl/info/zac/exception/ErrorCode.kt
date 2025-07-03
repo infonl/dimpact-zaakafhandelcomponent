@@ -42,6 +42,7 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_CASE_HAS_NO_COMMUNICATION_CHANNEL("msg.error.case.has.no.communication.channel"),
     ERROR_CODE_CASE_WITH_DECISION_CANNOT_BE_TERMINATION("msg.error.case.has.decision.cannot.be.terminated"),
     ERROR_CODE_CASE_BETROKKENE_NOT_ALLOWED("msg.error.case.betrokkene.not.allowed"),
+    ERROR_CODE_CASE_EXPLANATION_REQUIRED("msg.error.case.explanation.required"),
     ERROR_CODE_SEARCH_INDEXING("msg.error.search.indexing.exception"),
     ERROR_CODE_SEARCH_SEARCH("msg.error.search.search.exception"),
     ERROR_CODE_USER_NOT_IN_GROUP("msg.error.user.not.in.group"),
