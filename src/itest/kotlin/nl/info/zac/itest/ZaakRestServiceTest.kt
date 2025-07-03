@@ -368,7 +368,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
         }
-        When("the add betrokkene to zaak endpoint is called without a 'rol toelichting'") {
+        When("the add betrokkene to zaak endpoint is called with a natuurlijk persoon without a 'rol toelichting'") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/zaken/betrokkene",
                 requestBodyAsString = """
