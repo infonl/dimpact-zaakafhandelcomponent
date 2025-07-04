@@ -59,7 +59,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 ).toString()
             )
             Then("the response should be OK and the response should contain a redirect URL to SmartDocuments") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
 
@@ -91,7 +91,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 ).toString()
             )
             Then("the response should be OK and the response should contain a redirect URL to Smartdocuments") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
 
@@ -118,7 +118,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 ).toString()
             )
             Then("the response should be 400 Client Error") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_BAD_REQUEST
                 responseBody shouldContain "must not be null"
@@ -152,7 +152,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             )
 
             Then("The response should contain redirect url to our smart-documents-result page") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 val locationHeader = response.header("Location")!!
                 logger.info { "Location header: $locationHeader" }
@@ -194,7 +194,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             )
 
             Then("The response should contain redirect url, doc name, zaak and taak ids") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 val locationHeader = response.header("Location")!!
                 logger.info { "Location header: $locationHeader" }
@@ -233,7 +233,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             )
 
             Then("The response should contain redirect url, zaak id") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 val locationHeader = response.header("Location")!!
                 logger.info { "Location header: $locationHeader" }
@@ -272,7 +272,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             )
 
             Then("The response should contain redirect url, zaak and taak ids") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 val locationHeader = response.header("Location")!!
                 logger.info { "Location header: $locationHeader" }

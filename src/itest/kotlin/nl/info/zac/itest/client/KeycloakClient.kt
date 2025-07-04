@@ -43,7 +43,7 @@ fun authenticate(
         .build()
 ).execute().apply {
     logger.info { "--- authenticate status code: $code ---" }
-    refreshToken = JSONObject(this.body!!.string()).getString(REFRESH_TOKEN_ATTRIBUTE)
+    refreshToken = JSONObject(this.body.string()).getString(REFRESH_TOKEN_ATTRIBUTE)
 }
 
 /**
@@ -67,7 +67,7 @@ fun refreshAccessToken(): String {
             )
             .build()
     ).execute().apply {
-        with(JSONObject(this.body!!.string())) {
+        with(JSONObject(this.body.string())) {
             if (has(REFRESH_TOKEN_ATTRIBUTE)) {
                 refreshToken = getString(REFRESH_TOKEN_ATTRIBUTE)
             }

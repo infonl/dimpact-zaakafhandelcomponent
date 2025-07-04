@@ -45,7 +45,7 @@ class ZaakRestServiceExtensionTest : BehaviorSpec({
             Then(
                 """the response should be OK and the returned zaak should be extended"""
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(responseBody) {

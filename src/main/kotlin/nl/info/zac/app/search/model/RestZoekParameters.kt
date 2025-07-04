@@ -35,4 +35,4 @@ data class RestZoekParameters(
     var alleenOpenstaandeZaken: Boolean = false,
     var alleenAfgeslotenZaken: Boolean = false,
     var alleenMijnTaken: Boolean = false
-) : RestPageParameters(page, rows)
+) : RestPageParameters

@@ -1,8 +1,6 @@
 /*
- *
- *  * SPDX-FileCopyrightText: 2025 INFO.nl
- *  * SPDX-License-Identifier: EUPL-1.2+
- *
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.search.model
 
@@ -26,7 +24,7 @@ data class RestZoekKoppelenParameters(
 
     var zaakIdentificator: String,
     var informationObjectTypeUuid: UUID
-) : RestPageParameters(page, rows)
+) : RestPageParameters
 
 fun RestZoekKoppelenParameters.toZoekParameters() = ZoekParameters(ZoekObjectType.ZAAK).apply {
     rows = this@toZoekParameters.rows
