@@ -466,14 +466,14 @@ class SearchRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                 {
                     "rows": 5,
-                    "page":0,
+                    "page": 0,
                     "zaakIdentificator": "zaak",
                     "informationObjectTypeUuid": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
                 }
                 """.trimIndent()
             )
             Then("the response is successful and search results contain no zaak that can be linked to") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """

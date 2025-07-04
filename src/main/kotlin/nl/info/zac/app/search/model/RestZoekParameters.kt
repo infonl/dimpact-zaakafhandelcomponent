@@ -6,6 +6,8 @@
  */
 package nl.info.zac.app.search.model
 
+import jakarta.validation.constraints.Positive
+import jakarta.validation.constraints.PositiveOrZero
 import nl.info.zac.app.shared.RestPageParameters
 import nl.info.zac.search.model.DatumVeld
 import nl.info.zac.search.model.FilterParameters
@@ -17,8 +19,12 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 @Suppress("LongParameterList")
 data class RestZoekParameters(
+    @field:PositiveOrZero
     override var page: Int,
+
+    @field: Positive
     override var rows: Int,
+
     var type: ZoekObjectType? = null,
     var zoeken: Map<String, String>? = null,
     var filters: Map<FilterVeld, FilterParameters>? = null,
