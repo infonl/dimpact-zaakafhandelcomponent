@@ -4,14 +4,13 @@
  */
 
 import { Component, Inject, OnDestroy } from "@angular/core";
-import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { TranslateService } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { Zaak } from "../model/zaak";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -43,7 +42,7 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
     private translateService: TranslateService,
     public dialogRef: MatDialogRef<ZaakVerlengenDialogComponent>,
     private zakenService: ZakenService,
-    @Inject(MAT_DIALOG_DATA) public data: { zaak: Zaak },
+    @Inject(MAT_DIALOG_DATA) public data: { zaak: GeneratedType<"RestZaak"> },
   ) {
     this.verlengingstermijn = this.data.zaak.zaaktype.verlengingstermijn;
     this.verlengduurHint = this.translateService.instant(
@@ -52,16 +51,6 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
         verlengDuur: data.zaak.zaaktype.verlengingstermijn,
       },
     );
-
-    const maxDateEinddatumGepland = moment(this.data.zaak.einddatumGepland)
-      .add(this.data.zaak.zaaktype.verlengingstermijn, "days")
-      .toDate();
-
-    const maxDateUiterlijkeEinddatumAfdoening = moment(
-      data.zaak.uiterlijkeEinddatumAfdoening,
-    )
-      .add(this.data.zaak.zaaktype.verlengingstermijn, "days")
-      .toDate();
 
     this.form.controls.duurDagen.setValidators([
       Validators.required,
