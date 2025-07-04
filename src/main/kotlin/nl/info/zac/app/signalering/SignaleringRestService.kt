@@ -23,8 +23,8 @@ import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.app.signalering.converter.RestSignaleringInstellingenConverter
 import nl.info.zac.app.signalering.exception.SignaleringException
 import nl.info.zac.app.signalering.model.RestSignaleringInstellingen
-import nl.info.zac.app.signalering.model.RestSignaleringTaskSummary
 import nl.info.zac.app.signalering.model.RestSignaleringPageParameters
+import nl.info.zac.app.signalering.model.RestSignaleringTaskSummary
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.IdentityService
@@ -70,7 +70,9 @@ class SignaleringRestService @Inject constructor(
         signaleringService.countZakenSignaleringen(signaleringsType).let { objectsCount ->
             objectsCount.maxPages(restSignaleringPageParameters.rows).let { maxPages ->
                 if (restSignaleringPageParameters.page > maxPages) {
-                    throw SignaleringException("Requested page ${restSignaleringPageParameters.page} must be <= $maxPages")
+                    throw SignaleringException(
+                        "Requested page ${restSignaleringPageParameters.page} must be <= $maxPages"
+                    )
                 }
             }
             RESTResultaat(
