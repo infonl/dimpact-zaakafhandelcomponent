@@ -10,7 +10,7 @@
       {{ label ?? key | translate | capitalizeFirstLetter }}
     </ng-content>
   </mat-label>
-  <div class="position-absolute overflow-hidden" *ngIf="displayValue">
+  <div *ngIf="displayValue" class="position-absolute overflow-hidden">
     {{ getDisplayValue(control?.value) }}
   </div>
   <input
@@ -27,10 +27,10 @@
     [type]="type"
   />
   <button
+    *ngIf="!readonly && !control?.disabled && control?.value?.length"
     matSuffix
     mat-icon-button
     type="button"
-    *ngIf="!readonly && !control?.disabled && control?.value?.length"
     (click)="control?.reset(undefined)"
   >
     <mat-icon>clear</mat-icon>

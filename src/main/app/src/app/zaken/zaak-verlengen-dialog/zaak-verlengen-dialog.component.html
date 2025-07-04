@@ -15,23 +15,71 @@
 <mat-divider></mat-divider>
 
 <mat-dialog-content>
-  <mfb-form [formFields]="formFields"></mfb-form>
-</mat-dialog-content>
+  <form [formGroup]="form">
+    <section class="row">
+      <zac-input
+        [form]="form"
+        key="duurDagen"
+        label="verlengduur"
+        type="number"
+        min="1"
+        max="verlengingstermijn"
+        class="col-12"
+      >
+        <mat-hint class="col-12">
+          {{ verlengduurHint }}
+        </mat-hint>
+      </zac-input>
+      <zac-date
+        *ngIf="data.zaak.einddatumGepland"
+        [form]="form"
+        key="einddatumGepland"
+        class="col-12"
+      >
+      </zac-date>
+      <zac-date
+        [form]="form"
+        key="uiterlijkeEinddatumAfdoening"
+        class="col-12"
+      ></zac-date>
+      <zac-checkbox
+        [form]="form"
+        key="takenVerlengen"
+        label="taken.verlengen"
+        class="col-12"
+      >
+      </zac-checkbox>
+      <zac-input
+        [form]="form"
+        key="redenVerlenging"
+        label="reden"
+        labelPosition="above"
+        class="col-12"
+      >
+      </zac-input>
+    </section>
 
-<mat-dialog-actions>
-  <button
-    mat-raised-button
-    color="primary"
-    id="zaakVerlengen_button"
-    [disabled]="disabled()"
-    (click)="verlengen()"
-  >
-    <mat-icon *ngIf="loading">
-      <mat-spinner diameter="18"></mat-spinner>
-    </mat-icon>
-    {{ "actie.zaak.verlengen" | translate }}
-  </button>
-  <button autofocus mat-raised-button [disabled]="loading" (click)="close()">
-    {{ "actie.annuleren" | translate }}
-  </button>
-</mat-dialog-actions>
+    <section class="button-group">
+      <button
+        mat-raised-button
+        color="primary"
+        id="zaakVerlengen_button"
+        [disabled]="loading || !form.valid"
+        (click)="verlengen()"
+      >
+        <mat-icon *ngIf="loading">
+          <mat-spinner diameter="18"></mat-spinner>
+        </mat-icon>
+        {{ "actie.zaak.verlengen" | translate }}
+      </button>
+      <button
+        autofocus
+        mat-raised-button
+        [disabled]="loading"
+        (click)="close()"
+      >
+        {{ "actie.annuleren" | translate }}
+      </button>
+    </section>
+  </form>
+</mat-dialog-content>

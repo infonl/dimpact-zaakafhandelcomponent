@@ -44,7 +44,6 @@ export class NotitiesComponent implements OnInit {
 
   toggleNotitieContainer() {
     this.showNotes = !this.showNotes;
-    console.log("Notitie container toggled:", this.showNotes);
   }
 
   pasNotitieAan(id: number) {
