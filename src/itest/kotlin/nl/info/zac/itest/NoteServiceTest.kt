@@ -37,7 +37,7 @@ class NoteServiceTest : BehaviorSpec({
                 "the created note should be returned"
             ) {
                 response.isSuccessful shouldBe true
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     {
                         "zaakUUID": "$zaakProductaanvraag1Uuid",
@@ -61,7 +61,7 @@ class NoteServiceTest : BehaviorSpec({
                 "the just created note should be returned"
             ) {
                 response.isSuccessful shouldBe true
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     [
                         {

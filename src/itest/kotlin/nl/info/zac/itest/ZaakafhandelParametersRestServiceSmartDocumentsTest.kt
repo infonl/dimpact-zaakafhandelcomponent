@@ -47,7 +47,7 @@ class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
             )
 
             Then("the response should be ok") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody shouldEqualJsonIgnoringOrder """
@@ -114,7 +114,7 @@ class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
             )
 
             Then("the response should be ok") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody shouldEqualJsonIgnoringOrder """
@@ -186,7 +186,7 @@ class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
                 url = smartDocumentsZaakafhandelParametersUrl,
                 requestBodyAsString = restTemplateGroups
             )
-            val storeBody = storeResponse.body!!.string()
+            val storeBody = storeResponse.body.string()
             logger.info { "Response: $storeBody" }
             storeResponse.isSuccessful shouldBe true
 
@@ -194,7 +194,7 @@ class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
                 val fetchResponse = itestHttpClient.performGetRequest(url = smartDocumentsZaakafhandelParametersUrl)
 
                 Then("the data is fetched correctly") {
-                    val fetchResponseBody = fetchResponse.body!!.string()
+                    val fetchResponseBody = fetchResponse.body.string()
                     logger.info { "Response: $fetchResponseBody" }
 
                     fetchResponse.isSuccessful shouldBe true
@@ -241,7 +241,7 @@ class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
             )
 
             Then("the request errors") {
-                val storeResponseBody = storeResponse.body!!.string()
+                val storeResponseBody = storeResponse.body.string()
                 logger.info { "Response: $storeResponseBody" }
 
                 storeResponse.code shouldBe HTTP_BAD_REQUEST

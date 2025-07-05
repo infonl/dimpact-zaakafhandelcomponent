@@ -39,7 +39,7 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
             )
 
             Then("the response should be ok") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
 

@@ -37,7 +37,7 @@ class ProcessDefinitionRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response is successful") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
             }
@@ -47,7 +47,7 @@ class ProcessDefinitionRestServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/process-definitions"
             )
             Then("the response contains the BPMN process definition that was just created") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody shouldEqualJsonIgnoringExtraneousFields """

@@ -40,7 +40,7 @@ class FormioFormulierenRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response is successful") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
             }
@@ -62,7 +62,7 @@ class FormioFormulierenRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response is successful") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
             }
@@ -73,7 +73,7 @@ class FormioFormulierenRestServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/formio-formulieren"
             )
             Then("the response contains the form.io forms that were just created") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody shouldEqualJsonIgnoringExtraneousFields """

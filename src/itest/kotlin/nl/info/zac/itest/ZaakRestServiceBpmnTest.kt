@@ -38,7 +38,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
         val takenCreateResponse = itestHttpClient.performGetRequest(
             "$ZAC_API_URI/taken/zaak/$bpmnZaakUuid"
         ).let {
-            val responseBody = it.body!!.string()
+            val responseBody = it.body.string()
             logger.info { "Response: $responseBody" }
             it.code shouldBe HTTP_OK
             responseBody
@@ -67,7 +67,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
             url = "$ZAC_API_URI/taken/complete",
             requestBodyAsString = patchedTakenData
         ).run {
-            val responseBody = body!!.string()
+            val responseBody = body.string()
             logger.info { "Response: $responseBody" }
             code shouldBe HTTP_OK
             responseBody
@@ -83,7 +83,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
             groupName = TEST_GROUP_A_DESCRIPTION,
             startDate = DATE_TIME_2000_01_01
         ).run {
-            val responseBody = body!!.string()
+            val responseBody = body.string()
             logger.info { "Response: $responseBody" }
             code shouldBe HTTP_OK
             JSONObject(responseBody).run {
@@ -104,7 +104,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
 
             And("the zaak should still be open and without result") {
                 zacClient.retrieveZaak(bpmnZaakUuid).use { response ->
-                    val responseBody = response.body!!.string()
+                    val responseBody = response.body.string()
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody.run {
@@ -126,7 +126,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
 
             And("the zaak should be closed and with result") {
                 zacClient.retrieveZaak(bpmnZaakUuid).use { response ->
-                    val responseBody = response.body!!.string()
+                    val responseBody = response.body.string()
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody.run {
@@ -142,7 +142,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                 )
                 receivedMailsResponse.code shouldBe HTTP_OK
 
-                val receivedMails = JSONArray(receivedMailsResponse.body!!.string())
+                val receivedMails = JSONArray(receivedMailsResponse.body.string())
                 with(receivedMails) {
                     length() shouldBe 1
                     with(getJSONObject(0)) {

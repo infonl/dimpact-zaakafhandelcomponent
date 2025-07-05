@@ -4,17 +4,14 @@
  */
 package nl.info.zac.app.shared
 
-import nl.info.zac.util.NoArgConstructor
-
-@NoArgConstructor
-open class RestPageParameters(
+interface RestPageParameters {
     /**
      * The search result page requested, starting at 0.
      */
-    open var page: Int,
+    var page: Int
 
     /**
      * The number of search result rows requested.
      */
-    open var rows: Int
-)
+    var rows: Int
+}

@@ -55,7 +55,7 @@ class TaskRestServiceTest : BehaviorSpec({
             Then(
                 """the list of taken for this zaak is returned and contains the expected task"""
             ) {
-                responseBody = response.body!!.string()
+                responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody.shouldBeJsonArray()
@@ -99,7 +99,7 @@ class TaskRestServiceTest : BehaviorSpec({
             )
 
             Then("the taak has been updated successfully") {
-                responseBody = response.body!!.string()
+                responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody.shouldBeJsonObject()
@@ -143,7 +143,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the task is assigned correctly") {
-                val assignTasksResponseBody = assignTasksResponse.body!!.string()
+                val assignTasksResponseBody = assignTasksResponse.body.string()
                 logger.info { "Response: $assignTasksResponseBody" }
                 assignTasksResponse.code shouldBe HTTP_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the tasks are assigned
@@ -192,7 +192,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the task is released correctly") {
-                val assignTasksResponseBody = releaseTasksResponse.body!!.string()
+                val assignTasksResponseBody = releaseTasksResponse.body.string()
                 logger.info { "Response: $assignTasksResponseBody" }
                 releaseTasksResponse.code shouldBe HTTP_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the tasks are released

@@ -105,7 +105,7 @@ class ProjectConfig : AbstractProjectConfig() {
                     addAuthorizationHeader = false
                 ).use { response ->
                     response.code shouldBe HTTP_OK
-                    JSONObject(response.body!!.string()).getString("status") shouldBe "UP"
+                    JSONObject(response.body.string()).getString("status") shouldBe "UP"
                 }
             }
             logger.info { "ZAC is healthy" }
@@ -119,6 +119,7 @@ class ProjectConfig : AbstractProjectConfig() {
         }
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     override suspend fun afterProject() {
         // stop ZAC Docker Container gracefully to give JaCoCo a change to generate the code coverage report
         dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).getOrNull()?.let { zacContaner ->

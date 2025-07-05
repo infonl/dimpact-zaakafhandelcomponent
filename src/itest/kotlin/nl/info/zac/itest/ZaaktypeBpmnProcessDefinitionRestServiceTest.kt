@@ -27,7 +27,7 @@ class ZaaktypeBpmnProcessDefinitionRestServiceTest : BehaviorSpec({
             )
 
             Then("the response is successful") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
             }

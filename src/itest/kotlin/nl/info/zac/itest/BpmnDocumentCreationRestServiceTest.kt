@@ -53,7 +53,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
         groupName = TEST_GROUP_A_DESCRIPTION,
         startDate = DATE_TIME_2000_01_01
     ).run {
-        val responseBody = body!!.string()
+        val responseBody = body.string()
         logger.info { "Response: $responseBody" }
         code shouldBe HTTP_OK
         JSONObject(responseBody).run {
@@ -63,7 +63,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
         }
     }
     var taskId = itestHttpClient.performGetRequest("$ZAC_API_URI/taken/zaak/$bpmnZaakUuid").let {
-        val responseBody = it.body!!.string()
+        val responseBody = it.body.string()
         logger.info { "Response: $responseBody" }
         it.isSuccessful shouldBe true
         responseBody.shouldBeJsonArray()
@@ -91,7 +91,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                 ).toString()
             )
             Then("the response should be OK and the response should contain a redirect URL to SmartDocuments") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
 
@@ -124,7 +124,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                 ).toString()
             )
             Then("the response should be OK and the response should contain a redirect URL to Smartdocuments") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
 
@@ -165,7 +165,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
             )
 
             Then("The response should contain redirect url to our smart-documents-result page") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 val locationHeader = response.header("Location")!!
                 logger.info { "Location header: $locationHeader" }
@@ -208,7 +208,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
             )
 
             Then("The response should contain redirect url, doc name, zaak and taak ids") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 val locationHeader = response.header("Location")!!
                 logger.info { "Location header: $locationHeader" }
@@ -249,7 +249,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
             )
 
             Then("The response should contain redirect url, zaak and taak ids") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 val locationHeader = response.header("Location")!!
                 logger.info { "Location header: $locationHeader" }

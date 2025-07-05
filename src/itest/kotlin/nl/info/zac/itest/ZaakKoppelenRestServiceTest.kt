@@ -44,7 +44,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         itestHttpClient.performGetRequest(
             "$ZAC_API_URI/zaken/zaak/id/$ZAAK_MANUAL_2024_01_IDENTIFICATION"
         ).use { getZaakResponse ->
-            val responseBody = getZaakResponse.body!!.string()
+            val responseBody = getZaakResponse.body.string()
             logger.info { "Response: $responseBody" }
             with(JSONObject(responseBody)) {
                 zaakUUID = getString("uuid").let(UUID::fromString)
@@ -53,7 +53,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         itestHttpClient.performGetRequest(
             "$ZAC_API_URI/zaken/zaak/id/$ZAAK_MANUAL_2000_03_IDENTIFICATION"
         ).use { getZaakResponse ->
-            val responseBody = getZaakResponse.body!!.string()
+            val responseBody = getZaakResponse.body.string()
             logger.info { "Response: $responseBody" }
             with(JSONObject(responseBody)) {
                 teKoppelenZaakUuid = getString("uuid").let(UUID::fromString)
@@ -76,7 +76,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
             Then("returns list of zaken each with a linkable flag") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                 {
@@ -176,7 +176,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
             Then("returns list of zaken each with a linkable flag") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                 {

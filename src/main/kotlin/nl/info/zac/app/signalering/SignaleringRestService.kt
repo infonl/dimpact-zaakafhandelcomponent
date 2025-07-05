@@ -7,6 +7,7 @@ package nl.info.zac.app.signalering
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.PUT
@@ -19,10 +20,10 @@ import net.atos.zac.app.shared.RESTResultaat
 import net.atos.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
 import net.atos.zac.signalering.model.SignaleringType
-import nl.info.zac.app.shared.RestPageParameters
 import nl.info.zac.app.signalering.converter.RestSignaleringInstellingenConverter
 import nl.info.zac.app.signalering.exception.SignaleringException
 import nl.info.zac.app.signalering.model.RestSignaleringInstellingen
+import nl.info.zac.app.signalering.model.RestSignaleringPageParameters
 import nl.info.zac.app.signalering.model.RestSignaleringTaskSummary
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
@@ -30,6 +31,7 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 
@@ -38,6 +40,7 @@ import java.time.ZonedDateTime
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
 @NoArgConstructor
+@AllOpen
 @Suppress("LongParameterList", "TooManyFunctions")
 class SignaleringRestService @Inject constructor(
     private val signaleringService: SignaleringService,
@@ -62,16 +65,18 @@ class SignaleringRestService @Inject constructor(
     @Path("/zaken/{type}")
     fun listZakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
-        pageParameters: RestPageParameters
+        @Valid restSignaleringPageParameters: RestSignaleringPageParameters
     ): RESTResultaat<RestZaakOverzicht> =
         signaleringService.countZakenSignaleringen(signaleringsType).let { objectsCount ->
-            objectsCount.maxPages(pageParameters.rows).let { maxPages ->
-                if (pageParameters.page > maxPages) {
-                    throw SignaleringException("Requested page ${pageParameters.page} must be <= $maxPages")
+            objectsCount.maxPages(restSignaleringPageParameters.rows).let { maxPages ->
+                if (restSignaleringPageParameters.page > maxPages) {
+                    throw SignaleringException(
+                        "Requested page ${restSignaleringPageParameters.page} must be <= $maxPages"
+                    )
                 }
             }
             RESTResultaat(
-                signaleringService.listZakenSignaleringenPage(signaleringsType, pageParameters),
+                signaleringService.listZakenSignaleringenPage(signaleringsType, restSignaleringPageParameters),
                 objectsCount
             )
         }

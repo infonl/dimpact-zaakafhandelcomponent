@@ -14,9 +14,9 @@ import io.mockk.every
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.signalering.model.SignaleringType
-import nl.info.zac.app.shared.RestPageParameters
 import nl.info.zac.app.signalering.converter.RestSignaleringInstellingenConverter
 import nl.info.zac.app.signalering.exception.SignaleringException
+import nl.info.zac.app.signalering.model.RestSignaleringPageParameters
 import nl.info.zac.app.zaak.model.createRESTZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.IdentityService
@@ -51,7 +51,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         val pageSize = 5
         val numberOfElements = 11
         val restZaakOverzichtList = List(numberOfElements) { createRESTZaakOverzicht() }
-        val restPageParameters = RestPageParameters(pageNumber, pageSize)
+        val restPageParameters = RestSignaleringPageParameters(pageNumber, pageSize)
 
         every { signaleringService.countZakenSignaleringen(signaleringType) } returns numberOfElements.toLong()
         every {
@@ -69,7 +69,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
         When("listing zaken signaleringen with incorrect page parameters") {
             val exception = shouldThrow<SignaleringException> {
-                signaleringRestService.listZakenSignaleringen(signaleringType, RestPageParameters(123, 456))
+                signaleringRestService.listZakenSignaleringen(signaleringType, RestSignaleringPageParameters(123, 456))
             }
 
             Then("exception is thrown") {
