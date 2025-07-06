@@ -295,7 +295,7 @@ opa:
     annotations: {}
   image:
     repository: openpolicyagent/opa
-    tag: "1.6.0-static@sha256:108f0a519e43b01d62a2295563b462ec17cdd8ccdd4b5ae33b28c16c7f7c9173"
+    tag: "1.6.0-static@sha256:3e5a77e73b42c4911ff2a9286f9ba280b273afc17784f7e5d8ba69db22a1e1c0"
     pullPolicy: IfNotPresent
   # The settings below will be ignored when running as a sidecar (the zac values will be used instead)
   autoscaling:
