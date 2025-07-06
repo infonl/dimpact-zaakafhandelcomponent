@@ -39,7 +39,7 @@ data class RestZaakBetrokkene(
 
     /**
      * The identificatieType indicating what the type is of the [identificatie] field.
-     * Not that this is only set for certain betrokkene types, specifically for betrokkene types which support
+     * This is only set for certain betrokkene types, specifically for betrokkene types which support
      * multiple identificatie types like BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON.
      */
     var identificatieType: IdentificatieType?
