@@ -15,6 +15,7 @@ import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NATUURLIJK_PERS
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING
+import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -22,34 +23,71 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 data class RestZaakBetrokkene(
     var rolid: String,
-
     var roltype: String,
-
     var roltoelichting: String?,
 
+    /**
+     * The type of the betrokkene, as the name of [nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum].
+     * We should just use an enum itself here (maybe our own enum), instead of a String.
+     */
     var type: String,
 
-    var identificatie: String?
+    /**
+     * The unique identifier of the betrokkene; may be null in certain circumstances.
+     */
+    var identificatie: String?,
+
+    /**
+     * The identificatieType indicating what the type is of the [identificatie] field.
+     * Not that this is only set for certain betrokkene types, specifically for betrokkene types which support
+     * multiple identificatie types like BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON.
+     */
+    var identificatieType: IdentificatieType?
 )
 
-@Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
-fun Rol<*>.toRestZaakBetrokkene() = RestZaakBetrokkene(
-    rolid = this.uuid.toString(),
-    roltype = this.omschrijving,
-    roltoelichting = this.roltoelichting,
-    type = this.betrokkeneType.name,
-    identificatie = when (this.betrokkeneType) {
-        NATUURLIJK_PERSOON -> (this as RolNatuurlijkPersoon).betrokkeneIdentificatie?.inpBsn
+fun Rol<*>.toRestZaakBetrokkene(): RestZaakBetrokkene {
+    var identificatieType: IdentificatieType? = null
+    var identificatie: String? = null
+    when (this.betrokkeneType) {
+        NATUURLIJK_PERSOON -> {
+            (this as RolNatuurlijkPersoon).betrokkeneIdentificatie?.let {
+                identificatie = it.inpBsn
+                identificatieType = IdentificatieType.BSN
+            }
+        }
         // A niet-natuurlijk persoon in the ZGW ZRC API can be either a KVK niet-natuurlijk persoon with an INN NNP ID (=RSIN)
         // _or_ a KVK vestiging with a vestigingsnummer.
         // If the INN NNP ID is not present (and note that it may be an empty string), we use the vestigingsnummer.
         NIET_NATUURLIJK_PERSOON -> (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie?.let {
-            it.innNnpId.takeIf { innNnpId -> innNnpId?.isNotBlank() == true } ?: it.vestigingsNummer
+            if (it.innNnpId.isNullOrBlank()) {
+                identificatie = it.vestigingsNummer
+                identificatieType = IdentificatieType.VN
+            } else {
+                identificatie = it.innNnpId
+                identificatieType = IdentificatieType.RSIN
+            }
         }
-        VESTIGING -> (this as RolVestiging).betrokkeneIdentificatie?.vestigingsNummer
-        ORGANISATORISCHE_EENHEID -> (this as RolOrganisatorischeEenheid).betrokkeneIdentificatie?.naam
-        MEDEWERKER -> (this as RolMedewerker).betrokkeneIdentificatie?.identificatie
+        VESTIGING -> {
+            identificatie = (this as RolVestiging).betrokkeneIdentificatie?.vestigingsNummer
+            identificatieType = IdentificatieType.VN
+        }
+        ORGANISATORISCHE_EENHEID -> {
+            identificatie = (this as RolOrganisatorischeEenheid).betrokkeneIdentificatie?.naam
+            // the identificatie field of an organisatorische eenheid has no identificatieType; it is just a string
+        }
+        MEDEWERKER -> {
+            identificatie = (this as RolMedewerker).betrokkeneIdentificatie?.identificatie
+            // the identificatie field of a medewerker has no identificatieType; it is just a string
+        }
     }
-)
+    return RestZaakBetrokkene(
+        rolid = this.uuid.toString(),
+        roltype = this.omschrijving,
+        roltoelichting = this.roltoelichting,
+        type = this.betrokkeneType.name,
+        identificatie = identificatie,
+        identificatieType = identificatieType
+    )
+}
 
 fun List<Rol<*>>.toRestZaakBetrokkenen(): List<RestZaakBetrokkene> = this.map { it.toRestZaakBetrokkene() }

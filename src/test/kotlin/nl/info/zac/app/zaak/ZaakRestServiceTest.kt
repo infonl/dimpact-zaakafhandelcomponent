@@ -44,6 +44,7 @@ import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
+import nl.info.client.zgw.model.createNietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createOrganisatorischeEenheid
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoonForReads
@@ -1380,13 +1381,28 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A zaak with a betrokkene of type natuurlijk persoon and one of type niet-natuurlijk persoon") {
+    Given(
+        """
+            A zaak with a betrokkene of type natuurlijk persoon and of type niet-natuurlijk persoon
+            with a vestigingsnummer, and of type niet-natuurlijk persoon with a RSIN (=INN NNP ID)
+            """
+    ) {
         val zaak = createZaak()
         val rolNatuurlijkPersoon = createRolNatuurlijkPersoonForReads()
-        val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoonForReads()
+        val rolNietNatuurlijkPersoonWithVestigingsnummer = createRolNietNatuurlijkPersoonForReads(
+            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                vestigingsNummer = "fakeVestigingsNummer"
+            )
+        )
+        val rolNietNatuurlijkPersoonWithRSIN = createRolNietNatuurlijkPersoonForReads(
+            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                innNnpId = "fakeInnNnpId"
+            )
+        )
         val betrokkeneRoles = listOf(
             rolNatuurlijkPersoon,
-            rolNietNatuurlijkPersoon
+            rolNietNatuurlijkPersoonWithVestigingsnummer,
+            rolNietNatuurlijkPersoonWithRSIN
         )
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
@@ -1397,20 +1413,30 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             Then("the betrokkenen are returned") {
                 with(returnedBetrokkenen) {
-                    size shouldBe 2
+                    size shouldBe betrokkeneRoles.size
                     with(first()) {
                         rolid shouldBe rolNatuurlijkPersoon.uuid.toString()
                         roltype shouldBe rolNatuurlijkPersoon.omschrijving
                         roltoelichting shouldBe rolNatuurlijkPersoon.roltoelichting
                         type shouldBe "NATUURLIJK_PERSOON"
                         identificatie shouldBe rolNatuurlijkPersoon.identificatienummer
+                        identificatieType shouldBe IdentificatieType.BSN
+                    }
+                    with(this[1]) {
+                        rolid shouldBe rolNietNatuurlijkPersoonWithVestigingsnummer.uuid.toString()
+                        roltype shouldBe rolNietNatuurlijkPersoonWithVestigingsnummer.omschrijving
+                        roltoelichting shouldBe rolNietNatuurlijkPersoonWithVestigingsnummer.roltoelichting
+                        type shouldBe "NIET_NATUURLIJK_PERSOON"
+                        identificatie shouldBe rolNietNatuurlijkPersoonWithVestigingsnummer.identificatienummer
+                        identificatieType shouldBe IdentificatieType.VN
                     }
                     with(last()) {
-                        rolid shouldBe rolNietNatuurlijkPersoon.uuid.toString()
-                        roltype shouldBe rolNietNatuurlijkPersoon.omschrijving
-                        roltoelichting shouldBe rolNietNatuurlijkPersoon.roltoelichting
+                        rolid shouldBe rolNietNatuurlijkPersoonWithRSIN.uuid.toString()
+                        roltype shouldBe rolNietNatuurlijkPersoonWithRSIN.omschrijving
+                        roltoelichting shouldBe rolNietNatuurlijkPersoonWithRSIN.roltoelichting
                         type shouldBe "NIET_NATUURLIJK_PERSOON"
-                        identificatie shouldBe rolNietNatuurlijkPersoon.identificatienummer
+                        identificatie shouldBe rolNietNatuurlijkPersoonWithRSIN.identificatienummer
+                        identificatieType shouldBe IdentificatieType.RSIN
                     }
                 }
             }
