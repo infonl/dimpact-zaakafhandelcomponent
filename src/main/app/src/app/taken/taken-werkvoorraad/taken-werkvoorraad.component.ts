@@ -281,7 +281,8 @@ export class TakenWerkvoorraadComponent
         return;
       }
 
-      this.toekenning = result;
+      if (!release) this.toekenning = result;
+
       const message =
         tasks.length === 1
           ? this.translateService.instant(
