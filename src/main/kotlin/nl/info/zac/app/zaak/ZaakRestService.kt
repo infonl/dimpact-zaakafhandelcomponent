@@ -818,9 +818,7 @@ class ZaakRestService @Inject constructor(
     fun listBetrokkenenVoorZaak(@PathParam("uuid") zaakUUID: UUID): List<RestZaakBetrokkene> {
         val zaak = zrcClientService.readZaak(zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak).lezen)
-        return zaakService.listBetrokkenenforZaak(zaak)
-            .toRestZaakBetrokkenen()
-            .filterNotNull()
+        return zaakService.listBetrokkenenforZaak(zaak).toRestZaakBetrokkenen()
     }
 
     /**

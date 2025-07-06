@@ -102,4 +102,4 @@ fun Rol<*>.toRestZaakBetrokkene(): RestZaakBetrokkene? {
     )
 }
 
-fun List<Rol<*>>.toRestZaakBetrokkenen(): List<RestZaakBetrokkene?> = map { it.toRestZaakBetrokkene() }
+fun List<Rol<*>>.toRestZaakBetrokkenen(): List<RestZaakBetrokkene> = mapNotNull { it.toRestZaakBetrokkene() }
