@@ -1383,8 +1383,9 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     Given(
         """
-            A zaak with a betrokkene of type natuurlijk persoon and of type niet-natuurlijk persoon
-            with a vestigingsnummer, and of type niet-natuurlijk persoon with a RSIN (=INN NNP ID)
+            A zaak with a betrokkene of type natuurlijk persoon, a betrokkene of type niet-natuurlijk persoon
+            with a vestigingsnummer, a betrokkene of type niet-natuurlijk persoon with a RSIN (=INN NNP ID),
+            and a betrokkene without a betrokkene identification.
             """
     ) {
         val zaak = createZaak()
@@ -1399,10 +1400,14 @@ class ZaakRestServiceTest : BehaviorSpec({
                 innNnpId = "fakeInnNnpId"
             )
         )
+        val rolNatuurlijkPersoonWithoutIdentificatie = createRolNatuurlijkPersoonForReads(
+            natuurlijkPersoonIdentificatie = null
+        )
         val betrokkeneRoles = listOf(
             rolNatuurlijkPersoon,
             rolNietNatuurlijkPersoonWithVestigingsnummer,
-            rolNietNatuurlijkPersoonWithRSIN
+            rolNietNatuurlijkPersoonWithRSIN,
+            rolNatuurlijkPersoonWithoutIdentificatie
         )
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
@@ -1411,9 +1416,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         When("the betrokkenen are retrieved") {
             val returnedBetrokkenen = zaakRestService.listBetrokkenenVoorZaak(zaak.uuid)
 
-            Then("the betrokkenen are returned") {
+            Then("the betrokkenen are correctly returned except the betrokkene without identification") {
                 with(returnedBetrokkenen) {
-                    size shouldBe betrokkeneRoles.size
+                    size shouldBe 3
                     with(first()) {
                         rolid shouldBe rolNatuurlijkPersoon.uuid.toString()
                         roltype shouldBe rolNatuurlijkPersoon.omschrijving
