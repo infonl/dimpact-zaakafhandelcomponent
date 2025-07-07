@@ -849,7 +849,7 @@ class ZaakServiceTest : BehaviorSpec({
                     roltoelichting shouldBe explanation
                     omschrijving shouldBe zaak.omschrijving
                     omschrijvingGeneriek shouldBe OmschrijvingGeneriekEnum.INITIATOR.toString()
-                    (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie.vestigingsNummer shouldBe vestingsnummer
+                    (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie?.vestigingsNummer shouldBe vestingsnummer
                 }
             }
         }
