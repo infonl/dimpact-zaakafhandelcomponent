@@ -247,6 +247,7 @@ export class CaseDetailsEditComponent implements OnInit {
       vertrouwelijkheidaanduiding,
       startdatum,
       einddatumGepland,
+      uiterlijkeEinddatumAfdoening,
       omschrijving,
     } = data;
 
@@ -264,7 +265,7 @@ export class CaseDetailsEditComponent implements OnInit {
           startdatum: startdatum?.toISOString(),
           einddatumGepland: einddatumGepland?.toISOString(),
           uiterlijkeEinddatumAfdoening:
-            form.value.einddatumGepland?.toISOString(),
+            uiterlijkeEinddatumAfdoening?.toISOString(),
           omschrijving: omschrijving ?? "",
         },
         reden: reden ?? "",
