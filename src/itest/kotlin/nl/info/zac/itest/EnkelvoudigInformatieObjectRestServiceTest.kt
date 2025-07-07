@@ -112,7 +112,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             )
 
             Then("the response should be OK and contain information for the created document and uploaded file") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "$endpointUrl response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
@@ -189,7 +189,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             Then(
                 "the response should be OK and should contain information about the updates"
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "$endpointUrl response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(responseBody) {
@@ -240,7 +240,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     should have the status 'definitief' since it was signed
                     """
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(responseBody) {
@@ -307,7 +307,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             Then(
                 "the response should be OK and contain information for the created document and uploaded file"
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "$endpointUrl response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
@@ -354,7 +354,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     the response should be OK and the informatieobject should be converted from TXT to PDF
                     """
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
             }
@@ -364,7 +364,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObject2UUID/"
             )
             Then("the response should be OK and should contain information about the document converted to PDF") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
@@ -435,7 +435,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             Then(
                 "the response should be OK and contain information for the created document and uploaded file"
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "$endpointUrl response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(responseBody) {

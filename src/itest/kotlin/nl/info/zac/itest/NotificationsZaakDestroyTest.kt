@@ -63,7 +63,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
             behandelaarId = TEST_USER_2_ID,
             startDate = DATE_TIME_2024_01_31
         ).run {
-            val responseBody = body!!.string()
+            val responseBody = body.string()
             logger.info { "Response: $responseBody" }
             this.isSuccessful shouldBe true
             JSONObject(responseBody).run {
@@ -75,7 +75,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
         itestHttpClient.performGetRequest(
             "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems"
         ).run {
-            val responseBody = body!!.string()
+            val responseBody = body.string()
             logger.info { "Response: $responseBody" }
             this.isSuccessful shouldBe true
             humanTaskItemAanvullendeInformatieId = JSONArray(responseBody).getJSONObject(0).getString("id")
@@ -93,7 +93,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 }
             """.trimIndent()
         ).run {
-            val responseBody = body!!.string()
+            val responseBody = body.string()
             logger.info { "Response: $responseBody" }
             this.isSuccessful shouldBe true
         }
@@ -101,7 +101,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
         itestHttpClient.performGetRequest(
             url = "$ZAC_API_URI/taken/zaak/$zaakUUID"
         ).run {
-            val responseBody = body!!.string()
+            val responseBody = body.string()
             logger.info { "Response: $responseBody" }
             this.isSuccessful shouldBe true
             JSONArray(responseBody).length() shouldBe 1
@@ -116,7 +116,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
             ).toHeaders(),
             addAuthorizationHeader = false
         ).run {
-            logger.info { "Response: ${body!!.string()}" }
+            logger.info { "Response: ${body.string()}" }
             this.isSuccessful shouldBe true
         }
         // wait for the indexing to complete
@@ -137,7 +137,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                         "page": 0                        
                     }
                 """.trimIndent()
-            ).body!!.string()
+            ).body.string()
             JSONObject(searchResponseBody).getInt("totaal") shouldBe 1
             searchResponseBody.shouldContainJsonKeyValue("$.resultaten[0].identificatie", zaakIdentificatie)
         }
@@ -168,7 +168,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                     the task should be deleted and the zaak should be removed from the Solr index
                 """.trimIndent()
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
                 // Retrieve the zaak and check that the zaakdata is no longer available.
@@ -176,7 +176,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 // and so ZAC should still return the zaak.
                 // However, all Flowable data related to the zaak should be deleted.
                 zacClient.retrieveZaak(zaakUUID).run {
-                    val responseBody = this.body!!.string()
+                    val responseBody = this.body.string()
                     logger.info { "Response: $responseBody" }
                     this.code shouldBe HTTP_OK
                     responseBody.shouldContainJsonKeyValue("uuid", zaakUUID.toString())
@@ -187,7 +187,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/taken/zaak/$zaakUUID"
                 ).run {
-                    val responseBody = body!!.string()
+                    val responseBody = body.string()
                     logger.info { "Response: $responseBody" }
                     this.isSuccessful shouldBe true
                     JSONArray(responseBody).length() shouldBe 0
@@ -196,7 +196,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/taken/$aanvullendeInformatieTaskID"
                 ).run {
-                    val responseBody = body!!.string()
+                    val responseBody = body.string()
                     logger.info { "Response: $responseBody" }
                     this.code shouldBe HTTP_NOT_FOUND
                     responseBody shouldEqualJson """
@@ -221,7 +221,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                         "page": 0                        
                     }
                         """.trimIndent()
-                    ).body!!.string()
+                    ).body.string()
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                 }
             }

@@ -28,7 +28,7 @@ class AppContainerTest : BehaviorSpec({
             )
             Then("the response should be ok and the status should be UP") {
                 response.isSuccessful shouldBe true
-                with(response.body!!.string()) {
+                with(response.body.string()) {
                     shouldContainJsonKeyValue("status", "UP")
                 }
             }
@@ -39,7 +39,7 @@ class AppContainerTest : BehaviorSpec({
             )
             Then("the response should be ok and the the uptime var should be present") {
                 response.isSuccessful shouldBe true
-                with(response.body!!.string()) {
+                with(response.body.string()) {
                     contains("base_jvm_uptime_seconds").shouldBe(true)
                 }
             }
