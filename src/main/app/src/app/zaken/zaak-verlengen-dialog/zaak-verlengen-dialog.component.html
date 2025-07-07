@@ -15,18 +15,10 @@
 <mat-divider></mat-divider>
 
 <mat-dialog-content>
-  <form [formGroup]="form">
-    <section class="row">
-      <zac-input
-        [form]="form"
-        key="duurDagen"
-        label="verlengduur"
-        type="number"
-        min="1"
-        max="verlengingstermijn"
-        class="col-12"
-      >
-        <mat-hint class="col-12">
+  <form [formGroup]="form" (submit)="verlengen()">
+    <fieldset class="flex-col">
+      <zac-input [form]="form" key="duurDagen" label="verlengduur">
+        <mat-hint>
           {{ verlengduurHint }}
         </mat-hint>
       </zac-input>
@@ -34,38 +26,19 @@
         *ngIf="data.zaak.einddatumGepland"
         [form]="form"
         key="einddatumGepland"
-        class="col-12"
       >
       </zac-date>
-      <zac-date
-        [form]="form"
-        key="uiterlijkeEinddatumAfdoening"
-        class="col-12"
-      ></zac-date>
-      <zac-checkbox
-        [form]="form"
-        key="takenVerlengen"
-        label="taken.verlengen"
-        class="col-12"
-      >
+      <zac-date [form]="form" key="uiterlijkeEinddatumAfdoening"></zac-date>
+      <zac-checkbox [form]="form" key="takenVerlengen" label="taken.verlengen">
       </zac-checkbox>
-      <zac-input
-        [form]="form"
-        key="redenVerlenging"
-        label="reden"
-        labelPosition="above"
-        class="col-12"
-      >
-      </zac-input>
-    </section>
-
-    <section class="button-group">
+      <zac-input [form]="form" key="redenVerlenging" label="reden"> </zac-input>
+    </fieldset>
+    <fieldset class="mt-4 flex-row">
       <button
         mat-raised-button
         color="primary"
-        id="zaakVerlengen_button"
+        type="submit"
         [disabled]="loading || !form.valid"
-        (click)="verlengen()"
       >
         <mat-icon *ngIf="loading">
           <mat-spinner diameter="18"></mat-spinner>
@@ -80,6 +53,6 @@
       >
         {{ "actie.annuleren" | translate }}
       </button>
-    </section>
+    </fieldset>
   </form>
 </mat-dialog-content>

@@ -4,18 +4,15 @@
   ~
   -->
 
-<div [formGroup]="form" class="checkbox full-width" appearance="fill">
+<div [formGroup]="form" class="full-width">
   <mat-checkbox
     [formControlName]="key"
     [disabled]="readonly"
     [required]="required"
-    class="w-full"
   >
     {{ label ?? key | translate | capitalizeFirstLetter }}
   </mat-checkbox>
-  <mat-error *ngIf="form.get(this.key)?.hasError('required')">{{
-    getErrorMessage()
-  }}</mat-error>
+  <mat-error *ngIf="getErrorMessage()">{{ getErrorMessage() }}</mat-error>
   <mat-hint>
     <ng-content select="mat-hint"></ng-content>
   </mat-hint>

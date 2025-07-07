@@ -39,7 +39,7 @@
       {{ displayWith(option) | translate }}
     </mat-option>
   </mat-autocomplete>
-  <mat-error>{{ getErrorMessage() }}</mat-error>
+  <mat-error *ngIf="getErrorMessage()">{{ getErrorMessage() }}</mat-error>
   <mat-hint>
     <ng-content select="mat-hint"></ng-content>
   </mat-hint>
