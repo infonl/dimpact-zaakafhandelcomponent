@@ -56,14 +56,14 @@ public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoonIdentific
         if (identificatie == null || betrokkeneIdentificatie == null) {
             return false;
         }
-        if (betrokkeneIdentificatie.getAnnIdentificatie() != null || identificatie.getAnnIdentificatie() != null) {
-            return Objects.equals(betrokkeneIdentificatie.getAnnIdentificatie(), identificatie.getAnnIdentificatie());
-        }
         if (betrokkeneIdentificatie.getInnNnpId() != null || identificatie.getInnNnpId() != null) {
             return Objects.equals(betrokkeneIdentificatie.getInnNnpId(), identificatie.getInnNnpId());
         }
         if (betrokkeneIdentificatie.getVestigingsNummer() != null || identificatie.getVestigingsNummer() != null) {
             return Objects.equals(betrokkeneIdentificatie.getVestigingsNummer(), identificatie.getVestigingsNummer());
+        }
+        if (betrokkeneIdentificatie.getAnnIdentificatie() != null || identificatie.getAnnIdentificatie() != null) {
+            return Objects.equals(betrokkeneIdentificatie.getAnnIdentificatie(), identificatie.getAnnIdentificatie());
         }
         return true;
     }
@@ -83,9 +83,6 @@ public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoonIdentific
         if (identificatie == null) {
             return null;
         }
-        if (StringUtils.isNotEmpty(identificatie.getAnnIdentificatie())) {
-            return identificatie.getAnnIdentificatie();
-        }
         if (StringUtils.isNotEmpty(identificatie.getInnNnpId())) {
             return identificatie.getInnNnpId();
         }
@@ -98,14 +95,14 @@ public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoonIdentific
         if (identificatie == null) {
             return 0;
         }
-        if (identificatie.getAnnIdentificatie() != null) {
-            return Objects.hash(getBetrokkeneIdentificatie().getAnnIdentificatie());
-        }
         if (identificatie.getInnNnpId() != null) {
             return Objects.hash(getBetrokkeneIdentificatie().getInnNnpId());
         }
         if (identificatie.getVestigingsNummer() != null) {
             return Objects.hash(getBetrokkeneIdentificatie().getVestigingsNummer());
+        }
+        if (identificatie.getAnnIdentificatie() != null) {
+            return Objects.hash(getBetrokkeneIdentificatie().getAnnIdentificatie());
         }
         return 0;
     }
