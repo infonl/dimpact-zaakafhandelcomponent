@@ -19,7 +19,9 @@ export class ZakenVerdelenDialogComponent {
   loading = false;
 
   protected readonly form = this.formBuilder.group({
-    groep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [Validators.required]),
+    groep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [
+      Validators.required,
+    ]),
     medewerker: this.formBuilder.control<GeneratedType<"RestUser"> | null>(
       null,
     ),

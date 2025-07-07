@@ -102,10 +102,8 @@ export class TakenService {
     return this.zacHttpClient.PATCH("/rest/taken/complete", body, {});
   }
 
-  verdelenVanuitLijst(
-    body: PutBody<"/rest/taken/lijst/verdelen">
-  ) {
-    return this.zacHttpClient.PUT("/rest/taken/lijst/verdelen", body, {})
+  verdelenVanuitLijst(body: PutBody<"/rest/taken/lijst/verdelen">) {
+    return this.zacHttpClient.PUT("/rest/taken/lijst/verdelen", body, {});
   }
 
   vrijgevenVanuitLijst(body: PutBody<"/rest/taken/lijst/vrijgeven">) {
