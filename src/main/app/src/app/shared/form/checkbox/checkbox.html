@@ -5,19 +5,13 @@
   -->
 
 <div [formGroup]="form" class="full-width">
-  <mat-slide-toggle
-    class="flex"
+  <mat-checkbox
     [formControlName]="key"
-    color="primary"
+    [disabled]="readonly"
     [required]="required"
-    [labelPosition]="labelPosition"
   >
-    <mat-label>
-      <ng-content select="mat-label">
-        {{ label ?? key | translate | capitalizeFirstLetter }}
-      </ng-content>
-    </mat-label>
-  </mat-slide-toggle>
+    {{ label ?? key | translate | capitalizeFirstLetter }}
+  </mat-checkbox>
   <mat-error *ngIf="getErrorMessage()">{{ getErrorMessage() }}</mat-error>
   <mat-hint>
     <ng-content select="mat-hint"></ng-content>

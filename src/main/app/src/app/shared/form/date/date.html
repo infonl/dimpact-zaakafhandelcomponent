@@ -22,7 +22,7 @@
   <span *ngIf="showAmountOfDays" matSuffix>{{ control?.value | dagen }}</span>
   <mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
   <mat-datepicker #date></mat-datepicker>
-  <mat-error>{{ getErrorMessage() }}</mat-error>
+  <mat-error *ngIf="getErrorMessage()">{{ getErrorMessage() }}</mat-error>
   <mat-hint>
     <ng-content select="mat-hint"></ng-content>
   </mat-hint>
