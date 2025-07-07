@@ -589,23 +589,23 @@
                       {{ betrokkene.identificatie }}
                       <span
                         *ngIf="betrokkene.type === 'NATUURLIJK_PERSOON'"
-                        [matTooltip]="
-                          'identificatieType.BSN' | translate
-                        "
+                        [matTooltip]="'identificatieType.BSN' | translate"
                         >(P)</span
                       >
                       <span
-                        *ngIf="betrokkene.type === 'NIET_NATUURLIJK_PERSOON' && betrokkene.identificatieType === 'RSIN'"
-                        [matTooltip]="
-                          'identificatieType.RSIN' | translate
+                        *ngIf="
+                          betrokkene.type === 'NIET_NATUURLIJK_PERSOON' &&
+                          betrokkene.identificatieType === 'RSIN'
                         "
+                        [matTooltip]="'identificatieType.RSIN' | translate"
                         >(R)</span
                       >
                       <span
-                        *ngIf="betrokkene.type === 'NIET_NATUURLIJK_PERSOON' && betrokkene.identificatieType === 'VN'"
-                        [matTooltip]="
-                  'identificatieType.VN' | translate
+                        *ngIf="
+                          betrokkene.type === 'NIET_NATUURLIJK_PERSOON' &&
+                          betrokkene.identificatieType === 'VN'
                         "
+                        [matTooltip]="'identificatieType.VN' | translate"
                         >(V)</span
                       >
                       <span

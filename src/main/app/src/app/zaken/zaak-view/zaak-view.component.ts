@@ -1362,7 +1362,9 @@ export class ZaakViewComponent
   }
 
   betrokkeneGegevensOphalen(
-    betrokkene: GeneratedType<"RestZaakBetrokkene"> & { gegevens?: string | null },
+    betrokkene: GeneratedType<"RestZaakBetrokkene"> & {
+      gegevens?: string | null;
+    },
   ): void {
     betrokkene["gegevens"] = "LOADING";
     switch (betrokkene.type) {
