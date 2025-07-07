@@ -404,6 +404,9 @@ public class RestInformatieobjectConverter {
                         }
                         LOG.severe(() -> "Document niet gevonden: %s".formatted(enkelvoudigInformatieobjectUUID));
                         return null;
+                    } catch (Exception e) {
+                        LOG.severe(() -> "Fout bij ophalen document: %s, %s".formatted(enkelvoudigInformatieobjectUUID, e.getMessage()));
+                        return null;
                     }
                 })
                 .filter(Objects::nonNull)

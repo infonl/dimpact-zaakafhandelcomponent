@@ -34,7 +34,7 @@ export abstract class AbstractTaakFormulier {
   readonly = false;
   form: AbstractFormField[][] = [];
   disablePartialSave = false;
-  taakDocumenten: GeneratedType<"RestEnkelvoudigInformatieobject">[];
+  taakDocumenten: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
 
   protected constructor(
     protected translate: TranslateService,
@@ -112,8 +112,8 @@ export abstract class AbstractTaakFormulier {
       });
     });
 
-    const bijlagen = this.dataElementen[AbstractTaakFormulier.BIJLAGEN_FIELD];
-    const taakDocumenten$ = this.getTaakdocumentenEnBijlagen(String(bijlagen));
+    const bijlagen = this.getDataElement(AbstractTaakFormulier.BIJLAGEN_FIELD)
+    const taakDocumenten$ = this.getTaakdocumentenEnBijlagen(bijlagen);
 
     this.form.push([
       new DocumentenLijstFieldBuilder()
@@ -129,10 +129,11 @@ export abstract class AbstractTaakFormulier {
     });
   }
 
-  private getTaakdocumentenEnBijlagen(bijlagen: string) {
+  private getTaakdocumentenEnBijlagen(bijlagen?: string) {
     const taakDocumenten = this.taak?.taakdocumenten ?? [];
     const bijlagenArray = bijlagen?.split(";") ?? [];
 
+    console.log(taakDocumenten, bijlagen, bijlagenArray);
     return this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
       zaakUUID: this.zaak.uuid,
       informatieobjectUUIDs: [...taakDocumenten, ...bijlagenArray],
@@ -184,7 +185,7 @@ export abstract class AbstractTaakFormulier {
     return {
       uitkomst: formGroup.controls[this.taakinformatieMapping.uitkomst]?.value,
       opmerking:
-        formGroup.controls[this.taakinformatieMapping.opmerking]?.value,
+      this.taakinformatieMapping.opmerking ? formGroup.controls[this.taakinformatieMapping.opmerking]?.value : undefined,
       bijlagen: this.getDocumentInformatie(),
     } satisfies GeneratedType<"RestTask">["taakinformatie"];
   }

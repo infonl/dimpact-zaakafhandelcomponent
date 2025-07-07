@@ -129,7 +129,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @PUT
     @Path("informatieobjectenList")
     fun listEnkelvoudigInformatieobjecten(
-        zoekParameters: RESTInformatieobjectZoekParameters
+        @Valid zoekParameters: RESTInformatieobjectZoekParameters
     ): List<RestEnkelvoudigInformatieobject> {
         val zaak = zoekParameters.zaakUUID?.let { zrcClientService.readZaak(it) }
         return zoekParameters.informatieobjectUUIDs?.let {
