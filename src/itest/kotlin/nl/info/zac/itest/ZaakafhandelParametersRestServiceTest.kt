@@ -59,7 +59,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
                 productaanvraagType = PRODUCTAANVRAAG_TYPE_1
             )
             Then("the response should be ok") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
             }
@@ -78,7 +78,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
                 domein = DOMEIN_TEST_1
             )
             Then("the response should be ok") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
             }
@@ -88,7 +88,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
             )
             Then("the response should be ok and it should return the zaakafhandelparameters") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 with(responseBody) {
@@ -111,7 +111,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
             Then(
                 "the response should be ok and it should return the zaakafhandelparameters with the configured domein"
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
@@ -276,7 +276,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaakafhandelparameters/case-definitions"
             )
             Then("the response should be ok and it should return all available case definitions") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody shouldEqualJsonIgnoringOrder """
@@ -329,7 +329,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaakafhandelparameters/zaakbeeindigredenen"
             )
             Then("the response should be ok and it should return all available zaakbeeindigredenen") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody shouldEqualJsonIgnoringOrder """
@@ -355,7 +355,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaakafhandelparameters/formulierdefinities"
             )
             Then("the response should be ok and it should return all available formulierdefinities") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody shouldEqualJson """

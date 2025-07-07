@@ -1,4 +1,4 @@
--- SQL script that creates the 'Indienen aansprakelijkstelling door derden behandelen' zaaktype in the Open Zaak database
+-- SQL script that creates the 'BPMN Evenementen Vooroverleg' zaaktype in the Open Zaak database
 
 -- note that we currently use the public https://selectielijst.openzaak.nl/ VNG Selectielijst service here
 INSERT INTO catalogi_zaaktype
@@ -90,7 +90,6 @@ VALUES
 
 -- RESULTAATTYPES
 
--- For the first JSON object
 INSERT INTO catalogi_resultaattype
 (
   id,
@@ -144,7 +143,6 @@ VALUES
   NULL
 );
 
--- For the second JSON object
 INSERT INTO catalogi_resultaattype
 (
     id,
@@ -196,7 +194,6 @@ VALUES
     NULL
 );
 
--- For the third JSON object
 INSERT INTO catalogi_resultaattype
 (
   id,
@@ -248,7 +245,6 @@ VALUES
   NULL
 );
 
--- For the third JSON object
 INSERT INTO catalogi_resultaattype
 (
   id,
@@ -300,7 +296,6 @@ VALUES
   NULL
 );
 
--- For the fourth JSON object
 INSERT INTO catalogi_resultaattype
 (
   id,
@@ -354,6 +349,73 @@ VALUES
 
 
 -- STATUSTYPES
+
+INSERT INTO catalogi_statustype
+(
+    id,
+    uuid,
+    statustype_omschrijving,
+    statustype_omschrijving_generiek,
+    statustypevolgnummer,
+    informeren,
+    statustekst,
+    toelichting,
+    zaaktype_id,
+    _etag,
+    doorlooptijd,
+    datum_begin_geldigheid,
+    datum_einde_geldigheid
+)
+VALUES
+    (
+        (SELECT COALESCE(MAX(id),0) FROM catalogi_statustype) + 1, -- Adjust ID as needed
+        'ab965c9d-0e75-4df0-ab01-905ed3a37a3f', -- UUID
+        'Nieuw', -- Statustype Omschrijving
+        '', -- Statustype Omschrijving Generiek
+        1, -- Statustypevolgnummer
+        false, -- Informeren
+        '', -- Statustekst
+        '', -- Toelichting
+        (SELECT id FROM catalogi_zaaktype WHERE uuid = '8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a'), -- Zaaktype ID
+        '_etag', -- Placeholder
+        NULL,            -- doorlooptijd
+        NULL,            -- datum_begin_geldigheid
+        NULL             -- datum_einde_geldigheid
+    );
+
+INSERT INTO catalogi_statustype
+(
+    id,
+    uuid,
+    statustype_omschrijving,
+    statustype_omschrijving_generiek,
+    statustypevolgnummer,
+    informeren,
+    statustekst,
+    toelichting,
+    zaaktype_id,
+    _etag,
+    doorlooptijd,
+    datum_begin_geldigheid,
+    datum_einde_geldigheid
+)
+VALUES
+    (
+        (SELECT COALESCE(MAX(id),0) FROM catalogi_statustype) + 1, -- Adjust ID as needed
+        '4a87e507-1887-4b89-88cc-c646f949c8e2', -- UUID
+        'Heropend', -- Statustype Omschrijving
+        '', -- Statustype Omschrijving Generiek
+        2, -- Statustypevolgnummer
+        false, -- Informeren
+        '', -- Statustekst
+        '', -- Toelichting
+        (SELECT id FROM catalogi_zaaktype WHERE uuid = '8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a'), -- Zaaktype ID
+        '_etag', -- Placeholder
+        NULL,            -- doorlooptijd
+        NULL,            -- datum_begin_geldigheid
+        NULL             -- datum_einde_geldigheid
+    );
+
 INSERT INTO catalogi_statustype
 (
   id,
@@ -376,7 +438,7 @@ VALUES
   '775a2303-1c20-4642-93e7-d6c469e2e92c', -- UUID
   'In behandeling', -- Statustype Omschrijving
   '', -- Statustype Omschrijving Generiek
-  2, -- Statustypevolgnummer
+  3, -- Statustypevolgnummer
   false, -- Informeren
   '', -- Statustekst
   '', -- Toelichting
@@ -409,7 +471,7 @@ VALUES
         '7236e8cd-2a41-478c-b925-be94edaefbc1', -- UUID
         'Aanvulling vereist', -- Statustype Omschrijving
         '', -- Statustype Omschrijving Generiek
-        3, -- Statustypevolgnummer
+        4, -- Statustypevolgnummer
         false, -- Informeren
         '', -- Statustekst
         '', -- Toelichting
@@ -442,7 +504,7 @@ VALUES
         '8675fd2d-7a40-4f87-9532-afbbf70dc341', -- UUID
         'Advies gevraagd', -- Statustype Omschrijving
         '', -- Statustype Omschrijving Generiek
-        4, -- Statustypevolgnummer
+        5, -- Statustypevolgnummer
         false, -- Informeren
         '', -- Statustekst
         '', -- Toelichting
@@ -453,6 +515,38 @@ VALUES
         NULL             -- datum_einde_geldigheid
     );
 
+INSERT INTO catalogi_statustype
+(
+    id,
+    uuid,
+    statustype_omschrijving,
+    statustype_omschrijving_generiek,
+    statustypevolgnummer,
+    informeren,
+    statustekst,
+    toelichting,
+    zaaktype_id,
+    _etag,
+    doorlooptijd,
+    datum_begin_geldigheid,
+    datum_einde_geldigheid
+)
+VALUES
+    (
+        (SELECT COALESCE(MAX(id),0) FROM catalogi_statustype) + 1, -- Adjust ID as needed
+        'dcab3623-8e1e-4ad5-a967-3e364d96d7fa', -- UUID
+        'Afgehandeld', -- Statustype Omschrijving
+        '', -- Statustype Omschrijving Generiek
+        6, -- Statustypevolgnummer
+        false, -- Informeren
+        '', -- Statustekst
+        '', -- Toelichting
+        (SELECT id FROM catalogi_zaaktype WHERE uuid = '8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a'), -- Zaaktype ID
+        '_etag', -- Placeholder
+        NULL,            -- doorlooptijd
+        NULL,            -- datum_begin_geldigheid
+        NULL             -- datum_einde_geldigheid
+    );
 
 -- PROPERTIES (eigenschappen)
 -- no properties are defined for this zaaktype

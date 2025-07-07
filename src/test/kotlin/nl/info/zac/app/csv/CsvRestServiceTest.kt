@@ -18,12 +18,12 @@ import nl.info.zac.app.search.createZoekResultaatForZaakZoekObjecten
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.SearchService
 
-class CsvRESTServiceTest : BehaviorSpec({
+class CsvRestServiceTest : BehaviorSpec({
     val searchService = mockk<SearchService>()
     val restZoekParametersConverter = mockk<RestZoekParametersConverter>()
     val csvService = mockk<CsvService>()
     val policyService = mockk<PolicyService>()
-    val csvRESTService = CsvRESTService(
+    val csvRESTService = CsvRestService(
         searchService,
         restZoekParametersConverter,
         csvService,

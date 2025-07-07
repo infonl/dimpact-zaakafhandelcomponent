@@ -62,7 +62,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.body!!.string()).getInt("totaal") shouldBe TOTAL_COUNT_ZAKEN
+                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_ZAKEN
                 }
             }
         }
@@ -99,7 +99,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.body!!.string()).getInt("totaal") shouldBe TOTAL_COUNT_TASKS
+                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_TASKS
                 }
             }
         }
@@ -136,7 +136,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.body!!.string()).getInt("totaal") shouldBe TOTAL_COUNT_DOCUMENTS
+                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_DOCUMENTS
                 }
             }
         }

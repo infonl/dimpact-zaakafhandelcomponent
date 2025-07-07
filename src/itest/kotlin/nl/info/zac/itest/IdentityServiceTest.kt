@@ -47,7 +47,7 @@ class IdentityServiceTest : BehaviorSpec({
                 "all groups are returned"
             ) {
                 response.isSuccessful shouldBe true
-                response.body!!.string() shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
+                response.body.string() shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
             }
         }
     }
@@ -65,7 +65,7 @@ class IdentityServiceTest : BehaviorSpec({
                 "only those groups which have the domain role are returned"
             ) {
                 response.isSuccessful shouldBe true
-                response.body!!.string() shouldEqualSpecifiedJson """
+                response.body.string() shouldEqualSpecifiedJson """
                             [                               
                                 {
                                     "id": "$TEST_GROUP_DOMEIN_TEST_1_ID",
@@ -90,7 +90,7 @@ class IdentityServiceTest : BehaviorSpec({
                 "all groups are returned"
             ) {
                 response.isSuccessful shouldBe true
-                response.body!!.string() shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
+                response.body.string() shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
             }
         }
     }
@@ -101,7 +101,7 @@ class IdentityServiceTest : BehaviorSpec({
             )
             Then("All 8 specific users are returned") {
                 response.isSuccessful shouldBe true
-                response.body!!.string() shouldEqualSpecifiedJsonIgnoringOrder """
+                response.body.string() shouldEqualSpecifiedJsonIgnoringOrder """
                             [
                                 {
                                     "id": "$TEST_FUNCTIONAL_ADMIN_1_ID",
@@ -147,7 +147,7 @@ class IdentityServiceTest : BehaviorSpec({
             )
             Then("'testuser 1' and 'testuser 2' are returned") {
                 response.isSuccessful shouldBe true
-                response.body!!.string() shouldEqualJson """
+                response.body.string() shouldEqualJson """
                         [
                             {
                                 "id": "$TEST_USER_1_USERNAME",
@@ -169,7 +169,7 @@ class IdentityServiceTest : BehaviorSpec({
             )
             Then("both groups are returned") {
                 response.isSuccessful shouldBe true
-                response.body!!.string() shouldEqualSpecifiedJsonIgnoringOrder """
+                response.body.string() shouldEqualSpecifiedJsonIgnoringOrder """
                             {
                                 "id": "$TEST_USER_1_USERNAME",
                                 "naam": "$TEST_USER_1_NAME",

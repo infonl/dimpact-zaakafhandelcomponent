@@ -115,7 +115,7 @@ export class MedewerkerGroepComponent extends FormComponent implements OnInit {
         this.data.groep.updateValueAndValidity();
 
         const group = groups.find(
-          ({ id }) => id === this.data.groep.defaultValue.id,
+          ({ id }) => id === this.data.groep.defaultValue?.id,
         );
 
         this.data.groep.setValue(
