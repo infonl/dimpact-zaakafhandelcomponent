@@ -59,13 +59,7 @@ export class ZakenVerdelenDialogComponent {
   }
 
   isDisabled() {
-    const { groep, medewerker } = this.form.getRawValue();
-    return (
-      (!groep && !medewerker) ||
-      this.form.invalid ||
-      this.loading ||
-      !this.data.length
-    );
+    return this.form.invalid || this.loading || !this.data.length;
   }
 
   verdeel(): void {

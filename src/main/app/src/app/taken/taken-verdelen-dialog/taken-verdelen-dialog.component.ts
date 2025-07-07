@@ -64,13 +64,7 @@ export class TakenVerdelenDialogComponent {
   }
 
   isDisabled() {
-    const { groep, medewerker } = this.form.getRawValue();
-    return (
-      (!groep && !medewerker) ||
-      this.form.invalid ||
-      this.loading ||
-      !this.data.taken.length
-    );
+    return this.form.invalid || this.loading || !this.data.taken.length;
   }
 
   verdeel(): void {
