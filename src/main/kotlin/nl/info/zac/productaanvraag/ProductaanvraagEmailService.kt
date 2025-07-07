@@ -42,8 +42,7 @@ class ProductaanvraagEmailService @Inject constructor(
         zaak: Zaak,
         zaakafhandelParameters: ZaakafhandelParameters
     ) {
-        val automaticEmailConfirmation = zaakafhandelParameters.automaticEmailConfirmation
-        zaakafhandelParameters.automaticEmailConfirmation.let {
+        zaakafhandelParameters.automaticEmailConfirmation?.let { automaticEmailConfirmation ->
             val to = extractInitiatorEmail(zaak)
             val mailTemplate = mailTemplateService
                 .findMailtemplateByName(automaticEmailConfirmation.templateName)
