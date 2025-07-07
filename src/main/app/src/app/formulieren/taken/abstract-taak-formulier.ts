@@ -112,7 +112,7 @@ export abstract class AbstractTaakFormulier {
       });
     });
 
-    const bijlagen = this.getDataElement(AbstractTaakFormulier.BIJLAGEN_FIELD)
+    const bijlagen = this.getDataElement(AbstractTaakFormulier.BIJLAGEN_FIELD);
     const taakDocumenten$ = this.getTaakdocumentenEnBijlagen(bijlagen);
 
     this.form.push([
@@ -184,8 +184,9 @@ export abstract class AbstractTaakFormulier {
   private getTaakinformatie(formGroup: FormGroup) {
     return {
       uitkomst: formGroup.controls[this.taakinformatieMapping.uitkomst]?.value,
-      opmerking:
-      this.taakinformatieMapping.opmerking ? formGroup.controls[this.taakinformatieMapping.opmerking]?.value : undefined,
+      opmerking: this.taakinformatieMapping.opmerking
+        ? formGroup.controls[this.taakinformatieMapping.opmerking]?.value
+        : undefined,
       bijlagen: this.getDocumentInformatie(),
     } satisfies GeneratedType<"RestTask">["taakinformatie"];
   }
