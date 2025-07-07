@@ -42,6 +42,11 @@ public class MailTemplateService {
         return mailTemplate != null ? Optional.of(mailTemplate) : Optional.empty();
     }
 
+    public Optional<MailTemplate> findMailtemplateByName(final String mailTemplateName) {
+        final var mailTemplate = entityManager.find(MailTemplate.class, mailTemplateName);
+        return mailTemplate != null ? Optional.of(mailTemplate) : Optional.empty();
+    }
+
     public void delete(final Long id) {
         findMailtemplate(id).ifPresent(mailTemplate -> entityManager.remove(mailTemplate));
     }

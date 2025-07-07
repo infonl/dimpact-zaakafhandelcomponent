@@ -23,6 +23,7 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.mailtemplates.MailTemplateService
 import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
@@ -46,7 +47,6 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
-import nl.info.zac.app.klant.model.personen.toRestPersoon
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
@@ -55,6 +55,7 @@ import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
 import nl.info.zac.productaanvraag.exception.EmailAddressNotFoundException
 import nl.info.zac.productaanvraag.exception.InitiatorNotFoundException
+import nl.info.zac.productaanvraag.exception.MailTemplateNotFoundException
 import nl.info.zac.productaanvraag.exception.ProductaanvraagNotSupportedException
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Geometry
@@ -84,6 +85,7 @@ class ProductaanvraagService @Inject constructor(
     private val identityService: IdentityService,
     private val zaakService: ZaakService,
     private val mailService: MailService,
+    private val mailTemplateService: MailTemplateService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val zaakafhandelParameterBeheerService: ZaakafhandelParameterBeheerService,
     private val inboxDocumentenService: InboxDocumentenService,
@@ -565,17 +567,22 @@ class ProductaanvraagService @Inject constructor(
         assignZaak(createdZaak, zaakafhandelParameters)
         addInitiatorAndBetrokkenenToZaak(productaanvraag, createdZaak)
         cmmnService.startCase(createdZaak, zaaktype, zaakafhandelParameters, formulierData)
-
-        val to = extractEmail(extractIdentificatie(createdZaak))
-
         val automaticEmailConfirmation = zaakafhandelParameters.automaticEmailConfirmation
-        if (automaticEmailConfirmation.enabled) {
-                val mailGegevens = MailGegevens(
+        zaakafhandelParameters.automaticEmailConfirmation.let {
+            val to = extractInitiatorEmail(createdZaak)
+            val mailTemplate = mailTemplateService
+                .findMailtemplateByName(automaticEmailConfirmation.templateName)
+                .orElseThrow {
+                    MailTemplateNotFoundException("No mail template found with name: " +
+                            automaticEmailConfirmation.templateName
+                    )
+                }
+            val mailGegevens = MailGegevens(
                     MailAdres(automaticEmailConfirmation.emailSender, null),
                     MailAdres(to, null),
                     MailAdres(automaticEmailConfirmation.emailReply, null),
-                    automaticEmailConfirmation.templateName.onderwerp,
-                    restMailGegevens.body,
+                    mailTemplate.onderwerp,
+                    mailTemplate.body,
                     null,
                     true
                 )
@@ -584,22 +591,25 @@ class ProductaanvraagService @Inject constructor(
         }
     }
 
-    private fun extractIdentificatie(createdZaak: Zaak): String {
-        return when(val initiator = zaakService.getInitiatorFromZaak(createdZaak)) {
-            is MedewerkerIdentificatie -> { initiator.identificatie }
-            is NatuurlijkPersoonIdentificatie -> initiator.anpIdentificatie
-            is NietNatuurlijkPersoonIdentificatie -> initiator.annIdentificatie
-            is OrganisatorischeEenheidIdentificatie -> initiator.identificatie
+    private fun extractInitiatorEmail(createdZaak: Zaak): String {
+        val identificatie = zgwApiService.findInitiatorRoleForZaak(createdZaak)?.betrokkeneIdentificatie
+            ?: throw InitiatorNotFoundException("No initiator or identification found for the zaak: " +
+                    createdZaak.uuid)
+        return when(identificatie) {
+            is MedewerkerIdentificatie -> extractEmail(identificatie.identificatie)
+            is NatuurlijkPersoonIdentificatie -> extractEmail(identificatie.anpIdentificatie)
+            is NietNatuurlijkPersoonIdentificatie -> extractEmail(identificatie.annIdentificatie)
+            is OrganisatorischeEenheidIdentificatie -> extractEmail(identificatie.identificatie)
             else ->
-                throw InitiatorNotFoundException("Initiator is not attached to the zaak.")
+                throw InitiatorNotFoundException("Unknown initiator type attached to the zaak-'${createdZaak.uuid}'.")
         }
     }
 
-    private fun extractEmail(identificatie: String): String {
-        return klantClientService.findDigitalAddressesByNumber(identificatie)
+    private fun extractEmail(identification: String): String {
+        return klantClientService.findDigitalAddressesByNumber(identification)
             .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
             ?.adres
-            ?: throw EmailAddressNotFoundException("No e-mail address found for identificatie: $identificatie")
+            ?: throw EmailAddressNotFoundException("No e-mail address found for identificatie: $identification")
     }
 
     private fun generateZaakExplanationFromProductaanvraag(productaanvraag: ProductaanvraagDimpact): String =
