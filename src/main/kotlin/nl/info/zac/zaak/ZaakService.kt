@@ -99,6 +99,14 @@ class ZaakService @Inject constructor(
         )
     }
 
+    fun getInitiatorFromZaak(zaak: Zaak): Any? {
+        val roleType = ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
+        return zrcClientService.listRollen(zaak)
+            .filter { it.roltype == roleType.url }
+            .map { it.betrokkeneIdentificatie }
+            .firstOrNull()
+    }
+
     /**
      * Assigns a list of zaken to a group and/or user and updates the search index on the fly.
      * This can be a long-running operation.

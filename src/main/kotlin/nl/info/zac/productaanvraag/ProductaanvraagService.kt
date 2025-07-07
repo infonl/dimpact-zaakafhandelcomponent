@@ -8,6 +8,8 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
+import net.atos.client.klant.KlantClientService
+import net.atos.client.klant.model.SoortDigitaalAdresEnum
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.Rol
@@ -21,6 +23,7 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
 import net.atos.zac.productaanvraag.util.BetalingStatusEnumJsonAdapter
@@ -43,9 +46,15 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
+import nl.info.zac.app.klant.model.personen.toRestPersoon
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.mail.MailService
+import nl.info.zac.mail.model.MailAdres
+import nl.info.zac.mail.model.getBronnenFromZaak
+import nl.info.zac.productaanvraag.exception.EmailAddressNotFoundException
+import nl.info.zac.productaanvraag.exception.InitiatorNotFoundException
 import nl.info.zac.productaanvraag.exception.ProductaanvraagNotSupportedException
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Geometry
@@ -53,6 +62,7 @@ import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
 import nl.info.zac.productaanvraag.util.toGeoJSONGeometry
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.zaak.ZaakService
 import java.net.URI
 import java.util.UUID
 import java.util.logging.Level
@@ -70,7 +80,10 @@ class ProductaanvraagService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val drcClientService: DrcClientService,
     private val ztcClientService: ZtcClientService,
+    private val klantClientService: KlantClientService,
     private val identityService: IdentityService,
+    private val zaakService: ZaakService,
+    private val mailService: MailService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val zaakafhandelParameterBeheerService: ZaakafhandelParameterBeheerService,
     private val inboxDocumentenService: InboxDocumentenService,
@@ -552,6 +565,41 @@ class ProductaanvraagService @Inject constructor(
         assignZaak(createdZaak, zaakafhandelParameters)
         addInitiatorAndBetrokkenenToZaak(productaanvraag, createdZaak)
         cmmnService.startCase(createdZaak, zaaktype, zaakafhandelParameters, formulierData)
+
+        val to = extractEmail(extractIdentificatie(createdZaak))
+
+        val automaticEmailConfirmation = zaakafhandelParameters.automaticEmailConfirmation
+        if (automaticEmailConfirmation.enabled) {
+                val mailGegevens = MailGegevens(
+                    MailAdres(automaticEmailConfirmation.emailSender, null),
+                    MailAdres(to, null),
+                    MailAdres(automaticEmailConfirmation.emailReply, null),
+                    automaticEmailConfirmation.templateName.onderwerp,
+                    restMailGegevens.body,
+                    null,
+                    true
+                )
+                mailService.sendMail(mailGegevens, createdZaak.getBronnenFromZaak())
+                zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(createdZaak)
+        }
+    }
+
+    private fun extractIdentificatie(createdZaak: Zaak): String {
+        return when(val initiator = zaakService.getInitiatorFromZaak(createdZaak)) {
+            is MedewerkerIdentificatie -> { initiator.identificatie }
+            is NatuurlijkPersoonIdentificatie -> initiator.anpIdentificatie
+            is NietNatuurlijkPersoonIdentificatie -> initiator.annIdentificatie
+            is OrganisatorischeEenheidIdentificatie -> initiator.identificatie
+            else ->
+                throw InitiatorNotFoundException("Initiator is not attached to the zaak.")
+        }
+    }
+
+    private fun extractEmail(identificatie: String): String {
+        return klantClientService.findDigitalAddressesByNumber(identificatie)
+            .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
+            ?.adres
+            ?: throw EmailAddressNotFoundException("No e-mail address found for identificatie: $identificatie")
     }
 
     private fun generateZaakExplanationFromProductaanvraag(productaanvraag: ProductaanvraagDimpact): String =

@@ -46,6 +46,7 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.test.util.createRandomStringWithAlphanumericCharacters
+import nl.info.zac.zaak.ZaakService
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
@@ -58,6 +59,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val identityService = mockk<IdentityService>()
+    val zaakService = mockk<ZaakService>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val zaakafhandelParameterBeheerService = mockk<ZaakafhandelParameterBeheerService>()
     val inboxDocumentenService = mockk<InboxDocumentenService>()
@@ -71,6 +73,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         drcClientService = drcClientService,
         ztcClientService = ztcClientService,
         identityService = identityService,
+        zaakService = zaakService,
         zaakafhandelParameterService = zaakafhandelParameterService,
         zaakafhandelParameterBeheerService = zaakafhandelParameterBeheerService,
         inboxDocumentenService = inboxDocumentenService,
