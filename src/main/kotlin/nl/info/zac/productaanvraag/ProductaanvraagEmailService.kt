@@ -48,8 +48,8 @@ class ProductaanvraagEmailService @Inject constructor(
             val mailTemplate = mailTemplateService
                 .findMailtemplateByName(automaticEmailConfirmation.templateName)
                 .orElseThrow {
-                    MailTemplateNotFoundException("No mail template found with name: " +
-                            automaticEmailConfirmation.templateName
+                    MailTemplateNotFoundException(
+                        "No mail template found with name: '$automaticEmailConfirmation.templateName'"
                     )
                 }
             val mailGegevens = MailGegevens(
@@ -68,9 +68,10 @@ class ProductaanvraagEmailService @Inject constructor(
 
     private fun extractInitiatorEmail(createdZaak: Zaak): String {
         val identificatie = zgwApiService.findInitiatorRoleForZaak(createdZaak)?.betrokkeneIdentificatie
-            ?: throw InitiatorNotFoundException("No initiator or identification found for the zaak: " +
-                    createdZaak.uuid)
-        return when(identificatie) {
+            ?: throw InitiatorNotFoundException(
+                "No initiator or identification found for the zaak: '$createdZaak.uuid'"
+            )
+        return when (identificatie) {
             is MedewerkerIdentificatie -> extractEmail(identificatie.identificatie)
             is NatuurlijkPersoonIdentificatie -> extractEmail(identificatie.anpIdentificatie)
             is NietNatuurlijkPersoonIdentificatie -> extractEmail(identificatie.annIdentificatie)
