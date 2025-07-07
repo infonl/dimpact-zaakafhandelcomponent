@@ -553,7 +553,7 @@ class ProductaanvraagService @Inject constructor(
         assignZaak(createdZaak, zaakafhandelParameters)
         addInitiatorAndBetrokkenenToZaak(productaanvraag, createdZaak)
         cmmnService.startCase(createdZaak, zaaktype, zaakafhandelParameters, formulierData)
-        productaanvraagEmailService.sendEmailForProductaanvraag(createdZaak, zaakafhandelParameters)
+        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(createdZaak, zaakafhandelParameters)
     }
 
     private fun generateZaakExplanationFromProductaanvraag(productaanvraag: ProductaanvraagDimpact): String =

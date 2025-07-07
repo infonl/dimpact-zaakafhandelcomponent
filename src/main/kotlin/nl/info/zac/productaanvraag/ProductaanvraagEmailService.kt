@@ -38,17 +38,17 @@ class ProductaanvraagEmailService @Inject constructor(
     private val mailService: MailService,
     private val mailTemplateService: MailTemplateService,
 ) {
-    fun sendEmailForProductaanvraag(
-        zaak: Zaak,
+    fun sendEmailForZaakFromProductaanvraag(
+        zaakFromProductaanvraag: Zaak,
         zaakafhandelParameters: ZaakafhandelParameters
     ) {
-        zaakafhandelParameters.automaticEmailConfirmation?.let { automaticEmailConfirmation ->
-            val to = extractInitiatorEmail(zaak)
+        zaakafhandelParameters.automaticEmailConfirmation?.takeIf { it.enabled }?.let { automaticEmailConfirmation ->
+            val to = extractInitiatorEmail(zaakFromProductaanvraag)
             val mailTemplate = mailTemplateService
                 .findMailtemplateByName(automaticEmailConfirmation.templateName)
                 .orElseThrow {
                     MailTemplateNotFoundException(
-                        "No mail template found with name: '$automaticEmailConfirmation.templateName'"
+                        "No mail template found with name: '${automaticEmailConfirmation.templateName}'"
                     )
                 }
             val mailGegevens = MailGegevens(
@@ -60,15 +60,15 @@ class ProductaanvraagEmailService @Inject constructor(
                 null,
                 true
             )
-            mailService.sendMail(mailGegevens, zaak.getBronnenFromZaak())
-            zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
+            mailService.sendMail(mailGegevens, zaakFromProductaanvraag.getBronnenFromZaak())
+            zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaakFromProductaanvraag)
         }
     }
 
     private fun extractInitiatorEmail(createdZaak: Zaak): String {
         val identificatie = zgwApiService.findInitiatorRoleForZaak(createdZaak)?.betrokkeneIdentificatie
             ?: throw InitiatorNotFoundException(
-                "No initiator or identification found for the zaak: '$createdZaak.uuid'"
+                "No initiator rol or identification found for the zaak: '${createdZaak.uuid}'"
             )
         return when (identificatie) {
             is MedewerkerIdentificatie -> extractEmail(identificatie.identificatie)
