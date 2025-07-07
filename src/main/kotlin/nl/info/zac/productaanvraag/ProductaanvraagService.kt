@@ -8,8 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
-import net.atos.client.klant.KlantClientService
-import net.atos.client.klant.model.SoortDigitaalAdresEnum
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.Rol
@@ -23,8 +21,6 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.mailtemplates.MailTemplateService
-import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
 import net.atos.zac.productaanvraag.util.BetalingStatusEnumJsonAdapter
@@ -50,12 +46,6 @@ import nl.info.zac.admin.ZaakafhandelParameterBeheerService
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
-import nl.info.zac.mail.MailService
-import nl.info.zac.mail.model.MailAdres
-import nl.info.zac.mail.model.getBronnenFromZaak
-import nl.info.zac.productaanvraag.exception.EmailAddressNotFoundException
-import nl.info.zac.productaanvraag.exception.InitiatorNotFoundException
-import nl.info.zac.productaanvraag.exception.MailTemplateNotFoundException
 import nl.info.zac.productaanvraag.exception.ProductaanvraagNotSupportedException
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Geometry
@@ -63,7 +53,6 @@ import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
 import nl.info.zac.productaanvraag.util.toGeoJSONGeometry
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.zaak.ZaakService
 import java.net.URI
 import java.util.UUID
 import java.util.logging.Level
@@ -81,15 +70,12 @@ class ProductaanvraagService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val drcClientService: DrcClientService,
     private val ztcClientService: ZtcClientService,
-    private val klantClientService: KlantClientService,
     private val identityService: IdentityService,
-    private val zaakService: ZaakService,
-    private val mailService: MailService,
-    private val mailTemplateService: MailTemplateService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val zaakafhandelParameterBeheerService: ZaakafhandelParameterBeheerService,
     private val inboxDocumentenService: InboxDocumentenService,
     private val inboxProductaanvraagService: InboxProductaanvraagService,
+    private val productaanvraagEmailService: ProductaanvraagEmailService,
     private val cmmnService: CMMNService,
     private val configuratieService: ConfiguratieService
 ) {
@@ -567,49 +553,7 @@ class ProductaanvraagService @Inject constructor(
         assignZaak(createdZaak, zaakafhandelParameters)
         addInitiatorAndBetrokkenenToZaak(productaanvraag, createdZaak)
         cmmnService.startCase(createdZaak, zaaktype, zaakafhandelParameters, formulierData)
-        val automaticEmailConfirmation = zaakafhandelParameters.automaticEmailConfirmation
-        zaakafhandelParameters.automaticEmailConfirmation.let {
-            val to = extractInitiatorEmail(createdZaak)
-            val mailTemplate = mailTemplateService
-                .findMailtemplateByName(automaticEmailConfirmation.templateName)
-                .orElseThrow {
-                    MailTemplateNotFoundException("No mail template found with name: " +
-                            automaticEmailConfirmation.templateName
-                    )
-                }
-            val mailGegevens = MailGegevens(
-                    MailAdres(automaticEmailConfirmation.emailSender, null),
-                    MailAdres(to, null),
-                    MailAdres(automaticEmailConfirmation.emailReply, null),
-                    mailTemplate.onderwerp,
-                    mailTemplate.body,
-                    null,
-                    true
-                )
-                mailService.sendMail(mailGegevens, createdZaak.getBronnenFromZaak())
-                zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(createdZaak)
-        }
-    }
-
-    private fun extractInitiatorEmail(createdZaak: Zaak): String {
-        val identificatie = zgwApiService.findInitiatorRoleForZaak(createdZaak)?.betrokkeneIdentificatie
-            ?: throw InitiatorNotFoundException("No initiator or identification found for the zaak: " +
-                    createdZaak.uuid)
-        return when(identificatie) {
-            is MedewerkerIdentificatie -> extractEmail(identificatie.identificatie)
-            is NatuurlijkPersoonIdentificatie -> extractEmail(identificatie.anpIdentificatie)
-            is NietNatuurlijkPersoonIdentificatie -> extractEmail(identificatie.annIdentificatie)
-            is OrganisatorischeEenheidIdentificatie -> extractEmail(identificatie.identificatie)
-            else ->
-                throw InitiatorNotFoundException("Unknown initiator type attached to the zaak-'${createdZaak.uuid}'.")
-        }
-    }
-
-    private fun extractEmail(identification: String): String {
-        return klantClientService.findDigitalAddressesByNumber(identification)
-            .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
-            ?.adres
-            ?: throw EmailAddressNotFoundException("No e-mail address found for identificatie: $identification")
+        productaanvraagEmailService.sendEmailForProductaanvraag(createdZaak, zaakafhandelParameters)
     }
 
     private fun generateZaakExplanationFromProductaanvraag(productaanvraag: ProductaanvraagDimpact): String =

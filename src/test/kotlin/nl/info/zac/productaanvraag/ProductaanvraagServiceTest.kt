@@ -14,7 +14,6 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.client.klant.KlantClientService
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.or.`object`.model.createObjectRecord
@@ -24,7 +23,6 @@ import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.mailtemplates.MailTemplateService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
 import nl.info.client.kvk.model.createRandomVestigingsNumber
@@ -46,10 +44,8 @@ import nl.info.zac.admin.model.createBetrokkeneKoppelingen
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
-import nl.info.zac.mail.MailService
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.test.util.createRandomStringWithAlphanumericCharacters
-import nl.info.zac.zaak.ZaakService
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
@@ -61,15 +57,12 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val drcClientService = mockk<DrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
-    val klantClientService = mockk<KlantClientService>()
     val identityService = mockk<IdentityService>()
-    val zaakService = mockk<ZaakService>()
-    val mailService = mockk<MailService>()
-    val mailTemplateService = mockk<MailTemplateService>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val zaakafhandelParameterBeheerService = mockk<ZaakafhandelParameterBeheerService>()
     val inboxDocumentenService = mockk<InboxDocumentenService>()
     val inboxProductaanvraagService = mockk<InboxProductaanvraagService>()
+    val productaanvraagEmailService = mockk<ProductaanvraagEmailService>()
     val cmmnService = mockk<CMMNService>()
     val configuratieService = mockk<ConfiguratieService>()
     val productaanvraagService = ProductaanvraagService(
@@ -78,15 +71,12 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         zrcClientService = zrcClientService,
         drcClientService = drcClientService,
         ztcClientService = ztcClientService,
-        klantClientService = klantClientService,
         identityService = identityService,
-        zaakService = zaakService,
-        mailService = mailService,
-        mailTemplateService = mailTemplateService,
         zaakafhandelParameterService = zaakafhandelParameterService,
         zaakafhandelParameterBeheerService = zaakafhandelParameterBeheerService,
         inboxDocumentenService = inboxDocumentenService,
         inboxProductaanvraagService = inboxProductaanvraagService,
+        productaanvraagEmailService = productaanvraagEmailService,
         cmmnService = cmmnService,
         configuratieService = configuratieService
     )
