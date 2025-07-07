@@ -807,6 +807,12 @@ class ZaakRestService @Inject constructor(
         return zaakHistoryService.getZaakHistory(zaakUUID)
     }
 
+    /**
+     * Returns the list of betrokkenen for a given zaak.
+     *
+     * We do filter out roles that do not have a [Rol.betrokkeneIdentificatie], which is technically possible in the ZGW API
+     * but for our purposes are invalid/incomplete roles.
+     */
     @GET
     @Path("zaak/{uuid}/betrokkene")
     fun listBetrokkenenVoorZaak(@PathParam("uuid") zaakUUID: UUID): List<RestZaakBetrokkene> {
