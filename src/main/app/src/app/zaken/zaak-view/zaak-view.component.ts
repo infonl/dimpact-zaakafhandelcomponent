@@ -57,7 +57,6 @@ import { Taak } from "../../taken/model/taak";
 import { TaakStatus } from "../../taken/model/taak-status.enum";
 import { TakenService } from "../../taken/taken.service";
 import { IntakeAfrondenDialogComponent } from "../intake-afronden-dialog/intake-afronden-dialog.component";
-import { ZaakBetrokkene } from "../model/zaak-betrokkene";
 import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZaakOntkoppelenDialogComponent } from "../zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
@@ -1161,7 +1160,7 @@ export class ZaakViewComponent
       });
   }
 
-  deleteBetrokkene(betrokkene: ZaakBetrokkene): void {
+  deleteBetrokkene(betrokkene: GeneratedType<"RestZaakBetrokkene">): void {
     this.websocketService.suspendListener(this.zaakRollenListener);
     const betrokkeneIdentificatie: string =
       betrokkene.roltype + " " + betrokkene.identificatie;
@@ -1363,7 +1362,9 @@ export class ZaakViewComponent
   }
 
   betrokkeneGegevensOphalen(
-    betrokkene: ZaakBetrokkene & { gegevens?: string | null },
+    betrokkene: GeneratedType<"RestZaakBetrokkene"> & {
+      gegevens?: string | null;
+    },
   ): void {
     betrokkene["gegevens"] = "LOADING";
     switch (betrokkene.type) {
