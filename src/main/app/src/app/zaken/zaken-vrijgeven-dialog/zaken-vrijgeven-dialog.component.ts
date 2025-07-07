@@ -4,8 +4,8 @@
  */
 
 import { Component, Inject } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZakenService } from "../zaken.service";
 
@@ -15,16 +15,18 @@ import { ZakenService } from "../zaken.service";
 })
 export class ZakenVrijgevenDialogComponent {
   loading = false;
-  redenFormField = new InputFormFieldBuilder()
-    .id("reden")
-    .label("reden")
-    .maxlength(100)
-    .build();
+
+  protected readonly form = this.formBuilder.group({
+    reden: this.formBuilder.control<string | null>(null, [
+      Validators.maxLength(100),
+    ]),
+  });
 
   constructor(
-    public dialogRef: MatDialogRef<ZakenVrijgevenDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ZaakZoekObject[],
-    private zakenService: ZakenService,
+    public readonly dialogRef: MatDialogRef<ZakenVrijgevenDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public readonly data: ZaakZoekObject[],
+    private readonly zakenService: ZakenService,
+    private readonly formBuilder: FormBuilder,
   ) {}
 
   close(): void {
@@ -32,7 +34,6 @@ export class ZakenVrijgevenDialogComponent {
   }
 
   vrijgeven() {
-    this.redenFormField.readonly = true;
     this.dialogRef.disableClose = true;
     this.loading = true;
     this.zakenService
@@ -42,7 +43,7 @@ export class ZakenVrijgevenDialogComponent {
             ({ behandelaarGebruikersnaam }) => !!behandelaarGebruikersnaam,
           )
           .map(({ id }) => id),
-        reden: this.redenFormField.formControl.value,
+        reden: this.form.value.reden,
       })
       .subscribe(() => {
         this.dialogRef.close(true);

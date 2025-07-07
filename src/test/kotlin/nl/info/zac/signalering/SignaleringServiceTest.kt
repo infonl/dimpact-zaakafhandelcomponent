@@ -39,7 +39,7 @@ import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.zac.app.shared.RestPageParameters
+import nl.info.zac.app.signalering.model.RestSignaleringPageParameters
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.model.createRESTZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
@@ -173,7 +173,7 @@ class SignaleringServiceTest : BehaviorSpec({
         val restZaakOverzicht = createRESTZaakOverzicht()
         val pageNumber = 0
         val pageSize = 5
-        val restPageParameters = RestPageParameters(pageNumber, pageSize)
+        val restPageParameters = RestSignaleringPageParameters(pageNumber, pageSize)
 
         every { loggedInUserInstance.get() } returns user
         every { user.id } returns id

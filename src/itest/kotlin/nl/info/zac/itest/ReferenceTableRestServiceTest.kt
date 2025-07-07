@@ -49,7 +49,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """the provisioned default reference tables are returned"""
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 with(responseBody) {
@@ -120,7 +120,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """an empty list should be returned since we do not provision any default afzenders"""
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 JSONArray(responseBody).length() shouldBe 0
@@ -133,7 +133,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """the provisioned default communicatiekanalen are returned including 'E-formulier'"""
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 with(JSONObject(responseBody).toString()) {
@@ -168,7 +168,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """the provisioned default communicatiekanalen are returned including 'E-formulier'"""
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 with(JSONArray(responseBody)) {
@@ -195,7 +195,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """no domeinen should be returned because none are provisioned"""
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 with(JSONObject(responseBody).toString()) {
@@ -221,7 +221,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """the provisioned default domeinen are returned"""
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 with(JSONArray(responseBody)) {
@@ -237,7 +237,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """an empty list should be returned since we do not provision any default server error texts"""
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 JSONArray(responseBody).length() shouldBe 0
@@ -254,7 +254,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response should be 'ok'") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 with(JSONObject(responseBody).toString()) {
@@ -280,7 +280,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """the provisioned default server error texts are returned including the added 'test'"""
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 with(JSONArray(responseBody)) {
@@ -304,7 +304,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response should be 'ok'") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 with(JSONObject(responseBody).toString()) {
@@ -339,7 +339,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response should be 'ok' and should return the created reference table with code in uppercase") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 with(JSONObject(responseBody).toString()) {

@@ -45,7 +45,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/planitems/zaak/$zaakProductaanvraag1Uuid/humanTaskPlanItems"
             )
             Then("the list of human task plan items for this zaak contains the task 'aanvullende informatie'") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody.shouldBeJsonArray()
@@ -69,7 +69,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/planitems/humanTaskPlanItem/$humanTaskItemAanvullendeInformatieId"
             )
             Then("the human task plan item data for this task is returned") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 with(responseBody) {
@@ -99,7 +99,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("a task is started for this zaak") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
 
                 response.isSuccessful shouldBe true
@@ -110,7 +110,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             val newAdditionalTaskInfoResponse = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/planitems/zaak/$zaakProductaanvraag1Uuid/humanTaskPlanItems"
             )
-            val newAdditionalTaskInfoResponseBody = newAdditionalTaskInfoResponse.body!!.string()
+            val newAdditionalTaskInfoResponseBody = newAdditionalTaskInfoResponse.body.string()
             logger.info { "Response: $newAdditionalTaskInfoResponseBody" }
             newAdditionalTaskInfoResponse.isSuccessful shouldBe true
             val newAdditionalInfoTaskId = JSONArray(newAdditionalTaskInfoResponseBody).getJSONObject(0).getString("id")
@@ -131,7 +131,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             )
 
             Then("a new task is started for this zaak") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
 
                 response.isSuccessful shouldBe true
@@ -139,7 +139,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
             And("zaak fatal date is moved forward to correspond to the task fatal date") {
                 val zacResponse = zacClient.retrieveZaak(zaakProductaanvraag1Uuid)
-                val responseBody = zacResponse.body!!.string()
+                val responseBody = zacResponse.body.string()
                 logger.info { "Response: $responseBody" }
 
                 with(zacResponse) {

@@ -65,14 +65,14 @@ export class ZakenWerkvoorraadComponent
   expandedRow: ZaakZoekObject | null = null;
   readonly zoekenColumn = ZoekenColumn;
 
-  einddatumGeplandIcon: TextIcon = new TextIcon(
+  einddatumGeplandIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
     "report_problem",
     "warningVerlopen_icon",
     "msg.datum.overschreden",
     "warning",
   );
-  uiterlijkeEinddatumAfdoeningIcon: TextIcon = new TextIcon(
+  uiterlijkeEinddatumAfdoeningIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
     "report_problem",
     "errorVerlopen_icon",
@@ -287,9 +287,11 @@ export class ZakenWerkvoorraadComponent
           this.indexService.commitPendingChangesToSearchIndex(),
         ).then(() => {
           this.selection.clear();
-          this.dataSource.load();
-          this.zakenLoading.set(false);
-          this.batchProcessService.stop();
+          setTimeout(() => {
+            this.dataSource.load();
+            this.zakenLoading.set(false);
+            this.batchProcessService.stop();
+          }, 1_000); // Arbitrary wait for the backend to fully process the changes before reloading the data
         }),
     });
 
@@ -303,7 +305,17 @@ export class ZakenWerkvoorraadComponent
         return;
       }
 
-      this.toekenning = result;
+      if (!release) {
+        this.toekenning = result;
+        const notChanged = zaken
+          .filter(
+            (x) =>
+              this.toekenning?.groep?.id === x.groepId &&
+              this.toekenning.medewerker?.id === x.behandelaarGebruikersnaam,
+          )
+          .map(({ id }) => id);
+        this.batchProcessService.update(notChanged);
+      }
       this.zakenLoading.set(true);
       const message =
         zaken.length === 1
@@ -321,14 +333,6 @@ export class ZakenWerkvoorraadComponent
           this.utilService.openSnackbar("msg.error.timeout");
         },
       });
-      const notChanged = zaken
-        .filter(
-          (x) =>
-            this.toekenning?.groep?.id === x.groepId &&
-            this.toekenning.medewerker?.id === x.behandelaarGebruikersnaam,
-        )
-        .map(({ id }) => id);
-      this.batchProcessService.update(notChanged);
     });
   }
 

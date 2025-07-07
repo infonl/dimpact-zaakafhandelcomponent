@@ -4,8 +4,8 @@
  */
 
 import { Component, Inject } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenService } from "../taken.service";
 
@@ -16,20 +16,22 @@ import { TakenService } from "../taken.service";
 })
 export class TakenVrijgevenDialogComponent {
   loading = false;
-  redenFormField = new InputFormFieldBuilder()
-    .id("reden")
-    .label("reden")
-    .maxlength(100)
-    .build();
+
+  protected readonly form = this.formBuilder.group({
+    reden: this.formBuilder.control<string | null>(null, [
+      Validators.maxLength(100),
+    ]),
+  });
 
   constructor(
-    public dialogRef: MatDialogRef<TakenVrijgevenDialogComponent>,
+    public readonly dialogRef: MatDialogRef<TakenVrijgevenDialogComponent>,
     @Inject(MAT_DIALOG_DATA)
-    public data: {
+    public readonly data: {
       taken: TaakZoekObject[];
       screenEventResourceId: string;
     },
-    private takenService: TakenService,
+    private readonly takenService: TakenService,
+    private readonly formBuilder: FormBuilder,
   ) {}
 
   close() {
@@ -37,13 +39,11 @@ export class TakenVrijgevenDialogComponent {
   }
 
   vrijgeven() {
-    this.redenFormField.readonly = true;
     this.dialogRef.disableClose = true;
     this.loading = true;
-    const reden = this.redenFormField.formControl.value;
     this.takenService
       .vrijgevenVanuitLijst({
-        reden,
+        reden: this.form.value.reden,
         screenEventResourceId: this.data.screenEventResourceId,
         taken: this.data.taken
           .filter(
@@ -55,7 +55,7 @@ export class TakenVrijgevenDialogComponent {
           })),
       })
       .subscribe(() => {
-        this.dialogRef.close(reden);
+        this.dialogRef.close(true);
       });
   }
 }
