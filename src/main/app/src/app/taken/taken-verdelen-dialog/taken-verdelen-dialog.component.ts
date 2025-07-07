@@ -4,12 +4,12 @@
  */
 
 import { Component, Inject } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenService } from "../taken.service";
-import {FormBuilder, Validators} from "@angular/forms";
-import {IdentityService} from "../../identity/identity.service";
 
 @Component({
   selector: "zac-taken-verdelen-dialog",
@@ -20,9 +20,11 @@ export class TakenVerdelenDialogComponent {
   loading = false;
 
   protected readonly form = this.formBuilder.group({
-    groep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [Validators.required]),
+    groep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [
+      Validators.required,
+    ]),
     medewerker: this.formBuilder.control<GeneratedType<"RestUser"> | null>(
-        null,
+      null,
     ),
     reden: this.formBuilder.control<string | null>(null, [
       Validators.maxLength(100),
@@ -64,10 +66,10 @@ export class TakenVerdelenDialogComponent {
   isDisabled() {
     const { groep, medewerker } = this.form.getRawValue();
     return (
-        (!groep && !medewerker) ||
-        this.form.invalid ||
-        this.loading ||
-        !this.data.taken.length
+      (!groep && !medewerker) ||
+      this.form.invalid ||
+      this.loading ||
+      !this.data.taken.length
     );
   }
 
@@ -76,16 +78,15 @@ export class TakenVerdelenDialogComponent {
     this.loading = true;
     this.takenService
       .verdelenVanuitLijst({
-            taken: this.data.taken.map(({ id, zaakUuid }) => ({
-              taakId: id,
-              zaakUuid
-            })),
+        taken: this.data.taken.map(({ id, zaakUuid }) => ({
+          taakId: id,
+          zaakUuid,
+        })),
         behandelaarGebruikersnaam: this.form.value.medewerker?.id,
         reden: this.form.value.reden ?? "",
         groepId: this.form.value.groep!.id,
         screenEventResourceId: this.data.screenEventResourceId,
-       }
-      )
+      })
       .subscribe(() => {
         this.dialogRef.close(this.form.value);
       });

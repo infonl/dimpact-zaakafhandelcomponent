@@ -300,7 +300,6 @@ export class ZakenWerkvoorraadComponent
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      console.log("Dialog closed with result:", result);
       if (!result) {
         this.batchProcessService.stop();
         return;
