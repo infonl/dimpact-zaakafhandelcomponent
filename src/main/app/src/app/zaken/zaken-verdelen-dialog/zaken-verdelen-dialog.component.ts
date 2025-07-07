@@ -4,10 +4,9 @@
  */
 
 import { Component, Inject } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
-import { MaterialFormBuilderService } from "../../shared/material-form-builder/material-form-builder.service";
+import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZakenService } from "../zaken.service";
@@ -17,56 +16,65 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./zaken-verdelen-dialog.component.less"],
 })
 export class ZakenVerdelenDialogComponent {
-  medewerkerGroepFormField = new MedewerkerGroepFieldBuilder()
-    .id("toekenning")
-    .groepLabel("actie.zaak.toekennen.groep")
-    .medewerkerLabel("actie.zaak.toekennen.medewerker")
-    .build();
-  redenFormField = new InputFormFieldBuilder()
-    .id("reden")
-    .label("reden")
-    .maxlength(100)
-    .build();
   loading = false;
 
+  protected readonly form = this.formBuilder.group({
+    groep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [
+      Validators.required,
+    ]),
+    medewerker: this.formBuilder.control<GeneratedType<"RestUser"> | null>(
+      null,
+    ),
+    reden: this.formBuilder.control<string | null>(null, [
+      Validators.maxLength(100),
+    ]),
+  });
+
+  protected groups = this.identityService.listGroups();
+  protected users: GeneratedType<"RestUser">[] = [];
+
   constructor(
-    public dialogRef: MatDialogRef<ZakenVerdelenDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ZaakZoekObject[],
-    private mfbService: MaterialFormBuilderService,
-    private zakenService: ZakenService,
-  ) {}
+    public readonly dialogRef: MatDialogRef<ZakenVerdelenDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public readonly data: ZaakZoekObject[],
+    private readonly zakenService: ZakenService,
+    private readonly formBuilder: FormBuilder,
+    private readonly identityService: IdentityService,
+  ) {
+    this.form.controls.medewerker.disable();
+
+    this.form.controls.groep.valueChanges.subscribe((group) => {
+      this.form.controls.medewerker.setValue(null);
+      this.form.controls.medewerker.disable();
+      if (!group) return;
+
+      this.identityService.listUsersInGroup(group.id).subscribe((users) => {
+        this.form.controls.medewerker.enable();
+        this.users = users;
+      });
+    });
+  }
 
   close(): void {
     this.dialogRef.close(false);
   }
 
-  isDisabled(): boolean {
-    return (
-      (!this.medewerkerGroepFormField.medewerker.value &&
-        !this.medewerkerGroepFormField.groep.value) ||
-      this.medewerkerGroepFormField.formControl.invalid ||
-      this.loading
-    );
+  isDisabled() {
+    return this.form.invalid || this.loading || !this.data.length;
   }
 
   verdeel(): void {
-    this.redenFormField.readonly = true;
-    const toekenning: {
-      groep?: GeneratedType<"RestGroup">;
-      medewerker?: GeneratedType<"RestUser">;
-    } = this.medewerkerGroepFormField.formControl.value;
     this.dialogRef.disableClose = true;
     this.loading = true;
     this.zakenService
       .verdelenVanuitLijst({
-        uuids: this.data.map((zaak) => zaak.id),
+        uuids: this.data.map(({ id }) => id),
         screenEventResourceId: crypto.randomUUID(),
-        groepId: toekenning.groep?.id ?? "",
-        behandelaarGebruikersnaam: toekenning.medewerker?.id,
-        reden: this.redenFormField.formControl.value,
+        groepId: this.form.value.groep!.id,
+        behandelaarGebruikersnaam: this.form.value.medewerker?.id,
+        reden: this.form.value.reden,
       })
       .subscribe(() => {
-        this.dialogRef.close(toekenning);
+        this.dialogRef.close(this.form.value);
       });
   }
 }
