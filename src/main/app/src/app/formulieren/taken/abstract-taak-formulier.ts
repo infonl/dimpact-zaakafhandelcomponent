@@ -133,7 +133,6 @@ export abstract class AbstractTaakFormulier {
     const taakDocumenten = this.taak?.taakdocumenten ?? [];
     const bijlagenArray = bijlagen?.split(";") ?? [];
 
-    console.log(taakDocumenten, bijlagen, bijlagenArray);
     return this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
       zaakUUID: this.zaak.uuid,
       informatieobjectUUIDs: [...taakDocumenten, ...bijlagenArray],
