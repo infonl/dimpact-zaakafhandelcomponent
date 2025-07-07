@@ -72,7 +72,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         "statustypeAanvullendeInformatieVereist": false,
                         "statustypeAfgerondAanwezig": false,
                         "statustypeAfgerondLaatsteVolgnummer": false,
-                        "statustypeHeropendAanwezig": false,
+                        "statustypeHeropendAanwezig": true,
                         "statustypeInBehandelingAanwezig": true,
                         "statustypeIntakeAanwezig": false,
                         "valide": false,
