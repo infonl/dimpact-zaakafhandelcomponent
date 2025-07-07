@@ -86,7 +86,7 @@ class SearchRestServiceTest : BehaviorSpec({
                    the response is successful and the search results include the indexed zaken, tasks and documents
                 """
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 // we only test on the total number of results and the filters, not on the actual results, to keep the test maintainable
@@ -314,7 +314,7 @@ class SearchRestServiceTest : BehaviorSpec({
                    the response is successful and the search results include the indexed zaken for this zaaktype only
                 """
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
@@ -415,7 +415,7 @@ class SearchRestServiceTest : BehaviorSpec({
                    about the information object type UUID
                 """
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
@@ -466,14 +466,14 @@ class SearchRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                 {
                     "rows": 5,
-                    "page":0,
+                    "page": 0,
                     "zaakIdentificator": "zaak",
                     "informationObjectTypeUuid": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
                 }
                 """.trimIndent()
             )
             Then("the response is successful and search results contain no zaak that can be linked to") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
@@ -539,7 +539,7 @@ class SearchRestServiceTest : BehaviorSpec({
             Then(
                 """the response is successful and the search results include the indexed taken"""
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """                                          
@@ -689,7 +689,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     and the expected search filters
                 """.trimMargin()
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 JSONObject(responseBody).getInt("totaal") shouldBe TOTAL_COUNT_DOCUMENTS
@@ -765,7 +765,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     the response is successful and the search results should include the expected document
                 """.trimMargin()
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """

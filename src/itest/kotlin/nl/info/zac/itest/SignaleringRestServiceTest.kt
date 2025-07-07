@@ -107,7 +107,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         val zaakInformatieObjectenResponse = itestHttpClient.performGetRequest(
             url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaakinformatieobjecten?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath"
         )
-        var responseBody = zaakInformatieObjectenResponse.body!!.string()
+        var responseBody = zaakInformatieObjectenResponse.body.string()
         logger.info { "Response: $responseBody" }
         zaakInformatieObjectenResponse.code shouldBe HTTP_OK
         val zaakInformatieObjectenUrl = JSONArray(responseBody)
@@ -118,7 +118,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         val zaakRollenResponse = itestHttpClient.performGetRequest(
             url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/rollen?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath"
         )
-        responseBody = zaakRollenResponse.body!!.string()
+        responseBody = zaakRollenResponse.body.string()
         logger.info { "Response: $responseBody" }
         zaakRollenResponse.code shouldBe HTTP_OK
         val zaakRollenUrl = JSONObject(responseBody)
@@ -153,7 +153,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             )
 
             Then("the response should be 'no content'") {
-                responseBody = response.body!!.string()
+                responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
             }
@@ -182,7 +182,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             )
 
             Then("the response should be 'no content'") {
-                responseBody = response.body!!.string()
+                responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
             }
@@ -211,7 +211,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             )
 
             Then("the response should be 'no content'") {
-                responseBody = response.body!!.string()
+                responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
             }
@@ -226,7 +226,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 // The backend event processing is asynchronous. Wait a bit until the events are processed
                 eventually(afterThirtySeconds) {
                     val response = itestHttpClient.performGetRequest(latestSignaleringenDateUrl)
-                    val responseBody = response.body!!.string()
+                    val responseBody = response.body.string()
                     logger.info { "Response: $responseBody" }
                     response.isSuccessful shouldBe true
 
@@ -251,7 +251,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 }
                 """.trimIndent()
             )
-            val responseBody = response.body!!.string()
+            val responseBody = response.body.string()
             logger.info { "Response: $responseBody" }
             response.isSuccessful shouldBe true
 
@@ -277,7 +277,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 }
                 """.trimIndent()
             )
-            val responseBody = response.body!!.string()
+            val responseBody = response.body.string()
             logger.info { "Response: $responseBody" }
 
             Then("400 should be returned") {
@@ -295,7 +295,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 }
                 """.trimIndent()
             )
-            val responseBody = response.body!!.string()
+            val responseBody = response.body.string()
             logger.info { "Response: $responseBody" }
             response.isSuccessful shouldBe true
 
@@ -327,7 +327,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 ).toHeaders(),
                 addAuthorizationHeader = false
             )
-            val responseBody = response.body!!.string()
+            val responseBody = response.body.string()
             logger.info { "Response: $responseBody" }
 
             Then("all existing signaleringen should have been deleted") {

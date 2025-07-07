@@ -30,7 +30,7 @@ class AanvullendeInformatieTaskCompleteTest : BehaviorSpec({
         val tasksResponse = itestHttpClient.performGetRequest(
             "$ZAC_API_URI/taken/zaak/$zaakProductaanvraag1Uuid"
         )
-        val responseBody = tasksResponse.body!!.string()
+        val responseBody = tasksResponse.body.string()
         logger.info { "Response: $responseBody" }
         tasksResponse.isSuccessful shouldBe true
 
@@ -47,7 +47,7 @@ class AanvullendeInformatieTaskCompleteTest : BehaviorSpec({
             )
 
             Then("the taken toelichting and status are updated") {
-                val responseBody = completeTaskResponse.body!!.string()
+                val responseBody = completeTaskResponse.body.string()
                 logger.info { "Response: $responseBody" }
                 completeTaskResponse.isSuccessful shouldBe true
                 responseBody.shouldBeJsonObject()
@@ -57,7 +57,7 @@ class AanvullendeInformatieTaskCompleteTest : BehaviorSpec({
 
             And("the zaak status is set back to `Intake`") {
                 val response = zacClient.retrieveZaak(zaakProductaanvraag1Uuid)
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
 

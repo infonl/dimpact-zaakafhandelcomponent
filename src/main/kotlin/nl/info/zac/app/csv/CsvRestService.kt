@@ -6,6 +6,7 @@ package nl.info.zac.app.csv
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
@@ -20,6 +21,7 @@ import nl.info.zac.app.search.model.RestZoekParameters
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.SearchService
+import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
 @Path("csv")
@@ -27,7 +29,8 @@ import nl.info.zac.util.NoArgConstructor
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
 @NoArgConstructor
-class CsvRESTService @Inject constructor(
+@AllOpen
+class CsvRestService @Inject constructor(
     private val searchService: SearchService,
     private val restZoekParametersConverter: RestZoekParametersConverter,
     private val csvService: CsvService,
@@ -35,7 +38,7 @@ class CsvRESTService @Inject constructor(
 ) {
     @POST
     @Path("export")
-    fun downloadCSV(restZoekParameters: RestZoekParameters): Response {
+    fun downloadCSV(@Valid restZoekParameters: RestZoekParameters): Response {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenExporteren)
         val zoekParameters = restZoekParametersConverter.convert(restZoekParameters).let {
             // if no max nr of result rows are specified, resort to the default value

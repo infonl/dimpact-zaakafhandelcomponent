@@ -4,9 +4,9 @@
  */
 
 import { Component, Inject } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
+import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenService } from "../taken.service";
@@ -17,17 +17,22 @@ import { TakenService } from "../taken.service";
   styleUrls: ["./taken-verdelen-dialog.component.less"],
 })
 export class TakenVerdelenDialogComponent {
-  medewerkerGroepFormField = new MedewerkerGroepFieldBuilder()
-    .id("toekenning")
-    .groepLabel("actie.taak.toekennen.groep")
-    .medewerkerLabel("actie.taak.toekennen.medewerker")
-    .build();
-  redenFormField = new InputFormFieldBuilder()
-    .id("reden")
-    .label("reden")
-    .maxlength(100)
-    .build();
   loading = false;
+
+  protected readonly form = this.formBuilder.group({
+    groep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [
+      Validators.required,
+    ]),
+    medewerker: this.formBuilder.control<GeneratedType<"RestUser"> | null>(
+      null,
+    ),
+    reden: this.formBuilder.control<string | null>(null, [
+      Validators.maxLength(100),
+    ]),
+  });
+
+  protected groups = this.identityService.listGroups();
+  protected users: GeneratedType<"RestUser">[] = [];
 
   constructor(
     public dialogRef: MatDialogRef<TakenVerdelenDialogComponent>,
@@ -37,40 +42,47 @@ export class TakenVerdelenDialogComponent {
       screenEventResourceId: string;
     },
     private takenService: TakenService,
-  ) {}
+    private readonly formBuilder: FormBuilder,
+    private readonly identityService: IdentityService,
+  ) {
+    this.form.controls.medewerker.disable();
+
+    this.form.controls.groep.valueChanges.subscribe((group) => {
+      this.form.controls.medewerker.setValue(null);
+      this.form.controls.medewerker.disable();
+      if (!group) return;
+
+      this.identityService.listUsersInGroup(group.id).subscribe((users) => {
+        this.form.controls.medewerker.enable();
+        this.users = users;
+      });
+    });
+  }
 
   close(): void {
     this.dialogRef.close(false);
   }
 
-  isDisabled(): boolean {
-    return (
-      (!this.medewerkerGroepFormField.medewerker.value &&
-        !this.medewerkerGroepFormField.groep.value) ||
-      this.medewerkerGroepFormField.formControl.invalid ||
-      this.loading
-    );
+  isDisabled() {
+    return this.form.invalid || this.loading || !this.data.taken.length;
   }
 
   verdeel(): void {
-    this.redenFormField.readonly = true;
-    const toekenning: {
-      groep?: GeneratedType<"RestGroup">;
-      medewerker?: GeneratedType<"RestUser">;
-    } = this.medewerkerGroepFormField.formControl.value;
-    const reden = this.redenFormField.formControl.value ?? "";
     this.dialogRef.disableClose = true;
     this.loading = true;
     this.takenService
-      .verdelenVanuitLijst(
-        this.data.taken,
-        reden,
-        this.data.screenEventResourceId,
-        toekenning.groep,
-        toekenning.medewerker,
-      )
+      .verdelenVanuitLijst({
+        taken: this.data.taken.map(({ id, zaakUuid }) => ({
+          taakId: id,
+          zaakUuid,
+        })),
+        behandelaarGebruikersnaam: this.form.value.medewerker?.id,
+        reden: this.form.value.reden ?? "",
+        groepId: this.form.value.groep!.id,
+        screenEventResourceId: this.data.screenEventResourceId,
+      })
       .subscribe(() => {
-        this.dialogRef.close(toekenning);
+        this.dialogRef.close(this.form.value);
       });
   }
 }

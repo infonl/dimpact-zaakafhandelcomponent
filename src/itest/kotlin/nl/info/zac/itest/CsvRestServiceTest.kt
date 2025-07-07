@@ -33,7 +33,7 @@ const val CSV_FIELD_ARCHIEF_NOMINATIE = "archiefNominatie"
 
 @Order(TEST_SPEC_ORDER_AFTER_REINDEXING)
 @Suppress("MagicNumber")
-class CsvRESTServiceTest : BehaviorSpec({
+class CsvRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
 
@@ -110,7 +110,7 @@ class CsvRESTServiceTest : BehaviorSpec({
                 """
             ) {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
 
                 val csvReader = csvReader {

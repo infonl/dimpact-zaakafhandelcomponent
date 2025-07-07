@@ -18,12 +18,35 @@
 <mat-divider></mat-divider>
 
 <mat-dialog-content>
-  <mfb-form-field [field]="medewerkerGroepFormField"></mfb-form-field>
-  <mfb-form-field [field]="redenFormField"></mfb-form-field>
+  <form [formGroup]="form">
+    <fieldset class="p-0">
+      <section class="row">
+        <zac-auto-complete
+          class="col-12"
+          [form]="form"
+          key="groep"
+          optionDisplayValue="naam"
+          [options]="groups"
+        ></zac-auto-complete>
+        <zac-auto-complete
+          class="col-12"
+          [form]="form"
+          key="medewerker"
+          optionDisplayValue="naam"
+          [options]="users"
+        ></zac-auto-complete>
+      </section>
+    </fieldset>
+    <fieldset class="p-0">
+      <section class="row">
+        <zac-input class="col-12" [form]="form" key="reden"></zac-input>
+      </section>
+    </fieldset>
+  </form>
 </mat-dialog-content>
 <mat-dialog-actions>
   <button
-    [disabled]="isDisabled() || !data.length"
+    [disabled]="isDisabled()"
     mat-raised-button
     color="primary"
     (click)="verdeel()"

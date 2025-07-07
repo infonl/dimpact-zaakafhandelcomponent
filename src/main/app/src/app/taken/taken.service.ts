@@ -18,7 +18,6 @@ import { GeneratedType } from "../shared/utils/generated-types";
 import { TaakZoekObject } from "../zoeken/model/taken/taak-zoek-object";
 import { Taak } from "./model/taak";
 import { TaakToekennenGegevens } from "./model/taak-toekennen-gegevens";
-import { TaakVerdelenGegevens } from "./model/taak-verdelen-gegevens";
 
 @Injectable({
   providedIn: "root",
@@ -103,27 +102,8 @@ export class TakenService {
     return this.zacHttpClient.PATCH("/rest/taken/complete", body, {});
   }
 
-  verdelenVanuitLijst(
-    taken: TaakZoekObject[],
-    reden: string,
-    screenEventResourceId: string,
-    groep?: GeneratedType<"RestGroup">,
-    medewerker?: GeneratedType<"RestUser">,
-  ): Observable<void> {
-    const taakBody: TaakVerdelenGegevens = new TaakVerdelenGegevens();
-    taakBody.taken = taken.map((taak) => ({
-      taakId: taak.id,
-      zaakUuid: taak.zaakUuid,
-    }));
-    taakBody.behandelaarGebruikersnaam = medewerker?.id;
-    taakBody.groepId = groep?.id;
-    taakBody.reden = reden;
-    taakBody.screenEventResourceId = screenEventResourceId;
-    return this.http
-      .put<void>(`${this.basepath}/lijst/verdelen`, taakBody)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  verdelenVanuitLijst(body: PutBody<"/rest/taken/lijst/verdelen">) {
+    return this.zacHttpClient.PUT("/rest/taken/lijst/verdelen", body, {});
   }
 
   vrijgevenVanuitLijst(body: PutBody<"/rest/taken/lijst/vrijgeven">) {

@@ -59,7 +59,7 @@ class WebDavServletTest : BehaviorSpec({
             behandelaarId = TEST_USER_2_ID,
             startDate = DATE_TIME_2024_01_31
         ).run {
-            val responseBody = body!!.string()
+            val responseBody = body.string()
             logger.info { "Response: $responseBody" }
             this.isSuccessful shouldBe true
             JSONObject(responseBody).run {
@@ -117,7 +117,7 @@ class WebDavServletTest : BehaviorSpec({
             Then(
                 "the response should be OK and contain information for the created Word document and uploaded file"
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "$endpointUrl response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 enkelvoudigInformatieObjectUUID = JSONObject(responseBody).getString("uuid")
@@ -134,7 +134,7 @@ class WebDavServletTest : BehaviorSpec({
                 token for the uploaded Word document
                 """
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldStartWith "\"ms-word:http://localhost:8080/webdav/folder/"
@@ -151,7 +151,7 @@ class WebDavServletTest : BehaviorSpec({
             )
 
             Then("the response should be ok (and contain the DOCX Word document)") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
             }
@@ -165,7 +165,7 @@ class WebDavServletTest : BehaviorSpec({
             )
 
             Then("the response should be ok") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
             }

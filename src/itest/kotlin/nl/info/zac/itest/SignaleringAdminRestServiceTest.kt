@@ -73,7 +73,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
             startDate = DATE_TIME_2024_01_01,
             zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
         ).run {
-            JSONObject(body!!.string()).run {
+            JSONObject(body.string()).run {
                 zaakManual2Identification = getString("identificatie")
                 zaakUuid = getString("uuid").run(UUID::fromString)
             }
@@ -82,7 +82,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         val getHumanTaskPlanItemsResponse = itestHttpClient.performGetRequest(
             "$ZAC_API_URI/planitems/zaak/$zaakUuid/humanTaskPlanItems"
         )
-        val getHumanTaskPlanItemsResponseBody = getHumanTaskPlanItemsResponse.body!!.string()
+        val getHumanTaskPlanItemsResponseBody = getHumanTaskPlanItemsResponse.body.string()
         logger.info { "Response: $getHumanTaskPlanItemsResponseBody" }
         getHumanTaskPlanItemsResponse.isSuccessful shouldBe true
         getHumanTaskPlanItemsResponseBody.shouldBeJsonArray()
@@ -101,7 +101,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                     }
             """.trimIndent()
         )
-        val doHumanTaskPlanItemResponseBody = doHumanTaskPlanItemResponse.body!!.string()
+        val doHumanTaskPlanItemResponseBody = doHumanTaskPlanItemResponse.body.string()
         logger.info { "Start task response: $doHumanTaskPlanItemResponseBody" }
 
         When("The internal endpoint to send signaleringen is called with a valid API key") {
@@ -116,7 +116,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
 
             Then("the response should be 'ok' and a task signalering email should be sent") {
                 sendSignaleringenResponse.code shouldBe HTTP_OK
-                val sendSignaleringenResponseBody = sendSignaleringenResponse.body!!.string()
+                val sendSignaleringenResponseBody = sendSignaleringenResponse.body.string()
                 logger.info { "Response: $sendSignaleringenResponseBody" }
                 sendSignaleringenResponseBody shouldBe "Started sending signaleringen using job: 'Signaleringen verzenden'"
 
@@ -127,7 +127,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                         url = "$GREENMAIL_API_URI/user/$TEST_USER_1_EMAIL/messages/"
                     )
                     receivedMailsResponse.code shouldBe HTTP_OK
-                    receivedMails = JSONArray(receivedMailsResponse.body!!.string())
+                    receivedMails = JSONArray(receivedMailsResponse.body.string())
                     receivedMails.length() shouldBe 1
                 }
                 with(JSONArray(receivedMails).getJSONObject(0)) {

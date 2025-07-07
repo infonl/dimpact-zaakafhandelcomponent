@@ -36,7 +36,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/health-check/bestaat-communicatiekanaal-eformulier"
             )
-            val responseBody = response.body!!.string()
+            val responseBody = response.body.string()
             logger.info { "Response: $responseBody" }
 
             Then("the response should be a 200 OK with a response body 'true'") {
@@ -51,7 +51,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/health-check/zaaktypes"
             )
-            val responseBody = response.body!!.string()
+            val responseBody = response.body.string()
             logger.info { "Response: $responseBody" }
 
             Then("the response should be a 200 OK") {
@@ -72,7 +72,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         "statustypeAanvullendeInformatieVereist": false,
                         "statustypeAfgerondAanwezig": false,
                         "statustypeAfgerondLaatsteVolgnummer": false,
-                        "statustypeHeropendAanwezig": false,
+                        "statustypeHeropendAanwezig": true,
                         "statustypeInBehandelingAanwezig": true,
                         "statustypeIntakeAanwezig": false,
                         "valide": false,

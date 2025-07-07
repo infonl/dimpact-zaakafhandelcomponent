@@ -35,7 +35,7 @@ class TaskRestServiceCompleteTest : BehaviorSpec({
             )
 
             Then("the list with tasks for this zaak is returned") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
 
@@ -54,7 +54,7 @@ class TaskRestServiceCompleteTest : BehaviorSpec({
             )
 
             Then("the taken toelichting and status are updated") {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody.shouldBeJsonObject()
@@ -64,7 +64,7 @@ class TaskRestServiceCompleteTest : BehaviorSpec({
 
             And("the zaak status remains in `aanvullende informatie`") {
                 val response = zacClient.retrieveZaak(zaakProductaanvraag1Uuid)
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
 
