@@ -19,6 +19,7 @@ import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import net.atos.zac.mailtemplates.model.Mail
 import net.atos.zac.mailtemplates.model.MailTemplate
+import java.util.Optional
 
 class MailTemplateServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>()
@@ -27,7 +28,7 @@ class MailTemplateServiceTest : BehaviorSpec({
     val predicate = mockk<Predicate>()
     val root = mockk<Root<MailTemplate>>()
     val mailTemplateNamePath = mockk<Path<String>>()
-    val typedQuery = mockk<TypedQuery<MailTemplate>>(relaxed = true)
+    val typedQuery = mockk<TypedQuery<MailTemplate>>()
 
     val mailTemplateService = MailTemplateService(entityManager)
 
@@ -39,11 +40,11 @@ class MailTemplateServiceTest : BehaviorSpec({
         val mailTemplateName = "welcome_email"
         val mailTemplate = MailTemplate().apply {
             id = 1L
-            setMailTemplateNaam(mailTemplateName)
-            setOnderwerp("Welcome")
-            setBody("Hello, welcome!")
-            setMail(Mail.ZAAK_ONTVANKELIJK)
-            setDefaultMailtemplate(true)
+            mailTemplateNaam = mailTemplateName
+            onderwerp = "Welcome"
+            body = "Hello, welcome!"
+            mail = Mail.ZAAK_ONTVANKELIJK
+            isDefaultMailtemplate = true
         }
 
         every { entityManager.criteriaBuilder } returns criteriaBuilder
@@ -51,9 +52,8 @@ class MailTemplateServiceTest : BehaviorSpec({
         every { criteriaQuery.from(MailTemplate::class.java) } returns root
         every { root.get<String>("mailTemplateNaam") } returns mailTemplateNamePath
         every { criteriaBuilder.equal(mailTemplateNamePath, mailTemplateName) } returns predicate
-        every { criteriaQuery.select(root) } returns criteriaQuery
         every { entityManager.createQuery(criteriaQuery) } returns typedQuery
-        every { typedQuery.resultList } returns listOf(mailTemplate)
+        every { typedQuery.resultList.stream().findFirst() } returns Optional.of(mailTemplate)
 
         When("findMailtemplateByName is called") {
             val result = mailTemplateService.findMailtemplateByName(mailTemplateName)
@@ -73,9 +73,8 @@ class MailTemplateServiceTest : BehaviorSpec({
         every { criteriaQuery.from(MailTemplate::class.java) } returns root
         every { root.get<String>("mailTemplateNaam") } returns mailTemplateNamePath
         every { criteriaBuilder.equal(mailTemplateNamePath, mailTemplateName) } returns predicate
-        every { criteriaQuery.select(root) } returns criteriaQuery
         every { entityManager.createQuery(criteriaQuery) } returns typedQuery
-        every { typedQuery.resultList } returns emptyList()
+        every { typedQuery.resultList.stream().findFirst() } returns Optional.empty()
 
         When("findMailtemplateByName is called") {
             val result = mailTemplateService.findMailtemplateByName(mailTemplateName)
