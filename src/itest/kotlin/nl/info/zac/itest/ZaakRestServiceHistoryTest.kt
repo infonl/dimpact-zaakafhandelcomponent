@@ -11,6 +11,7 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.config.ItestConfiguration.FUNCTIONELE_GEBRUIKER_ID
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_TITLE
@@ -82,7 +83,7 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                   {
                     "actie": "ONTKOPPELD",
                     "attribuutLabel": "Behandelaar",
-                    "door": "Functionele gebruiker",
+                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
                     "oudeWaarde": "$TEST_USER_1_NAME",
                     "toelichting": "fakeLijstVrijgevenReason"
                   },
@@ -103,7 +104,7 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                   {
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "Behandelaar",
-                    "door": "Functionele gebruiker",
+                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
                     "nieuweWaarde": "$TEST_USER_2_NAME",
                     "toelichting": "fakeLijstVerdelenReason"
                   },
@@ -123,58 +124,65 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                     "toelichting": "Status gewijzigd"
                   },
                   {
+                    "actie": "GEKOPPELD",
+                    "attribuutLabel": "zaakinformatieobject",
+                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
+                    "nieuweWaarde": "Ontvangstbevestiging van zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
+                    "toelichting": ""
+                  },
+                  {
                     "actie": "GEWIJZIGD",
                     "attribuutLabel": "status",
-                    "door": "Functionele gebruiker",
+                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
                     "nieuweWaarde": "Intake",
                     "toelichting": "Status gewijzigd"
                   },
                   {
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "Bewindvoerder",
-                    "door": "Functionele gebruiker",
+                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
                     "nieuweWaarde": "$TEST_PERSON_2_BSN",
                     "toelichting": ""
                   },
                   {
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "Bewindvoerder",
-                    "door": "Functionele gebruiker",
+                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
                     "nieuweWaarde": "$TEST_PERSON_3_BSN",
                     "toelichting": ""
                   },
                   {
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "Medeaanvrager",
-                    "door": "Functionele gebruiker",
+                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
                     "nieuweWaarde": "$TEST_PERSON_2_BSN",
                     "toelichting": ""
                   },
                   {
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "Melder",
-                    "door": "Functionele gebruiker",
+                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
                     "nieuweWaarde": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
                     "toelichting": ""
                   },          
                   {
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "Behandelaar",
-                    "door": "Functionele gebruiker",
+                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
                     "nieuweWaarde": "$TEST_GROUP_A_DESCRIPTION",
                     "toelichting": ""
                   },
                  {
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "zaakinformatieobject",
-                    "door": "Functionele gebruiker",
+                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
                     "nieuweWaarde": "Aanvraag PDF",
                     "toelichting": "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
                   },
                   {
                     "actie": "AANGEMAAKT",
                     "attribuutLabel": "zaak",
-                    "door": "Functionele gebruiker",
+                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
                     "nieuweWaarde": "$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
                     "toelichting": "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM met kenmerk '$OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK'. $ZAAK_PRODUCTAANVRAAG_1_TOELICHTING"
                   }]
