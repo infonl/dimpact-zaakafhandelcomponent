@@ -41,7 +41,8 @@ When(
     await this.page.getByLabel(/groep/i).click();
     await this.page.getByRole("option").first().click();
     const user = this.page.getByLabel(/medewerker/i);
-    await this.page.waitForFunction((el) => el.isEnabled(), user);
+    await user.waitFor({ state: "visible" });
+    await this.page.waitForFunction(() => user.isEnabled());
     await user.click();
     await this.page.getByRole("option").first().click();
     await this.page.getByLabel(/reden/i).fill("Fake reason");
