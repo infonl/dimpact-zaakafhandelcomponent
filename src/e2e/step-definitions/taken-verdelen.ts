@@ -37,11 +37,12 @@ When(
   "{string} distributes the taken to the first group and user available",
   async function (this: CustomWorld, s: string) {
     await this.page.getByRole("button", { name: "Verdelen" }).click();
-    await this.page.getByLabel("Taak toekennen aan groep").click();
+    await this.page.getByLabel(/groep/i).click();
     await this.page.getByRole("option").first().click();
-    await this.page.getByLabel("Taak toekennen aan medewerker").click();
+    await this.page.getByLabel("/medewerker/i").isEnabled();
+    await this.page.getByLabel(/medewerker/i).click();
     await this.page.getByRole("option").first().click();
-    await this.page.getByLabel("Reden").fill("Fake reason");
+    await this.page.getByLabel(/reden/i).fill("Fake reason");
     await this.page.getByRole("button", { name: "Verdelen" }).click();
   },
 );
