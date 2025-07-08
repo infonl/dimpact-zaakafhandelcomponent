@@ -39,7 +39,7 @@ When(
     await this.page.getByRole("button", { name: "Verdelen" }).click();
     await this.page.getByLabel(/groep/i).click();
     await this.page.getByRole("option").first().click();
-    await this.page.waitForFunction(() => this.page.getByLabel(/medewerker/i)?.isEnabled());
+    await this.page.waitForTimeout(3000)
     await this.page.getByLabel(/medewerker/i).click();
     await this.page.getByRole("option").first().click();
     await this.page.getByLabel(/reden/i).fill("Fake reason");
