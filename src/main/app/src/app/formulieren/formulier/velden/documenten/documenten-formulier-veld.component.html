@@ -13,8 +13,8 @@
           <td mat-cell *matCellDef="let document">
             <mat-checkbox
               (click)="$event.stopPropagation()"
-              (change)="toggleCheckbox($event, document)"
-              [disabled]="selectDisabled(document)"
+              (change)="toggleCheckbox(document)"
+              [disabled]="selectDisabled()"
               [checked]="isSelected(document)"
             >
             </mat-checkbox>
