@@ -46,9 +46,12 @@ public class MailTemplateService {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<MailTemplate> query = builder.createQuery(MailTemplate.class);
         final Root<MailTemplate> root = query.from(MailTemplate.class);
-        query.select(root).where(builder.equal(root.get("mailTemplateNaam"), mailTemplateName));
+        Predicate predicate = builder.equal(root.get("mailTemplateNaam"), mailTemplateName);
+        query.select(root);
+        query.where(predicate);
         return entityManager.createQuery(query)
-                .getResultStream()
+                .getResultList()
+                .stream()
                 .findFirst();
     }
 
