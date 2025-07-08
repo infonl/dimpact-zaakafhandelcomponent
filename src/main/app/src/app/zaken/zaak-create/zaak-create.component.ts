@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, ViewChild } from "@angular/core";
+import { Component, OnDestroy, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
-import { EMPTY, Observable, of } from "rxjs";
+import { EMPTY, Observable, of, Subject, takeUntil } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
@@ -28,7 +28,8 @@ import { ZakenService } from "../zaken.service";
   selector: "zac-zaak-create",
   templateUrl: "./zaak-create.component.html",
 })
-export class ZaakCreateComponent {
+export class ZaakCreateComponent implements OnDestroy {
+  private readonly destroy$ = new Subject<void>();
   static DEFAULT_CHANNEL = "E-formulier";
 
   @ViewChild(MatSidenav) protected readonly actionsSidenav!: MatSidenav;
@@ -103,36 +104,40 @@ export class ZaakCreateComponent {
         }
       });
 
-    this.form.controls.zaaktype.valueChanges.subscribe((caseType) => {
-      this.caseTypeSelected(caseType);
+    this.form.controls.zaaktype.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((caseType) => {
+        this.caseTypeSelected(caseType);
 
-      if (!this.canAddInitiator()) {
-        this.form.controls.initiator.setValue(null);
-        this.form.controls.initiator.disable();
-        return;
-      }
+        if (!this.canAddInitiator()) {
+          this.form.controls.initiator.setValue(null);
+          this.form.controls.initiator.disable();
+          return;
+        }
 
-      this.form.controls.initiator.enable();
-    });
-    this.form.controls.groep.valueChanges.subscribe((value) => {
-      if (!value) {
-        this.form.controls.behandelaar.setValue(null);
-        this.form.controls.behandelaar.disable();
-        return;
-      }
-      identityService.listUsersInGroup(value.id).subscribe((users) => {
-        this.users = users ?? [];
-        this.form.controls.behandelaar.enable();
-        this.form.controls.behandelaar.setValue(
-          this.users.find(
-            ({ id }) =>
-              id ===
-              this.form.controls.zaaktype.value?.zaakafhandelparameters
-                ?.defaultBehandelaarId,
-          ),
-        );
+        this.form.controls.initiator.enable();
       });
-    });
+    this.form.controls.groep.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value) => {
+        if (!value) {
+          this.form.controls.behandelaar.setValue(null);
+          this.form.controls.behandelaar.disable();
+          return;
+        }
+        identityService.listUsersInGroup(value.id).subscribe((users) => {
+          this.users = users ?? [];
+          this.form.controls.behandelaar.enable();
+          this.form.controls.behandelaar.setValue(
+            this.users.find(
+              ({ id }) =>
+                id ===
+                this.form.controls.zaaktype.value?.zaakafhandelparameters
+                  ?.defaultBehandelaarId,
+            ),
+          );
+        });
+      });
 
     this.handleProductRequest(this.inboxProductaanvraag);
   }
@@ -257,5 +262,10 @@ export class ZaakCreateComponent {
     const { brpKoppelen, kvkKoppelen } = betrokkeneKoppelingen;
 
     return Boolean(brpKoppelen || kvkKoppelen);
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

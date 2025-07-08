@@ -3,11 +3,19 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import moment, { Moment } from "moment";
-import { defaultIfEmpty, EMPTY, firstValueFrom, Observable, of } from "rxjs";
+import {
+  defaultIfEmpty,
+  EMPTY,
+  firstValueFrom,
+  Observable,
+  of,
+  Subject,
+  takeUntil,
+} from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { UtilService } from "src/app/core/service/util.service";
 import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
@@ -21,10 +29,12 @@ import { ZakenService } from "../zaken.service";
   selector: "zac-case-details-edit",
   templateUrl: "./zaak-details-wijzigen.component.html",
 })
-export class CaseDetailsEditComponent implements OnInit {
+export class CaseDetailsEditComponent implements OnInit, OnDestroy {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input({ required: true }) loggedInUser!: GeneratedType<"RestLoggedInUser">;
   @Input({ required: true }) sideNav!: MatDrawer;
+
+  private readonly destroy$ = new Subject<void>();
 
   formFields: Array<AbstractFormField[]> = [];
 
@@ -107,7 +117,7 @@ export class CaseDetailsEditComponent implements OnInit {
     }
 
     this.form.controls.reden.disable();
-    this.form.valueChanges.subscribe(() => {
+    this.form.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
       if (!this.form.dirty) return;
       this.form.controls.reden.enable({ emitEvent: false });
     });
@@ -140,31 +150,33 @@ export class CaseDetailsEditComponent implements OnInit {
         this.communicationChannels = Array.from(new Set(channels));
       });
 
-    this.form.controls.groep.valueChanges.subscribe((group) => {
-      if (!group) {
-        this.form.controls.behandelaar.reset();
-        this.form.controls.behandelaar.disable();
-        return;
-      }
+    this.form.controls.groep.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((group) => {
+        if (!group) {
+          this.form.controls.behandelaar.reset();
+          this.form.controls.behandelaar.disable();
+          return;
+        }
 
-      if (this.zaak.rechten.toekennen) {
-        this.form.controls.behandelaar.enable();
-      }
+        if (this.zaak.rechten.toekennen) {
+          this.form.controls.behandelaar.enable();
+        }
 
-      this.identityService.listUsersInGroup(group.id).subscribe((users) => {
-        this.users = users;
+        this.identityService.listUsersInGroup(group.id).subscribe((users) => {
+          this.users = users;
 
-        const zaakUser = users.find(
-          ({ id }) => id === this.zaak.behandelaar?.id,
-        );
-        const changedUser = users.find(
-          ({ id }) => id === this.form.controls.behandelaar.value?.id,
-        );
-        this.form.controls.behandelaar.setValue(
-          changedUser ?? zaakUser ?? null,
-        );
+          const zaakUser = users.find(
+            ({ id }) => id === this.zaak.behandelaar?.id,
+          );
+          const changedUser = users.find(
+            ({ id }) => id === this.form.controls.behandelaar.value?.id,
+          );
+          this.form.controls.behandelaar.setValue(
+            changedUser ?? zaakUser ?? null,
+          );
+        });
       });
-    });
 
     this.groups.subscribe((groups) => {
       const group = groups.find(({ id }) => id === this.zaak.groep?.id);
@@ -184,15 +196,15 @@ export class CaseDetailsEditComponent implements OnInit {
       uiterlijkeEinddatumAfdoening ? [Validators.required] : [],
     );
 
-    this.form.controls.startdatum.valueChanges.subscribe(
-      this.validateDates.bind(this),
-    );
-    this.form.controls.einddatumGepland.valueChanges.subscribe(
-      this.validateDates.bind(this),
-    );
-    this.form.controls.uiterlijkeEinddatumAfdoening.valueChanges.subscribe(
-      this.validateDates.bind(this),
-    );
+    this.form.controls.startdatum.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(this.validateDates.bind(this));
+    this.form.controls.einddatumGepland.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(this.validateDates.bind(this));
+    this.form.controls.uiterlijkeEinddatumAfdoening.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(this.validateDates.bind(this));
   }
 
   private validateDates() {
@@ -303,5 +315,10 @@ export class CaseDetailsEditComponent implements OnInit {
       behandelaarGebruikersnaam: zaak.behandelaar?.id,
       reden: reason,
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

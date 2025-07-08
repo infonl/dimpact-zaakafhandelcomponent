@@ -3,9 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject } from "@angular/core";
+import { Component, Inject, OnDestroy } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { Subject, takeUntil } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
@@ -15,7 +16,9 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "zaken-verdelen-dialog.component.html",
   styleUrls: ["./zaken-verdelen-dialog.component.less"],
 })
-export class ZakenVerdelenDialogComponent {
+export class ZakenVerdelenDialogComponent implements OnDestroy {
+  private readonly destroy$ = new Subject<void>();
+
   loading = false;
 
   protected readonly form = this.formBuilder.group({
@@ -42,16 +45,18 @@ export class ZakenVerdelenDialogComponent {
   ) {
     this.form.controls.medewerker.disable();
 
-    this.form.controls.groep.valueChanges.subscribe((group) => {
-      this.form.controls.medewerker.setValue(null);
-      this.form.controls.medewerker.disable();
-      if (!group) return;
+    this.form.controls.groep.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((group) => {
+        this.form.controls.medewerker.setValue(null);
+        this.form.controls.medewerker.disable();
+        if (!group) return;
 
-      this.identityService.listUsersInGroup(group.id).subscribe((users) => {
-        this.form.controls.medewerker.enable();
-        this.users = users;
+        this.identityService.listUsersInGroup(group.id).subscribe((users) => {
+          this.form.controls.medewerker.enable();
+          this.users = users;
+        });
       });
-    });
   }
 
   close(): void {
@@ -76,5 +81,10 @@ export class ZakenVerdelenDialogComponent {
       .subscribe(() => {
         this.dialogRef.close(this.form.value);
       });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
