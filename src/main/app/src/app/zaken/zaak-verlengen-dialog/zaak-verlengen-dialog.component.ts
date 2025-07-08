@@ -3,18 +3,21 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject } from "@angular/core";
+import { Component, Inject, OnDestroy } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { TranslateService } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
+import { Subject, takeUntil } from "rxjs";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
 @Component({
   templateUrl: "zaak-verlengen-dialog.component.html",
 })
-export class ZaakVerlengenDialogComponent {
+export class ZaakVerlengenDialogComponent implements OnDestroy {
+  private readonly destroy$ = new Subject<void>();
+
   loading = false;
 
   protected readonly form = this.formBuilder.group({
@@ -85,26 +88,30 @@ export class ZaakVerlengenDialogComponent {
       },
     );
 
-    this.form.controls.duurDagen.valueChanges.subscribe((duur) => {
-      this.updateDateFields(duur);
-    });
+    this.form.controls.duurDagen.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((duur) => {
+        this.updateDateFields(duur);
+      });
 
-    this.form.controls.einddatumGepland.valueChanges.subscribe((value) => {
-      this.updateDateFields(
-        moment(value).diff(this.data.zaak.einddatumGepland, "days"),
-      );
-    });
+    this.form.controls.einddatumGepland.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value) => {
+        this.updateDateFields(
+          moment(value).diff(this.data.zaak.einddatumGepland, "days"),
+        );
+      });
 
-    this.form.controls.uiterlijkeEinddatumAfdoening.valueChanges.subscribe(
-      (value) => {
+    this.form.controls.uiterlijkeEinddatumAfdoening.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value) => {
         this.updateDateFields(
           moment(value).diff(
             this.data.zaak.uiterlijkeEinddatumAfdoening,
             "days",
           ),
         );
-      },
-    );
+      });
   }
 
   private updateDateFields(duurDagen?: number | null) {
@@ -155,7 +162,12 @@ export class ZaakVerlengenDialogComponent {
       });
   }
 
-  close(): void {
+  close() {
     this.dialogRef.close();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

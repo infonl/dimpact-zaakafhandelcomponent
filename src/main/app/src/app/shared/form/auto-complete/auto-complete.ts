@@ -50,29 +50,26 @@ export class ZacAutoComplete<
 
     this.setOptions(this.options);
 
-    this.control.valueChanges.subscribe((value) => {
-      this.filteredOptions = this.availableOptions.filter((option) => {
-        if (!value) return true;
+    this.control.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value) => {
+        this.filteredOptions = this.availableOptions.filter((option) => {
+          if (!value) return true;
 
-        const valueToFilter =
-          typeof value === "string" ? value : this.displayWith(value);
+          const valueToFilter =
+            typeof value === "string" ? value : this.displayWith(value);
 
-        return this.displayWith(option)
-          .toLowerCase()
-          .includes(valueToFilter.toLowerCase());
+          return this.displayWith(option)
+            .toLowerCase()
+            .includes(valueToFilter.toLowerCase());
+        });
       });
-    });
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if ("options" in changes) {
       this.setOptions(changes.options.currentValue);
     }
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next(true);
-    this.destroy$.complete();
   }
 
   reset() {
@@ -107,5 +104,10 @@ export class ZacAutoComplete<
       return;
     }
     this.availableOptions = this.filteredOptions = options;
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 }

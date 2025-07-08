@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
-import { Observable } from "rxjs";
+import {Observable, Subject, takeUntil} from "rxjs";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { Taak } from "src/app/taken/model/taak";
@@ -27,7 +27,7 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
   templateUrl: "./informatie-object-create-attended.component.html",
   styleUrls: ["./informatie-object-create-attended.component.less"],
 })
-export class InformatieObjectCreateAttendedComponent implements OnInit {
+export class InformatieObjectCreateAttendedComponent implements OnInit, OnDestroy {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input({ required: true }) taak!: Taak;
   @Input({ required: true }) sideNav!: MatDrawer;
@@ -37,6 +37,8 @@ export class InformatieObjectCreateAttendedComponent implements OnInit {
   @Output() document = new EventEmitter<
     GeneratedType<"RestDocumentCreationAttendedData">
   >();
+
+  private readonly destroy$ = new Subject<void>();
 
   private informatieObjectTypes: GeneratedType<"RestInformatieobjecttype">[] =
     [];
@@ -123,7 +125,7 @@ export class InformatieObjectCreateAttendedComponent implements OnInit {
       this.form.controls.templateGroup.disable();
     });
 
-    this.form.controls.templateGroup.valueChanges.subscribe((value) => {
+    this.form.controls.templateGroup.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
       this.templates = value?.templates ?? [];
 
       if (!value?.templates) {
@@ -140,7 +142,7 @@ export class InformatieObjectCreateAttendedComponent implements OnInit {
       this.form.controls.template.disable();
     });
 
-    this.form.controls.template.valueChanges.subscribe((value) => {
+    this.form.controls.template.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
       if (!value?.informatieObjectTypeUUID) {
         this.form.controls.informationObjectType.setValue(null);
         this.form.controls.confidentiality.setValue(null);
@@ -215,5 +217,10 @@ export class InformatieObjectCreateAttendedComponent implements OnInit {
     this.identityService.readLoggedInUser().subscribe((ingelogdeMedewerker) => {
       this.form.controls.author.setValue(ingelogdeMedewerker.naam);
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
