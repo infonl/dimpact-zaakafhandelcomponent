@@ -17,6 +17,7 @@ import { delay, map, shareReplay, switchMap } from "rxjs/operators";
 import { ProgressDialogComponent } from "src/app/shared/progress-dialog/progress-dialog.component";
 import { ProgressSnackbar } from "src/app/shared/progress-snackbar/progress-snackbar.component";
 import { OrderUtil } from "../../shared/order/order-util";
+import { CustomSnackbarComponent } from "src/app/shared/custom-snackbar/custom-snackbar.component";
 
 @Injectable({
   providedIn: "root",
@@ -153,15 +154,18 @@ export class UtilService {
     params?: Record<string, unknown>,
     durationSeconden?: number,
   ): Observable<void> {
+    const translatedMessage = this.translate.instant(message, params);
+    const translatedAction = this.translate.instant(action, params);
+
     return this.snackbar
-      .open(
-        this.translate.instant(message, params),
-        this.translate.instant(action, params),
-        {
-          panelClass: ["mat-snackbar"],
-          duration: durationSeconden ? durationSeconden * 1000 : undefined,
+      .openFromComponent(CustomSnackbarComponent, {
+        data: {
+          message: translatedMessage,
+          action: translatedAction,
         },
-      )
+        duration: durationSeconden ? durationSeconden * 1000 : undefined,
+        panelClass: ["custom-snackbar"],
+      })
       .onAction();
   }
 
