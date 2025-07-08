@@ -115,7 +115,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                                 },
                                 {
-                                    "aantal": 13,
+                                    "aantal": 14,
                                     "naam": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                                 },
                                 {
@@ -231,7 +231,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "DOCUMENT_STATUS": [
                                 {
-                                    "aantal": 6,
+                                    "aantal": 7,
                                     "naam": "definitief"
                                 },
                                 {
@@ -245,7 +245,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING"
                                 },
                                 {
-                                    "aantal": 2,
+                                    "aantal": 3,
                                     "naam": "$INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING"
                                 },
                                 {
@@ -256,15 +256,15 @@ class SearchRestServiceTest : BehaviorSpec({
                             "DOCUMENT_VERGRENDELD_DOOR": [],
                             "DOCUMENT_INDICATIES": [
                                 {
-                                    "aantal": 9,
+                                    "aantal": 10,
                                     "naam": "GEBRUIKSRECHT"
                                 },
                                 {
-                                    "aantal": 10,
+                                    "aantal": 11,
                                     "naam": "ONDERTEKEND"
                                 },
                                 {
-                                    "aantal": 2,
+                                    "aantal": 3,
                                     "naam": "VERZONDEN"
                                 }
                             ]
@@ -695,14 +695,14 @@ class SearchRestServiceTest : BehaviorSpec({
                 JSONObject(responseBody).getJSONObject("filters").toString() shouldEqualJsonIgnoringOrderAndExtraneousFields """                   
                       {
                         "ZAAKTYPE" : [ {
-                          "aantal" : 8,
+                          "aantal" : 9,
                           "naam" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                         }, {
                           "aantal": 2,
                           "naam": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
                         } ],
                         "DOCUMENT_STATUS" : [ {
-                          "aantal" : 6,
+                          "aantal" : 7,
                           "naam" : "$DOCUMENT_STATUS_DEFINITIEF"
                         }, {
                           "aantal" : 4,
@@ -712,7 +712,7 @@ class SearchRestServiceTest : BehaviorSpec({
                           "aantal" : 7,
                           "naam" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING"
                         }, {
-                          "aantal" : 2,
+                          "aantal" : 3,
                           "naam" : "$INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING"
                         }, {
                           "aantal" : 1,
@@ -726,10 +726,10 @@ class SearchRestServiceTest : BehaviorSpec({
                           "aantal" : $TOTAL_COUNT_DOCUMENTS,
                           "naam" : "ONDERTEKEND"
                         }, {
-                          "aantal" : 9,
+                          "aantal" : 10,
                           "naam" : "GEBRUIKSRECHT"
                         }, {
-                          "aantal" : 2,
+                          "aantal" : 3,
                           "naam" : "VERZONDEN"
                         } ]
                       }                                                                  
