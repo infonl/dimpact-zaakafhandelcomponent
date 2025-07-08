@@ -21,11 +21,10 @@ import net.atos.client.klant.model.SoortDigitaalAdresEnum
 import net.atos.zac.mailtemplates.MailTemplateService
 import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.mailtemplates.model.createMailTemplate
-import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
+import nl.info.client.zgw.model.createRolOrganisatorischeEenheidForReads
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZGWApiService
-import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
 import nl.info.zac.admin.model.createAutomaticEmailConfirmation
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.mail.MailService
@@ -54,7 +53,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
     Given("zaak created from productaanvraag and automatic email is enabled") {
         val zaak = createZaak()
         val zaakafhandelParameters = createZaakafhandelParameters()
-        val rolMedewerker = createRolMedewerker()
+        val rolNatuurlijk = createRolNatuurlijkPersoon()
         val receiverEmail = "receiver@server.com"
         val digitalAddress = createDigitalAddress(
             address = receiverEmail,
@@ -64,9 +63,9 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val mailGegevens = slot<MailGegevens>()
         val bronnen = slot<Bronnen>()
 
-        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolMedewerker
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNatuurlijk
         every {
-            klantClientService.findDigitalAddressesByNumber(rolMedewerker.identificatienummer)
+            klantClientService.findDigitalAddressesByNumber(rolNatuurlijk.identificatienummer)
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaakafhandelParameters.automaticEmailConfirmation.templateName)
@@ -116,16 +115,16 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
     Given("zaak created from productaanvraag and no mail template found") {
         val zaak = createZaak()
         val zaakafhandelParameters = createZaakafhandelParameters()
-        val rolMedewerker = createRolMedewerker()
+        val rolNatuurlijk = createRolNatuurlijkPersoon()
         val receiverEmail = "receiver@server.com"
         val digitalAddress = createDigitalAddress(
             address = receiverEmail,
             soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL
         )
 
-        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolMedewerker
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNatuurlijk
         every {
-            klantClientService.findDigitalAddressesByNumber(rolMedewerker.identificatienummer)
+            klantClientService.findDigitalAddressesByNumber(rolNatuurlijk.identificatienummer)
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaakafhandelParameters.automaticEmailConfirmation.templateName)
@@ -169,9 +168,11 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
     Given("zaak created from productaanvraag and initiator rol with no identification") {
         val zaak = createZaak()
         val zaakafhandelParameters = createZaakafhandelParameters()
-        val rolMedewerker = createRolNatuurlijkPersoon(natuurlijkPersoonIdentificatie = null)
+        val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheidForReads(
+            organisatorischeEenheidIdentificatie = null
+        )
 
-        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolMedewerker
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolOrganisatorischeEenheid
 
         When("sendEmailForZaakFromProductaanvraag is called") {
             shouldThrow<InitiatorNotFoundException> {
@@ -189,16 +190,11 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
     Given("zaak created from productaanvraag and initiator without email") {
         val zaak = createZaak()
         val zaakafhandelParameters = createZaakafhandelParameters()
-        val identificatie = "1234"
-        val rolNatuurlijkPersoon = createRolNatuurlijkPersoon(
-            natuurlijkPersoonIdentificatie = NatuurlijkPersoonIdentificatie().apply {
-                anpIdentificatie = identificatie
-            }
-        )
+        val rolNatuurlijk = createRolNatuurlijkPersoon()
 
-        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNatuurlijkPersoon
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNatuurlijk
         every {
-            klantClientService.findDigitalAddressesByNumber(identificatie)
+            klantClientService.findDigitalAddressesByNumber(rolNatuurlijk.identificatienummer)
         } returns emptyList()
 
         When("sendEmailForZaakFromProductaanvraag is called") {

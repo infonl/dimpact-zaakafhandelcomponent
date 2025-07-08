@@ -13,9 +13,7 @@ import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.mailtemplates.MailTemplateService
 import net.atos.zac.mailtemplates.model.MailGegevens
 import nl.info.client.zgw.shared.ZGWApiService
-import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
 import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
-import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.mail.MailService
@@ -65,25 +63,26 @@ class ProductaanvraagEmailService @Inject constructor(
         }
     }
 
+    @Suppress("ThrowsCount")
     private fun extractInitiatorEmail(createdZaak: Zaak): String {
-        val identificatie = zgwApiService.findInitiatorRoleForZaak(createdZaak)?.betrokkeneIdentificatie
+        val betrokkene = zgwApiService.findInitiatorRoleForZaak(createdZaak)?.betrokkeneIdentificatie
             ?: throw InitiatorNotFoundException(
                 "No initiator rol or identification found for the zaak: '${createdZaak.uuid}'"
             )
-        return when (identificatie) {
-            is MedewerkerIdentificatie -> extractEmail(identificatie.identificatie)
-            is NatuurlijkPersoonIdentificatie -> extractEmail(identificatie.anpIdentificatie)
-            is NietNatuurlijkPersoonIdentificatie -> extractEmail(identificatie.annIdentificatie)
-            is OrganisatorischeEenheidIdentificatie -> extractEmail(identificatie.identificatie)
-            else ->
-                throw InitiatorNotFoundException("Unknown initiator type attached to the zaak-'${createdZaak.uuid}'.")
+        val identification = when (betrokkene) {
+            is NatuurlijkPersoonIdentificatie -> betrokkene.inpBsn
+            is OrganisatorischeEenheidIdentificatie -> betrokkene.identificatie
+            else -> {
+                throw InitiatorNotFoundException(
+                    "Required type of initiator is not found for the zaak: '${createdZaak.uuid}'."
+                )
+            }
         }
-    }
-
-    private fun extractEmail(identification: String): String {
         return klantClientService.findDigitalAddressesByNumber(identification)
             .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
             ?.adres
-            ?: throw EmailAddressNotFoundException("No e-mail address found for identificatie: $identification")
+            ?: throw EmailAddressNotFoundException(
+                "No e-mail address found for identification number: '$identification'"
+            )
     }
 }

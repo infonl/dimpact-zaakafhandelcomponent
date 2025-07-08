@@ -43,8 +43,13 @@ public class MailTemplateService {
     }
 
     public Optional<MailTemplate> findMailtemplateByName(final String mailTemplateName) {
-        final var mailTemplate = entityManager.find(MailTemplate.class, mailTemplateName);
-        return mailTemplate != null ? Optional.of(mailTemplate) : Optional.empty();
+        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<MailTemplate> query = builder.createQuery(MailTemplate.class);
+        final Root<MailTemplate> root = query.from(MailTemplate.class);
+        query.select(root).where(builder.equal(root.get("mailTemplateNaam"), mailTemplateName));
+        return entityManager.createQuery(query)
+                .getResultStream()
+                .findFirst();
     }
 
     public void delete(final Long id) {
