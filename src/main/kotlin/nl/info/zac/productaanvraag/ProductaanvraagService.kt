@@ -8,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
+import jakarta.ws.rs.NotFoundException
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.Rol
@@ -553,7 +554,11 @@ class ProductaanvraagService @Inject constructor(
         assignZaak(createdZaak, zaakafhandelParameters)
         addInitiatorAndBetrokkenenToZaak(productaanvraag, createdZaak)
         cmmnService.startCase(createdZaak, zaaktype, zaakafhandelParameters, formulierData)
-        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(createdZaak, zaakafhandelParameters)
+        try {
+            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(createdZaak, zaakafhandelParameters)
+        } catch (exception: NotFoundException) {
+            LOG.log(Level.WARNING, "Failed to send confirmation email for zaak ${createdZaak.uuid}", exception)
+        }
     }
 
     private fun generateZaakExplanationFromProductaanvraag(productaanvraag: ProductaanvraagDimpact): String =
