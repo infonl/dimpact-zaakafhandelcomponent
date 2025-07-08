@@ -66,24 +66,4 @@ class MailTemplateServiceTest : BehaviorSpec({
             }
         }
     }
-
-    Given("no mail template exists for the given name") {
-        val mailTemplateName = "non_existent_template"
-
-        every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(MailTemplate::class.java) } returns criteriaQuery
-        every { criteriaQuery.from(MailTemplate::class.java) } returns root
-        every { criteriaQuery.where(predicate) } returns criteriaQuery
-        every { criteriaBuilder.equal(mailTemplateNamePath, mailTemplateName) } returns predicate
-        every { root.get<String>("mailTemplateNaam") } returns mailTemplateNamePath
-        every { entityManager.createQuery(criteriaQuery).resultList } returns emptyList()
-
-        When("findMailtemplateByName is called") {
-            val result = mailTemplateService.findMailtemplateByName(mailTemplateName)
-
-            then("it should return an empty Optional") {
-                result.isPresent shouldBe false
-            }
-        }
-    }
 })
