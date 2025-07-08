@@ -20,6 +20,15 @@
     [matDatepicker]="date"
   />
   <span *ngIf="showAmountOfDays" matSuffix>{{ control?.value | dagen }}</span>
+  <button
+    *ngIf="!control?.disabled && control?.value"
+    matSuffix
+    mat-icon-button
+    type="button"
+    (click)="control?.reset(undefined)"
+  >
+    <mat-icon>clear</mat-icon>
+  </button>
   <mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
   <mat-datepicker #date></mat-datepicker>
   <mat-error *ngIf="getErrorMessage()">{{ getErrorMessage() }}</mat-error>
