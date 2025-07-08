@@ -14,7 +14,7 @@ import net.atos.zac.mailtemplates.MailTemplateService
 import net.atos.zac.mailtemplates.model.MailGegevens
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
-import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
+import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.MailAdres
@@ -65,13 +65,13 @@ class ProductaanvraagEmailService @Inject constructor(
 
     @Suppress("ThrowsCount")
     private fun extractInitiatorEmail(createdZaak: Zaak): String {
-        val betrokkene = zgwApiService.findInitiatorRoleForZaak(createdZaak)?.betrokkeneIdentificatie
+        val betrokkeneIdentificatie = zgwApiService.findInitiatorRoleForZaak(createdZaak)?.betrokkeneIdentificatie
             ?: throw InitiatorNotFoundException(
                 "No initiator rol or identification found for the zaak: '${createdZaak.uuid}'"
             )
-        val identification = when (betrokkene) {
-            is NatuurlijkPersoonIdentificatie -> betrokkene.inpBsn
-            is OrganisatorischeEenheidIdentificatie -> betrokkene.identificatie
+        val identification = when (betrokkeneIdentificatie) {
+            is NatuurlijkPersoonIdentificatie -> betrokkeneIdentificatie.inpBsn
+            is NietNatuurlijkPersoonIdentificatie -> betrokkeneIdentificatie.vestigingsNummer
             else -> {
                 throw InitiatorNotFoundException(
                     "Required type of initiator is not found for the zaak: '${createdZaak.uuid}'."
