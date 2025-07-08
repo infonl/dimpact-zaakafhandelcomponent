@@ -39,10 +39,8 @@ When(
     await this.page.getByRole("button", { name: "Verdelen" }).click();
     await this.page.getByLabel(/groep/i).click();
     await this.page.getByRole("option").first().click();
-    const user = this.page.getByLabel(/medewerker/i);
-    await user.waitFor({ state: "visible" });
-    await this.page.waitForFunction(() => user.isEnabled());
-    await user.click();
+    await this.page.waitForFunction(() => this.page.getByLabel(/medewerker/i)?.isEnabled());
+    await this.page.getByLabel(/medewerker/i).click();
     await this.page.getByRole("option").first().click();
     await this.page.getByLabel(/reden/i).fill("Fake reason");
     await this.page.getByRole("button", { name: "Verdelen" }).click();
