@@ -239,6 +239,24 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+  pabc-database:
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  pabc-migrations:
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  pabc-api:
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   zac:
     user: "${UID}:${GID}"
     # Linux workaround for host.docker.internal support
