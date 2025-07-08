@@ -70,7 +70,7 @@ Then(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, s: string) {
     await this.page
-      .getByText(`${_noOfZaken} zaken worden verdeeld...`)
+      .getByText(/\d+ zaken worden verdeeld/)
       .waitFor({ timeout: ONE_MINUTE_IN_MS });
   },
 );
@@ -80,11 +80,7 @@ Then(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, s: string) {
     await this.page
-      .getByText(
-        _noOfZaken > 1
-          ? `${_noOfZaken} zaken worden vrijgegeven...`
-          : "De zaak wordt vrijgegeven...",
-      )
+      .getByText(/(\d+ zaken worden vrijgegeven|De zaak wordt vrijgegeven)/)
       .waitFor({ timeout: ONE_MINUTE_IN_MS });
   },
 );

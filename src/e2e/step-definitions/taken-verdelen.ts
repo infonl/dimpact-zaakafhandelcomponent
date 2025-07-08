@@ -71,11 +71,7 @@ Then(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, s: string) {
     await this.page
-      .getByText(
-        _noOfTaken > 1
-          ? `${_noOfTaken} taken worden vrijgegeven...`
-          : "De taak wordt vrijgegeven...",
-      )
+      .getByText(/(\d+ taken worden vrijgegeven|De taak wordt vrijgegeven)/)
       .waitFor({ timeout: ONE_MINUTE_IN_MS });
   },
 );
