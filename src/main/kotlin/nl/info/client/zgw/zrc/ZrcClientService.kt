@@ -141,11 +141,7 @@ class ZrcClientService @Inject constructor(
     fun listZakenUuids(filter: ZaakListParameters): Results<ZaakUuid> = zrcClient.zaakListUuids(filter)
 
     fun listZaakinformatieobjecten(filter: ZaakInformatieobjectListParameters): List<ZaakInformatieobject> =
-        runCatching {
-            zrcClient.zaakinformatieobjectList(filter)
-        }.getOrElse {
-            mutableListOf()
-        }
+        zrcClient.zaakinformatieobjectList(filter)
 
     fun listZaakinformatieobjecten(zaak: Zaak): List<ZaakInformatieobject> =
         listZaakinformatieobjecten(

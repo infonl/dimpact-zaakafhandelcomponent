@@ -14,8 +14,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolMedewerkerForReads
@@ -100,19 +98,6 @@ class ZrcClientServiceTest : BehaviorSpec({
                     zrcClient.rolDelete(medewerkerRole2.uuid)
                     zrcClient.rolDelete(organisatorischeEenheidRol.uuid)
                 }
-            }
-        }
-    }
-
-    Given("ZRC fails to fetch zaak informatieobjecten") {
-        val filter = ZaakInformatieobjectListParameters()
-        every { zrcClient.zaakinformatieobjectList(filter) } throws RuntimeException("fail")
-
-        When("listZaakinformatieobjecten is called with a filter") {
-            val result = zrcClientService.listZaakinformatieobjecten(filter)
-
-            Then("it should return an empty list") {
-                result shouldBe emptyList<ZaakInformatieobject>()
             }
         }
     }

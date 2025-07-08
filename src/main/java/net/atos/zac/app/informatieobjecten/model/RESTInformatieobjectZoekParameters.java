@@ -5,12 +5,13 @@
 
 package net.atos.zac.app.informatieobjecten.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class RESTInformatieobjectZoekParameters {
 
-    public List<UUID> informatieobjectUUIDs;
+    public List<UUID> informatieobjectUUIDs = new ArrayList<>();
 
     public UUID zaakUUID;
 
