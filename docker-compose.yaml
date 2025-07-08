@@ -723,7 +723,7 @@ services:
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
       HTTP_PORTS: "8000"
-      API_KEY__0: "unsafe-test-api-key"
+      API_KEY__0: "zac-test-api-key"
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
     ports:
       - "8006:8000"
