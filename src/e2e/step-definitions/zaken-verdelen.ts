@@ -40,8 +40,9 @@ When(
     await this.page.getByRole("button", { name: /verdelen/i }).click();
     await this.page.getByLabel(/groep/i).click();
     await this.page.getByRole("option").first().click();
-    await this.page.getByLabel("/medewerker/i").isEnabled()
-    await this.page.getByLabel("/medewerker/i").click();
+    const user = this.page.getByLabel(/medewerker/i);
+    await this.page.waitForFunction((el) => el.isEnabled(), user);
+    await user.click();
     await this.page.getByRole("option").first().click();
     await this.page.getByLabel(/reden/i).fill("Fake reason");
     await this.page.getByRole("button", { name: /verdelen/i }).click();
