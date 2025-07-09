@@ -3,30 +3,20 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable, catchError } from "rxjs";
-import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class IndexingService {
-  private basepath = "/rest/indexeren";
+  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
-  constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
-  ) {}
-
-  commitPendingChangesToSearchIndex(): Observable<void> {
-    return this.http
-      .post<void>(
-        `${this.basepath}/commit-pending-changes-to-search-index`,
-        null,
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  commitPendingChangesToSearchIndex() {
+    return this.zacHttpClient.POST(
+      "/rest/indexeren/commit-pending-changes-to-search-index",
+      undefined as never,
+      {},
+    );
   }
 }
