@@ -129,7 +129,7 @@ object ItestConfiguration {
     const val TOTAL_COUNT_ZAKEN = 11
     const val TOTAL_COUNT_ZAKEN_AFGEROND = 2
     const val TOTAL_COUNT_TASKS = 3
-    const val TOTAL_COUNT_DOCUMENTS = 9
+    const val TOTAL_COUNT_DOCUMENTS = 11
 
     /**
      * Test person that exists in both the BRP and the Klanten API databases
@@ -155,6 +155,7 @@ object ItestConfiguration {
     const val TEST_USER_1_EMAIL = "testuser1@example.com"
     const val TEST_USER_1_NAME = "Test User1 Špëçîâl Characters"
     const val TEST_USER_2_ID = "testuser2"
+    const val FUNCTIONELE_GEBRUIKER_ID = "Functionele gebruiker"
 
     /**
      * Test user 2 does not have a first name, so their full name should be equal to their last name.
@@ -235,6 +236,8 @@ object ItestConfiguration {
     const val PDF_MIME_TYPE = "application/pdf"
     val DOCUMENT_1_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000001"
     val DOCUMENT_2_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000002"
+    val DOCUMENT_3_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000003"
+    val DOCUMENT_4_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000004"
 
     /**
      * Constants used in the KVK WireMock template response

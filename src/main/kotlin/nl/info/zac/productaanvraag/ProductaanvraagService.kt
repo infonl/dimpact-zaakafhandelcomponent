@@ -50,6 +50,7 @@ import nl.info.zac.productaanvraag.exception.ProductaanvraagNotSupportedExceptio
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
+import nl.info.zac.productaanvraag.util.performAction
 import nl.info.zac.productaanvraag.util.toGeoJSONGeometry
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -75,6 +76,7 @@ class ProductaanvraagService @Inject constructor(
     private val zaakafhandelParameterBeheerService: ZaakafhandelParameterBeheerService,
     private val inboxDocumentenService: InboxDocumentenService,
     private val inboxProductaanvraagService: InboxProductaanvraagService,
+    private val productaanvraagEmailService: ProductaanvraagEmailService,
     private val cmmnService: CMMNService,
     private val configuratieService: ConfiguratieService
 ) {
@@ -187,19 +189,24 @@ class ProductaanvraagService @Inject constructor(
      *
      * @param productaanvraag the productaanvraag to add the betrokkenen from
      * @param zaak the zaak to add the betrokkenen to
+     * @return betrokkene added as initiator
      */
     private fun addInitiatorAndBetrokkenenToZaak(
         productaanvraag: ProductaanvraagDimpact,
         zaak: Zaak
-    ) {
-        var initiatorAdded = false
+    ): Betrokkene? {
+        var initiatorBetrokkene: Betrokkene? = null
         productaanvraag.betrokkenen?.forEach {
-            initiatorAdded = if (it.roltypeOmschrijving != null) {
-                addBetrokkenenWithRole(it, initiatorAdded, zaak)
+            val betrokkeneAddedAsInitiator = if (it.roltypeOmschrijving != null) {
+                addBetrokkenenWithRole(it, initiatorBetrokkene != null, zaak)
             } else {
-                addBetrokkenenWithGenericRole(it, initiatorAdded, zaak)
+                addBetrokkenenWithGenericRole(it, initiatorBetrokkene != null, zaak)
+            }
+            if (initiatorBetrokkene == null && betrokkeneAddedAsInitiator) {
+                initiatorBetrokkene = it
             }
         }
+        return initiatorBetrokkene
     }
 
     private fun addBetrokkenenWithRole(
@@ -330,17 +337,17 @@ class ProductaanvraagService @Inject constructor(
         roltypeOmschrijving: String,
         genericRolType: Boolean = false
     ) {
-        when {
-            betrokkene.inpBsn != null -> addNatuurlijkPersoonRole(type, betrokkene.inpBsn, zaak.url)
-            betrokkene.vestigingsNummer != null -> addVestigingRole(type, betrokkene.vestigingsNummer, zaak.url)
-            else -> {
+        betrokkene.performAction(
+            onNatuurlijkPersoonIdentity = { addNatuurlijkPersoonRole(type, it, zaak.url) },
+            onVestigingIdentity = { addVestigingRole(type, it, zaak.url) },
+            onNoIdentity = {
                 val prefix = if (genericRolType) "generic " else ""
                 LOG.warning(
                     "Betrokkene with ${prefix}roletype description `$roltypeOmschrijving` does not contain a BSN " +
                         "or KVK vestigingsnummer. No betrokkene role created for zaak '$zaak'."
                 )
             }
-        }
+        )
     }
 
     private fun addNatuurlijkPersoonRole(
@@ -550,8 +557,9 @@ class ProductaanvraagService @Inject constructor(
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid)
         pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, createdZaak)
         assignZaak(createdZaak, zaakafhandelParameters)
-        addInitiatorAndBetrokkenenToZaak(productaanvraag, createdZaak)
+        val betrokkene = addInitiatorAndBetrokkenenToZaak(productaanvraag, createdZaak)
         cmmnService.startCase(createdZaak, zaaktype, zaakafhandelParameters, formulierData)
+        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(createdZaak, betrokkene, zaakafhandelParameters)
     }
 
     private fun generateZaakExplanationFromProductaanvraag(productaanvraag: ProductaanvraagDimpact): String =

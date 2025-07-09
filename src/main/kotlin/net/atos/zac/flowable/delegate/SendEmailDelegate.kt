@@ -34,11 +34,10 @@ class SendEmailDelegate : AbstractDelegate() {
         val flowableHelper = FlowableHelper.getInstance()
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
 
-        val mailTemplate = flowableHelper.mailTemplateService.listMailtemplates().find {
-            it.mailTemplateNaam == template.expressionText
-        }
-        require(mailTemplate != null) {
-            "Mail template '${template.expressionText}' not found"
+        val mailTemplate = flowableHelper.mailTemplateService.findMailtemplateByName(
+            template.expressionText
+        ).orElseThrow {
+            IllegalArgumentException("Mail template '${template.expressionText}' not found")
         }
 
         LOG.info(

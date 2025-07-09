@@ -16,7 +16,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.match
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_1_IDENTIFICATION
+import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_3_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
@@ -147,7 +147,7 @@ class InformatieobjectenHistorieTest : BehaviorSpec({
                     "applicatie": "ZAC",
                     "attribuutLabel": "informatieobject",
                     "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "$DOCUMENT_1_IDENTIFICATION",
+                    "nieuweWaarde": "$DOCUMENT_3_IDENTIFICATION",
                     "toelichting": ""
                   }
                 ]
