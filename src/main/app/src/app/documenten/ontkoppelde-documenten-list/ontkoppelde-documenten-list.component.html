@@ -153,18 +153,16 @@
           <ng-container matColumnDef="actions" stickyEnd>
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let row">
-              <div class="actions-grid">
+              <div class="flex-row space-between">
                 <a
                   mat-icon-button
                   [routerLink]="['/informatie-objecten', row.documentUUID]"
-                  class="col-1"
                   title="{{ 'actie.document.bekijken' | translate }}"
                 >
                   <mat-icon>visibility</mat-icon>
                 </a>
                 <a
                   mat-icon-button
-                  class="col-2"
                   [href]="getDownloadURL(row)"
                   title="{{ 'actie.downloaden' | translate }}"
                 >
@@ -177,22 +175,21 @@
                   "
                   mat-icon-button
                   (click)="documentVerwijderen(row)"
-                  class="col-3"
                   title="{{ 'actie.verwijderen' | translate }}"
                 >
                   <mat-icon>delete</mat-icon>
                 </button>
-                <mat-icon
-                  title="{{ 'indicatie.VERGRENDELD' | translate }}"
-                  *ngIf="row.isVergrendeld"
-                  class="mat-mdc-standard-chip mat-mdc-chip-highlighted mat-accent lock-icon col-3"
-                >
-                  lock
-                </mat-icon>
+                <div *ngIf="row.isVergrendeld" class="indication">
+                  <mat-icon
+                    title="{{ 'indicatie.VERGRENDELD' | translate }}"
+                    class="mat-mdc-standard-chip mat-mdc-chip-highlighted mat-accent lock-icon"
+                  >
+                    lock
+                  </mat-icon>
+                </div>
                 <button
                   mat-icon-button
                   (click)="openDrawer(row)"
-                  class="col-4"
                   title="{{ 'actie.document.koppelen' | translate }}"
                 >
                   <mat-icon>link</mat-icon>
