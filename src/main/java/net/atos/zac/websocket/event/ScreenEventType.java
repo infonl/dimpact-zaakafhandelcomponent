@@ -418,7 +418,7 @@ public enum ScreenEventType {
     }
 
     /**
-     * Factory method for ScreenEvent (with identification of a zaak) when a zaak was skipped during handling.
+     * Factory method for ScreenEvent to skip any `eventResourceId`.
      *
      * @param eventResourceId the skipped event.
      * @return instance of the event
