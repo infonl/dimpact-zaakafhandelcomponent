@@ -21,11 +21,7 @@ import net.atos.client.klant.model.SoortDigitaalAdresEnum
 import net.atos.zac.mailtemplates.MailTemplateService
 import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.mailtemplates.model.createMailTemplate
-import nl.info.client.zgw.model.createRolNatuurlijkPersoon
-import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
-import nl.info.client.zgw.model.createRolNietNatuurlijkPersoonForReads
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.zac.admin.model.createAutomaticEmailConfirmation
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.mail.MailService
@@ -37,14 +33,12 @@ import nl.info.zac.zaak.ZaakService
 import java.util.Optional
 
 class ProductaanvraagEmailServiceTest : BehaviorSpec({
-    val zgwApiService = mockk<ZGWApiService>()
     val klantClientService = mockk<KlantClientService>()
     val zaakService = mockk<ZaakService>()
     val mailService = mockk<MailService>()
     val mailTemplateService = mockk<MailTemplateService>()
 
     val productaanvraagEmailService = ProductaanvraagEmailService(
-        zgwApiService,
         klantClientService,
         zaakService,
         mailService,
@@ -53,8 +47,8 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
     Given("zaak created from productaanvraag and automatic email is enabled") {
         val zaak = createZaak()
+        val betrokkene = createBetrokkene()
         val zaakafhandelParameters = createZaakafhandelParameters()
-        val rolNatuurlijk = createRolNatuurlijkPersoon()
         val receiverEmail = "receiver@server.com"
         val digitalAddress = createDigitalAddress(
             address = receiverEmail,
@@ -64,9 +58,8 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val mailGegevens = slot<MailGegevens>()
         val bronnen = slot<Bronnen>()
 
-        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNatuurlijk
         every {
-            klantClientService.findDigitalAddressesByNumber(rolNatuurlijk.identificatienummer)
+            klantClientService.findDigitalAddressesByNumber(betrokkene.inpBsn)
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaakafhandelParameters.automaticEmailConfirmation.templateName)
@@ -75,7 +68,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
 
         When("sendEmailForZaakFromProductaanvraag is called") {
-            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, zaakafhandelParameters)
+            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, betrokkene, zaakafhandelParameters)
 
             Then("email is sent") {
                 verify(exactly = 1) {
@@ -102,8 +95,8 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
     Given("zaak with bedrijf as an initiator is created from productaanvraag and automatic email is enabled") {
         val zaak = createZaak()
+        val betrokkene = createBetrokkene()
         val zaakafhandelParameters = createZaakafhandelParameters()
-        val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoon()
         val receiverEmail = "receiver@server.com"
         val digitalAddress = createDigitalAddress(
             address = receiverEmail,
@@ -113,9 +106,8 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val mailGegevens = slot<MailGegevens>()
         val bronnen = slot<Bronnen>()
 
-        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
         every {
-            klantClientService.findDigitalAddressesByNumber(rolNietNatuurlijkPersoon.identificatienummer)
+            klantClientService.findDigitalAddressesByNumber(betrokkene.inpBsn)
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaakafhandelParameters.automaticEmailConfirmation.templateName)
@@ -124,7 +116,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
 
         When("sendEmailForZaakFromProductaanvraag is called") {
-            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, zaakafhandelParameters)
+            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, betrokkene, zaakafhandelParameters)
 
             Then("email is sent") {
                 verify(exactly = 1) {
@@ -151,12 +143,13 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
     Given("zaak created from productaanvraag and automatic email is disabled") {
         val zaak = createZaak()
+        val betrokkene = createBetrokkene()
         val zaakafhandelParameters = createZaakafhandelParameters(
             automaticEmailConfirmation = createAutomaticEmailConfirmation(enabled = false)
         )
 
         When("sendEmailForZaakFromProductaanvraag is called") {
-            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, zaakafhandelParameters)
+            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, betrokkene, zaakafhandelParameters)
 
             Then("no action is taken") {}
         }
@@ -164,17 +157,16 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
     Given("zaak created from productaanvraag and no mail template found") {
         val zaak = createZaak()
+        val betrokkene = createBetrokkene(inBsn = null)
         val zaakafhandelParameters = createZaakafhandelParameters()
-        val rolNatuurlijk = createRolNatuurlijkPersoon()
         val receiverEmail = "receiver@server.com"
         val digitalAddress = createDigitalAddress(
             address = receiverEmail,
             soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL
         )
 
-        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNatuurlijk
         every {
-            klantClientService.findDigitalAddressesByNumber(rolNatuurlijk.identificatienummer)
+            klantClientService.findDigitalAddressesByNumber(betrokkene.vestigingsNummer)
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaakafhandelParameters.automaticEmailConfirmation.templateName)
@@ -182,7 +174,11 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
         When("sendEmailForZaakFromProductaanvraag is called") {
             val exception = shouldThrow<MailTemplateNotFoundException> {
-                productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, zaakafhandelParameters)
+                productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
+                    zaak,
+                    betrokkene,
+                    zaakafhandelParameters
+                )
             }
 
             Then("template name is logged and exception is thrown") {
@@ -196,67 +192,61 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         }
     }
 
-    Given("zaak created from productaanvraag and no initiator rol") {
+    Given("zaak created from productaanvraag and no initiator") {
         val zaak = createZaak()
         val zaakafhandelParameters = createZaakafhandelParameters()
 
-        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns null
-
         When("sendEmailForZaakFromProductaanvraag is called") {
             shouldThrow<InitiatorNotFoundException> {
-                productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, zaakafhandelParameters)
+                productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
+                    zaak,
+                    null,
+                    zaakafhandelParameters
+                )
             }
 
-            Then("exception is thrown") {
-                verify(exactly = 1) {
-                    zgwApiService.findInitiatorRoleForZaak(zaak)
-                }
-            }
+            Then("exception is thrown") {}
         }
     }
 
-    Given("zaak created from productaanvraag and initiator rol with no identification") {
+    Given("zaak created from productaanvraag and no identification for the initiator") {
         val zaak = createZaak()
+        val betrokkene = createBetrokkene(inBsn = null, vestigingsNummer = null)
         val zaakafhandelParameters = createZaakafhandelParameters()
-        val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoonForReads(
-            nietNatuurlijkPersoonIdentificatie = null
-        )
-
-        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
 
         When("sendEmailForZaakFromProductaanvraag is called") {
             shouldThrow<InitiatorNotFoundException> {
-                productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, zaakafhandelParameters)
+                productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
+                    zaak,
+                    betrokkene,
+                    zaakafhandelParameters
+                )
             }
 
-            Then("exception is thrown") {
-                verify(exactly = 1) {
-                    zgwApiService.findInitiatorRoleForZaak(zaak)
-                }
-            }
+            Then("exception is thrown") {}
         }
     }
 
     Given("zaak created from productaanvraag and initiator without email") {
         val zaak = createZaak()
+        val betrokkene = createBetrokkene()
         val zaakafhandelParameters = createZaakafhandelParameters()
-        val rolNatuurlijk = createRolNatuurlijkPersoon()
+        val digitalAddress = createDigitalAddress()
 
-        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNatuurlijk
         every {
-            klantClientService.findDigitalAddressesByNumber(rolNatuurlijk.identificatienummer)
-        } returns emptyList()
+            klantClientService.findDigitalAddressesByNumber(betrokkene.inpBsn)
+        } returns listOf(digitalAddress)
 
         When("sendEmailForZaakFromProductaanvraag is called") {
             shouldThrow<EmailAddressNotFoundException> {
-                productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, zaakafhandelParameters)
+                productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
+                    zaak,
+                    betrokkene,
+                    zaakafhandelParameters
+                )
             }
 
-            Then("exception is thrown") {
-                verify(exactly = 1) {
-                    zgwApiService.findInitiatorRoleForZaak(zaak)
-                }
-            }
+            Then("exception is thrown") {}
         }
     }
 })

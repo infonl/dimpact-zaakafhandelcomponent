@@ -12,9 +12,6 @@ import net.atos.client.klant.model.SoortDigitaalAdresEnum
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.mailtemplates.MailTemplateService
 import net.atos.zac.mailtemplates.model.MailGegevens
-import nl.info.client.zgw.shared.ZGWApiService
-import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
-import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.MailAdres
@@ -22,6 +19,7 @@ import nl.info.zac.mail.model.getBronnenFromZaak
 import nl.info.zac.productaanvraag.exception.EmailAddressNotFoundException
 import nl.info.zac.productaanvraag.exception.InitiatorNotFoundException
 import nl.info.zac.productaanvraag.exception.MailTemplateNotFoundException
+import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakService
@@ -30,7 +28,6 @@ import nl.info.zac.zaak.ZaakService
 @NoArgConstructor
 @AllOpen
 class ProductaanvraagEmailService @Inject constructor(
-    private val zgwApiService: ZGWApiService,
     private val klantClientService: KlantClientService,
     private val zaakService: ZaakService,
     private val mailService: MailService,
@@ -38,10 +35,12 @@ class ProductaanvraagEmailService @Inject constructor(
 ) {
     fun sendEmailForZaakFromProductaanvraag(
         zaakFromProductaanvraag: Zaak,
+        betrokkene: Betrokkene?,
         zaakafhandelParameters: ZaakafhandelParameters
     ) {
+        if (betrokkene == null) { throw InitiatorNotFoundException("No initiator provided") }
         zaakafhandelParameters.automaticEmailConfirmation?.takeIf { it.enabled }?.let { automaticEmailConfirmation ->
-            val to = extractInitiatorEmail(zaakFromProductaanvraag)
+            val to = extractInitiatorEmail(betrokkene)
             val mailTemplate = mailTemplateService
                 .findMailtemplateByName(automaticEmailConfirmation.templateName)
                 .orElseThrow {
@@ -64,19 +63,13 @@ class ProductaanvraagEmailService @Inject constructor(
     }
 
     @Suppress("ThrowsCount")
-    private fun extractInitiatorEmail(createdZaak: Zaak): String {
-        val betrokkeneIdentificatie = zgwApiService.findInitiatorRoleForZaak(createdZaak)?.betrokkeneIdentificatie
-            ?: throw InitiatorNotFoundException(
-                "No initiator rol or identification found for the zaak: '${createdZaak.uuid}'"
+    private fun extractInitiatorEmail(betrokkene: Betrokkene): String {
+        val identification = when {
+            betrokkene.inpBsn != null -> betrokkene.inpBsn
+            betrokkene.vestigingsNummer?.isNotBlank() == true -> betrokkene.vestigingsNummer
+            else -> throw InitiatorNotFoundException(
+                "Cannot find initiator identification for betrokkene: '$betrokkene'."
             )
-        val identification = when (betrokkeneIdentificatie) {
-            is NatuurlijkPersoonIdentificatie -> betrokkeneIdentificatie.inpBsn
-            is NietNatuurlijkPersoonIdentificatie -> betrokkeneIdentificatie.vestigingsNummer
-            else -> {
-                throw InitiatorNotFoundException(
-                    "Required type of initiator is not found for the zaak: '${createdZaak.uuid}'."
-                )
-            }
         }
         return klantClientService.findDigitalAddressesByNumber(identification)
             .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }

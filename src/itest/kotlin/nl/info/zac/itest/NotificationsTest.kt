@@ -166,7 +166,8 @@ class NotificationsTest : BehaviorSpec({
                 with(receivedMails) {
                     length() shouldBe 1
                     with(getJSONObject(0)) {
-                        getString("subject") shouldContain "Ontvangstbevestiging van zaak"
+                        getString("subject") shouldContain
+                            "Ontvangstbevestiging van zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION"
                         getString("contentType") shouldStartWith "multipart/mixed"
                         with(getString("mimeMessage")) {
                             shouldContain("Wij hebben uw verzoek ontvangen en deze op")
@@ -266,6 +267,25 @@ class NotificationsTest : BehaviorSpec({
                         getString("initiatorIdentificatie") shouldBe TEST_KVK_VESTIGINGSNUMMER_1
                         getString("initiatorIdentificatieType") shouldBe BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
                         zaakProductaanvraag2Uuid = getString("uuid").let(UUID::fromString)
+                    }
+                }
+            }
+            And("an automated email is sent") {
+                val receivedMailsResponse = itestHttpClient.performGetRequest(
+                    url = "$GREENMAIL_API_URI/user/$TEST_PERSON_HENDRIKA_JANSE_EMAIL/messages/"
+                )
+                receivedMailsResponse.code shouldBe HTTP_OK
+
+                val receivedMails = JSONArray(receivedMailsResponse.body.string())
+                with(receivedMails) {
+                    length() shouldBe 2
+                    with(getJSONObject(1)) {
+                        getString("subject") shouldContain
+                            "Ontvangstbevestiging van zaak $ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION"
+                        getString("contentType") shouldStartWith "multipart/mixed"
+                        with(getString("mimeMessage")) {
+                            shouldContain("Wij hebben uw verzoek ontvangen en deze op")
+                        }
                     }
                 }
             }

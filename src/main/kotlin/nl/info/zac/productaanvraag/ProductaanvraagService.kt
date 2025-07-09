@@ -189,19 +189,24 @@ class ProductaanvraagService @Inject constructor(
      *
      * @param productaanvraag the productaanvraag to add the betrokkenen from
      * @param zaak the zaak to add the betrokkenen to
+     * @return betrokkene added as initiator
      */
     private fun addInitiatorAndBetrokkenenToZaak(
         productaanvraag: ProductaanvraagDimpact,
         zaak: Zaak
-    ) {
-        var initiatorAdded = false
+    ): Betrokkene? {
+        var initiatorBetrokkene: Betrokkene? = null
         productaanvraag.betrokkenen?.forEach {
-            initiatorAdded = if (it.roltypeOmschrijving != null) {
-                addBetrokkenenWithRole(it, initiatorAdded, zaak)
+            val betrokkeneAddedAsInitiator = if (it.roltypeOmschrijving != null) {
+                addBetrokkenenWithRole(it, initiatorBetrokkene != null, zaak)
             } else {
-                addBetrokkenenWithGenericRole(it, initiatorAdded, zaak)
+                addBetrokkenenWithGenericRole(it, initiatorBetrokkene != null, zaak)
+            }
+            if (initiatorBetrokkene == null && betrokkeneAddedAsInitiator) {
+                initiatorBetrokkene = it
             }
         }
+        return initiatorBetrokkene
     }
 
     private fun addBetrokkenenWithRole(
@@ -552,10 +557,14 @@ class ProductaanvraagService @Inject constructor(
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid)
         pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, createdZaak)
         assignZaak(createdZaak, zaakafhandelParameters)
-        addInitiatorAndBetrokkenenToZaak(productaanvraag, createdZaak)
+        val betrokkene = addInitiatorAndBetrokkenenToZaak(productaanvraag, createdZaak)
         cmmnService.startCase(createdZaak, zaaktype, zaakafhandelParameters, formulierData)
         try {
-            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(createdZaak, zaakafhandelParameters)
+            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
+                createdZaak,
+                betrokkene,
+                zaakafhandelParameters
+            )
         } catch (exception: NotFoundException) {
             LOG.log(Level.WARNING, "Failed to send confirmation email for zaak ${createdZaak.uuid}", exception)
         }
