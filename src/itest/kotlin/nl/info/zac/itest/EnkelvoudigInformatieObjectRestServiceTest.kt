@@ -11,8 +11,8 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_1_IDENTIFICATION
-import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_2_IDENTIFICATION
+import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_3_IDENTIFICATION
+import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_4_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
@@ -123,7 +123,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                           "bestandsomvang" : ${file.length()},
                           "creatiedatum" : "${LocalDate.now()}",
                           "formaat" : "$PDF_MIME_TYPE",
-                          "identificatie" : "$DOCUMENT_1_IDENTIFICATION",
+                          "identificatie" : "$DOCUMENT_3_IDENTIFICATION",
                           "indicatieGebruiksrecht" : false,
                           "indicaties" : [ ],
                           "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
@@ -318,7 +318,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                       "bestandsomvang" : ${file.length()},
                       "creatiedatum" : "${LocalDate.now()}",
                       "formaat" : "$TEXT_MIME_TYPE",
-                      "identificatie" : "$DOCUMENT_2_IDENTIFICATION",
+                      "identificatie" : "$DOCUMENT_4_IDENTIFICATION",
                       "indicatieGebruiksrecht" : false,
                       "indicaties" : [ ],
                       "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
@@ -374,7 +374,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                           "beschrijving" : "",
                           "creatiedatum" : "${LocalDate.now()}",
                           "formaat" : "$PDF_MIME_TYPE",
-                          "identificatie" : "$DOCUMENT_2_IDENTIFICATION",
+                          "identificatie" : "$DOCUMENT_4_IDENTIFICATION",
                           "indicatieGebruiksrecht" : false,
                           "indicaties" : [ ],
                           "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",

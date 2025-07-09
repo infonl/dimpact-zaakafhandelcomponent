@@ -62,6 +62,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     val zaakafhandelParameterBeheerService = mockk<ZaakafhandelParameterBeheerService>()
     val inboxDocumentenService = mockk<InboxDocumentenService>()
     val inboxProductaanvraagService = mockk<InboxProductaanvraagService>()
+    val productaanvraagEmailService = mockk<ProductaanvraagEmailService>()
     val cmmnService = mockk<CMMNService>()
     val configuratieService = mockk<ConfiguratieService>()
     val productaanvraagService = ProductaanvraagService(
@@ -75,6 +76,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         zaakafhandelParameterBeheerService = zaakafhandelParameterBeheerService,
         inboxDocumentenService = inboxDocumentenService,
         inboxProductaanvraagService = inboxProductaanvraagService,
+        productaanvraagEmailService = productaanvraagEmailService,
         cmmnService = cmmnService,
         configuratieService = configuratieService
     )
