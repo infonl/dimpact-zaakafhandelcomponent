@@ -44,7 +44,6 @@ import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
-import { TaakStatus } from "../model/taak-status.enum";
 import { TakenService } from "../taken.service";
 import { FormioSetupService } from "./formio/formio-setup-service";
 
@@ -100,7 +99,8 @@ export class TaakViewComponent
   posts = 0;
   private taakListener?: WebsocketListener;
   private ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
-  readonly TaakStatusAfgerond = TaakStatus.Afgerond;
+  readonly TaakStatusAfgerond =
+    "AFGEROND" satisfies GeneratedType<"TaakStatus">;
 
   constructor(
     private route: ActivatedRoute,
@@ -192,10 +192,7 @@ export class TaakViewComponent
     taak: GeneratedType<"RestTask">,
     zaak: GeneratedType<"RestZaak">,
   ) {
-    if (
-      this.taak?.status !== TaakStatus.Afgerond &&
-      this.taak?.rechten.wijzigen
-    ) {
+    if (this.taak?.status !== "AFGEROND" && this.taak?.rechten.wijzigen) {
       this.formConfig = new FormConfigBuilder()
         .partialText("actie.opslaan")
         .saveText("actie.opslaan.afronden")
@@ -228,9 +225,7 @@ export class TaakViewComponent
   }
 
   isReadonly() {
-    return (
-      this.taak?.status === TaakStatus.Afgerond || !this.taak?.rechten.wijzigen
-    );
+    return this.taak?.status === "AFGEROND" || !this.taak?.rechten.wijzigen;
   }
 
   private setEditableFormFields(): void {
