@@ -127,26 +127,17 @@ class ZaakService @Inject constructor(
             return
         }
 
-        val zakenAssignedList = mutableListOf<UUID>()
-        zaakUUIDs
+        val zakenAssignedList = zaakUUIDs
             .map(zrcClientService::readZaak)
-            .filter { isZaakOpen(it) }
-            .filter { group.hasDomainAccess(it) }
-            .map { zaak ->
-                zrcClientService.updateRol(
-                    zaak,
-                    bepaalRolGroep(group, zaak),
-                    explanation
-                )
+            .filter { isZaakOpen(it) && group.hasDomainAccess(it) }
+            .onEach { zaak ->
+                zrcClientService.updateRol(zaak, bepaalRolGroep(group, zaak), explanation)
                 user?.let {
-                    zrcClientService.updateRol(
-                        zaak,
-                        bepaalRolMedewerker(it, zaak),
-                        explanation
-                    )
+                    zrcClientService.updateRol(zaak, bepaalRolMedewerker(it, zaak), explanation)
                 } ?: zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, explanation)
-                zakenAssignedList.add(zaak.uuid)
             }
+            .map { it.uuid }
+
         LOG.fine { "Successfully assigned ${zakenAssignedList.size} zaken." }
 
         // if a screen event resource ID was specified, send an 'updated zaken_verdelen' screen event
