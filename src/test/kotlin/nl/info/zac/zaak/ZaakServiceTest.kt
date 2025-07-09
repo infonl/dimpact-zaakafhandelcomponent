@@ -1115,7 +1115,7 @@ class ZaakServiceTest : BehaviorSpec({
                 }
             }
 
-            And("a final screen event of type 'zaken verdelen' should be sent") {
+            And("a final screen event of type 'zaken verdelen' should be skipped") {
                 with(screenEventSlot.captured) {
                     opcode shouldBe Opcode.SKIPPED
                     objectType shouldBe ScreenEventType.ZAKEN_VERDELEN
