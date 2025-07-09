@@ -119,35 +119,41 @@ class ZaakService @Inject constructor(
             "Started to assign ${zaakUUIDs.size} zaken with screen event resource ID: '$screenEventResourceId'."
         }
 
-        if (isUserInGroup(user, group, zaakUUIDs)) {
-            val zakenAssignedList = mutableListOf<UUID>()
-            zaakUUIDs
-                .map(zrcClientService::readZaak)
-                .filter { isZaakOpen(it) }
-                .filter { group.hasDomainAccess(it) }
-                .map { zaak ->
+        if (!isUserInGroup(user, group, zaakUUIDs)) {
+            screenEventResourceId?.let {
+                LOG.fine { "Sending 'ZAKEN_VERDELEN' skipped screen event with ID '$it'." }
+                eventingService.send(ScreenEventType.ZAKEN_VERDELEN.skipped(it))
+            }
+            return
+        }
+
+        val zakenAssignedList = mutableListOf<UUID>()
+        zaakUUIDs
+            .map(zrcClientService::readZaak)
+            .filter { isZaakOpen(it) }
+            .filter { group.hasDomainAccess(it) }
+            .map { zaak ->
+                zrcClientService.updateRol(
+                    zaak,
+                    bepaalRolGroep(group, zaak),
+                    explanation
+                )
+                user?.let {
                     zrcClientService.updateRol(
                         zaak,
-                        bepaalRolGroep(group, zaak),
+                        bepaalRolMedewerker(it, zaak),
                         explanation
                     )
-                    user?.let {
-                        zrcClientService.updateRol(
-                            zaak,
-                            bepaalRolMedewerker(it, zaak),
-                            explanation
-                        )
-                    } ?: zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, explanation)
-                    zakenAssignedList.add(zaak.uuid)
-                }
-            LOG.fine { "Successfully assigned ${zakenAssignedList.size} zaken." }
-        }
+                } ?: zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, explanation)
+                zakenAssignedList.add(zaak.uuid)
+            }
+        LOG.fine { "Successfully assigned ${zakenAssignedList.size} zaken." }
 
         // if a screen event resource ID was specified, send an 'updated zaken_verdelen' screen event
         // with the job UUID so that it can be picked up by a client
         // that has created a websocket subscription to this event
         screenEventResourceId?.let {
-            LOG.fine { "Sending 'ZAKEN_VERDELEN' screen event with ID '$it'." }
+            LOG.fine { "Sending 'ZAKEN_VERDELEN' updated screen event with ID '$it'." }
             eventingService.send(ScreenEventType.ZAKEN_VERDELEN.updated(it))
         }
     }

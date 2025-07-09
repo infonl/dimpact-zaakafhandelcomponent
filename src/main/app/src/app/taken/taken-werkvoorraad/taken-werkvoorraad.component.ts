@@ -245,14 +245,14 @@ export class TakenWerkvoorraadComponent
           if (event.opcode !== Opcode.UPDATED) return;
 
           const taak = this.dataSource.data.find((task) => task.id === id);
+          if (!taak) return;
 
-          if (!taak || !this.toekenning) return;
-          taak.groepNaam = this.toekenning.groep?.naam || taak.groepNaam;
-          taak.groepID = this.toekenning.groep?.id || taak.groepID;
+          taak.groepNaam = this.toekenning?.groep?.naam ?? taak.groepNaam;
+          taak.groepID = this.toekenning?.groep?.id ?? taak.groepID;
 
           taak.behandelaarGebruikersnaam =
-            this.toekenning.medewerker?.id ?? undefined;
-          taak.behandelaarNaam = this.toekenning.medewerker?.naam ?? undefined;
+            this.toekenning?.medewerker?.id ?? undefined;
+          taak.behandelaarNaam = this.toekenning?.medewerker?.naam ?? undefined;
         },
       },
       finalSubscription: {
@@ -262,44 +262,44 @@ export class TakenWerkvoorraadComponent
       },
       finally: () => {
         this.selection.clear();
-        this.dataSource.load();
+        this.dataSource.load(1_000);
         this.takenLoading.set(false);
         this.batchProcessService.stop();
       },
     });
 
-    const dialogRef = this.dialog.open(dialogComponent, {
-      data: {
-        taken: tasks,
-        screenEventResourceId,
-      },
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (!result) {
-        this.batchProcessService.stop();
-        return;
-      }
-
-      if (!release) this.toekenning = result;
-
-      const message =
-        tasks.length === 1
-          ? this.translateService.instant(
-              release ? "msg.vrijgegeven.taak" : "msg.verdeeld.taak",
-            )
-          : this.translateService.instant(
-              release ? "msg.vrijgegeven.taken" : "msg.verdeeld.taken",
-              {
-                aantal: tasks.length,
-              },
-            );
-      this.batchProcessService.showProgress(message, {
-        onTimeout: () => {
-          this.utilService.openSnackbar("msg.error.timeout");
+    this.dialog
+      .open(dialogComponent, {
+        data: {
+          taken: tasks,
+          screenEventResourceId,
         },
+      })
+      .beforeClosed()
+      .subscribe((result) => {
+        this.toekenning = typeof result === "object" ? result : undefined;
+        if (!result) {
+          this.batchProcessService.stop();
+          return;
+        }
+
+        const message =
+          tasks.length === 1
+            ? this.translateService.instant(
+                release ? "msg.vrijgegeven.taak" : "msg.verdeeld.taak",
+              )
+            : this.translateService.instant(
+                release ? "msg.vrijgegeven.taken" : "msg.verdeeld.taken",
+                {
+                  aantal: tasks.length,
+                },
+              );
+        this.batchProcessService.showProgress(message, {
+          onTimeout: () => {
+            this.utilService.openSnackbar("msg.error.timeout");
+          },
+        });
       });
-    });
   }
 
   ngOnDestroy(): void {
