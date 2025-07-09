@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
-import jakarta.ws.rs.NotFoundException
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.Rol
@@ -51,6 +50,7 @@ import nl.info.zac.productaanvraag.exception.ProductaanvraagNotSupportedExceptio
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
+import nl.info.zac.productaanvraag.util.performAction
 import nl.info.zac.productaanvraag.util.toGeoJSONGeometry
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -337,17 +337,17 @@ class ProductaanvraagService @Inject constructor(
         roltypeOmschrijving: String,
         genericRolType: Boolean = false
     ) {
-        when {
-            betrokkene.inpBsn != null -> addNatuurlijkPersoonRole(type, betrokkene.inpBsn, zaak.url)
-            betrokkene.vestigingsNummer != null -> addVestigingRole(type, betrokkene.vestigingsNummer, zaak.url)
-            else -> {
+        betrokkene.performAction(
+            onNatuurlijkPersoonIdentity = { addNatuurlijkPersoonRole(type, it, zaak.url) },
+            onVestigingIdentity = { addVestigingRole(type, it, zaak.url) },
+            onNoIdentity = {
                 val prefix = if (genericRolType) "generic " else ""
                 LOG.warning(
                     "Betrokkene with ${prefix}roletype description `$roltypeOmschrijving` does not contain a BSN " +
                         "or KVK vestigingsnummer. No betrokkene role created for zaak '$zaak'."
                 )
             }
-        }
+        )
     }
 
     private fun addNatuurlijkPersoonRole(
@@ -559,15 +559,7 @@ class ProductaanvraagService @Inject constructor(
         assignZaak(createdZaak, zaakafhandelParameters)
         val betrokkene = addInitiatorAndBetrokkenenToZaak(productaanvraag, createdZaak)
         cmmnService.startCase(createdZaak, zaaktype, zaakafhandelParameters, formulierData)
-        try {
-            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
-                createdZaak,
-                betrokkene,
-                zaakafhandelParameters
-            )
-        } catch (exception: NotFoundException) {
-            LOG.log(Level.WARNING, "Failed to send confirmation email for zaak ${createdZaak.uuid}", exception)
-        }
+        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(createdZaak, betrokkene, zaakafhandelParameters)
     }
 
     private fun generateZaakExplanationFromProductaanvraag(productaanvraag: ProductaanvraagDimpact): String =

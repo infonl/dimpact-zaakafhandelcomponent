@@ -16,13 +16,12 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
-import nl.info.zac.productaanvraag.exception.EmailAddressNotFoundException
-import nl.info.zac.productaanvraag.exception.InitiatorNotFoundException
-import nl.info.zac.productaanvraag.exception.MailTemplateNotFoundException
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
+import nl.info.zac.productaanvraag.util.performAction
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakService
+import java.util.logging.Logger
 
 @ApplicationScoped
 @NoArgConstructor
@@ -33,21 +32,44 @@ class ProductaanvraagEmailService @Inject constructor(
     private val mailService: MailService,
     private val mailTemplateService: MailTemplateService,
 ) {
+    companion object {
+        private val LOG = Logger.getLogger(ProductaanvraagEmailService::class.java.name)
+    }
+
+    @Suppress("ReturnCount")
     fun sendEmailForZaakFromProductaanvraag(
         zaakFromProductaanvraag: Zaak,
         betrokkene: Betrokkene?,
         zaakafhandelParameters: ZaakafhandelParameters
     ) {
-        if (betrokkene == null) { throw InitiatorNotFoundException("No initiator provided") }
         zaakafhandelParameters.automaticEmailConfirmation?.takeIf { it.enabled }?.let { automaticEmailConfirmation ->
+            if (betrokkene == null) {
+                LOG.fine(
+                    "No initiator provided for zaak '$zaakFromProductaanvraag'. " +
+                        "Skipping automatic email confirmation."
+                )
+                return
+            }
             val to = extractInitiatorEmail(betrokkene)
+            if (to == null) {
+                LOG.fine(
+                    "No email address found for initiator '$betrokkene'. " +
+                        "Skipping automatic email confirmation."
+                )
+                return
+            }
+
             val mailTemplate = mailTemplateService
                 .findMailtemplateByName(automaticEmailConfirmation.templateName)
-                .orElseThrow {
-                    MailTemplateNotFoundException(
-                        "No mail template found with name: '${automaticEmailConfirmation.templateName}'"
-                    )
-                }
+                .orElse(null)
+            if (mailTemplate == null) {
+                LOG.warning(
+                    "No mail template found with name: '${automaticEmailConfirmation.templateName}'. " +
+                        "Skipping automatic email confirmation."
+                )
+                return
+            }
+
             val mailGegevens = MailGegevens(
                 MailAdres(automaticEmailConfirmation.emailSender, null),
                 MailAdres(to, null),
@@ -62,20 +84,15 @@ class ProductaanvraagEmailService @Inject constructor(
         }
     }
 
-    @Suppress("ThrowsCount")
-    private fun extractInitiatorEmail(betrokkene: Betrokkene): String {
-        val identification = when {
-            betrokkene.inpBsn != null -> betrokkene.inpBsn
-            betrokkene.vestigingsNummer?.isNotBlank() == true -> betrokkene.vestigingsNummer
-            else -> throw InitiatorNotFoundException(
-                "Cannot find initiator identification for betrokkene: '$betrokkene'."
-            )
-        }
-        return klantClientService.findDigitalAddressesByNumber(identification)
+    private fun extractInitiatorEmail(betrokkene: Betrokkene) =
+        betrokkene.performAction(
+            onNatuurlijkPersoonIdentity = ::fetchEmail,
+            onVestigingIdentity = ::fetchEmail,
+            onNoIdentity = { null }
+        )
+
+    private fun fetchEmail(identity: String): String? =
+        klantClientService.findDigitalAddressesByNumber(identity)
             .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
             ?.adres
-            ?: throw EmailAddressNotFoundException(
-                "No e-mail address found for identification number: '$identification'"
-            )
-    }
 }

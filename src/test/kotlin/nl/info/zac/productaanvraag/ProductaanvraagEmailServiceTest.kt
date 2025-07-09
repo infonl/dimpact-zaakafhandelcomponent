@@ -5,10 +5,8 @@
 
 package nl.info.zac.productaanvraag
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -26,9 +24,6 @@ import nl.info.zac.admin.model.createAutomaticEmailConfirmation
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
-import nl.info.zac.productaanvraag.exception.EmailAddressNotFoundException
-import nl.info.zac.productaanvraag.exception.InitiatorNotFoundException
-import nl.info.zac.productaanvraag.exception.MailTemplateNotFoundException
 import nl.info.zac.zaak.ZaakService
 import java.util.Optional
 
@@ -173,16 +168,9 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         } returns Optional.empty()
 
         When("sendEmailForZaakFromProductaanvraag is called") {
-            val exception = shouldThrow<MailTemplateNotFoundException> {
-                productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
-                    zaak,
-                    betrokkene,
-                    zaakafhandelParameters
-                )
-            }
+            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, betrokkene, zaakafhandelParameters)
 
-            Then("template name is logged and exception is thrown") {
-                exception.message shouldContain zaakafhandelParameters.automaticEmailConfirmation.templateName
+            Then("no mail is sent") {
                 verify(exactly = 1) {
                     mailTemplateService.findMailtemplateByName(
                         zaakafhandelParameters.automaticEmailConfirmation.templateName
@@ -197,15 +185,9 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val zaakafhandelParameters = createZaakafhandelParameters()
 
         When("sendEmailForZaakFromProductaanvraag is called") {
-            shouldThrow<InitiatorNotFoundException> {
-                productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
-                    zaak,
-                    null,
-                    zaakafhandelParameters
-                )
-            }
+            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, null, zaakafhandelParameters)
 
-            Then("exception is thrown") {}
+            Then("no mail is sent") {}
         }
     }
 
@@ -215,15 +197,9 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val zaakafhandelParameters = createZaakafhandelParameters()
 
         When("sendEmailForZaakFromProductaanvraag is called") {
-            shouldThrow<InitiatorNotFoundException> {
-                productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
-                    zaak,
-                    betrokkene,
-                    zaakafhandelParameters
-                )
-            }
+            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, betrokkene, zaakafhandelParameters)
 
-            Then("exception is thrown") {}
+            Then("no mail is sent") {}
         }
     }
 
@@ -238,15 +214,9 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         } returns listOf(digitalAddress)
 
         When("sendEmailForZaakFromProductaanvraag is called") {
-            shouldThrow<EmailAddressNotFoundException> {
-                productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
-                    zaak,
-                    betrokkene,
-                    zaakafhandelParameters
-                )
-            }
+            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, betrokkene, zaakafhandelParameters)
 
-            Then("exception is thrown") {}
+            Then("no mail is sent") {}
         }
     }
 })
