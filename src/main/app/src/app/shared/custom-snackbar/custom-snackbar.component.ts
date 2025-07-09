@@ -50,13 +50,27 @@ import { MatIconModule } from "@angular/material/icon";
         color: black;
       }
 
+      /* Target the mat-icon-button properly */
       button.mat-icon-button {
         background-color: transparent !important;
+        border-radius: 50%;
+        outline: none !important; /* ✅ Fully remove default focus outline */
+        box-shadow: none !important; /* ✅ Remove default Angular Material ring */
+        transition:
+          box-shadow 0.3s ease,
+          transform 0.2s ease;
       }
 
+      /* Add our custom "jazzed" glow effect */
       button.mat-icon-button:hover,
-      button.mat-icon-button:focus {
+      button.mat-icon-button:focus,
+      button.mat-icon-button.cdk-focused,
+      button.mat-icon-button.cdk-program-focused {
         background-color: transparent !important;
+        box-shadow:
+          0 0 0 3px rgba(255, 64, 129, 0.5),
+          0 0 10px rgba(124, 77, 255, 0.6);
+        transform: scale(1.1);
       }
 
       @keyframes fadeIn {
