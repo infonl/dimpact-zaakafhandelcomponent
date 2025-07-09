@@ -6,7 +6,6 @@
 import { DividerFormFieldBuilder } from "../../shared/material-form-builder/form-components/divider/divider-form-field-builder";
 import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { TaakStatus } from "../../taken/model/taak-status.enum";
 import { AbstractTaakFormulier } from "./abstract-taak-formulier";
 
 export class TaakFormulierBuilder {
@@ -58,7 +57,7 @@ export class TaakFormulierBuilder {
     this._formulier.tabellen = taak.tabellen;
     this._formulier.dataElementen = taak.taakdata ?? {};
     this._formulier.initBehandelForm(
-      taak.status === TaakStatus.Afgerond || !taak.rechten.wijzigen,
+      taak.status === "AFGEROND" || !taak.rechten.wijzigen,
     );
     return this;
   }

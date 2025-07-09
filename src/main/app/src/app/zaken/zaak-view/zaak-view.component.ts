@@ -54,7 +54,6 @@ import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { Taak } from "../../taken/model/taak";
-import { TaakStatus } from "../../taken/model/taak-status.enum";
 import { TakenService } from "../../taken/taken.service";
 import { IntakeAfrondenDialogComponent } from "../intake-afronden-dialog/intake-afronden-dialog.component";
 import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
@@ -1046,7 +1045,7 @@ export class ZaakViewComponent
 
   showAssignTaakToMe(taak: Taak) {
     return Boolean(
-      taak.status !== TaakStatus.Afgerond &&
+      taak.status !== "AFGEROND" &&
         taak.rechten.toekennen &&
         this.loggedInUser.id !== taak.behandelaar?.id &&
         (this.loggedInUser.groupIds ?? []).indexOf(taak.groep.id) >= 0,
@@ -1475,11 +1474,11 @@ export class ZaakViewComponent
     return this.zaak.zaakdata && Object.keys(this.zaak.zaakdata).length > 0;
   }
 
-  protected taskStatusChipColor(status: TaakStatus) {
+  protected taskStatusChipColor(status: GeneratedType<"TaakStatus">) {
     switch (status) {
-      case TaakStatus.Afgerond:
+      case "AFGEROND":
         return "success";
-      case TaakStatus.Toegekend:
+      case "TOEGEKEND":
         return "primary";
       default:
         return "";
