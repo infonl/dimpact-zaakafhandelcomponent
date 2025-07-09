@@ -99,7 +99,8 @@ export class TaakViewComponent
   posts = 0;
   private taakListener?: WebsocketListener;
   private ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
-  readonly TaakStatusAfgerond = "AFGEROND" satisfies GeneratedType<"TaakStatus">;
+  readonly TaakStatusAfgerond =
+    "AFGEROND" satisfies GeneratedType<"TaakStatus">;
 
   constructor(
     private route: ActivatedRoute,
@@ -191,10 +192,7 @@ export class TaakViewComponent
     taak: GeneratedType<"RestTask">,
     zaak: GeneratedType<"RestZaak">,
   ) {
-    if (
-      this.taak?.status !== "AFGEROND" &&
-      this.taak?.rechten.wijzigen
-    ) {
+    if (this.taak?.status !== "AFGEROND" && this.taak?.rechten.wijzigen) {
       this.formConfig = new FormConfigBuilder()
         .partialText("actie.opslaan")
         .saveText("actie.opslaan.afronden")
@@ -227,9 +225,7 @@ export class TaakViewComponent
   }
 
   isReadonly() {
-    return (
-      this.taak?.status === "AFGEROND" || !this.taak?.rechten.wijzigen
-    );
+    return this.taak?.status === "AFGEROND" || !this.taak?.rechten.wijzigen;
   }
 
   private setEditableFormFields(): void {
