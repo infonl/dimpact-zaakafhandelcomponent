@@ -418,6 +418,16 @@ public enum ScreenEventType {
     }
 
     /**
+     * Factory method for ScreenEvent to skip any `eventResourceId`.
+     *
+     * @param eventResourceId the skipped event.
+     * @return instance of the event
+     */
+    public final ScreenEvent skipped(final String eventResourceId) {
+        return event(SKIPPED, eventResourceId);
+    }
+
+    /**
      * Factory method for ScreenEvent (with case identification).
      *
      * @param enkelvoudigInformatieobject deleted enkelvoudigInformatieobject.

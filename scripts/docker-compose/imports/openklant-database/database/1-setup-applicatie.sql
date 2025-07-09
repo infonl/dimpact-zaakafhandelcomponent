@@ -29,9 +29,9 @@ INSERT INTO public.klantinteracties_betrokkene (id, bezoekadres_nummeraanduiding
     VALUES (2, '', '', '', '', '','', '','','','', '', '', '', '', '','','','','NiF', 'Name', 'in', 'Family', 'b5f8a612-da29-3ad6-8347-d1552f63f7ac', 'klant', '', true, 2, 1);
 INSERT INTO public.klantinteracties_betrokkene (id, bezoekadres_nummeraanduiding_id, bezoekadres_adresregel1, bezoekadres_adresregel2, bezoekadres_adresregel3, bezoekadres_huisnummertoevoeging, bezoekadres_postcode, bezoekadres_straatnaam, bezoekadres_stad, bezoekadres_land, correspondentieadres_nummeraanduiding_id, correspondentieadres_adresregel1, correspondentieadres_adresregel2, correspondentieadres_adresregel3, correspondentieadres_huisnummertoevoeging, correspondentieadres_postcode, correspondentieadres_straatnaam, correspondentieadres_stad, correspondentieadres_land, contactnaam_voorletters, contactnaam_voornaam, contactnaam_voorvoegsel_achternaam, contactnaam_achternaam, uuid, rol, organisatienaam, initiator, klantcontact_id, partij_id)
     VALUES (3, '', '', '', '', '','', '','','','', '', '', '', '','', '','','','HoF', 'Head', 'of', 'Family', 'b5f8a613-da19-3ad6-83c7-d1552e63f6ac', 'klant', '', false, 2, 1);
-INSERT INTO public.klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id)
-    VALUES (1, 'cda1e8e5-bf0a-49d7-a395-b19e406474b7', 'email', 'true','hendrika.janse@example.com', 'email address', 1, 1);
-INSERT INTO public.klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id)
-    VALUES (2, '61734758-761c-47eb-bc6b-c46eb7ba629d', 'telefoonnummer', 'true','0612345678', 'phone number', 1, 1);
+INSERT INTO public.klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
+    VALUES (1, 'cda1e8e5-bf0a-49d7-a395-b19e406474b7', 'email', 'true','hendrika.janse@example.com', 'email address', 1, 1, 'referentie1');
+INSERT INTO public.klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
+    VALUES (2, '61734758-761c-47eb-bc6b-c46eb7ba629d', 'telefoonnummer', 'true','0612345678', 'phone number', 1, 1, 'referentie2');
 INSERT INTO public.klantinteracties_persoon (id, contactnaam_voorletters, contactnaam_voornaam, contactnaam_voorvoegsel_achternaam, contactnaam_achternaam, partij_id)
     VALUES (1, 'FtL', 'First', 'to', 'Last', 1);

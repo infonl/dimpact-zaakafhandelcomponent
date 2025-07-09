@@ -169,7 +169,7 @@ class TaskService @Inject constructor(
                 indexingService.indexeerDirect(restTask.taakId, ZoekObjectType.TAAK, false)
                 successfullyAssignedTaskIds.add(restTask.taakId)
             } catch (taskNotFoundException: TaskNotFoundException) {
-                // continue assigning remaining tasks if particular open task could not be found
+                // continue assigning remaining tasks if a particular open task could not be found
                 LOG.log(
                     Level.SEVERE,
                     "No open task with ID '${restTask.taakId}' found while assigning tasks. Skipping task.",
