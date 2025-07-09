@@ -9,6 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import net.atos.client.klant.KlantClientService
 import net.atos.client.klant.model.SoortDigitaalAdresEnum
+import net.atos.zac.admin.model.AutomaticEmailConfirmation
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.mailtemplates.MailTemplateService
 import net.atos.zac.mailtemplates.model.MailGegevens
@@ -36,51 +37,23 @@ class ProductaanvraagEmailService @Inject constructor(
         private val LOG = Logger.getLogger(ProductaanvraagEmailService::class.java.name)
     }
 
-    @Suppress("ReturnCount")
     fun sendEmailForZaakFromProductaanvraag(
         zaakFromProductaanvraag: Zaak,
         betrokkene: Betrokkene?,
         zaakafhandelParameters: ZaakafhandelParameters
     ) {
         zaakafhandelParameters.automaticEmailConfirmation?.takeIf { it.enabled }?.let { automaticEmailConfirmation ->
-            if (betrokkene == null) {
-                LOG.fine(
-                    "No initiator provided for zaak '$zaakFromProductaanvraag'. " +
-                        "Skipping automatic email confirmation."
+            betrokkene?.let { initiator ->
+                extractInitiatorEmail(initiator)?.let { to ->
+                    sendMail(automaticEmailConfirmation, to, zaakFromProductaanvraag)
+                } ?: LOG.fine(
+                    "No email address found for initiator '$initiator'. " +
+                            "Skipping automatic email confirmation."
                 )
-                return
-            }
-            val to = extractInitiatorEmail(betrokkene)
-            if (to == null) {
-                LOG.fine(
-                    "No email address found for initiator '$betrokkene'. " +
+            } ?: LOG.fine(
+                "No initiator provided for zaak '$zaakFromProductaanvraag'. " +
                         "Skipping automatic email confirmation."
-                )
-                return
-            }
-
-            val mailTemplate = mailTemplateService
-                .findMailtemplateByName(automaticEmailConfirmation.templateName)
-                .orElse(null)
-            if (mailTemplate == null) {
-                LOG.warning(
-                    "No mail template found with name: '${automaticEmailConfirmation.templateName}'. " +
-                        "Skipping automatic email confirmation."
-                )
-                return
-            }
-
-            val mailGegevens = MailGegevens(
-                MailAdres(automaticEmailConfirmation.emailSender, null),
-                MailAdres(to, null),
-                MailAdres(automaticEmailConfirmation.emailReply, null),
-                mailTemplate.onderwerp,
-                mailTemplate.body,
-                null,
-                true
             )
-            mailService.sendMail(mailGegevens, zaakFromProductaanvraag.getBronnenFromZaak())
-            zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaakFromProductaanvraag)
         }
     }
 
@@ -95,4 +68,28 @@ class ProductaanvraagEmailService @Inject constructor(
         klantClientService.findDigitalAddressesByNumber(identity)
             .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
             ?.adres
+
+    private fun sendMail(
+        automaticEmailConfirmation: AutomaticEmailConfirmation,
+        to: String,
+        zaakFromProductaanvraag: Zaak
+    ) {
+        mailTemplateService.findMailtemplateByName(automaticEmailConfirmation.templateName)
+            .orElse(null)?.let { mailTemplate ->
+                val mailGegevens = MailGegevens(
+                    MailAdres(automaticEmailConfirmation.emailSender, null),
+                    MailAdres(to, null),
+                    MailAdres(automaticEmailConfirmation.emailReply, null),
+                    mailTemplate.onderwerp,
+                    mailTemplate.body,
+                    null,
+                    true
+                )
+                mailService.sendMail(mailGegevens, zaakFromProductaanvraag.getBronnenFromZaak())
+                zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaakFromProductaanvraag)
+            } ?: LOG.warning(
+            "No mail template found with name: '${automaticEmailConfirmation.templateName}'. " +
+                    "Skipping automatic email confirmation."
+        )
+    }
 }
