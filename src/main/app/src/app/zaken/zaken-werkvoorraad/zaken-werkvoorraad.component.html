@@ -510,11 +510,11 @@
             <mat-icon>visibility</mat-icon>
           </a>
           <button
+            *ngIf="showAssignToMe(row)"
             mat-icon-button
             [id]="'kenZaakAanMijToe_' + row.identificatie + '_button'"
             title="{{ 'actie.mij.toekennen' | translate }}"
             (click)="assignToMe(row, $event)"
-            *ngIf="showAssignToMe(row)"
           >
             <mat-icon outlined>person_add</mat-icon>
           </button>
