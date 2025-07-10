@@ -191,7 +191,7 @@ class ProjectConfig : AbstractProjectConfig() {
 
     /**
      * The integration tests assume a clean environment.
-     * For that reason we first need to remove any local Docker volume data that may have been created
+     * For that reason, we first need to remove any local Docker volume data that may have been created
      *  by a previous run.
      * Local Docker volume data is created because we reuse the same Docker Compose file that we also
      * use for running ZAC locally.

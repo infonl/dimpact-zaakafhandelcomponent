@@ -72,10 +72,10 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 with(mailGegevens.captured) {
                     from.email shouldBe zaakafhandelParameters.automaticEmailConfirmation.emailSender
                     to.email shouldBe receiverEmail
-                    replyTo.email shouldBe zaakafhandelParameters.automaticEmailConfirmation.emailReply
+                    replyTo!!.email shouldBe zaakafhandelParameters.automaticEmailConfirmation.emailReply
                     subject shouldBe mailTemplate.onderwerp
                     body shouldBe mailTemplate.body
-                    attachments shouldBe emptyArray()
+                    attachments shouldBe emptyList()
                     isCreateDocumentFromMail shouldBe true
                 }
             }
@@ -120,10 +120,10 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 with(mailGegevens.captured) {
                     from.email shouldBe zaakafhandelParameters.automaticEmailConfirmation.emailSender
                     to.email shouldBe receiverEmail
-                    replyTo.email shouldBe zaakafhandelParameters.automaticEmailConfirmation.emailReply
+                    replyTo!!.email shouldBe zaakafhandelParameters.automaticEmailConfirmation.emailReply
                     subject shouldBe mailTemplate.onderwerp
                     body shouldBe mailTemplate.body
-                    attachments shouldBe emptyArray()
+                    attachments shouldBe emptyList()
                     isCreateDocumentFromMail shouldBe true
                 }
             }

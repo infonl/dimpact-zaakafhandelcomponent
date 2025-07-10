@@ -2,32 +2,25 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.mailtemplates.model;
+package net.atos.zac.mailtemplates.model
 
-import java.net.URI;
+import org.apache.commons.lang3.StringUtils
+import org.apache.commons.text.StringEscapeUtils
+import java.net.URI
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringEscapeUtils;
+class MailLink(identificatie: String?, url: URI, prefix: String?, suffix: String?) {
+    val identificatie: String = StringEscapeUtils.escapeHtml4(identificatie)
 
-public final class MailLink {
-    public final String identificatie;
+    val url: String = StringEscapeUtils.escapeHtml4(url.toString())
 
-    public final String url;
+    val prefix: String = StringEscapeUtils.escapeHtml4(
+        prefix ?: StringUtils.EMPTY
+    ).plus(if (prefix != null) " " else "")
 
-    public final String prefix;
+    val suffix: String = StringEscapeUtils.escapeHtml4(
+        suffix ?: StringUtils.EMPTY
+    ).let { if (suffix != null) " $it" else it }
 
-    public final String suffix;
-
-    public MailLink(final String identificatie, final URI url, final String prefix, final String suffix) {
-        this.identificatie = StringEscapeUtils.escapeHtml4(identificatie);
-        this.url = StringEscapeUtils.escapeHtml4(url.toString());
-        this.prefix = prefix != null ? StringEscapeUtils.escapeHtml4(prefix) + " " : StringUtils.EMPTY;
-        this.suffix = suffix != null ? " " + StringEscapeUtils.escapeHtml4(suffix) : StringUtils.EMPTY;
-    }
-
-    // Make sure that what is returned is FULLY encoded HTML (no injection vulnerabilities please!)
-    public String toHtml() {
-        return "Klik om naar %s<a href=\"%s\" title=\"de zaakafhandelcomponent...\">%s</a>%s te gaan."
-                .formatted(prefix, url, identificatie, suffix);
-    }
+    // Make sure that what is returned is FULLY encoded HTML (no injection vulnerabilities)
+    fun toHtml() = "Klik om naar $prefix<a href=\"$url\" title=\"de zaakafhandelcomponent...\">$identificatie</a>$suffix te gaan."
 }
