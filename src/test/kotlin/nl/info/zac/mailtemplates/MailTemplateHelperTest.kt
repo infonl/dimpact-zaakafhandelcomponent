@@ -58,25 +58,25 @@ class MailTemplateHelperTest : BehaviorSpec({
     }
 
     Given("A text without the {GEMEENTE} placeholder") {
-        every { configuratieService.readGemeenteNaam() } returns "Amsterdam"
+        every { configuratieService.readGemeenteNaam() } returns "fakeGemeenteNaam"
 
         When("resolveGemeenteVariable is called") {
-            val resolvedText = mailTemplateHelper.resolveGemeenteVariable("Hello World!")
+            val resolvedText = mailTemplateHelper.resolveGemeenteVariable("fakeText")
 
             Then("the text should remain unchanged") {
-                resolvedText shouldBe "Hello World!"
+                resolvedText shouldBe "fakeText"
             }
         }
     }
 
-    Given("An empty gemeente name") {
-        every { configuratieService.readGemeenteNaam() } returns ""
+    Given("An gemeente name with HTML special characters") {
+        every { configuratieService.readGemeenteNaam() } returns "\"fake\" &amp; \"gemeente naam\""
 
         When("resolveGemeenteVariable is called") {
             val resolvedText = mailTemplateHelper.resolveGemeenteVariable("Welcome to {GEMEENTE}!")
 
-            Then("the {GEMEENTE} placeholder should be replaced with an empty string") {
-                resolvedText shouldBe "Welcome to !"
+            Then("the {GEMEENTE} placeholder should be replaced and the HTML special characters should be escaped") {
+                resolvedText shouldBe "Welcome to &quot;fake&quot; &amp;amp; &quot;gemeente naam&quot;!"
             }
         }
     }

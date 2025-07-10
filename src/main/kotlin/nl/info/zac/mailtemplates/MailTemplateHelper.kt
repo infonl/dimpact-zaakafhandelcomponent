@@ -199,7 +199,7 @@ class MailTemplateHelper @Inject constructor(
                 value = link.url
             ),
             mailTemplateVariabele = MailTemplateVariabelen.DOCUMENT_LINK,
-            html = link.toHtml()
+            htmlEscapedValue = link.toHtml()
         )
     }
 
@@ -360,25 +360,24 @@ class MailTemplateHelper @Inject constructor(
         targetString: String,
         mailTemplateVariable: MailTemplateVariabelen,
         value: String?
-    ) = replaceVariabeleHtml(targetString, mailTemplateVariable, StringEscapeUtils.escapeHtml4(value))
+    ) = replaceVariabeleHtml(
+        targetString,
+        mailTemplateVariable,
+        StringEscapeUtils.escapeHtml4(value)
+    )
 
-    // Make sure that what is passed in the HTML argument is FULLY encoded HTML (no injection vulnerabilities)
+    /**
+     * Make sure that the [htmlEscapedValue] parameter is HTML escaped to avoid injection vulnerabilities.
+     */
     private fun replaceVariabeleHtml(
         targetString: String,
         mailTemplateVariabele: MailTemplateVariabelen,
-        html: String?
-    ) = StringUtils.replace(
-        targetString,
-        mailTemplateVariabele.variabele,
-        if (mailTemplateVariabele.isResolveVariabeleAlsLegeString) {
-            StringUtils.defaultIfBlank(
-                html,
-                StringUtils.EMPTY
-            )
-        } else {
-            html
-        }
-    )
+        htmlEscapedValue: String?
+    ): String {
+        val replacement = htmlEscapedValue?.takeIf { it.isNotBlank() }
+            ?: if (mailTemplateVariabele.isResolveVariabeleAlsLegeString) StringUtils.EMPTY else htmlEscapedValue
+        return targetString.replace(mailTemplateVariabele.variabele, replacement ?: mailTemplateVariabele.variabele)
+    }
 }
 
 fun stripParagraphTags(onderwerp: String): String =
