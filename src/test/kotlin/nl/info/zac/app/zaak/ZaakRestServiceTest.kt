@@ -59,7 +59,6 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
-import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
@@ -615,12 +614,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         When("the zaken are linked") {
             zaakRestService.linkZaak(restZaakLinkData)
 
-            Then(
-                """
-                    the two zaken are successfully linked, the index is updated and
-                    a screen event is sent
-                """
-            ) {
+            Then("the two zaken are successfully linked, the index is updated and a screen event is sent") {
                 verify(exactly = 1) {
                     zrcClientService.patchZaak(any(), any())
                 }
@@ -634,24 +628,37 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     Given("An open zaak and a closed zaak") {
         val zaak = createZaak()
-        val teKoppelenZaak = createZaak(archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN)
-        val restZakenVerdeelGegevens = createRestZaakLinkData(
+        val teKoppelenZaak = createZaak()
+        val restZaakLinkData = createRestZaakLinkData(
             zaakUuid = zaak.uuid,
             teKoppelenZaakUuid = teKoppelenZaak.uuid,
-            relatieType = RelatieType.BIJDRAGE,
-            reverseRelatieType = RelatieType.BIJDRAGE
+            relatieType = RelatieType.HOOFDZAAK
         )
 
-        every { zrcClientService.readZaak(restZakenVerdeelGegevens.zaakUuid) } returns zaak
-        every { zrcClientService.readZaak(restZakenVerdeelGegevens.teKoppelenZaakUuid) } returns teKoppelenZaak
+        every { zrcClientService.readZaak(restZaakLinkData.zaakUuid) } returns zaak
+        every { zrcClientService.readZaak(restZaakLinkData.teKoppelenZaakUuid) } returns teKoppelenZaak
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
+        every { policyService.readZaakRechten(teKoppelenZaak) } returns createZaakRechten()
+
+        val patchZaakUUIDSlot = slot<UUID>()
+        val patchZaakSlot = slot<Zaak>()
+        every {
+            zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot))
+        } returns zaak
+        every { indexingService.addOrUpdateZaak(teKoppelenZaak.uuid, false) } just runs
+        every { eventingService.send(any<ScreenEvent>()) } just runs
 
         When("the zaken are linked") {
-            val exception = shouldThrow<PolicyException> {
-                zaakRestService.linkZaak(restZakenVerdeelGegevens)
-            }
+            zaakRestService.linkZaak(restZaakLinkData)
 
-            Then("a policy exception should be thrown") {
-                exception.message shouldBe null
+            Then("the two zaken are successfully linked, the index is updated and a screen event is sent") {
+                verify(exactly = 1) {
+                    zrcClientService.patchZaak(any(), any())
+                }
+                patchZaakUUIDSlot.captured shouldBe zaak.uuid
+                with(patchZaakSlot.captured) {
+                    hoofdzaak shouldBe teKoppelenZaak.url
+                }
             }
         }
     }

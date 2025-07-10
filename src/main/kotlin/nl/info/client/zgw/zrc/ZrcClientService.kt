@@ -25,7 +25,6 @@ import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.zrc.model.generated.Status
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -239,9 +238,6 @@ class ZrcClientService @Inject constructor(
         status.statustoelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
         return zrcClient.statusCreate(status)
     }
-
-    fun heeftOpenDeelzaken(zaak: Zaak): Boolean =
-        zaak.deelzaken.map { zaakURI -> this.readZaak(zaakURI) }.any { it.isOpen() }
 
     private fun deleteDeletedRollen(
         currentRoles: List<Rol<*>>,
