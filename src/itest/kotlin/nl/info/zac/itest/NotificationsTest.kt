@@ -160,6 +160,7 @@ class NotificationsTest : BehaviorSpec({
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
                     url = "$GREENMAIL_API_URI/user/$TEST_PERSON_HENDRIKA_JANSE_EMAIL/messages/"
                 )
+                logger.info { "Response: ${receivedMailsResponse.body}" }
                 receivedMailsResponse.code shouldBe HTTP_OK
 
                 val receivedMails = JSONArray(receivedMailsResponse.body.string())
