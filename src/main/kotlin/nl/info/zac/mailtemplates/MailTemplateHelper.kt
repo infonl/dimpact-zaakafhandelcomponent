@@ -65,7 +65,7 @@ class MailTemplateHelper @Inject constructor(
         private const val ACTION = "E-mail verzenden"
     }
 
-    fun resolveVariabelen(text: String): String =
+    fun resolveGemeenteVariable(text: String): String =
         replaceVariabele(
             targetString = text,
             mailTemplateVariable = MailTemplateVariabelen.GEMEENTE,

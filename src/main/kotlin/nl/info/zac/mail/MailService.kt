@@ -263,7 +263,7 @@ class MailService @Inject constructor(
             }
 
     private fun resolveVariabelen(tekst: String, bronnen: Bronnen): String =
-        mailTemplateHelper.resolveVariabelen(tekst).let {
+        mailTemplateHelper.resolveGemeenteVariable(tekst).let {
             mailTemplateHelper.resolveVariabelen(it, bronnen.zaak ?: return@let it)
         }.let {
             mailTemplateHelper.resolveVariabelen(it, bronnen.document ?: return@let it)

@@ -44,6 +44,43 @@ class MailTemplateHelperTest : BehaviorSpec({
         ztcClientService
     )
 
+    Given("A text containing the {GEMEENTE} placeholder") {
+        val gemeenteNaam = "fakeGemeenteNaam"
+        every { configuratieService.readGemeenteNaam() } returns gemeenteNaam
+
+        When("resolveGemeenteVariable is called") {
+            val resolvedText = mailTemplateHelper.resolveGemeenteVariable("Welcome to {GEMEENTE}!")
+
+            Then("the {GEMEENTE} placeholder should be replaced with the gemeente name") {
+                resolvedText shouldBe "Welcome to $gemeenteNaam!"
+            }
+        }
+    }
+
+    Given("A text without the {GEMEENTE} placeholder") {
+        every { configuratieService.readGemeenteNaam() } returns "Amsterdam"
+
+        When("resolveGemeenteVariable is called") {
+            val resolvedText = mailTemplateHelper.resolveGemeenteVariable("Hello World!")
+
+            Then("the text should remain unchanged") {
+                resolvedText shouldBe "Hello World!"
+            }
+        }
+    }
+
+    Given("An empty gemeente name") {
+        every { configuratieService.readGemeenteNaam() } returns ""
+
+        When("resolveGemeenteVariable is called") {
+            val resolvedText = mailTemplateHelper.resolveGemeenteVariable("Welcome to {GEMEENTE}!")
+
+            Then("the {GEMEENTE} placeholder should be replaced with an empty string") {
+                resolvedText shouldBe "Welcome to !"
+            }
+        }
+    }
+
     Given("A zaak without an initiator") {
         val zaakType = createZaakType()
         val zaak = createZaak(
