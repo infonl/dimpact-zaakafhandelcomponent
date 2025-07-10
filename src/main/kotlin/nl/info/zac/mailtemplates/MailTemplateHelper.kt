@@ -38,7 +38,6 @@ import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.lang3.ObjectUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.text.StringEscapeUtils
-import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo
 import java.time.LocalDate
@@ -63,11 +62,12 @@ class MailTemplateHelper @Inject constructor(
         private const val ACTION = "E-mail verzenden"
     }
 
-    fun resolveVariabelen(tekst: String): String {
-        var resolvedTekst = tekst
-        resolvedTekst = replaceVariabele(resolvedTekst, MailTemplateVariabelen.GEMEENTE, configuratieService!!.readGemeenteNaam())
-        return resolvedTekst
-    }
+    fun resolveVariabelen(text: String): String =
+        replaceVariabele(
+            targetString = text,
+            mailTemplateVariable = MailTemplateVariabelen.GEMEENTE,
+            value = configuratieService.readGemeenteNaam()
+        )
 
     @Suppress("LongMethod")
     fun resolveVariabelen(tekst: String, zaak: Zaak): String {
@@ -103,7 +103,6 @@ class MailTemplateHelper @Inject constructor(
             resolvedTekst, MailTemplateVariabelen.ZAAK_FATALEDATUM,
             zaak.getUiterlijkeEinddatumAfdoening().format(DATE_FORMATTER)
         )
-
         if (resolvedTekst.contains(MailTemplateVariabelen.ZAAK_STATUS.variabele)) {
             resolvedTekst = replaceVariabele<String>(
                 resolvedTekst,
@@ -115,7 +114,6 @@ class MailTemplateHelper @Inject constructor(
                     .map { it.getOmschrijving() }
             )
         }
-
         if (resolvedTekst.contains(MailTemplateVariabelen.ZAAK_TYPE.variabele)) {
             resolvedTekst = replaceVariabele<String>(
                 resolvedTekst, MailTemplateVariabelen.ZAAK_TYPE,
@@ -124,24 +122,21 @@ class MailTemplateHelper @Inject constructor(
                     .map { it.getOmschrijving() }
             )
         }
-
         if (resolvedTekst.contains(MailTemplateVariabelen.ZAAK_INITIATOR.variabele) ||
             resolvedTekst.contains(MailTemplateVariabelen.ZAAK_INITIATOR_ADRES.variabele)
         ) {
-            resolvedTekst = replaceInitiatorVariabelen(
+            resolvedTekst = replaceInitiatorVariabeles(
                 resolvedTekst,
                 zaak.getIdentificatie() + "@" + ACTION,
                 Optional.ofNullable<Rol<*>>(zgwApiService.findInitiatorRoleForZaak(zaak))
             )
         }
-
         if (resolvedTekst.contains(MailTemplateVariabelen.ZAAK_BEHANDELAAR_GROEP.variabele)) {
             val groupName = Optional.ofNullable<RolOrganisatorischeEenheid>(zgwApiService.findGroepForZaak(zaak))
                 .map { it.getNaam() }
                 .orElse(null)
             resolvedTekst = replaceVariabele(resolvedTekst, MailTemplateVariabelen.ZAAK_BEHANDELAAR_GROEP, groupName)
         }
-
         if (resolvedTekst.contains(MailTemplateVariabelen.ZAAK_BEHANDELAAR_MEDEWERKER.variabele)) {
             val medewerkerName = Optional.ofNullable<RolMedewerker>(
                 zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
@@ -159,30 +154,29 @@ class MailTemplateHelper @Inject constructor(
         resolvedTekst = replaceVariabele(resolvedTekst, MailTemplateVariabelen.TAAK_URL, link.url)
         resolvedTekst = replaceVariabeleHtml(resolvedTekst, MailTemplateVariabelen.TAAK_LINK, link.toHtml())
 
-        if (taskInfo.dueDate != null) {
+        taskInfo.dueDate?.let {
             resolvedTekst = replaceVariabele(
                 resolvedTekst,
                 MailTemplateVariabelen.TAAK_FATALEDATUM,
-                DateTimeConverterUtil.convertToLocalDate(taskInfo.getDueDate()).format(DATE_FORMATTER)
+                DateTimeConverterUtil.convertToLocalDate(it).format(DATE_FORMATTER)
             )
         }
-
         if (resolvedTekst.contains(MailTemplateVariabelen.TAAK_BEHANDELAAR_GROEP.variabele)) {
-            resolvedTekst = replaceVariabele<String?>(
-                resolvedTekst, MailTemplateVariabelen.TAAK_BEHANDELAAR_GROEP,
-                taskInfo.identityLinks.stream()
-                    .filter { identityLinkInfo: IdentityLinkInfo? -> IdentityLinkType.CANDIDATE == identityLinkInfo!!.getType() }
-                    .findAny()
+            resolvedTekst = replaceVariabele(
+                resolvedTekst,
+                MailTemplateVariabelen.TAAK_BEHANDELAAR_GROEP,
+                taskInfo.identityLinks
+                    .filter { IdentityLinkType.CANDIDATE == it.type }
                     .map { it.groupId }
                     .map { identityService.readGroup(it) }
                     .map(Group::name)
+                    .firstOrNull()
             )
         }
-
         if (resolvedTekst.contains(MailTemplateVariabelen.TAAK_BEHANDELAAR_MEDEWERKER.variabele)) {
             resolvedTekst = replaceVariabele<String>(
                 resolvedTekst, MailTemplateVariabelen.TAAK_BEHANDELAAR_MEDEWERKER,
-                Optional.of<String>(taskInfo.assignee)
+                Optional.of(taskInfo.assignee)
                     .map { identityService.readUser(it) }
                     .map { it.getFullName() }
             )
@@ -194,13 +188,16 @@ class MailTemplateHelper @Inject constructor(
         tekst: String,
         document: EnkelvoudigInformatieObject
     ): String {
-        var resolvedTekst = tekst
-        resolvedTekst = replaceVariabele(resolvedTekst, MailTemplateVariabelen.DOCUMENT_TITEL, document.getTitel())
-
         val link = createMailLinkFromDocument(document)
-        resolvedTekst = replaceVariabele(resolvedTekst, MailTemplateVariabelen.DOCUMENT_URL, link.url)
-        resolvedTekst = replaceVariabeleHtml(resolvedTekst, MailTemplateVariabelen.DOCUMENT_LINK, link.toHtml())
-        return resolvedTekst
+        return replaceVariabeleHtml(
+            targetString = replaceVariabele(
+                targetString = replaceVariabele(tekst, MailTemplateVariabelen.DOCUMENT_TITEL, document.getTitel()),
+                mailTemplateVariable = MailTemplateVariabelen.DOCUMENT_URL,
+                value = link.url
+            ),
+            mailTemplateVariabele = MailTemplateVariabelen.DOCUMENT_LINK,
+            html = link.toHtml()
+        )
     }
 
     private fun createMailLinkFromZaak(zaak: Zaak): MailLink {
@@ -224,16 +221,15 @@ class MailTemplateHelper @Inject constructor(
         )
     }
 
-    private fun createMailLinkFromDocument(document: EnkelvoudigInformatieObject): MailLink {
-        return MailLink(
+    private fun createMailLinkFromDocument(document: EnkelvoudigInformatieObject): MailLink =
+        MailLink(
             document.getTitel(),
             configuratieService.informatieobjectTonenUrl(document.getUrl().extractUuid()),
             "het document",
             null
         )
-    }
 
-    private fun replaceInitiatorVariabelen(resolvedTekst: String, auditEvent: String, initiator: Optional<Rol<*>>): String {
+    private fun replaceInitiatorVariabeles(resolvedTekst: String, auditEvent: String, initiator: Optional<Rol<*>>): String {
         return if (initiator.isPresent) {
             val identificatie = initiator.get().getIdentificatienummer()
             val betrokkene = initiator.get().betrokkeneType
@@ -265,7 +261,7 @@ class MailTemplateHelper @Inject constructor(
     private fun replaceInitiatorVariabelenPersoon(
         resolvedTekst: String,
         initiator: Persoon
-    ) = replaceInitiatorVariabelen(
+    ) = replaceInitiatorVariabeles(
         resolvedTekst,
         initiator.getNaam().getVolledigeNaam(),
         convertAdres(initiator)
@@ -275,13 +271,12 @@ class MailTemplateHelper @Inject constructor(
         resolvedTekst: String,
         initiator: Optional<ResultaatItem>
     ): String = initiator.map {
-        replaceInitiatorVariabelen(
+        replaceInitiatorVariabeles(
             resolvedTekst,
             it.getNaam(),
             convertAdres(it)
         )
-    }
-        .orElseGet { replaceInitiatorVariabelenOnbekend(resolvedTekst) }
+    }.orElseGet { replaceInitiatorVariabelenOnbekend(resolvedTekst) }
 
     private fun convertAdres(persoon: Persoon): String {
         val verblijfplaats = persoon.getVerblijfplaats()
@@ -315,9 +310,9 @@ class MailTemplateHelper @Inject constructor(
     }
 
     private fun replaceInitiatorVariabelenOnbekend(resolvedTekst: String) =
-        replaceInitiatorVariabelen(resolvedTekst, "Onbekend", "")
+        replaceInitiatorVariabeles(resolvedTekst, "Onbekend", "")
 
-    private fun replaceInitiatorVariabelen(
+    private fun replaceInitiatorVariabeles(
         resolvedTekst: String,
         naam: String,
         adres: String
@@ -332,26 +327,26 @@ class MailTemplateHelper @Inject constructor(
     )
 
     private fun <T> replaceVariabele(
-        target: String,
-        variabele: MailTemplateVariabelen,
-        waarde: Optional<T>
-    ) = replaceVariabele(target, variabele, waarde.map { it.toString() }.orElse(null))
+        targetString: String,
+        mailTemplateVariable: MailTemplateVariabelen,
+        value: Optional<T>
+    ) = replaceVariabele(targetString, mailTemplateVariable, value.map { it.toString() }.orElse(null))
 
     private fun replaceVariabele(
-        target: String,
-        variabele: MailTemplateVariabelen,
-        waarde: String?
-    ) = replaceVariabeleHtml(target, variabele, StringEscapeUtils.escapeHtml4(waarde))
+        targetString: String,
+        mailTemplateVariable: MailTemplateVariabelen,
+        value: String?
+    ) = replaceVariabeleHtml(targetString, mailTemplateVariable, StringEscapeUtils.escapeHtml4(value))
 
     // Make sure that what is passed in the HTML argument is FULLY encoded HTML (no injection vulnerabilities)
     private fun replaceVariabeleHtml(
-        target: String,
-        variabele: MailTemplateVariabelen,
+        targetString: String,
+        mailTemplateVariabele: MailTemplateVariabelen,
         html: String?
     ) = StringUtils.replace(
-        target,
-        variabele.variabele,
-        if (variabele.isResolveVariabeleAlsLegeString) {
+        targetString,
+        mailTemplateVariabele.variabele,
+        if (mailTemplateVariabele.isResolveVariabeleAlsLegeString) {
             StringUtils.defaultIfBlank(
                 html,
                 StringUtils.EMPTY
@@ -362,7 +357,6 @@ class MailTemplateHelper @Inject constructor(
     )
 }
 
-fun stripParagraphTags(onderwerp: String): String {
+fun stripParagraphTags(onderwerp: String): String =
     // Can't parse HTML with a regular expression, but in this case there will only be bare P-tags.
-    return Pattern.compile("</?p>", Pattern.CASE_INSENSITIVE).matcher(onderwerp).replaceAll(StringUtils.EMPTY)
-}
+    Pattern.compile("</?p>", Pattern.CASE_INSENSITIVE).matcher(onderwerp).replaceAll(StringUtils.EMPTY)
