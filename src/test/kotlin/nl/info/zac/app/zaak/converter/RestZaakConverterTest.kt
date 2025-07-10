@@ -157,7 +157,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val vestigingsNummer = "fakeVestigingsNummer"
         val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoon(
             nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
-                vestigingsNummer = vestigingsNummer
+                vestigingsnummer = vestigingsNummer
             )
         )
         val restZaakType = createRestZaaktype()
