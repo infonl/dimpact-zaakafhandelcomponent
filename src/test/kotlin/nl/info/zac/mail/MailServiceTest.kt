@@ -76,11 +76,11 @@ class MailServiceTest : BehaviorSpec({
         val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
         val resolvedSubject = "resolvedSubject"
 
-        every { mailTemplateHelper.resolveVariabelen(mailGegevens.subject) } returns "fakeResolvedString1"
+        every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns "fakeResolvedString1"
         every {
             mailTemplateHelper.resolveVariabelen("fakeResolvedString1", zaak)
         } returns resolvedSubject
-        every { mailTemplateHelper.resolveVariabelen(mailGegevens.body) } returns "fakeResolvedBody2"
+        every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.body) } returns "fakeResolvedBody2"
         every {
             mailTemplateHelper.resolveVariabelen("fakeResolvedBody2", zaak)
         } returns "fakeResolvedBody3"
@@ -143,11 +143,11 @@ class MailServiceTest : BehaviorSpec({
         val resolvedSubject = "resolvedSubject"
         val resolvedBody = "resolvedBody"
 
-        every { mailTemplateHelper.resolveVariabelen(mailGegevens.subject) } returns "fakeResolvedString1"
+        every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns "fakeResolvedString1"
         every {
             mailTemplateHelper.resolveVariabelen("fakeResolvedString1", task)
         } returns resolvedSubject
-        every { mailTemplateHelper.resolveVariabelen(mailGegevens.body) } returns "fakeResolvedBody2"
+        every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.body) } returns "fakeResolvedBody2"
         every {
             mailTemplateHelper.resolveVariabelen("fakeResolvedBody2", task)
         } returns resolvedBody

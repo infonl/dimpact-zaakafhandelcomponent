@@ -11,6 +11,7 @@ import io.mockk.mockk
 import nl.info.client.brp.BrpClientService
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.model.createResultaatItem
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createNietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
 import nl.info.client.zgw.model.createZaak
@@ -25,6 +26,7 @@ import nl.info.zac.identity.IdentityService
 import java.net.URI
 import java.time.LocalDate
 import java.util.Optional
+import java.util.UUID
 
 class MailTemplateHelperTest : BehaviorSpec({
     val brpClientService = mockk<BrpClientService>()
@@ -44,7 +46,44 @@ class MailTemplateHelperTest : BehaviorSpec({
         ztcClientService
     )
 
-    Given("A zaak") {
+    Given("A text containing the {GEMEENTE} placeholder") {
+        val gemeenteNaam = "fakeGemeenteNaam"
+        every { configuratieService.readGemeenteNaam() } returns gemeenteNaam
+
+        When("resolveGemeenteVariable is called") {
+            val resolvedText = mailTemplateHelper.resolveGemeenteVariable("Welcome to {GEMEENTE}!")
+
+            Then("the {GEMEENTE} placeholder should be replaced with the gemeente name") {
+                resolvedText shouldBe "Welcome to $gemeenteNaam!"
+            }
+        }
+    }
+
+    Given("A text without the {GEMEENTE} placeholder") {
+        every { configuratieService.readGemeenteNaam() } returns "fakeGemeenteNaam"
+
+        When("resolveGemeenteVariable is called") {
+            val resolvedText = mailTemplateHelper.resolveGemeenteVariable("fakeText")
+
+            Then("the text should remain unchanged") {
+                resolvedText shouldBe "fakeText"
+            }
+        }
+    }
+
+    Given("An gemeente name with HTML special characters") {
+        every { configuratieService.readGemeenteNaam() } returns "\"fake\" &amp; \"gemeente naam\""
+
+        When("resolveGemeenteVariable is called") {
+            val resolvedText = mailTemplateHelper.resolveGemeenteVariable("Welcome to {GEMEENTE}!")
+
+            Then("the {GEMEENTE} placeholder should be replaced and the HTML special characters should be escaped") {
+                resolvedText shouldBe "Welcome to &quot;fake&quot; &amp;amp; &quot;gemeente naam&quot;!"
+            }
+        }
+    }
+
+    Given("A zaak without an initiator") {
         val zaakType = createZaakType()
         val zaak = createZaak(
             zaakTypeURI = zaakType.url,
@@ -94,9 +133,7 @@ class MailTemplateHelperTest : BehaviorSpec({
         every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
         every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
-        // note that this is not correct; instead of a rechtspersoon we should search for a vestiging
-        // this will be fixed in a follow-up pull request
-        every { kvkClientService.findRechtspersoon(vestigingsnummer) } returns Optional.of(resultaatItem)
+        every { kvkClientService.findVestiging(vestigingsnummer) } returns Optional.of(resultaatItem)
 
         When("the variables are resolved with a text containing a placeholder for the zaak initiator") {
             val resolvedText = mailTemplateHelper.resolveVariabelen(
@@ -106,6 +143,34 @@ class MailTemplateHelperTest : BehaviorSpec({
 
             Then("the variables in the provided text should be replaced by the correct values from the zaak") {
                 resolvedText shouldBe "fakeText, ${resultaatItem.naam}"
+            }
+        }
+    }
+
+    Given("A document with a title and URL") {
+        val enkelvoudigInformatieobjectUUID = UUID.randomUUID()
+        val documentTitle = "fakeTitle"
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
+            uuid = enkelvoudigInformatieobjectUUID,
+            title = documentTitle
+        )
+        val documentUriString = "https://example.com/fakeUrl/$enkelvoudigInformatieobjectUUID"
+        every {
+            configuratieService.informatieobjectTonenUrl(enkelvoudigInformatieobjectUUID)
+        } returns URI(documentUriString)
+
+        When("resolveVariabelen is called with a text containing placeholders") {
+            val resolvedText = mailTemplateHelper.resolveVariabelen(
+                "Title: {DOCUMENT_TITEL}, URL: {DOCUMENT_URL}, Link: {DOCUMENT_LINK}",
+                enkelvoudigInformatieObject
+            )
+
+            Then("the placeholders should be replaced with the document's title, URL, and link") {
+                resolvedText shouldBe "Title: $documentTitle, " +
+                    "URL: $documentUriString, " +
+                    "Link: Klik om naar het document " +
+                    "<a href=\"$documentUriString\" " +
+                    "title=\"de zaakafhandelcomponent...\">$documentTitle</a> te gaan."
             }
         }
     }
