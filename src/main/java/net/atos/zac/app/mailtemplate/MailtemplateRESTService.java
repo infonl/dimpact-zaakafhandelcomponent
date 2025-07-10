@@ -52,7 +52,7 @@ public class MailtemplateRESTService {
                 zaak.getZaaktype()));
 
         return zaakafhandelParameters.getMailtemplateKoppelingen().stream()
-                .filter(koppeling -> koppeling.getMailTemplate().getMail().equals(mail))
+                .filter(koppeling -> koppeling.getMailTemplate().mail.equals(mail))
                 .map(koppeling -> RESTMailtemplateConverter.convert(koppeling.getMailTemplate()))
                 .findFirst()
                 .orElseGet(() -> mailTemplateService.findDefaultMailtemplate(mail)

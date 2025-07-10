@@ -50,7 +50,6 @@ class SignaleringMailHelper @Inject constructor(
                     SignaleringDetail.STREEFDATUM -> Mail.SIGNALERING_ZAAK_VERLOPEND_STREEFDATUM
                     SignaleringDetail.FATALE_DATUM -> Mail.SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM
                 }
-                else -> null
             }
         )
 }

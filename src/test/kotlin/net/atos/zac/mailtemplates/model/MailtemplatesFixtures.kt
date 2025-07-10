@@ -12,7 +12,7 @@ fun createMailGegevens(
     from: MailAdres = createMailAdres(),
     to: MailAdres = createMailAdres(),
     replyTo: MailAdres = createMailAdres(),
-    subject: String? = "fakeSubject",
+    subject: String = "fakeSubject",
     body: String = "fakeBody",
     attachments: String? = null,
     createDocumentFromMail: Boolean = false

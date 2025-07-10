@@ -2,79 +2,29 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.mailtemplates.model
 
-package net.atos.zac.mailtemplates.model;
+import net.atos.zac.mailtemplates.stripParagraphTags
+import nl.info.zac.mail.model.MailAdres
 
-import net.atos.zac.mailtemplates.MailTemplateHelper;
-import nl.info.zac.mail.model.MailAdres;
+@Suppress("LongParameterList")
+class MailGegevens(
+    val from: MailAdres,
+    val to: MailAdres,
+    val replyTo: MailAdres?,
+    subject: String,
+    val body: String,
+    attachments: String?,
+    val isCreateDocumentFromMail: Boolean
+) {
+    val subject: String = stripParagraphTags(subject)
 
-public class MailGegevens {
-    private final MailAdres from;
+    val attachments: List<String> = attachments?.split(";") ?: emptyList()
 
-    private final MailAdres to;
-
-    private final MailAdres replyTo;
-
-    private final String subject;
-
-    private final String body;
-
-    private final String[] attachments;
-
-    private final boolean createDocumentFromMail;
-
-    public MailGegevens(
-            final MailAdres from,
-            final MailAdres to,
-            final MailAdres replyTo,
-            final String subject,
-            final String body,
-            final String attachments,
-            final boolean createDocumentFromMail
-    ) {
-        this.from = from;
-        this.to = to;
-        this.replyTo = replyTo;
-        this.subject = MailTemplateHelper.stripParagraphTags(subject);
-        this.body = body;
-        this.attachments = attachments != null ? attachments.split(";") : new String[0];
-        this.createDocumentFromMail = createDocumentFromMail;
-    }
-
-    public MailGegevens(
-            final MailAdres from,
-            final MailAdres to,
-            final String subject,
-            final String body
-    ) {
-        this(from, to, null, subject, body, null, false);
-    }
-
-    public MailAdres getFrom() {
-        return from;
-    }
-
-    public MailAdres getTo() {
-        return to;
-    }
-
-    public MailAdres getReplyTo() {
-        return replyTo;
-    }
-
-    public String getSubject() {
-        return subject;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public String[] getAttachments() {
-        return attachments;
-    }
-
-    public boolean isCreateDocumentFromMail() {
-        return createDocumentFromMail;
-    }
+    constructor(
+        from: MailAdres,
+        to: MailAdres,
+        subject: String,
+        body: String
+    ) : this(from, to, null, subject, body, null, false)
 }

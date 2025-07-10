@@ -70,7 +70,7 @@ class MailServiceTest : BehaviorSpec({
         val mailGegevens = createMailGegevens(
             createDocumentFromMail = true
         )
-        val bronnen = zaak.getBronnenFromZaak()
+        val bronnen = Bronnen.Builder().add(zaak).build()
         val informatieObjectType = createInformatieObjectType(
             // omschrijving has to be exactly "e-mail"
             omschrijving = "e-mail"
@@ -82,23 +82,11 @@ class MailServiceTest : BehaviorSpec({
         every { mailTemplateHelper.resolveVariabelen(mailGegevens.subject) } returns "fakeResolvedString1"
         every {
             mailTemplateHelper.resolveVariabelen("fakeResolvedString1", zaak)
-        } returns "fakeResolvedString2"
-        every {
-            mailTemplateHelper.resolveVariabelen("fakeResolvedString2", bronnen.document)
-        } returns "fakeResolvedString3"
-        every {
-            mailTemplateHelper.resolveVariabelen("fakeResolvedString3", bronnen.taskInfo)
         } returns resolvedSubject
         every { mailTemplateHelper.resolveVariabelen(mailGegevens.body) } returns "fakeResolvedBody2"
         every {
             mailTemplateHelper.resolveVariabelen("fakeResolvedBody2", zaak)
         } returns "fakeResolvedBody3"
-        every {
-            mailTemplateHelper.resolveVariabelen("fakeResolvedBody3", bronnen.document)
-        } returns "fakeResolvedBody4"
-        every {
-            mailTemplateHelper.resolveVariabelen("fakeResolvedBody4", bronnen.taskInfo)
-        } returns "fakeResolvedBody5"
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
         every {
             ztcClientService.readInformatieobjecttype(URI("fakeInformatieObjectType1"))
@@ -140,7 +128,7 @@ class MailServiceTest : BehaviorSpec({
                     getHeader("Reply-To") shouldBe null
                     with((content as MimeMultipart).getBodyPart(0).dataHandler) {
                         contentType shouldBe "text/html; charset=UTF-8"
-                        content shouldBe "fakeResolvedBody5"
+                        content shouldBe "fakeResolvedBody3"
                     }
                 }
             }
@@ -159,23 +147,10 @@ class MailServiceTest : BehaviorSpec({
         val resolvedBody = "resolvedBody"
 
         every { mailTemplateHelper.resolveVariabelen(mailGegevens.subject) } returns "fakeResolvedString1"
-
-        every {
-            mailTemplateHelper.resolveVariabelen("fakeResolvedString1", null as Zaak?)
-        } returns "fakeResolvedString1"
-        every {
-            mailTemplateHelper.resolveVariabelen("fakeResolvedString1", null as EnkelvoudigInformatieObject?)
-        } returns "fakeResolvedString1"
         every {
             mailTemplateHelper.resolveVariabelen("fakeResolvedString1", task)
         } returns resolvedSubject
         every { mailTemplateHelper.resolveVariabelen(mailGegevens.body) } returns "fakeResolvedBody2"
-        every {
-            mailTemplateHelper.resolveVariabelen("fakeResolvedBody2", null as Zaak?)
-        } returns "fakeResolvedBody2"
-        every {
-            mailTemplateHelper.resolveVariabelen("fakeResolvedBody2", null as EnkelvoudigInformatieObject?)
-        } returns "fakeResolvedBody2"
         every {
             mailTemplateHelper.resolveVariabelen("fakeResolvedBody2", task)
         } returns resolvedBody

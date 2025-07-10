@@ -2,119 +2,105 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.mailtemplates;
+package net.atos.zac.mailtemplates
 
-import static net.atos.zac.util.ValidationUtil.valideerObject;
-
-import java.util.List;
-import java.util.Optional;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import jakarta.transaction.Transactional;
-
-import net.atos.zac.mailtemplates.model.Mail;
-import net.atos.zac.mailtemplates.model.MailTemplate;
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.inject.Inject
+import jakarta.persistence.EntityManager
+import jakarta.transaction.Transactional
+import net.atos.zac.mailtemplates.model.Mail
+import net.atos.zac.mailtemplates.model.MailTemplate
+import net.atos.zac.util.ValidationUtil
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
+import java.util.Optional
 
 @ApplicationScoped
 @Transactional
-public class MailTemplateService {
-    private EntityManager entityManager;
-
-    /**
-     * Default no-arg constructor, required by Weld.
-     */
-    public MailTemplateService() {
+@AllOpen
+@NoArgConstructor
+class MailTemplateService @Inject constructor(
+    private val entityManager: EntityManager
+) {
+    fun findMailtemplate(id: Long): Optional<MailTemplate> {
+        val mailTemplate = entityManager.find(MailTemplate::class.java, id)
+        return if (mailTemplate != null) Optional.of(mailTemplate) else Optional.empty<MailTemplate>()
     }
 
-    @Inject
-    public MailTemplateService(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
-    public Optional<MailTemplate> findMailtemplate(final long id) {
-        final var mailTemplate = entityManager.find(MailTemplate.class, id);
-        return mailTemplate != null ? Optional.of(mailTemplate) : Optional.empty();
-    }
-
-    public Optional<MailTemplate> findMailtemplateByName(final String mailTemplateName) {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<MailTemplate> query = builder.createQuery(MailTemplate.class);
-        final Root<MailTemplate> root = query.from(MailTemplate.class);
-        Predicate predicate = builder.equal(root.get("mailTemplateNaam"), mailTemplateName);
-        query.select(root);
-        query.where(predicate);
+    fun findMailtemplateByName(mailTemplateName: String): Optional<MailTemplate> {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(MailTemplate::class.java)
+        val root = query.from(MailTemplate::class.java)
+        val predicate = builder.equal(root.get<Any>("mailTemplateNaam"), mailTemplateName)
+        query.select(root)
+        query.where(predicate)
         return entityManager.createQuery(query)
-                .getResultList()
-                .stream()
-                .findFirst();
+            .getResultList()
+            .stream()
+            .findFirst()
     }
 
-    public void delete(final Long id) {
-        findMailtemplate(id).ifPresent(mailTemplate -> entityManager.remove(mailTemplate));
-    }
+    fun delete(id: Long) = findMailtemplate(id).ifPresent { entityManager.remove(it) }
 
-    public MailTemplate storeMailtemplate(final MailTemplate mailTemplate) {
-        valideerObject(mailTemplate);
-        if (mailTemplate.getId() != null && findMailtemplate(mailTemplate.getId()).isPresent()) {
-            return entityManager.merge(mailTemplate);
+    fun storeMailtemplate(mailTemplate: MailTemplate): MailTemplate {
+        ValidationUtil.valideerObject(mailTemplate)
+        if (mailTemplate.id != 0L && findMailtemplate(mailTemplate.id).isPresent) {
+            return entityManager.merge(mailTemplate)
         } else {
-            entityManager.persist(mailTemplate);
-            return mailTemplate;
+            entityManager.persist(mailTemplate)
+            return mailTemplate
         }
     }
 
-    public Optional<MailTemplate> findDefaultMailtemplate(final Mail mail) {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<MailTemplate> query = builder.createQuery(MailTemplate.class);
-        final Root<MailTemplate> root = query.from(MailTemplate.class);
-        final Predicate equalPredicate = builder.equal(root.get(MailTemplate.MAIL), mail);
-        final Predicate defaultPredicate = builder.equal(root.get(MailTemplate.DEFAULT_MAILTEMPLATE), true);
-        final Predicate finalPredicate = builder.and(equalPredicate, defaultPredicate);
-        query.select(root).where(finalPredicate);
-        final List<MailTemplate> resultList = entityManager.createQuery(query).getResultList();
-        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.getFirst());
+    fun findDefaultMailtemplate(mail: Mail): Optional<MailTemplate> {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(MailTemplate::class.java)
+        val root = query.from(MailTemplate::class.java)
+        val equalPredicate = builder.equal(root.get<Any>(MailTemplate.MAIL), mail)
+        val defaultPredicate = builder.equal(root.get<Any>(MailTemplate.DEFAULT_MAILTEMPLATE), true)
+        val finalPredicate = builder.and(equalPredicate, defaultPredicate)
+        query.select(root).where(finalPredicate)
+        val resultList = entityManager.createQuery(query).getResultList()
+        return if (resultList.isEmpty()) {
+            Optional.empty<MailTemplate>()
+        } else {
+            Optional.of<MailTemplate>(
+                resultList.first()
+            )
+        }
     }
 
-    public MailTemplate readMailtemplate(final Mail mail) {
-        return findDefaultMailtemplate(mail)
-                .orElseThrow(() -> new RuntimeException(
-                        "%s for '%s' not found".formatted(MailTemplate.class.getSimpleName(), mail)));
-    }
+    @Suppress("TooGenericExceptionThrown")
+    fun readMailtemplate(mail: Mail): MailTemplate =
+        findDefaultMailtemplate(mail)
+            .orElseThrow {
+                RuntimeException("${MailTemplate::class.java.getSimpleName()} for '$mail' not found")
+            }
 
-    public MailTemplate readMailtemplate(final long id) {
-        final MailTemplate mailTemplate = entityManager.find(MailTemplate.class, id);
+    @Suppress("TooGenericExceptionThrown")
+    fun readMailtemplate(id: Long): MailTemplate {
+        val mailTemplate = entityManager.find<MailTemplate?>(MailTemplate::class.java, id)
         if (mailTemplate != null) {
-            return mailTemplate;
+            return mailTemplate
         } else {
-            throw new RuntimeException("%s with id=%d not found".formatted(MailTemplate.class.getSimpleName(), id));
+            throw RuntimeException("${MailTemplate::class.java.getSimpleName()} with id=$id not found")
         }
     }
 
-    public List<MailTemplate> listMailtemplates() {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<net.atos.zac.mailtemplates.model.MailTemplate> query = builder.createQuery(
-                net.atos.zac.mailtemplates.model.MailTemplate.class);
-        final Root<net.atos.zac.mailtemplates.model.MailTemplate> root = query.from(
-                net.atos.zac.mailtemplates.model.MailTemplate.class);
-        query.orderBy(builder.asc(root.get("mailTemplateNaam")));
-        query.select(root);
-        return entityManager.createQuery(query).getResultList();
+    fun listMailtemplates(): List<MailTemplate> {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(MailTemplate::class.java)
+        val root = query.from(MailTemplate::class.java)
+        query.orderBy(builder.asc(root.get<Any>("mailTemplateNaam")))
+        query.select(root)
+        return entityManager.createQuery(query).getResultList()
     }
 
-    public List<MailTemplate> listKoppelbareMailtemplates() {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<net.atos.zac.mailtemplates.model.MailTemplate> query = builder.createQuery(
-                net.atos.zac.mailtemplates.model.MailTemplate.class);
-        final Root<net.atos.zac.mailtemplates.model.MailTemplate> root = query.from(
-                net.atos.zac.mailtemplates.model.MailTemplate.class);
-        query.where(root.get(MailTemplate.MAIL).in(Mail.getKoppelbareMails()));
-
-        return entityManager.createQuery(query).getResultList();
+    fun listKoppelbareMailtemplates(): List<MailTemplate> {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(MailTemplate::class.java)
+        val root = query.from(MailTemplate::class.java)
+        query.where(root.get<Any>(MailTemplate.MAIL).`in`(Mail.getKoppelbareMails()))
+        return entityManager.createQuery(query).getResultList()
     }
 }
