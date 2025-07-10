@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.mailtemplates.model
+package nl.info.zac.mailtemplates.model
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -14,6 +14,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
+import net.atos.zac.mailtemplates.model.Mail
 import net.atos.zac.util.FlywayIntegrator
 import nl.info.zac.util.AllOpen
 

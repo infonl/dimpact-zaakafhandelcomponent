@@ -24,8 +24,6 @@ import jakarta.mail.MessagingException
 import jakarta.mail.Session
 import jakarta.mail.Transport
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.zac.mailtemplates.MailTemplateHelper
-import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.util.MediaTypes
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
@@ -40,6 +38,8 @@ import nl.info.zac.identity.model.getFullName
 import nl.info.zac.mail.model.Attachment
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mail.model.MailAdres
+import nl.info.zac.mailtemplates.MailTemplateHelper
+import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String

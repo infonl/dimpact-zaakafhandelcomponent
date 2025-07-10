@@ -2,15 +2,15 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.mailtemplates
+package nl.info.zac.mailtemplates
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import net.atos.zac.mailtemplates.model.Mail
-import net.atos.zac.mailtemplates.model.MailTemplate
 import net.atos.zac.util.ValidationUtil
+import nl.info.zac.mailtemplates.model.MailTemplate
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.Optional

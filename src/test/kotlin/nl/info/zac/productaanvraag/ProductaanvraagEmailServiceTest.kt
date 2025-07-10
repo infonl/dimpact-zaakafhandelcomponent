@@ -16,14 +16,14 @@ import io.mockk.verify
 import net.atos.client.klant.KlantClientService
 import net.atos.client.klant.createDigitalAddress
 import net.atos.client.klant.model.SoortDigitaalAdresEnum
-import net.atos.zac.mailtemplates.MailTemplateService
-import net.atos.zac.mailtemplates.model.MailGegevens
-import net.atos.zac.mailtemplates.model.createMailTemplate
 import nl.info.client.zgw.model.createZaak
 import nl.info.zac.admin.model.createAutomaticEmailConfirmation
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
+import nl.info.zac.mailtemplates.MailTemplateService
+import nl.info.zac.mailtemplates.model.MailGegevens
+import nl.info.zac.mailtemplates.model.createMailTemplate
 import nl.info.zac.zaak.ZaakService
 import java.util.Optional
 
