@@ -11,6 +11,7 @@ import io.mockk.mockk
 import nl.info.client.brp.BrpClientService
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.model.createResultaatItem
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createNietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
 import nl.info.client.zgw.model.createZaak
@@ -25,6 +26,7 @@ import nl.info.zac.identity.IdentityService
 import java.net.URI
 import java.time.LocalDate
 import java.util.Optional
+import java.util.UUID
 
 class MailTemplateHelperTest : BehaviorSpec({
     val brpClientService = mockk<BrpClientService>()
@@ -144,4 +146,89 @@ class MailTemplateHelperTest : BehaviorSpec({
             }
         }
     }
+
+    Given("A document with a title and URL") {
+        val enkelvoudigInformatieobjectUUID = UUID.randomUUID()
+        val documentTitle = "fakeTitle"
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
+            uuid = enkelvoudigInformatieobjectUUID,
+            title = documentTitle
+        )
+        val documentUriString = "https://example.com/fakeUrl/$enkelvoudigInformatieobjectUUID"
+        every {
+            configuratieService.informatieobjectTonenUrl(enkelvoudigInformatieobjectUUID)
+        } returns URI(documentUriString)
+
+        When("resolveVariabelen is called with a text containing placeholders") {
+            val resolvedText = mailTemplateHelper.resolveVariabelen(
+                "Title: {DOCUMENT_TITEL}, URL: {DOCUMENT_URL}, Link: {DOCUMENT_LINK}",
+                enkelvoudigInformatieObject
+            )
+
+            Then("the placeholders should be replaced with the document's title, URL, and link") {
+                resolvedText shouldBe "Title: $documentTitle, " +
+                    "URL: $documentUriString, " +
+                    "Link: Klik om naar het document " +
+                    "<a href=\"$documentUriString\" " +
+                    "title=\"de zaakafhandelcomponent...\">$documentTitle</a> te gaan."
+            }
+        }
+    }
+
+//    Given("A document with a null title") {
+//        val document = mockk<EnkelvoudigInformatieObject>()
+//        val mailTemplateHelper = MailTemplateHelper(configuratieService = mockk())
+//        every { document.getTitel() } returns null
+//        every { document.getUrl() } returns "http://example.com/document"
+//        every { configuratieService.informatieobjectTonenUrl(any()) } returns "http://example.com/document/view"
+//
+//        When("resolveVariabelen is called with a text containing placeholders") {
+//            val resolvedText = mailTemplateHelper.resolveVariabelen(
+//                "Title: {DOCUMENT_TITEL}, URL: {DOCUMENT_URL}, Link: {DOCUMENT_LINK}",
+//                document
+//            )
+//
+//            Then("the title placeholder should be replaced with an empty string") {
+//                resolvedText shouldBe "Title: , URL: http://example.com/document, Link: <a href=\"http://example.com/document/view\"></a>"
+//            }
+//        }
+//    }
+//
+//    Given("A document with a blank title") {
+//        val document = mockk<EnkelvoudigInformatieObject>()
+//        val mailTemplateHelper = MailTemplateHelper(configuratieService = mockk())
+//        every { document.getTitel() } returns "   "
+//        every { document.getUrl() } returns "http://example.com/document"
+//        every { configuratieService.informatieobjectTonenUrl(any()) } returns "http://example.com/document/view"
+//
+//        When("resolveVariabelen is called with a text containing placeholders") {
+//            val resolvedText = mailTemplateHelper.resolveVariabelen(
+//                "Title: {DOCUMENT_TITEL}, URL: {DOCUMENT_URL}, Link: {DOCUMENT_LINK}",
+//                document
+//            )
+//
+//            Then("the title placeholder should be replaced with an empty string") {
+//                resolvedText shouldBe "Title: , URL: http://example.com/document, Link: <a href=\"http://example.com/document/view\"></a>"
+//            }
+//        }
+//    }
+//
+//    Given("A document with a null URL") {
+//        val document = mockk<EnkelvoudigInformatieObject>()
+//        val mailTemplateHelper = MailTemplateHelper(configuratieService = mockk())
+//        every { document.getTitel() } returns "Document Title"
+//        every { document.getUrl() } returns null
+//        every { configuratieService.informatieobjectTonenUrl(any()) } returns null
+//
+//        When("resolveVariabelen is called with a text containing placeholders") {
+//            val resolvedText = mailTemplateHelper.resolveVariabelen(
+//                "Title: {DOCUMENT_TITEL}, URL: {DOCUMENT_URL}, Link: {DOCUMENT_LINK}",
+//                document
+//            )
+//
+//            Then("the URL and link placeholders should be replaced with empty strings") {
+//                resolvedText shouldBe "Title: Document Title, URL: , Link: "
+//            }
+//        }
+//    }
 })

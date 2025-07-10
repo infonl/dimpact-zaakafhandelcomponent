@@ -188,13 +188,17 @@ class MailTemplateHelper @Inject constructor(
     }
 
     fun resolveVariabelen(
-        tekst: String,
-        document: EnkelvoudigInformatieObject
+        text: String,
+        enkelvoudigInformatieObject: EnkelvoudigInformatieObject
     ): String {
-        val link = createMailLinkFromDocument(document)
+        val link = createMailLinkFromDocument(enkelvoudigInformatieObject)
         return replaceVariabeleHtml(
             targetString = replaceVariabele(
-                targetString = replaceVariabele(tekst, MailTemplateVariabelen.DOCUMENT_TITEL, document.getTitel()),
+                targetString = replaceVariabele(
+                    targetString = text,
+                    mailTemplateVariable = MailTemplateVariabelen.DOCUMENT_TITEL,
+                    value = enkelvoudigInformatieObject.getTitel()
+                ),
                 mailTemplateVariable = MailTemplateVariabelen.DOCUMENT_URL,
                 value = link.url
             ),

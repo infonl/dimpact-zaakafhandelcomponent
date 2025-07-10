@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils
 import org.apache.commons.text.StringEscapeUtils
 import java.net.URI
 
-class MailLink(identificatie: String?, url: URI, prefix: String?, suffix: String?) {
+class MailLink(identificatie: String, url: URI, prefix: String?, suffix: String?) {
     val identificatie: String = StringEscapeUtils.escapeHtml4(identificatie)
 
     val url: String = StringEscapeUtils.escapeHtml4(url.toString())
