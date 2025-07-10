@@ -557,9 +557,9 @@ class ProductaanvraagService @Inject constructor(
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid)
         pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, createdZaak)
         assignZaak(createdZaak, zaakafhandelParameters)
-        val betrokkene = addInitiatorAndBetrokkenenToZaak(productaanvraag, createdZaak)
+        val initiator = addInitiatorAndBetrokkenenToZaak(productaanvraag, createdZaak)
         cmmnService.startCase(createdZaak, zaaktype, zaakafhandelParameters, formulierData)
-        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(createdZaak, betrokkene, zaakafhandelParameters)
+        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(createdZaak, initiator, zaakafhandelParameters)
     }
 
     private fun generateZaakExplanationFromProductaanvraag(productaanvraag: ProductaanvraagDimpact): String =
