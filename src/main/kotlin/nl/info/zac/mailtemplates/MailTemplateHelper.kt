@@ -26,6 +26,7 @@ import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
+import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.configuratie.ConfiguratieService
@@ -43,6 +44,7 @@ import org.flowable.task.api.TaskInfo
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Optional
+import java.util.logging.Logger
 import java.util.regex.Pattern
 
 @AllOpen
@@ -58,6 +60,7 @@ class MailTemplateHelper @Inject constructor(
     private val ztcClientService: ZtcClientService
 ) {
     companion object {
+        private val LOG = Logger.getLogger(MailTemplateHelper::class.java.name)
         private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
         private const val ACTION = "E-mail verzenden"
     }
@@ -229,35 +232,53 @@ class MailTemplateHelper @Inject constructor(
             null
         )
 
-    private fun replaceInitiatorVariabeles(resolvedTekst: String, auditEvent: String, initiator: Optional<Rol<*>>): String {
-        return if (initiator.isPresent) {
-            val identificatie = initiator.get().getIdentificatienummer()
-            val betrokkene = initiator.get().betrokkeneType
-            when (betrokkene) {
+    @Suppress("NestedBlockDepth")
+    private fun replaceInitiatorVariabeles(
+        resolvedTekst: String,
+        auditEvent: String,
+        initiatorRole: Optional<Rol<*>>
+    ): String =
+        if (initiatorRole.isPresent) {
+            val identificatie = initiatorRole.get().getIdentificatienummer()
+            when (val betrokkeneType = initiatorRole.get().betrokkeneType) {
                 BetrokkeneTypeEnum.NATUURLIJK_PERSOON ->
                     brpClientService.retrievePersoon(identificatie, auditEvent)?.let {
                         replaceInitiatorVariabelenPersoon(
                             resolvedTekst,
                             it
                         )
-                    } ?: ""
+                    } ?: StringUtils.EMPTY
 
                 BetrokkeneTypeEnum.VESTIGING -> replaceInitiatorVariabelenResultaatItem(
                     resolvedTekst,
                     kvkClientService.findVestiging(identificatie)
                 )
 
-                BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON -> replaceInitiatorVariabelenResultaatItem(
-                    resolvedTekst,
-                    kvkClientService.findRechtspersoon(identificatie)
-                )
+                BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON -> {
+                    val resultaatItem = (initiatorRole.get().betrokkeneIdentificatie as NietNatuurlijkPersoonIdentificatie).let {
+                        when {
+                            it.innNnpId?.isNotBlank() == true ->
+                                kvkClientService.findRechtspersoon(identificatie)
+                            it.vestigingsNummer?.isNotBlank() == true ->
+                                kvkClientService.findVestiging(identificatie)
+                            else -> {
+                                LOG.warning { "Unsupported niet-natuurlijk persoon identificatie: '$it'" }
+                                Optional.empty()
+                            }
+                        }
+                    }
+                    replaceInitiatorVariabelenResultaatItem(
+                        resolvedText = resolvedTekst,
+                        initiatorResultaatItem = resultaatItem
+                    )
+                }
 
-                else -> error("unexpected betrokkenetype $betrokkene")
+                else -> error("Unsupported betrokkene type '$betrokkeneType'")
             }
         } else {
             StringUtils.EMPTY
         }
-    }
+
     private fun replaceInitiatorVariabelenPersoon(
         resolvedTekst: String,
         initiator: Persoon
@@ -268,15 +289,15 @@ class MailTemplateHelper @Inject constructor(
     )
 
     private fun replaceInitiatorVariabelenResultaatItem(
-        resolvedTekst: String,
-        initiator: Optional<ResultaatItem>
-    ): String = initiator.map {
+        resolvedText: String,
+        initiatorResultaatItem: Optional<ResultaatItem>
+    ): String = initiatorResultaatItem.map {
         replaceInitiatorVariabeles(
-            resolvedTekst,
+            resolvedText,
             it.getNaam(),
             convertAdres(it)
         )
-    }.orElseGet { replaceInitiatorVariabelenOnbekend(resolvedTekst) }
+    }.orElseGet { replaceInitiatorVariabelenOnbekend(resolvedText) }
 
     private fun convertAdres(persoon: Persoon): String {
         val verblijfplaats = persoon.getVerblijfplaats()
@@ -285,7 +306,10 @@ class MailTemplateHelper @Inject constructor(
                 convertAdres(verblijfplaats.verblijfadres)
             is VerblijfplaatsBuitenland if verblijfplaats.verblijfadres != null ->
                 convertAdres(verblijfplaats.verblijfadres)
-            else -> StringUtils.EMPTY
+            else -> {
+                LOG.info { "Unsupported persoon verblijfplaats type: '${verblijfplaats.javaClass.name}'" }
+                StringUtils.EMPTY
+            }
         }
     }
 

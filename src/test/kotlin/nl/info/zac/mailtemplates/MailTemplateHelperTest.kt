@@ -44,7 +44,7 @@ class MailTemplateHelperTest : BehaviorSpec({
         ztcClientService
     )
 
-    Given("A zaak") {
+    Given("A zaak without an initiator") {
         val zaakType = createZaakType()
         val zaak = createZaak(
             zaakTypeURI = zaakType.url,
@@ -94,9 +94,7 @@ class MailTemplateHelperTest : BehaviorSpec({
         every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
         every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
-        // note that this is not correct; instead of a rechtspersoon we should search for a vestiging
-        // this will be fixed in a follow-up pull request
-        every { kvkClientService.findRechtspersoon(vestigingsnummer) } returns Optional.of(resultaatItem)
+        every { kvkClientService.findVestiging(vestigingsnummer) } returns Optional.of(resultaatItem)
 
         When("the variables are resolved with a text containing a placeholder for the zaak initiator") {
             val resolvedText = mailTemplateHelper.resolveVariabelen(
