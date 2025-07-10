@@ -17,7 +17,6 @@ import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
-import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.signalering.model.Signalering
 import net.atos.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
@@ -39,6 +38,7 @@ import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
+import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime

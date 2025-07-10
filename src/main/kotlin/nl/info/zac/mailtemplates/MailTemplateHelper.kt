@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.mailtemplates
+package nl.info.zac.mailtemplates
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.model.Rol
@@ -10,7 +10,6 @@ import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving
-import net.atos.zac.mailtemplates.model.MailLink
 import net.atos.zac.mailtemplates.model.MailTemplateVariabelen
 import net.atos.zac.util.StringUtil
 import net.atos.zac.util.time.DateTimeConverterUtil
@@ -33,6 +32,7 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.getFullName
+import nl.info.zac.mailtemplates.model.MailLink
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.lang3.ObjectUtils
@@ -46,11 +46,6 @@ import java.time.format.DateTimeFormatter
 import java.util.Optional
 import java.util.regex.Pattern
 
-val PTAGS = Pattern.compile("</?p>", Pattern.CASE_INSENSITIVE)
-
-private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
-private const val ACTION = "E-mail verzenden"
-
 @AllOpen
 @NoArgConstructor
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -63,6 +58,11 @@ class MailTemplateHelper @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService
 ) {
+    companion object {
+        private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+        private const val ACTION = "E-mail verzenden"
+    }
+
     fun resolveVariabelen(tekst: String): String {
         var resolvedTekst = tekst
         resolvedTekst = replaceVariabele(resolvedTekst, MailTemplateVariabelen.GEMEENTE, configuratieService!!.readGemeenteNaam())
@@ -262,108 +262,107 @@ class MailTemplateHelper @Inject constructor(
             StringUtils.EMPTY
         }
     }
+    private fun replaceInitiatorVariabelenPersoon(
+        resolvedTekst: String,
+        initiator: Persoon
+    ) = replaceInitiatorVariabelen(
+        resolvedTekst,
+        initiator.getNaam().getVolledigeNaam(),
+        convertAdres(initiator)
+    )
+
+    private fun replaceInitiatorVariabelenResultaatItem(
+        resolvedTekst: String,
+        initiator: Optional<ResultaatItem>
+    ): String = initiator.map {
+        replaceInitiatorVariabelen(
+            resolvedTekst,
+            it.getNaam(),
+            convertAdres(it)
+        )
+    }
+        .orElseGet { replaceInitiatorVariabelenOnbekend(resolvedTekst) }
+
+    private fun convertAdres(persoon: Persoon): String {
+        val verblijfplaats = persoon.getVerblijfplaats()
+        return when (verblijfplaats) {
+            is Adres if verblijfplaats.verblijfadres != null ->
+                convertAdres(verblijfplaats.verblijfadres)
+            is VerblijfplaatsBuitenland if verblijfplaats.verblijfadres != null ->
+                convertAdres(verblijfplaats.verblijfadres)
+            else -> StringUtils.EMPTY
+        }
+    }
+
+    private fun convertAdres(adres: VerblijfadresBinnenland) =
+        "${StringUtils.defaultIfBlank(adres.getOfficieleStraatnaam(), StringUtils.EMPTY)} " +
+            "${ObjectUtils.defaultIfNull(adres.getHuisnummer(), StringUtils.EMPTY)}" +
+            "${StringUtils.defaultIfBlank(adres.getHuisletter(), StringUtils.EMPTY)}" +
+            "${StringUtils.defaultIfBlank(adres.getHuisnummertoevoeging(), StringUtils.EMPTY)}, " +
+            "${StringUtils.defaultIfBlank(adres.getPostcode(), StringUtils.EMPTY)} " +
+            "${adres.getWoonplaats()}"
+
+    private fun convertAdres(adres: VerblijfadresBuitenland) =
+        StringUtil.joinNonBlankWith(", ", adres.getRegel1(), adres.getRegel2(), adres.getRegel3())
+
+    private fun convertAdres(resultaatItem: ResultaatItem): String {
+        val binnenlandsAdres = resultaatItem.getAdres().getBinnenlandsAdres()
+        return "${binnenlandsAdres.getStraatnaam()} " +
+            "${ObjectUtils.defaultIfNull(binnenlandsAdres.getHuisnummer(), StringUtils.EMPTY)}" +
+            "${StringUtils.defaultIfBlank(binnenlandsAdres.getHuisletter(), StringUtils.EMPTY)}, " +
+            "${StringUtils.defaultIfBlank(binnenlandsAdres.getPostcode(), StringUtils.EMPTY)} " +
+            "${binnenlandsAdres.getPlaats()}"
+    }
+
+    private fun replaceInitiatorVariabelenOnbekend(resolvedTekst: String) =
+        replaceInitiatorVariabelen(resolvedTekst, "Onbekend", "")
+
+    private fun replaceInitiatorVariabelen(
+        resolvedTekst: String,
+        naam: String,
+        adres: String
+    ) = replaceVariabele(
+        replaceVariabele(
+            resolvedTekst,
+            MailTemplateVariabelen.ZAAK_INITIATOR,
+            naam
+        ),
+        MailTemplateVariabelen.ZAAK_INITIATOR_ADRES,
+        adres
+    )
+
+    private fun <T> replaceVariabele(
+        target: String,
+        variabele: MailTemplateVariabelen,
+        waarde: Optional<T>
+    ) = replaceVariabele(target, variabele, waarde.map { it.toString() }.orElse(null))
+
+    private fun replaceVariabele(
+        target: String,
+        variabele: MailTemplateVariabelen,
+        waarde: String?
+    ) = replaceVariabeleHtml(target, variabele, StringEscapeUtils.escapeHtml4(waarde))
+
+    // Make sure that what is passed in the HTML argument is FULLY encoded HTML (no injection vulnerabilities)
+    private fun replaceVariabeleHtml(
+        target: String,
+        variabele: MailTemplateVariabelen,
+        html: String?
+    ) = StringUtils.replace(
+        target,
+        variabele.variabele,
+        if (variabele.isResolveVariabeleAlsLegeString) {
+            StringUtils.defaultIfBlank(
+                html,
+                StringUtils.EMPTY
+            )
+        } else {
+            html
+        }
+    )
 }
 
 fun stripParagraphTags(onderwerp: String): String {
     // Can't parse HTML with a regular expression, but in this case there will only be bare P-tags.
-    return PTAGS.matcher(onderwerp).replaceAll(StringUtils.EMPTY)
+    return Pattern.compile("</?p>", Pattern.CASE_INSENSITIVE).matcher(onderwerp).replaceAll(StringUtils.EMPTY)
 }
-
-private fun replaceInitiatorVariabelenPersoon(
-    resolvedTekst: String,
-    initiator: Persoon
-) = replaceInitiatorVariabelen(
-    resolvedTekst,
-    initiator.getNaam().getVolledigeNaam(),
-    convertAdres(initiator)
-)
-
-private fun replaceInitiatorVariabelenResultaatItem(
-    resolvedTekst: String,
-    initiator: Optional<ResultaatItem>
-): String = initiator.map {
-    replaceInitiatorVariabelen(
-        resolvedTekst,
-        it.getNaam(),
-        convertAdres(it)
-    )
-}
-    .orElseGet { replaceInitiatorVariabelenOnbekend(resolvedTekst) }
-
-private fun convertAdres(persoon: Persoon): String {
-    val verblijfplaats = persoon.getVerblijfplaats()
-    return when (verblijfplaats) {
-        is Adres if verblijfplaats.verblijfadres != null ->
-            convertAdres(verblijfplaats.verblijfadres)
-        is VerblijfplaatsBuitenland if verblijfplaats.verblijfadres != null ->
-            convertAdres(verblijfplaats.verblijfadres)
-        else -> StringUtils.EMPTY
-    }
-}
-
-private fun convertAdres(adres: VerblijfadresBinnenland) =
-    "${StringUtils.defaultIfBlank(adres.getOfficieleStraatnaam(), StringUtils.EMPTY)} " +
-        "${ObjectUtils.defaultIfNull(adres.getHuisnummer(), StringUtils.EMPTY)}" +
-        "${StringUtils.defaultIfBlank(adres.getHuisletter(), StringUtils.EMPTY)}" +
-        "${StringUtils.defaultIfBlank(adres.getHuisnummertoevoeging(), StringUtils.EMPTY)}, " +
-        "${StringUtils.defaultIfBlank(adres.getPostcode(), StringUtils.EMPTY)} " +
-        "${adres.getWoonplaats()}"
-
-private fun convertAdres(adres: VerblijfadresBuitenland) =
-    StringUtil.joinNonBlankWith(", ", adres.getRegel1(), adres.getRegel2(), adres.getRegel3())
-
-private fun convertAdres(resultaatItem: ResultaatItem): String {
-    val binnenlandsAdres = resultaatItem.getAdres().getBinnenlandsAdres()
-    return "${binnenlandsAdres.getStraatnaam()} " +
-        "${ObjectUtils.defaultIfNull(binnenlandsAdres.getHuisnummer(), StringUtils.EMPTY)}" +
-        "${StringUtils.defaultIfBlank(binnenlandsAdres.getHuisletter(), StringUtils.EMPTY)}, " +
-        "${StringUtils.defaultIfBlank(binnenlandsAdres.getPostcode(), StringUtils.EMPTY)} " +
-        "${binnenlandsAdres.getPlaats()}"
-}
-
-private fun replaceInitiatorVariabelenOnbekend(resolvedTekst: String) =
-    replaceInitiatorVariabelen(resolvedTekst, "Onbekend", "")
-
-private fun replaceInitiatorVariabelen(
-    resolvedTekst: String,
-    naam: String,
-    adres: String
-) = replaceVariabele(
-    replaceVariabele(
-        resolvedTekst,
-        MailTemplateVariabelen.ZAAK_INITIATOR,
-        naam
-    ),
-    MailTemplateVariabelen.ZAAK_INITIATOR_ADRES,
-    adres
-)
-
-private fun <T> replaceVariabele(
-    target: String,
-    variabele: MailTemplateVariabelen,
-    waarde: Optional<T>
-) = replaceVariabele(target, variabele, waarde.map { it.toString() }.orElse(null))
-
-private fun replaceVariabele(
-    target: String,
-    variabele: MailTemplateVariabelen,
-    waarde: String?
-) = replaceVariabeleHtml(target, variabele, StringEscapeUtils.escapeHtml4(waarde))
-
-// Make sure that what is passed in the HTML argument is FULLY encoded HTML (no injection vulnerabilities)
-private fun replaceVariabeleHtml(
-    target: String,
-    variabele: MailTemplateVariabelen,
-    html: String?
-) = StringUtils.replace(
-    target,
-    variabele.variabele,
-    if (variabele.isResolveVariabeleAlsLegeString) {
-        StringUtils.defaultIfBlank(
-            html,
-            StringUtils.EMPTY
-        )
-    } else {
-        html
-    }
-)

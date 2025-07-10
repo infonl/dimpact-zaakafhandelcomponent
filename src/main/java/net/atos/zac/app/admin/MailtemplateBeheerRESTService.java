@@ -1,10 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.admin;
-
 
 import static nl.info.zac.policy.PolicyServiceKt.assertPolicy;
 
@@ -24,10 +22,10 @@ import jakarta.ws.rs.core.MediaType;
 
 import net.atos.zac.app.admin.converter.RESTMailtemplateConverter;
 import net.atos.zac.app.admin.model.RESTMailtemplate;
-import net.atos.zac.mailtemplates.MailTemplateService;
 import net.atos.zac.mailtemplates.model.Mail;
-import net.atos.zac.mailtemplates.model.MailTemplate;
 import net.atos.zac.mailtemplates.model.MailTemplateVariabelen;
+import nl.info.zac.mailtemplates.MailTemplateService;
+import nl.info.zac.mailtemplates.model.MailTemplate;
 import nl.info.zac.policy.PolicyService;
 
 @Singleton

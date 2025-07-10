@@ -11,12 +11,12 @@ import jakarta.inject.Inject;
 
 import net.atos.zac.event.EventingService;
 import net.atos.zac.flowable.task.TaakVariabelenService;
-import net.atos.zac.mailtemplates.MailTemplateService;
 import nl.info.client.zgw.shared.ZGWApiService;
 import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.zac.identity.IdentityService;
 import nl.info.zac.mail.MailService;
+import nl.info.zac.mailtemplates.MailTemplateService;
 import nl.info.zac.search.IndexingService;
 
 /**

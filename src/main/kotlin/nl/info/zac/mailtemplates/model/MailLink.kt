@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.mailtemplates.model
+package nl.info.zac.mailtemplates.model
 
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.text.StringEscapeUtils

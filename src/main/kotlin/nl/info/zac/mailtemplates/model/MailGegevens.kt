@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.mailtemplates.model
+package nl.info.zac.mailtemplates.model
 
-import net.atos.zac.mailtemplates.stripParagraphTags
 import nl.info.zac.mail.model.MailAdres
+import nl.info.zac.mailtemplates.stripParagraphTags
 
 @Suppress("LongParameterList")
 class MailGegevens(
