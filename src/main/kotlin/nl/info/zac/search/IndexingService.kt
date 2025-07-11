@@ -347,11 +347,36 @@ class IndexingService @Inject constructor(
         }
     }
 
+    private fun Throwable.rootCause(): Throwable {
+        var current: Throwable = this
+        while (current.cause != null && current.cause != current) {
+            current = current.cause!!
+        }
+        return current
+    }
+
+    @Suppress("NestedBlockDepth", "TooGenericExceptionCaught")
     private fun <T> continueOnExceptions(objectType: ZoekObjectType, fn: () -> T): T? =
         try {
             runTranslatingToIndexingException { fn() }
         } catch (indexingException: IndexingException) {
             LOG.log(Level.WARNING, "[$objectType] Error during indexing", indexingException)
+
+            when(val rootCause = indexingException.rootCause()) {
+                is IllegalStateException -> {
+                    rootCause.message?.contains("Session is invalid")?.let {
+                        LOG.info("[$objectType] Access token invalid, revalidating...")
+                        // TODO: refresh the token of the current user in keycloak
+                        try {
+                            LOG.info("[$objectType] Access token revalidated, retrying call one more time")
+                            runTranslatingToIndexingException { fn() } // Retry once
+                        } catch (e: Exception) {
+                            LOG.warning("[$objectType] Error persists after revalidation: ${e.message}")
+                            null
+                        }
+                    }
+                }
+            }
             null
         }
 }

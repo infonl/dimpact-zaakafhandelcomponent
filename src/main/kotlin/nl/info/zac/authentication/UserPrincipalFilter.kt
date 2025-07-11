@@ -17,7 +17,11 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
+import org.wildfly.security.http.oidc.RefreshableOidcSecurityContext
 import java.util.logging.Logger
+
+lateinit var refreshToken: String
+lateinit var httpSession: HttpSession
 
 @WebFilter(filterName = "UserPrincipalFilter")
 @AllOpen
@@ -37,7 +41,7 @@ class UserPrincipalFilter @Inject constructor(
         filterChain: FilterChain
     ) {
         (servletRequest as? HttpServletRequest)?.userPrincipal?.let { userPrincipal ->
-            val httpSession = servletRequest.getSession(true)
+            httpSession = servletRequest.getSession(true)
             getLoggedInUser(httpSession)?.let { loggedInUser ->
                 if (loggedInUser.id != userPrincipal.name) {
                     LOG.info(
@@ -51,6 +55,10 @@ class UserPrincipalFilter @Inject constructor(
                 // no logged-in user in session
                 addLoggedInUserToHttpSession(userPrincipal as OidcPrincipal<*>, httpSession)
             }
+
+            if(userPrincipal is OidcPrincipal<*> && userPrincipal.oidcSecurityContext is RefreshableOidcSecurityContext) {
+                refreshToken = (userPrincipal.oidcSecurityContext as RefreshableOidcSecurityContext).refreshToken
+            }
         }
         filterChain.doFilter(servletRequest, servletResponse)
     }
@@ -60,13 +68,13 @@ class UserPrincipalFilter @Inject constructor(
             setLoggedInUser(httpSession, loggedInUser)
             LOG.info(
                 "User logged in: '${loggedInUser.id}' with roles: ${loggedInUser.roles}, " +
-                    "groups: ${loggedInUser.groupIds} and zaaktypen: ${
-                        if (loggedInUser.isAuthorisedForAllZaaktypen()) {
-                            "ELK-ZAAKTYPE"
-                        } else {
-                            loggedInUser.geautoriseerdeZaaktypen.toString()
-                        }
-                    }"
+                        "groups: ${loggedInUser.groupIds} and zaaktypen: ${
+                            if (loggedInUser.isAuthorisedForAllZaaktypen()) {
+                                "ELK-ZAAKTYPE"
+                            } else {
+                                loggedInUser.geautoriseerdeZaaktypen.toString()
+                            }
+                        }"
             )
         }
 

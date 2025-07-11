@@ -40,7 +40,7 @@ import java.net.URI
 import java.util.UUID
 
 class IndexingServiceTest : BehaviorSpec({
-    // add static mocking for config provider because the IndexeerService class
+    // add static mocking for the config provider because the IndexeerService class
     // references the config provider statically
     val solrUrl = "http://localhost/fakeSolrUrl"
     mockkStatic(ConfigProvider::class)
