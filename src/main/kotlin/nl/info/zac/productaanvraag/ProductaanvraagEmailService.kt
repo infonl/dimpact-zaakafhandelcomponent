@@ -74,20 +74,20 @@ class ProductaanvraagEmailService @Inject constructor(
         to: String,
         zaakFromProductaanvraag: Zaak
     ) {
-        mailTemplateService.findMailtemplateByName(automaticEmailConfirmation.templateName)
-            .orElse(null)?.let { mailTemplate ->
-                val mailGegevens = MailGegevens(
-                    MailAdres(automaticEmailConfirmation.emailSender, null),
-                    MailAdres(to, null),
-                    MailAdres(automaticEmailConfirmation.emailReply, null),
-                    mailTemplate.onderwerp,
-                    mailTemplate.body,
-                    null,
-                    true
-                )
-                mailService.sendMail(mailGegevens, zaakFromProductaanvraag.getBronnenFromZaak())
-                zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaakFromProductaanvraag)
-            } ?: LOG.warning(
+        mailTemplateService.findMailtemplateByName(automaticEmailConfirmation.templateName)?.let {
+                mailTemplate ->
+            val mailGegevens = MailGegevens(
+                MailAdres(automaticEmailConfirmation.emailSender, null),
+                MailAdres(to, null),
+                MailAdres(automaticEmailConfirmation.emailReply, null),
+                mailTemplate.onderwerp,
+                mailTemplate.body,
+                null,
+                true
+            )
+            mailService.sendMail(mailGegevens, zaakFromProductaanvraag.getBronnenFromZaak())
+            zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaakFromProductaanvraag)
+        } ?: LOG.warning(
             "No mail template found with name: '${automaticEmailConfirmation.templateName}'. " +
                 "Skipping automatic email confirmation."
         )

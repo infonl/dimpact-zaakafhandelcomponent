@@ -30,12 +30,17 @@ import nl.info.zac.util.AllOpen
 class MailTemplate {
     companion object {
         /**
-         * Naam van property: [mail]
+         * Field name of the variable: [mail]
          */
         const val MAIL = "mail"
 
         /**
-         * Naam van property: [isDefaultMailtemplate]
+         * Field name of the variable: [mailTemplateNaam]
+         */
+        const val MAIL_TEMPLATE_NAME = "mailTemplateNaam"
+
+        /**
+         * Field name of the variable: [isDefaultMailtemplate]
          */
         const val DEFAULT_MAILTEMPLATE = "isDefaultMailtemplate"
     }
