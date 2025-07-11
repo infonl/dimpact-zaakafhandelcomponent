@@ -25,7 +25,6 @@ import nl.info.zac.mailtemplates.MailTemplateService
 import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.mailtemplates.model.createMailTemplate
 import nl.info.zac.zaak.ZaakService
-import java.util.Optional
 
 class ProductaanvraagEmailServiceTest : BehaviorSpec({
     val klantClientService = mockk<KlantClientService>()
@@ -58,7 +57,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaakafhandelParameters.automaticEmailConfirmation.templateName)
-        } returns Optional.of(mailTemplate)
+        } returns mailTemplate
         every { mailService.sendMail(capture(mailGegevens), capture(bronnen)) } returns "body"
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
 
@@ -106,7 +105,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaakafhandelParameters.automaticEmailConfirmation.templateName)
-        } returns Optional.of(mailTemplate)
+        } returns mailTemplate
         every { mailService.sendMail(capture(mailGegevens), capture(bronnen)) } returns "body"
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
 
@@ -165,7 +164,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaakafhandelParameters.automaticEmailConfirmation.templateName)
-        } returns Optional.empty()
+        } returns null
 
         When("sendEmailForZaakFromProductaanvraag is called") {
             productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, betrokkene, zaakafhandelParameters)

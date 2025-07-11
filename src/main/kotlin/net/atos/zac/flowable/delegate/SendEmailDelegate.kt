@@ -36,9 +36,7 @@ class SendEmailDelegate : AbstractDelegate() {
 
         val mailTemplate = flowableHelper.mailTemplateService.findMailtemplateByName(
             template.expressionText
-        ).orElseThrow {
-            IllegalArgumentException("Mail template '${template.expressionText}' not found")
-        }
+        ) ?: throw IllegalArgumentException("Mail template '${template.expressionText}' not found")
 
         LOG.info(
             "Sending mail to '${to.expressionText}' from '${from.expressionText}' for zaak " +

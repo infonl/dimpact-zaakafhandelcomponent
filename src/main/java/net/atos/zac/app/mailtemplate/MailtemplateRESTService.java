@@ -25,6 +25,7 @@ import net.atos.zac.mailtemplates.model.Mail;
 import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.zac.mailtemplates.MailTemplateService;
+import nl.info.zac.mailtemplates.model.MailTemplate;
 
 @Singleton
 @Path("mailtemplates")
@@ -55,9 +56,9 @@ public class MailtemplateRESTService {
                 .filter(koppeling -> koppeling.getMailTemplate().mail.equals(mail))
                 .map(koppeling -> RESTMailtemplateConverter.convert(koppeling.getMailTemplate()))
                 .findFirst()
-                .orElseGet(() -> mailTemplateService.findDefaultMailtemplate(mail)
-                        .map(RESTMailtemplateConverter::convert)
-                        .orElse(null)
-                );
+                .orElseGet(() -> {
+                    MailTemplate mailTemplate = mailTemplateService.findDefaultMailtemplate(mail);
+                    return mailTemplate != null ? RESTMailtemplateConverter.convert(mailTemplate) : null;
+                });
     }
 }
