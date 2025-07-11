@@ -5,9 +5,7 @@
 package nl.info.zac.signalering
 
 import jakarta.inject.Inject
-import net.atos.zac.mailtemplates.MailTemplateService
 import net.atos.zac.mailtemplates.model.Mail
-import net.atos.zac.mailtemplates.model.MailTemplate
 import net.atos.zac.signalering.model.Signalering
 import net.atos.zac.signalering.model.SignaleringDetail
 import net.atos.zac.signalering.model.SignaleringTarget
@@ -15,6 +13,8 @@ import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.mail.model.MailAdres
+import nl.info.zac.mailtemplates.MailTemplateService
+import nl.info.zac.mailtemplates.model.MailTemplate
 
 class SignaleringMailHelper @Inject constructor(
     private val identityService: IdentityService,
@@ -50,7 +50,6 @@ class SignaleringMailHelper @Inject constructor(
                     SignaleringDetail.STREEFDATUM -> Mail.SIGNALERING_ZAAK_VERLOPEND_STREEFDATUM
                     SignaleringDetail.FATALE_DATUM -> Mail.SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM
                 }
-                else -> null
             }
         )
 }

@@ -2,8 +2,9 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.mailtemplates.model
+package nl.info.zac.mailtemplates.model
 
+import net.atos.zac.mailtemplates.model.Mail
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.createMailAdres
 
@@ -12,7 +13,7 @@ fun createMailGegevens(
     from: MailAdres = createMailAdres(),
     to: MailAdres = createMailAdres(),
     replyTo: MailAdres = createMailAdres(),
-    subject: String? = "fakeSubject",
+    subject: String = "fakeSubject",
     body: String = "fakeBody",
     attachments: String? = null,
     createDocumentFromMail: Boolean = false

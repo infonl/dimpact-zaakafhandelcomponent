@@ -1,14 +1,14 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.admin.converter;
 
+import static nl.info.zac.mailtemplates.MailTemplateHelperKt.stripParagraphTags;
+
 import net.atos.zac.app.admin.model.RESTMailtemplate;
-import net.atos.zac.mailtemplates.MailTemplateHelper;
 import net.atos.zac.mailtemplates.model.Mail;
-import net.atos.zac.mailtemplates.model.MailTemplate;
+import nl.info.zac.mailtemplates.model.MailTemplate;
 
 public final class RESTMailtemplateConverter {
 
@@ -29,7 +29,7 @@ public final class RESTMailtemplateConverter {
         mailTemplate.setId(restMailtemplate.id);
         mailTemplate.setMail(Mail.valueOf(restMailtemplate.mail));
         mailTemplate.setMailTemplateNaam(restMailtemplate.mailTemplateNaam);
-        mailTemplate.setOnderwerp(MailTemplateHelper.stripParagraphTags(restMailtemplate.onderwerp));
+        mailTemplate.setOnderwerp(stripParagraphTags(restMailtemplate.onderwerp));
         mailTemplate.setBody(restMailtemplate.body);
         mailTemplate.setDefaultMailtemplate(restMailtemplate.defaultMailtemplate);
         return mailTemplate;

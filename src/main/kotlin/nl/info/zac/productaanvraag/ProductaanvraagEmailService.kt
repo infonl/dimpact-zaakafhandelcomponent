@@ -11,12 +11,12 @@ import net.atos.client.klant.KlantClientService
 import net.atos.client.klant.model.SoortDigitaalAdresEnum
 import net.atos.zac.admin.model.AutomaticEmailConfirmation
 import net.atos.zac.admin.model.ZaakafhandelParameters
-import net.atos.zac.mailtemplates.MailTemplateService
-import net.atos.zac.mailtemplates.model.MailGegevens
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
+import nl.info.zac.mailtemplates.MailTemplateService
+import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.util.performAction
 import nl.info.zac.util.AllOpen

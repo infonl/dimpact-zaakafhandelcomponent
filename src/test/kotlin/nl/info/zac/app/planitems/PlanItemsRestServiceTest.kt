@@ -22,8 +22,6 @@ import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
 import net.atos.zac.app.mail.model.createRESTMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.mailtemplates.MailTemplateService
-import net.atos.zac.mailtemplates.model.createMailGegevens
 import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.generated.Besluit
@@ -42,6 +40,8 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
+import nl.info.zac.mailtemplates.MailTemplateService
+import nl.info.zac.mailtemplates.model.createMailGegevens
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny

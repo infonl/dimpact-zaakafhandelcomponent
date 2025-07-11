@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.admin.model;
 
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
@@ -18,7 +17,8 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
-import net.atos.zac.mailtemplates.model.MailTemplate;
+import nl.info.zac.mailtemplates.model.MailTemplate;
+
 
 @Entity
 @Table(schema = SCHEMA, name = "mail_template_koppelingen")

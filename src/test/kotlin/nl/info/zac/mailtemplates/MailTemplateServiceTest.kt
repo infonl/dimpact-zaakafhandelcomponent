@@ -2,8 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
-package net.atos.zac.mailtemplates
+package nl.info.zac.mailtemplates
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -18,7 +17,7 @@ import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import net.atos.zac.mailtemplates.model.Mail
-import net.atos.zac.mailtemplates.model.MailTemplate
+import nl.info.zac.mailtemplates.model.MailTemplate
 import java.util.Optional
 
 class MailTemplateServiceTest : BehaviorSpec({
