@@ -18,9 +18,7 @@ import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.util.logging.Logger
 
-private val LOG = Logger.getLogger(RestZaakBetrokkene::class.java.name)
 
 @AllOpen
 @NoArgConstructor
