@@ -4,16 +4,16 @@
  */
 package net.atos.zac.app.admin.converter;
 
-import static nl.info.zac.mailtemplates.MailTemplateHelperKt.stripParagraphTags;
-
-import net.atos.zac.app.admin.model.RESTMailtemplate;
+import net.atos.zac.app.admin.model.RestMailtemplate;
 import net.atos.zac.mailtemplates.model.Mail;
 import nl.info.zac.mailtemplates.model.MailTemplate;
 
+import static nl.info.zac.util.HtmlUtilsKt.stripHtmlParagraphTags;
+
 public final class RESTMailtemplateConverter {
 
-    public static RESTMailtemplate convert(final MailTemplate mailTemplate) {
-        final RESTMailtemplate restMailtemplate = new RESTMailtemplate();
+    public static RestMailtemplate convert(final MailTemplate mailTemplate) {
+        final RestMailtemplate restMailtemplate = new RestMailtemplate();
         restMailtemplate.id = mailTemplate.getId();
         restMailtemplate.mailTemplateNaam = mailTemplate.getMailTemplateNaam();
         restMailtemplate.mail = mailTemplate.getMail().name();
@@ -24,12 +24,12 @@ public final class RESTMailtemplateConverter {
         return restMailtemplate;
     }
 
-    public static MailTemplate convert(final RESTMailtemplate restMailtemplate) {
+    public static MailTemplate convert(final RestMailtemplate restMailtemplate) {
         final MailTemplate mailTemplate = new MailTemplate();
         mailTemplate.setId(restMailtemplate.id);
         mailTemplate.setMail(Mail.valueOf(restMailtemplate.mail));
         mailTemplate.setMailTemplateNaam(restMailtemplate.mailTemplateNaam);
-        mailTemplate.setOnderwerp(stripParagraphTags(restMailtemplate.onderwerp));
+        mailTemplate.setOnderwerp(stripHtmlParagraphTags(restMailtemplate.onderwerp));
         mailTemplate.setBody(restMailtemplate.body);
         mailTemplate.setDefaultMailtemplate(restMailtemplate.defaultMailtemplate);
         return mailTemplate;

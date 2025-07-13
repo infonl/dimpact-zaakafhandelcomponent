@@ -5,7 +5,7 @@
 package nl.info.zac.mailtemplates.model
 
 import nl.info.zac.mail.model.MailAdres
-import nl.info.zac.mailtemplates.stripParagraphTags
+import nl.info.zac.util.stripHtmlParagraphTags
 
 @Suppress("LongParameterList")
 class MailGegevens(
@@ -17,7 +17,7 @@ class MailGegevens(
     attachments: String?,
     val isCreateDocumentFromMail: Boolean
 ) {
-    val subject: String = stripParagraphTags(subject)
+    val subject: String = stripHtmlParagraphTags(subject)
 
     val attachments: List<String> = attachments?.split(";") ?: emptyList()
 

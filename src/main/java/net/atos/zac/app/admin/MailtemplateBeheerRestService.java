@@ -21,7 +21,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 import net.atos.zac.app.admin.converter.RESTMailtemplateConverter;
-import net.atos.zac.app.admin.model.RESTMailtemplate;
+import net.atos.zac.app.admin.model.RestMailtemplate;
 import net.atos.zac.mailtemplates.model.Mail;
 import net.atos.zac.mailtemplates.model.MailTemplateVariabelen;
 import nl.info.zac.mailtemplates.MailTemplateService;
@@ -32,23 +32,31 @@ import nl.info.zac.policy.PolicyService;
 @Path("beheer/mailtemplates")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class MailtemplateBeheerRESTService {
-
-    @Inject
+public class MailtemplateBeheerRestService {
     private MailTemplateService mailTemplateService;
+    private PolicyService policyService;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public MailtemplateBeheerRestService() {
+    }
 
     @Inject
-    private PolicyService policyService;
+    public MailtemplateBeheerRestService(final MailTemplateService mailTemplateService, final PolicyService policyService) {
+        this.mailTemplateService = mailTemplateService;
+        this.policyService = policyService;
+    }
 
     @GET
     @Path("{id}")
-    public RESTMailtemplate readMailtemplate(@PathParam("id") final long id) {
+    public RestMailtemplate readMailtemplate(@PathParam("id") final long id) {
         assertPolicy(policyService.readOverigeRechten().getBeheren());
         return RESTMailtemplateConverter.convert(mailTemplateService.readMailtemplate(id));
     }
 
     @GET
-    public List<RESTMailtemplate> listMailtemplates() {
+    public List<RestMailtemplate> listMailtemplates() {
         assertPolicy(policyService.readOverigeRechten().getBeheren());
         final List<MailTemplate> mailTemplates = mailTemplateService.listMailtemplates();
         return mailTemplates.stream().map(RESTMailtemplateConverter::convert).toList();
@@ -56,7 +64,7 @@ public class MailtemplateBeheerRESTService {
 
     @GET
     @Path("/koppelbaar")
-    public List<RESTMailtemplate> listkoppelbareMailtemplates() {
+    public List<RestMailtemplate> listkoppelbareMailtemplates() {
         assertPolicy(policyService.readOverigeRechten().getBeheren());
         final List<MailTemplate> mailTemplates = mailTemplateService.listKoppelbareMailtemplates();
         return mailTemplates.stream().map(RESTMailtemplateConverter::convert).toList();
@@ -71,7 +79,7 @@ public class MailtemplateBeheerRESTService {
 
     @PUT
     @Path("")
-    public RESTMailtemplate persistMailtemplate(final RESTMailtemplate mailtemplate) {
+    public RestMailtemplate persistMailtemplate(final RestMailtemplate mailtemplate) {
         assertPolicy(policyService.readOverigeRechten().getBeheren());
         return RESTMailtemplateConverter.convert(
                 mailTemplateService.storeMailtemplate(RESTMailtemplateConverter.convert(mailtemplate))

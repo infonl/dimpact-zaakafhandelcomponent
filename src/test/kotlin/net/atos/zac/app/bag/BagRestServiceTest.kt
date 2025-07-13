@@ -6,6 +6,7 @@ package net.atos.zac.app.bag
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -26,6 +27,10 @@ class BagRestServiceTest : BehaviorSpec({
         zrcClientService,
         policyService
     )
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given("Two addresses") {
         val listAdressenParameters = createRESTListAdressenParameters(

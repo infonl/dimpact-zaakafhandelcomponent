@@ -45,7 +45,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Optional
 import java.util.logging.Logger
-import java.util.regex.Pattern
 
 @AllOpen
 @NoArgConstructor
@@ -138,7 +137,11 @@ class MailTemplateHelper @Inject constructor(
             val groupName = Optional.ofNullable<RolOrganisatorischeEenheid>(zgwApiService.findGroepForZaak(zaak))
                 .map { it.getNaam() }
                 .orElse(null)
-            resolvedTekst = replaceVariabele(resolvedTekst, MailTemplateVariabelen.ZAAK_BEHANDELAAR_GROEP, groupName)
+            resolvedTekst = replaceVariabele(
+                targetString = resolvedTekst,
+                mailTemplateVariable = MailTemplateVariabelen.ZAAK_BEHANDELAAR_GROEP,
+                value = groupName
+            )
         }
         if (resolvedTekst.contains(MailTemplateVariabelen.ZAAK_BEHANDELAAR_MEDEWERKER.variabele)) {
             val medewerkerName = Optional.ofNullable<RolMedewerker>(
@@ -146,7 +149,11 @@ class MailTemplateHelper @Inject constructor(
             )
                 .map { it.getNaam() }
                 .orElse(null)
-            resolvedTekst = replaceVariabele(resolvedTekst, MailTemplateVariabelen.ZAAK_BEHANDELAAR_MEDEWERKER, medewerkerName)
+            resolvedTekst = replaceVariabele(
+                targetString = resolvedTekst,
+                mailTemplateVariable = MailTemplateVariabelen.ZAAK_BEHANDELAAR_MEDEWERKER,
+                value = medewerkerName
+            )
         }
         return resolvedTekst
     }
@@ -383,7 +390,3 @@ class MailTemplateHelper @Inject constructor(
         return targetString.replace(mailTemplateVariabele.variabele, replacement ?: mailTemplateVariabele.variabele)
     }
 }
-
-fun stripParagraphTags(onderwerp: String): String =
-    // Can't parse HTML with a regular expression, but in this case there will only be bare P-tags.
-    Pattern.compile("</?p>", Pattern.CASE_INSENSITIVE).matcher(onderwerp).replaceAll(StringUtils.EMPTY)

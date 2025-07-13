@@ -33,13 +33,11 @@ import nl.info.zac.zaak.ZaakService;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class MailRestService {
-
     private ZaakService zaakService;
     private MailService mailService;
     private ZaakVariabelenService zaakVariabelenService;
     private PolicyService policyService;
     private ZrcClientService zrcClientService;
-    private ZtcClientService ztcClientService;
     private RESTMailGegevensConverter restMailGegevensConverter;
 
     /**
@@ -55,7 +53,6 @@ public class MailRestService {
             final ZaakVariabelenService zaakVariabelenService,
             final PolicyService policyService,
             final ZrcClientService zrcClientService,
-            final ZtcClientService ztcClientService,
             final RESTMailGegevensConverter restMailGegevensConverter
     ) {
         this.zaakService = zaakService;
@@ -63,7 +60,6 @@ public class MailRestService {
         this.zaakVariabelenService = zaakVariabelenService;
         this.policyService = policyService;
         this.zrcClientService = zrcClientService;
-        this.ztcClientService = ztcClientService;
         this.restMailGegevensConverter = restMailGegevensConverter;
     }
 
