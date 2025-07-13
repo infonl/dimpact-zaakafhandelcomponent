@@ -12,7 +12,9 @@ import java.util.regex.Pattern
  *
  * @returns the input text with all `<p>` and `</p>` tags removed.
  */
+private val HTML_PARAGRAPH_TAG_PATTERN: Pattern = Pattern.compile("</?p>", Pattern.CASE_INSENSITIVE)
+
 fun stripHtmlParagraphTags(text: String): String =
-    Pattern.compile("</?p>", Pattern.CASE_INSENSITIVE)
+    HTML_PARAGRAPH_TAG_PATTERN
         .matcher(text)
         .replaceAll(StringUtils.EMPTY)
