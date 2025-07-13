@@ -20,13 +20,11 @@ import nl.info.client.zgw.ztc.model.generated.RolType;
  * polymorphism using a generic base {@link Rol} class.
  * Ideally we would use the generated class, but currently we cannot get the OpenAPI Generator framework to generate
  * polymorphic relationships correctly.
- *
- * @deprecated the vestiging role is deprecated in the ZGW ZRC API and will be removed in a future version.
- *             Please use {@link RolNietNatuurlijkPersoon} instead for vestigingen.
- *             For details see: <a href="https://github.com/open-zaak/open-zaak/issues/1935">Add 'vestigingsnummer' to NNP, deprecate
- *             'vestiging'</a>.
+ * <p>
+ * In ZAC, we only use the vestiging role for retrieving existing roles, but not / no longer for storing new roles.
+ * For storing new vestiging-type roles, please use {@link RolNietNatuurlijkPersoon} instead for vestigingen.
+ * For details see: <a href="https://github.com/open-zaak/open-zaak/issues/1935">Add 'vestigingsnummer' to NNP, deprecate 'vestiging'</a>.
  */
-@Deprecated
 public class RolVestiging extends Rol<VestigingIdentificatie> {
 
     public RolVestiging() {
