@@ -15,7 +15,7 @@ fun createRestMailTemplate(
     mail: String = Mail.ZAAK_ALGEMEEN.name,
     mailTemplateVariables: Set<MailTemplateVariabelen> = emptySet(),
     defaultTemplate: Boolean = false
-) = RestMailtemplate().apply {
+) = RESTMailtemplate().apply {
     this.id = id
     this.mailTemplateNaam = mailTemplateName
     this.onderwerp = subject

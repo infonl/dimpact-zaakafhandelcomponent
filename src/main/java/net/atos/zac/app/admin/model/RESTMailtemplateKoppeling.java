@@ -13,5 +13,5 @@ public class RESTMailtemplateKoppeling {
 
     public RestZaakafhandelParameters zaakafhandelParameters;
 
-    public RestMailtemplate mailtemplate;
+    public RESTMailtemplate mailtemplate;
 }

@@ -21,7 +21,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 import net.atos.zac.app.admin.converter.RESTMailtemplateConverter;
-import net.atos.zac.app.admin.model.RestMailtemplate;
+import net.atos.zac.app.admin.model.RESTMailtemplate;
 import net.atos.zac.mailtemplates.model.Mail;
 import net.atos.zac.mailtemplates.model.MailTemplateVariabelen;
 import nl.info.zac.mailtemplates.MailTemplateService;
@@ -50,13 +50,13 @@ public class MailtemplateBeheerRestService {
 
     @GET
     @Path("{id}")
-    public RestMailtemplate readMailtemplate(@PathParam("id") final long id) {
+    public RESTMailtemplate readMailtemplate(@PathParam("id") final long id) {
         assertPolicy(policyService.readOverigeRechten().getBeheren());
         return RESTMailtemplateConverter.convert(mailTemplateService.readMailtemplate(id));
     }
 
     @GET
-    public List<RestMailtemplate> listMailtemplates() {
+    public List<RESTMailtemplate> listMailtemplates() {
         assertPolicy(policyService.readOverigeRechten().getBeheren());
         final List<MailTemplate> mailTemplates = mailTemplateService.listMailtemplates();
         return mailTemplates.stream().map(RESTMailtemplateConverter::convert).toList();
@@ -64,7 +64,7 @@ public class MailtemplateBeheerRestService {
 
     @GET
     @Path("/koppelbaar")
-    public List<RestMailtemplate> listkoppelbareMailtemplates() {
+    public List<RESTMailtemplate> listkoppelbareMailtemplates() {
         assertPolicy(policyService.readOverigeRechten().getBeheren());
         final List<MailTemplate> mailTemplates = mailTemplateService.listKoppelbareMailtemplates();
         return mailTemplates.stream().map(RESTMailtemplateConverter::convert).toList();
@@ -79,7 +79,7 @@ public class MailtemplateBeheerRestService {
 
     @PUT
     @Path("")
-    public RestMailtemplate persistMailtemplate(final RestMailtemplate mailtemplate) {
+    public RESTMailtemplate persistMailtemplate(final RESTMailtemplate mailtemplate) {
         assertPolicy(policyService.readOverigeRechten().getBeheren());
         return RESTMailtemplateConverter.convert(
                 mailTemplateService.storeMailtemplate(RESTMailtemplateConverter.convert(mailtemplate))

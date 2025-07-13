@@ -8,7 +8,7 @@ import java.util.Set;
 
 import net.atos.zac.mailtemplates.model.MailTemplateVariabelen;
 
-public class RestMailtemplate {
+public class RESTMailtemplate {
 
     // When storing a new mail template, the ID currently needs to be provided by client.
     // We should refactor this. The backend (database) should be in control of generating IDs, not the client.

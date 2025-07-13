@@ -9,6 +9,7 @@ import nl.info.client.brp.model.generated.AbstractVerblijfplaats
 import nl.info.client.brp.model.generated.Adres
 import nl.info.client.brp.model.generated.Adressering
 import nl.info.client.brp.model.generated.AdresseringBeperkt
+import nl.info.client.brp.model.generated.NaamPersoon
 import nl.info.client.brp.model.generated.OpschortingBijhouding
 import nl.info.client.brp.model.generated.Persoon
 import nl.info.client.brp.model.generated.PersoonBeperkt
@@ -49,18 +50,20 @@ fun createPersoon(
     indicationCuratoriesRegister: Boolean? = false,
     rniDeelnemerList: List<RniDeelnemer>? = null,
     address: Adressering? = null,
-    verblijfplaats: AbstractVerblijfplaats? = null
+    verblijfplaats: AbstractVerblijfplaats? = null,
+    name: NaamPersoon? = null
 ) =
     Persoon().apply {
-        burgerservicenummer = bsn
-        leeftijd = age
-        geheimhoudingPersoonsgegevens = confidentialPersonalData
-        inOnderzoek = personInResearch
-        opschortingBijhouding = suspensionMaintenance
-        indicatieCurateleRegister = indicationCuratoriesRegister
-        rni = rniDeelnemerList
-        adressering = address
+        this.burgerservicenummer = bsn
+        this.leeftijd = age
+        this.geheimhoudingPersoonsgegevens = confidentialPersonalData
+        this.inOnderzoek = personInResearch
+        this.opschortingBijhouding = suspensionMaintenance
+        this.indicatieCurateleRegister = indicationCuratoriesRegister
+        this.rni = rniDeelnemerList
+        this.adressering = address
         this.verblijfplaats = verblijfplaats
+        this.naam = name
     }
 
 @Suppress("LongParameterList")

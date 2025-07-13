@@ -36,7 +36,6 @@ import nl.info.zac.identity.model.getFullName
 import nl.info.zac.mailtemplates.model.MailLink
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.apache.commons.lang3.ObjectUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.text.StringEscapeUtils
 import org.flowable.identitylink.api.IdentityLinkType
@@ -62,6 +61,7 @@ class MailTemplateHelper @Inject constructor(
         private val LOG = Logger.getLogger(MailTemplateHelper::class.java.name)
         private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
         private const val ACTION = "E-mail verzenden"
+        private const val REPLACEMENT_FOR_UNKNOWN_NAME = "Onbekend"
     }
 
     fun resolveGemeenteVariable(text: String): String =
@@ -293,11 +293,13 @@ class MailTemplateHelper @Inject constructor(
     private fun replaceInitiatorVariabelenPersoon(
         resolvedTekst: String,
         initiator: Persoon
-    ) = replaceInitiatorVariabeles(
-        resolvedTekst,
-        initiator.getNaam().getVolledigeNaam(),
-        convertAdres(initiator)
-    )
+    ): String {
+        return replaceInitiatorVariabeles(
+            resolvedTekst = resolvedTekst,
+            naam = initiator.getNaam()?.getVolledigeNaam() ?: REPLACEMENT_FOR_UNKNOWN_NAME,
+            adres = convertAdres(initiator)
+        )
+    }
 
     private fun replaceInitiatorVariabelenResultaatItem(
         resolvedText: String,
@@ -318,30 +320,36 @@ class MailTemplateHelper @Inject constructor(
             is VerblijfplaatsBuitenland if verblijfplaats.verblijfadres != null ->
                 convertAdres(verblijfplaats.verblijfadres)
             else -> {
-                LOG.info { "Unsupported persoon verblijfplaats type: '${verblijfplaats.javaClass.name}'" }
+                LOG.info { "Unsupported persoon verblijfplaats type: '$verblijfplaats'" }
                 StringUtils.EMPTY
             }
         }
     }
 
     private fun convertAdres(adres: VerblijfadresBinnenland) =
-        "${StringUtils.defaultIfBlank(adres.getOfficieleStraatnaam(), StringUtils.EMPTY)} " +
-            "${ObjectUtils.defaultIfNull(adres.getHuisnummer(), StringUtils.EMPTY)}" +
-            "${StringUtils.defaultIfBlank(adres.getHuisletter(), StringUtils.EMPTY)}" +
-            "${StringUtils.defaultIfBlank(adres.getHuisnummertoevoeging(), StringUtils.EMPTY)}, " +
-            "${StringUtils.defaultIfBlank(adres.getPostcode(), StringUtils.EMPTY)} " +
-            "${adres.getWoonplaats()}"
+        (adres.getOfficieleStraatnaam()?.takeIf { it.isNotBlank() } ?: "") +
+            " " +
+            (adres.getHuisnummer() ?: "") +
+            (adres.getHuisletter()?.takeIf { it.isNotBlank() } ?: "") +
+            (adres.getHuisnummertoevoeging()?.takeIf { it.isNotBlank() } ?: "") +
+            ", " +
+            (adres.getPostcode()?.takeIf { it.isNotBlank() } ?: "") +
+            " " +
+            adres.getWoonplaats()
 
     private fun convertAdres(adres: VerblijfadresBuitenland) =
         StringUtil.joinNonBlankWith(", ", adres.getRegel1(), adres.getRegel2(), adres.getRegel3())
 
     private fun convertAdres(resultaatItem: ResultaatItem): String {
         val binnenlandsAdres = resultaatItem.getAdres().getBinnenlandsAdres()
-        return "${binnenlandsAdres.getStraatnaam()} " +
-            "${ObjectUtils.defaultIfNull(binnenlandsAdres.getHuisnummer(), StringUtils.EMPTY)}" +
-            "${StringUtils.defaultIfBlank(binnenlandsAdres.getHuisletter(), StringUtils.EMPTY)}, " +
-            "${StringUtils.defaultIfBlank(binnenlandsAdres.getPostcode(), StringUtils.EMPTY)} " +
-            "${binnenlandsAdres.getPlaats()}"
+        return binnenlandsAdres.getStraatnaam() +
+            " " +
+            (binnenlandsAdres.getHuisnummer() ?: "") +
+            (binnenlandsAdres.getHuisletter()?.takeIf { it.isNotBlank() } ?: "") +
+            ", " +
+            (binnenlandsAdres.getPostcode()?.takeIf { it.isNotBlank() } ?: "") +
+            " " +
+            binnenlandsAdres.getPlaats()
     }
 
     private fun replaceInitiatorVariabelenOnbekend(resolvedTekst: String) =
