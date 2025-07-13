@@ -84,7 +84,9 @@ class MailTemplateHelperTest : BehaviorSpec({
             When("resolveGemeenteVariable is called") {
                 val resolvedText = mailTemplateHelper.resolveGemeenteVariable("Welcome to {GEMEENTE}!")
 
-                Then("the {GEMEENTE} placeholder should be replaced and the HTML special characters should be escaped") {
+                Then(
+                    "the {GEMEENTE} placeholder should be replaced and the HTML special characters should be escaped"
+                ) {
                     resolvedText shouldBe "Welcome to &quot;fake&quot; &amp;amp; &quot;gemeente naam&quot;!"
                 }
             }
@@ -115,7 +117,7 @@ class MailTemplateHelperTest : BehaviorSpec({
 
                 Then("the variables in the provided text should be replaced by the correct values from the zaak") {
                     resolvedText shouldBe "fakeText, ${zaak.identificatie}, $zaakTonenURL, ${zaakType.omschrijving}, " +
-                            "${statusType.omschrijving}, 12-10-2021"
+                        "${statusType.omschrijving}, 12-10-2021"
                 }
             }
         }
@@ -228,7 +230,9 @@ class MailTemplateHelperTest : BehaviorSpec({
                     zaak
                 )
 
-                Then("the text 'Onbekend' should be used for the persoon's name and no verblijfplaats should be replaced") {
+                Then(
+                    "the text 'Onbekend' should be used for the persoon's name and no verblijfplaats should be replaced"
+                ) {
                     resolvedText shouldBe "fakeText, Onbekend, "
                 }
             }
@@ -290,10 +294,10 @@ class MailTemplateHelperTest : BehaviorSpec({
 
                 Then("the placeholders should be replaced with the document's title, URL, and link") {
                     resolvedText shouldBe "Title: $documentTitle, " +
-                            "URL: $documentUriString, " +
-                            "Link: Klik om naar het document " +
-                            "<a href=\"$documentUriString\" " +
-                            "title=\"de zaakafhandelcomponent...\">$documentTitle</a> te gaan."
+                        "URL: $documentUriString, " +
+                        "Link: Klik om naar het document " +
+                        "<a href=\"$documentUriString\" " +
+                        "title=\"de zaakafhandelcomponent...\">$documentTitle</a> te gaan."
                 }
             }
         }

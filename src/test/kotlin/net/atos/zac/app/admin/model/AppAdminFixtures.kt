@@ -7,6 +7,7 @@ package net.atos.zac.app.admin.model
 import net.atos.zac.mailtemplates.model.Mail
 import net.atos.zac.mailtemplates.model.MailTemplateVariabelen
 
+@Suppress("LongParameterList")
 fun createRestMailTemplate(
     id: Long = 1234L,
     mailTemplateName: String = "fakeTemplateName",
