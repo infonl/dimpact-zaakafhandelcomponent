@@ -19,7 +19,6 @@ import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
-
 @AllOpen
 @NoArgConstructor
 data class RestZaakBetrokkene(
