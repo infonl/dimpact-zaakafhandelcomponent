@@ -319,7 +319,7 @@ class MailTemplateHelper @Inject constructor(
 
     private fun convertAdres(adres: VerblijfadresBinnenland) =
         "${StringUtils.defaultIfBlank(adres.getOfficieleStraatnaam(), StringUtils.EMPTY)} " +
-            "${ObjectUtils.defaultIfNull(adres.getHuisnummer(), StringUtils.EMPTY)}" +
+            "${ObjectUtils.getIfNull(adres.getHuisnummer(), StringUtils.EMPTY)}" +
             "${StringUtils.defaultIfBlank(adres.getHuisletter(), StringUtils.EMPTY)}" +
             "${StringUtils.defaultIfBlank(adres.getHuisnummertoevoeging(), StringUtils.EMPTY)}, " +
             "${StringUtils.defaultIfBlank(adres.getPostcode(), StringUtils.EMPTY)} " +
@@ -331,7 +331,7 @@ class MailTemplateHelper @Inject constructor(
     private fun convertAdres(resultaatItem: ResultaatItem): String {
         val binnenlandsAdres = resultaatItem.getAdres().getBinnenlandsAdres()
         return "${binnenlandsAdres.getStraatnaam()} " +
-            "${ObjectUtils.defaultIfNull(binnenlandsAdres.getHuisnummer(), StringUtils.EMPTY)}" +
+            "${ObjectUtils.getIfNull(binnenlandsAdres.getHuisnummer(), StringUtils.EMPTY)}" +
             "${StringUtils.defaultIfBlank(binnenlandsAdres.getHuisletter(), StringUtils.EMPTY)}, " +
             "${StringUtils.defaultIfBlank(binnenlandsAdres.getPostcode(), StringUtils.EMPTY)} " +
             "${binnenlandsAdres.getPlaats()}"

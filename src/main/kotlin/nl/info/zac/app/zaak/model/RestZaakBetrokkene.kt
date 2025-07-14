@@ -51,46 +51,44 @@ data class RestZaakBetrokkene(
  * Note that it is technically possible, according to the ZGW ZRC API, that a Rol does _not_ have a [Rol.betrokkeneIdentificatie].
  * This does happen in practice under certain circumstances when an 'empty' rol object is linked
  * to the zaak but when the rol object itself does not contain a betrokkene.
+ * It can also happen that a specific betrokkene type does not have an actual identification field.
  * We do not return these roles as they do not contain enough useful information for the client.
  *
  * @returns the converted [RestZaakBetrokkene], or `null` if the rol has no [Rol.betrokkeneIdentificatie]
  * since we do not support [RestZaakBetrokkene] objects without an identification.
  */
+@Suppress("ReturnCount")
 fun Rol<*>.toRestZaakBetrokkene(): RestZaakBetrokkene? {
-    val identificatieType: IdentificatieType?
-    val identificatie: String
-
-    if (this.betrokkeneIdentificatie == null) return null
-
+    var identificatieType: IdentificatieType? = null
+    var identificatie: String
     when (this.betrokkeneType) {
         NATUURLIJK_PERSOON -> {
-            identificatie = (this as RolNatuurlijkPersoon).betrokkeneIdentificatie.inpBsn
+            identificatie = (this as RolNatuurlijkPersoon).betrokkeneIdentificatie?.inpBsn ?: return null
             identificatieType = IdentificatieType.BSN
         }
         NIET_NATUURLIJK_PERSOON -> {
             // A niet-natuurlijk persoon in the ZGW ZRC API can be either a KVK niet-natuurlijk persoon with an INN NNP ID (=RSIN)
             // or a KVK vestiging with a vestigingsnummer.
             // If the INN NNP ID is not present (and note that it may be an empty string), we use the vestigingsnummer.
-            val betrokkene = (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie
-            identificatie = betrokkene.innNnpId.takeIf { !it.isNullOrBlank() } ?: betrokkene.vestigingsNummer
+            val betrokkene = (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie ?: return null
+            identificatie = betrokkene.innNnpId.takeIf { !it.isNullOrBlank() } ?: betrokkene.vestigingsNummer ?: return null
             identificatieType = if (betrokkene.innNnpId.isNullOrBlank()) IdentificatieType.VN else IdentificatieType.RSIN
         }
         VESTIGING -> {
-            identificatie = (this as RolVestiging).betrokkeneIdentificatie.vestigingsNummer
+            identificatie = (this as RolVestiging).betrokkeneIdentificatie?.vestigingsNummer ?: return null
             identificatieType = IdentificatieType.VN
         }
         ORGANISATORISCHE_EENHEID -> {
-            identificatie = (this as RolOrganisatorischeEenheid).betrokkeneIdentificatie.naam
+            identificatie = (this as RolOrganisatorischeEenheid).betrokkeneIdentificatie?.naam ?: return null
             // this betrokkene type has no identificatieType
             identificatieType = null
         }
         MEDEWERKER -> {
-            identificatie = (this as RolMedewerker).betrokkeneIdentificatie.identificatie
+            identificatie = (this as RolMedewerker).betrokkeneIdentificatie?.identificatie ?: return null
             // this betrokkene type has no identificatieType
             identificatieType = null
         }
     }
-
     return RestZaakBetrokkene(
         rolid = this.uuid.toString(),
         roltype = this.omschrijving,
