@@ -336,9 +336,11 @@ class ZaakRestService @Inject constructor(
         with(policyService.readZaakRechten(zaak)) {
             assertPolicy(wijzigen)
             if (
-                zaak.startdatum != restZaakEditMetRedenGegevens.zaak.startdatum ||
-                zaak.einddatumGepland != restZaakEditMetRedenGegevens.zaak.einddatumGepland ||
-                zaak.uiterlijkeEinddatumAfdoening != restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening
+                // do not compare LocalDate fields using identity-sensitive operators like '!=' because they are value-based
+                // see e.g., https://docs.oracle.com/javase/8/docs/api/java/lang/doc-files/ValueBased.html
+                restZaakEditMetRedenGegevens.zaak.startdatum?.equals(zaak.startdatum) == false ||
+                restZaakEditMetRedenGegevens.zaak.einddatumGepland?.equals(zaak.einddatumGepland) == false ||
+                restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening?.equals(zaak.uiterlijkeEinddatumAfdoening) == false
             ) {
                 assertPolicy(verlengenDoorlooptijd)
                 assertPolicy(wijzigenDoorlooptijd)

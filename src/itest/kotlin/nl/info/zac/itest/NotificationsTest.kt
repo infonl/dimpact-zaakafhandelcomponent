@@ -34,6 +34,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_INITIALIZATION
+import nl.info.zac.itest.config.ItestConfiguration.TEST_VESTIGING_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
@@ -61,7 +62,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
 /**
- * This test creates a zaak and a document (the form data PDF) which we use in other tests,
+ * This test creates a zaak and a document (the form data PDF) from a productaanvraag which we use in other tests,
  * and therefore we run this test right after initialization.
  */
 @Order(TEST_SPEC_ORDER_AFTER_INITIALIZATION)
@@ -86,8 +87,12 @@ class NotificationsTest : BehaviorSpec({
         }
     }
     Given(
-        """"ZAC and all related Docker containers are running, productaanvraag object exists in Objecten API
-                    and productaanvraag PDF exists in Open Zaak"""
+        """"
+            ZAC and all related Docker containers are running, a productaanvraag object exists in Objecten with 
+            a productaanvraag type, zaakafhandelparameters are defined in ZAC configured with the same productaanvraag type
+            and with 'automatic acknowledgement of receipt' (ontvangstbevestiging) enabled,
+            and the related productaanvraag PDF exists in Open Zaak
+        """.trimIndent()
     ) {
         When(
             """
@@ -122,7 +127,7 @@ class NotificationsTest : BehaviorSpec({
             )
             Then(
                 """the response should be 'no content', a zaak should be created in OpenZaak
-                        and a zaak productaanvraag proces of type 'Productaanvraag-Dimpact' should be started in ZAC"""
+                        using zaaktype 'melding klein evenement' and a zaak CMMN proces should be started in ZAC"""
             ) {
                 response.code shouldBe HTTP_NO_CONTENT
 
@@ -156,7 +161,7 @@ class NotificationsTest : BehaviorSpec({
                 }
             }
 
-            And("an automated email is sent") {
+            And("an automated acknowledgement of receipt email is sent") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
                     url = "$GREENMAIL_API_URI/user/$TEST_PERSON_HENDRIKA_JANSE_EMAIL/messages/"
                 )
@@ -273,14 +278,14 @@ class NotificationsTest : BehaviorSpec({
             }
             And("an automated email is sent") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
-                    url = "$GREENMAIL_API_URI/user/$TEST_PERSON_HENDRIKA_JANSE_EMAIL/messages/"
+                    url = "$GREENMAIL_API_URI/user/$TEST_VESTIGING_EMAIL/messages/"
                 )
                 receivedMailsResponse.code shouldBe HTTP_OK
 
                 val receivedMails = JSONArray(receivedMailsResponse.body.string())
                 with(receivedMails) {
-                    length() shouldBe 2
-                    with(getJSONObject(1)) {
+                    length() shouldBe 1
+                    with(getJSONObject(0)) {
                         getString("subject") shouldContain
                             "Ontvangstbevestiging van zaak $ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION"
                         getString("contentType") shouldStartWith "multipart/mixed"

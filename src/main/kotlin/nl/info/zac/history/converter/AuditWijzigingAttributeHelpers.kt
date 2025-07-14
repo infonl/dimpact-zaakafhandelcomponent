@@ -8,7 +8,6 @@ import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.history.model.HistoryLine
 import org.apache.commons.lang3.ObjectUtils
-import org.apache.commons.lang3.StringUtils
 import java.time.LocalDate
 import java.time.ZonedDateTime
 
@@ -17,7 +16,7 @@ fun MutableList<HistoryLine>.addHistorieRegel(
     oud: String,
     nieuw: String
 ) {
-    if (!StringUtils.equals(oud, nieuw)) {
+    if (oud != nieuw) {
         this.add(HistoryLine(label, oud, nieuw))
     }
 }

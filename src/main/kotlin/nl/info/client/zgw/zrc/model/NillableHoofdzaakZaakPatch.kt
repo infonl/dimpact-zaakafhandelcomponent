@@ -17,6 +17,7 @@ open class NillableHoofdzaakZaakPatch(
      * As per the ZGW ZRC API, to remove the hoofdzaak from a zaak, the hoofdzaak needs to be set to `null`
      * in the ZGW API JSON request body.
      * Therefore, we override the parent `hoofdzaak` property that can it can output a `null` JSON value.
+     * Note that this results in 'This property hides Java field XXXX thus making it inaccessible.' compiler warning,
      **/
     @field:JsonbNillable
     private val hoofdzaak: URI? = null
