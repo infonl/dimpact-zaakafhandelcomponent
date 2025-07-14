@@ -21,6 +21,7 @@ import nl.info.client.zgw.shared.exception.ZgwRuntimeException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.task.model.TaakSortering
+import nl.info.zac.authentication.OidcSessionService
 import nl.info.zac.search.converter.AbstractZoekObjectConverter
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -37,6 +38,7 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Level
 import java.util.logging.Logger
+import kotlin.IllegalStateException
 
 @Singleton
 @AllOpen
@@ -45,7 +47,8 @@ class IndexingService @Inject constructor(
     private val converterInstances: Instance<AbstractZoekObjectConverter<out ZoekObject>>,
     private val zrcClientService: ZrcClientService,
     private val drcClientService: DrcClientService,
-    private val flowableTaskService: FlowableTaskService
+    private val flowableTaskService: FlowableTaskService,
+    private val oidcSessionService: OidcSessionService
 ) {
     companion object {
         const val SOLR_CORE = "zac"
@@ -78,7 +81,12 @@ class IndexingService @Inject constructor(
     fun indexeerDirect(objectId: String, objectType: ZoekObjectType, performCommit: Boolean) =
         addToSolrIndex(
             getConverter(objectType).let { converter ->
-                listOf(continueOnExceptions(objectType) { converter.convert(objectId) })
+                listOf(
+                    continueOnExceptions(objectType) {
+                        error("Session is invalid") // Example of a possible exception
+                        converter.convert(objectId)
+                    }
+                )
             },
             performCommit
         )
@@ -362,11 +370,11 @@ class IndexingService @Inject constructor(
         } catch (indexingException: IndexingException) {
             LOG.log(Level.WARNING, "[$objectType] Error during indexing", indexingException)
 
-            when(val rootCause = indexingException.rootCause()) {
+            when (val rootCause = indexingException.rootCause()) {
                 is IllegalStateException -> {
                     rootCause.message?.contains("Session is invalid")?.let {
                         LOG.info("[$objectType] Access token invalid, revalidating...")
-                        // TODO: refresh the token of the current user in keycloak
+                        this.oidcSessionService.refreshUserSession()
                         try {
                             LOG.info("[$objectType] Access token revalidated, retrying call one more time")
                             runTranslatingToIndexingException { fn() } // Retry once

@@ -148,6 +148,7 @@ dependencies {
         exclude(group = "org.jboss.resteasy")
     }
     implementation(libs.jacobras.human.readable)
+    implementation("org.bitbucket.b_c:jose4j:0.7.12")
 
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
     detektPlugins(libs.detekt.formatting)

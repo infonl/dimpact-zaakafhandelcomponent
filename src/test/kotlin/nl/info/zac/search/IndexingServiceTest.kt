@@ -22,6 +22,7 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.ZaakUuid
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.authentication.OidcSessionService
 import nl.info.zac.search.converter.AbstractZoekObjectConverter
 import nl.info.zac.search.converter.ZaakZoekObjectConverter
 import nl.info.zac.search.model.createZaakZoekObject
@@ -58,12 +59,14 @@ class IndexingServiceTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
     val flowableTaskService = mockk<FlowableTaskService>()
     val zrcClientService = mockk<ZrcClientService>()
+    val oidcSessionService = mockk<OidcSessionService>()
 
     val indexingService = IndexingService(
         converterInstances,
         zrcClientService,
         drcClientService,
-        flowableTaskService
+        flowableTaskService,
+        oidcSessionService
     )
 
     beforeEach {
