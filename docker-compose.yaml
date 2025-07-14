@@ -705,6 +705,7 @@ services:
       - POSTGRES_DB=Pabc
     volumes:
       - ./scripts/docker-compose/volume-data/pabc-database-data:/var/lib/postgresql/data
+      - ./scripts/docker-compose/imports/pabc-database:/docker-entrypoint-initdb.d
     profiles: [ "pabc" ]
 
   pabc-migrations:
