@@ -350,11 +350,14 @@ class MailTemplateHelper @Inject constructor(
 
     private fun convertAdres(resultaatItem: ResultaatItem): String {
         val binnenlandsAdres = resultaatItem.getAdres().getBinnenlandsAdres()
-        return "${binnenlandsAdres.getStraatnaam()} " +
-            "${ObjectUtils.getIfNull(binnenlandsAdres.getHuisnummer(), StringUtils.EMPTY)}" +
-            "${StringUtils.defaultIfBlank(binnenlandsAdres.getHuisletter(), StringUtils.EMPTY)}, " +
-            "${StringUtils.defaultIfBlank(binnenlandsAdres.getPostcode(), StringUtils.EMPTY)} " +
-            "${binnenlandsAdres.getPlaats()}"
+        return binnenlandsAdres.getStraatnaam() +
+            " " +
+            (binnenlandsAdres.getHuisnummer() ?: "") +
+            (binnenlandsAdres.getHuisletter()?.takeIf { it.isNotBlank() } ?: "") +
+            ", " +
+            (binnenlandsAdres.getPostcode()?.takeIf { it.isNotBlank() } ?: "") +
+            " " +
+            binnenlandsAdres.getPlaats()
     }
 
     private fun replaceInitiatorVariabelenOnbekend(resolvedTekst: String) =
