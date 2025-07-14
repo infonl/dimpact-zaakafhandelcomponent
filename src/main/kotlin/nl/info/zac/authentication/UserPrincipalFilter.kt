@@ -42,6 +42,7 @@ constructor(private val zaakafhandelParameterService: ZaakafhandelParameterServi
 
     fun createOidcPrincipalFromTokens(accessToken: String): OidcPrincipal<*> {
         val decodedJWT = JWT.decode(accessToken)
+        val claims = decodedJWT.claims
         val token = MinimalAccessToken(decodedJWT)
         val context = SimpleOidcSecurityContext(token)
         return SimpleOidcPrincipal(token.preferredUsername ?: "unknown", context)

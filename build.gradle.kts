@@ -148,7 +148,6 @@ dependencies {
         exclude(group = "org.jboss.resteasy")
     }
     implementation(libs.jacobras.human.readable)
-    implementation("org.bitbucket.b_c:jose4j:0.7.12")
 
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
     detektPlugins(libs.detekt.formatting)
@@ -177,6 +176,7 @@ dependencies {
     providedCompile(libs.jboss.resteasy.multipart.provider)
     providedCompile(libs.wildfly.security.elytron.http.oidc)
     providedCompile(libs.hibernate.validator)
+    compileOnly(libs.jose4j)
     // ~dependencies provided by Wildfly
 
     // yasson is required for using a JSONB context in our unit tests
