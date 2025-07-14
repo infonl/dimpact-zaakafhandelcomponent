@@ -292,12 +292,20 @@ class MailTemplateHelper @Inject constructor(
 
     private fun replaceInitiatorVariabelenPersoon(
         resolvedTekst: String,
-        initiator: Persoon
+        initiatorPersoon: Persoon
     ): String {
         return replaceInitiatorVariabeles(
             resolvedTekst = resolvedTekst,
-            naam = initiator.getNaam()?.getVolledigeNaam() ?: REPLACEMENT_FOR_UNKNOWN_NAME,
-            adres = convertAdres(initiator)
+            naam = initiatorPersoon.getNaam()?.getVolledigeNaam() ?: run {
+                // In practise most likely never going to happen, but we log it anyway.
+                // Note that we do not log the person's BSN because of data privacy reasons.
+                LOG.warning(
+                    "Initiator persoon with geboorte: '${initiatorPersoon.geboorte}' does not have a name. " +
+                        "Using: '$REPLACEMENT_FOR_UNKNOWN_NAME' for full name."
+                )
+                REPLACEMENT_FOR_UNKNOWN_NAME
+            },
+            adres = convertAdres(initiatorPersoon)
         )
     }
 
