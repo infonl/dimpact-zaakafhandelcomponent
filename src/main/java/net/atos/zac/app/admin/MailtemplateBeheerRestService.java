@@ -32,13 +32,21 @@ import nl.info.zac.policy.PolicyService;
 @Path("beheer/mailtemplates")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class MailtemplateBeheerRESTService {
-
-    @Inject
+public class MailtemplateBeheerRestService {
     private MailTemplateService mailTemplateService;
+    private PolicyService policyService;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public MailtemplateBeheerRestService() {
+    }
 
     @Inject
-    private PolicyService policyService;
+    public MailtemplateBeheerRestService(final MailTemplateService mailTemplateService, final PolicyService policyService) {
+        this.mailTemplateService = mailTemplateService;
+        this.policyService = policyService;
+    }
 
     @GET
     @Path("{id}")

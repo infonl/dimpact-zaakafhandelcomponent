@@ -4,7 +4,7 @@
  */
 package net.atos.zac.app.admin.converter;
 
-import static nl.info.zac.mailtemplates.MailTemplateHelperKt.stripParagraphTags;
+import static nl.info.zac.util.HtmlUtilsKt.stripHtmlParagraphTags;
 
 import net.atos.zac.app.admin.model.RESTMailtemplate;
 import net.atos.zac.mailtemplates.model.Mail;
@@ -29,7 +29,7 @@ public final class RESTMailtemplateConverter {
         mailTemplate.setId(restMailtemplate.id);
         mailTemplate.setMail(Mail.valueOf(restMailtemplate.mail));
         mailTemplate.setMailTemplateNaam(restMailtemplate.mailTemplateNaam);
-        mailTemplate.setOnderwerp(stripParagraphTags(restMailtemplate.onderwerp));
+        mailTemplate.setOnderwerp(stripHtmlParagraphTags(restMailtemplate.onderwerp));
         mailTemplate.setBody(restMailtemplate.body);
         mailTemplate.setDefaultMailtemplate(restMailtemplate.defaultMailtemplate);
         return mailTemplate;

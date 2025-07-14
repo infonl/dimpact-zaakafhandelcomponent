@@ -36,7 +36,6 @@ import nl.info.zac.identity.model.getFullName
 import nl.info.zac.mailtemplates.model.MailLink
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.apache.commons.lang3.ObjectUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.text.StringEscapeUtils
 import org.flowable.identitylink.api.IdentityLinkType
@@ -45,7 +44,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Optional
 import java.util.logging.Logger
-import java.util.regex.Pattern
 
 @AllOpen
 @NoArgConstructor
@@ -63,6 +61,7 @@ class MailTemplateHelper @Inject constructor(
         private val LOG = Logger.getLogger(MailTemplateHelper::class.java.name)
         private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
         private const val ACTION = "E-mail verzenden"
+        private const val REPLACEMENT_FOR_UNKNOWN_NAME = "Onbekend"
     }
 
     fun resolveGemeenteVariable(text: String): String =
@@ -138,7 +137,11 @@ class MailTemplateHelper @Inject constructor(
             val groupName = Optional.ofNullable<RolOrganisatorischeEenheid>(zgwApiService.findGroepForZaak(zaak))
                 .map { it.getNaam() }
                 .orElse(null)
-            resolvedTekst = replaceVariabele(resolvedTekst, MailTemplateVariabelen.ZAAK_BEHANDELAAR_GROEP, groupName)
+            resolvedTekst = replaceVariabele(
+                targetString = resolvedTekst,
+                mailTemplateVariable = MailTemplateVariabelen.ZAAK_BEHANDELAAR_GROEP,
+                value = groupName
+            )
         }
         if (resolvedTekst.contains(MailTemplateVariabelen.ZAAK_BEHANDELAAR_MEDEWERKER.variabele)) {
             val medewerkerName = Optional.ofNullable<RolMedewerker>(
@@ -146,7 +149,11 @@ class MailTemplateHelper @Inject constructor(
             )
                 .map { it.getNaam() }
                 .orElse(null)
-            resolvedTekst = replaceVariabele(resolvedTekst, MailTemplateVariabelen.ZAAK_BEHANDELAAR_MEDEWERKER, medewerkerName)
+            resolvedTekst = replaceVariabele(
+                targetString = resolvedTekst,
+                mailTemplateVariable = MailTemplateVariabelen.ZAAK_BEHANDELAAR_MEDEWERKER,
+                value = medewerkerName
+            )
         }
         return resolvedTekst
     }
@@ -285,12 +292,22 @@ class MailTemplateHelper @Inject constructor(
 
     private fun replaceInitiatorVariabelenPersoon(
         resolvedTekst: String,
-        initiator: Persoon
-    ) = replaceInitiatorVariabeles(
-        resolvedTekst,
-        initiator.getNaam().getVolledigeNaam(),
-        convertAdres(initiator)
-    )
+        initiatorPersoon: Persoon
+    ): String {
+        return replaceInitiatorVariabeles(
+            resolvedTekst = resolvedTekst,
+            naam = initiatorPersoon.getNaam()?.getVolledigeNaam() ?: run {
+                // In practise most likely never going to happen, but we log it anyway.
+                // Note that we do not log the person's BSN because of data privacy reasons.
+                LOG.warning(
+                    "Initiator persoon with geboorte: '${initiatorPersoon.geboorte}' does not have a name. " +
+                        "Using: '$REPLACEMENT_FOR_UNKNOWN_NAME' for full name."
+                )
+                REPLACEMENT_FOR_UNKNOWN_NAME
+            },
+            adres = convertAdres(initiatorPersoon)
+        )
+    }
 
     private fun replaceInitiatorVariabelenResultaatItem(
         resolvedText: String,
@@ -311,30 +328,36 @@ class MailTemplateHelper @Inject constructor(
             is VerblijfplaatsBuitenland if verblijfplaats.verblijfadres != null ->
                 convertAdres(verblijfplaats.verblijfadres)
             else -> {
-                LOG.info { "Unsupported persoon verblijfplaats type: '${verblijfplaats.javaClass.name}'" }
+                LOG.info { "Unsupported persoon verblijfplaats type: '$verblijfplaats'" }
                 StringUtils.EMPTY
             }
         }
     }
 
     private fun convertAdres(adres: VerblijfadresBinnenland) =
-        "${StringUtils.defaultIfBlank(adres.getOfficieleStraatnaam(), StringUtils.EMPTY)} " +
-            "${ObjectUtils.getIfNull(adres.getHuisnummer(), StringUtils.EMPTY)}" +
-            "${StringUtils.defaultIfBlank(adres.getHuisletter(), StringUtils.EMPTY)}" +
-            "${StringUtils.defaultIfBlank(adres.getHuisnummertoevoeging(), StringUtils.EMPTY)}, " +
-            "${StringUtils.defaultIfBlank(adres.getPostcode(), StringUtils.EMPTY)} " +
-            "${adres.getWoonplaats()}"
+        (adres.getOfficieleStraatnaam()?.takeIf { it.isNotBlank() } ?: "") +
+            " " +
+            (adres.getHuisnummer() ?: "") +
+            (adres.getHuisletter()?.takeIf { it.isNotBlank() } ?: "") +
+            (adres.getHuisnummertoevoeging()?.takeIf { it.isNotBlank() } ?: "") +
+            ", " +
+            (adres.getPostcode()?.takeIf { it.isNotBlank() } ?: "") +
+            " " +
+            adres.getWoonplaats()
 
     private fun convertAdres(adres: VerblijfadresBuitenland) =
         StringUtil.joinNonBlankWith(", ", adres.getRegel1(), adres.getRegel2(), adres.getRegel3())
 
     private fun convertAdres(resultaatItem: ResultaatItem): String {
         val binnenlandsAdres = resultaatItem.getAdres().getBinnenlandsAdres()
-        return "${binnenlandsAdres.getStraatnaam()} " +
-            "${ObjectUtils.getIfNull(binnenlandsAdres.getHuisnummer(), StringUtils.EMPTY)}" +
-            "${StringUtils.defaultIfBlank(binnenlandsAdres.getHuisletter(), StringUtils.EMPTY)}, " +
-            "${StringUtils.defaultIfBlank(binnenlandsAdres.getPostcode(), StringUtils.EMPTY)} " +
-            "${binnenlandsAdres.getPlaats()}"
+        return binnenlandsAdres.getStraatnaam() +
+            " " +
+            (binnenlandsAdres.getHuisnummer() ?: "") +
+            (binnenlandsAdres.getHuisletter()?.takeIf { it.isNotBlank() } ?: "") +
+            ", " +
+            (binnenlandsAdres.getPostcode()?.takeIf { it.isNotBlank() } ?: "") +
+            " " +
+            binnenlandsAdres.getPlaats()
     }
 
     private fun replaceInitiatorVariabelenOnbekend(resolvedTekst: String) =
@@ -383,7 +406,3 @@ class MailTemplateHelper @Inject constructor(
         return targetString.replace(mailTemplateVariabele.variabele, replacement ?: mailTemplateVariabele.variabele)
     }
 }
-
-fun stripParagraphTags(onderwerp: String): String =
-    // Can't parse HTML with a regular expression, but in this case there will only be bare P-tags.
-    Pattern.compile("</?p>", Pattern.CASE_INSENSITIVE).matcher(onderwerp).replaceAll(StringUtils.EMPTY)
