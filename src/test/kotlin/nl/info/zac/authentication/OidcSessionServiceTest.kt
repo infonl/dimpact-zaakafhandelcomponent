@@ -100,25 +100,9 @@ class OidcSessionServiceTest : BehaviorSpec({
         }
     }
 
-    Given("refresh token is present in session but Keycloak returns an error") {
-        val errorResponse = """{"error":"invalid_grant","error_description":"Refresh token expired"}"""
-        val ctx = setupMocks(
-            responseBody = errorResponse,
-            inputStreamThrows = java.io.IOException("HTTP 400 Bad Request"),
-            errorStream = ByteArrayInputStream(errorResponse.toByteArray())
-        )
-        When("refreshUserSession is called") {
-            Then("it throws an exception due to Keycloak error") {
-                val ex = shouldThrow<Exception> {
-                    ctx.service.refreshUserSession()
-                }
-                ex.message shouldContain "invalid_grant"
-            }
-        }
-    }
-
     Given("no refresh token in session") {
         val ctx = setupMocks(refreshToken = null)
+
         When("refreshUserSession is called") {
             Then("it throws an exception") {
                 val ex = shouldThrow<IllegalStateException> {
@@ -132,6 +116,7 @@ class OidcSessionServiceTest : BehaviorSpec({
     Given("refresh token is present in session but Keycloak returns an error field in JSON") {
         val errorResponse = """{"error":"invalid_grant","error_description":"Refresh token expired"}"""
         val ctx = setupMocks(responseBody = errorResponse)
+
         When("refreshUserSession is called") {
             Then("it throws OidcSessionException due to error field in response") {
                 val ex = shouldThrow<OidcSessionException> {
@@ -145,6 +130,7 @@ class OidcSessionServiceTest : BehaviorSpec({
     Given("refresh token is present in session but Keycloak returns missing tokens") {
         val response = """{"not_access_token":"foo"}"""
         val ctx = setupMocks(responseBody = response)
+
         When("refreshUserSession is called") {
             Then("it throws OidcSessionException due to missing tokens") {
                 val ex = shouldThrow<OidcSessionException> {
@@ -158,6 +144,7 @@ class OidcSessionServiceTest : BehaviorSpec({
     Given("refresh token is present in session but Keycloak returns invalid JSON") {
         val response = "not a json!"
         val ctx = setupMocks(responseBody = response)
+
         When("refreshUserSession is called") {
             Then("it throws OidcSessionException due to invalid JSON") {
                 val ex = shouldThrow<OidcSessionException> {
@@ -171,6 +158,7 @@ class OidcSessionServiceTest : BehaviorSpec({
     Given("refresh token is present in session but Keycloak returns HTTP error") {
         val errorResponse = """{"error":"invalid_grant","error_description":"Refresh token expired"}"""
         val ctx = setupMocks(responseBody = errorResponse)
+
         When("refreshUserSession is called") {
             Then("it throws OidcSessionException due to error field in JSON response") {
                 val ex = shouldThrow<OidcSessionException> {
@@ -188,6 +176,7 @@ class OidcSessionServiceTest : BehaviorSpec({
             errorStream = ByteArrayInputStream(errorResponse.toByteArray()),
             inputStreamThrows = java.io.IOException("HTTP 401 Unauthorized")
         )
+
         When("refreshUserSession is called") {
             Then("it throws OidcSessionException due to non-2xx response code") {
                 val ex = shouldThrow<OidcSessionException> {
