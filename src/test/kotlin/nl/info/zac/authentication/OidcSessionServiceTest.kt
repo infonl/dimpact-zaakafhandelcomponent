@@ -74,6 +74,45 @@ class OidcSessionServiceTest : BehaviorSpec({
         }
     }
 
+    Given("refresh token is present in session but Keycloak returns an error") {
+        val refreshToken = "old-refresh-token"
+        val errorResponse = """{"error":"invalid_grant","error_description":"Refresh token expired"}"""
+
+        every { sessionInstance.get() } returns httpSession
+        every { httpSession.getAttribute("refresh_token") } returns refreshToken
+
+        val mockConnection = mockk<HttpURLConnection>(relaxed = true)
+        val outputStream = mockk<OutputStream>()
+        every { outputStream.write(any<ByteArray>()) } just runs
+        every { outputStream.close() } just runs
+        every { mockConnection.outputStream } returns outputStream
+        every { mockConnection.inputStream } throws java.io.IOException("HTTP 400 Bad Request")
+        every { mockConnection.errorStream } returns ByteArrayInputStream(errorResponse.toByteArray())
+        every { mockConnection.responseCode } returns 400
+        every { mockConnection.setRequestProperty(any(), any()) } just runs
+        every { mockConnection.setRequestMethod(any()) } just runs
+        every { mockConnection.setDoOutput(any()) } just runs
+
+        val service = OidcSessionService(
+            userPrincipalFilter,
+            sessionInstance,
+            authServer = "http://localhost:8080/auth",
+            authRealm = "zac",
+            clientId = "zac-client",
+            clientSecret = "zac-secret",
+            connectionFactory = { mockConnection }
+        )
+
+        When("refreshUserSession is called") {
+            Then("it throws an exception due to Keycloak error") {
+                val ex = shouldThrow<Exception> {
+                    service.refreshUserSession()
+                }
+                ex.message shouldBe "HTTP 400 Bad Request"
+            }
+        }
+    }
+
     Given("no refresh token in session") {
         every { sessionInstance.get() } returns httpSession
         every { httpSession.getAttribute("refresh_token") } returns null
