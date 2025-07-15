@@ -6,17 +6,40 @@ import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.servlet.http.HttpSession
 import nl.info.zac.util.AllOpen
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.net.HttpURLConnection
-import java.net.URI
+import java.net.URL
 import java.net.URLEncoder
 
 @Singleton
 @AllOpen
-class OidcSessionService @Inject constructor(
+@Suppress("LongParameterList")
+class OidcSessionService internal constructor(
     private val userPrincipalFilter: UserPrincipalFilter,
-    @ActiveSession
-    private val httpSession: Instance<HttpSession>
+    private val httpSession: Instance<HttpSession>,
+    private val authServer: String,
+    private val authRealm: String,
+    private val clientId: String,
+    private val clientSecret: String,
+    private val connectionFactory: (String) -> HttpURLConnection
 ) {
+    @Inject
+    constructor(
+        userPrincipalFilter: UserPrincipalFilter,
+        httpSession: Instance<HttpSession>,
+        @ConfigProperty(name = "AUTH_SERVER") authServer: String,
+        @ConfigProperty(name = "AUTH_REALM") authRealm: String,
+        @ConfigProperty(name = "AUTH_RESOURCE") clientId: String,
+        @ConfigProperty(name = "AUTH_SECRET") clientSecret: String
+    ) : this(
+        userPrincipalFilter,
+        httpSession,
+        authServer,
+        authRealm,
+        clientId,
+        clientSecret,
+        { url -> URL(url).openConnection() as HttpURLConnection }
+    )
 
     /**
      * Refreshes the OIDC user session using the refresh token stored in the HttpSession.
@@ -26,22 +49,15 @@ class OidcSessionService @Inject constructor(
         val refreshToken = httpSession.get().getAttribute("refresh_token") as? String
         check(refreshToken != null) { "No refresh token found in session" }
 
-        val keycloakUrl =
-            System.getenv("AUTH_SERVER") +
-                "/realms/" +
-                System.getenv("AUTH_REALM") +
-                "/protocol/openid-connect/token"
-        val clientId = System.getenv("AUTH_RESOURCE")
-        val clientSecret = System.getenv("AUTH_SECRET")
-
         val params =
             "grant_type=refresh_token" +
                 "&refresh_token=${URLEncoder.encode(refreshToken, "UTF-8")}" +
                 "&client_id=${URLEncoder.encode(clientId, "UTF-8")}" +
                 "&client_secret=${URLEncoder.encode(clientSecret, "UTF-8")}"
 
-        val url = URI(keycloakUrl).toURL()
-        val connection = url.openConnection() as HttpURLConnection
+        val keycloakUrl = "$authServer/realms/$authRealm/protocol/openid-connect/token"
+
+        val connection = connectionFactory(keycloakUrl)
         connection.requestMethod = "POST"
         connection.doOutput = true
         connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
