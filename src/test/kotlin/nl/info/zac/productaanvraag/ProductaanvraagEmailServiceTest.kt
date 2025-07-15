@@ -91,7 +91,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
     }
 
     Given("zaak created from productaanvraag and automatic email is enabled with GEEMENTE as sender") {
-        val gementeEmail = "Gemeente-adorp-test@team-dimpact.info.nl"
+        val councilEmailAddress = "fake-council@example.com"
         val zaak = createZaak()
         val betrokkene = createBetrokkene()
         val automaticEmailConfirmation = createAutomaticEmailConfirmation(
@@ -116,7 +116,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
             mailTemplateService.findMailtemplateByName(zaakafhandelParameters.automaticEmailConfirmation.templateName)
         } returns mailTemplate
 
-        every { configuratieService.readGemeenteMail() } returns gementeEmail
+        every { configuratieService.readGemeenteMail() } returns councilEmailAddress
         every { mailService.sendMail(capture(mailGegevens), capture(bronnen)) } returns "body"
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
 
@@ -128,7 +128,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                     mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
                 }
                 with(mailGegevens.captured) {
-                    from.email shouldBe gementeEmail
+                    from.email shouldBe councilEmailAddress
                     to.email shouldBe receiverEmail
                     replyTo!!.email shouldBe zaakafhandelParameters.automaticEmailConfirmation.emailReply
                     subject shouldBe mailTemplate.onderwerp
