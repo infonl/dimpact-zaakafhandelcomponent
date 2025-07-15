@@ -129,7 +129,7 @@ constructor(private val zaakafhandelParameterService: ZaakafhandelParameterServi
         } else {
             zaakafhandelParameterService
                 .listZaakafhandelParameters()
-                // group by zaakttype omschrijving since this is the unique identifier for a
+                // group by zaaktype omschrijving since this is the unique identifier for a
                 // zaaktype
                 // (not the zaaktype uuid since that changes for every version of a
                 // zaaktype)
