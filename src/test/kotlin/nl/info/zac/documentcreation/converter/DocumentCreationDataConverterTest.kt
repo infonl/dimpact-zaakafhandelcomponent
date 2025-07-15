@@ -187,7 +187,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
             createRolNietNatuurlijkPersoon(
                 rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR),
                 nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
-                    vestigingsNummer = vestigingsNummer
+                    vestigingsnummer = vestigingsNummer
                 )
             )
         val zaakType = createZaakType()

@@ -21,10 +21,11 @@ import net.atos.zac.admin.ZaakafhandelParameterService;
 import net.atos.zac.admin.model.ZaakafhandelParameters;
 import net.atos.zac.app.admin.converter.RESTMailtemplateConverter;
 import net.atos.zac.app.admin.model.RESTMailtemplate;
-import net.atos.zac.mailtemplates.MailTemplateService;
 import net.atos.zac.mailtemplates.model.Mail;
 import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
+import nl.info.zac.mailtemplates.MailTemplateService;
+import nl.info.zac.mailtemplates.model.MailTemplate;
 
 @Singleton
 @Path("mailtemplates")
@@ -52,12 +53,12 @@ public class MailtemplateRESTService {
                 zaak.getZaaktype()));
 
         return zaakafhandelParameters.getMailtemplateKoppelingen().stream()
-                .filter(koppeling -> koppeling.getMailTemplate().getMail().equals(mail))
+                .filter(koppeling -> koppeling.getMailTemplate().mail.equals(mail))
                 .map(koppeling -> RESTMailtemplateConverter.convert(koppeling.getMailTemplate()))
                 .findFirst()
-                .orElseGet(() -> mailTemplateService.findDefaultMailtemplate(mail)
-                        .map(RESTMailtemplateConverter::convert)
-                        .orElse(null)
-                );
+                .orElseGet(() -> {
+                    MailTemplate mailTemplate = mailTemplateService.findDefaultMailtemplate(mail);
+                    return mailTemplate != null ? RESTMailtemplateConverter.convert(mailTemplate) : null;
+                });
     }
 }

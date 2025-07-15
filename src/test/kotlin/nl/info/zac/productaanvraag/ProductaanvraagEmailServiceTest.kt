@@ -16,16 +16,15 @@ import io.mockk.verify
 import net.atos.client.klant.KlantClientService
 import net.atos.client.klant.createDigitalAddress
 import net.atos.client.klant.model.SoortDigitaalAdresEnum
-import net.atos.zac.mailtemplates.MailTemplateService
-import net.atos.zac.mailtemplates.model.MailGegevens
-import net.atos.zac.mailtemplates.model.createMailTemplate
 import nl.info.client.zgw.model.createZaak
 import nl.info.zac.admin.model.createAutomaticEmailConfirmation
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
+import nl.info.zac.mailtemplates.MailTemplateService
+import nl.info.zac.mailtemplates.model.MailGegevens
+import nl.info.zac.mailtemplates.model.createMailTemplate
 import nl.info.zac.zaak.ZaakService
-import java.util.Optional
 
 class ProductaanvraagEmailServiceTest : BehaviorSpec({
     val klantClientService = mockk<KlantClientService>()
@@ -58,7 +57,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaakafhandelParameters.automaticEmailConfirmation.templateName)
-        } returns Optional.of(mailTemplate)
+        } returns mailTemplate
         every { mailService.sendMail(capture(mailGegevens), capture(bronnen)) } returns "body"
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
 
@@ -72,10 +71,10 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 with(mailGegevens.captured) {
                     from.email shouldBe zaakafhandelParameters.automaticEmailConfirmation.emailSender
                     to.email shouldBe receiverEmail
-                    replyTo.email shouldBe zaakafhandelParameters.automaticEmailConfirmation.emailReply
+                    replyTo!!.email shouldBe zaakafhandelParameters.automaticEmailConfirmation.emailReply
                     subject shouldBe mailTemplate.onderwerp
                     body shouldBe mailTemplate.body
-                    attachments shouldBe emptyArray()
+                    attachments shouldBe emptyList()
                     isCreateDocumentFromMail shouldBe true
                 }
             }
@@ -106,7 +105,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaakafhandelParameters.automaticEmailConfirmation.templateName)
-        } returns Optional.of(mailTemplate)
+        } returns mailTemplate
         every { mailService.sendMail(capture(mailGegevens), capture(bronnen)) } returns "body"
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
 
@@ -120,10 +119,10 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 with(mailGegevens.captured) {
                     from.email shouldBe zaakafhandelParameters.automaticEmailConfirmation.emailSender
                     to.email shouldBe receiverEmail
-                    replyTo.email shouldBe zaakafhandelParameters.automaticEmailConfirmation.emailReply
+                    replyTo!!.email shouldBe zaakafhandelParameters.automaticEmailConfirmation.emailReply
                     subject shouldBe mailTemplate.onderwerp
                     body shouldBe mailTemplate.body
-                    attachments shouldBe emptyArray()
+                    attachments shouldBe emptyList()
                     isCreateDocumentFromMail shouldBe true
                 }
             }
@@ -165,7 +164,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaakafhandelParameters.automaticEmailConfirmation.templateName)
-        } returns Optional.empty()
+        } returns null
 
         When("sendEmailForZaakFromProductaanvraag is called") {
             productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, betrokkene, zaakafhandelParameters)

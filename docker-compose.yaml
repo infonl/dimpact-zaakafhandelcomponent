@@ -409,7 +409,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: docker.io/prom/prometheus:v3.4.2@sha256:3b1d5be5c3eef4f027665ddaa3b1a7de8a58d96a0a6de5dd45629afd267ecaf0
+    image: docker.io/prom/prometheus:v3.5.0@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -445,7 +445,7 @@ services:
     profiles: [ "metrics" ]
 
   greenmail:
-    image: docker.io/greenmail/standalone:2.1.3@sha256:d6db42a4fc258fec0948b1ae7b579fd06947cc92087c162ec0597972a6c36850
+    image: docker.io/greenmail/standalone:2.1.4@sha256:38f705c272ad8e4dc5ee53add4276e654202802b2bbdf4cb49698dda5102149a
     environment:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0

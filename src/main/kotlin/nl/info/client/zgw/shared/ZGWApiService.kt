@@ -345,7 +345,7 @@ class ZGWApiService @Inject constructor(
         description: String,
         zaaktypeURI: URI
     ): ResultaatType = resultaattypes
-        .firstOrNull { StringUtils.equals(it.omschrijving, description) }
+        .firstOrNull { it.omschrijving == description }
         ?: throw ResultTypeNotFoundException(
             "Resultaattype with description '$description' not found for zaaktype with URI: '$zaaktypeURI'."
         )

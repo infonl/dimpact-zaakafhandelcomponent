@@ -22,7 +22,6 @@ import net.atos.zac.app.mail.model.RESTMailGegevens;
 import net.atos.zac.flowable.ZaakVariabelenService;
 import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
-import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.zac.mail.MailService;
 import nl.info.zac.mail.model.BronnenKt;
 import nl.info.zac.policy.PolicyService;
@@ -33,13 +32,11 @@ import nl.info.zac.zaak.ZaakService;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class MailRestService {
-
     private ZaakService zaakService;
     private MailService mailService;
     private ZaakVariabelenService zaakVariabelenService;
     private PolicyService policyService;
     private ZrcClientService zrcClientService;
-    private ZtcClientService ztcClientService;
     private RESTMailGegevensConverter restMailGegevensConverter;
 
     /**
@@ -55,7 +52,6 @@ public class MailRestService {
             final ZaakVariabelenService zaakVariabelenService,
             final PolicyService policyService,
             final ZrcClientService zrcClientService,
-            final ZtcClientService ztcClientService,
             final RESTMailGegevensConverter restMailGegevensConverter
     ) {
         this.zaakService = zaakService;
@@ -63,7 +59,6 @@ public class MailRestService {
         this.zaakVariabelenService = zaakVariabelenService;
         this.policyService = policyService;
         this.zrcClientService = zrcClientService;
-        this.ztcClientService = ztcClientService;
         this.restMailGegevensConverter = restMailGegevensConverter;
     }
 
