@@ -47,7 +47,7 @@ class OidcSessionService internal constructor(
     )
 
     companion object {
-        private const val HTTP_OK_MIN = 200
+        private const val HTTP_OK_MIN = HttpURLConnection.HTTP_OK
         private const val HTTP_OK_MAX = 299
     }
 
@@ -85,7 +85,7 @@ class OidcSessionService internal constructor(
         } catch (e: Exception) {
             val errorBody = connection.errorStream?.bufferedReader()?.readText()
             throw OidcSessionException(
-                "Failed to refresh user session: HTTP ${connection.responseCode}: ${errorBody?.take(200) ?: e.message}",
+                "Failed to refresh user session: HTTP ${connection.responseCode}: ${errorBody?.take(HTTP_OK_MIN) ?: e.message}",
                 e
             )
         }
