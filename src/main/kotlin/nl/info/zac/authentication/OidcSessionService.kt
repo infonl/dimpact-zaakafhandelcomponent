@@ -68,7 +68,13 @@ class OidcSessionService internal constructor(
         connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
         connection.outputStream.use { it.write(params.toByteArray()) }
 
-        val response = connection.inputStream.bufferedReader().readText()
+        val responseCode = connection.responseCode
+        val response = if (responseCode in 200..299) {
+            connection.inputStream.bufferedReader().readText()
+        } else {
+            val errorResponse = connection.errorStream?.bufferedReader()?.readText()
+            throw IllegalStateException("Failed to refresh user session. Response code: $responseCode. Error: $errorResponse")
+        }
         val mapper = jacksonObjectMapper()
         val json = mapper.readTree(response)
 
