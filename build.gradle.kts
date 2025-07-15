@@ -176,7 +176,6 @@ dependencies {
     providedCompile(libs.jboss.resteasy.multipart.provider)
     providedCompile(libs.wildfly.security.elytron.http.oidc)
     providedCompile(libs.hibernate.validator)
-    compileOnly(libs.jose4j)
     // ~dependencies provided by Wildfly
 
     // yasson is required for using a JSONB context in our unit tests

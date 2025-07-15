@@ -100,7 +100,6 @@ kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 kotlin-csv-jvm = { group = "com.jsoizo", name = "kotlin-csv-jvm", version.ref = "kotlin-csv" }
 jacobras-human-readable = { group = "nl.jacobras", name = "Human-Readable", version.ref = "jacobras-human-readable" }
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
-jose4j = { module = "org.bitbucket.b_c:jose4j", version = "0.9.6" }
 
 infinispan-jcache = { group = "org.infinispan", name = "infinispan-jcache", version.ref = "infinispan" }
 infinispan-cdi-embedded = { group = "org.infinispan", name = "infinispan-cdi-embedded", version.ref = "infinispan" }
