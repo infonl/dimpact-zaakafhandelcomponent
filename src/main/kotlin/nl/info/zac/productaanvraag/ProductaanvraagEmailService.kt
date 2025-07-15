@@ -10,8 +10,10 @@ import jakarta.inject.Inject
 import net.atos.client.klant.KlantClientService
 import net.atos.client.klant.model.SoortDigitaalAdresEnum
 import net.atos.zac.admin.model.AutomaticEmailConfirmation
+import net.atos.zac.admin.model.ZaakAfzender
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
@@ -29,6 +31,7 @@ import java.util.logging.Logger
 @AllOpen
 class ProductaanvraagEmailService @Inject constructor(
     private val klantClientService: KlantClientService,
+    private val configuratieService: ConfiguratieService,
     private val zaakService: ZaakService,
     private val mailService: MailService,
     private val mailTemplateService: MailTemplateService,
@@ -77,13 +80,13 @@ class ProductaanvraagEmailService @Inject constructor(
         mailTemplateService.findMailtemplateByName(automaticEmailConfirmation.templateName)?.let {
                 mailTemplate ->
             val mailGegevens = MailGegevens(
-                MailAdres(automaticEmailConfirmation.emailSender, null),
-                MailAdres(to, null),
-                MailAdres(automaticEmailConfirmation.emailReply, null),
-                mailTemplate.onderwerp,
-                mailTemplate.body,
-                null,
-                true
+                from = MailAdres(extractEmailAddress(automaticEmailConfirmation.emailSender), null),
+                to = MailAdres(to, null),
+                replyTo = MailAdres(automaticEmailConfirmation.emailReply, null),
+                subject = mailTemplate.onderwerp,
+                body = mailTemplate.body,
+                attachments = null,
+                isCreateDocumentFromMail = true
             )
             mailService.sendMail(mailGegevens, zaakFromProductaanvraag.getBronnenFromZaak())
             zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaakFromProductaanvraag)
@@ -92,4 +95,10 @@ class ProductaanvraagEmailService @Inject constructor(
                 "Skipping automatic email confirmation."
         )
     }
+
+    private fun extractEmailAddress(emailSender: String): String =
+        when (emailSender) {
+            ZaakAfzender.Speciaal.GEMEENTE.toString() -> configuratieService.readGemeenteMail()
+            else -> emailSender
+        }
 }

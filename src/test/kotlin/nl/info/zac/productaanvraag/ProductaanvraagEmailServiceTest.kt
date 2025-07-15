@@ -19,6 +19,7 @@ import net.atos.client.klant.model.SoortDigitaalAdresEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.zac.admin.model.createAutomaticEmailConfirmation
 import nl.info.zac.admin.model.createZaakafhandelParameters
+import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.MailTemplateService
@@ -28,12 +29,14 @@ import nl.info.zac.zaak.ZaakService
 
 class ProductaanvraagEmailServiceTest : BehaviorSpec({
     val klantClientService = mockk<KlantClientService>()
+    val configuratieService = mockk<ConfiguratieService>()
     val zaakService = mockk<ZaakService>()
     val mailService = mockk<MailService>()
     val mailTemplateService = mockk<MailTemplateService>()
 
     val productaanvraagEmailService = ProductaanvraagEmailService(
         klantClientService,
+        configuratieService,
         zaakService,
         mailService,
         mailTemplateService
@@ -70,6 +73,62 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 }
                 with(mailGegevens.captured) {
                     from.email shouldBe zaakafhandelParameters.automaticEmailConfirmation.emailSender
+                    to.email shouldBe receiverEmail
+                    replyTo!!.email shouldBe zaakafhandelParameters.automaticEmailConfirmation.emailReply
+                    subject shouldBe mailTemplate.onderwerp
+                    body shouldBe mailTemplate.body
+                    attachments shouldBe emptyList()
+                    isCreateDocumentFromMail shouldBe true
+                }
+            }
+
+            And("sent email flag is set") {
+                verify(exactly = 1) {
+                    zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
+                }
+            }
+        }
+    }
+
+    Given("zaak created from productaanvraag and automatic email is enabled with GEEMENTE as sender") {
+        val gementeEmail = "Gemeente-adorp-test@team-dimpact.info.nl"
+        val zaak = createZaak()
+        val betrokkene = createBetrokkene()
+        val automaticEmailConfirmation = createAutomaticEmailConfirmation(
+            emailSender = "GEMEENTE"
+        )
+        val zaakafhandelParameters = createZaakafhandelParameters(
+            automaticEmailConfirmation = automaticEmailConfirmation
+        )
+        val receiverEmail = "receiver@server.com"
+        val digitalAddress = createDigitalAddress(
+            address = receiverEmail,
+            soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL
+        )
+        val mailTemplate = createMailTemplate()
+        val mailGegevens = slot<MailGegevens>()
+        val bronnen = slot<Bronnen>()
+
+        every {
+            klantClientService.findDigitalAddressesByNumber(betrokkene.inpBsn)
+        } returns listOf(digitalAddress)
+        every {
+            mailTemplateService.findMailtemplateByName(zaakafhandelParameters.automaticEmailConfirmation.templateName)
+        } returns mailTemplate
+
+        every { configuratieService.readGemeenteMail() } returns gementeEmail
+        every { mailService.sendMail(capture(mailGegevens), capture(bronnen)) } returns "body"
+        every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
+
+        When("sendEmailForZaakFromProductaanvraag is called") {
+            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, betrokkene, zaakafhandelParameters)
+
+            Then("email is sent") {
+                verify(exactly = 1) {
+                    mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
+                }
+                with(mailGegevens.captured) {
+                    from.email shouldBe gementeEmail
                     to.email shouldBe receiverEmail
                     replyTo!!.email shouldBe zaakafhandelParameters.automaticEmailConfirmation.emailReply
                     subject shouldBe mailTemplate.onderwerp
