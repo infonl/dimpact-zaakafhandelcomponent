@@ -5,11 +5,12 @@
 DATABASE_MIGRATIONS_TABLE_RECORDS_COUNT=3
 
 echo ">>>> Waiting until PABC has initialized the database <<<<"
-useradd openklant
+useradd pabc
 while true
 do
-    verifier=$(psql -U pabc -d Pabc -t -A -c "select count(*) from __EFMigrationsHistory")
-    if [ DATABASE_MIGRATIONS_TABLE_RECORDS_COUNT != "$verifier" ]; then
+    verifier=$(psql -U pabc -d Pabc -t -A -c "select count(*) from \"__EFMigrationsHistory\"")
+    echo "Number of database migration table records: $verifier"
+    if [ $DATABASE_MIGRATIONS_TABLE_RECORDS_COUNT != "$verifier" ]; then
         echo "PABC not running yet. Sleeping 2 seconds ..."
         sleep 2s
     else
@@ -28,4 +29,4 @@ for file in /docker-entrypoint-initdb.d/database/*.sql; do
     psql -U pabc Pabc -f "$file"
 done
 
-echo ">>>> Open Klant database was initialized successfully <<<<"
+echo ">>>> PABC database was initialized successfully <<<<"
