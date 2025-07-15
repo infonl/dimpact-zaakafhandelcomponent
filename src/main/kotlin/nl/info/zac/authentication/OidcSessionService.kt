@@ -84,8 +84,9 @@ class OidcSessionService internal constructor(
             connection.inputStream.bufferedReader().readText()
         } catch (e: Exception) {
             val errorBody = connection.errorStream?.bufferedReader()?.readText()
+            val errorMessage = errorBody?.takeIf { it.isNotBlank() } ?: e.message
             throw OidcSessionException(
-                "Failed to refresh user session: HTTP ${connection.responseCode}: ${errorBody?.take(HTTP_OK_MIN) ?: e.message}",
+                "Failed to refresh user session: HTTP ${connection.responseCode}: $errorMessage",
                 e
             )
         }
