@@ -46,12 +46,20 @@ class OidcSessionService internal constructor(
         { url -> URL(url).openConnection() as HttpURLConnection }
     )
 
+    companion object {
+        private const val HTTP_OK_MIN = 200
+        private const val HTTP_OK_MAX = 299
+    }
+
     /**
      * Refreshes the OIDC user session using the refresh token stored in the HttpSession.
      * Updates the session with the new refresh token.
+     * Throws OidcSessionException on error.
      */
+    @Suppress("TooGenericExceptionCaught", "ThrowsCount")
     fun refreshUserSession() {
-        val refreshToken = httpSession.get().getAttribute("refresh_token") as? String
+        val session = httpSession.get()
+        val refreshToken = session.getAttribute("refresh_token") as? String
         check(refreshToken != null) { "No refresh token found in session" }
 
         val params =
@@ -68,18 +76,43 @@ class OidcSessionService internal constructor(
         connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
         connection.outputStream.use { it.write(params.toByteArray()) }
 
-        val response = connection.inputStream.bufferedReader().readText()
-        if(response.contains("error")) {
-            error("Failed to refresh user session: $response")
+        if(connection.responseCode !in HTTP_OK_MIN..HTTP_OK_MAX) {
+            throw OidcSessionException("Failed to refresh user session: HTTP ${connection.responseCode}")
         }
-        val mapper = jacksonObjectMapper()
-        val json = mapper.readTree(response)
 
-        val newAccessToken = json["access_token"].asText()
-        val newRefreshToken = json["refresh_token"].asText()
-        httpSession.get().setAttribute("refresh_token", newRefreshToken)
+        val response: String = try {
+            connection.inputStream.bufferedReader().readText()
+        } catch (e: Exception) {
+            val errorBody = connection.errorStream?.bufferedReader()?.readText()
+            throw OidcSessionException(
+                "Failed to refresh user session: HTTP ${connection.responseCode}: ${errorBody?.take(200) ?: e.message}",
+                e
+            )
+        }
+
+        val mapper = jacksonObjectMapper()
+        val json = try {
+            mapper.readTree(response)
+        } catch (e: Exception) {
+            throw OidcSessionException("Failed to parse Keycloak response as JSON", e)
+        }
+
+        if (json.has("error")) {
+            val error = json["error"].asText("")
+            val errorDesc = json["error_description"]?.asText("") ?: ""
+            throw OidcSessionException("Failed to refresh user session: $error - $errorDesc")
+        }
+
+        val newAccessToken = json["access_token"]?.asText()
+        val newRefreshToken = json["refresh_token"]?.asText()
+        if (newAccessToken.isNullOrBlank() || newRefreshToken.isNullOrBlank()) {
+            throw OidcSessionException("Keycloak response missing access_token or refresh_token")
+        }
+        session.setAttribute("refresh_token", newRefreshToken)
 
         val newOidcPrincipal = userPrincipalFilter.createOidcPrincipalFromAccessToken(newAccessToken)
-        userPrincipalFilter.setLoggedInUserOnHttpSession(newOidcPrincipal, httpSession.get())
+        userPrincipalFilter.setLoggedInUserOnHttpSession(newOidcPrincipal, session)
     }
 }
+
+class OidcSessionException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)

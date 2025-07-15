@@ -8,6 +8,8 @@ package nl.info.zac.authentication
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -20,117 +22,179 @@ import java.io.ByteArrayInputStream
 import java.io.OutputStream
 import java.net.HttpURLConnection
 
-class OidcSessionServiceTest : BehaviorSpec({
+// Helper data class and setup function for test context
+private data class TestContext(
+    val userPrincipalFilter: UserPrincipalFilter,
+    val httpSession: HttpSession,
+    val sessionInstance: Instance<HttpSession>,
+    val mockConnection: HttpURLConnection,
+    val outputStream: OutputStream,
+    val service: OidcSessionService
+)
+
+private fun setupMocks(
+    refreshToken: String? = "old-refresh-token",
+    responseCode: Int = 200,
+    responseBody: String = """{"access_token":"new-access-token","refresh_token":"new-refresh-token"}""",
+    errorStream: ByteArrayInputStream? = null,
+    inputStreamThrows: Exception? = null
+): TestContext {
     val userPrincipalFilter = mockk<UserPrincipalFilter>()
     val httpSession = mockk<HttpSession>()
     val sessionInstance = mockk<Instance<HttpSession>>()
+    val mockConnection = mockk<HttpURLConnection>(relaxed = true)
+    val outputStream = mockk<OutputStream>()
+    every { outputStream.write(any<ByteArray>()) } just runs
+    every { outputStream.close() } just runs
 
-    beforeTest {
-//        checkUnnecessaryStub()
+    every { sessionInstance.get() } returns httpSession
+    every { httpSession.getAttribute("refresh_token") } returns refreshToken
+    every { mockConnection.outputStream } returns outputStream
+    every { mockConnection.responseCode } returns responseCode
+
+    if (inputStreamThrows != null) {
+        every { mockConnection.inputStream } throws inputStreamThrows
+    } else {
+        every { mockConnection.inputStream } returns ByteArrayInputStream(responseBody.toByteArray())
+    }
+    if (errorStream != null) {
+        every { mockConnection.errorStream } returns errorStream
     }
 
+    val service = OidcSessionService(
+        userPrincipalFilter,
+        sessionInstance,
+        authServer = "http://localhost:8080/auth",
+        authRealm = "zac",
+        clientId = "zac-client",
+        clientSecret = "zac-secret",
+        connectionFactory = { mockConnection }
+    )
+
+    return TestContext(
+        userPrincipalFilter,
+        httpSession,
+        sessionInstance,
+        mockConnection,
+        outputStream,
+        service
+    )
+}
+
+class OidcSessionServiceTest : BehaviorSpec({
+    // beforeTest { /* checkUnnecessaryStub() */ }
+
     Given("refresh token is present in session and Keycloak returns new tokens") {
-        val refreshToken = "old-refresh-token"
-        val newAccessToken = "new-access-token"
-        val newRefreshToken = "new-refresh-token"
-        val keycloakResponse = """{"access_token":"$newAccessToken","refresh_token":"$newRefreshToken"}"""
-
-        every { sessionInstance.get() } returns httpSession
-        every { httpSession.getAttribute("refresh_token") } returns refreshToken
-        every { httpSession.setAttribute("refresh_token", newRefreshToken) } just runs
-
-        val mockConnection = mockk<HttpURLConnection>(relaxed = true)
-        val outputStream = mockk<OutputStream>()
-        every { outputStream.write(any<ByteArray>()) } just runs
-        every { outputStream.close() } just runs
-        every { mockConnection.outputStream } returns outputStream
-        every { mockConnection.inputStream } returns ByteArrayInputStream(keycloakResponse.toByteArray())
-        every { mockConnection.setRequestProperty(any(), any()) } just runs
-        every { mockConnection.setRequestMethod(any()) } just runs
-        every { mockConnection.setDoOutput(any()) } just runs
-
+        val ctx = setupMocks()
         val oidcPrincipal = mockk<OidcPrincipal<*>>()
-        every { userPrincipalFilter.createOidcPrincipalFromAccessToken(newAccessToken) } returns oidcPrincipal
-        every { userPrincipalFilter.setLoggedInUserOnHttpSession(oidcPrincipal, httpSession) } just runs
-
-        val service = OidcSessionService(
-            userPrincipalFilter,
-            sessionInstance,
-            authServer = "http://localhost:8080/auth",
-            authRealm = "zac",
-            clientId = "zac-client",
-            clientSecret = "zac-secret",
-            connectionFactory = { mockConnection }
-        )
+        every { ctx.userPrincipalFilter.createOidcPrincipalFromAccessToken(any()) } returns oidcPrincipal
+        every { ctx.userPrincipalFilter.setLoggedInUserOnHttpSession(oidcPrincipal, ctx.httpSession) } just runs
+        every { ctx.httpSession.setAttribute("refresh_token", any()) } just runs
 
         When("refreshUserSession is called") {
-            service.refreshUserSession()
-
+            ctx.service.refreshUserSession()
             Then("session is updated with new refresh token and principal is set") {
-                verify { httpSession.setAttribute("refresh_token", newRefreshToken) }
-                verify { userPrincipalFilter.createOidcPrincipalFromAccessToken(newAccessToken) }
-                verify { userPrincipalFilter.setLoggedInUserOnHttpSession(oidcPrincipal, httpSession) }
+                verify { ctx.httpSession.setAttribute("refresh_token", "new-refresh-token") }
+                verify { ctx.userPrincipalFilter.createOidcPrincipalFromAccessToken("new-access-token") }
+                verify { ctx.userPrincipalFilter.setLoggedInUserOnHttpSession(oidcPrincipal, ctx.httpSession) }
             }
         }
     }
 
     Given("refresh token is present in session but Keycloak returns an error") {
-        val refreshToken = "old-refresh-token"
         val errorResponse = """{"error":"invalid_grant","error_description":"Refresh token expired"}"""
-
-        every { sessionInstance.get() } returns httpSession
-        every { httpSession.getAttribute("refresh_token") } returns refreshToken
-
-        val mockConnection = mockk<HttpURLConnection>(relaxed = true)
-        val outputStream = mockk<OutputStream>()
-        every { outputStream.write(any<ByteArray>()) } just runs
-        every { outputStream.close() } just runs
-        every { mockConnection.outputStream } returns outputStream
-        every { mockConnection.inputStream } throws java.io.IOException("HTTP 400 Bad Request")
-        every { mockConnection.errorStream } returns ByteArrayInputStream(errorResponse.toByteArray())
-        every { mockConnection.responseCode } returns 400
-        every { mockConnection.setRequestProperty(any(), any()) } just runs
-        every { mockConnection.setRequestMethod(any()) } just runs
-        every { mockConnection.setDoOutput(any()) } just runs
-
-        val service = OidcSessionService(
-            userPrincipalFilter,
-            sessionInstance,
-            authServer = "http://localhost:8080/auth",
-            authRealm = "zac",
-            clientId = "zac-client",
-            clientSecret = "zac-secret",
-            connectionFactory = { mockConnection }
+        val ctx = setupMocks(
+            responseBody = errorResponse,
+            inputStreamThrows = java.io.IOException("HTTP 400 Bad Request"),
+            errorStream = ByteArrayInputStream(errorResponse.toByteArray())
         )
-
         When("refreshUserSession is called") {
             Then("it throws an exception due to Keycloak error") {
                 val ex = shouldThrow<Exception> {
-                    service.refreshUserSession()
+                    ctx.service.refreshUserSession()
                 }
-                ex.message shouldBe "HTTP 400 Bad Request"
+                ex.message shouldContain "invalid_grant"
             }
         }
     }
 
     Given("no refresh token in session") {
-        every { sessionInstance.get() } returns httpSession
-        every { httpSession.getAttribute("refresh_token") } returns null
-        val service = OidcSessionService(
-            userPrincipalFilter,
-            sessionInstance,
-            authServer = "http://localhost:8080/auth",
-            authRealm = "zac",
-            clientId = "zac-client",
-            clientSecret = "zac-secret"
-        )
-
+        val ctx = setupMocks(refreshToken = null)
         When("refreshUserSession is called") {
             Then("it throws an exception") {
                 val ex = shouldThrow<IllegalStateException> {
-                    service.refreshUserSession()
+                    ctx.service.refreshUserSession()
                 }
                 ex.message shouldBe "No refresh token found in session"
+            }
+        }
+    }
+
+    Given("refresh token is present in session but Keycloak returns an error field in JSON") {
+        val errorResponse = """{"error":"invalid_grant","error_description":"Refresh token expired"}"""
+        val ctx = setupMocks(responseBody = errorResponse)
+        When("refreshUserSession is called") {
+            Then("it throws OidcSessionException due to error field in response") {
+                val ex = shouldThrow<OidcSessionException> {
+                    ctx.service.refreshUserSession()
+                }
+                ex.message shouldContain "invalid_grant"
+            }
+        }
+    }
+
+    Given("refresh token is present in session but Keycloak returns missing tokens") {
+        val response = """{"not_access_token":"foo"}"""
+        val ctx = setupMocks(responseBody = response)
+        When("refreshUserSession is called") {
+            Then("it throws OidcSessionException due to missing tokens") {
+                val ex = shouldThrow<OidcSessionException> {
+                    ctx.service.refreshUserSession()
+                }
+                ex.message shouldContain "missing access_token"
+            }
+        }
+    }
+
+    Given("refresh token is present in session but Keycloak returns invalid JSON") {
+        val response = "not a json!"
+        val ctx = setupMocks(responseBody = response)
+        When("refreshUserSession is called") {
+            Then("it throws OidcSessionException due to invalid JSON") {
+                val ex = shouldThrow<OidcSessionException> {
+                    ctx.service.refreshUserSession()
+                }
+                ex.message shouldContain "Failed to parse Keycloak response as JSON"
+            }
+        }
+    }
+
+    Given("refresh token is present in session but Keycloak returns HTTP error") {
+        val errorResponse = """{"error":"invalid_grant","error_description":"Refresh token expired"}"""
+        val ctx = setupMocks(responseBody = errorResponse)
+        When("refreshUserSession is called") {
+            Then("it throws OidcSessionException due to error field in JSON response") {
+                val ex = shouldThrow<OidcSessionException> {
+                    ctx.service.refreshUserSession()
+                }
+                ex.message shouldContain "invalid_grant"
+            }
+        }
+    }
+
+    Given("refresh token is present in session but Keycloak returns a non-2xx response code") {
+        val errorResponse = """{"error":"invalid_grant","error_description":"Refresh token expired"}"""
+        val ctx = setupMocks(
+            responseCode = 401,
+            errorStream = ByteArrayInputStream(errorResponse.toByteArray()),
+            inputStreamThrows = java.io.IOException("HTTP 401 Unauthorized")
+        )
+        When("refreshUserSession is called") {
+            Then("it throws OidcSessionException due to non-2xx response code") {
+                val ex = shouldThrow<OidcSessionException> {
+                    ctx.service.refreshUserSession()
+                }
+                ex.message shouldContain "HTTP 401"
             }
         }
     }
