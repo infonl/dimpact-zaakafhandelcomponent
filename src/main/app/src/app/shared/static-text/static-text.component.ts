@@ -43,6 +43,6 @@ export class StaticTextComponent<T = unknown> implements OnInit, OnChanges {
   }
 
   setIcon(): void {
-    this.showIcon = Boolean(this.icon?.showIcon(new FormControl(this.value)));
+    this.showIcon = Boolean(this.icon?.showIcon?.(new FormControl(this.value)));
   }
 }

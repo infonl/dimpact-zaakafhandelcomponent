@@ -28,17 +28,11 @@ export class DateConditionals {
     value: Date | Moment | string,
     actual?: Date | Moment | string,
   ): boolean {
-    if (value) {
-      const limit: Moment = moment(value);
-      if (actual) {
-        const actualDate = moment(actual);
-        return limit.isBefore(actualDate, "day");
-      } else {
-        const currentDate = moment();
-        return limit.isBefore(currentDate, "day");
-      }
-    }
-    return false;
+    if (!value) return false;
+
+    const limit = moment(value);
+    const compareDate = actual ? moment(actual) : moment();
+    return limit.isBefore(compareDate, "day");
   }
 
   static always(_value: Date | moment.Moment | string) {

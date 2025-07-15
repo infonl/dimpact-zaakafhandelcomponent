@@ -292,20 +292,22 @@ export class ZaakViewComponent
           DateConditionals.isExceeded,
           this.zaak.einddatum ?? "",
         ),
-        "report_problem",
+        "warning",
         "warningVerlopen_icon",
         "msg.datum.overschreden",
         "warning",
+        true,
       ),
     );
     this.dateFieldIcon.set(
       "uiterlijkeEinddatumAfdoening",
       new TextIcon(
         DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
-        "report_problem",
+        "error",
         "errorVerlopen_icon",
         "msg.datum.overschreden",
         "error",
+        true,
       ),
     );
   }
