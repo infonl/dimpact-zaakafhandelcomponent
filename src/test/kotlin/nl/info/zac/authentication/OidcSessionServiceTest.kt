@@ -45,7 +45,7 @@ class OidcSessionServiceTest : BehaviorSpec({
         every { mockConnection.setDoOutput(any()) } just runs
 
         val oidcPrincipal = mockk<OidcPrincipal<*>>()
-        every { userPrincipalFilter.createOidcPrincipalFromTokens(newAccessToken) } returns oidcPrincipal
+        every { userPrincipalFilter.createOidcPrincipalFromAccessToken(newAccessToken) } returns oidcPrincipal
         every { userPrincipalFilter.setLoggedInUserOnHttpSession(oidcPrincipal, httpSession) } just runs
 
         val service = OidcSessionService(
@@ -63,7 +63,7 @@ class OidcSessionServiceTest : BehaviorSpec({
 
             Then("session is updated with new refresh token and principal is set") {
                 verify { httpSession.setAttribute("refresh_token", newRefreshToken) }
-                verify { userPrincipalFilter.createOidcPrincipalFromTokens(newAccessToken) }
+                verify { userPrincipalFilter.createOidcPrincipalFromAccessToken(newAccessToken) }
                 verify { userPrincipalFilter.setLoggedInUserOnHttpSession(oidcPrincipal, httpSession) }
             }
         }

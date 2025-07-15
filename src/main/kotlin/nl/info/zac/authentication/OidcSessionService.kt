@@ -71,7 +71,7 @@ class OidcSessionService internal constructor(
         val newRefreshToken = json["refresh_token"].asText()
         httpSession.get().setAttribute("refresh_token", newRefreshToken)
 
-        val newOidcPrincipal = userPrincipalFilter.createOidcPrincipalFromTokens(newAccessToken)
+        val newOidcPrincipal = userPrincipalFilter.createOidcPrincipalFromAccessToken(newAccessToken)
         userPrincipalFilter.setLoggedInUserOnHttpSession(newOidcPrincipal, httpSession.get())
     }
 }
