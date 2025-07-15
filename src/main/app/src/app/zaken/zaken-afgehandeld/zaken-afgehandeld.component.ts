@@ -41,10 +41,10 @@ export class ZakenAfgehandeldComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
   dataSource: ZakenAfgehandeldDatasource;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild(MatTable) table: MatTable<ZaakZoekObject>;
-  expandedRow: ZaakZoekObject | null;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatTable) table!: MatTable<ZaakZoekObject>;
+  expandedRow: ZaakZoekObject | null = null;
   readonly zoekenColumn = ZoekenColumn;
   readonly indicatiesLayout = IndicatiesLayout;
 
@@ -116,8 +116,11 @@ export class ZakenAfgehandeldComponent
     this.table.dataSource = this.dataSource;
   }
 
-  isAfterDate(datum): boolean {
-    return DateConditionals.isExceeded(datum);
+  isAfterDateLimit(
+    date: Date | moment.Moment | string,
+    dateLimit: Date | moment.Moment | string,
+  ): boolean {
+    return DateConditionals.isExceeded(date, dateLimit);
   }
 
   resetColumns(): void {
