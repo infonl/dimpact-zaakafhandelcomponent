@@ -82,10 +82,7 @@ class IndexingService @Inject constructor(
         addToSolrIndex(
             getConverter(objectType).let { converter ->
                 listOf(
-                    continueOnExceptions(objectType) {
-                        error("Session is invalid") // Example of a possible exception
-                        converter.convert(objectId)
-                    }
+                    continueOnExceptions(objectType) { converter.convert(objectId) }
                 )
             },
             performCommit

@@ -241,9 +241,6 @@ class IndexingServiceTest : BehaviorSpec({
         every {
             zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 1 })
         } returns Results(zakenUuid, 102)
-        every {
-            zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 2 })
-        } throws IOException("exception")
 
         every { zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
         every { converterInstances.iterator() } returns converterInstancesIterator
@@ -253,11 +250,36 @@ class IndexingServiceTest : BehaviorSpec({
             every { zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
         }
 
-        When("reading zaak list throws an error") {
+        When("reading zaak list throws an `IOException`") {
+            every {
+                zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 2 })
+            } throws IOException("exception")
+
             indexingService.reindex(ZoekObjectType.ZAAK)
 
             Then("continues without exception") {
                 verify(exactly = 3) {
+                    zrcClientService.listZakenUuids(any<ZaakListParameters>())
+                }
+            }
+        }
+
+        When("reading a zaak list throws an `IllegalStateException -> Session is invalid`") {
+            every {
+                zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 2 })
+            } throws IllegalStateException("Session is invalid")
+            every { oidcSessionService.refreshUserSession() } returns Unit
+
+            indexingService.reindex(ZoekObjectType.ZAAK)
+
+            Then("the session token is refreshed") {
+                verify(exactly = 1) {
+                    oidcSessionService.refreshUserSession()
+                }
+            }
+
+            And("the call is retried") {
+                verify(exactly = 4) {
                     zrcClientService.listZakenUuids(any<ZaakListParameters>())
                 }
             }
