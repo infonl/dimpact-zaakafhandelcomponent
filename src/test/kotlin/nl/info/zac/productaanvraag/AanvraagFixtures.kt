@@ -14,11 +14,13 @@ import java.time.LocalDate
 import java.util.UUID
 
 fun createBetrokkene(
-    inBsn: String = "fakeBsn",
+    inBsn: String? = "fakeBsn",
+    vestigingsNummer: String? = "fakeVestigingsNummer",
     roltypeOmschrijving: String = "fakeRoltypeOmschrijving",
 ) =
     Betrokkene().apply {
         this.inpBsn = inBsn
+        this.vestigingsNummer = vestigingsNummer
         this.roltypeOmschrijving = roltypeOmschrijving
     }
 

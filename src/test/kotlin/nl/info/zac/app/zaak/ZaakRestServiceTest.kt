@@ -1399,7 +1399,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         val rolNatuurlijkPersoon = createRolNatuurlijkPersoonForReads()
         val rolNietNatuurlijkPersoonWithVestigingsnummer = createRolNietNatuurlijkPersoonForReads(
             nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
-                vestigingsNummer = "fakeVestigingsNummer"
+                vestigingsnummer = "fakeVestigingsNummer"
             )
         )
         val rolNietNatuurlijkPersoonWithRSIN = createRolNietNatuurlijkPersoonForReads(

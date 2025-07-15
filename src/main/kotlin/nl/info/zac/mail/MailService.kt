@@ -24,8 +24,6 @@ import jakarta.mail.MessagingException
 import jakarta.mail.Session
 import jakarta.mail.Transport
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.zac.mailtemplates.MailTemplateHelper
-import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.util.MediaTypes
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
@@ -40,6 +38,8 @@ import nl.info.zac.identity.model.getFullName
 import nl.info.zac.mail.model.Attachment
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mail.model.MailAdres
+import nl.info.zac.mailtemplates.MailTemplateHelper
+import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
@@ -54,7 +54,6 @@ import java.util.Base64
 import java.util.Optional
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.Array
 import kotlin.ByteArray
 import kotlin.String
 import kotlin.Suppress
@@ -104,10 +103,8 @@ class MailService @Inject constructor(
         )
 
     fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String {
-        val subject = StringUtils.abbreviate(
-            resolveVariabelen(mailGegevens.subject, bronnen),
-            SUBJECT_MAX_WIDTH
-        )
+        val subject =
+            StringUtils.abbreviate(resolveVariabelen(mailGegevens.subject, bronnen), SUBJECT_MAX_WIDTH)
         val body = resolveVariabelen(mailGegevens.body, bronnen)
         val attachments = getAttachments(mailGegevens.attachments)
         val fromAddress = mailGegevens.from.toAddress()
@@ -248,7 +245,7 @@ class MailService @Inject constructor(
             .map { ztcClientService.readInformatieobjecttype(it) }
             .first { it.omschrijving == ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL }
 
-    private fun getAttachments(attachmentUUIDs: Array<String>): List<Attachment> =
+    private fun getAttachments(attachmentUUIDs: List<String>): List<Attachment> =
         attachmentUUIDs
             // currently the client is able to provide empty strings in the attachment UUID array,
             // so we filter them out first
@@ -266,11 +263,11 @@ class MailService @Inject constructor(
             }
 
     private fun resolveVariabelen(tekst: String, bronnen: Bronnen): String =
-        mailTemplateHelper.resolveVariabelen(tekst).let {
-            mailTemplateHelper.resolveVariabelen(it, bronnen.zaak)
+        mailTemplateHelper.resolveGemeenteVariable(tekst).let {
+            mailTemplateHelper.resolveVariabelen(it, bronnen.zaak ?: return@let it)
         }.let {
-            mailTemplateHelper.resolveVariabelen(it, bronnen.document)
+            mailTemplateHelper.resolveVariabelen(it, bronnen.document ?: return@let it)
         }.let {
-            mailTemplateHelper.resolveVariabelen(it, bronnen.taskInfo)
+            mailTemplateHelper.resolveVariabelen(it, bronnen.taskInfo ?: return@let it)
         }
 }

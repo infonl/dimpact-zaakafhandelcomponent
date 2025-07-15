@@ -32,6 +32,7 @@ fun createEnkelvoudigInformatieObject(
     formaat: String = "fakeformaat",
     informatieObjectType: URI = URI("http://example.com/informatieobjecttype/${UUID.randomUUID()}"),
     bestandsomvang: Int = 1234,
+    title: String = "fakeTitle"
 ) = EnkelvoudigInformatieObject(
     url,
     versie,
@@ -47,6 +48,7 @@ fun createEnkelvoudigInformatieObject(
     this.formaat = formaat
     this.informatieobjecttype = informatieObjectType
     this.bestandsomvang = bestandsomvang
+    this.titel = title
 }
 
 fun createEnkelvoudigInformatieObjectCreateLockRequest(

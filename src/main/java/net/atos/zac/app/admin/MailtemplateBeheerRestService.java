@@ -1,10 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.admin;
-
 
 import static nl.info.zac.policy.PolicyServiceKt.assertPolicy;
 
@@ -24,23 +22,31 @@ import jakarta.ws.rs.core.MediaType;
 
 import net.atos.zac.app.admin.converter.RESTMailtemplateConverter;
 import net.atos.zac.app.admin.model.RESTMailtemplate;
-import net.atos.zac.mailtemplates.MailTemplateService;
 import net.atos.zac.mailtemplates.model.Mail;
-import net.atos.zac.mailtemplates.model.MailTemplate;
 import net.atos.zac.mailtemplates.model.MailTemplateVariabelen;
+import nl.info.zac.mailtemplates.MailTemplateService;
+import nl.info.zac.mailtemplates.model.MailTemplate;
 import nl.info.zac.policy.PolicyService;
 
 @Singleton
 @Path("beheer/mailtemplates")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class MailtemplateBeheerRESTService {
-
-    @Inject
+public class MailtemplateBeheerRestService {
     private MailTemplateService mailTemplateService;
+    private PolicyService policyService;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public MailtemplateBeheerRestService() {
+    }
 
     @Inject
-    private PolicyService policyService;
+    public MailtemplateBeheerRestService(final MailTemplateService mailTemplateService, final PolicyService policyService) {
+        this.mailTemplateService = mailTemplateService;
+        this.policyService = policyService;
+    }
 
     @GET
     @Path("{id}")

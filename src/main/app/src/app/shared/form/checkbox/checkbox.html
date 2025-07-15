@@ -1,0 +1,19 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  ~
+  -->
+
+<div [formGroup]="form" class="full-width">
+  <mat-checkbox
+    [formControlName]="key"
+    [disabled]="readonly"
+    [required]="required"
+  >
+    {{ label ?? key | translate | capitalizeFirstLetter }}
+  </mat-checkbox>
+  <mat-error *ngIf="getErrorMessage()">{{ getErrorMessage() }}</mat-error>
+  <mat-hint>
+    <ng-content select="mat-hint"></ng-content>
+  </mat-hint>
+</div>

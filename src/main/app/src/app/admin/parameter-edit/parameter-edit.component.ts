@@ -23,7 +23,7 @@ import { MatSelectChange } from "@angular/material/select";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
-import { Subscription, forkJoin } from "rxjs";
+import { forkJoin, Subject, Subscription, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -49,6 +49,8 @@ export class ParameterEditComponent
 
   @ViewChild("smartDocumentsFormRef")
   smartDocsFormGroup!: SmartDocumentsFormComponent;
+
+  private readonly destroy$ = new Subject<void>();
 
   isSmartDocumentsStepValid: boolean = true;
 
@@ -247,13 +249,6 @@ export class ParameterEditComponent
     }
   }
 
-  ngOnDestroy(): void {
-    super.ngOnDestroy();
-    for (const subscription of this.subscriptions$) {
-      subscription.unsubscribe();
-    }
-  }
-
   private async readHumanTaskParameters(
     caseDefinition: GeneratedType<"RESTCaseDefinition">,
   ) {
@@ -323,8 +318,9 @@ export class ParameterEditComponent
 
     const { defaultGroepId, defaultBehandelaarId } = this.parameters;
 
-    this.algemeenFormGroup.controls.defaultGroep.valueChanges.subscribe(
-      (group) => {
+    this.algemeenFormGroup.controls.defaultGroep.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((group) => {
         if (!group) return;
 
         this.identityService.listUsersInGroup(group.id).subscribe((users) => {
@@ -338,8 +334,7 @@ export class ParameterEditComponent
             defaultUser ?? null,
           );
         });
-      },
-    );
+      });
 
     if (defaultGroepId) {
       const groups = await this.groepen.toPromise();
@@ -349,13 +344,13 @@ export class ParameterEditComponent
       );
     }
 
-    this.algemeenFormGroup.controls.caseDefinition.valueChanges.subscribe(
-      (caseDefinition) => {
+    this.algemeenFormGroup.controls.caseDefinition.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((caseDefinition) => {
         if (!caseDefinition) return;
         this.readHumanTaskParameters(caseDefinition);
         this.readUserEventListenerParameters(caseDefinition);
-      },
-    );
+      });
 
     this.createHumanTasksForm();
     this.createUserEventListenerForm();
@@ -417,11 +412,13 @@ export class ParameterEditComponent
     const doorlooptijdControl = humanTaskFormGroup.get("doorlooptijd");
     if (doorlooptijdControl) {
       this.subscriptions$.push(
-        doorlooptijdControl.valueChanges.subscribe((value) => {
-          doorlooptijdControl.setValue(this.sanitizeNumericInput(value), {
-            emitEvent: false,
-          });
-        }),
+        doorlooptijdControl.valueChanges
+          .pipe(takeUntil(this.destroy$))
+          .subscribe((value) => {
+            doorlooptijdControl.setValue(this.sanitizeNumericInput(value), {
+              emitEvent: false,
+            });
+          }),
       );
     }
 
@@ -494,8 +491,9 @@ export class ParameterEditComponent
       ],
     });
 
-    this.betrokkeneKoppelingen.controls.brpKoppelen.valueChanges.subscribe(
-      (value) => {
+    this.betrokkeneKoppelingen.controls.brpKoppelen.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value) => {
         this.brpDoelbindingFormGroup.controls.raadpleegWaarde.setValidators(
           value ? [Validators.required] : [],
         );
@@ -509,8 +507,7 @@ export class ParameterEditComponent
         if (value) return;
 
         this.brpDoelbindingFormGroup.reset();
-      },
-    );
+      });
   }
 
   private createBrpDoelbindingForm() {
@@ -533,8 +530,9 @@ export class ParameterEditComponent
   private createAutomatischeOntvangstbevestigingForm() {
     const { automaticEmailConfirmation } = this.parameters;
 
-    this.automatischeOntvangstbevestigingFormGroup.controls.enabled.valueChanges.subscribe(
-      (enabled) => {
+    this.automatischeOntvangstbevestigingFormGroup.controls.enabled.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((enabled) => {
         const validators = enabled ? [Validators.required] : [];
         this.automatischeOntvangstbevestigingFormGroup.controls.templateName.setValidators(
           validators,
@@ -543,8 +541,7 @@ export class ParameterEditComponent
           validators,
         );
         this.automatischeOntvangstbevestigingFormGroup.updateValueAndValidity();
-      },
-    );
+      });
 
     this.automatischeOntvangstbevestigingFormGroup.setValue({
       templateName:
@@ -963,5 +960,14 @@ export class ParameterEditComponent
     return replyTo.speciaal
       ? "gegevens.mail.afzender." + replyTo.mail
       : replyTo.mail;
+  }
+
+  ngOnDestroy(): void {
+    super.ngOnDestroy();
+    this.destroy$.next();
+    this.destroy$.complete();
+    for (const subscription of this.subscriptions$) {
+      subscription.unsubscribe();
+    }
   }
 }

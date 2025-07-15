@@ -244,17 +244,14 @@ export class ZakenWerkvoorraadComponent
   }
 
   openVerdelenScherm(): void {
-    this.handleAssigmentOrReleasementWorkflow(ZakenVerdelenDialogComponent);
+    this.handleAssigmentOrReleaseWorkflow(ZakenVerdelenDialogComponent);
   }
 
   openVrijgevenScherm(): void {
-    this.handleAssigmentOrReleasementWorkflow(
-      ZakenVrijgevenDialogComponent,
-      true,
-    );
+    this.handleAssigmentOrReleaseWorkflow(ZakenVrijgevenDialogComponent, true);
   }
 
-  private handleAssigmentOrReleasementWorkflow<T>(
+  private handleAssigmentOrReleaseWorkflow<T>(
     dialogComponent: ComponentType<T>,
     release = false,
   ) {
@@ -272,14 +269,14 @@ export class ZakenWerkvoorraadComponent
           if (event.opcode !== Opcode.UPDATED) return;
 
           const zaak = this.dataSource.data.find((x) => x.id === id);
-          if (!this.toekenning || !zaak) return;
+          if (!zaak) return;
 
-          zaak.groepNaam = this.toekenning.groep?.naam || zaak.groepNaam;
-          zaak.groepId = this.toekenning.groep?.id || zaak.groepId;
+          zaak.groepNaam = this.toekenning?.groep?.naam ?? zaak.groepNaam;
+          zaak.groepId = this.toekenning?.groep?.id ?? zaak.groepId;
 
-          if (!this.toekenning.medewerker) return;
-          zaak.behandelaarGebruikersnaam = this.toekenning.medewerker.id;
-          zaak.behandelaarNaam = this.toekenning.medewerker.naam;
+          zaak.behandelaarGebruikersnaam =
+            this.toekenning?.medewerker?.id ?? "";
+          zaak.behandelaarNaam = this.toekenning?.medewerker?.naam ?? "";
         },
       },
       finally: () =>
@@ -287,53 +284,52 @@ export class ZakenWerkvoorraadComponent
           this.indexService.commitPendingChangesToSearchIndex(),
         ).then(() => {
           this.selection.clear();
-          setTimeout(() => {
-            this.dataSource.load();
-            this.zakenLoading.set(false);
-            this.batchProcessService.stop();
-          }, 1_000); // Arbitrary wait for the backend to fully process the changes before reloading the data
+          this.dataSource.load(5_000); // We need to give the indexing service some time to finish
+          this.zakenLoading.set(false);
+          this.batchProcessService.stop();
         }),
     });
 
-    const dialogRef = this.dialog.open(dialogComponent, {
-      data: zaken,
-    });
+    this.dialog
+      .open(dialogComponent, {
+        data: zaken,
+      })
+      .beforeClosed()
+      .subscribe((result) => {
+        this.toekenning = typeof result === "object" ? result : undefined;
+        if (!result) {
+          this.batchProcessService.stop();
+          return;
+        }
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (!result) {
-        this.batchProcessService.stop();
-        return;
-      }
-
-      if (!release) {
-        this.toekenning = result;
-        const notChanged = zaken
-          .filter(
-            (x) =>
-              this.toekenning?.groep?.id === x.groepId &&
-              this.toekenning.medewerker?.id === x.behandelaarGebruikersnaam,
-          )
-          .map(({ id }) => id);
-        this.batchProcessService.update(notChanged);
-      }
-      this.zakenLoading.set(true);
-      const message =
-        zaken.length === 1
-          ? this.translateService.instant(
-              release ? "msg.vrijgegeven.zaak" : "msg.verdeeld.zaak",
+        if (!release) {
+          const notChanged = zaken
+            .filter(
+              (x) =>
+                this.toekenning?.groep?.id === x.groepId &&
+                this.toekenning.medewerker?.id === x.behandelaarGebruikersnaam,
             )
-          : this.translateService.instant(
-              release ? "msg.vrijgegeven.zaken" : "msg.verdeeld.zaken",
-              {
-                aantal: zaken.length,
-              },
-            );
-      this.batchProcessService.showProgress(message, {
-        onTimeout: () => {
-          this.utilService.openSnackbar("msg.error.timeout");
-        },
+            .map(({ id }) => id);
+          this.batchProcessService.update(notChanged);
+        }
+        this.zakenLoading.set(true);
+        const message =
+          zaken.length === 1
+            ? this.translateService.instant(
+                release ? "msg.vrijgegeven.zaak" : "msg.verdeeld.zaak",
+              )
+            : this.translateService.instant(
+                release ? "msg.vrijgegeven.zaken" : "msg.verdeeld.zaken",
+                {
+                  aantal: zaken.length,
+                },
+              );
+        this.batchProcessService.showProgress(message, {
+          onTimeout: () => {
+            this.utilService.openSnackbar("msg.error.timeout");
+          },
+        });
       });
-    });
   }
 
   ngOnDestroy(): void {

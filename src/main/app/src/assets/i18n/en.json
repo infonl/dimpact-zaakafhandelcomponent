@@ -769,6 +769,8 @@
   "validators.maxlength": "Use at most {{requiredLength}} characters",
   "validators.min": "Enter at least {{min}}",
   "validators.max": "Enter at most {{max}}",
+  "validators.minDate": "Selected date is before the minimum date",
+  "validators.maxDate": "Selected date is after the maximum date",
   "validators.required": "This field is required",
   "msg.error.required": "The {{label}} field is empty. Enter the required data!",
   "msg.error.teklein": "The {{label}} field contains a value that is too small. Enter at least {{min}}!",

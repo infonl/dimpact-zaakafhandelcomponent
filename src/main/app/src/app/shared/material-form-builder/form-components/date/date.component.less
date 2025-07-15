@@ -18,3 +18,38 @@ mat-datepicker-toggle {
 ::ng-deep .mat-mdc-form-field.mat-form-field-invalid .mat-mdc-icon-button {
   color: var(--mat-form-field-error-text-color);
 }
+
+:host {
+  ::ng-deep .mat-mdc-text-field-wrapper:has(input[type="date"]) {
+    .mat-mdc-form-field-infix::after {
+      content: " ";
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: var(--mdc-icon-button-icon-size, 24px);
+      height: 100%;
+      background-color: var(
+        --mdc-filled-text-field-container-color,
+        var(--mat-app-surface-variant)
+      );
+    }
+
+    &:hover {
+      .mat-mdc-form-field-infix::after {
+        background-color: var(
+          --mdc-filled-text-field-container-color-hover,
+          var(--mat-app-surface-variant)
+        );
+      }
+    }
+
+    &.mdc-text-field--focused {
+      .mat-mdc-form-field-infix::after {
+        background-color: var(
+          --mdc-filled-text-field-container-color-active,
+          var(--mat-app-surface-variant)
+        );
+      }
+    }
+  }
+}

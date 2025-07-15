@@ -5,9 +5,9 @@
 package net.atos.zac.flowable.delegate
 
 import net.atos.zac.flowable.FlowableHelper
-import net.atos.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
+import nl.info.zac.mailtemplates.model.MailGegevens
 import org.flowable.engine.delegate.DelegateExecution
 import org.flowable.engine.impl.el.FixedValue
 import java.util.logging.Logger
@@ -34,12 +34,9 @@ class SendEmailDelegate : AbstractDelegate() {
         val flowableHelper = FlowableHelper.getInstance()
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
 
-        val mailTemplate = flowableHelper.mailTemplateService.listMailtemplates().find {
-            it.mailTemplateNaam == template.expressionText
-        }
-        require(mailTemplate != null) {
-            "Mail template '${template.expressionText}' not found"
-        }
+        val mailTemplate = flowableHelper.mailTemplateService.findMailtemplateByName(
+            template.expressionText
+        ) ?: throw IllegalArgumentException("Mail template '${template.expressionText}' not found")
 
         LOG.info(
             "Sending mail to '${to.expressionText}' from '${from.expressionText}' for zaak " +

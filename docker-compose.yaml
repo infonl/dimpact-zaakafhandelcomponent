@@ -51,6 +51,7 @@ services:
 
   keycloak-database:
     image: docker.io/postgres:17.5@sha256:3962158596daaef3682838cc8eb0e719ad1ce520f88e34596ce8d5de1b6330a1
+    platform: linux/amd64
     ports:
       - "54326:5432"
     healthcheck:
@@ -68,6 +69,7 @@ services:
 
   zac-database:
     image: docker.io/postgres:17.5@sha256:3962158596daaef3682838cc8eb0e719ad1ce520f88e34596ce8d5de1b6330a1
+    platform: linux/amd64
     ports:
       - "54320:5432"
     healthcheck:
@@ -173,7 +175,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   redis:
-    image: redis:7.4.4@sha256:7b5ee51c14cf5febd4adde3a4b6cced72efdf154df7e9a0383163b13e16e9091
+    image: redis:7.4.5@sha256:b52fce7a50c718c6836eef354f19428a9c9a6802379da6eb8a23853152e23f89
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -282,6 +284,7 @@ services:
 
   openklant-database:
     image: docker.io/postgres:17.5@sha256:3962158596daaef3682838cc8eb0e719ad1ce520f88e34596ce8d5de1b6330a1
+    platform: linux/amd64
     ports:
       - "54325:5432"
     healthcheck:
@@ -299,7 +302,7 @@ services:
       - ./scripts/docker-compose/volume-data/openklant-database-data:/var/lib/postgresql/data
 
   openklant.local:
-    image: docker.io/maykinmedia/open-klant:2.7.0@sha256:dfb5d723eb86a37fee25b7209687e008e752ee79137537a707d4bd6cf1d87fff
+    image: docker.io/maykinmedia/open-klant:2.9.0@sha256:0a71d5d498fa2bd39edcbaa16af09673a22eb99ca32f4f4cc346ed7bc130a7b3
     platform: linux/amd64
     environment:
       - ALLOWED_HOSTS="*"
@@ -406,7 +409,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: docker.io/prom/prometheus:v3.4.2@sha256:3b1d5be5c3eef4f027665ddaa3b1a7de8a58d96a0a6de5dd45629afd267ecaf0
+    image: docker.io/prom/prometheus:v3.5.0@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -442,7 +445,7 @@ services:
     profiles: [ "metrics" ]
 
   greenmail:
-    image: docker.io/greenmail/standalone:2.1.3@sha256:d6db42a4fc258fec0948b1ae7b579fd06947cc92087c162ec0597972a6c36850
+    image: docker.io/greenmail/standalone:2.1.4@sha256:38f705c272ad8e4dc5ee53add4276e654202802b2bbdf4cb49698dda5102149a
     environment:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0
@@ -684,6 +687,52 @@ services:
       openarchiefbeheer-web:
         condition: service_healthy
     profiles: [ "openarchiefbeheer" ]
+
+  pabc-database:
+    image: docker.io/postgres:17.5@sha256:3962158596daaef3682838cc8eb0e719ad1ce520f88e34596ce8d5de1b6330a1
+    platform: linux/amd64
+    ports:
+      - "54329:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    environment:
+      - POSTGRES_USER=pabc
+      - POSTGRES_PASSWORD=pabc
+      - POSTGRES_DB=Pabc
+    volumes:
+      - ./scripts/docker-compose/volume-data/pabc-database-data:/var/lib/postgresql/data
+    profiles: [ "pabc" ]
+
+  pabc-migrations:
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.0@sha256:a8771556dddf409a29f6223043a99cf241142072558758c1d10af4f18e686b48
+    platform: linux/amd64
+    environment:
+      ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
+    depends_on:
+      pabc-database:
+        condition: "service_healthy"
+    profiles: [ "pabc" ]
+
+  pabc-api:
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.0@sha256:aabc9f15b7291abcfd944bacc7fc6c005ec2bf26980dbe718f233db8afaef974
+    platform: linux/amd64
+    environment:
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "8000"
+      API_KEY__0: "zac-test-api-key"
+      ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
+    ports:
+      - "8006:8000"
+    depends_on:
+      pabc-database:
+        condition: "service_started"
+      pabc-migrations:
+        condition: "service_completed_successfully"
+    profiles: [ "pabc" ]
 
   zac:
     # By default, we use the most recent ZAC Docker Image. Change this if you wish to use a specific version.

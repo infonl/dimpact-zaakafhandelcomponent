@@ -29,12 +29,10 @@
     </mat-option>
     <mat-option *ngFor="let option of availableOptions" [value]="option">
       {{ displayWith(option) | translate }}
-      <div class="suffix" *ngIf="suffix">
-        {{ suffix | translate }}
-      </div>
+      <div class="suffix" *ngIf="suffix">{{ suffix | translate }}</div>
     </mat-option>
   </mat-select>
-  <mat-error>{{ getErrorMessage() }}</mat-error>
+  <mat-error *ngIf="getErrorMessage()">{{ getErrorMessage() }}</mat-error>
   <mat-hint>
     <ng-content select="mat-hint"></ng-content>
   </mat-hint>

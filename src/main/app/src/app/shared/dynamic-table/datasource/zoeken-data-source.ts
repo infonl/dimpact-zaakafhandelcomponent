@@ -97,14 +97,16 @@ export abstract class ZoekenDataSource<
     this.tableSubject.complete();
   }
 
-  load(): void {
-    this.utilService.setLoading(true);
-    this.zoekenService
-      .list(this.updateZoekParameters())
-      .pipe(finalize(() => this.utilService.setLoading(false)))
-      .subscribe((zaakResponse) => {
-        this.setData(zaakResponse as ZoekResultaat<OBJECT>);
-      });
+  load(delay = 0): void {
+    setTimeout(() => {
+      this.utilService.setLoading(true);
+      this.zoekenService
+        .list(this.updateZoekParameters())
+        .pipe(finalize(() => this.utilService.setLoading(false)))
+        .subscribe((zaakResponse) => {
+          this.setData(zaakResponse as ZoekResultaat<OBJECT>);
+        });
+    }, delay);
   }
 
   clear() {

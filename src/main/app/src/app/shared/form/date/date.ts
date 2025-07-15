@@ -13,6 +13,7 @@ import { FormHelper } from "../helpers";
 @Component({
   selector: "zac-date",
   templateUrl: "./date.html",
+  styleUrls: ["./date.less"],
 })
 export class ZacDate<
   Form extends Record<string, AbstractControl>,

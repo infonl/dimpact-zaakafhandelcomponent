@@ -30,8 +30,6 @@ import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConvert
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.createTestTask
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.mailtemplates.model.MailGegevens
-import net.atos.zac.mailtemplates.model.createMailTemplate
 import net.atos.zac.signalering.model.Signalering
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringTarget
@@ -46,6 +44,8 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.createMailAdres
+import nl.info.zac.mailtemplates.model.MailGegevens
+import nl.info.zac.mailtemplates.model.createMailTemplate
 import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringType
 import nl.info.zac.signalering.model.createSignaleringZoekParameters
