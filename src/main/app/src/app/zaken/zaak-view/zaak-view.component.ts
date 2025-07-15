@@ -289,25 +289,34 @@ export class ZaakViewComponent
       "einddatumGepland",
       new TextIcon(
         DateConditionals.provideFormControlValue(
-          DateConditionals.isExceeded,
+          this.zaak.einddatum
+            ? DateConditionals.isPreceded
+            : DateConditionals.isExceeded,
           this.zaak.einddatum ?? "",
         ),
         "warning",
         "warningVerlopen_icon",
-        "msg.datum.overschreden",
+        this.zaak.einddatum
+          ? "msg.einddatum.overschreden"
+          : "msg.datum.overschreden",
         "warning",
-        true,
       ),
     );
     this.dateFieldIcon.set(
       "uiterlijkeEinddatumAfdoening",
       new TextIcon(
-        DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
+        DateConditionals.provideFormControlValue(
+          this.zaak.einddatum
+            ? DateConditionals.isPreceded
+            : DateConditionals.isExceeded,
+          this.zaak.einddatum ?? "",
+        ),
         "error",
         "errorVerlopen_icon",
-        "msg.datum.overschreden",
+        this.zaak.einddatum
+          ? "msg.einddatum.overschreden"
+          : "msg.datum.overschreden",
         "error",
-        true,
       ),
     );
   }

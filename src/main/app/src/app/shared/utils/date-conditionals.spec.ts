@@ -14,15 +14,35 @@ describe("DateConditionals", () => {
         moment().subtract(1, "days").toISOString(),
       );
       const actualDate = moment().toISOString();
-      const result = DateConditionals.isExceeded(control.value, actualDate);
-      expect(result).toBeTruthy();
+
+      const isExceededResult = DateConditionals.isExceeded(
+        control.value ?? "",
+        actualDate,
+      );
+      expect(isExceededResult).toBeTruthy();
+
+      const isPreceededResult = DateConditionals.isPreceded(
+        control.value ?? "",
+        actualDate,
+      );
+      expect(isPreceededResult).toBeTruthy();
     });
 
     it("should return false if the control value is after the actual date", () => {
       const control = new FormControl(moment().add(1, "days").toISOString());
       const actualDate = moment().toISOString();
-      const result = DateConditionals.isExceeded(control.value, actualDate);
-      expect(result).toBeFalsy();
+
+      const isExceededResult = DateConditionals.isExceeded(
+        control.value ?? "",
+        actualDate,
+      );
+      expect(isExceededResult).toBeFalsy();
+
+      const isPreceededResult = DateConditionals.isPreceded(
+        control.value ?? "",
+        actualDate,
+      );
+      expect(isPreceededResult).toBeFalsy();
     });
   });
 });
