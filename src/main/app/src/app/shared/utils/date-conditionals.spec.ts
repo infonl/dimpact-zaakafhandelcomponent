@@ -8,41 +8,53 @@ import moment from "moment";
 import { DateConditionals } from "./date-conditionals";
 
 describe("DateConditionals", () => {
-  describe("isAfterDate", () => {
+  describe("isExceeded", () => {
     it("should return true if the control value is before the actual date", () => {
       const control = new FormControl(
         moment().subtract(1, "days").toISOString(),
       );
       const actualDate = moment().toISOString();
-
-      const isExceededResult = DateConditionals.isExceeded(
+      const result = DateConditionals.isExceeded(
         control.value ?? "",
         actualDate,
       );
-      expect(isExceededResult).toBeTruthy();
-
-      const isPreceededResult = DateConditionals.isPreceded(
-        control.value ?? "",
-        actualDate,
-      );
-      expect(isPreceededResult).toBeTruthy();
+      expect(result).toBeTruthy();
     });
 
     it("should return false if the control value is after the actual date", () => {
       const control = new FormControl(moment().add(1, "days").toISOString());
       const actualDate = moment().toISOString();
-
-      const isExceededResult = DateConditionals.isExceeded(
+      const result = DateConditionals.isExceeded(
         control.value ?? "",
         actualDate,
       );
-      expect(isExceededResult).toBeFalsy();
+      expect(result).toBeFalsy();
+    });
+  });
+});
 
-      const isPreceededResult = DateConditionals.isPreceded(
+describe("DateConditionals", () => {
+  describe("isPreceded", () => {
+    it("should return false if the control value is before the actual date", () => {
+      const control = new FormControl(
+        moment().subtract(1, "days").toISOString(),
+      );
+      const actualDate = moment().toISOString();
+      const result = DateConditionals.isPreceded(
         control.value ?? "",
         actualDate,
       );
-      expect(isPreceededResult).toBeFalsy();
+      expect(result).toBeFalsy();
+    });
+
+    it("should return true if the control value is after the actual date", () => {
+      const control = new FormControl(moment().add(1, "days").toISOString());
+      const actualDate = moment().toISOString();
+      const result = DateConditionals.isPreceded(
+        control.value ?? "",
+        actualDate,
+      );
+      expect(result).toBeTruthy();
     });
   });
 });
