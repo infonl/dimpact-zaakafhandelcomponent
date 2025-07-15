@@ -6,14 +6,14 @@
 apiVersion: v2
 name: zaakafhandelcomponent
 description: A Helm chart for installing Zaakafhandelcomponent
-version: 1.0.90
+version: 1.0.91
 appVersion: '3.6'
 icon: https://raw.githubusercontent.com/infonl/dimpact-zaakafhandelcomponent/49f8dee60948282b546ebdfdc5cff6f8bbef0305/docs/manuals/ZAC-gebruikershandleiding/images/pic.svg
 dependencies:
 - name: opentelemetry-collector
   repository: '@opentelemetry'
   condition: opentelemetry-collector.enabled
-  version: 0.127.3
+  version: 0.127.4
 - name: solr-operator
   repository: '@solr'
   version: 0.9.1
