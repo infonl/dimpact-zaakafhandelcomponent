@@ -76,7 +76,7 @@ class OidcSessionService internal constructor(
         connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
         connection.outputStream.use { it.write(params.toByteArray()) }
 
-        if(connection.responseCode !in HTTP_OK_MIN..HTTP_OK_MAX) {
+        if (connection.responseCode !in HTTP_OK_MIN..HTTP_OK_MAX) {
             throw OidcSessionException("Failed to refresh user session: HTTP ${connection.responseCode}")
         }
 
