@@ -1,7 +1,7 @@
 #!/bin/bash
 
 WILDFLY_HOME=$1
-JOSE_VERSION="0.9.6"
+JOSE_VERSION=$(grep '<wildfly-jose4j.version>' ../../pom.xml | awk -F'[<>]' '{print $3}')
 MODULE_DIR="$WILDFLY_HOME/modules/org/jose4j/main"
 
 echo ">>> Installing jose4j WildFly module..."
