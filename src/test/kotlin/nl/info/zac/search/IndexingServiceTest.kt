@@ -7,6 +7,7 @@ package nl.info.zac.search
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.checkUnnecessaryStub
+import io.mockk.clearAllMocks
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -267,7 +268,7 @@ class IndexingServiceTest : BehaviorSpec({
         When("reading a zaak list throws an `IllegalStateException -> Session is invalid`") {
             every {
                 zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 2 })
-            } throws IllegalStateException("Session is invalid")
+            } throws IllegalStateException("Session is invalid") andThen Results(emptyList(), 0)
             every { oidcSessionService.refreshUserSession() } returns Unit
 
             indexingService.reindex(ZoekObjectType.ZAAK)
