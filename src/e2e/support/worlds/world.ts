@@ -22,7 +22,7 @@ export class CustomWorld extends World {
   worldParameters: z.infer<typeof worldParametersScheme>["parameters"];
   testStorage: TestStorageService;
 
-  constructor(attach: any) {
+  constructor(attach: unknown) {
     const res = worldParametersScheme.parse(attach);
     super({
       link(text: string): void {},

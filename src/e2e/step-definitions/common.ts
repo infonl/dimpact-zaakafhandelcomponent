@@ -16,7 +16,7 @@ When(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
     const expectedUrl =
-      this.worldParameters.urls[worldPossibleZacUrls.Values.zac];
+      this.worldParameters.urls[worldPossibleZacUrls.enum.zac];
     await this.openUrl(expectedUrl);
   },
 );
@@ -26,7 +26,7 @@ When(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user, path) {
     const expectedUrl =
-      this.worldParameters.urls[worldPossibleZacUrls.Values.zac] + path;
+      this.worldParameters.urls[worldPossibleZacUrls.enum.zac] + path;
 
     await this.openUrl(expectedUrl);
   },

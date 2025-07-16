@@ -10,6 +10,7 @@ import static org.flowable.common.engine.impl.AbstractEngineConfiguration.DB_SCH
 import static org.flowable.common.engine.impl.history.HistoryLevel.AUDIT;
 import static org.flowable.engine.impl.cfg.DelegateExpressionFieldInjectionMode.DISABLED;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.flowable.cdi.spi.ProcessEngineLookup;
@@ -22,6 +23,7 @@ import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.impl.cfg.StandaloneProcessEngineConfiguration;
 
+import net.atos.zac.flowable.bpmn.UserTaskCompletionListener;
 import net.atos.zac.flowable.cmmn.CompleteTaskInterceptor;
 import net.atos.zac.flowable.cmmn.EndCaseLifecycleListener;
 import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor;
@@ -76,6 +78,12 @@ public class ProcessEngineLookupImpl implements ProcessEngineLookup {
         processEngineConfiguration.setDisableIdmEngine(true);
         processEngineConfiguration.setAsyncExecutorActivate(false);
         processEngineConfiguration.setCreateUserTaskInterceptor(new CreateUserTaskInterceptor());
+        var eventListeners = processEngineConfiguration.getEventListeners();
+        if (eventListeners == null) {
+            eventListeners = new ArrayList<>();
+            processEngineConfiguration.setEventListeners(eventListeners);
+        }
+        eventListeners.add(new UserTaskCompletionListener());
         final var cmmnEngineConfigurator = new CmmnEngineConfigurator();
         cmmnEngineConfigurator.setCmmnEngineConfiguration(getCmmnEngineConfigurationHelper());
         processEngineConfiguration.setConfigurators(List.of(cmmnEngineConfigurator));
