@@ -369,7 +369,7 @@ class IndexingService @Inject constructor(
 
             when (val rootCause = indexingException.rootCause()) {
                 is IllegalStateException -> {
-                    rootCause.message?.contains("Session is invalid")?.let {
+                    if (rootCause.message?.contains("Session is invalid") == true) {
                         LOG.info("[$objectType] Access token invalid, revalidating...")
                         this.oidcSessionService.refreshUserSession()
                         try {
