@@ -25,4 +25,6 @@ INSERT INTO "Mappings" ("Id", "FunctionalRoleId", "DomainId", "ApplicationRoleId
     ('15e01325-d883-4e42-9152-9137be5f443b','f0c1b2d3-4e5f-6789-0a1b-2c3d4e5f6789','d1e2f3a4-b5c6-7d8e-9f0a-b1c2d3e4f5a6', '003591ad-c6c8-4107-8877-9579c5e27982');
 
 -- create zaaktype entity types
-
+INSERT INTO "EntityTypes" ("Id", "EntityTypeId", "Type", "Name", "Uri") VALUES
+    ('e2fd7b9f-f104-4ac8-9293-2086661d36e8','zaaktype_test_1', 'zaaktype', 'Test zaaktype 1', 'https://example.com/zaaktype/test-1'),
+    ('d8ae5c97-1288-4d3a-8f90-8cd6d98717be','zaaktype_test_2', 'zaaktype', 'Test zaaktype 2', 'https://example.com/zaaktype/test-2');
