@@ -10,7 +10,7 @@ import { NavigationService } from "./navigation.service";
 
 jest.autoMockOn();
 describe("BackButtonDirective", () => {
-  let directive;
+  let directive: BackButtonDirective;
   const mockNavigationService = { back: jest.fn() };
 
   beforeEach(() => {
