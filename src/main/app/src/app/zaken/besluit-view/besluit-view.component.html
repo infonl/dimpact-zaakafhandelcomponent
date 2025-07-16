@@ -44,12 +44,12 @@
           <zac-static-text
             class="w25 w50-md"
             [label]="'resultaat' | translate"
-            [value]="result?.resultaattype.naam"
+            [value]="result?.resultaattype?.naam"
           ></zac-static-text>
           <zac-static-text
             class="w25 w50-md"
             [label]="'besluit' | translate"
-            [value]="besluit.besluittype.naam"
+            [value]="besluit.besluittype?.naam"
           ></zac-static-text>
           <zac-static-text
             class="w25 w50-md"
@@ -80,13 +80,13 @@
           ></zac-static-text>
           <zac-static-text
             class="w25 w50-md"
-            *ngIf="besluit.besluittype.publication.enabled"
+            *ngIf="besluit.besluittype?.publication?.enabled"
             [label]="'publicatiedatum' | translate"
             [value]="besluit.publicationDate | datum"
           ></zac-static-text>
           <zac-static-text
             class="w25 w50-md"
-            *ngIf="besluit.besluittype.publication.enabled"
+            *ngIf="besluit.besluittype?.publication?.enabled"
             [label]="'uiterlijkereactiedatum' | translate"
             [value]="besluit.lastResponseDate | datum"
           ></zac-static-text>
@@ -203,7 +203,7 @@
               "
             ></tr>
           </table>
-          <p *ngIf="histories[besluit.uuid]?.data.length == 0">
+          <p *ngIf="histories[besluit.uuid]?.data?.length == 0">
             {{ "msg.geen.gegevens.gevonden" | translate }}
           </p>
         </div>

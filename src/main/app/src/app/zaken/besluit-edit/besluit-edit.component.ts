@@ -28,7 +28,6 @@ import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-c
 import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
@@ -39,7 +38,10 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./besluit-edit.component.less"],
 })
 export class BesluitEditComponent implements OnDestroy, OnInit {
-  formConfig: FormConfig;
+  formConfig = new FormConfigBuilder()
+    .saveText("actie.wijzigen")
+    .cancelText("actie.annuleren")
+    .build();
   @Input({ required: true }) besluit!: GeneratedType<"RestDecision">;
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input({ required: true }) sideNav!: MatDrawer;
@@ -50,17 +52,13 @@ export class BesluitEditComponent implements OnDestroy, OnInit {
   private ngDestroy = new Subject<void>();
 
   constructor(
-    private zakenService: ZakenService,
-    private informatieObjectenService: InformatieObjectenService,
-    protected translate: TranslateService,
-    public utilService: UtilService,
+    private readonly zakenService: ZakenService,
+    private readonly informatieObjectenService: InformatieObjectenService,
+    private readonly translate: TranslateService,
+    private readonly utilService: UtilService,
   ) {}
 
-  ngOnInit(): void {
-    this.formConfig = new FormConfigBuilder()
-      .saveText("actie.wijzigen")
-      .cancelText("actie.annuleren")
-      .build();
+  ngOnInit() {
     const resultaattypeField = new SelectFormFieldBuilder(
       this.zaak.resultaat?.resultaattype,
     )
@@ -203,7 +201,7 @@ export class BesluitEditComponent implements OnDestroy, OnInit {
     });
   }
 
-  onFormSubmit(formGroup?: FormGroup): void {
+  onFormSubmit(formGroup?: FormGroup) {
     if (!formGroup) {
       this.besluitGewijzigd.emit(false);
       return;
@@ -235,7 +233,7 @@ export class BesluitEditComponent implements OnDestroy, OnInit {
     });
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     this.ngDestroy.next();
     this.ngDestroy.complete();
   }

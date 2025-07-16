@@ -15,7 +15,7 @@ import {
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
-import moment, { Moment } from "moment";
+import moment from "moment";
 import { Subject, Subscription } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { DividerFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/divider/divider-form-field-builder";
@@ -25,13 +25,11 @@ import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/
 import { FormComponent } from "src/app/shared/material-form-builder/form/form/form.component";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { DateFormField } from "../../shared/material-form-builder/form-components/date/date-form-field";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
@@ -42,30 +40,28 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./besluit-create.component.less"],
 })
 export class BesluitCreateComponent implements OnInit, OnDestroy {
-  formConfig: FormConfig;
-  @Input() zaak: GeneratedType<"RestZaak">;
-  @Input() sideNav: MatDrawer;
+  formConfig = new FormConfigBuilder()
+    .saveText("actie.aanmaken")
+    .cancelText("actie.annuleren")
+    .build();
+  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
+  @Input({ required: true }) sideNav!: MatDrawer;
   @Output() besluitVastgelegd = new EventEmitter<boolean>();
   @ViewChild(FormComponent) formComponent!: FormComponent;
 
   fields: Array<AbstractFormField[]> = [];
 
-  private subscription: Subscription;
+  private subscription?: Subscription;
   private ngDestroy = new Subject<void>();
 
   constructor(
-    private zakenService: ZakenService,
-    public utilService: UtilService,
-    private informatieObjectenService: InformatieObjectenService,
-    protected translate: TranslateService,
+    private readonly zakenService: ZakenService,
+    private readonly utilService: UtilService,
+    private readonly informatieObjectenService: InformatieObjectenService,
+    private readonly translate: TranslateService,
   ) {}
 
-  ngOnInit(): void {
-    this.formConfig = new FormConfigBuilder()
-      .saveText("actie.aanmaken")
-      .cancelText("actie.annuleren")
-      .build();
-
+  ngOnInit() {
     const resultaattypeField = new SelectFormFieldBuilder(
       this.zaak.resultaat?.resultaattype,
     )
@@ -116,18 +112,14 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
     resultaattypeField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
-        if (value) {
-          vervaldatumField.required = (
-            value as GeneratedType<"RestResultaattype">
-          ).vervaldatumBesluitVerplicht;
-        }
+        vervaldatumField.required = value?.vervaldatumBesluitVerplicht ?? false;
       });
 
     ingangsdatumField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
         if (!value) return;
-        (vervaldatumField as DateFormField).minDate = new Date(String(value));
+        vervaldatumField.minDate = new Date(String(value));
       });
 
     besluittypeField.formControl.valueChanges
@@ -162,9 +154,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
       ),
     );
 
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
+    this.subscription?.unsubscribe();
 
     if (publication.enabled) {
       const divider = new DividerFormFieldBuilder().id("divider").build();
@@ -192,9 +182,9 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
         .level(MessageLevel.INFO)
         .build();
 
-      const lastResponseDate: Moment = moment().add(
+      const lastResponseDate = moment().add(
         (
-          this.getFormField("besluittype").formControl.value as
+          this.getFormField("besluittype")?.formControl.value as
             | GeneratedType<"RestDecisionType">
             | undefined
         )?.publication.responseTermDays,
@@ -217,25 +207,21 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
 
       this.subscription = publicationDateField.formControl.valueChanges
         .pipe(takeUntil(this.ngDestroy))
-        .subscribe((value: Moment | null) => {
-          if (value) {
-            const adjustedLastResponseDate: Moment = value
-              .clone()
-              .add(
-                (
-                  this.getFormField("besluittype").formControl.value as
-                    | GeneratedType<"RestDecisionType">
-                    | undefined
-                )?.publication.responseTermDays,
-                "days",
-              );
-
-            lastResponseDateField.formControl.setValue(
-              adjustedLastResponseDate,
+        .subscribe((value) => {
+          if (!value) return;
+          const adjustedLastResponseDate = moment(value)
+            .clone()
+            .add(
+              (
+                this.getFormField("besluittype")?.formControl.value as
+                  | GeneratedType<"RestDecisionType">
+                  | undefined
+              )?.publication.responseTermDays,
+              "days",
             );
-            (lastResponseDateField as DateFormField).minDate =
-              adjustedLastResponseDate.toDate();
-          }
+
+          lastResponseDateField.formControl.setValue(adjustedLastResponseDate);
+          lastResponseDateField.minDate = adjustedLastResponseDate.toDate();
         });
     }
 
@@ -243,12 +229,14 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
   }
 
   private getFormField(id: string) {
-    return this.fields.find((fields) =>
+    const field = this.fields.find((fields) =>
       fields.find((group) => group.id === id),
-    )[0];
+    );
+
+    return field?.[0];
   }
 
-  onFormSubmit(formGroup: FormGroup): void {
+  onFormSubmit(formGroup: FormGroup) {
     if (formGroup) {
       const data: GeneratedType<"RestDecisionCreateData"> = {
         zaakUuid: this.zaak.uuid,
@@ -283,7 +271,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     this.ngDestroy.next();
     this.ngDestroy.complete();
   }

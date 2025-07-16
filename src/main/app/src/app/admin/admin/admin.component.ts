@@ -14,16 +14,16 @@ import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 @Component({ template: "" })
 export abstract class AdminComponent extends ViewComponent {
   menu: MenuItem[] = [];
-  activeMenu: string;
+  activeMenu = "";
 
-  constructor(
-    public utilService: UtilService,
-    public configuratieService: ConfiguratieService,
+  protected constructor(
+    public readonly utilService: UtilService,
+    public readonly configuratieService: ConfiguratieService,
   ) {
     super();
   }
 
-  setupMenu(title: string, params?: Record<string, unknown>): void {
+  setupMenu(title: string, params?: Record<string, unknown>) {
     this.utilService.setTitle((this.activeMenu = title), params);
     this.menu = [];
     this.menu.push(new HeaderMenuItem("actie.admin"));
@@ -83,8 +83,8 @@ export abstract class AdminComponent extends ViewComponent {
     );
   }
 
-  private getMenuLink(title: string, url: string, icon: string): MenuItem {
-    const menuItem: MenuItem = new LinkMenuItem(title, url, icon);
+  private getMenuLink(title: string, url: string, icon: string) {
+    const menuItem = new LinkMenuItem(title, url, icon);
     menuItem.activated = this.activeMenu === title;
     return menuItem;
   }
