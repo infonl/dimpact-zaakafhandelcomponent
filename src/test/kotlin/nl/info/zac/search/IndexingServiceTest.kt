@@ -7,7 +7,6 @@ package nl.info.zac.search
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
