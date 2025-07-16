@@ -79,10 +79,16 @@ class ProductaanvraagEmailService @Inject constructor(
     ) {
         mailTemplateService.findMailtemplateByName(automaticEmailConfirmation.templateName)?.let {
                 mailTemplate ->
-            val from = MailAdres(automaticEmailConfirmation.emailSender.extractEmailAddress(configuratieService), null)
-            val to = MailAdres(to, null)
+            val from = MailAdres(
+                email = automaticEmailConfirmation.emailSender.extractEmailAddress(configuratieService),
+                name = null
+            )
+            val to = MailAdres(email = to, name = null)
             val replyToAddress = automaticEmailConfirmation.emailReply?.let {
-                MailAdres(it.extractEmailAddress(configuratieService), null)
+                MailAdres(
+                    email = it.extractEmailAddress(configuratieService),
+                    name = null
+                )
             }
             val mailGegevens = MailGegevens(
                 from = from,
