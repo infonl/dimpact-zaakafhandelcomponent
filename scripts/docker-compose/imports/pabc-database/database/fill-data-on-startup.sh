@@ -21,8 +21,6 @@ done
 
 set -e
 
-set -e
-
 echo "Running database setup scripts ..."
 for file in /docker-entrypoint-initdb.d/database/*.sql; do
     echo "Running $file ..."
