@@ -10,7 +10,6 @@ import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
