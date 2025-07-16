@@ -1079,7 +1079,8 @@
       "oas": "http://objecttypen-api:8000/api/v1/schema/openapi.yaml",
       "nlx": "",
       "user_id": "",
-      "user_representation": ""
+      "user_representation": "",
+      "jwt_valid_for": "43200"
     }
   },
   {
@@ -1098,7 +1099,8 @@
       "oas": "http://open-notificaties:8000/api/v1/schema/openapi.yaml",
       "nlx": "",
       "user_id": "objects-api",
-      "user_representation": "Objects API"
+      "user_representation": "Objects API",
+      "jwt_valid_for": "43200"
     }
   }
 ]

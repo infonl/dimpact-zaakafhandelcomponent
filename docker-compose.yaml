@@ -197,6 +197,8 @@ services:
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
       - EMAIL_HOST=localhost
+      - OBJECTS_SUPERUSER_USERNAME=admin
+      - OBJECTS_SUPERUSER_PASSWORD=admin
     healthcheck:
       test: "bash -c 'printf \"GET / HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/8000; exit $?;'"
       interval: 10s
