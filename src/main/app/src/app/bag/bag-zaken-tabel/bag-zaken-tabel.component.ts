@@ -65,9 +65,8 @@ export class BagZakenTabelComponent
 
   ngOnInit(): void {
     this.zoekParameters.type = "ZAAK";
-    if (this.zoekParameters.zoeken) {
-      this.zoekParameters.zoeken.ZAAK_BAGOBJECTEN = this.BagObjectIdentificatie;
-    }
+    this.zoekParameters.zoeken ??= {};
+    this.zoekParameters.zoeken.ZAAK_BAGOBJECTEN = this.BagObjectIdentificatie;
   }
 
   private loadZaken() {
