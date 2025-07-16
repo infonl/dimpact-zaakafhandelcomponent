@@ -24,7 +24,7 @@ class UserTaskCompletionListener : FlowableEventListener {
         if (event.type == FlowableEngineEventType.TASK_COMPLETED) {
             (event as FlowableEntityEvent).let { entityEvent ->
                 (entityEvent.entity as TaskEntity).let { task ->
-                    LOG.info(
+                    LOG.fine(
                         "User task with id '${task.id}, name '${task.name}' completed for process id " +
                             "'${task.processInstanceId}', process name '${task.processDefinitionId} " +
                             "by user '${task.assignee}'"
