@@ -33,7 +33,7 @@ describe("DateConditionals", () => {
   });
 });
 
-describe("DateConditionals", () => {
+describe(DateConditionals.name, () => {
   describe(DateConditionals.isPreceded.name, () => {
     it("should return false if the control value is before the actual date", () => {
       const control = new FormControl(
