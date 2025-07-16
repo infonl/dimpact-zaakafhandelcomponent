@@ -38,7 +38,6 @@ import nl.info.zac.identity.model.User
 import nl.info.zac.util.AllOpen
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.exception.CaseHasLockedInformationObjectsException
-import nl.info.zac.zaak.exception.CaseHasOpenSubcasesException
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import java.lang.Boolean
 import java.util.Locale
@@ -281,9 +280,6 @@ class ZaakService @Inject constructor(
     }
 
     fun checkZaakAfsluitbaar(zaak: Zaak) {
-        if (zrcClientService.heeftOpenDeelzaken(zaak)) {
-            throw CaseHasOpenSubcasesException("Case ${zaak.uuid} has open subcases")
-        }
         if (lockService.hasLockedInformatieobjecten(zaak)) {
             throw CaseHasLockedInformationObjectsException("Case ${zaak.uuid} has locked information objects")
         }

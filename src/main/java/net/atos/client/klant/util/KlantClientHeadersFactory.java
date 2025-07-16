@@ -1,11 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.klant.util;
 
-import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -13,12 +11,7 @@ import jakarta.ws.rs.core.MultivaluedMap;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
 
-import nl.info.zac.authentication.LoggedInUser;
-
 public class KlantClientHeadersFactory implements ClientHeadersFactory {
-
-    @Inject
-    private Instance<LoggedInUser> loggedInUserInstance;
 
     @Inject
     @ConfigProperty(name = "KLANTINTERACTIES_API_TOKEN")

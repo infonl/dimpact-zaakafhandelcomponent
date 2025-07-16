@@ -7,6 +7,7 @@ package nl.info.zac.itest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.json.shouldNotContainJsonKey
+import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -25,6 +26,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * This test creates a zaak with a BPMN type.
@@ -76,6 +78,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
 
     Given("A BPMN type zaak has been created") {
         var bpmnZaakUuid: UUID
+        var zaakIdentificatie: String
 
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_BPMN_TEST_UUID,
@@ -89,6 +92,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
             JSONObject(responseBody).run {
                 getJSONObject("zaakdata").run {
                     bpmnZaakUuid = getString("zaakUUID").run(UUID::fromString)
+                    zaakIdentificatie = getString("zaakIdentificatie")
                 }
             }
         }
@@ -96,13 +100,13 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
         When("the user data form is submitted") {
             val takenPatchResponse = submitFormData(bpmnZaakUuid)
 
-            Then("process task should be completed") {
+            Then("process task is completed") {
                 JSONObject(takenPatchResponse).run {
                     getString("status") shouldBe "AFGEROND"
                 }
             }
 
-            And("the zaak should still be open and without result") {
+            And("the zaak is still open and without result") {
                 zacClient.retrieveZaak(bpmnZaakUuid).use { response ->
                     val responseBody = response.body.string()
                     logger.info { "Response: $responseBody" }
@@ -111,6 +115,37 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                         shouldContainJsonKeyValue("isOpen", true)
                         shouldNotContainJsonKey("resultaat")
                     }
+                }
+            }
+
+            And("the task is removed from the task list") {
+                eventually(10.seconds) {
+                    val searchResponseBody = itestHttpClient.performPutRequest(
+                        url = "$ZAC_API_URI/zoeken/list",
+                        requestBodyAsString = """
+                            {
+                              "rows": 10,
+                              "page": 0,
+                              "alleenMijnZaken": false,
+                              "alleenOpenstaandeZaken": false,
+                              "alleenAfgeslotenZaken": false,
+                              "alleenMijnTaken": false,
+                              "datums": {},
+                              "zoeken": {
+                                "TAAK_ZAAK_ID": "$zaakIdentificatie"
+                              },
+                              "filters": {
+                                "TAAK_NAAM": {
+                                  "values": [ "Test form" ],
+                                  "inverse": "false"
+                                }
+                              },
+                              "sorteerRichting": "",
+                              "type": "TAAK"
+                            }
+                        """.trimIndent()
+                    ).body.string()
+                    JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                 }
             }
         }
@@ -124,7 +159,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                 }
             }
 
-            And("the zaak should be closed and with result") {
+            And("the zaak is closed and with result") {
                 zacClient.retrieveZaak(bpmnZaakUuid).use { response ->
                     val responseBody = response.body.string()
                     logger.info { "Response: $responseBody" }
@@ -136,7 +171,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                 }
             }
 
-            And("the send email service task should have sent an email") {
+            And("the send email service task sent an email") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
                     url = "$GREENMAIL_API_URI/user/shared-team-dimpact@info.nl/messages/"
                 )
@@ -148,6 +183,37 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                     with(getJSONObject(0)) {
                         getString("subject") shouldContain "Informatie over zaak ZAAK-"
                     }
+                }
+            }
+
+            And("the task is removed from the task list") {
+                eventually(10.seconds) {
+                    val searchResponseBody = itestHttpClient.performPutRequest(
+                        url = "$ZAC_API_URI/zoeken/list",
+                        requestBodyAsString = """
+                            {
+                              "rows": 10,
+                              "page": 0,
+                              "alleenMijnZaken": false,
+                              "alleenOpenstaandeZaken": false,
+                              "alleenAfgeslotenZaken": false,
+                              "alleenMijnTaken": false,
+                              "datums": {},
+                              "zoeken": {
+                                "TAAK_ZAAK_ID": "$zaakIdentificatie"
+                              },
+                              "filters": {
+                                "TAAK_NAAM": {
+                                  "values": [ "Summary" ],
+                                  "inverse": "false"
+                                }
+                              },
+                              "sorteerRichting": "",
+                              "type": "TAAK"
+                            }
+                        """.trimIndent()
+                    ).body.string()
+                    JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                 }
             }
         }

@@ -714,7 +714,6 @@ class ZaakRestService @Inject constructor(
     ) {
         val zaak = zrcClientService.readZaak(zaakUUID)
         assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).behandelen)
-        zaakService.checkZaakAfsluitbaar(zaak)
         zgwApiService.updateResultaatForZaak(
             zaak,
             afsluitenGegevens.resultaattypeUuid,
@@ -728,7 +727,6 @@ class ZaakRestService @Inject constructor(
     fun linkZaak(restZaakLinkData: RestZaakLinkData) {
         val zaak = zrcClientService.readZaak(restZaakLinkData.zaakUuid)
         val zaakToLinkTo = zrcClientService.readZaak(restZaakLinkData.teKoppelenZaakUuid)
-        assertPolicy(zaak.isOpen() == zaakToLinkTo.isOpen())
         assertPolicy(policyService.readZaakRechten(zaak).koppelen)
         assertPolicy(policyService.readZaakRechten(zaakToLinkTo).koppelen)
 
