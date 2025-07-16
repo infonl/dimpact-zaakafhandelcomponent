@@ -877,7 +877,7 @@
                     {{ "fataledatum" | translate }}
                   </th>
                   <td mat-cell *matCellDef="let taak">
-                    <div class="flex-row items-center gap-10">
+                    <div class="flex-row items-center gap-5">
                       {{ taak.data.fataledatum | datum | empty }}
                       <mat-icon
                         *ngIf="
@@ -885,7 +885,7 @@
                           isAfterDate(taak.data.fataledatum)
                         "
                         [title]="'msg.datum.overschreden' | translate"
-                        class="error"
+                        class="error list-icon"
                         >warning</mat-icon
                       >
                     </div>
