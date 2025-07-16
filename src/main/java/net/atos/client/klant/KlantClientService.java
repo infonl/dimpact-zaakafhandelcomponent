@@ -8,8 +8,8 @@ package net.atos.client.klant;
 import java.util.Collections;
 import java.util.List;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
@@ -17,7 +17,7 @@ import net.atos.client.klant.model.DigitaalAdres;
 import net.atos.client.klant.model.ExpandBetrokkene;
 import net.atos.client.klant.model.ExpandPartij;
 
-@Singleton
+@ApplicationScoped
 public class KlantClientService {
     private KlantClient klantClient;
 
