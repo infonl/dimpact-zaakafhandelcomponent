@@ -166,13 +166,15 @@
         {{ "fataledatum" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
-        {{ row.fataledatum | datum | empty }}
-        <mat-icon
-          *ngIf="isAfterDate(row.fataledatum)"
-          class="warning"
-          [title]="'msg.datum.overschreden' | translate"
-          >warning</mat-icon
-        >
+        <div class="flex-row items-center gap-10">
+          {{ row.fataledatum | datum | empty }}
+          <mat-icon
+            *ngIf="isAfterDate(row.fataledatum)"
+            class="error"
+            [title]="'msg.datum.overschreden' | translate"
+            >error</mat-icon
+          >
+        </div>
       </td>
     </ng-container>
 

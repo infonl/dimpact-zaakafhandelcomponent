@@ -15,9 +15,9 @@ import { Zaak } from "../model/zaak";
   styleUrls: ["./zaak-verkort.component.less"],
 })
 export class ZaakVerkortComponent implements OnChanges {
-  @Input() zaak: Zaak;
+  @Input() zaak!: Zaak;
 
-  einddatumGeplandIcon: TextIcon;
+  einddatumGeplandIcon: TextIcon | null = null;
 
   constructor(public utilService: UtilService) {}
 
