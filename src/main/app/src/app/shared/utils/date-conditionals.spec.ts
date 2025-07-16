@@ -34,7 +34,7 @@ describe("DateConditionals", () => {
 });
 
 describe("DateConditionals", () => {
-  describe("isPreceded", () => {
+  describe(DateConditionals.isPreceded.name, () => {
     it("should return false if the control value is before the actual date", () => {
       const control = new FormControl(
         moment().subtract(1, "days").toISOString(),
