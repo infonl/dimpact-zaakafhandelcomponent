@@ -5,6 +5,7 @@
 
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   OnDestroy,
   OnInit,
@@ -106,6 +107,7 @@ export class TaakViewComponent
     private identityService: IdentityService,
     protected translate: TranslateService,
     private formioSetupService: FormioSetupService,
+    private changeDetectorRef: ChangeDetectorRef,
   ) {
     super();
   }
@@ -148,6 +150,8 @@ export class TaakViewComponent
         "msg.datum.overschreden",
         "error",
       );
+
+    this.changeDetectorRef.detectChanges();
   }
 
   ngOnDestroy() {
