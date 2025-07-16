@@ -90,12 +90,13 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         }
     }
 
-    Given("zaak created from productaanvraag and automatic email is enabled with GEEMENTE as sender") {
+    Given("zaak created from productaanvraag and automatic email is enabled with GEMEENTE as sender") {
         val councilEmailAddress = "fake-council@example.com"
         val zaak = createZaak()
         val betrokkene = createBetrokkene()
         val automaticEmailConfirmation = createAutomaticEmailConfirmation(
-            emailSender = "GEMEENTE"
+            emailSender = "GEMEENTE",
+            emailReply = "GEMEENTE"
         )
         val zaakafhandelParameters = createZaakafhandelParameters(
             automaticEmailConfirmation = automaticEmailConfirmation
@@ -130,7 +131,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 with(mailGegevens.captured) {
                     from.email shouldBe councilEmailAddress
                     to.email shouldBe receiverEmail
-                    replyTo!!.email shouldBe zaakafhandelParameters.automaticEmailConfirmation.emailReply
+                    replyTo!!.email shouldBe councilEmailAddress
                     subject shouldBe mailTemplate.onderwerp
                     body shouldBe mailTemplate.body
                     attachments shouldBe emptyList()
