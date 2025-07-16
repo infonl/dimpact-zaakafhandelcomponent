@@ -22,7 +22,7 @@ import { TextIcon } from "../edit/text-icon";
 export class StaticTextComponent<T = unknown> implements OnInit, OnChanges {
   @Input() label?: string;
   @Input() value?: T;
-  @Input() icon?: TextIcon;
+  @Input() icon?: TextIcon | null;
   @Input() maxLength?: number;
   @Output() iconClicked = new EventEmitter<void>();
 

@@ -42,7 +42,7 @@ export class BatchProcessService {
     const v = this.values();
     return v.length
       ? Math.round((v.filter((done) => done).length / v.length) * 100)
-      : undefined;
+      : 0;
   });
   private subscriptions: WebsocketListener[] = [];
   private options?: Options;
@@ -50,12 +50,12 @@ export class BatchProcessService {
   private progressTimeout?: ProgressTimeout;
 
   constructor(
-    private websocketService: WebsocketService,
-    private utilService: UtilService,
+    private readonly websocketService: WebsocketService,
+    private readonly utilService: UtilService,
   ) {
     effect(() => {
-      if (this.progress() === 100 && !this.options.finalSubscription) {
-        Promise.resolve(this.options.finally()).finally(() => this.stop());
+      if (this.progress() === 100 && !this.options?.finalSubscription) {
+        Promise.resolve(this.options?.finally()).finally(() => this.stop());
       }
     });
   }

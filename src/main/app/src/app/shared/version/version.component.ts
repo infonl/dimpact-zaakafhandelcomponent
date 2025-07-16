@@ -5,7 +5,7 @@
 
 import { Component, Input, OnInit } from "@angular/core";
 import { HealthCheckService } from "../../admin/health-check.service";
-import { BuildInformatie } from "../../admin/model/build-informatie";
+import { GeneratedType } from "../utils/generated-types";
 
 export enum VersionLayout {
   VERBOSE = "VERBOSE",
@@ -19,12 +19,12 @@ export enum VersionLayout {
 })
 export class VersionComponent implements OnInit {
   versionLayout = VersionLayout;
-  @Input() layout: VersionLayout;
-  buildInformatie: BuildInformatie = new BuildInformatie();
+  @Input() layout?: VersionLayout;
+  buildInformatie?: GeneratedType<"RESTBuildInformation">;
 
-  constructor(private healtCheckService: HealthCheckService) {}
+  constructor(private readonly healtCheckService: HealthCheckService) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.healtCheckService
       .readBuildInformatie()
       .subscribe((buildInformatie) => {
