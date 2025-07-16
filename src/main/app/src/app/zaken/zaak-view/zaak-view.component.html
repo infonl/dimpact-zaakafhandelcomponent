@@ -877,7 +877,18 @@
                     {{ "fataledatum" | translate }}
                   </th>
                   <td mat-cell *matCellDef="let taak">
-                    {{ taak.data.fataledatum | datum | empty }}
+                    <div class="flex-row items-center gap-10">
+                      {{ taak.data.fataledatum | datum | empty }}
+                      <mat-icon
+                        *ngIf="
+                          taak.data.status !== 'AFGEROND' &&
+                          isAfterDate(taak.data.fataledatum)
+                        "
+                        [title]="'msg.datum.overschreden' | translate"
+                        class="error"
+                        >warning</mat-icon
+                      >
+                    </div>
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="groep">

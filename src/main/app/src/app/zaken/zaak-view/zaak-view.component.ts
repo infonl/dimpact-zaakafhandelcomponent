@@ -294,7 +294,7 @@ export class ZaakViewComponent
             : DateConditionals.isExceeded,
           this.zaak.einddatum ?? "",
         ),
-        "warning",
+        "report_problem",
         "warningVerlopen_icon",
         this.zaak.einddatum
           ? "msg.einddatum.overschreden"
@@ -311,7 +311,7 @@ export class ZaakViewComponent
             : DateConditionals.isExceeded,
           this.zaak.einddatum ?? "",
         ),
-        "error",
+        "report_problem",
         "errorVerlopen_icon",
         this.zaak.einddatum
           ? "msg.einddatum.overschreden"
@@ -1572,5 +1572,9 @@ export class ZaakViewComponent
         ?.kvkKoppelen;
 
     return Boolean(brpAllowed || kvkAllowed) && !!this.betrokkenen.data.length;
+  }
+
+  protected isAfterDate(datum: Date | moment.Moment | string): boolean {
+    return DateConditionals.isExceeded(datum);
   }
 }

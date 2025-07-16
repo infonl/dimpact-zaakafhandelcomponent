@@ -180,9 +180,9 @@
           {{ row.fataledatum | datum | empty }}
           <mat-icon
             *ngIf="isAfterDate(row.fataledatum)"
-            class="error"
             [title]="'msg.datum.overschreden' | translate"
-            >error</mat-icon
+            class="error"
+            >warning</mat-icon
           >
         </div>
       </td>

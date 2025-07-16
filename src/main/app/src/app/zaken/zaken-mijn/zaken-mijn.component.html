@@ -359,9 +359,9 @@
         <div class="flex-row items-center gap-10">
           {{ row.uiterlijkeEinddatumAfdoening | datum | empty }}
           <mat-icon
-            class="error"
-            [title]="'msg.datum.overschreden' | translate"
             *ngIf="isAfterDate(row.uiterlijkeEinddatumAfdoening)"
+            [title]="'msg.datum.overschreden' | translate"
+            class="error"
             >warning</mat-icon
           >
         </div>
