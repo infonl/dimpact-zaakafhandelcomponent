@@ -10,7 +10,7 @@ while true
 do
     verifier=$(psql -U pabc -d Pabc -t -A -c "select count(*) from \"__EFMigrationsHistory\"")
     echo "Number of database migration table records: $verifier"
-    if [ $DATABASE_MIGRATIONS_TABLE_RECORDS_COUNT != "$verifier" ]; then
+    if [ $DATABASE_MIGRATIONS_TABLE_RECORDS_COUNT -ne "$verifier" ]; then
         echo "PABC not running yet. Sleeping 2 seconds ..."
         sleep 2s
     else

@@ -10,7 +10,7 @@ useradd openklant
 while true
 do
     verifier=$(psql -U openklant -d openklant -t -A -c "select count(*) from django_migrations")
-    if [ $DJANGO_MIGRATIONS_TABLE_RECORDS_COUNT != "$verifier" ]; then
+    if [ $DJANGO_MIGRATIONS_TABLE_RECORDS_COUNT -ne "$verifier" ]; then
         echo "Open Klant not running yet. Sleeping 2 seconds ..."
         sleep 2s
     else
