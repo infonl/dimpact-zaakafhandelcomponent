@@ -41,5 +41,5 @@ INSERT INTO "EntityTypes" ("Id", "EntityTypeId", "Type", "Name", "Uri") VALUES
 
 --create mappings between entity types and domains
 INSERT INTO "DomainEntityType" ("DomainId", "EntityTypesId") VALUES
-    ('d1e2f3a4-b5c6-7d8e-9f0a-b1c2d3e4f5a6', 'e2fd7b9f-f104-4ac8-9293-2086661d36e8'),
-    ('d3e4f5a6-b7c8-9d0e-1f2a-b3c4d5e6f7a8', 'd8ae5c97-1288-4d3a-8f90-8cd6d98717be');
+    ((SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_1'), (SELECT "Id" FROM "EntityTypes" WHERE "EntityTypeId" = 'zaaktype_test_1')),
+    ((SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_2'), (SELECT "Id" FROM "EntityTypes" WHERE "EntityTypeId" = 'zaaktype_test_2'));
