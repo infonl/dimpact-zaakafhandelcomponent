@@ -134,7 +134,7 @@ export class ZaakViewComponent
     "relatieType",
   ] as const;
   notitieRechten!: GeneratedType<"RestNotitieRechten">;
-  dateFieldIcon = new Map<string, TextIcon>();
+  dateFieldIconMap = new Map<string, TextIcon>();
   viewInitialized = false;
   loggedInUser!: GeneratedType<"RestLoggedInUser">;
 
@@ -285,7 +285,7 @@ export class ZaakViewComponent
   }
 
   private setDateFieldIconSet() {
-    this.dateFieldIcon.set(
+    this.dateFieldIconMap.set(
       "einddatumGepland",
       new TextIcon(
         DateConditionals.provideFormControlValue(
@@ -302,7 +302,7 @@ export class ZaakViewComponent
         "warning",
       ),
     );
-    this.dateFieldIcon.set(
+    this.dateFieldIconMap.set(
       "uiterlijkeEinddatumAfdoening",
       new TextIcon(
         DateConditionals.provideFormControlValue(

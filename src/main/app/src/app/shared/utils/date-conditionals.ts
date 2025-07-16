@@ -30,8 +30,8 @@ export class DateConditionals {
   ): boolean {
     if (!value) return false;
 
-    const limit = moment(value, "DD-MM-YYYY", false);
-    const compareDate = actual ? moment(actual, "DD-MM-YYYY", false) : moment();
+    const limit = moment(value, "YYYY-MM-DD", false);
+    const compareDate = actual ? moment(actual, "YYYY-MM-DD", false) : moment();
 
     return limit.isBefore(compareDate, "day");
   }
@@ -42,8 +42,8 @@ export class DateConditionals {
   ): boolean {
     if (!value) return false;
 
-    const limit = moment(value, "DD-MM-YYYY", false);
-    const compareDate = actual ? moment(actual, "DD-MM-YYYY", false) : moment();
+    const limit = moment(value, "YYYY-MM-DD", false);
+    const compareDate = actual ? moment(actual, "YYYY-MM-DD", false) : moment();
 
     return limit.isAfter(compareDate, "day");
   }
