@@ -27,6 +27,9 @@ import org.wildfly.security.http.oidc.RefreshableOidcSecurityContext
 import java.util.logging.Logger
 import kotlin.jvm.java
 
+const val ACCESS_TOKEN_ATTRIBUTE = "access_token"
+const val REFRESH_TOKEN_ATTRIBUTE = "refresh_token"
+
 @ApplicationScoped
 @WebFilter(filterName = "UserPrincipalFilter")
 @AllOpen
@@ -76,7 +79,7 @@ constructor(private val zaakafhandelParameterService: ZaakafhandelParameterServi
                 userPrincipal.oidcSecurityContext is RefreshableOidcSecurityContext
             ) {
                 val refreshToken = (userPrincipal.oidcSecurityContext as RefreshableOidcSecurityContext).refreshToken
-                httpSession.setAttribute("refresh_token", refreshToken)
+                httpSession.setAttribute(REFRESH_TOKEN_ATTRIBUTE, refreshToken)
             }
         }
         filterChain.doFilter(servletRequest, servletResponse)

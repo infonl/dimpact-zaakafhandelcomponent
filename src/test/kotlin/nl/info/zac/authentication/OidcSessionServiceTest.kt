@@ -34,7 +34,7 @@ private data class TestContext(
 private fun setupMocks(
     refreshToken: String? = "old-refresh-token",
     responseCode: Int = 200,
-    responseBody: String = """{"access_token":"new-access-token","refresh_token":"new-refresh-token"}""",
+    responseBody: String = """{"$ACCESS_TOKEN_ATTRIBUTE":"new-access-token","$REFRESH_TOKEN_ATTRIBUTE":"new-refresh-token"}""",
     errorStream: ByteArrayInputStream? = null,
     inputStreamThrows: Exception? = null
 ): TestContext {
@@ -47,7 +47,7 @@ private fun setupMocks(
     every { outputStream.close() } just runs
 
     every { sessionInstance.get() } returns httpSession
-    every { httpSession.getAttribute("refresh_token") } returns refreshToken
+    every { httpSession.getAttribute(REFRESH_TOKEN_ATTRIBUTE) } returns refreshToken
     every { mockConnection.outputStream } returns outputStream
     every { mockConnection.responseCode } returns responseCode
 
@@ -81,19 +81,17 @@ private fun setupMocks(
 }
 
 class OidcSessionServiceTest : BehaviorSpec({
-    // beforeTest { /* checkUnnecessaryStub() */ }
-
     Given("refresh token is present in session and Keycloak returns new tokens") {
         val ctx = setupMocks()
         val oidcPrincipal = mockk<OidcPrincipal<*>>()
         every { ctx.userPrincipalFilter.createOidcPrincipalFromAccessToken(any()) } returns oidcPrincipal
         every { ctx.userPrincipalFilter.setLoggedInUserOnHttpSession(oidcPrincipal, ctx.httpSession) } just runs
-        every { ctx.httpSession.setAttribute("refresh_token", any()) } just runs
+        every { ctx.httpSession.setAttribute(REFRESH_TOKEN_ATTRIBUTE, any()) } just runs
 
         When("refreshUserSession is called") {
             ctx.service.refreshUserSession()
             Then("session is updated with new refresh token and principal is set") {
-                verify { ctx.httpSession.setAttribute("refresh_token", "new-refresh-token") }
+                verify { ctx.httpSession.setAttribute(REFRESH_TOKEN_ATTRIBUTE, "new-refresh-token") }
                 verify { ctx.userPrincipalFilter.createOidcPrincipalFromAccessToken("new-access-token") }
                 verify { ctx.userPrincipalFilter.setLoggedInUserOnHttpSession(oidcPrincipal, ctx.httpSession) }
             }
@@ -108,7 +106,7 @@ class OidcSessionServiceTest : BehaviorSpec({
                 val ex = shouldThrow<IllegalStateException> {
                     ctx.service.refreshUserSession()
                 }
-                ex.message shouldBe "No refresh token found in session"
+                ex.message shouldBe "No $REFRESH_TOKEN_ATTRIBUTE found in session"
             }
         }
     }
@@ -136,7 +134,7 @@ class OidcSessionServiceTest : BehaviorSpec({
                 val ex = shouldThrow<OidcSessionException> {
                     ctx.service.refreshUserSession()
                 }
-                ex.message shouldContain "missing access_token"
+                ex.message shouldContain "missing $ACCESS_TOKEN_ATTRIBUTE"
             }
         }
     }
