@@ -3,7 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {ICreateAttachment, ICreateLog} from "@cucumber/cucumber/lib/runtime/attachment_manager";
+import {
+  ICreateAttachment,
+  ICreateLog,
+} from "@cucumber/cucumber/lib/runtime/attachment_manager";
 import { z } from "zod";
 
 export const worldPossibleZacUrls = z.enum(["zac"]);
@@ -20,7 +23,7 @@ export const worldParametersScheme = z.object({
   attach: z.any().refine((val): val is ICreateAttachment => {
     return typeof val === "function";
   }),
-  log: z.custom<ICreateLog>(val => typeof val === "function"),
+  log: z.custom<ICreateLog>((val) => typeof val === "function"),
   parameters: z.object({
     urls: z.object({
       zac: z.string(),
@@ -39,4 +42,3 @@ export const worldParametersScheme = z.object({
     headless: z.boolean(),
   }),
 });
-
