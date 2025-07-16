@@ -26,8 +26,8 @@ class UserTaskCompletionListener : FlowableEventListener {
                 (entityEvent.entity as TaskEntity).let { task ->
                     LOG.info(
                         "User task with id '${task.id}, name '${task.name}' completed for process id " +
-                                "'${task.processInstanceId}', process name '${task.processDefinitionId} " +
-                                "by user '${task.assignee}'"
+                            "'${task.processInstanceId}', process name '${task.processDefinitionId} " +
+                            "by user '${task.assignee}'"
                     )
                     FlowableHelper.getInstance().indexeerService.removeTaak(task.id)
                 }
