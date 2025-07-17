@@ -198,7 +198,7 @@ class MailTemplateHelper @Inject constructor(
             identificatie,
             configuratieService.zaakTonenUrl(identificatie),
             "de zaak",
-            "($zaaktypeOmschrijving"
+            "($zaaktypeOmschrijving)"
         )
     }
 
