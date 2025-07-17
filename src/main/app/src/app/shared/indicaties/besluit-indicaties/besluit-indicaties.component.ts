@@ -18,18 +18,18 @@ export class BesluitIndicatiesComponent
   extends IndicatiesComponent
   implements OnChanges
 {
-  @Input() besluit: GeneratedType<"RestDecision">;
+  @Input({ required: true }) besluit!: GeneratedType<"RestDecision">;
 
-  constructor(private translate: TranslateService) {
+  constructor(private readonly translate: TranslateService) {
     super();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges) {
     this.besluit = changes.besluit?.currentValue;
     this.loadIndicaties();
   }
 
-  private loadIndicaties(): void {
+  private loadIndicaties() {
     this.indicaties = [];
     if (this.besluit.isIngetrokken) {
       this.indicaties.push(
@@ -42,7 +42,7 @@ export class BesluitIndicatiesComponent
     }
   }
 
-  private getIntrekToelichting(): string {
+  private getIntrekToelichting() {
     return this.translate.instant(
       "besluit.vervalreden." + this.besluit.vervalreden,
     );

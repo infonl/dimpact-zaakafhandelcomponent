@@ -36,7 +36,7 @@ export abstract class DashboardCardComponent<
 {
   private readonly RELOAD_INTERVAL: number = 60; // 1 min.
 
-  @Input() data: DashboardCard;
+  @Input({ required: true }) data!: DashboardCard;
 
   @ViewChild(MatPaginator) paginator?: MatPaginator;
   @ViewChild(MatSort) sort?: MatSort;

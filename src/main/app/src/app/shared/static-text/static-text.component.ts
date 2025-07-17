@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2025 INFO
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -22,7 +22,7 @@ import { TextIcon } from "../edit/text-icon";
 export class StaticTextComponent<T = unknown> implements OnInit, OnChanges {
   @Input() label?: string;
   @Input() value?: T;
-  @Input() icon?: TextIcon;
+  @Input() icon?: TextIcon | null;
   @Input() maxLength?: number;
   @Output() iconClicked = new EventEmitter<void>();
 
@@ -43,6 +43,6 @@ export class StaticTextComponent<T = unknown> implements OnInit, OnChanges {
   }
 
   setIcon(): void {
-    this.showIcon = Boolean(this.icon?.showIcon(new FormControl(this.value)));
+    this.showIcon = Boolean(this.icon?.showIcon?.(new FormControl(this.value)));
   }
 }

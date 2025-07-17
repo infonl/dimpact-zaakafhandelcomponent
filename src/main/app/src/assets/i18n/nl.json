@@ -744,6 +744,7 @@
   "msg.betrokkene.ontkoppelen.uitgevoerd": "{{betrokkene}} is ontkoppeld van de zaak",
   "msg.betrokkene.toegevoegd": "De {{roltype}} is toegevoegd",
   "msg.datum.overschreden": "Deze datum is overschreden",
+  "msg.einddatum.overschreden": "Deze datum was overschreden toen de zaak afgehandeld werd",
   "msg.document.besluit": "Document is gekoppeld aan een besluit",
   "msg.document.nieuwe.versie.toegevoegd": "Een nieuwe versie van het document is toegevoegd",
   "msg.document.ondertekenen.bevestigen": "Document \"<i>{{document}}</i>\" ondertekenen?<br/><strong>Let op!</strong> Het document wordt als Definitief gemarkeerd",

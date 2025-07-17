@@ -35,16 +35,14 @@ export class SignaleringenService {
 
   listDashboardSignaleringTypen() {
     return this.http
-      .get<
-        GeneratedType<"RestSignaleringInstellingen">["type"][]
-      >(`${this.basepath}/typen/dashboard`)
+      .get<GeneratedType<"Type">[]>(`${this.basepath}/typen/dashboard`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
   listZakenSignalering(params: {
-    signaleringType: GeneratedType<"RestSignaleringInstellingen">["type"];
+    signaleringType: GeneratedType<"Type">;
     page: number;
     rows: number;
   }): Observable<Resultaat<ZaakOverzichtDashboard>> {

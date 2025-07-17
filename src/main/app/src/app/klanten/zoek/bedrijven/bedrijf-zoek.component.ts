@@ -11,7 +11,7 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { FormBuilder, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
@@ -19,7 +19,6 @@ import { Subscription } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
 import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { SelectFormFieldBuilder } from "../../../shared/material-form-builder/form-components/select/select-form-field-builder";
-import { AbstractFormControlField } from "../../../shared/material-form-builder/model/abstract-form-control-field";
 import {
   BSN_LENGTH,
   KVK_LENGTH,
@@ -39,11 +38,10 @@ import { FormCommunicatieService } from "../form-communicatie-service";
 export class BedrijfZoekComponent implements OnInit, OnDestroy {
   @Output() bedrijf? = new EventEmitter<GeneratedType<"RestBedrijf">>();
   @Input() sideNav?: MatSidenav;
-  @Input() syncEnabled: boolean = false;
+  @Input() syncEnabled = false;
   bedrijven = new MatTableDataSource<GeneratedType<"RestBedrijf">>();
-  foutmelding: string;
-  formGroup: FormGroup;
-  bedrijfColumns: string[] = [
+  foutmelding?: string;
+  bedrijfColumns = [
     "naam",
     "kvk",
     "vestigingsnummer",
@@ -53,91 +51,82 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
   ] as const;
   loading = false;
   types = ["HOOFDVESTIGING", "NEVENVESTIGING", "RECHTSPERSOON"] as const;
-  uuid: string;
+  uuid = crypto.randomUUID();
   private formSelectedSubscription!: Subscription;
 
-  kvkFormField: AbstractFormControlField;
-  vestigingsnummerFormField: AbstractFormControlField;
-  rsinFormField: AbstractFormControlField;
-  naamFormField: AbstractFormControlField;
-  typeFormField: AbstractFormControlField;
-  postcodeFormField: AbstractFormControlField;
-  huisnummerFormField: AbstractFormControlField;
-  plaatsFormField: AbstractFormControlField;
+  protected readonly kvkFormField = new InputFormFieldBuilder()
+    .id("kvknummer")
+    .label("kvknummer")
+    .validators(CustomValidators.kvk)
+    .maxlength(KVK_LENGTH)
+    .build();
+  protected readonly vestigingsnummerFormField = new InputFormFieldBuilder()
+    .id("vestigingsnummer")
+    .label("vestigingsnummer")
+    .validators(CustomValidators.vestigingsnummer)
+    .maxlength(VESTIGINGSNUMMER_LENGTH)
+    .build();
+  protected readonly rsinFormField = new InputFormFieldBuilder()
+    .id("rsin")
+    .label("rsin")
+    .validators(CustomValidators.rsin)
+    .maxlength(BSN_LENGTH)
+    .build();
+  protected readonly naamFormField = new InputFormFieldBuilder()
+    .id("naam")
+    .label("bedrijfsnaam")
+    .maxlength(100)
+    .validators(CustomValidators.bedrijfsnaam)
+    .build();
+  protected readonly typeFormField = new SelectFormFieldBuilder<
+    "HOOFDVESTIGING" | "NEVENVESTIGING" | "RECHTSPERSOON"
+  >()
+    .id("type")
+    .label("type")
+    .options([...this.types])
+    .build();
+  protected readonly postcodeFormField = new InputFormFieldBuilder()
+    .id("postcode")
+    .label("postcode")
+    .validators(CustomValidators.postcode)
+    .maxlength(POSTAL_CODE_LENGTH)
+    .build();
+  protected readonly huisnummerFormField = new InputFormFieldBuilder()
+    .id("huisnummer")
+    .label("huisnummer")
+    .validators(
+      Validators.min(1),
+      Validators.max(99999),
+      CustomValidators.huisnummer,
+    )
+    .maxlength(5)
+    .build();
+  private readonly plaatsFormField = new InputFormFieldBuilder()
+    .id("plaats")
+    .label("plaats")
+    .maxlength(50)
+    .build();
+
+  public readonly formGroup = this.formBuilder.group({
+    kvkNummer: this.kvkFormField.formControl,
+    naam: this.naamFormField.formControl,
+    vestigingsnummer: this.vestigingsnummerFormField.formControl,
+    rsin: this.rsinFormField.formControl,
+    postcode: this.postcodeFormField.formControl,
+    huisnummer: this.huisnummerFormField.formControl,
+    plaats: this.plaatsFormField.formControl,
+    type: this.typeFormField.formControl,
+  });
 
   constructor(
-    private klantenService: KlantenService,
-    private utilService: UtilService,
-    private formCommunicationService: FormCommunicatieService,
-    private formBuilder: FormBuilder,
-    private router: Router,
+    private readonly klantenService: KlantenService,
+    private readonly utilService: UtilService,
+    private readonly formCommunicationService: FormCommunicatieService,
+    private readonly formBuilder: FormBuilder,
+    private readonly router: Router,
   ) {}
 
-  ngOnInit(): void {
-    this.naamFormField = new InputFormFieldBuilder()
-      .id("naam")
-      .label("bedrijfsnaam")
-      .maxlength(100)
-      .validators(CustomValidators.bedrijfsnaam)
-      .build();
-    this.kvkFormField = new InputFormFieldBuilder()
-      .id("kvknummer")
-      .label("kvknummer")
-      .validators(CustomValidators.kvk)
-      .maxlength(KVK_LENGTH)
-      .build();
-    this.vestigingsnummerFormField = new InputFormFieldBuilder()
-      .id("vestigingsnummer")
-      .label("vestigingsnummer")
-      .validators(CustomValidators.vestigingsnummer)
-      .maxlength(VESTIGINGSNUMMER_LENGTH)
-      .build();
-    this.rsinFormField = new InputFormFieldBuilder()
-      .id("rsin")
-      .label("rsin")
-      .validators(CustomValidators.rsin)
-      .maxlength(BSN_LENGTH)
-      .build();
-    this.postcodeFormField = new InputFormFieldBuilder()
-      .id("postcode")
-      .label("postcode")
-      .validators(CustomValidators.postcode)
-      .maxlength(POSTAL_CODE_LENGTH)
-      .build();
-    this.typeFormField = new SelectFormFieldBuilder<string>()
-      .id("type")
-      .label("type")
-      .options([...this.types])
-      .build();
-    this.huisnummerFormField = new InputFormFieldBuilder()
-      .id("huisnummer")
-      .label("huisnummer")
-      .validators(
-        Validators.min(1),
-        Validators.max(99999),
-        CustomValidators.huisnummer,
-      )
-      .maxlength(5)
-      .build();
-    this.plaatsFormField = new InputFormFieldBuilder()
-      .id("plaats")
-      .label("plaats")
-      .maxlength(50)
-      .build();
-
-    this.formGroup = this.formBuilder.group({
-      kvkNummer: this.kvkFormField.formControl,
-      naam: this.naamFormField.formControl,
-      vestigingsnummer: this.vestigingsnummerFormField.formControl,
-      rsin: this.rsinFormField.formControl,
-      postcode: this.postcodeFormField.formControl,
-      huisnummer: this.huisnummerFormField.formControl,
-      plaats: this.plaatsFormField.formControl,
-      type: this.typeFormField.formControl,
-    });
-
-    this.uuid = crypto.randomUUID(); // Generate a unique form ID
-
+  ngOnInit() {
     if (this.syncEnabled) {
       // Subscribe to select event, ignore own event
       this.formSelectedSubscription =
@@ -151,7 +140,7 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
     }
   }
 
-  isValid(): boolean {
+  isValid() {
     if (!this.formGroup.valid) {
       return false;
     }
@@ -171,10 +160,12 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
     );
   }
 
-  createListParameters() {
-    return this.removeEmpty<
-      GeneratedType<"RestBedrijf"> & { type: GeneratedType<"BedrijfType"> }
-    >(this.formGroup.value);
+  createListParameters<
+    T extends GeneratedType<"RestBedrijf"> & {
+      type: GeneratedType<"BedrijfType">;
+    },
+  >() {
+    return this.removeEmpty<T>(this.formGroup.value as T);
   }
 
   removeEmpty<T extends Record<string, unknown>>(parameters: T): T {
@@ -191,24 +182,22 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
       .listBedrijven(this.createListParameters())
       .subscribe((bedrijven) => {
         this.bedrijven.data = bedrijven.resultaten ?? [];
-        if (bedrijven.foutmelding) {
-          this.foutmelding = bedrijven.foutmelding;
-        }
+        this.foutmelding = bedrijven.foutmelding;
         this.loading = false;
         this.utilService.setLoading(false);
       });
   }
 
-  typeChanged(type: GeneratedType<"BedrijfType">): void {
+  typeChanged(type?: GeneratedType<"BedrijfType"> | null) {
     this.rsinFormField.required = type === "RECHTSPERSOON";
   }
 
-  openBedrijfPagina(bedrijf: GeneratedType<"RestBedrijf">): void {
+  openBedrijfPagina(bedrijf: GeneratedType<"RestBedrijf">) {
     this.sideNav?.close();
-    this.router.navigate(["/bedrijf/", bedrijf.identificatie]);
+    void this.router.navigate(["/bedrijf/", bedrijf.identificatie]);
   }
 
-  selectBedrijf(bedrijf: GeneratedType<"RestBedrijf">): void {
+  selectBedrijf(bedrijf: GeneratedType<"RestBedrijf">) {
     this.bedrijf?.emit(bedrijf);
     this.wissen();
 

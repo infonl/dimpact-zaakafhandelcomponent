@@ -134,7 +134,7 @@ export class ZaakViewComponent
     "relatieType",
   ] as const;
   notitieRechten!: GeneratedType<"RestNotitieRechten">;
-  dateFieldIcon = new Map<string, TextIcon>();
+  dateFieldIconMap = new Map<string, TextIcon>();
   viewInitialized = false;
   loggedInUser!: GeneratedType<"RestLoggedInUser">;
 
@@ -285,26 +285,37 @@ export class ZaakViewComponent
   }
 
   private setDateFieldIconSet() {
-    this.dateFieldIcon.set(
+    this.dateFieldIconMap.set(
       "einddatumGepland",
       new TextIcon(
         DateConditionals.provideFormControlValue(
-          DateConditionals.isExceeded,
+          this.zaak.einddatum
+            ? DateConditionals.isPreceded
+            : DateConditionals.isExceeded,
           this.zaak.einddatum ?? "",
         ),
         "report_problem",
         "warningVerlopen_icon",
-        "msg.datum.overschreden",
+        this.zaak.einddatum
+          ? "msg.einddatum.overschreden"
+          : "msg.datum.overschreden",
         "warning",
       ),
     );
-    this.dateFieldIcon.set(
+    this.dateFieldIconMap.set(
       "uiterlijkeEinddatumAfdoening",
       new TextIcon(
-        DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
+        DateConditionals.provideFormControlValue(
+          this.zaak.einddatum
+            ? DateConditionals.isPreceded
+            : DateConditionals.isExceeded,
+          this.zaak.einddatum ?? "",
+        ),
         "report_problem",
         "errorVerlopen_icon",
-        "msg.datum.overschreden",
+        this.zaak.einddatum
+          ? "msg.einddatum.overschreden"
+          : "msg.datum.overschreden",
         "error",
       ),
     );
@@ -1561,5 +1572,9 @@ export class ZaakViewComponent
         ?.kvkKoppelen;
 
     return Boolean(brpAllowed || kvkAllowed) && !!this.betrokkenen.data.length;
+  }
+
+  protected isAfterDate(datum: Date | moment.Moment | string): boolean {
+    return DateConditionals.isExceeded(datum);
   }
 }

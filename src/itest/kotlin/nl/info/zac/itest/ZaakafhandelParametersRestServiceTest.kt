@@ -56,7 +56,8 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
                 zaakTypeIdentificatie = ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE,
                 zaakTypeUuid = ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,
                 zaakTypeDescription = ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION,
-                productaanvraagType = PRODUCTAANVRAAG_TYPE_1
+                productaanvraagType = PRODUCTAANVRAAG_TYPE_1,
+                automaticEmailConfirmationSender = "GEMEENTE"
             )
             Then("the response should be ok") {
                 val responseBody = response.body.string()

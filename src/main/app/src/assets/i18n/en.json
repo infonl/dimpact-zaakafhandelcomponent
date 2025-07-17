@@ -744,6 +744,7 @@
   "msg.betrokkene.ontkoppelen.uitgevoerd": "{{betrokkene}} has been unlinked",
   "msg.betrokkene.toegevoegd": "The {{roltype}} has been added",
   "msg.datum.overschreden": "This date has passed",
+  "msg.eindedatum.overschreden": "This date was exceeded when the case was closed",
   "msg.document.besluit": "Document is linked to a decision",
   "msg.document.nieuwe.versie.toegevoegd": "A new version of the document has been added",
   "msg.document.ondertekenen.bevestigen": "Sign document \"<i>{{document}}</i>\"?<br/><strong>Pay attention!</strong> This will mark the document as Final",

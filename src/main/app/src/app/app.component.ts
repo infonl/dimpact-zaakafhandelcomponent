@@ -19,21 +19,23 @@ export class AppComponent implements OnInit, AfterViewInit {
   initialized = false;
 
   constructor(
-    private translate: TranslateService,
-    private titleService: Title,
-    public utilService: UtilService,
+    private readonly translate: TranslateService,
+    private readonly titleService: Title,
+    public readonly utilService: UtilService,
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.titleService.setTitle("Zaakafhandelcomponent");
     this.translate.addLangs(["nl", "en"]);
     this.translate.setDefaultLang("nl");
     const browserLanguage = this.translate.getBrowserLang();
-    this.translate.use(browserLanguage.match(/nl|en/) ? browserLanguage : "nl");
+    this.translate.use(
+      browserLanguage?.match(/nl|en/) ? browserLanguage : "nl",
+    );
     SessionStorageUtil.removeItem(IdentityService.LOGGED_IN_USER_KEY);
   }
 
-  ngAfterViewInit(): void {
+  ngAfterViewInit() {
     if (!this.initialized) {
       this.initialized = true;
     }
