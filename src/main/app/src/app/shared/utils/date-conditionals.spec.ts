@@ -7,8 +7,8 @@ import { FormControl } from "@angular/forms";
 import moment from "moment";
 import { DateConditionals } from "./date-conditionals";
 
-describe("DateConditionals", () => {
-  describe("isExceeded", () => {
+describe(DateConditionals.name, () => {
+  describe(DateConditionals.isExceeded.name, () => {
     it("should return true if the control value is before the actual date", () => {
       const control = new FormControl(
         moment().subtract(1, "days").toISOString(),
