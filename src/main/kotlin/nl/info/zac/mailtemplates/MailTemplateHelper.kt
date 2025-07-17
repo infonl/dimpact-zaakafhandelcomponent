@@ -107,16 +107,16 @@ class MailTemplateHelper @Inject constructor(
             val zaaktypeOmschrijving = ztcClientService.readZaaktype(zaak.getZaaktype()).getOmschrijving()
             resolvedTekst = replaceVariable(resolvedTekst, MailTemplateVariables.ZAAK_TYPE, zaaktypeOmschrijving)
         }
-        if (resolvedTekst.contains(MailTemplateVariables.ZAAK_INITIATOR.variable) ||
-            resolvedTekst.contains(MailTemplateVariables.ZAAK_INITIATOR_ADRES.variable)
+        if (MailTemplateVariables.ZAAK_INITIATOR.variable in resolvedTekst ||
+            MailTemplateVariables.ZAAK_INITIATOR_ADRES.variable in resolvedTekst
         ) {
-            resolvedTekst = zgwApiService.findInitiatorRoleForZaak(zaak)?.let {
+            resolvedTekst = zgwApiService.findInitiatorRoleForZaak(zaak)?.let { initiatorRole ->
                 replaceInitiatorVariables(
-                    resolvedTekst = resolvedTekst,
-                    auditEvent = zaak.getIdentificatie() + "@" + ACTION,
-                    initiatorRole = it
+                    resolvedText = resolvedTekst,
+                    auditEvent = "${zaak.getIdentificatie()}@$ACTION",
+                    initiatorRole = initiatorRole
                 )
-            } ?: ""
+            } ?: replaceInitiatorVariablesWithUnknownText(resolvedTekst)
         }
         if (resolvedTekst.contains(MailTemplateVariables.ZAAK_BEHANDELAAR_GROEP.variable)) {
             val groupName = zgwApiService.findGroepForZaak(zaak)?.getNaam()
@@ -223,7 +223,7 @@ class MailTemplateHelper @Inject constructor(
 
     @Suppress("NestedBlockDepth")
     private fun replaceInitiatorVariables(
-        resolvedTekst: String,
+        resolvedText: String,
         auditEvent: String,
         initiatorRole: Rol<*>
     ): String {
@@ -232,13 +232,13 @@ class MailTemplateHelper @Inject constructor(
             BetrokkeneTypeEnum.NATUURLIJK_PERSOON ->
                 brpClientService.retrievePersoon(identificatie, auditEvent)?.let {
                     replaceInitiatorVariablesPersoon(
-                        resolvedTekst,
+                        resolvedText,
                         it
                     )
                 } ?: ""
 
             BetrokkeneTypeEnum.VESTIGING -> replaceInitiatorVariablesResultaatItem(
-                resolvedTekst,
+                resolvedText,
                 kvkClientService.findVestiging(identificatie).getOrNull()
             )
 
@@ -259,7 +259,7 @@ class MailTemplateHelper @Inject constructor(
                         }
                     }
                 replaceInitiatorVariablesResultaatItem(
-                    resolvedText = resolvedTekst,
+                    resolvedText = resolvedText,
                     initiatorResultaatItem = resultaatItem
                 )
             }

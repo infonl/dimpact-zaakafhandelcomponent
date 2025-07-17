@@ -128,17 +128,24 @@ class MailTemplateHelperTest : BehaviorSpec({
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { zgwApiService.findGroepForZaak(zaak) } returns rolOrganisatorischeEenheid
             every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
+            every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns null
 
             When("the variables are resolved with a text containing placeholders") {
                 val resolvedText = mailTemplateHelper.resolveZaakVariables(
                     "fakeText, {ZAAK_NUMMER}, {ZAAK_URL}, {ZAAK_TYPE}, {ZAAK_STATUS}, {ZAAK_STARTDATUM}, " +
-                        "{ZAAK_BEHANDELAAR_GROEP}, {ZAAK_BEHANDELAAR_MEDEWERKER}",
+                        "{ZAAK_BEHANDELAAR_GROEP}, {ZAAK_BEHANDELAAR_MEDEWERKER}, {ZAAK_INITIATOR}",
                     zaak
                 )
 
-                Then("the variables in the provided text should be replaced by the correct values from the zaak") {
+                Then(
+                    """
+                        the variables in the provided text should be replaced by the correct values from the zaak, 
+                        and the initiator variable should be replaced with 'Onbekend'
+                        """
+                ) {
                     resolvedText shouldBe "fakeText, ${zaak.identificatie}, $zaakTonenURL, ${zaakType.omschrijving}, " +
-                        "${statusType.omschrijving}, 12-10-2021, $groupName, $medewerkerVoorletters $medewerkerAchternaam"
+                        "${statusType.omschrijving}, 12-10-2021, $groupName, $medewerkerVoorletters $medewerkerAchternaam, " +
+                            "Onbekend"
                 }
             }
         }
