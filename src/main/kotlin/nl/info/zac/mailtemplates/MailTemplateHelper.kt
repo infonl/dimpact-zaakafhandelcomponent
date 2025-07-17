@@ -8,7 +8,7 @@ import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving
-import net.atos.zac.mailtemplates.model.MailTemplateVariabelen
+import net.atos.zac.mailtemplates.model.MailTemplateVariables
 import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.generated.Persoon
@@ -58,57 +58,57 @@ class MailTemplateHelper @Inject constructor(
     }
 
     fun resolveGemeenteVariable(text: String): String =
-        replaceVariabele(
+        replaceVariable(
             targetString = text,
-            mailTemplateVariable = MailTemplateVariabelen.GEMEENTE,
+            mailTemplateVariable = MailTemplateVariables.GEMEENTE,
             value = configuratieService.readGemeenteNaam()
         )
 
     @Suppress("LongMethod", "CyclomaticComplexMethod")
-    fun resolveVariabelen(tekst: String, zaak: Zaak): String {
+    fun resolveZaakVariables(tekst: String, zaak: Zaak): String {
         var resolvedTekst = tekst
-        resolvedTekst = replaceVariabele(resolvedTekst, MailTemplateVariabelen.ZAAK_NUMMER, zaak.getIdentificatie())
+        resolvedTekst = replaceVariable(resolvedTekst, MailTemplateVariables.ZAAK_NUMMER, zaak.getIdentificatie())
 
         val link = createMailLinkFromZaak(zaak)
-        resolvedTekst = replaceVariabele(resolvedTekst, MailTemplateVariabelen.ZAAK_URL, link.url)
-        resolvedTekst = replaceVariabeleHtml(resolvedTekst, MailTemplateVariabelen.ZAAK_LINK, link.toHtml())
+        resolvedTekst = replaceVariable(resolvedTekst, MailTemplateVariables.ZAAK_URL, link.url)
+        resolvedTekst = replaceVariableHtml(resolvedTekst, MailTemplateVariables.ZAAK_LINK, link.toHtml())
         resolvedTekst = zaak.getOmschrijving()?.let {
-            replaceVariabele(resolvedTekst, MailTemplateVariabelen.ZAAK_OMSCHRIJVING, it)
+            replaceVariable(resolvedTekst, MailTemplateVariables.ZAAK_OMSCHRIJVING, it)
         } ?: resolvedTekst
         resolvedTekst = zaak.getToelichting()?.let {
-            replaceVariabele(resolvedTekst, MailTemplateVariabelen.ZAAK_TOELICHTING, it)
+            replaceVariable(resolvedTekst, MailTemplateVariables.ZAAK_TOELICHTING, it)
         } ?: resolvedTekst
-        resolvedTekst = replaceVariabele(
-            resolvedTekst, MailTemplateVariabelen.ZAAK_REGISTRATIEDATUM,
+        resolvedTekst = replaceVariable(
+            resolvedTekst, MailTemplateVariables.ZAAK_REGISTRATIEDATUM,
             zaak.getRegistratiedatum().format(DATE_FORMATTER)
         )
-        resolvedTekst = replaceVariabele(
-            resolvedTekst, MailTemplateVariabelen.ZAAK_STARTDATUM,
+        resolvedTekst = replaceVariable(
+            resolvedTekst, MailTemplateVariables.ZAAK_STARTDATUM,
             zaak.getStartdatum().format(DATE_FORMATTER)
         )
-        resolvedTekst = replaceVariabele(
+        resolvedTekst = replaceVariable(
             targetString = resolvedTekst,
-            mailTemplateVariable = MailTemplateVariabelen.ZAAK_STREEFDATUM,
+            mailTemplateVariable = MailTemplateVariables.ZAAK_STREEFDATUM,
             value = zaak.getEinddatumGepland()?.format(DATE_FORMATTER)
         )
-        resolvedTekst = replaceVariabele(
-            resolvedTekst, MailTemplateVariabelen.ZAAK_FATALEDATUM,
+        resolvedTekst = replaceVariable(
+            resolvedTekst, MailTemplateVariables.ZAAK_FATALEDATUM,
             zaak.getUiterlijkeEinddatumAfdoening()?.format(DATE_FORMATTER)
         )
-        if (resolvedTekst.contains(MailTemplateVariabelen.ZAAK_STATUS.variabele)) {
+        if (resolvedTekst.contains(MailTemplateVariables.ZAAK_STATUS.variable)) {
             val statusOmschrijving = zaak.getStatus()
                 .let(zrcClientService::readStatus)
                 .getStatustype()
                 .let(ztcClientService::readStatustype)
                 .getOmschrijving()
-            resolvedTekst = replaceVariabele(resolvedTekst, MailTemplateVariabelen.ZAAK_STATUS, statusOmschrijving)
+            resolvedTekst = replaceVariable(resolvedTekst, MailTemplateVariables.ZAAK_STATUS, statusOmschrijving)
         }
-        if (resolvedTekst.contains(MailTemplateVariabelen.ZAAK_TYPE.variabele)) {
+        if (resolvedTekst.contains(MailTemplateVariables.ZAAK_TYPE.variable)) {
             val zaaktypeOmschrijving = ztcClientService.readZaaktype(zaak.getZaaktype()).getOmschrijving()
-            resolvedTekst = replaceVariabele(resolvedTekst, MailTemplateVariabelen.ZAAK_TYPE, zaaktypeOmschrijving)
+            resolvedTekst = replaceVariable(resolvedTekst, MailTemplateVariables.ZAAK_TYPE, zaaktypeOmschrijving)
         }
-        if (resolvedTekst.contains(MailTemplateVariabelen.ZAAK_INITIATOR.variabele) ||
-            resolvedTekst.contains(MailTemplateVariabelen.ZAAK_INITIATOR_ADRES.variabele)
+        if (resolvedTekst.contains(MailTemplateVariables.ZAAK_INITIATOR.variable) ||
+            resolvedTekst.contains(MailTemplateVariables.ZAAK_INITIATOR_ADRES.variable)
         ) {
             resolvedTekst = zgwApiService.findInitiatorRoleForZaak(zaak)?.let {
                 replaceInitiatorVariables(
@@ -118,42 +118,42 @@ class MailTemplateHelper @Inject constructor(
                 )
             } ?: ""
         }
-        if (resolvedTekst.contains(MailTemplateVariabelen.ZAAK_BEHANDELAAR_GROEP.variabele)) {
+        if (resolvedTekst.contains(MailTemplateVariables.ZAAK_BEHANDELAAR_GROEP.variable)) {
             val groupName = zgwApiService.findGroepForZaak(zaak)?.getNaam()
-            resolvedTekst = replaceVariabele(
+            resolvedTekst = replaceVariable(
                 targetString = resolvedTekst,
-                mailTemplateVariable = MailTemplateVariabelen.ZAAK_BEHANDELAAR_GROEP,
+                mailTemplateVariable = MailTemplateVariables.ZAAK_BEHANDELAAR_GROEP,
                 value = groupName
             )
         }
-        if (resolvedTekst.contains(MailTemplateVariabelen.ZAAK_BEHANDELAAR_MEDEWERKER.variabele)) {
+        if (resolvedTekst.contains(MailTemplateVariables.ZAAK_BEHANDELAAR_MEDEWERKER.variable)) {
             val medewerkerName = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.getNaam()
-            resolvedTekst = replaceVariabele(
+            resolvedTekst = replaceVariable(
                 targetString = resolvedTekst,
-                mailTemplateVariable = MailTemplateVariabelen.ZAAK_BEHANDELAAR_MEDEWERKER,
+                mailTemplateVariable = MailTemplateVariables.ZAAK_BEHANDELAAR_MEDEWERKER,
                 value = medewerkerName
             )
         }
         return resolvedTekst
     }
 
-    fun resolveVariabelen(tekst: String, taskInfo: TaskInfo): String {
+    fun resolveTaskVariables(tekst: String, taskInfo: TaskInfo): String {
         var resolvedTekst = tekst
         val link = createMailLinkFromTask(taskInfo)
-        resolvedTekst = replaceVariabele(resolvedTekst, MailTemplateVariabelen.TAAK_URL, link.url)
-        resolvedTekst = replaceVariabeleHtml(resolvedTekst, MailTemplateVariabelen.TAAK_LINK, link.toHtml())
+        resolvedTekst = replaceVariable(resolvedTekst, MailTemplateVariables.TAAK_URL, link.url)
+        resolvedTekst = replaceVariableHtml(resolvedTekst, MailTemplateVariables.TAAK_LINK, link.toHtml())
 
         taskInfo.dueDate?.let {
-            resolvedTekst = replaceVariabele(
+            resolvedTekst = replaceVariable(
                 resolvedTekst,
-                MailTemplateVariabelen.TAAK_FATALEDATUM,
+                MailTemplateVariables.TAAK_FATALEDATUM,
                 DateTimeConverterUtil.convertToLocalDate(it).format(DATE_FORMATTER)
             )
         }
-        if (resolvedTekst.contains(MailTemplateVariabelen.TAAK_BEHANDELAAR_GROEP.variabele)) {
-            resolvedTekst = replaceVariabele(
+        if (resolvedTekst.contains(MailTemplateVariables.TAAK_BEHANDELAAR_GROEP.variable)) {
+            resolvedTekst = replaceVariable(
                 resolvedTekst,
-                MailTemplateVariabelen.TAAK_BEHANDELAAR_GROEP,
+                MailTemplateVariables.TAAK_BEHANDELAAR_GROEP,
                 taskInfo.identityLinks
                     .filter { IdentityLinkType.CANDIDATE == it.type }
                     .map { it.groupId }
@@ -162,31 +162,31 @@ class MailTemplateHelper @Inject constructor(
                     .firstOrNull()
             )
         }
-        if (resolvedTekst.contains(MailTemplateVariabelen.TAAK_BEHANDELAAR_MEDEWERKER.variabele)) {
-            resolvedTekst = replaceVariabele<String>(
-                targetString = resolvedTekst, MailTemplateVariabelen.TAAK_BEHANDELAAR_MEDEWERKER,
+        if (resolvedTekst.contains(MailTemplateVariables.TAAK_BEHANDELAAR_MEDEWERKER.variable)) {
+            resolvedTekst = replaceVariable<String>(
+                targetString = resolvedTekst, MailTemplateVariables.TAAK_BEHANDELAAR_MEDEWERKER,
                 value = taskInfo.assignee.let { identityService.readUser(it).getFullName() }
             )
         }
         return resolvedTekst
     }
 
-    fun resolveVariabelen(
+    fun resolveEnkelvoudigInformatieObjectVariables(
         text: String,
         enkelvoudigInformatieObject: EnkelvoudigInformatieObject
     ): String {
         val link = createMailLinkFromDocument(enkelvoudigInformatieObject)
-        return replaceVariabeleHtml(
-            targetString = replaceVariabele(
-                targetString = replaceVariabele(
+        return replaceVariableHtml(
+            targetString = replaceVariable(
+                targetString = replaceVariable(
                     targetString = text,
-                    mailTemplateVariable = MailTemplateVariabelen.DOCUMENT_TITEL,
+                    mailTemplateVariable = MailTemplateVariables.DOCUMENT_TITEL,
                     value = enkelvoudigInformatieObject.getTitel()
                 ),
-                mailTemplateVariable = MailTemplateVariabelen.DOCUMENT_URL,
+                mailTemplateVariable = MailTemplateVariables.DOCUMENT_URL,
                 value = link.url
             ),
-            mailTemplateVariable = MailTemplateVariabelen.DOCUMENT_LINK,
+            mailTemplateVariable = MailTemplateVariables.DOCUMENT_LINK,
             htmlEscapedValue = link.toHtml()
         )
     }
@@ -305,27 +305,27 @@ class MailTemplateHelper @Inject constructor(
         resolvedText: String,
         name: String,
         address: String
-    ) = replaceVariabele(
-        targetString = replaceVariabele(
+    ) = replaceVariable(
+        targetString = replaceVariable(
             resolvedText,
-            MailTemplateVariabelen.ZAAK_INITIATOR,
+            MailTemplateVariables.ZAAK_INITIATOR,
             name
         ),
-        mailTemplateVariable = MailTemplateVariabelen.ZAAK_INITIATOR_ADRES,
+        mailTemplateVariable = MailTemplateVariables.ZAAK_INITIATOR_ADRES,
         value = address
     )
 
-    private fun <T> replaceVariabele(
+    private fun <T> replaceVariable(
         targetString: String,
-        mailTemplateVariable: MailTemplateVariabelen,
+        mailTemplateVariable: MailTemplateVariables,
         value: T
-    ) = replaceVariabele(targetString, mailTemplateVariable, value.toString())
+    ) = replaceVariable(targetString, mailTemplateVariable, value.toString())
 
-    private fun replaceVariabele(
+    private fun replaceVariable(
         targetString: String,
-        mailTemplateVariable: MailTemplateVariabelen,
+        mailTemplateVariable: MailTemplateVariables,
         value: String?
-    ) = replaceVariabeleHtml(
+    ) = replaceVariableHtml(
         targetString = targetString,
         mailTemplateVariable = mailTemplateVariable,
         htmlEscapedValue = StringEscapeUtils.escapeHtml4(value)
@@ -334,16 +334,16 @@ class MailTemplateHelper @Inject constructor(
     /**
      * Make sure that the [htmlEscapedValue] parameter is HTML escaped to avoid injection vulnerabilities.
      */
-    private fun replaceVariabeleHtml(
+    private fun replaceVariableHtml(
         targetString: String,
-        mailTemplateVariable: MailTemplateVariabelen,
+        mailTemplateVariable: MailTemplateVariables,
         htmlEscapedValue: String?
     ): String {
-        val replacement = if (htmlEscapedValue.isNullOrBlank() && mailTemplateVariable.isResolveVariabeleAlsLegeString) {
+        val replacement = if (htmlEscapedValue.isNullOrBlank() && mailTemplateVariable.isResolveVariableAsEmptyString) {
             ""
         } else {
             htmlEscapedValue
         }
-        return targetString.replace(mailTemplateVariable.variabele, replacement ?: mailTemplateVariable.variabele)
+        return targetString.replace(mailTemplateVariable.variable, replacement ?: mailTemplateVariable.variable)
     }
 }

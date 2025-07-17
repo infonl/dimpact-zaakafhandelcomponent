@@ -130,7 +130,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
 
             When("the variables are resolved with a text containing placeholders") {
-                val resolvedText = mailTemplateHelper.resolveVariabelen(
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
                     "fakeText, {ZAAK_NUMMER}, {ZAAK_URL}, {ZAAK_TYPE}, {ZAAK_STATUS}, {ZAAK_STARTDATUM}, " +
                         "{ZAAK_BEHANDELAAR_GROEP}, {ZAAK_BEHANDELAAR_MEDEWERKER}",
                     zaak
@@ -199,7 +199,7 @@ class MailTemplateHelperTest : BehaviorSpec({
                 zaak initiator address variable
                 """
             ) {
-                val resolvedText = mailTemplateHelper.resolveVariabelen(
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
                     "fakeText, {ZAAK_INITIATOR}, {ZAAK_INITIATOR_ADRES}",
                     zaak
                 )
@@ -246,7 +246,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             } returns persoon
 
             When("the variables are resolved with a text containing a placeholder for the zaak initiator") {
-                val resolvedText = mailTemplateHelper.resolveVariabelen(
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
                     "fakeText, {ZAAK_INITIATOR}, {ZAAK_INITIATOR_ADRES}",
                     zaak
                 )
@@ -284,7 +284,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             every { kvkClientService.findVestiging(vestigingsnummer) } returns Optional.of(resultaatItem)
 
             When("the variables are resolved with a text containing a placeholder for the zaak initiator") {
-                val resolvedText = mailTemplateHelper.resolveVariabelen(
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
                     "fakeText, {ZAAK_INITIATOR}",
                     zaak
                 )
@@ -308,7 +308,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             } returns URI(documentUriString)
 
             When("resolveVariabelen is called with a text containing placeholders") {
-                val resolvedText = mailTemplateHelper.resolveVariabelen(
+                val resolvedText = mailTemplateHelper.resolveEnkelvoudigInformatieObjectVariables(
                     "Title: {DOCUMENT_TITEL}, URL: {DOCUMENT_URL}, Link: {DOCUMENT_LINK}",
                     enkelvoudigInformatieObject
                 )
