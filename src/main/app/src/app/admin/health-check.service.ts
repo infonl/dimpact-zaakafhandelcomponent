@@ -8,16 +8,17 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { BuildInformatie } from "./model/build-informatie";
 
 @Injectable({
   providedIn: "root",
 })
 export class HealthCheckService {
   constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
+    private readonly http: HttpClient,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
+    private readonly zacHttpClient: ZacHttpClient,
   ) {}
 
   private basepath = "/rest/health-check";
@@ -58,11 +59,7 @@ export class HealthCheckService {
       );
   }
 
-  readBuildInformatie(): Observable<BuildInformatie> {
-    return this.http
-      .get<BuildInformatie>(`${this.basepath}/build-informatie`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readBuildInformatie() {
+    return this.zacHttpClient.GET("/rest/health-check/build-informatie", {});
   }
 }

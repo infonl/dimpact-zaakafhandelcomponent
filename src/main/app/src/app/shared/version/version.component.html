@@ -2,16 +2,16 @@
   ~ SPDX-FileCopyrightText: 2023 Atos
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
-<div *ngIf="layout != versionLayout.VERBOSE" class="version">
+<div *ngIf="layout !== versionLayout.VERBOSE" class="version">
   <mat-chip
     class="flex-row"
     [matTooltip]="
-      buildInformatie.buildId && buildInformatie.buildDatumTijd
+      buildInformatie?.buildId && buildInformatie?.buildDatumTijd
         ? ('healthCheck.build_informatie.build'
           | translate
             : {
-                build: buildInformatie.buildId,
-                timestamp: (buildInformatie.buildDatumTijd | datum: 'short'),
+                build: buildInformatie?.buildId,
+                timestamp: (buildInformatie?.buildDatumTijd | datum: 'short'),
               })
         : ''
     "
@@ -20,13 +20,13 @@
     <span class="label">
       {{
         "healthCheck.build_informatie.version"
-          | translate: { version: buildInformatie.versienummer?.toUpperCase() }
+          | translate: { version: buildInformatie?.versienummer?.toUpperCase() }
       }}</span
     >
   </mat-chip>
 </div>
 
-<mat-card *ngIf="layout == versionLayout.VERBOSE" class="version">
+<mat-card *ngIf="layout === versionLayout.VERBOSE" class="version">
   <mat-card-header>
     <mat-card-title>
       {{ "healthCheck.build_informatie" | translate }}
@@ -37,23 +37,23 @@
     <p>
       {{
         "healthCheck.build_informatie.version"
-          | translate: { version: buildInformatie.versienummer?.toUpperCase() }
+          | translate: { version: buildInformatie?.versienummer?.toUpperCase() }
       }}
     </p>
-    <p *ngIf="buildInformatie.buildId && buildInformatie.buildDatumTijd">
+    <p *ngIf="buildInformatie?.buildId && buildInformatie?.buildDatumTijd">
       {{
         "healthCheck.build_informatie.build"
           | translate
             : {
-                build: buildInformatie.buildId,
-                timestamp: (buildInformatie.buildDatumTijd | datum: "short"),
+                build: buildInformatie?.buildId,
+                timestamp: (buildInformatie?.buildDatumTijd | datum: "short"),
               }
       }}
     </p>
-    <p *ngIf="buildInformatie.commit">
+    <p *ngIf="buildInformatie?.commit">
       {{
         "healthCheck.build_informatie.commit"
-          | translate: { commit: buildInformatie.commit }
+          | translate: { commit: buildInformatie?.commit }
       }}
     </p>
   </mat-card-content>

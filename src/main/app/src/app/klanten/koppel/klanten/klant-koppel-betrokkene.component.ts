@@ -84,11 +84,11 @@ export class KlantKoppelBetrokkeneComponent implements OnInit, AfterViewInit {
   formGroup!: FormGroup;
 
   constructor(
-    private klantenService: KlantenService,
-    private formBuilder: FormBuilder,
+    private readonly klantenService: KlantenService,
+    private readonly formBuilder: FormBuilder,
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.betrokkeneRoltype = new SelectFormFieldBuilder()
       .id("betrokkeneType")
       .label("betrokkeneRoltype")
@@ -103,18 +103,18 @@ export class KlantKoppelBetrokkeneComponent implements OnInit, AfterViewInit {
     });
   }
 
-  ngAfterViewInit(): void {
-    this.zoek.formGroup.addControl(
+  ngAfterViewInit() {
+    (this.zoek.formGroup as FormGroup).addControl(
       "betrokkeneRoltype",
       this.betrokkeneRoltype.formControl,
     );
-    this.zoek.formGroup.addControl(
+    (this.zoek.formGroup as FormGroup).addControl(
       "betrokkenToelichting",
       this.betrokkeneToelichting.formControl,
     );
   }
 
-  klantGeselecteerd(klant: GeneratedType<"RestPersoon" | "RestBedrijf">): void {
+  klantGeselecteerd(klant: GeneratedType<"RestPersoon" | "RestBedrijf">) {
     const klantGegevens = new KlantGegevens(klant);
     klantGegevens.betrokkeneRoltype = this.betrokkeneRoltype.formControl.value!;
     klantGegevens.betrokkeneToelichting =
