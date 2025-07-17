@@ -26,20 +26,20 @@ export class DateFilterComponent implements OnInit {
   }
 
   change() {
-    if (this.range?.van) this.range.van = this.dateVan.value?.toISOString();
-    else
-      this.range = {
-        van: this.dateVan.value?.toISOString(),
-        tot: this.range?.tot,
-      };
-
-    if (this.range?.tot) this.range.tot = this.dateTM.value?.toISOString();
-    else
-      this.range = {
-        tot: this.dateTM.value?.toISOString(),
-        van: this.range?.van,
-      };
+    this.updateRangeProperty("van", this.dateVan);
+    this.updateRangeProperty("tot", this.dateTM);
     this.changed.emit(this.range);
+  }
+
+  private updateRangeProperty(property: "van" | "tot", control: FormControl<Date | null>) {
+    if (this.range?.[property]) {
+      this.range[property] = control.value?.toISOString();
+    } else {
+      this.range = {
+        ...this.range,
+        [property]: control.value?.toISOString(),
+      };
+    }
   }
 
   expanded() {
