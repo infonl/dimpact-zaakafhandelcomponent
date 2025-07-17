@@ -12,6 +12,7 @@ import net.atos.zac.mailtemplates.model.MailTemplateVariabelen
 import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.generated.Persoon
+import nl.info.client.brp.util.toAddressString
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.util.toAddressString
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
