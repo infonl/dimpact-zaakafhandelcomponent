@@ -237,7 +237,7 @@ class MailTemplateHelper @Inject constructor(
                     )
                 } ?: ""
 
-            BetrokkeneTypeEnum.VESTIGING -> replaceInitiatorVariabelenResultaatItem(
+            BetrokkeneTypeEnum.VESTIGING -> replaceInitiatorVariablesResultaatItem(
                 resolvedTekst,
                 kvkClientService.findVestiging(identificatie).getOrNull()
             )
@@ -258,7 +258,7 @@ class MailTemplateHelper @Inject constructor(
                             }
                         }
                     }
-                replaceInitiatorVariabelenResultaatItem(
+                replaceInitiatorVariablesResultaatItem(
                     resolvedText = resolvedTekst,
                     initiatorResultaatItem = resultaatItem
                 )
@@ -287,7 +287,7 @@ class MailTemplateHelper @Inject constructor(
         )
     }
 
-    private fun replaceInitiatorVariabelenResultaatItem(
+    private fun replaceInitiatorVariablesResultaatItem(
         resolvedText: String,
         initiatorResultaatItem: ResultaatItem?
     ): String = initiatorResultaatItem?.let {
