@@ -5,7 +5,7 @@
 
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { FormControl } from "@angular/forms";
-import { DatumRange } from "../../../model/datum-range";
+import { GeneratedType } from "../../../../shared/utils/generated-types";
 
 @Component({
   selector: "zac-date-filter",
@@ -13,28 +13,36 @@ import { DatumRange } from "../../../model/datum-range";
   styleUrls: ["./date-filter.component.less"],
 })
 export class DateFilterComponent implements OnInit {
-  @Input() range: DatumRange;
-  @Input() label: string;
-  @Output() changed = new EventEmitter<DatumRange>();
+  @Input() range?: GeneratedType<"RestDatumRange"> = {};
+  @Input({ required: true }) label!: string;
+  @Output() changed = new EventEmitter<GeneratedType<"RestDatumRange">>();
 
-  dateVan: FormControl<Date> = new FormControl<Date>(null);
-  dateTM: FormControl<Date> = new FormControl<Date>(null);
+  dateVan = new FormControl<Date | null>(null);
+  dateTM = new FormControl<Date | null>(null);
 
-  ngOnInit(): void {
-    if (this.range == null) {
-      this.range = new DatumRange();
-    }
-    this.dateVan.setValue(this.range.van);
-    this.dateTM.setValue(this.range.tot);
+  ngOnInit() {
+    this.dateVan.setValue(this.range?.van ? new Date(this.range.van) : null);
+    this.dateTM.setValue(this.range?.tot ? new Date(this.range.tot) : null);
   }
 
-  change(): void {
-    this.range.van = this.dateVan.value;
-    this.range.tot = this.dateTM.value;
+  change() {
+    if (this.range?.van) this.range.van = this.dateVan.value?.toISOString();
+    else
+      this.range = {
+        van: this.dateVan.value?.toISOString(),
+        tot: this.range?.tot,
+      };
+
+    if (this.range?.tot) this.range.tot = this.dateTM.value?.toISOString();
+    else
+      this.range = {
+        tot: this.dateTM.value?.toISOString(),
+        van: this.range?.van,
+      };
     this.changed.emit(this.range);
   }
 
-  expanded(): boolean {
-    return this.range.van != null || this.range.tot != null;
+  expanded() {
+    return this.range?.van !== null || this.range?.tot !== null;
   }
 }
