@@ -52,7 +52,7 @@
   <ng-container *ngFor="let column of grid">
     <div
       *ngIf="editMode.value || 0 < column.length"
-      class="grid-column-{{ editMode.value ? '3' : width }}"
+      class="grid-column-{{ editMode.value ? '3' : columnsInDashboard }}"
       cdkDropList
       cdkDropListOrientation="vertical"
       cdkDropListDisabled="{{ !editMode.value }}"
