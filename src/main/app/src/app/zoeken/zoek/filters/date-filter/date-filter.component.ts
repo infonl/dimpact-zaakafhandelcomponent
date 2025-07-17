@@ -43,6 +43,6 @@ export class DateFilterComponent implements OnInit {
   }
 
   expanded() {
-    return this.range?.van !== null || this.range?.tot !== null;
+    return !!this.range?.van || !!this.range?.tot;
   }
 }
