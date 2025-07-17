@@ -80,17 +80,9 @@ class ProductaanvraagEmailService @Inject constructor(
         mailTemplateService.findMailtemplateByName(automaticEmailConfirmation.templateName)?.let {
                 mailTemplate ->
             val mailGegevens = MailGegevens(
-                from = MailAdres(
-                    email = automaticEmailConfirmation.emailSender.extractEmailAddress(configuratieService),
-                    name = null
-                ),
+                from = automaticEmailConfirmation.emailSender.generateMailAddress(configuratieService),
                 to = MailAdres(email = to, name = null),
-                replyTo = automaticEmailConfirmation.emailReply?.let {
-                    MailAdres(
-                        email = it.extractEmailAddress(configuratieService),
-                        name = null
-                    )
-                },
+                replyTo = automaticEmailConfirmation.emailReply?.generateMailAddress(configuratieService),
                 subject = mailTemplate.onderwerp,
                 body = mailTemplate.body,
                 attachments = null,
@@ -105,9 +97,15 @@ class ProductaanvraagEmailService @Inject constructor(
         )
     }
 
-    private fun String.extractEmailAddress(configurationService: ConfiguratieService): String =
+    private fun String.generateMailAddress(configurationService: ConfiguratieService) =
         when (this) {
-            ZaakAfzender.Speciaal.GEMEENTE.toString() -> configurationService.readGemeenteMail()
-            else -> this
+            ZaakAfzender.Speciaal.GEMEENTE.toString() -> MailAdres(
+                email = configurationService.readGemeenteMail(),
+                name = configurationService.readGemeenteNaam()
+            )
+            else -> MailAdres(
+                email = this,
+                name = null
+            )
         }
 }
