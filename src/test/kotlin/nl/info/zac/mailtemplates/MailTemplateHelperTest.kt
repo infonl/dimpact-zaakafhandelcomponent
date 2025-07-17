@@ -145,7 +145,7 @@ class MailTemplateHelperTest : BehaviorSpec({
                 ) {
                     resolvedText shouldBe "fakeText, ${zaak.identificatie}, $zaakTonenURL, ${zaakType.omschrijving}, " +
                         "${statusType.omschrijving}, 12-10-2021, $groupName, $medewerkerVoorletters $medewerkerAchternaam, " +
-                            "Onbekend"
+                        "Onbekend"
                 }
             }
         }
