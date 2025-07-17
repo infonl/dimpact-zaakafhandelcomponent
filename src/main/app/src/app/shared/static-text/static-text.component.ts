@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2025 INFO
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -43,6 +43,6 @@ export class StaticTextComponent<T = unknown> implements OnInit, OnChanges {
   }
 
   setIcon(): void {
-    this.showIcon = Boolean(this.icon?.showIcon(new FormControl(this.value)));
+    this.showIcon = Boolean(this.icon?.showIcon?.(new FormControl(this.value)));
   }
 }

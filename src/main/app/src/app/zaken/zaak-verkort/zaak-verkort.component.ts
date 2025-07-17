@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2025 INFO
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -15,9 +15,9 @@ import { Zaak } from "../model/zaak";
   styleUrls: ["./zaak-verkort.component.less"],
 })
 export class ZaakVerkortComponent implements OnChanges {
-  @Input() zaak: Zaak;
+  @Input({ required: true }) zaak!: Zaak;
 
-  einddatumGeplandIcon: TextIcon;
+  einddatumGeplandIcon: TextIcon | null = null;
 
   constructor(public utilService: UtilService) {}
 

@@ -290,7 +290,7 @@
                   <zac-static-text
                     [label]="'streefdatum' | translate"
                     [value]="zaak.einddatumGepland | datum | empty"
-                    [icon]="dateFieldIcon.get('einddatumGepland')"
+                    [icon]="dateFieldIconMap.get('einddatumGepland')"
                     class="flex-item"
                   >
                     <mat-icon>label-icon</mat-icon>
@@ -298,7 +298,9 @@
                   <zac-static-text
                     [label]="'fataledatum' | translate"
                     [value]="zaak.uiterlijkeEinddatumAfdoening | datum | empty"
-                    [icon]="dateFieldIcon.get('uiterlijkeEinddatumAfdoening')"
+                    [icon]="
+                      dateFieldIconMap.get('uiterlijkeEinddatumAfdoening')
+                    "
                     class="flex-item"
                   ></zac-static-text>
                 </div>
@@ -875,7 +877,18 @@
                     {{ "fataledatum" | translate }}
                   </th>
                   <td mat-cell *matCellDef="let taak">
-                    {{ taak.data.fataledatum | datum | empty }}
+                    <div class="flex-row items-center gap-5">
+                      {{ taak.data.fataledatum | datum | empty }}
+                      <mat-icon
+                        *ngIf="
+                          taak.data.status !== 'AFGEROND' &&
+                          isAfterDate(taak.data.fataledatum)
+                        "
+                        [title]="'msg.datum.overschreden' | translate"
+                        class="error list-icon"
+                        >warning</mat-icon
+                      >
+                    </div>
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="groep">
