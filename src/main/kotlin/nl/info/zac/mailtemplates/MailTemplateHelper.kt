@@ -296,9 +296,9 @@ class MailTemplateHelper @Inject constructor(
             name = initiatorResultaatItem.getNaam(),
             address = it.toAddressString()
         )
-    } ?: replaceInitiatorVariabelesWithUnknownText(resolvedText)
+    } ?: replaceInitiatorVariablesWithUnknownText(resolvedText)
 
-    private fun replaceInitiatorVariabelesWithUnknownText(resolvedTekst: String) =
+    private fun replaceInitiatorVariablesWithUnknownText(resolvedTekst: String) =
         replaceInitiatorVariables(resolvedTekst, "Onbekend", "")
 
     private fun replaceInitiatorVariables(
