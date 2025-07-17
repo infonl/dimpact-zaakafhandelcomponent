@@ -5,6 +5,7 @@
 
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   OnDestroy,
   OnInit,
@@ -87,13 +88,7 @@ export class TaakViewComponent
   ] as const;
 
   editFormFields = new Map<string, unknown>();
-  fataledatumIcon = new TextIcon(
-    DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
-    "report_problem",
-    "errorTaakVerlopen_icon",
-    "msg.datum.overschreden",
-    "error",
-  );
+  fataledatumIcon: TextIcon | null = null;
   protected initialized = false;
 
   posts = 0;
@@ -112,6 +107,7 @@ export class TaakViewComponent
     private identityService: IdentityService,
     protected translate: TranslateService,
     private formioSetupService: FormioSetupService,
+    private changeDetectorRef: ChangeDetectorRef,
   ) {
     super();
   }
@@ -145,6 +141,17 @@ export class TaakViewComponent
       }
     };
     this.historieSrc.sort = this.historieSort;
+
+    if (this.taak?.status !== "AFGEROND")
+      this.fataledatumIcon = new TextIcon(
+        DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
+        "report_problem",
+        "errorTaakVerlopen_icon",
+        "msg.datum.overschreden",
+        "error",
+      );
+
+    this.changeDetectorRef.detectChanges();
   }
 
   ngOnDestroy() {
