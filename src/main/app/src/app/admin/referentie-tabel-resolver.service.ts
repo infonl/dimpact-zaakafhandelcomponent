@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -21,6 +21,9 @@ export class ReferentieTabelResolver {
       );
     }
 
-    return this.adminService.readReferentieTabel(Number(id));
+    const idAsNumber = Number(id);
+    if (isNaN(idAsNumber)) return null;
+
+    return this.adminService.readReferentieTabel(idAsNumber);
   }
 }
