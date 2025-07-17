@@ -79,37 +79,35 @@ class ProductaanvraagEmailService @Inject constructor(
     ) {
         mailTemplateService.findMailtemplateByName(automaticEmailConfirmation.templateName)?.let {
                 mailTemplate ->
-            val from = MailAdres(
-                email = automaticEmailConfirmation.emailSender.extractEmailAddress(configuratieService),
-                name = null
-            )
-            val to = MailAdres(email = to, name = null)
-            val replyToAddress = automaticEmailConfirmation.emailReply?.let {
-                MailAdres(
-                    email = it.extractEmailAddress(configuratieService),
-                    name = null
-                )
-            }
             val mailGegevens = MailGegevens(
-                from = from,
-                to = to,
-                replyTo = replyToAddress,
+                from = MailAdres(
+                    email = automaticEmailConfirmation.emailSender.extractEmailAddress(configuratieService),
+                    name = null
+                ),
+                to = MailAdres(email = to, name = null),
+                replyTo = automaticEmailConfirmation.emailReply?.let {
+                    MailAdres(
+                        email = it.extractEmailAddress(configuratieService),
+                        name = null
+                    )
+                },
                 subject = mailTemplate.onderwerp,
                 body = mailTemplate.body,
                 attachments = null,
                 isCreateDocumentFromMail = true
             )
-            mailService.sendMail(mailGegevens, zaakFromProductaanvraag.getBronnenFromZaak())
-            zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaakFromProductaanvraag)
+            mailService.sendMail(mailGegevens, zaakFromProductaanvraag.getBronnenFromZaak())?.also {
+                zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaakFromProductaanvraag)
+            }
         } ?: LOG.warning(
             "No mail template found with name: '${automaticEmailConfirmation.templateName}'. " +
                 "Skipping automatic email confirmation."
         )
     }
 
-    private fun String.extractEmailAddress(configuratieService: ConfiguratieService): String =
+    private fun String.extractEmailAddress(configurationService: ConfiguratieService): String =
         when (this) {
-            ZaakAfzender.Speciaal.GEMEENTE.toString() -> configuratieService.readGemeenteMail()
+            ZaakAfzender.Speciaal.GEMEENTE.toString() -> configurationService.readGemeenteMail()
             else -> this
         }
 }

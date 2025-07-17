@@ -176,6 +176,8 @@ class NotificationsTest : BehaviorSpec({
                             "Ontvangstbevestiging van zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION"
                         getString("contentType") shouldStartWith "multipart/mixed"
                         with(getString("mimeMessage")) {
+                            shouldContain("From: gemeente-zac-test@example.com")
+                            shouldContain("Return-Path: <gemeente-zac-test@example.com>")
                             shouldContain("Wij hebben uw verzoek ontvangen en deze op")
                         }
                     }
@@ -290,6 +292,8 @@ class NotificationsTest : BehaviorSpec({
                             "Ontvangstbevestiging van zaak $ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION"
                         getString("contentType") shouldStartWith "multipart/mixed"
                         with(getString("mimeMessage")) {
+                            shouldContain("From: gemeente-zac-test@example.com")
+                            shouldContain("Return-Path: <gemeente-zac-test@example.com>")
                             shouldContain("Wij hebben uw verzoek ontvangen en deze op")
                         }
                     }
