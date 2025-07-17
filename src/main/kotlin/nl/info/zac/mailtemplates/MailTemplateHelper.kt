@@ -163,9 +163,9 @@ class MailTemplateHelper @Inject constructor(
             )
         }
         if (resolvedTekst.contains(MailTemplateVariables.TAAK_BEHANDELAAR_MEDEWERKER.variable)) {
-            resolvedTekst = replaceVariable<String>(
+            resolvedTekst = replaceVariable(
                 targetString = resolvedTekst, MailTemplateVariables.TAAK_BEHANDELAAR_MEDEWERKER,
-                value = taskInfo.assignee.let { identityService.readUser(it).getFullName() }
+                value = taskInfo.assignee?.let { identityService.readUser(it).getFullName() }
             )
         }
         return resolvedTekst
