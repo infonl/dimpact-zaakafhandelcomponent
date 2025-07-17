@@ -962,8 +962,13 @@ export class ParameterEditComponent
       : replyTo.mail;
   }
 
-  protected filterOutMedewerkerMail(replyTos: GeneratedType<"RESTReplyTo">[]): GeneratedType<"RESTReplyTo">[] {
-    return replyTos.filter((replyTo: GeneratedType<"RESTReplyTo">) => !(replyTo.speciaal && replyTo.mail === "MEDEWERKER"));
+  protected filterOutMedewerkerMail(
+    replyTos: GeneratedType<"RESTReplyTo">[],
+  ): GeneratedType<"RESTReplyTo">[] {
+    return replyTos.filter(
+      (replyTo: GeneratedType<"RESTReplyTo">) =>
+        !(replyTo.speciaal && replyTo.mail === "MEDEWERKER"),
+    );
   }
 
   ngOnDestroy(): void {
