@@ -231,7 +231,7 @@ class MailTemplateHelper @Inject constructor(
         return when (val betrokkeneType = initiatorRole.betrokkeneType) {
             BetrokkeneTypeEnum.NATUURLIJK_PERSOON ->
                 brpClientService.retrievePersoon(identificatie, auditEvent)?.let {
-                    replaceInitiatorVariabelenPersoon(
+                    replaceInitiatorVariablesPersoon(
                         resolvedTekst,
                         it
                     )
@@ -268,7 +268,7 @@ class MailTemplateHelper @Inject constructor(
         }
     }
 
-    private fun replaceInitiatorVariabelenPersoon(
+    private fun replaceInitiatorVariablesPersoon(
         resolvedTekst: String,
         initiatorPersoon: Persoon
     ): String {
