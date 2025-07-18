@@ -207,7 +207,7 @@ class ZGWApiServiceTest : BehaviorSpec({
             zaakURI = zaak.url,
             // in the ZGW API it is possible (strangely enough) to have a rol-medewerker object
             // without a medewerker and this also happens in practise in some circumstances
-            betrokkeneIdentificatie = null
+            medewerkerIdentificatie = null
         )
         every {
             ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)

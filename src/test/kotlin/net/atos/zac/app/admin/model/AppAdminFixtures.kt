@@ -5,7 +5,7 @@
 package net.atos.zac.app.admin.model
 
 import net.atos.zac.mailtemplates.model.Mail
-import net.atos.zac.mailtemplates.model.MailTemplateVariabelen
+import net.atos.zac.mailtemplates.model.MailTemplateVariables
 
 @Suppress("LongParameterList")
 fun createRestMailTemplate(
@@ -14,7 +14,7 @@ fun createRestMailTemplate(
     subject: String = "fakeSubject",
     body: String = "fakeBody",
     mail: String = Mail.ZAAK_ALGEMEEN.name,
-    mailTemplateVariables: Set<MailTemplateVariabelen> = emptySet(),
+    mailTemplateVariables: Set<MailTemplateVariables> = emptySet(),
     defaultTemplate: Boolean = false
 ) = RESTMailtemplate().apply {
     this.id = id

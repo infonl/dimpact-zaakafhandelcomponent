@@ -16,10 +16,14 @@ import nl.info.client.brp.model.createVerblijfadresBinnenland
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.model.createResultaatItem
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createNietNatuurlijkPersoonIdentificatie
+import nl.info.client.zgw.model.createOrganisatorischeEenheidIdentificatie
+import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
+import nl.info.client.zgw.model.createRolOrganisatorischeEenheidForReads
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.shared.ZGWApiService
@@ -104,20 +108,44 @@ class MailTemplateHelperTest : BehaviorSpec({
             val zaakStatus = createZaakStatus()
             val statusType = createStatusType(omschrijving = "fakeStatusTypeDescription")
             val zaakTonenURL = URI("https://example.com/fakeURL")
+            val groupName = "fakeGroupName"
+            val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheidForReads(
+                organisatorischeEenheidIdentificatie = createOrganisatorischeEenheidIdentificatie(
+                    naam = groupName
+                )
+            )
+            val medewerkerVoorletters = "fakeVoorletters"
+            val medewerkerAchternaam = "fakeAchternaam"
+            val rolMedewerker = createRolMedewerker(
+                medewerkerIdentificatie = createMedewerkerIdentificatie(
+                    voorletters = medewerkerVoorletters,
+                    achternaam = medewerkerAchternaam
+                )
+            )
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
             every { configuratieService.zaakTonenUrl(zaak.identificatie) } returns zaakTonenURL
             every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
+            every { zgwApiService.findGroepForZaak(zaak) } returns rolOrganisatorischeEenheid
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
+            every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns null
 
             When("the variables are resolved with a text containing placeholders") {
-                val resolvedText = mailTemplateHelper.resolveVariabelen(
-                    "fakeText, {ZAAK_NUMMER}, {ZAAK_URL}, {ZAAK_TYPE}, {ZAAK_STATUS}, {ZAAK_STARTDATUM}",
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
+                    "fakeText, {ZAAK_NUMMER}, {ZAAK_URL}, {ZAAK_TYPE}, {ZAAK_STATUS}, {ZAAK_STARTDATUM}, " +
+                        "{ZAAK_BEHANDELAAR_GROEP}, {ZAAK_BEHANDELAAR_MEDEWERKER}, {ZAAK_INITIATOR}",
                     zaak
                 )
 
-                Then("the variables in the provided text should be replaced by the correct values from the zaak") {
+                Then(
+                    """
+                        the variables in the provided text should be replaced by the correct values from the zaak, 
+                        and the initiator variable should be replaced with 'Onbekend'
+                        """
+                ) {
                     resolvedText shouldBe "fakeText, ${zaak.identificatie}, $zaakTonenURL, ${zaakType.omschrijving}, " +
-                        "${statusType.omschrijving}, 12-10-2021"
+                        "${statusType.omschrijving}, 12-10-2021, $groupName, $medewerkerVoorletters $medewerkerAchternaam, " +
+                        "Onbekend"
                 }
             }
         }
@@ -178,7 +206,7 @@ class MailTemplateHelperTest : BehaviorSpec({
                 zaak initiator address variable
                 """
             ) {
-                val resolvedText = mailTemplateHelper.resolveVariabelen(
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
                     "fakeText, {ZAAK_INITIATOR}, {ZAAK_INITIATOR_ADRES}",
                     zaak
                 )
@@ -225,7 +253,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             } returns persoon
 
             When("the variables are resolved with a text containing a placeholder for the zaak initiator") {
-                val resolvedText = mailTemplateHelper.resolveVariabelen(
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
                     "fakeText, {ZAAK_INITIATOR}, {ZAAK_INITIATOR_ADRES}",
                     zaak
                 )
@@ -263,7 +291,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             every { kvkClientService.findVestiging(vestigingsnummer) } returns Optional.of(resultaatItem)
 
             When("the variables are resolved with a text containing a placeholder for the zaak initiator") {
-                val resolvedText = mailTemplateHelper.resolveVariabelen(
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
                     "fakeText, {ZAAK_INITIATOR}",
                     zaak
                 )
@@ -287,7 +315,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             } returns URI(documentUriString)
 
             When("resolveVariabelen is called with a text containing placeholders") {
-                val resolvedText = mailTemplateHelper.resolveVariabelen(
+                val resolvedText = mailTemplateHelper.resolveEnkelvoudigInformatieObjectVariables(
                     "Title: {DOCUMENT_TITEL}, URL: {DOCUMENT_URL}, Link: {DOCUMENT_LINK}",
                     enkelvoudigInformatieObject
                 )
