@@ -148,6 +148,8 @@ dependencies {
         exclude(group = "org.jboss.resteasy")
     }
     implementation(libs.jacobras.human.readable)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.urlconnection)
 
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
     detektPlugins(libs.detekt.formatting)
