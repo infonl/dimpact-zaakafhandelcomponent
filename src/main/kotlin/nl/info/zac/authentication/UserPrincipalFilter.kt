@@ -57,6 +57,7 @@ constructor(private val zaakafhandelParameterService: ZaakafhandelParameterServi
     ) {
         (servletRequest as? HttpServletRequest)?.userPrincipal?.let { userPrincipal ->
             val httpSession = servletRequest.getSession(true)
+
             getLoggedInUser(httpSession)?.let { loggedInUser ->
                 if (loggedInUser.id != userPrincipal.name) {
                     LOG.info(
@@ -74,13 +75,6 @@ constructor(private val zaakafhandelParameterService: ZaakafhandelParameterServi
                     // no logged-in user in session
                     setLoggedInUserOnHttpSession(userPrincipal as OidcPrincipal<*>, httpSession)
                 }
-
-            if (userPrincipal is OidcPrincipal<*> &&
-                userPrincipal.oidcSecurityContext is RefreshableOidcSecurityContext
-            ) {
-                val refreshToken = (userPrincipal.oidcSecurityContext as RefreshableOidcSecurityContext).refreshToken
-                httpSession.setAttribute(REFRESH_TOKEN_ATTRIBUTE, refreshToken)
-            }
         }
         filterChain.doFilter(servletRequest, servletResponse)
     }
@@ -101,7 +95,16 @@ constructor(private val zaakafhandelParameterService: ZaakafhandelParameterServi
                         }
                     }"
             )
+            this.addRefreshTokenToHttpSession(oidcPrincipal, httpSession)
         }
+
+    private fun addRefreshTokenToHttpSession(oidcPrincipal: OidcPrincipal<*>, httpSession: HttpSession) {
+        if (oidcPrincipal.oidcSecurityContext is RefreshableOidcSecurityContext) {
+            val refreshToken = (oidcPrincipal.oidcSecurityContext as RefreshableOidcSecurityContext).refreshToken
+            httpSession.setAttribute(REFRESH_TOKEN_ATTRIBUTE, refreshToken)
+            LOG.info("Added $REFRESH_TOKEN_ATTRIBUTE to the user session")
+        }
+    }
 
     private fun createLoggedInUser(oidcSecurityContext: OidcSecurityContext): LoggedInUser =
         oidcSecurityContext.token.let { accessToken ->
