@@ -8,9 +8,13 @@ import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 
 import { HttpClient } from "@angular/common/http";
-import { DashboardCardInstelling } from "../dashboard/model/dashboard-card-instelling";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { TabelGegevens } from "../shared/dynamic-table/model/tabel-gegevens";
+import {
+  DeleteBody,
+  PutBody,
+  ZacHttpClient,
+} from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { Werklijst } from "./model/werklijst";
 import { Zoekopdracht } from "./model/zoekopdracht";
@@ -24,6 +28,7 @@ export class GebruikersvoorkeurenService {
   constructor(
     private http: HttpClient,
     private foutAfhandelingService: FoutAfhandelingService,
+    private readonly zacHttpClient: ZacHttpClient,
   ) {}
 
   listZoekOpdrachten(werklijst: Werklijst): Observable<Zoekopdracht[]> {
@@ -90,45 +95,38 @@ export class GebruikersvoorkeurenService {
       );
   }
 
-  listDashboardCards(): Observable<DashboardCardInstelling[]> {
-    return this.http
-      .get<DashboardCardInstelling[]>(`${this.basepath}/dasboardcard/actief`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listDashboardCards() {
+    return this.zacHttpClient.GET(
+      "/rest/gebruikersvoorkeuren/dasboardcard/actief",
+      {},
+    );
   }
 
   updateDashboardCards(
-    cards: DashboardCardInstelling[],
-  ): Observable<DashboardCardInstelling[]> {
-    return this.http
-      .put<
-        DashboardCardInstelling[]
-      >(`${this.basepath}/dasboardcard/actief`, cards)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    body: PutBody<"/rest/gebruikersvoorkeuren/dasboardcard/actief">,
+  ) {
+    return this.zacHttpClient.PUT(
+      "/rest/gebruikersvoorkeuren/dasboardcard/actief",
+      body,
+      {},
+    );
   }
 
-  addDashboardCard(
-    card: DashboardCardInstelling,
-  ): Observable<DashboardCardInstelling[]> {
-    return this.http
-      .put<DashboardCardInstelling[]>(`${this.basepath}/dasboardcard`, card)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  addDashboardCard(body: PutBody<"/rest/gebruikersvoorkeuren/dasboardcard">) {
+    return this.zacHttpClient.PUT(
+      "/rest/gebruikersvoorkeuren/dasboardcard",
+      body,
+      {},
+    );
   }
 
   deleteDashboardCard(
-    card: DashboardCardInstelling,
-  ): Observable<DashboardCardInstelling[]> {
-    return this.http
-      .delete<DashboardCardInstelling[]>(`${this.basepath}/dasboardcard`, {
-        body: card,
-      })
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    body: DeleteBody<"/rest/gebruikersvoorkeuren/dasboardcard">,
+  ) {
+    return this.zacHttpClient.DELETE(
+      "/rest/gebruikersvoorkeuren/dasboardcard",
+      {},
+      body,
+    );
   }
 }
