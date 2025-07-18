@@ -377,7 +377,6 @@ class IndexingService @Inject constructor(
                             runTranslatingToIndexingException { fn() } // Retry once
                         } catch (e: Exception) {
                             LOG.warning("[$objectType] Error persists after revalidation: ${e.message}")
-                            null
                         }
                     }
                 }

@@ -163,7 +163,7 @@ class SimpleOidcPrincipal(name: String, val context: OidcSecurityContext) :
 fun DecodedJWT.toClaims(): JwtClaims {
     val claims = JwtClaims()
     this.claims.forEach { (key, value) ->
-        claims.setClaim(key, value.`as`(Object::class.java))
+        claims.setClaim(key, value.`as`(Any::class.java))
     }
     claims.subject = this.subject
     claims.issuer = this.issuer
