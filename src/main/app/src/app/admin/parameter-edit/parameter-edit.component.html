@@ -607,7 +607,7 @@
                         [form]="automatischeOntvangstbevestigingFormGroup"
                         key="emailSender"
                         label="mail.afzender"
-                        [options]="replyTos"
+                        [options]="filterOutMedewerkerMail(replyTos)"
                         [optionDisplayValue]="replyToDisplayValue"
                       ></zac-select>
                       <zac-select
@@ -615,7 +615,7 @@
                         [form]="automatischeOntvangstbevestigingFormGroup"
                         key="emailReply"
                         label="mail.antwoord"
-                        [options]="replyTos"
+                        [options]="filterOutMedewerkerMail(replyTos)"
                         [optionDisplayValue]="replyToDisplayValue"
                       ></zac-select>
                     </section>
