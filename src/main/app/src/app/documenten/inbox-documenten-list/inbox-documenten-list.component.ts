@@ -22,7 +22,6 @@ import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
-import { Zoekopdracht } from "../../gebruikersvoorkeuren/model/zoekopdracht";
 import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import {
@@ -77,17 +76,17 @@ export class InboxDocumentenListComponent
     null;
 
   constructor(
-    private inboxDocumentenService: InboxDocumentenService,
-    private infoService: InformatieObjectenService,
-    private utilService: UtilService,
-    public dialog: MatDialog,
-    public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    public route: ActivatedRoute,
+    private readonly inboxDocumentenService: InboxDocumentenService,
+    private readonly infoService: InformatieObjectenService,
+    private readonly utilService: UtilService,
+    public readonly dialog: MatDialog,
+    public readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
+    public readonly route: ActivatedRoute,
   ) {
     super();
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     super.ngOnInit();
     this.listParametersSort = SessionStorageUtil.getItem(
       Werklijst.INBOX_DOCUMENTEN + "_ZOEKPARAMETERS",
@@ -96,7 +95,7 @@ export class InboxDocumentenListComponent
     this.utilService.setTitle("title.documenten.inboxDocumenten");
   }
 
-  ngAfterViewInit(): void {
+  ngAfterViewInit() {
     this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
     merge(this.sort.sortChange, this.paginator.page, this.filterChange)
       .pipe(
@@ -122,7 +121,7 @@ export class InboxDocumentenListComponent
       });
   }
 
-  updateListParameters(): void {
+  updateListParameters() {
     this.listParameters.sort = this.sort.active ?? "creatiedatum";
     this.listParameters.order = this.sort.direction ?? "desc";
     this.listParameters.page = this.paginator.pageIndex;
@@ -162,13 +161,13 @@ export class InboxDocumentenListComponent
       });
   }
 
-  filtersChanged(): void {
+  filtersChanged() {
     this.paginator.pageIndex = 0;
     this.clearZoekopdracht.emit();
     this.filterChange.emit();
   }
 
-  resetSearch(): void {
+  resetSearch() {
     this.listParametersSort = SessionStorageUtil.setItem(
       Werklijst.INBOX_DOCUMENTEN + "_ZOEKPARAMETERS",
       this.createDefaultParameters(),
@@ -179,7 +178,7 @@ export class InboxDocumentenListComponent
     this.filterChange.emit();
   }
 
-  retriggerSearch(): void {
+  retriggerSearch() {
     this.filterChange.emit();
   }
 
@@ -191,8 +190,8 @@ export class InboxDocumentenListComponent
     } satisfies typeof this.listParametersSort;
   }
 
-  zoekopdrachtChanged(actieveZoekopdracht: Zoekopdracht): void {
-    if (actieveZoekopdracht) {
+  zoekopdrachtChanged(actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">) {
+    if (actieveZoekopdracht?.json) {
       this.listParameters = JSON.parse(actieveZoekopdracht.json);
       this.sort.active = this.listParametersSort.sort;
       this.sort.direction = this.listParametersSort.order;
@@ -216,7 +215,7 @@ export class InboxDocumentenListComponent
     void this.actionsSidenav.open();
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     // Make sure when returning to this component, the very first page is loaded
     this.listParameters.page = 0;
     SessionStorageUtil.setItem(

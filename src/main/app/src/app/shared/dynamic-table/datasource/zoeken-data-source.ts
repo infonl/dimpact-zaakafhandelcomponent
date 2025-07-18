@@ -11,7 +11,6 @@ import { MatSort, SortDirection } from "@angular/material/sort";
 import { BehaviorSubject, Observable, Subscription, merge } from "rxjs";
 import { finalize, tap } from "rxjs/operators";
 import { UtilService } from "../../../core/service/util.service";
-import { Zoekopdracht } from "../../../gebruikersvoorkeuren/model/zoekopdracht";
 import { FilterResultaat } from "../../../zoeken/model/filter-resultaat";
 import { FilterVeld } from "../../../zoeken/model/filter-veld";
 import { DEFAULT_ZOEK_PARAMETERS } from "../../../zoeken/model/zoek-parameters";
@@ -45,9 +44,9 @@ export abstract class ZoekenDataSource<
   private subscriptions$: Subscription[] = [];
 
   protected constructor(
-    public werklijst: GeneratedType<"Werklijst">,
-    private zoekenService: ZoekenService,
-    private utilService: UtilService,
+    public readonly werklijst: GeneratedType<"Werklijst">,
+    private readonly zoekenService: ZoekenService,
+    private readonly utilService: UtilService,
   ) {
     super();
     this.zoekParameters = SessionStorageUtil.getItem(
@@ -211,25 +210,25 @@ export abstract class ZoekenDataSource<
     this.load();
   }
 
-  private storeColumns(columns: Map<string, ColumnPickerValue>): void {
+  private storeColumns(columns: Map<string, ColumnPickerValue>) {
     const columnsString = JSON.stringify(Array.from(columns.entries()));
     SessionStorageUtil.setItem(this._sessionKey, columnsString);
   }
 
   /* column getters, NO setters!*/
-  get columns(): Map<string, ColumnPickerValue> {
+  get columns() {
     return this._columns;
   }
 
-  get visibleColumns(): Array<ZoekenColumn> {
+  get visibleColumns() {
     return this._visibleColumns;
   }
 
-  get detailExpandColumns(): Array<ZoekenColumn> {
+  get detailExpandColumns() {
     return this._detailExpandColumns;
   }
 
-  get filterColumns(): Array<string> {
+  get filterColumns() {
     return this._filterColumns;
   }
 
@@ -237,10 +236,10 @@ export abstract class ZoekenDataSource<
     return this.tableSubject.value as OBJECT[];
   }
 
-  zoekopdrachtChanged(actieveZoekopdracht: Zoekopdracht): void {
+  zoekopdrachtChanged(actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">) {
     if (!this._drop) {
       // view is reinitialized after a drop event, but the data doesn't change, so don't reload the data after a drop event.
-      if (actieveZoekopdracht) {
+      if (actieveZoekopdracht?.json) {
         this.zoekParameters = JSON.parse(actieveZoekopdracht.json);
         if (this.zoekParameters.sorteerVeld)
           this.sort.active = this.zoekParameters.sorteerVeld;
@@ -256,7 +255,7 @@ export abstract class ZoekenDataSource<
     }
   }
 
-  zoekopdrachtResetToFirstPage(): void {
+  zoekopdrachtResetToFirstPage() {
     this.zoekParameters.page = 0;
 
     SessionStorageUtil.setItem(

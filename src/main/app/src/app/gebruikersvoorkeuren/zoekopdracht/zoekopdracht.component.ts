@@ -13,10 +13,9 @@ import {
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { Subscription } from "rxjs";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { heeftActieveZoekFilters } from "../../zoeken/model/zoek-parameters";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
-import { Werklijst } from "../model/werklijst";
-import { Zoekopdracht } from "../model/zoekopdracht";
 import { ZoekopdrachtSaveDialogComponent } from "../zoekopdracht-save-dialog/zoekopdracht-save-dialog.component";
 import { ZoekFilters } from "./zoekfilters.model";
 
@@ -26,33 +25,35 @@ import { ZoekFilters } from "./zoekfilters.model";
   styleUrls: ["./zoekopdracht.component.less"],
 })
 export class ZoekopdrachtComponent implements OnInit, OnDestroy {
-  @Input({ required: true }) werklijst!: Werklijst;
+  @Input({ required: true }) werklijst!: GeneratedType<"Werklijst">;
   @Input({ required: true }) zoekFilters!: ZoekFilters;
-  @Output() zoekopdracht = new EventEmitter<Zoekopdracht>();
+  @Output() zoekopdracht = new EventEmitter<
+    GeneratedType<"RESTZoekopdracht">
+  >();
   @Input({ required: true }) filtersChanged!: EventEmitter<void>;
 
-  zoekopdrachten: Zoekopdracht[] = [];
-  actieveZoekopdracht: Zoekopdracht | null = null;
+  zoekopdrachten: GeneratedType<"RESTZoekopdracht">[] = [];
+  actieveZoekopdracht: GeneratedType<"RESTZoekopdracht"> | null = null;
   actieveFilters = false;
   filtersChangedSubscription$!: Subscription;
 
   constructor(
-    private gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    private dialog: MatDialog,
+    private readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
+    private readonly dialog: MatDialog,
   ) {}
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     this.filtersChangedSubscription$.unsubscribe();
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.filtersChangedSubscription$ = this.filtersChanged.subscribe(() => {
       this.clearActief();
     });
     this.loadZoekopdrachten();
   }
 
-  saveSearch(): void {
+  saveSearch() {
     const dialogRef = this.dialog.open(ZoekopdrachtSaveDialogComponent, {
       data: {
         zoekopdrachten: this.zoekopdrachten,
@@ -67,7 +68,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     });
   }
 
-  setActief(zoekopdracht: Zoekopdracht): void {
+  setActief(zoekopdracht: GeneratedType<"RESTZoekopdracht">) {
     this.actieveZoekopdracht = zoekopdracht;
     this.actieveFilters = true;
     this.zoekopdracht.emit(this.actieveZoekopdracht);
@@ -76,16 +77,19 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
-  deleteZoekopdracht($event: MouseEvent, zoekopdracht: Zoekopdracht): void {
+  deleteZoekopdracht(
+    $event: MouseEvent,
+    zoekopdracht: GeneratedType<"RESTZoekopdracht">,
+  ) {
     $event.stopPropagation();
     this.gebruikersvoorkeurenService
-      .deleteZoekOpdrachten(zoekopdracht.id)
+      .deleteZoekOpdrachten(zoekopdracht.id!)
       .subscribe(() => {
         this.loadZoekopdrachten();
       });
   }
 
-  clearActief(emit?: boolean): void {
+  clearActief(emit?: boolean) {
     this.actieveZoekopdracht = null;
     this.gebruikersvoorkeurenService
       .removeZoekopdrachtActief(this.werklijst)
@@ -98,7 +102,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loadZoekopdrachten(): void {
+  private loadZoekopdrachten() {
     this.gebruikersvoorkeurenService
       .listZoekOpdrachten(this.werklijst)
       .subscribe((zoekopdrachten) => {
