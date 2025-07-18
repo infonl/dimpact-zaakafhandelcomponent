@@ -14,15 +14,15 @@ import { FileIcon } from "../../informatie-objecten/model/file-icon";
   styleUrls: ["./document-icon.component.less"],
 })
 export class DocumentIconComponent {
-  @Input() bestandsnaam: string;
+  @Input() bestandsnaam?: string;
 
   constructor(private translate: TranslateService) {}
 
-  getFileIcon(filename) {
+  getFileIcon(filename?: string) {
     return FileIcon.getIconByBestandsnaam(filename);
   }
 
-  getFileTooltip(filetype: string): string {
+  getFileTooltip(filetype: string) {
     return filetype === "unknown"
       ? this.translate.instant("bestandstype.onbekend")
       : this.translate.instant("bestandstype", {

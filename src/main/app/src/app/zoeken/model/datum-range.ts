@@ -4,10 +4,10 @@
  */
 
 export class DatumRange {
-  van: Date;
-  tot: Date;
+  van: Date | null = null;
+  tot: Date | null = null;
 
-  constructor(van?: Date, tot?: Date) {
+  constructor(van?: Date | null, tot?: Date | null) {
     this.van = van || null;
     this.tot = tot || null;
   }
