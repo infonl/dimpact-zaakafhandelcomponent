@@ -102,7 +102,7 @@ class MailService @Inject constructor(
             configuratieService.readGemeenteNaam()
         )
 
-    fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String {
+    fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String? {
         val subject =
             StringUtils.abbreviate(resolveVariabelen(mailGegevens.subject, bronnen), SUBJECT_MAX_WIDTH)
         val body = resolveVariabelen(mailGegevens.body, bronnen)
@@ -132,6 +132,7 @@ class MailService @Inject constructor(
             }
         } catch (messagingException: MessagingException) {
             LOG.log(Level.SEVERE, "Failed to send mail with subject '$subject'.", messagingException)
+            return null
         }
 
         return body
