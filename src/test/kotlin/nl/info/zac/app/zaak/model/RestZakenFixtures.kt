@@ -140,6 +140,7 @@ fun createRestZaak(
     isOpen: Boolean = true,
     startDatum: LocalDate = LocalDate.of(2023, 9, 15),
     initiatorIdentificatieType: IdentificatieType = IdentificatieType.BSN,
+    kvkNummer: String? = null
 ) = RestZaak(
     uuid = uuid,
     identificatie = "ZA2023001",
@@ -175,6 +176,7 @@ fun createRestZaak(
     zaakdata = createZaakData(),
     indicaties = indicaties,
     initiatorIdentificatieType = initiatorIdentificatieType,
+    kvkNummer = kvkNummer,
     initiatorIdentificatie = "Sample Initiator Identificatie",
     isOpen = isOpen,
     isHeropend = false,
@@ -202,30 +204,14 @@ fun createRESTZaakAanmaakGegevens(
     bagObjecten = bagObjecten
 )
 
-fun createRestZaakBetrokkeneGegevens(
-    zaakUUID: UUID = UUID.randomUUID(),
-    roltypeUUID: UUID = UUID.randomUUID(),
-    roltoelichting: String = "fakeRoltoelichting",
-    betrokkeneIdentificatieType: IdentificatieType = IdentificatieType.BSN,
-    betrokkeneIdentificatie: String = "fakeBetrokkeneIdentificatie"
-) = RestZaakBetrokkeneGegevens(
-    zaakUUID = zaakUUID,
-    roltypeUUID = roltypeUUID,
-    roltoelichting = roltoelichting,
-    betrokkeneIdentificatieType = betrokkeneIdentificatieType,
-    betrokkeneIdentificatie = betrokkeneIdentificatie
-)
-
 fun createRestZaakInitiatorGegevens(
     zaakUUID: UUID = UUID.randomUUID(),
     toelichting: String = "fakeRoltoelichting",
-    identificatieType: IdentificatieType = IdentificatieType.BSN,
-    identificatie: String = "fakeBetrokkeneIdentificatie"
+    betrokkeneIdentificatie: BetrokkeneIdentificatie = UserIdentificatie("123456677"),
 ) = RestZaakInitiatorGegevens(
     zaakUUID = zaakUUID,
     toelichting = toelichting,
-    identificatieType = identificatieType,
-    identificatie = identificatie
+    betrokkeneIdentificatie = betrokkeneIdentificatie
 )
 
 fun createRESTZaakKenmerk() = RESTZaakKenmerk("Sample kenmerk", "Sample bron")

@@ -43,6 +43,8 @@ import java.lang.Boolean
 import java.util.Locale
 import java.util.UUID
 import java.util.logging.Logger
+import kotlin.String
+import kotlin.Suppress
 
 private val LOG = Logger.getLogger(ZaakService::class.java.name)
 
@@ -311,13 +313,18 @@ class ZaakService @Inject constructor(
                     NatuurlijkPersoonIdentificatie().apply { inpBsn = identification }
                 )
 
-            IdentificatieType.VN ->
+            IdentificatieType.VN -> {
+                val (kvkNummer, vestigingsnummer) = identification.split("|")
                 RolNietNatuurlijkPersoon(
                     zaak.url,
                     roleType,
                     explanation,
-                    NietNatuurlijkPersoonIdentificatie().apply { vestigingsNummer = identification }
+                    NietNatuurlijkPersoonIdentificatie().apply {
+                        this.kvkNummer = kvkNummer
+                        this.vestigingsNummer = vestigingsnummer
+                    }
                 )
+            }
 
             IdentificatieType.RSIN ->
                 RolNietNatuurlijkPersoon(
