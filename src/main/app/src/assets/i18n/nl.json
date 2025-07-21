@@ -213,7 +213,7 @@
   "gegevens.mail.afzenders": "Mailafzenders",
   "gegevens.mail.templates": "Mailtemplates",
   "gegevens.mail.ontvangstbevestiging": "Automatische ontvangstbevestiging",
-  "gegevens.mail.ontvangstbevestiging.hint": "Een automatische ontvangstbevestiging kan alleen verstuurd worden bij zaken die direct vanuit een formulier zijn aangemaakt, én waarbij het e-mailadres van de initiator bekend is.",
+  "gegevens.mail.ontvangstbevestiging.hint": "Een automatische ontvangstbevestiging kan alleen verstuurd worden bij zaken die direct vanuit een productaanvraag (bijvoorbeeld vanuit een formulier) zijn aangemaakt, én waarbij het e-mailadres van de initiator bekend is.",
   "goedkeuren": "Goedkeuren",
   "geldig": "Geldig",
   "begin.geldigheid": "Begin geldigheid",
