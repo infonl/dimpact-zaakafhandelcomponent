@@ -17,6 +17,7 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
+import nl.info.zac.itest.config.ItestConfiguration.CONFIG_GEMEENTE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.OBJECTS_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT
@@ -30,6 +31,7 @@ import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAAK_ROLLEN
+import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_EMAIL_ADDRESS
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
@@ -176,6 +178,8 @@ class NotificationsTest : BehaviorSpec({
                             "Ontvangstbevestiging van zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION"
                         getString("contentType") shouldStartWith "multipart/mixed"
                         with(getString("mimeMessage")) {
+                            shouldContain("From: $CONFIG_GEMEENTE_NAAM <$TEST_GEMEENTE_EMAIL_ADDRESS>")
+                            shouldContain("Return-Path: <$TEST_GEMEENTE_EMAIL_ADDRESS>")
                             shouldContain("Wij hebben uw verzoek ontvangen en deze op")
                         }
                     }
@@ -290,6 +294,8 @@ class NotificationsTest : BehaviorSpec({
                             "Ontvangstbevestiging van zaak $ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION"
                         getString("contentType") shouldStartWith "multipart/mixed"
                         with(getString("mimeMessage")) {
+                            shouldContain("From: $CONFIG_GEMEENTE_NAAM <$TEST_GEMEENTE_EMAIL_ADDRESS")
+                            shouldContain("Return-Path: <$TEST_GEMEENTE_EMAIL_ADDRESS>")
                             shouldContain("Wij hebben uw verzoek ontvangen en deze op")
                         }
                     }
