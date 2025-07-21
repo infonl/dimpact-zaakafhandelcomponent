@@ -10,18 +10,20 @@ import jakarta.validation.ConstraintValidatorContext
 import jakarta.validation.Payload
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import org.jetbrains.annotations.NotNull
 import kotlin.reflect.KClass
 
 @AllOpen
+@NoArgConstructor
 @ValidBetrokkeneIdentificatie
 data class BetrokkeneIdentificatie(
-    @NotNull
-    val type: IdentificatieType = IdentificatieType.BSN,
-    val bsnNummer: String? = null,
-    val kvkNummer: String? = null,
-    val vestigingsnummer: String? = null,
-    val rsinNummer: String? = null
+    @field:NotNull
+    var type: IdentificatieType,
+    var bsnNummer: String? = null,
+    var kvkNummer: String? = null,
+    var vestigingsnummer: String? = null,
+    var rsinNummer: String? = null
 )
 
 @Target(AnnotationTarget.CLASS)
@@ -35,7 +37,7 @@ annotation class ValidBetrokkeneIdentificatie(
 
 class BetrokkeneIdentificatieValidator : ConstraintValidator<ValidBetrokkeneIdentificatie, BetrokkeneIdentificatie> {
     override fun isValid(value: BetrokkeneIdentificatie?, context: ConstraintValidatorContext): Boolean {
-        if (value == null) return true // Use @NotNull on the class if needed
+        if (value == null) return false
 
         return when (value.type) {
             IdentificatieType.BSN -> !value.bsnNummer.isNullOrBlank() &&
