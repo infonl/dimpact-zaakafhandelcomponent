@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.zaak.model
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
@@ -32,6 +33,7 @@ import jakarta.validation.constraints.NotNull
     JsonSubTypes.Type(value = VestigingIdentificatie::class, name = "VN"),
     JsonSubTypes.Type(value = RsinIdentificatie::class, name = "RSIN")
 )
+@JsonIgnoreProperties(ignoreUnknown = true)
 sealed class BetrokkeneIdentificatie
 
 @JsonTypeName("BSN")
