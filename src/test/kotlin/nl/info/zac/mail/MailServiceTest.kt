@@ -137,9 +137,9 @@ class MailServiceTest : BehaviorSpec({
         val resolvedSubject = "resolvedSubject"
 
         every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns "fakeResolvedString1"
-        every { mailTemplateHelper.resolveVariabelen("fakeResolvedString1", zaak) } returns resolvedSubject
+        every { mailTemplateHelper.resolveZaakVariables("fakeResolvedString1", zaak) } returns resolvedSubject
         every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.body) } returns "fakeResolvedBody2"
-        every { mailTemplateHelper.resolveVariabelen("fakeResolvedBody2", zaak) } returns "fakeResolvedBody3"
+        every { mailTemplateHelper.resolveZaakVariables("fakeResolvedBody2", zaak) } returns "fakeResolvedBody3"
         mockkObject(MailService.Companion)
         every { MailService.Companion.mailSession.properties } returns Properties()
         mockkStatic(Transport::class)
