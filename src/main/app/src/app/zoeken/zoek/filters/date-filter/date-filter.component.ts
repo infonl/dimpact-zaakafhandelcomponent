@@ -31,7 +31,10 @@ export class DateFilterComponent implements OnInit {
     this.changed.emit(this.range);
   }
 
-  private updateRangeProperty(property: "van" | "tot", control: FormControl<Date | null>) {
+  private updateRangeProperty(
+    property: "van" | "tot",
+    control: FormControl<Date | null>,
+  ) {
     if (this.range?.[property]) {
       this.range[property] = control.value?.toISOString();
     } else {
