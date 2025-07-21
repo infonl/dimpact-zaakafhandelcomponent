@@ -12,12 +12,11 @@ import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.ser
 import { TabelGegevens } from "../shared/dynamic-table/model/tabel-gegevens";
 import {
   DeleteBody,
+  PostBody,
   PutBody,
   ZacHttpClient,
 } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { Werklijst } from "./model/werklijst";
-import { Zoekopdracht } from "./model/zoekopdracht";
 
 @Injectable({
   providedIn: "root",
@@ -31,22 +30,23 @@ export class GebruikersvoorkeurenService {
     private readonly zacHttpClient: ZacHttpClient,
   ) {}
 
-  listZoekOpdrachten(werklijst: Werklijst): Observable<Zoekopdracht[]> {
-    return this.http
-      .get<Zoekopdracht[]>(`${this.basepath}/zoekopdracht/${werklijst}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listZoekOpdrachten(lijstID: GeneratedType<"Werklijst">) {
+    return this.zacHttpClient.GET(
+      "/rest/gebruikersvoorkeuren/zoekopdracht/{lijstID}",
+      {
+        path: { lijstID },
+      },
+    );
   }
 
   createOrUpdateZoekOpdrachten(
-    zoekopdracht: Zoekopdracht,
-  ): Observable<Zoekopdracht> {
-    return this.http
-      .post<Zoekopdracht>(`${this.basepath}/zoekopdracht`, zoekopdracht)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    body: PostBody<"/rest/gebruikersvoorkeuren/zoekopdracht">,
+  ) {
+    return this.zacHttpClient.POST(
+      "/rest/gebruikersvoorkeuren/zoekopdracht",
+      body,
+      {},
+    );
   }
 
   deleteZoekOpdrachten(id: number): Observable<void> {
@@ -57,15 +57,19 @@ export class GebruikersvoorkeurenService {
       );
   }
 
-  setZoekopdrachtActief(zoekopdracht: Zoekopdracht): Observable<void> {
-    return this.http
-      .put<void>(`${this.basepath}/zoekopdracht/actief`, zoekopdracht)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  setZoekopdrachtActief(
+    body: PutBody<"/rest/gebruikersvoorkeuren/zoekopdracht/actief">,
+  ) {
+    return this.zacHttpClient.PUT(
+      "/rest/gebruikersvoorkeuren/zoekopdracht/actief",
+      body,
+      {},
+    );
   }
 
-  removeZoekopdrachtActief(werklijst: Werklijst): Observable<void> {
+  removeZoekopdrachtActief(
+    werklijst: GeneratedType<"Werklijst">,
+  ): Observable<void> {
     return this.http
       .delete<void>(`${this.basepath}/zoekopdracht/${werklijst}/actief`)
       .pipe(
@@ -73,7 +77,9 @@ export class GebruikersvoorkeurenService {
       );
   }
 
-  readTabelGegevens(werklijst: Werklijst): Observable<TabelGegevens> {
+  readTabelGegevens(
+    werklijst: GeneratedType<"Werklijst">,
+  ): Observable<TabelGegevens> {
     return this.http
       .get<TabelGegevens>(`${this.basepath}/tabel-gegevens/${werklijst}`)
       .pipe(

@@ -98,7 +98,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                 with(responseBody) {
                     shouldContainJsonKeyValue(
                         "redirectURL",
-                        "$SMART_DOCUMENTS_MOCK_BASE_URI/smartdocuments/wizard?ticket=fakeSmartdocumentsTicketID"
+                        "$SMART_DOCUMENTS_MOCK_BASE_URI/smartdocuments/wizard?ticket=fakeSmartDocumentsTicketID"
                     )
                 }
             }
@@ -123,7 +123,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                     )
                 ).toString()
             )
-            Then("the response should be OK and the response should contain a redirect URL to Smartdocuments") {
+            Then("the response should be OK and the response should contain a redirect URL to SmartDocuments") {
                 val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -131,7 +131,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                 with(responseBody) {
                     shouldContainJsonKeyValue(
                         "redirectURL",
-                        "$SMART_DOCUMENTS_MOCK_BASE_URI/smartdocuments/wizard?ticket=fakeSmartdocumentsTicketID"
+                        "$SMART_DOCUMENTS_MOCK_BASE_URI/smartdocuments/wizard?ticket=fakeSmartDocumentsTicketID"
                     )
                 }
             }

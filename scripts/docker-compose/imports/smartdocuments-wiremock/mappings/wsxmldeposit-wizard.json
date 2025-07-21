@@ -119,7 +119,7 @@
   },
   "response": {
     "status": 200,
-    "body": "{\"ticket\": \"fakeSmartdocumentsTicketID\"}",
+    "body": "{\"ticket\": \"fakeSmartDocumentsTicketID\"}",
     "headers": {
       "Content-Type": "application/json"
     }
