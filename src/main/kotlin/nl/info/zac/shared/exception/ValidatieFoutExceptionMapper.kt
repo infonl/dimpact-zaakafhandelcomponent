@@ -8,6 +8,8 @@ import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.ext.ExceptionMapper
 import jakarta.ws.rs.ext.Provider
 import net.atos.client.zgw.shared.exception.ValidationErrorException
+import nl.info.zac.app.exception.RestExceptionResponseBuilder.generateResponse
+import nl.info.zac.exception.ErrorCode
 
 /**
  * Exception mapper to catch [ValidationErrorException] thrown and convert them to a [Response] which is returned to
@@ -15,8 +17,12 @@ import net.atos.client.zgw.shared.exception.ValidationErrorException
  */
 @Provider
 class ValidatieFoutExceptionMapper : ExceptionMapper<ValidationErrorException> {
-    override fun toResponse(validationErrorException: ValidationErrorException): Response =
-        validationErrorException.validatieFout.toString().let {
-            Response.status(Response.Status.BAD_REQUEST).entity(it).build()
-        }
+    override fun toResponse(validationErrorException: ValidationErrorException): Response {
+        return generateResponse(
+            responseStatus = Response.Status.BAD_REQUEST,
+            errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
+            exception = validationErrorException,
+            exceptionMessage = validationErrorException.validatieFout.invalidParams.toString()
+        )
+    }
 }

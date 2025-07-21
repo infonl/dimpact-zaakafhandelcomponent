@@ -36,7 +36,11 @@ class OidcSessionService @Inject constructor(
     @Suppress("TooGenericExceptionCaught", "ThrowsCount")
     fun refreshUserSession() {
         val session = httpSession.get()
-        val refreshToken = session.getAttribute(REFRESH_TOKEN_ATTRIBUTE) as? String
+        val refreshToken = try {
+            session.getAttribute(REFRESH_TOKEN_ATTRIBUTE) as? String
+        } catch (e: IllegalStateException) {
+            throw OidcSessionException("Session is invalid or expired", e)
+        }
         check(refreshToken != null) { "No $REFRESH_TOKEN_ATTRIBUTE found in session" }
 
         val keycloakUrl = "$authServer/realms/$authRealm/protocol/openid-connect/token"

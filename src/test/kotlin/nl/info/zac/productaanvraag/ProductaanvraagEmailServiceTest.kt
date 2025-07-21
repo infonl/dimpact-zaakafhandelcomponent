@@ -92,6 +92,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
     Given("zaak created from productaanvraag and automatic email is enabled with GEMEENTE as sender") {
         val councilEmailAddress = "fake-council@example.com"
+        val councilName = "Fake Council"
         val zaak = createZaak()
         val betrokkene = createBetrokkene()
         val automaticEmailConfirmation = createAutomaticEmailConfirmation(
@@ -118,6 +119,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         } returns mailTemplate
 
         every { configuratieService.readGemeenteMail() } returns councilEmailAddress
+        every { configuratieService.readGemeenteNaam() } returns councilName
         every { mailService.sendMail(capture(mailGegevens), capture(bronnen)) } returns "body"
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
 
