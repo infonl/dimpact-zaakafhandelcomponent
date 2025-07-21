@@ -207,7 +207,10 @@ fun createRESTZaakAanmaakGegevens(
 fun createRestZaakInitiatorGegevens(
     zaakUUID: UUID = UUID.randomUUID(),
     toelichting: String = "fakeRoltoelichting",
-    betrokkeneIdentificatie: BetrokkeneIdentificatie = UserIdentificatie("123456677"),
+    betrokkeneIdentificatie: BetrokkeneIdentificatie = BetrokkeneIdentificatie(
+        type = IdentificatieType.BSN,
+        bsnNummer = "123456677"
+    )
 ) = RestZaakInitiatorGegevens(
     zaakUUID = zaakUUID,
     toelichting = toelichting,
