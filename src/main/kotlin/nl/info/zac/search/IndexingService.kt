@@ -21,8 +21,8 @@ import nl.info.client.zgw.shared.exception.ZgwRuntimeException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.task.model.TaakSortering
-import nl.info.zac.authentication.OidcSessionService
 import nl.info.zac.authentication.OidcSessionException
+import nl.info.zac.authentication.OidcSessionService
 import nl.info.zac.search.converter.AbstractZoekObjectConverter
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -376,7 +376,7 @@ class IndexingService @Inject constructor(
                             this.oidcSessionService.refreshUserSession()
                             LOG.info("[$objectType] Access token revalidated, retrying call one more time")
                             runTranslatingToIndexingException { fn() } // Retry once
-                        } catch(e: OidcSessionException) {
+                        } catch (e: OidcSessionException) {
                             LOG.warning { "[$objectType] Failed to revalidate access token: ${e.message}" }
                         } catch (e: Exception) {
                             LOG.warning("[$objectType] Error persists after revalidation: ${e.message}")
