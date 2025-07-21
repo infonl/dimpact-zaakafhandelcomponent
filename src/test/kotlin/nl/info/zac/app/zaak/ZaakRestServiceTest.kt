@@ -79,12 +79,12 @@ import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
 import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowedException
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
+import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.RESTReden
 import nl.info.zac.app.zaak.model.RESTZaakAfbrekenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestZaaktype
-import nl.info.zac.app.zaak.model.VestigingIdentificatie
 import nl.info.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
 import nl.info.zac.app.zaak.model.createRESTGeometry
 import nl.info.zac.app.zaak.model.createRESTZaakAanmaakGegevens
@@ -1338,7 +1338,11 @@ class ZaakRestServiceTest : BehaviorSpec({
         val kvkNUmmer = "1234567"
         val vestigingsnummer = "00012352546"
         val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens(
-            betrokkeneIdentificatie = VestigingIdentificatie(kvkNummer = kvkNUmmer, vestigingsnummer = vestigingsnummer)
+            betrokkeneIdentificatie = BetrokkeneIdentificatie(
+                type = IdentificatieType.VN,
+                kvkNummer = kvkNUmmer,
+                vestigingsnummer = vestigingsnummer
+            )
         )
         val zaak = createZaak()
 
