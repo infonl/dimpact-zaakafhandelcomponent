@@ -17,6 +17,7 @@ import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.mail.Message
+import jakarta.mail.MessagingException
 import jakarta.mail.Transport
 import jakarta.mail.internet.MimeMultipart
 import net.atos.client.zgw.drc.DrcClientService
@@ -77,17 +78,11 @@ class MailServiceTest : BehaviorSpec({
         val resolvedSubject = "resolvedSubject"
 
         every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns "fakeResolvedString1"
-        every {
-            mailTemplateHelper.resolveVariabelen("fakeResolvedString1", zaak)
-        } returns resolvedSubject
+        every { mailTemplateHelper.resolveZaakVariables("fakeResolvedString1", zaak) } returns resolvedSubject
         every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.body) } returns "fakeResolvedBody2"
-        every {
-            mailTemplateHelper.resolveVariabelen("fakeResolvedBody2", zaak)
-        } returns "fakeResolvedBody3"
+        every { mailTemplateHelper.resolveZaakVariables("fakeResolvedBody2", zaak) } returns "fakeResolvedBody3"
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
-        every {
-            ztcClientService.readInformatieobjecttype(URI("fakeInformatieObjectType1"))
-        } returns informatieObjectType
+        every { ztcClientService.readInformatieobjecttype(URI("fakeInformatieObjectType1")) } returns informatieObjectType
         every { loggedInUserInstance.get() } returns user
         every {
             zgwApiService.createZaakInformatieobjectForZaak(
@@ -102,23 +97,12 @@ class MailServiceTest : BehaviorSpec({
         every { configuratieService.readBronOrganisatie() } returns "123443210"
 
         When("the send mail function is invoked") {
-            mailService.sendMail(mailGegevens, bronnen)
+            val body = mailService.sendMail(mailGegevens, bronnen)
 
-            Then(
-                """
-                    an e-mail is sent and a PDF document is created from the e-mail data and
-                    is attached to the zaak using the ZGW APIs
-                """
-            ) {
+            Then("an e-mail is sent") {
+                body shouldBe "fakeResolvedBody3"
                 verify(exactly = 1) {
                     Transport.send(any())
-                    zgwApiService.createZaakInformatieobjectForZaak(
-                        zaak,
-                        any(),
-                        resolvedSubject,
-                        resolvedSubject,
-                        "geen"
-                    )
                 }
                 with(transportSendRequest.captured) {
                     subject shouldBe resolvedSubject
@@ -128,6 +112,44 @@ class MailServiceTest : BehaviorSpec({
                         content shouldBe "fakeResolvedBody3"
                     }
                 }
+            }
+
+            And("PDF document is created from the e-mail data and is attached to the zaak using the ZGW APIs") {
+                verify(exactly = 1) {
+                    zgwApiService.createZaakInformatieobjectForZaak(
+                        zaak,
+                        any(),
+                        resolvedSubject,
+                        resolvedSubject,
+                        "geen"
+                    )
+                }
+            }
+        }
+    }
+
+    Given("the mail transport cannot send the mail") {
+        val zaak = createZaak()
+        val mailGegevens = createMailGegevens(
+            createDocumentFromMail = true
+        )
+        val bronnen = Bronnen.Builder().add(zaak).build()
+        val resolvedSubject = "resolvedSubject"
+
+        every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns "fakeResolvedString1"
+        every { mailTemplateHelper.resolveZaakVariables("fakeResolvedString1", zaak) } returns resolvedSubject
+        every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.body) } returns "fakeResolvedBody2"
+        every { mailTemplateHelper.resolveZaakVariables("fakeResolvedBody2", zaak) } returns "fakeResolvedBody3"
+        mockkObject(MailService.Companion)
+        every { MailService.Companion.mailSession.properties } returns Properties()
+        mockkStatic(Transport::class)
+        every { Transport.send(any<Message>()) } throws MessagingException()
+
+        When("the send mail function is invoked") {
+            val body = mailService.sendMail(mailGegevens, bronnen)
+
+            Then("no body is returned") {
+                body shouldBe null
             }
         }
     }
@@ -144,13 +166,9 @@ class MailServiceTest : BehaviorSpec({
         val resolvedBody = "resolvedBody"
 
         every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns "fakeResolvedString1"
-        every {
-            mailTemplateHelper.resolveVariabelen("fakeResolvedString1", task)
-        } returns resolvedSubject
+        every { mailTemplateHelper.resolveTaskVariables("fakeResolvedString1", task) } returns resolvedSubject
         every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.body) } returns "fakeResolvedBody2"
-        every {
-            mailTemplateHelper.resolveVariabelen("fakeResolvedBody2", task)
-        } returns resolvedBody
+        every { mailTemplateHelper.resolveTaskVariables("fakeResolvedBody2", task) } returns resolvedBody
 
         mockkObject(MailService.Companion)
         every { MailService.Companion.mailSession.properties } returns Properties()

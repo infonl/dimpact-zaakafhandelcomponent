@@ -102,7 +102,7 @@ class MailService @Inject constructor(
             configuratieService.readGemeenteNaam()
         )
 
-    fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String {
+    fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String? {
         val subject =
             StringUtils.abbreviate(resolveVariabelen(mailGegevens.subject, bronnen), SUBJECT_MAX_WIDTH)
         val body = resolveVariabelen(mailGegevens.body, bronnen)
@@ -132,6 +132,7 @@ class MailService @Inject constructor(
             }
         } catch (messagingException: MessagingException) {
             LOG.log(Level.SEVERE, "Failed to send mail with subject '$subject'.", messagingException)
+            return null
         }
 
         return body
@@ -264,10 +265,10 @@ class MailService @Inject constructor(
 
     private fun resolveVariabelen(tekst: String, bronnen: Bronnen): String =
         mailTemplateHelper.resolveGemeenteVariable(tekst).let {
-            mailTemplateHelper.resolveVariabelen(it, bronnen.zaak ?: return@let it)
+            mailTemplateHelper.resolveZaakVariables(it, bronnen.zaak ?: return@let it)
         }.let {
-            mailTemplateHelper.resolveVariabelen(it, bronnen.document ?: return@let it)
+            mailTemplateHelper.resolveEnkelvoudigInformatieObjectVariables(it, bronnen.document ?: return@let it)
         }.let {
-            mailTemplateHelper.resolveVariabelen(it, bronnen.taskInfo ?: return@let it)
+            mailTemplateHelper.resolveTaskVariables(it, bronnen.taskInfo ?: return@let it)
         }
 }

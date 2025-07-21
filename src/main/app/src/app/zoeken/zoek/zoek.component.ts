@@ -20,6 +20,7 @@ import { map, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { DocumentZoekObject } from "../model/documenten/document-zoek-object";
+import { FilterResultaat } from "../model/filter-resultaat";
 import { TaakZoekObject } from "../model/taken/taak-zoek-object";
 import { ZaakZoekObject } from "../model/zaken/zaak-zoek-object";
 import { ZoekObject } from "../model/zoek-object";
@@ -171,9 +172,9 @@ export class ZoekComponent implements AfterViewInit, OnInit {
     return zoekObject as DocumentZoekObject;
   }
 
-  hasOption(options: string[]) {
+  hasOption(options: FilterResultaat[]) {
     return options.length
-      ? !(options.length === 1 && options[0] === "-NULL-")
+      ? !(options.length === 1 && options[0].naam === "-NULL-")
       : false;
   }
 
@@ -189,7 +190,7 @@ export class ZoekComponent implements AfterViewInit, OnInit {
 
   originalOrder = () => 0;
 
-  setZoektype(zoekType: ZoekType): void {
+  setZoektype(zoekType: ZoekType) {
     this.zoekType = zoekType;
     if (zoekType === ZoekType.ZAC) {
       this.trefwoordenControl.enable();
@@ -198,7 +199,7 @@ export class ZoekComponent implements AfterViewInit, OnInit {
     }
   }
 
-  reset(): void {
+  reset() {
     this.zoekService.hasSearched$.next(false);
     this.paginator.length = 0;
     this.trefwoordenControl.setValue("");
@@ -223,7 +224,26 @@ export class ZoekComponent implements AfterViewInit, OnInit {
     }
   }
 
-  betrokkeneActief(): boolean {
+  dateFilterChange(key: string, value: GeneratedType<"RestDatumRange">) {
+    if (!this.zoekParameters.datums) this.zoekParameters.datums = {};
+    this.zoekParameters.datums[key] = value;
+    this.zoek.emit();
+  }
+
+  filterChanged(key: string, value?: GeneratedType<"FilterParameters">) {
+    if (!this.zoekParameters.filters) this.zoekParameters.filters = {};
+    if (!this.zoekParameters.filters[key]) {
+      this.zoekParameters.filters[key] = { values: [] };
+    }
+    if (!value) {
+      delete this.zoekParameters.filters[key];
+    } else {
+      this.zoekParameters.filters[key] = value;
+    }
+    this.zoek.emit();
+  }
+
+  betrokkeneActief() {
     return !!(
       this.zoekParameters.zoeken?.ZAAK_BETROKKENEN ||
       this.zoekParameters.zoeken?.ZAAK_INITIATOR ||

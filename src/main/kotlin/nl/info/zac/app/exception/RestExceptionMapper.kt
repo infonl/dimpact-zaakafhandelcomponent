@@ -4,11 +4,8 @@
  */
 package nl.info.zac.app.exception
 
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.WebApplicationException
-import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.ext.ExceptionMapper
 import jakarta.ws.rs.ext.Provider
@@ -25,7 +22,9 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.exception.ZtcRuntimeException
-import nl.info.zac.exception.ErrorCode
+import nl.info.zac.app.exception.RestExceptionResponseBuilder.createResponse
+import nl.info.zac.app.exception.RestExceptionResponseBuilder.generateResponse
+import nl.info.zac.app.exception.RestExceptionResponseBuilder.generateServerErrorResponse
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BAG_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BRC_CLIENT
@@ -40,25 +39,18 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZTC_CLIENT
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.ServerErrorException
-import nl.info.zac.log.log
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.exception.ZaakWithADecisionCannotBeTerminatedException
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException
-import java.util.logging.Level
-import java.util.logging.Logger
 
 /**
  * Maps exceptions to JAX-RS responses for use in REST responses.
  */
 @Provider
 class RestExceptionMapper : ExceptionMapper<Exception> {
-    companion object {
-        private val LOG = Logger.getLogger(RestExceptionMapper::class.java.name)
-        const val JSON_CONVERSION_ERROR_MESSAGE = "Failed to convert exception to JSON"
-    }
 
     /**
      * Converts an exception to a JAX-RS response based on the exception type.
@@ -124,12 +116,6 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             else -> generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
         }
 
-    private fun createResponse(exception: WebApplicationException) =
-        Response.status(exception.response.status)
-            .type(MediaType.APPLICATION_JSON)
-            .entity(getJSONMessage(errorMessage = exception.message ?: ERROR_CODE_SERVER_GENERIC.value))
-            .build()
-
     private fun handleZgwRuntimeException(exception: ZgwRuntimeException): Response =
         when (exception) {
             is BrcRuntimeException -> generateServerErrorResponse(
@@ -184,49 +170,5 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZTC_CLIENT)
                 else -> generateServerErrorResponse(exception)
             }
-        }
-
-    private fun generateServerErrorResponse(
-        exception: Exception,
-        errorCode: ErrorCode? = null,
-        exceptionMessage: String? = null
-    ) = generateResponse(
-        responseStatus = Response.Status.INTERNAL_SERVER_ERROR,
-        errorCode = errorCode ?: ERROR_CODE_SERVER_GENERIC,
-        exception = exception,
-        exceptionMessage = exceptionMessage
-    )
-
-    private fun generateResponse(
-        responseStatus: Response.Status,
-        errorCode: ErrorCode,
-        exception: Exception,
-        exceptionMessage: String? = null
-    ) = Response.status(responseStatus)
-        .type(MediaType.APPLICATION_JSON)
-        .entity(
-            getJSONMessage(
-                errorMessage = errorCode.value,
-                exceptionMessage = exceptionMessage
-            )
-        )
-        .build().also {
-            log(
-                logger = LOG,
-                level = if (responseStatus == Response.Status.INTERNAL_SERVER_ERROR) Level.SEVERE else Level.FINE,
-                message = exception.message
-                    ?: "Exception was thrown. Returning response with error message: '${errorCode.value}'.",
-                throwable = exception
-            )
-        }
-
-    private fun getJSONMessage(errorMessage: String, exceptionMessage: String? = null) =
-        try {
-            val errorJsonHashMap = mutableMapOf("message" to errorMessage)
-            exceptionMessage?.let { errorJsonHashMap["exception"] = it }
-            ObjectMapper().writeValueAsString(errorJsonHashMap)
-        } catch (jsonProcessingException: JsonProcessingException) {
-            log(LOG, Level.SEVERE, JSON_CONVERSION_ERROR_MESSAGE, jsonProcessingException)
-            JSON_CONVERSION_ERROR_MESSAGE
         }
 }

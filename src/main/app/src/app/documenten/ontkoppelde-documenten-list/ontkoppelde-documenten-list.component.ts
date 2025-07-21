@@ -22,7 +22,6 @@ import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
-import { Zoekopdracht } from "../../gebruikersvoorkeuren/model/zoekopdracht";
 import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import {
@@ -86,17 +85,17 @@ export class OntkoppeldeDocumentenListComponent
     null;
 
   constructor(
-    private ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
-    private infoService: InformatieObjectenService,
-    private utilService: UtilService,
-    public dialog: MatDialog,
-    public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    public route: ActivatedRoute,
+    private readonly ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
+    private readonly infoService: InformatieObjectenService,
+    private readonly utilService: UtilService,
+    public readonly dialog: MatDialog,
+    public readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
+    public readonly route: ActivatedRoute,
   ) {
     super();
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     super.ngOnInit();
     this.utilService.setTitle("title.documenten.ontkoppeldeDocumenten");
     this.listParameters = SessionStorageUtil.getItem(
@@ -105,7 +104,7 @@ export class OntkoppeldeDocumentenListComponent
     );
   }
 
-  ngAfterViewInit(): void {
+  ngAfterViewInit() {
     this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
     merge(this.sort.sortChange, this.paginator.page, this.filterChange)
       .pipe(
@@ -140,7 +139,7 @@ export class OntkoppeldeDocumentenListComponent
     void this.actionsSidenav.open();
   }
 
-  updateListParameters(): void {
+  updateListParameters() {
     this.listParameters.sort = this.sort.active;
     this.listParameters.order = this.sort.direction;
     this.listParameters.page = this.paginator.pageIndex;
@@ -186,7 +185,7 @@ export class OntkoppeldeDocumentenListComponent
     this.filterChange.emit();
   }
 
-  resetSearch(): void {
+  resetSearch() {
     this.listParameters = SessionStorageUtil.setItem(
       Werklijst.ONTKOPPELDE_DOCUMENTEN + "_ZOEKPARAMETERS",
       this.createDefaultParameters(),
@@ -197,7 +196,7 @@ export class OntkoppeldeDocumentenListComponent
     this.filterChange.emit();
   }
 
-  zoekopdrachtChanged(actieveZoekopdracht: Zoekopdracht): void {
+  zoekopdrachtChanged(actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">) {
     if (actieveZoekopdracht) {
       this.listParameters = JSON.parse(actieveZoekopdracht.json);
       this.sort.active = this.listParametersSort.sort;
@@ -211,7 +210,7 @@ export class OntkoppeldeDocumentenListComponent
     }
   }
 
-  retriggerSearch(): void {
+  retriggerSearch() {
     this.filterChange.emit();
   }
 
@@ -234,7 +233,7 @@ export class OntkoppeldeDocumentenListComponent
     return Werklijst.ONTKOPPELDE_DOCUMENTEN;
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     // Make sure when returning to this component, the very first page is loaded
     this.listParameters.page = 0;
     SessionStorageUtil.setItem(

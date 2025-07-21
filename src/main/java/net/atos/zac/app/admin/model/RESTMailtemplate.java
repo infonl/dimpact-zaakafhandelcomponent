@@ -6,7 +6,7 @@ package net.atos.zac.app.admin.model;
 
 import java.util.Set;
 
-import net.atos.zac.mailtemplates.model.MailTemplateVariabelen;
+import net.atos.zac.mailtemplates.model.MailTemplateVariables;
 
 public class RESTMailtemplate {
 
@@ -23,7 +23,7 @@ public class RESTMailtemplate {
     // We should use the Mail enum here in future instead of a string
     public String mail;
 
-    public Set<MailTemplateVariabelen> variabelen;
+    public Set<MailTemplateVariables> variabelen;
 
     public boolean defaultMailtemplate;
 }
