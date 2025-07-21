@@ -114,27 +114,14 @@ export class ZakenService {
     return this.zacHttpClient.PUT("/rest/zaken/toekennen/mij", body, {});
   }
 
-  updateInitiator(
-    zaak: GeneratedType<"RestZaak">,
-    initiator: GeneratedType<"RestPersoon">,
-    reason?: string,
-  ) {
-    return this.zacHttpClient.PATCH(
-      "/rest/zaken/initiator",
-      {
-        zaakUUID: zaak.uuid,
-        identificatieType: initiator.identificatieType!,
-        identificatie: initiator.identificatie!,
-        toelichting: reason,
-      },
-      {},
-    );
+  updateInitiator(body: PatchBody<"/rest/zaken/initiator">) {
+    return this.zacHttpClient.PATCH("/rest/zaken/initiator", body, {});
   }
 
-  deleteInitiator(zaak: GeneratedType<"RestZaak">, reden: string) {
+  deleteInitiator(zaakUuid: string, reden: string) {
     return this.zacHttpClient.DELETE(
       "/rest/zaken/{uuid}/initiator",
-      { path: { uuid: zaak.uuid } },
+      { path: { uuid: zaakUuid } },
       { reden },
     );
   }
