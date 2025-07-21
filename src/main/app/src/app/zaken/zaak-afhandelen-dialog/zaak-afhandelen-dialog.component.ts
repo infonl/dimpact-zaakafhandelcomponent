@@ -21,7 +21,6 @@ import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { ActionIcon } from "../../shared/edit/action-icon";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
-import { Zaak } from "../model/zaak";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -49,7 +48,10 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
   constructor(
     public dialogRef: MatDialogRef<ZaakAfhandelenDialogComponent>,
     @Inject(MAT_DIALOG_DATA)
-    public data: { zaak: Zaak; planItem: GeneratedType<"RESTPlanItem"> },
+    public data: {
+      zaak: GeneratedType<"RestZaak">;
+      planItem: GeneratedType<"RESTPlanItem">;
+    },
     private formBuilder: FormBuilder,
     private translateService: TranslateService,
     private zakenService: ZakenService,
