@@ -4,56 +4,53 @@
  */
 package nl.info.zac.app.zaak.model
 
-import com.fasterxml.jackson.annotation.JsonSubTypes
-import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.fasterxml.jackson.annotation.JsonTypeName
-import io.swagger.v3.oas.annotations.media.DiscriminatorMapping
-import io.swagger.v3.oas.annotations.media.Schema
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
+import jakarta.validation.Constraint
+import jakarta.validation.Payload
+import kotlin.reflect.KClass
+import jakarta.validation.ConstraintValidator
+import jakarta.validation.ConstraintValidatorContext
+import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.util.AllOpen
+import org.jetbrains.annotations.NotNull
 
-@Schema(
-    description = "Identificatie van een betrokkene",
-    discriminatorProperty = "type",
-    oneOf = [UserIdentificatie::class, VestigingIdentificatie::class, RsinIdentificatie::class],
-    discriminatorMapping = [
-        DiscriminatorMapping(value = "BSN", schema = UserIdentificatie::class),
-        DiscriminatorMapping(value = "VN", schema = VestigingIdentificatie::class),
-        DiscriminatorMapping(value = "RSIN", schema = RsinIdentificatie::class)
-    ]
+@AllOpen
+@ValidBetrokkeneIdentificatie
+data class BetrokkeneIdentificatie(
+    @NotNull
+    val type: IdentificatieType = IdentificatieType.BSN,
+    val bsnNummer: String? = null,
+    val kvkNummer: String? = null,
+    val vestigingsnummer: String? = null,
+    val rsinNummer: String? = null
 )
-@JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.PROPERTY,
-    property = "type"
+
+
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+@Constraint(validatedBy = [BetrokkeneIdentificatieValidator::class])
+annotation class ValidBetrokkeneIdentificatie(
+    val message: String = "Invalid BetrokkeneIdentificatie",
+    val groups: Array<KClass<*>> = [],
+    val payload: Array<KClass<out Payload>> = []
 )
-@JsonSubTypes(
-    JsonSubTypes.Type(value = UserIdentificatie::class, name = "BSN"),
-    JsonSubTypes.Type(value = VestigingIdentificatie::class, name = "VN"),
-    JsonSubTypes.Type(value = RsinIdentificatie::class, name = "RSIN")
-)
-sealed class BetrokkeneIdentificatie
 
-@JsonTypeName("BSN")
-@Schema(name = "BSN")
-data class UserIdentificatie(
-    @field:NotNull
-    val bsnNummer: String
-) : BetrokkeneIdentificatie()
+class BetrokkeneIdentificatieValidator : ConstraintValidator<ValidBetrokkeneIdentificatie, BetrokkeneIdentificatie> {
+    override fun isValid(value: BetrokkeneIdentificatie?, context: ConstraintValidatorContext): Boolean {
+        if (value == null) return true // Use @NotNull on the class if needed
 
-@JsonTypeName("VN")
-@Schema(name = "VN")
-data class VestigingIdentificatie(
-    @field:NotNull
-    val kvkNummer: String,
-
-    @field:NotBlank
-    val vestigingsnummer: String
-) : BetrokkeneIdentificatie()
-
-@JsonTypeName("RSIN")
-@Schema(name = "RSIN")
-data class RsinIdentificatie(
-    @field:NotNull
-    val rsinNummer: String
-) : BetrokkeneIdentificatie()
+        return when (value.type) {
+            IdentificatieType.BSN -> !value.bsnNummer.isNullOrBlank()
+                && value.kvkNummer.isNullOrBlank()
+                && value.vestigingsnummer.isNullOrBlank()
+                && value.rsinNummer.isNullOrBlank()
+            IdentificatieType.VN -> !value.kvkNummer.isNullOrBlank()
+                && !value.vestigingsnummer.isNullOrBlank()
+                && value.bsnNummer.isNullOrBlank()
+                && value.rsinNummer.isNullOrBlank()
+            IdentificatieType.RSIN -> !value.rsinNummer.isNullOrBlank()
+                && value.bsnNummer.isNullOrBlank()
+                && value.kvkNummer.isNullOrBlank()
+                && value.vestigingsnummer.isNullOrBlank()
+        }
+    }
+}

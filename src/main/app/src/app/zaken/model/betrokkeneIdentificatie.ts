@@ -1,6 +1,8 @@
 import { GeneratedType } from "../../shared/utils/generated-types";
 
-export class BetrokkeneIdentificatie {
+export class BetrokkeneIdentificatie
+  implements GeneratedType<"BetrokkeneIdentificatie">
+{
   public readonly bsnNummer?: string | null = null;
   public readonly kvkNummer?: string | null = null;
   public readonly vestigingsnummer?: string | null = null;
@@ -25,7 +27,7 @@ export class BetrokkeneIdentificatie {
           this.vestigingsnummer = betrokkene.vestigingsnummer;
         } else {
           throw new Error(
-            `${BetrokkeneIdentificatie.name}: Tried to add a betrokkene without a KVK number`,
+            `${BetrokkeneIdentificatie.name}: Tried to add a betrokkene without a KVK or vestigings number`,
           );
         }
         break;
@@ -43,15 +45,5 @@ export class BetrokkeneIdentificatie {
           `${BetrokkeneIdentificatie.name}: Unsupported identificatie type ${betrokkene.identificatieType}`,
         );
     }
-  }
-
-  public toJson(): Record<string, never> {
-    return {
-      bsnNummer: this.bsnNummer as never,
-      kvkNummer: this.kvkNummer as never,
-      vestigingsnummer: this.vestigingsnummer as never,
-      rsinNummer: this.rsinNummer as never,
-      type: this.type as never,
-    };
   }
 }

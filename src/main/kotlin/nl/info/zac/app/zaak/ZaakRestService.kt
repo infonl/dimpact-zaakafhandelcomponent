@@ -101,9 +101,6 @@ import nl.info.zac.app.zaak.model.RestZaakLocatieGegevens
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.app.zaak.model.RestZaakUnlinkData
 import nl.info.zac.app.zaak.model.RestZaaktype
-import nl.info.zac.app.zaak.model.RsinIdentificatie
-import nl.info.zac.app.zaak.model.UserIdentificatie
-import nl.info.zac.app.zaak.model.VestigingIdentificatie
 import nl.info.zac.app.zaak.model.toGeoJSONGeometry
 import nl.info.zac.app.zaak.model.toRestDecisionTypes
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
@@ -995,13 +992,13 @@ class ZaakRestService @Inject constructor(
     private fun composeIdentification(
         betrokkeneIdentificatie: BetrokkeneIdentificatie
     ): Pair<IdentificatieType, String> {
-        return when (betrokkeneIdentificatie) {
-            is UserIdentificatie ->
-                IdentificatieType.BSN to betrokkeneIdentificatie.bsnNummer
-            is VestigingIdentificatie ->
+        return when (betrokkeneIdentificatie.type) {
+            IdentificatieType.BSN ->
+                IdentificatieType.BSN to betrokkeneIdentificatie.bsnNummer!!
+            IdentificatieType.VN ->
                 IdentificatieType.VN to "${betrokkeneIdentificatie.kvkNummer}|${betrokkeneIdentificatie.vestigingsnummer}"
-            is RsinIdentificatie ->
-                IdentificatieType.RSIN to betrokkeneIdentificatie.rsinNummer
+            IdentificatieType.RSIN ->
+                IdentificatieType.RSIN to betrokkeneIdentificatie.rsinNummer!!
         }
     }
 

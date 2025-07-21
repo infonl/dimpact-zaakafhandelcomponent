@@ -1083,9 +1083,7 @@ export class ZaakViewComponent
             callback: ({ reden }) =>
               this.zakenService.updateInitiator({
                 zaakUUID: this.zaak.uuid,
-                betrokkeneIdentificatie: new BetrokkeneIdentificatie(
-                  initiator,
-                ).toJson(),
+                betrokkeneIdentificatie: new BetrokkeneIdentificatie(initiator),
                 toelichting: reden,
               }),
             melding: this.translate.instant("msg.initiator.bevestigen", {
@@ -1105,9 +1103,7 @@ export class ZaakViewComponent
     this.zakenService
       .updateInitiator({
         zaakUUID: this.zaak.uuid,
-        betrokkeneIdentificatie: new BetrokkeneIdentificatie(
-          initiator,
-        ).toJson(),
+        betrokkeneIdentificatie: new BetrokkeneIdentificatie(initiator),
       })
       .subscribe((zaak) =>
         this.handleNewInitiator("msg.initiator.toegevoegd", zaak),
@@ -1171,7 +1167,7 @@ export class ZaakViewComponent
         roltoelichting: klantgegevens.betrokkeneToelichting,
         betrokkeneIdentificatie: new BetrokkeneIdentificatie(
           klantgegevens.klant,
-        ).toJson(),
+        ),
       })
       .subscribe((zaak) => {
         this.zaak = zaak;
