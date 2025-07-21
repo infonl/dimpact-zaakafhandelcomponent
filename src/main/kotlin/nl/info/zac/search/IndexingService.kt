@@ -22,6 +22,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.task.model.TaakSortering
 import nl.info.zac.authentication.OidcSessionService
+import nl.info.zac.authentication.OidcSessionException
 import nl.info.zac.search.converter.AbstractZoekObjectConverter
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -33,6 +34,7 @@ import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.common.params.CursorMarkParams
 import org.eclipse.microprofile.config.ConfigProvider
+import org.ietf.jgss.Oid
 import java.io.IOException
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -370,11 +372,13 @@ class IndexingService @Inject constructor(
             when (val rootCause = indexingException.rootCause()) {
                 is IllegalStateException -> {
                     if (rootCause.message?.contains("Session is invalid") == true) {
-                        LOG.info("[$objectType] Access token invalid, revalidating...")
-                        this.oidcSessionService.refreshUserSession()
                         try {
+                            LOG.info("[$objectType] Access token invalid, revalidating...")
+                            this.oidcSessionService.refreshUserSession()
                             LOG.info("[$objectType] Access token revalidated, retrying call one more time")
                             runTranslatingToIndexingException { fn() } // Retry once
+                        } catch(e: OidcSessionException) {
+                            LOG.warning { "[$objectType] Failed to revalidate access token: ${e.message}" }
                         } catch (e: Exception) {
                             LOG.warning("[$objectType] Error persists after revalidation: ${e.message}")
                         }
