@@ -5,13 +5,13 @@
 package nl.info.zac.app.zaak.model
 
 import jakarta.validation.Constraint
-import jakarta.validation.Payload
-import kotlin.reflect.KClass
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
+import jakarta.validation.Payload
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.util.AllOpen
 import org.jetbrains.annotations.NotNull
+import kotlin.reflect.KClass
 
 @AllOpen
 @ValidBetrokkeneIdentificatie
@@ -23,7 +23,6 @@ data class BetrokkeneIdentificatie(
     val vestigingsnummer: String? = null,
     val rsinNummer: String? = null
 )
-
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
@@ -39,18 +38,18 @@ class BetrokkeneIdentificatieValidator : ConstraintValidator<ValidBetrokkeneIden
         if (value == null) return true // Use @NotNull on the class if needed
 
         return when (value.type) {
-            IdentificatieType.BSN -> !value.bsnNummer.isNullOrBlank()
-                && value.kvkNummer.isNullOrBlank()
-                && value.vestigingsnummer.isNullOrBlank()
-                && value.rsinNummer.isNullOrBlank()
-            IdentificatieType.VN -> !value.kvkNummer.isNullOrBlank()
-                && !value.vestigingsnummer.isNullOrBlank()
-                && value.bsnNummer.isNullOrBlank()
-                && value.rsinNummer.isNullOrBlank()
-            IdentificatieType.RSIN -> !value.rsinNummer.isNullOrBlank()
-                && value.bsnNummer.isNullOrBlank()
-                && value.kvkNummer.isNullOrBlank()
-                && value.vestigingsnummer.isNullOrBlank()
+            IdentificatieType.BSN -> !value.bsnNummer.isNullOrBlank() &&
+                value.kvkNummer.isNullOrBlank() &&
+                value.vestigingsnummer.isNullOrBlank() &&
+                value.rsinNummer.isNullOrBlank()
+            IdentificatieType.VN -> !value.kvkNummer.isNullOrBlank() &&
+                !value.vestigingsnummer.isNullOrBlank() &&
+                value.bsnNummer.isNullOrBlank() &&
+                value.rsinNummer.isNullOrBlank()
+            IdentificatieType.RSIN -> !value.rsinNummer.isNullOrBlank() &&
+                value.bsnNummer.isNullOrBlank() &&
+                value.kvkNummer.isNullOrBlank() &&
+                value.vestigingsnummer.isNullOrBlank()
         }
     }
 }
