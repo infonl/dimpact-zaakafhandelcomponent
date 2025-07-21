@@ -9,28 +9,31 @@ import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.extensions.isServicenormBeschikbaar
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 import java.util.UUID
 
+/**
+ * Currently this class it used both for creating and updating as well as for reading
+ * zaaktype-related data.
+ * For this reason, all fields are currently nullable.
+ * In future, we should consider splitting this class into separate classes, depending
+ * on the CRUD operation.
+ */
+@NoArgConstructor
+@AllOpen
 data class RestZaaktypeOverzicht(
-    val uuid: UUID,
-    /**
-     * Note that the zaaktype identificatie field as per ZGW ZTC API is unique,
-     * but (for some reason) unfortunately not required (i.e. nullable).
-     */
-    val identificatie: String?,
-    val doel: String,
-    val omschrijving: String,
-    val servicenorm: Boolean,
-    val versiedatum: LocalDate,
-    val beginGeldigheid: LocalDate,
-    /**
-     * The zaaktype eindeGeldigheid field is nullable, where a null value
-     * indicates that the zaaktype is currently valid.
-     */
+    var uuid: UUID?,
+    var identificatie: String?,
+    var doel: String?,
+    var omschrijving: String?,
+    var servicenorm: Boolean = false,
+    var versiedatum: LocalDate?,
+    var beginGeldigheid: LocalDate?,
     var eindeGeldigheid: LocalDate?,
-    var vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum,
-    var nuGeldig: Boolean
+    var vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum?,
+    var nuGeldig: Boolean = false
 )
 
 fun ZaakType.toRestZaaktypeOverzicht() = RestZaaktypeOverzicht(

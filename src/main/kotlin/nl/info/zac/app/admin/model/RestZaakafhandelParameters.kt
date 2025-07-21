@@ -18,6 +18,13 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 
+/**
+ * Currently this class it used both for creating and updating as well as for reading
+ * zaakafhandelparameter data.
+ * For this reason, all fields are currently nullable.
+ * In future, we should consider splitting this class into separate classes, depending
+ * on the CRUD operation.
+ */
 @NoArgConstructor
 @AllOpen
 data class RestZaakafhandelParameters(

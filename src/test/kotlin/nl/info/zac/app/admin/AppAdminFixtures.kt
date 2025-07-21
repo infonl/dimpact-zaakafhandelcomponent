@@ -4,7 +4,6 @@
  */
 package nl.info.zac.app.admin
 
-import nl.info.zac.app.admin.model.RestZaaktypeOverzicht
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.RestBrpDoelbindingen
@@ -14,6 +13,7 @@ import nl.info.zac.app.admin.model.RestReferenceTableUpdate
 import nl.info.zac.app.admin.model.RestReferenceTableValue
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
+import nl.info.zac.app.admin.model.RestZaaktypeOverzicht
 import java.time.LocalDate
 import java.util.UUID
 

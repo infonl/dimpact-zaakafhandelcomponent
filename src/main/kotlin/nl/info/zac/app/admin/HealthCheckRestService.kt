@@ -12,11 +12,11 @@ import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.admin.model.RESTBuildInformation
 import nl.info.zac.app.admin.model.RESTZaaktypeInrichtingscheck
+import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.model.ZaaktypeInrichtingscheck
