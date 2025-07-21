@@ -48,9 +48,9 @@ public class RolMedewerker extends Rol<MedewerkerIdentificatie> {
             final String roltoelichting,
             // it is possible in the ZGW API to have a RolMedewerker without a Medewerker,
             // and this does occur in practice in certain circumstances
-            @Nullable final MedewerkerIdentificatie betrokkeneIdentificatie
+            @Nullable final MedewerkerIdentificatie medewerkerIdentificatie
     ) {
-        super(zaak, roltype, BetrokkeneTypeEnum.MEDEWERKER, betrokkeneIdentificatie, roltoelichting);
+        super(zaak, roltype, BetrokkeneTypeEnum.MEDEWERKER, medewerkerIdentificatie, roltoelichting);
     }
 
     public String getNaam() {
