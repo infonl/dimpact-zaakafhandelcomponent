@@ -265,10 +265,10 @@ class MailService @Inject constructor(
 
     private fun resolveVariabelen(tekst: String, bronnen: Bronnen): String =
         mailTemplateHelper.resolveGemeenteVariable(tekst).let {
-            mailTemplateHelper.resolveVariabelen(it, bronnen.zaak ?: return@let it)
+            mailTemplateHelper.resolveZaakVariables(it, bronnen.zaak ?: return@let it)
         }.let {
-            mailTemplateHelper.resolveVariabelen(it, bronnen.document ?: return@let it)
+            mailTemplateHelper.resolveEnkelvoudigInformatieObjectVariables(it, bronnen.document ?: return@let it)
         }.let {
-            mailTemplateHelper.resolveVariabelen(it, bronnen.taskInfo ?: return@let it)
+            mailTemplateHelper.resolveTaskVariables(it, bronnen.taskInfo ?: return@let it)
         }
 }

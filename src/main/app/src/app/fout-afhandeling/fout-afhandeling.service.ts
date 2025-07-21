@@ -120,13 +120,14 @@ export class FoutAfhandelingService {
       return throwError(() => err.message);
     }
 
-    const errorDetail =
-      err.error?.message || err.message || err?.error?.exception;
+    const errorMessage = err.error?.message || err.message;
 
-    if (err.status === 400) {
+    const errorDetail = err?.error?.exception;
+
+    if (err.status === 400 && !errorDetail) {
       return this.openFoutDialog(
         this.translateService.instant(
-          errorDetail || "dialoog.error.body.technisch",
+          errorMessage || "dialoog.error.body.technisch",
         ),
       );
     }
@@ -163,10 +164,9 @@ export class FoutAfhandelingService {
     // show error in context and do not redirect to error-page
     return this.openFoutDetailedDialog(
       this.translateService.instant(
-        errorDetail || "dialoog.error.body.technisch",
+        errorMessage || "dialoog.error.body.technisch",
       ),
-      err.error?.exception ??
-        this.translateService.instant("dialoog.error.body.fout"),
+      errorDetail ?? this.translateService.instant("dialoog.error.body.fout"),
       showServerErrorTexts,
     );
   }

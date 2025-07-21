@@ -78,9 +78,9 @@ class MailServiceTest : BehaviorSpec({
         val resolvedSubject = "resolvedSubject"
 
         every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns "fakeResolvedString1"
-        every { mailTemplateHelper.resolveVariabelen("fakeResolvedString1", zaak) } returns resolvedSubject
+        every { mailTemplateHelper.resolveZaakVariables("fakeResolvedString1", zaak) } returns resolvedSubject
         every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.body) } returns "fakeResolvedBody2"
-        every { mailTemplateHelper.resolveVariabelen("fakeResolvedBody2", zaak) } returns "fakeResolvedBody3"
+        every { mailTemplateHelper.resolveZaakVariables("fakeResolvedBody2", zaak) } returns "fakeResolvedBody3"
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
         every { ztcClientService.readInformatieobjecttype(URI("fakeInformatieObjectType1")) } returns informatieObjectType
         every { loggedInUserInstance.get() } returns user
@@ -166,9 +166,9 @@ class MailServiceTest : BehaviorSpec({
         val resolvedBody = "resolvedBody"
 
         every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns "fakeResolvedString1"
-        every { mailTemplateHelper.resolveVariabelen("fakeResolvedString1", task) } returns resolvedSubject
+        every { mailTemplateHelper.resolveTaskVariables("fakeResolvedString1", task) } returns resolvedSubject
         every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.body) } returns "fakeResolvedBody2"
-        every { mailTemplateHelper.resolveVariabelen("fakeResolvedBody2", task) } returns resolvedBody
+        every { mailTemplateHelper.resolveTaskVariables("fakeResolvedBody2", task) } returns resolvedBody
 
         mockkObject(MailService.Companion)
         every { MailService.Companion.mailSession.properties } returns Properties()

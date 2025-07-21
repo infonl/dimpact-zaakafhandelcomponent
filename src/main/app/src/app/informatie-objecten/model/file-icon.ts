@@ -88,7 +88,7 @@ export class FileIcon {
     return this.type.localeCompare(other.type);
   }
 
-  static getIconByBestandsnaam(bestandsnaam: unknown) {
+  static getIconByBestandsnaam(bestandsnaam?: unknown) {
     const fileType = String(bestandsnaam).split(".").pop();
     const fileIcon = FileIcon.fileIcons.find(({ type }) => type === fileType);
     return fileIcon ?? FileIcon.unknown;

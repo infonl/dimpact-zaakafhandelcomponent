@@ -4,9 +4,8 @@
  */
 
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
-import { FilterParameters } from "../../../model/filter-parameters";
-import { FilterResultaat } from "../../../model/filter-resultaat";
+import { FormBuilder, FormControl } from "@angular/forms";
+import { GeneratedType } from "../../../../shared/utils/generated-types";
 
 @Component({
   selector: "zac-multi-facet-filter",
@@ -14,11 +13,14 @@ import { FilterResultaat } from "../../../model/filter-resultaat";
   styleUrls: ["./multi-facet-filter.component.less"],
 })
 export class MultiFacetFilterComponent implements OnInit {
-  formGroup: FormGroup;
-  @Input({ required: true }) filter!: FilterParameters;
-  @Input({ required: true }) opties!: FilterResultaat[];
+  @Input({ required: true }) filter!: GeneratedType<"FilterParameters">;
+  @Input({ required: true }) opties!: GeneratedType<"FilterResultaat">[];
   @Input({ required: true }) label!: string;
-  @Output() changed = new EventEmitter<FilterParameters>();
+  @Output() changed = new EventEmitter<GeneratedType<"FilterParameters">>();
+
+  formGroup = this._formBuilder.group<{
+    [key: string]: FormControl<boolean | null>;
+  }>({});
 
   inverse = false;
   selected: string[] = [];
@@ -35,13 +37,12 @@ export class MultiFacetFilterComponent implements OnInit {
     ZAAK_ARCHIEF_NOMINATIE: "archiefNominatie.",
   };
 
-  constructor(private _formBuilder: FormBuilder) {
-    this.formGroup = this._formBuilder.group({});
-  }
+  constructor(private _formBuilder: FormBuilder) {}
 
   ngOnInit(): void {
-    this.inverse = this.filter?.inverse === "true";
-    this.selected = this.filter?.values ? this.filter.values : [];
+    this.inverse =
+      this.filter?.inverse === true || String(this.filter?.inverse) === "true";
+    this.selected = this.filter?.values ?? [];
     this.opties.forEach((value) => {
       this.formGroup.addControl(
         value.naam,
@@ -51,13 +52,17 @@ export class MultiFacetFilterComponent implements OnInit {
   }
 
   checkboxChange(): void {
-    const checked: string[] = [];
-    Object.keys(this.formGroup.controls).forEach((key) => {
-      if (this.formGroup.controls[key].value) {
-        checked.push(key);
-      }
+    const checked = Object.keys(this.formGroup.controls).reduce<string[]>(
+      (acc, key) => {
+        if (this.formGroup.controls[key].value) acc.push(key);
+        return acc;
+      },
+      [],
+    );
+    this.changed.emit({
+      values: checked,
+      inverse: this.inverse,
     });
-    this.changed.emit(new FilterParameters(checked, this.inverse));
   }
 
   isVertaalbaar(veld: string): boolean {

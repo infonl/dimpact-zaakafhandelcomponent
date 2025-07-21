@@ -4,6 +4,9 @@
  */
 package nl.info.zac.authentication
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.interfaces.DecodedJWT
+import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.servlet.Filter
 import jakarta.servlet.FilterChain
@@ -15,20 +18,36 @@ import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaakafhandelParameterService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import org.jose4j.jwt.JwtClaims
+import org.jose4j.jwt.NumericDate
+import org.wildfly.security.http.oidc.AccessToken
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
+import org.wildfly.security.http.oidc.RefreshableOidcSecurityContext
 import java.util.logging.Logger
+import kotlin.jvm.java
 
+const val ACCESS_TOKEN_ATTRIBUTE = "access_token"
+const val REFRESH_TOKEN_ATTRIBUTE = "refresh_token"
+
+@ApplicationScoped
 @WebFilter(filterName = "UserPrincipalFilter")
 @AllOpen
 @NoArgConstructor
-class UserPrincipalFilter @Inject constructor(
-    private val zaakafhandelParameterService: ZaakafhandelParameterService
-) : Filter {
+class UserPrincipalFilter
+@Inject
+constructor(private val zaakafhandelParameterService: ZaakafhandelParameterService) : Filter {
     companion object {
         private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
         private const val GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership"
         const val ROL_DOMEIN_ELK_ZAAKTYPE = "domein_elk_zaaktype"
+    }
+
+    fun createOidcPrincipalFromAccessToken(accessToken: String): OidcPrincipal<*> {
+        val decodedJWT = JWT.decode(accessToken)
+        val token = MinimalAccessToken(decodedJWT)
+        val context = SimpleOidcSecurityContext(token)
+        return SimpleOidcPrincipal(token.preferredUsername ?: "unknown", context)
     }
 
     override fun doFilter(
@@ -38,6 +57,7 @@ class UserPrincipalFilter @Inject constructor(
     ) {
         (servletRequest as? HttpServletRequest)?.userPrincipal?.let { userPrincipal ->
             val httpSession = servletRequest.getSession(true)
+
             getLoggedInUser(httpSession)?.let { loggedInUser ->
                 if (loggedInUser.id != userPrincipal.name) {
                     LOG.info(
@@ -45,17 +65,24 @@ class UserPrincipalFilter @Inject constructor(
                             "on context path '${servletRequest.servletContext.contextPath}'"
                     )
                     httpSession.invalidate()
-                    addLoggedInUserToHttpSession(userPrincipal as OidcPrincipal<*>, servletRequest.getSession(true))
+                    setLoggedInUserOnHttpSession(
+                        userPrincipal as OidcPrincipal<*>,
+                        servletRequest.getSession(true)
+                    )
                 }
-            } ?: run {
-                // no logged-in user in session
-                addLoggedInUserToHttpSession(userPrincipal as OidcPrincipal<*>, httpSession)
             }
+                ?: run {
+                    // no logged-in user in session
+                    setLoggedInUserOnHttpSession(userPrincipal as OidcPrincipal<*>, httpSession)
+                }
         }
         filterChain.doFilter(servletRequest, servletResponse)
     }
 
-    private fun addLoggedInUserToHttpSession(oidcPrincipal: OidcPrincipal<*>, httpSession: HttpSession) =
+    fun setLoggedInUserOnHttpSession(
+        oidcPrincipal: OidcPrincipal<*>,
+        httpSession: HttpSession
+    ) =
         createLoggedInUser(oidcPrincipal.oidcSecurityContext).let { loggedInUser ->
             setLoggedInUser(httpSession, loggedInUser)
             LOG.info(
@@ -68,7 +95,16 @@ class UserPrincipalFilter @Inject constructor(
                         }
                     }"
             )
+            this.addRefreshTokenToHttpSession(oidcPrincipal, httpSession)
         }
+
+    private fun addRefreshTokenToHttpSession(oidcPrincipal: OidcPrincipal<*>, httpSession: HttpSession) {
+        if (oidcPrincipal.oidcSecurityContext is RefreshableOidcSecurityContext) {
+            val refreshToken = (oidcPrincipal.oidcSecurityContext as RefreshableOidcSecurityContext).refreshToken
+            httpSession.setAttribute(REFRESH_TOKEN_ATTRIBUTE, refreshToken)
+            LOG.info("Added $REFRESH_TOKEN_ATTRIBUTE to the user session")
+        }
+    }
 
     private fun createLoggedInUser(oidcSecurityContext: OidcSecurityContext): LoggedInUser =
         oidcSecurityContext.token.let { accessToken ->
@@ -80,28 +116,62 @@ class UserPrincipalFilter @Inject constructor(
                     displayName = accessToken.name,
                     email = accessToken.email,
                     roles = roles,
-                    groupIds = accessToken.getStringListClaimValue(GROUP_MEMBERSHIP_CLAIM_NAME).toSet(),
+                    groupIds =
+                    accessToken
+                        .getStringListClaimValue(GROUP_MEMBERSHIP_CLAIM_NAME)
+                        .toSet(),
                     geautoriseerdeZaaktypen = getAuthorisedZaaktypen(roles)
                 )
             }
         }
 
     /**
-     * Returns the active zaaktypen for which the user is authorised, or `null` if the user is authorised for all zaaktypen.
+     * Returns the active zaaktypen for which the user is authorised, or `null` if the user is
+     * authorised for all zaaktypen.
      */
     private fun getAuthorisedZaaktypen(roles: Set<String>): Set<String>? =
         if (roles.contains(ROL_DOMEIN_ELK_ZAAKTYPE)) {
             null
         } else {
-            zaakafhandelParameterService.listZaakafhandelParameters()
-                // group by zaakttype omschrijving since this is the unique identifier for a zaaktype
-                // (not the zaaktype uuid since that changes for every version of a zaaktype)
+            zaakafhandelParameterService
+                .listZaakafhandelParameters()
+                // group by zaaktype omschrijving since this is the unique identifier for a
+                // zaaktype
+                // (not the zaaktype uuid since that changes for every version of a
+                // zaaktype)
                 .groupBy { it.zaaktypeOmschrijving }
-                // get the zaakafhandelparameter with the latest creation date (= the active one)
+                // get the zaakafhandelparameter with the latest creation date (= the active
+                // one)
                 .map { it.value.maxBy { value -> value.creatiedatum } }
-                // filter out the zaakafhandelparameters that have a domain that is equal to one of the user's (domain) roles
+                // filter out the zaakafhandelparameters that have a domain that is equal to
+                // one of the user's (domain) roles
                 .filter { it.domein != null && roles.contains(it.domein) }
                 .map { it.zaaktypeOmschrijving }
                 .toSet()
         }
+}
+
+class MinimalAccessToken(private val decodedJWT: DecodedJWT) : AccessToken(decodedJWT.toClaims()) {
+    override fun getStringListClaimValue(claim: String): List<String> =
+        decodedJWT.getClaim(claim).asList(String::class.java) ?: emptyList()
+}
+
+class SimpleOidcSecurityContext(val delegateToken: MinimalAccessToken) : OidcSecurityContext() {
+    override fun getToken(): AccessToken = delegateToken
+}
+
+class SimpleOidcPrincipal(name: String, val context: OidcSecurityContext) :
+    OidcPrincipal<OidcSecurityContext>(name, context)
+
+fun DecodedJWT.toClaims(): JwtClaims {
+    val claims = JwtClaims()
+    this.claims.forEach { (key, value) ->
+        claims.setClaim(key, value.`as`(Any::class.java))
+    }
+    claims.subject = this.subject
+    claims.issuer = this.issuer
+    claims.expirationTime = NumericDate.fromMilliseconds(this.expiresAt.time)
+    claims.issuedAt = NumericDate.fromMilliseconds(this.issuedAt.time)
+    claims.jwtId = this.id
+    return claims
 }

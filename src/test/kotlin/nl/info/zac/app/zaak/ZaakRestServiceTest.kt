@@ -456,7 +456,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         val existingRolMedewerker = createRolMedewerker()
         val rolMedewerker = createRolMedewerker(
             zaakURI = zaak.url,
-            betrokkeneIdentificatie = createMedewerkerIdentificatie(identificatie = "newUser")
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "newUser")
         )
         val group = createGroup()
         val existingRolGroup = createRolOrganisatorischeEenheid()

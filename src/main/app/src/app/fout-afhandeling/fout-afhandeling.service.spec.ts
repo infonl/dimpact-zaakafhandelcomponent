@@ -81,4 +81,23 @@ describe("FoutAfhandelingService", () => {
 
     expect(errorMessage).toEqual(`${translatedErrorMessage}`);
   });
+
+  it("should return an observable error message with details when httpErrorAfhandelen is called with a 400 error with exception details", async () => {
+    const message = "fakeBadRequestMessage";
+    const exceptionDetail = "fakeBadRequestExceptionDetail";
+    const errorResponse = new HttpErrorResponse({
+      error: {
+        message: message,
+        exception: exceptionDetail,
+      },
+      status: 400,
+    });
+
+    const error$ = service.httpErrorAfhandelen(errorResponse);
+    const errorMessage = await firstValueFrom(error$).catch((r) => r);
+
+    expect(errorMessage).toEqual(
+      `${translatedErrorMessage}: ${exceptionDetail}`,
+    );
+  });
 });

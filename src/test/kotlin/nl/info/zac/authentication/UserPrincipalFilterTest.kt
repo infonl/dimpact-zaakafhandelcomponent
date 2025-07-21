@@ -36,9 +36,19 @@ class UserPrincipalFilterTest : BehaviorSpec({
     val servletResponse = mockk<ServletResponse>()
     val filterChain = mockk<FilterChain>()
     val httpSession = mockk<HttpSession>()
-    val oidcPrincipal = mockkClass(OidcPrincipal::class)
-    val oidcSecurityContext = mockk<OidcSecurityContext>()
-    val accessToken = mockk<AccessToken>()
+    val oidcPrincipal = mockkClass(OidcPrincipal::class, relaxed = true)
+    val oidcSecurityContext = mockk<OidcSecurityContext>(relaxed = true)
+    val accessToken = mockk<AccessToken>(relaxed = true)
+
+    every { oidcPrincipal.oidcSecurityContext } returns oidcSecurityContext
+    every { oidcSecurityContext.token } returns accessToken
+    every { accessToken.rolesClaim } returns listOf("role1")
+    every { accessToken.preferredUsername } returns "user"
+    every { accessToken.givenName } returns "Given"
+    every { accessToken.familyName } returns "Family"
+    every { accessToken.name } returns "Full Name"
+    every { accessToken.email } returns "user@example.com"
+    every { accessToken.getStringListClaimValue(any()) } returns listOf("group1")
 
     beforeEach {
         checkUnnecessaryStub()
@@ -46,9 +56,9 @@ class UserPrincipalFilterTest : BehaviorSpec({
 
     Given(
         """
-            A logged-in user is present in the HTTP session and a servlet request containing 
-            a user principal with the same id as the logged-in user in the HTTP session
-            """
+        A logged-in user is present in the HTTP session and a servlet request containing 
+        a user principal with the same id as the logged-in user in the HTTP session
+    """
     ) {
         val userId = "fakeId"
         val loggedInUser = createLoggedInUser(
@@ -62,8 +72,8 @@ class UserPrincipalFilterTest : BehaviorSpec({
 
         When(
             """
-                doFilter is called
-                """
+            doFilter is called
+        """
         ) {
             userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
@@ -76,9 +86,9 @@ class UserPrincipalFilterTest : BehaviorSpec({
     }
     Given(
         """
-                A logged-in user is present in the HTTP session and a servlet request containing 
-                a user principal with a different id as the logged-in user
-                """
+        A logged-in user is present in the HTTP session and a servlet request containing 
+        a user principal with a different id as the logged-in user
+    """
     ) {
         val userId = "fakeId"
         val loggedInUser = createLoggedInUser(
@@ -114,8 +124,8 @@ class UserPrincipalFilterTest : BehaviorSpec({
 
             Then(
                 """
-                    the existing HTTP session is invalidated and the user is added to a new HTTP session
-                    """
+                the existing HTTP session is invalidated and the user is added to a new HTTP session
+            """
             ) {
                 verify(exactly = 1) {
                     filterChain.doFilter(httpServletRequest, servletResponse)
@@ -127,10 +137,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
     }
     Given(
         """
-            No logged-in user is present in the HTTP session and an OIDC security context is present with a token
-            that contains user information including a role for a domain which is also present in one of 
-            the currently active zaakafhandelparameters
-            """
+        No logged-in user is present in the HTTP session and an OIDC security context is present with a token
+        that contains user information including a role for a domain which is also present in one of 
+        the currently active zaakafhandelparameters
+    """
     ) {
         val userName = "fakeUserName"
         val givenName = "fakeGivenName"

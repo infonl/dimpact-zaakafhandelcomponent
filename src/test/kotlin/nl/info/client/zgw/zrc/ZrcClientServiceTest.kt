@@ -57,7 +57,7 @@ class ZrcClientServiceTest : BehaviorSpec({
         val zaak = createZaak()
         val existingRoles = listOf(createRolMedewerker(), createRolOrganisatorischeEenheid())
         val newRole = createRolMedewerker(
-            betrokkeneIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeIdentificatie123")
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeIdentificatie123")
         )
         val description = "fakeDescription"
         every { zrcClient.rolList(any()) } returns Results(existingRoles, existingRoles.size)
