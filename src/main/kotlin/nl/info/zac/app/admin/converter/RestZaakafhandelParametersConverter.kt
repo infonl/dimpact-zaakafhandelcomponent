@@ -17,7 +17,7 @@ import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
 import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter.convertRESTZaakAfzenders
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters
-import net.atos.zac.app.admin.converter.RESTZaaktypeOverzichtConverter
+import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.admin.model.RestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen
@@ -54,9 +54,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
     ): RestZaakafhandelParameters {
         val restZaakafhandelParameters = RestZaakafhandelParameters(
             id = zaakafhandelParameters.id,
-            zaaktype = ztcClientService.readZaaktype(zaakafhandelParameters.zaakTypeUUID).let {
-                RESTZaaktypeOverzichtConverter.convert(it)
-            },
+            zaaktype = ztcClientService.readZaaktype(zaakafhandelParameters.zaakTypeUUID).toRestZaaktypeOverzicht(),
             defaultGroepId = zaakafhandelParameters.groepID,
             defaultBehandelaarId = zaakafhandelParameters.gebruikersnaamMedewerker,
             einddatumGeplandWaarschuwing = zaakafhandelParameters.einddatumGeplandWaarschuwing,

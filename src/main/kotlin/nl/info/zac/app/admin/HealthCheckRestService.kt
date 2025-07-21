@@ -12,7 +12,7 @@ import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.app.admin.converter.RESTZaaktypeOverzichtConverter
+import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.admin.model.RESTBuildInformation
@@ -91,7 +91,7 @@ class HealthCheckRestService @Inject constructor(
 
     private fun convertToREST(check: ZaaktypeInrichtingscheck): RESTZaaktypeInrichtingscheck =
         RESTZaaktypeInrichtingscheck(
-            zaaktype = RESTZaaktypeOverzichtConverter.convert(check.zaaktype),
+            zaaktype = check.zaaktype.toRestZaaktypeOverzicht(),
             besluittypeAanwezig = check.isBesluittypeAanwezig,
             resultaattypesMetVerplichtBesluit = check.resultaattypesMetVerplichtBesluit,
             resultaattypeAanwezig = check.isResultaattypeAanwezig,

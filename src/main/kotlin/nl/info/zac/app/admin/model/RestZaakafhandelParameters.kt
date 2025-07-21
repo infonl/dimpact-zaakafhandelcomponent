@@ -12,7 +12,6 @@ import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling
 import net.atos.zac.app.admin.model.RESTUserEventListenerParameter
 import net.atos.zac.app.admin.model.RESTZaakAfzender
 import net.atos.zac.app.admin.model.RESTZaakbeeindigParameter
-import net.atos.zac.app.admin.model.RESTZaaktypeOverzicht
 import nl.info.zac.app.zaak.model.RESTZaakStatusmailOptie
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.util.AllOpen
@@ -23,7 +22,7 @@ import java.time.ZonedDateTime
 @AllOpen
 data class RestZaakafhandelParameters(
     var id: Long? = null,
-    var zaaktype: RESTZaaktypeOverzicht,
+    var zaaktype: RestZaaktypeOverzicht,
     var caseDefinition: RESTCaseDefinition? = null,
     var defaultBehandelaarId: String? = null,
     var defaultGroepId: String? = null,
