@@ -1335,12 +1335,12 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Given("A zaak without an initiator") {
-        val kvkNUmmer = "1234567"
+        val kvkNummer = "1234567"
         val vestigingsnummer = "00012352546"
         val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens(
             betrokkeneIdentificatie = BetrokkeneIdentificatie(
                 type = IdentificatieType.VN,
-                kvkNummer = kvkNUmmer,
+                kvkNummer = kvkNummer,
                 vestigingsnummer = vestigingsnummer
             )
         )
@@ -1352,7 +1352,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every {
             zaakService.addInitiatorToZaak(
                 IdentificatieType.VN,
-                "$kvkNUmmer|$vestigingsnummer",
+                "$kvkNummer|$vestigingsnummer",
                 zaak,
                 any()
             )
@@ -1370,7 +1370,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zaakService.addInitiatorToZaak(
                         IdentificatieType.VN,
-                        "$kvkNUmmer|$vestigingsnummer",
+                        "$kvkNummer|$vestigingsnummer",
                         any(),
                         "test reden"
                     )
@@ -1389,7 +1389,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zaakService.addInitiatorToZaak(
                         IdentificatieType.VN,
-                        "$kvkNUmmer|$vestigingsnummer",
+                        "$kvkNummer|$vestigingsnummer",
                         any(),
                         "Toegekend door de medewerker tijdens het behandelen van de zaak"
                     )
