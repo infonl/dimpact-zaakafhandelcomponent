@@ -34,7 +34,6 @@ import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.common.params.CursorMarkParams
 import org.eclipse.microprofile.config.ConfigProvider
-import org.ietf.jgss.Oid
 import java.io.IOException
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
