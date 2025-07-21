@@ -213,6 +213,7 @@
   "gegevens.mail.afzenders": "Mail senders",
   "gegevens.mail.templates": "Mail templates",
   "gegevens.mail.ontvangstbevestiging": "Automatic receipt confirmation",
+  "gegevens.mail.ontvangstbevestiging.hint": "An automatic receipt can only be sent for cases that were created directly from a product request (e.g. from a form), and where the initiator's e-mail address is known.",
   "goedkeuren": "Approve",
   "geldig": "Valid",
   "begin.geldigheid": "Start validity",

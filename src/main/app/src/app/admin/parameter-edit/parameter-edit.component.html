@@ -574,13 +574,18 @@
             </mat-card>
             <mat-card>
               <form [formGroup]="automatischeOntvangstbevestigingFormGroup">
-                <mat-card-header>
-                  <zac-toggle
-                    label="gegevens.mail.ontvangstbevestiging"
-                    labelPosition="before"
-                    [form]="automatischeOntvangstbevestigingFormGroup"
-                    key="enabled"
-                  ></zac-toggle>
+                <mat-card-header class="mb-2">
+                  <mat-card-title>
+                    <zac-toggle
+                      label="gegevens.mail.ontvangstbevestiging"
+                      labelPosition="before"
+                      [form]="automatischeOntvangstbevestigingFormGroup"
+                      key="enabled"
+                    ></zac-toggle>
+                  </mat-card-title>
+                  <mat-card-subtitle>
+                    {{ "gegevens.mail.ontvangstbevestiging.hint" | translate }}
+                  </mat-card-subtitle>
                 </mat-card-header>
                 <mat-card-content
                   *ngIf="
