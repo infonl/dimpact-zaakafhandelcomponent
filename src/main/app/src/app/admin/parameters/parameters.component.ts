@@ -15,7 +15,6 @@ import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
-import { CaseDefinition } from "../model/case-definition";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-list-parameters";
 
@@ -43,14 +42,14 @@ export class ParametersComponent
   caseDefinitions: GeneratedType<"RESTCaseDefinition">[] = [];
 
   constructor(
-    public utilService: UtilService,
-    public configuratieService: ConfiguratieService,
-    private zaakafhandelParametersService: ZaakafhandelParametersService,
+    public readonly utilService: UtilService,
+    public readonly configuratieService: ConfiguratieService,
+    private readonly zaakafhandelParametersService: ZaakafhandelParametersService,
   ) {
     super(utilService, configuratieService);
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.setupMenu("title.parameters");
     this.getZaakafhandelParameters();
     this.filterParameters = SessionStorageUtil.getItem(
@@ -60,7 +59,7 @@ export class ParametersComponent
     this.applyFilter();
   }
 
-  ngAfterViewInit(): void {
+  ngAfterViewInit() {
     super.ngAfterViewInit();
     this.parameters.sortingDataAccessor = (item, property) => {
       switch (property) {
@@ -109,9 +108,9 @@ export class ParametersComponent
         match =
           match &&
           ClientMatcher.matchObject(
+            "identificatie",
             data.zaaktype,
             parsedFilter.zaaktype as GeneratedType<"RESTZaaktypeOverzicht">,
-            "identificatie",
           );
       }
 
@@ -119,9 +118,9 @@ export class ParametersComponent
         match =
           match &&
           ClientMatcher.matchObject(
+            "key",
             data.caseDefinition,
             parsedFilter.caseDefinition,
-            "key",
           );
       }
       if (
@@ -155,7 +154,7 @@ export class ParametersComponent
   applyFilter(options?: {
     event: ToggleSwitchOptions | MatSelectChange | string | number | undefined;
     filter?: keyof ZaakafhandelParametersListParameters;
-  }): void {
+  }) {
     if (options) {
       const value =
         typeof options.event === "object"
@@ -174,7 +173,7 @@ export class ParametersComponent
     );
   }
 
-  private getZaakafhandelParameters(): void {
+  private getZaakafhandelParameters() {
     this.loading = true;
     this.zaakafhandelParametersService
       .listZaakafhandelParameters()
@@ -197,15 +196,15 @@ export class ParametersComponent
   }
 
   compareZaaktype = (
-    zaaktype1: GeneratedType<"RestZaaktype">,
-    zaaktype2: GeneratedType<"RestZaaktype">,
+    zaaktype1?: GeneratedType<"RestZaaktype">,
+    zaaktype2?: GeneratedType<"RestZaaktype">,
   ) => {
     return zaaktype1?.identificatie === zaaktype2?.identificatie;
   };
   compareCaseDefinition = (
-    caseDefinition1: CaseDefinition,
-    caseDefinition2: CaseDefinition,
-  ): boolean => {
+    caseDefinition1?: GeneratedType<"RESTCaseDefinition">,
+    caseDefinition2?: GeneratedType<"RESTCaseDefinition">,
+  ) => {
     return caseDefinition1?.key === caseDefinition2?.key;
   };
 }

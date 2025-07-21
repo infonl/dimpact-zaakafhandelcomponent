@@ -26,15 +26,18 @@ INSERT INTO public.klantinteracties_partij (id, bezoekadres_nummeraanduiding_id,
 INSERT INTO public.klantinteracties_partijidentificator (id, uuid, andere_partij_identificator, partij_identificator_code_objecttype, partij_identificator_code_soort_object_id, partij_identificator_object_id, partij_identificator_code_register, partij_id)
     VALUES (1, '4b7f454f-e836-4d4d-9f37-df98e473616b', '', 'natuurlijk_persoon', 'bsn', '999993896', 'brp', 1);
 
--- partij of type organisatie
+-- partij of type organisatie - bedrijf
 INSERT INTO public.klantinteracties_partij (id, bezoekadres_nummeraanduiding_id, bezoekadres_adresregel1, bezoekadres_adresregel2, bezoekadres_adresregel3, bezoekadres_huisnummertoevoeging, bezoekadres_postcode, bezoekadres_straatnaam, bezoekadres_stad, bezoekadres_land, correspondentieadres_nummeraanduiding_id, correspondentieadres_adresregel1, correspondentieadres_adresregel2, correspondentieadres_adresregel3, correspondentieadres_huisnummertoevoeging, correspondentieadres_postcode, correspondentieadres_straatnaam, correspondentieadres_stad, correspondentieadres_land, uuid, nummer, interne_notitie, soort_partij, indicatie_geheimhouding, voorkeurstaal, indicatie_actief, voorkeurs_digitaal_adres_id, voorkeurs_rekeningnummer_id)
     VALUES (2, '', '', '', '', '','', '', '','','', '', '', '', '','','', '','','3e9daeaa-e836-4450-aba7-2072477991ba', '0000000002', 'note', 'organisatie', false, 'dut', true, null, null);
 -- partij identificatie of type KVK nummer - note that the objecttype needs to be 'niet natuurlijk persoon'
 INSERT INTO public.klantinteracties_partijidentificator (id, uuid, andere_partij_identificator, partij_identificator_code_objecttype, partij_identificator_code_soort_object_id, partij_identificator_object_id, partij_identificator_code_register, partij_id, sub_identificator_van_id)
     VALUES (2, 'c370a54b-6a96-41ef-8cd2-00e4120abb22', '', 'niet_natuurlijk_persoon', 'kvk_nummer', '12345678', '', 2, null);
+-- partij of type organisatie - vestiging
+INSERT INTO public.klantinteracties_partij (id, bezoekadres_nummeraanduiding_id, bezoekadres_adresregel1, bezoekadres_adresregel2, bezoekadres_adresregel3, bezoekadres_huisnummertoevoeging, bezoekadres_postcode, bezoekadres_straatnaam, bezoekadres_stad, bezoekadres_land, correspondentieadres_nummeraanduiding_id, correspondentieadres_adresregel1, correspondentieadres_adresregel2, correspondentieadres_adresregel3, correspondentieadres_huisnummertoevoeging, correspondentieadres_postcode, correspondentieadres_straatnaam, correspondentieadres_stad, correspondentieadres_land, uuid, nummer, interne_notitie, soort_partij, indicatie_geheimhouding, voorkeurstaal, indicatie_actief, voorkeurs_digitaal_adres_id, voorkeurs_rekeningnummer_id)
+    VALUES (3, '', '', '', '', '','', '', '','','', '', '', '', '','','', '','','495da47a-8fe6-4a24-9d1c-46262f009a4b', '0000000003', 'note', 'organisatie', false, 'dut', true, null, null);
 -- partij identificatie of type vestigingsnummer - note that the objecttype needs to be 'vestiging' and is a subtype of the KVK nummer partij identificator
 INSERT INTO public.klantinteracties_partijidentificator (id, uuid, andere_partij_identificator, partij_identificator_code_objecttype, partij_identificator_code_soort_object_id, partij_identificator_object_id, partij_identificator_code_register, partij_id, sub_identificator_van_id)
-    VALUES (3, 'd549774c-82e0-4a85-8e34-fd0bb868aa42', '', 'vestiging', 'vestigingsnummer', '000012345678', '', 2, 2);
+    VALUES (3, 'd549774c-82e0-4a85-8e34-fd0bb868aa42', '', 'vestiging', 'vestigingsnummer', '000012345678', '', 3, 2);
 
 -- add betrokkene (= link to klantcontact) to the persoon partij
 INSERT INTO public.klantinteracties_betrokkene (id, bezoekadres_nummeraanduiding_id, bezoekadres_adresregel1, bezoekadres_adresregel2, bezoekadres_adresregel3, bezoekadres_huisnummertoevoeging, bezoekadres_postcode, bezoekadres_straatnaam, bezoekadres_stad, bezoekadres_land, correspondentieadres_nummeraanduiding_id, correspondentieadres_adresregel1, correspondentieadres_adresregel2, correspondentieadres_adresregel3, correspondentieadres_huisnummertoevoeging, correspondentieadres_postcode, correspondentieadres_straatnaam, correspondentieadres_stad, correspondentieadres_land, contactnaam_voorletters, contactnaam_voornaam, contactnaam_voorvoegsel_achternaam, contactnaam_achternaam, uuid, rol, organisatienaam, initiator, klantcontact_id, partij_id)
@@ -50,12 +53,12 @@ INSERT INTO public.klantinteracties_betrokkene (id, bezoekadres_nummeraanduiding
 
 -- add email and telephone number digital addresses to the persoon partij
 INSERT INTO public.klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
-    VALUES (1, 'cda1e8e5-bf0a-49d7-a395-b19e406474b7', 'email', 'true','hendrika.janse@example.com', 'email address', 1, 1, 'referentie1');
+    VALUES (1, 'cda1e8e5-bf0a-49d7-a395-b19e406474b7', 'email', 'true','hendrika.janse@example.com', '', 1, 1, 'referentie1');
 INSERT INTO public.klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
-    VALUES (2, '61734758-761c-47eb-bc6b-c46eb7ba629d', 'telefoonnummer', 'true','0612345678', 'phone number', 1, 1, 'referentie2');
+    VALUES (2, '61734758-761c-47eb-bc6b-c46eb7ba629d', 'telefoonnummer', 'true','0612345678', '', 1, 1, 'referentie2');
 
 -- add email and telephone number digital addresses to the vestiging partij
 INSERT INTO public.klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
-    VALUES (3, '22a2b1be-238d-4c47-aff4-db9165f43f5f', 'email', 'true','fake.vestiging@example.com', 'email address', 4, 2, 'referentie1');
+    VALUES (3, '22a2b1be-238d-4c47-aff4-db9165f43f5f', 'email', 'true','fake.vestiging@example.com', '', 4, 3, 'referentie1');
 INSERT INTO public.klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
-    VALUES (4, '0b582f1b-e2c9-4897-8117-744a0e6806ae', 'telefoonnummer', 'true','0201234567', 'phone number', 4, 2, 'referentie2');
+    VALUES (4, '0b582f1b-e2c9-4897-8117-744a0e6806ae', 'telefoonnummer', 'true','0201234567', '', 4, 3, 'referentie2');

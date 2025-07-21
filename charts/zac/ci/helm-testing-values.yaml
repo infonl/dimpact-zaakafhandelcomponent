@@ -147,7 +147,7 @@ signaleringen:
   restartPolicy: Never
   image:
     repository: curlimages/curl
-    tag: 8.14.1@sha256:9a1ed35addb45476afa911696297f8e115993df459278ed036182dd2cd22b67b
+    tag: 8.15.0@sha256:4026b29997dc7c823b51c164b71e2b51e0fd95cce4601f78202c513d97da2922
     pullPolicy: IfNotPresent
   imagePullSecrets: []
   resources: {}
@@ -279,7 +279,7 @@ initContainer:
   enabled: true
   image:
     repository: curlimages/curl
-    tag: 8.14.1@sha256:9a1ed35addb45476afa911696297f8e115993df459278ed036182dd2cd22b67b
+    tag: 8.15.0@sha256:4026b29997dc7c823b51c164b71e2b51e0fd95cce4601f78202c513d97da2922
 
 # Open Policy Agent (OPA) configuration, prefilled resources values are the minimum recommended
 opa:
@@ -394,7 +394,7 @@ solr-operator:
         # -- solr jobs repository
         repository: curlimages/curl
         # -- solr jobs tag
-        tag: 8.14.1@sha256:9a1ed35addb45476afa911696297f8e115993df459278ed036182dd2cd22b67b
+        tag: 8.15.0@sha256:4026b29997dc7c823b51c164b71e2b51e0fd95cce4601f78202c513d97da2922
       # -- nodeSelector for jobs
       nodeSelector: {}
       # -- tolerations for jobs

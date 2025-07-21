@@ -363,12 +363,15 @@
         {{ "einddatumGepland" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
-        {{ row.einddatumGepland | datum | empty }}
-        <mat-icon
-          *ngIf="isAfterDate(row.einddatumGepland)"
-          class="warning"
-          [title]="'msg.datum.overschreden' | translate"
-        ></mat-icon>
+        <div class="flex-row items-center gap-10">
+          {{ row.einddatumGepland | datum | empty }}
+          <mat-icon
+            *ngIf="isAfterDateLimit(row.einddatumGepland, row.einddatum)"
+            class="warning"
+            [title]="'msg.einddatum.overschreden' | translate"
+            >warning</mat-icon
+          >
+        </div>
       </td>
     </ng-container>
 
@@ -407,13 +410,17 @@
         {{ "uiterlijkeEinddatumAfdoening" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
-        {{ row.uiterlijkeEinddatumAfdoening | datum | empty }}
-        <mat-icon
-          class="error"
-          [title]="'msg.datum.overschreden' | translate"
-          *ngIf="isAfterDate(row.uiterlijkeEinddatumAfdoening)"
-          >warning</mat-icon
-        >
+        <div class="flex-row items-center gap-10">
+          {{ row.uiterlijkeEinddatumAfdoening | datum | empty }}
+          <mat-icon
+            *ngIf="
+              isAfterDateLimit(row.uiterlijkeEinddatumAfdoening, row.einddatum)
+            "
+            [title]="'msg.einddatum.overschreden' | translate"
+            class="error"
+            >warning</mat-icon
+          >
+        </div>
       </td>
     </ng-container>
 
