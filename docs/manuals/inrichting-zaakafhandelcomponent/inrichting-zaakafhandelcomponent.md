@@ -151,7 +151,7 @@ Met de dropdown keuzes Zoekwaarde en Raapleegwaarde is de configuratie van de ba
 - BRP_DOELBINDING_RAADPLEEG_WAARDE
 - BRP_DOELBINDING_ZOEK_WAARDE.
 
-##### Smartdocuments
+##### SmartDocuments
 
 - SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen
 - Elk SmartDocuments-sjabloon moet de plug-in "RedirectURL" ingeschakeld hebben.
