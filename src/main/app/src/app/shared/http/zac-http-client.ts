@@ -85,10 +85,7 @@ export class ZacHttpClient {
   >(
     url: Path,
     body: PostBody<Path, Method>,
-    parameters: PathParameters<Path, Method> = {} as PathParameters<
-      Path,
-      Method
-    >,
+    parameters: PathParameters<Path, Method>,
   ) {
     return this.http
       .post<

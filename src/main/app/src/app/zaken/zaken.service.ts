@@ -31,7 +31,7 @@ export class ZakenService {
   }
 
   createZaak(body: PostBody<"/rest/zaken/zaak">) {
-    return this.zacHttpClient.POST("/rest/zaken/zaak", body);
+    return this.zacHttpClient.POST("/rest/zaken/zaak", body, {});
   }
 
   updateZaak(
