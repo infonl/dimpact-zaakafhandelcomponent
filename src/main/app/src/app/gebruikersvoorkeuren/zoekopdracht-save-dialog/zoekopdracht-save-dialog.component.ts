@@ -6,32 +6,31 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { Observable } from "rxjs";
+import { Observable, of } from "rxjs";
 import { map, startWith } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
-import { Werklijst } from "../model/werklijst";
-import { Zoekopdracht } from "../model/zoekopdracht";
 
 @Component({
   templateUrl: "./zoekopdracht-save-dialog.component.html",
   styleUrls: ["./zoekopdracht-save-dialog.component.less"],
 })
 export class ZoekopdrachtSaveDialogComponent implements OnInit {
-  loading: boolean;
+  loading = false;
   formControl = new FormControl("");
-  filteredOptions: Observable<string[]>;
+  filteredOptions: Observable<string[]> = of([]);
 
   constructor(
-    public dialogRef: MatDialogRef<ZoekopdrachtSaveDialogComponent>,
+    public readonly dialogRef: MatDialogRef<ZoekopdrachtSaveDialogComponent>,
     @Inject(MAT_DIALOG_DATA)
-    public data: {
-      zoekopdrachten: Zoekopdracht[];
-      lijstID: Werklijst;
+    public readonly data: {
+      zoekopdrachten: GeneratedType<"RESTZoekopdracht">[];
+      lijstID: GeneratedType<"Werklijst">;
       zoekopdracht: unknown;
     },
-    private gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    private utilService: UtilService,
+    private readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
+    private readonly utilService: UtilService,
   ) {}
 
   close() {
@@ -41,18 +40,20 @@ export class ZoekopdrachtSaveDialogComponent implements OnInit {
   opslaan() {
     this.dialogRef.disableClose = true;
     this.loading = true;
-    let zoekopdracht;
-    if (this.isNew()) {
-      zoekopdracht = new Zoekopdracht();
-      zoekopdracht.naam = this.formControl.value;
-      zoekopdracht.json = JSON.stringify(this.data.zoekopdracht);
-      zoekopdracht.lijstID = this.data.lijstID;
-    } else {
-      zoekopdracht = this.readZoekopdracht();
-      zoekopdracht.json = JSON.stringify(this.data.zoekopdracht);
-    }
+    const zoekopdracht = this.isNew()
+      ? {
+          naam: this.formControl.value,
+          json: JSON.stringify(this.data.zoekopdracht),
+          lijstID: this.data.lijstID,
+        }
+      : {
+          ...this.readZoekopdracht(),
+          json: JSON.stringify(this.data.zoekopdracht),
+        };
     this.gebruikersvoorkeurenService
-      .createOrUpdateZoekOpdrachten(zoekopdracht)
+      .createOrUpdateZoekOpdrachten(
+        zoekopdracht as GeneratedType<"RESTZoekopdracht">,
+      )
       .subscribe({
         next: () => {
           this.utilService.openSnackbar("msg.zoekopdracht.opgeslagen");
@@ -66,7 +67,7 @@ export class ZoekopdrachtSaveDialogComponent implements OnInit {
     return (
       this.data.zoekopdrachten.filter(
         (value) =>
-          value.naam.toLowerCase() ===
+          value.naam?.toLowerCase() ===
           this.formControl.value?.toLowerCase().trim(),
       ).length === 0
     );
@@ -75,7 +76,7 @@ export class ZoekopdrachtSaveDialogComponent implements OnInit {
   readZoekopdracht() {
     return this.data.zoekopdrachten.filter(
       (value) =>
-        value.naam.toLowerCase() ===
+        value.naam?.toLowerCase() ===
         this.formControl.value?.toLowerCase().trim(),
     )[0];
   }
@@ -87,10 +88,10 @@ export class ZoekopdrachtSaveDialogComponent implements OnInit {
     );
   }
 
-  private _filter(name: string): string[] {
+  private _filter(name: string) {
     const filterValue = name.toLowerCase();
     return this.data.zoekopdrachten
-      .map((x) => x.naam)
-      .filter((option) => option.toLowerCase().includes(filterValue));
+      .map((x) => x.naam ?? "")
+      .filter((option) => option?.toLowerCase().includes(filterValue));
   }
 }
