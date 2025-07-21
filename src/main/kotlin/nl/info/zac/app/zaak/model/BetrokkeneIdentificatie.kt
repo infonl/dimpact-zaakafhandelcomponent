@@ -6,6 +6,7 @@ package nl.info.zac.app.zaak.model
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.annotation.JsonTypeName
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 
@@ -21,11 +22,13 @@ import jakarta.validation.constraints.NotNull
 )
 sealed class BetrokkeneIdentificatie
 
+@JsonTypeName("BSN")
 data class UserIdentificatie(
     @field:NotNull
     val bsnNummer: String
 ) : BetrokkeneIdentificatie()
 
+@JsonTypeName("VN")
 data class VestigingIdentificatie(
     @field:NotNull
     val kvkNummer: String,
@@ -34,6 +37,7 @@ data class VestigingIdentificatie(
     val vestigingsnummer: String
 ) : BetrokkeneIdentificatie()
 
+@JsonTypeName("RSIN")
 data class RsinIdentificatie(
     @field:NotNull
     val rsinNummer: String
