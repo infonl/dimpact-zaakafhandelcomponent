@@ -288,7 +288,7 @@ class ZaakRestService @Inject constructor(
             }
         }
 
-        assignUserAndGroup(restZaak, zaak)
+        updateZaakRoles(restZaak, zaak)
 
         // if BPMN support is enabled and a BPMN process definition is defined for the zaaktype, start a BPMN process;
         // otherwise start a CMMN case
@@ -319,7 +319,7 @@ class ZaakRestService @Inject constructor(
         return restZaakConverter.toRestZaak(zaak)
     }
 
-    private fun assignUserAndGroup(
+    private fun updateZaakRoles(
         restZaak: RestZaak,
         zaak: Zaak
     ) {
