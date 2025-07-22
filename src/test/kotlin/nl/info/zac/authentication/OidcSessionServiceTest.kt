@@ -50,7 +50,7 @@ private fun setupMocks(
 
     every { sessionInstance.get() } returns httpSession
     every { httpSession.getAttribute(REFRESH_TOKEN_ATTRIBUTE) } returns refreshToken
-    
+
     val mediaType = "application/json".toMediaTypeOrNull()
 
     val mockResponse = Response.Builder()
