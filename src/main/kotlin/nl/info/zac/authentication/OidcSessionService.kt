@@ -47,7 +47,9 @@ class OidcSessionService @Inject constructor(
 
     private fun getSessionLock(session: HttpSession): Any {
         val lockAttributeName = OidcSessionService::class.java.name + "__LOCK"
-        return session.getAttribute(lockAttributeName) ?: Any().also { session.setAttribute(lockAttributeName, it) }
+        return session.getAttribute(lockAttributeName) ?: synchronized(session) {
+            session.getAttribute(lockAttributeName) ?: Any().also { session.setAttribute(lockAttributeName, it) }
+        }
     }
 
     private fun getRefreshTokenFromSession(session: HttpSession): String {
