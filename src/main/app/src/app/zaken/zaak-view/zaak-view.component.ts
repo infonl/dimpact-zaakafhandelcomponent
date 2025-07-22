@@ -55,6 +55,7 @@ import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../../taken/taken.service";
 import { IntakeAfrondenDialogComponent } from "../intake-afronden-dialog/intake-afronden-dialog.component";
+import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZaakOntkoppelenDialogComponent } from "../zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
@@ -1079,7 +1080,11 @@ export class ZaakViewComponent
                 .build(),
             ],
             callback: ({ reden }) =>
-              this.zakenService.updateInitiator(this.zaak, initiator, reden),
+              this.zakenService.updateInitiator({
+                zaakUUID: this.zaak.uuid,
+                betrokkeneIdentificatie: new BetrokkeneIdentificatie(initiator),
+                toelichting: reden,
+              }),
             melding: this.translate.instant("msg.initiator.bevestigen", {
               naam: initiator.naam,
             }),
@@ -1095,7 +1100,10 @@ export class ZaakViewComponent
     }
 
     this.zakenService
-      .updateInitiator(this.zaak, initiator)
+      .updateInitiator({
+        zaakUUID: this.zaak.uuid,
+        betrokkeneIdentificatie: new BetrokkeneIdentificatie(initiator),
+      })
       .subscribe((zaak) =>
         this.handleNewInitiator("msg.initiator.toegevoegd", zaak),
       );
@@ -1127,7 +1135,7 @@ export class ZaakViewComponent
               .build(),
           ],
           callback: ({ reden }) =>
-            this.zakenService.deleteInitiator(this.zaak, reden),
+            this.zakenService.deleteInitiator(this.zaak.uuid, reden),
           melding: this.translate.instant(
             "msg.initiator.ontkoppelen.bevestigen",
           ),
@@ -1148,21 +1156,22 @@ export class ZaakViewComponent
       });
   }
 
-  betrokkeneGeselecteerd(betrokkene: KlantGegevens) {
+  betrokkeneGeselecteerd(klantgegevens: KlantGegevens) {
     this.websocketService.suspendListener(this.zaakRollenListener);
     void this.actionsSidenav.close();
     this.zakenService
       .createBetrokkene({
         zaakUUID: this.zaak.uuid,
-        roltypeUUID: betrokkene.betrokkeneRoltype.uuid!,
-        roltoelichting: betrokkene.betrokkeneToelichting,
-        betrokkeneIdentificatie: betrokkene.klant.identificatie!,
-        betrokkeneIdentificatieType: betrokkene.klant.identificatieType!,
+        roltypeUUID: klantgegevens.betrokkeneRoltype.uuid!,
+        roltoelichting: klantgegevens.betrokkeneToelichting,
+        betrokkeneIdentificatie: new BetrokkeneIdentificatie(
+          klantgegevens.klant,
+        ),
       })
       .subscribe((zaak) => {
         this.zaak = zaak;
         this.utilService.openSnackbar("msg.betrokkene.toegevoegd", {
-          roltype: betrokkene.betrokkeneRoltype.naam,
+          roltype: klantgegevens.betrokkeneRoltype.naam,
         });
         this.loadHistorie();
         this.loadBetrokkenen();

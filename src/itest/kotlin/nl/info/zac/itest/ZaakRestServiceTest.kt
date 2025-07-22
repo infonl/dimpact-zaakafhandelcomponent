@@ -16,6 +16,7 @@ import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration
+import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_ROL_TOEVOEGEN_REDEN
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_TYPE_NATUURLIJK_PERSOON
@@ -37,6 +38,8 @@ import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_VRIJG
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_INFORMATIE_OBJECT_TYPE_1_UUID
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
@@ -375,8 +378,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                     {
                         "zaakUUID": "$zaak2UUID",
                         "roltypeUUID": "$ROLTYPE_UUID_BELANGHEBBENDE",
-                        "betrokkeneIdentificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_BSN",
-                        "betrokkeneIdentificatie": "$TEST_PERSON_HENDRIKA_JANSE_BSN"
+                        "betrokkeneIdentificatie": {
+                            "bsnNummer": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                            "type": "$BETROKKENE_IDENTIFICATION_TYPE_BSN"
+                        }
                     }
                 """.trimIndent()
             )
@@ -458,8 +463,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "zaakUUID": "$zaak2UUID",
                         "roltypeUUID": "$ROLTYPE_UUID_MEDEAANVRAGER",
                         "roltoelichting": "fakeToelichting",
-                        "betrokkeneIdentificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_BSN",
-                        "betrokkeneIdentificatie": "$TEST_PERSON_HENDRIKA_JANSE_BSN"
+                        "betrokkeneIdentificatie": {
+                            "bsnNummer": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                            "type": "$BETROKKENE_IDENTIFICATION_TYPE_BSN"
+                        }
                     }
                 """.trimIndent()
             )
@@ -588,14 +595,17 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
         When("an initiator is added to the zaak with a vestigingsnummer") {
-            val vestigingsnummer = "123456789123"
+            val vestigingsnummer = "$TEST_KVK_VESTIGINGSNUMMER_1"
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/initiator",
                 requestBodyAsString = """
                         {
-                            "zaakUUID": "$zaak2UUID",
-                            "identificatieType": "VN",
-                            "identificatie": "$vestigingsnummer"
+                            "betrokkeneIdentificatie": {
+                                "kvkNummer": "$TEST_KVK_NUMMER_1",
+                                "type": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                                "vestigingsnummer": "$vestigingsnummer"
+                            },
+                            "zaakUUID": "$zaak2UUID"
                         }
                 """.trimIndent()
             )
