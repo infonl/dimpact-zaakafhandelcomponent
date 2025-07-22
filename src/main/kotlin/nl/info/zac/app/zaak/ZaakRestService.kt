@@ -215,7 +215,7 @@ class ZaakRestService @Inject constructor(
             requireNotNull(gegevens.toelichting) { throw ExplanationRequiredException() }
             removeInitiator(zaak, it, ROL_VERWIJDER_REDEN)
         }
-        val (identificationType, identification) = composeIdentification(gegevens.betrokkeneIdentificatie)
+        val (identificationType, identification) = composeBetrokkeneIdentification(gegevens.betrokkeneIdentificatie)
         addInitiator(
             identificationType,
             identification,
@@ -978,7 +978,7 @@ class ZaakRestService @Inject constructor(
         zaak: Zaak
     ) {
         val zaakRechten = policyService.readZaakRechten(zaak)
-        val (identificationType, identification) = composeIdentification(betrokkeneIdentificatie)
+        val (identificationType, identification) = composeBetrokkeneIdentification(betrokkeneIdentificatie)
         when (identificationType) {
             IdentificatieType.BSN -> assertPolicy(zaakRechten.toevoegenBetrokkenePersoon)
             IdentificatieType.VN -> assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
@@ -993,20 +993,20 @@ class ZaakRestService @Inject constructor(
         )
     }
 
-    private fun composeIdentification(
+    private fun composeBetrokkeneIdentification(
         betrokkeneIdentificatie: BetrokkeneIdentificatie
     ): Pair<IdentificatieType, String> {
         return when (betrokkeneIdentificatie.type) {
             IdentificatieType.BSN -> {
                 val bsn = betrokkeneIdentificatie.bsnNummer
-                require(!bsn.isNullOrBlank()) { "BSN is required for type BSN" }
+                require(!bsn.isNullOrBlank()) { "BSN is required for betrokkene identification type BSN" }
                 IdentificatieType.BSN to bsn
             }
             IdentificatieType.VN -> {
                 val kvk = betrokkeneIdentificatie.kvkNummer
                 val vestiging = betrokkeneIdentificatie.vestigingsnummer
                 require(!kvk.isNullOrBlank() && !vestiging.isNullOrBlank()) {
-                    "KvkNummer and Vestigingsnummer are required for type VN"
+                    "KVK nummer and vestigingsnummer are required for betrokkene identification type VN"
                 }
                 IdentificatieType.VN to createVestigingIdentificationString(kvk, vestiging)
             }
