@@ -84,12 +84,10 @@ class ProductaanvraagEmailService @Inject constructor(
                     mailService.sendMail(mailGegevens, zaakFromProductaanvraag.getBronnenFromZaak())?.also {
                         zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaakFromProductaanvraag)
                     }
-                } ?: {
-                    LOG.warning(
-                        "No email sender configured for zaaktype ${zaakFromProductaanvraag.zaaktype}. " +
-                            "Skipping automatic email confirmation."
-                    )
-                }
+                } ?: LOG.warning(
+                    "No email sender configured for zaaktype ${zaakFromProductaanvraag.zaaktype}. " +
+                        "Skipping automatic email confirmation."
+                )
             } ?: LOG.warning(
                 "No mail template found with name: '${automaticEmailConfirmation.templateName}'. " +
                     "Skipping automatic email confirmation."
