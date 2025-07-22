@@ -13,6 +13,6 @@ export class MailtemplateKoppelingService {
   constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   listMailtemplateKoppelingen() {
-    return this.zacHttpClient.GET("/rest/beheer/mailtemplatekoppeling", {});
+    return this.zacHttpClient.GET("/rest/beheer/mailtemplatekoppeling");
   }
 }

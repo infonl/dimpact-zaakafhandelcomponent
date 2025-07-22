@@ -21,7 +21,7 @@ export class IdentityService {
 
   listGroups(zaaktypeUuid?: string): Observable<GeneratedType<"RestGroup">[]> {
     if (!zaaktypeUuid) {
-      return this.zacHttpClient.GET("/rest/identity/groups", {});
+      return this.zacHttpClient.GET("/rest/identity/groups");
     }
 
     return this.zacHttpClient.GET(
@@ -39,7 +39,7 @@ export class IdentityService {
   }
 
   listUsers() {
-    return this.zacHttpClient.GET(`/rest/identity/users`, {});
+    return this.zacHttpClient.GET(`/rest/identity/users`);
   }
 
   readLoggedInUser() {
@@ -49,7 +49,7 @@ export class IdentityService {
     if (loggedInUser) {
       return of(loggedInUser);
     }
-    return this.zacHttpClient.GET("/rest/identity/loggedInUser", {}).pipe(
+    return this.zacHttpClient.GET("/rest/identity/loggedInUser").pipe(
       tap((user) => {
         SessionStorageUtil.setItem(IdentityService.LOGGED_IN_USER_KEY, user);
       }),

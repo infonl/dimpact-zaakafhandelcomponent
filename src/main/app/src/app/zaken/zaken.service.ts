@@ -31,7 +31,7 @@ export class ZakenService {
   }
 
   createZaak(body: PostBody<"/rest/zaken/zaak">) {
-    return this.zacHttpClient.POST("/rest/zaken/zaak", body, {});
+    return this.zacHttpClient.POST("/rest/zaken/zaak", body);
   }
 
   updateZaak(
@@ -87,31 +87,31 @@ export class ZakenService {
   }
 
   listZaakWaarschuwingen() {
-    return this.zacHttpClient.GET("/rest/zaken/waarschuwing", {});
+    return this.zacHttpClient.GET("/rest/zaken/waarschuwing");
   }
 
   listZaaktypes() {
-    return this.zacHttpClient.GET("/rest/zaken/zaaktypes", {});
+    return this.zacHttpClient.GET("/rest/zaken/zaaktypes");
   }
 
   updateZaakdata(zaak: GeneratedType<"RestZaak">) {
-    return this.zacHttpClient.PUT("/rest/zaken/zaakdata", zaak, {});
+    return this.zacHttpClient.PUT("/rest/zaken/zaakdata", zaak);
   }
 
   toekennen(body: PatchBody<"/rest/zaken/toekennen">) {
-    return this.zacHttpClient.PATCH("/rest/zaken/toekennen", body, {});
+    return this.zacHttpClient.PATCH("/rest/zaken/toekennen", body);
   }
 
   verdelenVanuitLijst(body: PutBody<"/rest/zaken/lijst/verdelen">) {
-    return this.zacHttpClient.PUT("/rest/zaken/lijst/verdelen", body, {});
+    return this.zacHttpClient.PUT("/rest/zaken/lijst/verdelen", body);
   }
 
   vrijgevenVanuitLijst(body: PutBody<"/rest/zaken/lijst/vrijgeven">) {
-    return this.zacHttpClient.PUT("/rest/zaken/lijst/vrijgeven", body, {});
+    return this.zacHttpClient.PUT("/rest/zaken/lijst/vrijgeven", body);
   }
 
   toekennenAanIngelogdeMedewerker(body: PutBody<"/rest/zaken/toekennen/mij">) {
-    return this.zacHttpClient.PUT("/rest/zaken/toekennen/mij", body, {});
+    return this.zacHttpClient.PUT("/rest/zaken/toekennen/mij", body);
   }
 
   updateInitiator(body: PatchBody<"/rest/zaken/initiator">) {
@@ -127,15 +127,13 @@ export class ZakenService {
   }
 
   createBetrokkene(body: PostBody<"/rest/zaken/betrokkene">) {
-    return this.zacHttpClient.POST("/rest/zaken/betrokkene", body, {});
+    return this.zacHttpClient.POST("/rest/zaken/betrokkene", body);
   }
 
   deleteBetrokkene(rolUUID: string, reden: string) {
     return this.zacHttpClient.DELETE(
       "/rest/zaken/betrokkene/{uuid}",
-      {
-        path: { uuid: rolUUID },
-      },
+      { path: { uuid: rolUUID } },
       { reden },
     );
   }
@@ -158,16 +156,14 @@ export class ZakenService {
     return this.zacHttpClient.PUT(
       "/rest/zaken/zaakinformatieobjecten/ontkoppel",
       body,
-      {},
     );
   }
 
   toekennenAanIngelogdeMedewerkerVanuitLijst(zaakUUID: string, reden?: string) {
-    return this.zacHttpClient.PUT(
-      "/rest/zaken/lijst/toekennen/mij",
-      { zaakUUID, reden },
-      {},
-    );
+    return this.zacHttpClient.PUT("/rest/zaken/lijst/toekennen/mij", {
+      zaakUUID,
+      reden,
+    });
   }
 
   listHistorieVoorZaak(uuid: string) {
@@ -219,15 +215,15 @@ export class ZakenService {
   }
 
   createBesluit(body: PostBody<"/rest/zaken/besluit">) {
-    return this.zacHttpClient.POST("/rest/zaken/besluit", body, {});
+    return this.zacHttpClient.POST("/rest/zaken/besluit", body);
   }
 
   updateBesluit(body: PutBody<"/rest/zaken/besluit">) {
-    return this.zacHttpClient.PUT("/rest/zaken/besluit", body, {});
+    return this.zacHttpClient.PUT("/rest/zaken/besluit", body);
   }
 
   intrekkenBesluit(body: PutBody<"/rest/zaken/besluit/intrekken">) {
-    return this.zacHttpClient.PUT("/rest/zaken/besluit/intrekken", body, {});
+    return this.zacHttpClient.PUT("/rest/zaken/besluit/intrekken", body);
   }
 
   listBesluittypes(zaaktypeUUID: string) {
@@ -243,11 +239,11 @@ export class ZakenService {
   }
 
   koppelZaak(body: PatchBody<"/rest/zaken/zaak/koppel">) {
-    return this.zacHttpClient.PATCH("/rest/zaken/zaak/koppel", body, {});
+    return this.zacHttpClient.PATCH("/rest/zaken/zaak/koppel", body);
   }
 
   ontkoppelZaak(body: PatchBody<"/rest/zaken/zaak/ontkoppel">) {
-    return this.zacHttpClient.PATCH("/rest/zaken/zaak/ontkoppel", body, {});
+    return this.zacHttpClient.PATCH("/rest/zaken/zaak/ontkoppel", body);
   }
 
   listBesluitenForZaak(zaakUuid: string) {
@@ -263,6 +259,6 @@ export class ZakenService {
   }
 
   listProcesVariabelen() {
-    return this.zacHttpClient.GET("/rest/zaken/procesvariabelen", {});
+    return this.zacHttpClient.GET("/rest/zaken/procesvariabelen");
   }
 }

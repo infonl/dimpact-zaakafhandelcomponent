@@ -13,7 +13,7 @@ export class InboxDocumentenService {
   constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   list(body: PutBody<"/rest/inboxdocumenten">) {
-    return this.zacHttpClient.PUT("/rest/inboxdocumenten", body, {});
+    return this.zacHttpClient.PUT("/rest/inboxdocumenten", body);
   }
 
   delete(id: number) {

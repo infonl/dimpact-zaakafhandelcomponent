@@ -23,11 +23,11 @@ export class NotitieService {
   }
 
   createNotitie(body: PostBody<"/rest/notities">) {
-    return this.zacHttpClient.POST("/rest/notities", body, {});
+    return this.zacHttpClient.POST("/rest/notities", body);
   }
 
   updateNotitie(body: PatchBody<"/rest/notities">) {
-    return this.zacHttpClient.PATCH("/rest/notities", body, {});
+    return this.zacHttpClient.PATCH("/rest/notities", body);
   }
 
   deleteNotitie(id: number) {

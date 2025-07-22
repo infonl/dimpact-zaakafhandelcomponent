@@ -60,6 +60,6 @@ export class HealthCheckService {
   }
 
   readBuildInformatie() {
-    return this.zacHttpClient.GET("/rest/health-check/build-informatie", {});
+    return this.zacHttpClient.GET("/rest/health-check/build-informatie");
   }
 }

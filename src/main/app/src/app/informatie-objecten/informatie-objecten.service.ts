@@ -124,7 +124,6 @@ export class InformatieObjectenService {
       .POST(
         "/rest/document-creation/create-document-attended",
         documentCreationData,
-        {},
       )
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
@@ -188,7 +187,6 @@ export class InformatieObjectenService {
     return this.zacHttpClient.PUT(
       "/rest/informatieobjecten/informatieobjectenList",
       body,
-      {},
     );
   }
 
@@ -227,7 +225,6 @@ export class InformatieObjectenService {
     return this.zacHttpClient.POST(
       "/rest/informatieobjecten/informatieobjecten/verzenden",
       body,
-      {},
     );
   }
 

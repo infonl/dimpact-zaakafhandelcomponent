@@ -19,15 +19,15 @@ export class ZoekenService {
   constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   list(body: PutBody<"/rest/zoeken/list">) {
-    return this.zacHttpClient.PUT("/rest/zoeken/list", body, {});
+    return this.zacHttpClient.PUT("/rest/zoeken/list", body);
   }
 
   listDocumentKoppelbareZaken(body: PutBody<"/rest/zoeken/zaken">) {
-    return this.zacHttpClient.PUT(
-      "/rest/zoeken/zaken",
-      { page: 0, rows: 10, ...body },
-      {},
-    );
+    return this.zacHttpClient.PUT("/rest/zoeken/zaken", {
+      page: 0,
+      rows: 10,
+      ...body,
+    });
   }
 
   findLinkableZaken(

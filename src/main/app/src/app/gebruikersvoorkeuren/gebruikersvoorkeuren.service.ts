@@ -45,7 +45,6 @@ export class GebruikersvoorkeurenService {
     return this.zacHttpClient.POST(
       "/rest/gebruikersvoorkeuren/zoekopdracht",
       body,
-      {},
     );
   }
 
@@ -63,7 +62,6 @@ export class GebruikersvoorkeurenService {
     return this.zacHttpClient.PUT(
       "/rest/gebruikersvoorkeuren/zoekopdracht/actief",
       body,
-      {},
     );
   }
 
@@ -104,7 +102,6 @@ export class GebruikersvoorkeurenService {
   listDashboardCards() {
     return this.zacHttpClient.GET(
       "/rest/gebruikersvoorkeuren/dasboardcard/actief",
-      {},
     );
   }
 
@@ -114,7 +111,6 @@ export class GebruikersvoorkeurenService {
     return this.zacHttpClient.PUT(
       "/rest/gebruikersvoorkeuren/dasboardcard/actief",
       body,
-      {},
     );
   }
 
@@ -122,7 +118,6 @@ export class GebruikersvoorkeurenService {
     return this.zacHttpClient.PUT(
       "/rest/gebruikersvoorkeuren/dasboardcard",
       body,
-      {},
     );
   }
 

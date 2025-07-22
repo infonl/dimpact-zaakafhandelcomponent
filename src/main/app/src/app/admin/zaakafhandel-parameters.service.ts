@@ -13,7 +13,7 @@ export class ZaakafhandelParametersService {
   constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   listZaakafhandelParameters() {
-    return this.zacHttpClient.GET("/rest/zaakafhandelparameters", {});
+    return this.zacHttpClient.GET("/rest/zaakafhandelparameters");
   }
 
   readZaakafhandelparameters(zaaktypeUUID: string) {
@@ -28,7 +28,6 @@ export class ZaakafhandelParametersService {
   listZaakbeeindigRedenen() {
     return this.zacHttpClient.GET(
       "/rest/zaakafhandelparameters/zaakbeeindigredenen",
-      {},
     );
   }
 
@@ -53,23 +52,21 @@ export class ZaakafhandelParametersService {
   listCaseDefinitions() {
     return this.zacHttpClient.GET(
       "/rest/zaakafhandelparameters/case-definitions",
-      {},
     );
   }
 
   updateZaakafhandelparameters(body: PutBody<"/rest/zaakafhandelparameters">) {
-    return this.zacHttpClient.PUT("/rest/zaakafhandelparameters", body, {});
+    return this.zacHttpClient.PUT("/rest/zaakafhandelparameters", body);
   }
 
   listFormulierDefinities() {
     return this.zacHttpClient.GET(
       "/rest/zaakafhandelparameters/formulierdefinities",
-      {},
     );
   }
 
   listReplyTos() {
-    return this.zacHttpClient.GET("/rest/zaakafhandelparameters/replyTo", {});
+    return this.zacHttpClient.GET("/rest/zaakafhandelparameters/replyTo");
   }
 
   listSmartDocumentsGroupTemplateNames(
@@ -78,7 +75,6 @@ export class ZaakafhandelParametersService {
     return this.zacHttpClient.PUT(
       "/rest/zaakafhandelparameters/smartdocuments-group-template-names",
       body,
-      {},
     );
   }
 }
