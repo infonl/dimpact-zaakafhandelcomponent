@@ -33,7 +33,6 @@ class OidcSessionService @Inject constructor(
      * Updates the session with the new refresh token.
      * Throws OidcSessionException on error.
      */
-    @Suppress("TooGenericExceptionCaught", "ThrowsCount")
     fun refreshUserSession() {
         val session = httpSession.get()
         synchronized(session) {
