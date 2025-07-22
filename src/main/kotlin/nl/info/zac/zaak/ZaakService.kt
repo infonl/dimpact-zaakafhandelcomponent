@@ -30,6 +30,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.app.zaak.ZaakRestService.Companion.VESTIGING_IDENTIFICATIE_DELIMITER
 import nl.info.zac.authentication.UserPrincipalFilter
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.identity.IdentityService
@@ -314,7 +315,7 @@ class ZaakService @Inject constructor(
                 )
 
             IdentificatieType.VN -> {
-                val (kvkNummer, vestigingsnummer) = identification.split("|")
+                val (kvkNummer, vestigingsnummer) = identification.split(VESTIGING_IDENTIFICATIE_DELIMITER)
                 RolNietNatuurlijkPersoon(
                     zaak.url,
                     roleType,

@@ -184,6 +184,7 @@ class ZaakRestService @Inject constructor(
         private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
         private const val VERLENGING = "Verlenging"
         const val AANVULLENDE_INFORMATIE_TASK_NAME = "Aanvullende informatie"
+        const val VESTIGING_IDENTIFICATIE_DELIMITER = "|"
     }
 
     @GET
@@ -279,7 +280,7 @@ class ZaakRestService @Inject constructor(
         restZaak.initiatorIdentificatie?.takeIf { it.isNotEmpty() }?.let { initiatorId ->
             restZaak.initiatorIdentificatieType?.let { initiatorType ->
                 val identification = when (initiatorType) {
-                    IdentificatieType.VN -> listOfNotNull(restZaak.kvkNummer, initiatorId).joinToString("|")
+                    IdentificatieType.VN -> createVestigingIdentificationString(restZaak.kvkNummer, initiatorId)
                     else -> initiatorId
                 }
                 addInitiator(
@@ -967,6 +968,9 @@ class ZaakRestService @Inject constructor(
     @Path("procesvariabelen")
     fun listProcesVariabelen(): List<String> = ZaakVariabelenService.VARS
 
+    private fun createVestigingIdentificationString(kvkNummer: String?, vestigingsnummer: String?): String =
+        listOfNotNull(kvkNummer, vestigingsnummer).joinToString(VESTIGING_IDENTIFICATIE_DELIMITER)
+
     private fun addBetrokkeneToZaak(
         roleTypeUUID: UUID,
         betrokkeneIdentificatie: BetrokkeneIdentificatie,
@@ -993,12 +997,24 @@ class ZaakRestService @Inject constructor(
         betrokkeneIdentificatie: BetrokkeneIdentificatie
     ): Pair<IdentificatieType, String> {
         return when (betrokkeneIdentificatie.type) {
-            IdentificatieType.BSN ->
-                IdentificatieType.BSN to betrokkeneIdentificatie.bsnNummer!!
-            IdentificatieType.VN ->
-                IdentificatieType.VN to "${betrokkeneIdentificatie.kvkNummer}|${betrokkeneIdentificatie.vestigingsnummer}"
-            IdentificatieType.RSIN ->
-                IdentificatieType.RSIN to betrokkeneIdentificatie.rsinNummer!!
+            IdentificatieType.BSN -> {
+                val bsn = betrokkeneIdentificatie.bsnNummer
+                require(!bsn.isNullOrBlank()) { "BSN is required for type BSN" }
+                IdentificatieType.BSN to bsn
+            }
+            IdentificatieType.VN -> {
+                val kvk = betrokkeneIdentificatie.kvkNummer
+                val vestiging = betrokkeneIdentificatie.vestigingsnummer
+                require(!kvk.isNullOrBlank() && !vestiging.isNullOrBlank()) {
+                    "KvkNummer and Vestigingsnummer are required for type VN"
+                }
+                IdentificatieType.VN to createVestigingIdentificationString(kvk, vestiging)
+            }
+            IdentificatieType.RSIN -> {
+                val rsin = betrokkeneIdentificatie.rsinNummer
+                require(!rsin.isNullOrBlank()) { "RSIN is required for type RSIN" }
+                IdentificatieType.RSIN to rsin
+            }
         }
     }
 
