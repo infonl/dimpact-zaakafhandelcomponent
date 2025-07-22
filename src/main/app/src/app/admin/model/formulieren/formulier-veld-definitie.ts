@@ -90,7 +90,8 @@ export class FormulierVeldDefinitie {
     return new Date(Number(year), Number(month) - 1, Number(day));
   }
 
-  static isMeerkeuzeVeld(veldtype: GeneratedType<"FormulierVeldtype">) {
+  static isMeerkeuzeVeld(veldtype?: GeneratedType<"FormulierVeldtype"> | null) {
+    if (!veldtype) return false;
     return ["CHECKBOXES", "RADIO", "KEUZELIJST", "DOCUMENTEN_LIJST"].includes(
       veldtype,
     );
