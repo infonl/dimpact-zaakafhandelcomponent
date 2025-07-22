@@ -63,7 +63,6 @@ export class PlanItemsService {
     return this.zacHttpClient.POST(
       "/rest/planitems/doHumanTaskPlanItem",
       humanTaskData,
-      {},
     );
   }
 
@@ -73,7 +72,6 @@ export class PlanItemsService {
     return this.zacHttpClient.POST(
       "/rest/planitems/doProcessTaskPlanItem",
       body,
-      {},
     );
   }
 
@@ -83,7 +81,6 @@ export class PlanItemsService {
     return this.zacHttpClient.POST(
       "/rest/planitems/doUserEventListenerPlanItem",
       body,
-      {},
     );
   }
 }

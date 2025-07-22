@@ -15,7 +15,7 @@ export class InboxProductaanvragenService {
   constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   list(body: PutBody<"/rest/inbox-productaanvragen">) {
-    return this.zacHttpClient.PUT("/rest/inbox-productaanvragen", body, {});
+    return this.zacHttpClient.PUT("/rest/inbox-productaanvragen", body);
   }
 
   delete(id: number) {

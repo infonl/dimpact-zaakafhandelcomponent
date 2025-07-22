@@ -55,6 +55,14 @@ export type DeleteBody<
   Method extends Methods = "delete",
 > = Body<Path, Method>;
 
+type IsRequired<T> = keyof T extends never
+  ? false
+  : [T] extends [Record<string, never>]
+    ? false
+    : true;
+type ArgsTuple<T> =
+  IsRequired<T> extends true ? [parameters: T] : [parameters?: T];
+
 @Injectable({
   providedIn: "root",
 })
@@ -67,7 +75,8 @@ export class ZacHttpClient {
   public GET<
     Path extends PathsWithMethod<Paths, Method>,
     Method extends Methods = "get",
-  >(url: Path, parameters: PathParameters<Path, Method>) {
+  >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
+    const parameters = args.at(0) ?? ({} as PathParameters<Path, Method>);
     return this.http
       .get<
         Response<Path, Method>
@@ -85,8 +94,9 @@ export class ZacHttpClient {
   >(
     url: Path,
     body: PostBody<Path, Method>,
-    parameters: PathParameters<Path, Method>,
+    ...args: ArgsTuple<PathParameters<Path, Method>>
   ) {
+    const parameters = args.at(0) ?? ({} as PathParameters<Path, Method>);
     return this.http
       .post<
         Response<Path, Method>
@@ -104,8 +114,9 @@ export class ZacHttpClient {
   >(
     url: Path,
     body: PutBody<Path, Method>,
-    parameters: PathParameters<Path, Method>,
+    ...args: ArgsTuple<PathParameters<Path, Method>>
   ) {
+    const parameters = args.at(0) ?? ({} as PathParameters<Path, Method>);
     return this.http
       .put<
         Response<Path, Method>
@@ -122,9 +133,20 @@ export class ZacHttpClient {
     Method extends Methods = "delete",
   >(
     url: Path,
-    parameters: PathParameters<Path, Method>,
-    body?: DeleteBody<Path, Method>,
+    ...args: IsRequired<PathParameters<Path, Method>> extends true
+      ? [
+          parameters: PathParameters<Path, Method>,
+          body?: DeleteBody<Path, Method>,
+        ]
+      : [
+          parameters?: PathParameters<Path, Method>,
+          body?: DeleteBody<Path, Method>,
+        ]
   ) {
+    const parameters =
+      (args.at(0) as PathParameters<Path, Method>) ??
+      ({} as PathParameters<Path, Method>);
+    const body = args.at(1) ?? ({} as DeleteBody<Path, Method>);
     return this.http
       .delete<Response<Path, Method>>(this.formatUrl(url, parameters), {
         ...this.addHttpHeaders(parameters),
@@ -143,8 +165,9 @@ export class ZacHttpClient {
   >(
     url: Path,
     body: PatchBody<Path, Method>,
-    parameters: PathParameters<Path, Method>,
+    ...args: ArgsTuple<PathParameters<Path, Method>>
   ) {
+    const parameters = args.at(0) ?? ({} as PathParameters<Path, Method>);
     return this.http
       .patch<
         Response<Path, "patch">

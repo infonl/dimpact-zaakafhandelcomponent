@@ -18,9 +18,9 @@ import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { FormulierDefinitieService } from "../formulier-defintie.service";
-import { FormulierDefinitie } from "../model/formulieren/formulier-definitie";
 import { FormulierVeldDefinitie } from "../model/formulieren/formulier-veld-definitie";
 import { FormulierVeldtype } from "../model/formulieren/formulier-veld-type.enum";
 import { ReferentieTabelService } from "../referentie-tabel.service";
@@ -34,11 +34,11 @@ export class FormulierDefinitieEditComponent
   extends AdminComponent
   implements OnInit
 {
-  @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
-  @ViewChild("menuSidenav") menuSidenav: MatSidenav;
+  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
+  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
 
-  definitie: FormulierDefinitie;
-  definitieFormGroup: FormGroup;
+  definitie?: GeneratedType<"RESTFormulierDefinitie">;
+  definitieFormGroup?: FormGroup;
   veldColumns = [
     "label",
     "systeemnaam",
@@ -50,12 +50,12 @@ export class FormulierDefinitieEditComponent
     "meerkeuzeOpties",
     "volgorde",
     "acties",
-  ];
-  vorigeSysteemnaam: string;
+  ] as const;
+  vorigeSysteemnaam?: string | null = null;
   bezigMetOpslaan = false;
   referentieLijsten: string[] = [];
 
-  dataSource: MatTableDataSource<AbstractControl>;
+  dataSource = new MatTableDataSource<AbstractControl>();
 
   constructor(
     public dialog: MatDialog,
@@ -70,47 +70,46 @@ export class FormulierDefinitieEditComponent
     super(utilService, configuratieService);
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.referentieService.listReferentieTabellen().subscribe((tabellen) => {
       this.referentieLijsten = tabellen.map((value) => value.code);
     });
 
     this.route.data.subscribe((data) => {
-      this.definitie = data.definitie;
-      this.init();
+      this.init(data.definitie);
     });
   }
 
-  private init(): void {
-    if (this.definitie.id) {
+  private init(definitie: GeneratedType<"RESTFormulierDefinitie">) {
+    if (definitie.id) {
       this.setupMenu("title.formulierdefinitie.edit");
     } else {
       this.setupMenu("title.formulierdefinitie.add");
     }
 
-    this.vorigeSysteemnaam = this.definitie.systeemnaam;
+    this.vorigeSysteemnaam = definitie.systeemnaam;
 
-    if (!this.definitie.veldDefinities?.length) {
-      this.definitie.veldDefinities = [];
+    if (!definitie.veldDefinities?.length) {
+      definitie.veldDefinities = [];
     }
 
     this.definitieFormGroup = this.formBuilder.group({
-      id: [this.definitie.id],
-      naam: [this.definitie.naam, [Validators.required]],
+      id: [definitie.id],
+      naam: [definitie.naam, [Validators.required]],
       systeemnaam: [
         {
-          value: this.definitie.systeemnaam,
-          disabled: !!this.definitie.id,
+          value: definitie.systeemnaam,
+          disabled: !!definitie.id,
         },
         [Validators.required, Validators.pattern("[a-z0-9_-]*")],
       ],
       beschrijving: [
-        this.definitie.beschrijving,
+        definitie.beschrijving,
         [Validators.required, Validators.maxLength(200)],
       ],
-      uitleg: [this.definitie.uitleg],
+      uitleg: [definitie.uitleg],
       veldDefinities: this.formBuilder.array(
-        this.definitie.veldDefinities.map((veld) =>
+        definitie.veldDefinities.map((veld) =>
           FormulierVeldDefinitie.asFormGroup(veld),
         ),
       ),
@@ -118,35 +117,36 @@ export class FormulierDefinitieEditComponent
     (this.definitieFormGroup.get("veldDefinities") as FormArray).addValidators(
       Validators.required,
     ); // minimaal 1 veld definitie
-    this.dataSource = new MatTableDataSource(
-      (this.definitieFormGroup.get("veldDefinities") as FormArray).controls,
-    );
+    this.dataSource.data = (
+      this.definitieFormGroup.get("veldDefinities") as FormArray
+    ).controls;
   }
 
   updateSysteemnaam() {
-    const isNew = !this.definitieFormGroup.get("id").value;
-    const naam = this.definitieFormGroup.get("naam").value;
+    const isNew = !this.definitieFormGroup?.get("id")?.value;
+    const naam = this.definitieFormGroup?.get("naam")?.value;
     const systeemnaam = this.toSysteemNaam(naam);
     // eslint-disable-next-line eqeqeq
     if (
       isNew &&
-      this.definitieFormGroup.get("systeemnaam").value == this.vorigeSysteemnaam
+      this.definitieFormGroup?.get("systeemnaam")?.value ==
+        this.vorigeSysteemnaam
     ) {
-      this.definitieFormGroup.get("systeemnaam").setValue(systeemnaam);
+      this.definitieFormGroup?.get("systeemnaam")?.setValue(systeemnaam);
       this.vorigeSysteemnaam = systeemnaam;
     }
   }
 
   updateSysteemnaamVeld(formgroup: FormGroup) {
-    const isNew = !formgroup.get("id").value;
+    const isNew = !formgroup.get("id")?.value;
     if (isNew) {
       // systeemnaam niet aanpassen bij bewerken
-      const label = formgroup.get("label").value;
-      formgroup.get("systeemnaam").setValue(this.toSysteemNaam(label));
+      const label = formgroup.get("label")?.value;
+      formgroup.get("systeemnaam")?.setValue(this.toSysteemNaam(label));
     }
   }
 
-  toSysteemNaam(naam: string): string {
+  toSysteemNaam(naam: string) {
     return naam
       .replace(/[^a-zA-Z0-9 ]/g, "")
       .replace(/\s/g, "-")
@@ -154,54 +154,54 @@ export class FormulierDefinitieEditComponent
   }
 
   addVeldDefinities() {
-    const veldDefinities = this.definitieFormGroup.get(
+    const veldDefinities = this.definitieFormGroup?.get(
       "veldDefinities",
     ) as FormArray;
-    const vd = new FormulierVeldDefinitie();
-    vd.volgorde = veldDefinities.length + 1;
-    const formGroup = FormulierVeldDefinitie.asFormGroup(vd);
-    veldDefinities.push(formGroup);
+    const formulierVeldDefinitie: GeneratedType<"RESTFormulierVeldDefinitie"> =
+      {
+        volgorde: veldDefinities.length + 1,
+      };
+    veldDefinities.push(
+      FormulierVeldDefinitie.asFormGroup(formulierVeldDefinitie),
+    );
     this.dataSource.data = veldDefinities.controls;
   }
 
   removeVeldDefinitie(formgroup: FormGroup) {
-    const veldDefinities = this.definitieFormGroup.get(
+    const veldDefinities = this.definitieFormGroup?.get(
       "veldDefinities",
     ) as FormArray;
     veldDefinities.removeAt(veldDefinities.controls.indexOf(formgroup));
     this.dataSource.data = veldDefinities.controls;
   }
 
-  onVeldtypeChange(
-    $event: MatSelectChange,
-    veldDefinitieFormGroup: FormGroup,
-  ): void {
-    const veldtype: FormulierVeldtype = $event.value;
+  onVeldtypeChange($event: MatSelectChange, veldDefinitieFormGroup: FormGroup) {
+    const veldtype: GeneratedType<"FormulierVeldtype"> = $event.value;
     if (FormulierVeldDefinitie.isMeerkeuzeVeld(veldtype)) {
-      veldDefinitieFormGroup.get("meerkeuzeOpties").enable();
+      veldDefinitieFormGroup.get("meerkeuzeOpties")?.enable();
       veldDefinitieFormGroup
         .get("meerkeuzeOpties")
-        .setValidators(Validators.required);
+        ?.setValidators(Validators.required);
     } else {
       veldDefinitieFormGroup
         .get("meerkeuzeOpties")
-        .removeValidators(Validators.required);
-      veldDefinitieFormGroup.get("meerkeuzeOpties").disable();
+        ?.removeValidators(Validators.required);
+      veldDefinitieFormGroup.get("meerkeuzeOpties")?.disable();
     }
-    veldDefinitieFormGroup.get("meerkeuzeOpties").updateValueAndValidity();
+    veldDefinitieFormGroup.get("meerkeuzeOpties")?.updateValueAndValidity();
   }
 
-  getVeldtypes(): string[] {
+  getVeldtypes() {
     return Object.keys(FormulierVeldtype);
   }
 
-  opslaan(): void {
+  opslaan() {
     this.bezigMetOpslaan = true;
-    const val = this.definitieFormGroup.value as FormulierDefinitie;
+    const val = this.definitieFormGroup
+      ?.value as GeneratedType<"RESTFormulierDefinitie">;
     if (val.id) {
       this.service.update(val).subscribe((data) => {
-        this.definitie = data;
-        this.init();
+        this.init(data);
         this.bezigMetOpslaan = false;
         this.utilService.openSnackbar("msg.formulierdefinitie.gewijzigd");
       });
@@ -226,13 +226,13 @@ export class FormulierDefinitieEditComponent
       .open(TekstvlakEditDialogComponent, {
         width: "50%",
         data: {
-          value: formGroup.get("defaultWaarde").value,
+          value: formGroup.get("defaultWaarde")?.value,
         },
       })
       .afterClosed()
       .subscribe((value) => {
         if (typeof value === "string") {
-          formGroup.get("defaultWaarde").setValue(value);
+          formGroup.get("defaultWaarde")?.setValue(value);
         }
       });
   }

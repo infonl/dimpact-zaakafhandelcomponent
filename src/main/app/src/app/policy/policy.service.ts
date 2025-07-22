@@ -13,14 +13,14 @@ export class PolicyService {
   constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   readWerklijstRechten() {
-    return this.zacHttpClient.GET(`/rest/policy/werklijstRechten`, {});
+    return this.zacHttpClient.GET(`/rest/policy/werklijstRechten`);
   }
 
   readOverigeRechten() {
-    return this.zacHttpClient.GET(`/rest/policy/overigeRechten`, {});
+    return this.zacHttpClient.GET(`/rest/policy/overigeRechten`);
   }
 
   readNotitieRechten() {
-    return this.zacHttpClient.GET(`/rest/policy/notitieRechten`, {});
+    return this.zacHttpClient.GET(`/rest/policy/notitieRechten`);
   }
 }

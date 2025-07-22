@@ -53,7 +53,6 @@ export class SmartDocumentsService {
   getAllSmartDocumentsTemplateGroups() {
     return this.zacHttpClient.GET(
       "/rest/zaakafhandelparameters/smartdocuments-templates",
-      {},
     );
   }
 
@@ -83,11 +82,7 @@ export class SmartDocumentsService {
     informatieObjectTypeUUID: string,
   ) {
     return this.zacHttpClient
-      .PUT(
-        "/rest/zaakafhandelparameters/smartdocuments-template-group",
-        body,
-        {},
-      )
+      .PUT("/rest/zaakafhandelparameters/smartdocuments-template-group", body)
       .pipe(
         map((data) =>
           this.getOnlyOneTemplate(data, templateName, informatieObjectTypeUUID),

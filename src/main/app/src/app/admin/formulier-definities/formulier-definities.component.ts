@@ -9,14 +9,13 @@ import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
-import { IdentityService } from "../../identity/identity.service";
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { FormulierDefinitieService } from "../formulier-defintie.service";
-import { FormulierDefinitie } from "../model/formulieren/formulier-definitie";
 
 @Component({
   templateUrl: "./formulier-definities.component.html",
@@ -26,11 +25,11 @@ export class FormulierDefinitiesComponent
   extends AdminComponent
   implements OnInit
 {
-  @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
-  @ViewChild("menuSidenav") menuSidenav: MatSidenav;
+  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
+  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
 
   isLoadingResults = false;
-  columns: string[] = [
+  columns = [
     "systeemnaam",
     "naam",
     "beschrijving",
@@ -38,26 +37,26 @@ export class FormulierDefinitiesComponent
     "wijzigingsdatum",
     "aantal",
     "id",
-  ];
-  dataSource: MatTableDataSource<FormulierDefinitie> =
-    new MatTableDataSource<FormulierDefinitie>();
+  ] as const;
+  dataSource = new MatTableDataSource<
+    GeneratedType<"RESTFormulierDefinitie">
+  >();
 
   constructor(
     public dialog: MatDialog,
     public utilService: UtilService,
     public configuratieService: ConfiguratieService,
-    private identityService: IdentityService,
     private service: FormulierDefinitieService,
   ) {
     super(utilService, configuratieService);
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.setupMenu("title.formulierdefinities");
     this.ophalenFormulierDefinities();
   }
 
-  ophalenFormulierDefinities(): void {
+  ophalenFormulierDefinities() {
     this.isLoadingResults = true;
     this.utilService.setLoading(true);
     this.service.list().subscribe((definities) => {
@@ -67,7 +66,7 @@ export class FormulierDefinitiesComponent
     });
   }
 
-  verwijderen(formulierDefinitie: FormulierDefinitie): void {
+  verwijderen(formulierDefinitie: GeneratedType<"RESTFormulierDefinitie">) {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
@@ -75,18 +74,17 @@ export class FormulierDefinitiesComponent
             key: "msg.formulierdefinitie.verwijderen.bevestigen",
             args: { naam: formulierDefinitie.systeemnaam },
           },
-          this.service.delete(formulierDefinitie.id),
+          this.service.delete(formulierDefinitie.id!),
         ),
       })
       .afterClosed()
       .subscribe((result) => {
-        if (result) {
-          this.utilService.openSnackbar(
-            "msg.formulierdefinitie.verwijderen.uitgevoerd",
-            { naam: formulierDefinitie.systeemnaam },
-          );
-          this.ophalenFormulierDefinities();
-        }
+        if (!result) return;
+        this.utilService.openSnackbar(
+          "msg.formulierdefinitie.verwijderen.uitgevoerd",
+          { naam: formulierDefinitie.systeemnaam },
+        );
+        this.ophalenFormulierDefinities();
       });
   }
 }

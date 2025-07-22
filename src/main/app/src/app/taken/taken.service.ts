@@ -35,38 +35,34 @@ export class TakenService {
   }
 
   toekennen(body: PatchBody<"/rest/taken/toekennen">) {
-    return this.zacHttpClient.PATCH("/rest/taken/toekennen", body, {});
+    return this.zacHttpClient.PATCH("/rest/taken/toekennen", body);
   }
 
   toekennenAanIngelogdeMedewerker(
     body: PatchBody<"/rest/taken/lijst/toekennen/mij">,
   ) {
-    return this.zacHttpClient.PATCH("/rest/taken/toekennen/mij", body, {});
+    return this.zacHttpClient.PATCH("/rest/taken/toekennen/mij", body);
   }
 
   toekennenAanIngelogdeMedewerkerVanuitLijst(
     body: PatchBody<"/rest/taken/lijst/toekennen/mij">,
   ) {
-    return this.zacHttpClient.PATCH(
-      "/rest/taken/lijst/toekennen/mij",
-      body,
-      {},
-    );
+    return this.zacHttpClient.PATCH("/rest/taken/lijst/toekennen/mij", body);
   }
 
   updateTaakdata(body: PutBody<"/rest/taken/taakdata">) {
-    return this.zacHttpClient.PUT("/rest/taken/taakdata", body, {});
+    return this.zacHttpClient.PUT("/rest/taken/taakdata", body);
   }
 
   complete(body: PatchBody<"/rest/taken/complete">) {
-    return this.zacHttpClient.PATCH("/rest/taken/complete", body, {});
+    return this.zacHttpClient.PATCH("/rest/taken/complete", body);
   }
 
   verdelenVanuitLijst(body: PutBody<"/rest/taken/lijst/verdelen">) {
-    return this.zacHttpClient.PUT("/rest/taken/lijst/verdelen", body, {});
+    return this.zacHttpClient.PUT("/rest/taken/lijst/verdelen", body);
   }
 
   vrijgevenVanuitLijst(body: PutBody<"/rest/taken/lijst/vrijgeven">) {
-    return this.zacHttpClient.PUT("/rest/taken/lijst/vrijgeven", body, {});
+    return this.zacHttpClient.PUT("/rest/taken/lijst/vrijgeven", body);
   }
 }

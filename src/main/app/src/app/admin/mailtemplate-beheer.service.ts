@@ -20,11 +20,11 @@ export class MailtemplateBeheerService {
   }
 
   listMailtemplates() {
-    return this.zacHttpClient.GET("/rest/beheer/mailtemplates", {});
+    return this.zacHttpClient.GET("/rest/beheer/mailtemplates");
   }
 
   listKoppelbareMailtemplates() {
-    return this.zacHttpClient.GET("/rest/beheer/mailtemplates/koppelbaar", {});
+    return this.zacHttpClient.GET("/rest/beheer/mailtemplates/koppelbaar");
   }
 
   deleteMailtemplate(id: number) {
@@ -34,7 +34,7 @@ export class MailtemplateBeheerService {
   }
 
   persistMailtemplate(body: PutBody<"/rest/beheer/mailtemplates">) {
-    return this.zacHttpClient.PUT("/rest/beheer/mailtemplates", body, {});
+    return this.zacHttpClient.PUT("/rest/beheer/mailtemplates", body);
   }
 
   ophalenVariabelenVoorMail(mail: GeneratedType<"Mail">) {
