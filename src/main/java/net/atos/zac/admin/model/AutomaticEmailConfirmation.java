@@ -38,11 +38,9 @@ public class AutomaticEmailConfirmation {
     private boolean enabled = false;
 
     @Column(name = "template_name")
-    @NotNull
     private String templateName;
 
     @Column(name = "email_sender")
-    @NotNull
     private String emailSender;
 
     @Column(name = "email_reply")

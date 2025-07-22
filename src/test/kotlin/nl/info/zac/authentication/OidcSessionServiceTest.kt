@@ -112,7 +112,7 @@ class OidcSessionServiceTest : BehaviorSpec({
 
         When("refreshUserSession is called") {
             Then("it throws an exception") {
-                val ex = shouldThrow<IllegalStateException> {
+                val ex = shouldThrow<OidcSessionException> {
                     ctx.service.refreshUserSession()
                 }
                 ex.message shouldBe "No $REFRESH_TOKEN_ATTRIBUTE found in session"
