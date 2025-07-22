@@ -61,6 +61,7 @@ class OidcSessionService @Inject constructor(
         }
     }
 
+    @Suppress("ThrowsCount")
     private fun callTokenEndpoint(refreshToken: String): TokenResponse {
         val keycloakUrl = "$authServer/realms/$authRealm/protocol/openid-connect/token"
         val formBody = FormBody.Builder()
