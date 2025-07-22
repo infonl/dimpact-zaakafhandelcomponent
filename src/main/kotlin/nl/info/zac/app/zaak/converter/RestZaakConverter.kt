@@ -134,6 +134,13 @@ class RestZaakConverter @Inject constructor(
             groep = groep,
             behandelaar = behandelaar,
             initiatorIdentificatie = initiator?.identificatienummer,
+            kvkNummer = when (initiator?.betrokkeneType) {
+                NIET_NATUURLIJK_PERSOON -> {
+                    val identificatie = initiator.betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie
+                    if (identificatie?.vestigingsNummer?.isNotBlank() == true) identificatie?.kvkNummer else null
+                }
+                else -> null
+            },
             initiatorIdentificatieType = when (val betrokkeneType = initiator?.betrokkeneType) {
                 NATUURLIJK_PERSOON -> IdentificatieType.BSN
                 VESTIGING -> IdentificatieType.VN

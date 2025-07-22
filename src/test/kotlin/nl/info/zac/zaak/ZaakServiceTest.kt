@@ -770,7 +770,9 @@ class ZaakServiceTest : BehaviorSpec({
     }
 
     Given("An existing zaak") {
+        val kvkNummer = "12345567"
         val vestingsnummer = "fakeVestigingsnummer"
+        val identification = "$kvkNummer|$vestingsnummer"
         val explanation = "fakeExplanation"
         val zaak = createZaak()
         val roleType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
@@ -784,7 +786,7 @@ class ZaakServiceTest : BehaviorSpec({
         When("an initiator with a vestigingsnummer is added to the zaak") {
             zaakService.addInitiatorToZaak(
                 identificationType = IdentificatieType.VN,
-                identification = vestingsnummer,
+                identification = identification,
                 zaak = zaak,
                 explanation = explanation
             )
@@ -1540,7 +1542,9 @@ class ZaakServiceTest : BehaviorSpec({
     }
 
     Given("An existing zaak") {
+        val kvkNummer = "12345567"
         val vestingsnummer = "fakeVestigingsnummer"
+        val identification = "$kvkNummer|$vestingsnummer"
         val explanation = "fakeExplanation"
         val zaak = createZaak()
         val roleType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
@@ -1554,7 +1558,7 @@ class ZaakServiceTest : BehaviorSpec({
         When("an initiator with a vestigingsnummer is added to the zaak") {
             zaakService.addInitiatorToZaak(
                 identificationType = IdentificatieType.VN,
-                identification = vestingsnummer,
+                identification = identification,
                 zaak = zaak,
                 explanation = explanation
             )

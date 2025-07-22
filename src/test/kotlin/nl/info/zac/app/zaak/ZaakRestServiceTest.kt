@@ -79,6 +79,7 @@ import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
 import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowedException
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
+import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.RESTReden
 import nl.info.zac.app.zaak.model.RESTZaakAfbrekenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
@@ -907,6 +908,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     Given("A zaak with an initiator and rest zaak betrokkene gegevens") {
         val zaak = createZaak()
+        val indentification = "123456677"
         val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens()
         val rolMedewerker = createRolMedewerker()
         val restZaak = createRestZaak()
@@ -928,8 +930,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "Verwijderd door de medewerker tijdens het behandelen van de zaak"
                     )
                     zaakService.addInitiatorToZaak(
-                        restZaakInitiatorGegevens.identificatieType,
-                        restZaakInitiatorGegevens.identificatie,
+                        IdentificatieType.BSN,
+                        indentification,
                         zaak,
                         restZaakInitiatorGegevens.toelichting!!
                     )
@@ -1333,7 +1335,15 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Given("A zaak without an initiator") {
-        val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens()
+        val kvkNummer = "1234567"
+        val vestigingsnummer = "00012352546"
+        val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens(
+            betrokkeneIdentificatie = BetrokkeneIdentificatie(
+                type = IdentificatieType.VN,
+                kvkNummer = kvkNummer,
+                vestigingsnummer = vestigingsnummer
+            )
+        )
         val zaak = createZaak()
 
         every { zrcClientService.readZaak(restZaakInitiatorGegevens.zaakUUID) } returns zaak
@@ -1341,8 +1351,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
         every {
             zaakService.addInitiatorToZaak(
-                restZaakInitiatorGegevens.identificatieType,
-                restZaakInitiatorGegevens.identificatie,
+                IdentificatieType.VN,
+                "$kvkNummer|$vestigingsnummer",
                 zaak,
                 any()
             )
@@ -1359,8 +1369,8 @@ class ZaakRestServiceTest : BehaviorSpec({
             Then("the explanation should get saved") {
                 verify(exactly = 1) {
                     zaakService.addInitiatorToZaak(
-                        restZaakInitiatorGegevens.identificatieType,
-                        restZaakInitiatorGegevens.identificatie,
+                        IdentificatieType.VN,
+                        "$kvkNummer|$vestigingsnummer",
                         any(),
                         "test reden"
                     )
@@ -1378,8 +1388,8 @@ class ZaakRestServiceTest : BehaviorSpec({
             Then("the reason should be set to the default") {
                 verify(exactly = 1) {
                     zaakService.addInitiatorToZaak(
-                        restZaakInitiatorGegevens.identificatieType,
-                        restZaakInitiatorGegevens.identificatie,
+                        IdentificatieType.VN,
+                        "$kvkNummer|$vestigingsnummer",
                         any(),
                         "Toegekend door de medewerker tijdens het behandelen van de zaak"
                     )

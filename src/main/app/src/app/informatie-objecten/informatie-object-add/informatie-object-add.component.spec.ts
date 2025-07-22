@@ -11,11 +11,12 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateModule } from "@ngx-translate/core";
+import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
 import { FormComponent } from "src/app/shared/material-form-builder/form/form/form.component";
-import { Taak } from "src/app/taken/model/taak";
 import { IdentityService } from "../../identity/identity.service";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectAddComponent } from "./informatie-object-add.component";
 
 describe(InformatieObjectAddComponent.name, () => {
@@ -81,7 +82,10 @@ describe(InformatieObjectAddComponent.name, () => {
 
     it("should return taak's zaakUuid when zaak is not set", () => {
       component.zaak = undefined;
-      component.taak = { zaakUuid: "expected-uuid", id: "t-id" } as Taak;
+      component.taak = fromPartial<GeneratedType<"RestTask">>({
+        zaakUuid: "expected-uuid",
+        id: "t-id",
+      });
 
       expect(component["getZaakUuid"]()).toBe("expected-uuid");
     });

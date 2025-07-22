@@ -24,13 +24,13 @@ export class ZakenCardComponent
   extends DashboardCardComponent<ZaakOverzichtDashboard>
   implements OnDestroy
 {
-  columns: string[] = [
+  columns = [
     "identificatie",
     "startdatum",
     "zaaktype",
     "omschrijving",
     "url",
-  ];
+  ] as const;
   pageSize = 5;
   pageNumber = signal(0);
 
@@ -45,7 +45,7 @@ export class ZakenCardComponent
     queryFn: () =>
       firstValueFrom(
         this.signaleringenService.listZakenSignalering({
-          signaleringType: this.parameters().signaleringType,
+          signaleringType: this.parameters().signaleringType!,
           page: this.parameters().page,
           rows: this.parameters().pageSize,
         }),
@@ -53,9 +53,9 @@ export class ZakenCardComponent
   }));
 
   constructor(
-    private signaleringenService: SignaleringenService,
-    protected identityService: IdentityService,
-    protected websocketService: WebsocketService,
+    private readonly signaleringenService: SignaleringenService,
+    protected readonly identityService: IdentityService,
+    protected readonly websocketService: WebsocketService,
   ) {
     super(identityService, websocketService);
 
@@ -63,7 +63,7 @@ export class ZakenCardComponent
       const { resultaten = [], totaal = 0 } = this.zakenQuery.data() ?? {};
 
       this.dataSource.data = resultaten;
-      this.paginator.length = totaal;
+      if (this.paginator) this.paginator.length = totaal;
     });
   }
 
