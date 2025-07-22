@@ -50,6 +50,8 @@ private fun setupMocks(
 
     every { sessionInstance.get() } returns httpSession
     every { httpSession.getAttribute(REFRESH_TOKEN_ATTRIBUTE) } returns refreshToken
+    every { httpSession.getAttribute(OidcSessionService::class.java.name + "__LOCK") } returns null
+    every { httpSession.setAttribute(OidcSessionService::class.java.name + "__LOCK", any()) } just runs
 
     val mediaType = "application/json".toMediaTypeOrNull()
 
@@ -112,7 +114,7 @@ class OidcSessionServiceTest : BehaviorSpec({
 
         When("refreshUserSession is called") {
             Then("it throws an exception") {
-                val ex = shouldThrow<IllegalStateException> {
+                val ex = shouldThrow<OidcSessionException> {
                     ctx.service.refreshUserSession()
                 }
                 ex.message shouldBe "No $REFRESH_TOKEN_ATTRIBUTE found in session"

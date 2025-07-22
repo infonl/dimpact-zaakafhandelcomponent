@@ -36,51 +36,68 @@ class OidcSessionService @Inject constructor(
     @Suppress("TooGenericExceptionCaught", "ThrowsCount")
     fun refreshUserSession() {
         val session = httpSession.get()
-        val refreshToken = try {
+        val lock = getSessionLock(session)
+        synchronized(lock) {
+            val refreshToken = getRefreshTokenFromSession(session)
+            val tokenResponse = callTokenEndpoint(refreshToken)
+            updateSessionWithTokens(session, tokenResponse)
+            updateUserPrincipal(session, tokenResponse)
+        }
+    }
+
+    private fun getSessionLock(session: HttpSession): Any {
+        val lockAttributeName = OidcSessionService::class.java.name + "__LOCK"
+        return session.getAttribute(lockAttributeName) ?: Any().also { session.setAttribute(lockAttributeName, it) }
+    }
+
+    private fun getRefreshTokenFromSession(session: HttpSession): String {
+        return try {
             session.getAttribute(REFRESH_TOKEN_ATTRIBUTE) as? String
+                ?: throw OidcSessionException("No $REFRESH_TOKEN_ATTRIBUTE found in session")
         } catch (e: IllegalStateException) {
             throw OidcSessionException("Session is invalid or expired", e)
         }
-        check(refreshToken != null) { "No $REFRESH_TOKEN_ATTRIBUTE found in session" }
+    }
 
+    private fun callTokenEndpoint(refreshToken: String): TokenResponse {
         val keycloakUrl = "$authServer/realms/$authRealm/protocol/openid-connect/token"
-
         val formBody = FormBody.Builder()
             .add("grant_type", REFRESH_TOKEN_ATTRIBUTE)
             .add(REFRESH_TOKEN_ATTRIBUTE, refreshToken)
             .add("client_id", clientId)
             .add("client_secret", clientSecret)
             .build()
-
         val request = Request.Builder()
             .url(keycloakUrl)
             .addHeader("Content-Type", "application/x-www-form-urlencoded")
             .post(formBody)
             .build()
-
         val response = okHttpClient.newCall(request).execute()
-
         response.use { resp ->
             if (!resp.isSuccessful) {
-                throw OidcSessionException("Failed to refresh user session: HTTP ${resp.code}")
+                throw OidcSessionException("Failed to refresh user session: HTTP " + resp.code)
             }
-
             val responseBody = resp.body.string()
             val mapper = jacksonObjectMapper()
             val json = mapper.readTree(responseBody)
-
             val newAccessToken = json[ACCESS_TOKEN_ATTRIBUTE]?.asText()?.takeIf { it.isNotBlank() }
                 ?: throw OidcSessionException("Keycloak response missing $ACCESS_TOKEN_ATTRIBUTE")
-
             val newRefreshToken = json[REFRESH_TOKEN_ATTRIBUTE]?.asText()?.takeIf { it.isNotBlank() }
                 ?: throw OidcSessionException("Keycloak response missing $REFRESH_TOKEN_ATTRIBUTE")
-
-            session.setAttribute(REFRESH_TOKEN_ATTRIBUTE, newRefreshToken)
-
-            val newOidcPrincipal = userPrincipalFilter.createOidcPrincipalFromAccessToken(newAccessToken)
-            userPrincipalFilter.setLoggedInUserOnHttpSession(newOidcPrincipal, session)
+            return TokenResponse(newAccessToken, newRefreshToken)
         }
     }
+
+    private fun updateSessionWithTokens(session: HttpSession, tokenResponse: TokenResponse) {
+        session.setAttribute(REFRESH_TOKEN_ATTRIBUTE, tokenResponse.refreshToken)
+    }
+
+    private fun updateUserPrincipal(session: HttpSession, tokenResponse: TokenResponse) {
+        val newOidcPrincipal = userPrincipalFilter.createOidcPrincipalFromAccessToken(tokenResponse.accessToken)
+        userPrincipalFilter.setLoggedInUserOnHttpSession(newOidcPrincipal, session)
+    }
+
+    private data class TokenResponse(val accessToken: String, val refreshToken: String)
 }
 
 class OidcSessionException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
