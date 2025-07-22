@@ -7,7 +7,7 @@ import { Component, Input, OnChanges } from "@angular/core";
 import { UtilService } from "../../core/service/util.service";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
-import { Zaak } from "../model/zaak";
+import { GeneratedType } from "../../shared/utils/generated-types";
 
 @Component({
   selector: "zac-zaak-verkort",
@@ -15,17 +15,17 @@ import { Zaak } from "../model/zaak";
   styleUrls: ["./zaak-verkort.component.less"],
 })
 export class ZaakVerkortComponent implements OnChanges {
-  @Input({ required: true }) zaak!: Zaak;
+  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
 
   einddatumGeplandIcon: TextIcon | null = null;
 
-  constructor(public utilService: UtilService) {}
+  constructor(public readonly utilService: UtilService) {}
 
   ngOnChanges(): void {
     this.einddatumGeplandIcon = new TextIcon(
       DateConditionals.provideFormControlValue(
         DateConditionals.isExceeded,
-        this.zaak.einddatum,
+        this.zaak.einddatum ?? "",
       ),
       "report_problem",
       "warningZaakVerkortVerlopen_icon",

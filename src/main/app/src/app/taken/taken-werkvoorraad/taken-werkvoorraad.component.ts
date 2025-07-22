@@ -262,7 +262,7 @@ export class TakenWerkvoorraadComponent
       },
       finally: () => {
         this.selection.clear();
-        this.dataSource.load(1_000);
+        this.dataSource.load(5_000); // We need to give the indexing service some time to finish
         this.takenLoading.set(false);
         this.batchProcessService.stop();
       },
