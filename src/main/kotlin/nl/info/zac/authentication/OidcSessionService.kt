@@ -75,7 +75,7 @@ class OidcSessionService @Inject constructor(
         val response = okHttpClient.newCall(request).execute()
         response.use { resp ->
             if (!resp.isSuccessful) {
-                throw OidcSessionException("Failed to refresh user session: HTTP " + resp.code)
+                throw OidcSessionException("Failed to refresh user session: HTTP ${resp.code}")
             }
             val responseBody = resp.body.string()
             val mapper = jacksonObjectMapper()
