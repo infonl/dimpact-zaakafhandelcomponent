@@ -138,7 +138,6 @@ public class FlowableTaskService {
                 .or()
                 .caseVariableValueEquals(VAR_ZAAK_UUID, zaakUUID)
                 .processVariableValueEquals(VAR_ZAAK_UUID, zaakUUID)
-                .includeIdentityLinks()
                 .endOr()
                 .list();
     }
