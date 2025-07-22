@@ -183,6 +183,9 @@ class ZaakRestService @Inject constructor(
         private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
         private const val VERLENGING = "Verlenging"
         const val AANVULLENDE_INFORMATIE_TASK_NAME = "Aanvullende informatie"
+
+        private const val BPMN_ZAAK_USER_VARIABLE_NAME = "zaakBehandelaar"
+        private const val BPMN_ZAAK_GROUP_VARIABLE_NAME = "zaakGroep"
     }
 
     @GET
@@ -305,16 +308,12 @@ class ZaakRestService @Inject constructor(
             bpmnService.startProcess(
                 zaak = zaak,
                 zaaktype = zaaktype,
-                processDefinitionKey = processDefinition.bpmnProcessDefinitionKey
+                processDefinitionKey = processDefinition.bpmnProcessDefinitionKey,
+                zaakData = buildMap {
+                    restZaak.groep?.let { put(BPMN_ZAAK_GROUP_VARIABLE_NAME, it.naam) }
+                    restZaak.behandelaar?.let { put(BPMN_ZAAK_USER_VARIABLE_NAME, it.naam) }
+                }
             )
-            flowableTaskService.listOpenTasksForZaak(zaak.uuid).forEach { task ->
-                restZaak.groep?.let { group ->
-                    flowableTaskService.assignTaskToGroup(task, group.id, AANMAKEN_ZAAK_REDEN)
-                }
-                restZaak.behandelaar?.let { user ->
-                    flowableTaskService.assignTaskToUser(task.id, user.id, AANMAKEN_ZAAK_REDEN)
-                }
-            }
         } else {
             cmmnService.startCase(
                 zaak = zaak,
