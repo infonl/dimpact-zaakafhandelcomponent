@@ -13,16 +13,16 @@ import { FoutAfhandelingService } from "./fout-afhandeling.service";
   styleUrls: ["./fout-afhandeling.component.less"],
 })
 export class FoutAfhandelingComponent implements OnInit {
-  bericht: string;
-  foutmelding: string;
+  bericht: string | null = null;
+  foutmelding: string | null = null;
   serverErrorTexts = this.referentieTabelService.listServerErrorTexts();
 
   constructor(
-    private service: FoutAfhandelingService,
-    private referentieTabelService: ReferentieTabelService,
+    private readonly service: FoutAfhandelingService,
+    private readonly referentieTabelService: ReferentieTabelService,
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.bericht = this.service.bericht;
     this.foutmelding = this.service.foutmelding;
   }

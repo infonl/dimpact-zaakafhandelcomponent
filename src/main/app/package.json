@@ -48,7 +48,8 @@
     "zone.js": "0.14.10"
   },
   "overrides": {
-    "chokidar": "4.0.3"
+    "chokidar": "4.0.3",
+    "form-data": "4.0.4"
   },
   "devDependencies": {
     "@angular-builders/jest": "18.0.0",
