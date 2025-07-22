@@ -19,6 +19,7 @@ import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
 import nl.info.zac.mailtemplates.MailTemplateService
 import nl.info.zac.mailtemplates.model.MailGegevens
+import nl.info.zac.mailtemplates.model.MailTemplate
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.util.performAction
 import nl.info.zac.util.AllOpen
@@ -77,23 +78,39 @@ class ProductaanvraagEmailService @Inject constructor(
         to: String,
         zaakFromProductaanvraag: Zaak
     ) {
-        mailTemplateService.findMailtemplateByName(automaticEmailConfirmation.templateName)?.let {
-                mailTemplate ->
-            val mailGegevens = MailGegevens(
-                from = automaticEmailConfirmation.emailSender.generateMailAddress(configuratieService),
-                to = MailAdres(email = to, name = null),
-                replyTo = automaticEmailConfirmation.emailReply?.generateMailAddress(configuratieService),
-                subject = mailTemplate.onderwerp,
-                body = mailTemplate.body,
-                attachments = null,
-                isCreateDocumentFromMail = true
+        automaticEmailConfirmation.templateName?.let { templateName ->
+            mailTemplateService.findMailtemplateByName(templateName)?.let { mailTemplate ->
+                configureEmail(automaticEmailConfirmation, to, mailTemplate)?.let { mailGegevens ->
+                    mailService.sendMail(mailGegevens, zaakFromProductaanvraag.getBronnenFromZaak())?.also {
+                        zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaakFromProductaanvraag)
+                    }
+                } ?: LOG.warning(
+                    "No email sender configured for zaaktype ${zaakFromProductaanvraag.zaaktype}. " +
+                        "Skipping automatic email confirmation."
+                )
+            } ?: LOG.warning(
+                "No mail template found with name: '${automaticEmailConfirmation.templateName}'. " +
+                    "Skipping automatic email confirmation."
             )
-            mailService.sendMail(mailGegevens, zaakFromProductaanvraag.getBronnenFromZaak())?.also {
-                zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaakFromProductaanvraag)
-            }
         } ?: LOG.warning(
-            "No mail template found with name: '${automaticEmailConfirmation.templateName}'. " +
+            "No email template configured for zaaktype ${zaakFromProductaanvraag.zaaktype}. " +
                 "Skipping automatic email confirmation."
+        )
+    }
+
+    private fun configureEmail(
+        automaticEmailConfirmation: AutomaticEmailConfirmation,
+        to: String,
+        mailTemplate: MailTemplate
+    ) = automaticEmailConfirmation.emailSender?.let { emailSender ->
+        MailGegevens(
+            from = emailSender.generateMailAddress(configuratieService),
+            to = MailAdres(email = to, name = null),
+            replyTo = automaticEmailConfirmation.emailReply?.generateMailAddress(configuratieService),
+            subject = mailTemplate.onderwerp,
+            body = mailTemplate.body,
+            attachments = null,
+            isCreateDocumentFromMail = true
         )
     }
 
