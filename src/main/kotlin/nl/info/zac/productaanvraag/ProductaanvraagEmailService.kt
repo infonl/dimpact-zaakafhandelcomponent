@@ -52,11 +52,11 @@ class ProductaanvraagEmailService @Inject constructor(
                     sendMail(automaticEmailConfirmation, to, zaakFromProductaanvraag)
                 } ?: LOG.fine(
                     "No email address found for initiator '$initiator'. " +
-                            "Skipping automatic email confirmation."
+                        "Skipping automatic email confirmation."
                 )
             } ?: LOG.fine(
                 "No initiator provided for zaak '$zaakFromProductaanvraag'. " +
-                        "Skipping automatic email confirmation."
+                    "Skipping automatic email confirmation."
             )
         }
     }
@@ -87,16 +87,16 @@ class ProductaanvraagEmailService @Inject constructor(
                 } ?: {
                     LOG.warning(
                         "No email sender configured for zaaktype ${zaakFromProductaanvraag.zaaktype}. " +
-                                "Skipping automatic email confirmation."
+                            "Skipping automatic email confirmation."
                     )
                 }
             } ?: LOG.warning(
                 "No mail template found with name: '${automaticEmailConfirmation.templateName}'. " +
-                        "Skipping automatic email confirmation."
+                    "Skipping automatic email confirmation."
             )
         } ?: LOG.warning(
             "No email template configured for zaaktype ${zaakFromProductaanvraag.zaaktype}. " +
-                    "Skipping automatic email confirmation."
+                "Skipping automatic email confirmation."
         )
     }
 
