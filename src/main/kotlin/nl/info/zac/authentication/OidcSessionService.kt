@@ -36,19 +36,11 @@ class OidcSessionService @Inject constructor(
     @Suppress("TooGenericExceptionCaught", "ThrowsCount")
     fun refreshUserSession() {
         val session = httpSession.get()
-        val lock = getSessionLock(session)
-        synchronized(lock) {
+        synchronized(session) {
             val refreshToken = getRefreshTokenFromSession(session)
             val tokenResponse = callTokenEndpoint(refreshToken)
             updateSessionWithTokens(session, tokenResponse)
             updateUserPrincipal(session, tokenResponse)
-        }
-    }
-
-    private fun getSessionLock(session: HttpSession): Any {
-        val lockAttributeName = OidcSessionService::class.java.name + "__LOCK"
-        return session.getAttribute(lockAttributeName) ?: synchronized(session) {
-            session.getAttribute(lockAttributeName) ?: Any().also { session.setAttribute(lockAttributeName, it) }
         }
     }
 

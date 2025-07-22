@@ -50,9 +50,7 @@ private fun setupMocks(
 
     every { sessionInstance.get() } returns httpSession
     every { httpSession.getAttribute(REFRESH_TOKEN_ATTRIBUTE) } returns refreshToken
-    every { httpSession.getAttribute(OidcSessionService::class.java.name + "__LOCK") } returns null
-    every { httpSession.setAttribute(OidcSessionService::class.java.name + "__LOCK", any()) } just runs
-
+    
     val mediaType = "application/json".toMediaTypeOrNull()
 
     val mockResponse = Response.Builder()
