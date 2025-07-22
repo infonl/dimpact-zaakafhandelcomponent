@@ -104,7 +104,7 @@ class ProductaanvraagEmailService @Inject constructor(
         automaticEmailConfirmation: AutomaticEmailConfirmation,
         to: String,
         mailTemplate: MailTemplate
-    ): MailGegevens? = automaticEmailConfirmation.emailSender?.let { emailSender ->
+    ) = automaticEmailConfirmation.emailSender?.let { emailSender ->
         MailGegevens(
             from = emailSender.generateMailAddress(configuratieService),
             to = MailAdres(email = to, name = null),
