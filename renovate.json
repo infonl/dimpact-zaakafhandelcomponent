@@ -91,7 +91,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "<= 25.0.6",
+      "allowedVersions": "< 26.4.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
@@ -103,7 +103,7 @@
       "matchDatasources": [
         "maven"
       ],
-      "allowedVersions": "<= 25.0.6",
+      "allowedVersions": "< 26.4.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
@@ -115,7 +115,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 3.1.0",
+      "allowedVersions": "< 3.2.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
@@ -163,7 +163,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 1.9.0",
+      "allowedVersions": "< 1.11.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
@@ -175,7 +175,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "<= 7.4.1",
+      "allowedVersions": "< 7.5.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
@@ -186,18 +186,6 @@
       ],
       "matchDatasources": [
         "helm"
-      ]
-    },
-    {
-      "matchPackageNames": [
-        "otel/opentelemetry-collector-contrib"
-      ],
-      "matchDatasources": [
-        "helm"
-      ],
-      "allowedVersions": "<= 0.123.0",
-      "description": [
-        "Pinned until https://github.com/open-telemetry/community/issues/2641 is solved"
       ]
     },
     {
