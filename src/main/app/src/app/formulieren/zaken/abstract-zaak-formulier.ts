@@ -6,14 +6,14 @@
 import { FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { Zaak } from "../../zaken/model/zaak";
+import { GeneratedType } from "../../shared/utils/generated-types";
 
 export abstract class AbstractZaakFormulier {
-  zaak: Zaak;
-  dataElementen: Record<string, string | undefined>;
-  form: Array<AbstractFormField[]>;
+  zaak: GeneratedType<"RestZaak">;
+  dataElementen: Record<string, string | undefined> = {};
+  form: Array<AbstractFormField[]> = [];
 
-  constructor(protected translate: TranslateService) {}
+  protected constructor(protected readonly translate: TranslateService) {}
 
   initForm(): void {
     this.form = [];
@@ -26,12 +26,12 @@ export abstract class AbstractZaakFormulier {
     return this.dataElementen[key] ?? null;
   }
 
-  getZaak(formGroup: FormGroup): Zaak {
+  getZaak(formGroup: FormGroup) {
     this.zaak.zaakdata = this.getDataElementen(formGroup);
     return this.zaak;
   }
 
-  private getDataElementen(formGroup: FormGroup): Record<string, unknown> {
+  private getDataElementen(formGroup: FormGroup) {
     if (!this.dataElementen) {
       this.dataElementen = {};
     }

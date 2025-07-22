@@ -5,14 +5,12 @@
 
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
+import { FormBuilder, FormControl } from "@angular/forms";
 import moment from "moment";
-import { FormulierDefinitie } from "../../admin/model/formulieren/formulier-definitie";
 import { FormulierVeldDefinitie } from "../../admin/model/formulieren/formulier-veld-definitie";
 import { FormulierVeldtype } from "../../admin/model/formulieren/formulier-veld-type.enum";
 import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { Zaak } from "../../zaken/model/zaak";
 
 @Component({
   selector: "zac-formulier",
@@ -20,38 +18,36 @@ import { Zaak } from "../../zaken/model/zaak";
   styleUrls: ["./formulier.component.less"],
 })
 export class FormulierComponent implements OnInit {
-  @Input() definitie: FormulierDefinitie;
-  @Input() readonly: boolean;
-  @Input() zaak: Zaak;
-  @Input() waarden: Record<string, unknown>;
+  @Input({ required: true })
+  definitie!: GeneratedType<"RESTFormulierDefinitie">;
+  @Input() readonly = false;
+  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
+  @Input() waarden: Record<string, unknown> = {};
   @Output() formPartial = new EventEmitter<Record<string, unknown>>();
   @Output() formSubmit = new EventEmitter<Record<string, unknown>>();
 
-  formGroup: FormGroup;
+  formGroup = this.formBuilder.group({});
   FormulierVeldtype = FormulierVeldtype;
 
-  checked: Map<string, SelectionModel<string>> = new Map<
-    string,
-    SelectionModel<string>
-  >();
-  referentietabellen: Map<string, string[]> = new Map<string, string[]>();
+  checked = new Map<string, SelectionModel<string>>();
+  referentietabellen = new Map<string, string[]>();
 
-  medewerkers: GeneratedType<"RestUser">[];
-  groepen: GeneratedType<"RestGroup">[];
+  medewerkers: GeneratedType<"RestUser">[] = [];
+  groepen: GeneratedType<"RestGroup">[] = [];
 
   bezigMetOpslaan = false;
 
   constructor(
-    public formBuilder: FormBuilder,
-    public identityService: IdentityService,
+    private readonly formBuilder: FormBuilder,
+    private readonly identityService: IdentityService,
   ) {}
 
-  ngOnInit(): void {
-    this.identityService.listUsers().subscribe((u) => {
-      this.medewerkers = u;
+  ngOnInit() {
+    this.identityService.listUsers().subscribe((users) => {
+      this.medewerkers = users;
     });
-    this.identityService.listGroups().subscribe((g) => {
-      this.groepen = g;
+    this.identityService.listGroups().subscribe((groups) => {
+      this.groepen = groups;
     });
     this.createForm();
     if (this.readonly) {
@@ -60,9 +56,11 @@ export class FormulierComponent implements OnInit {
   }
 
   createForm() {
-    this.formGroup = this.formBuilder.group({});
     this.definitie.veldDefinities.forEach((veldDefinitie) => {
-      if (veldDefinitie.veldtype === FormulierVeldtype.CHECKBOXES) {
+      if (
+        veldDefinitie.veldtype === "CHECKBOXES" &&
+        veldDefinitie.systeemnaam
+      ) {
         this.checked.set(
           veldDefinitie.systeemnaam,
           new SelectionModel<string>(true),
@@ -74,15 +72,18 @@ export class FormulierComponent implements OnInit {
           control.setValue(false);
           control.disable();
         }
-        this.formGroup.addControl(veldDefinitie.systeemnaam, control);
-      } else if (FormulierVeldDefinitie.isHervatten(veldDefinitie)) {
+        this.formGroup.addControl(veldDefinitie.systeemnaam as never, control);
+      } else if (
+        FormulierVeldDefinitie.isHervatten(veldDefinitie) &&
+        veldDefinitie.systeemnaam
+      ) {
         const control = FormulierVeldDefinitie.asControl(veldDefinitie);
         if (!this.isHervatenMogelijk()) {
           control.setValue(false);
           control.disable();
         }
         this.formGroup.addControl(veldDefinitie.systeemnaam, control);
-      } else {
+      } else if (veldDefinitie.systeemnaam) {
         this.formGroup.addControl(
           veldDefinitie.systeemnaam,
           FormulierVeldDefinitie.asControl(veldDefinitie),
@@ -93,27 +94,27 @@ export class FormulierComponent implements OnInit {
   }
 
   toggleCheckboxes(systeemnaam: string, optie: string) {
-    this.checked.get(systeemnaam).toggle(optie);
+    this.checked.get(systeemnaam)?.toggle(optie);
     this.formGroup
       .get(systeemnaam)
-      .setValue(this.checked.get(systeemnaam).selected.join(";"));
+      ?.setValue(this.checked.get(systeemnaam)?.selected.join(";"));
   }
 
-  getControl(systeemnaam: string): FormControl<string> {
-    return this.formGroup.get(systeemnaam) as FormControl<string>;
+  getControl(systeemnaam?: string) {
+    return this.formGroup.get(systeemnaam!) as FormControl<string>;
   }
 
-  days(systeemnaam) {
-    const datum = this.formGroup.get(systeemnaam).value;
-    if (datum) {
-      return moment(datum).diff(moment().startOf("day"), "days");
-    }
+  days(systeemnaam?: string) {
+    if (!systeemnaam) return;
+    const datum = this.formGroup.get(systeemnaam)?.value;
+    if (!datum) return;
+    return moment(datum).diff(moment().startOf("day"), "days");
   }
 
   hasValue(systeemnaam: string) {
     return (
-      this.formGroup.get(systeemnaam).value !== null &&
-      this.formGroup.get(systeemnaam).value !== ""
+      this.formGroup.get(systeemnaam)?.value !== null &&
+      this.formGroup.get(systeemnaam)?.value !== ""
     );
   }
 
@@ -130,14 +131,16 @@ export class FormulierComponent implements OnInit {
   }
 
   isOpgeschortenMogelijk() {
-    return !this.zaak.isOpgeschort && this.zaak.isOpen && !this.zaak.isHeropend;
+    return Boolean(
+      !this.zaak?.isOpgeschort && this.zaak?.isOpen && !this.zaak?.isHeropend,
+    );
   }
 
   isHervatenMogelijk() {
-    return this.zaak.isOpgeschort;
+    return Boolean(this.zaak?.isOpgeschort);
   }
 
-  toonVeld(veldDefinitie: FormulierVeldDefinitie): boolean {
+  toonVeld(veldDefinitie: FormulierVeldDefinitie) {
     if (FormulierVeldDefinitie.isOpschorten(veldDefinitie)) {
       return this.isOpgeschortenMogelijk();
     }
