@@ -19,7 +19,6 @@ import moment, { Moment } from "moment";
 import { Observable, Subject, takeUntil } from "rxjs";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
-import { Taak } from "src/app/taken/model/taak";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import {
@@ -38,7 +37,7 @@ export class InformatieObjectCreateAttendedComponent
   implements OnInit, OnDestroy
 {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
-  @Input({ required: true }) taak!: Taak;
+  @Input({ required: true }) taak!: GeneratedType<"RestTask">;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Input({ required: false }) smartDocumentsGroupPath: string[] = [];
   @Input({ required: false }) smartDocumentsTemplateName?: string;
