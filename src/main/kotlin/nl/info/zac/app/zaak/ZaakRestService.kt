@@ -307,6 +307,14 @@ class ZaakRestService @Inject constructor(
                 zaaktype = zaaktype,
                 processDefinitionKey = processDefinition.bpmnProcessDefinitionKey
             )
+            flowableTaskService.listOpenTasksForZaak(zaak.uuid).forEach { task ->
+                restZaak.groep?.let { group ->
+                    flowableTaskService.assignTaskToGroup(task, group.id, AANMAKEN_ZAAK_REDEN)
+                }
+                restZaak.behandelaar?.let { user ->
+                    flowableTaskService.assignTaskToUser(task.id, user.id, AANMAKEN_ZAAK_REDEN)
+                }
+            }
         } else {
             cmmnService.startCase(
                 zaak = zaak,

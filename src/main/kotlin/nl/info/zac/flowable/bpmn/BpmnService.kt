@@ -64,7 +64,7 @@ class BpmnService @Inject constructor(
 
     fun isProcessDriven(zaakUUID: UUID): Boolean = findProcessInstance(zaakUUID) != null
 
-    fun findProcessDefinitionByprocessDefinitionKey(processDefinitionKey: String?): ProcessDefinition? =
+    fun findProcessDefinitionByProcessDefinitionKey(processDefinitionKey: String?): ProcessDefinition? =
         repositoryService.createProcessDefinitionQuery()
             .processDefinitionKey(processDefinitionKey)
             .active()
@@ -72,7 +72,7 @@ class BpmnService @Inject constructor(
             .singleResult()
 
     fun readProcessDefinitionByProcessDefinitionKey(processDefinitionKey: String): ProcessDefinition =
-        findProcessDefinitionByprocessDefinitionKey(processDefinitionKey)
+        findProcessDefinitionByProcessDefinitionKey(processDefinitionKey)
             ?: throw ProcessDefinitionNotFoundException(
                 "No BPMN process definition found for process definition key: '$processDefinitionKey'"
             )
