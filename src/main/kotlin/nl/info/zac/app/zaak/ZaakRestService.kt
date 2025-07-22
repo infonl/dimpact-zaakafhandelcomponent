@@ -287,20 +287,9 @@ class ZaakRestService @Inject constructor(
                 )
             }
         }
-        restZaak.groep?.let {
-            zrcClientService.updateRol(
-                zaak,
-                zaakService.bepaalRolGroep(identityService.readGroup(it.id), zaak),
-                AANMAKEN_ZAAK_REDEN
-            )
-        }
-        restZaak.behandelaar?.let {
-            zrcClientService.updateRol(
-                zaak,
-                zaakService.bepaalRolMedewerker(identityService.readUser(it.id), zaak),
-                AANMAKEN_ZAAK_REDEN
-            )
-        }
+
+        assignUserAndGroup(restZaak, zaak)
+
         // if BPMN support is enabled and a BPMN process definition is defined for the zaaktype, start a BPMN process;
         // otherwise start a CMMN case
         val processDefinition = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
@@ -328,6 +317,26 @@ class ZaakRestService @Inject constructor(
             zrcClientService.createZaakobject(RestBagConverter.convertToZaakobject(it, zaak))
         }
         return restZaakConverter.toRestZaak(zaak)
+    }
+
+    private fun assignUserAndGroup(
+        restZaak: RestZaak,
+        zaak: Zaak
+    ) {
+        restZaak.groep?.let {
+            zrcClientService.updateRol(
+                zaak,
+                zaakService.bepaalRolGroep(identityService.readGroup(it.id), zaak),
+                AANMAKEN_ZAAK_REDEN
+            )
+        }
+        restZaak.behandelaar?.let {
+            zrcClientService.updateRol(
+                zaak,
+                zaakService.bepaalRolMedewerker(identityService.readUser(it.id), zaak),
+                AANMAKEN_ZAAK_REDEN
+            )
+        }
     }
 
     @PATCH
