@@ -4,10 +4,8 @@
  */
 package nl.info.zac.app.admin.model
 
-import net.atos.zac.app.admin.model.RESTZaaktypeOverzicht
-
 data class RESTZaaktypeInrichtingscheck(
-    var zaaktype: RESTZaaktypeOverzicht,
+    var zaaktype: RestZaaktypeOverzicht,
     var statustypeIntakeAanwezig: Boolean = false,
     var statustypeInBehandelingAanwezig: Boolean = false,
     var statustypeHeropendAanwezig: Boolean = false,

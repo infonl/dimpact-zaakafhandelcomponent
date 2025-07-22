@@ -12,18 +12,24 @@ import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling
 import net.atos.zac.app.admin.model.RESTUserEventListenerParameter
 import net.atos.zac.app.admin.model.RESTZaakAfzender
 import net.atos.zac.app.admin.model.RESTZaakbeeindigParameter
-import net.atos.zac.app.admin.model.RESTZaaktypeOverzicht
 import nl.info.zac.app.zaak.model.RESTZaakStatusmailOptie
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 
+/**
+ * Currently this class it used both for creating and updating as well as for reading
+ * zaakafhandelparameter data.
+ * For this reason, all fields are currently nullable.
+ * In future, we should consider splitting this class into separate classes, depending
+ * on the CRUD operation.
+ */
 @NoArgConstructor
 @AllOpen
 data class RestZaakafhandelParameters(
     var id: Long? = null,
-    var zaaktype: RESTZaaktypeOverzicht,
+    var zaaktype: RestZaaktypeOverzicht,
     var caseDefinition: RESTCaseDefinition? = null,
     var defaultBehandelaarId: String? = null,
     var defaultGroepId: String? = null,
