@@ -81,5 +81,8 @@
     "ts-node": "10.9.2",
     "typescript": "5.5.4",
     "whatwg-fetch": "3.6.20"
+  },
+  "peerDependencies": {
+    "form-data": "4.0.4"
   }
 }
