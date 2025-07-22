@@ -38,7 +38,7 @@ export class ParametersComponent
 
   private storedParameterFilters = "parameterFilters";
 
-  zaaktypes: GeneratedType<"RESTZaaktypeOverzicht">[] = [];
+  zaaktypes: GeneratedType<"RestZaaktypeOverzicht">[] = [];
   caseDefinitions: GeneratedType<"RESTCaseDefinition">[] = [];
 
   constructor(
@@ -110,7 +110,7 @@ export class ParametersComponent
           ClientMatcher.matchObject(
             "identificatie",
             data.zaaktype,
-            parsedFilter.zaaktype as GeneratedType<"RESTZaaktypeOverzicht">,
+            parsedFilter.zaaktype as GeneratedType<"RestZaaktypeOverzicht">,
           );
       }
 

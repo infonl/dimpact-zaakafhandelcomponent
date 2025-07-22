@@ -4,7 +4,6 @@
  */
 package nl.info.zac.app.admin
 
-import net.atos.zac.app.admin.model.RESTZaaktypeOverzicht
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.RestBrpDoelbindingen
@@ -14,6 +13,7 @@ import nl.info.zac.app.admin.model.RestReferenceTableUpdate
 import nl.info.zac.app.admin.model.RestReferenceTableValue
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
+import nl.info.zac.app.admin.model.RestZaaktypeOverzicht
 import java.time.LocalDate
 import java.util.UUID
 
@@ -72,7 +72,7 @@ fun createRestReferenceTableValue(
 fun createRestZaakAfhandelParameters(
     id: Long? = 1234L,
     domein: String = "fakeDomein",
-    restZaaktypeOverzicht: RESTZaaktypeOverzicht = createRestZaaktypeOverzicht(),
+    restZaaktypeOverzicht: RestZaaktypeOverzicht = createRestZaaktypeOverzicht(),
     productaanvraagtype: String? = null,
     defaultGroupId: String? = null,
     defaultBehandelaarId: String? = null,
@@ -93,7 +93,7 @@ fun createRestZaakAfhandelParameters(
     brpDoelbindingen = restBrpDoelbindingen
 )
 
-fun createRestBetrokkeKoppelingen(
+fun createRestBetrokkeneKoppelingen(
     brpKoppelen: Boolean = false,
     kvkKoppelen: Boolean = false
 ) = RestBetrokkeneKoppelingen(brpKoppelen = brpKoppelen, kvkKoppelen = kvkKoppelen)
@@ -110,15 +110,15 @@ fun createRestZaaktypeOverzicht(
     eindeGeldigheid: LocalDate = LocalDate.now().plusDays(1),
     vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
     nuGeldig: Boolean = true
-) = RESTZaaktypeOverzicht().apply {
-    this.uuid = uuid
-    this.identificatie = identificatie
-    this.doel = doel
-    this.omschrijving = omschrijving
-    this.servicenorm = servicenorm
-    this.versiedatum = versiedatum
-    this.beginGeldigheid = beginGeldigheid
-    this.eindeGeldigheid = eindeGeldigheid
-    this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
-    this.nuGeldig = nuGeldig
-}
+) = RestZaaktypeOverzicht(
+    uuid = uuid,
+    identificatie = identificatie,
+    doel = doel,
+    omschrijving = omschrijving,
+    servicenorm = servicenorm,
+    versiedatum = versiedatum,
+    beginGeldigheid = beginGeldigheid,
+    eindeGeldigheid = eindeGeldigheid,
+    vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
+    nuGeldig = nuGeldig
+)
