@@ -183,10 +183,10 @@ class ZaakRestService @Inject constructor(
         private const val ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
         private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
         private const val VERLENGING = "Verlenging"
-      
+
         const val AANVULLENDE_INFORMATIE_TASK_NAME = "Aanvullende informatie"
         const val VESTIGING_IDENTIFICATIE_DELIMITER = "|"
-        
+
         private const val BPMN_ZAAK_USER_VARIABLE_NAME = "zaakBehandelaar"
         private const val BPMN_ZAAK_GROUP_VARIABLE_NAME = "zaakGroep"
     }
