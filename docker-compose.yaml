@@ -12,18 +12,25 @@ services:
       - "8081:8080"
       - "9001:9000"
     healthcheck:
-      test: [ "CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000;echo -e 'GET /health/ready HTTP/1.1\r\nhost: http://localhost\r\nConnection: close\r\n\r\n' >&3;if [ $? -eq 0 ]; then echo 'Healthcheck Successful';exit 0;else echo 'Healthcheck Failed';exit 1;fi;" ]
+      test: [
+        "CMD-SHELL",
+        "exec 3<>/dev/tcp/127.0.0.1/9000; echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3; if [ $? -eq 0 ]; then echo 'Healthcheck Successful'; exit 0; else echo 'Healthcheck Failed'; exit 1; fi;"
+      ]
       interval: 10s
       timeout: 10s
       retries: 10
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
-      - DB_VENDOR=postgres
-      - DB_ADDR=keycloak-database
-      - DB_USER=keycloak
-      - DB_NAME=keycloak
-      - DB_PASSWORD=keycloak
+      - KC_DB=postgres
+      - KC_DB_URL_HOST=keycloak-database
+      - KC_DB_URL_DATABASE=keycloak
+      - KC_DB_USERNAME=keycloak
+      - KC_DB_PASSWORD=keycloak
+      - KC_HOSTNAME=localhost
+      - KC_HTTP_ENABLED=true
+      - KC_HEALTH_ENABLED=true
+      # Custom ZAC env vars below
       - ZAC_TESTUSER1_EMAIL_ADDRESS=${DOCKER_COMPOSE_TEST_USER_1_EMAIL_ADDRESS:-testuser1@example.com}
       - ZAC_TESTUSER2_EMAIL_ADDRESS=${DOCKER_COMPOSE_TEST_USER_2_EMAIL_ADDRESS:-testuser2@example.com}
       - ZAC_RECORD_MANAGER_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RECORD_MANAGER_1_EMAIL_ADDRESS:-recordmanager1@example.com}
@@ -44,10 +51,6 @@ services:
     command:
       - "start-dev"
       - "--import-realm"
-      - "--features=hostname:v1"
-      - "--hostname-url=http://localhost:8081"
-      - "--http-enabled=true"
-      - "--health-enabled=true"
 
   keycloak-database:
     image: docker.io/postgres:17.5@sha256:3962158596daaef3682838cc8eb0e719ad1ce520f88e34596ce8d5de1b6330a1
