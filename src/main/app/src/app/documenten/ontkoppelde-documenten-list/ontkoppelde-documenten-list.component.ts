@@ -11,7 +11,6 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSidenav } from "@angular/material/sidenav";
@@ -108,12 +107,7 @@ export class OntkoppeldeDocumentenListComponent
   }
 
   ngAfterViewInit() {
-    // Set up sort change subscription with automatic cleanup
-    this.sort.sortChange
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => (this.paginator.pageIndex = 0));
-
-    // Set up main data subscription with automatic cleanup
+    this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
     merge(this.sort.sortChange, this.paginator.page, this.filterChange)
       .pipe(
         startWith({}),
@@ -131,7 +125,6 @@ export class OntkoppeldeDocumentenListComponent
           this.utilService.setLoading(false);
           return data;
         }),
-        takeUntilDestroyed()
       )
       .subscribe((data) => {
         this.paginator.length = data.totaal ?? 0;
@@ -178,7 +171,6 @@ export class OntkoppeldeDocumentenListComponent
         ),
       })
       .afterClosed()
-      .pipe(takeUntilDestroyed())
       .subscribe((result) => {
         if (result) {
           this.utilService.openSnackbar("msg.document.verwijderen.uitgevoerd", {
