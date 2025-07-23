@@ -200,7 +200,7 @@ export class OntkoppeldeDocumentenListComponent
 
   zoekopdrachtChanged(actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">) {
     if (actieveZoekopdracht) {
-      this.listParameters = JSON.parse(actieveZoekopdracht.json ?? "{}");
+      this.listParameters = JSON.parse(actieveZoekopdracht.json || "{}");
       this.sort.active = this.listParametersSort.sort;
       this.sort.direction = this.listParametersSort.order;
       this.paginator.pageIndex = 0;
