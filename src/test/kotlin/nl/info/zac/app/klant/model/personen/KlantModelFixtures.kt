@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.klant.model.personen
 
-import nl.info.zac.app.klant.model.bedrijven.BedrijfType
+import nl.info.client.kvk.model.BedrijfType
 import nl.info.zac.app.klant.model.bedrijven.RestListBedrijvenParameters
 
 @Suppress("LongParameterList")
