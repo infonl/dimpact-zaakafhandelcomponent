@@ -4,7 +4,7 @@
 #
 services:
   keycloak:
-    image: quay.io/keycloak/keycloak:25.0.6@sha256:82c5b7a110456dbd42b86ea572e728878549954cc8bd03cd65410d75328095d2
+    image: quay.io/keycloak/keycloak:26.3.1@sha256:d9b4b8ff1627e43472cee278bab2da8dafeb082144addd2bfb0faa56a9be47d6
     depends_on:
       keycloak-database:
         condition: service_healthy
