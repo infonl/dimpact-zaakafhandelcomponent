@@ -7,6 +7,7 @@ package nl.info.client.kvk
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import nl.info.client.kvk.exception.KvkClientNoResultException
+import nl.info.client.kvk.model.BedrijfType
 import nl.info.client.kvk.model.KvkSearchParameters
 import nl.info.client.kvk.vestigingsprofiel.model.generated.Vestiging
 import nl.info.client.kvk.zoeken.model.generated.Resultaat
@@ -60,7 +61,7 @@ class KvkClientService @Inject constructor(
         convertToSingleItem(
             search(
                 KvkSearchParameters().apply {
-                    this.type = "rechtspersoon"
+                    this.type = BedrijfType.RECHTSPERSOON
                     this.rsin = rsin
                 }
             )
