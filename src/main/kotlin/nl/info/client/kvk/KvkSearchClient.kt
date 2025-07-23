@@ -28,11 +28,10 @@ import java.time.temporal.ChronoUnit
 @Path("api/v2/zoeken")
 @Timeout(unit = ChronoUnit.SECONDS, value = 5)
 interface KvkSearchClient {
+
     /**
-     * Voor een bedrijf zoeken naar basisinformatie.
-     *
-     *
-     * Er wordt max. 1000 resultaten getoond.
+     * Search for a company ('bedrijf') in the KVK and return basic company data ('basisinformatie').
+     * The result will contain a maximum of 1000 results
      */
     @GET
     fun getResults(@BeanParam kvkSearchParameters: KvkSearchParameters): Resultaat
