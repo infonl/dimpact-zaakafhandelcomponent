@@ -5,8 +5,8 @@
 
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { Werklijst } from "../gebruikersvoorkeuren/model/werklijst";
 import { TabelGegevensResolver } from "../shared/dynamic-table/datasource/tabel-gegevens-resolver.service";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { TaakViewComponent } from "./taak-view/taak-view.component";
 import { TaakResolver } from "./taak.resolver";
 import { TakenMijnComponent } from "./taken-mijn/taken-mijn.component";
@@ -25,13 +25,15 @@ const routes: Routes = [
         path: "werkvoorraad",
         component: TakenWerkvoorraadComponent,
         resolve: { tabelGegevens: TabelGegevensResolver },
-        data: { werklijst: Werklijst.WERKVOORRAAD_TAKEN },
+        data: {
+          werklijst: "WERKVOORRAAD_TAKEN" satisfies GeneratedType<"Werklijst">,
+        },
       },
       {
         path: "mijn",
         component: TakenMijnComponent,
         resolve: { tabelGegevens: TabelGegevensResolver },
-        data: { werklijst: Werklijst.MIJN_TAKEN },
+        data: { werklijst: "MIJN_TAKEN" satisfies GeneratedType<"Werklijst"> },
       },
       {
         path: ":id",

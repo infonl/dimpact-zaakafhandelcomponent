@@ -27,9 +27,9 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
 import { TakenService } from "../taken.service";
 
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenMijnDatasource } from "./taken-mijn-datasource";
 
 @Component({
@@ -102,8 +102,8 @@ export class TakenMijnComponent
     ]);
   }
 
-  getWerklijst(): Werklijst {
-    return Werklijst.WERKVOORRAAD_TAKEN;
+  getWerklijst(): GeneratedType<"Werklijst"> {
+    return "WERKVOORRAAD_TAKEN";
   }
 
   resetColumns(): void {

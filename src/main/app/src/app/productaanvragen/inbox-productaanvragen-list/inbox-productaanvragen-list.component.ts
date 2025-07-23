@@ -29,7 +29,10 @@ import {
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
-import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
+import {
+  SessionStorageUtil,
+  WerklijstZoekParameter,
+} from "../../shared/storage/session-storage.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { DatumRange } from "../../zoeken/model/datum-range";
 import { InboxProductaanvragenService } from "../inbox-productaanvragen.service";
@@ -66,7 +69,7 @@ export class InboxProductaanvragenListComponent
     "actions_filter",
   ] as const;
   listParameters = SessionStorageUtil.getItem(
-    this.getWerklijst() + "_ZOEKPARAMETERS",
+    `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
     this.createDefaultParameters(),
   );
   expandedRow: GeneratedType<"RESTInboxProductaanvraag"> | null = null;
@@ -123,7 +126,7 @@ export class InboxProductaanvragenListComponent
     this.listParameters.page = this.paginator.pageIndex;
     this.listParameters.maxResults = this.paginator.pageSize;
     SessionStorageUtil.setItem(
-      this.getWerklijst() + "_ZOEKPARAMETERS",
+      `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
       this.listParameters,
     );
   }
@@ -147,7 +150,7 @@ export class InboxProductaanvragenListComponent
 
   resetSearch() {
     this.listParameters = SessionStorageUtil.setItem(
-      this.getWerklijst() + "_ZOEKPARAMETERS",
+      `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
     );
     this.sort.active = this.listParameters.sort ?? "id";
@@ -227,7 +230,7 @@ export class InboxProductaanvragenListComponent
     // Make sure when returning to this comnponent, the very first page is loaded
     this.listParameters.page = 0;
     SessionStorageUtil.setItem(
-      this.getWerklijst() + "_ZOEKPARAMETERS",
+      `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
       this.listParameters,
     );
   }
