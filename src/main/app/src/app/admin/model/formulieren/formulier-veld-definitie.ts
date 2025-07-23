@@ -4,7 +4,7 @@
  */
 
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { FormulierVeldtype } from "./formulier-veld-type.enum";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 
 /**
  * @deprecated - use the `GeneratedType`
@@ -14,7 +14,7 @@ export class FormulierVeldDefinitie {
   systeemnaam: string;
   volgorde: number;
   label: string;
-  veldtype: FormulierVeldtype;
+  veldtype: GeneratedType<"FormulierVeldtype">;
   beschrijving: string;
   helptekst: string;
   verplicht: boolean;
@@ -22,38 +22,42 @@ export class FormulierVeldDefinitie {
   meerkeuzeOpties: string;
   validaties: string[];
 
-  static asFormGroup(vd: FormulierVeldDefinitie): FormGroup {
+  static asFormGroup(
+    veldDefinitie: GeneratedType<"RESTFormulierVeldDefinitie">,
+  ) {
     return new FormGroup({
-      id: new FormControl(vd.id),
-      label: new FormControl(vd.label, Validators.required),
-      systeemnaam: new FormControl(vd.systeemnaam, Validators.required),
-      beschrijving: new FormControl(vd.beschrijving),
-      helptekst: new FormControl(vd.helptekst),
-      veldtype: new FormControl(vd.veldtype, Validators.required),
-      defaultWaarde: new FormControl(vd.defaultWaarde),
-      verplicht: new FormControl(!!vd.verplicht),
+      id: new FormControl(veldDefinitie.id),
+      label: new FormControl(veldDefinitie.label, Validators.required),
+      systeemnaam: new FormControl(
+        veldDefinitie.systeemnaam,
+        Validators.required,
+      ),
+      beschrijving: new FormControl(veldDefinitie.beschrijving),
+      helptekst: new FormControl(veldDefinitie.helptekst),
+      veldtype: new FormControl(veldDefinitie.veldtype, Validators.required),
+      defaultWaarde: new FormControl(veldDefinitie.defaultWaarde),
+      verplicht: new FormControl(!!veldDefinitie.verplicht),
       meerkeuzeOpties: new FormControl(
         {
-          value: vd.meerkeuzeOpties,
-          disabled: !this.isMeerkeuzeVeld(vd.veldtype),
+          value: veldDefinitie.meerkeuzeOpties,
+          disabled: !this.isMeerkeuzeVeld(veldDefinitie.veldtype),
         },
         Validators.required,
       ),
-      volgorde: new FormControl(vd.volgorde, Validators.required),
+      volgorde: new FormControl(veldDefinitie.volgorde, Validators.required),
     });
   }
 
-  static asControl(vd: FormulierVeldDefinitie): FormControl {
-    let control: FormControl;
-    control = new FormControl(
-      vd.defaultWaarde,
-      vd.verplicht ? Validators.required : null,
+  static asControl(veldDefinitie: GeneratedType<"RESTFormulierVeldDefinitie">) {
+    let control = new FormControl<string | Date | boolean>(
+      veldDefinitie.defaultWaarde ?? "",
+      veldDefinitie.verplicht ? Validators.required : null,
     );
-    switch (vd.veldtype) {
-      case FormulierVeldtype.NUMMER:
+    switch (veldDefinitie.veldtype) {
+      case "NUMMER":
         control = new FormControl<string>(
-          vd.defaultWaarde,
-          vd.verplicht
+          veldDefinitie.defaultWaarde ?? "",
+          veldDefinitie.verplicht
             ? [
                 Validators.required,
                 Validators.min(0),
@@ -62,16 +66,16 @@ export class FormulierVeldDefinitie {
             : [Validators.min(0), Validators.max(2147483647)],
         );
         break;
-      case FormulierVeldtype.EMAIL:
+      case "EMAIL":
         control = new FormControl<string>(
-          vd.defaultWaarde,
-          vd.verplicht
+          veldDefinitie.defaultWaarde ?? "",
+          veldDefinitie.verplicht
             ? [Validators.required, Validators.email]
             : Validators.email,
         );
         break;
-      case FormulierVeldtype.DATUM:
-        control.setValue(this.toDate(vd.defaultWaarde));
+      case "DATUM":
+        control.setValue(this.toDate(veldDefinitie.defaultWaarde));
         break;
       default:
         break;
@@ -79,63 +83,72 @@ export class FormulierVeldDefinitie {
     return control;
   }
 
-  private static toDate(dateStr): Date {
-    if (dateStr) {
-      const [day, month, year] = dateStr.split("-");
-      return new Date(year, month - 1, day);
-    }
-    return new Date();
+  private static toDate(dateStr?: string | null) {
+    if (!dateStr) return new Date();
+
+    const [day, month, year] = dateStr.split("-");
+    return new Date(Number(year), Number(month) - 1, Number(day));
   }
 
-  static isMeerkeuzeVeld(veldtype: FormulierVeldtype) {
-    return (
-      veldtype === FormulierVeldtype.CHECKBOXES ||
-      veldtype === FormulierVeldtype.RADIO ||
-      veldtype === FormulierVeldtype.KEUZELIJST ||
-      veldtype === FormulierVeldtype.DOCUMENTEN_LIJST
+  static isMeerkeuzeVeld(veldtype?: GeneratedType<"FormulierVeldtype"> | null) {
+    if (!veldtype) return false;
+    return ["CHECKBOXES", "RADIO", "KEUZELIJST", "DOCUMENTEN_LIJST"].includes(
+      veldtype,
     );
   }
 
-  static isFataldatum(fvd: FormulierVeldDefinitie) {
+  static isFataldatum(
+    formulierVeldDefinitie: GeneratedType<"RESTFormulierVeldDefinitie">,
+  ) {
     return (
-      fvd.veldtype === FormulierVeldtype.DATUM &&
-      fvd.systeemnaam === "fatale-datum"
+      formulierVeldDefinitie.veldtype === "DATUM" &&
+      formulierVeldDefinitie.systeemnaam === "fatale-datum"
     );
   }
 
-  static isOpschorten(fvd: FormulierVeldDefinitie) {
+  static isOpschorten(
+    formulierVeldDefinitie: GeneratedType<"RESTFormulierVeldDefinitie">,
+  ) {
     return (
-      fvd.veldtype === FormulierVeldtype.CHECKBOX &&
-      fvd.systeemnaam === "zaak-opschorten"
+      formulierVeldDefinitie.veldtype === "CHECKBOX" &&
+      formulierVeldDefinitie.systeemnaam === "zaak-opschorten"
     );
   }
 
-  static isHervatten(fvd: FormulierVeldDefinitie) {
+  static isHervatten(
+    formulierVeldDefinitie: GeneratedType<"RESTFormulierVeldDefinitie">,
+  ) {
     return (
-      fvd.veldtype === FormulierVeldtype.CHECKBOX &&
-      fvd.systeemnaam === "zaak-hervatten"
+      formulierVeldDefinitie.veldtype === "CHECKBOX" &&
+      formulierVeldDefinitie.systeemnaam === "zaak-hervatten"
     );
   }
 
-  static isToekenningGroep(fvd: FormulierVeldDefinitie) {
+  static isToekenningGroep(
+    formulierVeldDefinitie: GeneratedType<"RESTFormulierVeldDefinitie">,
+  ) {
     return (
-      fvd.veldtype === FormulierVeldtype.GROEP_KEUZELIJST &&
-      fvd.systeemnaam === "toekenning-groep"
+      formulierVeldDefinitie.veldtype === "GROEP_KEUZELIJST" &&
+      formulierVeldDefinitie.systeemnaam === "toekenning-groep"
     );
   }
 
-  static isToekenningBehandelaar(fvd: FormulierVeldDefinitie) {
+  static isToekenningBehandelaar(
+    formulierVeldDefinitie: GeneratedType<"RESTFormulierVeldDefinitie">,
+  ) {
     return (
-      fvd.veldtype === FormulierVeldtype.MEDEWERKER_KEUZELIJST &&
-      fvd.systeemnaam === "toekenning-behandelaar"
+      formulierVeldDefinitie.veldtype === "MEDEWERKER_KEUZELIJST" &&
+      formulierVeldDefinitie.systeemnaam === "toekenning-behandelaar"
     );
   }
 
-  static isOndertekenen(fvd: FormulierVeldDefinitie) {
+  static isOndertekenen(
+    formulierVeldDefinitie: GeneratedType<"RESTFormulierVeldDefinitie">,
+  ) {
     // zou ook een eigen veldtype kunnen zijn
     return (
-      fvd.veldtype === FormulierVeldtype.DOCUMENTEN_LIJST &&
-      fvd.systeemnaam === "ondertekenen"
+      formulierVeldDefinitie.veldtype === "DOCUMENTEN_LIJST" &&
+      formulierVeldDefinitie.systeemnaam === "ondertekenen"
     );
   }
 }

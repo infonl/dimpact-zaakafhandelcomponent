@@ -13,6 +13,6 @@ export class ContactmomentenService {
   constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   listContactmomenten(body: PutBody<"/rest/klanten/contactmomenten">) {
-    return this.zacHttpClient.PUT("/rest/klanten/contactmomenten", body, {});
+    return this.zacHttpClient.PUT("/rest/klanten/contactmomenten", body);
   }
 }

@@ -41,7 +41,7 @@ class KvkSearchParameters {
     var straatnaam: String? = null
 
     @QueryParam("type")
-    var type: String? = null
+    var type: BedrijfType? = null
 
     @QueryParam("vestigingsnummer")
     var vestigingsnummer: String? = null

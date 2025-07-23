@@ -33,7 +33,6 @@ import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren
 import { IdentityService } from "../../identity/identity.service";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
 import { TextIcon } from "../../shared/edit/text-icon";
-import { TaakHistorieRegel } from "../../shared/historie/model/taak-historie-regel";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
@@ -78,7 +77,9 @@ export class TaakViewComponent
   activeSideAction: string | null = null;
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
-  protected historieSrc = new MatTableDataSource<TaakHistorieRegel>();
+  protected historieSrc = new MatTableDataSource<
+    GeneratedType<"RestTaskHistoryLine">
+  >();
   protected historieColumns = [
     "datum",
     "wijziging",
@@ -135,9 +136,9 @@ export class TaakViewComponent
     this.historieSrc.sortingDataAccessor = (item, property) => {
       switch (property) {
         case "datum":
-          return item.datumTijd;
+          return item.datumTijd!;
         default:
-          return item[property as keyof typeof item];
+          return item[property as keyof typeof item] as string;
       }
     };
     this.historieSrc.sort = this.historieSort;
@@ -468,7 +469,11 @@ export class TaakViewComponent
     this.websocketService.suspendListener(this.taakListener);
 
     this.takenService
-      .toekennenAanIngelogdeMedewerker(this.taak)
+      .toekennenAanIngelogdeMedewerker({
+        taakId: this.taak.id!,
+        zaakUuid: this.taak.zaakUuid,
+        groepId: null as unknown as string,
+      })
       .subscribe((taak) => {
         if (!this.taak) return;
         this.taak.behandelaar = taak.behandelaar;

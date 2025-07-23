@@ -180,7 +180,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   objecten-api.local:
-    image: docker.io/maykinmedia/objects-api:3.0.4@sha256:cd81f35fd9ddd405f3b600a024dfc911b7952a4396a9603841664325820d0a80
+    image: docker.io/maykinmedia/objects-api:3.1.2@sha256:8ca1f8ce2e2d7561d96a199bcca35010cd4d3aa6bcad5bfab3d081bc7975113f
     platform: linux/amd64
     ports:
       - "8010:8000"
@@ -226,7 +226,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   objecten-api-import:
-    image: docker.io/maykinmedia/objects-api:3.0.4@sha256:cd81f35fd9ddd405f3b600a024dfc911b7952a4396a9603841664325820d0a80
+    image: docker.io/maykinmedia/objects-api:3.1.2@sha256:8ca1f8ce2e2d7561d96a199bcca35010cd4d3aa6bcad5bfab3d081bc7975113f
     platform: linux/amd64
     environment: *objects-env
     # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
@@ -379,7 +379,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.130.0@sha256:0c066d4388070dad8dc9961d9f23649e85a226620e6b359334e4a6c7f9d73b23
+    image: docker.io/otel/opentelemetry-collector:0.130.1@sha256:9d15ad63ce364bd92e385e5cfecf06200387c37a563b2fdc9396810a7403c9bd
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -490,7 +490,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   opennotificaties:
-    image: docker.io/openzaak/open-notificaties:1.8.2@sha256:6e74cec50bca51d0b8e6afe49a3827ede12cddc83f895f67e5a055ef3bed9135
+    image: docker.io/openzaak/open-notificaties:1.10.0@sha256:6d6b5beca728b6a5e642ab369969fd69aca24e5c124f79dcc633dcc2dc52e9b9
     platform: linux/amd64
     environment: &opennotificaties-env
       ALLOWED_HOSTS: "*"
@@ -533,7 +533,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   opennotificaties-init:
-    image: docker.io/openzaak/open-notificaties:1.8.2@sha256:6e74cec50bca51d0b8e6afe49a3827ede12cddc83f895f67e5a055ef3bed9135
+    image: docker.io/openzaak/open-notificaties:1.10.0@sha256:6d6b5beca728b6a5e642ab369969fd69aca24e5c124f79dcc633dcc2dc52e9b9
     platform: linux/amd64
     environment:
       <<: *opennotificaties-env
@@ -551,7 +551,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   opennotificaties-celery:
-    image: docker.io/openzaak/open-notificaties:1.8.2@sha256:6e74cec50bca51d0b8e6afe49a3827ede12cddc83f895f67e5a055ef3bed9135
+    image: docker.io/openzaak/open-notificaties:1.10.0@sha256:6d6b5beca728b6a5e642ab369969fd69aca24e5c124f79dcc633dcc2dc52e9b9
     platform: linux/amd64
     environment: *opennotificaties-env
     command: /celery_worker.sh

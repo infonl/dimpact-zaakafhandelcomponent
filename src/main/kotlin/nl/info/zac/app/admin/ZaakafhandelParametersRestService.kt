@@ -146,8 +146,10 @@ class ZaakafhandelParametersRestService @Inject constructor(
     ): RestZaakafhandelParameters {
         assertPolicy(policyService.readOverigeRechten().beheren)
 
-        restZaakafhandelParameters.productaanvraagtype?.also {
-            checkIfProductaanvraagtypeIsNotAlreadyInUse(it, restZaakafhandelParameters.zaaktype.omschrijving)
+        restZaakafhandelParameters.productaanvraagtype?.also { productaanvraagtype ->
+            restZaakafhandelParameters.zaaktype.omschrijving?.also {
+                checkIfProductaanvraagtypeIsNotAlreadyInUse(productaanvraagtype, it)
+            }
         }
         restZaakafhandelParameters.defaultBehandelaarId?.let { defaultBehandelaarId ->
             restZaakafhandelParameters.defaultGroepId?.let { defaultGroepId ->

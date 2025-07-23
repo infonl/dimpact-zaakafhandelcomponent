@@ -48,7 +48,8 @@
     "zone.js": "0.14.10"
   },
   "overrides": {
-    "chokidar": "4.0.3"
+    "chokidar": "4.0.3",
+    "form-data": "4.0.4"
   },
   "devDependencies": {
     "@angular-builders/jest": "18.0.0",
@@ -63,19 +64,19 @@
     "@angular/language-service": "18.2.13",
     "@total-typescript/shoehorn": "0.1.2",
     "@types/jest": "29.5.14",
-    "@types/node": "22.16.4",
+    "@types/node": "22.16.5",
     "@types/proj4": "2.19.0",
-    "@typescript-eslint/eslint-plugin": "8.37.0",
-    "@typescript-eslint/parser": "8.37.0",
+    "@typescript-eslint/eslint-plugin": "8.38.0",
+    "@typescript-eslint/parser": "8.38.0",
     "codelyzer": "6.0.2",
     "eslint": "9.31.0",
-    "eslint-config-prettier": "10.1.5",
+    "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.3",
     "jest": "29.7.0",
     "jest-extended": "6.0.0",
     "jest-junit": "16.0.0",
     "jest-junit-reporter": "1.1.0",
-    "jest-preset-angular": "14.6.0",
+    "jest-preset-angular": "14.6.1",
     "openapi-typescript": "7.8.0",
     "protractor": "7.0.0",
     "ts-node": "10.9.2",

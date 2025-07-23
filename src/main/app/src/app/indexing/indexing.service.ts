@@ -16,7 +16,6 @@ export class IndexingService {
     return this.zacHttpClient.POST(
       "/rest/indexeren/commit-pending-changes-to-search-index",
       undefined as never,
-      {},
     );
   }
 }

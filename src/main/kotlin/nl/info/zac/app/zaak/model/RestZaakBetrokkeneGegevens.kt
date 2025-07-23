@@ -4,8 +4,6 @@
  */
 package nl.info.zac.app.zaak.model
 
-import jakarta.validation.constraints.NotBlank
-import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
@@ -19,8 +17,5 @@ data class RestZaakBetrokkeneGegevens(
 
     var roltoelichting: String?,
 
-    var betrokkeneIdentificatieType: IdentificatieType,
-
-    @field:NotBlank
-    var betrokkeneIdentificatie: String
+    var betrokkeneIdentificatie: BetrokkeneIdentificatie
 )

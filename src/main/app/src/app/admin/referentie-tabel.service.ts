@@ -4,7 +4,6 @@
  */
 
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
 import {
   PostBody,
   PutBody,
@@ -18,11 +17,11 @@ export class ReferentieTabelService {
   constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   listReferentieTabellen() {
-    return this.zacHttpClient.GET("/rest/referentietabellen", {});
+    return this.zacHttpClient.GET("/rest/referentietabellen");
   }
 
   createReferentieTabel(body: PostBody<"/rest/referentietabellen">) {
-    return this.zacHttpClient.POST("/rest/referentietabellen", body, {});
+    return this.zacHttpClient.POST("/rest/referentietabellen", body);
   }
 
   readReferentieTabel(id: number) {
@@ -53,7 +52,7 @@ export class ReferentieTabelService {
   }
 
   listAfzenders() {
-    return this.zacHttpClient.GET("/rest/referentietabellen/afzender", {});
+    return this.zacHttpClient.GET("/rest/referentietabellen/afzender");
   }
 
   listCommunicatiekanalen(inclusiefEFormulier?: boolean) {
@@ -66,27 +65,22 @@ export class ReferentieTabelService {
   }
 
   listDomeinen() {
-    return this.zacHttpClient.GET("/rest/referentietabellen/domein", {});
+    return this.zacHttpClient.GET("/rest/referentietabellen/domein");
   }
 
-  listServerErrorTexts(): Observable<string[]> {
-    return this.zacHttpClient.GET(
-      "/rest/referentietabellen/server-error-text",
-      {},
-    );
+  listServerErrorTexts() {
+    return this.zacHttpClient.GET("/rest/referentietabellen/server-error-text");
   }
 
   listBrpSearchValues() {
     return this.zacHttpClient.GET(
       "/rest/referentietabellen/brp-doelbinding-zoek-waarde",
-      {},
     );
   }
 
   listBrpViewValues() {
     return this.zacHttpClient.GET(
       "/rest/referentietabellen/brp-doelbinding-raadpleeg-waarde",
-      {},
     );
   }
 }

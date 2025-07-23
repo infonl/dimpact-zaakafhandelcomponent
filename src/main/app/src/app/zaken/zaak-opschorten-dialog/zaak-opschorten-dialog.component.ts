@@ -16,7 +16,6 @@ import { InputFormField } from "src/app/shared/material-form-builder/form-compon
 import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { Zaak } from "../model/zaak";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -36,7 +35,7 @@ export class ZaakOpschortenDialogComponent implements OnDestroy {
 
   constructor(
     public dialogRef: MatDialogRef<ZaakOpschortenDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { zaak: Zaak },
+    @Inject(MAT_DIALOG_DATA) public data: { zaak: GeneratedType<"RestZaak"> },
     private zakenService: ZakenService,
   ) {
     this.duurDagenField = new InputFormFieldBuilder<number>()

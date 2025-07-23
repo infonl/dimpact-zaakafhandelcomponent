@@ -70,6 +70,7 @@ import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
 import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowedException
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
+import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.RESTDocumentOntkoppelGegevens
 import nl.info.zac.app.zaak.model.RESTReden
 import nl.info.zac.app.zaak.model.RESTZaakAanmaakGegevens
@@ -182,8 +183,10 @@ class ZaakRestService @Inject constructor(
         private const val ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
         private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
         private const val VERLENGING = "Verlenging"
+      
         const val AANVULLENDE_INFORMATIE_TASK_NAME = "Aanvullende informatie"
-
+        const val VESTIGING_IDENTIFICATIE_DELIMITER = "|"
+        
         private const val BPMN_ZAAK_USER_VARIABLE_NAME = "zaakBehandelaar"
         private const val BPMN_ZAAK_GROUP_VARIABLE_NAME = "zaakGroep"
     }
@@ -216,9 +219,10 @@ class ZaakRestService @Inject constructor(
             requireNotNull(gegevens.toelichting) { throw ExplanationRequiredException() }
             removeInitiator(zaak, it, ROL_VERWIJDER_REDEN)
         }
+        val (identificationType, identification) = composeBetrokkeneIdentification(gegevens.betrokkeneIdentificatie)
         addInitiator(
-            gegevens.identificatieType,
-            gegevens.identificatie,
+            identificationType,
+            identification,
             zaak,
             gegevens.toelichting
         )
@@ -241,8 +245,7 @@ class ZaakRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(gegevens.zaakUUID)
         addBetrokkeneToZaak(
             roleTypeUUID = gegevens.roltypeUUID,
-            identificationType = gegevens.betrokkeneIdentificatieType,
-            identification = gegevens.betrokkeneIdentificatie,
+            betrokkeneIdentificatie = gegevens.betrokkeneIdentificatie,
             explanation = gegevens.roltoelichting?.ifEmpty { ROL_TOEVOEGEN_REDEN } ?: ROL_TOEVOEGEN_REDEN,
             zaak = zaak
         )
@@ -261,6 +264,7 @@ class ZaakRestService @Inject constructor(
         return restZaakConverter.toRestZaak(zaak)
     }
 
+    @Suppress("LongMethod")
     @POST
     @Path("zaak")
     fun createZaak(@Valid restZaakAanmaakGegevens: RESTZaakAanmaakGegevens): RestZaak {
@@ -277,11 +281,15 @@ class ZaakRestService @Inject constructor(
         )
         restZaak.communicatiekanaal?.isNotBlank() == true || throw CommunicationChannelNotFound()
         val zaak = restZaakConverter.toZaak(restZaak, zaaktype).let(zgwApiService::createZaak)
-        restZaak.initiatorIdentificatie?.takeIf { it.isNotEmpty() }?.let {
-            restZaak.initiatorIdentificatieType?.let { initiatorIdentificatieType ->
+        restZaak.initiatorIdentificatie?.takeIf { it.isNotEmpty() }?.let { initiatorId ->
+            restZaak.initiatorIdentificatieType?.let { initiatorType ->
+                val identification = when (initiatorType) {
+                    IdentificatieType.VN -> createVestigingIdentificationString(restZaak.kvkNummer, initiatorId)
+                    else -> initiatorId
+                }
                 addInitiator(
-                    identificationType = initiatorIdentificatieType,
-                    identification = it,
+                    identificationType = initiatorType,
+                    identification = identification,
                     zaak = zaak,
                     explanation = AANMAKEN_ZAAK_REDEN
                 )
@@ -977,14 +985,17 @@ class ZaakRestService @Inject constructor(
     @Path("procesvariabelen")
     fun listProcesVariabelen(): List<String> = ZaakVariabelenService.VARS
 
+    private fun createVestigingIdentificationString(kvkNummer: String?, vestigingsnummer: String?): String =
+        listOfNotNull(kvkNummer, vestigingsnummer).joinToString(VESTIGING_IDENTIFICATIE_DELIMITER)
+
     private fun addBetrokkeneToZaak(
         roleTypeUUID: UUID,
-        identificationType: IdentificatieType,
-        identification: String,
+        betrokkeneIdentificatie: BetrokkeneIdentificatie,
         explanation: String,
         zaak: Zaak
     ) {
         val zaakRechten = policyService.readZaakRechten(zaak)
+        val (identificationType, identification) = composeBetrokkeneIdentification(betrokkeneIdentificatie)
         when (identificationType) {
             IdentificatieType.BSN -> assertPolicy(zaakRechten.toevoegenBetrokkenePersoon)
             IdentificatieType.VN -> assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
@@ -997,6 +1008,31 @@ class ZaakRestService @Inject constructor(
             zaak = zaak,
             explanation = explanation
         )
+    }
+
+    private fun composeBetrokkeneIdentification(
+        betrokkeneIdentificatie: BetrokkeneIdentificatie
+    ): Pair<IdentificatieType, String> {
+        return when (betrokkeneIdentificatie.type) {
+            IdentificatieType.BSN -> {
+                val bsn = betrokkeneIdentificatie.bsnNummer
+                require(!bsn.isNullOrBlank()) { "BSN is required for betrokkene identification type BSN" }
+                IdentificatieType.BSN to bsn
+            }
+            IdentificatieType.VN -> {
+                val kvk = betrokkeneIdentificatie.kvkNummer
+                val vestiging = betrokkeneIdentificatie.vestigingsnummer
+                require(!kvk.isNullOrBlank() && !vestiging.isNullOrBlank()) {
+                    "KVK nummer and vestigingsnummer are required for betrokkene identification type VN"
+                }
+                IdentificatieType.VN to createVestigingIdentificationString(kvk, vestiging)
+            }
+            IdentificatieType.RSIN -> {
+                val rsin = betrokkeneIdentificatie.rsinNummer
+                require(!rsin.isNullOrBlank()) { "RSIN is required for type RSIN" }
+                IdentificatieType.RSIN to rsin
+            }
+        }
     }
 
     private fun addInitiator(

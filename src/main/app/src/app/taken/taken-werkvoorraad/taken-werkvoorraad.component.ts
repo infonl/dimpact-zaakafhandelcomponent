@@ -122,7 +122,11 @@ export class TakenWerkvoorraadComponent
   assignToMe(taakZoekObject: TaakZoekObject, event: MouseEvent) {
     event.stopPropagation();
     this.takenService
-      .toekennenAanIngelogdeMedewerkerVanuitLijst(taakZoekObject)
+      .toekennenAanIngelogdeMedewerkerVanuitLijst({
+        taakId: taakZoekObject.id,
+        zaakUuid: taakZoekObject.zaakUuid,
+        groepId: null as unknown as string,
+      })
       .subscribe(({ behandelaar }) => {
         if (!behandelaar) return;
 
@@ -262,7 +266,7 @@ export class TakenWerkvoorraadComponent
       },
       finally: () => {
         this.selection.clear();
-        this.dataSource.load(1_000);
+        this.dataSource.load(5_000); // We need to give the indexing service some time to finish
         this.takenLoading.set(false);
         this.batchProcessService.stop();
       },

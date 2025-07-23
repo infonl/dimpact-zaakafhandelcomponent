@@ -71,7 +71,7 @@ export class KlantenService {
 
   /* istanbul ignore next */
   getPersonenParameters() {
-    return this.zacHttpClient.GET("/rest/klanten/personen/parameters", {});
+    return this.zacHttpClient.GET("/rest/klanten/personen/parameters");
   }
 
   /* istanbul ignore next */
@@ -88,7 +88,7 @@ export class KlantenService {
 
   /* istanbul ignore next */
   listBedrijven(body: PutBody<"/rest/klanten/bedrijven">) {
-    return this.zacHttpClient.PUT("/rest/klanten/bedrijven", body, {});
+    return this.zacHttpClient.PUT("/rest/klanten/bedrijven", body);
   }
 
   /* istanbul ignore next */
@@ -103,7 +103,7 @@ export class KlantenService {
 
   /* istanbul ignore next */
   listRoltypen() {
-    return this.zacHttpClient.GET("/rest/klanten/roltype", {});
+    return this.zacHttpClient.GET("/rest/klanten/roltype");
   }
 
   /* istanbul ignore next */

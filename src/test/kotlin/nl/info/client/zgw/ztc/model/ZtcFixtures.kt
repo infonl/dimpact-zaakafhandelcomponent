@@ -124,7 +124,10 @@ fun createZaakType(
     servicenorm: String? = null,
     beginGeldigheid: LocalDate = LocalDate.now(),
     eindeGeldigheid: LocalDate? = null,
-    referentieProces: ReferentieProces? = null
+    referentieProces: ReferentieProces? = null,
+    doel: String = "fakeDoel",
+    versieDatum: LocalDate = LocalDate.now(),
+    vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR
 ) = ZaakType(
     uri,
     concept,
@@ -144,6 +147,9 @@ fun createZaakType(
     this.beginGeldigheid = beginGeldigheid
     this.eindeGeldigheid = eindeGeldigheid
     this.referentieproces = referentieProces
+    this.doel = doel
+    this.versiedatum = versieDatum
+    this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
 }
 
 fun createInformatieObjectType(

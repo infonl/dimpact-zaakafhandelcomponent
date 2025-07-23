@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.klant.model.bedrijven
 
+import nl.info.client.kvk.model.BedrijfType
 import nl.info.client.kvk.model.KvkSearchParameters
 
 data class RestListBedrijvenParameters(
@@ -21,7 +22,7 @@ fun RestListBedrijvenParameters.toKvkZoekenParameters() = KvkSearchParameters().
     vestigingsnummer = this@toKvkZoekenParameters.vestigingsnummer
     rsin = this@toKvkZoekenParameters.rsin
     naam = this@toKvkZoekenParameters.naam
-    type = this@toKvkZoekenParameters.type?.type
+    type = this@toKvkZoekenParameters.type
     postcode = this@toKvkZoekenParameters.postcode
     huisnummer = this@toKvkZoekenParameters.huisnummer?.toString()
 }

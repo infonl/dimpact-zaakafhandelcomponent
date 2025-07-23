@@ -3,61 +3,40 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { catchError } from "rxjs/operators";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { FormulierDefinitie } from "./model/formulieren/formulier-definitie";
+import {
+  PostBody,
+  PutBody,
+  ZacHttpClient,
+} from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class FormulierDefinitieService {
-  private basepath = "/rest/formulierdefinities";
+  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
-  constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
-  ) {}
-
-  create(definitie: FormulierDefinitie): Observable<FormulierDefinitie> {
-    return this.http
-      .post<FormulierDefinitie>(`${this.basepath}`, definitie)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  create(body: PostBody<"/rest/formulierdefinities">) {
+    return this.zacHttpClient.POST("/rest/formulierdefinities", body);
   }
 
-  read(id: number | string): Observable<FormulierDefinitie> {
-    return this.http
-      .get<FormulierDefinitie>(`${this.basepath}/${id}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  read(id: number) {
+    return this.zacHttpClient.GET("/rest/formulierdefinities/{id}", {
+      path: { id },
+    });
   }
 
-  update(definitie: FormulierDefinitie): Observable<FormulierDefinitie> {
-    return this.http
-      .put<FormulierDefinitie>(`${this.basepath}`, definitie)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  update(body: PutBody<"/rest/formulierdefinities">) {
+    return this.zacHttpClient.PUT("/rest/formulierdefinities", body);
   }
 
-  delete(id: number): Observable<void> {
-    return this.http
-      .delete<void>(`${this.basepath}/${id}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  delete(id: number) {
+    return this.zacHttpClient.DELETE("/rest/formulierdefinities/{id}", {
+      path: { id },
+    });
   }
 
-  list(): Observable<FormulierDefinitie[]> {
-    return this.http
-      .get<FormulierDefinitie[]>(`${this.basepath}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  list() {
+    return this.zacHttpClient.GET("/rest/formulierdefinities");
   }
 }

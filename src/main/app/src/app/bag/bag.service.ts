@@ -19,11 +19,11 @@ export class BAGService {
   constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   listAdressen(body: PutBody<"/rest/bag/adres">) {
-    return this.zacHttpClient.PUT("/rest/bag/adres", body, {});
+    return this.zacHttpClient.PUT("/rest/bag/adres", body);
   }
 
   create(body: PostBody<"/rest/bag">) {
-    return this.zacHttpClient.POST("/rest/bag", body, {});
+    return this.zacHttpClient.POST("/rest/bag", body);
   }
 
   list(zaakUuid: string) {

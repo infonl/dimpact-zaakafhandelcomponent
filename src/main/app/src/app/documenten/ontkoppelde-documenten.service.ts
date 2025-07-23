@@ -13,7 +13,7 @@ export class OntkoppeldeDocumentenService {
   constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   list(body: PutBody<"/rest/ontkoppeldedocumenten">) {
-    return this.zacHttpClient.PUT("/rest/ontkoppeldedocumenten", body, {});
+    return this.zacHttpClient.PUT("/rest/ontkoppeldedocumenten", body);
   }
 
   delete(id: number) {
