@@ -97,7 +97,7 @@ mat-drawer-container {
   height: calc(100% - 68px);
 
   .mat-drawer-content {
-    padding: 10px;
+    padding: 16px 0;
   }
 }
 
@@ -507,9 +507,13 @@ h6 {
 form > fieldset {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 0;
+  gap: 15px;
   margin: 0;
+  padding: 0 15px;
+}
+
+mat-dialog-content form > fieldset {
+  padding: 0;
 }
 
 form fieldset {
