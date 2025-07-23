@@ -131,12 +131,8 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "GROEP": [
                                 {
-                                    "aantal": 13,
+                                    "aantal": 14,
                                     "naam": "$TEST_GROUP_A_DESCRIPTION"
-                                },
-                                {
-                                    "aantal": 1,
-                                    "naam": "groepa"
                                 }
                             ],
                             "TOEGEKEND": [
@@ -547,7 +543,7 @@ class SearchRestServiceTest : BehaviorSpec({
                         "foutmelding": "",
                         "resultaten": [
                             {
-                              "groepNaam": "groepa",
+                              "groepNaam": "$TEST_GROUP_A_DESCRIPTION",
                               "naam": "$BPMN_TEST_TASK_NAAM",
                               "rechten": {
                                 "lezen": true,
@@ -626,12 +622,8 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "GROEP": [
                                 {
-                                    "aantal": 2,
+                                    "aantal": 3,
                                     "naam": "$TEST_GROUP_A_DESCRIPTION"
-                                },
-                                {
-                                    "aantal": 1,
-                                    "naam": "groepa"
                                 }
                             ],
                             "TAAK_NAAM": [

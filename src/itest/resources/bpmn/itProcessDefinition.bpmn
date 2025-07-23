@@ -5,9 +5,9 @@
     <extensionElements>
       <design:stencilid><![CDATA[BPMNDiagram]]></design:stencilid>
       <design:creationdate><![CDATA[2025-06-25T08:19:42.627Z]]></design:creationdate>
-      <design:modificationdate><![CDATA[2025-06-25T09:53:42.545Z]]></design:modificationdate>
+      <design:modificationdate><![CDATA[2025-07-22T12:58:00.243Z]]></design:modificationdate>
     </extensionElements>
-    <userTask id="summary" name="Summary" flowable:candidateGroups="groepa" flowable:formKey="summaryForm" flowable:formFieldValidation="false">
+    <userTask id="summary" name="Summary" flowable:candidateUsers="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="summaryForm" flowable:formFieldValidation="false">
       <extensionElements>
         <flowable:static-form-key><![CDATA[summaryForm]]></flowable:static-form-key>
         <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
@@ -54,7 +54,7 @@
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </serviceTask>
-    <userTask id="testForm" name="Test form" flowable:candidateGroups="groepa" flowable:formKey="testForm" flowable:formFieldValidation="false">
+    <userTask id="testForm" name="Test form" flowable:candidateUsers="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="testForm" flowable:formFieldValidation="false">
       <extensionElements>
         <flowable:static-form-key><![CDATA[testForm]]></flowable:static-form-key>
         <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
@@ -126,7 +126,7 @@
       <bpmndi:BPMNShape bpmnElement="start" id="BPMNShape_start">
         <omgdc:Bounds height="30.0" width="30.0" x="317.0" y="438.38227688341726"></omgdc:Bounds>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="18.0" width="27.0" x="319.0" y="472.0"></omgdc:Bounds>
+          <omgdc:Bounds height="18.0" width="25.0" x="319.0" y="472.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="end" id="BPMNShape_end">

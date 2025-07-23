@@ -183,8 +183,12 @@ class ZaakRestService @Inject constructor(
         private const val ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
         private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
         private const val VERLENGING = "Verlenging"
+
         const val AANVULLENDE_INFORMATIE_TASK_NAME = "Aanvullende informatie"
         const val VESTIGING_IDENTIFICATIE_DELIMITER = "|"
+
+        private const val BPMN_ZAAK_USER_VARIABLE_NAME = "zaakBehandelaar"
+        private const val BPMN_ZAAK_GROUP_VARIABLE_NAME = "zaakGroep"
     }
 
     @GET
@@ -291,20 +295,9 @@ class ZaakRestService @Inject constructor(
                 )
             }
         }
-        restZaak.groep?.let {
-            zrcClientService.updateRol(
-                zaak,
-                zaakService.bepaalRolGroep(identityService.readGroup(it.id), zaak),
-                AANMAKEN_ZAAK_REDEN
-            )
-        }
-        restZaak.behandelaar?.let {
-            zrcClientService.updateRol(
-                zaak,
-                zaakService.bepaalRolMedewerker(identityService.readUser(it.id), zaak),
-                AANMAKEN_ZAAK_REDEN
-            )
-        }
+
+        updateZaakRoles(restZaak, zaak)
+
         // if BPMN support is enabled and a BPMN process definition is defined for the zaaktype, start a BPMN process;
         // otherwise start a CMMN case
         val processDefinition = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
@@ -312,7 +305,11 @@ class ZaakRestService @Inject constructor(
             bpmnService.startProcess(
                 zaak = zaak,
                 zaaktype = zaaktype,
-                processDefinitionKey = processDefinition.bpmnProcessDefinitionKey
+                processDefinitionKey = processDefinition.bpmnProcessDefinitionKey,
+                zaakData = buildMap {
+                    restZaak.groep?.let { put(BPMN_ZAAK_GROUP_VARIABLE_NAME, it.naam) }
+                    restZaak.behandelaar?.let { put(BPMN_ZAAK_USER_VARIABLE_NAME, it.naam) }
+                }
             )
         } else {
             cmmnService.startCase(
@@ -328,6 +325,26 @@ class ZaakRestService @Inject constructor(
             zrcClientService.createZaakobject(RestBagConverter.convertToZaakobject(it, zaak))
         }
         return restZaakConverter.toRestZaak(zaak)
+    }
+
+    private fun updateZaakRoles(
+        restZaak: RestZaak,
+        zaak: Zaak
+    ) {
+        restZaak.groep?.let {
+            zrcClientService.updateRol(
+                zaak,
+                zaakService.bepaalRolGroep(identityService.readGroup(it.id), zaak),
+                AANMAKEN_ZAAK_REDEN
+            )
+        }
+        restZaak.behandelaar?.let {
+            zrcClientService.updateRol(
+                zaak,
+                zaakService.bepaalRolMedewerker(identityService.readUser(it.id), zaak),
+                AANMAKEN_ZAAK_REDEN
+            )
+        }
     }
 
     @PATCH
