@@ -19,7 +19,7 @@ glassfish-expressly = "6.0.0"
 keycloak = "25.0.6"
 
 apache-commons-lang = "3.18.0"
-apache-commons-text = "1.13.1"
+apache-commons-text = "1.14.0"
 apache-commons-collections = "4.5.0"
 commons-io = "2.20.0"
 opencsv = "5.11.2"
