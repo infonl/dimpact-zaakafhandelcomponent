@@ -21,7 +21,6 @@ import { merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import {
@@ -30,7 +29,10 @@ import {
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { PutBody } from "../../shared/http/zac-http-client";
-import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
+import {
+  SessionStorageUtil,
+  WerklijstZoekParameter,
+} from "../../shared/storage/session-storage.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InboxDocumentenService } from "../inbox-documenten.service";
 
@@ -89,7 +91,7 @@ export class InboxDocumentenListComponent
   ngOnInit() {
     super.ngOnInit();
     this.listParametersSort = SessionStorageUtil.getItem(
-      Werklijst.INBOX_DOCUMENTEN + "_ZOEKPARAMETERS",
+      "INBOX_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
     );
     this.utilService.setTitle("title.documenten.inboxDocumenten");
@@ -127,7 +129,7 @@ export class InboxDocumentenListComponent
     this.listParameters.page = this.paginator.pageIndex;
     this.listParameters.maxResults = this.paginator.pageSize;
     SessionStorageUtil.setItem(
-      Werklijst.INBOX_DOCUMENTEN + "_ZOEKPARAMETERS",
+      "INBOX_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.listParameters,
     );
   }
@@ -169,7 +171,7 @@ export class InboxDocumentenListComponent
 
   resetSearch() {
     this.listParametersSort = SessionStorageUtil.setItem(
-      Werklijst.INBOX_DOCUMENTEN + "_ZOEKPARAMETERS",
+      "INBOX_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
     );
     this.sort.active = this.listParametersSort.sort;
@@ -204,8 +206,8 @@ export class InboxDocumentenListComponent
     }
   }
 
-  getWerklijst() {
-    return Werklijst.INBOX_DOCUMENTEN;
+  getWerklijst(): GeneratedType<"Werklijst"> {
+    return "INBOX_DOCUMENTEN";
   }
 
   openDrawer(
@@ -219,7 +221,7 @@ export class InboxDocumentenListComponent
     // Make sure when returning to this component, the very first page is loaded
     this.listParameters.page = 0;
     SessionStorageUtil.setItem(
-      Werklijst.INBOX_DOCUMENTEN + "_ZOEKPARAMETERS",
+      "INBOX_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.listParameters,
     );
   }

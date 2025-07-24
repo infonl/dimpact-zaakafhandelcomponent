@@ -21,7 +21,6 @@ import { merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import {
@@ -30,7 +29,10 @@ import {
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { PutBody } from "../../shared/http/zac-http-client";
-import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
+import {
+  SessionStorageUtil,
+  WerklijstZoekParameter,
+} from "../../shared/storage/session-storage.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
 
@@ -99,7 +101,7 @@ export class OntkoppeldeDocumentenListComponent
     super.ngOnInit();
     this.utilService.setTitle("title.documenten.ontkoppeldeDocumenten");
     this.listParameters = SessionStorageUtil.getItem(
-      Werklijst.ONTKOPPELDE_DOCUMENTEN + "_ZOEKPARAMETERS",
+      "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
     );
   }
@@ -145,7 +147,7 @@ export class OntkoppeldeDocumentenListComponent
     this.listParameters.page = this.paginator.pageIndex;
     this.listParameters.maxResults = this.paginator.pageSize;
     SessionStorageUtil.setItem(
-      Werklijst.ONTKOPPELDE_DOCUMENTEN + "_ZOEKPARAMETERS",
+      "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.listParameters,
     );
   }
@@ -187,7 +189,7 @@ export class OntkoppeldeDocumentenListComponent
 
   resetSearch() {
     this.listParameters = SessionStorageUtil.setItem(
-      Werklijst.ONTKOPPELDE_DOCUMENTEN + "_ZOEKPARAMETERS",
+      "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
     );
     this.sort.active = this.listParametersSort.sort;
@@ -198,7 +200,7 @@ export class OntkoppeldeDocumentenListComponent
 
   zoekopdrachtChanged(actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">) {
     if (actieveZoekopdracht) {
-      this.listParameters = JSON.parse(actieveZoekopdracht.json);
+      this.listParameters = JSON.parse(actieveZoekopdracht.json || "{}");
       this.sort.active = this.listParametersSort.sort;
       this.sort.direction = this.listParametersSort.order;
       this.paginator.pageIndex = 0;
@@ -229,15 +231,15 @@ export class OntkoppeldeDocumentenListComponent
     return user1?.id === user2?.id;
   };
 
-  getWerklijst() {
-    return Werklijst.ONTKOPPELDE_DOCUMENTEN;
+  getWerklijst(): GeneratedType<"Werklijst"> {
+    return "ONTKOPPELDE_DOCUMENTEN";
   }
 
   ngOnDestroy() {
     // Make sure when returning to this component, the very first page is loaded
     this.listParameters.page = 0;
     SessionStorageUtil.setItem(
-      Werklijst.ONTKOPPELDE_DOCUMENTEN + "_ZOEKPARAMETERS",
+      "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.listParameters,
     );
   }

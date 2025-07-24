@@ -20,12 +20,12 @@ import { ActivatedRoute } from "@angular/router";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { ZakenService } from "../zaken.service";
@@ -107,8 +107,8 @@ export class ZakenAfgehandeldComponent
     ]);
   }
 
-  getWerklijst(): Werklijst {
-    return Werklijst.AFGEHANDELDE_ZAKEN;
+  getWerklijst(): GeneratedType<"Werklijst"> {
+    return "AFGEHANDELDE_ZAKEN";
   }
 
   ngAfterViewInit(): void {
