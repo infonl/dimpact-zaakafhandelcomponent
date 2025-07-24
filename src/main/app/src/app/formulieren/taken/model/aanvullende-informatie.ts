@@ -148,12 +148,14 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
     );
 
     this.zakenService
-      .readDefaultAfzenderVoorZaak(this.zaak.uuid)
-      .subscribe((defaultMail) => {
-        this.getFormField(fields.VERZENDER).formControl.setValue(
-          defaultMail?.mail,
-        );
-      });
+        .readDefaultAfzenderVoorZaak(this.zaak.uuid)
+        .subscribe((defaultMail) => {
+          const email = defaultMail?.mail;
+
+          if (email && CustomValidators.emailRegex.test(email)) {
+            this.getFormField(fields.VERZENDER).formControl.setValue(email);
+          }
+        });
 
     this.getFormField(fields.VERZENDER).formControl.valueChanges.subscribe(
       (afzender) => {
