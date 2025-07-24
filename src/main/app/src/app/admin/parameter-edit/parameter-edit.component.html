@@ -234,7 +234,7 @@
                         "groep.-geen-" | translate
                       }}</mat-option>
                       <mat-option
-                        *ngFor="let groep of groepen"
+                        *ngFor="let groep of groepen | async"
                         [value]="groep.id"
                         >{{ groep.naam }}</mat-option
                       >
