@@ -2,6 +2,10 @@
 # SPDX-FileCopyrightText: 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
+
+# When modifying this file, please check if it is valid using the following command:
+# `curl --data-binary @codecov.yml https://codecov.io/validate`
+# See: https://docs.codecov.com/docs/codecov-yaml
 codecov:
   notify:
     # only notify Codecov after two builds because we want to make sure
@@ -9,6 +13,7 @@ codecov:
     # our unit test and integration test coverage
     after_n_builds: 2
   max_report_age: off
+coverage:
   status:
     project:
       default:
