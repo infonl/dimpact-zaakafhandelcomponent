@@ -3,6 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { GeneratedType } from "../utils/generated-types";
+
+export type WerklijstZoekParameter =
+  `${GeneratedType<"Werklijst">}_ZOEKPARAMETERS`;
+
 export class SessionStorageUtil {
   static getItem<ANY>(key: string, defaultValue?: ANY): ANY {
     let item = JSON.parse(String(sessionStorage.getItem(key)));

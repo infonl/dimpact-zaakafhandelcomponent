@@ -16,7 +16,10 @@ import { FilterVeld } from "../../../zoeken/model/filter-veld";
 import { DEFAULT_ZOEK_PARAMETERS } from "../../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../../zoeken/model/zoek-resultaat";
 import { ZoekenService } from "../../../zoeken/zoeken.service";
-import { SessionStorageUtil } from "../../storage/session-storage.util";
+import {
+  SessionStorageUtil,
+  WerklijstZoekParameter,
+} from "../../storage/session-storage.util";
 import { GeneratedType } from "../../utils/generated-types";
 import { ColumnPickerValue } from "../column-picker/column-picker-value";
 import { ZoekenColumn } from "../model/zoeken-column";
@@ -50,7 +53,7 @@ export abstract class ZoekenDataSource<
   ) {
     super();
     this.zoekParameters = SessionStorageUtil.getItem(
-      werklijst + "_ZOEKPARAMETERS",
+      `${werklijst}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
       DEFAULT_ZOEK_PARAMETERS,
     );
   }
@@ -68,7 +71,7 @@ export abstract class ZoekenDataSource<
       .active as GeneratedType<"SorteerVeld">;
 
     return SessionStorageUtil.setItem(
-      this.werklijst + "_ZOEKPARAMETERS",
+      `${this.werklijst}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
       this.zoekParameters,
     );
   }
@@ -191,7 +194,7 @@ export abstract class ZoekenDataSource<
 
   reset() {
     this.zoekParameters = SessionStorageUtil.setItem(
-      this.werklijst + "_ZOEKPARAMETERS",
+      `${this.werklijst}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
       DEFAULT_ZOEK_PARAMETERS,
     );
     if (this.zoekParameters.sorteerVeld)
@@ -259,7 +262,7 @@ export abstract class ZoekenDataSource<
     this.zoekParameters.page = 0;
 
     SessionStorageUtil.setItem(
-      this.werklijst + "_ZOEKPARAMETERS",
+      `${this.werklijst}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
       this.zoekParameters,
     );
   }

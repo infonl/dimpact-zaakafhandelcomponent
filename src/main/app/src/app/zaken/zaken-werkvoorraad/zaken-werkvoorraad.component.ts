@@ -37,7 +37,6 @@ import { IndexingService } from "src/app/indexing/indexing.service";
 import { BatchProcessService } from "src/app/shared/batch-progress/batch-process.service";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
@@ -141,8 +140,8 @@ export class ZakenWerkvoorraadComponent
     return columns;
   }
 
-  getWerklijst(): Werklijst {
-    return Werklijst.WERKVOORRAAD_ZAKEN;
+  getWerklijst(): GeneratedType<"Werklijst"> {
+    return "WERKVOORRAAD_ZAKEN";
   }
 
   ngAfterViewInit(): void {
