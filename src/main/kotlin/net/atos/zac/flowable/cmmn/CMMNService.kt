@@ -84,7 +84,7 @@ class CMMNService @Inject constructor(
         zaakafhandelParameters: ZaakafhandelParameters,
         zaakData: Map<String, Any>? = null
     ) {
-        val caseDefinitionKey = zaakafhandelParameters.getCaseDefinitionID()
+        val caseDefinitionKey = zaakafhandelParameters.caseDefinitionID
         LOG.info("Starting zaak '${zaak.uuid}' using CMMN model '$caseDefinitionKey'")
         try {
             val caseInstanceBuilder = cmmnRuntimeService.createCaseInstanceBuilder()

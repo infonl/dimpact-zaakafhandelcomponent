@@ -16,11 +16,14 @@ To create a BPMN process definition, you can:
 ### Requirements
 
 #### Candidate group/user
-The "User tasks" should have the candidate group or user set. For example, the XML attribute in the `.bpmn` file might look like this: `flowable:candidateGroups="group"`
+The "User tasks" should have the candidate group or user set. For example, the XML attributes in the `.bpmn` file might look like this: `flowable:candidateUsers="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}"`
+
+We're using `var:get` [function](https://documentation.flowable.com/latest/develop/be/be-expressions#variable-functions) here which tries to get a `zaakBehandelaar` variable value, but it won’t throw an exception when the variable doesn’t exist.
+As the group should always be provided when creating a zaak we set the candidate group directly to the value of `zaakGroep` variable.
 
 For example:
 ```xml
-    <userTask id="userTask" name="User details" flowable:candidateGroups="group" flowable:formKey="testForm" flowable:formFieldValidation="false">
+    <userTask id="userTask" name="User details" flowable:candidateUsers="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="testForm" flowable:formFieldValidation="false">
       ... the rest of userTask tags ...
     </userTask>
 ```
@@ -65,8 +68,12 @@ For example, the emails can be validated by specifying `validate` and `type` key
 
 ### ZAC extensions
 
+#### Variables
+* `zaakGroep` - group assigned to the zaak
+* `zaakBehandelaar` (optional) - user assigned to the zaak
+
 #### Zaak status
-To change zaak status you have to:
+To change zaak status, you have to:
 * create a service task
 * set class `net.atos.zac.flowable.delegate.UpdateZaakJavaDelegate`
 * add fields
