@@ -9,3 +9,10 @@ codecov:
     # our unit test and integration test coverage
     after_n_builds: 2
   max_report_age: off
+  status:
+    project:
+      default:
+        # Allow the coverage to drop a little bit before failing the Codecov check.
+        # This to avoid failing Codecov checks when the coverage drops with e.g. 0.01%
+        # even when there are no changes made to the code.
+        threshold: 1
