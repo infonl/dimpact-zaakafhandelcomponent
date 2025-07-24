@@ -152,7 +152,7 @@ class BpmnServiceTest : BehaviorSpec({
     Given("A valid process definition key with an existing process definition") {
         val processDefinitionKey = "fakeProcessDefinitionKey"
         val processDefinition = createProcessDefinition()
-        every { bpmnService.findProcessDefinitionByprocessDefinitionKey(processDefinitionKey) } returns processDefinition
+        every { bpmnService.findProcessDefinitionByProcessDefinitionKey(processDefinitionKey) } returns processDefinition
 
         When("reading the process definition by process definition key") {
             val result = bpmnService.readProcessDefinitionByProcessDefinitionKey(processDefinitionKey)
@@ -165,7 +165,7 @@ class BpmnServiceTest : BehaviorSpec({
 
     Given("An invalid process definition key with no existing process definition") {
         val processDefinitionKey = "fakeProcessDefinitionKey"
-        every { bpmnService.findProcessDefinitionByprocessDefinitionKey(processDefinitionKey) } returns null
+        every { bpmnService.findProcessDefinitionByProcessDefinitionKey(processDefinitionKey) } returns null
 
         When("reading the process definition by process definition key") {
             val exception = shouldThrow<ProcessDefinitionNotFoundException> {
