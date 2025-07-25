@@ -12,39 +12,11 @@ import {
 } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
-export type SmartDocumentsTemplateWithParentId =
-  GeneratedType<"RestSmartDocumentsTemplate"> & {
-    parentGroupId?: string | null;
-  };
-export type SmartDocumentsTemplateGroupWithParentId = Omit<
-  GeneratedType<"RestSmartDocumentsTemplateGroup">,
-  "groups" | "templates"
-> & {
-  groups?: SmartDocumentsTemplateGroupWithParentId[] | null;
-  templates?: SmartDocumentsTemplateWithParentId[] | null;
-};
-
-export type MappedSmartDocumentsTemplateWithParentId =
-  GeneratedType<"RestMappedSmartDocumentsTemplate"> & {
-    parentGroupId?: string | null;
-  };
-export type MappedSmartDocumentsTemplateGroupWithParentId = Omit<
-  GeneratedType<"RestMappedSmartDocumentsTemplateGroup">,
-  "groups" | "templates"
-> & {
-  groups?: MappedSmartDocumentsTemplateGroupWithParentId[] | null;
-  templates?: MappedSmartDocumentsTemplateWithParentId[] | null;
-};
-
-export type PlainTemplateMappings = Omit<
-  MappedSmartDocumentsTemplateWithParentId,
-  "name"
->;
-
-export type MappedSmartDocumentsTemplateFlattenedGroupWithParentId = Omit<
-  MappedSmartDocumentsTemplateGroupWithParentId,
-  "groups"
->;
+export interface TemplateMapping {
+  id: string;
+  parentGroupId?: string;
+  informatieObjectTypeUUID?: string;
+}
 
 @Injectable({ providedIn: "root" })
 export class SmartDocumentsService {
@@ -62,18 +34,43 @@ export class SmartDocumentsService {
         "/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping",
         { path: { zaakafhandelUUID } },
       )
-      .pipe(map((data) => this.flattenNestedGroups(data)));
+      .pipe(map((data) => this.flattenGroups(this.convertApiData(data))));
+  }
+
+  private convertApiData(
+    data: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[],
+  ): GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] {
+    return data.map((group) => ({
+      ...group,
+      templates: group.templates || undefined,
+      groups: group.groups ? this.convertApiData(group.groups) : undefined,
+    }));
   }
 
   storeTemplatesMapping(
     zaakafhandelUUID: string,
-    body: PostBody<"/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping">,
+    templateGroups: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[],
   ) {
+    const body = this.convertToApiFormat(templateGroups);
     return this.zacHttpClient.POST(
       "/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping",
       body,
       { path: { zaakafhandelUUID } },
     );
+  }
+
+  private convertToApiFormat(
+    groups: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[],
+  ): PostBody<"/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping"> {
+    return groups.map((group) => ({
+      ...group,
+      templates:
+        group.templates?.map((template) => ({
+          ...template,
+          informatieObjectTypeUUID: template.informatieObjectTypeUUID!,
+        })) || null,
+      groups: group.groups ? this.convertToApiFormat(group.groups) : null,
+    }));
   }
 
   getTemplateGroup(
@@ -85,151 +82,141 @@ export class SmartDocumentsService {
       .PUT("/rest/zaakafhandelparameters/smartdocuments-template-group", body)
       .pipe(
         map((data) =>
-          this.getOnlyOneTemplate(data, templateName, informatieObjectTypeUUID),
+          this.createSingleTemplateGroup(
+            data,
+            templateName,
+            informatieObjectTypeUUID,
+          ),
         ),
       );
   }
 
-  getOnlyOneTemplate = (
+  private createSingleTemplateGroup(
     templateGroup: GeneratedType<"RestSmartDocumentsTemplateGroup">,
     templateName: string,
     informatieObjectTypeUUID: string,
-  ): GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] => [
-    {
-      id: templateGroup.id,
-      name: templateGroup.name,
-      groups: null,
-      templates: [
-        {
-          id: templateGroup.templates!.find(
-            ({ name }) => name === templateName,
-          )!.id,
-          name: templateName,
-          informatieObjectTypeUUID,
-        },
-      ],
-    },
-  ];
+  ): GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] {
+    return [
+      {
+        id: templateGroup.id,
+        name: templateGroup.name,
+        groups: null,
+        templates: [
+          {
+            id: templateGroup.templates!.find(
+              ({ name }) => name === templateName,
+            )!.id,
+            name: templateName,
+            informatieObjectTypeUUID,
+          },
+        ],
+      },
+    ];
+  }
 
-  getOnlyMappedTemplates = (
-    data: MappedSmartDocumentsTemplateGroupWithParentId[],
-  ): GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] => {
+  // Get only groups that have mapped templates
+  getOnlyMappedTemplates(
+    data: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[],
+  ): GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] {
     return data
       .map((group) => {
-        const templates = (group.templates || [])
-          .filter((template) => template.informatieObjectTypeUUID)
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          .map(({ parentGroupId, ...template }) => template);
+        const templates =
+          group.templates?.filter((t) => t.informatieObjectTypeUUID) || [];
+        const groups = this.getOnlyMappedTemplates(group.groups ?? []);
 
-        const groups = group.groups
-          ? this.getOnlyMappedTemplates(group.groups)
-          : [];
-
-        if (templates.length || groups.length) {
-          const { ...cleanedGroup } = group;
-          return {
-            ...cleanedGroup,
-            templates,
-            groups,
-          };
-        }
-
-        return null;
+        return templates.length || groups.length
+          ? { ...group, templates, groups }
+          : null;
       })
-      .filter(Boolean);
-  };
+      .filter(
+        Boolean,
+      ) as GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[];
+  }
 
-  flattenNestedGroups(
-    groups: MappedSmartDocumentsTemplateGroupWithParentId[],
-  ): MappedSmartDocumentsTemplateFlattenedGroupWithParentId[] {
-    const result = [];
+  // Flatten nested groups into a simple array
+  flattenGroups(
+    groups: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[],
+  ) {
+    const result: {
+      id: string;
+      name: string;
+      templates: GeneratedType<"RestMappedSmartDocumentsTemplate">[];
+    }[] = [];
 
-    function traverse(group) {
-      const { id, name, templates = [] } = group;
-      if (templates.length) result.push({ id, name, templates });
-
-      if (group.groups) {
-        group.groups.forEach(traverse);
+    const traverse = (
+      group: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">,
+    ) => {
+      if (group.templates?.length) {
+        result.push({
+          id: group.id,
+          name: group.name,
+          templates: group.templates,
+        });
       }
-    }
+      group.groups?.forEach(traverse);
+    };
 
     groups.forEach(traverse);
-
     return result;
   }
 
-  addTemplateMappings = (
-    groups: GeneratedType<"RestSmartDocumentsTemplateGroup">[],
-    uuidsToAdd: PlainTemplateMappings[],
-  ): MappedSmartDocumentsTemplateGroupWithParentId[] => {
-    const updateGroup = (
-      group: MappedSmartDocumentsTemplateGroupWithParentId,
-    ): MappedSmartDocumentsTemplateGroupWithParentId => ({
+  // Add UUID mappings to templates
+  addTemplateMappings(
+    groups: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[],
+    mappings: TemplateMapping[],
+  ): GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] {
+    return groups.map((group) => ({
       ...group,
-      templates: (group.templates || []).map((template) => ({
+      templates: group.templates?.map((template) => ({
         ...template,
-        informatieObjectTypeUUID: uuidsToAdd.find(
-          (uuidItem) =>
-            uuidItem.id === template.id &&
-            uuidItem.parentGroupId === template.parentGroupId,
-        )?.informatieObjectTypeUUID,
+        informatieObjectTypeUUID:
+          mappings.find(
+            ({ id, parentGroupId }) =>
+              id === template.id && parentGroupId === group.id,
+          )?.informatieObjectTypeUUID || "",
       })),
-      groups: group.groups ? group.groups.map(updateGroup) : [],
-    });
+      groups: group.groups
+        ? this.addTemplateMappings(group.groups, mappings)
+        : [],
+    }));
+  }
 
-    return groups.map(updateGroup);
-  };
+  // Extract all template mappings from groups
+  getTemplateMappings(
+    data: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[],
+  ) {
+    const result: TemplateMapping[] = [];
 
-  getTemplateMappings = (
-    data: MappedSmartDocumentsTemplateGroupWithParentId[],
-  ): PlainTemplateMappings[] => {
-    return data.flatMap((item) => {
-      const itemTemplates =
-        item.templates?.map((template) => ({
+    const extract = (
+      group: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">,
+    ) => {
+      group.templates?.forEach((template) => {
+        result.push({
           id: template.id,
-          parentGroupId: template.parentGroupId,
-          informatieObjectTypeUUID: template.informatieObjectTypeUUID,
-        })) ?? [];
-
-      const groupTemplates =
-        item.groups?.flatMap((group) => [
-          ...group.templates.map((template) => ({
-            id: template.id,
-            parentGroupId: template.parentGroupId,
-            informatieObjectTypeUUID: template.informatieObjectTypeUUID,
-          })),
-
-          ...this.getTemplateMappings(group.groups || []),
-        ]) ?? [];
-
-      return [...itemTemplates, ...groupTemplates];
-    });
-  };
-
-  addParentIdsToMakeTemplatesUnique = <
-    T extends
-      | GeneratedType<"RestSmartDocumentsTemplateGroup">
-      | GeneratedType<"RestMappedSmartDocumentsTemplateGroup">,
-  >(
-    data?: T[],
-  ): (Omit<T, "templates"> & {
-    templates: (T["templates"][number] & { parentGroupId: string })[];
-  })[] => {
-    if (!data) {
-      return [];
-    }
-
-    return data.map((group) => {
-      return {
-        ...group,
-        templates: group.templates?.map((template: T["templates"][number]) => ({
-          ...template,
           parentGroupId: group.id,
-        })),
-        groups: group.groups
-          ? this.addParentIdsToMakeTemplatesUnique(group.groups)
-          : [],
-      };
-    });
-  };
+          informatieObjectTypeUUID: template.informatieObjectTypeUUID,
+        });
+      });
+      group.groups?.forEach(extract);
+    };
+
+    data.forEach(extract);
+    return result;
+  }
+
+  // Add parent IDs to templates for uniqueness
+  addParentIdsToTemplates(
+    data?: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[],
+  ): GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] {
+    if (!data) return [];
+
+    return data.map((group) => ({
+      ...group,
+      templates: group.templates?.map((template) => ({
+        ...template,
+        parentGroupId: group.id,
+      })),
+      groups: this.addParentIdsToTemplates(group.groups ?? []),
+    }));
+  }
 }

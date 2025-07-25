@@ -62,14 +62,11 @@ describe(OrderUtil.name, () => {
       ],
       "b",
     ],
-  ])(
-    "Will sort %p to %p when sorting by %s",
-    (input, expected, sortKey: "a" | "b") => {
-      const result = input.sort(OrderUtil.orderBy(sortKey));
+  ])("Will sort %p to %p when sorting by %s", (input, expected, sortKey) => {
+    const result = input.sort(OrderUtil.orderBy(sortKey as "a" | "b"));
 
-      expect(result).toEqual(expected);
-    },
-  );
+    expect(result).toEqual(expected);
+  });
 
   describe(OrderUtil.orderAsIs.name, () => {
     it("will return the array as is", () => {
