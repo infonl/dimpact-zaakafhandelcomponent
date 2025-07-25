@@ -9,7 +9,6 @@ import moment from "moment";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { HistorieRegel } from "../shared/historie/model/historie-regel";
 import {
   DeleteBody,
   PostBody,
@@ -228,14 +227,13 @@ export class InformatieObjectenService {
     );
   }
 
-  listHistorie(uuid: string): Observable<HistorieRegel[]> {
-    return this.http
-      .get<
-        HistorieRegel[]
-      >(`${this.basepath}/informatieobject/${uuid}/historie`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listHistorie(uuid: string) {
+    return this.zacHttpClient.GET(
+      "/rest/informatieobjecten/informatieobject/{uuid}/historie",
+      {
+        path: { uuid },
+      },
+    );
   }
 
   lockInformatieObject(uuid: string, zaakUuid: string) {
