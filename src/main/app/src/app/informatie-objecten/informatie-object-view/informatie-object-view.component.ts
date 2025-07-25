@@ -136,7 +136,6 @@ export class InformatieObjectViewComponent
   ngAfterViewInit() {
     super.ngAfterViewInit();
     this.historie.sortingDataAccessor = (item, property) => {
-      console.log(item);
       switch (property) {
         case "datum":
           return item.datumTijd ?? "";
