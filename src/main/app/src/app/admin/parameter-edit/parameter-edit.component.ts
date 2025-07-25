@@ -30,7 +30,6 @@ import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
-import { HumanTaskReferentieTabel } from "../model/human-task-referentie-tabel";
 import { getBeschikbareMailtemplateKoppelingen } from "../model/mail-utils";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
@@ -796,9 +795,8 @@ export class ParameterEditComponent
           const bestaandeHumanTaskReferentieTabel =
             bestaandeReferentietabellen?.find((o) => o.veld === value.naam);
           const tabel =
-            bestaandeHumanTaskReferentieTabel != null
-              ? bestaandeHumanTaskReferentieTabel
-              : new HumanTaskReferentieTabel();
+            bestaandeHumanTaskReferentieTabel ??
+            ({} satisfies GeneratedType<"RestHumanTaskReferenceTable">);
           tabel.veld = value.naam;
           tabel.tabel = this.getHumanTaskControl(
             param,
