@@ -15,7 +15,6 @@
     "test:ci": "npx jest -t",
     "test:report": "ng test --coverage",
     "lint": "ng lint",
-    "e2e": "ng e2e",
     "generate:types:zac-openapi": "npx openapi-typescript ./../../../build/generated/openapi/META-INF/openapi/openapi.yaml -o ./src/generated/types/zac-openapi-types.d.ts"
   },
   "private": true,
@@ -65,7 +64,6 @@
     "@total-typescript/shoehorn": "0.1.2",
     "@types/jest": "29.5.14",
     "@types/node": "22.16.5",
-    "@types/proj4": "2.19.0",
     "@typescript-eslint/eslint-plugin": "8.38.0",
     "@typescript-eslint/parser": "8.38.0",
     "codelyzer": "6.0.2",
@@ -78,7 +76,6 @@
     "jest-junit-reporter": "1.1.0",
     "jest-preset-angular": "14.6.1",
     "openapi-typescript": "7.8.0",
-    "protractor": "7.0.0",
     "ts-node": "10.9.2",
     "typescript": "5.5.4",
     "whatwg-fetch": "3.6.20"
