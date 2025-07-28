@@ -17,7 +17,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 @Path("v1/policies")
 @Consumes(MediaType.TEXT_PLAIN)
 @Produces(MediaType.APPLICATION_JSON)
-interface OPAAdminClient {
+interface OpaAdminClient {
 
     @PUT
     @Path("{id}")
