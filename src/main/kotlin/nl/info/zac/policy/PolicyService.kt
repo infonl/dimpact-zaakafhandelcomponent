@@ -120,30 +120,28 @@ class PolicyService @Inject constructor(
         lock: EnkelvoudigInformatieObjectLock?,
         zaak: Zaak?
     ): DocumentRechten {
-        val documentData = DocumentData().apply {
-            this.definitief = enkelvoudigInformatieobject.getStatus() == StatusEnum.DEFINITIEF
-            this.vergrendeld = enkelvoudigInformatieobject.getLocked()
-            this.vergrendeldDoor = lock?.userId
-            this.ondertekend = enkelvoudigInformatieobject.isSigned()
-            zaak?.let {
-                this.zaakOpen = it.isOpen()
-                this.zaaktype = ztcClientService.readZaaktype(it.getZaaktype()).getOmschrijving()
-            }
-        }
+        val documentData = DocumentData(
+            definitief = enkelvoudigInformatieobject.getStatus() == StatusEnum.DEFINITIEF,
+            vergrendeld = enkelvoudigInformatieobject.getLocked(),
+            vergrendeldDoor = lock?.userId,
+            ondertekend = enkelvoudigInformatieobject.isSigned(),
+            zaakOpen = zaak?.isOpen() ?: false,
+            zaaktype = zaak?.let { ztcClientService.readZaaktype(it.getZaaktype()).getOmschrijving() }
+        )
         return evaluationClient.readDocumentRechten(
             RuleQuery(DocumentInput(loggedInUserInstance.get(), documentData))
         ).result
     }
 
     fun readDocumentRechten(enkelvoudigInformatieobject: DocumentZoekObject): DocumentRechten {
-        val documentData = DocumentData().apply {
-            this.definitief = StatusEnum.DEFINITIEF == enkelvoudigInformatieobject.getStatus()
-            this.vergrendeld = enkelvoudigInformatieobject.isIndicatie(DocumentIndicatie.VERGRENDELD)
-            this.vergrendeldDoor = enkelvoudigInformatieobject.vergrendeldDoorGebruikersnaam
-            this.zaakOpen = !enkelvoudigInformatieobject.isZaakAfgehandeld
-            this.zaaktype = enkelvoudigInformatieobject.zaaktypeOmschrijving
-            this.ondertekend = enkelvoudigInformatieobject.ondertekeningDatum != null
-        }
+        val documentData = DocumentData(
+            definitief = StatusEnum.DEFINITIEF == enkelvoudigInformatieobject.getStatus(),
+            vergrendeld = enkelvoudigInformatieobject.isIndicatie(DocumentIndicatie.VERGRENDELD),
+            vergrendeldDoor = enkelvoudigInformatieobject.vergrendeldDoorGebruikersnaam,
+            zaakOpen = !enkelvoudigInformatieobject.isZaakAfgehandeld,
+            zaaktype = enkelvoudigInformatieobject.zaaktypeOmschrijving,
+            ondertekend = enkelvoudigInformatieobject.ondertekeningDatum != null
+        )
         return evaluationClient.readDocumentRechten(
             RuleQuery(DocumentInput(loggedInUserInstance.get(), documentData))
         ).result
@@ -158,19 +156,19 @@ class PolicyService @Inject constructor(
         taskInfo: TaskInfo,
         zaaktypeOmschrijving: String?
     ): TaakRechten {
-        val taakData = TaakData().apply {
-            this.open = TaskUtil.isOpen(taskInfo)
-            this.zaaktype = zaaktypeOmschrijving
-        }
+        val taakData = TaakData(
+            open = TaskUtil.isOpen(taskInfo),
+            zaaktype = zaaktypeOmschrijving
+        )
         return evaluationClient.readTaakRechten(
             RuleQuery(TaakInput(loggedInUserInstance.get(), taakData))
         ).result
     }
 
     fun readTaakRechten(taakZoekObject: TaakZoekObject): TaakRechten {
-        val taakData = TaakData().apply {
-            this.zaaktype = taakZoekObject.zaaktypeOmschrijving
-        }
+        val taakData = TaakData(
+            zaaktype = taakZoekObject.zaaktypeOmschrijving
+        )
         return evaluationClient.readTaakRechten(
             RuleQuery(TaakInput(loggedInUserInstance.get(), taakData))
         ).result

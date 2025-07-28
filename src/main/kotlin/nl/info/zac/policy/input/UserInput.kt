@@ -9,21 +9,13 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
-open class UserInput {
+open class UserInput(
+    loggedInUser: LoggedInUser
+) {
     @field:JsonbProperty("user")
-    val user: UserData
-
-    constructor(
-        loggedInUser: LoggedInUser
-    ) {
-        user = UserData(
-            id = loggedInUser.id,
-            rollen = loggedInUser.roles,
-            zaaktypen = if (loggedInUser.isAuthorisedForAllZaaktypen()) {
-                null
-            } else {
-                loggedInUser.geautoriseerdeZaaktypen
-            }
-        )
-    }
+    val user = UserData(
+        id = loggedInUser.id,
+        rollen = loggedInUser.roles,
+        zaaktypen = if (loggedInUser.isAuthorisedForAllZaaktypen()) null else loggedInUser.geautoriseerdeZaaktypen
+    )
 }

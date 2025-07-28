@@ -5,26 +5,23 @@
 package nl.info.zac.policy.input
 
 import jakarta.json.bind.annotation.JsonbProperty
-import nl.info.zac.util.AllOpen
-import nl.info.zac.util.NoArgConstructor
 
-@NoArgConstructor
-@AllOpen
 data class DocumentData(
     @field:JsonbProperty("definitief")
-    var definitief: Boolean = false,
+    val definitief: Boolean = false,
 
     @field:JsonbProperty("vergrendeld")
-    var vergrendeld: Boolean = false,
+    val vergrendeld: Boolean = false,
 
     @field:JsonbProperty("ondertekend")
-    var ondertekend: Boolean = false,
+    val ondertekend: Boolean = false,
 
     @field:JsonbProperty("vergrendeld_door")
-    var vergrendeldDoor: String? = null,
+    val vergrendeldDoor: String? = null,
 
-    var zaaktype: String? = null,
+    @field:JsonbProperty("zaaktype")
+    val zaaktype: String? = null,
 
     @field:JsonbProperty("zaak_open")
-    var zaakOpen: Boolean = false
+    val zaakOpen: Boolean = false
 )
