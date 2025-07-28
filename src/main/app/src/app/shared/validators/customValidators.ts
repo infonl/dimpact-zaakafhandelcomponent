@@ -43,7 +43,7 @@ export class CustomValidators {
     "(\\." +
     CustomValidators.LBL +
     ")+";
-  static emailRegex = new RegExp("^" + CustomValidators.EMAIL + "$");
+  private static emailRegex = new RegExp("^" + CustomValidators.EMAIL + "$");
   private static emailsRegex = new RegExp(
     "^(" + CustomValidators.EMAIL + ")(;//s*" + CustomValidators.EMAIL + ")*$",
   );
