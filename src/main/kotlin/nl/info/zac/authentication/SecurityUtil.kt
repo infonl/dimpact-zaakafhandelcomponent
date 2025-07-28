@@ -40,23 +40,24 @@ class SecurityUtil @Inject constructor(
             emptySet()
         )
 
-        val backgroundJob: ThreadLocal<Boolean?> = ThreadLocal.withInitial { false }
+        val systemUser: ThreadLocal<Boolean?> = ThreadLocal.withInitial { false }
     }
 
     /**
      * Produces an authenticated [LoggedInUser] for use in CDI Beans.
      *
-     * If [backgroundJob] is enabled (set to true) or there is no http session (async context) the
+     * If [systemUser] is enabled (set to true) or there is no http session (async context) the
      * [FUNCTIONEEL_GEBRUIKER] user is returned.
      *
-     * If this is not a background job, the authenticated [LoggedInUser] instance is retrieved from the current user
+     * If http session is available, the authenticated [LoggedInUser] instance is retrieved from the current user
      * session, where it is set via the [UserPrincipalFilter]
      *
-     * @return the currently logged-in user or [FUNCTIONEEL_GEBRUIKER]
+     * @return the currently logged-in user or null if session is available and [FUNCTIONEEL_GEBRUIKER] in case this is
+     * async context or [systemUser] is explicitly requested
      */
     @Produces
     fun getLoggedInUser() =
-        if (backgroundJob.get() ?: false) {
+        if (systemUser.get() ?: false) {
             FUNCTIONEEL_GEBRUIKER // explicitly requested
         } else {
             httpSession.get()?.let {
