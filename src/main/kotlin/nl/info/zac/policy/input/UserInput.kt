@@ -6,14 +6,12 @@ package nl.info.zac.policy.input
 
 import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
-@AllOpen
-class UserInput {
+open class UserInput {
     @field:JsonbProperty("user")
-    lateinit var user: UserData
+    val user: UserData
 
     constructor(
         loggedInUser: LoggedInUser
