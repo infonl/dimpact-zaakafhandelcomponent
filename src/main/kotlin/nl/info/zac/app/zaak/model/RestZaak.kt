@@ -136,6 +136,10 @@ fun RestZaak.toZaak(
     this.zaakgeometrie = this@toZaak.zaakgeometrie?.toGeoJSONGeometry()
 }
 
+/**
+ * Converts a RestZaak to a Zaak object suitable for PATCH requests.
+ * This is used when updating an existing case with partial data.
+ */
 fun RestZaak.toPatchZaak() = Zaak().apply {
     toelichting = this@toPatchZaak.toelichting
     omschrijving = this@toPatchZaak.omschrijving
