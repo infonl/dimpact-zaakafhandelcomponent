@@ -516,7 +516,7 @@ export class ZaakViewComponent
       if (this.allowedToAddBetrokkene()) {
         this.menu.push(
           new ButtonMenuItem(
-            "actie.betrokkene.toevoegen",
+            "actie.betrokkene.koppelen",
             () => this.actionsSidenav.open(),
             "group_add",
           ),
@@ -996,7 +996,7 @@ export class ZaakViewComponent
   }
 
   addOrEditZaakInitiator() {
-    this.activeSideAction = "actie.initiator.toevoegen";
+    this.activeSideAction = "actie.initiator.koppelen";
     this.actionsSidenav.open();
   }
 
@@ -1170,7 +1170,7 @@ export class ZaakViewComponent
       })
       .subscribe((zaak) => {
         this.zaak = zaak;
-        this.utilService.openSnackbar("msg.betrokkene.toegevoegd", {
+        this.utilService.openSnackbar("msg.betrokkene.gekoppeld", {
           roltype: klantgegevens.betrokkeneRoltype.naam,
         });
         this.loadHistorie();
