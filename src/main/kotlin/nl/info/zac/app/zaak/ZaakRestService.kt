@@ -102,9 +102,11 @@ import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.app.zaak.model.RestZaakUnlinkData
 import nl.info.zac.app.zaak.model.RestZaaktype
 import nl.info.zac.app.zaak.model.toGeoJSONGeometry
+import nl.info.zac.app.zaak.model.toPatchZaak
 import nl.info.zac.app.zaak.model.toRestDecisionTypes
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
 import nl.info.zac.app.zaak.model.toRestZaakBetrokkenen
+import nl.info.zac.app.zaak.model.toZaak
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.flowable.bpmn.BpmnService
@@ -280,7 +282,13 @@ class ZaakRestService @Inject constructor(
                 loggedInUserInstance.get().isAuthorisedForZaaktype(zaaktype.omschrijving)
         )
         restZaak.communicatiekanaal?.isNotBlank() == true || throw CommunicationChannelNotFound()
-        val zaak = restZaakConverter.toZaak(restZaak, zaaktype).let(zgwApiService::createZaak)
+        val bronOrganisatie = configuratieService.readBronOrganisatie()
+        val verantwoordelijkeOrganisatie = configuratieService.readVerantwoordelijkeOrganisatie()
+        val zaak = restZaak.toZaak(
+            zaaktype = zaaktype,
+            bronOrganisatie = bronOrganisatie,
+            verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie
+        ).let(zgwApiService::createZaak)
         restZaak.initiatorIdentificatie?.takeIf { it.isNotEmpty() }?.let { initiatorId ->
             restZaak.initiatorIdentificatieType?.let { initiatorType ->
                 val identification = when (initiatorType) {
@@ -379,7 +387,7 @@ class ZaakRestService @Inject constructor(
         }
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID,
-            restZaakConverter.convertToPatch(restZaakEditMetRedenGegevens.zaak),
+            restZaakEditMetRedenGegevens.zaak.toPatchZaak(),
             restZaakEditMetRedenGegevens.reden
         )
         restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening?.let { newFinalDate ->

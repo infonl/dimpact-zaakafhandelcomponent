@@ -40,7 +40,6 @@ import nl.info.zac.app.zaak.model.createRestDecision
 import nl.info.zac.app.zaak.model.createRestGroup
 import nl.info.zac.app.zaak.model.createRestUser
 import nl.info.zac.app.zaak.model.createRestZaaktype
-import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_AFGEROND
 import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_HEROPEND
 import nl.info.zac.flowable.bpmn.BpmnService
@@ -64,7 +63,6 @@ class RestZaakConverterTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val bpmnService = mockk<BpmnService>()
-    val configuratieService = mockk<ConfiguratieService>()
     val restZaakConverter = RestZaakConverter(
         ztcClientService = ztcClientService,
         zrcClientService = zrcClientService,
@@ -78,8 +76,7 @@ class RestZaakConverterTest : BehaviorSpec({
         restZaaktypeConverter = restZaaktypeConverter,
         policyService = policyService,
         zaakVariabelenService = zaakVariabelenService,
-        bpmnService = bpmnService,
-        configuratieService = configuratieService
+        bpmnService = bpmnService
     )
 
     beforeEach {
