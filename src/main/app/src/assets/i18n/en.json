@@ -743,7 +743,7 @@
   "msg.besluit.verplicht": "For the chosen result, adding a decision is mandatory, first add a decision.",
   "msg.betrokkene.ontkoppelen.bevestigen": "Unlink {{betrokkene}} from the case?",
   "msg.betrokkene.ontkoppelen.uitgevoerd": "{{betrokkene}} has been unlinked",
-  "msg.betrokkene.gekoppeld": "The {{roltype}} has been added",
+  "msg.betrokkene.gekoppeld": "The {{roltype}} has been linked",
   "msg.datum.overschreden": "This date has passed",
   "msg.eindedatum.overschreden": "This date was exceeded when the case was closed",
   "msg.document.besluit": "Document is linked to a decision",
