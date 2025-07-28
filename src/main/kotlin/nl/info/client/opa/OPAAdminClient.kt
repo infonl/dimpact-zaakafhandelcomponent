@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.opa
+package nl.info.client.opa
 
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.PUT
@@ -18,7 +18,8 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 @Consumes(MediaType.TEXT_PLAIN)
 @Produces(MediaType.APPLICATION_JSON)
 interface OPAAdminClient {
+
     @PUT
     @Path("{id}")
-    fun policyUpdate(@PathParam("id") id: String?, policy: String?): Response?
+    fun policyUpdate(@PathParam("id") id: String, policy: String): Response
 }

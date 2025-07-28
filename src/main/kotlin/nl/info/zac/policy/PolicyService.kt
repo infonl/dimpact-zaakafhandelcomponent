@@ -7,7 +7,7 @@ package nl.info.zac.policy
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
-import net.atos.client.opa.model.RuleQuery
+import nl.info.client.opa.model.RuleQuery
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.util.TaskUtil
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject

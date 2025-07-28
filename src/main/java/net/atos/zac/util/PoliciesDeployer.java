@@ -22,7 +22,7 @@ import jakarta.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import net.atos.client.opa.OPAAdminClient;
+import nl.info.client.opa.OPAAdminClient;
 
 public class PoliciesDeployer {
 
