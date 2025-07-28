@@ -32,7 +32,6 @@ import {
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { DialogData } from "../../shared/dialog/dialog-data";
 import { DialogComponent } from "../../shared/dialog/dialog.component";
-import { HistorieRegel } from "../../shared/historie/model/historie-regel";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
@@ -43,7 +42,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { FileFormat, FileFormatUtil } from "../model/file-format";
-import { FileIcon } from "../model/file-icon";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 
 @Component({
@@ -55,16 +53,16 @@ export class InformatieObjectViewComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   readonly indicatiesLayout = IndicatiesLayout;
-  infoObject?: GeneratedType<"RestEnkelvoudigInformatieobject">;
-  laatsteVersieInfoObject: GeneratedType<"RestEnkelvoudigInformatieobject">;
+  infoObject!: GeneratedType<"RestEnkelvoudigInformatieobject">;
+  laatsteVersieInfoObject?: GeneratedType<"RestEnkelvoudigInformatieobject">;
   zaakInformatieObjecten: GeneratedType<"RestZaakInformatieobject">[] = [];
   zaak?: GeneratedType<"RestZaak">;
   documentNieuweVersieGegevens?: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
   documentPreviewBeschikbaar = false;
-  menu: MenuItem[];
-  activeSideAction: string | null;
-  versieInformatie: string;
-  historie = new MatTableDataSource<HistorieRegel>();
+  menu: MenuItem[] = [];
+  activeSideAction: string | null = null;
+  versieInformatie: string | null = null;
+  historie = new MatTableDataSource<GeneratedType<"HistoryLine">>();
 
   historieColumns: string[] = [
     "datum",
@@ -76,11 +74,11 @@ export class InformatieObjectViewComponent
     "toelichting",
   ];
 
-  @ViewChild("actionsSidenav") actionsSidenav: MatSidenav;
-  @ViewChild("menuSidenav") menuSidenav: MatSidenav;
-  @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
-  @ViewChild(MatSort) sort: MatSort;
-  private documentListener: WebsocketListener;
+  @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
+  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
+  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
+  @ViewChild(MatSort) sort!: MatSort;
+  private documentListener?: WebsocketListener;
 
   constructor(
     private informatieObjectenService: InformatieObjectenService,
@@ -95,14 +93,15 @@ export class InformatieObjectViewComponent
     super();
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.subscriptions$.push(
       this.route.data.subscribe((data) => {
-        this.infoObject = data["informatieObject"];
-        this.zaak = data["zaak"];
+        this.infoObject =
+          data.informatieObject as GeneratedType<"RestEnkelvoudigInformatieobject">;
+        this.zaak = data.zaak as GeneratedType<"RestZaak">;
         this.informatieObjectenService
           .readEnkelvoudigInformatieobject(
-            this.infoObject.uuid,
+            this.infoObject.uuid!,
             this.zaak?.uuid,
           )
           .subscribe((infoObject) => {
@@ -121,7 +120,7 @@ export class InformatieObjectViewComponent
         this.documentListener = this.websocketService.addListener(
           Opcode.UPDATED,
           ObjectType.ENKELVOUDIG_INFORMATIEOBJECT,
-          this.infoObject.uuid,
+          this.infoObject.uuid!,
           () => {
             this.loadInformatieObject();
             this.loadZaakInformatieobjecten();
@@ -139,11 +138,11 @@ export class InformatieObjectViewComponent
     this.historie.sortingDataAccessor = (item, property) => {
       switch (property) {
         case "datum":
-          return item.datumTijd;
+          return item.datumTijd ?? "";
         case "gebruiker":
-          return item.door;
+          return item.door ?? "";
         default:
-          return item[property];
+          return item[property as keyof typeof item] ?? "";
       }
     };
     this.historie.sort = this.sort;
@@ -156,12 +155,12 @@ export class InformatieObjectViewComponent
   private toevoegenActies() {
     this.menu = [new HeaderMenuItem("informatieobject")];
 
-    if (this.laatsteVersieInfoObject.rechten.lezen) {
+    if (this.laatsteVersieInfoObject?.rechten?.lezen) {
       this.menu.push(
         new HrefMenuItem(
           "actie.downloaden",
           this.informatieObjectenService.getDownloadURL(
-            this.infoObject.uuid,
+            this.infoObject.uuid!,
             this.infoObject.versie,
           ),
           "save_alt",
@@ -170,7 +169,7 @@ export class InformatieObjectViewComponent
     }
 
     if (
-      this.laatsteVersieInfoObject.rechten.toevoegenNieuweVersie &&
+      this.laatsteVersieInfoObject?.rechten?.toevoegenNieuweVersie &&
       this.zaak
     ) {
       this.menu.push(
@@ -179,12 +178,12 @@ export class InformatieObjectViewComponent
           () => {
             this.informatieObjectenService
               .readHuidigeVersieEnkelvoudigInformatieObject(
-                this.infoObject.uuid,
+                this.infoObject.uuid!,
               )
               .subscribe((infoObject) => {
                 this.documentNieuweVersieGegevens = infoObject;
               });
-            this.actionsSidenav.open();
+            void this.actionsSidenav.open();
           },
           "difference",
         ),
@@ -193,7 +192,7 @@ export class InformatieObjectViewComponent
 
     if (
       this.zaak &&
-      this.laatsteVersieInfoObject.rechten.wijzigen &&
+      this.laatsteVersieInfoObject?.rechten?.wijzigen &&
       FileFormatUtil.isOffice(this.infoObject.formaat as FileFormat)
     ) {
       this.menu.push(
@@ -202,8 +201,8 @@ export class InformatieObjectViewComponent
           () => {
             this.informatieObjectenService
               .editEnkelvoudigInformatieObjectInhoud(
-                this.infoObject.uuid,
-                this.zaak?.uuid,
+                this.infoObject.uuid!,
+                this.zaak!.uuid!,
               )
               .subscribe((url) => {
                 window.open(url);
@@ -215,15 +214,15 @@ export class InformatieObjectViewComponent
     }
 
     if (
-      !this.laatsteVersieInfoObject.gelockedDoor &&
-      this.laatsteVersieInfoObject.rechten.vergrendelen
+      !this.laatsteVersieInfoObject?.gelockedDoor &&
+      this.laatsteVersieInfoObject?.rechten?.vergrendelen
     ) {
       const button = new ButtonMenuItem(
         "actie.lock",
         () => {
           button.disabled = true;
           this.informatieObjectenService
-            .lockInformatieObject(this.infoObject.uuid, this.zaak?.uuid)
+            .lockInformatieObject(this.infoObject.uuid!, this.zaak!.uuid!)
             .pipe(
               catchError((e) => {
                 // we only need to do this on error, because on success we get a new button
@@ -239,15 +238,15 @@ export class InformatieObjectViewComponent
     }
 
     if (
-      this.laatsteVersieInfoObject.gelockedDoor &&
-      this.laatsteVersieInfoObject.rechten.ontgrendelen
+      this.laatsteVersieInfoObject?.gelockedDoor &&
+      this.laatsteVersieInfoObject?.rechten?.ontgrendelen
     ) {
       const button = new ButtonMenuItem(
         "actie.unlock",
         () => {
           button.disabled = true;
           this.informatieObjectenService
-            .unlockInformatieObject(this.infoObject.uuid, this.zaak?.uuid)
+            .unlockInformatieObject(this.infoObject.uuid!, this.zaak!.uuid!)
             .pipe(
               catchError((e) => {
                 // we only need to do this on error, because on success we get a new button
@@ -263,8 +262,8 @@ export class InformatieObjectViewComponent
     }
 
     if (
-      this.laatsteVersieInfoObject.rechten.verwijderen &&
-      !this.laatsteVersieInfoObject.isBesluitDocument
+      this.laatsteVersieInfoObject?.rechten?.verwijderen &&
+      !this.laatsteVersieInfoObject?.isBesluitDocument
     ) {
       this.menu.push(
         new ButtonMenuItem(
@@ -276,8 +275,8 @@ export class InformatieObjectViewComponent
     }
 
     if (
-      !this.laatsteVersieInfoObject.ondertekening &&
-      this.laatsteVersieInfoObject.rechten.ondertekenen
+      !this.laatsteVersieInfoObject?.ondertekening &&
+      this.laatsteVersieInfoObject?.rechten?.ondertekenen
     ) {
       this.menu.push(
         new ButtonMenuItem(
@@ -292,7 +291,7 @@ export class InformatieObjectViewComponent
       this.zaak &&
       this.infoObject.status ===
         (InformatieobjectStatus.DEFINITIEF as string) &&
-      this.laatsteVersieInfoObject.rechten.wijzigen &&
+      this.laatsteVersieInfoObject?.rechten?.wijzigen &&
       FileFormatUtil.isOffice(this.infoObject.formaat as FileFormat)
     ) {
       this.menu.push(
@@ -300,8 +299,8 @@ export class InformatieObjectViewComponent
           "actie.converteren",
           () =>
             this.informatieObjectenService.convertInformatieObjectToPDF(
-              this.infoObject.uuid,
-              this.zaak?.uuid,
+              this.infoObject.uuid!,
+              this.zaak!.uuid!,
             ),
           "picture_as_pdf",
         ),
@@ -309,18 +308,18 @@ export class InformatieObjectViewComponent
     }
   }
 
-  private loadZaakInformatieobjecten(): void {
+  private loadZaakInformatieobjecten() {
     this.informatieObjectenService
-      .listZaakInformatieobjecten(this.infoObject.uuid)
+      .listZaakInformatieobjecten(this.infoObject.uuid!)
       .subscribe((zaakInformatieObjecten) => {
         this.zaakInformatieObjecten = zaakInformatieObjecten;
         this.loadZaak();
       });
   }
 
-  private loadHistorie(): void {
+  private loadHistorie() {
     this.informatieObjectenService
-      .listHistorie(this.infoObject.uuid)
+      .listHistorie(this.infoObject.uuid!)
       .subscribe((historie) => {
         this.historie.data = historie;
       });
@@ -328,7 +327,7 @@ export class InformatieObjectViewComponent
 
   private loadInformatieObject() {
     this.informatieObjectenService
-      .readEnkelvoudigInformatieobject(this.infoObject.uuid, this.zaak?.uuid)
+      .readEnkelvoudigInformatieobject(this.infoObject.uuid!, this.zaak?.uuid)
       .subscribe((infoObject) => {
         this.infoObject = infoObject;
         this.laatsteVersieInfoObject = infoObject;
@@ -352,28 +351,19 @@ export class InformatieObjectViewComponent
 
   versieToegevoegd(
     informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
-  ): void {
+  ) {
+    if (!informatieobject.versie) return;
     this.haalVersieOp(informatieobject.versie);
   }
 
-  getFileIcon(filename: string) {
-    return FileIcon.getIconByBestandsnaam(filename);
-  }
-
-  getFileTooltip(filetype: string): string {
-    return this.translate.instant("bestandstype", {
-      type: filetype.toUpperCase(),
-    });
-  }
-
-  private updateVersieInformatie(): void {
+  private updateVersieInformatie() {
     this.versieInformatie = this.translate.instant("versie.x.van", {
-      versie: this.infoObject.versie,
-      laatsteVersie: this.laatsteVersieInfoObject.versie,
+      versie: this.infoObject?.versie,
+      laatsteVersie: this.laatsteVersieInfoObject?.versie,
     });
   }
 
-  private openDocumentVerwijderenDialog(): void {
+  private openDocumentVerwijderenDialog() {
     const dialogData = new DialogData<unknown, { reden: string }>({
       formFields: this.zaak
         ? [
@@ -413,15 +403,15 @@ export class InformatieObjectViewComponent
       });
   }
 
-  private openDocumentOndertekenenDialog(): void {
+  private openDocumentOndertekenenDialog() {
     const dialogData = new ConfirmDialogData(
       {
         key: "msg.document.ondertekenen.bevestigen",
         args: { document: this.infoObject.titel },
       },
       this.informatieObjectenService.ondertekenInformatieObject(
-        this.infoObject.uuid,
-        this.zaak?.uuid,
+        this.infoObject.uuid!,
+        this.zaak!.uuid!,
       ),
     );
 
@@ -446,14 +436,11 @@ export class InformatieObjectViewComponent
    *
    * Als er ook geen verkorte zaak gegevens beschikbaar, dan is dit een document zonder zaak.
    */
-  private loadZaak(): void {
-    if (
-      !this.zaak &&
-      this.zaakInformatieObjecten &&
-      this.zaakInformatieObjecten.length > 0
-    ) {
+  private loadZaak() {
+    const zaakobject = this.zaakInformatieObjecten.at(0);
+    if (!this.zaak && zaakobject?.zaakIdentificatie) {
       this.zakenService
-        .readZaakByID(this.zaakInformatieObjecten[0].zaakIdentificatie)
+        .readZaakByID(zaakobject.zaakIdentificatie)
         .subscribe((zaak) => {
           this.zaak = zaak;
         });
