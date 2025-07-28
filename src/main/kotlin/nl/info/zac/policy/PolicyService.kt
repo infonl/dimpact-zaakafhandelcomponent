@@ -35,6 +35,7 @@ import nl.info.zac.policy.input.UserInput
 import nl.info.zac.policy.input.ZaakData
 import nl.info.zac.policy.input.ZaakInput
 import nl.info.zac.policy.output.DocumentRechten
+import nl.info.zac.policy.output.NotitieRechten
 import nl.info.zac.policy.output.OverigeRechten
 import nl.info.zac.policy.output.TaakRechten
 import nl.info.zac.policy.output.WerklijstRechten
@@ -63,7 +64,7 @@ class PolicyService @Inject constructor(
     fun readOverigeRechten(): OverigeRechten =
         evaluationClient.readOverigeRechten(
             RuleQuery(UserInput(loggedInUserInstance.get()))
-        ).getResult()
+        ).result()
 
     fun readZaakRechten(zaak: Zaak): ZaakRechten {
         val zaakType = ztcClientService.readZaaktype(zaak.zaaktype)
@@ -87,7 +88,7 @@ class PolicyService @Inject constructor(
             RuleQuery(
                 ZaakInput(loggedInUserInstance.get(), zaakData)
             )
-        ).getResult()
+        ).result()
     }
 
     fun readZaakRechtenForZaakZoekObject(zaakZoekObject: ZaakZoekObject): ZaakRechten {
@@ -100,7 +101,7 @@ class PolicyService @Inject constructor(
         }
         return evaluationClient.readZaakRechten(
             RuleQuery(ZaakInput(loggedInUserInstance.get(), zaakData))
-        ).getResult()
+        ).result()
     }
 
     fun readDocumentRechten(enkelvoudigInformatieobject: EnkelvoudigInformatieObject, zaak: Zaak? = null) =
@@ -127,7 +128,7 @@ class PolicyService @Inject constructor(
         }
         return evaluationClient.readDocumentRechten(
             RuleQuery(DocumentInput(loggedInUserInstance.get(), documentData))
-        ).getResult()
+        ).result()
     }
 
     fun readDocumentRechten(enkelvoudigInformatieobject: DocumentZoekObject): DocumentRechten {
@@ -141,7 +142,7 @@ class PolicyService @Inject constructor(
         }
         return evaluationClient.readDocumentRechten(
             RuleQuery(DocumentInput(loggedInUserInstance.get(), documentData))
-        ).getResult()
+        ).result()
     }
 
     fun readTaakRechten(taskInfo: TaskInfo): TaakRechten {
@@ -159,7 +160,7 @@ class PolicyService @Inject constructor(
         }
         return evaluationClient.readTaakRechten(
             RuleQuery(TaakInput(loggedInUserInstance.get(), taakData))
-        ).getResult()
+        ).result()
     }
 
     fun readTaakRechten(taakZoekObject: TaakZoekObject): TaakRechten {
@@ -168,18 +169,18 @@ class PolicyService @Inject constructor(
         }
         return evaluationClient.readTaakRechten(
             RuleQuery(TaakInput(loggedInUserInstance.get(), taakData))
-        ).getResult()
+        ).result()
     }
 
-    fun readNotitieRechten() =
+    fun readNotitieRechten(): NotitieRechten =
         evaluationClient.readNotitieRechten(
             RuleQuery(UserInput(loggedInUserInstance.get()))
-        ).getResult()
+        ).result()
 
     fun readWerklijstRechten(): WerklijstRechten =
         evaluationClient.readWerklijstRechten(
             RuleQuery(UserInput(loggedInUserInstance.get()))
-        ).getResult()
+        ).result()
 }
 
 /**
