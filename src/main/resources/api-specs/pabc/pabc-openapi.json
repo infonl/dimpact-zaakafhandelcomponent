@@ -1,0 +1,241 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Platform Autorisatie Beheer Component API",
+    "description": "API for the Platform Autorisatie Beheer Component (PABC)",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/v1/application-roles-per-entity-type": {
+      "post": {
+        "tags": ["GetApplicationRolesPerEntityType"],
+        "operationId": "Get application roles per entity type",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetApplicationRolesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetApplicationRolesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/api/v1/seed": {
+      "get": {
+        "tags": ["Seed"],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApplicationRoleModel": {
+        "required": ["application", "name"],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the application role",
+            "example": "Behandelaar"
+          },
+          "application": {
+            "type": "string",
+            "description": "The application that this role applies to",
+            "example": "ZAC"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EntityTypeModel": {
+        "required": ["id", "name", "type"],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier for the entity type",
+            "example": "melding-klein-kansspel"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the entity type",
+            "example": "Melding klein kansspel"
+          },
+          "type": {
+            "type": "string",
+            "description": "The kind of entity",
+            "example": "zaaktype"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetApplicationRolesRequest": {
+        "required": ["functionalRoleNames"],
+        "type": "object",
+        "properties": {
+          "functionalRoleNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The functional roles of the logged in user",
+            "example": ["GemeenteRol1", "GemeenteRol2"]
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetApplicationRolesResponse": {
+        "required": ["results"],
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetApplicationRolesResponseModel"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetApplicationRolesResponseModel": {
+        "required": ["applicationRoles", "entityType"],
+        "type": "object",
+        "properties": {
+          "entityType": {
+            "$ref": "#/components/schemas/EntityTypeModel"
+          },
+          "applicationRoles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApplicationRoleModel"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": {}
+      },
+      "ValidationProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "additionalProperties": {}
+      }
+    },
+    "securitySchemes": {
+      "ApiKey": {
+        "type": "apiKey",
+        "name": "X-API-KEY",
+        "in": "header"
+      }
+    }
+  }
+}
