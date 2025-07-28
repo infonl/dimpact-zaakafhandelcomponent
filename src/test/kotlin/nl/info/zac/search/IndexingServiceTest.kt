@@ -9,16 +9,13 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearMocks
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkConstructor
 import io.mockk.mockkStatic
-import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.model.Results
-import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
 import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.model.createZaak
@@ -50,7 +47,6 @@ private data class TestContext(
     val drcClientService: DrcClientService,
     val flowableTaskService: FlowableTaskService,
     val zrcClientService: ZrcClientService,
-    val zgwClientHeadersFactory: ZGWClientHeadersFactory,
     val indexingService: IndexingService
 )
 
@@ -71,14 +67,12 @@ private fun setupContext(): TestContext {
     val drcClientService = mockk<DrcClientService>()
     val flowableTaskService = mockk<FlowableTaskService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val zgwClientHeadersFactory = mockk<ZGWClientHeadersFactory>()
 
     val indexingService = IndexingService(
         converterInstances,
         zrcClientService,
         drcClientService,
-        flowableTaskService,
-        zgwClientHeadersFactory
+        flowableTaskService
     )
 
     return TestContext(
@@ -89,7 +83,6 @@ private fun setupContext(): TestContext {
         drcClientService,
         flowableTaskService,
         zrcClientService,
-        zgwClientHeadersFactory,
         indexingService
     )
 }
@@ -163,9 +156,6 @@ class IndexingServiceTest : BehaviorSpec({
         beforeContainer {
             clearMocks(ctx.solrClient)
 
-            every { ctx.zgwClientHeadersFactory.setBackgroundJob() } just runs
-            every { ctx.zgwClientHeadersFactory.clearBackgroundJob() } just runs
-
             every { queryResponse.results } returns documentList
             every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
 
@@ -226,10 +216,6 @@ class IndexingServiceTest : BehaviorSpec({
                 )
             )
         }
-
-        every { ctx.zgwClientHeadersFactory.setBackgroundJob() } just runs
-        every { ctx.zgwClientHeadersFactory.clearBackgroundJob() } just runs
-
         every { queryResponse.results } returns documentList
         every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
         every { ctx.solrClient.query(any()) } returns queryResponse
@@ -268,9 +254,6 @@ class IndexingServiceTest : BehaviorSpec({
             createZaakZoekObject(),
             createZaakZoekObject()
         )
-
-        every { ctx.zgwClientHeadersFactory.setBackgroundJob() } just runs
-        every { ctx.zgwClientHeadersFactory.clearBackgroundJob() } just runs
 
         every { queryResponse.results } returns documentList
         every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
