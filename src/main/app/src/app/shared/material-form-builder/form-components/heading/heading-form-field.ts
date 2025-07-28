@@ -9,7 +9,7 @@ import { FieldType } from "../../model/field-type.enum";
 export class HeadingFormField extends AbstractFormControlField {
   fieldType = FieldType.HEADING;
 
-  level: HeadingLevel;
+  level: HeadingLevel = HeadingLevel.H1;
 
   constructor() {
     super();
