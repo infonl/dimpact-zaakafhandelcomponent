@@ -14,6 +14,7 @@ import jakarta.xml.bind.JAXBException
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import net.atos.client.zgw.shared.model.Results
+import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
 import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.shared.ZGWApiService
@@ -21,8 +22,6 @@ import nl.info.client.zgw.shared.exception.ZgwRuntimeException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.task.model.TaakSortering
-import nl.info.zac.authentication.OidcSessionException
-import nl.info.zac.authentication.OidcSessionService
 import nl.info.zac.search.converter.AbstractZoekObjectConverter
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -49,7 +48,7 @@ class IndexingService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val drcClientService: DrcClientService,
     private val flowableTaskService: FlowableTaskService,
-    private val oidcSessionService: OidcSessionService
+    private val zgwClientHeadersFactory: ZGWClientHeadersFactory
 ) {
     companion object {
         const val SOLR_CORE = "zac"
@@ -113,6 +112,7 @@ class IndexingService @Inject constructor(
         }
         reindexingViewfinder.add(objectType)
         try {
+            zgwClientHeadersFactory.setBackgroundJob()
             LOG.info("[$objectType] Reindexing started")
             removeEntitiesFromSolrIndex(objectType)
             when (objectType) {
@@ -123,6 +123,7 @@ class IndexingService @Inject constructor(
             LOG.info("[$objectType] Reindexing finished")
         } finally {
             reindexingViewfinder.remove(objectType)
+            zgwClientHeadersFactory.clearBackgroundJob()
         }
     }
 
@@ -353,37 +354,12 @@ class IndexingService @Inject constructor(
         }
     }
 
-    private fun Throwable.rootCause(): Throwable {
-        var current: Throwable = this
-        while (current.cause != null && current.cause != current) {
-            current = current.cause!!
-        }
-        return current
-    }
-
     @Suppress("NestedBlockDepth", "TooGenericExceptionCaught")
     private fun <T> continueOnExceptions(objectType: ZoekObjectType, fn: () -> T): T? =
         try {
             runTranslatingToIndexingException { fn() }
         } catch (indexingException: IndexingException) {
             LOG.log(Level.WARNING, "[$objectType] Error during indexing", indexingException)
-
-            when (val rootCause = indexingException.rootCause()) {
-                is IllegalStateException -> {
-                    if (rootCause.message?.contains("Session is invalid") == true) {
-                        try {
-                            LOG.info("[$objectType] Access token invalid, revalidating...")
-                            this.oidcSessionService.refreshUserSession()
-                            LOG.info("[$objectType] Access token revalidated, retrying call one more time")
-                            runTranslatingToIndexingException { fn() } // Retry once
-                        } catch (e: OidcSessionException) {
-                            LOG.warning { "[$objectType] Failed to revalidate access token: ${e.message}" }
-                        } catch (e: Exception) {
-                            LOG.warning("[$objectType] Error persists after revalidation: ${e.message}")
-                        }
-                    }
-                }
-            }
             null
         }
 }
