@@ -75,15 +75,15 @@ class PolicyService @Inject constructor(
         val statusType = zaak.status?.let {
             ztcClientService.readStatustype(zrcClientService.readStatus(it).statustype)
         }
-        val zaakData = ZaakData().apply {
-            this.open = zaak.isOpen()
-            this.zaaktype = zaaktype.getOmschrijving()
-            this.opgeschort = zaak.isOpgeschort()
-            this.verlengd = zaak.isVerlengd()
-            this.besloten = zaaktype.getBesluittypen()?.isNotEmpty() == true
-            this.intake = statusType.isIntake()
-            this.heropend = statusType.isHeropend()
-        }
+        val zaakData = ZaakData(
+            open = zaak.isOpen(),
+            zaaktype = zaaktype.getOmschrijving(),
+            opgeschort = zaak.isOpgeschort(),
+            verlengd = zaak.isVerlengd(),
+            besloten = zaaktype.getBesluittypen()?.isNotEmpty() == true,
+            intake = statusType?.isIntake(),
+            heropend = statusType?.isHeropend()
+        )
         return evaluationClient.readZaakRechten(
             RuleQuery(
                 ZaakInput(loggedInUserInstance.get(), zaakData)
@@ -92,13 +92,17 @@ class PolicyService @Inject constructor(
     }
 
     fun readZaakRechtenForZaakZoekObject(zaakZoekObject: ZaakZoekObject): ZaakRechten {
-        val zaakData = ZaakData().apply {
-            this.open = !zaakZoekObject.isAfgehandeld
-            this.zaaktype = zaakZoekObject.zaaktypeOmschrijving
-            this.opgeschort = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.OPSCHORTING)
-            this.verlengd = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.VERLENGD)
-            this.heropend = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.HEROPEND)
-        }
+        val zaakData = ZaakData(
+            open = !zaakZoekObject.isAfgehandeld,
+            zaaktype = zaakZoekObject.zaaktypeOmschrijving,
+            opgeschort = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.OPSCHORTING),
+            verlengd = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.VERLENGD),
+            heropend = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.HEROPEND),
+            // not taken into account when searching for a zaak
+            intake = null,
+            // not taken into account when searching for a zaak
+            besloten = null
+        )
         return evaluationClient.readZaakRechten(
             RuleQuery(ZaakInput(loggedInUserInstance.get(), zaakData))
         ).result

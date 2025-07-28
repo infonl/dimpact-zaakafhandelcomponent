@@ -11,10 +11,13 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 @AllOpen
 data class DocumentData(
+    @field:JsonbProperty("definitief")
     var definitief: Boolean = false,
 
+    @field:JsonbProperty("vergrendeld")
     var vergrendeld: Boolean = false,
 
+    @field:JsonbProperty("ondertekend")
     var ondertekend: Boolean = false,
 
     @field:JsonbProperty("vergrendeld_door")
