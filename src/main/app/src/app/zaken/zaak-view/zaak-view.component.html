@@ -32,7 +32,7 @@
     (closedStart)="activeSideAction = null"
   >
     <zac-klant-koppel
-      *ngSwitchCase="'actie.initiator.toevoegen'"
+      *ngSwitchCase="'actie.initiator.koppelen'"
       [sideNav]="actionsSidenav"
       [context]="zaak.identificatie"
       (klantGegevens)="initiatorGeselecteerd($event.klant)"
@@ -41,7 +41,7 @@
       [allowPersoon]="allowPersoon()"
     ></zac-klant-koppel>
     <zac-klant-koppel
-      *ngSwitchCase="'actie.betrokkene.toevoegen'"
+      *ngSwitchCase="'actie.betrokkene.koppelen'"
       (klantGegevens)="betrokkeneGeselecteerd($event)"
       [sideNav]="actionsSidenav"
       [zaaktypeUUID]="zaak.zaaktype.uuid"

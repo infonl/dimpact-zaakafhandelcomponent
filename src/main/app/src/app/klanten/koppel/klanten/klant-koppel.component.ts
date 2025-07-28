@@ -26,8 +26,8 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
         <span class="flex-grow-1">
           {{
             (initiator
-              ? "actie.initiator.toevoegen"
-              : "actie.betrokkene.toevoegen"
+              ? "actie.initiator.koppelen"
+              : "actie.betrokkene.koppelen"
             ) | translate
           }}
         </span>
