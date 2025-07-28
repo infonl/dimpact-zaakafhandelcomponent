@@ -39,30 +39,38 @@ class SecurityUtil @Inject constructor(
             emptySet(),
             emptySet()
         )
+
+        val backgroundJob: ThreadLocal<Boolean?> = ThreadLocal.withInitial { false }
     }
 
     /**
      * Produces an authenticated [LoggedInUser] for use in CDI Beans.
-     * The authenticated [LoggedInUser] instance is retrieved from the current user session, where it is set via the
-     * [UserPrincipalFilter]
      *
-     * @return the currently logged-in user
+     * If [backgroundJob] is enabled (set to true) or there is no http session (async context) the
+     * [FUNCTIONEEL_GEBRUIKER] user is returned.
+     *
+     * If this is not a background job, the authenticated [LoggedInUser] instance is retrieved from the current user
+     * session, where it is set via the [UserPrincipalFilter]
+     *
+     * @return the currently logged-in user or [FUNCTIONEEL_GEBRUIKER]
      */
     @Produces
-    fun getLoggedInUser() = getLoggedInUser(httpSession.get())
+    fun getLoggedInUser() =
+        if (backgroundJob.get() ?: false) {
+            FUNCTIONEEL_GEBRUIKER // explicitly requested
+        } else {
+            httpSession.get()?.let {
+                getLoggedInUser(it)
+            } ?: FUNCTIONEEL_GEBRUIKER // async context
+        }
 }
 
 /**
  * If there is a logged-in user in the given [httpSession], return it.
  * Otherwise, if there is an HTTP Session but if it does not contain a logged-in user attribute, return `null`.
- * If the provided HTTP session is null, return `[FUNCTIONEEL_GEBRUIKER]`.
  */
-fun getLoggedInUser(httpSession: HttpSession?): LoggedInUser? =
-    if (httpSession != null) {
-        httpSession.getAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE)?.let { it as LoggedInUser }
-    } else {
-        FUNCTIONEEL_GEBRUIKER // No session in async context!
-    }
+fun getLoggedInUser(httpSession: HttpSession): LoggedInUser? =
+    httpSession.getAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE)?.let { it as LoggedInUser }
 
 fun setLoggedInUser(httpSession: HttpSession, loggedInUser: LoggedInUser) {
     httpSession.setAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE, loggedInUser)

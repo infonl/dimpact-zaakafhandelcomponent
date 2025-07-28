@@ -19,12 +19,9 @@ import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
 
 import net.atos.client.util.JWTTokenGenerator;
 import nl.info.zac.authentication.LoggedInUser;
-import nl.info.zac.authentication.SecurityUtil;
 
 public class ZGWClientHeadersFactory implements ClientHeadersFactory {
     public static final String X_AUDIT_TOELICHTING_HEADER = "X-Audit-Toelichting";
-
-    private static final ThreadLocal<Boolean> backgroundJob = ThreadLocal.withInitial(() -> false);
 
     @Inject
     private Instance<LoggedInUser> loggedInUserInstance;
@@ -44,7 +41,7 @@ public class ZGWClientHeadersFactory implements ClientHeadersFactory {
             final MultivaluedMap<String, String> incomingHeaders,
             final MultivaluedMap<String, String> outgoingHeaders
     ) {
-        final LoggedInUser loggedInUser = getLoggedInUser();
+        final LoggedInUser loggedInUser = loggedInUserInstance.get();
         try {
             addAutorizationHeader(outgoingHeaders, loggedInUser);
             addXAuditToelichtingHeader(outgoingHeaders, loggedInUser);
@@ -54,16 +51,9 @@ public class ZGWClientHeadersFactory implements ClientHeadersFactory {
         }
     }
 
-    private LoggedInUser getLoggedInUser() {
-        if (backgroundJob.get()) {
-            return SecurityUtil.Companion.getFUNCTIONEEL_GEBRUIKER();
-        } else {
-            return loggedInUserInstance.get();
-        }
-    }
 
     public void setAuditToelichting(final String toelichting) {
-        final LoggedInUser loggedInUser = getLoggedInUser();
+        final LoggedInUser loggedInUser = loggedInUserInstance.get();
         if (loggedInUser != null) {
             AUDIT_TOELICHTINGEN.put(loggedInUser.getId(), toelichting);
         }
@@ -92,13 +82,5 @@ public class ZGWClientHeadersFactory implements ClientHeadersFactory {
                 outgoingHeaders.add(X_AUDIT_TOELICHTING_HEADER, toelichting);
             }
         }
-    }
-
-    public void setBackgroundJob() {
-        backgroundJob.set(true);
-    }
-
-    public void clearBackgroundJob() {
-        backgroundJob.remove();
     }
 }

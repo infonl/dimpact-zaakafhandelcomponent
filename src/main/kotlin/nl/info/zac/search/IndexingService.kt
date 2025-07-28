@@ -22,6 +22,7 @@ import nl.info.client.zgw.shared.exception.ZgwRuntimeException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.task.model.TaakSortering
+import nl.info.zac.authentication.SecurityUtil.Companion.backgroundJob
 import nl.info.zac.search.converter.AbstractZoekObjectConverter
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -112,7 +113,7 @@ class IndexingService @Inject constructor(
         }
         reindexingViewfinder.add(objectType)
         try {
-            zgwClientHeadersFactory.setBackgroundJob()
+            backgroundJob.set(true)
             LOG.info("[$objectType] Reindexing started")
             removeEntitiesFromSolrIndex(objectType)
             when (objectType) {
@@ -123,7 +124,7 @@ class IndexingService @Inject constructor(
             LOG.info("[$objectType] Reindexing finished")
         } finally {
             reindexingViewfinder.remove(objectType)
-            zgwClientHeadersFactory.clearBackgroundJob()
+            backgroundJob.remove()
         }
     }
 
