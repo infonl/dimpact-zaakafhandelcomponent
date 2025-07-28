@@ -6,8 +6,7 @@ package nl.info.client.opa.model
 
 import jakarta.json.bind.annotation.JsonbCreator
 import jakarta.json.bind.annotation.JsonbProperty
-import net.atos.zac.util.SerializableByYasson
 
-data class RuleResponse<T : SerializableByYasson> @JsonbCreator constructor(
+data class RuleResponse<T : OpaRuleResult> @JsonbCreator constructor(
     @param:JsonbProperty("result") val result: T
 )

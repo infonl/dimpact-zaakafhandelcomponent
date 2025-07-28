@@ -6,7 +6,7 @@ package nl.info.zac.policy.output
 
 import jakarta.json.bind.annotation.JsonbCreator
 import jakarta.json.bind.annotation.JsonbProperty
-import net.atos.zac.util.SerializableByYasson
+import nl.info.client.opa.model.OpaRuleResult
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -40,4 +40,4 @@ data class ZaakRechten @JsonbCreator constructor(
     @param:JsonbProperty("vastleggen_besluit") val vastleggenBesluit: Boolean,
     @param:JsonbProperty("verlengen_doorlooptijd") val verlengenDoorlooptijd: Boolean,
     @param:JsonbProperty("wijzigen_locatie") val wijzigenLocatie: Boolean
-) : SerializableByYasson
+) : OpaRuleResult
