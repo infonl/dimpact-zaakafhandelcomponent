@@ -84,7 +84,7 @@ class PolicyServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     opaEvaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
                 }
-                with(ruleQuerySlot.captured.input().zaak) {
+                with(ruleQuerySlot.captured.input.zaak) {
                     open shouldBe true
                     zaaktype shouldBe zaakType.omschrijving
                     opgeschort shouldBe zaak.isOpgeschort()
@@ -121,7 +121,7 @@ class PolicyServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     opaEvaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
                 }
-                with(ruleQuerySlot.captured.input().zaak) {
+                with(ruleQuerySlot.captured.input.zaak) {
                     open shouldBe true
                     zaaktype shouldBe zaakType.omschrijving
                     opgeschort shouldBe zaak.isOpgeschort()
@@ -159,7 +159,7 @@ class PolicyServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     opaEvaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
                 }
-                with(ruleQuerySlot.captured.input().zaak) {
+                with(ruleQuerySlot.captured.input.zaak) {
                     open shouldBe true
                     zaaktype shouldBe zaakType.omschrijving
                     opgeschort shouldBe zaak.isOpgeschort()
@@ -197,7 +197,7 @@ class PolicyServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     opaEvaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
                 }
-                with(ruleQuerySlot.captured.input().zaak) {
+                with(ruleQuerySlot.captured.input.zaak) {
                     open shouldBe true
                     zaaktype shouldBe zaakType.omschrijving
                     opgeschort shouldBe zaak.isOpgeschort()
@@ -229,7 +229,7 @@ class PolicyServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     opaEvaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
                 }
-                with(ruleQuerySlot.captured.input().zaak) {
+                with(ruleQuerySlot.captured.input.zaak) {
                     open shouldBe true
                     zaaktype shouldBe zaakZoekObject.zaaktypeOmschrijving
                     opgeschort shouldBe true
@@ -260,7 +260,7 @@ class PolicyServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     opaEvaluationClient.readWerklijstRechten(any<RuleQuery<UserInput>>())
                 }
-                with(ruleQuerySlot.captured.input().user) {
+                with(ruleQuerySlot.captured.input.user) {
                     id shouldBe loggedInUser.id
                     rollen shouldBe loggedInUser.roles
                     zaaktypen shouldBe loggedInUser.geautoriseerdeZaaktypen
@@ -296,7 +296,7 @@ class PolicyServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     opaEvaluationClient.readDocumentRechten(any<RuleQuery<DocumentInput>>())
                 }
-                with(ruleQuerySlot.captured.input().documentData) {
+                with(ruleQuerySlot.captured.input.documentData) {
                     definitief shouldBe false
                     vergrendeld shouldBe false
                     ondertekend shouldBe false
@@ -340,7 +340,7 @@ class PolicyServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     opaEvaluationClient.readDocumentRechten(any<RuleQuery<DocumentInput>>())
                 }
-                with(ruleQuerySlot.captured.input().documentData) {
+                with(ruleQuerySlot.captured.input.documentData) {
                     definitief shouldBe false
                     vergrendeld shouldBe true
                     ondertekend shouldBe true
