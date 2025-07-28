@@ -6,9 +6,7 @@ package nl.info.zac.policy.input
 
 import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.util.NoArgConstructor
 
-@NoArgConstructor
 open class UserInput(
     loggedInUser: LoggedInUser
 ) {

@@ -7,11 +7,7 @@ package nl.info.zac.policy.output
 import jakarta.json.bind.annotation.JsonbCreator
 import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.client.opa.model.OpaRuleResult
-import nl.info.zac.util.AllOpen
-import nl.info.zac.util.NoArgConstructor
 
-@NoArgConstructor
-@AllOpen
 data class WerklijstRechten @JsonbCreator constructor(
     @param:JsonbProperty("inbox") val inbox: Boolean,
     @param:JsonbProperty("ontkoppelde_documenten_verwijderen") val ontkoppeldeDocumentenVerwijderen: Boolean,
