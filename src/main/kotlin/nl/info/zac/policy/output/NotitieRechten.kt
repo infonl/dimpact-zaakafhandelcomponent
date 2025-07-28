@@ -6,7 +6,7 @@ package nl.info.zac.policy.output
 
 import jakarta.json.bind.annotation.JsonbCreator
 import jakarta.json.bind.annotation.JsonbProperty
-import net.atos.zac.util.SerializableByYasson
+import nl.info.client.opa.model.OpaRuleResult
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -15,4 +15,4 @@ import nl.info.zac.util.NoArgConstructor
 data class NotitieRechten @JsonbCreator constructor(
     @param:JsonbProperty("lezen") val lezen: Boolean,
     @param:JsonbProperty("wijzigen") val wijzigen: Boolean
-) : SerializableByYasson
+) : OpaRuleResult

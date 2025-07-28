@@ -6,7 +6,7 @@ package nl.info.zac.policy.output
 
 import jakarta.json.bind.annotation.JsonbCreator
 import jakarta.json.bind.annotation.JsonbProperty
-import net.atos.zac.util.SerializableByYasson
+import nl.info.client.opa.model.OpaRuleResult
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -23,4 +23,4 @@ data class DocumentRechten @JsonbCreator constructor(
     @param:JsonbProperty("verplaatsen") val verplaatsen: Boolean,
     @param:JsonbProperty("ontkoppelen") val ontkoppelen: Boolean,
     @param:JsonbProperty("downloaden") val downloaden: Boolean
-) : SerializableByYasson
+) : OpaRuleResult
