@@ -18,7 +18,7 @@ import data.net.atos.zac.zaak.wijzigen_doorlooptijd
 import data.net.atos.zac.zaak.verlengen
 import data.net.atos.zac.zaak.opschorten
 import data.net.atos.zac.zaak.hervatten
-import data.net.atos.zac.zaak.creeeren_document
+import data.net.atos.zac.zaak.creeren_document
 import data.net.atos.zac.zaak.toevoegen_document
 import data.net.atos.zac.zaak.koppelen
 import data.net.atos.zac.zaak.koppelen_gerelateerd
@@ -330,26 +330,26 @@ test_hervatten_missing_role_fails if {
 }
 
 ###################
-# creeeren_document
+# creeren_document
 ###################
-test_creeeren_document if {
-    creeeren_document
+test_creeren_document if {
+    creeren_document
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as true
 }
 
-test_creeeren_document_zaak_closed_fails if {
-    not creeeren_document
+test_creeren_document_zaak_closed_fails if {
+    not creeren_document
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as false
 }
 
-test_creeeren_document_wrong_role_fails if {
-    not creeeren_document with input.user.rollen as [ "fakeRole" ]
+test_creeren_document_wrong_role_fails if {
+    not creeren_document with input.user.rollen as [ "fakeRole" ]
 }
 
-test_creeeren_document_missing_role_fails if {
-    not creeeren_document with input.user.key as "value"
+test_creeren_document_missing_role_fails if {
+    not creeren_document with input.user.key as "value"
 }
 
 ####################

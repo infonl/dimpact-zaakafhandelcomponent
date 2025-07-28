@@ -43,17 +43,17 @@ fun createTaakRechten(
     lezen: Boolean = true,
     wijzigen: Boolean = true,
     toekennen: Boolean = true,
-    creeerenDocument: Boolean = true,
+    creerenDocument: Boolean = true,
     toevoegenDocument: Boolean = true
-) = TaakRechten(lezen, wijzigen, toekennen, creeerenDocument, toevoegenDocument)
+) = TaakRechten(lezen, wijzigen, toekennen, creerenDocument, toevoegenDocument)
 
 fun createTaakRechtenAllDeny(
     lezen: Boolean = false,
     wijzigen: Boolean = false,
     toekennen: Boolean = false,
-    creeerenDocument: Boolean = false,
+    creerenDocument: Boolean = false,
     toevoegenDocument: Boolean = false
-) = createTaakRechten(lezen, wijzigen, toekennen, creeerenDocument, toevoegenDocument)
+) = createTaakRechten(lezen, wijzigen, toekennen, creerenDocument, toevoegenDocument)
 
 @Suppress("LongParameterList")
 fun createZaakRechten(
@@ -68,7 +68,7 @@ fun createZaakRechten(
     verlengen: Boolean = true,
     opschorten: Boolean = true,
     hervatten: Boolean = true,
-    creeerenDocument: Boolean = true,
+    creerenDocument: Boolean = true,
     toevoegenDocument: Boolean = true,
     koppelen: Boolean = true,
     versturenEmail: Boolean = true,
@@ -86,7 +86,7 @@ fun createZaakRechten(
     wijzigenLocatie: Boolean = true
 ) = ZaakRechten(
     lezen, wijzigen, toekennen, behandelen, afbreken, heropenen, bekijkenZaakdata, wijzigenDoorlooptijd,
-    verlengen, opschorten, hervatten, creeerenDocument, toevoegenDocument, koppelen, versturenEmail,
+    verlengen, opschorten, hervatten, creerenDocument, toevoegenDocument, koppelen, versturenEmail,
     versturenOntvangstbevestiging, toevoegenInitiatorPersoon, toevoegenInitiatorBedrijf, verwijderenInitiator,
     toevoegenBetrokkenePersoon, toevoegenBetrokkeneBedrijf, verwijderenBetrokkene, toevoegenBagObject, startenTaak,
     vastleggenBesluit, verlengenDoorlooptijd, wijzigenLocatie
@@ -105,7 +105,7 @@ fun createZaakRechtenAllDeny(
     verlengen: Boolean = false,
     opschorten: Boolean = false,
     hervatten: Boolean = false,
-    creeerenDocument: Boolean = false,
+    creerenDocument: Boolean = false,
     toevoegenDocument: Boolean = false,
     koppelen: Boolean = false,
     versturenEmail: Boolean = false,
@@ -132,7 +132,7 @@ fun createZaakRechtenAllDeny(
     verlengen,
     opschorten,
     hervatten,
-    creeerenDocument,
+    creerenDocument,
     toevoegenDocument,
     koppelen,
     versturenEmail,

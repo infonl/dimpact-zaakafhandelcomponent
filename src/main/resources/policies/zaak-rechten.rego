@@ -28,7 +28,7 @@ zaak_rechten := {
     "verlengen": verlengen,
     "opschorten": opschorten,
     "hervatten": hervatten,
-    "creeeren_document": creeeren_document,
+    "creeren_document": creeren_document,
     "toevoegen_document": toevoegen_document,
     "koppelen": koppelen,
     "versturen_email": versturen_email,
@@ -140,8 +140,8 @@ hervatten if {
     zaaktype_allowed
 }
 
-default creeeren_document := false
-creeeren_document if {
+default creeren_document := false
+creeren_document if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
