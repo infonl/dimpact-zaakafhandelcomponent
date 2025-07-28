@@ -51,7 +51,6 @@ public class ZGWClientHeadersFactory implements ClientHeadersFactory {
         }
     }
 
-
     public void setAuditToelichting(final String toelichting) {
         final LoggedInUser loggedInUser = loggedInUserInstance.get();
         if (loggedInUser != null) {
