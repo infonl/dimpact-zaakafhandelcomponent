@@ -17,6 +17,6 @@ data class UserData(
      * List of zaaktype descriptions for which the logged-in user is authorised.
      * A value of null means that the user is authorised for all zaaktypes.
      */
-    @field:JsonbProperty("open")
+    @field:JsonbProperty("zaaktypen")
     val zaaktypen: Set<String>? = null
 )
