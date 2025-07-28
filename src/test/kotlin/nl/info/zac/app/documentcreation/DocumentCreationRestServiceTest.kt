@@ -88,10 +88,10 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
         When("createDocument is called by a role that is allowed to change the zaak") {
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
-                creeerenDocument = true
+                creerenDocument = true
             )
             every { flowableTaskService.findOpenTask(taskId) } returns task
-            every { policyService.readTaakRechten(task).creeerenDocument } returns true
+            every { policyService.readTaakRechten(task).creerenDocument } returns true
             every { zaakafhandelParameterService.isSmartDocumentsEnabled(zaakTypeUUID) } returns true
 
             val restDocumentCreationResponse = documentCreationRestService.createDocumentAttended(
@@ -112,10 +112,10 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
         When("createDocument is called by a role that is not allowed to create documents for tasks") {
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
-                creeerenDocument = true
+                creerenDocument = true
             )
             every { flowableTaskService.findOpenTask(taskId) } returns task
-            every { policyService.readTaakRechten(task).creeerenDocument } returns false
+            every { policyService.readTaakRechten(task).creerenDocument } returns false
 
             val exception = shouldThrow<PolicyException> {
                 documentCreationRestService.createDocumentAttended(restDocumentCreationAttendedData)
@@ -128,7 +128,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
         When("createDocument is called for a task that is not opened") {
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
-                creeerenDocument = true
+                creerenDocument = true
             )
             every { flowableTaskService.findOpenTask(taskId) } returns null
 
@@ -156,10 +156,10 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         When("createDocument is called with disabled document creation") {
             val zaakafhandelParameters = createZaakafhandelParameters()
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
-                creeerenDocument = true
+                creerenDocument = true
             )
             every { flowableTaskService.findOpenTask(taskId) } returns task
-            every { policyService.readTaakRechten(task).creeerenDocument } returns true
+            every { policyService.readTaakRechten(task).creerenDocument } returns true
             every { zaakafhandelParameterService.isSmartDocumentsEnabled(zaakTypeUUID) } returns false
             every {
                 zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)

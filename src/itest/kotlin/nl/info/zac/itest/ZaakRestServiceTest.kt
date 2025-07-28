@@ -129,7 +129,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "afbreken": true,
                         "behandelen": true,
                         "bekijkenZaakdata": true,
-                        "creeerenDocument": true,
+                        "creerenDocument": true,
                         "heropenen": true,
                         "lezen": true,
                         "toekennen": true,

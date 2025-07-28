@@ -24,7 +24,7 @@ data class ZaakRechten @JsonbCreator constructor(
     @param:JsonbProperty("verlengen") val verlengen: Boolean,
     @param:JsonbProperty("opschorten") val opschorten: Boolean,
     @param:JsonbProperty("hervatten") val hervatten: Boolean,
-    @param:JsonbProperty("creeeren_document") val creeerenDocument: Boolean,
+    @param:JsonbProperty("creeren_document") val creerenDocument: Boolean,
     @param:JsonbProperty("toevoegen_document") val toevoegenDocument: Boolean,
     @param:JsonbProperty("koppelen") val koppelen: Boolean,
     @param:JsonbProperty("versturen_email") val versturenEmail: Boolean,

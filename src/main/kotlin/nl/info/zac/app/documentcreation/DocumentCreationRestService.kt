@@ -74,11 +74,11 @@ class DocumentCreationRestService @Inject constructor(
         @Valid restDocumentCreationAttendedData: RestDocumentCreationAttendedData
     ): RestDocumentCreationAttendedResponse =
         zrcClientService.readZaak(restDocumentCreationAttendedData.zaakUuid).also { zaak ->
-            assertPolicy(policyService.readZaakRechten(zaak).creeerenDocument)
+            assertPolicy(policyService.readZaakRechten(zaak).creerenDocument)
             restDocumentCreationAttendedData.taskId?.let {
                 val task = flowableTaskService.findOpenTask(it)
                     ?: throw TaskNotFoundException("No open task found with task id: '$it'")
-                assertPolicy(policyService.readTaakRechten(task).creeerenDocument)
+                assertPolicy(policyService.readTaakRechten(task).creerenDocument)
             }
         }.let { zaak ->
             if (restDocumentCreationAttendedData.informatieobjecttypeUuid != null) {

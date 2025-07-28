@@ -288,7 +288,7 @@ fun createRestZaakRechten(
     versturenOntvangstbevestiging: Boolean = true,
     verwijderenBetrokkene: Boolean = true,
     verwijderenInitiator: Boolean = true,
-    creeerenDocument: Boolean = true,
+    creerenDocument: Boolean = true,
     versturenEmail: Boolean = true,
     wijzigenLocatie: Boolean = true
 ) = RestZaakRechten(
@@ -308,7 +308,7 @@ fun createRestZaakRechten(
     versturenOntvangstbevestiging = versturenOntvangstbevestiging,
     verwijderenBetrokkene = verwijderenBetrokkene,
     verwijderenInitiator = verwijderenInitiator,
-    creeerenDocument = creeerenDocument,
+    creerenDocument = creerenDocument,
     versturenEmail = versturenEmail,
     wijzigenLocatie = wijzigenLocatie
 )

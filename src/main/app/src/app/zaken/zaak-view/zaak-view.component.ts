@@ -396,7 +396,7 @@ export class ZaakViewComponent
       }
     }
 
-    if (this.zaak.rechten.creeerenDocument) {
+    if (this.zaak.rechten.creerenDocument) {
       if (
         this.zaak.zaaktype.zaakafhandelparameters?.smartDocuments
           .enabledGlobally &&
