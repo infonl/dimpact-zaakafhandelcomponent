@@ -224,7 +224,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   solr:
-    image: docker.io/solr:9.8.1-slim@sha256:5afacff071aee8890218aaf35fce767da1e5beba972a9548589cf123611d73b0
+    image: docker.io/solr:9.9.0-slim@sha256:0ef1dd94cb9255011b7e58cb56137bd68e52021bc7eb66be45ef458acfb8478a
     platform: linux/amd64
     ports:
       - "8983:8983"
