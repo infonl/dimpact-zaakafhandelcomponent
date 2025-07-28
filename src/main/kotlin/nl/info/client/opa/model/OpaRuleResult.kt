@@ -4,7 +4,7 @@
  */
 package nl.info.client.opa.model
 
-import net.atos.zac.util.SerializableByYasson
+import nl.info.client.util.SerializableByYasson
 
 /**
  * Simple type for OPA admin rule results.
