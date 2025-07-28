@@ -6,7 +6,7 @@ package nl.info.zac.policy.output
 
 import jakarta.json.bind.annotation.JsonbCreator
 import jakarta.json.bind.annotation.JsonbProperty
-import net.atos.zac.util.SerializableByYasson
+import nl.info.client.opa.model.OpaRuleResult
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -19,4 +19,4 @@ data class WerklijstRechten @JsonbCreator constructor(
     @param:JsonbProperty("zaken_taken") val zakenTaken: Boolean,
     @param:JsonbProperty("zaken_taken_verdelen") val zakenTakenVerdelen: Boolean,
     @param:JsonbProperty("zaken_taken_exporteren") val zakenTakenExporteren: Boolean
-) : SerializableByYasson
+) : OpaRuleResult

@@ -6,7 +6,7 @@ package nl.info.zac.policy.output
 
 import jakarta.json.bind.annotation.JsonbCreator
 import jakarta.json.bind.annotation.JsonbProperty
-import net.atos.zac.util.SerializableByYasson
+import nl.info.client.opa.model.OpaRuleResult
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -18,4 +18,4 @@ data class TaakRechten @JsonbCreator constructor(
     @param:JsonbProperty("toekennen") val toekennen: Boolean,
     @param:JsonbProperty("creeeren_document") val creeerenDocument: Boolean,
     @param:JsonbProperty("toevoegen_document") val toevoegenDocument: Boolean
-) : SerializableByYasson
+) : OpaRuleResult

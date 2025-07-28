@@ -8,8 +8,8 @@ import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.client.opa.model.RuleQuery
-import net.atos.client.opa.model.RuleResponse
+import nl.info.client.opa.model.RuleQuery
+import nl.info.client.opa.model.RuleResponse
 import nl.info.zac.policy.input.DocumentInput
 import nl.info.zac.policy.input.TaakInput
 import nl.info.zac.policy.input.UserInput

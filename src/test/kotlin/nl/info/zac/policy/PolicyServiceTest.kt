@@ -12,8 +12,8 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.client.opa.model.RuleQuery
-import net.atos.client.opa.model.RuleResponse
+import nl.info.client.opa.model.RuleQuery
+import nl.info.client.opa.model.RuleResponse
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.Ondertekening
 import nl.info.client.zgw.drc.model.generated.SoortEnum

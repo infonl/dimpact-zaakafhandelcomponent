@@ -16,7 +16,6 @@ import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Status
 import nl.info.client.zgw.zrc.model.generated.Verlenging
-import nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isDeelzaak
 import nl.info.client.zgw.zrc.util.isEerderOpgeschort
@@ -28,7 +27,6 @@ import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.StatusType
-import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.klant.model.klant.IdentificatieType
@@ -38,10 +36,8 @@ import nl.info.zac.app.zaak.model.RESTZaakVerlengGegevens
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
 import nl.info.zac.app.zaak.model.RestZaak
-import nl.info.zac.app.zaak.model.toGeoJSONGeometry
 import nl.info.zac.app.zaak.model.toRestGeometry
 import nl.info.zac.app.zaak.model.toRestZaakStatus
-import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.model.ZaakIndicatie
@@ -51,7 +47,6 @@ import nl.info.zac.search.model.ZaakIndicatie.HOOFDZAAK
 import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD
 import nl.info.zac.search.model.ZaakIndicatie.OPSCHORTING
 import nl.info.zac.search.model.ZaakIndicatie.VERLENGD
-import java.time.LocalDate
 import java.time.Period
 import java.util.EnumSet.noneOf
 import java.util.UUID
@@ -71,8 +66,7 @@ class RestZaakConverter @Inject constructor(
     private val restZaaktypeConverter: RestZaaktypeConverter,
     private val policyService: PolicyService,
     private val zaakVariabelenService: ZaakVariabelenService,
-    private val bpmnService: BpmnService,
-    private val configuratieService: ConfiguratieService
+    private val bpmnService: BpmnService
 ) {
     companion object {
         private val LOG = Logger.getLogger(RestZaakConverter::class.java.name)
@@ -181,48 +175,6 @@ class RestZaakConverter @Inject constructor(
                 }
             }
         )
-    }
-
-    fun toZaak(restZaak: RestZaak, zaaktype: ZaakType) = Zaak(
-        null,
-        restZaak.uuid,
-        restZaak.einddatum,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-    ).apply {
-        this.bronorganisatie = configuratieService.readBronOrganisatie()
-        this.verantwoordelijkeOrganisatie = configuratieService.readVerantwoordelijkeOrganisatie()
-        this.startdatum = restZaak.startdatum
-        this.zaaktype = zaaktype.url
-        this.communicatiekanaalNaam = restZaak.communicatiekanaal
-        this.omschrijving = restZaak.omschrijving
-        this.toelichting = restZaak.toelichting
-        this.registratiedatum = LocalDate.now()
-        this.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
-            // convert this enum to uppercase in case the client sends it in lowercase
-            VertrouwelijkheidaanduidingEnum.valueOf(it.uppercase())
-        }
-        this.zaakgeometrie = restZaak.zaakgeometrie?.toGeoJSONGeometry()
-    }
-
-    fun convertToPatch(restZaak: RestZaak) = Zaak().apply {
-        toelichting = restZaak.toelichting
-        omschrijving = restZaak.omschrijving
-        startdatum = restZaak.startdatum
-        einddatumGepland = restZaak.einddatumGepland
-        uiterlijkeEinddatumAfdoening = restZaak.uiterlijkeEinddatumAfdoening
-        vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
-            // convert this enum to uppercase in case the client sends it in lowercase
-            VertrouwelijkheidaanduidingEnum.valueOf(it.uppercase())
-        }
-        communicatiekanaalNaam = restZaak.communicatiekanaal
-        zaakgeometrie = restZaak.zaakgeometrie?.toGeoJSONGeometry()
     }
 
     @Suppress("NestedBlockDepth")
