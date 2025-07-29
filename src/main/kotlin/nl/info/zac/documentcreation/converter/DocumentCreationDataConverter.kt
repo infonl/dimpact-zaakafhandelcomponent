@@ -166,7 +166,7 @@ class DocumentCreationDataConverter @Inject constructor(
      * as well as for KVK vestigingen.
      */
     private fun createAanvragerDataNietNatuurlijkPersoon(initiator: Rol<*>): AanvragerData? {
-        val nietNatuurlijkPersoonIdentificatie = (initiator.betrokkeneIdentificatie as NietNatuurlijkPersoonIdentificatie?)
+        val nietNatuurlijkPersoonIdentificatie = (initiator.betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)
         val kvkResultaat = when {
             nietNatuurlijkPersoonIdentificatie?.innNnpId?.isNotBlank() == true ->
                 kvkClientService.findRechtspersoon(nietNatuurlijkPersoonIdentificatie.innNnpId)
