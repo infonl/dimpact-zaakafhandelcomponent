@@ -322,7 +322,7 @@ class IndexingService @Inject constructor(
         return tasks.size == TAKEN_MAX_RESULTS
     }
 
-    @Suppress("ThrowsCount")
+    @Suppress("TooGenericExceptionCaught")
     private fun <T> runTranslatingToIndexingException(fn: () -> T): T {
         try {
             return fn()
@@ -331,7 +331,7 @@ class IndexingService @Inject constructor(
         }
     }
 
-    @Suppress("NestedBlockDepth", "TooGenericExceptionCaught")
+    @Suppress("NestedBlockDepth")
     private fun <T> continueOnExceptions(objectType: ZoekObjectType, fn: () -> T): T? =
         try {
             runTranslatingToIndexingException { fn() }
