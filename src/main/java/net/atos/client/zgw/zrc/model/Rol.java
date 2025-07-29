@@ -232,5 +232,11 @@ public abstract class Rol<T> {
 
     public abstract String getNaam();
 
+    /**
+     * Can be null, according to the ZGW API, and this does occur in practice in certain circumstances.
+     *
+     * @return the betrokkene identification number; or null if there is none
+     */
+    @Nullable
     public abstract String getIdentificatienummer();
 }
