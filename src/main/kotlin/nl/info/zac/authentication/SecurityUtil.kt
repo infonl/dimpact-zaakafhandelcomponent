@@ -40,7 +40,7 @@ class SecurityUtil @Inject constructor(
             emptySet()
         )
 
-        val systemUser: ThreadLocal<Boolean?> = ThreadLocal.withInitial { false }
+        val systemUser: ThreadLocal<Boolean> = ThreadLocal.withInitial { false }
     }
 
     /**
@@ -70,13 +70,12 @@ class SecurityUtil @Inject constructor(
  * If there is a logged-in user in the given [httpSession], return it.
  * Otherwise, if there is an HTTP Session but if it does not contain a logged-in user attribute, return `null`.
  */
-fun getLoggedInUser(httpSession: HttpSession): LoggedInUser? =
+fun getLoggedInUser(httpSession: HttpSession) =
     httpSession.getAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE)?.let { it as LoggedInUser }
 
-fun setLoggedInUser(httpSession: HttpSession, loggedInUser: LoggedInUser) {
+fun setLoggedInUser(httpSession: HttpSession, loggedInUser: LoggedInUser) =
     httpSession.setAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE, loggedInUser)
-}
 
-fun setFunctioneelGebruiker(httpSession: HttpSession) {
+
+fun setFunctioneelGebruiker(httpSession: HttpSession) =
     setLoggedInUser(httpSession, FUNCTIONEEL_GEBRUIKER)
-}
