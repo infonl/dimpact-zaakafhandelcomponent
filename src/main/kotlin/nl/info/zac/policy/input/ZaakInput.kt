@@ -4,13 +4,12 @@
  */
 package nl.info.zac.policy.input
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.util.AllOpen
-import nl.info.zac.util.NoArgConstructor
 
-@NoArgConstructor
-@AllOpen
 data class ZaakInput(
-    var loggedInUser: LoggedInUser,
-    var zaak: ZaakData
+    val loggedInUser: LoggedInUser,
+
+    @field:JsonbProperty("zaak")
+    val zaakData: ZaakData
 ) : UserInput(loggedInUser)

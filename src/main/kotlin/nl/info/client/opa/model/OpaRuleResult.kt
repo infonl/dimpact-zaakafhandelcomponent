@@ -4,9 +4,7 @@
  */
 package nl.info.client.opa.model
 
-import nl.info.client.util.SerializableByYasson
-
 /**
  * Simple type for OPA admin rule results.
  */
-interface OpaRuleResult : SerializableByYasson
+interface OpaRuleResult

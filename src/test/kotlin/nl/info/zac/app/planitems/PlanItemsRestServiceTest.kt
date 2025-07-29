@@ -108,7 +108,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         )
         val taskDataSlot = slot<Map<String, String>>()
         val zaak = createZaak(
-            zaakTypeURI = URI("http://example.com/$zaakTypeUUID"),
+            zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
             uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
         )
         every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
@@ -165,7 +165,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             fataledatum = LocalDate.now().plusDays(1)
         )
         val zaak = createZaak(
-            zaakTypeURI = URI("http://example.com/$zaakTypeUUID"),
+            zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
             uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
         )
         every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance

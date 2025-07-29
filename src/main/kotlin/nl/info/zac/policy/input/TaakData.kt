@@ -4,13 +4,12 @@
  */
 package nl.info.zac.policy.input
 
-import nl.info.zac.util.AllOpen
-import nl.info.zac.util.NoArgConstructor
+import jakarta.json.bind.annotation.JsonbProperty
 
-@NoArgConstructor
-@AllOpen
 data class TaakData(
-    var open: Boolean = false,
+    @field:JsonbProperty("open")
+    val open: Boolean = false,
 
-    var zaaktype: String? = null
+    @field:JsonbProperty("zaaktype")
+    val zaaktype: String? = null
 )

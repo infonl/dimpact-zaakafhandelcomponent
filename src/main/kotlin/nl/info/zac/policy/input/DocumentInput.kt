@@ -6,14 +6,10 @@ package nl.info.zac.policy.input
 
 import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.util.AllOpen
-import nl.info.zac.util.NoArgConstructor
 
-@NoArgConstructor
-@AllOpen
 data class DocumentInput(
-    var loggedInUser: LoggedInUser,
+    val loggedInUser: LoggedInUser,
 
     @field:JsonbProperty("document")
-    var documentData: DocumentData
+    val documentData: DocumentData
 ) : UserInput(loggedInUser)
