@@ -331,7 +331,6 @@ class IndexingService @Inject constructor(
         }
     }
 
-    @Suppress("NestedBlockDepth")
     private fun <T> continueOnExceptions(objectType: ZoekObjectType, fn: () -> T): T? =
         try {
             runTranslatingToIndexingException { fn() }
