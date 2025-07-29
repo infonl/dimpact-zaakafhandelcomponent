@@ -4,23 +4,27 @@
  */
 package nl.info.zac.policy.input
 
-import nl.info.zac.util.AllOpen
-import nl.info.zac.util.NoArgConstructor
+import jakarta.json.bind.annotation.JsonbProperty
 
-@NoArgConstructor
-@AllOpen
 data class ZaakData(
-    var open: Boolean = false,
+    @field:JsonbProperty("open")
+    val open: Boolean,
 
-    var zaaktype: String? = null,
+    @field:JsonbProperty("zaaktype")
+    val zaaktype: String?,
 
-    var opgeschort: Boolean = false,
+    @field:JsonbProperty("opgeschort")
+    val opgeschort: Boolean,
 
-    var verlengd: Boolean = false,
+    @field:JsonbProperty("verlengd")
+    val verlengd: Boolean,
 
-    var intake: Boolean = false,
+    @field:JsonbProperty("intake")
+    val intake: Boolean?,
 
-    var besloten: Boolean = false,
+    @field:JsonbProperty("besloten")
+    val besloten: Boolean?,
 
-    var heropend: Boolean = false
+    @field:JsonbProperty("heropend")
+    val heropend: Boolean?
 )

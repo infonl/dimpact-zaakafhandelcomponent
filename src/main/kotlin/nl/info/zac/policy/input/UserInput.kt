@@ -4,26 +4,16 @@
  */
 package nl.info.zac.policy.input
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.util.AllOpen
-import nl.info.zac.util.NoArgConstructor
 
-@NoArgConstructor
-@AllOpen
-class UserInput {
-    lateinit var user: UserData
-
-    constructor(
-        loggedInUser: LoggedInUser
-    ) {
-        user = UserData(
-            id = loggedInUser.id,
-            rollen = loggedInUser.roles,
-            zaaktypen = if (loggedInUser.isAuthorisedForAllZaaktypen()) {
-                null
-            } else {
-                loggedInUser.geautoriseerdeZaaktypen
-            }
-        )
-    }
+open class UserInput(
+    loggedInUser: LoggedInUser
+) {
+    @field:JsonbProperty("user")
+    val user = UserData(
+        id = loggedInUser.id,
+        rollen = loggedInUser.roles,
+        zaaktypen = if (loggedInUser.isAuthorisedForAllZaaktypen()) null else loggedInUser.geautoriseerdeZaaktypen
+    )
 }

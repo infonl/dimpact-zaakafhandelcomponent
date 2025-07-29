@@ -140,7 +140,8 @@ fun createRestZaak(
     isOpen: Boolean = true,
     startDatum: LocalDate = LocalDate.of(2023, 9, 15),
     initiatorIdentificatieType: IdentificatieType = IdentificatieType.BSN,
-    kvkNummer: String? = null
+    kvkNummer: String? = null,
+    vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name,
 ) = RestZaak(
     uuid = uuid,
     identificatie = "ZA2023001",
@@ -161,7 +162,7 @@ fun createRestZaak(
     archiefActiedatum = LocalDate.of(2023, 10, 15),
     archiefNominatie = "Sample Archief Nominatie",
     communicatiekanaal = communicatiekanaal,
-    vertrouwelijkheidaanduiding = "Sample Vertrouwelijkheidaanduiding",
+    vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
     zaakgeometrie = createRESTGeometry(),
     isOpgeschort = true,
     isEerderOpgeschort = false,
@@ -287,7 +288,7 @@ fun createRestZaakRechten(
     versturenOntvangstbevestiging: Boolean = true,
     verwijderenBetrokkene: Boolean = true,
     verwijderenInitiator: Boolean = true,
-    creeerenDocument: Boolean = true,
+    creerenDocument: Boolean = true,
     versturenEmail: Boolean = true,
     wijzigenLocatie: Boolean = true
 ) = RestZaakRechten(
@@ -307,7 +308,7 @@ fun createRestZaakRechten(
     versturenOntvangstbevestiging = versturenOntvangstbevestiging,
     verwijderenBetrokkene = verwijderenBetrokkene,
     verwijderenInitiator = verwijderenInitiator,
-    creeerenDocument = creeerenDocument,
+    creerenDocument = creerenDocument,
     versturenEmail = versturenEmail,
     wijzigenLocatie = wijzigenLocatie
 )

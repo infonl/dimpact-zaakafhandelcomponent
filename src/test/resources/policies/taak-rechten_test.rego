@@ -10,7 +10,7 @@ import data.net.atos.zac.taak.zaaktype_allowed
 import data.net.atos.zac.taak.lezen
 import data.net.atos.zac.taak.wijzigen
 import data.net.atos.zac.taak.toekennen
-import data.net.atos.zac.taak.creeeren_document
+import data.net.atos.zac.taak.creeren_document
 import data.net.atos.zac.taak.toevoegen_document
 
 ##################
@@ -79,26 +79,26 @@ test_toekennen_missing_role_fails if {
 }
 
 ###################
-# creeeren_document
+# creeren_document
 ###################
-test_creeeren_document if {
-    creeeren_document
+test_creeren_document if {
+    creeren_document
         with input.user.rollen as [ "behandelaar" ]
         with input.taak.open as true
 }
 
-test_creeeren_document_taak_closed_fails if {
-    not creeeren_document
+test_creeren_document_taak_closed_fails if {
+    not creeren_document
         with input.user.rollen as [ "behandelaar" ]
         with input.taak.open as false
 }
 
-test_creeeren_document_wrong_role_fails if {
-    not creeeren_document with input.user.rollen as [ "fakeRole" ]
+test_creeren_document_wrong_role_fails if {
+    not creeren_document with input.user.rollen as [ "fakeRole" ]
 }
 
-test_creeeren_document_missing_role_fails if {
-    not creeeren_document with input.user.key as "value"
+test_creeren_document_missing_role_fails if {
+    not creeren_document with input.user.key as "value"
 }
 
 ###################
@@ -110,7 +110,7 @@ test_toevoegen_document if {
         with input.taak.open as true
 }
 
-test_creeeren_document_taak_closed_fails if {
+test_creeren_document_taak_closed_fails if {
     not toevoegen_document
         with input.user.rollen as [ "behandelaar" ]
         with input.taak.open as false

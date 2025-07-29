@@ -22,7 +22,7 @@ import jakarta.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import net.atos.client.opa.OPAAdminClient;
+import nl.info.client.opa.OpaAdminClient;
 
 public class PoliciesDeployer {
 
@@ -36,7 +36,7 @@ public class PoliciesDeployer {
 
     @Inject
     @RestClient
-    private OPAAdminClient opaAdminClient;
+    private OpaAdminClient opaAdminClient;
 
     public void onStartup(@Observes @Initialized(ApplicationScoped.class) Object event) {
         try (final InputStream policiesInputStream = getClass().getClassLoader().getResourceAsStream(format("%s/%s", POLICIES_FOLDER_NAME,

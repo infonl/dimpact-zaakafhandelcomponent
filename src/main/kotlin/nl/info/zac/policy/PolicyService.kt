@@ -7,9 +7,9 @@ package nl.info.zac.policy
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
-import net.atos.client.opa.model.RuleQuery
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.util.TaskUtil
+import nl.info.client.opa.model.RuleQuery
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.util.extractUuid
@@ -35,6 +35,7 @@ import nl.info.zac.policy.input.UserInput
 import nl.info.zac.policy.input.ZaakData
 import nl.info.zac.policy.input.ZaakInput
 import nl.info.zac.policy.output.DocumentRechten
+import nl.info.zac.policy.output.NotitieRechten
 import nl.info.zac.policy.output.OverigeRechten
 import nl.info.zac.policy.output.TaakRechten
 import nl.info.zac.policy.output.WerklijstRechten
@@ -63,7 +64,7 @@ class PolicyService @Inject constructor(
     fun readOverigeRechten(): OverigeRechten =
         evaluationClient.readOverigeRechten(
             RuleQuery(UserInput(loggedInUserInstance.get()))
-        ).getResult()
+        ).result
 
     fun readZaakRechten(zaak: Zaak): ZaakRechten {
         val zaakType = ztcClientService.readZaaktype(zaak.zaaktype)
@@ -74,33 +75,37 @@ class PolicyService @Inject constructor(
         val statusType = zaak.status?.let {
             ztcClientService.readStatustype(zrcClientService.readStatus(it).statustype)
         }
-        val zaakData = ZaakData().apply {
-            this.open = zaak.isOpen()
-            this.zaaktype = zaaktype.getOmschrijving()
-            this.opgeschort = zaak.isOpgeschort()
-            this.verlengd = zaak.isVerlengd()
-            this.besloten = zaaktype.getBesluittypen()?.isNotEmpty() == true
-            this.intake = statusType.isIntake()
-            this.heropend = statusType.isHeropend()
-        }
+        val zaakData = ZaakData(
+            open = zaak.isOpen(),
+            zaaktype = zaaktype.getOmschrijving(),
+            opgeschort = zaak.isOpgeschort(),
+            verlengd = zaak.isVerlengd(),
+            besloten = zaaktype.getBesluittypen()?.isNotEmpty() == true,
+            intake = statusType?.isIntake(),
+            heropend = statusType?.isHeropend()
+        )
         return evaluationClient.readZaakRechten(
             RuleQuery(
                 ZaakInput(loggedInUserInstance.get(), zaakData)
             )
-        ).getResult()
+        ).result
     }
 
     fun readZaakRechtenForZaakZoekObject(zaakZoekObject: ZaakZoekObject): ZaakRechten {
-        val zaakData = ZaakData().apply {
-            this.open = !zaakZoekObject.isAfgehandeld
-            this.zaaktype = zaakZoekObject.zaaktypeOmschrijving
-            this.opgeschort = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.OPSCHORTING)
-            this.verlengd = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.VERLENGD)
-            this.heropend = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.HEROPEND)
-        }
+        val zaakData = ZaakData(
+            open = !zaakZoekObject.isAfgehandeld,
+            zaaktype = zaakZoekObject.zaaktypeOmschrijving,
+            opgeschort = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.OPSCHORTING),
+            verlengd = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.VERLENGD),
+            heropend = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.HEROPEND),
+            // not taken into account when searching for a zaak
+            intake = null,
+            // not taken into account when searching for a zaak
+            besloten = null
+        )
         return evaluationClient.readZaakRechten(
             RuleQuery(ZaakInput(loggedInUserInstance.get(), zaakData))
-        ).getResult()
+        ).result
     }
 
     fun readDocumentRechten(enkelvoudigInformatieobject: EnkelvoudigInformatieObject, zaak: Zaak? = null) =
@@ -115,33 +120,31 @@ class PolicyService @Inject constructor(
         lock: EnkelvoudigInformatieObjectLock?,
         zaak: Zaak?
     ): DocumentRechten {
-        val documentData = DocumentData().apply {
-            this.definitief = enkelvoudigInformatieobject.getStatus() == StatusEnum.DEFINITIEF
-            this.vergrendeld = enkelvoudigInformatieobject.getLocked()
-            this.vergrendeldDoor = lock?.userId
-            this.ondertekend = enkelvoudigInformatieobject.isSigned()
-            zaak?.let {
-                this.zaakOpen = it.isOpen()
-                this.zaaktype = ztcClientService.readZaaktype(it.getZaaktype()).getOmschrijving()
-            }
-        }
+        val documentData = DocumentData(
+            definitief = enkelvoudigInformatieobject.getStatus() == StatusEnum.DEFINITIEF,
+            vergrendeld = enkelvoudigInformatieobject.getLocked(),
+            vergrendeldDoor = lock?.userId,
+            ondertekend = enkelvoudigInformatieobject.isSigned(),
+            zaakOpen = zaak?.isOpen() ?: false,
+            zaaktype = zaak?.let { ztcClientService.readZaaktype(it.getZaaktype()).getOmschrijving() }
+        )
         return evaluationClient.readDocumentRechten(
             RuleQuery(DocumentInput(loggedInUserInstance.get(), documentData))
-        ).getResult()
+        ).result
     }
 
     fun readDocumentRechten(enkelvoudigInformatieobject: DocumentZoekObject): DocumentRechten {
-        val documentData = DocumentData().apply {
-            this.definitief = StatusEnum.DEFINITIEF == enkelvoudigInformatieobject.getStatus()
-            this.vergrendeld = enkelvoudigInformatieobject.isIndicatie(DocumentIndicatie.VERGRENDELD)
-            this.vergrendeldDoor = enkelvoudigInformatieobject.vergrendeldDoorGebruikersnaam
-            this.zaakOpen = !enkelvoudigInformatieobject.isZaakAfgehandeld
-            this.zaaktype = enkelvoudigInformatieobject.zaaktypeOmschrijving
-            this.ondertekend = enkelvoudigInformatieobject.ondertekeningDatum != null
-        }
+        val documentData = DocumentData(
+            definitief = StatusEnum.DEFINITIEF == enkelvoudigInformatieobject.getStatus(),
+            vergrendeld = enkelvoudigInformatieobject.isIndicatie(DocumentIndicatie.VERGRENDELD),
+            vergrendeldDoor = enkelvoudigInformatieobject.vergrendeldDoorGebruikersnaam,
+            zaakOpen = !enkelvoudigInformatieobject.isZaakAfgehandeld,
+            zaaktype = enkelvoudigInformatieobject.zaaktypeOmschrijving,
+            ondertekend = enkelvoudigInformatieobject.ondertekeningDatum != null
+        )
         return evaluationClient.readDocumentRechten(
             RuleQuery(DocumentInput(loggedInUserInstance.get(), documentData))
-        ).getResult()
+        ).result
     }
 
     fun readTaakRechten(taskInfo: TaskInfo): TaakRechten {
@@ -153,33 +156,33 @@ class PolicyService @Inject constructor(
         taskInfo: TaskInfo,
         zaaktypeOmschrijving: String?
     ): TaakRechten {
-        val taakData = TaakData().apply {
-            this.open = TaskUtil.isOpen(taskInfo)
-            this.zaaktype = zaaktypeOmschrijving
-        }
+        val taakData = TaakData(
+            open = TaskUtil.isOpen(taskInfo),
+            zaaktype = zaaktypeOmschrijving
+        )
         return evaluationClient.readTaakRechten(
             RuleQuery(TaakInput(loggedInUserInstance.get(), taakData))
-        ).getResult()
+        ).result
     }
 
     fun readTaakRechten(taakZoekObject: TaakZoekObject): TaakRechten {
-        val taakData = TaakData().apply {
-            this.zaaktype = taakZoekObject.zaaktypeOmschrijving
-        }
+        val taakData = TaakData(
+            zaaktype = taakZoekObject.zaaktypeOmschrijving
+        )
         return evaluationClient.readTaakRechten(
             RuleQuery(TaakInput(loggedInUserInstance.get(), taakData))
-        ).getResult()
+        ).result
     }
 
-    fun readNotitieRechten() =
+    fun readNotitieRechten(): NotitieRechten =
         evaluationClient.readNotitieRechten(
             RuleQuery(UserInput(loggedInUserInstance.get()))
-        ).getResult()
+        ).result
 
     fun readWerklijstRechten(): WerklijstRechten =
         evaluationClient.readWerklijstRechten(
             RuleQuery(UserInput(loggedInUserInstance.get()))
-        ).getResult()
+        ).result
 }
 
 /**

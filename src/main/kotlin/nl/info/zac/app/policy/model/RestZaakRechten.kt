@@ -23,7 +23,7 @@ data class RestZaakRechten(
     val versturenOntvangstbevestiging: Boolean,
     val verwijderenBetrokkene: Boolean,
     val verwijderenInitiator: Boolean,
-    val creeerenDocument: Boolean,
+    val creerenDocument: Boolean,
     val versturenEmail: Boolean,
     val wijzigenLocatie: Boolean
 )
@@ -45,7 +45,7 @@ fun ZaakRechten.toRestZaakRechten() = RestZaakRechten(
     toevoegenInitiatorPersoon = this.toevoegenInitiatorPersoon,
     verwijderenBetrokkene = this.verwijderenBetrokkene,
     verwijderenInitiator = this.verwijderenInitiator,
-    creeerenDocument = this.creeerenDocument,
+    creerenDocument = this.creerenDocument,
     versturenEmail = this.versturenEmail,
     wijzigenLocatie = this.wijzigenLocatie
 )

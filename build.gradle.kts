@@ -240,6 +240,7 @@ java {
         .srcDir(srcGenerated.dir("zgw/zrc/java"))
         .srcDir(srcGenerated.dir("zgw/ztc/java"))
         .srcDir(srcGenerated.dir("or/objects/java"))
+        .srcDir(srcGenerated.dir("pabc/java"))
 }
 
 jsonSchema2Pojo {
@@ -677,6 +678,13 @@ tasks {
         modelPackage.set("nl.info.client.or.objects.model.generated")
     }
 
+    register<GenerateTask>("generatePabcClient") {
+        description = "Generates Java client code for the Platform Autorisatie Beheer Component API"
+        inputSpec.set("$rootDir/src/main/resources/api-specs/pabc/pabc-openapi.json")
+        outputDir.set("$rootDir/src/generated/pabc/java")
+        modelPackage.set("nl.info.client.pabc.model.generated")
+    }
+
     register("generateJavaClients") {
         description = "Generates Java client code for the various REST APIs"
         dependsOn(
@@ -691,7 +699,8 @@ tasks {
             "generateZgwDrcClient",
             "generateZgwZrcClient",
             "generateZgwZtcClient",
-            "generateOrObjectsClient"
+            "generateOrObjectsClient",
+            "generatePabcClient"
         )
     }
 

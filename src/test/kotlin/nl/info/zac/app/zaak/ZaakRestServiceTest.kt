@@ -25,7 +25,6 @@ import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
@@ -210,7 +209,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("zaak input data is provided") {
+    Given("Zaak input data is provided") {
         val group = createGroup()
         val formulierData = mapOf(Pair("fakeKey", "fakeValue"))
         val objectRegistratieObject = createORObject()
@@ -237,8 +236,14 @@ class ZaakRestServiceTest : BehaviorSpec({
         val zaakObjectPand = createZaakobjectPand()
         val zaakObjectOpenbareRuimte = createZaakobjectOpenbareRuimte()
         val zaak = createZaak(zaakTypeURI = zaakType.url)
+        val bronOrganisatie = "fakeBronOrganisatie"
+        val verantwoordelijkeOrganisatie = "fakeVerantwoordelijkeOrganisatie"
+        val zaakCreatedSlot = slot<Zaak>()
+        val updatedRolesSlot = mutableListOf<Rol<*>>()
 
         every { configuratieService.featureFlagBpmnSupport() } returns false
+        every { configuratieService.readBronOrganisatie() } returns bronOrganisatie
+        every { configuratieService.readVerantwoordelijkeOrganisatie() } returns verantwoordelijkeOrganisatie
         every { cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null) } just runs
         every { identityService.readGroup(restZaakAanmaakGegevens.zaak.groep!!.id) } returns group
         every { identityService.readUser(restZaakAanmaakGegevens.zaak.behandelaar!!.id) } returns user
@@ -265,13 +270,18 @@ class ZaakRestServiceTest : BehaviorSpec({
             )
         } just runs
         every { restZaakConverter.toRestZaak(zaak) } returns restZaak
-        every { restZaakConverter.toZaak(restZaakAanmaakGegevens.zaak, zaakType) } returns zaak
         every {
             zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
         } returns zaakAfhandelParameters
         every { zaakVariabelenService.setZaakdata(zaak.uuid, formulierData) } just runs
-        every { zgwApiService.createZaak(zaak) } returns zaak
-        every { zrcClientService.updateRol(zaak, any(), any()) } just runs
+        every { zgwApiService.createZaak(capture(zaakCreatedSlot)) } returns zaak
+        every {
+            zrcClientService.updateRol(
+                any(),
+                capture(updatedRolesSlot),
+                any()
+            )
+        } just runs
         every { zrcClientService.createZaakobject(any<ZaakobjectPand>()) } returns zaakObjectPand
         every { zrcClientService.createZaakobject(any<ZaakobjectOpenbareRuimte>()) } returns zaakObjectOpenbareRuimte
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
@@ -298,25 +308,31 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             Then("a zaak is created using the ZGW API and a zaak is started in the ZAC CMMN service") {
                 restZaakReturned shouldBe restZaak
-                val zaakCreatedSlot = slot<Zaak>()
-                val rolGroupSlotOrganisatorischeEenheidSlot = slot<RolOrganisatorischeEenheid>()
                 verify(exactly = 1) {
                     ztcClientService.readZaaktype(restZaakAanmaakGegevens.zaak.zaaktype.uuid)
-                    zgwApiService.createZaak(capture(zaakCreatedSlot))
-                    zrcClientService.updateRol(
-                        zaak,
-                        capture(rolGroupSlotOrganisatorischeEenheidSlot),
-                        "Aanmaken zaak"
-                    )
+                    zgwApiService.createZaak(any())
                     cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null)
                 }
                 verify(exactly = 2) {
                     zrcClientService.createZaakobject(any())
+                    zrcClientService.updateRol(
+                        zaak,
+                        any<Rol<*>>(),
+                        "Aanmaken zaak"
+                    )
                 }
-                zaakCreatedSlot.captured shouldBe zaak
-                with(rolGroupSlotOrganisatorischeEenheidSlot.captured) {
-                    this.zaak shouldBe rolOrganisatorischeEenheid.zaak
+                updatedRolesSlot shouldHaveSize 2
+                with(updatedRolesSlot[0]) {
                     betrokkeneType shouldBe BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
+                    omschrijving shouldBe rolOrganisatorischeEenheid.omschrijving
+                    omschrijvingGeneriek shouldBe rolOrganisatorischeEenheid.omschrijvingGeneriek
+                    roltoelichting shouldBe rolOrganisatorischeEenheid.roltoelichting
+                }
+                with(updatedRolesSlot[1]) {
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
+                    omschrijving shouldBe rolMedewerker.omschrijving
+                    omschrijvingGeneriek shouldBe rolMedewerker.omschrijvingGeneriek
+                    roltoelichting shouldBe rolMedewerker.roltoelichting
                 }
             }
         }
@@ -709,8 +725,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
-        every { restZaakConverter.convertToPatch(restZaak) } returns patchedZaak
-        every { zrcClientService.patchZaak(zaak.uuid, patchedZaak, changeDescription) } returns patchedZaak
+        every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
         every { flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns listOf(task, task, task)
         every { task.dueDate } returns zaak.uiterlijkeEinddatumAfdoening.toDate()
         every { task.name } returnsMany listOf("fakeTask", AANVULLENDE_INFORMATIE_TASK_NAME, "another task")
@@ -788,7 +803,6 @@ class ZaakRestServiceTest : BehaviorSpec({
         When("zaak update is requested without a new final date") {
             val zaakWithoutDateChange = restZaak.copy(uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening)
             every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
-            every { restZaakConverter.convertToPatch(zaakWithoutDateChange) } returns zaak
             every { restZaakConverter.toRestZaak(any()) } returns zaakWithoutDateChange
             every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
             every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
@@ -826,7 +840,6 @@ class ZaakRestServiceTest : BehaviorSpec({
         When("zaak update is requested without a new final date") {
             val zaakWithoutDateChange = restZaak.copy(uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening)
             every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
-            every { restZaakConverter.convertToPatch(zaakWithoutDateChange) } returns zaak
             every { restZaakConverter.toRestZaak(any()) } returns zaakWithoutDateChange
             every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
             every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
