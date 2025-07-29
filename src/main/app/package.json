@@ -15,6 +15,7 @@
     "test:ci": "npx jest -t",
     "test:report": "ng test --coverage",
     "lint": "ng lint",
+    "lint:unused": "npx ngx-unused . -p tsconfig.json",
     "generate:types:zac-openapi": "npx openapi-typescript ./../../../build/generated/openapi/META-INF/openapi/openapi.yaml -o ./src/generated/types/zac-openapi-types.d.ts"
   },
   "private": true,
