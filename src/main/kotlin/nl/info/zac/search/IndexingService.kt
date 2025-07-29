@@ -7,17 +7,12 @@ package nl.info.zac.search
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import jakarta.json.bind.JsonbException
-import jakarta.ws.rs.ProcessingException
-import jakarta.ws.rs.WebApplicationException
-import jakarta.xml.bind.JAXBException
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.shared.ZGWApiService
-import nl.info.client.zgw.shared.exception.ZgwRuntimeException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.task.model.TaakSortering
@@ -29,16 +24,13 @@ import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.util.AllOpen
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.SolrQuery
-import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.common.params.CursorMarkParams
 import org.eclipse.microprofile.config.ConfigProvider
-import java.io.IOException
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.IllegalStateException
 
 @Singleton
 @AllOpen
@@ -330,30 +322,15 @@ class IndexingService @Inject constructor(
         return tasks.size == TAKEN_MAX_RESULTS
     }
 
-    @Suppress("ThrowsCount")
+    @Suppress("TooGenericExceptionCaught")
     private fun <T> runTranslatingToIndexingException(fn: () -> T): T {
         try {
             return fn()
-        } catch (solrServerException: SolrServerException) {
-            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, solrServerException)
-        } catch (ioException: IOException) {
-            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, ioException)
-        } catch (webApplicationException: WebApplicationException) {
-            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, webApplicationException)
-        } catch (zgwRuntimeException: ZgwRuntimeException) {
-            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, zgwRuntimeException)
-        } catch (jsonbException: JsonbException) {
-            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, jsonbException)
-        } catch (jaxbException: JAXBException) {
-            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, jaxbException)
-        } catch (processingException: ProcessingException) {
-            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, processingException)
-        } catch (illegalStateException: IllegalStateException) {
-            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, illegalStateException)
+        } catch (exception: Exception) {
+            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, exception)
         }
     }
 
-    @Suppress("NestedBlockDepth", "TooGenericExceptionCaught")
     private fun <T> continueOnExceptions(objectType: ZoekObjectType, fn: () -> T): T? =
         try {
             runTranslatingToIndexingException { fn() }
