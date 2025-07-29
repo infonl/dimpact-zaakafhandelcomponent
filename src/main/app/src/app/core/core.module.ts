@@ -30,7 +30,10 @@ registerLocaleData(localeNl, "nl-NL");
   imports: [
     TranslateModule.forRoot({
       fallbackLang: "nl",
-      loader: provideTranslateHttpLoader({prefix:"./assets/i18n/", suffix:".json"}),
+      loader: provideTranslateHttpLoader({
+        prefix: "./assets/i18n/",
+        suffix: ".json",
+      }),
     }),
     SharedModule,
   ],
