@@ -40,29 +40,27 @@ class SecurityUtil @Inject constructor(
             emptySet()
         )
 
-        val systemUser: ThreadLocal<Boolean?> = ThreadLocal.withInitial { false }
+        val systemUser: ThreadLocal<Boolean> = ThreadLocal.withInitial { false }
     }
 
     /**
      * Produces an authenticated [LoggedInUser] for use in CDI Beans.
      *
-     * If [systemUser] is enabled (set to true) or there is no http session (async context) the
-     * [FUNCTIONEEL_GEBRUIKER] user is returned.
+     * If [systemUser] is enabled (set to true) the [FUNCTIONEEL_GEBRUIKER] user is returned.
      *
      * If http session is available, the authenticated [LoggedInUser] instance is retrieved from the current user
-     * session, where it is set via the [UserPrincipalFilter]
+     * session, where it is set via the [UserPrincipalFilter]. If no session is available, null is returned
      *
-     * @return the currently logged-in user or null if session is available and [FUNCTIONEEL_GEBRUIKER] in case this is
-     * async context or [systemUser] is explicitly requested
+     * @return the currently logged-in user, null or [FUNCTIONEEL_GEBRUIKER]
      */
     @Produces
     fun getLoggedInUser() =
-        if (systemUser.get() ?: false) {
-            FUNCTIONEEL_GEBRUIKER // explicitly requested
+        if (systemUser.get() == true) {
+            FUNCTIONEEL_GEBRUIKER
         } else {
             httpSession.get()?.let {
                 getLoggedInUser(it)
-            } ?: FUNCTIONEEL_GEBRUIKER // async context
+            }
         }
 }
 
@@ -70,7 +68,7 @@ class SecurityUtil @Inject constructor(
  * If there is a logged-in user in the given [httpSession], return it.
  * Otherwise, if there is an HTTP Session but if it does not contain a logged-in user attribute, return `null`.
  */
-fun getLoggedInUser(httpSession: HttpSession): LoggedInUser? =
+fun getLoggedInUser(httpSession: HttpSession) =
     httpSession.getAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE)?.let { it as LoggedInUser }
 
 fun setLoggedInUser(httpSession: HttpSession, loggedInUser: LoggedInUser) {
