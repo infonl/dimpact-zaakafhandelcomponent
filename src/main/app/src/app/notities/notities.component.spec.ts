@@ -36,7 +36,7 @@ const mockTranslateService = {
   },
   onTranslationChange: of({}),
   onLangChange: of({}),
-  onDefaultLangChange: of({}),
+  onFallbackLangChange: of({}),
 };
 
 describe("NotitiesComponent", () => {

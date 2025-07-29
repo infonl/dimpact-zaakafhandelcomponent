@@ -27,7 +27,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.titleService.setTitle("Zaakafhandelcomponent");
     this.translate.addLangs(["nl", "en"]);
-    this.translate.setDefaultLang("nl");
+    this.translate.setFallbackLang("nl");
     const browserLanguage = this.translate.getBrowserLang();
     this.translate.use(
       browserLanguage?.match(/nl|en/) ? browserLanguage : "nl",

@@ -19,7 +19,7 @@ const mockTranslateService = {
   },
   onTranslationChange: of({}),
   onLangChange: of({}),
-  onDefaultLangChange: of({}),
+  onFallbackLangChange: of({}),
 };
 
 const testPerson: GeneratedType<"RestPersoon"> = {

@@ -42,7 +42,9 @@ const mockTranslateService = {
   get: (key: unknown) => of(key),
   onTranslationChange: of({}),
   onLangChange: of({}),
-  onDefaultLangChange: of({}),
+  onFallbackLangChange: of({}),
+  getCurrentLang: () => of("nl"),
+  getFallbackLang: () => of("en"),
 };
 
 class NotitiesHarness extends ComponentHarness {

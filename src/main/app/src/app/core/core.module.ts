@@ -5,7 +5,6 @@
 
 import { registerLocaleData } from "@angular/common";
 import {
-  HttpClient,
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
@@ -16,8 +15,8 @@ import {
   MAT_DIALOG_DEFAULT_OPTIONS,
   MatDialogConfig,
 } from "@angular/material/dialog";
-import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
-import { TranslateHttpLoader } from "@ngx-translate/http-loader";
+import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
 import { SharedModule } from "../shared/shared.module";
 import { EnsureModuleLoadedOnceGuard } from "./ensure-module-loaded-once.guard";
 import { LoadingComponent } from "./loading/loading.component";
@@ -25,22 +24,16 @@ import { UtilService } from "./service/util.service";
 
 registerLocaleData(localeNl, "nl-NL");
 
-// AoT requires an exported function for factories
-export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
-}
-
 @NgModule({
   declarations: [LoadingComponent],
   exports: [LoadingComponent],
   imports: [
     TranslateModule.forRoot({
-      defaultLanguage: "nl",
-      loader: {
-        provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
-        deps: [HttpClient],
-      },
+      fallbackLang: "nl",
+      loader: provideTranslateHttpLoader({
+        prefix: "./assets/i18n/",
+        suffix: ".json",
+      }),
     }),
     SharedModule,
   ],
