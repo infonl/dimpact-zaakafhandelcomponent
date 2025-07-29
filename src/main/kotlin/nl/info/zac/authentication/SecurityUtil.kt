@@ -39,35 +39,42 @@ class SecurityUtil @Inject constructor(
             emptySet(),
             emptySet()
         )
+
+        val systemUser: ThreadLocal<Boolean> = ThreadLocal.withInitial { false }
     }
 
     /**
      * Produces an authenticated [LoggedInUser] for use in CDI Beans.
-     * The authenticated [LoggedInUser] instance is retrieved from the current user session, where it is set via the
-     * [UserPrincipalFilter]
      *
-     * @return the currently logged-in user
+     * If [systemUser] is enabled (set to true) or there is no http session (async context) the
+     * [FUNCTIONEEL_GEBRUIKER] user is returned.
+     *
+     * If http session is available, the authenticated [LoggedInUser] instance is retrieved from the current user
+     * session, where it is set via the [UserPrincipalFilter]
+     *
+     * @return the currently logged-in user or null if session is available and [FUNCTIONEEL_GEBRUIKER] in case this is
+     * async context or [systemUser] is explicitly requested
      */
     @Produces
-    fun getLoggedInUser() = getLoggedInUser(httpSession.get())
+    fun getLoggedInUser() =
+        if (systemUser.get() ?: false) {
+            FUNCTIONEEL_GEBRUIKER // explicitly requested
+        } else {
+            httpSession.get()?.let {
+                getLoggedInUser(it)
+            } ?: FUNCTIONEEL_GEBRUIKER // async context
+        }
 }
 
 /**
  * If there is a logged-in user in the given [httpSession], return it.
  * Otherwise, if there is an HTTP Session but if it does not contain a logged-in user attribute, return `null`.
- * If the provided HTTP session is null, return `[FUNCTIONEEL_GEBRUIKER]`.
  */
-fun getLoggedInUser(httpSession: HttpSession?): LoggedInUser? =
-    if (httpSession != null) {
-        httpSession.getAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE)?.let { it as LoggedInUser }
-    } else {
-        FUNCTIONEEL_GEBRUIKER // No session in async context!
-    }
+fun getLoggedInUser(httpSession: HttpSession) =
+    httpSession.getAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE)?.let { it as LoggedInUser }
 
-fun setLoggedInUser(httpSession: HttpSession, loggedInUser: LoggedInUser) {
+fun setLoggedInUser(httpSession: HttpSession, loggedInUser: LoggedInUser) =
     httpSession.setAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE, loggedInUser)
-}
 
-fun setFunctioneelGebruiker(httpSession: HttpSession) {
+fun setFunctioneelGebruiker(httpSession: HttpSession) =
     setLoggedInUser(httpSession, FUNCTIONEEL_GEBRUIKER)
-}

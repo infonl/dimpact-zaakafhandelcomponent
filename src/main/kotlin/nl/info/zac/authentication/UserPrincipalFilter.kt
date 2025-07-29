@@ -4,8 +4,6 @@
  */
 package nl.info.zac.authentication
 
-import com.auth0.jwt.JWT
-import com.auth0.jwt.interfaces.DecodedJWT
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.servlet.Filter
@@ -18,16 +16,12 @@ import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaakafhandelParameterService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.jose4j.jwt.JwtClaims
-import org.jose4j.jwt.NumericDate
-import org.wildfly.security.http.oidc.AccessToken
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
 import org.wildfly.security.http.oidc.RefreshableOidcSecurityContext
 import java.util.logging.Logger
 import kotlin.jvm.java
 
-const val ACCESS_TOKEN_ATTRIBUTE = "access_token"
 const val REFRESH_TOKEN_ATTRIBUTE = "refresh_token"
 
 @ApplicationScoped
@@ -41,13 +35,6 @@ constructor(private val zaakafhandelParameterService: ZaakafhandelParameterServi
         private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
         private const val GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership"
         const val ROL_DOMEIN_ELK_ZAAKTYPE = "domein_elk_zaaktype"
-    }
-
-    fun createOidcPrincipalFromAccessToken(accessToken: String): OidcPrincipal<*> {
-        val decodedJWT = JWT.decode(accessToken)
-        val token = MinimalAccessToken(decodedJWT)
-        val context = SimpleOidcSecurityContext(token)
-        return SimpleOidcPrincipal(token.preferredUsername ?: "unknown", context)
     }
 
     override fun doFilter(
@@ -149,29 +136,4 @@ constructor(private val zaakafhandelParameterService: ZaakafhandelParameterServi
                 .map { it.zaaktypeOmschrijving }
                 .toSet()
         }
-}
-
-class MinimalAccessToken(private val decodedJWT: DecodedJWT) : AccessToken(decodedJWT.toClaims()) {
-    override fun getStringListClaimValue(claim: String): List<String> =
-        decodedJWT.getClaim(claim).asList(String::class.java) ?: emptyList()
-}
-
-class SimpleOidcSecurityContext(val delegateToken: MinimalAccessToken) : OidcSecurityContext() {
-    override fun getToken(): AccessToken = delegateToken
-}
-
-class SimpleOidcPrincipal(name: String, val context: OidcSecurityContext) :
-    OidcPrincipal<OidcSecurityContext>(name, context)
-
-fun DecodedJWT.toClaims(): JwtClaims {
-    val claims = JwtClaims()
-    this.claims.forEach { (key, value) ->
-        claims.setClaim(key, value.`as`(Any::class.java))
-    }
-    claims.subject = this.subject
-    claims.issuer = this.issuer
-    claims.expirationTime = NumericDate.fromMilliseconds(this.expiresAt.time)
-    claims.issuedAt = NumericDate.fromMilliseconds(this.issuedAt.time)
-    claims.jwtId = this.id
-    return claims
 }
