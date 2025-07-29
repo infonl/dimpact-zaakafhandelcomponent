@@ -4,19 +4,19 @@
  */
 package nl.info.zac.policy.input
 
-import nl.info.zac.util.AllOpen
-import nl.info.zac.util.NoArgConstructor
+import jakarta.json.bind.annotation.JsonbProperty
 
-@NoArgConstructor
-@AllOpen
 data class UserData(
-    var id: String,
+    @field:JsonbProperty("id")
+    val id: String,
 
-    var rollen: Set<String>? = null,
+    @field:JsonbProperty("rollen")
+    val rollen: Set<String>? = null,
 
     /**
-     * Lijst van zaaktype.omschrijving waarvoor de ingelogde gebruiker geautoriseerd is.
-     * De waarde null betekend dat de gebruiker geautoriseerd is voor elk zaaktype.
+     * List of zaaktype descriptions for which the logged-in user is authorised.
+     * A value of null means that the user is authorised for all zaaktypes.
      */
-    var zaaktypen: Set<String>? = null
+    @field:JsonbProperty("zaaktypen")
+    val zaaktypen: Set<String>? = null
 )

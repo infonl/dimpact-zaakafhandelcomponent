@@ -7,11 +7,7 @@ package nl.info.zac.policy.output
 import jakarta.json.bind.annotation.JsonbCreator
 import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.client.opa.model.OpaRuleResult
-import nl.info.zac.util.AllOpen
-import nl.info.zac.util.NoArgConstructor
 
-@NoArgConstructor
-@AllOpen
 data class NotitieRechten @JsonbCreator constructor(
     @param:JsonbProperty("lezen") val lezen: Boolean,
     @param:JsonbProperty("wijzigen") val wijzigen: Boolean
