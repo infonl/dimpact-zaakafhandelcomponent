@@ -19,7 +19,7 @@ export function paginatorLanguageInitializerFactory(
       );
       locationInitialized.then(() => {
         const langToSet = "nl";
-        translateService.setDefaultLang("en");
+        translateService.setFallbackLang("en");
         translateService.use(langToSet).subscribe(() => {
           resolve(null);
         });
