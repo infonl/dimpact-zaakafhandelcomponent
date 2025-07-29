@@ -76,6 +76,5 @@ fun getLoggedInUser(httpSession: HttpSession) =
 fun setLoggedInUser(httpSession: HttpSession, loggedInUser: LoggedInUser) =
     httpSession.setAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE, loggedInUser)
 
-
 fun setFunctioneelGebruiker(httpSession: HttpSession) =
     setLoggedInUser(httpSession, FUNCTIONEEL_GEBRUIKER)
