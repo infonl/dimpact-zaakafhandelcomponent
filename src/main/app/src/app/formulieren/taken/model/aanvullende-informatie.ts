@@ -89,6 +89,7 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
       });
 
     const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1));
+    const afzenders$ = this.zakenService.listAfzendersVoorZaak(this.zaak.uuid);
 
     const fields = this.fields;
     this.form.push(
@@ -96,7 +97,7 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
         new SelectFormFieldBuilder()
           .id(fields.VERZENDER)
           .label(fields.VERZENDER)
-          .options(this.zakenService.listAfzendersVoorZaak(this.zaak.uuid))
+          .options(afzenders$)
           .optionLabel("mail")
           .optionSuffix("suffix")
           .optionValue("mail")
@@ -146,6 +147,15 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
           .build(),
       ],
     );
+
+    afzenders$.subscribe((afzenders) => {
+      const defaultAfzender = afzenders.find((a) => a.defaultMail);
+      if (defaultAfzender) {
+        this.getFormField(fields.VERZENDER).formControl.setValue(
+          defaultAfzender.mail,
+        );
+      }
+    });
 
     this.getFormField(fields.VERZENDER).formControl.valueChanges.subscribe(
       (afzender) => {
