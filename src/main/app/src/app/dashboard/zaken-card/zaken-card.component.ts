@@ -8,8 +8,8 @@ import { injectQuery } from "@tanstack/angular-query-experimental";
 import { firstValueFrom } from "rxjs";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { SignaleringenService } from "../../signaleringen.service";
-import { ZaakOverzichtDashboard } from "../../zaken/model/zaak-overzicht-dashboard";
 import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 
 @Component({
@@ -21,7 +21,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
   ],
 })
 export class ZakenCardComponent
-  extends DashboardCardComponent<ZaakOverzichtDashboard>
+  extends DashboardCardComponent<GeneratedType<"RestZaakOverzicht">>
   implements OnDestroy
 {
   columns = [
@@ -44,11 +44,13 @@ export class ZakenCardComponent
     queryKey: ["aan mij toegekende zaken signaleringen", this.parameters()],
     queryFn: () =>
       firstValueFrom(
-        this.signaleringenService.listZakenSignalering({
-          signaleringType: this.parameters().signaleringType!,
-          page: this.parameters().page,
-          rows: this.parameters().pageSize,
-        }),
+        this.signaleringenService.listZakenSignalering(
+          this.parameters().signaleringType!,
+          {
+            page: this.parameters().page,
+            rows: this.parameters().pageSize,
+          },
+        ),
       ),
   }));
 
