@@ -42,7 +42,7 @@
           <flowable:string><![CDATA[team-dimpact@info.nl]]></flowable:string>
         </flowable:field>
         <flowable:field name="to">
-          <flowable:string><![CDATA[shared-team-dimpact@info.nl]]></flowable:string>
+          <flowable:expression><![CDATA[${TF_EMAIL_TO}]]></flowable:expression>
         </flowable:field>
         <flowable:field name="replyTo">
           <flowable:string><![CDATA[shared-team-dimpact@info.nl]]></flowable:string>
