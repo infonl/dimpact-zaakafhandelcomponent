@@ -273,7 +273,7 @@ class ZaakRestService @Inject constructor(
     ): RestZaak {
         val betrokkene = zrcClientService.readRol(betrokkeneUUID)
         val (zaak, zaakType) = zaakService.retrieveZaakAndZaakType(betrokkene.zaak)
-        val zaakRechten = policyService.readZaakRechten(zaak)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
         removeBetrokkene(zaakRechten, betrokkene, reden.reden)
         return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
     }
