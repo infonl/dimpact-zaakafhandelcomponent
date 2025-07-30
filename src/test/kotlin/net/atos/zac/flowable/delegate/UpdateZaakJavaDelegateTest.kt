@@ -94,7 +94,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         When("the delegate is called") {
             updateZaakJavaDelegate.execute(delegateExecution)
 
-            Then("the expression was resolved") {
+            Then("the value is obtained") {
                 verify(exactly = 1) {
                     fixedValueExpression.getValue(delegateExecution)
                 }
