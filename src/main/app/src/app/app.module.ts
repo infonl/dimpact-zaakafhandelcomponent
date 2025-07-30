@@ -4,7 +4,6 @@
  */
 
 import {
-  HttpClient,
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
@@ -16,8 +15,8 @@ import {
   PathLocationStrategy,
 } from "@angular/common";
 import { MatIconRegistry } from "@angular/material/icon";
-import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
-import { TranslateHttpLoader } from "@ngx-translate/http-loader";
+import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
 import {
   QueryClient,
   provideTanStackQuery,
@@ -41,9 +40,6 @@ import { TakenModule } from "./taken/taken.module";
 import { ZakenModule } from "./zaken/zaken.module";
 import { ZoekenModule } from "./zoeken/zoeken.module";
 
-const httpLoaderFactory = (http: HttpClient) =>
-  new TranslateHttpLoader(http, "./assets/i18n/", ".json");
-
 @NgModule({
   declarations: [AppComponent, ToolbarComponent],
   exports: [ToolbarComponent],
@@ -66,11 +62,10 @@ const httpLoaderFactory = (http: HttpClient) =>
     GebruikersvoorkeurenModule,
     AppRoutingModule,
     TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: httpLoaderFactory,
-        deps: [HttpClient],
-      },
+      loader: provideTranslateHttpLoader({
+        prefix: "./assets/i18n/",
+        suffix: ".json",
+      }),
     }),
   ],
   providers: [

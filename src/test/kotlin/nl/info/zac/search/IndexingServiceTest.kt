@@ -22,7 +22,6 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.ZaakUuid
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.authentication.OidcSessionService
 import nl.info.zac.search.converter.AbstractZoekObjectConverter
 import nl.info.zac.search.converter.ZaakZoekObjectConverter
 import nl.info.zac.search.model.createZaakZoekObject
@@ -48,7 +47,6 @@ private data class TestContext(
     val drcClientService: DrcClientService,
     val flowableTaskService: FlowableTaskService,
     val zrcClientService: ZrcClientService,
-    val oidcSessionService: OidcSessionService,
     val indexingService: IndexingService
 )
 
@@ -69,14 +67,12 @@ private fun setupContext(): TestContext {
     val drcClientService = mockk<DrcClientService>()
     val flowableTaskService = mockk<FlowableTaskService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val oidcSessionService = mockk<OidcSessionService>()
 
     val indexingService = IndexingService(
         converterInstances,
         zrcClientService,
         drcClientService,
-        flowableTaskService,
-        oidcSessionService
+        flowableTaskService
     )
 
     return TestContext(
@@ -87,7 +83,6 @@ private fun setupContext(): TestContext {
         drcClientService,
         flowableTaskService,
         zrcClientService,
-        oidcSessionService,
         indexingService
     )
 }
@@ -287,30 +282,6 @@ class IndexingServiceTest : BehaviorSpec({
 
             Then("continues without exception") {
                 verify(exactly = 3) {
-                    ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>())
-                }
-            }
-        }
-
-        When("reading a zaak list throws an `IllegalStateException -> Session is invalid`") {
-            clearMocks(ctx.zrcClientService, answers = false, recordedCalls = true)
-            clearMocks(ctx.oidcSessionService, answers = false, recordedCalls = true)
-
-            every {
-                ctx.zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 2 })
-            } throws IllegalStateException("Session is invalid") andThen Results(emptyList(), 0)
-            every { ctx.oidcSessionService.refreshUserSession() } returns Unit
-
-            ctx.indexingService.reindex(ZoekObjectType.ZAAK)
-
-            Then("the session token is refreshed") {
-                verify(exactly = 1) {
-                    ctx.oidcSessionService.refreshUserSession()
-                }
-            }
-
-            And("the call is retried") {
-                verify(exactly = 4) {
                     ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>())
                 }
             }

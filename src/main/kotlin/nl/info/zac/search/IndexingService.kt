@@ -7,22 +7,16 @@ package nl.info.zac.search
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import jakarta.json.bind.JsonbException
-import jakarta.ws.rs.ProcessingException
-import jakarta.ws.rs.WebApplicationException
-import jakarta.xml.bind.JAXBException
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.shared.ZGWApiService
-import nl.info.client.zgw.shared.exception.ZgwRuntimeException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.task.model.TaakSortering
-import nl.info.zac.authentication.OidcSessionException
-import nl.info.zac.authentication.OidcSessionService
+import nl.info.zac.authentication.SecurityUtil.Companion.systemUser
 import nl.info.zac.search.converter.AbstractZoekObjectConverter
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -30,16 +24,13 @@ import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.util.AllOpen
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.SolrQuery
-import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.common.params.CursorMarkParams
 import org.eclipse.microprofile.config.ConfigProvider
-import java.io.IOException
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.IllegalStateException
 
 @Singleton
 @AllOpen
@@ -48,8 +39,7 @@ class IndexingService @Inject constructor(
     private val converterInstances: Instance<AbstractZoekObjectConverter<out ZoekObject>>,
     private val zrcClientService: ZrcClientService,
     private val drcClientService: DrcClientService,
-    private val flowableTaskService: FlowableTaskService,
-    private val oidcSessionService: OidcSessionService
+    private val flowableTaskService: FlowableTaskService
 ) {
     companion object {
         const val SOLR_CORE = "zac"
@@ -113,6 +103,7 @@ class IndexingService @Inject constructor(
         }
         reindexingViewfinder.add(objectType)
         try {
+            systemUser.set(true)
             LOG.info("[$objectType] Reindexing started")
             removeEntitiesFromSolrIndex(objectType)
             when (objectType) {
@@ -123,6 +114,7 @@ class IndexingService @Inject constructor(
             LOG.info("[$objectType] Reindexing finished")
         } finally {
             reindexingViewfinder.remove(objectType)
+            systemUser.remove()
         }
     }
 
@@ -330,60 +322,20 @@ class IndexingService @Inject constructor(
         return tasks.size == TAKEN_MAX_RESULTS
     }
 
-    @Suppress("ThrowsCount")
+    @Suppress("TooGenericExceptionCaught")
     private fun <T> runTranslatingToIndexingException(fn: () -> T): T {
         try {
             return fn()
-        } catch (solrServerException: SolrServerException) {
-            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, solrServerException)
-        } catch (ioException: IOException) {
-            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, ioException)
-        } catch (webApplicationException: WebApplicationException) {
-            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, webApplicationException)
-        } catch (zgwRuntimeException: ZgwRuntimeException) {
-            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, zgwRuntimeException)
-        } catch (jsonbException: JsonbException) {
-            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, jsonbException)
-        } catch (jaxbException: JAXBException) {
-            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, jaxbException)
-        } catch (processingException: ProcessingException) {
-            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, processingException)
-        } catch (illegalStateException: IllegalStateException) {
-            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, illegalStateException)
+        } catch (exception: Exception) {
+            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, exception)
         }
     }
 
-    private fun Throwable.rootCause(): Throwable {
-        var current: Throwable = this
-        while (current.cause != null && current.cause != current) {
-            current = current.cause!!
-        }
-        return current
-    }
-
-    @Suppress("NestedBlockDepth", "TooGenericExceptionCaught")
     private fun <T> continueOnExceptions(objectType: ZoekObjectType, fn: () -> T): T? =
         try {
             runTranslatingToIndexingException { fn() }
         } catch (indexingException: IndexingException) {
             LOG.log(Level.WARNING, "[$objectType] Error during indexing", indexingException)
-
-            when (val rootCause = indexingException.rootCause()) {
-                is IllegalStateException -> {
-                    if (rootCause.message?.contains("Session is invalid") == true) {
-                        try {
-                            LOG.info("[$objectType] Access token invalid, revalidating...")
-                            this.oidcSessionService.refreshUserSession()
-                            LOG.info("[$objectType] Access token revalidated, retrying call one more time")
-                            runTranslatingToIndexingException { fn() } // Retry once
-                        } catch (e: OidcSessionException) {
-                            LOG.warning { "[$objectType] Failed to revalidate access token: ${e.message}" }
-                        } catch (e: Exception) {
-                            LOG.warning("[$objectType] Error persists after revalidation: ${e.message}")
-                        }
-                    }
-                }
-            }
             null
         }
 }

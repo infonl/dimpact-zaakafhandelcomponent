@@ -117,8 +117,16 @@ class ZaakZoekObjectConverter @Inject constructor(
     }
 
     private fun addBetrokkenen(zaak: Zaak, zaakZoekObject: ZaakZoekObject) {
-        for (rol in zrcClientService.listRollen(zaak)) {
-            zaakZoekObject.addBetrokkene(rol.omschrijving, rol.identificatienummer)
+        for (role in zrcClientService.listRollen(zaak)) {
+            // It is possible for a role in the ZGW zaakregister to not have an identification number.
+            // This can happen when a rol for some reason no longer has an underlying 'identity' object (like a Natuurlijk Persoon etc.).
+            // In this case, we treat the rol as an empty 'orphaned' role and ignore it here.
+            role.identificatienummer?.run {
+                zaakZoekObject.addBetrokkene(
+                    rol = role.omschrijving,
+                    identificatie = this
+                )
+            }
         }
     }
 

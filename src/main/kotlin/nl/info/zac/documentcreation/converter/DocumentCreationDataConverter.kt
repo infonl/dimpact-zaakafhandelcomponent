@@ -123,11 +123,15 @@ class DocumentCreationDataConverter @Inject constructor(
 
     private fun convertToAanvragerData(initiator: Rol<*>, zaakNummer: String): AanvragerData? =
         when (initiator.betrokkeneType) {
-            NATUURLIJK_PERSOON -> createAanvragerDataNatuurlijkPersoon(
-                initiator.identificatienummer,
-                "$zaakNummer@$ACTION"
-            )
-            VESTIGING -> createAanvragerDataVestiging(initiator.identificatienummer)
+            NATUURLIJK_PERSOON -> initiator.identificatienummer?.run {
+                createAanvragerDataNatuurlijkPersoon(
+                    bsn = this,
+                    auditEvent = "$zaakNummer@$ACTION"
+                )
+            }
+            VESTIGING -> initiator.identificatienummer?.run {
+                createAanvragerDataVestiging(this)
+            }
             NIET_NATUURLIJK_PERSOON -> createAanvragerDataNietNatuurlijkPersoon(initiator)
             else -> error("Initiator of type '${initiator.betrokkeneType}' is not supported")
         }
@@ -162,13 +166,13 @@ class DocumentCreationDataConverter @Inject constructor(
      * as well as for KVK vestigingen.
      */
     private fun createAanvragerDataNietNatuurlijkPersoon(initiator: Rol<*>): AanvragerData? {
-        val nietNatuurlijkPersoonIdentificatie = (initiator.betrokkeneIdentificatie as NietNatuurlijkPersoonIdentificatie)
-        val kvkResultaat = if (nietNatuurlijkPersoonIdentificatie.innNnpId?.isNotBlank() == true) {
-            kvkClientService.findRechtspersoon(nietNatuurlijkPersoonIdentificatie.innNnpId)
-        } else if (nietNatuurlijkPersoonIdentificatie.vestigingsNummer?.isNotBlank() == true) {
-            kvkClientService.findVestiging(nietNatuurlijkPersoonIdentificatie.vestigingsNummer)
-        } else {
-            error(
+        val nietNatuurlijkPersoonIdentificatie = (initiator.betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)
+        val kvkResultaat = when {
+            nietNatuurlijkPersoonIdentificatie?.innNnpId?.isNotBlank() == true ->
+                kvkClientService.findRechtspersoon(nietNatuurlijkPersoonIdentificatie.innNnpId)
+            nietNatuurlijkPersoonIdentificatie?.vestigingsNummer?.isNotBlank() == true ->
+                kvkClientService.findVestiging(nietNatuurlijkPersoonIdentificatie.vestigingsNummer)
+            else -> error(
                 "Niet-natuurlijke persoon initiator role '$initiator' with neither INN NNP ID (RSIN) " +
                     "nor vestigingsnummer is not supported"
             )
