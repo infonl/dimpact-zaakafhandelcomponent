@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package nl.info.zac.app.zaak.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
@@ -43,7 +42,6 @@ import nl.info.zac.app.zaak.model.createRestZaaktype
 import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_AFGEROND
 import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_HEROPEND
 import nl.info.zac.flowable.bpmn.BpmnService
-import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD
 import java.util.EnumSet
@@ -60,7 +58,6 @@ class RestZaakConverterTest : BehaviorSpec({
     val restUserConverter = mockk<RestUserConverter>()
     val restDecisionConverter = mockk<RestDecisionConverter>()
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
-    val policyService = mockk<PolicyService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val bpmnService = mockk<BpmnService>()
     val restZaakConverter = RestZaakConverter(
@@ -74,7 +71,6 @@ class RestZaakConverterTest : BehaviorSpec({
         restUserConverter = restUserConverter,
         restDecisionConverter = restDecisionConverter,
         restZaaktypeConverter = restZaaktypeConverter,
-        policyService = policyService,
         zaakVariabelenService = zaakVariabelenService,
         bpmnService = bpmnService
     )
@@ -99,12 +95,9 @@ class RestZaakConverterTest : BehaviorSpec({
             )
         )
         val restZaakType = createRestZaaktype()
-        val zaakrechten = createZaakRechten()
+        val zaakRechten = createZaakRechten()
         val zaakdata = mapOf("fakeKey" to "fakeValue")
 
-        with(ztcClientService) {
-            every { readZaaktype(zaak.zaaktype) } returns zaakType
-        }
         with(zgwApiService) {
             every { findGroepForZaak(zaak) } returns rolOrganisatorischeEenheid
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
@@ -120,10 +113,9 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isProcessDriven(zaak.uuid) } returns false
-        every { policyService.readZaakRechten(zaak, zaakType) } returns zaakrechten
 
         When("converting a zaak to a rest zaak") {
-            val restZaak = restZaakConverter.toRestZaak(zaak)
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
 
             Then("the zaak should be converted correctly") {
                 with(restZaak) {
@@ -158,12 +150,9 @@ class RestZaakConverterTest : BehaviorSpec({
             )
         )
         val restZaakType = createRestZaaktype()
-        val zaakrechten = createZaakRechten()
+        val zaakRechten = createZaakRechten()
         val zaakdata = mapOf("fakeKey" to "fakeValue")
 
-        with(ztcClientService) {
-            every { readZaaktype(zaak.zaaktype) } returns zaakType
-        }
         with(zgwApiService) {
             every { findGroepForZaak(zaak) } returns null
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
@@ -176,10 +165,9 @@ class RestZaakConverterTest : BehaviorSpec({
         every { brcClientService.listBesluiten(zaak) } returns emptyList()
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isProcessDriven(zaak.uuid) } returns false
-        every { policyService.readZaakRechten(zaak, zaakType) } returns zaakrechten
 
         When("converting a zaak to a rest zaak") {
-            val restZaak = restZaakConverter.toRestZaak(zaak)
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
 
             Then("the zaak should be converted correctly") {
                 with(restZaak) {
@@ -214,12 +202,9 @@ class RestZaakConverterTest : BehaviorSpec({
             )
         )
         val restZaakType = createRestZaaktype()
-        val zaakrechten = createZaakRechten()
+        val zaakRechten = createZaakRechten()
         val zaakdata = mapOf("fakeKey" to "fakeValue")
 
-        with(ztcClientService) {
-            every { readZaaktype(zaak.zaaktype) } returns zaakType
-        }
         with(zgwApiService) {
             every { findGroepForZaak(zaak) } returns null
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
@@ -232,10 +217,9 @@ class RestZaakConverterTest : BehaviorSpec({
         every { brcClientService.listBesluiten(zaak) } returns emptyList()
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isProcessDriven(zaak.uuid) } returns false
-        every { policyService.readZaakRechten(zaak, zaakType) } returns zaakrechten
 
         When("converting a zaak to a rest zaak") {
-            val restZaak = restZaakConverter.toRestZaak(zaak)
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
 
             Then("the zaak should be converted correctly") {
                 with(restZaak) {
@@ -274,12 +258,9 @@ class RestZaakConverterTest : BehaviorSpec({
         val restUser = createRestUser()
         val rol = createRolNatuurlijkPersoon()
         val restZaakType = createRestZaaktype()
-        val zaakrechten = createZaakRechten()
+        val zaakRechten = createZaakRechten()
         val zaakdata = mapOf("fakeKey" to "fakeValue")
 
-        with(ztcClientService) {
-            every { readZaaktype(zaak.zaaktype) } returns zaakType
-        }
         with(zgwApiService) {
             every { findGroepForZaak(zaak) } returns rolOrganistorischeEenheid
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
@@ -294,14 +275,13 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isProcessDriven(zaak.uuid) } returns false
-        every { policyService.readZaakRechten(zaak, zaakType) } returns zaakrechten
 
         When("converting a zaak to a rest zaak") {
             every {
                 zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid)
             } returns Optional.of(true)
 
-            val restZaak = restZaakConverter.toRestZaak(zaak, status, statusType)
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, status, statusType)
 
             Then("the zaak should be converted correctly") {
                 with(restZaak) {
@@ -340,12 +320,9 @@ class RestZaakConverterTest : BehaviorSpec({
         val restUser = createRestUser()
         val rol = createRolNatuurlijkPersoon()
         val restZaakType = createRestZaaktype()
-        val zaakrechten = createZaakRechten()
+        val zaakRechten = createZaakRechten()
         val zaakdata = mapOf("fakeKey" to "fakeValue")
 
-        with(ztcClientService) {
-            every { readZaaktype(zaak.zaaktype) } returns zaakType
-        }
         with(zgwApiService) {
             every { findGroepForZaak(zaak) } returns rolOrganistorischeEenheid
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
@@ -360,14 +337,13 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isProcessDriven(zaak.uuid) } returns false
-        every { policyService.readZaakRechten(zaak, zaakType) } returns zaakrechten
 
         When("converting a zaak to a rest zaak") {
             every {
                 zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid)
             } returns Optional.of(true)
 
-            val restZaak = restZaakConverter.toRestZaak(zaak, status, statusType)
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, status, statusType)
 
             Then("the zaak should be converted correctly") {
                 with(restZaak) {

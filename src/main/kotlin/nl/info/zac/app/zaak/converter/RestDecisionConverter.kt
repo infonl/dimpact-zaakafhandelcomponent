@@ -30,28 +30,26 @@ class RestDecisionConverter @Inject constructor(
     private val configuratieService: ConfiguratieService
 ) {
     fun convertToRestDecision(besluit: Besluit) =
-        ztcClientService.readBesluittype(besluit.besluittype).let { besluitType ->
-            RestDecision(
-                uuid = besluit.url.extractUuid(),
-                besluittype = besluitType.toRestDecisionType(),
-                datum = besluit.datum,
-                identificatie = besluit.identificatie,
-                url = besluit.url,
-                toelichting = besluit.toelichting,
-                ingangsdatum = besluit.ingangsdatum,
-                vervaldatum = besluit.vervaldatum,
-                vervalreden = besluit.vervalreden,
-                publicationDate = besluit.publicatiedatum,
-                lastResponseDate = besluit.uiterlijkeReactiedatum,
-                isIngetrokken = besluit.vervaldatum != null && (
-                    besluit.vervalreden == VervalredenEnum.INGETROKKEN_BELANGHEBBENDE ||
-                        besluit.vervalreden == VervalredenEnum.INGETROKKEN_OVERHEID
-                    ),
-                informatieobjecten = restInformatieobjectConverter.convertInformatieobjectenToREST(
-                    listDecisionInformationObjects(besluit)
-                )
+        RestDecision(
+            uuid = besluit.url.extractUuid(),
+            besluittype = ztcClientService.readBesluittype(besluit.besluittype).toRestDecisionType(),
+            datum = besluit.datum,
+            identificatie = besluit.identificatie,
+            url = besluit.url,
+            toelichting = besluit.toelichting,
+            ingangsdatum = besluit.ingangsdatum,
+            vervaldatum = besluit.vervaldatum,
+            vervalreden = besluit.vervalreden,
+            publicationDate = besluit.publicatiedatum,
+            lastResponseDate = besluit.uiterlijkeReactiedatum,
+            isIngetrokken = besluit.vervaldatum != null && (
+                besluit.vervalreden == VervalredenEnum.INGETROKKEN_BELANGHEBBENDE ||
+                    besluit.vervalreden == VervalredenEnum.INGETROKKEN_OVERHEID
+                ),
+            informatieobjecten = restInformatieobjectConverter.convertInformatieobjectenToREST(
+                listDecisionInformationObjects(besluit)
             )
-        }
+        )
 
     fun convertToBesluit(zaak: Zaak, besluitToevoegenGegevens: RestDecisionCreateData) =
         ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid).let { besluitType ->

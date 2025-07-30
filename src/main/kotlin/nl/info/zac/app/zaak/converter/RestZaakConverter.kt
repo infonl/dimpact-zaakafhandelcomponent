@@ -27,6 +27,7 @@ import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.StatusType
+import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.klant.model.klant.IdentificatieType
@@ -39,7 +40,7 @@ import nl.info.zac.app.zaak.model.RestZaak
 import nl.info.zac.app.zaak.model.toRestGeometry
 import nl.info.zac.app.zaak.model.toRestZaakStatus
 import nl.info.zac.flowable.bpmn.BpmnService
-import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.output.ZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.ZaakIndicatie.DEELZAAK
 import nl.info.zac.search.model.ZaakIndicatie.HEROPEND
@@ -64,7 +65,6 @@ class RestZaakConverter @Inject constructor(
     private val restUserConverter: RestUserConverter,
     private val restDecisionConverter: RestDecisionConverter,
     private val restZaaktypeConverter: RestZaaktypeConverter,
-    private val policyService: PolicyService,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val bpmnService: BpmnService
 ) {
@@ -72,15 +72,24 @@ class RestZaakConverter @Inject constructor(
         private val LOG = Logger.getLogger(RestZaakConverter::class.java.name)
     }
 
-    fun toRestZaak(zaak: Zaak): RestZaak {
+    fun toRestZaak(
+        zaak: Zaak,
+        zaakType: ZaakType,
+        zaakRechten: ZaakRechten
+    ): RestZaak {
         val status = zaak.status?.let { zrcClientService.readStatus(it) }
         val statustype = status?.let { ztcClientService.readStatustype(it.statustype) }
-        return toRestZaak(zaak, status, statustype)
+        return toRestZaak(zaak, zaakType, zaakRechten, status, statustype)
     }
 
     @Suppress("LongMethod", "CyclomaticComplexMethod")
-    fun toRestZaak(zaak: Zaak, status: Status?, statustype: StatusType?): RestZaak {
-        val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
+    fun toRestZaak(
+        zaak: Zaak,
+        zaakType: ZaakType,
+        zaakRechten: ZaakRechten,
+        status: Status?,
+        statustype: StatusType?
+    ): RestZaak {
         val groep = zgwApiService.findGroepForZaak(zaak)?.let { rolOrganisatorischeEenheid ->
             rolOrganisatorischeEenheid.betrokkeneIdentificatie?.let {
                 restGroupConverter.convertGroupId(it.identificatie)
@@ -108,7 +117,7 @@ class RestZaakConverter @Inject constructor(
             archiefActiedatum = zaak.archiefactiedatum,
             omschrijving = zaak.omschrijving,
             toelichting = zaak.toelichting,
-            zaaktype = restZaaktypeConverter.convert(zaaktype),
+            zaaktype = restZaaktypeConverter.convert(zaakType),
             status = status?.let { toRestZaakStatus(it, statustype!!) },
             resultaat = zaak.resultaat?.let(restZaakResultaatConverter::convert),
             isOpgeschort = zaak.isOpgeschort(),
@@ -160,9 +169,9 @@ class RestZaakConverter @Inject constructor(
             isOpen = zaak.isOpen(),
             isHeropend = statustype.isHeropend(),
             isInIntakeFase = statustype.isIntake(),
-            isBesluittypeAanwezig = zaaktype.besluittypen?.isNotEmpty() ?: false,
+            isBesluittypeAanwezig = zaakType.besluittypen?.isNotEmpty() ?: false,
             isProcesGestuurd = bpmnService.isProcessDriven(zaak.uuid),
-            rechten = policyService.readZaakRechten(zaak, zaaktype).toRestZaakRechten(),
+            rechten = zaakRechten.toRestZaakRechten(),
             zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid),
             indicaties = noneOf(ZaakIndicatie::class.java).apply {
                 if (zaak.isHoofdzaak()) add(HOOFDZAAK)
