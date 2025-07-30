@@ -537,7 +537,6 @@ class ProductaanvraagService @Inject constructor(
         productaanvraag: ProductaanvraagDimpact,
         productaanvraagObject: ModelObject
     ) {
-        val formulierData = getAanvraaggegevens(productaanvraagObject)
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
         val createdZaak = Zaak().apply {
             this.zaaktype = zaaktype.url
@@ -555,10 +554,18 @@ class ProductaanvraagService @Inject constructor(
             toelichting = generateZaakExplanationFromProductaanvraag(productaanvraag)
         }.let(zgwApiService::createZaak)
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid)
+        // First start the CMMN process for the zaak and only then perform other actions related to the zaak,
+        // so that should things fail, at least the CMMN process has been started.
+        // Note that the error handling here still has room for improvement.
+        cmmnService.startCase(
+            zaak = createdZaak,
+            zaaktype = zaaktype,
+            zaakafhandelParameters = zaakafhandelParameters,
+            zaakData = getAanvraaggegevens(productaanvraagObject)
+        )
         pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, createdZaak)
         assignZaak(createdZaak, zaakafhandelParameters)
         val initiator = addInitiatorAndBetrokkenenToZaak(productaanvraag, createdZaak)
-        cmmnService.startCase(createdZaak, zaaktype, zaakafhandelParameters, formulierData)
         productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(createdZaak, initiator, zaakafhandelParameters)
     }
 

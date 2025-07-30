@@ -131,13 +131,6 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                     "toelichting": ""
                   },
                   {
-                    "actie": "GEWIJZIGD",
-                    "attribuutLabel": "status",
-                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
-                    "nieuweWaarde": "Intake",
-                    "toelichting": "Status gewijzigd"
-                  },
-                  {
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "Bewindvoerder",
                     "door": "$FUNCTIONELE_GEBRUIKER_ID",
@@ -178,6 +171,13 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                     "door": "$FUNCTIONELE_GEBRUIKER_ID",
                     "nieuweWaarde": "Aanvraag PDF",
                     "toelichting": "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                  },
+                  {
+                    "actie": "GEWIJZIGD",
+                    "attribuutLabel": "status",
+                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
+                    "nieuweWaarde": "Intake",
+                    "toelichting": "Status gewijzigd"
                   },
                   {
                     "actie": "AANGEMAAKT",
