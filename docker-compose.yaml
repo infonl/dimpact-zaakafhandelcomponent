@@ -27,7 +27,11 @@ services:
       keycloak-database:
         condition: service_healthy
     ports:
-      - "8081:8080"
+      # Workaround to avoid the 'We are sorry... HTTPS required' error when trying to access the Keycloak master
+      # realm on macOS (with Docker Desktop).
+      # See: https://github.com/keycloak/keycloak/issues/30112
+      # This issue may be solved in a future Docker Desktop for the Mac version.
+      - "127.0.0.1:8081:8080"
       - "9001:9000"
     healthcheck:
       test: [
