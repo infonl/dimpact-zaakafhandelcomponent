@@ -5,7 +5,7 @@
     <extensionElements>
       <design:stencilid><![CDATA[BPMNDiagram]]></design:stencilid>
       <design:creationdate><![CDATA[2025-06-25T08:19:42.627Z]]></design:creationdate>
-      <design:modificationdate><![CDATA[2025-07-22T12:58:00.243Z]]></design:modificationdate>
+      <design:modificationdate><![CDATA[2025-07-30T09:01:45.471Z]]></design:modificationdate>
     </extensionElements>
     <userTask id="summary" name="Summary" flowable:candidateUsers="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="summaryForm" flowable:formFieldValidation="false">
       <extensionElements>
@@ -15,16 +15,16 @@
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </userTask>
-    <serviceTask id="ServiceTask_353" name="Status to &quot;In behandeling&quot;" flowable:class="net.atos.zac.flowable.delegate.UpdateZaakJavaDelegate">
+    <serviceTask id="ServiceTask_353" name="Change status" flowable:class="net.atos.zac.flowable.delegate.UpdateZaakJavaDelegate">
       <extensionElements>
         <flowable:field name="statustypeOmschrijving">
-          <flowable:string><![CDATA[In behandeling]]></flowable:string>
+          <flowable:expression><![CDATA[${RB_Status}]]></flowable:expression>
         </flowable:field>
         <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </serviceTask>
-    <serviceTask id="ServiceTask_357" name="Status to &quot;Verleend&quot;" flowable:class="net.atos.zac.flowable.delegate.UpdateZaakJavaDelegate">
+    <serviceTask id="ServiceTask_357" name="Set status to &quot;Verleend&quot;" flowable:class="net.atos.zac.flowable.delegate.UpdateZaakJavaDelegate">
       <extensionElements>
         <flowable:field name="statustypeOmschrijving">
           <flowable:string><![CDATA[Afgerond]]></flowable:string>

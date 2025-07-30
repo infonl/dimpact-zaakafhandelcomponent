@@ -59,7 +59,8 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                     "AM_TeamBehandelaar_Medewerker": "$TEST_COORDINATOR_1_USERNAME",
                     "SD_SmartDocuments_Template": "OpenZaakTest",
                     "SD_SmartDocuments_Create": false,
-                    "RT_ReferenceTable_Values": "Post"
+                    "RT_ReferenceTable_Values": "Post",
+                    "RB_Status": "In behandeling"
                 }
             """.trimIndent()
         )
