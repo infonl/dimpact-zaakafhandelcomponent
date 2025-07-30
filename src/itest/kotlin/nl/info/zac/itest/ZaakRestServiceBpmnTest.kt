@@ -36,7 +36,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
 
-    fun submitFormData(bpmnZaakUuid: UUID, additionalContent: String = ""): String {
+    fun submitFormData(bpmnZaakUuid: UUID, taakData: String): String {
         val takenCreateResponse = itestHttpClient.performGetRequest(
             "$ZAC_API_URI/taken/zaak/$bpmnZaakUuid"
         ).let {
@@ -47,23 +47,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
         }
         val zaakIdentificatie = JSONArray(takenCreateResponse).getJSONObject(0).get("zaakIdentificatie")
 
-        val patchedTakenData = takenCreateResponse.replace(
-            """"taakdata":{}""",
-            """
-                "taakdata":{
-                    "zaakIdentificatie":"$zaakIdentificatie",
-                    "initiator":null,
-                    "zaaktypeOmschrijving":"$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
-                    "firstName":"Name",
-                    "AM_TeamBehandelaar_Groep": "$TEST_GROUP_COORDINATORS_ID",
-                    "AM_TeamBehandelaar_Medewerker": "$TEST_COORDINATOR_1_USERNAME",
-                    "SD_SmartDocuments_Template": "OpenZaakTest",
-                    "SD_SmartDocuments_Create": false,
-                    "RT_ReferenceTable_Values": "Post",
-                    "RB_Status": "In behandeling"$additionalContent
-                }
-            """.trimIndent()
-        )
+        val patchedTakenData = takenCreateResponse.replace(""""taakdata":{}""", taakData)
         logger.info { "Patched request: $patchedTakenData" }
 
         return itestHttpClient.performPatchRequest(
@@ -99,7 +83,23 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
         }
 
         When("the user data form is submitted") {
-            val takenPatchResponse = submitFormData(bpmnZaakUuid)
+            val takenPatchResponse = submitFormData(
+                bpmnZaakUuid = bpmnZaakUuid,
+                taakData = """
+                   "taakdata":{
+                     "zaakIdentificatie":"$zaakIdentificatie",
+                     "initiator":null,
+                     "zaaktypeOmschrijving":"$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
+                     "firstName":"Name",
+                     "AM_TeamBehandelaar_Groep": "$TEST_GROUP_COORDINATORS_ID",
+                     "AM_TeamBehandelaar_Medewerker": "$TEST_COORDINATOR_1_USERNAME",
+                     "SD_SmartDocuments_Template": "OpenZaakTest",
+                     "SD_SmartDocuments_Create": false,
+                     "RT_ReferenceTable_Values": "Post",
+                     "RB_Status": "In behandeling"
+                   }
+                """.trimIndent()
+            )
 
             Then("process task is completed") {
                 JSONObject(takenPatchResponse).run {
@@ -154,8 +154,20 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
         When("the summary form is completed") {
             val takenPatchResponse = submitFormData(
                 bpmnZaakUuid = bpmnZaakUuid,
-                additionalContent = """,
+                taakData = """
+                  "taakdata":{
+                    "zaakIdentificatie":"$zaakIdentificatie",
+                    "initiator":null,
+                    "zaaktypeOmschrijving":"$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
+                    "firstName":"Name",
+                    "AM_TeamBehandelaar_Groep": "$TEST_GROUP_COORDINATORS_ID",
+                    "AM_TeamBehandelaar_Medewerker": "$TEST_COORDINATOR_1_USERNAME",
+                    "SD_SmartDocuments_Template": "OpenZaakTest",
+                    "SD_SmartDocuments_Create": false,
+                    "RT_ReferenceTable_Values": "Post",
+                    "RB_Status": "In behandeling",
                     "TF_EMAIL_TO": "shared-team-dimpact@info.nl"
+                  }
                 """.trimIndent()
             )
 
