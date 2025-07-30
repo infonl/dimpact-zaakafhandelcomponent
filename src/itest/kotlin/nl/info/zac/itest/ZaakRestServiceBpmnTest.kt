@@ -36,7 +36,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
 
-    fun submitFormData(bpmnZaakUuid: UUID): String {
+    fun submitFormData(bpmnZaakUuid: UUID, additionalContent: String = ""): String {
         val takenCreateResponse = itestHttpClient.performGetRequest(
             "$ZAC_API_URI/taken/zaak/$bpmnZaakUuid"
         ).let {
@@ -60,7 +60,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                     "SD_SmartDocuments_Template": "OpenZaakTest",
                     "SD_SmartDocuments_Create": false,
                     "RT_ReferenceTable_Values": "Post",
-                    "RB_Status": "In behandeling"
+                    "RB_Status": "In behandeling"$additionalContent
                 }
             """.trimIndent()
         )
@@ -152,7 +152,12 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
         }
 
         When("the summary form is completed") {
-            val takenPatchResponse = submitFormData(bpmnZaakUuid)
+            val takenPatchResponse = submitFormData(
+                bpmnZaakUuid = bpmnZaakUuid,
+                additionalContent = """,
+                    "TF_EMAIL_TO": "shared-team-dimpact@info.nl"
+                """.trimIndent()
+            )
 
             Then("process task should be completed") {
                 JSONObject(takenPatchResponse).run {
