@@ -384,7 +384,6 @@ class ZaakRestServiceTest : BehaviorSpec({
         val restZaakToekennenGegevens = createRESTZaakAssignmentData()
         val zaak = createZaak()
         val zaakType = createZaakType()
-        val zaakRechten = createZaakRechten()
         val user = createLoggedInUser()
         val rolSlot = mutableListOf<Rol<*>>()
         val restZaak = createRestZaak()
@@ -393,8 +392,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         val group = createGroup()
         val rolGroup = createRolOrganisatorischeEenheid()
 
-        every { zrcClientService.readZaak(restZaakToekennenGegevens.zaakUUID) } returns zaak
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every { zaakService.retrieveZaakAndZaakType(restZaakToekennenGegevens.zaakUUID) } returns Pair(zaak, zaakType)
         every { zrcClientService.updateRol(zaak, capture(rolSlot), restZaakToekennenGegevens.reason) } just runs
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
         every { identityService.readUser(restZaakToekennenGegevens.assigneeUserName!!) } returns user
@@ -449,8 +447,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         val zaak = createZaak()
         val zaakType = createZaakType()
 
-        every { zrcClientService.readZaak(restZaakToekennenGegevensUnknownGroup.zaakUUID) } returns zaak
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every {
+            zaakService.retrieveZaakAndZaakType(restZaakToekennenGegevensUnknownGroup.zaakUUID)
+        } returns Pair(zaak, zaakType)
         every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechtenAllDeny(toekennen = true)
         every {
             identityService.validateIfUserIsInGroup(
@@ -489,8 +488,9 @@ class ZaakRestServiceTest : BehaviorSpec({
             organisatorischeEenheidIdentificatie = createOrganisatorischeEenheid(identificatie = "newGroup")
         )
 
-        every { zrcClientService.readZaak(restZaakToekennenGegevens.zaakUUID) } returns zaak
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every {
+            zaakService.retrieveZaakAndZaakType(restZaakToekennenGegevens.zaakUUID)
+        } returns Pair(zaak, zaakType)
         every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
         every { zrcClientService.updateRol(zaak, capture(rolSlot), restZaakToekennenGegevens.reason) } just runs
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns existingRolMedewerker
@@ -734,8 +734,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         val patchedZaak = createZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate)
         val task = mockk<Task>()
 
-        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every {
+            zaakService.retrieveZaakAndZaakType(zaak.uuid)
+        } returns Pair(zaak, zaakType)
         every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
         every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
         every { flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns listOf(task, task, task)
@@ -779,8 +780,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         val restZaak = createRestZaak()
         val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaak, changeDescription)
 
-        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every {
+            zaakService.retrieveZaakAndZaakType(zaak.uuid)
+        } returns Pair(zaak, zaakType)
         every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten()
         every { identityService.validateIfUserIsInGroup(any(), any()) } throws InputValidationFailedException()
         every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
@@ -802,8 +804,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         val restZaak = createRestZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate, einddatumGepland = null)
         val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaak, "change description")
 
-        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every {
+            zaakService.retrieveZaakAndZaakType(zaak.uuid)
+        } returns Pair(zaak, zaakType)
         every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
         every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
@@ -843,8 +846,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         val restZaak = createRestZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate, einddatumGepland = null)
         val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaak, "change description")
 
-        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every {
+            zaakService.retrieveZaakAndZaakType(zaak.uuid)
+        } returns Pair(zaak, zaakType)
         every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
         every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
@@ -890,8 +894,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         val updatedRestZaak = createRestZaak()
         val patchZaakSlot = slot<Zaak>()
         every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
-        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every {
+            zaakService.retrieveZaakAndZaakType(zaak.uuid)
+        } returns Pair(zaak, zaakType)
         every { zrcClientService.patchZaak(zaak.uuid, capture(patchZaakSlot), reason) } returns updatedZaak
         every { restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten) } returns updatedRestZaak
 
@@ -927,8 +932,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         val updatedRestZaak = createRestZaak()
         val patchZaakSlot = slot<Zaak>()
         every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
-        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every {
+            zaakService.retrieveZaakAndZaakType(zaak.uuid)
+        } returns Pair(zaak, zaakType)
         every { zrcClientService.patchZaak(zaak.uuid, capture(patchZaakSlot), reason) } returns updatedZaak
         every { restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten) } returns updatedRestZaak
 
@@ -955,8 +961,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens()
         val rolMedewerker = createRolMedewerker()
         val restZaak = createRestZaak()
-        every { zrcClientService.readZaak(restZaakInitiatorGegevens.zaakUUID) } returns zaak
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every {
+            zaakService.retrieveZaakAndZaakType(restZaakInitiatorGegevens.zaakUUID)
+        } returns Pair(zaak, zaakType)
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolMedewerker
         every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
         every { zrcClientService.deleteRol(any(), any()) } just runs
@@ -990,8 +997,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         val zaakRechten = createZaakRechten(toevoegenInitiatorPersoon = true)
         val rolMedewerker = createRolMedewerker()
         val restZaak = createRestZaak()
-        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every {
+            zaakService.retrieveZaakAndZaakType(zaak.uuid)
+        } returns Pair(zaak, zaakType)
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolMedewerker
         every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
         every { zrcClientService.deleteRol(any(), any()) } just runs
@@ -1242,9 +1250,12 @@ class ZaakRestServiceTest : BehaviorSpec({
     Given("Rest zaak data") {
         val restZaakUpdate = createRestZaak()
         val zaak = createZaak()
+        val zaakType = createZaakType()
         val zaakdataMap = slot<Map<String, Any>>()
-        every { zrcClientService.readZaak(restZaakUpdate.uuid) } returns zaak
-        every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
+        every {
+            zaakService.retrieveZaakAndZaakType(restZaakUpdate.uuid)
+        } returns Pair(zaak, zaakType)
+        every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten()
         every { zaakVariabelenService.setZaakdata(restZaakUpdate.uuid, capture(zaakdataMap)) } just runs
 
         When("the zaakdata is requested to be updated") {
@@ -1269,8 +1280,9 @@ class ZaakRestServiceTest : BehaviorSpec({
             uuid = zaakUUID,
             rechten = zaakRechten.toRestZaakRechten()
         )
-        every { zrcClientService.readZaak(zaakUUID) } returns zaak
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every {
+            zaakService.retrieveZaakAndZaakType(zaakUUID)
+        } returns Pair(zaak, zaakType)
         every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
         every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten) } returns restZaak
         every { signaleringService.deleteSignaleringenForZaak(zaak) } returns 1
@@ -1399,8 +1411,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         val zaakType = createZaakType()
         val zaakRechten = createZaakRechten()
 
-        every { zrcClientService.readZaak(restZaakInitiatorGegevens.zaakUUID) } returns zaak
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every {
+            zaakService.retrieveZaakAndZaakType(restZaakInitiatorGegevens.zaakUUID)
+        } returns Pair(zaak, zaakType)
         every { zgwApiService.findInitiatorRoleForZaak(any()) } returns null
         every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
         every {

@@ -29,6 +29,7 @@ import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
+import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.VESTIGING_IDENTIFICATIE_DELIMITER
 import nl.info.zac.authentication.UserPrincipalFilter
@@ -41,6 +42,7 @@ import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.exception.CaseHasLockedInformationObjectsException
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import java.lang.Boolean
+import java.net.URI
 import java.util.Locale
 import java.util.UUID
 import java.util.logging.Logger
@@ -150,6 +152,16 @@ class ZaakService @Inject constructor(
             eventingService.send(ScreenEventType.ZAKEN_VERDELEN.updated(it))
         }
     }
+
+    fun retrieveZaakAndZaakType(zaakURI: URI): Pair<Zaak, ZaakType> =
+        zrcClientService.readZaak(zaakURI).let { zaak ->
+            zaak to ztcClientService.readZaaktype(zaak.zaaktype)
+        }
+
+    fun retrieveZaakAndZaakType(zaakUUID: UUID): Pair<Zaak, ZaakType> =
+        zrcClientService.readZaak(zaakUUID).let { zaak ->
+            zaak to ztcClientService.readZaaktype(zaak.zaaktype)
+        }
 
     private fun isUserInGroup(
         user: User?,

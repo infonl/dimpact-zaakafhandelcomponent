@@ -40,7 +40,6 @@ import nl.info.zac.app.zaak.model.RestZaak
 import nl.info.zac.app.zaak.model.toRestGeometry
 import nl.info.zac.app.zaak.model.toRestZaakStatus
 import nl.info.zac.flowable.bpmn.BpmnService
-import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.ZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.ZaakIndicatie.DEELZAAK
@@ -73,7 +72,11 @@ class RestZaakConverter @Inject constructor(
         private val LOG = Logger.getLogger(RestZaakConverter::class.java.name)
     }
 
-    fun toRestZaak(zaak: Zaak, zaakType: ZaakType, zaakRechten: ZaakRechten): RestZaak {
+    fun toRestZaak(
+        zaak: Zaak,
+        zaakType: ZaakType,
+        zaakRechten: ZaakRechten
+    ): RestZaak {
         val status = zaak.status?.let { zrcClientService.readStatus(it) }
         val statustype = status?.let { ztcClientService.readStatustype(it.statustype) }
         return toRestZaak(zaak, zaakType, zaakRechten, status, statustype)

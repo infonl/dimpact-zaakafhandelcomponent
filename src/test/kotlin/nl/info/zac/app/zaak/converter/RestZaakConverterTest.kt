@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package nl.info.zac.app.zaak.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
@@ -99,9 +98,6 @@ class RestZaakConverterTest : BehaviorSpec({
         val zaakRechten = createZaakRechten()
         val zaakdata = mapOf("fakeKey" to "fakeValue")
 
-        with(ztcClientService) {
-            every { readZaaktype(zaak.zaaktype) } returns zaakType
-        }
         with(zgwApiService) {
             every { findGroepForZaak(zaak) } returns rolOrganisatorischeEenheid
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
@@ -157,9 +153,6 @@ class RestZaakConverterTest : BehaviorSpec({
         val zaakRechten = createZaakRechten()
         val zaakdata = mapOf("fakeKey" to "fakeValue")
 
-        with(ztcClientService) {
-            every { readZaaktype(zaak.zaaktype) } returns zaakType
-        }
         with(zgwApiService) {
             every { findGroepForZaak(zaak) } returns null
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
@@ -212,9 +205,6 @@ class RestZaakConverterTest : BehaviorSpec({
         val zaakRechten = createZaakRechten()
         val zaakdata = mapOf("fakeKey" to "fakeValue")
 
-        with(ztcClientService) {
-            every { readZaaktype(zaak.zaaktype) } returns zaakType
-        }
         with(zgwApiService) {
             every { findGroepForZaak(zaak) } returns null
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
@@ -271,9 +261,6 @@ class RestZaakConverterTest : BehaviorSpec({
         val zaakRechten = createZaakRechten()
         val zaakdata = mapOf("fakeKey" to "fakeValue")
 
-        with(ztcClientService) {
-            every { readZaaktype(zaak.zaaktype) } returns zaakType
-        }
         with(zgwApiService) {
             every { findGroepForZaak(zaak) } returns rolOrganistorischeEenheid
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
@@ -336,9 +323,6 @@ class RestZaakConverterTest : BehaviorSpec({
         val zaakRechten = createZaakRechten()
         val zaakdata = mapOf("fakeKey" to "fakeValue")
 
-        with(ztcClientService) {
-            every { readZaaktype(zaak.zaaktype) } returns zaakType
-        }
         with(zgwApiService) {
             every { findGroepForZaak(zaak) } returns rolOrganistorischeEenheid
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
