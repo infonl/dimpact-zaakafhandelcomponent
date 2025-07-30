@@ -5,6 +5,7 @@
 package net.atos.zac.flowable.delegate
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -27,6 +28,10 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
     val zaak = createZaak()
     val zaakStatusName = "fakeStatus"
     val zaakStatus = createZaakStatus()
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given("JUEL expression in a BPMN service task") {
         mockkStatic(FlowableHelper::class)
