@@ -920,12 +920,12 @@ class ZaakRestService @Inject constructor(
 
     @POST
     @Path("besluit")
-    fun createBesluit(@Valid besluitToevoegenGegevens: RestDecisionCreateData) {
+    fun createBesluit(@Valid besluitToevoegenGegevens: RestDecisionCreateData): RestDecision {
         val (zaak, zaakType) = zaakService.retrieveZaakAndZaakType(besluitToevoegenGegevens.zaakUuid)
         assertPolicy(policyService.readZaakRechten(zaak, zaakType).vastleggenBesluit)
         assertPolicy(CollectionUtils.isNotEmpty(zaakType.besluittypen))
 
-        decisionService.createDecision(zaak, besluitToevoegenGegevens).let {
+        return decisionService.createDecision(zaak, besluitToevoegenGegevens).let {
             restDecisionConverter.convertToRestDecision(it).also {
                 // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
                 // but open_zaak does not send that one, so emulate it here.
