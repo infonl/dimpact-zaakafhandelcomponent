@@ -143,7 +143,7 @@
           "input": false,
           "components": [
             {
-              "label": "Select status:",
+              "label": "Select status",
               "optionsLabelPosition": "right",
               "key": "RB_Status",
               "values": [

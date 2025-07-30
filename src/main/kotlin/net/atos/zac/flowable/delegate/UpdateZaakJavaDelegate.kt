@@ -27,7 +27,7 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
 
         if (resultaattypeOmschrijving != null) {
-            val resultaattypeOmschrijving = this.resultaattypeOmschrijving.getValue(execution).toString()
+            val resultaattypeOmschrijving = resultaattypeOmschrijving.resolveValueAsString(execution)
             LOG.info(
                 "Zaak '${zaak.getUuid()}': Aanmaken Status met resultaattype omschrijving " +
                     "'$resultaattypeOmschrijving'"
@@ -35,7 +35,7 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
             flowableHelper.zgwApiService.createResultaatForZaak(zaak, resultaattypeOmschrijving, TOELICHTING)
         }
 
-        val statustypeOmschrijving = this.statustypeOmschrijving.getValue(execution).toString()
+        val statustypeOmschrijving = statustypeOmschrijving.resolveValueAsString(execution)
         LOG.info("Zaak '${zaak.getUuid()}': Aanmaken Status met statustype omschrijving '$statustypeOmschrijving'")
         flowableHelper.zgwApiService.createStatusForZaak(zaak, statustypeOmschrijving, TOELICHTING)
     }

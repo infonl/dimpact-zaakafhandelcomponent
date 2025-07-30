@@ -53,6 +53,18 @@
           "key": "RT_ReferenceTable_Values",
           "input": false,
           "disabled": true
+        },
+        {
+          "label": "Mail reciever",
+          "labelPosition": "left-left",
+          "disabled": true,
+          "validate": {
+            "required": true
+          },
+          "key": "TF_EMAIL_TO",
+          "type": "textfield",
+          "input": true,
+          "defaultValue": "shared-team-dimpact@info.nl"
         }
       ]
     },
