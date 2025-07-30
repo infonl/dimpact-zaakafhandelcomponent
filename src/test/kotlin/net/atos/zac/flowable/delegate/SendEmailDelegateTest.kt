@@ -91,7 +91,7 @@ class SendEmailDelegateTest : BehaviorSpec({
                     mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
                 }
                 mailGegevensSlot shouldHaveSize 1
-                with (mailGegevensSlot.first()) {
+                with(mailGegevensSlot.first()) {
                     to.email shouldBeEqual toEmail
                     from.email shouldBeEqual fromEmail
                 }
@@ -149,7 +149,7 @@ class SendEmailDelegateTest : BehaviorSpec({
                     mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
                 }
                 mailGegevensSlot shouldHaveSize 1
-                with (mailGegevensSlot.first()) {
+                with(mailGegevensSlot.first()) {
                     to.email shouldBeEqual toEmail
                     from.email shouldBeEqual fromEmail
                 }
