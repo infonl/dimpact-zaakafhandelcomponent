@@ -5,16 +5,16 @@
 package net.atos.zac.flowable.delegate
 
 import net.atos.zac.flowable.FlowableHelper
+import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
-import org.flowable.engine.impl.el.FixedValue
 import java.util.logging.Logger
 
 class UpdateZaakJavaDelegate : AbstractDelegate() {
-    // set by Flowable
-    private lateinit var statustypeOmschrijving: FixedValue
+    // Set by Flowable. Can be either FixedValue or JuelExpression
+    lateinit var statustypeOmschrijving: Expression
 
-    // set by Flowable
-    private val resultaattypeOmschrijving: FixedValue? = null
+    // Set by Flowable. Can be either FixedValue or JuelExpression
+    val resultaattypeOmschrijving: Expression? = null
 
     companion object {
         private val LOG: Logger = Logger.getLogger(UpdateZaakJavaDelegate::class.java.name)
@@ -27,7 +27,7 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
 
         if (resultaattypeOmschrijving != null) {
-            val resultaattypeOmschrijving = this.resultaattypeOmschrijving.expressionText
+            val resultaattypeOmschrijving = this.resultaattypeOmschrijving.getValue(execution).toString()
             LOG.info(
                 "Zaak '${zaak.getUuid()}': Aanmaken Status met resultaattype omschrijving " +
                     "'$resultaattypeOmschrijving'"
@@ -35,7 +35,7 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
             flowableHelper.zgwApiService.createResultaatForZaak(zaak, resultaattypeOmschrijving, TOELICHTING)
         }
 
-        val statustypeOmschrijving = this.statustypeOmschrijving.expressionText
+        val statustypeOmschrijving = this.statustypeOmschrijving.getValue(execution).toString()
         LOG.info("Zaak '${zaak.getUuid()}': Aanmaken Status met statustype omschrijving '$statustypeOmschrijving'")
         flowableHelper.zgwApiService.createStatusForZaak(zaak, statustypeOmschrijving, TOELICHTING)
     }

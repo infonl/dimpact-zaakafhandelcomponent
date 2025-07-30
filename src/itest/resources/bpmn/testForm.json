@@ -135,6 +135,36 @@
               }
             }
           ]
+        },
+        {
+          "legend": "Zaak Status",
+          "type": "fieldset",
+          "key": "FS_ZaakStatus",
+          "input": false,
+          "components": [
+            {
+              "label": "Select status:",
+              "optionsLabelPosition": "right",
+              "key": "RB_Status",
+              "values": [
+                {
+                  "label": "In behandeling",
+                  "value": "In behandeling"
+                },
+                {
+                  "label": "Onderzoek afgerond",
+                  "value": "Onderzoek afgerond"
+                }
+              ],
+              "validate": {
+                "required": true,
+                "onlyAvailableItems": true
+              },
+              "type": "radio",
+              "input": true,
+              "defaultValue": "In behandeling"
+            }
+          ]
         }
       ]
     }
