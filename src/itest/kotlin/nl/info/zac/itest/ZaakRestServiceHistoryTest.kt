@@ -157,20 +157,20 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                     "door": "$FUNCTIONELE_GEBRUIKER_ID",
                     "nieuweWaarde": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
                     "toelichting": ""
-                  },          
-                  {
-                    "actie": "GEKOPPELD",
-                    "attribuutLabel": "Behandelaar",
-                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
-                    "nieuweWaarde": "$TEST_GROUP_A_DESCRIPTION",
-                    "toelichting": ""
-                  },
+                  },                
                  {
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "zaakinformatieobject",
                     "door": "$FUNCTIONELE_GEBRUIKER_ID",
                     "nieuweWaarde": "Aanvraag PDF",
                     "toelichting": "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                  },
+                  {
+                    "actie": "GEKOPPELD",
+                    "attribuutLabel": "Behandelaar",
+                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
+                    "nieuweWaarde": "$TEST_GROUP_A_DESCRIPTION",
+                    "toelichting": ""
                   },
                   {
                     "actie": "GEWIJZIGD",
