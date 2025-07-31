@@ -117,7 +117,7 @@ openForms:
 
 # Integration with the PABC API provider (PABC)
 pabcApi:
-  url: "" # https://pabc-zac-dev.dimpact.lifely.nl/
+  url: ""  # https://pabc-zac-dev.dimpact.lifely.nl/
   apiKey: ""
 
 # -- API key for authentication of internal ZAC endpoints
