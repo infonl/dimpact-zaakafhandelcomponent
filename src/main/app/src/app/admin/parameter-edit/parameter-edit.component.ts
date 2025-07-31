@@ -150,8 +150,8 @@ export class ParameterEditComponent
   });
 
   mailOpties: {
-    label: `statusmail.optie.${GeneratedType<"RESTZaakStatusmailOptie">}`;
-    value: GeneratedType<"RESTZaakStatusmailOptie">;
+    label: `statusmail.optie.${GeneratedType<"ZaakafhandelparametersStatusMailOption">}`;
+    value: GeneratedType<"ZaakafhandelparametersStatusMailOption">;
   }[] = [
     { label: "statusmail.optie.BESCHIKBAAR_AAN", value: "BESCHIKBAAR_AAN" },
     { label: "statusmail.optie.BESCHIKBAAR_UIT", value: "BESCHIKBAAR_UIT" },

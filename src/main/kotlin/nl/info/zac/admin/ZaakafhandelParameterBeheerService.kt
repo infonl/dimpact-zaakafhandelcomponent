@@ -144,7 +144,6 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         }
 
         val zaakafhandelParameters = currentZaakafhandelParameters(zaaktypeUuid)
-
         zaakafhandelParameters.apply {
             zaaktypeOmschrijving = zaaktype.omschrijving
             einddatumGeplandWaarschuwing = zaaktype.servicenorm?.let {

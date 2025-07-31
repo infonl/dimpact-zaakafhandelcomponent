@@ -19,6 +19,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.app.admin.createRestZaakAfhandelParameters
 import nl.info.zac.app.admin.model.RestSmartDocuments
@@ -85,8 +86,10 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     uiterlijkeEinddatumAfdoeningWaarschuwing shouldBe null
                     creatiedatum shouldNotBe null
                     zaakNietOntvankelijkResultaattype shouldBe null
-                    intakeMail shouldBe null
-                    afrondenMail shouldBe null
+                    // default value should be set
+                    intakeMail shouldBe ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_UIT
+                    // default value should be set
+                    afrondenMail shouldBe ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_UIT
                     productaanvraagtype shouldBe null
                     domein shouldBe "fakeDomein"
                     valide shouldBe false

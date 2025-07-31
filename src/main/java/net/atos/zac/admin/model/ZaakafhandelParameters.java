@@ -31,6 +31,8 @@ import jakarta.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.StringUtils;
 
+import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption;
+
 @Entity
 @Table(schema = SCHEMA, name = "zaakafhandelparameters")
 @SequenceGenerator(schema = SCHEMA, name = "sq_zaakafhandelparameters", sequenceName = "sq_zaakafhandelparameters", allocationSize = 1)
@@ -59,10 +61,20 @@ public class ZaakafhandelParameters {
     @NotBlank @Column(name = "zaaktype_omschrijving", nullable = false)
     private String zaaktypeOmschrijving;
 
-    @Column(name = "id_case_definition", nullable = false)
+    /**
+     * This field is nullable because when a new zaaktype is published,
+     * ZAC creates an initial 'inactive' zaakafhandelparameters record without a value.
+     * For 'active' zaakafhandelparameters, however, this field becomes mandatory is never null.
+     */
+    @Column(name = "id_case_definition")
     private String caseDefinitionID;
 
-    @Column(name = "id_groep", nullable = false)
+    /**
+     * This field is nullable because when a new zaaktype is published,
+     * ZAC creates an initial 'inactive' zaakafhandelparameters record without a value.
+     * For 'active' zaakafhandelparameters, however, this field becomes mandatory is never null.
+     */
+    @Column(name = "id_groep")
     private String groepID;
 
     @Column(name = "gebruikersnaam_behandelaar")
@@ -80,11 +92,17 @@ public class ZaakafhandelParameters {
     @Column(name = "creatiedatum", nullable = false)
     private ZonedDateTime creatiedatum;
 
+    /**
+     * This field has a sensible default value because it is non-nullable.
+     */
     @Column(name = "intake_mail", nullable = false)
-    private String intakeMail;
+    private String intakeMail = ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_UIT.name();
 
+    /**
+     * This field has a sensible default value because it is non-nullable.
+     */
     @Column(name = "afronden_mail", nullable = false)
-    private String afrondenMail;
+    private String afrondenMail = ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_UIT.name();
 
     @Column(name = "productaanvraagtype")
     private String productaanvraagtype;
