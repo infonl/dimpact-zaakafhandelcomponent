@@ -263,10 +263,10 @@ class ZaakafhandelParametersRestService @Inject constructor(
     @Path("smartdocuments-group-template-names")
     fun listSmartDocumentsGroupTemplateNames(
         group: RestSmartDocumentsPath
-    ): List<String> {
-        assertPolicy(policyService.readOverigeRechten().beheren)
-        return smartDocumentsTemplatesService.listGroupTemplateNames(group.path)
-    }
+    ) =
+        // No authorization to allow BPMN tasks (form.io) to read template names and display them
+        // We should consider a proper authorization with PABC
+        smartDocumentsTemplatesService.listGroupTemplateNames(group.path)
 
     @PUT
     @Path("smartdocuments-template-group")
