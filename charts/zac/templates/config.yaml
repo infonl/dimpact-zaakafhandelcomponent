@@ -26,6 +26,7 @@ data:
   DB_NAME: {{ required "Valid .Values.db.name entry required!" .Values.db.name }}
   DB_USER: {{ required "Valid .Values.db.user entry required!" .Values.db.user }}
   FEATURE_FLAG_BPMN_SUPPORT: {{ .Values.featureFlags.bpmnSupport | default "false" | quote }}
+  FEATURE_FLAG_PABC_INTEGRATION: {{ .Values.featureFlags.pabcIntegration | default "false" | quote }}
   GEMEENTE_CODE: {{ required "Valid .Values.gemeente.code entry required!" .Values.gemeente.code  | quote }}
   GEMEENTE_NAAM: {{ required "Valid .Values.gemeente.naam entry required!" .Values.gemeente.naam }}
   GEMEENTE_MAIL: {{ required "Valid .Values.gemeente.mail entry required!" .Values.gemeente.mail }}
@@ -53,6 +54,9 @@ data:
   {{- end }}
   {{- end }}
   OPEN_FORMS_URL: {{ required "Valid .Values.openForms.url entry required!" .Values.openForms.url }}
+  {{- if eq .Values.featureFlags.pabcIntegration true }}
+  PABC_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.pabcApi.url entry required!" .Values.pabcApi.url }}
+  {{- end }}
   SIGNALERINGEN_DELETE_OLDER_THAN_DAYS: {{ required "Valid .Values.signaleringen.deleteOlderThanDays entry required!" .Values.signaleringen.deleteOlderThanDays | quote }}
   SMTP_PORT: {{ .Values.mail.smtp.port | quote }}
   SMTP_SERVER: {{ .Values.mail.smtp.server }}

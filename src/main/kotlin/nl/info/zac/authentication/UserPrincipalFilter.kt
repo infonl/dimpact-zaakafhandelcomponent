@@ -14,6 +14,8 @@ import jakarta.servlet.annotation.WebFilter
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaakafhandelParameterService
+import nl.info.client.pabc.PabcClientService
+import nl.info.zac.identity.model.FunctionalRole
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.wildfly.security.http.oidc.OidcPrincipal
@@ -30,11 +32,13 @@ const val REFRESH_TOKEN_ATTRIBUTE = "refresh_token"
 @NoArgConstructor
 class UserPrincipalFilter
 @Inject
-constructor(private val zaakafhandelParameterService: ZaakafhandelParameterService) : Filter {
+constructor(
+    private val zaakafhandelParameterService: ZaakafhandelParameterService,
+    private val pabcClientService: PabcClientService
+) : Filter {
     companion object {
         private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
         private const val GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership"
-        const val ROL_DOMEIN_ELK_ZAAKTYPE = "domein_elk_zaaktype"
     }
 
     override fun doFilter(
@@ -82,6 +86,21 @@ constructor(private val zaakafhandelParameterService: ZaakafhandelParameterServi
                         }
                     }"
             )
+            // for now, we only log the application roles for the logged-in user.
+            // manually filtering out the roles that are not relevant for the pabc application
+            val applicationRoles = this.pabcClientService.getApplicationRoles(
+                functionalRoles = loggedInUser.roles,
+                rolesToBeFiltered = listOf(
+                    FunctionalRole.DOMEIN_ELK_ZAAKTYPE,
+                    FunctionalRole.ZAAKAFHANDELCOMPONENT_USER
+                )
+            )
+            if (applicationRoles != null) {
+                LOG.info(
+                    "User: '${loggedInUser.id}' with application roles from PABC: '$applicationRoles'"
+                )
+            }
+
             this.addRefreshTokenToHttpSession(oidcPrincipal, httpSession)
         }
 
@@ -117,7 +136,7 @@ constructor(private val zaakafhandelParameterService: ZaakafhandelParameterServi
      * authorised for all zaaktypen.
      */
     private fun getAuthorisedZaaktypen(roles: Set<String>): Set<String>? =
-        if (roles.contains(ROL_DOMEIN_ELK_ZAAKTYPE)) {
+        if (roles.contains(FunctionalRole.DOMEIN_ELK_ZAAKTYPE.value)) {
             null
         } else {
             zaakafhandelParameterService

@@ -32,9 +32,9 @@ import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.VESTIGING_IDENTIFICATIE_DELIMITER
-import nl.info.zac.authentication.UserPrincipalFilter
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.identity.model.FunctionalRole
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
 import nl.info.zac.util.AllOpen
@@ -214,8 +214,8 @@ class ZaakService @Inject constructor(
      */
     private fun Group.hasDomainAccess(zaak: Zaak) =
         zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid()).let { params ->
-            val hasAccess = params.domein == UserPrincipalFilter.ROL_DOMEIN_ELK_ZAAKTYPE ||
-                this.zacClientRoles.contains(UserPrincipalFilter.ROL_DOMEIN_ELK_ZAAKTYPE) ||
+            val hasAccess = params.domein == FunctionalRole.DOMEIN_ELK_ZAAKTYPE.value ||
+                this.zacClientRoles.contains(FunctionalRole.DOMEIN_ELK_ZAAKTYPE.value) ||
                 params.domein?.let {
                     this.zacClientRoles.contains(it)
                 } ?: false
