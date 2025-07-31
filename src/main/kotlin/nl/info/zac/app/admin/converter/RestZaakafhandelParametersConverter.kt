@@ -18,6 +18,7 @@ import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter.convertRESTZaa
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.app.admin.model.RestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.RestBrpDoelbindingen
@@ -30,7 +31,6 @@ import nl.info.zac.app.admin.model.toRestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
 import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
-import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.util.AllOpen
@@ -66,7 +66,11 @@ class RestZaakafhandelParametersConverter @Inject constructor(
                 caseDefinitionConverter.convertToRESTCaseDefinition(it, inclusiefRelaties)
             },
             intakeMail = zaakafhandelParameters.intakeMail?.let { ZaakafhandelparametersStatusMailOption.valueOf(it) },
-            afrondenMail = zaakafhandelParameters.afrondenMail?.let { ZaakafhandelparametersStatusMailOption.valueOf(it) },
+            afrondenMail = zaakafhandelParameters.afrondenMail?.let {
+                ZaakafhandelparametersStatusMailOption.valueOf(
+                    it
+                )
+            },
             productaanvraagtype = zaakafhandelParameters.productaanvraagtype,
             domein = zaakafhandelParameters.domein,
             smartDocuments = RestSmartDocuments(
