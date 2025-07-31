@@ -263,10 +263,9 @@ class ZaakafhandelParametersRestService @Inject constructor(
     @Path("smartdocuments-group-template-names")
     fun listSmartDocumentsGroupTemplateNames(
         group: RestSmartDocumentsPath
-    ): List<String> {
-        assertPolicy(policyService.readOverigeRechten().beheren)
-        return smartDocumentsTemplatesService.listGroupTemplateNames(group.path)
-    }
+    ) =
+        // BPMN tasks (form.io) read template names to display them
+        smartDocumentsTemplatesService.listGroupTemplateNames(group.path)
 
     @PUT
     @Path("smartdocuments-template-group")

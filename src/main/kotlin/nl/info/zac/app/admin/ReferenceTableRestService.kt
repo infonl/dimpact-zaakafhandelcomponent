@@ -74,12 +74,11 @@ class ReferenceTableRestService @Inject constructor(
 
     @GET
     @Path("code/{code}")
-    fun readReferenceTableByCode(@PathParam("code") code: String): RestReferenceTable {
-        assertPolicy(policyService.readOverigeRechten().beheren)
-        return referenceTableService.readReferenceTable(code).toRestReferenceTable(
+    fun readReferenceTableByCode(@PathParam("code") code: String) =
+        // BPMN tasks (form.io) read reference table values to display them
+        referenceTableService.readReferenceTable(code).toRestReferenceTable(
             true
         )
-    }
 
     @PUT
     @Path("{id}")
