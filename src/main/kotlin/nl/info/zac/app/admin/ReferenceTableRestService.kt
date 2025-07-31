@@ -75,7 +75,8 @@ class ReferenceTableRestService @Inject constructor(
     @GET
     @Path("code/{code}")
     fun readReferenceTableByCode(@PathParam("code") code: String) =
-        // BPMN tasks (form.io) read reference table values to display them
+        // No authorization to allow BPMN tasks (form.io) to read reference table values and display them
+        // We should consider a proper authorization with PABC
         referenceTableService.readReferenceTable(code).toRestReferenceTable(
             true
         )
