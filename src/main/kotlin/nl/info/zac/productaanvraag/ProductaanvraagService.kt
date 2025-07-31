@@ -565,7 +565,7 @@ class ProductaanvraagService @Inject constructor(
             zaakData = getAanvraaggegevens(productaanvraagObject)
         )
         // First, pair the productaanvraag and assign the zaak to the group and/or user,
-        // so that should things fail afterwards, at least the productaanvraag has been paired and the zaak has been assigned.
+        // so that should things fail afterward, at least the productaanvraag has been paired and the zaak has been assigned.
         pairProductaanvraagWithZaak(productaanvraagObject, createdZaak.url)
         assignZaak(createdZaak, zaakafhandelParameters)
         pairDocumentsWithZaak(productaanvraag, createdZaak)
