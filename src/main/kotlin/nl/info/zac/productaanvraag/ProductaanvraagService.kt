@@ -388,9 +388,12 @@ class ProductaanvraagService @Inject constructor(
 
     private fun assignZaak(zaak: Zaak, zaakafhandelParameters: ZaakafhandelParameters) {
         zaakafhandelParameters.groepID?.let {
-            LOG.info("Assigning zaak ${zaak.uuid} to group: '${zaakafhandelParameters.groepID}'")
+            LOG.info("Assigning zaak with UUID '${zaak.uuid}' to group: '${zaakafhandelParameters.groepID}'")
             zrcClientService.createRol(creeerRolGroep(zaakafhandelParameters.groepID, zaak))
-        }
+        } ?: LOG.warning(
+            "No group ID found in zaakafhandelparameters for zaak with UUID '${zaak.uuid}'. " +
+                "No group role was created."
+        )
         zaakafhandelParameters.gebruikersnaamMedewerker?.let {
             LOG.info("Assigning zaak ${zaak.uuid}: to assignee: '$it'")
             zrcClientService.createRol(creeerRolMedewerker(zaakafhandelParameters.gebruikersnaamMedewerker, zaak))
@@ -494,12 +497,10 @@ class ProductaanvraagService @Inject constructor(
                 it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS)
         }
 
-    private fun pairProductaanvraagInfoWithZaak(
+    private fun pairDocumentsWithZaak(
         productaanvraag: ProductaanvraagDimpact,
-        productaanvraagObject: ModelObject,
         zaak: Zaak
     ) {
-        pairProductaanvraagWithZaak(productaanvraagObject, zaak.url)
         pairAanvraagPDFWithZaak(productaanvraag, zaak.url)
         productaanvraag.bijlagen?.let { pairBijlagenWithZaak(it, zaak.url) }
     }
@@ -563,8 +564,11 @@ class ProductaanvraagService @Inject constructor(
             zaakafhandelParameters = zaakafhandelParameters,
             zaakData = getAanvraaggegevens(productaanvraagObject)
         )
-        pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, createdZaak)
+        // First, pair the productaanvraag and assign the zaak to the group and/or user,
+        // so that should things fail afterward, at least the productaanvraag has been paired and the zaak has been assigned.
+        pairProductaanvraagWithZaak(productaanvraagObject, createdZaak.url)
         assignZaak(createdZaak, zaakafhandelParameters)
+        pairDocumentsWithZaak(productaanvraag, createdZaak)
         val initiator = addInitiatorAndBetrokkenenToZaak(productaanvraag, createdZaak)
         productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(createdZaak, initiator, zaakafhandelParameters)
     }

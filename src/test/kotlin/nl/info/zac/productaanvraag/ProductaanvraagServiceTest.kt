@@ -20,6 +20,7 @@ import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.or.`object`.model.createObjectRecord
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.Rol
+import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.documenten.InboxDocumentenService
@@ -28,6 +29,7 @@ import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
 import nl.info.client.kvk.model.createRandomVestigingsNumber
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import nl.info.client.zgw.model.createZaakobjectProductaanvraag
@@ -45,6 +47,7 @@ import nl.info.zac.admin.model.createBetrokkeneKoppelingen
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.identity.model.createGroup
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.test.util.createRandomStringWithAlphanumericCharacters
 import java.net.URI
@@ -969,8 +972,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
         Given(
             """
-        A productaanvraag-dimpact object registration object for which zaakafhandelparameters exist, 
-        and an exception when adding any zaakinformatieobject
+        A productaanvraag-dimpact object registration object for which zaakafhandelparameters exist
+        with a default group, but an exception occurs when adding a zaakinformatieobject
         """
         ) {
             clearAllMocks()
@@ -980,7 +983,19 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakType = createZaakType()
             val createdZaak = createZaak()
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-            val zaakafhandelParameters = createZaakafhandelParameters(zaaktypeUUID = zaakTypeUUID)
+            val groupId = "fakeGroupId"
+            val zaakafhandelParameters = createZaakafhandelParameters(
+                zaaktypeUUID = zaakTypeUUID,
+                groupId = groupId
+            )
+            val group = createGroup(
+                id = groupId,
+                name = "Fake Group",
+            )
+            val behandelaarRolType = createRolType(
+                zaakTypeUri = zaakType.url,
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+            )
             val formulierBron = createBron()
             val productAanvraagORObject = createORObject(
                 record = createObjectRecord(
@@ -1007,19 +1022,42 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             } throws RuntimeException("Failed to create zaakinformatieobject!")
             every { cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any()) } just Runs
             every { configuratieService.readBronOrganisatie() } returns "123443210"
+            every { identityService.readGroup(groupId) } returns group
+            every {
+                ztcClientService.readRoltype(createdZaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            } returns behandelaarRolType
+            every { zrcClientService.createRol(any<RolOrganisatorischeEenheid>()) } returns createRolOrganisatorischeEenheid()
 
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                Then(
-                    """
-                    a zaak should be created and a CMMN case process should still be started
-                    """
-                ) {
+                Then("a zaak should be created") {
                     verify(exactly = 1) {
                         zgwApiService.createZaak(any())
-                        zrcClientService.createZaakobject(any())
+                    }
+                }
+                And("a CMMN process should be started for the zaak") {
+                    verify(exactly = 1) {
                         cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any())
+                    }
+                }
+                And("a zaak object should be created") {
+                    verify(exactly = 1) {
+                        zrcClientService.createZaakobject(any())
+                    }
+                }
+                And("the zaak should be assigned to the group") {
+                    verify(exactly = 1) {
+                        zrcClientService.createRol(any<RolOrganisatorischeEenheid>())
+                    }
+                }
+                And("no automatic reply email should be sent (this behaviour may change in the future)") {
+                    verify(exactly = 0) {
+                        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
+                            any(),
+                            any(),
+                            any()
+                        )
                     }
                 }
             }
