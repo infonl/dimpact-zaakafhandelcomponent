@@ -891,16 +891,16 @@ class ZaakServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Retrieve zaak and zaaktype by UUID") {
-        Given("A valid zaak UUID") {
-            val zaakUUID = UUID.randomUUID()
-            val zaak = createZaak(uuid = zaakUUID)
+    Context("Retrieve zaak and zaaktype by zaak ID") {
+        Given("A valid zaak ID") {
+            val zaakID = "fakeZaakID"
+            val zaak = createZaak(identificatie = zaakID)
             val zaakType = createZaakType()
-            every { zrcClientService.readZaak(zaakUUID) } returns zaak
+            every { zrcClientService.readZaakByID(zaakID) } returns zaak
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
 
-            When("retrieveZaakAndZaakType is called") {
-                val result = zaakService.retrieveZaakAndZaakType(zaakUUID)
+            When("readZaakAndZaakTypeByZaakID is called") {
+                val result = zaakService.readZaakAndZaakTypeByZaakID(zaakID)
 
                 Then("it should return the correct zaak and zaaktype") {
                     result.first shouldBe zaak
@@ -910,14 +910,49 @@ class ZaakServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Retrieve zaaktype for zaak") {
+    Context("Retrieve zaak and zaaktype by zaak UUID") {
+        Given("A valid zaak UUID") {
+            val zaakUUID = UUID.randomUUID()
+            val zaak = createZaak(uuid = zaakUUID)
+            val zaakType = createZaakType()
+            every { zrcClientService.readZaak(zaakUUID) } returns zaak
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+
+            When("readZaakAndZaakTypeByZaakUUID is called") {
+                val result = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
+
+                Then("it should return the correct zaak and zaaktype") {
+                    result.first shouldBe zaak
+                    result.second shouldBe zaakType
+                }
+            }
+        }
+    }
+
+    Context("Retrieve zaaktype by zaak") {
         Given("A zaak with a valid zaaktype") {
             val zaak = createZaak()
             val zaakType = createZaakType()
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
 
-            When("retrieveZaakTypeForZaak is called") {
-                val result = zaakService.retrieveZaakTypeForZaak(zaak)
+            When("retrieveZaakTypeByZaak is called") {
+                val result = zaakService.readZaakTypeByZaak(zaak)
+
+                Then("it should return the correct zaaktype") {
+                    result shouldBe zaakType
+                }
+            }
+        }
+    }
+
+    Context("Retrieve zaaktype by UUID") {
+        Given("A zaaktype UUID") {
+            val zaakTypeUUID = UUID.randomUUID()
+            val zaakType = createZaakType()
+            every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
+
+            When("readZaakTypeByUUID is called") {
+                val result = zaakService.readZaakTypeByUUID(zaakTypeUUID)
 
                 Then("it should return the correct zaaktype") {
                     result shouldBe zaakType

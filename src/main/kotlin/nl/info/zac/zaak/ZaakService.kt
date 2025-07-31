@@ -153,17 +153,24 @@ class ZaakService @Inject constructor(
         }
     }
 
-    fun retrieveZaakAndZaakType(zaakURI: URI): Pair<Zaak, ZaakType> =
+    fun readZaakAndZaakTypeByZaakID(zaakID: String): Pair<Zaak, ZaakType> =
+        zrcClientService.readZaakByID(zaakID).let { zaak ->
+            zaak to readZaakTypeByZaak(zaak)
+        }
+
+    fun readZaakAndZaakTypeByZaakURI(zaakURI: URI): Pair<Zaak, ZaakType> =
         zrcClientService.readZaak(zaakURI).let { zaak ->
-            zaak to retrieveZaakTypeForZaak(zaak)
+            zaak to readZaakTypeByZaak(zaak)
         }
 
-    fun retrieveZaakAndZaakType(zaakUUID: UUID): Pair<Zaak, ZaakType> =
+    fun readZaakAndZaakTypeByZaakUUID(zaakUUID: UUID): Pair<Zaak, ZaakType> =
         zrcClientService.readZaak(zaakUUID).let { zaak ->
-            zaak to retrieveZaakTypeForZaak(zaak)
+            zaak to readZaakTypeByZaak(zaak)
         }
 
-    fun retrieveZaakTypeForZaak(zaak: Zaak): ZaakType = ztcClientService.readZaaktype(zaak.zaaktype)
+    fun readZaakTypeByZaak(zaak: Zaak): ZaakType = ztcClientService.readZaaktype(zaak.zaaktype)
+
+    fun readZaakTypeByUUID(zaakTypeUUID: UUID): ZaakType = ztcClientService.readZaaktype(zaakTypeUUID)
 
     private fun isUserInGroup(
         user: User?,
