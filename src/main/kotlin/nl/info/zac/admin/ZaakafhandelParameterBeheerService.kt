@@ -161,8 +161,6 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             return
         } else {
             zaakafhandelParameters.zaakTypeUUID = zaaktypeUuid
-//            zaakafhandelParameters.intakeMail = RESTZaakStatusmailOptie.BESCHIKBAAR_UIT.name
-//            zaakafhandelParameters.afrondenMail = RESTZaakStatusmailOptie.BESCHIKBAAR_UIT.name
         }
 
         val previousZaakafhandelparameters = currentZaakafhandelParameters(zaaktype.omschrijving)
