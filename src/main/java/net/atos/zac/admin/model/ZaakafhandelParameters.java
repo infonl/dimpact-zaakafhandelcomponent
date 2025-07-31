@@ -102,7 +102,7 @@ public class ZaakafhandelParameters {
      * This field has a sensible default value because it is non-nullable.
      */
     @Column(name = "afronden_mail", nullable = false)
-    private String afrondenMail = ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_UIT.name();;
+    private String afrondenMail = ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_UIT.name();
 
     @Column(name = "productaanvraagtype")
     private String productaanvraagtype;
