@@ -30,7 +30,7 @@ import nl.info.zac.app.admin.model.toRestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
 import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
-import nl.info.zac.app.zaak.model.RESTZaakStatusmailOptie
+import nl.info.zac.app.zaak.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.util.AllOpen
@@ -65,8 +65,8 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             caseDefinition = zaakafhandelParameters.caseDefinitionID?.let {
                 caseDefinitionConverter.convertToRESTCaseDefinition(it, inclusiefRelaties)
             },
-            intakeMail = zaakafhandelParameters.intakeMail?.let { RESTZaakStatusmailOptie.valueOf(it) },
-            afrondenMail = zaakafhandelParameters.afrondenMail?.let { RESTZaakStatusmailOptie.valueOf(it) },
+            intakeMail = zaakafhandelParameters.intakeMail?.let { ZaakafhandelparametersStatusMailOption.valueOf(it) },
+            afrondenMail = zaakafhandelParameters.afrondenMail?.let { ZaakafhandelparametersStatusMailOption.valueOf(it) },
             productaanvraagtype = zaakafhandelParameters.productaanvraagtype,
             domein = zaakafhandelParameters.domein,
             smartDocuments = RestSmartDocuments(

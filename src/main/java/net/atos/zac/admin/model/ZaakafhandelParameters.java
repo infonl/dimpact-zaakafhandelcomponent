@@ -29,6 +29,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import nl.info.zac.app.zaak.model.ZaakafhandelparametersStatusMailOption;
 import org.apache.commons.lang3.StringUtils;
 
 @Entity
@@ -59,10 +60,20 @@ public class ZaakafhandelParameters {
     @NotBlank @Column(name = "zaaktype_omschrijving", nullable = false)
     private String zaaktypeOmschrijving;
 
-    @Column(name = "id_case_definition", nullable = false)
+    /**
+     * This field is nullable because when a new zaaktype is published,
+     * ZAC creates an initial 'inactive' zaakafhandelparameters record without a value.
+     * For 'active' zaakafhandelparameters, however, this field becomes mandatory is never null.
+     */
+    @Column(name = "id_case_definition")
     private String caseDefinitionID;
 
-    @Column(name = "id_groep", nullable = false)
+    /**
+     * This field is nullable because when a new zaaktype is published,
+     * ZAC creates an initial 'inactive' zaakafhandelparameters record without a value.
+     * For 'active' zaakafhandelparameters, however, this field becomes mandatory is never null.
+     */
+    @Column(name = "id_groep")
     private String groepID;
 
     @Column(name = "gebruikersnaam_behandelaar")
@@ -80,11 +91,17 @@ public class ZaakafhandelParameters {
     @Column(name = "creatiedatum", nullable = false)
     private ZonedDateTime creatiedatum;
 
+    /**
+     * This field has a sensible default value because it is non-nullable.
+     */
     @Column(name = "intake_mail", nullable = false)
-    private String intakeMail;
+    private String intakeMail = ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_UIT.name();
 
+    /**
+     * This field has a sensible default value because it is non-nullable.
+     */
     @Column(name = "afronden_mail", nullable = false)
-    private String afrondenMail;
+    private String afrondenMail = ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_UIT.name();;
 
     @Column(name = "productaanvraagtype")
     private String productaanvraagtype;

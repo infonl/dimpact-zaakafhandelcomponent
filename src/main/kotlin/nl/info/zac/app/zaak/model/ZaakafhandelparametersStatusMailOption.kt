@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.zaak.model
 
-enum class RESTZaakStatusmailOptie {
+enum class ZaakafhandelparametersStatusMailOption {
     BESCHIKBAAR_AAN,
     BESCHIKBAAR_UIT,
     NIET_BESCHIKBAAR

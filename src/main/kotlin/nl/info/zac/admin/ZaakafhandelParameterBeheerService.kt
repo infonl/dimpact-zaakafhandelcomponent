@@ -144,7 +144,6 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         }
 
         val zaakafhandelParameters = currentZaakafhandelParameters(zaaktypeUuid)
-
         zaakafhandelParameters.apply {
             zaaktypeOmschrijving = zaaktype.omschrijving
             einddatumGeplandWaarschuwing = zaaktype.servicenorm?.let {
@@ -162,6 +161,8 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             return
         } else {
             zaakafhandelParameters.zaakTypeUUID = zaaktypeUuid
+//            zaakafhandelParameters.intakeMail = RESTZaakStatusmailOptie.BESCHIKBAAR_UIT.name
+//            zaakafhandelParameters.afrondenMail = RESTZaakStatusmailOptie.BESCHIKBAAR_UIT.name
         }
 
         val previousZaakafhandelparameters = currentZaakafhandelParameters(zaaktype.omschrijving)
