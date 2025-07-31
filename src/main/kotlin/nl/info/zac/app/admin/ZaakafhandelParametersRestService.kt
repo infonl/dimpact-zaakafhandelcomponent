@@ -273,7 +273,8 @@ class ZaakafhandelParametersRestService @Inject constructor(
     fun getSmartDocumentsGroup(
         group: RestSmartDocumentsPath
     ): RestSmartDocumentsTemplateGroup {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        // No authorization to allow BPMN tasks (form.io) to read template group names and display them
+        // We should consider a proper authorization with PABC
         return smartDocumentsTemplatesService.getTemplateGroup(group.path)
     }
 
