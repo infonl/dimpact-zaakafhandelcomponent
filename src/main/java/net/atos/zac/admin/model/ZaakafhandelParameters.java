@@ -29,7 +29,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import nl.info.zac.app.zaak.model.ZaakafhandelparametersStatusMailOption;
+import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption;
 import org.apache.commons.lang3.StringUtils;
 
 @Entity

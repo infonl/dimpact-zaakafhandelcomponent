@@ -12,7 +12,7 @@ import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling
 import net.atos.zac.app.admin.model.RESTUserEventListenerParameter
 import net.atos.zac.app.admin.model.RESTZaakAfzender
 import net.atos.zac.app.admin.model.RESTZaakbeeindigParameter
-import nl.info.zac.app.zaak.model.ZaakafhandelparametersStatusMailOption
+import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor

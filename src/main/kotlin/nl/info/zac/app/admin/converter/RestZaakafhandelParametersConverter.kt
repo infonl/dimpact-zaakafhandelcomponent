@@ -30,7 +30,7 @@ import nl.info.zac.app.admin.model.toRestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
 import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
-import nl.info.zac.app.zaak.model.ZaakafhandelparametersStatusMailOption
+import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.util.AllOpen
