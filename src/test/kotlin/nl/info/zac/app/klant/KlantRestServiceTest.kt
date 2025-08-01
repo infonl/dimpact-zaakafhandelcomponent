@@ -306,7 +306,7 @@ class KlantRestServiceTest : BehaviorSpec({
             Then("the vestigingsprofiel is returned correctly") {
                 with(vestigingsProfiel) {
                     this.vestigingsnummer shouldBe vestiging.vestigingsnummer
-                    this.kvkNummer shouldBe null
+                    this.kvkNummer shouldBe vestiging.kvkNummer
                     this.eersteHandelsnaam shouldBe vestiging.eersteHandelsnaam
                     this.rsin shouldBe vestiging.rsin
                     this.totaalWerkzamePersonen shouldBe vestiging.totaalWerkzamePersonen
