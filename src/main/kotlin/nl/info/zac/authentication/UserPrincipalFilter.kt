@@ -88,13 +88,10 @@ constructor(
             )
             // for now, we only log the application roles for the logged-in user.
             // manually filtering out the roles that are not relevant for the pabc application
-            val applicationRoles = this.pabcClientService.getApplicationRoles(
-                functionalRoles = loggedInUser.roles,
-                rolesToBeFiltered = listOf(
-                    FunctionalRole.DOMEIN_ELK_ZAAKTYPE,
-                    FunctionalRole.ZAAKAFHANDELCOMPONENT_USER
-                )
-            )
+            val functionalRoles: List<String> = loggedInUser.roles
+                .filterNot { it in setOf(FunctionalRole.DOMEIN_ELK_ZAAKTYPE.value, FunctionalRole.ZAAKAFHANDELCOMPONENT_USER.value) }
+                .toList()
+            val applicationRoles = this.pabcClientService.getApplicationRoles(functionalRoles)
             if (applicationRoles != null) {
                 LOG.info(
                     "User: '${loggedInUser.id}' with application roles from PABC: '$applicationRoles'"

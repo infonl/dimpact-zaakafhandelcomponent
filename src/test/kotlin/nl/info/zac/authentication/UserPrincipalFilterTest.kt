@@ -23,7 +23,6 @@ import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaakafhandelParameterService
 import nl.info.client.pabc.PabcClientService
 import nl.info.zac.admin.model.createZaakafhandelParameters
-import nl.info.zac.identity.model.FunctionalRole
 import nl.info.zac.identity.model.getFullName
 import org.wildfly.security.http.oidc.AccessToken
 import org.wildfly.security.http.oidc.OidcPrincipal
@@ -98,15 +97,12 @@ class UserPrincipalFilterTest : BehaviorSpec({
             id = userId
         )
         val roles = arrayListOf(
-            "fakeRole1"
+            "fakeRole1",
+            "domein_elk_zaaktype",
+            "zaakafhandelcomponent_user"
         )
-        val zaakafhandelParameters = listOf(createZaakafhandelParameters())
         val newHttpSession = mockk<HttpSession>()
-        val expectedFunctionalRoles = roles.toList()
-        val expectedRolesToBeFiltered = listOf(
-            FunctionalRole.DOMEIN_ELK_ZAAKTYPE,
-            FunctionalRole.ZAAKAFHANDELCOMPONENT_USER
-        )
+        val expectedFunctionalRoles = listOf("fakeRole1")
         every { httpServletRequest.userPrincipal } returns oidcPrincipal
         every { httpServletRequest.getSession(true) } returns httpSession andThen newHttpSession
         every { httpServletRequest.servletContext.contextPath } returns "fakeContextPath"
@@ -124,12 +120,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
         every { accessToken.name } returns "fakeFullName"
         every { accessToken.email } returns "fakeemail@example.com"
         every { accessToken.getStringListClaimValue("group_membership") } returns emptyList()
-        every { zaakafhandelParameterService.listZaakafhandelParameters() } returns zaakafhandelParameters
         every { newHttpSession.setAttribute(any(), any()) } just runs
         every {
             pabcClientService.getApplicationRoles(
-                match { it.toSet() == expectedFunctionalRoles.toSet() && it.size == expectedFunctionalRoles.size },
-                match { it == expectedRolesToBeFiltered }
+                match { it == expectedFunctionalRoles }
             )
         } returns mockk(relaxed = true)
 
@@ -208,7 +202,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
         every { zaakafhandelParameterService.listZaakafhandelParameters() } returns zaakafhandelParameters
         every { httpSession.setAttribute(any(), any()) } just runs
         every {
-            pabcClientService.getApplicationRoles(any(), any())
+            pabcClientService.getApplicationRoles(any())
         } returns mockk(relaxed = true)
 
         When("doFilter is called") {
@@ -274,7 +268,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
         every { accessToken.getStringListClaimValue("group_membership") } returns groups
         every { httpSession.setAttribute(any(), any()) } just runs
         every {
-            pabcClientService.getApplicationRoles(any(), any())
+            pabcClientService.getApplicationRoles(any())
         } returns mockk(relaxed = true)
 
         When("doFilter is called") {

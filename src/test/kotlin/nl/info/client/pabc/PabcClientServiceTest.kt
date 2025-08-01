@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.client.pabc
@@ -11,20 +11,17 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import io.mockk.verify
 import nl.info.client.pabc.model.generated.GetApplicationRolesRequest
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
-import nl.info.zac.identity.model.FunctionalRole
 
 class PabcClientServiceTest : BehaviorSpec({
 
     val pabcClient = mockk<PabcClient>()
-    val service = PabcClientService(pabcClient, true)
 
-    val allRoles = listOf(
+    val roles = listOf(
         "behandelaar",
-        "domein_elk_zaaktype",
         "coordinator",
-        "zaakafhandelcomponent_user",
         "beheerder",
         "recordmanager",
         "raadpleger"
@@ -40,21 +37,18 @@ class PabcClientServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a list of roles and some roles to be filtered") {
-        val rolesToFilter = listOf(
-            FunctionalRole.DOMEIN_ELK_ZAAKTYPE,
-            FunctionalRole.ZAAKAFHANDELCOMPONENT_USER
-        )
-
+    Given("invoke client with list of functional roles") {
         val requestSlot = slot<GetApplicationRolesRequest>()
         every {
             pabcClient.getApplicationRolesPerEntityType(capture(requestSlot))
         } returns mockResponse
 
-        When("getApplicationRoles is called with a non-empty filter") {
-            val result = service.getApplicationRoles(allRoles, rolesToFilter)
+        val service = PabcClientService(pabcClient, true)
 
-            Then("it should exclude the filtered roles") {
+        When("getApplicationRoles is called") {
+            val result = service.getApplicationRoles(roles)
+
+            Then("it should invoke the client with the given roles") {
                 result shouldBe mockResponse
                 requestSlot.isCaptured shouldBe true
                 requestSlot.captured.functionalRoleNames shouldBe listOf(
@@ -68,36 +62,18 @@ class PabcClientServiceTest : BehaviorSpec({
         }
     }
 
-    Given("a list of roles and null as rolesToBeFiltered") {
-        val requestSlot = slot<GetApplicationRolesRequest>()
-        every {
-            pabcClient.getApplicationRolesPerEntityType(capture(requestSlot))
-        } returns mockResponse
+    Given("do not invoke client when feature flag is disabled") {
+        val pabcClient = mockk<PabcClient>(relaxed = true)
+        val service = PabcClientService(pabcClient, false)
 
-        When("getApplicationRoles is called with null filter") {
-            val result = service.getApplicationRoles(allRoles)
+        When("getApplicationRoles is called") {
+            val result = service.getApplicationRoles(listOf("behandelaar"))
 
-            Then("it should not filter out any roles") {
-                result shouldBe mockResponse
-                requestSlot.isCaptured shouldBe true
-                requestSlot.captured.functionalRoleNames shouldBe allRoles
-            }
-        }
-    }
-
-    Given("a list of roles and an empty list as rolesToBeFiltered") {
-        val requestSlot = slot<GetApplicationRolesRequest>()
-        every {
-            pabcClient.getApplicationRolesPerEntityType(capture(requestSlot))
-        } returns mockResponse
-
-        When("getApplicationRoles is called with empty filter list") {
-            val result = service.getApplicationRoles(allRoles, emptyList())
-
-            Then("it should not filter out any roles") {
-                result shouldBe mockResponse
-                requestSlot.isCaptured shouldBe true
-                requestSlot.captured.functionalRoleNames shouldBe allRoles
+            Then("pabcClient should not be called") {
+                result shouldBe null
+                verify(exactly = 0) {
+                    pabcClient.getApplicationRolesPerEntityType(any())
+                }
             }
         }
     }

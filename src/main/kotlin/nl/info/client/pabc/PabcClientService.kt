@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.client.pabc
@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import nl.info.client.pabc.model.generated.GetApplicationRolesRequest
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
-import nl.info.zac.identity.model.FunctionalRole
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -27,20 +26,13 @@ class PabcClientService @Inject constructor(
         private val LOG = Logger.getLogger(PabcClientService::class.java.name)
     }
 
-    fun getApplicationRoles(
-        functionalRoles: Collection<String>,
-        rolesToBeFiltered: Collection<FunctionalRole>? = null
-    ): GetApplicationRolesResponse? {
+    fun getApplicationRoles(functionalRoles: List<String>): GetApplicationRolesResponse? {
         if (!pabcIntegrationEnabled) {
             LOG.info("PABC integration is disabled — skipping application role lookup.")
             return null
         }
-
-        val filteredRoles = functionalRoles.filterNot { role ->
-            role in (rolesToBeFiltered?.map { it.value }?.toSet() ?: emptySet())
-        }
         val applicationRolesRequest = GetApplicationRolesRequest().apply {
-            functionalRoleNames = filteredRoles.toList()
+            functionalRoleNames = functionalRoles
         }
         return pabcClient.getApplicationRolesPerEntityType(applicationRolesRequest)
     }
