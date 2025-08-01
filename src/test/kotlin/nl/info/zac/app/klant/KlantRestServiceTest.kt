@@ -68,15 +68,44 @@ class KlantRestServiceTest : BehaviorSpec({
             vestingsnummer = vestigingsnummer
         )
         val digitalAddressesList = createDigitalAddresses("+123-456-789", "fake@example.com")
-        every {
-            kvkClientService.findVestiging(vestigingsnummer)
-        } returns Optional.of(kvkResultaatItem)
+
         every {
             klantClientService.findDigitalAddressesByNumber(vestigingsnummer)
         } returns digitalAddressesList
 
-        When("a request is made to get the vestiging") {
-            val restBedrijf = klantRestService.readVestiging(vestigingsnummer)
+        When("a request is made to get the vestiging by vestigingsnummer") {
+            every {
+                kvkClientService.findVestiging(vestigingsnummer)
+            } returns Optional.of(kvkResultaatItem)
+
+            val restBedrijf = klantRestService.readVestigingByVestigingsnummer(vestigingsnummer)
+
+            Then("it should return the vestiging including contact details") {
+                with(restBedrijf) {
+                    this.vestigingsnummer shouldBe vestigingsnummer
+                    this.adres shouldBe with(adres.binnenlandsAdres) {
+                        "$straatnaam$NON_BREAKING_SPACE$huisnummer$NON_BREAKING_SPACE$huisletter, $postcode, $plaats"
+                    }
+                    naam shouldBe kvkResultaatItem.naam
+                    kvkNummer shouldBe null
+                    postcode shouldBe kvkResultaatItem.adres.binnenlandsAdres.postcode
+                    rsin shouldBe kvkResultaatItem.rsin
+                    type shouldBe "NEVENVESTIGING"
+                    telefoonnummer shouldBe "+123-456-789"
+                    emailadres shouldBe "fake@example.com"
+                }
+            }
+        }
+
+        When("a request is made to get the vestiging by vestigingsnummer and kvkNummer") {
+            every {
+                kvkClientService.findVestiging(vestigingsnummer, kvkResultaatItem.kvkNummer)
+            } returns Optional.of(kvkResultaatItem)
+
+            val restBedrijf = klantRestService.readVestigingByVestigingsnummerAndKvkNummer(
+                vestigingsnummer,
+                kvkResultaatItem.kvkNummer
+            )
 
             Then("it should return the vestiging including contact details") {
                 with(restBedrijf) {
@@ -115,13 +144,13 @@ class KlantRestServiceTest : BehaviorSpec({
         } returns emptyList()
 
         When("a request is made to get the vestiging") {
-            val restBedrijf = klantRestService.readVestiging(vestigingsnummer)
+            val restBedrijf = klantRestService.readVestigingByVestigingsnummer(vestigingsnummer)
 
             Then("it should return the vestiging without contact details") {
                 with(restBedrijf) {
                     this.vestigingsnummer shouldBe vestigingsnummer
                     naam shouldBe kvkResultaatItem.naam
-                    kvkNummer shouldBe kvkResultaatItem.kvkNummer
+                    kvkNummer shouldBe null
                     telefoonnummer shouldBe null
                     emailadres shouldBe null
                 }
@@ -142,7 +171,12 @@ class KlantRestServiceTest : BehaviorSpec({
         } returns emptyList()
 
         When("a request is made to get the vestiging") {
-            val exception = shouldThrow<VestigingNotFoundException> { klantRestService.readVestiging(vestigingsnummer) }
+            val exception =
+                shouldThrow<VestigingNotFoundException> {
+                    klantRestService.readVestigingByVestigingsnummer(
+                        vestigingsnummer
+                    )
+                }
 
             Then("it should throw an exception") {
                 exception.message shouldBe "Geen vestiging gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'"
@@ -272,7 +306,7 @@ class KlantRestServiceTest : BehaviorSpec({
             Then("the vestigingsprofiel is returned correctly") {
                 with(vestigingsProfiel) {
                     this.vestigingsnummer shouldBe vestiging.vestigingsnummer
-                    this.kvkNummer shouldBe vestiging.kvkNummer
+                    this.kvkNummer shouldBe null
                     this.eersteHandelsnaam shouldBe vestiging.eersteHandelsnaam
                     this.rsin shouldBe vestiging.rsin
                     this.totaalWerkzamePersonen shouldBe vestiging.totaalWerkzamePersonen
@@ -345,7 +379,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 result.resultaten.size shouldBe 1
                 with(result.resultaten.first()) {
                     this.naam shouldBe "fakeName"
-                    this.kvkNummer shouldBe "fakeKvkNummer"
+                    this.kvkNummer shouldBe null
                     // the type should be converted to uppercase in the response
                     this.type shouldBe "FAKETYPE"
                     this.vestigingsnummer shouldBe "fakeVestigingsnummer"

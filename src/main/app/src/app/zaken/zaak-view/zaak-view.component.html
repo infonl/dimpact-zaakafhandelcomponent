@@ -158,7 +158,7 @@
           class="w100 flex-1"
           *ngIf="showPersoonsgegevens()"
           [zaakIdentificatie]="zaak.identificatie"
-          [bsn]="zaak.initiatorIdentificatie ?? null"
+          [bsn]="zaak.initiatorIdentificatie"
           action="initiator tonen"
           [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
           [isWijzigbaar]="zaak.rechten.toevoegenInitiatorPersoon"
