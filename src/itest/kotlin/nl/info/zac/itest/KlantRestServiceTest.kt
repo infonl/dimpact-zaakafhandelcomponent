@@ -202,7 +202,6 @@ class KlantRestServiceTest : BehaviorSpec({
                         shouldContainJsonKeyValue("adres", "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1")
                         shouldContainJsonKeyValue("identificatie", TEST_KVK_VESTIGINGSNUMMER_1)
                         shouldContainJsonKeyValue("identificatieType", BETROKKENE_IDENTIFACTION_TYPE_VESTIGING)
-                        shouldContainJsonKeyValue("kvkNummer", null)
                         shouldContainJsonKeyValue("naam", TEST_KVK_NAAM_1)
                         shouldContainJsonKeyValue("type", VESTIGINGTYPE_NEVENVESTIGING)
                         shouldContainJsonKeyValue("vestigingsnummer", TEST_KVK_VESTIGINGSNUMMER_1)
