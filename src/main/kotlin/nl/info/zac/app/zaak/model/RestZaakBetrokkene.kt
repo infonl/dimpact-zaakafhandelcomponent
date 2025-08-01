@@ -81,7 +81,7 @@ fun Rol<*>.toRestZaakBetrokkene(): RestZaakBetrokkene? {
             val betrokkene = (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie ?: return null
             identificatie = betrokkene.innNnpId.takeIf { !it.isNullOrBlank() } ?: betrokkene.vestigingsNummer ?: return null
             identificatieType = if (betrokkene.innNnpId.isNullOrBlank()) IdentificatieType.VN else IdentificatieType.RSIN
-            kvkNummer = betrokkene.kvkNummer ?: return null
+            kvkNummer = betrokkene.kvkNummer
         }
         VESTIGING -> {
             identificatie = (this as RolVestiging).betrokkeneIdentificatie?.vestigingsNummer ?: return null
