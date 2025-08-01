@@ -18,6 +18,7 @@ import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.info.zac.itest.config.ItestConfiguration.KVK_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OFFICE_CONVERTER_BASE_URI
+import nl.info.zac.itest.config.ItestConfiguration.PABC_API_KEY
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SMTP_SERVER_PORT
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
@@ -56,8 +57,11 @@ class ProjectConfig : AbstractProjectConfig() {
         "ADDITIONAL_ALLOWED_FILE_TYPES" to ADDITIONAL_ALLOWED_FILE_TYPES,
         "BAG_API_CLIENT_MP_REST_URL" to "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/",
         "FEATURE_FLAG_BPMN_SUPPORT" to "true",
+        "FEATURE_FLAG_PABC_INTEGRATION" to "false",
         "KVK_API_CLIENT_MP_REST_URL" to KVK_MOCK_BASE_URI,
         "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to OFFICE_CONVERTER_BASE_URI,
+        "PABC_API_CLIENT_MP_REST_URL" to "http://pabc:8006/pabc/api/v1/",
+        "PABC_API_KEY" to PABC_API_KEY,
         "SMARTDOCUMENTS_ENABLED" to "true",
         "SMARTDOCUMENTS_CLIENT_MP_REST_URL" to SMART_DOCUMENTS_MOCK_BASE_URI,
         "SMTP_SERVER" to "greenmail",

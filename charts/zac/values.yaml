@@ -81,6 +81,8 @@ klantinteractiesApi:
 featureFlags:
   # -- turns BPMN support on or off; defaults to false
   bpmnSupport: false
+  # -- turns PABC integration on or off; defaults to false
+  pabcIntegration: false
 
 # Integration with the Objecten API provider
 objectenApi:
@@ -112,6 +114,11 @@ bagApi:
 openForms:
   # -- Not used at the moment.
   url: ""
+
+# Integration with the PABC API provider (PABC)
+pabcApi:
+  url: ""  # https://pabc-zac-dev.dimpact.lifely.nl/
+  apiKey: ""
 
 # -- API key for authentication of internal ZAC endpoints
 zacInternalEndpointsApiKey: ""
