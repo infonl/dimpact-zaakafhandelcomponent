@@ -136,7 +136,7 @@ class KlantRestServiceTest : BehaviorSpec({
                       "emailadres": "$TEST_VESTIGING_EMAIL",
                       "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
                       "identificatieType": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
-                      "kvkNummer": "$TEST_KVK_NUMMER_1",
+                      "kvkNummer": "null",
                       "naam": "$TEST_KVK_NAAM_1",
                       "type": "$VESTIGINGTYPE_NEVENVESTIGING",
                       "telefoonnummer": "$TEST_VESTIGING_TELEPHONE_NUMBER",
@@ -203,7 +203,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         shouldContainJsonKeyValue("adres", "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1")
                         shouldContainJsonKeyValue("identificatie", TEST_KVK_VESTIGINGSNUMMER_1)
                         shouldContainJsonKeyValue("identificatieType", BETROKKENE_IDENTIFACTION_TYPE_VESTIGING)
-                        shouldContainJsonKeyValue("kvkNummer", TEST_KVK_NUMMER_1)
+                        shouldContainJsonKeyValue("kvkNummer", null)
                         shouldContainJsonKeyValue("naam", TEST_KVK_NAAM_1)
                         shouldContainJsonKeyValue("type", VESTIGINGTYPE_NEVENVESTIGING)
                         shouldContainJsonKeyValue("vestigingsnummer", TEST_KVK_VESTIGINGSNUMMER_1)
@@ -265,7 +265,7 @@ class KlantRestServiceTest : BehaviorSpec({
                       "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
                       "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
                       "identificatieType": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
-                      "kvkNummer": "$TEST_KVK_NUMMER_1",
+                      "kvkNummer": "null",
                       "naam": "$TEST_KVK_NAAM_1",
                       "type": "$VESTIGINGTYPE_NEVENVESTIGING",
                       "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_1"
