@@ -4,8 +4,6 @@
  */
 
 import { Injectable } from "@angular/core";
-import { catchError } from "rxjs/operators";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
 import { BSN_LENGTH, VESTIGINGSNUMMER_LENGTH } from "../shared/utils/constants";
 
@@ -13,41 +11,41 @@ import { BSN_LENGTH, VESTIGINGSNUMMER_LENGTH } from "../shared/utils/constants";
   providedIn: "root",
 })
 export class KlantenService {
-  constructor(
-    private readonly foutAfhandelingService: FoutAfhandelingService,
-    private readonly zacHttpClient: ZacHttpClient,
-  ) {}
+  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   /* istanbul ignore next */
   readPersoon(bsn: string, audit: { context: string; action: string }) {
-    return this.zacHttpClient
-      .GET("/rest/klanten/persoon/{bsn}", {
-        path: { bsn },
-        header: {
-          "X-Verwerking": `${audit.context}@${audit.action}`,
-        },
-      })
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.GET("/rest/klanten/persoon/{bsn}", {
+      path: { bsn },
+      header: {
+        "X-Verwerking": `${audit.context}@${audit.action}`,
+      },
+    });
   }
 
-  readBedrijf(rsinOfVestigingsnummer: string) {
+  readBedrijf(rsinOfVestigingsnummer: string, kvkNummer: string | null) {
     switch (rsinOfVestigingsnummer.length) {
       case BSN_LENGTH:
         return this.readRechtspersoon(rsinOfVestigingsnummer);
       case VESTIGINGSNUMMER_LENGTH:
       default:
-        return this.readVestiging(rsinOfVestigingsnummer);
+        return this.readVestiging(rsinOfVestigingsnummer, kvkNummer);
     }
   }
 
   /* istanbul ignore next */
-  readVestiging(vestigingsnummer: string) {
+  private readVestiging(vestigingsnummer: string, kvkNummer: string | null) {
+    if (!kvkNummer) {
+      return this.zacHttpClient.GET(
+        "/rest/klanten/vestiging/{vestigingsnummer}",
+        { path: { vestigingsnummer } },
+      );
+    }
+
     return this.zacHttpClient.GET(
-      "/rest/klanten/vestiging/{vestigingsnummer}",
+      "/rest/klanten/vestiging/{vestigingsnummer}/{kvkNummer}",
       {
-        path: { vestigingsnummer },
+        path: { vestigingsnummer, kvkNummer },
       },
     );
   }
@@ -63,7 +61,7 @@ export class KlantenService {
   }
 
   /* istanbul ignore next */
-  readRechtspersoon(rsin: string) {
+  private readRechtspersoon(rsin: string) {
     return this.zacHttpClient.GET("/rest/klanten/rechtspersoon/{rsin}", {
       path: { rsin },
     });

@@ -226,7 +226,7 @@ export class ZaakCreateComponent implements OnDestroy {
         });
         break;
       case VESTIGINGSNUMMER_LENGTH:
-        observable = this.klantenService.readVestiging(initiatorID);
+        observable = this.klantenService.readBedrijf(initiatorID, null);
         break;
     }
 

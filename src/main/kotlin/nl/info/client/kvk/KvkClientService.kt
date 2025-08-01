@@ -48,11 +48,12 @@ class KvkClientService @Inject constructor(
     fun findVestigingsprofiel(vestigingsnummer: String): Optional<Vestiging> =
         Optional.of<Vestiging>(kvkVestigingsprofielClient.getVestigingByVestigingsnummer(vestigingsnummer, false))
 
-    fun findVestiging(vestigingsnummer: String): Optional<ResultaatItem> =
+    fun findVestiging(vestigingsnummer: String, kvkNummer: String? = null): Optional<ResultaatItem> =
         convertToSingleItem(
             search(
                 KvkSearchParameters().apply {
                     this.vestigingsnummer = vestigingsnummer
+                    this.kvkNummer = kvkNummer
                 }
             )
         )

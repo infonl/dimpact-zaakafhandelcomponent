@@ -186,7 +186,8 @@ fun createRestZaak(
     isBesluittypeAanwezig = false,
     isInIntakeFase = true,
     isProcesGestuurd = false,
-    rechten = rechten
+    rechten = rechten,
+    vestigingsNummer = null
 )
 
 fun createRESTZaakAanmaakGegevens(

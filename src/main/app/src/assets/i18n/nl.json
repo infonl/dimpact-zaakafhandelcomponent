@@ -836,6 +836,7 @@
   "msg.error.case.explanation.required": "Toelichting is verplicht.",
   "msg.error.convert.not.possible": "Dit document kan niet worden geconverteerd.",
   "msg.error.formio.init": "Fout bij initialiseren van formulieronderdeel '{{context}}': {{error}}",
+  "msg.error.kvk.unknown": "KvK-nummer is onbekend.",
   "msg.email.verstuurd": "E-mail is verstuurd",
   "msg.extern.advies.vastleggen.behandelen": "Er is een extern advies aangevraagd. Hieronder kan het antwoord worden vastgelegd.",
   "msg.formioformulier.verwijderen.bevestigen": "Formulier '{{naam}}' verwijderen?",

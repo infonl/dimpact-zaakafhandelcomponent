@@ -42,6 +42,7 @@ data class RestZaak(
     var indicaties: EnumSet<ZaakIndicatie>,
     var initiatorIdentificatie: String?,
     var kvkNummer: String?,
+    var vestigingsNummer: String?,
     var initiatorIdentificatieType: IdentificatieType?,
 
     @get:JsonbProperty("isOpgeschort")

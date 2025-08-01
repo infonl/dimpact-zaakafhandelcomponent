@@ -22,6 +22,6 @@ export class BedrijfResolverService {
       );
     }
 
-    return this.klantenService.readBedrijf(id);
+    return this.klantenService.readBedrijf(id, null);
   }
 }
