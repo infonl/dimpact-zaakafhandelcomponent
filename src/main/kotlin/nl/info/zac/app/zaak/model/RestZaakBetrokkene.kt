@@ -34,6 +34,8 @@ data class RestZaakBetrokkene(
 
     /**
      * The unique identifier of the betrokkene.
+     * - In case of a [NATUURLIJK_PERSOON] this is the BSN.
+     * - In case of a [NIET_NATUURLIJK_PERSOON] this is the RSIN (innNnpId) if available, otherwise the `vestigingsnummer`.
      */
     var identificatie: String,
 
@@ -42,7 +44,12 @@ data class RestZaakBetrokkene(
      * This is only set for certain betrokkene types, specifically for betrokkene types which support
      * multiple identificatie types like BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON.
      */
-    var identificatieType: IdentificatieType?
+    var identificatieType: IdentificatieType?,
+
+    /**
+     * Only populated when type is [NIET_NATUURLIJK_PERSOON] and it is not a `INN NNP ID (=RSIN)`
+     */
+    var kvkNummer: String?
 )
 
 /**
@@ -61,6 +68,7 @@ data class RestZaakBetrokkene(
 fun Rol<*>.toRestZaakBetrokkene(): RestZaakBetrokkene? {
     var identificatieType: IdentificatieType? = null
     var identificatie: String
+    var kvkNummer: String? = null
     when (this.betrokkeneType) {
         NATUURLIJK_PERSOON -> {
             identificatie = (this as RolNatuurlijkPersoon).betrokkeneIdentificatie?.inpBsn ?: return null
@@ -73,6 +81,7 @@ fun Rol<*>.toRestZaakBetrokkene(): RestZaakBetrokkene? {
             val betrokkene = (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie ?: return null
             identificatie = betrokkene.innNnpId.takeIf { !it.isNullOrBlank() } ?: betrokkene.vestigingsNummer ?: return null
             identificatieType = if (betrokkene.innNnpId.isNullOrBlank()) IdentificatieType.VN else IdentificatieType.RSIN
+            kvkNummer = betrokkene.kvkNummer ?: return null
         }
         VESTIGING -> {
             identificatie = (this as RolVestiging).betrokkeneIdentificatie?.vestigingsNummer ?: return null
@@ -95,7 +104,8 @@ fun Rol<*>.toRestZaakBetrokkene(): RestZaakBetrokkene? {
         roltoelichting = this.roltoelichting,
         type = this.betrokkeneType.name,
         identificatie = identificatie,
-        identificatieType = identificatieType
+        identificatieType = identificatieType,
+        kvkNummer = kvkNummer
     )
 }
 

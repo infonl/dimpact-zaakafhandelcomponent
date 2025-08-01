@@ -97,17 +97,26 @@ class KlantRestService @Inject constructor(
 
     @GET
     @Path("vestiging/{vestigingsnummer}")
-    fun readVestiging(
-        @PathParam("vestigingsnummer") vestigingsnummer: String
-    ) = runBlocking {
+    fun readVestigingByVestigingsnummer(
+        @PathParam("vestigingsnummer") vestigingsnummer: String,
+    ) = getVestiging(vestigingsnummer, null)
+
+    @GET
+    @Path("vestiging/{vestigingsnummer}/{kvkNummer}")
+    fun readVestigingByVestigingsnummerAndKvkNummer(
+        @PathParam("vestigingsnummer") vestigingsnummer: String,
+        @PathParam("kvkNummer") kvkNummer: String
+    ) = getVestiging(vestigingsnummer, kvkNummer)
+
+    private fun getVestiging(vestigingsnummer: String, kvkNummer: String? = null) = runBlocking {
         // run the two client calls concurrently in a coroutine scope,
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
             val klantVestigingDigitalAddresses =
                 async { klantClientService.findDigitalAddressesByNumber(vestigingsnummer) }
-            val vestiging = async { kvkClientService.findVestiging(vestigingsnummer) }
+            val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
             klantVestigingDigitalAddresses.await().toRestPersoon().let { klantVestigingRestPersoon ->
-                vestiging.await().getOrNull()?.toRestBedrijf()?.apply {
+                vestiging.await().getOrNull()?.toRestBedrijf(kvkNummer)?.apply {
                     emailadres = klantVestigingRestPersoon.emailadres
                     telefoonnummer = klantVestigingRestPersoon.telefoonnummer
                 } ?: throw VestigingNotFoundException(
