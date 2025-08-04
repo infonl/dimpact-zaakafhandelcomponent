@@ -96,7 +96,7 @@ When(
     await this.page.getByText("Aanvullende informatie").first().click();
 
     await this.page
-      .getByText("Gemeente-adorp-test@team-dimpact-info.nl")
+      .getByText("Gemeente-adorp-test@team-dimpact.info.nl")
       .first()
       .click();
     await this.page
