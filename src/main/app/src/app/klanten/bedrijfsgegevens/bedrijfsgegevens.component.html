@@ -7,7 +7,7 @@
   <mat-expansion-panel-header>
     <mat-panel-title> {{ "initiator.titel" | translate }} </mat-panel-title>
     <mat-panel-description>
-      {{ bedrijf ? bedrijf.naam : ("msg.loading" | translate) }}
+      {{ bedrijf?.naam ?? ("msg.loading" | translate) }}
       <div class="flex-row">
         <button
           mat-icon-button
@@ -52,9 +52,17 @@
       [value]="bedrijf.naam"
     ></zac-static-text>
     <zac-static-text
+      *ngIf="kvkNummer"
       [label]="'kvknummer' | translate"
       [value]="bedrijf.kvkNummer"
     ></zac-static-text>
+    <zac-static-text
+      *ngIf="!kvkNummer"
+      [label]="'kvknummer' | translate"
+      [icon]="warningIcon"
+      [value]="'msg.error.kvk.unknown' | translate"
+    >
+    </zac-static-text>
     <zac-static-text
       *ngIf="bedrijf.vestigingsnummer"
       [label]="'vestigingsnummer' | translate"
