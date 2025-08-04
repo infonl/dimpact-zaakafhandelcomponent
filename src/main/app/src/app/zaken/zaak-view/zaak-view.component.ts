@@ -1334,7 +1334,7 @@ export class ZaakViewComponent
       .afterClosed()
       .subscribe((result) => {
         this.activeSideAction = null;
-        if (!result) return
+        if (!result) return;
         this.utilService.openSnackbar("msg.zaak.ontkoppelen.uitgevoerd");
         this.updateZaak();
       });
