@@ -9,7 +9,7 @@ import nl.info.zac.app.klant.model.bedrijven.RestListBedrijvenParameters
 
 @Suppress("LongParameterList")
 fun createRestListBedrijvenParameters(
-    kvkNummer: String = "123456789",
+    kvkNummer: String? = "123456789",
     vestigingsnummer: String? = "fakeVestigingsnummer",
     rsin: String? = "fakeRsin",
     naam: String? = "fakeNaam",
