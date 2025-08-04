@@ -95,9 +95,8 @@ When(
 
     await this.page.getByText("Aanvullende informatie").first().click();
 
-    await this.page.getByText("- Kies een e-mailadres -").first().click();
     await this.page
-      .getByText("E2etestuser1@team-dimpact.info.nl")
+      .getByText("Gemeente-adorp-test@team-dimpact.info.nl")
       .first()
       .click();
     await this.page
