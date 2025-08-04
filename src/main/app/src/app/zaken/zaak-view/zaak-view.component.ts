@@ -1411,7 +1411,7 @@ export class ZaakViewComponent
       case "NIET_NATUURLIJK_PERSOON":
       case "VESTIGING":
         this.klantenService
-          .readBedrijf(betrokkene.identificatie)
+          .readBedrijf(betrokkene.identificatie, betrokkene.kvkNummer ?? null)
           .subscribe((bedrijf) => {
             betrokkene["gegevens"] = bedrijf.naam;
             if (bedrijf.adres) {
