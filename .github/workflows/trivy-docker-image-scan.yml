@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-name: Scheduled Trivy Docker image scan
+name: Scheduled Docker image scan
 
 on:
   schedule:
@@ -57,19 +57,10 @@ jobs:
         uses: snyk/actions/docker@77490d94e966421e076e95ad8fa87aa55e5ca409 # master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_INTEGRATION_VERSION: docker-latest-preview
         with:
           image: ${{ env.ZAC_IMAGE_URL }}
           args: --file=Dockerfile
-          json: true
-
-      - name: Run Snyk to check Docker image for vulnerabilities
-        continue-on-error: true
-        uses: snyk/actions/docker@77490d94e966421e076e95ad8fa87aa55e5ca409 # master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          image: ${{ env.ZAC_IMAGE_URL }}
-          command: consolidateResults --folderPath=.
 
 #      - name: Upload Snyk Scan Results to GitHub Security Tab
 #        uses: github/codeql-action/upload-sarif@51f77329afa6477de8c49fc9c7046c15b9a4e79d # v3.29.5
