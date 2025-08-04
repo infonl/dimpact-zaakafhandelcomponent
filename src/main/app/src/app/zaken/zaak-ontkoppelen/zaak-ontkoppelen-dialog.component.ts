@@ -4,9 +4,8 @@
  */
 
 import { Component, Inject } from "@angular/core";
-import { Validators } from "@angular/forms";
+import { FormBuilder, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
@@ -14,31 +13,32 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "zaak-ontkoppelen-dialog.component.html",
 })
 export class ZaakOntkoppelenDialogComponent {
-  protected readonly redenFormField = new TextareaFormFieldBuilder()
-    .id("reden")
-    .label("reden")
-    .maxlength(100)
-    .validators(Validators.required)
-    .build();
   protected loading = false;
+  protected readonly form = this.formBuilder.group({
+    reden: this.formBuilder.control<string>("", [
+      Validators.required,
+      Validators.maxLength(100),
+    ]),
+  });
 
   constructor(
-    public dialogRef: MatDialogRef<ZaakOntkoppelenDialogComponent>,
+    protected readonly dialogRef: MatDialogRef<ZaakOntkoppelenDialogComponent>,
     @Inject(MAT_DIALOG_DATA)
-    public data: GeneratedType<"RestZaakUnlinkData">,
-    private zakenService: ZakenService,
+    private readonly data: Omit<GeneratedType<"RestZaakUnlinkData">, "reden">,
+    private readonly zakenService: ZakenService,
+    private readonly formBuilder: FormBuilder,
   ) {}
-
-  close(): void {
-    this.dialogRef.close();
-  }
 
   ontkoppel(): void {
     this.dialogRef.disableClose = true;
     this.loading = true;
-    this.data.reden = this.redenFormField.formControl.value!;
-    this.zakenService.ontkoppelZaak(this.data).subscribe(() => {
-      this.dialogRef.close(true);
-    });
+    this.zakenService
+      .ontkoppelZaak({
+        ...this.data,
+        reden: this.form.value.reden ?? "",
+      })
+      .subscribe(() => {
+        this.dialogRef.close(true);
+      });
   }
 }
