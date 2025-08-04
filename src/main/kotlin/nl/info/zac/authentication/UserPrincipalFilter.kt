@@ -18,6 +18,7 @@ import nl.info.client.pabc.PabcClientService
 import nl.info.zac.identity.model.FunctionalRole
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
 import org.wildfly.security.http.oidc.RefreshableOidcSecurityContext
@@ -34,7 +35,9 @@ class UserPrincipalFilter
 @Inject
 constructor(
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
-    private val pabcClientService: PabcClientService
+    private val pabcClientService: PabcClientService,
+    @ConfigProperty(name = "FEATURE_FLAG_PABC_INTEGRATION", defaultValue = "false")
+    private val pabcIntegrationEnabled: Boolean
 ) : Filter {
     companion object {
         private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
@@ -88,14 +91,17 @@ constructor(
             )
             // for now, we only log the application roles for the logged-in user.
             // manually filtering out the roles that are not relevant for the pabc application
-            val functionalRoles: List<String> = loggedInUser.roles
-                .filterNot { it in setOf(FunctionalRole.DOMEIN_ELK_ZAAKTYPE.value, FunctionalRole.ZAAKAFHANDELCOMPONENT_USER.value) }
-                .toList()
-            val applicationRoles = this.pabcClientService.getApplicationRoles(functionalRoles)
-            if (applicationRoles != null) {
-                LOG.info(
-                    "User: '${loggedInUser.id}' with application roles from PABC: '$applicationRoles'"
-                )
+            if (pabcIntegrationEnabled) {
+                val filteredRoles = loggedInUser.roles.filterNot {
+                    it in setOf(
+                        FunctionalRole.DOMEIN_ELK_ZAAKTYPE.value,
+                        FunctionalRole.ZAAKAFHANDELCOMPONENT_USER.value
+                    )
+                }
+                val applicationRoles = pabcClientService.getApplicationRoles(filteredRoles)
+                LOG.info("User: '${loggedInUser.id}' with application roles from PABC: '$applicationRoles'")
+            } else {
+                LOG.info("PABC integration is disabled — skipping application role lookup.")
             }
 
             this.addRefreshTokenToHttpSession(oidcPrincipal, httpSession)

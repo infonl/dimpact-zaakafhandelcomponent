@@ -32,7 +32,7 @@ import java.time.ZonedDateTime
 class UserPrincipalFilterTest : BehaviorSpec({
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val pabcClientService = mockk<PabcClientService>()
-    val userPrincipalFilter = UserPrincipalFilter(zaakafhandelParameterService, pabcClientService)
+    val userPrincipalFilter = UserPrincipalFilter(zaakafhandelParameterService, pabcClientService, true)
 
     val httpServletRequest = mockk<HttpServletRequest>()
     val servletResponse = mockk<ServletResponse>()
@@ -288,6 +288,64 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     this.id shouldBe userName
                     // null indicates that the user has access to all zaaktypen
                     this.geautoriseerdeZaaktypen shouldBe null
+                }
+            }
+        }
+    }
+    Given(
+        """
+        PABC integration is disabled — no call should be made to pabcClientService
+        even if user roles would otherwise trigger such behavior
+        """
+    ) {
+        val userId = "testUserId"
+        val roles = listOf(
+            "fakeRole1",
+            "domein_elk_zaaktype",
+            "zaakafhandelcomponent_user"
+        )
+
+        val loggedInUser = createLoggedInUser(id = userId)
+        val newHttpSession = mockk<HttpSession>()
+
+        val userPrincipalFilter = UserPrincipalFilter(
+            zaakafhandelParameterService,
+            pabcClientService,
+            pabcIntegrationEnabled = false
+        )
+
+        every { httpServletRequest.userPrincipal } returns oidcPrincipal
+        every { httpServletRequest.getSession(true) } returns httpSession andThen newHttpSession
+        every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
+        every { httpSession.invalidate() } just runs
+        every { filterChain.doFilter(any(), any()) } just runs
+        every { httpServletRequest.servletContext.contextPath } returns "fakeContextPath"
+        every { oidcPrincipal.name } returns "differentUserId"
+        every { oidcPrincipal.oidcSecurityContext } returns oidcSecurityContext
+        every { oidcSecurityContext.token } returns accessToken
+        every { accessToken.rolesClaim } returns roles
+        every { accessToken.preferredUsername } returns "user"
+        every { accessToken.givenName } returns "given"
+        every { accessToken.familyName } returns "family"
+        every { accessToken.name } returns "Full Name"
+        every { accessToken.email } returns "user@example.com"
+        every { accessToken.getStringListClaimValue("group_membership") } returns emptyList()
+        every { newHttpSession.setAttribute(any(), any()) } just runs
+
+        When("doFilter is called") {
+            userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+
+            Then("pabcClientService should not be called") {
+                verify(exactly = 0) {
+                    pabcClientService.getApplicationRoles(any())
+                }
+            }
+
+            Then("the new session is used and user is logged in") {
+                verify(exactly = 1) {
+                    httpSession.invalidate()
+                    newHttpSession.setAttribute("logged-in-user", any())
+                    filterChain.doFilter(httpServletRequest, servletResponse)
                 }
             }
         }

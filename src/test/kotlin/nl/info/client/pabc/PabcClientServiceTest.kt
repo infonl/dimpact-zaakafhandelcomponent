@@ -11,7 +11,6 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
-import io.mockk.verify
 import nl.info.client.pabc.model.generated.GetApplicationRolesRequest
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
 
@@ -43,7 +42,7 @@ class PabcClientServiceTest : BehaviorSpec({
             pabcClient.getApplicationRolesPerEntityType(capture(requestSlot))
         } returns mockResponse
 
-        val service = PabcClientService(pabcClient, true)
+        val service = PabcClientService(pabcClient)
 
         When("getApplicationRoles is called") {
             val result = service.getApplicationRoles(roles)
@@ -58,22 +57,6 @@ class PabcClientServiceTest : BehaviorSpec({
                     "recordmanager",
                     "raadpleger"
                 )
-            }
-        }
-    }
-
-    Given("do not invoke client when feature flag is disabled") {
-        val pabcClient = mockk<PabcClient>(relaxed = true)
-        val service = PabcClientService(pabcClient, false)
-
-        When("getApplicationRoles is called") {
-            val result = service.getApplicationRoles(listOf("behandelaar"))
-
-            Then("pabcClient should not be called") {
-                result shouldBe null
-                verify(exactly = 0) {
-                    pabcClient.getApplicationRolesPerEntityType(any())
-                }
             }
         }
     }

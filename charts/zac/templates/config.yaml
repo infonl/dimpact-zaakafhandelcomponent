@@ -54,9 +54,7 @@ data:
   {{- end }}
   {{- end }}
   OPEN_FORMS_URL: {{ required "Valid .Values.openForms.url entry required!" .Values.openForms.url }}
-  {{- if eq .Values.featureFlags.pabcIntegration true }}
   PABC_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.pabcApi.url entry required!" .Values.pabcApi.url }}
-  {{- end }}
   SIGNALERINGEN_DELETE_OLDER_THAN_DAYS: {{ required "Valid .Values.signaleringen.deleteOlderThanDays entry required!" .Values.signaleringen.deleteOlderThanDays | quote }}
   SMTP_PORT: {{ .Values.mail.smtp.port | quote }}
   SMTP_SERVER: {{ .Values.mail.smtp.server }}

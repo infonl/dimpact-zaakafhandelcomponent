@@ -10,27 +10,16 @@ import nl.info.client.pabc.model.generated.GetApplicationRolesRequest
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
-import java.util.logging.Logger
 
 @ApplicationScoped
 @NoArgConstructor
 @AllOpen
 class PabcClientService @Inject constructor(
-    @RestClient private val pabcClient: PabcClient,
-    @ConfigProperty(name = "FEATURE_FLAG_PABC_INTEGRATION", defaultValue = "false")
-    private val pabcIntegrationEnabled: Boolean
+    @RestClient private val pabcClient: PabcClient
 ) {
-    companion object {
-        private val LOG = Logger.getLogger(PabcClientService::class.java.name)
-    }
 
-    fun getApplicationRoles(functionalRoles: List<String>): GetApplicationRolesResponse? {
-        if (!pabcIntegrationEnabled) {
-            LOG.info("PABC integration is disabled — skipping application role lookup.")
-            return null
-        }
+    fun getApplicationRoles(functionalRoles: List<String>): GetApplicationRolesResponse {
         val applicationRolesRequest = GetApplicationRolesRequest().apply {
             functionalRoleNames = functionalRoles
         }
