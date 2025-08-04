@@ -38,7 +38,7 @@ export class DocumentViewerComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     this.document = changes.document.currentValue;
     if (!this.document) return;
-    if (!changes.document.isFirstChange()) return;
+    if (changes.document.isFirstChange()) return;
 
     this.loadDocument();
   }
