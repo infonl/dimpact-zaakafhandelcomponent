@@ -4,12 +4,7 @@
  */
 package nl.info.zac.identity.model
 
-enum class FunctionalRole(val value: String) {
-    BEHANDELAAR("behandelaar"),
+enum class ZACRole(val value: String) {
     DOMEIN_ELK_ZAAKTYPE("domein_elk_zaaktype"),
-    COORDINATOR("coordinator"),
     ZAAKAFHANDELCOMPONENT_USER("zaakafhandelcomponent_user"),
-    BEHEERDER("beheerder"),
-    RECORDMANAGER("recordmanager"),
-    RAADPLEGER("raadpleger")
 }

@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaakafhandelParameterService
 import nl.info.client.pabc.PabcClientService
-import nl.info.zac.identity.model.FunctionalRole
+import nl.info.zac.identity.model.ZACRole
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -90,12 +90,12 @@ constructor(
                     }"
             )
             // for now, we only log the application roles for the logged-in user.
-            // manually filtering out the roles that are not relevant for the pabc application
+            // filtering out the roles that are currently not used by the PABC component
             if (pabcIntegrationEnabled) {
                 val filteredRoles = loggedInUser.roles.filterNot {
                     it in setOf(
-                        FunctionalRole.DOMEIN_ELK_ZAAKTYPE.value,
-                        FunctionalRole.ZAAKAFHANDELCOMPONENT_USER.value
+                        ZACRole.DOMEIN_ELK_ZAAKTYPE.value,
+                        ZACRole.ZAAKAFHANDELCOMPONENT_USER.value
                     )
                 }
                 val applicationRoles = pabcClientService.getApplicationRoles(filteredRoles)
@@ -139,7 +139,7 @@ constructor(
      * authorised for all zaaktypen.
      */
     private fun getAuthorisedZaaktypen(roles: Set<String>): Set<String>? =
-        if (roles.contains(FunctionalRole.DOMEIN_ELK_ZAAKTYPE.value)) {
+        if (roles.contains(ZACRole.DOMEIN_ELK_ZAAKTYPE.value)) {
             null
         } else {
             zaakafhandelParameterService

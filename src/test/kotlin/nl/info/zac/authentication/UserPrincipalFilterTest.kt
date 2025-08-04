@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaakafhandelParameterService
 import nl.info.client.pabc.PabcClientService
+import nl.info.client.pabc.model.createApplicationRolesResponse
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.identity.model.getFullName
 import org.wildfly.security.http.oidc.AccessToken
@@ -41,6 +42,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
     val oidcPrincipal = mockkClass(OidcPrincipal::class, relaxed = true)
     val oidcSecurityContext = mockk<OidcSecurityContext>(relaxed = true)
     val accessToken = mockk<AccessToken>(relaxed = true)
+    val pabcApplicationRoles = createApplicationRolesResponse()
 
     every { oidcPrincipal.oidcSecurityContext } returns oidcSecurityContext
     every { oidcSecurityContext.token } returns accessToken
@@ -113,7 +115,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
         every { oidcPrincipal.oidcSecurityContext } returns oidcSecurityContext
         every { oidcSecurityContext.token } returns accessToken
         every { accessToken.rolesClaim } returns roles
-        every { accessToken.rolesClaim } returns roles
         every { accessToken.preferredUsername } returns "fakeUserName"
         every { accessToken.givenName } returns "fakeGivenName"
         every { accessToken.familyName } returns "fakeFamilyName"
@@ -122,10 +123,8 @@ class UserPrincipalFilterTest : BehaviorSpec({
         every { accessToken.getStringListClaimValue("group_membership") } returns emptyList()
         every { newHttpSession.setAttribute(any(), any()) } just runs
         every {
-            pabcClientService.getApplicationRoles(
-                match { it == expectedFunctionalRoles }
-            )
-        } returns mockk(relaxed = true)
+            pabcClientService.getApplicationRoles(expectedFunctionalRoles)
+        } returns pabcApplicationRoles
 
         When("doFilter is called") {
             userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -139,6 +138,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     filterChain.doFilter(httpServletRequest, servletResponse)
                     httpSession.invalidate()
                     newHttpSession.setAttribute("logged-in-user", any())
+                    pabcClientService.getApplicationRoles(expectedFunctionalRoles)
                 }
             }
         }
@@ -203,7 +203,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
         every { httpSession.setAttribute(any(), any()) } just runs
         every {
             pabcClientService.getApplicationRoles(any())
-        } returns mockk(relaxed = true)
+        } returns pabcApplicationRoles
 
         When("doFilter is called") {
             userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -269,7 +269,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
         every { httpSession.setAttribute(any(), any()) } just runs
         every {
             pabcClientService.getApplicationRoles(any())
-        } returns mockk(relaxed = true)
+        } returns pabcApplicationRoles
 
         When("doFilter is called") {
             userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)

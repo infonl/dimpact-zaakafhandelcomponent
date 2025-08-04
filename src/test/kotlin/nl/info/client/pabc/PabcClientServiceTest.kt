@@ -5,14 +5,14 @@
 package nl.info.client.pabc
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import nl.info.client.pabc.model.createApplicationRolesResponse
 import nl.info.client.pabc.model.generated.GetApplicationRolesRequest
-import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
 
 class PabcClientServiceTest : BehaviorSpec({
 
@@ -26,11 +26,7 @@ class PabcClientServiceTest : BehaviorSpec({
         "raadpleger"
     )
 
-    val mockResponse = GetApplicationRolesResponse()
-
-    afterTest {
-        clearMocks(pabcClient)
-    }
+    val mockResponse = createApplicationRolesResponse()
 
     beforeEach {
         checkUnnecessaryStub()
@@ -57,6 +53,16 @@ class PabcClientServiceTest : BehaviorSpec({
                     "recordmanager",
                     "raadpleger"
                 )
+
+                val responseModel = result.results[0]
+                responseModel.entityType.id shouldBe "zaaktype_test_1"
+                responseModel.entityType.name shouldBe "Test zaaktype 1"
+                responseModel.entityType.type shouldBe "zaaktype"
+
+                responseModel.applicationRoles.map { it.name } shouldContainExactlyInAnyOrder roles
+                responseModel.applicationRoles.forEach {
+                    it.application shouldBe "zaakafhandelcomponent"
+                }
             }
         }
     }
