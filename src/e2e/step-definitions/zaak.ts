@@ -94,14 +94,10 @@ When(
     const user2Profile = profiles[user2Parsed];
 
     await this.page.getByText("Aanvullende informatie").first().click();
+    await this.page.waitForTimeout(10000)
 
-    await this.page.getByText("E-mailadres*").first().click();
     await this.page
-      .getByText("E2etestuser1@team-dimpact.info.nl")
-      .first()
-      .click();
-    await this.page
-      .getByLabel("E-mailadres")
+      .locator("mat-label", { hasText: "E-mailadres" })
       .first()
       .fill("e2e-test@team-dimpact.info.nl");
 
