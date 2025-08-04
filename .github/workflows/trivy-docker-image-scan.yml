@@ -53,7 +53,7 @@ jobs:
         with:
           sarif: true
           image: ${{ env.ZAC_IMAGE_URL }}
-          args: --sarif --sarif-category=snyk-docker-image --sarif-file-output=snyk-docker.sarif
+          args: --sarif --sarif-file-output=snyk-docker.sarif
 
       - name: Upload Snyk Scan Results to GitHub Security Tab
         uses: github/codeql-action/upload-sarif@51f77329afa6477de8c49fc9c7046c15b9a4e79d # v3.29.5
