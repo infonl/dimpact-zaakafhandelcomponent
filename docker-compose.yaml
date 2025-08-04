@@ -694,7 +694,7 @@ services:
     profiles: [ "pabc" ]
 
   pabc-migrations:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.0@sha256:55e53e85e636d57385145417362a2b89f0777136410ebb154c48051e52415710
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.1@sha256:c6b8d66909dfed7709385490a8fb357870b331535bf1da8fce0103dc441f897a
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
