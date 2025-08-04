@@ -16,8 +16,7 @@ permissions:
   security-events: write
 
 jobs:
-  build:
-    name: Run Trivy Docker image scan
+  trivy:
     runs-on: ubuntu-24.04
     steps:
       - name: Pull Docker Image
@@ -45,17 +44,24 @@ jobs:
           sarif_file: 'trivy-results.sarif'
           category: 'trivy-docker-image'
 
+  snyk:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          sparse-checkout: .
+
       - name: Run Snyk to check Docker image for vulnerabilities
         continue-on-error: true
         uses: snyk/actions/docker@77490d94e966421e076e95ad8fa87aa55e5ca409 # master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          sarif: true
           image: ${{ env.ZAC_IMAGE_URL }}
-          args: --file=Dockerfile --sarif --sarif-file-output=snyk-docker.sarif
+          args: --file=Dockerfile
 
       - name: Upload Snyk Scan Results to GitHub Security Tab
         uses: github/codeql-action/upload-sarif@51f77329afa6477de8c49fc9c7046c15b9a4e79d # v3.29.5
         with:
-          sarif_file: 'snyk-docker.sarif'
+          sarif_file: 'snyk.sarif'
