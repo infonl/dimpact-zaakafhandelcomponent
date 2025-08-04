@@ -379,7 +379,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 result.resultaten.size shouldBe 1
                 with(result.resultaten.first()) {
                     this.naam shouldBe "fakeName"
-                    this.kvkNummer shouldBe "fakeKvkNummer"
+                    this.kvkNummer shouldBe restListBedrijvenParameters.kvkNummer
                     // the type should be converted to uppercase in the response
                     this.type shouldBe "FAKETYPE"
                     this.vestigingsnummer shouldBe "fakeVestigingsnummer"
@@ -389,10 +389,12 @@ class KlantRestServiceTest : BehaviorSpec({
     }
 
     Given("A request with just a vestigings number") {
-        val restListBedrijvenParameters = createRestListBedrijvenParameters()
+        val restListBedrijvenParameters = createRestListBedrijvenParameters(
+            kvkNummer = null
+        )
         val resultaatItem = createResultaatItem(
             naam = "fakeName",
-            kvkNummer = null,
+            kvkNummer = "fakeKvkNummer",
             type = "fakeType",
             vestingsnummer = "fakeVestigingsnummer",
             rsin = null
@@ -402,7 +404,7 @@ class KlantRestServiceTest : BehaviorSpec({
         When("the listBedrijven function is called") {
             val result = klantRestService.listBedrijven(restListBedrijvenParameters)
 
-            Then("the result should contain the expected company") {
+            Then("the result should not contain the CoC-number, even though it is found in the KVK") {
                 result.resultaten.size shouldBe 1
                 with(result.resultaten.first()) {
                     this.kvkNummer shouldBe null
