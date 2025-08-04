@@ -55,7 +55,7 @@ describe(KlantenService.name, () => {
       (rsinOfVestigingsnummer, endpoint, path) => {
         const get = jest.spyOn(zacHttpClient, "GET");
 
-        service.readBedrijf(rsinOfVestigingsnummer);
+        service.readBedrijf(rsinOfVestigingsnummer, null);
 
         expect(get).toHaveBeenCalledWith(expect.stringContaining(endpoint), {
           path,
