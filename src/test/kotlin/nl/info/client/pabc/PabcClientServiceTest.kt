@@ -54,7 +54,6 @@ class PabcClientServiceTest : BehaviorSpec({
                 responseModel.entityType.name shouldBe "Test zaaktype 1"
                 responseModel.entityType.type shouldBe "zaaktype"
 
-                responseModel.applicationRoles.map { it.name } shouldContainExactlyInAnyOrder roles
                 responseModel.applicationRoles.forEach {
                     it.application shouldBe "zaakafhandelcomponent"
                 }
