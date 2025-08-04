@@ -172,7 +172,7 @@
           <th mat-header-cell *matHeaderCellDef>
             <zac-facet-filter
               label="zaaktype"
-              [filter]f="zoekParameters.filters.ZAAKTYPE"
+              [filter]="zoekParameters.filters.ZAAKTYPE"
               [opties]="zoekResultaat.filters.ZAAKTYPE"
               (changed)="
                 zoekParameters.filters.ZAAKTYPE = $event; filtersChanged()
