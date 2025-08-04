@@ -20,7 +20,6 @@ import { map, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { DocumentZoekObject } from "../model/documenten/document-zoek-object";
-import { FilterResultaat } from "../model/filter-resultaat";
 import { TaakZoekObject } from "../model/taken/taak-zoek-object";
 import { ZaakZoekObject } from "../model/zaken/zaak-zoek-object";
 import { ZoekObject } from "../model/zoek-object";
@@ -172,7 +171,7 @@ export class ZoekComponent implements AfterViewInit, OnInit {
     return zoekObject as DocumentZoekObject;
   }
 
-  hasOption(options: FilterResultaat[]) {
+  hasOption(options: GeneratedType<"FilterResultaat">[]) {
     return options.length
       ? !(options.length === 1 && options[0].naam === "-NULL-")
       : false;
