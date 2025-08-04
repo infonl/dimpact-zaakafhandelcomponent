@@ -379,7 +379,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 result.resultaten.size shouldBe 1
                 with(result.resultaten.first()) {
                     this.naam shouldBe "fakeName"
-                    this.kvkNummer shouldBe null
+                    this.kvkNummer shouldBe "fakeKvkNummer"
                     // the type should be converted to uppercase in the response
                     this.type shouldBe "FAKETYPE"
                     this.vestigingsnummer shouldBe "fakeVestigingsnummer"
@@ -387,6 +387,30 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("A request with just a vestigings number") {
+        val restListBedrijvenParameters = createRestListBedrijvenParameters()
+        val resultaatItem = createResultaatItem(
+            naam = "fakeName",
+            kvkNummer = null,
+            type = "fakeType",
+            vestingsnummer = "fakeVestigingsnummer",
+            rsin = null
+        )
+        every { kvkClientService.search(any()).resultaten } returns listOf(resultaatItem)
+
+        When("the listBedrijven function is called") {
+            val result = klantRestService.listBedrijven(restListBedrijvenParameters)
+
+            Then("the result should contain the expected company") {
+                result.resultaten.size shouldBe 1
+                with(result.resultaten.first()) {
+                    this.kvkNummer shouldBe null
+                }
+            }
+        }
+    }
+
     Given("A person is looked up with a BSN") {
         val bsn = "123456789"
         val person = createPersoon(bsn = bsn)
