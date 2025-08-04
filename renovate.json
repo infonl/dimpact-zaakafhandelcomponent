@@ -252,6 +252,24 @@
       ],
       "versioning": "loose",
       "allowedVersions": "/jre-ubi9-minimal$/"
+    },
+    {
+      "matchPackageNames": [
+        "ghcr.io/platform-autorisatie-beheer-component/pabc-api"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "versioning": "semver"
+    },
+    {
+      "matchPackageNames": [
+        "ghcr.io/platform-autorisatie-beheer-component/pabc-migrations"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "versioning": "semver"
     }
   ]
 }
