@@ -10,6 +10,7 @@ import {
   OnChanges,
   Output,
 } from "@angular/core";
+import { TextIcon } from "../../shared/edit/text-icon";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
 
@@ -22,6 +23,7 @@ export class BedrijfsgegevensComponent implements OnChanges {
   @Input() isVerwijderbaar?: boolean = false;
   @Input() isWijzigbaar?: boolean = false;
   @Input() rsinOfVestigingsnummer?: string | null = null;
+  @Input() kvkNummer?: string | null = null;
   @Output() delete = new EventEmitter<GeneratedType<"RestBedrijf">>();
   @Output() edit = new EventEmitter<GeneratedType<"RestBedrijf">>();
 
@@ -29,6 +31,13 @@ export class BedrijfsgegevensComponent implements OnChanges {
   vestigingsprofiel: GeneratedType<"RestVestigingsprofiel"> | null = null;
   bedrijf: GeneratedType<"RestBedrijf"> | null = null;
   klantExpanded = false;
+  warningIcon = new TextIcon(
+    () => true,
+    "warning",
+    "warning-icon",
+    "",
+    "error",
+  );
 
   constructor(private klantenService: KlantenService) {}
 
@@ -38,7 +47,7 @@ export class BedrijfsgegevensComponent implements OnChanges {
     if (!this.rsinOfVestigingsnummer) return;
 
     this.klantenService
-      .readBedrijf(this.rsinOfVestigingsnummer)
+      .readBedrijf(this.rsinOfVestigingsnummer, this.kvkNummer ?? null)
       .subscribe((bedrijf) => {
         this.bedrijf = bedrijf;
         this.klantExpanded = true;
