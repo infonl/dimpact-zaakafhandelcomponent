@@ -705,7 +705,7 @@ services:
     profiles: [ "pabc" ]
 
   pabc-api:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.0@sha256:aabc9f15b7291abcfd944bacc7fc6c005ec2bf26980dbe718f233db8afaef974
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.0@sha256:217413556860f17ca25dab74a0bd553d25a7d06d59fe0155343d35cd8fef7208
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
