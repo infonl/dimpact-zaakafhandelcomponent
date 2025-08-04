@@ -35,7 +35,7 @@ export class ZaakOntkoppelenDialogComponent {
     this.zakenService
       .ontkoppelZaak({
         ...this.data,
-        reden: this.form.value.reden ?? "",
+        reden: this.form.value.reden!,
       })
       .subscribe(() => {
         this.dialogRef.close(true);
