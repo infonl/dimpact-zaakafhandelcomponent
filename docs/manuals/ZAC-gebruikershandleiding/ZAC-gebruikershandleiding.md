@@ -4,9 +4,9 @@
 
 
 > **Colofon** <br>
-> Datum :30-6-2025 <br>
-> Versie :   1.6.7 <br>
-> Verandering : ZAC v3.9 Handleiding <br>
+> Datum :04-08-2025 <br>
+> Versie :   1.6.8 <br>
+> Verandering : ZAC v3.11 Handleiding <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -34,6 +34,7 @@ Versiegeschiedenis:
 | 1.6.5 | Aanpassingen locatie scherm en werking verwerkt |
 | 1.6.6 | ZAC v3.8 Handleiding |
 | 1.6.7 | ZAC v3.9 Handleiding |
+| 1.6.8 | ZAC v3.11 Handleiding |
 
 <div style="page-break-after: always"></div>
 
@@ -162,6 +163,8 @@ Om naar het dashboard te gaan kan de thuis knop links in de werkbalk gebruikt wo
 
 Zodra een werklijst, zaak, taak of document geopend is, dan verschijnt deze in het hoofdscherm. Later in deze handleiding wordt de hoofdindeling van een zaak en de werking van de werklijsten, een zaak, een taak en een document verder beschreven.
 
+> Het menu item Inbox is alleen zichtbaar voor rollen die hier rechten op hebben.
+
 ## Rollen en rechten
 
 De beschikbaarheid van functionaliteit voor een gebruiker in het ZAC is verbonden aan rechten. Er wordt momenteel gewerkt met vier rollen voor gebruikers, hieronder volgt een korte omschrijving. Deze rollen zijn nog in ontwikkeling. Het komt dus voor dat functionaliteit, zoals beschreven in deze handleiding, niet beschikbaar voor jou is omdat een rol niet aan jou is toegewezen.
@@ -174,10 +177,6 @@ Coördinator: heeft rechten om vanuit werklijsten werk te verdelen en zaken en t
 
 Recordmanager: mag zaken en taken raadplegen en heeft aanvullende rechten op het gebied van documenten en beëindigde zaken zoals een zaak heropenen.
 
-## Versie software
-
-De informatie over de software versie van de ZAC is te zien onder het profiel.
-
 <div style="page-break-after: always"></div>
 
 # Profiel
@@ -186,7 +185,11 @@ De informatie over de software versie van de ZAC is te zien onder het profiel.
 
 Een gebruiker kan uit de applicatie loggen via het profiel icoon. Deze bevindt zich recht bovenin de werkbalk en toont de initialen en naam van de ingelogde gebruiker.
 ![Ingelogde gebruiker](./images/ingelogde-gebruiker.png)
->Zweef met de muisaanwijzer over de versie heen om informatie over de huidige versie te zien!
+
+## Versie software
+
+De informatie over de software versie van de ZAC is te zien onder het profiel.
+>Zweef met de muisaanwijzer over de versie heen om verdere informatie over de huidige versie te zien!
 
 ## Signaleringen
 
@@ -196,16 +199,11 @@ Voor de signaleringen die per e-mail beschikbaar zijn kan iedere gebruiker zelf 
 ![Signaleringen](./images/signaleringen.png)
 
 De signaleringen worden in de volgende situaties verstuurd:
-
-Er is een document aan mijn zaak toegevoegd: er is door een andere gebruiker een nieuw document aan een zaak die op jouw naam staat toegevoegd
-
-Er is een zaak op mijn naam gezet: er is een zaak nieuw op jouw naam gezet
-
-Mijn zaak nadert de streef- of fatale datum: een zaak op jouw naam heeft de voor dat zaaktype geldende aantal kalenderdagen tot de streef- of fatale datum bereikt
-
-Er is een taak op mijn naam gezet: er is door een andere gebruiker een taak nieuw op jouw naam gezet
-
-Mijn taak heeft de streefdatum bereikt: een taak op jouw naam heeft de streefdatum bereikt
+- Er is een document aan mijn zaak toegevoegd: er is door een andere gebruiker een nieuw document aan een zaak die op jouw naam staat toegevoegd
+- Er is een zaak op mijn naam gezet: er is een zaak nieuw op jouw naam gezet
+- Mijn zaak nadert de streef- of fatale datum: een zaak op jouw naam heeft de voor dat zaaktype geldende aantal kalenderdagen tot de streef- of fatale datum bereikt
+- Er is een taak op mijn naam gezet: er is door een andere gebruiker een taak nieuw op jouw naam gezet
+- Mijn taak heeft de streefdatum bereikt: een taak op jouw naam heeft de streefdatum bereikt
 
 <div style="page-break-after: always"></div>
 
@@ -249,6 +247,7 @@ Door te klikken op het oog icoon kan een item geopend worden, Ctrl + oog icoon o
 
 ## Overzicht werklijsten
 
+**_Zaken_**
 **_Zaken-werkvoorraad_**
 
 Met de werklijst 'Werkvoorraad-zaken' zijn alle lopende zaken van de gehele organisatie in een overzicht in te zien.
@@ -263,6 +262,7 @@ Met de werklijst 'Mijn zaken' zijn alle lopende zaken die op naam van de ingelog
 
 Alle door een gebruiker afgehandelde zaken zijn in te zien door de werklijst ‘Afgehandelde zaken’ te gebruiken met daarin een filter op Behandelaar.
 
+**_Taken_**
 **_Taken-werkvoorraad_**
 
 Met de werklijst 'Werkvoorraad-taken' zijn alle lopende taken van de organisatie in een overzicht in te zien. Van iedere taak is het zaaknummer en -informatie te zien van de zaak waar deze bij hoort.
@@ -270,6 +270,9 @@ Met de werklijst 'Werkvoorraad-taken' zijn alle lopende taken van de organisatie
 **_Mijn taken_**
 
 Deze werklijst bevat alle lopende taken die op naam van de ingelogde gebruiker staan.
+
+**_Inbox_**
+> Inbox is alleen zichtbaar voor bepaalde rollen
 
 **_Ontkoppelde documenten (Coördinator)_**
 
@@ -406,9 +409,10 @@ Als je klaar bent met aanpassen dan sluit je het schuifje weer om de aanpassinge
 ZAC heeft de mogelijkheid om een nieuwe zaak aan te maken. De zaak wordt daarna beschikbaar om te behandelen.
 
 Een nieuwe zaak starten kan door op de ‘Zaak aanmaken’ map icoon boven in de werkbalk te klikken. In het scherm dat opent worden alle verplichte zaakgegevens ingevuld. Bij het aanmaken van een nieuwe zaak kan de persoon of het bedrijf die de initiator van de zaak is direct aan de zaak toegevoegd worden.  
-> De initiator is niet altijd toe te voegen, dit is per zaaktype 
+> De initiator is niet altijd toe te voegen, dit is per zaaktype.
 
 **Stappen**
+
 
 1 Klik op de ‘Zaak aanmaken’ knop in de werkbalk
 ![Zaak aanmaken](./images/zaak-aanmaken.png)
@@ -812,8 +816,8 @@ Betrokkenen zijn nadat ze zijn toegevoegd te vinden onder de tab ‘Betrokkenen�
 Vanuit het overzicht is het via het oog icoon mogelijk om naar de persoons- of bedrijfsgegevenspagina te gaan. Daarnaast kan een betrokkene ontkoppeld worden door op het ontkoppel icoon te klikken (een reden is verplicht).
 ![Betrokkene gegevens en ontkoppelen](./images/betrokkene-gegevens-en-ontkoppelen.png)
 
->De letter achter de identificatie geeft aan of het een persoon, vestiging of rechtspersoon betreft!
->Klik op de drie puntjes om de naam van de betrokkene op te halen en te tonen!
+>De letter achter de identificatie geeft aan of het een persoon, vestiging of rechtspersoon betreft.
+>Klik op de drie puntjes om de naam van de betrokkene op te halen en te tonen.
 
 ### BAG-object toevoegen
 
@@ -848,7 +852,7 @@ Een taak bestaat uit twee delen: het taakstartscherm en het taakbehandelscherm.
 
 In het taakstartscherm kan de zaakbehandelaar de gegevens die voor de taak gelden invullen. In sommige taken is het ook mogelijk om een document aan te vinken dat van belang voor de taak is. Als een taak per e-mail wordt uitgezet dan kan in dit scherm ook het e-mailadres worden ingevuld. Tot slot kan de zaakbehandelaar in dit scherm kiezen aan welke groep en eventueel aan welke behandelaar de taak wordt toegekend. Het taakbehandelscherm bevat de gegevens en velden die de taakbehandelaar nodig heeft om de uitkomst van de taak vast te leggen.
 
-***Beschikbare taken in de ‘Intake’ fase***
+***Beschikbare taak in de ‘Intake’ fase***
 
 Taak: Aanvullende informatie
 
@@ -877,8 +881,8 @@ Deze taak is bedoeld om een document door een interne groep of medewerker te lat
 Nadat een taak is aangemaakt verschijnt deze in het overzicht van taken. Vanuit het overzicht kan een taak geopend worden om deze te bekijken of te behandelen.
 ![Taken bekijken](./images/taken-bekijken.png)
 
->Klik op het schuifje om ook de eerder afgeronde taken in het overzicht te zien!
->Klik op het uitklappijltje in de kolomkop om meer gegevens over de taken te zien!
+>Klik op het schuifje om ook de eerder afgeronde taken in het overzicht te zien.
+>Klik op het uitklappijltje in de kolomkop om meer gegevens over de taken te zien.
 
 ### Werking van de Taak: Aanvullende informatie
 
@@ -1072,7 +1076,6 @@ Een deelzaak wordt gebruikt om een deel van het proces dat tot de uitkomst van d
 
 ### Zaak koppelen om een zaakrelatie te leggen
 
-
 **Stappen:**
 
 1 In een zaak kies je de optie onder koppelen *Zaak koppelen*
@@ -1088,7 +1091,6 @@ Een deelzaak wordt gebruikt om een deel van het proces dat tot de uitkomst van d
 
 5 Klik op het Koppelteken om de koppeling te leggen
 ![koppeling](./images/koppelformulier.png)
-
 
 ### Inzien gekoppelde zaken
 
@@ -1135,7 +1137,7 @@ Of een besluit kan worden vastgelegd is afhankelijk van of dit is ingesteld bij 
 6 Selecteer het document waarin het besluit is opgenomen. Alleen documenttypen waarvan bij het besluittype is ingesteld dat deze gekozen mogen worden verschijnen in het overzicht.
 ![Besluit vastleggen](./images/besluit-vastleggen.png)
 
->Dit document is te koppelen omdat het documenttype ‘Besluit’ aan het besluittype ‘BesluitType1’ is gekoppeld!
+>Dit document is te koppelen omdat het documenttype ‘Besluit’ aan het besluittype ‘BesluitType1’ is gekoppeld.
 
 7 Klik op ‘Aanmaken’ om het besluit vast te leggen
 
@@ -1228,10 +1230,10 @@ Daarnaast bevat de pagina een overzicht van alle zaken waar de persoon of bedrij
 Deze pagina is te benaderen door vanuit een zaak op het oog icoon van een initiator of betrokkene te klikken of door een persoon of bedrijf via de zoekfunctie te openen.
 ![Persoons bedrijfspagina](./images/persoons-bedrijfspagina.png)
 
->Klik op het schuifje om ook afgehandelde zaken in het overzicht te zien!
->Als er in Open Klant contactgegevens aanwezig zijn dan worden deze getoond, zo niet, dan staat er een streepje!
->Als er contactmomenten aanwezig zijn dan worden deze getoond, zo niet, dan is het overzicht leeg!
->Klik op het pagina icoon om meer bedrijfsgegevens op te halen. Deze functie is alleen voor een bedrijf beschikbaar!
+>Klik op het schuifje om ook afgehandelde zaken in het overzicht te zien.
+>Als er in Open Klant contactgegevens aanwezig zijn dan worden deze getoond, zo niet, dan staat er een streepje.
+>Als er contactmomenten aanwezig zijn dan worden deze getoond, zo niet, dan is het overzicht leeg.
+>Klik op het pagina icoon om meer bedrijfsgegevens op te halen. Deze functie is alleen voor een bedrijf beschikbaar.
 
 <div style="page-break-after: always"></div>
 
@@ -1244,7 +1246,7 @@ Daarnaast bevat de pagina een overzicht van alle zaken waar het BAG-object aan t
 Deze pagina is te benaderen door vanuit een zaak op het oog icoon van een BAG-object te klikken of door een BAG-object via de zoekfunctie te openen.
 ![BAG-object pagina](./images/bag-object-pagina.png)
 
->Klik op het schuifje om ook afgehandelde zaken in het overzicht te zien!
+>Klik op het schuifje om ook afgehandelde zaken in het overzicht te zien.
 
 <div style="page-break-after: always"></div>
 
@@ -1261,7 +1263,7 @@ Bij ieder document kan het oog icoon gebuikt worden om de documentgegevenspagina
 >Zweef met de muis over een indicatie om meer erover te weten te komen!
 >Klik op het kebab menu om meerdere functies te kunnen gebruiken!
 >Klik op het schuifje om ook documenten uit gekoppelde zaken in het overzicht te zien!
->Selecteer documenten en klik daarna op het zip icoon om een zip bestand van de documenten te maken!
+>Selecteer documenten en klik daarna op het zip icoon om een zip bestand van de documenten te maken.
 
 ## Document verplaatsen
 
