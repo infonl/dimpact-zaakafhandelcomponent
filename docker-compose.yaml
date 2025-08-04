@@ -4,7 +4,7 @@
 #
 services:
   keycloak-database:
-    image: docker.io/postgres:17.5@sha256:3962158596daaef3682838cc8eb0e719ad1ce520f88e34596ce8d5de1b6330a1
+    image: docker.io/postgres:17.5@sha256:4d89c904835259bc58876520e56267ca07a4ebd6a027f7814bbbf91b50d685be
     platform: linux/amd64
     ports:
       - "54326:5432"
@@ -271,7 +271,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: docker.io/postgres:17.5@sha256:3962158596daaef3682838cc8eb0e719ad1ce520f88e34596ce8d5de1b6330a1
+    image: docker.io/postgres:17.5@sha256:4d89c904835259bc58876520e56267ca07a4ebd6a027f7814bbbf91b50d685be
     platform: linux/amd64
     ports:
       - "54325:5432"
@@ -676,7 +676,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: docker.io/postgres:17.5@sha256:3962158596daaef3682838cc8eb0e719ad1ce520f88e34596ce8d5de1b6330a1
+    image: docker.io/postgres:17.5@sha256:4d89c904835259bc58876520e56267ca07a4ebd6a027f7814bbbf91b50d685be
     platform: linux/amd64
     ports:
       - "54329:5432"
@@ -695,7 +695,7 @@ services:
     profiles: [ "pabc" ]
 
   pabc-migrations:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.0@sha256:a8771556dddf409a29f6223043a99cf241142072558758c1d10af4f18e686b48
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.0@sha256:55e53e85e636d57385145417362a2b89f0777136410ebb154c48051e52415710
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
@@ -705,7 +705,7 @@ services:
     profiles: [ "pabc" ]
 
   pabc-api:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.0@sha256:aabc9f15b7291abcfd944bacc7fc6c005ec2bf26980dbe718f233db8afaef974
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.0@sha256:217413556860f17ca25dab74a0bd553d25a7d06d59fe0155343d35cd8fef7208
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
@@ -722,7 +722,7 @@ services:
     profiles: [ "pabc" ]
 
   zac-database:
-    image: docker.io/postgres:17.5@sha256:3962158596daaef3682838cc8eb0e719ad1ce520f88e34596ce8d5de1b6330a1
+    image: docker.io/postgres:17.5@sha256:4d89c904835259bc58876520e56267ca07a4ebd6a027f7814bbbf91b50d685be
     platform: linux/amd64
     ports:
       - "54320:5432"
