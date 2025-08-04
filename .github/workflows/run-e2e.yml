@@ -32,9 +32,9 @@ jobs:
           my_ip=$(curl https://api.ipify.org)
           echo "my_ip=$my_ip" >> $GITHUB_ENV
       - name: add ip to nsg
-        uses: azure/CLI@089eac9d8cc39f5d003e94f8b65efc51076c9cbd # v2.1.0
+        uses: azure/cli@089eac9d8cc39f5d003e94f8b65efc51076c9cbd # v2.1.0
         with:
-          azcliversion: "latest"
+          azcliversion: latest
           inlineScript: |
             az network nsg rule create -g zac-infra --nsg-name k8s-test-nsg -n allow_github_runner --priority 295 --source-address-prefixes ${{ env.my_ip }} --destination-port-ranges '*' --direction Inbound --access allow --protocol '*' --destination-address-prefixes '*'
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -153,8 +153,8 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       - name: remove nsg rule by name
         if: always()
-        uses: azure/CLI@089eac9d8cc39f5d003e94f8b65efc51076c9cbd # v2.1.0
+        uses: azure/cli@089eac9d8cc39f5d003e94f8b65efc51076c9cbd # v2.1.0
         with:
-          azcliversion: "latest"
+          azcliversion: latest
           inlineScript: |
             az network nsg rule delete -g zac-infra --nsg-name k8s-test-nsg -n allow_github_runner

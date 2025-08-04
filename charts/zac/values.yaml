@@ -366,7 +366,7 @@ solr-operator:
       # -- solr busybox image reposity
       repository: library/busybox
       # -- solr busybox image tag
-      tag: 1.37.0-glibc@sha256:bd606c263abed91a141187b92fdb54b87bbc39cfb9068f96ad84196a36963103
+      tag: 1.37.0-glibc@sha256:facb103d02c3e0fcf34e272264b7d7deea98e1b2861075d2c9c4dd329d4c1c0d
     # -- enable configuration of a solrcloud
     enabled: true
     # solr image parameters
@@ -560,7 +560,7 @@ nginx:
   image:
     repository: nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.29.0@sha256:5957d8d004517de8a53af6812bdb1b779d7c6746a611569af59b22660925f47b
+    tag: 1.29.0@sha256:502f1c37b8f59632f42cc615a5bb4709bb8e1cbc0e728118496361dfbc4302af
   service:
     type: ClusterIP
     port: 80
