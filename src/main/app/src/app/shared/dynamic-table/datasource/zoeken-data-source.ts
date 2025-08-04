@@ -11,7 +11,6 @@ import { MatSort, SortDirection } from "@angular/material/sort";
 import { BehaviorSubject, Observable, Subscription, merge } from "rxjs";
 import { finalize, tap } from "rxjs/operators";
 import { UtilService } from "../../../core/service/util.service";
-import { FilterResultaat } from "../../../zoeken/model/filter-resultaat";
 import { FilterVeld } from "../../../zoeken/model/filter-veld";
 import { DEFAULT_ZOEK_PARAMETERS } from "../../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../../zoeken/model/zoek-resultaat";
@@ -29,7 +28,9 @@ export abstract class ZoekenDataSource<
     GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">,
 > extends DataSource<OBJECT> {
   zoekParameters: GeneratedType<"RestZoekParameters">;
-  beschikbareFilters: Partial<Record<FilterVeld, FilterResultaat[]>> = {};
+  beschikbareFilters: Partial<
+    Record<FilterVeld, GeneratedType<"FilterResultaat">[]>
+  > = {};
   totalItems = 0;
   paginator!: MatPaginator;
   sort!: MatSort;
@@ -92,14 +93,14 @@ export abstract class ZoekenDataSource<
    *  Called when the table is being destroyed. Use this function, to clean up
    * any open connections or free any held resources that were set up during connect.
    */
-  disconnect(): void {
+  disconnect() {
     this.subscriptions$.forEach((s) => {
       s.unsubscribe();
     });
     this.tableSubject.complete();
   }
 
-  load(delay = 0): void {
+  load(delay = 0) {
     setTimeout(() => {
       this.utilService.setLoading(true);
       this.zoekenService
@@ -151,7 +152,7 @@ export abstract class ZoekenDataSource<
    *
    * @param defaultColumns available columns
    */
-  initColumns(defaultColumns: Map<ZoekenColumn, ColumnPickerValue>): void {
+  initColumns(defaultColumns: Map<ZoekenColumn, ColumnPickerValue>) {
     const key = this.werklijst + "Columns";
     const sessionColumnsString = SessionStorageUtil.getItem<string>(key, "");
     const sessionColumns: Map<ZoekenColumn, ColumnPickerValue> | undefined =
@@ -181,7 +182,7 @@ export abstract class ZoekenDataSource<
    *
    * @param columns updated columns
    */
-  updateColumns(columns: Map<ZoekenColumn, ColumnPickerValue>): void {
+  updateColumns(columns: Map<ZoekenColumn, ColumnPickerValue>) {
     this._visibleColumns = [...columns.keys()].filter(
       (key) => columns.get(key) !== ColumnPickerValue.HIDDEN,
     );

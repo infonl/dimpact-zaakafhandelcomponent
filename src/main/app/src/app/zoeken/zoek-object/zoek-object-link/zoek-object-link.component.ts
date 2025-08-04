@@ -6,7 +6,6 @@
 import { Component, HostListener, Input } from "@angular/core";
 
 import { MatSidenav } from "@angular/material/sidenav";
-import { Router } from "@angular/router";
 import { IndicatiesLayout } from "../../../shared/indicaties/indicaties.component";
 import { DocumentZoekObject } from "../../model/documenten/document-zoek-object";
 import { TaakZoekObject } from "../../model/taken/taak-zoek-object";
@@ -19,12 +18,10 @@ import { ZoekObject } from "../../model/zoek-object";
   templateUrl: "./zoek-object-link.component.html",
 })
 export class ZoekObjectLinkComponent {
-  @Input() zoekObject: ZoekObject;
-  @Input() sideNav: MatSidenav;
+  @Input({ required: true }) zoekObject!: ZoekObject;
+  @Input({ required: true }) sideNav!: MatSidenav;
   _newtab = false;
   indicatiesLayout = IndicatiesLayout;
-
-  constructor(private router: Router) {}
 
   @HostListener("document:keydown", ["$event"])
   handleKeydown(event: KeyboardEvent) {
@@ -55,7 +52,7 @@ export class ZoekObjectLinkComponent {
     }
   }
 
-  getName(): string {
+  getName() {
     switch (this.zoekObject.type) {
       case "ZAAK":
         return (this.zoekObject as ZaakZoekObject).identificatie;
