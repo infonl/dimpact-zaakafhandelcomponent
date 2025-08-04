@@ -163,7 +163,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   redis:
-    image: redis:7.4.5@sha256:b52fce7a50c718c6836eef354f19428a9c9a6802379da6eb8a23853152e23f89
+    image: redis:7.4.5@sha256:49061c0de5717822cf6702ef3197f6817f26b98d46765c308c1e23e6b261997b
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
