@@ -260,10 +260,9 @@ services:
       brp-personen-mock:
         condition: service_started
 
-
   brp-personen-mock:
-    # We use the 'latest' tag here because an unconventional versioning scheme is used for these Docker images which Renovate does not support
-    image: ghcr.io/brp-api/personen-mock:2.7.0-latest@sha256:761df5c1cc8745abc19f9edd91bc5f3302af548fd5c6839eaf847a9887290f0a
+    image: ghcr.io/brp-api/personen-mock:2.7.0-202507011650@sha256:5c8006ac4e4b7e96a32a7a1a42cab43f74ca95f0174cdb6b40dece2e717f8df4
+    platform: linux/amd64
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
