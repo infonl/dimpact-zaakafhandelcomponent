@@ -62,7 +62,7 @@ jobs:
           args: --file=Dockerfile
 
       - name: Upload Snyk Scan Results to GitHub Security Tab
-        # Use 3.28.17 as this is the last version fully supporting merging multiple runs in a SARIF file
-        uses: github/codeql-action/upload-sarif@ff0a06e83cb2de871e5a09832bc6a81e7276941f # v3.28.17
+        # Use 3.28.15 as this is the last version fully supporting merging multiple runs in a SARIF file
+        uses: github/codeql-action/upload-sarif@45775bd8235c68ba998cffa5171334d58593da47 # v3.28.15
         with:
           sarif_file: 'snyk.sarif'
