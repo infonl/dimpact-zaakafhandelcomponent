@@ -60,8 +60,41 @@ jobs:
         with:
           image: ${{ env.ZAC_IMAGE_URL }}
           args: --file=Dockerfile
+          json: true
 
-      - name: Upload Snyk Scan Results to GitHub Security Tab
+      - name: Run Snyk to check Docker image for vulnerabilities
+        continue-on-error: true
+        uses: snyk/actions/docker@77490d94e966421e076e95ad8fa87aa55e5ca409 # master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: ${{ env.ZAC_IMAGE_URL }}
+          command: consolidateResults --folderPath=.
+
+#      - name: Upload Snyk Scan Results to GitHub Security Tab
+#        uses: github/codeql-action/upload-sarif@51f77329afa6477de8c49fc9c7046c15b9a4e79d # v3.29.5
+#        with:
+#          sarif_file: 'snyk.sarif'
+
+  docker:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: authenticate with docker hub
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker Scout
+        id: docker-scout
+        uses: docker/scout-action@f8c776824083494ab0d56b8105ba2ca85c86e4de # v1.18.2
+        with:
+          command: cves
+          image: ${{ env.ZAC_IMAGE_URL }}
+          sarif-file: 'docker.sarif'
+          summary: true
+
+      - name: Upload Docker Scout Results to GitHub Security Tab
         uses: github/codeql-action/upload-sarif@51f77329afa6477de8c49fc9c7046c15b9a4e79d # v3.29.5
         with:
-          sarif_file: 'snyk.sarif'
+          sarif_file: 'docker.sarif'
