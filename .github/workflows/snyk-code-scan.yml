@@ -26,7 +26,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --exclude=build.gradle.kts,pom.xml,src/main/app --sarif --sarif-category=snyk-node-e2e --sarif-file-output=snyk-node-e2e.sarif
+          args: --all-projects --exclude=build.gradle.kts,pom.xml,src/main/app --sarif --sarif-category=snyk-node-e2e --sarif-file-output=snyk-node-e2e.sarif
           command: test
 
       - name: Upload Snyk Node result to GitHub Code Scanning
@@ -40,7 +40,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --exclude=build.gradle.kts,pom.xml,src/e2e --sarif --sarif-category=snyk-node-app --sarif-file-output=snyk-node-app.sarif
+          args: --all-projects --exclude=build.gradle.kts,pom.xml,src/e2e --sarif --sarif-category=snyk-node-app --sarif-file-output=snyk-node-app.sarif
           command: test
 
       - name: Upload Snyk Node result to GitHub Code Scanning
