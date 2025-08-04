@@ -94,7 +94,6 @@ When(
     const user2Profile = profiles[user2Parsed];
 
     await this.page.getByText("Aanvullende informatie").first().click();
-    await this.page.waitForTimeout(10000)
 
     await this.page
       .locator("mat-label", { hasText: "E-mailadres" })
