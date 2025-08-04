@@ -62,10 +62,10 @@ jobs:
           image: ${{ env.ZAC_IMAGE_URL }}
           args: --file=Dockerfile
 
-#      - name: Upload Snyk Scan Results to GitHub Security Tab
-#        uses: github/codeql-action/upload-sarif@51f77329afa6477de8c49fc9c7046c15b9a4e79d # v3.29.5
-#        with:
-#          sarif_file: 'snyk.sarif'
+      - name: Upload Snyk Scan Results to GitHub Security Tab
+        uses: github/codeql-action/upload-sarif@51f77329afa6477de8c49fc9c7046c15b9a4e79d # v3.29.5
+        with:
+          sarif_file: 'snyk.sarif'
 
   docker:
     runs-on: ubuntu-22.04
