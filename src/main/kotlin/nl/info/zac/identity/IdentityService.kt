@@ -8,12 +8,12 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.inject.Named
 import net.atos.zac.admin.ZaakafhandelParameterService
-import nl.info.zac.authentication.UserPrincipalFilter.Companion.ROL_DOMEIN_ELK_ZAAKTYPE
 import nl.info.zac.identity.exception.GroupNotFoundException
 import nl.info.zac.identity.exception.UserNotFoundException
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
+import nl.info.zac.identity.model.ZACRole
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.identity.model.toGroup
 import nl.info.zac.identity.model.toUser
@@ -58,7 +58,7 @@ class IdentityService @Inject constructor(
             .map { it.toGroup(zacKeycloakClientId) }
         val domein = zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid).domein
         return groups
-            .filter { (domein == null || domein == ROL_DOMEIN_ELK_ZAAKTYPE) || it.zacClientRoles.contains(domein) }
+            .filter { (domein == null || domein == ZACRole.DOMEIN_ELK_ZAAKTYPE.value) || it.zacClientRoles.contains(domein) }
             .sortedBy { it.name }
     }
 
