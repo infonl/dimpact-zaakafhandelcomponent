@@ -39,7 +39,8 @@ jobs:
           TRIVY_SKIP_JAVA_DB_UPDATE: true
 
       - name: Upload Trivy Scan Results to GitHub Security Tab
-        uses: github/codeql-action/upload-sarif@51f77329afa6477de8c49fc9c7046c15b9a4e79d # v3.29.5
+        # Use 3.28.18 as this is the last version supporting merging multiple runs in SARIF file
+        uses: github/codeql-action/upload-sarif@ff0a06e83cb2de871e5a09832bc6a81e7276941f # v3.28.18
         with:
           sarif_file: 'trivy-results.sarif'
           category: 'trivy-docker-image'
@@ -57,7 +58,6 @@ jobs:
         uses: snyk/actions/docker@77490d94e966421e076e95ad8fa87aa55e5ca409 # master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          SNYK_INTEGRATION_VERSION: docker-latest-preview
         with:
           image: ${{ env.ZAC_IMAGE_URL }}
           args: --file=Dockerfile
