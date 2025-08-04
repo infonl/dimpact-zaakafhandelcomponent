@@ -290,7 +290,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
     );
 
     this.subscriptions.push(
-      inhoudField.formControl.valueChanges.subscribe((file: File) => {
+      inhoudField.formControl.valueChanges.subscribe((file) => {
         const fileName =
           file?.name?.replace(/\.[^/.]+$/, "").substring(0, 100) ?? "";
         titel.formControl.setValue(fileName);
@@ -356,7 +356,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
       this.informatieObjectenService
         .createEnkelvoudigInformatieobject(
           this.getZaakUuid(),
-          this.zaak ? this.zaak.uuid : this.taak!.id,
+          this.zaak ? this.zaak.uuid : this.taak!.id!,
           infoObject,
           !!this.taak,
         )
