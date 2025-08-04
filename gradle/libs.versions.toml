@@ -30,7 +30,7 @@ javax-cache = "1.1.1"
 google-guava = "33.4.8-jre"
 itextpdf = "9.2.0"
 itextpdf-html2pdf = "6.2.0"
-flyway = "11.10.4"
+flyway = "11.10.5"
 apache-solr = "9.9.0"
 webdav-servlet = "1.2.183"
 htmlcleaner = "2.29"
@@ -69,7 +69,7 @@ testcontainers = "1.21.3"
 json-json = "20250517"
 slf4j-simple = "2.0.17"
 
-github-kotlin-logging = "7.0.7"
+github-kotlin-logging = "7.0.11"
 okhttp = "5.1.0"
 
 [libraries]
