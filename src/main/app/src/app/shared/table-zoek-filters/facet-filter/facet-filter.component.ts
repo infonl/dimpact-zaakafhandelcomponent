@@ -13,8 +13,7 @@ import {
   SimpleChanges,
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
-import { FilterParameters } from "../../../zoeken/model/filter-parameters";
-import { FilterResultaat } from "../../../zoeken/model/filter-resultaat";
+import { GeneratedType } from "../../utils/generated-types";
 
 @Component({
   selector: "zac-facet-filter",
@@ -22,11 +21,11 @@ import { FilterResultaat } from "../../../zoeken/model/filter-resultaat";
   styleUrls: ["./facet-filter.component.less"],
 })
 export class FacetFilterComponent implements OnInit, OnChanges {
-  selected = new FormControl<string>(undefined);
-  @Input() filter: FilterParameters;
-  @Input() opties: FilterResultaat[];
-  @Input() label: string;
-  @Output() changed = new EventEmitter<FilterParameters>();
+  selected = new FormControl<string | undefined>(undefined);
+  @Input() filter?: GeneratedType<"FilterParameters">;
+  @Input() opties?: GeneratedType<"FilterResultaat">[] = [];
+  @Input({ required: true }) label!: string;
+  @Output() changed = new EventEmitter<GeneratedType<"FilterParameters">>();
 
   /* veld: prefix */
   public VERTAALBARE_FACETTEN = {
@@ -35,36 +34,32 @@ export class FacetFilterComponent implements OnInit, OnChanges {
     archiefNominatie: "archiefNominatie.",
   };
 
-  getFilters(): FilterResultaat[] {
-    if (this.opties) {
-      return this.opties.sort((a, b) => a.naam?.localeCompare(b.naam));
-    }
+  getFilters() {
+    return this.opties?.sort((a, b) => a.naam.localeCompare(b.naam));
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.setSelected();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges) {
     if (changes.filter && !changes.filter.firstChange) {
       this.setSelected();
     }
   }
 
-  private setSelected(): void {
-    this.selected.setValue(this.filter?.values ? this.filter.values[0] : null);
+  private setSelected() {
+    this.selected.setValue(this.filter?.values?.[0] ?? null);
   }
 
-  isVertaalbaar(veld: string): boolean {
-    return this.VERTAALBARE_FACETTEN[veld] !== undefined;
+  isVertaalbaar(veld: string) {
+    return veld in this.VERTAALBARE_FACETTEN;
   }
 
   change() {
-    this.changed.emit(
-      new FilterParameters(
-        this.selected.value ? [this.selected.value] : [],
-        false,
-      ),
-    );
+    this.changed.emit({
+      values: this.selected.value ? [this.selected.value] : [],
+      inverse: false,
+    });
   }
 }
