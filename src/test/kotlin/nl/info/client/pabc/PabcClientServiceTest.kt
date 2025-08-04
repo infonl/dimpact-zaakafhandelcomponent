@@ -17,13 +17,12 @@ import nl.info.client.pabc.model.generated.GetApplicationRolesRequest
 class PabcClientServiceTest : BehaviorSpec({
 
     val pabcClient = mockk<PabcClient>()
+    val pabcClientService = PabcClientService(pabcClient)
 
     val roles = listOf(
-        "behandelaar",
-        "coordinator",
-        "beheerder",
-        "recordmanager",
-        "raadpleger"
+        "fakeRole1",
+        "fakeRole2",
+        "fakeRole3"
     )
 
     val mockResponse = createApplicationRolesResponse()
@@ -38,20 +37,16 @@ class PabcClientServiceTest : BehaviorSpec({
             pabcClient.getApplicationRolesPerEntityType(capture(requestSlot))
         } returns mockResponse
 
-        val service = PabcClientService(pabcClient)
-
         When("getApplicationRoles is called") {
-            val result = service.getApplicationRoles(roles)
+            val result = pabcClientService.getApplicationRoles(roles)
 
             Then("it should invoke the client with the given roles") {
                 result shouldBe mockResponse
                 requestSlot.isCaptured shouldBe true
                 requestSlot.captured.functionalRoleNames shouldBe listOf(
-                    "behandelaar",
-                    "coordinator",
-                    "beheerder",
-                    "recordmanager",
-                    "raadpleger"
+                    "fakeRole1",
+                    "fakeRole2",
+                    "fakeRole3"
                 )
 
                 val responseModel = result.results[0]
