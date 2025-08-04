@@ -252,6 +252,36 @@
       ],
       "versioning": "loose",
       "allowedVersions": "/jre-ubi9-minimal$/"
+    },
+    {
+      "matchPackageNames": [
+        "ghcr.io/platform-autorisatie-beheer-component/pabc-api"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "versioning": "semver"
+    },
+    {
+      "matchPackageNames": [
+        "ghcr.io/platform-autorisatie-beheer-component/pabc-migrations"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "versioning": "semver"
+    },
+    {
+      "matchPackageNames": [
+        "ghcr.io/brp-api/personen-mock"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<build>\\d{12})$",
+      "description": [
+        "The BRP API Personen Mock Docker image uses a custom versioning scheme that Renovate does not support by default. Example: '2.7.0-202506301511'"
+      ]
     }
   ]
 }

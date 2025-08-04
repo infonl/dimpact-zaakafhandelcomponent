@@ -163,7 +163,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   redis:
-    image: redis:7.4.5@sha256:b52fce7a50c718c6836eef354f19428a9c9a6802379da6eb8a23853152e23f89
+    image: redis:7.4.5@sha256:49061c0de5717822cf6702ef3197f6817f26b98d46765c308c1e23e6b261997b
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -260,10 +260,9 @@ services:
       brp-personen-mock:
         condition: service_started
 
-
   brp-personen-mock:
-    # We use the 'latest' tag here because an unconventional versioning scheme is used for these Docker images which Renovate does not support
-    image: ghcr.io/brp-api/personen-mock:2.7.0-latest@sha256:761df5c1cc8745abc19f9edd91bc5f3302af548fd5c6839eaf847a9887290f0a
+    image: ghcr.io/brp-api/personen-mock:2.7.0-202507011650@sha256:5c8006ac4e4b7e96a32a7a1a42cab43f74ca95f0174cdb6b40dece2e717f8df4
+    platform: linux/amd64
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
@@ -665,7 +664,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginx:1.29.0@sha256:93230cd54060f497430c7a120e2347894846a81b6a5dd2110f7362c5423b4abc
+    image: nginx:1.29.0@sha256:84ec966e61a8c7846f509da7eb081c55c1d56817448728924a87ab32f12a72fb
     ports:
       - "8005:80"
     volumes:
@@ -695,7 +694,7 @@ services:
     profiles: [ "pabc" ]
 
   pabc-migrations:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.0@sha256:55e53e85e636d57385145417362a2b89f0777136410ebb154c48051e52415710
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.1@sha256:c6b8d66909dfed7709385490a8fb357870b331535bf1da8fce0103dc441f897a
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
@@ -705,7 +704,7 @@ services:
     profiles: [ "pabc" ]
 
   pabc-api:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.0@sha256:217413556860f17ca25dab74a0bd553d25a7d06d59fe0155343d35cd8fef7208
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.1@sha256:f1e98366ebfd062a7f8b46bb633049a2d7519b553087af4e700c20a14ceb2f06
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
