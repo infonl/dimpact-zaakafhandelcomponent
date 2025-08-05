@@ -8,6 +8,7 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.validation.Valid
+import jakarta.validation.constraints.Size
 import jakarta.ws.rs.BadRequestException
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.DELETE
@@ -40,6 +41,8 @@ import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_GROUP
+import net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_USER
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
@@ -115,6 +118,9 @@ import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.identity.model.Group
+import nl.info.zac.identity.model.User
+import nl.info.zac.identity.model.getFullName
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.policy.output.ZaakRechten
@@ -189,9 +195,6 @@ class ZaakRestService @Inject constructor(
 
         const val AANVULLENDE_INFORMATIE_TASK_NAME = "Aanvullende informatie"
         const val VESTIGING_IDENTIFICATIE_DELIMITER = "|"
-
-        private const val BPMN_ZAAK_USER_VARIABLE_NAME = "zaakBehandelaar"
-        private const val BPMN_ZAAK_GROUP_VARIABLE_NAME = "zaakGroep"
     }
 
     @GET
@@ -327,8 +330,8 @@ class ZaakRestService @Inject constructor(
                 zaaktype = zaakType,
                 processDefinitionKey = processDefinition.bpmnProcessDefinitionKey,
                 zaakData = buildMap {
-                    restZaak.groep?.let { put(BPMN_ZAAK_GROUP_VARIABLE_NAME, it.naam) }
-                    restZaak.behandelaar?.let { put(BPMN_ZAAK_USER_VARIABLE_NAME, it.naam) }
+                    restZaak.groep?.let { put(VAR_ZAAK_GROUP, it.naam) }
+                    restZaak.behandelaar?.let { put(VAR_ZAAK_USER, it.naam) }
                 }
             )
         } else {
@@ -606,26 +609,66 @@ class ZaakRestService @Inject constructor(
         val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
             ?.betrokkeneIdentificatie?.identificatie
         val isUpdated = AtomicBoolean(false)
-        if (behandelaar != restZaakAssignmentData.assigneeUserName) {
-            restZaakAssignmentData.assigneeUserName?.takeIf { it.isNotEmpty() }?.let {
-                val user = identityService.readUser(it)
-                zrcClientService.updateRol(zaak, zaakService.bepaalRolMedewerker(user, zaak), restZaakAssignmentData.reason)
-            } ?: zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, restZaakAssignmentData.reason)
-            isUpdated.set(true)
-        }
-        // if the zaak is not already assigned to the requested group, assign it to this group
-        zgwApiService.findGroepForZaak(zaak)?.betrokkeneIdentificatie?.identificatie.let { currentGroupId ->
-            if (currentGroupId == null || currentGroupId != restZaakAssignmentData.groupId) {
-                val group = identityService.readGroup(restZaakAssignmentData.groupId)
-                val role = zaakService.bepaalRolGroep(group, zaak)
-                zrcClientService.updateRol(zaak, role, restZaakAssignmentData.reason)
-                isUpdated.set(true)
-            }
+        val user = assignUser(zaak, restZaakAssignmentData, behandelaar, isUpdated)
+        val group = assignGroup(zaak, restZaakAssignmentData, isUpdated)
+        if (bpmnService.isProcessDriven(zaak.uuid)) {
+            changeZaakDataGroupAndUser(zaak.uuid, group, user)
         }
         if (isUpdated.get()) {
             indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
         }
         return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
+    }
+
+    private fun assignUser(
+        zaak: Zaak,
+        restZaakAssignmentData: RestZaakAssignmentData,
+        behandelaar: String?,
+        isUpdated: AtomicBoolean
+    ): User? {
+        var user: User? = null
+        restZaakAssignmentData.assigneeUserName?.takeIf { it.isNotEmpty() }?.let {
+            user = identityService.readUser(it)
+            if (behandelaar != restZaakAssignmentData.assigneeUserName) {
+                zrcClientService.updateRol(
+                    zaak,
+                    zaakService.bepaalRolMedewerker(user, zaak),
+                    restZaakAssignmentData.reason
+                )
+                isUpdated.set(true)
+            }
+        } ?: {
+            zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, restZaakAssignmentData.reason)
+            isUpdated.set(true)
+        }
+        return user
+    }
+
+    private fun assignGroup(
+        zaak: Zaak,
+        restZaakAssignmentData: RestZaakAssignmentData,
+        isUpdated: AtomicBoolean
+    ) =
+        identityService.readGroup(restZaakAssignmentData.groupId).also {
+            zgwApiService.findGroepForZaak(zaak)?.betrokkeneIdentificatie?.identificatie.let { currentGroupId ->
+                // if the zaak is not already assigned to the requested group, assign it to this group
+                if (currentGroupId == null || currentGroupId != restZaakAssignmentData.groupId) {
+                    val role = zaakService.bepaalRolGroep(it, zaak)
+                    zrcClientService.updateRol(zaak, role, restZaakAssignmentData.reason)
+                    isUpdated.set(true)
+                }
+            }
+        }
+
+    private fun changeZaakDataGroupAndUser(
+        zaakUuid: UUID,
+        group: Group,
+        user: User?
+    ) {
+        zaakVariabelenService.setGroup(zaakUuid, group.name)
+        user?.let {
+            zaakVariabelenService.setUser(zaakUuid, it.getFullName())
+        } ?: zaakVariabelenService.removeUser(zaakUuid)
     }
 
     @PUT

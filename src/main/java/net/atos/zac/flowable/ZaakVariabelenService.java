@@ -35,6 +35,9 @@ public class ZaakVariabelenService {
     public static final String VAR_ONTVANGSTBEVESTIGING_VERSTUURD = "ontvangstbevestigingVerstuurd";
     public static final String VAR_DATUMTIJD_OPGESCHORT = "datumTijdOpgeschort";
     public static final String VAR_VERWACHTE_DAGEN_OPGESCHORT = "verwachteDagenOpgeschort";
+    public static final String VAR_ZAAK_USER = "zaakBehandelaar";
+    public static final String VAR_ZAAK_GROUP = "zaakGroep";
+
     // as used in the ZAC CMMN model
     private static final String VAR_ONTVANKELIJK = "ontvankelijk";
     public static final List<String> VARS = List.of(
@@ -143,12 +146,24 @@ public class ZaakVariabelenService {
         removeVariable(zaakUUID, VAR_VERWACHTE_DAGEN_OPGESCHORT);
     }
 
+    public void setGroup(final UUID zaakUUID, final String group) {
+        setVariable(zaakUUID, VAR_ZAAK_GROUP, group);
+    }
+
+    public void setUser(final UUID zaakUUID, final String user) {
+        setVariable(zaakUUID, VAR_ZAAK_USER, user);
+    }
+
+    public void removeUser(final UUID zaakUUID) {
+        removeVariable(zaakUUID, VAR_ZAAK_USER);
+    }
+
     public Map<String, Object> readZaakdata(final UUID zaakUUID) {
         return MapUtils.emptyIfNull(findVariables(zaakUUID));
     }
 
     public Map<String, Object> readProcessZaakdata(final UUID zaakUUID) {
-        return MapUtils.emptyIfNull(findProcesVariables(zaakUUID));
+        return MapUtils.emptyIfNull(findProcessVariables(zaakUUID));
     }
 
     public void setZaakdata(final UUID zaakUUID, final Map<String, Object> zaakdata) {
@@ -197,7 +212,7 @@ public class ZaakVariabelenService {
         return null;
     }
 
-    private Map<String, Object> findProcesVariables(final UUID zaakUUID) {
+    private Map<String, Object> findProcessVariables(final UUID zaakUUID) {
         final ProcessInstance processInstance = bpmnRuntimeService.createProcessInstanceQuery()
                 .processInstanceBusinessKey(zaakUUID.toString())
                 .includeProcessVariables()
@@ -220,7 +235,7 @@ public class ZaakVariabelenService {
         if (caseVariables != null) {
             return caseVariables;
         }
-        return findProcesVariables(zaakUUID);
+        return findProcessVariables(zaakUUID);
     }
 
     private void setVariable(final PlanItemInstance planItemInstance, final String variableName, final Object value) {
