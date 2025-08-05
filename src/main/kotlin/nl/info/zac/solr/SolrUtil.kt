@@ -28,4 +28,3 @@ fun quoted(value: String): String =
  */
 fun encoded(value: String): String =
     ClientUtils.escapeQueryChars(value)
-
