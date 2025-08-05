@@ -7,10 +7,10 @@ import { Component, HostListener, Input } from "@angular/core";
 
 import { MatSidenav } from "@angular/material/sidenav";
 import { IndicatiesLayout } from "../../../shared/indicaties/indicaties.component";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { DocumentZoekObject } from "../../model/documenten/document-zoek-object";
 import { TaakZoekObject } from "../../model/taken/taak-zoek-object";
 import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
-import { ZoekObject } from "../../model/zoek-object";
 
 @Component({
   selector: "zac-zoek-object-link",
@@ -18,7 +18,8 @@ import { ZoekObject } from "../../model/zoek-object";
   templateUrl: "./zoek-object-link.component.html",
 })
 export class ZoekObjectLinkComponent {
-  @Input({ required: true }) zoekObject!: ZoekObject;
+  @Input({ required: true })
+  zoekObject!: GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">;
   @Input({ required: true }) sideNav!: MatSidenav;
   _newtab = false;
   indicatiesLayout = IndicatiesLayout;

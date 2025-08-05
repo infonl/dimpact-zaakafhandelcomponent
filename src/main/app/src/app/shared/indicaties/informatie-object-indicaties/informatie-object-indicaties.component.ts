@@ -14,14 +14,6 @@ import { PipesModule } from "../../pipes/pipes.module";
 import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
 
-export enum InformatieobjectIndicatie {
-  VERGRENDELD = "VERGRENDELD",
-  ONDERTEKEND = "ONDERTEKEND",
-  BESLUIT = "BESLUIT",
-  GEBRUIKSRECHT = "GEBRUIKSRECHT",
-  VERZONDEN = "VERZONDEN",
-}
-
 @Component({
   standalone: true,
   selector: "zac-informatie-object-indicaties",
@@ -56,7 +48,7 @@ export class InformatieObjectIndicatiesComponent
 
     indicaties?.forEach((indicatie) => {
       switch (indicatie) {
-        case InformatieobjectIndicatie.VERGRENDELD:
+        case "VERGRENDELD":
           this.indicaties.push(
             new IndicatieItem(
               indicatie,
@@ -65,7 +57,7 @@ export class InformatieObjectIndicatiesComponent
             ).temporary(),
           );
           break;
-        case InformatieobjectIndicatie.ONDERTEKEND:
+        case "ONDERTEKEND":
           this.indicaties.push(
             new IndicatieItem(
               indicatie,
@@ -74,7 +66,7 @@ export class InformatieObjectIndicatiesComponent
             ),
           );
           break;
-        case InformatieobjectIndicatie.BESLUIT:
+        case "BESLUIT":
           this.indicaties.push(
             new IndicatieItem(
               indicatie,
@@ -83,12 +75,12 @@ export class InformatieObjectIndicatiesComponent
             ),
           );
           break;
-        case InformatieobjectIndicatie.GEBRUIKSRECHT:
+        case "GEBRUIKSRECHT":
           this.indicaties.push(
             new IndicatieItem(indicatie, "privacy_tip", "").temporary(),
           );
           break;
-        case InformatieobjectIndicatie.VERZONDEN:
+        case "VERZONDEN":
           this.indicaties.push(
             new IndicatieItem(
               indicatie,
@@ -97,6 +89,8 @@ export class InformatieObjectIndicatiesComponent
             ),
           );
           break;
+        default:
+          console.warn("Indicatie " + indicatie + " is niet gedefinieerd.");
       }
     });
   }

@@ -3,14 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { InformatieobjectIndicatie } from "../../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { ZoekObject } from "../zoek-object";
 
 /**
  * @deprecated - use the `GeneratedType`
  */
-export class DocumentZoekObject implements ZoekObject {
+export class DocumentZoekObject
+  implements
+    GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">
+{
   id: string;
   type: GeneratedType<"ZoekObjectType">;
   identificatie: string;
@@ -41,6 +42,6 @@ export class DocumentZoekObject implements ZoekObject {
   indicatieVergrendeld: boolean;
   indicatieGebruiksrecht: boolean;
   vergrendeldDoor: string;
-  indicaties: InformatieobjectIndicatie[];
+  indicaties: GeneratedType<"DocumentIndicatie">[];
   rechten: GeneratedType<"RestDocumentRechten">;
 }
