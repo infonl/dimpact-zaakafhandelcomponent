@@ -447,7 +447,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.1.2-alpine@sha256:8f1a4555a52cb5bbd91fcacfed98f230a1762ef7a08cc05d7f711b8a31fb5ca5
+    image: rabbitmq:4.1.3-alpine@sha256:b4e5d4775f382ba70ffe91c38632a538601cd03458b421dcfd08114e6ba19434
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 30s
@@ -694,7 +694,7 @@ services:
     profiles: [ "pabc" ]
 
   pabc-migrations:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.0@sha256:55e53e85e636d57385145417362a2b89f0777136410ebb154c48051e52415710
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.1@sha256:c6b8d66909dfed7709385490a8fb357870b331535bf1da8fce0103dc441f897a
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"

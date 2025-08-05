@@ -14,8 +14,11 @@ import jakarta.servlet.annotation.WebFilter
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaakafhandelParameterService
+import nl.info.client.pabc.PabcClientService
+import nl.info.zac.identity.model.ZACRole
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
 import org.wildfly.security.http.oidc.RefreshableOidcSecurityContext
@@ -30,11 +33,15 @@ const val REFRESH_TOKEN_ATTRIBUTE = "refresh_token"
 @NoArgConstructor
 class UserPrincipalFilter
 @Inject
-constructor(private val zaakafhandelParameterService: ZaakafhandelParameterService) : Filter {
+constructor(
+    private val zaakafhandelParameterService: ZaakafhandelParameterService,
+    private val pabcClientService: PabcClientService,
+    @ConfigProperty(name = "FEATURE_FLAG_PABC_INTEGRATION", defaultValue = "false")
+    private val pabcIntegrationEnabled: Boolean
+) : Filter {
     companion object {
         private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
         private const val GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership"
-        const val ROL_DOMEIN_ELK_ZAAKTYPE = "domein_elk_zaaktype"
     }
 
     override fun doFilter(
@@ -82,6 +89,21 @@ constructor(private val zaakafhandelParameterService: ZaakafhandelParameterServi
                         }
                     }"
             )
+            // for now, we only log the application roles for the logged-in user.
+            // filtering out the roles that are currently not used by the PABC component
+            if (pabcIntegrationEnabled) {
+                val filteredRoles = loggedInUser.roles.filterNot {
+                    it in setOf(
+                        ZACRole.DOMEIN_ELK_ZAAKTYPE.value,
+                        ZACRole.ZAAKAFHANDELCOMPONENT_USER.value
+                    )
+                }
+                val applicationRoles = pabcClientService.getApplicationRoles(filteredRoles)
+                LOG.info("User: '${loggedInUser.id}' with application roles from PABC: '$applicationRoles'")
+            } else {
+                LOG.info("PABC integration is disabled — skipping application role lookup.")
+            }
+
             this.addRefreshTokenToHttpSession(oidcPrincipal, httpSession)
         }
 
@@ -117,7 +139,7 @@ constructor(private val zaakafhandelParameterService: ZaakafhandelParameterServi
      * authorised for all zaaktypen.
      */
     private fun getAuthorisedZaaktypen(roles: Set<String>): Set<String>? =
-        if (roles.contains(ROL_DOMEIN_ELK_ZAAKTYPE)) {
+        if (roles.contains(ZACRole.DOMEIN_ELK_ZAAKTYPE.value)) {
             null
         } else {
             zaakafhandelParameterService

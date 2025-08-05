@@ -4,12 +4,14 @@
  */
 
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { ZoekObject } from "../zoek-object";
 
 /**
  * @deprecated - use the `GeneratedType`
  */
-export class TaakZoekObject implements ZoekObject {
+export class TaakZoekObject
+  implements
+    GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">
+{
   id: string;
   type: GeneratedType<"ZoekObjectType">;
   naam: string;
