@@ -5,7 +5,6 @@
 package nl.info.zac.signalering
 
 import jakarta.inject.Inject
-import nl.info.zac.mailtemplates.model.Mail
 import net.atos.zac.signalering.model.Signalering
 import net.atos.zac.signalering.model.SignaleringDetail
 import net.atos.zac.signalering.model.SignaleringTarget
@@ -14,6 +13,7 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mailtemplates.MailTemplateService
+import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
 
 class SignaleringMailHelper @Inject constructor(

@@ -4,8 +4,8 @@
  */
 package net.atos.zac.app.admin.model
 
-import nl.info.zac.mailtemplates.model.Mail
 import net.atos.zac.mailtemplates.model.MailTemplateVariables
+import nl.info.zac.mailtemplates.model.Mail
 
 @Suppress("LongParameterList")
 fun createRestMailTemplate(

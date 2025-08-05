@@ -22,7 +22,6 @@ import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.TaakVariabelenService
-import nl.info.zac.mailtemplates.model.Mail
 import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZGWApiService
@@ -42,6 +41,7 @@ import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
 import nl.info.zac.mailtemplates.MailTemplateService
+import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
