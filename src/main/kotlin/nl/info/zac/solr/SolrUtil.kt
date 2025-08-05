@@ -5,8 +5,8 @@
 
 package nl.info.zac.solr
 
-private const val SOLR_SPECIAL_CHARS = """+\-!(){}[]^"~*?:\/"""
-private const val SOLR_ESCAPE = '\\'
+import org.apache.solr.client.solrj.util.ClientUtils
+
 private const val SOLR_QUOTE = '\"'
 
 /**
@@ -14,15 +14,18 @@ private const val SOLR_QUOTE = '\"'
  *
  * @param value the raw unencoded string
  * @return the encoded and quoted Solr string
+ *
  */
-fun quoted(value: String) = "$SOLR_QUOTE${encoded(value)}$SOLR_QUOTE"
+fun quoted(value: String): String =
+    "$SOLR_QUOTE${encoded(value)}$SOLR_QUOTE"
 
 /**
  * Produces an encoded Solr string from a raw Java string.
  *
  * @param value the raw unencoded string
  * @return the encoded Solr string
+ *
  */
-fun encoded(value: String) = value.replace(Regex("([${Regex.escape(SOLR_SPECIAL_CHARS)}])")) {
-    "$SOLR_ESCAPE${it.value}"
-}
+fun encoded(value: String): String =
+    ClientUtils.escapeQueryChars(value)
+
