@@ -565,6 +565,79 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
+    Given("a zaak exists, with a user and group already assigned and zaak assignment for a group only is provided") {
+        val restZaakToekennenGegevens = createRESTZaakAssignmentData().apply {
+            assigneeUserName = null
+        }
+        val zaak = createZaak()
+        val zaakType = createZaakType()
+        val zaakRechten = createZaakRechten()
+        val updateRolSlot = mutableListOf<Rol<*>>()
+        val restZaak = createRestZaak()
+        val rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
+        val existingRolMedewerker = createRolMedewerker()
+        val rolMedewerker = createRolMedewerker(
+            zaakURI = zaak.url,
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "newUser")
+        )
+        val group = createGroup()
+        val existingRolGroup = createRolOrganisatorischeEenheid()
+        val rolGroup = createRolOrganisatorischeEenheid(
+            zaakURI = zaak.url,
+            organisatorischeEenheidIdentificatie = createOrganisatorischeEenheid(identificatie = "newGroup")
+        )
+
+        every {
+            zaakService.readZaakAndZaakTypeByZaakUUID(restZaakToekennenGegevens.zaakUUID)
+        } returns Pair(zaak, zaakType)
+        every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
+        every { zrcClientService.updateRol(zaak, capture(updateRolSlot), restZaakToekennenGegevens.reason) } just runs
+        every { zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, restZaakToekennenGegevens.reason) } just runs
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns existingRolMedewerker
+        every { zgwApiService.findGroepForZaak(zaak) } returns existingRolGroup
+        every { identityService.readGroup(restZaakToekennenGegevens.groupId) } returns group
+        every { zaakService.bepaalRolGroep(group, zaak) } returns rolGroup
+        every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
+        every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
+        every { bpmnService.isProcessDriven(zaak.uuid) } returns true
+        every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
+        every { zaakVariabelenService.removeUser(zaak.uuid) } just runs
+
+        When("the zaak is assigned to a user and a group") {
+            every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechtenAllDeny(toekennen = true)
+
+            val returnedRestZaak = zaakRestService.assignZaak(restZaakToekennenGegevens)
+
+            Then("the zaak is assigned both to the group and the user") {
+                returnedRestZaak shouldBe restZaak
+                verify(exactly = 1) {
+                    zrcClientService.updateRol(zaak, any(), restZaakToekennenGegevens.reason)
+                }
+                with(updateRolSlot.first()) {
+                    betrokkeneType shouldBe BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
+                    with(betrokkeneIdentificatie as OrganisatorischeEenheidIdentificatie) {
+                        identificatie shouldBe rolGroup.betrokkeneIdentificatie!!.identificatie
+                    }
+                    this.zaak shouldBe rolGroup.zaak
+                    omschrijving shouldBe rolType.omschrijving
+                }
+            }
+
+            And("the zaken search index is updated") {
+                verify(exactly = 1) {
+                    indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
+                }
+            }
+
+            And("the zaak data is updated accordingly") {
+                verify(exactly = 1) {
+                    zaakVariabelenService.setGroup(zaak.uuid, group.name)
+                    zaakVariabelenService.removeUser(zaak.uuid)
+                }
+            }
+        }
+    }
+
     Given("REST zaken verdeel gegevens with a group and a user") {
         val zaakUUIDs = listOf(UUID.randomUUID(), UUID.randomUUID())
         val group = createGroup()
