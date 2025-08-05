@@ -403,7 +403,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
         every { bpmnService.isProcessDriven(zaak.uuid) } returns true
         every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
-        every { zaakVariabelenService.setUser(zaak.uuid, user.getFullName()) } just runs
+        every { zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName") } just runs
 
         When("the zaak is assigned to a user and a group") {
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechtenAllDeny(toekennen = true)
@@ -416,13 +416,10 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             val returnedRestZaak = zaakRestService.assignZaak(restZaakToekennenGegevens)
 
-            Then("the zaak is assigned both to the group and the user, and the zaken search index is updated") {
+            Then("the zaak is assigned both to the group and the user") {
                 returnedRestZaak shouldBe restZaak
                 verify(exactly = 2) {
                     zrcClientService.updateRol(zaak, any(), restZaakToekennenGegevens.reason)
-                }
-                verify(exactly = 1) {
-                    indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                 }
                 with(rolSlot[0]) {
                     betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
@@ -442,10 +439,16 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
+            And("the zaken search index is updated") {
+                verify(exactly = 1) {
+                    indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
+                }
+            }
+
             And("the zaak data is updated accordingly") {
                 verify(exactly = 1) {
                     zaakVariabelenService.setGroup(zaak.uuid, group.name)
-                    zaakVariabelenService.setUser(zaak.uuid, user.getFullName())
+                    zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName")
                 }
             }
         }
@@ -512,7 +515,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
         every { bpmnService.isProcessDriven(zaak.uuid) } returns true
         every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
-        every { zaakVariabelenService.setUser(zaak.uuid, user.getFullName()) } just runs
+        every { zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName") } just runs
 
         When("the zaak is assigned to a user and a group") {
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechtenAllDeny(toekennen = true)
@@ -525,13 +528,10 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             val returnedRestZaak = zaakRestService.assignZaak(restZaakToekennenGegevens)
 
-            Then("the zaak is assigned both to the group and the user, and the zaken search index is updated") {
+            Then("the zaak is assigned both to the group and the user") {
                 returnedRestZaak shouldBe restZaak
                 verify(exactly = 2) {
                     zrcClientService.updateRol(zaak, any(), restZaakToekennenGegevens.reason)
-                }
-                verify(exactly = 1) {
-                    indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                 }
                 with(rolSlot[0]) {
                     betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
@@ -551,10 +551,16 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
+            And("the zaken search index is updated") {
+                verify(exactly = 1) {
+                    indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
+                }
+            }
+
             And("the zaak data is updated accordingly") {
                 verify(exactly = 1) {
                     zaakVariabelenService.setGroup(zaak.uuid, group.name)
-                    zaakVariabelenService.setUser(zaak.uuid, user.getFullName())
+                    zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName")
                 }
             }
         }
