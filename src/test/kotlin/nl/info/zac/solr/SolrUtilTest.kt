@@ -7,7 +7,7 @@ package nl.info.zac.solr
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 
-class SolrEncodingTest : BehaviorSpec({
+class SolrUtilTest : BehaviorSpec({
 
     Given("a string without Solr special characters") {
         val input = "abc123"
