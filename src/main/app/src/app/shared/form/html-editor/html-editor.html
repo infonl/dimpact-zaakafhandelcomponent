@@ -1,0 +1,42 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  ~
+  -->
+
+<div [formGroup]="form" class="full-width">
+  <mat-label>
+    <ng-content select="mat-label">
+      {{ key | translate | capitalizeFirstLetter }}
+    </ng-content>
+  </mat-label>
+    <section class="editor">
+  <ngx-editor-menu
+    [editor]="editor"
+    [toolbar]="toolbar"
+    [customMenuRef]="variabelenKiesMenu"
+  >
+  </ngx-editor-menu>
+  <ng-template #variabelenKiesMenu>
+    <variabelen-kies-menu
+      [editor]="editor"
+      [variabelen]="variables"
+    ></variabelen-kies-menu>
+  </ng-template>
+  <ngx-editor
+    [editor]="editor"
+    [formControlName]="key"
+    [required]="required"
+    [placeholder]="'mailTemplatePlaceholder' | translate"
+    [maxlength]="maxlength"
+  >
+  </ngx-editor>
+    </section>
+  <mat-error *ngIf="getErrorMessage()">{{ getErrorMessage() }}</mat-error>
+  <mat-hint>
+    <ng-content select="mat-hint"></ng-content>
+  </mat-hint>
+  <mat-hint align="end" class="float-right" *ngIf="maxlength">
+    {{ control?.value?.length ?? 0 }} / {{ maxlength }}
+  </mat-hint>
+</div>
