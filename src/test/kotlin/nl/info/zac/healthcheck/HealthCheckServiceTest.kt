@@ -19,7 +19,7 @@ import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.ReferenceTableService
-import nl.info.zac.admin.model.ReferenceTable.Systeem
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable
 import nl.info.zac.admin.model.createReferenceTable
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.configuratie.ConfiguratieService
@@ -89,10 +89,10 @@ class HealthCheckServiceTest : BehaviorSpec({
             createInformatieObjectType(omschrijving = ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL)
         )
         every {
-            referenceTableService.readReferenceTable(Systeem.BRP_DOELBINDING_ZOEK_WAARDE.name)
+            referenceTableService.readReferenceTable(SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE.name)
         } returns createReferenceTable()
         every {
-            referenceTableService.readReferenceTable(Systeem.BRP_DOELBINDING_RAADPLEEG_WAARDE.name)
+            referenceTableService.readReferenceTable(SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE.name)
         } returns createReferenceTable()
 
         When("controleerZaaktype is called") {
