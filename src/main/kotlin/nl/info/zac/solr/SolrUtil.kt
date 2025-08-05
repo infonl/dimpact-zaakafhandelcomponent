@@ -23,5 +23,6 @@ fun quoted(value: String) = "$SOLR_QUOTE${encoded(value)}$SOLR_QUOTE"
  * @param value the raw unencoded string
  * @return the encoded Solr string
  */
-fun encoded(value: String) = value.replace(Regex("([${Regex.escape(SOLR_SPECIAL_CHARS)}])")) { "$SOLR_ESCAPE${it.value}" }
-
+fun encoded(value: String) = value.replace(Regex("([${Regex.escape(SOLR_SPECIAL_CHARS)}])")) {
+    "$SOLR_ESCAPE${it.value}"
+}
