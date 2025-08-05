@@ -14,24 +14,32 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<mat-dialog-content>
-  <mfb-form [formFields]="formFields"></mfb-form>
-</mat-dialog-content>
-
-<mat-dialog-actions>
-  <button
-    mat-raised-button
-    color="primary"
-    id="zaakOpschorten_button"
-    [disabled]="disabled()"
-    (click)="opschorten()"
-  >
-    <mat-icon *ngIf="loading">
-      <mat-spinner diameter="18"></mat-spinner>
-    </mat-icon>
-    {{ "actie.zaak.opschorten" | translate }}
-  </button>
-  <button autofocus mat-raised-button [disabled]="loading" (click)="close()">
-    {{ "actie.annuleren" | translate }}
-  </button>
-</mat-dialog-actions>
+<form [formGroup]="form" (submit)="opschorten()">
+  <mat-dialog-content>
+    <zac-input [form]="form" key="duurDagen" label="opschortduur"></zac-input>
+    <zac-date
+      [form]="form"
+      key="einddatumGepland"
+      *ngIf="data.zaak.einddatumGepland"
+    ></zac-date>
+    <zac-date [form]="form" key="uiterlijkeEinddatumAfdoening"></zac-date>
+    <zac-textarea [form]="form" key="reden"></zac-textarea>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button
+      mat-raised-button
+      color="primary"
+      id="zaakOpschorten_button"
+      [disabled]="loading || !form.valid"
+      type="submit"
+    >
+      <mat-icon *ngIf="loading">
+        <mat-spinner diameter="18"></mat-spinner>
+      </mat-icon>
+      {{ "actie.zaak.opschorten" | translate }}
+    </button>
+    <button autofocus mat-raised-button [disabled]="loading" (click)="close()">
+      {{ "actie.annuleren" | translate }}
+    </button>
+  </mat-dialog-actions>
+</form>

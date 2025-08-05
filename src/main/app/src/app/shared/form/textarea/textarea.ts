@@ -29,6 +29,7 @@ export class ZacTextarea<
   @Input({ transform: numberAttribute }) minRows = 5;
   @Input({ transform: numberAttribute }) maxRows = 15;
   @Input({ transform: booleanAttribute }) readonly = false;
+  @Input() label?: string;
 
   protected control?: AbstractControl<string>;
   protected maxlength?: number | null;
