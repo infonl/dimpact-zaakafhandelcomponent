@@ -636,8 +636,7 @@ class ZaakRestService @Inject constructor(
                 )
                 isUpdated.set(true)
             }
-        } ?: {
-            zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, restZaakAssignmentData.reason)
+        } ?: zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, restZaakAssignmentData.reason).also {
             isUpdated.set(true)
         }
         return user
