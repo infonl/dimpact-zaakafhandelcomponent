@@ -88,7 +88,7 @@ public class MailtemplateBeheerRestService {
 
     @GET
     @Path("variabelen/{mail}")
-    public Set<MailTemplateVariables> retrieveMailVariables(@PathParam("mail") final Mail mail) {
-        return mail.getVariabelen();
+    public Set<MailTemplateVariables> getMailTemplateVariables(@PathParam("mail") final Mail mail) {
+        return mail.getMailTemplateVariables();
     }
 }

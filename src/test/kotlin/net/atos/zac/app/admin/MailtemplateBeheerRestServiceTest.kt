@@ -84,7 +84,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
             val mail = Mail.ZAAK_ALGEMEEN
 
             When("retrieveMailVariables is called") {
-                val mailTemplateVariables = mailtemplateBeheerRestService.retrieveMailVariables(mail)
+                val mailTemplateVariables = mailtemplateBeheerRestService.getMailTemplateVariables(mail)
 
                 Then("it should return the associated variables") {
                     mailTemplateVariables shouldBe ZAAK_VOORTGANG_VARIABELEN

@@ -17,7 +17,7 @@ public final class RESTMailtemplateConverter {
         restMailtemplate.id = mailTemplate.getId();
         restMailtemplate.mailTemplateNaam = mailTemplate.getMailTemplateNaam();
         restMailtemplate.mail = mailTemplate.getMail().name();
-        restMailtemplate.variabelen = mailTemplate.getMail().getVariabelen();
+        restMailtemplate.variabelen = mailTemplate.getMail().getMailTemplateVariables();
         restMailtemplate.onderwerp = mailTemplate.getOnderwerp();
         restMailtemplate.body = mailTemplate.getBody();
         restMailtemplate.defaultMailtemplate = mailTemplate.isDefaultMailtemplate();
