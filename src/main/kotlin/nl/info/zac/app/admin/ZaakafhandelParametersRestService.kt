@@ -244,7 +244,9 @@ class ZaakafhandelParametersRestService @Inject constructor(
     @GET
     @Path("replyTo")
     fun listReplyTos(): List<RESTReplyTo> =
-        referenceTableService.readReferenceTable(ReferenceTable.Systeem.AFZENDER.name).let { referenceTable ->
+        referenceTableService.readReferenceTable(
+            ReferenceTable.SystemReferenceTable.AFZENDER.name
+        ).let { referenceTable ->
             referenceTableService.listReferenceTableValuesSorted(referenceTable).let {
                 RESTReplyToConverter.convertReplyTos(
                     it
