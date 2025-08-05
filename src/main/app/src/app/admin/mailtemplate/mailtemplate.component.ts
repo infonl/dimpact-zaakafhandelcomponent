@@ -70,7 +70,6 @@ export class MailtemplateComponent
   ngOnInit() {
     this.route.data.subscribe((data) => {
       this.mailTemplate = data.template ?? {};
-      console.log(this.mailTemplate);
 
       this.setupMenu("title.mailtemplate");
       this.form.setValue({
