@@ -4,14 +4,6 @@
  */
 package nl.info.zac.mailtemplates.model
 
-import nl.info.zac.mailtemplates.model.Mail.TAAK_AANVULLENDE_INFORMATIE
-import nl.info.zac.mailtemplates.model.Mail.TAAK_ADVIES_EXTERN
-import nl.info.zac.mailtemplates.model.Mail.TAAK_ONTVANGSTBEVESTIGING
-import nl.info.zac.mailtemplates.model.Mail.ZAAK_AFGEHANDELD
-import nl.info.zac.mailtemplates.model.Mail.ZAAK_ALGEMEEN
-import nl.info.zac.mailtemplates.model.Mail.ZAAK_NIET_ONTVANKELIJK
-import nl.info.zac.mailtemplates.model.Mail.ZAAK_ONTVANKELIJK
-
 enum class Mail(val mailTemplateVariables: Set<MailTemplateVariables>) {
     ZAAK_ALGEMEEN(MailTemplateVariables.ZAAK_VOORTGANG_VARIABELEN),
     ZAAK_ONTVANKELIJK(MailTemplateVariables.ZAAK_VOORTGANG_VARIABELEN),
@@ -25,15 +17,17 @@ enum class Mail(val mailTemplateVariables: Set<MailTemplateVariables>) {
     SIGNALERING_ZAAK_VERLOPEND_STREEFDATUM(MailTemplateVariables.ZAAK_SIGNALERING_VARIABELEN),
     SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM(MailTemplateVariables.ZAAK_SIGNALERING_VARIABELEN),
     SIGNALERING_TAAK_OP_NAAM(MailTemplateVariables.TAAK_SIGNALERING_VARIABELEN),
-    SIGNALERING_TAAK_VERLOPEN(MailTemplateVariables.TAAK_SIGNALERING_VARIABELEN)
-}
+    SIGNALERING_TAAK_VERLOPEN(MailTemplateVariables.TAAK_SIGNALERING_VARIABELEN);
 
-fun getLinkableMails() = listOf(
-    ZAAK_ALGEMEEN,
-    ZAAK_ONTVANKELIJK,
-    ZAAK_NIET_ONTVANKELIJK,
-    ZAAK_AFGEHANDELD,
-    TAAK_AANVULLENDE_INFORMATIE,
-    TAAK_ADVIES_EXTERN,
-    TAAK_ONTVANGSTBEVESTIGING
-)
+    companion object {
+        val LINKABLE_MAILS = listOf(
+            ZAAK_ALGEMEEN,
+            ZAAK_ONTVANKELIJK,
+            ZAAK_NIET_ONTVANKELIJK,
+            ZAAK_AFGEHANDELD,
+            TAAK_AANVULLENDE_INFORMATIE,
+            TAAK_ADVIES_EXTERN,
+            TAAK_ONTVANGSTBEVESTIGING
+        )
+    }
+}
