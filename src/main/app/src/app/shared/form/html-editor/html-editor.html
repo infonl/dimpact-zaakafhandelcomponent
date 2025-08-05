@@ -10,28 +10,28 @@
       {{ key | translate | capitalizeFirstLetter }}
     </ng-content>
   </mat-label>
-    <section class="editor">
-  <ngx-editor-menu
-    [editor]="editor"
-    [toolbar]="toolbar"
-    [customMenuRef]="variabelenKiesMenu"
-  >
-  </ngx-editor-menu>
-  <ng-template #variabelenKiesMenu>
-    <variabelen-kies-menu
+  <section class="editor">
+    <ngx-editor-menu
       [editor]="editor"
-      [variabelen]="variables"
-    ></variabelen-kies-menu>
-  </ng-template>
-  <ngx-editor
-    [editor]="editor"
-    [formControlName]="key"
-    [required]="required"
-    [placeholder]="'mailTemplatePlaceholder' | translate"
-    [maxlength]="maxlength"
-  >
-  </ngx-editor>
-    </section>
+      [toolbar]="toolbar"
+      [customMenuRef]="variabelenKiesMenu"
+    >
+    </ngx-editor-menu>
+    <ng-template #variabelenKiesMenu>
+      <variabelen-kies-menu
+        [editor]="editor"
+        [variabelen]="variables"
+      ></variabelen-kies-menu>
+    </ng-template>
+    <ngx-editor
+      [editor]="editor"
+      [formControlName]="key"
+      [required]="required"
+      [placeholder]="'mailTemplatePlaceholder' | translate"
+      [maxlength]="maxlength"
+    >
+    </ngx-editor>
+  </section>
   <mat-error *ngIf="getErrorMessage()">{{ getErrorMessage() }}</mat-error>
   <mat-hint>
     <ng-content select="mat-hint"></ng-content>

@@ -13,7 +13,7 @@ import { FormHelper } from "../helpers";
 @Component({
   selector: "zac-html-editor",
   templateUrl: "./html-editor.html",
-  styleUrls: ['./html-editor.less'],
+  styleUrls: ["./html-editor.less"],
 })
 export class ZacHtmlEditor<
   Form extends Record<string, AbstractControl>,

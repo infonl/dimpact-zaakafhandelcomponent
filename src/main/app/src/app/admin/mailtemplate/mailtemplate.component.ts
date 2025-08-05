@@ -14,7 +14,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { mailSelectList } from "../model/mail-utils";
-import {lastValueFrom} from "rxjs";
 
 @Component({
   templateUrl: "./mailtemplate.component.html",
@@ -42,7 +41,7 @@ export class MailtemplateComponent
   });
 
   protected variabelen: string[] = [];
-  private mailTemplate?: GeneratedType<"RESTMailtemplate">
+  private mailTemplate?: GeneratedType<"RESTMailtemplate">;
 
   protected readonly mailTemplates = mailSelectList();
 
@@ -98,21 +97,22 @@ export class MailtemplateComponent
     });
   }
 
-  async saveMailtemplate() {
+  saveMailtemplate() {
     const data = this.form.getRawValue();
 
-    this.mailTemplateBeheerService.persistMailtemplate({
-      ...this.mailTemplate,
-      mail: data.mail?.value,
-      mailTemplateNaam: data.mailTemplateNaam ?? undefined,
-      onderwerp: data.onderwerp ?? undefined,
-      body: data.body ?? undefined,
-      defaultMailtemplate: data.defaultMailtemplate ?? false,
-    })
-        .subscribe(() => {
-          this.utilService.openSnackbar("msg.mailtemplate.opgeslagen");
-          void this.router.navigate(["/admin/mailtemplates"]);
-        });
+    this.mailTemplateBeheerService
+      .persistMailtemplate({
+        ...this.mailTemplate,
+        mail: data.mail?.value,
+        mailTemplateNaam: data.mailTemplateNaam ?? undefined,
+        onderwerp: data.onderwerp ?? undefined,
+        body: data.body ?? undefined,
+        defaultMailtemplate: data.defaultMailtemplate ?? false,
+      })
+      .subscribe(() => {
+        this.utilService.openSnackbar("msg.mailtemplate.opgeslagen");
+        void this.router.navigate(["/admin/mailtemplates"]);
+      });
   }
 
   cancel() {
