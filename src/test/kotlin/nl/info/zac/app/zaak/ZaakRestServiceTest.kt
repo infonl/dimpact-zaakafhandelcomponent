@@ -113,6 +113,7 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
+import nl.info.zac.identity.model.getFullName
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createOverigeRechtenAllDeny
@@ -400,6 +401,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
         every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
         every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
+        every { bpmnService.isProcessDriven(zaak.uuid) } returns true
+        every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
+        every { zaakVariabelenService.setUser(zaak.uuid, user.getFullName()) } just runs
 
         When("the zaak is assigned to a user and a group") {
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechtenAllDeny(toekennen = true)
@@ -435,6 +439,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                     }
                     this.zaak shouldBe rolGroup.zaak
                     omschrijving shouldBe rolType.omschrijving
+                }
+            }
+
+            And("the zaak data is updated accordingly") {
+                verify(exactly = 1) {
+                    zaakVariabelenService.setGroup(zaak.uuid, group.name)
+                    zaakVariabelenService.setUser(zaak.uuid, user.getFullName())
                 }
             }
         }
@@ -499,6 +510,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
         every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
         every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
+        every { bpmnService.isProcessDriven(zaak.uuid) } returns true
+        every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
+        every { zaakVariabelenService.setUser(zaak.uuid, user.getFullName()) } just runs
 
         When("the zaak is assigned to a user and a group") {
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechtenAllDeny(toekennen = true)
@@ -534,6 +548,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                     }
                     this.zaak shouldBe rolGroup.zaak
                     omschrijving shouldBe rolType.omschrijving
+                }
+            }
+
+            And("the zaak data is updated accordingly") {
+                verify(exactly = 1) {
+                    zaakVariabelenService.setGroup(zaak.uuid, group.name)
+                    zaakVariabelenService.setUser(zaak.uuid, user.getFullName())
                 }
             }
         }
