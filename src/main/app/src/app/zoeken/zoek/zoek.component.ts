@@ -22,7 +22,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { DocumentZoekObject } from "../model/documenten/document-zoek-object";
 import { TaakZoekObject } from "../model/taken/taak-zoek-object";
 import { ZaakZoekObject } from "../model/zaken/zaak-zoek-object";
-import { ZoekObject } from "../model/zoek-object";
 import { DEFAULT_ZOEK_PARAMETERS } from "../model/zoek-parameters";
 import { ZoekResultaat } from "../model/zoek-resultaat";
 import { ZoekType } from "../model/zoek-type";
@@ -41,7 +40,9 @@ export class ZoekComponent implements AfterViewInit, OnInit {
   zoekType: ZoekType = ZoekType.ZAC;
   ZoekType = ZoekType;
   ZoekVeld = ZoekVeld;
-  zoekResultaat = new ZoekResultaat<ZoekObject>();
+  zoekResultaat = new ZoekResultaat<
+    GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">
+  >();
   zoekParameters: GeneratedType<"RestZoekParameters"> = DEFAULT_ZOEK_PARAMETERS;
   isLoadingResults = true;
   slow = false;
@@ -107,7 +108,9 @@ export class ZoekComponent implements AfterViewInit, OnInit {
         this.paginator.length = data.totaal ?? 0;
         this.hasSearched = true;
         this.zoekService.hasSearched$.next(true);
-        this.zoekResultaat = data as ZoekResultaat<ZoekObject>;
+        this.zoekResultaat = data as ZoekResultaat<
+          GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">
+        >;
         this.bepaalContext();
       });
   }
@@ -159,15 +162,21 @@ export class ZoekComponent implements AfterViewInit, OnInit {
     return this.zoekParameters;
   }
 
-  getZaakZoekObject(zoekObject: ZoekObject): ZaakZoekObject {
+  getZaakZoekObject(
+    zoekObject: GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">,
+  ): ZaakZoekObject {
     return zoekObject as ZaakZoekObject;
   }
 
-  getTaakZoekObject(zoekObject: ZoekObject): TaakZoekObject {
+  getTaakZoekObject(
+    zoekObject: GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">,
+  ): TaakZoekObject {
     return zoekObject as TaakZoekObject;
   }
 
-  getDocumentZoekObject(zoekObject: ZoekObject): DocumentZoekObject {
+  getDocumentZoekObject(
+    zoekObject: GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">,
+  ): DocumentZoekObject {
     return zoekObject as DocumentZoekObject;
   }
 
