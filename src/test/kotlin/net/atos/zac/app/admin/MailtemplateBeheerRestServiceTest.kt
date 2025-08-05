@@ -11,10 +11,10 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import net.atos.zac.app.admin.model.createRestMailTemplate
-import net.atos.zac.mailtemplates.model.MailTemplateVariables.Companion.ZAAK_VOORTGANG_VARIABELEN
 import nl.info.zac.mailtemplates.MailTemplateService
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
+import nl.info.zac.mailtemplates.model.MailTemplateVariables.Companion.ZAAK_VOORTGANG_VARIABELEN
 import nl.info.zac.mailtemplates.model.createMailTemplate
 import nl.info.zac.policy.PolicyService
 

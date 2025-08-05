@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.mailtemplates.model
+package nl.info.zac.mailtemplates.model
 
 enum class MailTemplateVariables(val resolveVariableAsEmptyString: Boolean) {
     DOCUMENT_TITEL(false),

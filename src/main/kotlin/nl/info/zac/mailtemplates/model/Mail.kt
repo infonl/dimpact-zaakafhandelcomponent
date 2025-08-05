@@ -4,7 +4,6 @@
  */
 package nl.info.zac.mailtemplates.model
 
-import net.atos.zac.mailtemplates.model.MailTemplateVariables
 import nl.info.zac.mailtemplates.model.Mail.TAAK_AANVULLENDE_INFORMATIE
 import nl.info.zac.mailtemplates.model.Mail.TAAK_ADVIES_EXTERN
 import nl.info.zac.mailtemplates.model.Mail.TAAK_ONTVANGSTBEVESTIGING

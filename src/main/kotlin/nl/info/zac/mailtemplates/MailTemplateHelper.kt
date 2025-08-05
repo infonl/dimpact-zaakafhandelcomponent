@@ -8,7 +8,6 @@ import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving
-import net.atos.zac.mailtemplates.model.MailTemplateVariables
 import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.generated.Persoon
@@ -29,6 +28,7 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.mailtemplates.model.MailLink
+import nl.info.zac.mailtemplates.model.MailTemplateVariables
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.text.StringEscapeUtils
@@ -344,6 +344,9 @@ class MailTemplateHelper @Inject constructor(
         } else {
             htmlEscapedValue
         }
-        return targetString.replace(mailTemplateVariable.getVariable(), replacement ?: mailTemplateVariable.getVariable())
+        return targetString.replace(
+            mailTemplateVariable.getVariable(),
+            replacement ?: mailTemplateVariable.getVariable()
+        )
     }
 }
