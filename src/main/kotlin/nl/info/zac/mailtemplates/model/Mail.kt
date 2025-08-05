@@ -2,15 +2,16 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.mailtemplates.model
+package nl.info.zac.mailtemplates.model
 
-import net.atos.zac.mailtemplates.model.Mail.TAAK_AANVULLENDE_INFORMATIE
-import net.atos.zac.mailtemplates.model.Mail.TAAK_ADVIES_EXTERN
-import net.atos.zac.mailtemplates.model.Mail.TAAK_ONTVANGSTBEVESTIGING
-import net.atos.zac.mailtemplates.model.Mail.ZAAK_AFGEHANDELD
-import net.atos.zac.mailtemplates.model.Mail.ZAAK_ALGEMEEN
-import net.atos.zac.mailtemplates.model.Mail.ZAAK_NIET_ONTVANKELIJK
-import net.atos.zac.mailtemplates.model.Mail.ZAAK_ONTVANKELIJK
+import net.atos.zac.mailtemplates.model.MailTemplateVariables
+import nl.info.zac.mailtemplates.model.Mail.TAAK_AANVULLENDE_INFORMATIE
+import nl.info.zac.mailtemplates.model.Mail.TAAK_ADVIES_EXTERN
+import nl.info.zac.mailtemplates.model.Mail.TAAK_ONTVANGSTBEVESTIGING
+import nl.info.zac.mailtemplates.model.Mail.ZAAK_AFGEHANDELD
+import nl.info.zac.mailtemplates.model.Mail.ZAAK_ALGEMEEN
+import nl.info.zac.mailtemplates.model.Mail.ZAAK_NIET_ONTVANKELIJK
+import nl.info.zac.mailtemplates.model.Mail.ZAAK_ONTVANKELIJK
 
 enum class Mail(val mailTemplateVariables: Set<MailTemplateVariables>) {
     ZAAK_ALGEMEEN(MailTemplateVariables.ZAAK_VOORTGANG_VARIABELEN),

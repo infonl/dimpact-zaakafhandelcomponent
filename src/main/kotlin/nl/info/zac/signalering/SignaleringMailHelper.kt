@@ -5,7 +5,7 @@
 package nl.info.zac.signalering
 
 import jakarta.inject.Inject
-import net.atos.zac.mailtemplates.model.Mail
+import nl.info.zac.mailtemplates.model.Mail
 import net.atos.zac.signalering.model.Signalering
 import net.atos.zac.signalering.model.SignaleringDetail
 import net.atos.zac.signalering.model.SignaleringTarget

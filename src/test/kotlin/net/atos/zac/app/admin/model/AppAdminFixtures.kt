@@ -4,7 +4,7 @@
  */
 package net.atos.zac.app.admin.model
 
-import net.atos.zac.mailtemplates.model.Mail
+import nl.info.zac.mailtemplates.model.Mail
 import net.atos.zac.mailtemplates.model.MailTemplateVariables
 
 @Suppress("LongParameterList")

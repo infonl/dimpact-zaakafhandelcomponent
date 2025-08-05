@@ -14,7 +14,7 @@ import net.atos.zac.admin.model.MailtemplateKoppeling
 import net.atos.zac.admin.model.ZaakAfzender
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.ZaakbeeindigParameter
-import net.atos.zac.mailtemplates.model.Mail
+import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
 import java.time.ZonedDateTime
 import java.util.UUID
