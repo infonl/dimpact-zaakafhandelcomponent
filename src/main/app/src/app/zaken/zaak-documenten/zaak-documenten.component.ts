@@ -304,9 +304,7 @@ export class ZaakDocumentenComponent
   getZaakUuidVanInformatieObject(
     informatieObject: GekoppeldeZaakEnkelvoudigInformatieobject,
   ) {
-    return informatieObject.zaakUUID
-      ? informatieObject.zaakUUID
-      : this.zaak.uuid;
+    return informatieObject.zaakUUID ?? this.zaak.uuid;
   }
 
   updateSelected(document: GeneratedType<"RestEnkelvoudigInformatieobject">) {
@@ -345,7 +343,9 @@ export class ZaakDocumentenComponent
   }
 
   getDownloadURL(informatieObject: GekoppeldeZaakEnkelvoudigInformatieobject) {
-    return this.informatieObjectenService.getDownloadURL(informatieObject.uuid);
+    return this.informatieObjectenService.getDownloadURL(
+      informatieObject.uuid!,
+    );
   }
 
   getFileIcon(
