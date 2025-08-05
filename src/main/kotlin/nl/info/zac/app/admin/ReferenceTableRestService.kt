@@ -19,7 +19,12 @@ import jakarta.ws.rs.core.MediaType
 import nl.info.zac.admin.ReferenceTableAdminService
 import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.model.ReferenceTable
-import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.COMMUNICATIEKANAAL
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.DOMEIN
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.SERVER_ERROR_ERROR_PAGINA_TEKST
 import nl.info.zac.admin.model.ReferenceTableValue
 import nl.info.zac.admin.model.toRestReferenceTable
 import nl.info.zac.app.admin.model.RestReferenceTable
@@ -115,7 +120,7 @@ class ReferenceTableRestService @Inject constructor(
     @Path("afzender")
     fun listEmailSenders(): List<String> {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return referenceTableService.readReferenceTable(SystemReferenceTable.AFZENDER.name).values.let {
+        return referenceTableService.readReferenceTable(AFZENDER.name).values.let {
             getReferenceTableValueNames(it)
         }
     }
@@ -125,7 +130,7 @@ class ReferenceTableRestService @Inject constructor(
     fun listCommunicationChannels(
         @PathParam("inclusiefEFormulier") includingEFormulier: Boolean
     ) = getReferenceTableValueNames(
-        referenceTableService.readReferenceTable(SystemReferenceTable.COMMUNICATIEKANAAL.name).values
+        referenceTableService.readReferenceTable(COMMUNICATIEKANAAL.name).values
     )
         .filter { communicationChannel -> includingEFormulier || communicationChannel != ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER }
 
@@ -133,7 +138,7 @@ class ReferenceTableRestService @Inject constructor(
     @Path("domein")
     fun listDomains(): List<String> {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return referenceTableService.readReferenceTable(SystemReferenceTable.DOMEIN.name).values.let {
+        return referenceTableService.readReferenceTable(DOMEIN.name).values.let {
             getReferenceTableValueNames(it)
         }
     }
@@ -141,9 +146,7 @@ class ReferenceTableRestService @Inject constructor(
     @GET
     @Path("server-error-text")
     fun listServerErrorPageTexts(): List<String> {
-        return referenceTableService.readReferenceTable(
-            SystemReferenceTable.SERVER_ERROR_ERROR_PAGINA_TEKST.name
-        ).values.let {
+        return referenceTableService.readReferenceTable(SERVER_ERROR_ERROR_PAGINA_TEKST.name).values.let {
             getReferenceTableValueNames(it)
         }
     }
@@ -151,16 +154,14 @@ class ReferenceTableRestService @Inject constructor(
     @GET
     @Path("brp-doelbinding-zoek-waarde")
     fun listBrpDoelbindingZoekWaarden(): List<String> =
-        referenceTableService.readReferenceTable(SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE.name).values.let {
+        referenceTableService.readReferenceTable(BRP_DOELBINDING_ZOEK_WAARDE.name).values.let {
             getReferenceTableValueNames(it)
         }
 
     @GET
     @Path("brp-doelbinding-raadpleeg-waarde")
     fun listBrpDoelbindingRaadpleegWaarden(): List<String> =
-        referenceTableService.readReferenceTable(
-            SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE.name
-        ).values.let {
+        referenceTableService.readReferenceTable(BRP_DOELBINDING_RAADPLEEG_WAARDE.name).values.let {
             getReferenceTableValueNames(it)
         }
 

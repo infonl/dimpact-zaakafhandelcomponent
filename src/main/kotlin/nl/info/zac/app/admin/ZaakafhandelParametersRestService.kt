@@ -32,7 +32,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
-import nl.info.zac.admin.model.ReferenceTable
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.zaak.model.RestResultaattype
@@ -244,9 +244,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
     @GET
     @Path("replyTo")
     fun listReplyTos(): List<RESTReplyTo> =
-        referenceTableService.readReferenceTable(
-            ReferenceTable.SystemReferenceTable.AFZENDER.name
-        ).let { referenceTable ->
+        referenceTableService.readReferenceTable(AFZENDER.name).let { referenceTable ->
             referenceTableService.listReferenceTableValuesSorted(referenceTable).let {
                 RESTReplyToConverter.convertReplyTos(
                     it
