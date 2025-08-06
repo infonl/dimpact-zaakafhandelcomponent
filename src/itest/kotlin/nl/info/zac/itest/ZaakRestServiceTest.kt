@@ -802,11 +802,12 @@ class ZaakRestServiceTest : BehaviorSpec({
         When("the 'assign to logged-in user from list' endpoint is called for the zaak") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zaken/lijst/toekennen/mij",
-                requestBodyAsString = "{\n" +
-                    "\"zaakUUID\":\"$zaakProductaanvraag1Uuid\",\n" +
-                    "\"behandelaarGebruikersnaam\":\"$TEST_USER_1_USERNAME\",\n" +
-                    "\"reden\":\"fakeAssignToMeFromListReason\"\n" +
-                    "}"
+                requestBodyAsString = """{
+                    "zaakUUID":"$zaakProductaanvraag1Uuid",
+                    "groepId":"$TEST_GROUP_A_ID",
+                    "reden":"fakeAssignToMeFromListReason"
+                }
+                """.trimIndent()
             )
             Then(
                 "the response should be a 200 HTTP response with zaak data and the zaak should be assigned to the user"
