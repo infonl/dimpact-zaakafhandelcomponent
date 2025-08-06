@@ -61,10 +61,12 @@ class KlantRestServiceTest : BehaviorSpec({
         """
     ) {
         val vestigingsnummer = "fakeVestigingsnummer"
+        val kvkNummer = "fakeKvkNummer"
         val adres = createAdresWithBinnenlandsAdres()
         val kvkResultaatItem = createResultaatItem(
             adres = adres,
             type = "nevenvestiging",
+            kvkNummer = kvkNummer,
             vestingsnummer = vestigingsnummer
         )
         val digitalAddressesList = createDigitalAddresses("+123-456-789", "fake@example.com")
@@ -87,7 +89,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         "$straatnaam$NON_BREAKING_SPACE$huisnummer$NON_BREAKING_SPACE$huisletter, $postcode, $plaats"
                     }
                     naam shouldBe kvkResultaatItem.naam
-                    kvkNummer shouldBe null
+                    kvkNummer shouldBe kvkNummer
                     postcode shouldBe kvkResultaatItem.adres.binnenlandsAdres.postcode
                     rsin shouldBe kvkResultaatItem.rsin
                     type shouldBe "NEVENVESTIGING"
@@ -130,10 +132,12 @@ class KlantRestServiceTest : BehaviorSpec({
         """
     ) {
         val vestigingsnummer = "fakeVestigingsnummer"
+        val kvkNummer = "fakeKvkNummer"
         val adres = createAdresWithBinnenlandsAdres()
         val kvkResultaatItem = createResultaatItem(
             adres = adres,
             type = "nevenvestiging",
+            kvkNummer = kvkNummer,
             vestingsnummer = vestigingsnummer
         )
         every {
@@ -150,7 +154,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 with(restBedrijf) {
                     this.vestigingsnummer shouldBe vestigingsnummer
                     naam shouldBe kvkResultaatItem.naam
-                    kvkNummer shouldBe null
+                    kvkNummer shouldBe kvkNummer
                     telefoonnummer shouldBe null
                     emailadres shouldBe null
                 }
@@ -379,7 +383,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 result.resultaten.size shouldBe 1
                 with(result.resultaten.first()) {
                     this.naam shouldBe "fakeName"
-                    this.kvkNummer shouldBe restListBedrijvenParameters.kvkNummer
+                    this.kvkNummer shouldBe "fakeKvkNummer"
                     // the type should be converted to uppercase in the response
                     this.type shouldBe "FAKETYPE"
                     this.vestigingsnummer shouldBe "fakeVestigingsnummer"
@@ -404,10 +408,10 @@ class KlantRestServiceTest : BehaviorSpec({
         When("the listBedrijven function is called") {
             val result = klantRestService.listBedrijven(restListBedrijvenParameters)
 
-            Then("the result should not contain the CoC-number, even though it is found in the KVK") {
+            Then("the result should contain the CoC-number") {
                 result.resultaten.size shouldBe 1
                 with(result.resultaten.first()) {
-                    this.kvkNummer shouldBe null
+                    this.kvkNummer shouldBe "fakeKvkNummer"
                 }
             }
         }

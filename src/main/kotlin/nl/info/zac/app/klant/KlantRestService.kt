@@ -116,7 +116,7 @@ class KlantRestService @Inject constructor(
                 async { klantClientService.findDigitalAddressesByNumber(vestigingsnummer) }
             val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
             klantVestigingDigitalAddresses.await().toRestPersoon().let { klantVestigingRestPersoon ->
-                vestiging.await().getOrNull()?.toRestBedrijf(kvkNummer)?.apply {
+                vestiging.await().getOrNull()?.toRestBedrijf()?.apply {
                     emailadres = klantVestigingRestPersoon.emailadres
                     telefoonnummer = klantVestigingRestPersoon.telefoonnummer
                 } ?: throw VestigingNotFoundException(
@@ -174,7 +174,7 @@ class KlantRestService @Inject constructor(
     fun listBedrijven(restListBedrijvenParameters: RestListBedrijvenParameters): RESTResultaat<RestBedrijf> =
         kvkClientService.search(restListBedrijvenParameters.toKvkZoekenParameters()).resultaten
             .filter { it.isKoppelbaar() }
-            .map { it.toRestBedrijf(restListBedrijvenParameters.kvkNummer) }
+            .map { it.toRestBedrijf() }
             .toRestResultaat()
 
     @GET
