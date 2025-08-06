@@ -1334,16 +1334,14 @@ export class ZaakViewComponent
           zaakUuid: this.zaak.uuid,
           gekoppeldeZaakIdentificatie: gerelateerdeZaak.identificatie,
           relatieType: gerelateerdeZaak.relatieType,
-          reden: "",
         },
       })
       .afterClosed()
       .subscribe((result) => {
         this.activeSideAction = null;
-        if (result) {
-          this.utilService.openSnackbar("msg.zaak.ontkoppelen.uitgevoerd");
-          this.updateZaak();
-        }
+        if (!result) return;
+        this.utilService.openSnackbar("msg.zaak.ontkoppelen.uitgevoerd");
+        this.updateZaak();
       });
   }
 
