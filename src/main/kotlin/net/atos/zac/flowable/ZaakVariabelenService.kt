@@ -7,6 +7,8 @@ package net.atos.zac.flowable
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.CmmnHistoryService
 import org.flowable.cmmn.api.CmmnRuntimeService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
@@ -17,6 +19,8 @@ import java.util.UUID
 
 @ApplicationScoped
 @Transactional
+@AllOpen
+@NoArgConstructor
 @Suppress("TooManyFunctions")
 open class ZaakVariabelenService @Inject constructor(
     private val cmmnRuntimeService: CmmnRuntimeService,
