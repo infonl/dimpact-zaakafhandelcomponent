@@ -456,7 +456,6 @@ mat-icon[outlined] {
   }
 }
 
-.zaak-create-form form > .flex-row > div.mfb-wrapper.autocomplete:first-child,
 .form-field-hint {
   margin-bottom: 22px;
 }
@@ -476,10 +475,6 @@ mat-hint {
 
 .mdc-dialog__container .mdc-dialog__title::before {
   content: none;
-}
-
-.mat-mdc-card-header .mat-mdc-card-header-text {
-  width: 100%;
 }
 
 h1 {
@@ -504,12 +499,17 @@ h6 {
   font-weight: initial;
 }
 
+form > mat-card > mat-card-content > fieldset,
 form > fieldset {
   display: flex;
   flex-direction: column;
   gap: 16px;
   margin: 0;
-  padding: 0 15px;
+  padding: 0 16px;
+}
+
+form > mat-card > mat-card-content > fieldset {
+  padding: 0;
 }
 
 mat-dialog-content form > fieldset {

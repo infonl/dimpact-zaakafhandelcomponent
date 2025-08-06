@@ -21,24 +21,26 @@
     <form [formGroup]="form" (submit)="saveMailtemplate()">
       <mat-card>
         <mat-card-content>
-          <zac-input [form]="form" key="mailTemplateNaam" />
-          <zac-select
-            [form]="form"
-            key="mail"
-            [options]="mailTemplates"
-            optionDisplayValue="label"
-          />
-          <zac-html-editor
-            [form]="form"
-            noToolbar
-            key="onderwerp"
-            [variables]="variabelen"
-          ></zac-html-editor>
-          <zac-html-editor
-            [form]="form"
-            key="body"
-            [variables]="variabelen"
-          ></zac-html-editor>
+          <fieldset>
+            <zac-input [form]="form" key="mailTemplateNaam" />
+            <zac-select
+              [form]="form"
+              key="mail"
+              [options]="mailTemplates"
+              optionDisplayValue="label"
+            />
+            <zac-html-editor
+              [form]="form"
+              noToolbar
+              key="onderwerp"
+              [variables]="variabelen"
+            ></zac-html-editor>
+            <zac-html-editor
+              [form]="form"
+              key="body"
+              [variables]="variabelen"
+            ></zac-html-editor>
+          </fieldset>
         </mat-card-content>
         <mat-card-actions>
           <button
