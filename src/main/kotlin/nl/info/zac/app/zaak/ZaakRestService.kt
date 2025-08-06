@@ -604,9 +604,7 @@ class ZaakRestService @Inject constructor(
             ?.betrokkeneIdentificatie?.identificatie
         val (user, userUpdated) = assignUser(zaak, restZaakAssignmentData, behandelaar)
         val (group, groupUpdated) = assignGroup(zaak, restZaakAssignmentData.groupId, restZaakAssignmentData.reason)
-        if (bpmnService.isProcessDriven(zaak.uuid)) {
-            changeZaakDataAssignment(zaak.uuid, group, user)
-        }
+        changeZaakDataAssignment(zaak.uuid, group, user)
         if (userUpdated || groupUpdated) {
             indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
         }
@@ -1155,10 +1153,12 @@ class ZaakRestService @Inject constructor(
         group: Group,
         user: User?
     ) {
-        zaakVariabelenService.setGroup(zaakUuid, group.name)
-        user?.let {
-            zaakVariabelenService.setUser(zaakUuid, it.getFullName())
-        } ?: zaakVariabelenService.removeUser(zaakUuid)
+        if (bpmnService.isProcessDriven(zaakUuid)) {
+            zaakVariabelenService.setGroup(zaakUuid, group.name)
+            user?.let {
+                zaakVariabelenService.setUser(zaakUuid, it.getFullName())
+            } ?: zaakVariabelenService.removeUser(zaakUuid)
+        }
     }
 
     private fun assignLoggedInUserToZaak(zaak: Zaak, reason: String?) =
