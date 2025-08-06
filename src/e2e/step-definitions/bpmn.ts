@@ -315,6 +315,7 @@ Then(
     ) {
         await this.page.getByRole('button', { name: 'Zaakdata' }).click();
         await expect(this.page.getByRole('textbox', { name: 'zaakGroep' })).toHaveValue(groupName);
+        await expect(this.page.getByRole('textbox', { name: 'zaakBehandelaar' })).toHaveValue(userName);
         await this.page.getByRole('button').filter({ hasText: 'close' }).click();
     }
 )

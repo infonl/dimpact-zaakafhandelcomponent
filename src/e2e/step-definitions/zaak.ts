@@ -129,8 +129,6 @@ When(
         groupName: string,
         userName: string
     ) {
-        const zaakNumber = this.testStorage.get("caseNumber");
-
         await this.page.getByRole('tabpanel', { name: 'Gegevens' }).getByRole('button').click();
         await this.page.getByRole('combobox', { name: 'Groep Test group Behandelaars' }).locator('svg').click();
         await this.page.getByText(groupName).click();
