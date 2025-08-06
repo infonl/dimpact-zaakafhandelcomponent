@@ -133,6 +133,11 @@ export class ZaakViewComponent
     "startdatum",
     "relatieType",
   ] as const;
+  gerelateerdeZaakColumnsWithAction = [
+    ...this.gerelateerdeZaakColumns,
+    "actions",
+  ];
+
   notitieRechten!: GeneratedType<"RestNotitieRechten">;
   dateFieldIconMap = new Map<string, TextIcon>();
   viewInitialized = false;
