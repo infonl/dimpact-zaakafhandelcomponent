@@ -10,13 +10,29 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.util.time.LocalDateUtil
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.client.zgw.ztc.model.Afleidingswijze
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
-import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum.INGANGSDATUM_BESLUIT
+import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum.VERVALDATUM_BESLUIT
+import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.ADVISEUR
+import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.BEHANDELAAR
+import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.BELANGHEBBENDE
+import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.BESLISSER
+import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.INITIATOR
+import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.KLANTCONTACTER
+import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.MEDE_INITIATOR
+import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.ZAAKCOORDINATOR
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ReferenceTableService
-import nl.info.zac.admin.model.ReferenceTable.Systeem
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.COMMUNICATIEKANAAL
+import nl.info.zac.configuratie.ConfiguratieService.Companion.COMMUNICATIEKANAAL_EFORMULIER
+import nl.info.zac.configuratie.ConfiguratieService.Companion.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL
+import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
+import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_AFGEROND
+import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_HEROPEND
+import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_INTAKE
+import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING
 import nl.info.zac.healthcheck.exception.BuildInformationException
 import nl.info.zac.healthcheck.model.BuildInformation
 import nl.info.zac.healthcheck.model.ZaaktypeInrichtingscheck
@@ -27,7 +43,6 @@ import java.io.IOException
 import java.net.URI
 import java.nio.file.Files
 import java.time.ZonedDateTime
-import java.util.Locale
 import java.util.Optional
 import java.util.UUID
 
@@ -54,8 +69,8 @@ class HealthCheckService @Inject constructor(
     private var buildInformation: BuildInformation = createBuildInformatie()
 
     fun bestaatCommunicatiekanaalEformulier() =
-        referenceTableService.readReferenceTable(Systeem.COMMUNICATIEKANAAL.name).values.any {
-            ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER == it.name
+        referenceTableService.readReferenceTable(COMMUNICATIEKANAAL.name).values.any {
+            COMMUNICATIEKANAAL_EFORMULIER == it.name
         }
 
     fun controleerZaaktype(zaaktypeUrl: URI): ZaaktypeInrichtingscheck {
@@ -111,15 +126,15 @@ class HealthCheckService @Inject constructor(
                 hoogsteVolgnummer = statustype.volgnummer
             }
             when (statustype.getOmschrijving()) {
-                ConfiguratieService.STATUSTYPE_OMSCHRIJVING_INTAKE ->
+                STATUSTYPE_OMSCHRIJVING_INTAKE ->
                     zaaktypeInrichtingscheck.isStatustypeIntakeAanwezig = true
-                ConfiguratieService.STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING ->
+                STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING ->
                     zaaktypeInrichtingscheck.isStatustypeInBehandelingAanwezig = true
-                ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND ->
+                STATUSTYPE_OMSCHRIJVING_HEROPEND ->
                     zaaktypeInrichtingscheck.isStatustypeHeropendAanwezig = true
-                ConfiguratieService.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE ->
+                STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE ->
                     zaaktypeInrichtingscheck.isStatustypeAanvullendeInformatieVereist = true
-                ConfiguratieService.STATUSTYPE_OMSCHRIJVING_AFGEROND -> {
+                STATUSTYPE_OMSCHRIJVING_AFGEROND -> {
                     afgerondVolgnummer = statustype.volgnummer
                     zaaktypeInrichtingscheck.isStatustypeAfgerondAanwezig = true
                 }
@@ -135,13 +150,8 @@ class HealthCheckService @Inject constructor(
         if (resultaattypes.isNotEmpty()) {
             zaaktypeInrichtingscheck.isResultaattypeAanwezig = true
             resultaattypes.forEach {
-                val afleidingswijzeName = it.brondatumArchiefprocedure.afleidingswijze.name.lowercase(
-                    Locale.getDefault()
-                )
-                // compare enum values and not the enums themselves because we have multiple functionally
-                // identical enums in our Java client code generated by the OpenAPI Generator
-                if (Afleidingswijze.VERVALDATUM_BESLUIT.toValue() == afleidingswijzeName ||
-                    Afleidingswijze.INGANGSDATUM_BESLUIT.toValue() == afleidingswijzeName
+                val afleidingswijze = it.brondatumArchiefprocedure.afleidingswijze
+                if (VERVALDATUM_BESLUIT == afleidingswijze || INGANGSDATUM_BESLUIT == afleidingswijze
                 ) {
                     zaaktypeInrichtingscheck.addResultaattypesMetVerplichtBesluit(it.omschrijving)
                 }
@@ -163,18 +173,14 @@ class HealthCheckService @Inject constructor(
         if (roltypes.isNotEmpty()) {
             roltypes.forEach {
                 when (it.omschrijvingGeneriek) {
-                    OmschrijvingGeneriekEnum.ADVISEUR,
-                    OmschrijvingGeneriekEnum.MEDE_INITIATOR,
-                    OmschrijvingGeneriekEnum.BELANGHEBBENDE,
-                    OmschrijvingGeneriekEnum.BESLISSER,
-                    OmschrijvingGeneriekEnum.KLANTCONTACTER,
-                    OmschrijvingGeneriekEnum.ZAAKCOORDINATOR ->
-                        zaaktypeInrichtingscheck.isRolOverigeAanwezig = true
-                    OmschrijvingGeneriekEnum.BEHANDELAAR ->
-                        zaaktypeInrichtingscheck.aantalBehandelaarroltypen++
-                    OmschrijvingGeneriekEnum.INITIATOR -> {
-                        zaaktypeInrichtingscheck.aantalInitiatorroltypen++
-                    }
+                    ADVISEUR,
+                    MEDE_INITIATOR,
+                    BELANGHEBBENDE,
+                    BESLISSER,
+                    KLANTCONTACTER,
+                    ZAAKCOORDINATOR -> zaaktypeInrichtingscheck.isRolOverigeAanwezig = true
+                    BEHANDELAAR -> zaaktypeInrichtingscheck.aantalBehandelaarroltypen++
+                    INITIATOR -> zaaktypeInrichtingscheck.aantalInitiatorroltypen++
                 }
             }
         }
@@ -183,7 +189,7 @@ class HealthCheckService @Inject constructor(
     private fun controleerZaaktypeInformatieobjecttypeInrichting(zaaktypeInrichtingscheck: ZaaktypeInrichtingscheck) {
         val informatieobjecttypes = ztcClientService.readInformatieobjecttypen(zaaktypeInrichtingscheck.zaaktype.url)
         informatieobjecttypes.forEach {
-            if (it.isNuGeldig() && ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL == it.omschrijving) {
+            if (it.isNuGeldig() && INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL == it.omschrijving) {
                 zaaktypeInrichtingscheck.isInformatieobjecttypeEmailAanwezig = true
             }
         }
@@ -191,9 +197,9 @@ class HealthCheckService @Inject constructor(
 
     private fun controleerBrpDoelbindingenInrichting(zaaktypeInrichtingscheck: ZaaktypeInrichtingscheck) {
         val brpDoelbindingZoekWaarde =
-            referenceTableService.readReferenceTable(Systeem.BRP_DOELBINDING_ZOEK_WAARDE.name)
+            referenceTableService.readReferenceTable(BRP_DOELBINDING_ZOEK_WAARDE.name)
         val brpDoelbindingRaadpleegWaarde =
-            referenceTableService.readReferenceTable(Systeem.BRP_DOELBINDING_RAADPLEEG_WAARDE.name)
+            referenceTableService.readReferenceTable(BRP_DOELBINDING_RAADPLEEG_WAARDE.name)
         if (brpDoelbindingZoekWaarde.values.isNotEmpty() && brpDoelbindingRaadpleegWaarde.values.isNotEmpty()) {
             zaaktypeInrichtingscheck.isBrpDoelbindingenAanwezig = true
         }
