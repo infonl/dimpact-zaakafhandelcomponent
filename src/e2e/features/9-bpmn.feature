@@ -12,6 +12,12 @@ Feature: BPMN
     Given "Bob" navigates to "zac" with path "/zaken/werkvoorraad"
     Then "Bob" sees the created zaak
 
+  Scenario: Bob changes the assigned user and group
+    Given "Bob" is logged in to zac
+    Then "Bob" sees group "Test group Behandelaars" in the zaak data
+    Given Employee "Bob" assigns the zaak to group "Test group Coordinators" and user "Test Coordinator1"
+    Then "Bob" sees group "Test group Coordinators" and user "Test Coordinator1" in the zaak data
+
   Scenario: Bob opens the initial task form
     Given "Bob" is logged in to zac
     When Employee "Bob" is on the newly created zaak
