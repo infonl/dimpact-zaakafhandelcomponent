@@ -11,9 +11,10 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import net.atos.zac.app.admin.model.createRestMailTemplate
-import net.atos.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.MailTemplateService
+import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
+import nl.info.zac.mailtemplates.model.MailTemplateVariables.Companion.ZAAK_VOORTGANG_VARIABELEN
 import nl.info.zac.mailtemplates.model.createMailTemplate
 import nl.info.zac.policy.PolicyService
 
@@ -73,6 +74,20 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         mail shouldBe storedMailTemplate.mail.name
                         defaultMailtemplate shouldBe storedMailTemplate.isDefaultMailtemplate
                     }
+                }
+            }
+        }
+    }
+
+    Context("Retrieving variables for a mail template") {
+        Given("A mail template for ZAAK_ALGEMEEN") {
+            val mail = Mail.ZAAK_ALGEMEEN
+
+            When("retrieveMailVariables is called") {
+                val mailTemplateVariables = mailtemplateBeheerRestService.getMailTemplateVariables(mail)
+
+                Then("it should return the associated variables") {
+                    mailTemplateVariables shouldBe ZAAK_VOORTGANG_VARIABELEN
                 }
             }
         }
