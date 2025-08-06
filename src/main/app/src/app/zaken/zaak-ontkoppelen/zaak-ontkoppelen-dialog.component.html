@@ -8,29 +8,30 @@
   <span class="flex-grow-1">
     {{ "title.zaak.ontkoppelen" | translate }}
   </span>
-  <button mat-icon-button (click)="close()">
+  <button mat-icon-button (click)="dialogRef.close()">
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<mat-dialog-content>
-  <mfb-form-field [field]="redenFormField"></mfb-form-field>
-</mat-dialog-content>
-<mat-dialog-actions>
-  <button
-    [disabled]="redenFormField?.formControl.invalid || loading"
-    mat-raised-button
-    color="primary"
-    (click)="ontkoppel()"
-    id="zakenOntkoppelen_button"
-  >
-    <mat-icon *ngIf="loading">
-      <mat-spinner diameter="18"></mat-spinner>
-    </mat-icon>
-    {{ "actie.ontkoppelen" | translate }}
-  </button>
-  <button [disabled]="loading" mat-raised-button (click)="close()">
-    {{ "actie.annuleren" | translate }}
-  </button>
-</mat-dialog-actions>
+<form [formGroup]="form" (submit)="ontkoppel()">
+  <mat-dialog-content>
+    <zac-textarea [form]="form" key="reden"></zac-textarea>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button
+      [disabled]="form.invalid || loading"
+      mat-raised-button
+      color="primary"
+      type="submit"
+    >
+      <mat-icon *ngIf="loading">
+        <mat-spinner diameter="18"></mat-spinner>
+      </mat-icon>
+      {{ "actie.ontkoppelen" | translate }}
+    </button>
+    <button [disabled]="loading" mat-raised-button (click)="dialogRef.close()">
+      {{ "actie.annuleren" | translate }}
+    </button>
+  </mat-dialog-actions>
+</form>

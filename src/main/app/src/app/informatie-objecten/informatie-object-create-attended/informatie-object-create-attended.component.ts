@@ -37,7 +37,7 @@ export class InformatieObjectCreateAttendedComponent
   implements OnInit, OnDestroy
 {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
-  @Input({ required: true }) taak!: GeneratedType<"RestTask">;
+  @Input() taak?: GeneratedType<"RestTask">;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Input({ required: false }) smartDocumentsGroupPath: string[] = [];
   @Input({ required: false }) smartDocumentsTemplateName?: string;

@@ -5,7 +5,7 @@
 package nl.info.zac.mailtemplates.exception
 
 import jakarta.ws.rs.NotFoundException
-import net.atos.zac.mailtemplates.model.Mail
+import nl.info.zac.mailtemplates.model.Mail
 
 class MailTemplateNotFoundException(string: String) : NotFoundException(string) {
     constructor(mail: Mail) : this("Mail template not found for mail type: '${mail.name}'")

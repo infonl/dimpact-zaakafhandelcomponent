@@ -33,7 +33,7 @@ class ReferenceTable {
      * Defines the list of 'system reference tables'.
      * Make sure to keep this list in sync with the 'is_systeem_tabel' column in the database.
      */
-    enum class Systeem {
+    enum class SystemReferenceTable {
         ADVIES,
         AFZENDER,
         COMMUNICATIEKANAAL,

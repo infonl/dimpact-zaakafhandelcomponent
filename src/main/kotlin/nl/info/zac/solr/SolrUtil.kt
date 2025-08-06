@@ -5,7 +5,8 @@
 
 package nl.info.zac.solr
 
-private const val SOLR_ESCAPE = '\\'
+import org.apache.solr.client.solrj.util.ClientUtils
+
 private const val SOLR_QUOTE = '\"'
 
 /**
@@ -13,23 +14,17 @@ private const val SOLR_QUOTE = '\"'
  *
  * @param value the raw unencoded string
  * @return the encoded and quoted Solr string
+ *
  */
-fun quoted(value: String) = "$SOLR_QUOTE${encoded(value)}$SOLR_QUOTE"
+fun quoted(value: String): String =
+    "$SOLR_QUOTE${encoded(value)}$SOLR_QUOTE"
 
 /**
  * Produces an encoded Solr string from a raw Java string.
  *
  * @param value the raw unencoded string
  * @return the encoded Solr string
- */
-fun encoded(value: String) = escape(escape(value, SOLR_ESCAPE), SOLR_QUOTE)
-
-/**
- * Replaces all occurrences of a given character with the correct Solr escape sequence.
- * N.B. Always start by escaping the escape character itself, only then escape any other characters.
  *
- * @param value the string that may contain the raw unescaped characters
- * @param c      the character that will be escaped
- * @return the string with the Solr escaped characters
  */
-fun escape(value: String, c: Char) = value.replace(c.toString(), SOLR_ESCAPE.toString() + c)
+fun encoded(value: String): String =
+    ClientUtils.escapeQueryChars(value)

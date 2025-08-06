@@ -145,7 +145,7 @@
     ></zac-zaakdata>
   </mat-drawer>
   <mat-drawer-content>
-    <div class="flex-row flex-wrap gap-10">
+    <div class="flex-row flex-wrap gap-12">
       <section class="w100 flex-1" *ngIf="showInitiator()">
         <zac-zaak-initiator-toevoegen
           class="w100 flex-1"
@@ -178,7 +178,7 @@
         >
         </zac-bedrijfsgegevens>
       </section>
-      <mat-card class="zaken-card w50 flex-1">
+      <mat-card class="w50 flex-1">
         <mat-card-header class="flex-col gap-8 space-between">
           <div class="flex-row">
             <zac-zaak-indicaties
@@ -213,7 +213,7 @@
                 <mat-icon>topic</mat-icon>
                 {{ "gegevens.algemeen" | translate }}</ng-template
               >
-              <div id="algemeneGegevens_tab" class="content">
+              <div class="content">
                 <div class="flex flex-row flex-wrap justify-start gap-10">
                   <zac-static-text
                     [label]="'status' | translate"
@@ -268,7 +268,7 @@
 
                   <zac-static-text
                     [label]="'groep' | translate"
-                    [value]="zaak.groep.naam | empty"
+                    [value]="zaak.groep?.naam | empty"
                     class="flex-item"
                   ></zac-static-text>
                   <zac-static-text
@@ -365,7 +365,7 @@
                 <mat-icon>place</mat-icon>
                 {{ "locatie" | translate }}</ng-template
               >
-              <div id="locatie_tab" class="table-wrapper">
+              <div class="table-wrapper">
                 <div class="flex flex-col gap-10 editable">
                   <button
                     *ngIf="zaak.rechten.wijzigenLocatie"
@@ -393,7 +393,7 @@
                 <mat-icon>account_tree</mat-icon>
                 {{ "gerelateerdeZaken" | translate }}</ng-template
               >
-              <div id="gerelateerdeZaken_tab" class="table-wrapper">
+              <div class="table-wrapper">
                 <table mat-table [dataSource]="zaak.gerelateerdeZaken">
                   <ng-container
                     *ngFor="let column of gerelateerdeZaakColumns"
@@ -406,7 +406,7 @@
                       {{ row[column] | empty | datum }}
                     </td>
                   </ng-container>
-                  <ng-container matColumnDef="url" stickyEnd>
+                  <ng-container matColumnDef="actions" stickyEnd>
                     <th mat-header-cell *matHeaderCellDef></th>
                     <td mat-cell *matCellDef="let row">
                       <a
@@ -434,13 +434,13 @@
                   </ng-container>
                   <tr
                     mat-header-row
-                    *matHeaderRowDef="gerelateerdeZaakColumns.concat(['url'])"
+                    *matHeaderRowDef="gerelateerdeZaakColumnsWithAction"
                   ></tr>
                   <tr
                     mat-row
                     *matRowDef="
                       let row;
-                      columns: gerelateerdeZaakColumns.concat(['url'])
+                      columns: gerelateerdeZaakColumnsWithAction
                     "
                   ></tr>
                 </table>
@@ -452,7 +452,7 @@
                 <mat-icon>history</mat-icon>
                 {{ "historie" | translate }}
               </ng-template>
-              <div id="historie_tab" class="table-wrapper historie-table">
+              <div class="table-wrapper">
                 <table
                   mat-table
                   matSort
@@ -571,7 +571,7 @@
                 <mat-icon>groups</mat-icon>
                 {{ "betrokkenen" | translate }}
               </ng-template>
-              <div id="betrokkenen_tab" class="table-wrapper betrokkenen-table">
+              <div class="table-wrapper">
                 <table mat-table [dataSource]="betrokkenen" matSort>
                   <ng-container matColumnDef="roltype">
                     <th mat-header-cell *matHeaderCellDef>
@@ -729,7 +729,7 @@
                 <mat-icon>gps_fixed</mat-icon>
                 {{ "bagObjecten" | translate }}
               </ng-template>
-              <div id="bagobjecten_tab" class="table-wrapper bagobjecten-table">
+              <div class="table-wrapper">
                 <table mat-table [dataSource]="bagObjectenDataSource" matSort>
                   <ng-container matColumnDef="identificatie">
                     <th mat-header-cell *matHeaderCellDef>
@@ -806,25 +806,22 @@
           </mat-tab-group>
         </mat-card-content>
       </mat-card>
-
-      <div class="w50 flex-1 flex-col">
+      <div class="w50 flex-1 flex-col gap-12">
         <zac-besluit-view
-          class="besluiten"
-          *ngIf="zaak.besluiten"
-          [besluiten]="zaak.besluiten"
+          *ngIf="zaak.besluiten?.length"
+          [besluiten]="zaak.besluiten ?? []"
           [result]="zaak.resultaat"
           [readonly]="!zaak.isOpen || !zaak.rechten.behandelen"
           (besluitWijzigen)="besluitWijzigen($event)"
           (doIntrekking)="doIntrekking($event)"
         ></zac-besluit-view>
 
-        <mat-card class="taken-card">
+        <mat-card class="flex-grow-1">
           <mat-card-header>
             <mat-card-title>{{ "taken" | translate }}</mat-card-title>
             <mat-slide-toggle
               [formControl]="toonAfgerondeTaken"
               color="primary"
-              id="takenAfgerondeToon_toggle"
               (change)="filterTakenOpStatus()"
               >{{ "toonAfgerondeTaken" | translate }}</mat-slide-toggle
             >
@@ -924,7 +921,7 @@
                     {{ taak.data.behandelaar | empty: "naam" }}
                   </td>
                 </ng-container>
-                <ng-container matColumnDef="id" stickyEnd id="taakButtons">
+                <ng-container matColumnDef="id" stickyEnd>
                   <th mat-header-cell *matHeaderCellDef></th>
                   <td mat-cell *matCellDef="let row">
                     <div class="flex-row">
@@ -1007,18 +1004,18 @@
           </mat-card-content>
         </mat-card>
       </div>
+      <zac-zaak-documenten
+        #zaakDocumentenComponent
+        class="w100"
+        [zaak]="zaak"
+        (documentMoveToCase)="documentMoveToCase($event)"
+      ></zac-zaak-documenten>
     </div>
-    <zac-zaak-documenten
-      #zaakDocumentenComponent
-      class="w100"
-      [zaak]="zaak"
-      (documentMoveToCase)="documentMoveToCase($event)"
-    ></zac-zaak-documenten>
-
-    <zac-notities
-      *ngIf="notitieRechten?.lezen || notitieRechten?.wijzigen"
-      [zaakUuid]="zaak.uuid"
-      [notitieRechten]="notitieRechten"
-    ></zac-notities>
   </mat-drawer-content>
 </mat-drawer-container>
+
+<zac-notities
+  *ngIf="notitieRechten?.lezen || notitieRechten?.wijzigen"
+  [zaakUuid]="zaak.uuid"
+  [notitieRechten]="notitieRechten"
+></zac-notities>
