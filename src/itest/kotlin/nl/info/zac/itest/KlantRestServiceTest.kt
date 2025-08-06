@@ -208,7 +208,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         } ],
                        "totaal" : 1.0
                     }
-                    """.trimIndent()
+                """.trimIndent()
             }
         }
         When("a search on companies by vestigingsnummer is performed") {
@@ -236,7 +236,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         } ],
                        "totaal" : 1.0
                     }
-                    """.trimIndent()
+                """.trimIndent()
             }
         }
         When("the list contactmomenten endpoint is called with the BSN of this test customer") {
