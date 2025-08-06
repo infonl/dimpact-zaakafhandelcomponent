@@ -274,7 +274,9 @@ class NotificationReceiver @Inject constructor(
         try {
             if (notification.action == Action.CREATE) {
                 when (notification.resource) {
-                    Resource.INFORMATIEOBJECT -> inboxDocumentenService.create(notification.resourceUrl.extractUuid())
+                    Resource.INFORMATIEOBJECT -> inboxDocumentenService.create(
+                        notification.resourceUrl.extractUuid()
+                    )
                     Resource.ZAAKINFORMATIEOBJECT -> inboxDocumentenService.delete(
                         notification.resourceUrl.extractUuid()
                     )

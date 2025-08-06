@@ -66,5 +66,5 @@ enum class MailTemplateVariables(val resolveVariableAsEmptyString: Boolean) {
         val DOCUMENT_SIGNALERING_VARIABELEN = ZAAK_SIGNALERING_VARIABELEN + DOCUMENT_VARIABELEN + DOCUMENT_BEHANDELAAR_VARIABELEN
     }
 
-    fun getVariable(): String = "{%s}".format(this)
+    fun getVariable() = "{$this}"
 }
