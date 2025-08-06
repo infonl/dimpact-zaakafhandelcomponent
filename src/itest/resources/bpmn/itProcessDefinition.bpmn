@@ -7,7 +7,7 @@
       <design:creationdate><![CDATA[2025-06-25T08:19:42.627Z]]></design:creationdate>
       <design:modificationdate><![CDATA[2025-07-30T09:01:45.471Z]]></design:modificationdate>
     </extensionElements>
-    <userTask id="summary" name="Summary" flowable:candidateUsers="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="summaryForm" flowable:formFieldValidation="false">
+    <userTask id="summary" name="Summary" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="summaryForm" flowable:formFieldValidation="false">
       <extensionElements>
         <flowable:static-form-key><![CDATA[summaryForm]]></flowable:static-form-key>
         <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
@@ -54,7 +54,7 @@
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </serviceTask>
-    <userTask id="testForm" name="Test form" flowable:candidateUsers="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="testForm" flowable:formFieldValidation="false">
+    <userTask id="testForm" name="Test form" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="testForm" flowable:formFieldValidation="false">
       <extensionElements>
         <flowable:static-form-key><![CDATA[testForm]]></flowable:static-form-key>
         <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
