@@ -122,23 +122,18 @@ open class ZaakVariabelenService @Inject constructor(
         setVariables(zaakUUID, zaakdata)
 
     @Suppress("TooGenericExceptionThrown")
-    private fun readCaseVariable(planItemInstance: PlanItemInstance, variableName: String): Any? {
+    private fun readCaseVariable(planItemInstance: PlanItemInstance, variableName: String) =
         cmmnRuntimeService.createCaseInstanceQuery()
             .caseInstanceId(planItemInstance.caseInstanceId)
             .includeCaseVariables()
-            .singleResult()?.let {
-                return it.caseVariables[variableName]
-            }
-        cmmnHistoryService.createHistoricCaseInstanceQuery()
-            .caseInstanceId(planItemInstance.caseInstanceId)
-            .includeCaseVariables()
-            .singleResult()?.let {
-                return it.caseVariables[variableName]
-            }
-        throw RuntimeException(
-            "No variable found with name '$variableName' for case instance id '${planItemInstance.caseInstanceId}'"
-        )
-    }
+            .singleResult()?.caseVariables[variableName]
+            ?: cmmnHistoryService.createHistoricCaseInstanceQuery()
+                .caseInstanceId(planItemInstance.caseInstanceId)
+                .includeCaseVariables()
+                .singleResult()?.caseVariables[variableName]
+            ?: throw RuntimeException(
+                "No variable found with name '$variableName' for case instance id '${planItemInstance.caseInstanceId}'"
+            )
 
     private fun findCaseVariable(zaakUUID: UUID, variableName: String) =
         findCaseVariables(zaakUUID)?.get(variableName)
@@ -172,11 +167,13 @@ open class ZaakVariabelenService @Inject constructor(
             .variableValueEquals(VAR_ZAAK_UUID, zaakUUID)
             .singleResult()?.let {
                 cmmnRuntimeService.setVariable(it.id, variableName, value)
-            } ?: bpmnRuntimeService.createProcessInstanceQuery()
-            .processInstanceBusinessKey(zaakUUID.toString())
-            .singleResult()?.let {
-                bpmnRuntimeService.setVariable(it.id, variableName, value)
-            } ?: throw RuntimeException("No case or process instance found for zaak with UUID: '$zaakUUID'")
+            }
+            ?: bpmnRuntimeService.createProcessInstanceQuery()
+                .processInstanceBusinessKey(zaakUUID.toString())
+                .singleResult()?.let {
+                    bpmnRuntimeService.setVariable(it.id, variableName, value)
+                }
+            ?: throw RuntimeException("No case or process instance found for zaak with UUID: '$zaakUUID'")
 
     @Suppress("TooGenericExceptionThrown")
     private fun setVariables(zaakUUID: UUID, variables: Map<String, Any>) =
@@ -184,21 +181,24 @@ open class ZaakVariabelenService @Inject constructor(
             .caseInstanceBusinessKey(zaakUUID.toString())
             .singleResult()?.let {
                 cmmnRuntimeService.setVariables(it.id, variables)
-            } ?: bpmnRuntimeService.createProcessInstanceQuery()
-            .processInstanceBusinessKey(zaakUUID.toString())
-            .singleResult()?.let {
-                bpmnRuntimeService.setVariables(it.id, variables)
-            } ?: throw RuntimeException("No case or process instance found for zaak with UUID: '$zaakUUID'")
+            }
+            ?: bpmnRuntimeService.createProcessInstanceQuery()
+                .processInstanceBusinessKey(zaakUUID.toString())
+                .singleResult()?.let {
+                    bpmnRuntimeService.setVariables(it.id, variables)
+                }
+            ?: throw RuntimeException("No case or process instance found for zaak with UUID: '$zaakUUID'")
 
     private fun removeVariable(zaakUUID: UUID, variableName: String) {
         cmmnRuntimeService.createCaseInstanceQuery()
             .caseInstanceBusinessKey(zaakUUID.toString())
             .singleResult()?.let {
                 cmmnRuntimeService.removeVariable(it.id, variableName)
-            } ?: bpmnRuntimeService.createProcessInstanceQuery()
-            .processInstanceBusinessKey(zaakUUID.toString())
-            .singleResult()?.let {
-                bpmnRuntimeService.removeVariable(it.id, variableName)
             }
+            ?: bpmnRuntimeService.createProcessInstanceQuery()
+                .processInstanceBusinessKey(zaakUUID.toString())
+                .singleResult()?.let {
+                    bpmnRuntimeService.removeVariable(it.id, variableName)
+                }
     }
 }
