@@ -2,45 +2,43 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.flowable;
+package net.atos.zac.flowable
 
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
-
-import org.apache.commons.collections4.MapUtils;
-import org.flowable.cmmn.api.CmmnHistoryService;
-import org.flowable.cmmn.api.CmmnRuntimeService;
-import org.flowable.cmmn.api.history.HistoricCaseInstance;
-import org.flowable.cmmn.api.runtime.CaseInstance;
-import org.flowable.cmmn.api.runtime.PlanItemInstance;
-import org.flowable.engine.HistoryService;
-import org.flowable.engine.RuntimeService;
-import org.flowable.engine.history.HistoricProcessInstance;
-import org.flowable.engine.runtime.ProcessInstance;
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.inject.Inject
+import jakarta.transaction.Transactional
+import org.apache.commons.collections4.MapUtils
+import org.flowable.cmmn.api.CmmnHistoryService
+import org.flowable.cmmn.api.CmmnRuntimeService
+import org.flowable.cmmn.api.runtime.PlanItemInstance
+import org.flowable.engine.HistoryService
+import org.flowable.engine.RuntimeService
+import java.time.ZonedDateTime
+import java.util.*
+import java.util.List
 
 @ApplicationScoped
 @Transactional
-public class ZaakVariabelenService {
-    public static final String VAR_ZAAK_UUID = "zaakUUID";
-    public static final String VAR_ZAAK_IDENTIFICATIE = "zaakIdentificatie";
-    public static final String VAR_ZAAKTYPE_UUUID = "zaaktypeUUID";
-    public static final String VAR_ZAAKTYPE_OMSCHRIJVING = "zaaktypeOmschrijving";
-    public static final String VAR_ONTVANGSTBEVESTIGING_VERSTUURD = "ontvangstbevestigingVerstuurd";
-    public static final String VAR_DATUMTIJD_OPGESCHORT = "datumTijdOpgeschort";
-    public static final String VAR_VERWACHTE_DAGEN_OPGESCHORT = "verwachteDagenOpgeschort";
-    public static final String VAR_ZAAK_USER = "zaakBehandelaar";
-    public static final String VAR_ZAAK_GROUP = "zaakGroep";
+open class ZaakVariabelenService @Inject constructor(
+    private val cmmnRuntimeService: CmmnRuntimeService,
+    private val cmmnHistoryService: CmmnHistoryService,
+    private val bpmnRuntimeService: RuntimeService,
+    private val bpmnHistoryService: HistoryService
+) {
 
-    // as used in the ZAC CMMN model
-    private static final String VAR_ONTVANKELIJK = "ontvankelijk";
-    public static final List<String> VARS = List.of(
+    companion object {
+        const val VAR_ZAAK_UUID: String = "zaakUUID"
+        const val VAR_ZAAK_IDENTIFICATIE: String = "zaakIdentificatie"
+        const val VAR_ZAAKTYPE_UUUID: String = "zaaktypeUUID"
+        const val VAR_ZAAKTYPE_OMSCHRIJVING: String = "zaaktypeOmschrijving"
+        const val VAR_ONTVANGSTBEVESTIGING_VERSTUURD: String = "ontvangstbevestigingVerstuurd"
+        const val VAR_DATUMTIJD_OPGESCHORT: String = "datumTijdOpgeschort"
+        const val VAR_VERWACHTE_DAGEN_OPGESCHORT: String = "verwachteDagenOpgeschort"
+        const val VAR_ZAAK_USER: String = "zaakBehandelaar"
+        const val VAR_ZAAK_GROUP: String = "zaakGroep"
+        private const val VAR_ONTVANKELIJK = "ontvankelijk"
+
+        val VARS = listOf(
             VAR_ZAAK_UUID,
             VAR_ZAAK_IDENTIFICATIE,
             VAR_ZAAKTYPE_UUUID,
@@ -49,30 +47,7 @@ public class ZaakVariabelenService {
             VAR_DATUMTIJD_OPGESCHORT,
             VAR_VERWACHTE_DAGEN_OPGESCHORT,
             VAR_ONTVANKELIJK
-    );
-
-    private CmmnRuntimeService cmmnRuntimeService;
-    private CmmnHistoryService cmmnHistoryService;
-    private RuntimeService bpmnRuntimeService;
-    private HistoryService bpmnHistoryService;
-
-    /**
-     * Default no-arg constructor, required by Weld.
-     */
-    public ZaakVariabelenService() {
-    }
-
-    @Inject
-    public ZaakVariabelenService(
-            CmmnRuntimeService cmmnRuntimeService,
-            CmmnHistoryService cmmnHistoryService,
-            RuntimeService bpmnRuntimeService,
-            HistoryService bpmnHistoryService
-    ) {
-        this.cmmnRuntimeService = cmmnRuntimeService;
-        this.cmmnHistoryService = cmmnHistoryService;
-        this.bpmnRuntimeService = bpmnRuntimeService;
-        this.bpmnHistoryService = bpmnHistoryService;
+        )
     }
 
     /**
@@ -82,220 +57,161 @@ public class ZaakVariabelenService {
      *
      * @param zaakUUID the zaak UUID
      */
-    public void deleteAllCaseVariables(final UUID zaakUUID) {
-        final CaseInstance caseInstance = cmmnRuntimeService.createCaseInstanceQuery()
-                .variableValueEquals(VAR_ZAAK_UUID, zaakUUID)
-                .singleResult();
-        if (caseInstance != null) {
-            cmmnRuntimeService.removeVariables(caseInstance.getId(), VARS);
-        }
-    }
-
-    public UUID readZaakUUID(final PlanItemInstance planItemInstance) {
-        return (UUID) readCaseVariable(planItemInstance, VAR_ZAAK_UUID);
-    }
-
-    public String readZaakIdentificatie(final PlanItemInstance planItemInstance) {
-        return (String) readCaseVariable(planItemInstance, VAR_ZAAK_IDENTIFICATIE);
-    }
-
-    public UUID readZaaktypeUUID(final PlanItemInstance planItemInstance) {
-        return (UUID) readCaseVariable(planItemInstance, VAR_ZAAKTYPE_UUUID);
-    }
-
-    public String readZaaktypeOmschrijving(final PlanItemInstance planItemInstance) {
-        return (String) readCaseVariable(planItemInstance, VAR_ZAAKTYPE_OMSCHRIJVING);
-    }
-
-    public Optional<Boolean> findOntvangstbevestigingVerstuurd(final UUID zaakUUID) {
-        final Object caseVariable = findCaseVariable(zaakUUID, VAR_ONTVANGSTBEVESTIGING_VERSTUURD);
-        return caseVariable != null ? Optional.of((Boolean) caseVariable) : Optional.empty();
-    }
-
-    public void setOntvangstbevestigingVerstuurd(final UUID zaakUUID, final Boolean ontvangstbevestigingVerstuurd) {
-        setVariable(zaakUUID, VAR_ONTVANGSTBEVESTIGING_VERSTUURD, ontvangstbevestigingVerstuurd);
-    }
-
-    public void setOntvankelijk(final PlanItemInstance planItemInstance, final Boolean ontvankelijk) {
-        setVariable(planItemInstance, VAR_ONTVANKELIJK, ontvankelijk);
-    }
-
-    public Optional<ZonedDateTime> findDatumtijdOpgeschort(final UUID zaakUUID) {
-        final Object caseVariable = findCaseVariable(zaakUUID, VAR_DATUMTIJD_OPGESCHORT);
-        return caseVariable != null ? Optional.of((ZonedDateTime) caseVariable) : Optional.empty();
-    }
-
-    public void setDatumtijdOpgeschort(final UUID zaakUUID, final ZonedDateTime datumtijOpgeschort) {
-        setVariable(zaakUUID, VAR_DATUMTIJD_OPGESCHORT, datumtijOpgeschort);
-    }
-
-    public void removeDatumtijdOpgeschort(final UUID zaakUUID) {
-        removeVariable(zaakUUID, VAR_DATUMTIJD_OPGESCHORT);
-    }
-
-    public Optional<Integer> findVerwachteDagenOpgeschort(final UUID zaakUUID) {
-        final Object caseVariable = findCaseVariable(zaakUUID, VAR_VERWACHTE_DAGEN_OPGESCHORT);
-        return caseVariable != null ? Optional.of((Integer) caseVariable) : Optional.empty();
-    }
-
-    public void setVerwachteDagenOpgeschort(final UUID zaakUUID, final Integer verwachteDagenOpgeschort) {
-        setVariable(zaakUUID, VAR_VERWACHTE_DAGEN_OPGESCHORT, verwachteDagenOpgeschort);
-    }
-
-    public void removeVerwachteDagenOpgeschort(final UUID zaakUUID) {
-        removeVariable(zaakUUID, VAR_VERWACHTE_DAGEN_OPGESCHORT);
-    }
-
-    public void setGroup(final UUID zaakUUID, final String group) {
-        setVariable(zaakUUID, VAR_ZAAK_GROUP, group);
-    }
-
-    public void setUser(final UUID zaakUUID, final String user) {
-        setVariable(zaakUUID, VAR_ZAAK_USER, user);
-    }
-
-    public void removeUser(final UUID zaakUUID) {
-        removeVariable(zaakUUID, VAR_ZAAK_USER);
-    }
-
-    public Map<String, Object> readZaakdata(final UUID zaakUUID) {
-        return MapUtils.emptyIfNull(findVariables(zaakUUID));
-    }
-
-    public Map<String, Object> readProcessZaakdata(final UUID zaakUUID) {
-        return MapUtils.emptyIfNull(findProcessVariables(zaakUUID));
-    }
-
-    public void setZaakdata(final UUID zaakUUID, final Map<String, Object> zaakdata) {
-        setVariables(zaakUUID, zaakdata);
-    }
-
-    private Object readCaseVariable(final PlanItemInstance planItemInstance, final String variableName) {
-        final CaseInstance caseInstance = cmmnRuntimeService.createCaseInstanceQuery()
-                .caseInstanceId(planItemInstance.getCaseInstanceId())
-                .includeCaseVariables()
-                .singleResult();
-        if (caseInstance != null) {
-            return caseInstance.getCaseVariables().get(variableName);
-        }
-        final HistoricCaseInstance historicCaseInstance = cmmnHistoryService.createHistoricCaseInstanceQuery()
-                .caseInstanceId(planItemInstance.getCaseInstanceId())
-                .includeCaseVariables()
-                .singleResult();
-        if (historicCaseInstance != null) {
-            return historicCaseInstance.getCaseVariables().get(variableName);
-        }
-        throw new RuntimeException(
-                String.format("No variable found with name '%s' for case instance id '%s'", variableName,
-                        planItemInstance.getCaseInstanceId()));
-    }
-
-    private Object findCaseVariable(final UUID zaakUUID, final String variableName) {
-        return MapUtils.emptyIfNull(findCaseVariables(zaakUUID)).get(variableName);
-    }
-
-    private Map<String, Object> findCaseVariables(final UUID zaakUUID) {
-        final CaseInstance caseInstance = cmmnRuntimeService.createCaseInstanceQuery()
-                .caseInstanceBusinessKey(zaakUUID.toString())
-                .includeCaseVariables()
-                .singleResult();
-        if (caseInstance != null) {
-            return caseInstance.getCaseVariables();
-        }
-        final HistoricCaseInstance historicCaseInstance = cmmnHistoryService.createHistoricCaseInstanceQuery()
-                .caseInstanceBusinessKey(zaakUUID.toString())
-                .includeCaseVariables()
-                .singleResult();
-        if (historicCaseInstance != null) {
-            return historicCaseInstance.getCaseVariables();
-        }
-        return null;
-    }
-
-    private Map<String, Object> findProcessVariables(final UUID zaakUUID) {
-        final ProcessInstance processInstance = bpmnRuntimeService.createProcessInstanceQuery()
-                .processInstanceBusinessKey(zaakUUID.toString())
-                .includeProcessVariables()
-                .singleResult();
-        if (processInstance != null) {
-            return processInstance.getProcessVariables();
-        }
-        final HistoricProcessInstance historicProcessInstance = bpmnHistoryService.createHistoricProcessInstanceQuery()
-                .processInstanceBusinessKey(zaakUUID.toString())
-                .includeProcessVariables()
-                .singleResult();
-        if (historicProcessInstance != null) {
-            return historicProcessInstance.getProcessVariables();
-        }
-        return null;
-    }
-
-    private Map<String, Object> findVariables(final UUID zaakUUID) {
-        Map<String, Object> caseVariables = findCaseVariables(zaakUUID);
-        if (caseVariables != null) {
-            return caseVariables;
-        }
-        return findProcessVariables(zaakUUID);
-    }
-
-    private void setVariable(final PlanItemInstance planItemInstance, final String variableName, final Object value) {
-        cmmnRuntimeService.setVariable(planItemInstance.getCaseInstanceId(), variableName, value);
-    }
-
-    private void setVariable(final UUID zaakUUID, final String variableName, final Object value) {
-        final CaseInstance caseInstance = cmmnRuntimeService.createCaseInstanceQuery()
-                .variableValueEquals(VAR_ZAAK_UUID, zaakUUID)
-                .singleResult();
-
-        if (caseInstance != null) {
-            cmmnRuntimeService.setVariable(caseInstance.getId(), variableName, value);
-        } else {
-            final ProcessInstance processInstance = bpmnRuntimeService.createProcessInstanceQuery()
-                    .processInstanceBusinessKey(zaakUUID.toString())
-                    .singleResult();
-            if (processInstance != null) {
-                bpmnRuntimeService.setVariable(processInstance.getId(), variableName, value);
-            } else {
-                throw new RuntimeException(
-                        String.format("No case or process instance found for zaak with UUID: '%s'", zaakUUID));
+    fun deleteAllCaseVariables(zaakUUID: UUID) =
+        cmmnRuntimeService.createCaseInstanceQuery()
+            .variableValueEquals(VAR_ZAAK_UUID, zaakUUID)
+            .singleResult()?.let {
+                cmmnRuntimeService.removeVariables(it.id, VARS)
             }
+
+    fun readZaakUUID(planItemInstance: PlanItemInstance): UUID =
+        readCaseVariable(planItemInstance, VAR_ZAAK_UUID) as UUID
+
+    fun readZaakIdentificatie(planItemInstance: PlanItemInstance) =
+        readCaseVariable(planItemInstance, VAR_ZAAK_IDENTIFICATIE) as String
+
+    fun readZaaktypeUUID(planItemInstance: PlanItemInstance) =
+        readCaseVariable(planItemInstance, VAR_ZAAKTYPE_UUUID) as UUID
+
+    fun readZaaktypeOmschrijving(planItemInstance: PlanItemInstance) =
+        readCaseVariable(planItemInstance, VAR_ZAAKTYPE_OMSCHRIJVING) as String?
+
+    fun findOntvangstbevestigingVerstuurd(zaakUUID: UUID): Boolean? =
+        findCaseVariable(zaakUUID, VAR_ONTVANGSTBEVESTIGING_VERSTUURD)?.let {
+            it as Boolean
         }
-    }
 
-    private void setVariables(final UUID zaakUUID, final Map<String, Object> variables) {
-        final CaseInstance caseInstance = cmmnRuntimeService.createCaseInstanceQuery()
-                .caseInstanceBusinessKey(zaakUUID.toString())
-                .singleResult();
+    fun setOntvangstbevestigingVerstuurd(zaakUUID: UUID, ontvangstbevestigingVerstuurd: Boolean) =
+        setVariable(zaakUUID, VAR_ONTVANGSTBEVESTIGING_VERSTUURD, ontvangstbevestigingVerstuurd)
 
-        if (caseInstance != null) {
-            cmmnRuntimeService.setVariables(caseInstance.getId(), variables);
-        } else {
-            final ProcessInstance processInstance = bpmnRuntimeService.createProcessInstanceQuery()
-                    .processInstanceBusinessKey(zaakUUID.toString())
-                    .singleResult();
-            if (processInstance != null) {
-                bpmnRuntimeService.setVariables(processInstance.getId(), variables);
-            } else {
-                throw new RuntimeException(
-                        String.format("No case or process instance found for zaak with UUID: '%s'", zaakUUID));
+    fun setOntvankelijk(planItemInstance: PlanItemInstance, ontvankelijk: Boolean) =
+        cmmnRuntimeService.setVariable(planItemInstance.caseInstanceId, VAR_ONTVANKELIJK, ontvankelijk)
+
+    fun findDatumtijdOpgeschort(zaakUUID: UUID) =
+        findCaseVariable(zaakUUID, VAR_DATUMTIJD_OPGESCHORT)?.let {
+            it as ZonedDateTime
+        }
+
+    fun setDatumtijdOpgeschort(zaakUUID: UUID, datumtijOpgeschort: ZonedDateTime) =
+        setVariable(zaakUUID, VAR_DATUMTIJD_OPGESCHORT, datumtijOpgeschort)
+
+    fun removeDatumtijdOpgeschort(zaakUUID: UUID) =
+        removeVariable(zaakUUID, VAR_DATUMTIJD_OPGESCHORT)
+
+    fun findVerwachteDagenOpgeschort(zaakUUID: UUID) =
+        findCaseVariable(zaakUUID, VAR_VERWACHTE_DAGEN_OPGESCHORT)?.let {
+            it as Int
+        }
+
+    fun setVerwachteDagenOpgeschort(zaakUUID: UUID, verwachteDagenOpgeschort: Int) =
+        setVariable(zaakUUID, VAR_VERWACHTE_DAGEN_OPGESCHORT, verwachteDagenOpgeschort)
+
+    fun removeVerwachteDagenOpgeschort(zaakUUID: UUID) =
+        removeVariable(zaakUUID, VAR_VERWACHTE_DAGEN_OPGESCHORT)
+
+    fun setGroup(zaakUUID: UUID, group: String) =
+        setVariable(zaakUUID, VAR_ZAAK_GROUP, group)
+
+    fun setUser(zaakUUID: UUID, user: String) =
+        setVariable(zaakUUID, VAR_ZAAK_USER, user)
+
+    fun removeUser(zaakUUID: UUID) =
+        removeVariable(zaakUUID, VAR_ZAAK_USER)
+
+    fun readZaakdata(zaakUUID: UUID) =
+        findVariables(zaakUUID) ?: emptyMap()
+
+    fun readProcessZaakdata(zaakUUID: UUID) =
+        findProcessVariables(zaakUUID) ?: emptyMap()
+
+    fun setZaakdata(zaakUUID: UUID, zaakdata: Map<String, Any>) =
+        setVariables(zaakUUID, zaakdata)
+
+    private fun readCaseVariable(planItemInstance: PlanItemInstance, variableName: String): Any? {
+        cmmnRuntimeService.createCaseInstanceQuery()
+            .caseInstanceId(planItemInstance.caseInstanceId)
+            .includeCaseVariables()
+            .singleResult()?.let {
+                return it.caseVariables[variableName]
             }
-        }
-    }
-
-    private void removeVariable(final UUID zaakUUID, final String variableName) {
-        final CaseInstance caseInstance = cmmnRuntimeService.createCaseInstanceQuery()
-                .caseInstanceBusinessKey(zaakUUID.toString())
-                .singleResult();
-
-        if (caseInstance != null) {
-            cmmnRuntimeService.removeVariable(caseInstance.getId(), variableName);
-        } else {
-            final ProcessInstance processInstance = bpmnRuntimeService.createProcessInstanceQuery()
-                    .processInstanceBusinessKey(zaakUUID.toString())
-                    .singleResult();
-            if (processInstance != null) {
-                bpmnRuntimeService.removeVariable(processInstance.getId(), variableName);
+        cmmnHistoryService.createHistoricCaseInstanceQuery()
+            .caseInstanceId(planItemInstance.caseInstanceId)
+            .includeCaseVariables()
+            .singleResult()?.let {
+                return it.caseVariables[variableName]
             }
-        }
+        throw RuntimeException("No variable found with name '$variableName' for case instance id '${planItemInstance.caseInstanceId}'")
     }
+
+    private fun findCaseVariable(zaakUUID: UUID, variableName: String) =
+        findCaseVariables(zaakUUID)?.get(variableName)
+
+    private fun findCaseVariables(zaakUUID: UUID): Map<String, Any>? {
+        cmmnRuntimeService.createCaseInstanceQuery()
+            .caseInstanceBusinessKey(zaakUUID.toString())
+            .includeCaseVariables()
+            .singleResult()?.let {
+                return it.caseVariables
+            }
+        cmmnHistoryService.createHistoricCaseInstanceQuery()
+            .caseInstanceBusinessKey(zaakUUID.toString())
+            .includeCaseVariables()
+            .singleResult()?.let {
+                return it.caseVariables
+            }
+        return null
+    }
+
+    private fun findProcessVariables(zaakUUID: UUID): Map<String, Any>? {
+        bpmnRuntimeService.createProcessInstanceQuery()
+            .processInstanceBusinessKey(zaakUUID.toString())
+            .includeProcessVariables()
+            .singleResult()?.let {
+                return it.processVariables
+            }
+        bpmnHistoryService.createHistoricProcessInstanceQuery()
+            .processInstanceBusinessKey(zaakUUID.toString())
+            .includeProcessVariables()
+            .singleResult()?.let {
+                return it.getProcessVariables()
+            }
+        return null
+    }
+
+    private fun findVariables(zaakUUID: UUID) =
+        findCaseVariables(zaakUUID) ?: findProcessVariables(zaakUUID)
+
+    private fun setVariable(zaakUUID: UUID, variableName: String, value: Any) =
+        cmmnRuntimeService.createCaseInstanceQuery()
+            .variableValueEquals(VAR_ZAAK_UUID, zaakUUID)
+            .singleResult()?.let {
+                cmmnRuntimeService.setVariable(it.id, variableName, value)
+            } ?: bpmnRuntimeService.createProcessInstanceQuery()
+            .processInstanceBusinessKey(zaakUUID.toString())
+            .singleResult()?.let {
+                bpmnRuntimeService.setVariable(it.id, variableName, value)
+            } ?: throw RuntimeException("No case or process instance found for zaak with UUID: '$zaakUUID'")
+
+    private fun setVariables(zaakUUID: UUID, variables: Map<String, Any>) =
+        cmmnRuntimeService.createCaseInstanceQuery()
+            .caseInstanceBusinessKey(zaakUUID.toString())
+            .singleResult()?.let {
+                cmmnRuntimeService.setVariables(it.id, variables)
+            } ?: bpmnRuntimeService.createProcessInstanceQuery()
+            .processInstanceBusinessKey(zaakUUID.toString())
+            .singleResult()?.let {
+                bpmnRuntimeService.setVariables(it.id, variables)
+            } ?: throw RuntimeException("No case or process instance found for zaak with UUID: '$zaakUUID'")
+
+    private fun removeVariable(zaakUUID: UUID, variableName: String) =
+        cmmnRuntimeService.createCaseInstanceQuery()
+            .caseInstanceBusinessKey(zaakUUID.toString())
+            .singleResult()?.let {
+                cmmnRuntimeService.removeVariable(it.id, variableName)
+            } ?: bpmnRuntimeService.createProcessInstanceQuery()
+            .processInstanceBusinessKey(zaakUUID.toString())
+            .singleResult()?.let {
+                bpmnRuntimeService.removeVariable(it.id, variableName)
+            }
+
 }

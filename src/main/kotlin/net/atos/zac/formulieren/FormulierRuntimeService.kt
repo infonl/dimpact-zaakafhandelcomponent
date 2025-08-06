@@ -135,7 +135,7 @@ class FormulierRuntimeService @Inject constructor(
         markDocumentAsSent(formulierData)
         markDocumentAsSigned(formulierData)
 
-        val zaakVariablen = zaakVariabelenService.readProcessZaakdata(zaak.uuid)
+        val zaakVariablen = zaakVariabelenService.readProcessZaakdata(zaak.uuid).toMutableMap()
         zaakVariablen.putAll(formulierData.zaakVariabelen)
         zaakVariabelenService.setZaakdata(zaak.uuid, zaakVariablen)
 

@@ -40,8 +40,8 @@ import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_GROUP
-import net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_USER
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
@@ -460,12 +460,10 @@ class ZaakRestService @Inject constructor(
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
         assertPolicy(zaakRechten.lezen)
-        val zaakOpschorting = RESTZaakOpschorting()
-        zaakVariabelenService.findDatumtijdOpgeschort(zaakUUID)
-            .ifPresent { datumtijdOpgeschort -> zaakOpschorting.vanafDatumTijd = datumtijdOpgeschort }
-        zaakVariabelenService.findVerwachteDagenOpgeschort(zaakUUID)
-            .ifPresent { verwachteDagenOpgeschort -> zaakOpschorting.duurDagen = verwachteDagenOpgeschort }
-        return zaakOpschorting
+        return RESTZaakOpschorting().apply {
+            vanafDatumTijd = zaakVariabelenService.findDatumtijdOpgeschort(zaakUUID)
+            duurDagen = zaakVariabelenService.findVerwachteDagenOpgeschort(zaakUUID) ?: 0
+        }
     }
 
     @PATCH
@@ -588,7 +586,9 @@ class ZaakRestService @Inject constructor(
     fun updateZaakdata(restZaak: RestZaak): RestZaak {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaak.uuid)
         assertPolicy(policyService.readZaakRechten(zaak, zaakType).wijzigen)
-        zaakVariabelenService.setZaakdata(restZaak.uuid, restZaak.zaakdata)
+        restZaak.zaakdata?.let {
+            zaakVariabelenService.setZaakdata(restZaak.uuid, it)
+        }
         return restZaak
     }
 
