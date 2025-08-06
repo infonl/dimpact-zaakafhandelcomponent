@@ -6,7 +6,7 @@ package net.atos.zac.app.admin.model;
 
 import java.util.Set;
 
-import net.atos.zac.mailtemplates.model.MailTemplateVariables;
+import nl.info.zac.mailtemplates.model.MailTemplateVariables;
 
 public class RESTMailtemplate {
 
