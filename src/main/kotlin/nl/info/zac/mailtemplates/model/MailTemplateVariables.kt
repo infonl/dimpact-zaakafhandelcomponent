@@ -1,0 +1,70 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package nl.info.zac.mailtemplates.model
+
+enum class MailTemplateVariables(val resolveVariableAsEmptyString: Boolean) {
+    DOCUMENT_TITEL(false),
+    DOCUMENT_LINK(false),
+    DOCUMENT_URL(false),
+    GEMEENTE(false),
+    TAAK_BEHANDELAAR_GROEP(false),
+    TAAK_BEHANDELAAR_MEDEWERKER(true),
+    TAAK_FATALEDATUM(false),
+    TAAK_LINK(false),
+    TAAK_URL(false),
+    ZAAK_BEHANDELAAR_GROEP(false),
+    ZAAK_BEHANDELAAR_MEDEWERKER(true),
+    ZAAK_FATALEDATUM(false),
+    ZAAK_INITIATOR(true),
+    ZAAK_INITIATOR_ADRES(true),
+    ZAAK_LINK(false),
+    ZAAK_NUMMER(false),
+    ZAAK_OMSCHRIJVING(false),
+    ZAAK_REGISTRATIEDATUM(false),
+    ZAAK_STARTDATUM(false),
+    ZAAK_STATUS(false),
+    ZAAK_STREEFDATUM(true),
+    ZAAK_TOELICHTING(true),
+    ZAAK_TYPE(false),
+    ZAAK_URL(false);
+
+    companion object {
+        val GEMEENTE_VARIABELEN = setOf(GEMEENTE)
+        val ZAAK_VARIABELEN = setOf(
+            ZAAK_NUMMER,
+            ZAAK_TYPE,
+            ZAAK_STATUS,
+            ZAAK_REGISTRATIEDATUM,
+            ZAAK_STARTDATUM,
+            ZAAK_STREEFDATUM,
+            ZAAK_FATALEDATUM,
+            ZAAK_OMSCHRIJVING,
+            ZAAK_TOELICHTING
+        )
+        val TAAK_VARIABELEN = setOf(TAAK_FATALEDATUM)
+        val DOCUMENT_VARIABELEN = setOf(DOCUMENT_TITEL)
+        val ZAAK_INITIATOR_VARIABELEN = setOf(ZAAK_INITIATOR, ZAAK_INITIATOR_ADRES)
+        val ZAAK_BEHANDELAAR_VARIABELEN = setOf(
+            ZAAK_URL,
+            ZAAK_LINK,
+            ZAAK_BEHANDELAAR_GROEP,
+            ZAAK_BEHANDELAAR_MEDEWERKER
+        )
+        val TAAK_BEHANDELAAR_VARIABELEN = setOf(
+            TAAK_URL,
+            TAAK_LINK,
+            TAAK_BEHANDELAAR_GROEP,
+            TAAK_BEHANDELAAR_MEDEWERKER
+        )
+        val DOCUMENT_BEHANDELAAR_VARIABELEN = setOf(DOCUMENT_URL, DOCUMENT_LINK)
+        val ZAAK_VOORTGANG_VARIABELEN = GEMEENTE_VARIABELEN + ZAAK_VARIABELEN + ZAAK_INITIATOR_VARIABELEN
+        val ACTIE_VARIABELEN = ZAAK_VARIABELEN + ZAAK_INITIATOR_VARIABELEN
+        val ZAAK_SIGNALERING_VARIABELEN = ZAAK_VARIABELEN + ZAAK_BEHANDELAAR_VARIABELEN
+        val TAAK_SIGNALERING_VARIABELEN = ZAAK_SIGNALERING_VARIABELEN + TAAK_VARIABELEN + TAAK_BEHANDELAAR_VARIABELEN
+        val DOCUMENT_SIGNALERING_VARIABELEN = ZAAK_SIGNALERING_VARIABELEN + DOCUMENT_VARIABELEN + DOCUMENT_BEHANDELAAR_VARIABELEN
+    }
+
+    fun getVariable() = "{$this}"
+}

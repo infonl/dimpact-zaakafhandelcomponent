@@ -8,9 +8,10 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import net.atos.zac.mailtemplates.model.Mail
 import net.atos.zac.util.ValidationUtil
 import nl.info.zac.mailtemplates.exception.MailTemplateNotFoundException
+import nl.info.zac.mailtemplates.model.Mail
+import nl.info.zac.mailtemplates.model.Mail.Companion.LINKABLE_MAILS
 import nl.info.zac.mailtemplates.model.MailTemplate
 import nl.info.zac.mailtemplates.model.MailTemplate.Companion.MAIL_TEMPLATE_NAME
 import nl.info.zac.util.AllOpen
@@ -49,7 +50,7 @@ class MailTemplateService @Inject constructor(
     fun listKoppelbareMailtemplates(): List<MailTemplate> {
         val query = entityManager.criteriaBuilder.createQuery(MailTemplate::class.java).apply {
             val root = from(MailTemplate::class.java)
-            where(root.get<Any>(MailTemplate.MAIL).`in`(Mail.getKoppelbareMails()))
+            where(root.get<Any>(MailTemplate.MAIL).`in`(LINKABLE_MAILS))
         }
         return entityManager.createQuery(query).resultList
     }
