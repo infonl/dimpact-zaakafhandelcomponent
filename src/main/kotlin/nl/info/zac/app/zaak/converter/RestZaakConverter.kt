@@ -142,7 +142,6 @@ class RestZaakConverter @Inject constructor(
                     val identificatie = initiator.betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie
                     if (identificatie?.vestigingsNummer?.isNotBlank() == true) identificatie?.kvkNummer else null
                 }
-
                 else -> null
             },
             vestigingsNummer = when (initiator?.betrokkeneType) {
@@ -201,9 +200,8 @@ class RestZaakConverter @Inject constructor(
                     reden = verlengGegevens.redenVerlenging
                     // 'duur' has the ISO-8601 period format ('P(n)Y(n)M(n)D') in the ZGW ZRC API,
                     // so we use [Period.toString] to convert the duration to that format
-                    duur =
-                        zaak.verlenging?.duur?.let { Period.ofDays(it.toInt() + verlengGegevens.duurDagen).toString() }
-                            ?: Period.ofDays(verlengGegevens.duurDagen).toString()
+                    duur = zaak.verlenging?.duur?.let { Period.ofDays(it.toInt() + verlengGegevens.duurDagen).toString() }
+                        ?: Period.ofDays(verlengGegevens.duurDagen).toString()
                 }
             }
         }
