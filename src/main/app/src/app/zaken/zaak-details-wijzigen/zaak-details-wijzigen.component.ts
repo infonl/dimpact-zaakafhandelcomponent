@@ -302,6 +302,14 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
     const isSameGroup = zaak.groep?.id === this.zaak.groep?.id;
     if (isSameBehandelaar && isSameGroup) return EMPTY;
 
+    if (zaak.behandelaar?.id === this.loggedInUser.id) {
+      return this.zakenService.toekennenAanIngelogdeMedewerker({
+        zaakUUID: this.zaak.uuid,
+        groepId: zaak.groep?.id as string,
+        reden: reason,
+      });
+    }
+
     return this.zakenService.toekennen({
       zaakUUID: this.zaak.uuid,
       groepId: zaak.groep?.id as string,

@@ -598,74 +598,19 @@ class ZaakRestService @Inject constructor(
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
         assertPolicy(zaakRechten.toekennen)
 
-        restZaakAssignmentData.assigneeUserName?.let { behandelaarId ->
-            restZaakAssignmentData.groupId.let { groepId ->
-                identityService.validateIfUserIsInGroup(behandelaarId, groepId)
-            }
-        }
+        validateUserInGroup(restZaakAssignmentData.assigneeUserName, restZaakAssignmentData.groupId)
 
         val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
             ?.betrokkeneIdentificatie?.identificatie
         val (user, userUpdated) = assignUser(zaak, restZaakAssignmentData, behandelaar)
-        val (group, groupUpdated) = assignGroup(zaak, restZaakAssignmentData)
+        val (group, groupUpdated) = assignGroup(zaak, restZaakAssignmentData.groupId, restZaakAssignmentData.reason)
         if (bpmnService.isProcessDriven(zaak.uuid)) {
-            changeZaakDataGroupAndUser(zaak.uuid, group, user)
+            changeZaakDataAssignment(zaak.uuid, group, user)
         }
         if (userUpdated || groupUpdated) {
             indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
         }
         return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
-    }
-
-    private fun assignUser(
-        zaak: Zaak,
-        restZaakAssignmentData: RestZaakAssignmentData,
-        behandelaar: String?
-    ): Pair<User?, Boolean> {
-        var user: User? = null
-        var userUpdated = false
-        restZaakAssignmentData.assigneeUserName?.takeIf { it.isNotEmpty() }?.let {
-            user = identityService.readUser(it)
-            if (behandelaar != restZaakAssignmentData.assigneeUserName) {
-                zrcClientService.updateRol(
-                    zaak,
-                    zaakService.bepaalRolMedewerker(user, zaak),
-                    restZaakAssignmentData.reason
-                )
-                userUpdated = true
-            }
-        } ?: zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, restZaakAssignmentData.reason).also {
-            userUpdated = true
-        }
-        return Pair(user, userUpdated)
-    }
-
-    private fun assignGroup(
-        zaak: Zaak,
-        restZaakAssignmentData: RestZaakAssignmentData
-    ): Pair<Group, Boolean> {
-        var groupUpdated = false
-        val group = identityService.readGroup(restZaakAssignmentData.groupId)
-        zgwApiService.findGroepForZaak(zaak)?.betrokkeneIdentificatie?.identificatie.let { currentGroupId ->
-            // if the zaak is not already assigned to the requested group, assign it to this group
-            if (currentGroupId == null || currentGroupId != restZaakAssignmentData.groupId) {
-                val role = zaakService.bepaalRolGroep(group, zaak)
-                zrcClientService.updateRol(zaak, role, restZaakAssignmentData.reason)
-                groupUpdated = true
-            }
-        }
-        return Pair(group, groupUpdated)
-    }
-
-    private fun changeZaakDataGroupAndUser(
-        zaakUuid: UUID,
-        group: Group,
-        user: User?
-    ) {
-        zaakVariabelenService.setGroup(zaakUuid, group.name)
-        user?.let {
-            zaakVariabelenService.setUser(zaakUuid, it.getFullName())
-        } ?: zaakVariabelenService.removeUser(zaakUuid)
     }
 
     @PUT
@@ -676,11 +621,19 @@ class ZaakRestService @Inject constructor(
         assertPolicy(policyService.readWerklijstRechten().zakenTaken)
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
-        assignLoggedInUserToZaak(
+        assertPolicy(zaak.isOpen() && zaakRechten.toekennen)
+        validateUserInGroup(loggedInUserInstance.get().id, restZaakAssignmentToLoggedInUserData.groupId)
+
+        val user = assignLoggedInUserToZaak(
             zaak = zaak,
-            zaakRechten = zaakRechten,
             reason = restZaakAssignmentToLoggedInUserData.reason,
         )
+        val (group) = assignGroup(
+            zaak = zaak,
+            groupId = restZaakAssignmentToLoggedInUserData.groupId,
+            reason = restZaakAssignmentToLoggedInUserData.reason
+        )
+        changeZaakDataAssignment(zaak.uuid, group, user)
         indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
         return restZaakOverzichtConverter.convert(zaak)
     }
@@ -887,11 +840,19 @@ class ZaakRestService @Inject constructor(
     ): RestZaak {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
-        assignLoggedInUserToZaak(
+        assertPolicy(zaak.isOpen() && zaakRechten.toekennen)
+        validateUserInGroup(loggedInUserInstance.get().id, restZaakAssignmentToLoggedInUserData.groupId)
+
+        val user = assignLoggedInUserToZaak(
             zaak = zaak,
-            zaakRechten = zaakRechten,
             reason = restZaakAssignmentToLoggedInUserData.reason
         )
+        val (group) = assignGroup(
+            zaak = zaak,
+            groupId = restZaakAssignmentToLoggedInUserData.groupId,
+            reason = restZaakAssignmentToLoggedInUserData.reason
+        )
+        changeZaakDataAssignment(zaak.uuid, group, user)
         return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
     }
 
@@ -1140,19 +1101,74 @@ class ZaakRestService @Inject constructor(
 
     private fun datumWaarschuwing(vandaag: LocalDate, dagen: Int): LocalDate = vandaag.plusDays(dagen + 1L)
 
-    private fun assignLoggedInUserToZaak(
-        zaak: Zaak,
-        zaakRechten: ZaakRechten,
-        reason: String?
-    ) {
-        assertPolicy(zaak.isOpen() && zaakRechten.toekennen)
-        val user = identityService.readUser(loggedInUserInstance.get().id)
-        zrcClientService.updateRol(
-            zaak = zaak,
-            rol = zaakService.bepaalRolMedewerker(user, zaak),
-            toelichting = reason
-        )
+    private fun validateUserInGroup(userName: String?, groupId: String) {
+        userName?.let { behandelaarId ->
+            groupId.let { groepId ->
+                identityService.validateIfUserIsInGroup(behandelaarId, groepId)
+            }
+        }
     }
+
+    private fun assignUser(
+        zaak: Zaak,
+        restZaakAssignmentData: RestZaakAssignmentData,
+        behandelaar: String?
+    ): Pair<User?, Boolean> {
+        var user: User? = null
+        var userUpdated = false
+        restZaakAssignmentData.assigneeUserName?.takeIf { it.isNotEmpty() }?.let {
+            user = identityService.readUser(it)
+            if (behandelaar != restZaakAssignmentData.assigneeUserName) {
+                zrcClientService.updateRol(
+                    zaak,
+                    zaakService.bepaalRolMedewerker(user, zaak),
+                    restZaakAssignmentData.reason
+                )
+                userUpdated = true
+            }
+        } ?: zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, restZaakAssignmentData.reason).also {
+            userUpdated = true
+        }
+        return Pair(user, userUpdated)
+    }
+
+    private fun assignGroup(
+        zaak: Zaak,
+        groupId: String,
+        reason: String?
+    ): Pair<Group, Boolean> {
+        var groupUpdated = false
+        val group = identityService.readGroup(groupId)
+        zgwApiService.findGroepForZaak(zaak)?.betrokkeneIdentificatie?.identificatie.let { currentGroupId ->
+            // if the zaak is not already assigned to the requested group, assign it to this group
+            if (currentGroupId == null || currentGroupId != groupId) {
+                val role = zaakService.bepaalRolGroep(group, zaak)
+                zrcClientService.updateRol(zaak, role, reason)
+                groupUpdated = true
+            }
+        }
+        return Pair(group, groupUpdated)
+    }
+
+    private fun changeZaakDataAssignment(
+        zaakUuid: UUID,
+        group: Group,
+        user: User?
+    ) {
+        zaakVariabelenService.setGroup(zaakUuid, group.name)
+        user?.let {
+            zaakVariabelenService.setUser(zaakUuid, it.getFullName())
+        } ?: zaakVariabelenService.removeUser(zaakUuid)
+    }
+
+    private fun assignLoggedInUserToZaak(zaak: Zaak, reason: String?) =
+        identityService.readUser(loggedInUserInstance.get().id).also {
+            zrcClientService.updateRol(
+                zaak = zaak,
+                rol = zaakService.bepaalRolMedewerker(it, zaak),
+                toelichting = reason
+            )
+        }
 
     private fun isWaarschuwing(
         zaak: Zaak,
