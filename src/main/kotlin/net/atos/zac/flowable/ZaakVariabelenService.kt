@@ -30,20 +30,22 @@ open class ZaakVariabelenService @Inject constructor(
 ) {
 
     companion object {
-        const val VAR_ZAAK_UUID: String = "zaakUUID"
-        const val VAR_ZAAK_IDENTIFICATIE: String = "zaakIdentificatie"
-        const val VAR_ZAAKTYPE_UUUID: String = "zaaktypeUUID"
-        const val VAR_ZAAKTYPE_OMSCHRIJVING: String = "zaaktypeOmschrijving"
-        const val VAR_ONTVANGSTBEVESTIGING_VERSTUURD: String = "ontvangstbevestigingVerstuurd"
-        const val VAR_DATUMTIJD_OPGESCHORT: String = "datumTijdOpgeschort"
-        const val VAR_VERWACHTE_DAGEN_OPGESCHORT: String = "verwachteDagenOpgeschort"
-        const val VAR_ZAAK_USER: String = "zaakBehandelaar"
-        const val VAR_ZAAK_GROUP: String = "zaakGroep"
+        const val VAR_ZAAK_UUID = "zaakUUID"
+        const val VAR_ZAAK_IDENTIFICATIE = "zaakIdentificatie"
+        const val VAR_ZAAKTYPE_UUUID = "zaaktypeUUID"
+        const val VAR_ZAAKTYPE_OMSCHRIJVING = "zaaktypeOmschrijving"
+        const val VAR_ONTVANGSTBEVESTIGING_VERSTUURD = "ontvangstbevestigingVerstuurd"
+        const val VAR_DATUMTIJD_OPGESCHORT = "datumTijdOpgeschort"
+        const val VAR_VERWACHTE_DAGEN_OPGESCHORT = "verwachteDagenOpgeschort"
+        const val VAR_ZAAK_USER = "zaakBehandelaar"
+        const val VAR_ZAAK_GROUP = "zaakGroep"
         private const val VAR_ONTVANKELIJK = "ontvankelijk"
 
-        val VARS = listOf(
+        val ALL_ZAAK_VARIABLE_NAMES = listOf(
             VAR_ZAAK_UUID,
             VAR_ZAAK_IDENTIFICATIE,
+            VAR_ZAAK_USER,
+            VAR_ZAAK_GROUP,
             VAR_ZAAKTYPE_UUUID,
             VAR_ZAAKTYPE_OMSCHRIJVING,
             VAR_ONTVANGSTBEVESTIGING_VERSTUURD,
@@ -64,7 +66,7 @@ open class ZaakVariabelenService @Inject constructor(
         cmmnRuntimeService.createCaseInstanceQuery()
             .variableValueEquals(VAR_ZAAK_UUID, zaakUUID)
             .singleResult()?.let {
-                cmmnRuntimeService.removeVariables(it.id, VARS)
+                cmmnRuntimeService.removeVariables(it.id, ALL_ZAAK_VARIABLE_NAMES)
             }
     }
 

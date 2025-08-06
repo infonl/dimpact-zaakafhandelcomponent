@@ -136,7 +136,6 @@ import org.apache.commons.collections4.CollectionUtils
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.stream.Collectors
 import java.util.stream.Stream
 
@@ -607,13 +606,12 @@ class ZaakRestService @Inject constructor(
 
         val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
             ?.betrokkeneIdentificatie?.identificatie
-        val isUpdated = AtomicBoolean(false)
-        val user = assignUser(zaak, restZaakAssignmentData, behandelaar, isUpdated)
-        val group = assignGroup(zaak, restZaakAssignmentData, isUpdated)
+        val (user, userUpdated) = assignUser(zaak, restZaakAssignmentData, behandelaar)
+        val (group, groupUpdated) = assignGroup(zaak, restZaakAssignmentData)
         if (bpmnService.isProcessDriven(zaak.uuid)) {
             changeZaakDataGroupAndUser(zaak.uuid, group, user)
         }
-        if (isUpdated.get()) {
+        if (userUpdated || groupUpdated) {
             indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
         }
         return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
@@ -622,10 +620,10 @@ class ZaakRestService @Inject constructor(
     private fun assignUser(
         zaak: Zaak,
         restZaakAssignmentData: RestZaakAssignmentData,
-        behandelaar: String?,
-        isUpdated: AtomicBoolean
-    ): User? {
+        behandelaar: String?
+    ): Pair<User?, Boolean> {
         var user: User? = null
+        var userUpdated = false
         restZaakAssignmentData.assigneeUserName?.takeIf { it.isNotEmpty() }?.let {
             user = identityService.readUser(it)
             if (behandelaar != restZaakAssignmentData.assigneeUserName) {
@@ -634,29 +632,30 @@ class ZaakRestService @Inject constructor(
                     zaakService.bepaalRolMedewerker(user, zaak),
                     restZaakAssignmentData.reason
                 )
-                isUpdated.set(true)
+                userUpdated = true
             }
         } ?: zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, restZaakAssignmentData.reason).also {
-            isUpdated.set(true)
+            userUpdated = true
         }
-        return user
+        return Pair(user, userUpdated)
     }
 
     private fun assignGroup(
         zaak: Zaak,
-        restZaakAssignmentData: RestZaakAssignmentData,
-        isUpdated: AtomicBoolean
-    ) =
-        identityService.readGroup(restZaakAssignmentData.groupId).also {
-            zgwApiService.findGroepForZaak(zaak)?.betrokkeneIdentificatie?.identificatie.let { currentGroupId ->
-                // if the zaak is not already assigned to the requested group, assign it to this group
-                if (currentGroupId == null || currentGroupId != restZaakAssignmentData.groupId) {
-                    val role = zaakService.bepaalRolGroep(it, zaak)
-                    zrcClientService.updateRol(zaak, role, restZaakAssignmentData.reason)
-                    isUpdated.set(true)
-                }
+        restZaakAssignmentData: RestZaakAssignmentData
+    ): Pair<Group, Boolean> {
+        var groupUpdated = false
+        val group = identityService.readGroup(restZaakAssignmentData.groupId)
+        zgwApiService.findGroepForZaak(zaak)?.betrokkeneIdentificatie?.identificatie.let { currentGroupId ->
+            // if the zaak is not already assigned to the requested group, assign it to this group
+            if (currentGroupId == null || currentGroupId != restZaakAssignmentData.groupId) {
+                val role = zaakService.bepaalRolGroep(group, zaak)
+                zrcClientService.updateRol(zaak, role, restZaakAssignmentData.reason)
+                groupUpdated = true
             }
         }
+        return Pair(group, groupUpdated)
+    }
 
     private fun changeZaakDataGroupAndUser(
         zaakUuid: UUID,
@@ -1053,7 +1052,7 @@ class ZaakRestService @Inject constructor(
 
     @GET
     @Path("procesvariabelen")
-    fun listProcesVariabelen(): List<String> = ZaakVariabelenService.VARS
+    fun listProcesVariabelen(): List<String> = ZaakVariabelenService.ALL_ZAAK_VARIABLE_NAMES
 
     private fun createVestigingIdentificationString(kvkNummer: String?, vestigingsnummer: String?): String =
         listOfNotNull(kvkNummer, vestigingsnummer).joinToString(VESTIGING_IDENTIFICATIE_DELIMITER)
