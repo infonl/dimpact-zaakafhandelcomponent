@@ -204,15 +204,22 @@ Then(
 );
 
 Then(
-  "{string} sees that the summary task is started",
+  "{string} sees that the summary task is started with group {string} and user {string}",
   { timeout: TWO_MINUTES_IN_MS },
-  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+  async function (
+      this: CustomWorld,
+      user: z.infer<typeof worldUsers>,
+      groupName: string,
+      userName: string,
+  ) {
     await expect(
       this.page.getByRole("cell", { name: "Summary" }),
     ).toBeVisible();
     await expect(
       this.page.locator("span").filter({ hasText: "Niet toegekend" }).nth(1),
     ).toBeVisible();
+    await expect(this.page.getByRole("cell", { name: groupName })).toBeVisible();
+    await expect(this.page.getByRole("cell", { name: userName })).toBeVisible();
   },
 );
 
