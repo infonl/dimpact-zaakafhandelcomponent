@@ -17,6 +17,7 @@ import java.util.UUID
 
 @ApplicationScoped
 @Transactional
+@Suppress("TooManyFunctions")
 open class ZaakVariabelenService @Inject constructor(
     private val cmmnRuntimeService: CmmnRuntimeService,
     private val cmmnHistoryService: CmmnHistoryService,
@@ -55,24 +56,19 @@ open class ZaakVariabelenService @Inject constructor(
      *
      * @param zaakUUID the zaak UUID
      */
-    fun deleteAllCaseVariables(zaakUUID: UUID) =
+    fun deleteAllCaseVariables(zaakUUID: UUID) {
         cmmnRuntimeService.createCaseInstanceQuery()
             .variableValueEquals(VAR_ZAAK_UUID, zaakUUID)
             .singleResult()?.let {
                 cmmnRuntimeService.removeVariables(it.id, VARS)
             }
+    }
 
     fun readZaakUUID(planItemInstance: PlanItemInstance): UUID =
         readCaseVariable(planItemInstance, VAR_ZAAK_UUID) as UUID
 
-    fun readZaakIdentificatie(planItemInstance: PlanItemInstance) =
-        readCaseVariable(planItemInstance, VAR_ZAAK_IDENTIFICATIE) as String
-
     fun readZaaktypeUUID(planItemInstance: PlanItemInstance) =
         readCaseVariable(planItemInstance, VAR_ZAAKTYPE_UUUID) as UUID
-
-    fun readZaaktypeOmschrijving(planItemInstance: PlanItemInstance) =
-        readCaseVariable(planItemInstance, VAR_ZAAKTYPE_OMSCHRIJVING) as String?
 
     fun findOntvangstbevestigingVerstuurd(zaakUUID: UUID): Boolean? =
         findCaseVariable(zaakUUID, VAR_ONTVANGSTBEVESTIGING_VERSTUURD)?.let {
@@ -125,6 +121,7 @@ open class ZaakVariabelenService @Inject constructor(
     fun setZaakdata(zaakUUID: UUID, zaakdata: Map<String, Any>) =
         setVariables(zaakUUID, zaakdata)
 
+    @Suppress("TooGenericExceptionThrown")
     private fun readCaseVariable(planItemInstance: PlanItemInstance, variableName: String): Any? {
         cmmnRuntimeService.createCaseInstanceQuery()
             .caseInstanceId(planItemInstance.caseInstanceId)
@@ -138,47 +135,38 @@ open class ZaakVariabelenService @Inject constructor(
             .singleResult()?.let {
                 return it.caseVariables[variableName]
             }
-        throw RuntimeException("No variable found with name '$variableName' for case instance id '${planItemInstance.caseInstanceId}'")
+        throw RuntimeException(
+            "No variable found with name '$variableName' for case instance id '${planItemInstance.caseInstanceId}'"
+        )
     }
 
     private fun findCaseVariable(zaakUUID: UUID, variableName: String) =
         findCaseVariables(zaakUUID)?.get(variableName)
 
-    private fun findCaseVariables(zaakUUID: UUID): Map<String, Any>? {
+    private fun findCaseVariables(zaakUUID: UUID) =
         cmmnRuntimeService.createCaseInstanceQuery()
             .caseInstanceBusinessKey(zaakUUID.toString())
             .includeCaseVariables()
-            .singleResult()?.let {
-                return it.caseVariables
-            }
-        cmmnHistoryService.createHistoricCaseInstanceQuery()
-            .caseInstanceBusinessKey(zaakUUID.toString())
-            .includeCaseVariables()
-            .singleResult()?.let {
-                return it.caseVariables
-            }
-        return null
-    }
+            .singleResult()?.caseVariables
+            ?: cmmnHistoryService.createHistoricCaseInstanceQuery()
+                .caseInstanceBusinessKey(zaakUUID.toString())
+                .includeCaseVariables()
+                .singleResult()?.caseVariables
 
-    private fun findProcessVariables(zaakUUID: UUID): Map<String, Any>? {
+    private fun findProcessVariables(zaakUUID: UUID) =
         bpmnRuntimeService.createProcessInstanceQuery()
             .processInstanceBusinessKey(zaakUUID.toString())
             .includeProcessVariables()
-            .singleResult()?.let {
-                return it.processVariables
-            }
-        bpmnHistoryService.createHistoricProcessInstanceQuery()
-            .processInstanceBusinessKey(zaakUUID.toString())
-            .includeProcessVariables()
-            .singleResult()?.let {
-                return it.getProcessVariables()
-            }
-        return null
-    }
+            .singleResult()?.processVariables
+            ?: bpmnHistoryService.createHistoricProcessInstanceQuery()
+                .processInstanceBusinessKey(zaakUUID.toString())
+                .includeProcessVariables()
+                .singleResult()?.processVariables
 
     private fun findVariables(zaakUUID: UUID) =
         findCaseVariables(zaakUUID) ?: findProcessVariables(zaakUUID)
 
+    @Suppress("TooGenericExceptionThrown")
     private fun setVariable(zaakUUID: UUID, variableName: String, value: Any) =
         cmmnRuntimeService.createCaseInstanceQuery()
             .variableValueEquals(VAR_ZAAK_UUID, zaakUUID)
@@ -190,6 +178,7 @@ open class ZaakVariabelenService @Inject constructor(
                 bpmnRuntimeService.setVariable(it.id, variableName, value)
             } ?: throw RuntimeException("No case or process instance found for zaak with UUID: '$zaakUUID'")
 
+    @Suppress("TooGenericExceptionThrown")
     private fun setVariables(zaakUUID: UUID, variables: Map<String, Any>) =
         cmmnRuntimeService.createCaseInstanceQuery()
             .caseInstanceBusinessKey(zaakUUID.toString())
@@ -201,7 +190,7 @@ open class ZaakVariabelenService @Inject constructor(
                 bpmnRuntimeService.setVariables(it.id, variables)
             } ?: throw RuntimeException("No case or process instance found for zaak with UUID: '$zaakUUID'")
 
-    private fun removeVariable(zaakUUID: UUID, variableName: String) =
+    private fun removeVariable(zaakUUID: UUID, variableName: String) {
         cmmnRuntimeService.createCaseInstanceQuery()
             .caseInstanceBusinessKey(zaakUUID.toString())
             .singleResult()?.let {
@@ -211,5 +200,5 @@ open class ZaakVariabelenService @Inject constructor(
             .singleResult()?.let {
                 bpmnRuntimeService.removeVariable(it.id, variableName)
             }
-
+    }
 }
