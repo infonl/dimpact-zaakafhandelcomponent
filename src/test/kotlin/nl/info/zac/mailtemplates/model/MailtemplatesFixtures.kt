@@ -4,7 +4,6 @@
  */
 package nl.info.zac.mailtemplates.model
 
-import net.atos.zac.mailtemplates.model.Mail
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.createMailAdres
 

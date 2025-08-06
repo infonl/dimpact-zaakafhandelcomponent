@@ -22,10 +22,10 @@ import jakarta.ws.rs.core.MediaType;
 
 import net.atos.zac.app.admin.converter.RESTMailtemplateConverter;
 import net.atos.zac.app.admin.model.RESTMailtemplate;
-import net.atos.zac.mailtemplates.model.Mail;
-import net.atos.zac.mailtemplates.model.MailTemplateVariables;
 import nl.info.zac.mailtemplates.MailTemplateService;
+import nl.info.zac.mailtemplates.model.Mail;
 import nl.info.zac.mailtemplates.model.MailTemplate;
+import nl.info.zac.mailtemplates.model.MailTemplateVariables;
 import nl.info.zac.policy.PolicyService;
 
 @Singleton
@@ -88,7 +88,7 @@ public class MailtemplateBeheerRestService {
 
     @GET
     @Path("variabelen/{mail}")
-    public Set<MailTemplateVariables> ophalenVariabelenVoorMail(@PathParam("mail") final Mail mail) {
-        return mail.getVariabelen();
+    public Set<MailTemplateVariables> getMailTemplateVariables(@PathParam("mail") final Mail mail) {
+        return mail.getMailTemplateVariables();
     }
 }

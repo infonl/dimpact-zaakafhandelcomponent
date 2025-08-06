@@ -14,7 +14,6 @@ import jakarta.persistence.Id
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
-import net.atos.zac.mailtemplates.model.Mail
 import net.atos.zac.util.FlywayIntegrator
 import nl.info.zac.util.AllOpen
 
