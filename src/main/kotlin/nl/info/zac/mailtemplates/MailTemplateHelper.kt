@@ -227,44 +227,41 @@ class MailTemplateHelper @Inject constructor(
         auditEvent: String,
         initiatorRole: Rol<*>
     ): String {
-        val identificatie = initiatorRole.getIdentificatienummer()
-        return when (val betrokkeneType = initiatorRole.betrokkeneType) {
+        val identificatie = initiatorRole.getIdentificatienummer() ?: run {
+            LOG.warning { "Initiator role '$initiatorRole' has no 'identificatie'. Cannot resolve initiator variables." }
+            return ""
+        }
+        return when (initiatorRole.betrokkeneType) {
             BetrokkeneTypeEnum.NATUURLIJK_PERSOON ->
                 brpClientService.retrievePersoon(identificatie, auditEvent)?.let {
-                    replaceInitiatorVariablesPersoon(
-                        resolvedText,
-                        it
-                    )
+                    replaceInitiatorVariablesPersoon(resolvedText, it)
                 } ?: ""
 
-            BetrokkeneTypeEnum.VESTIGING -> replaceInitiatorVariablesResultaatItem(
-                resolvedText,
-                kvkClientService.findVestiging(identificatie).getOrNull()
-            )
+            BetrokkeneTypeEnum.VESTIGING ->
+                replaceInitiatorVariablesResultaatItem(
+                    resolvedText,
+                    kvkClientService.findVestiging(identificatie).getOrNull()
+                )
 
             BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON -> {
-                val resultaatItem =
-                    (initiatorRole.betrokkeneIdentificatie as NietNatuurlijkPersoonIdentificatie).let {
-                        when {
-                            it.innNnpId?.isNotBlank() == true ->
-                                kvkClientService.findRechtspersoon(identificatie).getOrNull()
-
-                            it.vestigingsNummer?.isNotBlank() == true ->
-                                kvkClientService.findVestiging(identificatie).getOrNull()
-
-                            else -> {
-                                LOG.warning { "Unsupported niet-natuurlijk persoon identificatie: '$it'" }
-                                null
-                            }
+                val resultaatItem = (initiatorRole.betrokkeneIdentificatie as NietNatuurlijkPersoonIdentificatie).let {
+                    when {
+                        it.innNnpId?.isNotBlank() == true -> kvkClientService.findRechtspersoon(
+                            identificatie
+                        ).getOrNull()
+                        it.vestigingsNummer?.isNotBlank() == true -> kvkClientService.findVestiging(
+                            identificatie
+                        ).getOrNull()
+                        else -> {
+                            LOG.warning { "Unsupported niet-natuurlijk persoon identificatie: '$it'" }
+                            null
                         }
                     }
-                replaceInitiatorVariablesResultaatItem(
-                    resolvedText = resolvedText,
-                    initiatorResultaatItem = resultaatItem
-                )
+                }
+                replaceInitiatorVariablesResultaatItem(resolvedText, resultaatItem)
             }
 
-            else -> error("Unsupported betrokkene type '$betrokkeneType'")
+            else -> error("Unsupported betrokkene type '${initiatorRole.betrokkeneType}'")
         }
     }
 
