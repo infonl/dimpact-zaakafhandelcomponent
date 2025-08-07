@@ -108,24 +108,6 @@ class KlantRestService @Inject constructor(
         @PathParam("kvkNummer") kvkNummer: String
     ) = getVestiging(vestigingsnummer, kvkNummer)
 
-    private fun getVestiging(vestigingsnummer: String, kvkNummer: String? = null) = runBlocking {
-        // run the two client calls concurrently in a coroutine scope,
-        // so we do not need to wait for the first call to complete
-        withContext(Dispatchers.IO) {
-            val klantVestigingDigitalAddresses =
-                async { klantClientService.findDigitalAddressesByNumber(vestigingsnummer) }
-            val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
-            klantVestigingDigitalAddresses.await().toRestPersoon().let { klantVestigingRestPersoon ->
-                vestiging.await().getOrNull()?.toRestBedrijf()?.apply {
-                    emailadres = klantVestigingRestPersoon.emailadres
-                    telefoonnummer = klantVestigingRestPersoon.telefoonnummer
-                } ?: throw VestigingNotFoundException(
-                    "Geen vestiging gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'"
-                )
-            }
-        }
-    }
-
     @GET
     @Path("vestigingsprofiel/{vestigingsnummer}")
     fun readVestigingsprofiel(@PathParam("vestigingsnummer") vestigingsnummer: String): RestVestigingsprofiel =
@@ -212,6 +194,25 @@ class KlantRestService @Inject constructor(
         val klantcontactListPage = betrokkenenWithKlantcontactList.mapNotNull { it.expand?.hadKlantcontact }
             .map { it.toRestContactMoment(betrokkenenWithKlantcontactList.toInitiatorAsUuidStringMap()) }
         return RESTResultaat(klantcontactListPage, klantcontactListPage.size.toLong())
+    }
+
+    private fun getVestiging(vestigingsnummer: String, kvkNummer: String? = null) = runBlocking {
+        // run the two client calls concurrently in a coroutine scope,
+        // so we do not need to wait for the first call to complete
+        withContext(Dispatchers.IO) {
+            val klantVestigingDigitalAddresses =
+                async { klantClientService.findDigitalAddressesByNumber(vestigingsnummer) }
+            val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
+            klantVestigingDigitalAddresses.await().toRestPersoon().let { klantVestigingRestPersoon ->
+                vestiging.await().getOrNull()?.toRestBedrijf()?.apply {
+                    emailadres = klantVestigingRestPersoon.emailadres
+                    telefoonnummer = klantVestigingRestPersoon.telefoonnummer
+                } ?: throw VestigingNotFoundException(
+                    "Geen vestiging gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'" +
+                        (kvkNummer?.let { " en KVK nummer '$it'" } ?: "")
+                )
+            }
+        }
     }
 
     private fun ResultaatItem.isKoppelbaar() = this.vestigingsnummer != null || this.rsin != null
