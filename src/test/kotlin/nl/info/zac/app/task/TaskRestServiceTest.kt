@@ -119,358 +119,376 @@ class TaskRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a task is not yet assigned") {
-        val restTaakToekennenGegevens = createRestTaskAssignData()
-        val task = mockk<Task>()
-        every { loggedInUserInstance.get() } returns loggedInUser
-        every { flowableTaskService.readOpenTask(restTaakToekennenGegevens.taakId) } returns task
-        every { getTaakStatus(task) } returns TaakStatus.NIET_TOEGEKEND
-        every { task.assignee } returns ""
-        every {
-            taskService.assignOrReleaseTask(
-                restTaakToekennenGegevens,
-                task,
-                loggedInUser
-            )
-        } just runs
-
-        When("the task is assigned with a user who has permission") {
-            every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(toekennen = true)
-
-            taskRestService.assignTask(restTaakToekennenGegevens)
-
-            Then(
-                "the task is correctly assigned"
-            ) {
-                verify(exactly = 1) {
-                    taskService.assignOrReleaseTask(
-                        restTaakToekennenGegevens,
-                        task,
-                        loggedInUser
-                    )
-                }
-            }
-        }
-
-        When("assign is called from user with no permission") {
-            every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny()
-
-            val exception = shouldThrow<PolicyException> {
-                taskRestService.assignTask(restTaakToekennenGegevens)
-            }
-
-            Then("it throws exception with no message") { exception.message shouldBe null }
-        }
-    }
-    Given("a task is assigned to the current user") {
-        val task = mockk<Task>()
-        val zaak = mockk<Zaak>()
-        val httpSession = mockk<HttpSession>()
-        val historicTaskInstance = mockk<HistoricTaskInstance>()
-        val restUser = createRESTUser(
-            id = loggedInUser.id,
-            name = loggedInUser.getFullName()
-        )
-        val documentUUID = UUID.randomUUID()
-        val dateTime = ZonedDateTime.now()
-        val restTaak = createRestTask(
-            behandelaar = restUser,
-            taakData = mutableMapOf(
-                TAAK_DATA_DOCUMENTEN_VERZENDEN_POST to documentUUID.toString(),
-                TAAK_DATA_VERZENDDATUM to dateTime.toString()
-            )
-        )
-        val restTaakConverted = createRestTask(
-            behandelaar = restUser
-        )
-        val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
-        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(uuid = enkelvoudigInformatieObjectUUID)
-
-        every { loggedInUserInstance.get() } returns loggedInUser
-        every { task.assignee } returns "fakeAssignee"
-        every { task.description = restTaak.toelichting } just runs
-        every { task.dueDate = any() } just runs
-        every { flowableTaskService.readOpenTask(restTaak.id) } returns task
-        every { flowableTaskService.updateTask(task) } returns task
-        every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
-        every { httpSessionInstance.get() } returns httpSession
-        every { httpSession.getAttribute(any<String>()) } returns null
-        every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
-        every {
-            enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
-                enkelvoudigInformatieObjectUUID, dateTime.toLocalDate(), null
-            )
-        } just Runs
-        every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
-        every { taakVariabelenService.setTaskinformation(task, null) } just runs
-        every { flowableTaskService.completeTask(task) } returns historicTaskInstance
-        every { indexingService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
-        every { historicTaskInstance.id } returns restTaak.id
-        every { restTaskConverter.convert(historicTaskInstance) } returns restTaakConverted
-        every { eventingService.send(any<ScreenEvent>()) } just runs
-
-        When("'complete' is called from user with access") {
-            every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
-
-            val restTaakReturned = taskRestService.completeTask(restTaak)
-
-            Then(
-                "the task is completed and the search index service is invoked"
-            ) {
-                restTaakReturned shouldBe restTaakConverted
-                verify(exactly = 1) {
-                    flowableTaskService.completeTask(task)
-                }
-            }
-        }
-
-        When("'complete' is called from user with access") {
-            every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny()
-
-            val exception = shouldThrow<PolicyException> {
-                taskRestService.completeTask(restTaak)
-            }
-
-            Then("it throws exception with no message") { exception.message shouldBe null }
-        }
-    }
-
-    Given("a task with signature task data is assigned to the current user with a document that is signed") {
-        val task = mockk<Task>()
-        val restUser = createRESTUser(
-            id = loggedInUser.id,
-            name = loggedInUser.getFullName()
-        )
-        val restTaakDataKey = "fakeKey"
-        val restTaakDataValue = "fakeValue"
-        val signatureUUID = UUID.randomUUID()
-        val restTaakData = mutableMapOf<String, Any>(
-            restTaakDataKey to restTaakDataValue,
-            "ondertekenen" to signatureUUID.toString()
-        )
-        val restTaak = createRestTask(
-            behandelaar = restUser,
-            taakData = restTaakData,
-        )
-        val restTaakConverted = createRestTask(
-            behandelaar = restUser
-        )
-        every { task.assignee } returns "fakeAssignee"
-        every { flowableTaskService.readOpenTask(restTaak.id) } returns task
-        every { flowableTaskService.updateTask(task) } returns task
-        every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
-        every { taakVariabelenService.setTaskinformation(task, null) } just runs
-        every { eventingService.send(any<ScreenEvent>()) } just runs
-
-        When("'updateTaakdata' is called with changed description and due date from user with access") {
-            every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
-
-            restTaak.apply {
-                toelichting = "changed"
-                fataledatum = LocalDate.parse("2024-03-19")
-            }
-
-            every { task.description = restTaak.toelichting } just runs
-            every { task.dueDate = DateTimeConverterUtil.convertToDate(restTaak.fataledatum) } just runs
-            every { task.id } returns restTaak.id
-
-            val restTaakReturned = taskRestService.updateTaskData(restTaak)
-
-            Then("the changes are stored") {
-                restTaakReturned shouldBe restTaak
-                verify(exactly = 1) {
-                    flowableTaskService.updateTask(task)
-                }
-            }
-        }
-
-        When("'complete' is called") {
-            val zaak = createZaak()
-            val historicTaskInstance = createHistoricTaskInstanceEntityImpl()
-            val httpSession = mockk<HttpSession>()
-            val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
-            val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
-                url = URI("http://example.com/$enkelvoudigInformatieObjectUUID")
-            )
-            every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
-            every { flowableTaskService.completeTask(task) } returns historicTaskInstance
-            every { indexingService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
-            every { restTaskConverter.convert(historicTaskInstance) } returns restTaakConverted
-            every { httpSessionInstance.get() } returns httpSession
-            // in this test we assume there was no document uploaded to the http session beforehand
-            every { httpSession.getAttribute("_FILE__${restTaak.id}__$restTaakDataKey") } returns null
-            every { httpSession.getAttribute("_FILE__${restTaak.id}__ondertekenen") } returns null
+    Context("Assigning a task") {
+        Given("a task is not yet assigned") {
+            val restTaakToekennenGegevens = createRestTaskAssignData()
+            val task = mockk<Task>()
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { flowableTaskService.readOpenTask(restTaakToekennenGegevens.taakId) } returns task
+            every { getTaakStatus(task) } returns TaakStatus.NIET_TOEGEKEND
+            every { task.assignee } returns ""
             every {
-                drcClientService.readEnkelvoudigInformatieobject(signatureUUID)
-            } returns enkelvoudigInformatieObject
-            every {
-                policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
-            } returns createDocumentRechtenAllDeny(wijzigen = true, ondertekenen = true)
-            every {
-                enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
-                    enkelvoudigInformatieObjectUUID
+                taskService.assignOrReleaseTask(
+                    restTaakToekennenGegevens,
+                    task,
+                    loggedInUser
                 )
             } just runs
+
+            When("the task is assigned with a user who has permission") {
+                every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(toekennen = true)
+
+                taskRestService.assignTask(restTaakToekennenGegevens)
+
+                Then(
+                    "the task is correctly assigned"
+                ) {
+                    verify(exactly = 1) {
+                        taskService.assignOrReleaseTask(
+                            restTaakToekennenGegevens,
+                            task,
+                            loggedInUser
+                        )
+                    }
+                }
+            }
+
+            When("assign is called from user with no permission") {
+                every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny()
+
+                val exception = shouldThrow<PolicyException> {
+                    taskRestService.assignTask(restTaakToekennenGegevens)
+                }
+
+                Then("it throws exception with no message") { exception.message shouldBe null }
+            }
+        }
+    }
+
+    Context("Completing a task") {
+        Given("a task is assigned to the current user") {
+            val task = mockk<Task>()
+            val zaak = mockk<Zaak>()
+            val httpSession = mockk<HttpSession>()
+            val historicTaskInstance = mockk<HistoricTaskInstance>()
+            val restUser = createRESTUser(
+                id = loggedInUser.id,
+                name = loggedInUser.getFullName()
+            )
+            val documentUUID = UUID.randomUUID()
+            val dateTime = ZonedDateTime.now()
+            val restTaak = createRestTask(
+                behandelaar = restUser,
+                taakData = mutableMapOf(
+                    TAAK_DATA_DOCUMENTEN_VERZENDEN_POST to documentUUID.toString(),
+                    TAAK_DATA_VERZENDDATUM to dateTime.toString()
+                )
+            )
+            val restTaakConverted = createRestTask(
+                behandelaar = restUser
+            )
+            val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
+            val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(uuid = enkelvoudigInformatieObjectUUID)
+
             every { loggedInUserInstance.get() } returns loggedInUser
+            every { task.assignee } returns "fakeAssignee"
+            every { task.description = restTaak.toelichting } just runs
+            every { task.dueDate = any() } just runs
+            every { flowableTaskService.readOpenTask(restTaak.id) } returns task
+            every { flowableTaskService.updateTask(task) } returns task
+            every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
+            every { httpSessionInstance.get() } returns httpSession
+            every { httpSession.getAttribute(any<String>()) } returns null
+            every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
+            every {
+                enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
+                    enkelvoudigInformatieObjectUUID, dateTime.toLocalDate(), null
+                )
+            } just Runs
+            every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
+            every { taakVariabelenService.setTaskinformation(task, null) } just runs
+            every { flowableTaskService.completeTask(task) } returns historicTaskInstance
+            every { indexingService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
+            every { historicTaskInstance.id } returns restTaak.id
+            every { restTaskConverter.convert(historicTaskInstance) } returns restTaakConverted
+            every { eventingService.send(any<ScreenEvent>()) } just runs
 
-            val restTaakReturned = taskRestService.completeTask(restTaak)
+            When("'complete' is called from user with access") {
+                every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
 
-            Then(
-                "the document is signed, the task is completed and the search index service is invoked"
-            ) {
-                restTaakReturned shouldBe restTaakConverted
-                verify(exactly = 1) {
+                val restTaakReturned = taskRestService.completeTask(restTaak)
+
+                Then(
+                    "the task is completed and the search index service is invoked"
+                ) {
+                    restTaakReturned shouldBe restTaakConverted
+                    verify(exactly = 1) {
+                        flowableTaskService.completeTask(task)
+                    }
+                }
+            }
+
+            When("'complete' is called from user with access") {
+                every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny()
+
+                val exception = shouldThrow<PolicyException> {
+                    taskRestService.completeTask(restTaak)
+                }
+
+                Then("it throws exception with no message") { exception.message shouldBe null }
+            }
+        }
+
+        Given("a task with signature task data is assigned to the current user with a document that is signed") {
+            val task = mockk<Task>()
+            val restUser = createRESTUser(
+                id = loggedInUser.id,
+                name = loggedInUser.getFullName()
+            )
+            val restTaakDataKey = "fakeKey"
+            val restTaakDataValue = "fakeValue"
+            val signatureUUID = UUID.randomUUID()
+            val restTaakData = mutableMapOf<String, Any>(
+                restTaakDataKey to restTaakDataValue,
+                "ondertekenen" to signatureUUID.toString()
+            )
+            val restTaak = createRestTask(
+                behandelaar = restUser,
+                taakData = restTaakData,
+            )
+            val restTaakConverted = createRestTask(
+                behandelaar = restUser
+            )
+            every { task.assignee } returns "fakeAssignee"
+            every { flowableTaskService.readOpenTask(restTaak.id) } returns task
+            every { flowableTaskService.updateTask(task) } returns task
+            every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
+            every { taakVariabelenService.setTaskinformation(task, null) } just runs
+            every { eventingService.send(any<ScreenEvent>()) } just runs
+
+            When("'updateTaakdata' is called with changed description and due date from user with access") {
+                every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
+
+                restTaak.apply {
+                    toelichting = "changed"
+                    fataledatum = LocalDate.parse("2024-03-19")
+                }
+
+                every { task.description = restTaak.toelichting } just runs
+                every { task.dueDate = DateTimeConverterUtil.convertToDate(restTaak.fataledatum) } just runs
+                every { task.id } returns restTaak.id
+
+                val restTaakReturned = taskRestService.updateTaskData(restTaak)
+
+                Then("the changes are stored") {
+                    restTaakReturned shouldBe restTaak
+                    verify(exactly = 1) {
+                        flowableTaskService.updateTask(task)
+                    }
+                }
+            }
+
+            When("'complete' is called") {
+                val zaak = createZaak()
+                val historicTaskInstance = createHistoricTaskInstanceEntityImpl()
+                val httpSession = mockk<HttpSession>()
+                val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
+                val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
+                    url = URI("http://example.com/$enkelvoudigInformatieObjectUUID")
+                )
+                every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
+                every { flowableTaskService.completeTask(task) } returns historicTaskInstance
+                every { indexingService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
+                every { restTaskConverter.convert(historicTaskInstance) } returns restTaakConverted
+                every { httpSessionInstance.get() } returns httpSession
+                // in this test we assume there was no document uploaded to the http session beforehand
+                every { httpSession.getAttribute("_FILE__${restTaak.id}__$restTaakDataKey") } returns null
+                every { httpSession.getAttribute("_FILE__${restTaak.id}__ondertekenen") } returns null
+                every {
+                    drcClientService.readEnkelvoudigInformatieobject(signatureUUID)
+                } returns enkelvoudigInformatieObject
+                every {
+                    policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
+                } returns createDocumentRechtenAllDeny(wijzigen = true, ondertekenen = true)
+                every {
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
                         enkelvoudigInformatieObjectUUID
                     )
-                    flowableTaskService.completeTask(task)
+                } just runs
+                every { loggedInUserInstance.get() } returns loggedInUser
+
+                val restTaakReturned = taskRestService.completeTask(restTaak)
+
+                Then(
+                    "the document is signed, the task is completed and the search index service is invoked"
+                ) {
+                    restTaakReturned shouldBe restTaakConverted
+                    verify(exactly = 1) {
+                        enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
+                            enkelvoudigInformatieObjectUUID
+                        )
+                        flowableTaskService.completeTask(task)
+                    }
                 }
             }
         }
     }
-    Given("REST taak verdeelgegevens to assign two tasks asynchronously") {
-        val screenEventResourceId = "fakeScreenEventResourceId"
-        val restTaakVerdelenGegevens = createRestTaskDistributeData(
-            taken = listOf(
-                createRestTaskDistributeTask(),
-                createRestTaskDistributeTask()
-            ),
-            screenEventResourceId = screenEventResourceId
-        )
-        every {
-            taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
-        } just Runs
-        every { loggedInUserInstance.get() } returns loggedInUser
 
-        When("the 'verdelen vanuit lijst' function is called from user with access") {
-            every {
-                policyService.readWerklijstRechten()
-            } returns createWerklijstRechtenAllDeny(zakenTakenVerdelen = true)
-
-            runTest(testDispatcher) {
-                taskRestService.assignTasksFromList(restTaakVerdelenGegevens)
-            }
-
-            Then("the tasks are assigned to the group and user") {
-                verify(exactly = 1) {
-                    taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
-                }
-            }
-        }
-
-        When("the 'verdelen vanuit lijst' function is called from user with no access") {
-            every { policyService.readWerklijstRechten() } returns createWerklijstRechtenAllDeny()
-
-            val exception = shouldThrow<PolicyException> {
-                taskRestService.assignTasksFromList(restTaakVerdelenGegevens)
-            }
-
-            Then("it throws exception with no message") { exception.message shouldBe null }
-        }
-    }
-    Given("REST taak vrijgeven gegevens to release two tasks asynchronously") {
-        val screenEventResourceId = "fakeScreenEventResourceId"
-        val restTaakVrijgevenGegevens = createRestTaskReleaseData(
-            taken = listOf(
-                createRestTaskDistributeTask(),
-                createRestTaskDistributeTask()
-            ),
-            screenEventResourceId = screenEventResourceId
-        )
-        val werklijstRechten = createWerklijstRechten()
-        every { policyService.readWerklijstRechten() } returns werklijstRechten
-        every {
-            taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
-        } just Runs
-        every { loggedInUserInstance.get() } returns loggedInUser
-
-        When("the 'verdelen vanuit lijst' function is called") {
-            runTest(testDispatcher) {
-                taskRestService.releaseTaskFromList(restTaakVrijgevenGegevens)
-            }
-
-            Then("the tasks are assigned to the group and user") {
-                verify(exactly = 1) {
-                    taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
-                }
-            }
-        }
-    }
-    Given("Two Flowable tasks for a zaak") {
-        val zaak = createZaak()
-        val tasks = listOf(
-            createTestTask(id = "fakeId1"),
-            createTestTask(id = "fakeId2")
-        )
-        val restTasks = listOf(
-            createRestTask(id = "fakeId1"),
-            createRestTask(id = "fakeId2")
-        )
-        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { policyService.readZaakRechten(zaak).lezen } returns true
-        every { taskService.listTasksForZaak(zaak.uuid) } returns tasks
-        every { restTaskConverter.convert(tasks) } returns restTasks
-
-        When("the tasks are listed for this zaak") {
-            val returnedRestTasks = taskRestService.listTasksForZaak(zaak.uuid)
-
-            Then("the tasks are returned") {
-                returnedRestTasks shouldBe restTasks
-                verify(exactly = 1) {
-                    taskService.listTasksForZaak(zaak.uuid)
-                }
-            }
-        }
-    }
-    Given("A valid task ID with an open task and a REST task with a form.io form") {
-        val taskId = "validTaskId"
-        val zaakUuid = UUID.randomUUID()
-        val taskInfo = createTestTask(
-            id = taskId,
-            caseVariables = mapOf(
-                "zaakUUID" to zaakUuid
+    Context("Assigning tasks from a list") {
+        Given("REST taak verdeelgegevens to assign two tasks asynchronously") {
+            val screenEventResourceId = "fakeScreenEventResourceId"
+            val restTaakVerdelenGegevens = createRestTaskDistributeData(
+                taken = listOf(
+                    createRestTaskDistributeTask(),
+                    createRestTaskDistributeTask()
+                ),
+                screenEventResourceId = screenEventResourceId
             )
-        )
-        val restTask = createRestTask(
-            id = taskId,
-            zaakUuid = zaakUuid,
-            formioFormulier = Json.createReader("{}".reader()).readObject()
-        )
-        every { loggedInUserInstance.get() } returns loggedInUser
-        every { signaleringService.deleteSignaleringen(any()) } returns 2
-        every { flowableTaskService.readTask(taskId) } returns taskInfo
-        every { policyService.readTaakRechten(taskInfo).lezen } returns true
-        every { restTaskConverter.convert(taskInfo) } returns restTask
-        every { formulierRuntimeService.renderFormioFormulier(restTask) } returns restTask.formioFormulier
-        every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns mapOf(
-            "fakeKey" to "fakeValue"
-        )
+            every {
+                taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
+            } just Runs
+            every { loggedInUserInstance.get() } returns loggedInUser
 
-        When("readTask is called") {
-            val result = taskRestService.readTask(taskId)
+            When("the 'verdelen vanuit lijst' function is called from user with access") {
+                every {
+                    policyService.readWerklijstRechten()
+                } returns createWerklijstRechtenAllDeny(zakenTakenVerdelen = true)
 
-            Then("signaleringen are deleted and the task is returned with rendered forms and added zaakdata") {
-                result shouldBe restTask
-                verify(exactly = 2) {
-                    signaleringService.deleteSignaleringen(any())
+                runTest(testDispatcher) {
+                    taskRestService.assignTasksFromList(restTaakVerdelenGegevens)
                 }
-                verify(exactly = 1) {
-                    formulierRuntimeService.renderFormioFormulier(restTask)
+
+                Then("the tasks are assigned to the group and user") {
+                    verify(exactly = 1) {
+                        taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
+                    }
+                }
+            }
+
+            When("the 'verdelen vanuit lijst' function is called from user with no access") {
+                every { policyService.readWerklijstRechten() } returns createWerklijstRechtenAllDeny()
+
+                val exception = shouldThrow<PolicyException> {
+                    taskRestService.assignTasksFromList(restTaakVerdelenGegevens)
+                }
+
+                Then("it throws exception with no message") { exception.message shouldBe null }
+            }
+        }
+    }
+
+    Context("Releasing tasks from a list") {
+        Given("REST taak vrijgeven gegevens to release two tasks asynchronously") {
+            val screenEventResourceId = "fakeScreenEventResourceId"
+            val restTaakVrijgevenGegevens = createRestTaskReleaseData(
+                taken = listOf(
+                    createRestTaskDistributeTask(),
+                    createRestTaskDistributeTask()
+                ),
+                screenEventResourceId = screenEventResourceId
+            )
+            val werklijstRechten = createWerklijstRechten()
+            every { policyService.readWerklijstRechten() } returns werklijstRechten
+            every {
+                taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
+            } just Runs
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            When("the 'verdelen vanuit lijst' function is called") {
+                runTest(testDispatcher) {
+                    taskRestService.releaseTaskFromList(restTaakVrijgevenGegevens)
+                }
+
+                Then("the tasks are assigned to the group and user") {
+                    verify(exactly = 1) {
+                        taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
+                    }
                 }
             }
         }
     }
-    Given("An invalid task ID") {
-        val taskId = "invalidTaskId"
-        every { flowableTaskService.readTask(taskId) } throws TaskNotFoundException("Task not found")
 
-        When("readTask is called") {
-            val exception = shouldThrow<TaskNotFoundException> {
-                taskRestService.readTask(taskId)
+    Context("Listing tasks for a zaak") {
+        Given("Two Flowable tasks for a zaak") {
+            val zaak = createZaak()
+            val tasks = listOf(
+                createTestTask(id = "fakeId1"),
+                createTestTask(id = "fakeId2")
+            )
+            val restTasks = listOf(
+                createRestTask(id = "fakeId1"),
+                createRestTask(id = "fakeId2")
+            )
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak).lezen } returns true
+            every { taskService.listTasksForZaak(zaak.uuid) } returns tasks
+            every { restTaskConverter.convert(tasks) } returns restTasks
+
+            When("the tasks are listed for this zaak") {
+                val returnedRestTasks = taskRestService.listTasksForZaak(zaak.uuid)
+
+                Then("the tasks are returned") {
+                    returnedRestTasks shouldBe restTasks
+                    verify(exactly = 1) {
+                        taskService.listTasksForZaak(zaak.uuid)
+                    }
+                }
             }
+        }
+    }
 
-            Then("a TaskNotFoundException is thrown") {
-                exception.message shouldBe "Task not found"
+    Context("Reading a task") {
+        Given("A valid task ID with an open task and a REST task with a form.io form") {
+            val taskId = "validTaskId"
+            val zaakUuid = UUID.randomUUID()
+            val taskInfo = createTestTask(
+                id = taskId,
+                caseVariables = mapOf(
+                    "zaakUUID" to zaakUuid
+                )
+            )
+            val restTask = createRestTask(
+                id = taskId,
+                zaakUuid = zaakUuid,
+                formioFormulier = Json.createReader("{}".reader()).readObject()
+            )
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { signaleringService.deleteSignaleringen(any()) } returns 2
+            every { flowableTaskService.readTask(taskId) } returns taskInfo
+            every { policyService.readTaakRechten(taskInfo).lezen } returns true
+            every { restTaskConverter.convert(taskInfo) } returns restTask
+            every { formulierRuntimeService.renderFormioFormulier(restTask) } returns restTask.formioFormulier
+            every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns mapOf(
+                "fakeKey" to "fakeValue"
+            )
+
+            When("readTask is called") {
+                val result = taskRestService.readTask(taskId)
+
+                Then("signaleringen are deleted and the task is returned with rendered forms and added zaakdata") {
+                    result shouldBe restTask
+                    verify(exactly = 2) {
+                        signaleringService.deleteSignaleringen(any())
+                    }
+                    verify(exactly = 1) {
+                        formulierRuntimeService.renderFormioFormulier(restTask)
+                    }
+                }
+            }
+        }
+
+        Given("An invalid task ID") {
+            val taskId = "invalidTaskId"
+            every { flowableTaskService.readTask(taskId) } throws TaskNotFoundException("Task not found")
+
+            When("readTask is called") {
+                val exception = shouldThrow<TaskNotFoundException> {
+                    taskRestService.readTask(taskId)
+                }
+
+                Then("a TaskNotFoundException is thrown") {
+                    exception.message shouldBe "Task not found"
+                }
             }
         }
     }
