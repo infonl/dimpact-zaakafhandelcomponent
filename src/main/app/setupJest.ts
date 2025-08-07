@@ -6,7 +6,6 @@
 
 import "whatwg-fetch";
 
-// Create a complete crypto polyfill
 const cryptoPolyfill = {
   randomUUID: () => {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
@@ -32,7 +31,6 @@ const cryptoPolyfill = {
   getRandomValues: jest.fn(),
 } as Crypto;
 
-// Replace the global crypto object
 Object.defineProperty(globalThis, "crypto", {
   value: cryptoPolyfill,
   writable: false,
