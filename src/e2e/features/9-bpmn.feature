@@ -14,9 +14,10 @@ Feature: BPMN
 
   Scenario: Bob changes the assigned user and group
     Given "Bob" is logged in to zac
-    Then "Bob" sees group "Test group Behandelaars" in the zaak data
-    Given Employee "Bob" assigns the zaak to group "Test group Coordinators" and user "Test Coordinator1"
-    Then "Bob" sees group "Test group Coordinators" and user "Test Coordinator1" in the zaak data
+    When Employee "Bob" is on the newly created zaak
+    Then "Bob" sees group "Test group B" in the zaak data
+    Given Employee "Bob" assigns the zaak to group "Coördinatorsgroep" and user "Coördinator"
+    Then "Bob" sees group "Coördinatorsgroep" and user "Coördinator" in the zaak data
 
   Scenario: Bob opens the initial task form
     Given "Bob" is logged in to zac
@@ -44,7 +45,7 @@ Feature: BPMN
     And "Bob" submits the filled-in form
     When Employee "Bob" is on the newly created zaak
     Then "Bob" sees that the initial task is completed
-    Then "Bob" sees that the summary task is started with group "Test group Coordinators" and user "Test Coordinator1"
+    Then "Bob" sees that the summary task is started with group "Coördinatorsgroep" and user "Coördinator"
 
   Scenario: Bob inspects the summary task form
     Given "Bob" is logged in to zac

@@ -302,22 +302,6 @@ Then(
 );
 
 Then(
-  "{string} sees group {string} in the zaak data",
-  { timeout: TWO_MINUTES_IN_MS },
-  async function (
-    this: CustomWorld,
-    user: z.infer<typeof worldUsers>,
-    groupName: string,
-  ) {
-    await this.page.getByRole("button", { name: "Zaakdata" }).click();
-    await expect(
-      this.page.getByRole("textbox", { name: "zaakGroep" }),
-    ).toHaveValue(groupName);
-    await this.page.getByRole("button").filter({ hasText: "close" }).click();
-  },
-);
-
-Then(
   "{string} sees group {string} and user {string} in the zaak data",
   { timeout: TWO_MINUTES_IN_MS },
   async function (
