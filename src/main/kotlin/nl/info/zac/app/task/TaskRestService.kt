@@ -43,6 +43,7 @@ import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.client.zgw.drc.model.generated.SoortEnum
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -59,8 +60,11 @@ import nl.info.zac.app.task.model.RestTaskReleaseData
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.exception.ErrorCode
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.productaanvraag.ProductaanvraagEmailService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.helper.SuspensionZaakHelper
@@ -74,6 +78,7 @@ import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
+import java.util.logging.Logger
 
 private const val REDEN_ZAAK_HERVATTEN = "Aanvullende informatie geleverd"
 private const val REDEN_TAAK_AFGESLOTEN = "Afgesloten"
@@ -113,6 +118,10 @@ class TaskRestService @Inject constructor(
      */
     private val dispatcher: CoroutineDispatcher
 ) {
+    companion object {
+        private val LOG = Logger.getLogger(TaskRestService::class.java.name)
+    }
+
     @GET
     @Path("zaak/{zaakUUID}")
     fun listTasksForZaak(@PathParam("zaakUUID") zaakUUID: UUID): List<RestTask> {
@@ -371,12 +380,15 @@ class TaskRestService @Inject constructor(
                 .map { UUID.fromString(it) }
                 .map { drcClientService.readEnkelvoudigInformatieobject(it) }
                 .forEach { enkelvoudigInformatieobject ->
-                    assertPolicy(
-                        (
-                            // this extra check is because the API can return an empty ondertekening soort
-                            enkelvoudigInformatieobject.ondertekening == null
-                            ) && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
-                    )
+                    // note: the DRC API can return an empty ondertekening soort when no signature is present,
+                    // even when this is not permitted according to the OpenAPI spec
+                    if (enkelvoudigInformatieobject.ondertekening?.let { it.soort != SoortEnum.EMPTY } == true) {
+                        LOG.warning {
+                            "Enkelvoudiginformatie object with ID '${enkelvoudigInformatieobject.identificatie}' has already been signed"
+                        }
+                        throw InputValidationFailedException(ErrorCode.ERROR_CODE_DOCUMENT_HAS_ALREADY_BEEN_SIGNED)
+                    }
+                    assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen)
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
                         enkelvoudigInformatieobject.url.extractUuid()
                     )
