@@ -31,6 +31,8 @@ import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.formulieren.FormulierRuntimeService
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.createOndertekening
+import nl.info.client.zgw.drc.model.generated.SoortEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -47,6 +49,8 @@ import nl.info.zac.app.task.model.createRestTaskDistributeTask
 import nl.info.zac.app.task.model.createRestTaskReleaseData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.exception.ErrorCode
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
@@ -249,22 +253,22 @@ class TaskRestServiceTest : BehaviorSpec({
             every { restTaskConverter.convert(historicTaskInstance) } returns restTaakConverted
             every { eventingService.send(any<ScreenEvent>()) } just runs
 
-            When("'complete' is called from user with access") {
+            When("task is completed by a user with permissions to change tasks") {
                 every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
 
                 val restTaakReturned = taskRestService.completeTask(restTaak)
 
-                Then(
-                    "the task is completed and the search index service is invoked"
-                ) {
-                    restTaakReturned shouldBe restTaakConverted
+                Then("the task is completed in Flowable") {
                     verify(exactly = 1) {
                         flowableTaskService.completeTask(task)
                     }
                 }
+                And("the completed task is returned") {
+                    restTaakReturned shouldBe restTaakConverted
+                }
             }
 
-            When("'complete' is called from user with access") {
+            When("task is completed by a user with no task permissions") {
                 every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny()
 
                 val exception = shouldThrow<PolicyException> {
@@ -295,41 +299,42 @@ class TaskRestServiceTest : BehaviorSpec({
             val restTaakConverted = createRestTask(
                 behandelaar = restUser
             )
+            val zaak = createZaak()
+            val historicTaskInstance = createHistoricTaskInstanceEntityImpl()
+            val httpSession = mockk<HttpSession>()
+            val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
+
             every { flowableTaskService.readOpenTask(restTaak.id) } returns task
             every { flowableTaskService.updateTask(task) } returns task
             every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
             every { taakVariabelenService.setTaskinformation(task, null) } just runs
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
-
-            When("the task is completed") {
-                val zaak = createZaak()
-                val historicTaskInstance = createHistoricTaskInstanceEntityImpl()
-                val httpSession = mockk<HttpSession>()
-                val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
-                val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
-                    url = URI("http://example.com/$enkelvoudigInformatieObjectUUID")
+            every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
+            every { flowableTaskService.completeTask(task) } returns historicTaskInstance
+            every { indexingService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
+            every { restTaskConverter.convert(historicTaskInstance) } returns restTaakConverted
+            every { httpSessionInstance.get() } returns httpSession
+            // in this test we assume there was no document uploaded to the http session beforehand
+            every { httpSession.getAttribute("_FILE__${restTaak.id}__$restTaakDataKey") } returns null
+            every { httpSession.getAttribute("_FILE__${restTaak.id}__ondertekenen") } returns null
+            every {
+                enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
+                    enkelvoudigInformatieObjectUUID
                 )
-                every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
-                every { flowableTaskService.completeTask(task) } returns historicTaskInstance
-                every { indexingService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
-                every { restTaskConverter.convert(historicTaskInstance) } returns restTaakConverted
-                every { httpSessionInstance.get() } returns httpSession
-                // in this test we assume there was no document uploaded to the http session beforehand
-                every { httpSession.getAttribute("_FILE__${restTaak.id}__$restTaakDataKey") } returns null
-                every { httpSession.getAttribute("_FILE__${restTaak.id}__ondertekenen") } returns null
+            } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            When("the task is completed for a document that is not yet signed") {
+                val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
+                    url = URI("https://example.com/$enkelvoudigInformatieObjectUUID")
+                )
                 every {
                     drcClientService.readEnkelvoudigInformatieobject(signatureUUID)
                 } returns enkelvoudigInformatieObject
                 every {
                     policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
                 } returns createDocumentRechtenAllDeny(wijzigen = true, ondertekenen = true)
-                every {
-                    enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
-                        enkelvoudigInformatieObjectUUID
-                    )
-                } just runs
-                every { loggedInUserInstance.get() } returns loggedInUser
 
                 val restTaakReturned = taskRestService.completeTask(restTaak)
 
@@ -347,6 +352,28 @@ class TaskRestServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         flowableTaskService.completeTask(task)
                     }
+                }
+            }
+
+            When("the task is completed for a document that is already signed") {
+                val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
+                    url = URI("https://example.com/$enkelvoudigInformatieObjectUUID"),
+                    ondertekening = createOndertekening(
+                        type = SoortEnum.DIGITAAL,
+                        date = LocalDate.now()
+                    )
+                )
+                every {
+                    drcClientService.readEnkelvoudigInformatieobject(signatureUUID)
+                } returns enkelvoudigInformatieObject
+
+                val exception = shouldThrow<InputValidationFailedException> {
+                    taskRestService.completeTask(restTaak)
+                }
+
+                Then("an exception is thrown") {
+                    exception.errorCode shouldBe ErrorCode.ERROR_CODE_DOCUMENT_HAS_ALREADY_BEEN_SIGNED
+                    exception.message shouldBe null
                 }
             }
         }
