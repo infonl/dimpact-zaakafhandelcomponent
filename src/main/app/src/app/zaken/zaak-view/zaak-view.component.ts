@@ -664,6 +664,7 @@ export class ZaakViewComponent
         this.activeSideAction = null;
         if (result) {
           if (result === "openBesluitVastleggen") {
+            this.activeSideAction = "actie.besluit.vastleggen";
             this.actionsSidenav.open();
           } else {
             this.utilService.openSnackbar(
