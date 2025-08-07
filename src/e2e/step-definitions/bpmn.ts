@@ -204,14 +204,25 @@ Then(
 );
 
 Then(
-  "{string} sees that the summary task is started",
+  "{string} sees that the summary task is started with group {string} and user {string}",
   { timeout: TWO_MINUTES_IN_MS },
-  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+  async function (
+    this: CustomWorld,
+    user: z.infer<typeof worldUsers>,
+    groupName: string,
+    userName: string,
+  ) {
     await expect(
       this.page.getByRole("cell", { name: "Summary" }),
     ).toBeVisible();
     await expect(
-      this.page.locator("span").filter({ hasText: "Niet toegekend" }).nth(1),
+      this.page.getByRole("cell", { name: "Toegekend" }),
+    ).toBeVisible();
+    await expect(
+      this.page.getByRole("cell", { name: groupName }),
+    ).toBeVisible();
+    await expect(
+      this.page.getByRole("cell", { name: userName, exact: true }),
     ).toBeVisible();
   },
 );
@@ -273,5 +284,41 @@ Then(
     await this.expect(
       this.page.getByText(`Resultaat ${parsedResult}`),
     ).toBeVisible();
+  },
+);
+
+Then(
+  "{string} sees group {string} in the zaak data",
+  { timeout: TWO_MINUTES_IN_MS },
+  async function (
+    this: CustomWorld,
+    user: z.infer<typeof worldUsers>,
+    groupName: string,
+  ) {
+    await this.page.getByRole("button", { name: "Zaakdata" }).click();
+    await expect(
+      this.page.getByRole("textbox", { name: "zaakGroep" }),
+    ).toHaveValue(groupName);
+    await this.page.getByRole("button").filter({ hasText: "close" }).click();
+  },
+);
+
+Then(
+  "{string} sees group {string} and user {string} in the zaak data",
+  { timeout: TWO_MINUTES_IN_MS },
+  async function (
+    this: CustomWorld,
+    user: z.infer<typeof worldUsers>,
+    groupName: string,
+    userName: string,
+  ) {
+    await this.page.getByRole("button", { name: "Zaakdata" }).click();
+    await expect(
+      this.page.getByRole("textbox", { name: "zaakGroep" }),
+    ).toHaveValue(groupName);
+    await expect(
+      this.page.getByRole("textbox", { name: "zaakBehandelaar" }),
+    ).toHaveValue(userName);
+    await this.page.getByRole("button").filter({ hasText: "close" }).click();
   },
 );

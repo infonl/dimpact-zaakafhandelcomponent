@@ -121,6 +121,41 @@ When(
 );
 
 When(
+  "Employee {string} assigns the zaak to group {string} and user {string}",
+  { timeout: TWO_MINUTES_IN_MS },
+  async function (
+    this: CustomWorld,
+    user: z.infer<typeof worldUsers>,
+    groupName: string,
+    userName: string,
+  ) {
+    await this.page
+      .getByRole("tabpanel", { name: "Gegevens" })
+      .getByRole("button")
+      .click();
+    await this.page
+      .getByRole("combobox", { name: "Groep" })
+      .locator("svg")
+      .click();
+    await this.page.getByText(groupName).click();
+    await this.page
+      .getByRole("combobox", { name: "Behandelaar Kies een" })
+      .locator("svg")
+      .click();
+    await this.page.getByText(userName, { exact: true }).click();
+    await this.page.getByRole("textbox", { name: "Reden" }).click();
+    await this.page.getByRole("textbox", { name: "Reden" }).fill("test");
+    await this.page.getByRole("button", { name: "Opslaan" }).click();
+    await this.expect(this.page.getByLabel("topic Gegevens")).toContainText(
+      groupName,
+    );
+    await this.expect(this.page.getByLabel("topic Gegevens")).toContainText(
+      userName,
+    );
+  },
+);
+
+When(
   "{string} wants to create a new {string} zaak",
   { timeout: ONE_MINUTE_IN_MS },
   async function (
