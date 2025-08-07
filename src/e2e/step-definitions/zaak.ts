@@ -133,16 +133,13 @@ When(
       .getByRole("tabpanel", { name: "Gegevens" })
       .getByRole("button")
       .click();
-    await this.page
-      .getByRole("combobox", { name: "Groep Test group Behandelaars" })
-      .locator("svg")
-      .click();
+    await this.page.getByRole("combobox", { name: "Groep" }).locator("svg").click();
     await this.page.getByText(groupName).click();
     await this.page
       .getByRole("combobox", { name: "Behandelaar Kies een" })
       .locator("svg")
       .click();
-    await this.page.getByText(userName).click();
+    await this.page.getByText(userName, { exact: true }).click();
     await this.page.getByRole("textbox", { name: "Reden" }).click();
     await this.page.getByRole("textbox", { name: "Reden" }).fill("test");
     await this.page.getByRole("button", { name: "Opslaan" }).click();

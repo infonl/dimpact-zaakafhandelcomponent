@@ -216,12 +216,12 @@ Then(
       this.page.getByRole("cell", { name: "Summary" }),
     ).toBeVisible();
     await expect(
-      this.page.locator("span").filter({ hasText: "Niet toegekend" }).nth(1),
+      this.page.getByRole('cell', { name: 'Toegekend' }),
     ).toBeVisible();
     await expect(
       this.page.getByRole("cell", { name: groupName }),
     ).toBeVisible();
-    await expect(this.page.getByRole("cell", { name: userName })).toBeVisible();
+    await expect(this.page.getByRole("cell", { name: userName, exact: true })).toBeVisible();
   },
 );
 
