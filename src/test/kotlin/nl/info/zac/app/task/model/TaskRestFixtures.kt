@@ -21,7 +21,8 @@ fun createRestTask(
     tabellen: MutableMap<String, List<String>> = emptyMap<String, List<String>>().toMutableMap(),
     zaakIdentificatie: String = "fakeZaakIndentificatie",
     zaakUuid: UUID = UUID.randomUUID(),
-    formioFormulier: JsonObject? = null
+    formioFormulier: JsonObject? = null,
+    toelichting: String? = "fakeToelichting"
 ) = RestTask(
     id = id,
     behandelaar = behandelaar,
@@ -31,6 +32,7 @@ fun createRestTask(
     zaakUuid = zaakUuid,
     formioFormulier = formioFormulier,
     rechten = createRestTaakRechten(),
+    toelichting = toelichting
 )
 
 fun createRestTaskDocumentData(

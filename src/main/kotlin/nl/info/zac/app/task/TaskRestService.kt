@@ -163,10 +163,10 @@ class TaskRestService @Inject constructor(
     }
 
     private fun updateDescriptionAndDueDate(restTask: RestTask): Task {
-        flowableTaskService.readOpenTask(restTask.id).let {
-            it.description = restTask.toelichting
-            it.dueDate = DateTimeConverterUtil.convertToDate(restTask.fataledatum)
-            return flowableTaskService.updateTask(it)
+        flowableTaskService.readOpenTask(restTask.id).let { task ->
+            restTask.toelichting?.let { task.description = it }
+            restTask.fataledatum?.let { task.dueDate = DateTimeConverterUtil.convertToDate(it) }
+            return flowableTaskService.updateTask(task)
         }
     }
 

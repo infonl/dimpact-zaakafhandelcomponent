@@ -29,9 +29,7 @@ import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
 import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_VERZENDDATUM
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
-import net.atos.zac.flowable.util.TaskUtil.getTaakStatus
 import net.atos.zac.formulieren.FormulierRuntimeService
-import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
@@ -51,6 +49,7 @@ import nl.info.zac.app.task.model.createRestTaskDistributeTask
 import nl.info.zac.app.task.model.createRestTaskReleaseData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.documentcreation.model.createTaskData
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
@@ -122,11 +121,9 @@ class TaskRestServiceTest : BehaviorSpec({
     Context("Assigning a task") {
         Given("a task is not yet assigned") {
             val restTaakToekennenGegevens = createRestTaskAssignData()
-            val task = mockk<Task>()
+            val task = createTestTask()
             every { loggedInUserInstance.get() } returns loggedInUser
             every { flowableTaskService.readOpenTask(restTaakToekennenGegevens.taakId) } returns task
-            every { getTaakStatus(task) } returns TaakStatus.NIET_TOEGEKEND
-            every { task.assignee } returns ""
             every {
                 taskService.assignOrReleaseTask(
                     restTaakToekennenGegevens,
@@ -165,9 +162,55 @@ class TaskRestServiceTest : BehaviorSpec({
         }
     }
 
+    Context("Updating task data") {
+        Given("a task and task data to assign the task to the current user and sign the document") {
+            val task = createTestTask()
+            val restUser = createRESTUser(
+                id = loggedInUser.id,
+                name = loggedInUser.getFullName()
+            )
+            val restTaakDataKey = "fakeKey"
+            val restTaakDataValue = "fakeValue"
+            val signatureUUID = UUID.randomUUID()
+            val restTaakData = mutableMapOf<String, Any>(
+                restTaakDataKey to restTaakDataValue,
+                "ondertekenen" to signatureUUID.toString()
+            )
+            val restTaak = createRestTask(
+                behandelaar = restUser,
+                taakData = restTaakData,
+                toelichting = "changed"
+            ).apply {
+                fataledatum = LocalDate.parse("2024-03-19")
+            }
+            val restTaakConverted = createRestTask(
+                behandelaar = restUser
+            )
+            every { flowableTaskService.readOpenTask(restTaak.id) } returns task
+            every { flowableTaskService.updateTask(task) } returns task
+            every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
+            every { taakVariabelenService.setTaskinformation(task, null) } just runs
+            every { eventingService.send(any<ScreenEvent>()) } just runs
+            every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
+            every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
+
+            When("'updateTaakdata' is called with changed description and due date from user with access") {
+
+                val restTaakReturned = taskRestService.updateTaskData(restTaak)
+
+                Then("the changes are stored") {
+                    restTaakReturned shouldBe restTaak
+                    verify(exactly = 1) {
+                        flowableTaskService.updateTask(task)
+                    }
+                }
+            }
+        }
+    }
+
     Context("Completing a task") {
         Given("a task is assigned to the current user") {
-            val task = mockk<Task>()
+            val task = createTestTask()
             val zaak = mockk<Zaak>()
             val httpSession = mockk<HttpSession>()
             val historicTaskInstance = mockk<HistoricTaskInstance>()
@@ -191,9 +234,6 @@ class TaskRestServiceTest : BehaviorSpec({
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(uuid = enkelvoudigInformatieObjectUUID)
 
             every { loggedInUserInstance.get() } returns loggedInUser
-            every { task.assignee } returns "fakeAssignee"
-            every { task.description = restTaak.toelichting } just runs
-            every { task.dueDate = any() } just runs
             every { flowableTaskService.readOpenTask(restTaak.id) } returns task
             every { flowableTaskService.updateTask(task) } returns task
             every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
@@ -240,7 +280,7 @@ class TaskRestServiceTest : BehaviorSpec({
         }
 
         Given("a task and task data to assign the task to the current user and sign the document") {
-            val task = mockk<Task>()
+            val task = createTestTask()
             val restUser = createRESTUser(
                 id = loggedInUser.id,
                 name = loggedInUser.getFullName()
@@ -259,34 +299,12 @@ class TaskRestServiceTest : BehaviorSpec({
             val restTaakConverted = createRestTask(
                 behandelaar = restUser
             )
-            every { task.assignee } returns "fakeAssignee"
             every { flowableTaskService.readOpenTask(restTaak.id) } returns task
             every { flowableTaskService.updateTask(task) } returns task
             every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
             every { taakVariabelenService.setTaskinformation(task, null) } just runs
             every { eventingService.send(any<ScreenEvent>()) } just runs
-
-            When("'updateTaakdata' is called with changed description and due date from user with access") {
-                every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
-
-                restTaak.apply {
-                    toelichting = "changed"
-                    fataledatum = LocalDate.parse("2024-03-19")
-                }
-
-                every { task.description = restTaak.toelichting } just runs
-                every { task.dueDate = DateTimeConverterUtil.convertToDate(restTaak.fataledatum) } just runs
-                every { task.id } returns restTaak.id
-
-                val restTaakReturned = taskRestService.updateTaskData(restTaak)
-
-                Then("the changes are stored") {
-                    restTaakReturned shouldBe restTaak
-                    verify(exactly = 1) {
-                        flowableTaskService.updateTask(task)
-                    }
-                }
-            }
+            every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
 
             When("the task is completed") {
                 val zaak = createZaak()
@@ -336,9 +354,6 @@ class TaskRestServiceTest : BehaviorSpec({
                 }
             }
         }
-
-
-
     }
 
     Context("Assigning tasks from a list") {
