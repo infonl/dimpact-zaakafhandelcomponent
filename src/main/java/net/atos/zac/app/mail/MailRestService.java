@@ -80,8 +80,8 @@ public class MailRestService {
             final RESTMailGegevens restMailGegevens
     ) {
         final Zaak zaak = zrcClientService.readZaak(zaakUuid);
-        assertPolicy(!zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.getUuid()).orElse(false) &&
-                     policyService.readZaakRechten(zaak).getVersturenOntvangstbevestiging());
+        var ontvangstbevestigingVerstuurd = Boolean.TRUE.equals(zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.getUuid()));
+        assertPolicy(!ontvangstbevestigingVerstuurd && policyService.readZaakRechten(zaak).getVersturenOntvangstbevestiging());
         mailService.sendMail(restMailGegevensConverter.convert(restMailGegevens), BronnenKt.getBronnenFromZaak(zaak));
         zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak);
     }

@@ -36,8 +36,8 @@ data class RestBedrijf(
     }
 }
 
-fun ResultaatItem.toRestBedrijf(kvkNummer: String? = null) = RestBedrijf(
-    kvkNummer = kvkNummer,
+fun ResultaatItem.toRestBedrijf() = RestBedrijf(
+    kvkNummer = this.kvkNummer,
     vestigingsnummer = this.vestigingsnummer,
     naam = this.toName(),
     postcode = this.adres.binnenlandsAdres.postcode,

@@ -21,10 +21,10 @@ import net.atos.zac.admin.ZaakafhandelParameterService;
 import net.atos.zac.admin.model.ZaakafhandelParameters;
 import net.atos.zac.app.admin.converter.RESTMailtemplateConverter;
 import net.atos.zac.app.admin.model.RESTMailtemplate;
-import net.atos.zac.mailtemplates.model.Mail;
 import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.zac.mailtemplates.MailTemplateService;
+import nl.info.zac.mailtemplates.model.Mail;
 import nl.info.zac.mailtemplates.model.MailTemplate;
 
 @Singleton

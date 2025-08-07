@@ -305,6 +305,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
     if (zaak.behandelaar?.id === this.loggedInUser.id) {
       return this.zakenService.toekennenAanIngelogdeMedewerker({
         zaakUUID: this.zaak.uuid,
+        groepId: zaak.groep?.id as string,
         reden: reason,
       });
     }

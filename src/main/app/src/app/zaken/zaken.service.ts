@@ -159,9 +159,14 @@ export class ZakenService {
     );
   }
 
-  toekennenAanIngelogdeMedewerkerVanuitLijst(zaakUUID: string, reden?: string) {
+  toekennenAanIngelogdeMedewerkerVanuitLijst(
+    zaakUUID: string,
+    groepId: string,
+    reden?: string,
+  ) {
     return this.zacHttpClient.PUT("/rest/zaken/lijst/toekennen/mij", {
       zaakUUID,
+      groepId,
       reden,
     });
   }

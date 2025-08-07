@@ -136,6 +136,7 @@ class KlantRestServiceTest : BehaviorSpec({
                       "emailadres": "$TEST_VESTIGING_EMAIL",
                       "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
                       "identificatieType": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                      "kvkNummer": "$TEST_KVK_NUMMER_1",
                       "naam": "$TEST_KVK_NAAM_1",
                       "type": "$VESTIGINGTYPE_NEVENVESTIGING",
                       "telefoonnummer": "$TEST_VESTIGING_TELEPHONE_NUMBER",
@@ -190,23 +191,52 @@ class KlantRestServiceTest : BehaviorSpec({
                 ).toString()
             )
             Then("the expected companies as defined in the KVK mock are returned") {
-                response.code shouldBe HTTP_OK
                 val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
-                with(responseBody) {
-                    shouldContainJsonKeyValue("totaal", 1)
-                    shouldContainJsonKey("resultaten")
-                    val resultaten = JSONObject(responseBody).getJSONArray("resultaten")
-                    resultaten.length() shouldBe 1
-                    with(JSONArray(resultaten).get(0).toString()) {
-                        shouldContainJsonKeyValue("adres", "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1")
-                        shouldContainJsonKeyValue("identificatie", TEST_KVK_VESTIGINGSNUMMER_1)
-                        shouldContainJsonKeyValue("identificatieType", BETROKKENE_IDENTIFACTION_TYPE_VESTIGING)
-                        shouldContainJsonKeyValue("naam", TEST_KVK_NAAM_1)
-                        shouldContainJsonKeyValue("type", VESTIGINGTYPE_NEVENVESTIGING)
-                        shouldContainJsonKeyValue("vestigingsnummer", TEST_KVK_VESTIGINGSNUMMER_1)
+                response.code shouldBe HTTP_OK
+                responseBody shouldEqualJson """
+                    { 
+                        "foutmelding" : "",
+                        "resultaten" : [ {
+                            "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                            "identificatie" : "$TEST_KVK_VESTIGINGSNUMMER_1",
+                            "identificatieType" : "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                            "kvkNummer" : "$TEST_KVK_NUMMER_1",
+                            "naam" : "$TEST_KVK_NAAM_1",
+                            "type" : "$VESTIGINGTYPE_NEVENVESTIGING",
+                            "vestigingsnummer" : "$TEST_KVK_VESTIGINGSNUMMER_1"
+                        } ],
+                       "totaal" : 1.0
                     }
-                }
+                """.trimIndent()
+            }
+        }
+        When("a search on companies by vestigingsnummer is performed") {
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/klanten/bedrijven",
+                requestBodyAsString = JSONObject(
+                    mapOf("vestigingsnummer" to TEST_KVK_VESTIGINGSNUMMER_1)
+                ).toString()
+            )
+            Then("the expected companies as defined in the KVK mock are returned") {
+                val responseBody = response.body.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                responseBody shouldEqualJson """
+                    { 
+                        "foutmelding" : "",
+                        "resultaten" : [ {
+                            "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                            "identificatie" : "$TEST_KVK_VESTIGINGSNUMMER_1",
+                            "identificatieType" : "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                            "kvkNummer" : "$TEST_KVK_NUMMER_1",
+                            "naam" : "$TEST_KVK_NAAM_1",
+                            "type" : "$VESTIGINGTYPE_NEVENVESTIGING",
+                            "vestigingsnummer" : "$TEST_KVK_VESTIGINGSNUMMER_1"
+                        } ],
+                       "totaal" : 1.0
+                    }
+                """.trimIndent()
             }
         }
         When("the list contactmomenten endpoint is called with the BSN of this test customer") {
@@ -263,6 +293,7 @@ class KlantRestServiceTest : BehaviorSpec({
                       "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
                       "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
                       "identificatieType": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                      "kvkNummer": "$TEST_KVK_NUMMER_1",
                       "naam": "$TEST_KVK_NAAM_1",
                       "type": "$VESTIGINGTYPE_NEVENVESTIGING",
                       "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_1"

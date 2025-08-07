@@ -227,6 +227,6 @@ class RestZaakConverter @Inject constructor(
     }
 
     private fun shouldOntvangstbevestigingNietVerstuurdIndicatieBeSet(zaak: Zaak, statustype: StatusType?) =
-        !zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid).orElse(false) &&
+        !(zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) ?: false) &&
             !statustype.isHeropend()
 }
