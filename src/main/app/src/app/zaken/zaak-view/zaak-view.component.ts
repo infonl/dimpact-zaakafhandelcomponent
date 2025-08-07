@@ -1111,7 +1111,7 @@ export class ZaakViewComponent
         betrokkeneIdentificatie: new BetrokkeneIdentificatie(initiator),
       })
       .subscribe((zaak) =>
-        this.handleNewInitiator("msg.initiator.toegevoegd", zaak),
+        this.handleNewInitiator("msg.initiator.gekoppeld", zaak),
       );
   }
 
