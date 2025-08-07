@@ -598,7 +598,9 @@ class ZaakRestService @Inject constructor(
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
         assertPolicy(zaakRechten.toekennen)
 
-        validateUserInGroup(restZaakAssignmentData.assigneeUserName, restZaakAssignmentData.groupId)
+        restZaakAssignmentData.assigneeUserName?.let {
+            identityService.validateIfUserIsInGroup(it, restZaakAssignmentData.groupId)
+        }
 
         val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
             ?.betrokkeneIdentificatie?.identificatie
@@ -620,7 +622,10 @@ class ZaakRestService @Inject constructor(
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
         assertPolicy(zaak.isOpen() && zaakRechten.toekennen)
-        validateUserInGroup(loggedInUserInstance.get().id, restZaakAssignmentToLoggedInUserData.groupId)
+        identityService.validateIfUserIsInGroup(
+            loggedInUserInstance.get().id,
+            restZaakAssignmentToLoggedInUserData.groupId
+        )
 
         val user = assignLoggedInUserToZaak(
             zaak = zaak,
@@ -839,7 +844,10 @@ class ZaakRestService @Inject constructor(
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
         assertPolicy(zaak.isOpen() && zaakRechten.toekennen)
-        validateUserInGroup(loggedInUserInstance.get().id, restZaakAssignmentToLoggedInUserData.groupId)
+        identityService.validateIfUserIsInGroup(
+            loggedInUserInstance.get().id,
+            restZaakAssignmentToLoggedInUserData.groupId
+        )
 
         val user = assignLoggedInUserToZaak(
             zaak = zaak,
@@ -1098,14 +1106,6 @@ class ZaakRestService @Inject constructor(
     }
 
     private fun datumWaarschuwing(vandaag: LocalDate, dagen: Int): LocalDate = vandaag.plusDays(dagen + 1L)
-
-    private fun validateUserInGroup(userName: String?, groupId: String) {
-        userName?.let { behandelaarId ->
-            groupId.let { groepId ->
-                identityService.validateIfUserIsInGroup(behandelaarId, groepId)
-            }
-        }
-    }
 
     private fun assignUser(
         zaak: Zaak,
