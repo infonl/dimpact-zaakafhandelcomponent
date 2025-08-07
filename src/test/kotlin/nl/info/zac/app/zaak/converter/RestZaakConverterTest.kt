@@ -45,7 +45,6 @@ import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD
 import java.util.EnumSet
-import java.util.Optional
 
 class RestZaakConverterTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
@@ -104,7 +103,7 @@ class RestZaakConverterTest : BehaviorSpec({
             every { findInitiatorRoleForZaak(zaak) } returns rolNatuurlijkPersoon
         }
         with(zaakVariabelenService) {
-            every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns Optional.of(false)
+            every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns false
             every { readZaakdata(zaak.uuid) } returns zaakdata
         }
         every { restGroupConverter.convertGroupId(rolOrganisatorischeEenheid.identificatienummer) } returns restGroup
@@ -159,7 +158,7 @@ class RestZaakConverterTest : BehaviorSpec({
             every { findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
         }
         with(zaakVariabelenService) {
-            every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns Optional.of(false)
+            every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns false
             every { readZaakdata(zaak.uuid) } returns zaakdata
         }
         every { brcClientService.listBesluiten(zaak) } returns emptyList()
@@ -211,7 +210,7 @@ class RestZaakConverterTest : BehaviorSpec({
             every { findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
         }
         with(zaakVariabelenService) {
-            every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns Optional.of(false)
+            every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns false
             every { readZaakdata(zaak.uuid) } returns zaakdata
         }
         every { brcClientService.listBesluiten(zaak) } returns emptyList()
@@ -277,9 +276,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { bpmnService.isProcessDriven(zaak.uuid) } returns false
 
         When("converting a zaak to a rest zaak") {
-            every {
-                zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid)
-            } returns Optional.of(true)
+            every { zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) } returns true
 
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, status, statusType)
 
@@ -339,9 +336,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { bpmnService.isProcessDriven(zaak.uuid) } returns false
 
         When("converting a zaak to a rest zaak") {
-            every {
-                zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid)
-            } returns Optional.of(true)
+            every { zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) } returns true
 
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, status, statusType)
 

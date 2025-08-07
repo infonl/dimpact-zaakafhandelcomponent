@@ -25,7 +25,6 @@ import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import java.time.LocalDate
-import java.util.Optional
 
 class SuspensionZaakHelperTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
@@ -141,8 +140,8 @@ class SuspensionZaakHelperTest : BehaviorSpec({
         )
         val patchedZaak = slot<Zaak>()
 
-        every { zaakVariabelenService.findDatumtijdOpgeschort(zaak.uuid) } returns Optional.empty()
-        every { zaakVariabelenService.findVerwachteDagenOpgeschort(zaak.uuid) } returns Optional.empty()
+        every { zaakVariabelenService.findDatumtijdOpgeschort(zaak.uuid) } returns null
+        every { zaakVariabelenService.findVerwachteDagenOpgeschort(zaak.uuid) } returns null
         every {
             zrcClientService.patchZaak(
                 zaak.uuid,

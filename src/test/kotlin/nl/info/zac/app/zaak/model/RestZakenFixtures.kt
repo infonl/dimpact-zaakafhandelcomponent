@@ -233,6 +233,16 @@ fun createRESTZaakAssignmentData(
     reason = reden
 )
 
+fun createRestZaakAssignmentToLoggedInUserData(
+    zaakUUID: UUID = UUID.randomUUID(),
+    groepId: String = "fakeGroupId",
+    reden: String = "fakeReden"
+) = RestZaakAssignmentToLoggedInUserData(
+    zaakUUID = zaakUUID,
+    groupId = groepId,
+    reason = reden
+)
+
 fun createRESTZakenVerdeelGegevens(
     uuids: List<UUID> = emptyList(),
     groepId: String = "fakeGroupId",

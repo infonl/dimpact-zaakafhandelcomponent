@@ -57,8 +57,8 @@ class SuspensionZaakHelper @Inject constructor(
         }
 
         val zaakUUID = zaak.uuid
-        val datumOpgeschort = zaakVariabelenService.findDatumtijdOpgeschort(zaak.uuid).orElseGet { ZonedDateTime.now() }
-        val verwachteDagenOpgeschort = zaakVariabelenService.findVerwachteDagenOpgeschort(zaak.uuid).orElse(0)
+        val datumOpgeschort = zaakVariabelenService.findDatumtijdOpgeschort(zaak.uuid) ?: ZonedDateTime.now()
+        val verwachteDagenOpgeschort = zaakVariabelenService.findVerwachteDagenOpgeschort(zaak.uuid) ?: 0
         val dagenVerschil = ChronoUnit.DAYS.between(datumOpgeschort, ZonedDateTime.now())
         val offset = dagenVerschil - verwachteDagenOpgeschort
         val einddatumGepland = zaak.einddatumGepland?.plusDays(offset)
