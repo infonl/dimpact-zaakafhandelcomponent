@@ -147,7 +147,7 @@ services:
   # Open Zaak Celery worker
   # Used for sending notifications from Open Zaak to Open Notificaties
   openzaak-celery:
-    image: docker.io/openzaak/open-zaak:1.22.0@sha256:2d50ea216ad424f3cfca48be04d98500a4fd626a92402fe9d10008ad4edcc3e3
+    image: docker.io/openzaak/open-zaak:1.23.0@sha256:605509fa027597bcfdeda1c69532d888eaf82263b0e0947926ac6b4268466638
     platform: linux/amd64
     environment: *openzaak-env
     command: /celery_worker.sh
