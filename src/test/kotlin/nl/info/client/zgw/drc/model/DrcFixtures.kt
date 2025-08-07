@@ -9,6 +9,8 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
 import nl.info.client.zgw.drc.model.generated.LockEnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.generated.Ondertekening
+import nl.info.client.zgw.drc.model.generated.SoortEnum
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import java.net.URI
@@ -32,7 +34,8 @@ fun createEnkelvoudigInformatieObject(
     formaat: String = "fakeformaat",
     informatieObjectType: URI = URI("http://example.com/informatieobjecttype/${UUID.randomUUID()}"),
     bestandsomvang: Int = 1234,
-    title: String = "fakeTitle"
+    title: String = "fakeTitle",
+    ondertekening: Ondertekening? = null
 ) = EnkelvoudigInformatieObject(
     url,
     versie,
@@ -49,6 +52,7 @@ fun createEnkelvoudigInformatieObject(
     this.informatieobjecttype = informatieObjectType
     this.bestandsomvang = bestandsomvang
     this.titel = title
+    this.ondertekening = ondertekening
 }
 
 fun createEnkelvoudigInformatieObjectCreateLockRequest(
@@ -82,3 +86,11 @@ fun createEnkelvoudigInformatieObjectWithLockRequest(
 fun createLockEnkelvoudigInformatieObject(
     lock: String = "fakeLock"
 ) = LockEnkelvoudigInformatieObject(lock)
+
+fun createOndertekening(
+    type: SoortEnum = SoortEnum.DIGITAAL,
+    date: LocalDate = LocalDate.now()
+) = Ondertekening().apply {
+    this.soort = type
+    this.datum = date
+}

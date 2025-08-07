@@ -22,11 +22,11 @@ import net.atos.zac.documenten.model.InboxDocument
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.flowable.createTestTask
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.websocket.event.ScreenEvent
+import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
@@ -185,7 +185,7 @@ class NotificationReceiverTest : BehaviorSpec({
         """.trimIndent()
     ) {
         val zaakUUID = UUID.randomUUID()
-        val zaakUri = URI("http://example.com/fakezaak/$zaakUUID")
+        val zaakUri = URI("https://example.com/fakezaak/$zaakUUID")
         val notificatie = createNotificatie(
             channel = Channel.ZAKEN,
             resource = Resource.ZAAK,
