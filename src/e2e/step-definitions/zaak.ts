@@ -133,7 +133,10 @@ When(
       .getByRole("tabpanel", { name: "Gegevens" })
       .getByRole("button")
       .click();
-    await this.page.getByRole("combobox", { name: "Groep" }).locator("svg").click();
+    await this.page
+      .getByRole("combobox", { name: "Groep" })
+      .locator("svg")
+      .click();
     await this.page.getByText(groupName).click();
     await this.page
       .getByRole("combobox", { name: "Behandelaar Kies een" })

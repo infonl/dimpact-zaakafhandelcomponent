@@ -216,12 +216,14 @@ Then(
       this.page.getByRole("cell", { name: "Summary" }),
     ).toBeVisible();
     await expect(
-      this.page.getByRole('cell', { name: 'Toegekend' }),
+      this.page.getByRole("cell", { name: "Toegekend" }),
     ).toBeVisible();
     await expect(
       this.page.getByRole("cell", { name: groupName }),
     ).toBeVisible();
-    await expect(this.page.getByRole("cell", { name: userName, exact: true })).toBeVisible();
+    await expect(
+      this.page.getByRole("cell", { name: userName, exact: true }),
+    ).toBeVisible();
   },
 );
 
