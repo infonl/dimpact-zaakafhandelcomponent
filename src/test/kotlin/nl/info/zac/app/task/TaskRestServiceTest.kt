@@ -239,7 +239,7 @@ class TaskRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("a task with signature task data is assigned to the current user with a document that is signed") {
+        Given("a task and task data to assign the task to the current user and sign the document") {
             val task = mockk<Task>()
             val restUser = createRESTUser(
                 id = loggedInUser.id,
@@ -288,7 +288,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("'complete' is called") {
+            When("the task is completed") {
                 val zaak = createZaak()
                 val historicTaskInstance = createHistoricTaskInstanceEntityImpl()
                 val httpSession = mockk<HttpSession>()
@@ -319,19 +319,26 @@ class TaskRestServiceTest : BehaviorSpec({
 
                 val restTaakReturned = taskRestService.completeTask(restTaak)
 
-                Then(
-                    "the document is signed, the task is completed and the search index service is invoked"
-                ) {
+                Then("the completed task is returned") {
                     restTaakReturned shouldBe restTaakConverted
+                }
+                And("the document is signed") {
                     verify(exactly = 1) {
                         enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
                             enkelvoudigInformatieObjectUUID
                         )
+                    }
+                }
+                And("the task is completed in Flowable") {
+                    verify(exactly = 1) {
                         flowableTaskService.completeTask(task)
                     }
                 }
             }
         }
+
+
+
     }
 
     Context("Assigning tasks from a list") {

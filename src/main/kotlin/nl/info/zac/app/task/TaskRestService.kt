@@ -64,7 +64,6 @@ import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
-import nl.info.zac.productaanvraag.ProductaanvraagEmailService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.helper.SuspensionZaakHelper
@@ -284,7 +283,7 @@ class TaskRestService @Inject constructor(
                     toelichting = taakdata[TAAK_DATA_TOELICHTING]?.toString()
                 )
             }
-            ondertekenEnkelvoudigInformatieObjecten(taakdata, zaak)
+            signEnkelvoudigInformatieobjecten(taakdata, zaak)
         }
         taakVariabelenService.setTaskData(updatedTask, restTask.taakdata)
         taakVariabelenService.setTaskinformation(updatedTask, restTask.taakinformatie)
@@ -370,9 +369,8 @@ class TaskRestService @Inject constructor(
         }
     }
 
-    private fun ondertekenEnkelvoudigInformatieObjecten(taakdata: Map<String, Any>, zaak: Zaak) {
-        val signatures = readSignatures(taakdata)
-        signatures.ifPresent { signature ->
+    private fun signEnkelvoudigInformatieobjecten(taakdata: Map<String, Any>, zaak: Zaak) {
+        readSignatures(taakdata).ifPresent { signature ->
             signature.split(
                 TaakVariabelenService.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER.toRegex()
             ).dropLastWhile { it.isEmpty() }.toTypedArray()
