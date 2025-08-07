@@ -1,23 +1,23 @@
-import { PersoonZoekComponent } from "./persoon-zoek.component";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { KlantenService } from "../../klanten.service";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { TranslateModule } from "@ngx-translate/core";
-import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { of } from "rxjs";
-import { fromPartial } from "@total-typescript/shoehorn";
-import { GeneratedType } from "../../../shared/utils/generated-types";
-import { ConfiguratieService } from "../../../configuratie/configuratie.service";
-import { UtilService } from "../../../core/service/util.service";
-import { FormCommunicatieService } from "../form-communicatie-service";
-import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
-import { MatIconModule } from "@angular/material/icon";
-import { MaterialModule } from "src/app/shared/material/material.module";
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { MatIconModule } from "@angular/material/icon";
 import { MatInputHarness } from "@angular/material/input/testing";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { TranslateModule } from "@ngx-translate/core";
+import { fromPartial } from "@total-typescript/shoehorn";
+import { of } from "rxjs";
+import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
+import { MaterialModule } from "src/app/shared/material/material.module";
+import { ConfiguratieService } from "../../../configuratie/configuratie.service";
+import { UtilService } from "../../../core/service/util.service";
+import { GeneratedType } from "../../../shared/utils/generated-types";
+import { KlantenService } from "../../klanten.service";
+import { FormCommunicatieService } from "../form-communicatie-service";
+import { PersoonZoekComponent } from "./persoon-zoek.component";
 
 describe(PersoonZoekComponent.name, () => {
   let component: PersoonZoekComponent;
@@ -71,12 +71,12 @@ describe(PersoonZoekComponent.name, () => {
           voornamen: "NON",
           voorvoegsel: "NON",
         },
-      ])
+      ]),
     );
     jest
       .spyOn(klantenService, "listPersonen")
       .mockReturnValue(
-        of(fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({}))
+        of(fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({})),
       );
 
     const configuratieService = TestBed.inject(ConfiguratieService);
@@ -122,13 +122,13 @@ describe(PersoonZoekComponent.name, () => {
         {
           context: "test-context",
           action: "test-action",
-        }
+        },
       );
     });
 
     it("should disabled all 'NON' fields when a 'REQ' field is filled", async () => {
       const inputs = await loader.getAllHarnesses(MatInputHarness);
-      const [bsn, _geboortedatum, ...rest] = inputs;
+      const [bsn, , ...rest] = inputs;
 
       await bsn.setValue("999990408");
 
