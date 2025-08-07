@@ -599,7 +599,7 @@ class ZaakRestService @Inject constructor(
         assertPolicy(zaakRechten.toekennen)
 
         restZaakAssignmentData.assigneeUserName?.let {
-            identityService.validateIfUserIsInGroup(it, restZaakAssignmentData.groupId)
+            identityService.validateIfUserIsInGroup(userId = it, groupId = restZaakAssignmentData.groupId)
         }
 
         val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
@@ -623,8 +623,8 @@ class ZaakRestService @Inject constructor(
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
         assertPolicy(zaak.isOpen() && zaakRechten.toekennen)
         identityService.validateIfUserIsInGroup(
-            loggedInUserInstance.get().id,
-            restZaakAssignmentToLoggedInUserData.groupId
+            userId = loggedInUserInstance.get().id,
+            groupId = restZaakAssignmentToLoggedInUserData.groupId
         )
 
         val user = assignLoggedInUserToZaak(
@@ -845,8 +845,8 @@ class ZaakRestService @Inject constructor(
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
         assertPolicy(zaak.isOpen() && zaakRechten.toekennen)
         identityService.validateIfUserIsInGroup(
-            loggedInUserInstance.get().id,
-            restZaakAssignmentToLoggedInUserData.groupId
+            userId = loggedInUserInstance.get().id,
+            groupId = restZaakAssignmentToLoggedInUserData.groupId
         )
 
         val user = assignLoggedInUserToZaak(
