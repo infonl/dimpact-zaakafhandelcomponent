@@ -31,6 +31,10 @@ import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.comp
 import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZakenService } from "../zaken.service";
 import { ZaakViewComponent } from "./zaak-view.component";
+import { MatDialog } from "@angular/material/dialog";
+import { MatButtonHarness } from "@angular/material/button/testing";
+import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
+import { MatSelectHarness } from "@angular/material/select/testing";
 
 describe(ZaakViewComponent.name, () => {
   let fixture: ComponentFixture<ZaakViewComponent>;
@@ -58,6 +62,40 @@ describe(ZaakViewComponent.name, () => {
     initiatorIdentificatieType: "BSN",
   });
 
+  const userEventPlanItems = [
+    fromPartial<GeneratedType<"RESTPlanItem">>({
+      actief: false,
+      id: "5062",
+      naam: "Zaak afhandelen",
+      tabellen: {},
+      type: "USER_EVENT_LISTENER",
+      userEventListenerActie: "ZAAK_AFHANDELEN",
+      zaakUuid: "a0b7ea92-7976-4bf2-a6fc-e883741eaf9e",
+    }),
+  ];
+
+  const resultTypes = [
+    {
+      archiefNominatie: "BLIJVEND_BEWAREN",
+      besluitVerplicht: true,
+      id: "62178b42-d40f-4ee5-8d4d-3a7916ee3f33",
+      naam: "Toegekend",
+      naamGeneriek: "Toegekend",
+      toelichting: "Toelichting bij resultaat Toegekend",
+      vervaldatumBesluitVerplicht: false,
+    },
+    {
+      archiefNominatie: "VERNIETIGEN",
+      archiefTermijn: "1 jaar",
+      besluitVerplicht: false,
+      id: "03ffce63-0942-49f5-8a6e-031827f0ff19",
+      naam: "Verleend",
+      naamGeneriek: "Verleend",
+      toelichting: "Toelichting bij resultaat Verleend",
+      vervaldatumBesluitVerplicht: false,
+    },
+  ];
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [
@@ -69,6 +107,7 @@ describe(ZaakViewComponent.name, () => {
         SideNavComponent,
         PersoonsgegevensComponent,
         ZaakInitiatorToevoegenComponent,
+        ZaakAfhandelenDialogComponent,
       ],
       imports: [
         TranslateModule.forRoot(),
@@ -106,7 +145,7 @@ describe(ZaakViewComponent.name, () => {
     planItemsService = TestBed.inject(PlanItemsService);
     jest
       .spyOn(planItemsService, "listUserEventListenerPlanItems")
-      .mockReturnValue(of([]));
+      .mockReturnValue(of(userEventPlanItems));
     jest
       .spyOn(planItemsService, "listHumanTaskPlanItems")
       .mockReturnValue(of([]));
@@ -163,6 +202,86 @@ describe(ZaakViewComponent.name, () => {
         );
         expect(button).toBeNull();
       });
+    });
+  });
+
+  describe("planitem.ZAAK_AFHANDELEN", () => {
+    const afhandelenZaak = {
+      ...zaak,
+      isOpen: true,
+      rechten: {
+        ...zaak.rechten,
+        behandelen: true,
+      },
+      zaaktype: {
+        ...zaak.zaaktype,
+      },
+      isHeropend: false,
+      isOpgeschort: false,
+      isEerderOpgeschort: false,
+      isProcesGestuurd: false,
+      status: {
+        naam: "In behandeling",
+        toelichting: "Status gewijzigd",
+      },
+    } satisfies GeneratedType<"RestZaak">;
+
+    beforeEach(() => {
+      mockActivatedRoute.data.next({ zaak: afhandelenZaak });
+    });
+
+    it("should show the button", async () => {
+      const button = await loader.getHarness(
+        MatNavListItemHarness.with({ title: "planitem.ZAAK_AFHANDELEN" }),
+      );
+      expect(button).toBeTruthy();
+    });
+
+    it("should open the dialog and find the button, dropdown and text inside", async () => {
+      jest
+        .spyOn(zakenService, "listResultaattypes")
+        .mockReturnValue(of(resultTypes));
+
+      const mainButton = await loader.getHarness(
+        MatNavListItemHarness.with({ title: "planitem.ZAAK_AFHANDELEN" }),
+      );
+
+      const dialog = TestBed.inject(MatDialog);
+      const openSpy = jest.spyOn(dialog, "open");
+
+      await mainButton.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(openSpy).toHaveBeenCalledWith(
+        ZaakAfhandelenDialogComponent,
+        expect.objectContaining({ data: expect.anything() }),
+      );
+
+      const overlayLoader =
+        TestbedHarnessEnvironment.documentRootLoader(fixture);
+
+      const dialogButton = await overlayLoader.getHarnessOrNull(
+        MatNavListItemHarness.with({ title: "planitem.ZAAK_AFHANDELEN" }),
+      );
+      expect(dialogButton).not.toBeNull();
+
+      const select = await overlayLoader.getHarness(MatSelectHarness);
+      await select.open();
+      const options = await select.getOptions();
+      await options[0].click();
+      expect(await select.getValueText()).toBe(await options[0].getText());
+
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      // DEBUG: Check the dialog HTML structure
+      const overlayContainerElement = document.querySelector(
+        ".cdk-overlay-container",
+      );
+      expect(overlayContainerElement).not.toBeNull();
+      const dialogHtml = overlayContainerElement!.outerHTML;
+      expect(dialogHtml).toMatchSnapshot();
     });
   });
 });
