@@ -24,7 +24,7 @@ export const test = base.extend<{
       await page.getByRole("button", { name: "Sign In" }).click();
       await signInRequest;
 
-      await page.waitForTimeout(5000);
+      await page.waitForTimeout(5000); // Give time to set all the session details and redirects
     });
   },
   userToLogin: async ({}, use) => {

@@ -12,6 +12,8 @@ const testDir = defineBddConfig({
   aiFix: {
     promptAttachment: true,
   },
+  verbose: true,
+  retries: 2,
 });
 
 export default defineConfig({

@@ -29,11 +29,12 @@ When("I add a new {string} case", async ({ page }, caseType: string) => {
 
 Then("the case gets created", async ({ page, caseNumber }) => {
   const url = page.url();
-  caseNumber = url.split("/").pop();
-  console.log({ url, caseNumber });
+  expect(url).toMatch(/zaken\/ZAAK-\d{4}-\d+/);
+  caseNumber.value = url.split("/").pop();
+  await page.waitForTimeout(3000); // Give SOLR time to index the case
 });
 
 Then("I see the case in my overview", async ({ page, caseNumber }) => {
-  await page.goto("/zaken/werkvoorraad");
-  expect(page.getByText(caseNumber)).toBeVisible();
+  await page.goto("/zaken/werkvoorraad", { waitUntil: "networkidle" });
+  expect(page.getByText(caseNumber.value)).toBeVisible();
 });

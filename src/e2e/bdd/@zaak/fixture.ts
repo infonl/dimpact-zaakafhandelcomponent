@@ -1,10 +1,9 @@
-import { test as base } from "playwright-bdd";
-import { test as authTest } from "../@login/fixture";
+import { test as base } from "../@login/fixture";
 
-export const test = authTest.extend<{
-  caseNumber: string;
+export const test = base.extend<{
+  caseNumber: { value: string };
 }>({
   caseNumber: async ({}, use) => {
-    await use("");
+    await use({ value: "" });
   },
 });
