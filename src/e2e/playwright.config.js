@@ -7,8 +7,8 @@ const BUSINESS_LANGUAGE = "en";
 
 const testDir = defineBddConfig({
   language: BUSINESS_LANGUAGE,
-  features: ["features/@auth/**/*.feature", "features/@zaak/**/*.feature"],
-  steps: ["features/**/steps.ts"],
+  features: "bdd/**/*.feature",
+  steps: ["bdd/**/steps.ts", "bdd/**/fixture.ts"],
   aiFix: {
     promptAttachment: true,
   },
