@@ -4,7 +4,6 @@
  */
 
 import {
-  AfterViewInit,
   ChangeDetectorRef,
   Component,
   OnDestroy,
@@ -119,12 +118,12 @@ export class TaakViewComponent
       this.init(data.taak, true);
 
       this.taakListener = this.websocketService.addListenerWithSnackbar(
-          Opcode.ANY,
-          ObjectType.TAAK,
-          data.taak.id,
-          (event) => {
-            this.reloadTaak(event.objectId.resource)
-          }
+        Opcode.ANY,
+        ObjectType.TAAK,
+        data.taak.id,
+        (event) => {
+          this.reloadTaak(event.objectId.resource);
+        },
       );
 
       this.historieSrc.sortingDataAccessor = (item, property) => {
@@ -142,11 +141,11 @@ export class TaakViewComponent
       if (data.taak.status === "AFGEROND") return;
 
       this.fataledatumIcon = new TextIcon(
-          DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
-          "report_problem",
-          "errorTaakVerlopen_icon",
-          "msg.datum.overschreden",
-          "error",
+        DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
+        "report_problem",
+        "errorTaakVerlopen_icon",
+        "msg.datum.overschreden",
+        "error",
       );
     });
   }

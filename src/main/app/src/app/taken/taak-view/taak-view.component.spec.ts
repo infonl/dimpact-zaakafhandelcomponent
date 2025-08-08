@@ -21,6 +21,7 @@ import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { EditGroepBehandelaarComponent } from "../../shared/edit/edit-groep-behandelaar/edit-groep-behandelaar.component";
+import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
@@ -29,7 +30,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakVerkortComponent } from "../../zaken/zaak-verkort/zaak-verkort.component";
 import { TakenService } from "../taken.service";
 import { TaakViewComponent } from "./taak-view.component";
-import {MaterialFormBuilderModule} from "../../shared/material-formå-builder/material-form-builder.module";
 
 describe(TaakViewComponent.name, () => {
   let fixture: ComponentFixture<TaakViewComponent>;
@@ -105,7 +105,7 @@ describe(TaakViewComponent.name, () => {
     websocketService = TestBed.inject(WebsocketService);
 
     takenService = TestBed.inject(TakenService);
-    jest.spyOn(takenService, 'readTaak').mockReturnValue(of())
+    jest.spyOn(takenService, "readTaak").mockReturnValue(of());
   });
 
   describe(TaakViewComponent.prototype.documentCreated.name, () => {
@@ -142,15 +142,15 @@ describe(TaakViewComponent.name, () => {
     });
 
     it("should read the task when a screen event is received", async () => {
-        const readTaak = jest.spyOn(takenService, "readTaak");
+      const readTaak = jest.spyOn(takenService, "readTaak");
 
-        websocketService["onMessage"]({
-            opcode: Opcode.ANY,
-            objectType: ObjectType.TAAK,
-            objectId: new ScreenEventId(taak.id!),
-        });
+      websocketService["onMessage"]({
+        opcode: Opcode.ANY,
+        objectType: ObjectType.TAAK,
+        objectId: new ScreenEventId(taak.id!),
+      });
 
-        expect(readTaak).toHaveBeenCalledWith(taak.id!);
-    })
+      expect(readTaak).toHaveBeenCalledWith(taak.id!);
+    });
   });
 });

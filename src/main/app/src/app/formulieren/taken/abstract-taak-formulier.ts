@@ -89,10 +89,10 @@ export abstract class AbstractTaakFormulier {
 
   getTaak(formGroup: FormGroup) {
     this.taak.taakdata = this.getDataElementen(formGroup);
-    this.taak.toelichting = String(
-      this.getFormField(AbstractTaakFormulier.TOELICHTING_FIELD).formControl
-        .value,
-    );
+    const toelichting = this.getFormField(
+      AbstractTaakFormulier.TOELICHTING_FIELD,
+    ).formControl.value;
+    this.taak.toelichting = toelichting ? String(toelichting) : null;
     this.taak.taakinformatie = this.getTaakinformatie(formGroup);
     return this.taak;
   }
