@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { TestBed } from "@angular/core/testing";
 import { FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
