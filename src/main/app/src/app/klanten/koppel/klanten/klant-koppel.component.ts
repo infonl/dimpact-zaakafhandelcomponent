@@ -83,6 +83,7 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
           </ng-template>
           <zac-klant-koppel-betrokkene-persoon
             type="bedrijf"
+            [context]="this.context()"
             [zaaktypeUUID]="zaaktypeUUID"
             (klantGegevens)="klantGegevens.emit($event)"
           />

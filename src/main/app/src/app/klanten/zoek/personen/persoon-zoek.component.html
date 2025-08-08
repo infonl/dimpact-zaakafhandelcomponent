@@ -3,54 +3,53 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div class="form">
-  <div class="flex-row flex-col-md gap-10 flex-fill">
-    <mfb-form-field class="flex-1" [field]="bsnFormField"></mfb-form-field>
-    <mfb-form-field
-      class="flex-1"
-      [field]="geboortedatumFormField"
-    ></mfb-form-field>
-  </div>
-  <div class="flex-row flex-col-md gap-10 flex-fill">
-    <mfb-form-field
-      class="flex-1"
-      [field]="voornamenFormField"
-    ></mfb-form-field>
-    <mfb-form-field
-      class="flex-1 w10"
-      [field]="voorvoegselFormField"
-    ></mfb-form-field>
-    <mfb-form-field
-      class="flex-1 w50"
-      [field]="geslachtsnaamFormField"
-    ></mfb-form-field>
-  </div>
-  <div class="flex-row flex-col-md gap-10 flex-fill">
-    <mfb-form-field class="flex-1" [field]="postcodeFormField"></mfb-form-field>
-    <mfb-form-field
-      class="flex-1"
-      [field]="huisnummerFormField"
-    ></mfb-form-field>
-  </div>
-  <div class="flex-row flex-col-md gap-10 flex-fill">
-    <mfb-form-field class="flex-1" [field]="straatFormField"></mfb-form-field>
-    <mfb-form-field
-      class="flex-1"
-      [field]="gemeenteVanInschrijvingFormField"
-    ></mfb-form-field>
-  </div>
-  <button
-    mat-raised-button
-    color="primary"
-    [disabled]="!isValid() || loading"
-    (click)="zoekPersonen()"
-  >
-    {{ "actie.zoeken" | translate }}
-  </button>
-  <button mat-raised-button (click)="wissen()">
-    {{ "actie.wissen" | translate }}
-  </button>
-</div>
+<form [formGroup]="formGroup" (submit)="zoekPersonen()">
+  <fieldset class="py-3">
+    <section class="row">
+      <zac-input class="col-6" [form]="formGroup" key="bsn" />
+      <zac-date class="col-6" [form]="formGroup" key="geboortedatum" />
+    </section>
+    <section class="row">
+      <zac-input class="col-5" [form]="formGroup" key="voornamen" />
+      <zac-input class="col-2" [form]="formGroup" key="voorvoegsel" />
+      <zac-input class="col-5" [form]="formGroup" key="geslachtsnaam" />
+    </section>
+    <section class="row">
+      <zac-input class="col-6" [form]="formGroup" key="postcode" />
+      <zac-input class="col-6" [form]="formGroup" key="huisnummer" />
+    </section>
+    <section class="row">
+      <zac-input class="col-6" [form]="formGroup" key="straat" />
+      <zac-input class="col-6" [form]="formGroup" key="gemeenteVanInschrijving">
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          [disabled]="formGroup.controls.gemeenteVanInschrijving.disabled"
+          title="{{ 'gemeenteMijn' | translate }}"
+          (click)="setGemeenteVanInschrijvingToCurrentGemeente()"
+        >
+          <mat-icon>location_city</mat-icon>
+        </button>
+      </zac-input>
+    </section>
+  </fieldset>
+  <fieldset>
+    <mat-action-row>
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="!isValid() || loading"
+      >
+        {{ "actie.zoeken" | translate }}
+      </button>
+      <button mat-raised-button (click)="clearFormAndData()">
+        {{ "actie.wissen" | translate }}
+      </button>
+    </mat-action-row>
+  </fieldset>
+</form>
 
 <div class="table-wrapper">
   <table mat-table [dataSource]="personen" matSort>
@@ -86,7 +85,7 @@
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let row">
         <button
-          *ngIf="persoon.observed"
+          *ngIf="persoon?.observed"
           mat-icon-button
           color="primary"
           (click)="selectPersoon(row)"

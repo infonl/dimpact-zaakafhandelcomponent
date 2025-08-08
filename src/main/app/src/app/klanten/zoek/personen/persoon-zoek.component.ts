@@ -12,17 +12,14 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
-import { forkJoin, Subject, Subscription } from "rxjs";
+import moment from "moment";
+import { Subject, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
-import { ActionIcon } from "../../../shared/edit/action-icon";
-import { DateFormFieldBuilder } from "../../../shared/material-form-builder/form-components/date/date-form-field-builder";
-import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { AbstractFormControlField } from "../../../shared/material-form-builder/model/abstract-form-control-field";
 import {
   BSN_LENGTH,
   POSTAL_CODE_LENGTH,
@@ -44,291 +41,261 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
 
   protected action = input.required<string>();
   protected context = input.required<string>();
+  protected blockSearch = input<boolean>(false);
 
-  formGroup: FormGroup;
-  bsnFormField: AbstractFormControlField;
-  geslachtsnaamFormField: AbstractFormControlField;
-  voornamenFormField: AbstractFormControlField;
-  voorvoegselFormField: AbstractFormControlField;
-  geboortedatumFormField: AbstractFormControlField;
-  gemeenteVanInschrijvingFormField: AbstractFormControlField;
-  straatFormField: AbstractFormControlField;
-  postcodeFormField: AbstractFormControlField;
-  huisnummerFormField: AbstractFormControlField;
-  queryFields: Record<string, AbstractFormControlField>;
+  private readonly destroy$ = new Subject<void>();
+
   queries: GeneratedType<"RestPersonenParameters">[] = [];
-  persoonColumns: string[] = [
+  persoonColumns = [
     "bsn",
     "naam",
     "geboortedatum",
     "verblijfplaats",
     "acties",
-  ];
+  ] as const;
   personen = new MatTableDataSource<GeneratedType<"RestPersoon">>();
-  mijnGemeente: string;
-  foutmelding: string;
+  foutmelding?: string;
   loading = false;
-  uuid: string;
-  private formSelectedSubscription!: Subscription;
+  uuid = crypto.randomUUID();
+
+  public formGroup = this.formBuilder.group({
+    bsn: this.formBuilder.control<string | null>(null, [
+      CustomValidators.bsn,
+      Validators.maxLength(BSN_LENGTH),
+    ]),
+    geboortedatum: this.formBuilder.control<moment.Moment | null>(null),
+    voornamen: this.formBuilder.control<string | null>(null, [
+      Validators.maxLength(50),
+    ]),
+    voorvoegsel: this.formBuilder.control<string | null>(null, [
+      Validators.maxLength(10),
+    ]),
+    geslachtsnaam: this.formBuilder.control<string | null>(null, [
+      Validators.maxLength(50),
+    ]),
+    gemeenteVanInschrijving: this.formBuilder.control<string | null>(null, [
+      Validators.min(1),
+      Validators.max(9999),
+      Validators.maxLength(4),
+    ]),
+    straat: this.formBuilder.control<string | null>(null, [
+      Validators.maxLength(55),
+    ]),
+    postcode: this.formBuilder.control<string | null>(null, [
+      CustomValidators.postcode,
+      Validators.maxLength(POSTAL_CODE_LENGTH),
+    ]),
+    huisnummer: this.formBuilder.control<number | null>(null, [
+      Validators.min(1),
+      Validators.max(99999),
+      Validators.maxLength(5),
+    ]),
+  });
 
   constructor(
-    private klantenService: KlantenService,
-    private utilService: UtilService,
-    private formBuilder: FormBuilder,
-    private router: Router,
-    private configuratieService: ConfiguratieService,
-    private formCommunicationService: FormCommunicatieService,
-  ) {}
+    private readonly klantenService: KlantenService,
+    private readonly utilService: UtilService,
+    private readonly formBuilder: FormBuilder,
+    private readonly router: Router,
+    private readonly configuratieService: ConfiguratieService,
+    private readonly formCommunicationService: FormCommunicatieService,
+  ) {
+    this.klantenService
+      .getPersonenParameters()
+      .subscribe((personenParameters) => {
+        this.queries = personenParameters;
+      });
 
-  ngOnInit(): void {
-    this.bsnFormField = new InputFormFieldBuilder()
-      .id("bsn")
-      .label("bsn")
-      .validators(CustomValidators.bsn)
-      .maxlength(BSN_LENGTH)
-      .build();
-    this.voornamenFormField = new InputFormFieldBuilder()
-      .id("voornamen")
-      .label("voornamen")
-      .maxlength(50)
-      .build();
-    this.geslachtsnaamFormField = new InputFormFieldBuilder()
-      .id("achternaam")
-      .label("achternaam")
-      .maxlength(50)
-      .build();
-    this.voorvoegselFormField = new InputFormFieldBuilder()
-      .id("voorvoegsel")
-      .label("voorvoegsel")
-      .maxlength(10)
-      .build();
-    this.geboortedatumFormField = new DateFormFieldBuilder()
-      .id("geboortedatum")
-      .label("geboortedatum")
-      .build();
-    const gemeenteIcon: ActionIcon = new ActionIcon(
-      "location_city",
-      "gemeenteMijn",
-      new Subject<void>(),
-    );
-    this.gemeenteVanInschrijvingFormField = new InputFormFieldBuilder()
-      .id("gemeenteVanInschrijving")
-      .label("gemeenteVanInschrijving")
-      .validators(Validators.min(1), Validators.max(9999))
-      .maxlength(4)
-      .icon(gemeenteIcon)
-      .build();
-    gemeenteIcon.iconClicked.subscribe(() => {
-      this.gemeenteVanInschrijvingFormField.formControl.setValue(
-        this.mijnGemeente,
-      );
+    // Update controls when form values change
+    this.formGroup.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      const parameters = {
+        ...this.formGroup.value,
+        geboortedatum: this.formGroup.value.geboortedatum?.toISOString(),
+      };
+      this.updateControls(this.getValidQueries(parameters, false));
     });
-    this.straatFormField = new InputFormFieldBuilder()
-      .id("straat")
-      .label("straat")
-      .maxlength(55)
-      .build();
-    this.postcodeFormField = new InputFormFieldBuilder()
-      .id("postcode")
-      .label("postcode")
-      .validators(CustomValidators.postcode)
-      .maxlength(POSTAL_CODE_LENGTH)
-      .build();
-    this.huisnummerFormField = new InputFormFieldBuilder()
-      .id("huisnummer")
-      .label("huisnummer")
-      .validators(
-        Validators.min(1),
-        Validators.max(99999),
-        CustomValidators.huisnummer,
-      )
-      .maxlength(5)
-      .build();
-
-    this.queryFields = {
-      bsn: this.bsnFormField,
-      geslachtsnaam: this.geslachtsnaamFormField,
-      voornamen: this.voornamenFormField,
-      voorvoegsel: this.voorvoegselFormField,
-      geboortedatum: this.geboortedatumFormField,
-      gemeenteVanInschrijving: this.gemeenteVanInschrijvingFormField,
-      straat: this.straatFormField,
-      postcode: this.postcodeFormField,
-      huisnummer: this.huisnummerFormField,
-    };
-
-    this.formGroup = this.formBuilder.group({
-      bsn: this.bsnFormField.formControl,
-      geslachtsnaam: this.geslachtsnaamFormField.formControl,
-      voornamen: this.voornamenFormField.formControl,
-      voorvoegsel: this.voorvoegselFormField.formControl,
-      geboortedatum: this.geboortedatumFormField.formControl,
-      gemeenteVanInschrijving:
-        this.gemeenteVanInschrijvingFormField.formControl,
-      straat: this.straatFormField.formControl,
-      postcode: this.postcodeFormField.formControl,
-      huisnummer: this.huisnummerFormField.formControl,
-    });
-
-    forkJoin([
-      this.klantenService.getPersonenParameters(),
-      this.configuratieService.readGemeenteCode(),
-    ]).subscribe(([personenParameters, gemeenteCode]) => {
-      this.queries = personenParameters;
-      this.mijnGemeente = gemeenteCode;
-    });
-
-    this.uuid = crypto.randomUUID(); // Generate a unique form ID
-
-    if (this.syncEnabled) {
-      // Subscribe to select event, ignore own event
-      this.formSelectedSubscription =
-        this.formCommunicationService.itemSelected$.subscribe(
-          ({ selected, uuid }) => {
-            if (selected && uuid !== this.uuid) {
-              this.wissen();
-            }
-          },
-        );
-    }
   }
 
-  isValid(): boolean {
-    const parameters = this.createListPersonenParameters();
-    this.updateControls(this.getValidQueries(parameters, false));
+  ngOnInit() {
+    if (!this.syncEnabled) return;
+
+    this.uuid = crypto.randomUUID();
+
+    this.formCommunicationService.itemSelected$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(({ selected, uuid }) => {
+        if (!selected) return;
+        if (uuid === this.uuid) return;
+        this.clearFormAndData();
+      });
+  }
+
+  isValid() {
+    const parameters = {
+      ...this.formGroup.value,
+      geboortedatum: this.formGroup.value.geboortedatum?.toISOString(),
+    };
+
     return (
-      this.formGroup.valid && 0 < this.getValidQueries(parameters, true).length
+      this.formGroup.valid &&
+      this.getValidQueries(parameters, true).length &&
+      !this.blockSearch()
     );
   }
 
   private getValidQueries(
-    values: GeneratedType<"RestListPersonenParameters">,
+    parameters: GeneratedType<"RestListPersonenParameters">,
     compleet: boolean,
   ) {
-    let validQueries = this.queries;
-    for (const key in this.queryFields) {
-      if (values[key] != null) {
+    return Object.keys(this.formGroup.controls).reduce((acc, key) => {
+      if (parameters[key as keyof typeof parameters]) {
         // Verwijder alle queries die met dit gevulde veld niet kunnen
-        validQueries = this.exclude(validQueries, key, "NON");
-      } else {
-        if (compleet) {
-          // Verwijder alles queries die zonder dit lege veld niet kunnen
-          validQueries = this.exclude(validQueries, key, "REQ");
-        }
+        return this.getQueriesWithoutCardinality(
+          acc,
+          key as keyof GeneratedType<"RestPersonenParameters">,
+          "NON",
+        );
+      } else if (compleet) {
+        // Verwijder alles queries die zonder dit lege veld niet kunnen
+        return this.getQueriesWithoutCardinality(
+          acc,
+          key as keyof typeof parameters,
+          "REQ",
+        );
       }
-    }
-    return validQueries;
+      return acc;
+    }, this.queries);
   }
 
-  exclude(
+  private getQueriesWithoutCardinality(
     queries: GeneratedType<"RestPersonenParameters">[],
-    key: string,
-    value: GeneratedType<"Cardinaliteit">,
+    key: keyof GeneratedType<"RestPersonenParameters">,
+    cardinality: GeneratedType<"Cardinaliteit">,
   ) {
-    return queries.filter((query) => query[key] !== value);
+    return queries.filter((query) => query[key] !== cardinality);
   }
 
-  include(
+  private getQueriesWithCardinality(
     queries: GeneratedType<"RestPersonenParameters">[],
-    key: string,
-    value: GeneratedType<"Cardinaliteit">,
+    key: keyof GeneratedType<"RestPersonenParameters">,
+    cardinality: GeneratedType<"Cardinaliteit">,
   ) {
-    return queries.filter((query) => query[key] === value);
+    return queries.filter((query) => query[key] === cardinality);
   }
 
-  all(
+  private allQueriesHaveCardinality(
     queries: GeneratedType<"RestPersonenParameters">[],
-    key: string,
-    value: GeneratedType<"Cardinaliteit">,
+    key: keyof GeneratedType<"RestPersonenParameters">,
+    cardinality: GeneratedType<"Cardinaliteit">,
   ) {
-    return this.include(queries, key, value).length === queries.length;
+    return (
+      this.getQueriesWithCardinality(queries, key, cardinality).length ===
+      queries.length
+    );
+  }
+
+  protected setGemeenteVanInschrijvingToCurrentGemeente() {
+    this.configuratieService.readGemeenteCode().subscribe((gemeenteCode) => {
+      this.formGroup.controls.gemeenteVanInschrijving?.setValue(gemeenteCode);
+    });
   }
 
   private updateControls(potential: GeneratedType<"RestPersonenParameters">[]) {
-    for (const key in this.queryFields) {
-      const control = this.queryFields[key];
-      if (this.all(potential, key, "NON")) {
+    for (const [key, control] of Object.entries(this.formGroup.controls)) {
+      if (
+        this.allQueriesHaveCardinality(
+          potential,
+          key as keyof GeneratedType<"RestPersonenParameters">,
+          "NON",
+        )
+      ) {
         this.requireField(control, false);
         this.enableField(control, false);
       } else {
-        this.requireField(control, this.all(potential, key, "REQ"));
+        this.requireField(
+          control,
+          this.allQueriesHaveCardinality(
+            potential,
+            key as keyof GeneratedType<"RestPersonenParameters">,
+            "REQ",
+          ),
+        );
         this.enableField(control, true);
       }
     }
+    this.formGroup.updateValueAndValidity({ emitEvent: false });
   }
 
-  private requireField(control: AbstractFormControlField, required: boolean) {
-    control.required = required;
+  private requireField(control: AbstractControl, required: boolean) {
     if (required) {
-      control.formControl.addValidators(Validators.required);
+      control.addValidators(Validators.required);
     } else {
-      control.formControl.removeValidators(Validators.required);
+      control.removeValidators(Validators.required);
     }
   }
 
-  private enableField(control: AbstractFormControlField, enabled: boolean) {
+  private enableField(control: AbstractControl, enabled: boolean) {
     if (enabled) {
-      control.formControl.enable();
+      control.enable({ emitEvent: false });
     } else {
-      control.formControl.setValue(null);
-      control.formControl.disable();
+      control.disable({ emitEvent: false });
+      control.setValue(null, { emitEvent: false });
     }
   }
 
-  createListPersonenParameters() {
-    const params: GeneratedType<"RestListPersonenParameters"> = {};
-    for (const entry of Object.entries(this.formGroup.value)) {
-      const k = entry[0];
-      let v = entry[1];
-      if (typeof v === "string") {
-        v = v.trim();
-      }
-      if (v) {
-        params[k] = v;
-      }
-    }
-    return params;
-  }
-
-  zoekPersonen(): void {
+  zoekPersonen() {
     this.loading = true;
     this.utilService.setLoading(true);
     this.personen.data = [];
+    const data = this.formGroup.value;
     this.klantenService
-      .listPersonen(this.createListPersonenParameters(), {
-        context: this.context(),
-        action: this.action(),
-      })
-      .subscribe((personen) => {
-        this.personen.data = personen.resultaten;
-        this.foutmelding = personen.foutmelding;
-        this.loading = false;
-        this.utilService.setLoading(false);
+      .listPersonen(
+        {
+          ...data,
+          geboortedatum: data.geboortedatum?.toISOString() ?? null,
+          gemeenteVanInschrijving:
+            data.gemeenteVanInschrijving?.toString() ?? null,
+        },
+        {
+          context: this.context(),
+          action: this.action(),
+        },
+      )
+      .subscribe({
+        next: (personen) => {
+          this.personen.data = personen.resultaten ?? [];
+          this.foutmelding = personen.foutmelding;
+          this.loading = false;
+          this.utilService.setLoading(false);
+        },
+        error: () => {
+          this.loading = false;
+          this.utilService.setLoading(false);
+        },
       });
   }
 
-  selectPersoon(persoon: GeneratedType<"RestPersoon">): void {
-    this.persoon.emit(persoon);
-    this.wissen();
+  protected selectPersoon(persoon: GeneratedType<"RestPersoon">) {
+    this.persoon?.emit(persoon);
+    this.clearFormAndData();
 
     if (this.syncEnabled) {
       this.formCommunicationService.notifyItemSelected(this.uuid);
     }
   }
 
-  openPersoonPagina(persoon: GeneratedType<"RestPersoon">): void {
+  protected openPersoonPagina(persoon: GeneratedType<"RestPersoon">) {
     this.sideNav?.close();
-    this.router.navigate(["/persoon/", persoon.identificatie]);
+    void this.router.navigate(["/persoon/", persoon.identificatie]);
   }
 
-  wissen() {
+  protected clearFormAndData() {
     this.formGroup.reset();
     this.personen.data = [];
   }
 
   ngOnDestroy() {
-    if (this.formSelectedSubscription) {
-      this.formSelectedSubscription.unsubscribe();
-    }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

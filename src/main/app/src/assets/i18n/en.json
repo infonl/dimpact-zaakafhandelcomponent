@@ -774,6 +774,8 @@
   "validators.minDate": "Selected date is before the minimum date",
   "validators.maxDate": "Selected date is after the maximum date",
   "validators.required": "This field is required",
+  "validators.postcode": "Use the 1111AA format",
+  "validators.bsn": "Invalid social security number",
   "msg.error.required": "The {{label}} field is empty. Enter the required data!",
   "msg.error.teklein": "The {{label}} field contains a value that is too small. Enter at least {{min}}!",
   "msg.error.tegroot": "The {{label}} field contains a value that is too large. Enter at most {{max}}!",
