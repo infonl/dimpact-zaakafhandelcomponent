@@ -17,7 +17,10 @@ const testDir = defineBddConfig({
 
 export default defineConfig({
   testDir,
-  reporter: "html",
+  reporter: [
+    ["html", { open: "never" }],
+    ["json", { outputFile: "reports/e2e-report.json" }],
+  ],
   retries: 2,
   use: {
     baseURL: process.env.ZAC_URL,
