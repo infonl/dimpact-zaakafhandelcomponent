@@ -52,7 +52,7 @@
       [actionLabel]="'actie.document.verplaatsen'"
       [infoObject]="documentToMove"
       [sideNav]="actionsSidenav"
-      [source]="zaak.identificatie"
+      [source]="zaak?.identificatie"
       (informationObjectLinked)="updateZaakDocumentList()"
     ></zac-informatie-object-link>
   </mat-drawer>
@@ -67,7 +67,6 @@
               (formSubmit)="onHardCodedFormSubmit($event)"
               [formFields]="formulier.form"
               [config]="formConfig"
-              [submitted]="posts"
             ></mfb-form>
             <zac-formulier
               *ngIf="formulierDefinitie"
