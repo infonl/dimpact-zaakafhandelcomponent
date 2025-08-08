@@ -29,6 +29,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakVerkortComponent } from "../../zaken/zaak-verkort/zaak-verkort.component";
 import { TakenService } from "../taken.service";
 import { TaakViewComponent } from "./taak-view.component";
+import {MaterialFormBuilderModule} from "../../shared/material-formå-builder/material-form-builder.module";
 
 describe(TaakViewComponent.name, () => {
   let fixture: ComponentFixture<TaakViewComponent>;
@@ -54,7 +55,7 @@ describe(TaakViewComponent.name, () => {
     status: "TOEGEKEND",
     taakdata: {},
     formulierDefinitie: undefined,
-    formulierDefinitieId: "test-formulierDefinitieId",
+    formulierDefinitieId: "DEFAULT_TAAKFORMULIER",
     tabellen: {},
     taakdocumenten: [],
     taakinformatie: {},
@@ -74,12 +75,13 @@ describe(TaakViewComponent.name, () => {
         EditGroepBehandelaarComponent,
       ],
       imports: [
-        NoopAnimationsModule,
         MatSidenav,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
         PipesModule,
         MaterialModule,
+        MaterialFormBuilderModule,
+        NoopAnimationsModule,
       ],
       providers: [
         WebsocketService,
@@ -101,7 +103,9 @@ describe(TaakViewComponent.name, () => {
       TestBed.createComponent(MatSidenav).componentInstance;
 
     websocketService = TestBed.inject(WebsocketService);
+
     takenService = TestBed.inject(TakenService);
+    jest.spyOn(takenService, 'readTaak').mockReturnValue(of())
   });
 
   describe(TaakViewComponent.prototype.documentCreated.name, () => {
@@ -136,5 +140,17 @@ describe(TaakViewComponent.name, () => {
       expect(listHistorieVoorTaak).toHaveBeenCalledTimes(1);
       expect(listHistorieVoorTaak).toHaveBeenCalledWith(taak.id);
     });
+
+    it("should read the task when a screen event is received", async () => {
+        const readTaak = jest.spyOn(takenService, "readTaak");
+
+        websocketService["onMessage"]({
+            opcode: Opcode.ANY,
+            objectType: ObjectType.TAAK,
+            objectId: new ScreenEventId(taak.id!),
+        });
+
+        expect(readTaak).toHaveBeenCalledWith(taak.id!);
+    })
   });
 });
