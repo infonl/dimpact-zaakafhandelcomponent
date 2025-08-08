@@ -8,19 +8,21 @@ const BUSINESS_LANGUAGE = "en";
 const testDir = defineBddConfig({
   language: BUSINESS_LANGUAGE,
   features: "bdd/**/*.feature",
-  steps: ["bdd/**/steps.ts", "bdd/**/fixture.ts"],
+  steps: ["bdd/**/steps.ts", "bdd/**/fixture.ts", "bdd/hooks.ts"],
   aiFix: {
     promptAttachment: true,
   },
   verbose: true,
-  retries: 2,
 });
 
 export default defineConfig({
   testDir,
   reporter: "html",
+  retries: 2,
   use: {
     baseURL: process.env.ZAC_URL,
     locale: BUSINESS_LANGUAGE,
+    video: "retry-with-video",
+    screenshot: "only-on-failure",
   },
 });

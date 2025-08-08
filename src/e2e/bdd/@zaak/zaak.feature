@@ -1,17 +1,9 @@
 # 
-# SPDX-FileCopyrightText: 2024 INFO.nl
+# SPDX-FileCopyrightText: 2025 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 # 
 @auth
-Feature: Zaken
+Feature: CMMN zaken
   As a ZAC user
-  I want to add new cases
+  I want to be able to handle CMMN zaken
   So that I can organize my work
-
-    Background:
-      Given I am on the "/zaken/werkvoorraad" page
-    
-    Scenario: Add a new case
-      When I add a new "Indienen aansprakelijkstelling door derden behandelen" case
-      Then the case gets created
-      And I see the case in my overview
