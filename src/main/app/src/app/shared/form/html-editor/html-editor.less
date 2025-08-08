@@ -1,0 +1,28 @@
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+::ng-deep .NgxEditor__MenuBar {
+  border: 1px solid var(--ngx-editor-border-color);
+  border-radius: var(--ngx-editor-border-radius);
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  border-bottom: none;
+}
+
+:host {
+  :has(.editor .ng-invalid) {
+    ::ng-deep .NgxEditor,
+    ::ng-deep .NgxEditor__MenuBar {
+      border-color: var(--ngx-editor-error-color);
+    }
+
+    mat-label {
+      color: var(
+        --mdc-filled-text-field-error-label-text-color,
+        var(--mat-app-error)
+      );
+    }
+  }
+}
