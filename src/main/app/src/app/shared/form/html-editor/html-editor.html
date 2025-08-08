@@ -1,0 +1,51 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  ~
+  -->
+
+<div [formGroup]="form" class="full-width">
+  <mat-label>
+    <ng-content select="mat-label">
+      {{ key | translate | capitalizeFirstLetter }}
+    </ng-content>
+  </mat-label>
+  <section class="editor">
+    <ngx-editor-menu
+      [editor]="editor"
+      [toolbar]="toolbar"
+      [customMenuRef]="variabelenKiesMenu"
+    >
+    </ngx-editor-menu>
+    <ng-template #variabelenKiesMenu>
+      <variabelen-kies-menu
+        [editor]="editor"
+        [variabelen]="variables"
+      ></variabelen-kies-menu>
+    </ng-template>
+    <ngx-editor
+      [editor]="editor"
+      [formControlName]="key"
+      [required]="required"
+      [placeholder]="'mailTemplatePlaceholder' | translate"
+      [maxlength]="maxlength"
+    >
+    </ngx-editor>
+  </section>
+  <section
+    class="mat-mdc-form-field-subscript-wrapper mat-mdc-form-field-bottom-align"
+  >
+    <div class="mat-mdc-form-field-error-wrapper">
+      <mat-error *ngIf="getErrorMessage()">{{ getErrorMessage() }}</mat-error>
+    </div>
+    <div class="mat-mdc-form-field-hint-wrapper">
+      <mat-hint>
+        <ng-content select="mat-hint"></ng-content>
+      </mat-hint>
+      <div *ngIf="maxlength" class="mat-mdc-form-field-hint-spacer"></div>
+      <mat-hint align="end" *ngIf="maxlength && !getErrorMessage()">
+        {{ control?.value?.length ?? 0 }} / {{ maxlength }}
+      </mat-hint>
+    </div>
+  </section>
+</div>

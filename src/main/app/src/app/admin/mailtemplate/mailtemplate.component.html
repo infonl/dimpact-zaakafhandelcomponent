@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -17,47 +17,45 @@
   >
     <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
   </mat-sidenav>
-  <mat-sidenav-content class="flex-col gap-20">
-    <mat-card>
-      <mat-card-content>
-        <mfb-form-field
-          [field]="naamFormField"
-          (click)="$event.stopPropagation()"
-        ></mfb-form-field>
-        <mfb-form-field
-          [field]="mailFormField"
-          (click)="$event.stopPropagation()"
-        ></mfb-form-field>
-        <mfb-form-field
-          [field]="onderwerpFormField"
-          (click)="$event.stopPropagation()"
-        ></mfb-form-field>
-        <mfb-form-field
-          [field]="bodyFormField"
-          (click)="$event.stopPropagation()"
-        ></mfb-form-field>
-
-        <div class="button-group flex-row items-start">
+  <mat-sidenav-content class="p-4">
+    <form [formGroup]="form" (submit)="saveMailtemplate()">
+      <mat-card>
+        <mat-card-content>
+          <fieldset>
+            <zac-input [form]="form" key="mailTemplateNaam" />
+            <zac-select
+              [form]="form"
+              key="mail"
+              [options]="mailTemplates"
+              optionDisplayValue="label"
+            />
+            <zac-html-editor
+              [form]="form"
+              noToolbar
+              key="onderwerp"
+              [variables]="variabelen"
+            ></zac-html-editor>
+            <zac-html-editor
+              [form]="form"
+              key="body"
+              [variables]="variabelen"
+            ></zac-html-editor>
+          </fieldset>
+        </mat-card-content>
+        <mat-card-actions>
           <button
             mat-raised-button
             color="primary"
-            id="opslaan_button"
             type="submit"
-            [disabled]="isInvalid()"
-            (click)="saveMailtemplate()"
+            [disabled]="form.invalid"
           >
             {{ "actie.opslaan" | translate }}
           </button>
-          <button
-            mat-raised-button
-            id="annuleren_button"
-            type="button"
-            (click)="cancel()"
-          >
+          <button mat-raised-button type="button" (click)="cancel()">
             {{ "actie.annuleren" | translate }}
           </button>
-        </div>
-      </mat-card-content>
-    </mat-card>
+        </mat-card-actions>
+      </mat-card>
+    </form>
   </mat-sidenav-content>
 </mat-sidenav-container>
