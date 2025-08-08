@@ -115,8 +115,6 @@ export class TaakViewComponent
   ngOnInit() {
     this.getIngelogdeMedewerker();
     this.route.data.subscribe((data) => {
-      console.debug("TaakViewComponent.ngOnInit", data.taak);
-
       this.createZaakFromTaak(data.taak);
       this.init(data.taak, true);
 
