@@ -15,6 +15,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
+import nl.info.test.org.flowable.cmmn.api.runtime.createTestPlanItemInstance
 import org.flowable.cmmn.api.CmmnHistoryService
 import org.flowable.cmmn.api.CmmnRuntimeService
 import org.flowable.cmmn.api.runtime.CaseInstance

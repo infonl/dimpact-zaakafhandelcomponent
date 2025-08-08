@@ -837,6 +837,7 @@
   "msg.error.case.has.decision.cannot.be.terminated": "The case cannot be terminated because a decision is already linked to it.",
   "msg.error.case.explanation.required": "Explanation is required.",
   "msg.error.convert.not.possible": "This document cannot be converted.",
+  "msg.error.document.has.already.been.signed": "This document has already been signed.",
   "msg.error.formio.init": "Error while initializing form component '{{context}}': {{error}}",
   "msg.error.kvk.unknown": "CoC-number is unknown.",
   "msg.email.verstuurd": "E-mail has been sent",

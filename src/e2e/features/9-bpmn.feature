@@ -12,6 +12,13 @@ Feature: BPMN
     Given "Bob" navigates to "zac" with path "/zaken/werkvoorraad"
     Then "Bob" sees the created zaak
 
+  Scenario: Bob changes the assigned user and group
+    Given "Bob" is logged in to zac
+    When Employee "Bob" is on the newly created zaak
+    Then "Bob" sees group "Test groep B" in the zaak data
+    Given Employee "Bob" assigns the zaak to group "Coördinatorsgroep" and user "Coördinator"
+    Then "Bob" sees group "Coördinatorsgroep" and user "Coördinator" in the zaak data
+
   Scenario: Bob opens the initial task form
     Given "Bob" is logged in to zac
     When Employee "Bob" is on the newly created zaak
@@ -38,7 +45,7 @@ Feature: BPMN
     And "Bob" submits the filled-in form
     When Employee "Bob" is on the newly created zaak
     Then "Bob" sees that the initial task is completed
-    Then "Bob" sees that the summary task is started
+    Then "Bob" sees that the summary task is started with group "Coördinatorsgroep" and user "Coördinator"
 
   Scenario: Bob inspects the summary task form
     Given "Bob" is logged in to zac
