@@ -512,11 +512,7 @@
         "email": ["${ZAC_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
-        "zaakafhandelcomponent": [
-          "domein_test_1",
-          "raadpleger",
-          "behandelaar"
-        ]
+        "zaakafhandelcomponent": ["domein_test_1", "raadpleger", "behandelaar"]
       }
     },
     {
@@ -561,10 +557,7 @@
         "email": ["${ZAC_GROUP_RAADPLEGERS_1_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
-        "zaakafhandelcomponent": [
-          "domein_elk_zaaktype",
-          "raadpleger"
-        ]
+        "zaakafhandelcomponent": ["domein_elk_zaaktype", "raadpleger"]
       }
     }
   ],
