@@ -371,7 +371,7 @@ class ZtcClientService @Inject constructor(
         uriToEigenschappenCache.get(zaaktype) {
             val response = ztcClient.eigenschapList(
                 EigenschapListParameters().apply {
-//                    this.zaaktype = zaaktype
+                    this.zaaktype = zaaktype
                     status = EigenschapListParametersStatus.alles
                 }
             )

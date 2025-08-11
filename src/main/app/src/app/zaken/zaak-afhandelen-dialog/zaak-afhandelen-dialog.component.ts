@@ -23,7 +23,6 @@ import { ZakenService } from "../zaken.service";
 })
 export class ZaakAfhandelenDialogComponent {
   loading = false;
-  mailBeschikbaar = false;
   sendMailDefault = false;
   besluitVastleggen = false;
   mailtemplate?: GeneratedType<"RESTMailtemplate">;
@@ -72,8 +71,6 @@ export class ZaakAfhandelenDialogComponent {
       });
     const zaakafhandelparameters =
       this.data.zaak.zaaktype.zaakafhandelparameters;
-    this.mailBeschikbaar =
-      zaakafhandelparameters?.afrondenMail !== "NIET_BESCHIKBAAR";
     this.sendMailDefault =
       zaakafhandelparameters?.afrondenMail === "BESCHIKBAAR_AAN";
 

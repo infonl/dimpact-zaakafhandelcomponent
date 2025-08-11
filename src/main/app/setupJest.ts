@@ -5,3 +5,7 @@
  */
 
 import "whatwg-fetch";
+
+afterEach(() => {
+  jest.clearAllMocks();
+});

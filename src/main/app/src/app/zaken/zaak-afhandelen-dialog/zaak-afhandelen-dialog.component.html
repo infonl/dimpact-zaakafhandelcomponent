@@ -50,7 +50,12 @@
       key="brondatumEigenschap"
       *ngIf="formGroup.controls.resultaattype.value?.datumKenmerkVerplicht"
     />
-    <div *ngIf="mailBeschikbaar">
+    <div
+      *ngIf="
+        data.zaak.zaaktype.zaakafhandelparameters?.afrondenMail !==
+        'NIET_BESCHIKBAAR'
+      "
+    >
       <mat-checkbox id="sendMail" formControlName="sendMail">
         {{ "sendMail" | translate }}
       </mat-checkbox>
