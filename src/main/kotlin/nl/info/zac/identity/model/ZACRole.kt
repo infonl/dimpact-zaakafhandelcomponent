@@ -5,6 +5,5 @@
 package nl.info.zac.identity.model
 
 enum class ZACRole(val value: String) {
-    DOMEIN_ELK_ZAAKTYPE("domein_elk_zaaktype"),
-    ZAAKAFHANDELCOMPONENT_USER("zaakafhandelcomponent_user"),
+    DOMEIN_ELK_ZAAKTYPE("domein_elk_zaaktype")
 }

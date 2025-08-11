@@ -30,11 +30,6 @@ This means the following in practise:
 - A user with the 'Recordmanager' role also needs to have the 'Raadpleger', 'Behandelaar' and 'Coordinator' roles
 - A user with the 'Beheerder' role also needs to have the 'Raadpleger', 'Behandelaar', 'Coordinator' and 'Recordmanager' roles
 
-### System roles
-
-Besides the above functional roles, ZAC requires every user that logs in to ZAC to also have the mandatory `zaakafhandelcomponent_user` system role.
-Normally every ZAC user will automatically obtain this system role from the [ZAC IAM](iamArchitecture.md) configuration in Keycloak.
-
 ### Domain roles
 
 ZAC also supports the concept of 'domain' (domein) roles.
