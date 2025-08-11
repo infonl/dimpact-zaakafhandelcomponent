@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaakafhandelParameterService
 import nl.info.client.pabc.PabcClientService
+import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
 import nl.info.zac.identity.model.ZACRole
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -89,21 +90,6 @@ constructor(
                         }
                     }"
             )
-            // for now, we only log the application roles for the logged-in user.
-            // filtering out the roles that are currently not used by the PABC component
-            if (pabcIntegrationEnabled) {
-                val filteredRoles = loggedInUser.roles.filterNot {
-                    it in setOf(
-                        ZACRole.DOMEIN_ELK_ZAAKTYPE.value,
-                        ZACRole.ZAAKAFHANDELCOMPONENT_USER.value
-                    )
-                }
-                val applicationRoles = pabcClientService.getApplicationRoles(filteredRoles)
-                LOG.info("User: '${loggedInUser.id}' with application roles from PABC: '$applicationRoles'")
-            } else {
-                LOG.info("PABC integration is disabled — skipping application role lookup.")
-            }
-
             this.addRefreshTokenToHttpSession(oidcPrincipal, httpSession)
         }
 
@@ -115,23 +101,61 @@ constructor(
         }
     }
 
+    /**
+     * Resolve application roles via PABC (enabled by a feature-flag) and fallback to the
+     * functional roles from Keycloak if PABC is disabled or fails.
+     */
+    @Suppress("TooGenericExceptionCaught")
+    private fun resolveApplicationRolesFromPabc(functionalRoles: Set<String>): Set<String> {
+        if (!pabcIntegrationEnabled) {
+            LOG.info("PABC integration is disabled — using functional roles from Keycloak.")
+            return functionalRoles
+        }
+
+        // filtering out the roles that are currently not used by the PABC component
+        val filteredFunctionalRoles = functionalRoles.filterNot {
+            it in setOf(
+                ZACRole.DOMEIN_ELK_ZAAKTYPE.value,
+                ZACRole.ZAAKAFHANDELCOMPONENT_USER.value
+            )
+        }
+
+        return try {
+            val applicationRolesResponse: GetApplicationRolesResponse =
+                pabcClientService.getApplicationRoles(filteredFunctionalRoles)
+            LOG.info("Resolved application roles from PABC for user: $applicationRolesResponse")
+
+            applicationRolesResponse.results
+                .flatMap { it.applicationRoles }
+                .mapNotNull { it.name }
+                .toSet()
+        } catch (ex: Exception) {
+            LOG.warning(
+                "PABC application role lookup failed ($ex). " +
+                    "Falling back to functional roles from Keycloak."
+            )
+            functionalRoles
+        }
+    }
+
     private fun createLoggedInUser(oidcSecurityContext: OidcSecurityContext): LoggedInUser =
         oidcSecurityContext.token.let { accessToken ->
-            accessToken.rolesClaim.toSet().let { roles ->
-                LoggedInUser(
-                    id = accessToken.preferredUsername,
-                    firstName = accessToken.givenName,
-                    lastName = accessToken.familyName,
-                    displayName = accessToken.name,
-                    email = accessToken.email,
-                    roles = roles,
-                    groupIds =
-                    accessToken
-                        .getStringListClaimValue(GROUP_MEMBERSHIP_CLAIM_NAME)
-                        .toSet(),
-                    geautoriseerdeZaaktypen = getAuthorisedZaaktypen(roles)
-                )
-            }
+            val functionalRoles = accessToken.rolesClaim.toSet()
+            val rolesForLoggedInUser: Set<String> =
+                resolveApplicationRolesFromPabc(functionalRoles)
+
+            LoggedInUser(
+                id = accessToken.preferredUsername,
+                firstName = accessToken.givenName,
+                lastName = accessToken.familyName,
+                displayName = accessToken.name,
+                email = accessToken.email,
+                roles = rolesForLoggedInUser,
+                groupIds = accessToken
+                    .getStringListClaimValue(GROUP_MEMBERSHIP_CLAIM_NAME)
+                    .toSet(),
+                geautoriseerdeZaaktypen = getAuthorisedZaaktypen(rolesForLoggedInUser)
+            )
         }
 
     /**
