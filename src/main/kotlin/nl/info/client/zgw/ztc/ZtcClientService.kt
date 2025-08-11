@@ -372,7 +372,7 @@ class ZtcClientService @Inject constructor(
             val response = ztcClient.eigenschapList(
                 EigenschapListParameters().apply {
                     this.zaaktype = zaaktype
-                    status = EigenschapListParametersStatus.alles
+                    status = EigenschapListParametersStatus.DEFINITIEF
                 }
             )
             response.results
