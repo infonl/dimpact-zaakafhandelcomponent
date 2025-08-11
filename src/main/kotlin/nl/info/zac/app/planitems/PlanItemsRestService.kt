@@ -219,74 +219,95 @@ class PlanItemsRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(userEventListenerData.zaakUuid)
         val zaakRechten = policyService.readZaakRechten(zaak)
         assertPolicy(zaakRechten.startenTaak)
-        if (userEventListenerData.restMailGegevens != null) {
+        if (userEventListenerData.restMailGegevens !== null) {
             assertPolicy(zaakRechten.versturenEmail)
         }
         when (userEventListenerData.actie) {
-            UserEventListenerActie.INTAKE_AFRONDEN -> {
-                userEventListenerData.planItemInstanceId?.let {
-                    val planItemInstance = cmmnService.readOpenPlanItem(it)
-                    zaakVariabelenService.setOntvankelijk(planItemInstance, userEventListenerData.zaakOntvankelijk)
-                }
-                if (!userEventListenerData.zaakOntvankelijk) {
-                    zaakService.checkZaakAfsluitbaar(zaak)
-                    val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                        zaak.zaaktype.extractUuid()
-                    )
-                    zgwApiService.createResultaatForZaak(
-                        zaak,
-                        zaakafhandelParameters.nietOntvankelijkResultaattype,
-                        userEventListenerData.resultaatToelichting
-                    )
-                }
-            }
-
-            UserEventListenerActie.ZAAK_AFHANDELEN -> {
-                zaakService.checkZaakAfsluitbaar(zaak)
-                if (!brcClientService.listBesluiten(zaak).isEmpty()) {
-                    val resultaat = zrcClientService.readResultaat(zaak.resultaat)
-                    resultaat.toelichting = userEventListenerData.resultaatToelichting
-                    zrcClientService.updateResultaat(resultaat)
-                } else {
-                    zgwApiService.createResultaatForZaak(
-                        zaak,
-                        userEventListenerData.resultaattypeUuid ?: throw InputValidationFailedException(
-                            errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
-                            message = "Resultaattype UUID moet gevuld zijn bij het afhandelen van een zaak."
-                        ),
-                        userEventListenerData.resultaatToelichting
-                    )
-
-                    val resultaattype = ztcClientService.readResultaattype(userEventListenerData.resultaattypeUuid!!)
-
-                    when (resultaattype.brondatumArchiefprocedure.afleidingswijze) {
-                        AfleidingswijzeEnum.EIGENSCHAP -> {
-                            val eigenschap = ztcClientService.readEigenschap(
-                                zaak.zaaktype,
-                                resultaattype.brondatumArchiefprocedure.datumkenmerk
-                            )
-
-                            val zaakEigenschap = ZaakEigenschap()
-                            zaakEigenschap.eigenschap = eigenschap.url
-                            zaakEigenschap.zaak = zaak.url
-                            zaakEigenschap.waarde = userEventListenerData.brondatumEigenschap // Should be of format YYYYMMDD
-                            zrcClientService.createEigenschap(zaak.uuid, zaakEigenschap)
-                        }
-                        else -> null
-                    }
-                }
-            }
+            UserEventListenerActie.INTAKE_AFRONDEN -> this.handleIntakeAfronden(zaak, userEventListenerData)
+            UserEventListenerActie.ZAAK_AFHANDELEN -> this.handleZaakAfhandelen(zaak, userEventListenerData)
         }
 
         userEventListenerData.planItemInstanceId?.let {
             cmmnService.startUserEventListenerPlanItem(it)
         }
-        if (userEventListenerData.restMailGegevens != null) {
+        if (userEventListenerData.restMailGegevens !== null) {
             mailService.sendMail(
                 restMailGegevensConverter.convert(userEventListenerData.restMailGegevens),
                 zaak.getBronnenFromZaak()
             )
         }
+    }
+
+    private fun handleIntakeAfronden(
+        zaak: Zaak,
+        userEventListenerData: RESTUserEventListenerData
+    ) {
+        userEventListenerData.planItemInstanceId?.let {
+            val planItemInstance = cmmnService.readOpenPlanItem(it)
+            zaakVariabelenService.setOntvankelijk(planItemInstance, userEventListenerData.zaakOntvankelijk)
+        }
+
+        if (userEventListenerData.zaakOntvankelijk) return
+
+        zaakService.checkZaakAfsluitbaar(zaak)
+        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
+            zaak.zaaktype.extractUuid()
+        )
+        zgwApiService.createResultaatForZaak(
+            zaak,
+            zaakafhandelParameters.nietOntvankelijkResultaattype,
+            userEventListenerData.resultaatToelichting
+        )
+    }
+
+    private fun handleZaakAfhandelen(zaak: Zaak, userEventListenerData: RESTUserEventListenerData) {
+        zaakService.checkZaakAfsluitbaar(zaak)
+        if (!brcClientService.listBesluiten(zaak).isEmpty()) {
+            val resultaat = zrcClientService.readResultaat(zaak.resultaat)
+            resultaat.toelichting = userEventListenerData.resultaatToelichting
+            zrcClientService.updateResultaat(resultaat)
+            return
+        }
+
+        zgwApiService.createResultaatForZaak(
+            zaak,
+            userEventListenerData.resultaattypeUuid ?: throw InputValidationFailedException(
+                errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
+                message = "Resultaattype UUID moet gevuld zijn bij het afhandelen van een zaak."
+            ),
+            userEventListenerData.resultaatToelichting
+        )
+
+        val resultaattype = ztcClientService.readResultaattype(userEventListenerData.resultaattypeUuid!!)
+
+        when (resultaattype.brondatumArchiefprocedure.afleidingswijze) {
+            AfleidingswijzeEnum.EIGENSCHAP -> {
+                userEventListenerData.brondatumEigenschap?.let {
+                    this.addEigenschapToZaak(
+                        eigenschap = resultaattype.brondatumArchiefprocedure.datumkenmerk,
+                        waarde = it,
+                        zaak = zaak,
+                    )
+                } ?: throw InputValidationFailedException(
+                    errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
+                    message = """
+                        'brondatumEigenschap' moet gevuld zijn bij het afhandelen van een zaak met een resultaattype dat
+                        een 'brondatumArchiefprocedure' heeft met 'afleidingswijze' 'EIGENSCHAP'.
+                    """.trimIndent()
+                )
+            }
+            else -> null
+        }
+    }
+
+    private fun addEigenschapToZaak(eigenschap: String, waarde: String, zaak: Zaak) {
+        val eigenschap = ztcClientService.readEigenschap(zaak.zaaktype, eigenschap)
+
+        val zaakEigenschap = ZaakEigenschap()
+        zaakEigenschap.eigenschap = eigenschap.url
+        zaakEigenschap.zaak = zaak.url
+        zaakEigenschap.waarde = waarde
+        zrcClientService.createEigenschap(zaak.uuid, zaakEigenschap)
     }
 
     private fun calculateFatalDate(
