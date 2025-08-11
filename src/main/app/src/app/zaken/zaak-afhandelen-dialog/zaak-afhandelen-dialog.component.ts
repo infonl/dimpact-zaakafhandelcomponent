@@ -86,7 +86,7 @@ export class ZaakAfhandelenDialogComponent {
         });
     }
 
-    if (this.data.zaak.resultaat) {
+    if (!this.data.zaak.resultaat) {
       this.formGroup.controls.resultaattype.addValidators(Validators.required);
     }
     if (this.sendMailDefault) {
