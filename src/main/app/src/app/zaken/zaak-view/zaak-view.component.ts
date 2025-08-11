@@ -294,10 +294,14 @@ export class ZaakViewComponent
       "einddatumGepland",
       new TextIcon(
         DateConditionals.provideFormControlValue(
-          this.zaak.einddatum
-            ? DateConditionals.isPreceded
-            : DateConditionals.isExceeded,
-          this.zaak.einddatum ?? "",
+          (value, actual) => {
+            if (!this.zaak.isOpen) return false;
+
+            return this.zaak.einddatum
+              ? DateConditionals.isExceeded(value, actual)
+              : DateConditionals.isPreceded(value, actual);
+          },
+          this.zaak.einddatum ?? ""
         ),
         "report_problem",
         "warningVerlopen_icon",
@@ -307,23 +311,29 @@ export class ZaakViewComponent
         "warning",
       ),
     );
+
     this.dateFieldIconMap.set(
       "uiterlijkeEinddatumAfdoening",
       new TextIcon(
         DateConditionals.provideFormControlValue(
-          this.zaak.einddatum
-            ? DateConditionals.isPreceded
-            : DateConditionals.isExceeded,
-          this.zaak.einddatum ?? "",
+          (value, actual) => {
+            if (!this.zaak.isOpen) return false;
+
+            return this.zaak.uiterlijkeEinddatumAfdoening
+              ? DateConditionals.isExceeded(value, actual)
+              : DateConditionals.isPreceded(value, actual);
+          },
+          this.zaak.uiterlijkeEinddatumAfdoening ?? ""
         ),
         "report_problem",
         "errorVerlopen_icon",
-        this.zaak.einddatum
+        this.zaak.uiterlijkeEinddatumAfdoening
           ? "msg.einddatum.overschreden"
           : "msg.datum.overschreden",
         "error",
       ),
     );
+
   }
 
   private createUserEventListenerPlanItemMenuItem(
