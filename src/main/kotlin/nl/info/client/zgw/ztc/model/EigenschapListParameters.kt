@@ -26,13 +26,21 @@ enum class EigenschapListParametersStatus(val value: String) {
     override fun toString(): String = value
 
     class Deserializer : JsonbDeserializer<EigenschapListParametersStatus> {
-        override fun deserialize(parser: JsonParser, ctx: DeserializationContext, rtType: Type): EigenschapListParametersStatus {
+        override fun deserialize(
+            parser: JsonParser,
+            ctx: DeserializationContext,
+            rtType: Type
+        ): EigenschapListParametersStatus {
             return fromValue(parser.string)
         }
     }
 
     class Serializer : JsonbSerializer<EigenschapListParametersStatus> {
-        override fun serialize(obj: EigenschapListParametersStatus, generator: JsonGenerator, ctx: SerializationContext) {
+        override fun serialize(
+            obj: EigenschapListParametersStatus,
+            generator: JsonGenerator,
+            ctx: SerializationContext
+        ) {
             generator.write(obj.value)
         }
     }
