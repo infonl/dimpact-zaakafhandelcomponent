@@ -13,6 +13,6 @@ Feature: BPMN zaken
     
     Scenario: Add a new BPMN case
       Given I am on the "zaken/create" page
-      When I add a new "Indienen aansprakelijkstelling door derden behandelen" BPMN case
+      When I add a new BPMN case
       Then the case gets created
       And I see the case in my overview

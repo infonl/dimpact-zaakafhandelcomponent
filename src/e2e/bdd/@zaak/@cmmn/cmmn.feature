@@ -13,6 +13,6 @@ Feature: CMMN zaken
     
     Scenario: Add a new CMMN case
       Given I am on the "zaken/create" page
-      When I add a new "Indienen aansprakelijkstelling door derden behandelen" CMMN case
+      When I add a new CMMN case
       Then the case gets created
       And I see the case in my overview

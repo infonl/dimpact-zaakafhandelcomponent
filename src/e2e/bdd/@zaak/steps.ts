@@ -14,7 +14,7 @@ Then("the case gets created", async ({ page, caseNumber }) => {
 
   const url = page.url();
   caseNumber.value = url.split("/").pop();
-  await page.waitForTimeout(3000); // Give SOLR time to index the case
+  await page.waitForTimeout(5000); // Give SOLR time to index the case
 });
 
 Then("I see the case in my overview", async ({ page, caseNumber }) => {
