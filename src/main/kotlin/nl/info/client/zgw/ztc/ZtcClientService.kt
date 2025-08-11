@@ -13,9 +13,12 @@ import net.atos.client.zgw.shared.cache.Caching
 import net.atos.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.exception.CatalogusNotFoundException
+import nl.info.client.zgw.ztc.exception.EigenschapNotFoundException
 import nl.info.client.zgw.ztc.exception.RoltypeNotFoundException
 import nl.info.client.zgw.ztc.model.BesluittypeListParameters
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
+import nl.info.client.zgw.ztc.model.EigenschapListParameters
+import nl.info.client.zgw.ztc.model.EigenschapListParametersStatus
 import nl.info.client.zgw.ztc.model.ResultaattypeListParameters
 import nl.info.client.zgw.ztc.model.RoltypeListGeneriekParameters
 import nl.info.client.zgw.ztc.model.RoltypeListParameters
@@ -24,6 +27,7 @@ import nl.info.client.zgw.ztc.model.ZaaktypeInformatieobjecttypeListParameters
 import nl.info.client.zgw.ztc.model.ZaaktypeListParameters
 import nl.info.client.zgw.ztc.model.generated.BesluitType
 import nl.info.client.zgw.ztc.model.generated.Catalogus
+import nl.info.client.zgw.ztc.model.generated.Eigenschap
 import nl.info.client.zgw.ztc.model.generated.InformatieObjectType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
@@ -94,6 +98,7 @@ class ZtcClientService @Inject constructor(
         private val uriToRolTypeListCache: Cache<URI, List<RolType>> = createCache("URI -> List<RolType>")
         private val rolTypeListCache: Cache<String, List<RolType>> = createCache("List<RolType>", 1)
         private val uuidToRolTypeCache: Cache<UUID, RolType> = createCache("UUID -> RolType")
+        private val uriToEigenschappenCache: Cache<URI, List<Eigenschap>> = createCache("URI -> List<Eigenschap>")
     }
 
     fun listCatalogus(catalogusListParameters: CatalogusListParameters): Results<Catalogus> =
@@ -361,6 +366,21 @@ class ZtcClientService @Inject constructor(
         uuidToInformatieObjectTypeCache.get(informatieobjecttypeUUID) {
             ztcClient.informatieObjectTypeRead(informatieobjecttypeUUID)
         }
+
+    fun readEigenschappen(zaaktype: URI) =
+        uriToEigenschappenCache.get(zaaktype) {
+            val response = ztcClient.eigenschapList(
+                EigenschapListParameters().apply {
+//                    this.zaaktype = zaaktype
+                    status = EigenschapListParametersStatus.alles
+                }
+            )
+            response.results
+        }
+
+    fun readEigenschap(zaaktype: URI, eigenschap: String) =
+        this.readEigenschappen(zaaktype).find { it.naam == eigenschap }
+            ?: throw EigenschapNotFoundException("No eigenschap with naam '$eigenschap' found for zaaktype '$zaaktype'.")
 
     fun clearZaaktypeCache(): String {
         uuidToZaakTypeCache.invalidateAll()

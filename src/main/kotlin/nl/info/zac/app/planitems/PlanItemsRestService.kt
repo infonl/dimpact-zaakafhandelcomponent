@@ -28,6 +28,9 @@ import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.zac.app.planitems.converter.RESTPlanItemConverter
 import nl.info.zac.app.planitems.model.RESTHumanTaskData
 import nl.info.zac.app.planitems.model.RESTPlanItem
@@ -74,6 +77,7 @@ class PlanItemsRestService @Inject constructor(
     private var zaakafhandelParameterService: ZaakafhandelParameterService,
     private var planItemConverter: RESTPlanItemConverter,
     private var zgwApiService: ZGWApiService,
+    private var ztcClientService: ZtcClientService,
     private var indexingService: IndexingService,
     private var mailService: MailService,
     private var configuratieService: ConfiguratieService,
@@ -252,9 +256,28 @@ class PlanItemsRestService @Inject constructor(
                         ),
                         userEventListenerData.resultaatToelichting
                     )
+
+                    val resultaattype = ztcClientService.readResultaattype(userEventListenerData.resultaattypeUuid!!)
+
+                    when (resultaattype.brondatumArchiefprocedure.afleidingswijze) {
+                        AfleidingswijzeEnum.EIGENSCHAP -> {
+                            val eigenschap = ztcClientService.readEigenschap(
+                                zaak.zaaktype,
+                                resultaattype.brondatumArchiefprocedure.datumkenmerk
+                            )
+
+                            val zaakEigenschap = ZaakEigenschap()
+                            zaakEigenschap.eigenschap = eigenschap.url
+                            zaakEigenschap.zaak = zaak.url
+                            zaakEigenschap.waarde = userEventListenerData.brondatumEigenschap // Should be of format YYYYMMDD
+                            zrcClientService.createEigenschap(zaak.uuid, zaakEigenschap)
+                        }
+                        else -> null
+                    }
                 }
             }
         }
+
         userEventListenerData.planItemInstanceId?.let {
             cmmnService.startUserEventListenerPlanItem(it)
         }

@@ -14,152 +14,103 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<mat-dialog-content [formGroup]="formGroup">
-  <p
-    *ngIf="data.planItem.toelichting"
-    class="readonly"
-    [innerHTML]="planItem.toelichting"
-  ></p>
-  <p
-    *ngIf="besluitVastleggen"
-    class="readonly error"
-    [innerHTML]="'msg.besluit.verplicht' | translate"
-  ></p>
-  <zac-static-text
-    *ngIf="data.zaak.resultaat"
-    [label]="'resultaat' | translate"
-    [value]="data.zaak.resultaat.resultaattype?.naam"
-  ></zac-static-text>
-  <zac-static-text
-    *ngFor="let besluit of data.zaak.besluiten"
-    [label]="besluit.identificatie | empty"
-    [value]="besluit.besluittype?.naam"
-  ></zac-static-text>
-  <div *ngIf="!data.zaak.resultaat">
-    <mat-form-field appearance="fill" floatLabel="always" class="full-width">
-      <mat-label>{{ "resultaat" | translate }}</mat-label>
-      <mat-select
-        placeholder="{{ 'resultaat.-kies-' | translate }}"
-        formControlName="resultaattype"
-      >
-        <mat-option
-          *ngFor="let resultaattype of resultaattypes | async"
-          [value]="resultaattype"
-          >{{ resultaattype.naam }}</mat-option
-        >
-      </mat-select>
-      <mat-error>{{
-        getError(formGroup.get("resultaattype")!, "resultaattype")
-      }}</mat-error>
-    </mat-form-field>
-  </div>
-  <div>
-    <mat-form-field appearance="fill" class="full-width">
-      <mat-label>{{ "toelichting" | translate }}</mat-label>
-      <input
-        id="toelichting"
-        formControlName="toelichting"
-        maxlength="80"
-        matInput
-      />
-      <mat-hint align="end"
-        >{{ formGroup.get("toelichting")!.value.length }}/80</mat-hint
-      >
-    </mat-form-field>
-  </div>
-  <div *ngIf="mailBeschikbaar">
-    <mat-checkbox id="sendMail" formControlName="sendMail">
-      {{ "sendMail" | translate }}
-    </mat-checkbox>
-  </div>
-  <div *ngIf="formGroup.get('sendMail')!.value">
-    <mat-form-field appearance="fill" class="full-width">
-      <mat-label>{{ "verzender" | translate }}</mat-label>
-      <mat-select
-        placeholder="{{ 'verzender.-kies-' | translate }}"
-        formControlName="verzender"
-        [compareWith]="compareObject"
-      >
-        <mat-select-trigger>
-          {{ formGroup.get("verzender")!.value?.mail }}
-        </mat-select-trigger>
-        <mat-option
-          *ngFor="let afzender of afzenders | async"
-          [value]="afzender"
-        >
-          {{ afzender.mail }}
-          <div class="suffix" *ngIf="afzender.suffix">
-            {{ afzender.suffix | translate }}
-          </div>
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-  </div>
-  <div *ngIf="formGroup.get('sendMail')!.value">
-    <mat-form-field appearance="fill" class="full-width">
+<form [formGroup]="formGroup" (submit)="afhandelen()">
+  <mat-dialog-content>
+    <p
+      *ngIf="data.planItem.toelichting"
+      class="readonly"
+      [innerHTML]="planItem.toelichting"
+    ></p>
+    <p
+      *ngIf="besluitVastleggen"
+      class="readonly error"
+      [innerHTML]="'msg.besluit.verplicht' | translate"
+    ></p>
+    <zac-static-text
+      *ngIf="data.zaak.resultaat"
+      [label]="'resultaat' | translate"
+      [value]="data.zaak.resultaat.resultaattype?.naam"
+    ></zac-static-text>
+    <zac-static-text
+      *ngFor="let besluit of data.zaak.besluiten"
+      [label]="besluit.identificatie | empty"
+      [value]="besluit.besluittype?.naam"
+    ></zac-static-text>
+    <zac-select
+      [form]="formGroup"
+      key="resultaattype"
+      label="resultaat"
+      *ngIf="!data.zaak.resultaat"
+      [options]="resultaattypes"
+      optionDisplayValue="naam"
+    />
+    <zac-input [form]="formGroup" key="toelichting" />
+    <zac-date
+      [form]="formGroup"
+      key="brondatumEigenschap"
+      *ngIf="formGroup.controls.resultaattype.value?.datumKenmerkVerplicht"
+    />
+    <div *ngIf="mailBeschikbaar">
+      <mat-checkbox id="sendMail" formControlName="sendMail">
+        {{ "sendMail" | translate }}
+      </mat-checkbox>
+    </div>
+    <zac-select
+      [form]="formGroup"
+      key="verzender"
+      *ngIf="formGroup.controls.sendMail.value"
+      [options]="afzenders"
+      [optionDisplayValue]="afzenderOptionDisplayValue"
+    />
+    <zac-input
+      [form]="formGroup"
+      key="ontvanger"
+      *ngIf="formGroup.controls.sendMail.value"
+    >
       <button
         *ngIf="initiatorEmail"
         mat-icon-button
         type="button"
         matSuffix
-        title="{{ initiatorToevoegenIcon.title | translate }}"
+        title="{{ 'actie.initiator.email.toevoegen' | translate }}"
         (click)="setInitiatorEmail()"
       >
-        <mat-icon>{{ initiatorToevoegenIcon.icon }}</mat-icon>
+        <mat-icon>person</mat-icon>
       </button>
-
-      <mat-label>{{ "ontvanger" | translate }}</mat-label>
-      <input
-        matInput
-        id="ontvanger"
-        maxlength="200"
-        formControlName="ontvanger"
-      />
-      <mat-hint align="end"
-        >{{ formGroup.get("ontvanger")!.value.length }}/200</mat-hint
-      >
-      <mat-error>{{
-        getError(formGroup.get("ontvanger")!, "ontvanger")
-      }}</mat-error>
-    </mat-form-field>
-  </div>
-
-  <mat-expansion-panel
-    class="mat-elevation-z0"
-    *ngIf="formGroup.get('sendMail')!.value"
-  >
-    <mat-expansion-panel-header>
-      {{ "body" | translate }}
-    </mat-expansion-panel-header>
-    <p class="readonly" [innerHTML]="mailtemplate?.body"></p>
-  </mat-expansion-panel>
-</mat-dialog-content>
-<mat-dialog-actions>
-  <button
-    *ngIf="!besluitVastleggen"
-    mat-raised-button
-    color="primary"
-    id="zaakAfhandelen_button"
-    [disabled]="loading || formGroup.invalid"
-    (click)="afhandelen()"
-  >
-    <mat-icon *ngIf="loading">
-      <mat-spinner diameter="18"></mat-spinner>
-    </mat-icon>
-    {{ "actie.zaak.afhandelen" | translate }}
-  </button>
-
-  <button
-    *ngIf="besluitVastleggen"
-    mat-raised-button
-    color="primary"
-    id="besluitVastleggen_button"
-    (click)="openBesluitVastleggen()"
-  >
-    {{ "actie.besluit.vastleggen" | translate }}
-  </button>
-
-  <button mat-raised-button [disabled]="loading" (click)="close()">
-    {{ "actie.annuleren" | translate }}
-  </button>
-</mat-dialog-actions>
+    </zac-input>
+    <mat-expansion-panel
+      class="mat-elevation-z0"
+      *ngIf="formGroup.controls.sendMail.value"
+    >
+      <mat-expansion-panel-header>
+        {{ "body" | translate }}
+      </mat-expansion-panel-header>
+      <p class="readonly" [innerHTML]="mailtemplate?.body"></p>
+    </mat-expansion-panel>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button
+      *ngIf="!besluitVastleggen"
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="loading || formGroup.invalid"
+    >
+      <mat-icon *ngIf="loading">
+        <mat-spinner diameter="18"></mat-spinner>
+      </mat-icon>
+      {{ "actie.zaak.afhandelen" | translate }}
+    </button>
+    <button
+      *ngIf="besluitVastleggen"
+      mat-raised-button
+      color="primary"
+      (click)="openBesluitVastleggen()"
+    >
+      {{ "actie.besluit.vastleggen" | translate }}
+    </button>
+    <button mat-raised-button [disabled]="loading" (click)="close()">
+      {{ "actie.annuleren" | translate }}
+    </button>
+  </mat-dialog-actions>
+</form>
