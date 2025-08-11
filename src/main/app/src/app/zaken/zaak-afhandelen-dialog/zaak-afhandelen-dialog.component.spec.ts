@@ -203,7 +203,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
 
       const options = await resultaattypeSelect.getOptions();
 
-      await options[2]?.click();
+      await options[1]?.click();
 
       const button = await loader.getHarness(
         MatButtonHarness.with({
@@ -243,7 +243,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
 
       const options = await resultaattypeSelect.getOptions();
 
-      await options[3]?.click();
+      await options[2]?.click();
 
       await fixture.whenStable();
 
@@ -263,7 +263,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await resultaattypeSelect.open();
 
       const options = await resultaattypeSelect.getOptions();
-      await options[3]?.click();
+      await options[2]?.click();
 
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
@@ -279,7 +279,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await resultaattypeSelect.open();
 
       const options = await resultaattypeSelect.getOptions();
-      await options[1]?.click(); // Select a type that requires brondatumEigenschap
+      await options[0]?.click(); // Select a type that requires brondatumEigenschap
 
       const inputs = await loader.getAllHarnesses(MatInputHarness);
 
