@@ -2582,14 +2582,14 @@
       "createdTimestamp": 1744010801635,
       "enabled": true,
       "totp": false,
-      "credentials" : [
+      "credentials": [
         {
-          "id" : "7bff2df6-2b4f-4d40-922f-3db8a47ce712",
-          "type" : "password",
-          "userLabel" : "My password",
-          "createdDate" : 1754984431730,
-          "secretData" : "{\"value\":\"3eqDg+4W6fi2Tp6uSH/cw/D8ImNCao3FAxfeyZE3bsM=\",\"salt\":\"ubqIeaPbq/LMotaR6/+Dqw==\",\"additionalParameters\":{}}",
-          "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+          "id": "7bff2df6-2b4f-4d40-922f-3db8a47ce712",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1754984431730,
+          "secretData": "{\"value\":\"3eqDg+4W6fi2Tp6uSH/cw/D8ImNCao3FAxfeyZE3bsM=\",\"salt\":\"ubqIeaPbq/LMotaR6/+Dqw==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
         }
       ],
       "disableableCredentialTypes": [],
