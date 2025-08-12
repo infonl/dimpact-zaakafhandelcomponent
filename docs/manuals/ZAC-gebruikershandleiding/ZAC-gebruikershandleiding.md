@@ -4,9 +4,9 @@
 
 
 > **Colofon** <br>
-> Datum :04-08-2025 <br>
-> Versie :   1.6.8 <br>
-> Verandering : ZAC v3.11 Handleiding <br>
+> Datum :11-08-2025 <br>
+> Versie :   1.6.9 <br>
+> Verandering : ZAC v3.12 Handleiding <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -35,6 +35,7 @@ Versiegeschiedenis:
 | 1.6.6 | ZAC v3.8 Handleiding |
 | 1.6.7 | ZAC v3.9 Handleiding |
 | 1.6.8 | ZAC v3.11 Handleiding |
+| 1.6.8 | ZAC v3.12 Handleiding |
 
 <div style="page-break-after: always"></div>
 
@@ -481,7 +482,7 @@ De datums, de groep, de behandelaar, het communicatiekanaal, de vertwouwelijkhei
 
 3 Klik op Opslaan om de wijziging op te slaan. As je wilt annuleren dan klik je op het kruis icoon of Annuleren, dan blijft de huidige waarde staan.
 
-## Locatie vastleggen
+## Locatie koppelen
 
 Met het menu item 'Locatie koppelen' is het mogelijk om een locatie bij een zaak vast te leggen. Van de gekozen locatie worden de coördinaten vastgelegd. Deze locatie kan op de kaart bekeken worden door met de muisaanwijzer op de locatie te klikken. Door de vastgelegde locatie tab te openen in de kaart kan ook het dichtstbijzijnde adres bij die locatie bekeken worden.
 
@@ -492,8 +493,8 @@ Met het menu item 'Locatie koppelen' is het mogelijk om een locatie bij een zaak
 
 2 Vul de verplichte reden voor het vastleggen van de locatie in
 
-3 Klik op ‘Opslaan’ om de locatie vast te leggen
-![Locatie vastleggen](./images/locatie-vastleggen-wijzigen-1.png)
+3 Klik op ‘Opslaan’ om de locatie te koppelen
+![Locatie koppelen](./images/locatie-vastleggen-wijzigen-1.png)
 
 ## Locatie wijzigen
 
@@ -551,6 +552,8 @@ Merk op: een zaak kan ook hervat worden bij het afronden van de ‘Aanvullende i
 3 Klik op ‘Zaak hervatten’ om de opschorting te beëindigen
 
 ## Zaak verlengen
+
+>Zaak verlengen moet wel in het zaaktype zijn ingesteld.
 
 Als de streef- en fatale datum van een zaak aanwezig zijn, kunnen deze eenmalig vanuit de zaakgegevenspagina verlengd worden. De behandelaar kan zelf de duur (in kalenderdagen) van de verlenging invullen waarmee het systeem de nieuwe streef- en fatale datum berekent. De maximaal toegestane duur van de verlenging is afhankelijk van het zaaktype.
 
@@ -733,7 +736,6 @@ Als relevant voor de toegekende initiator zal er een indicatie zichtbaar worden 
  - Overleden
  - Niet-ingezetene
  - Onder curatele
- - Blokkering vanwege verhuizing
  - Opschorten bijhouden
  - Emigratie
  - Ministerieel besluit
@@ -1145,6 +1147,8 @@ Of een besluit kan worden vastgelegd is afhankelijk van of dit is ingesteld bij 
 
 Nadat het besluit is aangemaakt wordt deze naast het blok met zaakgegevens weergegeven. Als er meerdere besluiten zijn toegevoegd dan is de meest recent toegevoegde opengeklapt en staan de oudere besluiten eronder. Deze kunnen opengeklapt worden door er op te klikken.
 
+> Het meest recent toegevoegde besluit bepaald de uitslag van de behandeling van de zaak.
+
 ### Besluit wijzigen
 
 De gegevens van een vastgelegd besluit kunnen gewijzigd worden. Door op het potlood icoon te klikken kan het besluitscherm weer geopend worden en zijn gegevens aan te passen. Het besluittype is niet aan te passen. Het is verplicht om hierbij een reden op te geven, deze wordt gebruikt bij het vastleggen in de historie.
@@ -1516,3 +1520,11 @@ De volgende indicaties worden gebruikt in de ZAC
 | Heeft besluit  | Document | Hamer                    |
 | Gebruiksrecht  | Document | Privacy                  |
 | Is verzonden   | Document | Brievenbus met envelop   |
+| In onderzoek   | Initiator| Persoon met vergrootglas|
+| Geheimhouding op persoonsgegevens | Initiator| Persoon met sleutel |
+| Overleden      | Initiator| Bloem |
+| Niet-ingezetene | Initiator| Persoon met streep erdoor |
+| Onder curatele | Initiator| Persoon die een ander persoon vasthoud |
+| Opschorten bijhouden | Initiator| Persoon met uitroepteken |
+| Emigratie | Initiator| Vliegtuig |
+| Ministerieel besluit | Initiator| Document met vinkje |
