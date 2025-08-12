@@ -179,6 +179,8 @@ object ItestConfiguration {
     const val TEST_BEHANDELAAR_1_NAME = "Test Behandelaar1"
     const val TEST_RAADPLEGER_1_ID = "raadpleger1"
     const val TEST_RAADPLEGER_1_NAME = "Test Raadpleger1"
+    const val TEST_USER_WITHOUT_ANY_ROLE_USERNAME = "testuserwithoutanyrole"
+    const val TEST_USER_WITHOUT_ANY_ROLE_PASSWORD = "testuserwithoutanyrole"
     const val TEST_GROUP_A_ID = "test-group-a"
     const val TEST_GROUP_A_DESCRIPTION = "Test group A"
     const val TEST_GROUP_FUNCTIONAL_ADMINS_ID = "test-group-fb"
