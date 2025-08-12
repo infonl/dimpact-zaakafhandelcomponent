@@ -148,6 +148,8 @@ export class ZaakViewComponent
   private zaakBesluitenListener!: WebsocketListener;
   private zaakTakenListener!: WebsocketListener;
   private datumPipe = new DatumPipe("nl");
+  private wasEinddatumGeplandExceededAtClose: boolean = false;
+  private wasUiterlijkeEinddatumAfdoeningExceededAtClose: boolean = false;
 
   @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
@@ -293,16 +295,14 @@ export class ZaakViewComponent
     this.dateFieldIconMap.set(
       "einddatumGepland",
       new TextIcon(
-        DateConditionals.provideFormControlValue(
-          (value, actual) => {
-            if (!this.zaak.isOpen) return false;
-
-            return this.zaak.einddatum
-              ? DateConditionals.isExceeded(value, actual)
-              : DateConditionals.isPreceded(value, actual);
-          },
-          this.zaak.einddatum ?? ""
-        ),
+        (control: FormControl) => {
+          const plannedDate = control.value;
+          if (!this.zaak.einddatum) {
+            return DateConditionals.isExceeded(plannedDate);
+          } else {
+            return DateConditionals.isExceeded(plannedDate, this.zaak.einddatum);
+          }
+        },
         "report_problem",
         "warningVerlopen_icon",
         this.zaak.einddatum
@@ -315,25 +315,22 @@ export class ZaakViewComponent
     this.dateFieldIconMap.set(
       "uiterlijkeEinddatumAfdoening",
       new TextIcon(
-        DateConditionals.provideFormControlValue(
-          (value, actual) => {
-            if (!this.zaak.isOpen) return false;
-
-            return this.zaak.uiterlijkeEinddatumAfdoening
-              ? DateConditionals.isExceeded(value, actual)
-              : DateConditionals.isPreceded(value, actual);
-          },
-          this.zaak.uiterlijkeEinddatumAfdoening ?? ""
-        ),
+        (control: FormControl) => {
+          const fatalDate = control.value;
+          if (!this.zaak.einddatum) {
+            return DateConditionals.isExceeded(fatalDate);
+          } else {
+            return DateConditionals.isExceeded(fatalDate, this.zaak.einddatum);
+          }
+        },
         "report_problem",
         "errorVerlopen_icon",
-        this.zaak.uiterlijkeEinddatumAfdoening
+        this.zaak.einddatum
           ? "msg.einddatum.overschreden"
           : "msg.datum.overschreden",
         "error",
       ),
     );
-
   }
 
   private createUserEventListenerPlanItemMenuItem(
@@ -443,7 +440,7 @@ export class ZaakViewComponent
         ),
       );
     }
-
+    
     if (
       this.zaak.isOpen &&
       this.zaak.rechten.behandelen &&
@@ -828,17 +825,26 @@ export class ZaakViewComponent
           .maxlength(80)
           .build(),
       ],
-      callback: ({ toelichting, resultaattype: { id } }) =>
-        this.zakenService
+      callback: ({ toelichting, resultaattype: { id } }) => {
+        this.wasEinddatumGeplandExceededAtClose = DateConditionals.isExceeded(
+          this.zaak.einddatumGepland!
+        );
+        this.wasUiterlijkeEinddatumAfdoeningExceededAtClose = DateConditionals.isExceeded(
+          this.zaak.uiterlijkeEinddatumAfdoening!
+        );
+
+        return this.zakenService
           .afsluiten(this.zaak.uuid, {
             reden: toelichting,
             resultaattypeUuid: id,
           })
           .pipe(
-            tap(() => this.websocketService.suspendListener(this.zaakListener)),
-          ),
+            tap(() => this.websocketService.suspendListener(this.zaakListener))
+          )
+      },
       confirmButtonActionKey: "actie.zaak.afsluiten",
       icon: "thumb_up_alt",
+
     });
 
     this.dialog
