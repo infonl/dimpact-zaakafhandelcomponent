@@ -94,7 +94,7 @@ C4Context
     UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="2")
 ```
 
-The following components are part of the current ZAC IAM architecture:
+The following components are part of the new ZAC IAM architecture:
 
 | Component                                | Description                           | ZAC usage                                                                                                                                                                                                                   |
 |------------------------------------------|---------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
