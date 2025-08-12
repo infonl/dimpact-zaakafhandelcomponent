@@ -105,7 +105,7 @@ The following components are part of the current ZAC IAM architecture:
 The new IAM architecture is quite different from the old IAM architecture in that it allows different application roles _per_ zaaktype per user.
 This is implemented using the following concepts which are managed in the PABC:
 
-* Mappings from functional roles to a set of the following:
+* Authorization mappings from functional roles to a set of the following:
     * A combination of:
         * Authorised zaaktype
         * ZAC application roles applicable to this zaaktype
@@ -118,6 +118,26 @@ In the new IAM architecture `domains` are a PABC-internal concept only.
 ZAC, nor Keycloak, have any knowledge of these `domains`.
 
 The functional roles and mappings from users (typically through groups) to functional roles are managed in Keycloak.
+
+### Scenarios
+
+The following sequence diagram illustrates the scenario of a ZAC user logging in and retrieving the authorization mappings from the PABC:
+
+```mermaid
+sequenceDiagram
+    participant Employee
+    participant Keycloak
+    participant ZAC
+    participant PABC
+
+    Employee->>ZAC: Requests ZAC user interface
+    ZAC->>Keycloak: Redirects to Keycloak for authentication
+    Employee->>Keycloak: Logs in
+    Keycloak-->>ZAC: Returns functional roles in JWT OIDC token
+    ZAC->>PABC: Retrieve authorization mappings for functional roles
+    PABC-->>ZAC: Returns authorization mappings
+    ZAC->>OPA: Uses authorization mappings for authorization checks
+```    
 
 ## Internal endpoints
 
