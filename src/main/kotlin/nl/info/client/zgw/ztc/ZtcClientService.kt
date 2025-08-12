@@ -383,9 +383,11 @@ class ZtcClientService @Inject constructor(
 
     fun readEigenschap(zaaktype: URI, eigenschap: String) =
         this.readEigenschappen(zaaktype).find { it.naam == eigenschap }
-            ?: throw EigenschapNotFoundException("""
+            ?: throw EigenschapNotFoundException(
+                """
                 No '${EigenschapListParametersStatus.DEFINITIEF}' eigenschap with naam '$eigenschap' found for zaaktype '$zaaktype'.
-           """.trimIndent())
+                """.trimIndent()
+            )
 
     fun clearZaaktypeCache(): String {
         uuidToZaakTypeCache.invalidateAll()
