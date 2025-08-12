@@ -6,6 +6,9 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.assertions.json.shouldBeJsonArray
+import io.kotest.assertions.json.shouldContainJsonKey
+import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -18,6 +21,8 @@ import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
+import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
+import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
@@ -61,8 +66,9 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
 
     Given("A zaak has been created that has finished the intake phase with the status 'admissible'") {
-        lateinit var zaakUUID: UUID
+        val zaakUUID: UUID
         lateinit var enkelvoudigInformatieObjectUUID: UUID
+        lateinit var humanTaskItemGoedkeurenId: String
         val intakeId: Int
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
@@ -154,7 +160,30 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 enkelvoudigInformatieObjectUUID = UUID.fromString(JSONObject(responseBody).getString("uuid"))
             }
         }
+        When("the list human task plan items endpoint is called") {
+            val response = itestHttpClient.performGetRequest(
+                "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems"
+            )
+            Then("the list of human task plan items for this zaak contains the task 'aanvullende informatie'") {
+                val responseBody = response.body.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+                responseBody.shouldBeJsonArray()
+                // the zaak is in the behandelen phase, so there should be four human task plan items
+                // of which the first one is 'Goedkeuren'
+                JSONArray(responseBody).length() shouldBe 4
+                JSONArray(responseBody)[0].toString().run {
+                    shouldContainJsonKeyValue("naam", "Goedkeuren")
+                }
+                humanTaskItemGoedkeurenId = JSONArray(responseBody).getJSONObject(0).getString("id")
+            }
+        }
+
         // TODO: start the 'Goedkeuren' task
+        // POST https://zaakafhandelcomponent-zac-dev.dimpact.lifely.nl/rest/planitems/doHumanTaskPlanItem
+
+        // GET https://zaakafhandelcomponent-zac-dev.dimpact.lifely.nl/rest/taken/zaak/f34c2f1b-de0b-4187-a318-877dac23acda
+
         // TODO: complete the 'Goedkeuren' task by approving the document
     }
 })
