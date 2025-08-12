@@ -10,9 +10,9 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED
-import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_DOCUMENTS
-import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_TASKS
-import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_ZAKEN
+import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_DOCUMENTS
+import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_TASKS
+import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_ZAKEN
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import okhttp3.Headers.Companion.toHeaders
@@ -62,7 +62,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_ZAKEN
+                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_ZAKEN
                 }
             }
         }
@@ -99,7 +99,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_TASKS
+                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_TASKS
                 }
             }
         }
@@ -136,7 +136,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_DOCUMENTS
+                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_DOCUMENTS
                 }
             }
         }

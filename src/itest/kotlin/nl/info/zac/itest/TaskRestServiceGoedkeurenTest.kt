@@ -7,7 +7,6 @@ package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldBeJsonArray
-import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
@@ -16,29 +15,20 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_3_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
-import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
-import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
-import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
-import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
-import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
-import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
@@ -50,16 +40,16 @@ import java.io.File
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.net.URLDecoder
-import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 /**
  * This test creates a zaak, adds a task to complete the intake phase, then adds a document, starts the 'Goedkeuren' task
- * and completes this task by approving the document.
+ * and completes this task by signing the document.
+ * Because we do not want this test to impact e.g. [SearchRestServiceTest] we run it afterward.
  */
-@Order(TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED)
+@Order(TEST_SPEC_ORDER_AFTER_SEARCH)
 @Suppress("MagicNumber")
 class TaskRestServiceGoedkeurenTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
@@ -70,7 +60,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
         val zaakUUID: UUID
         lateinit var enkelvoudigInformatieObjectUUID: UUID
         lateinit var humanTaskItemGoedkeurenId: String
-        var goedkeurenTaskId: Int
+        var goedkeurenTaskId: Int = 0
         val intakeId: Int
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
@@ -189,10 +179,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 requestBodyAsString = """
                 {
                     "planItemInstanceId": "$humanTaskItemGoedkeurenId",
-                    "groep": {
-                        "id": "$TEST_GROUP_A_ID",
-                        "naam": "$TEST_GROUP_A_DESCRIPTION"
-                    },
+                    "groep": { "id": "$TEST_GROUP_A_ID", "naam": "$TEST_GROUP_A_DESCRIPTION" },
                     "taakStuurGegevens": {},
                     "taakdata": {
                         "vraag": "fakeQuestion",
@@ -223,5 +210,54 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
         }
 
         // TODO: complete the 'Goedkeuren' task by approving the document
+        // PATCH https://zaakafhandelcomponent-zac-dev.dimpact.lifely.nl/rest/taken/complete
+        // body: {"creatiedatumTijd":"2025-08-12T18:19:30.746Z","formulierDefinitieId":"GOEDKEUREN","groep":{"id":"administrators","naam":"Administrators"},"id":"3167524","naam":"Goedkeuren","rechten":{"lezen":true,"toekennen":true,"toevoegenDocument":true,"wijzigen":true},"status":"NIET_TOEGEKEND","taakdata":{"relevanteDocumenten":"6c226862-ba35-4a0d-b420-f7a8f1e814aa","vraag":"fakeQuestion","ondertekenen":"6c226862-ba35-4a0d-b420-f7a8f1e814aa","goedkeuren":"goedkeuren.AKKOORD"},"taakdocumenten":[],"taakinformatie":{"uitkomst":"goedkeuren.AKKOORD","opmerking":"fakeToelichting","bijlagen":""},"tabellen":{},"zaakIdentificatie":"ZAAK-2025-0000002590","zaakUuid":"f34c2f1b-de0b-4187-a318-877dac23acda","zaaktypeOmschrijving":"Melding evenement organiseren behandelen","zaaktypeUUID":"66c30955-a324-4e61-889e-c088488b5fcf","toelichting":"fakeToelichting"}
+
+        When("first task is completed") {
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/taken/complete",
+                requestBodyAsString = """
+                {
+                    "creatiedatumTijd": "${ZonedDateTime.now()}",
+                    "formulierDefinitieId": "GOEDKEUREN",
+                    "groep": { "id": "$TEST_GROUP_A_ID", "naam": "$TEST_GROUP_A_DESCRIPTION" },
+                    "id": "$goedkeurenTaskId",
+                    "naam": "Goedkeuren",
+                    "rechten":{ "lezen": true, "toekennen": true, "toevoegenDocument": true, "wijzigen": true },
+                    "status": "NIET_TOEGEKEND",
+                    "taakdata": {
+                        "relevanteDocumenten": "$enkelvoudigInformatieObjectUUID",
+                        "vraag": "fakeQuestion",
+                        "ondertekenen": "$enkelvoudigInformatieObjectUUID",
+                        "goedkeuren": "goedkeuren.AKKOORD"
+                    },
+                    "taakdocumenten": [],
+                    "taakinformatie": {
+                        "uitkomst": "goedkeuren.AKKOORD",
+                        "opmerking": "fakeToelichting",
+                        "bijlagen": ""
+                    },
+                    "tabellen": {},
+                    "zaakUuid": "$zaakUUID",
+                    "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
+                    "zaaktypeUUID": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID",
+                    "toelichting": "fakeToelichting"
+                }
+                """.trimIndent()
+            )
+
+            //                     "zaakIdentificatie": "ZAAK-2025-0000002590",
+
+            Then("the taak status should be set to 'AFGEROND'") {
+                val responseBody = response.body.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+                responseBody.shouldContainJsonKeyValue("status", "AFGEROND")
+            }
+        }
+
+        // TODO: check if the document was signed and if the status was set to 'definitief'
+        // PUT https://zaakafhandelcomponent-zac-dev.dimpact.lifely.nl/rest/informatieobjecten/informatieobjectenList
+        // with body: {"zaakUUID":"f34c2f1b-de0b-4187-a318-877dac23acda","informatieobjectUUIDs":["6c226862-ba35-4a0d-b420-f7a8f1e814aa"]}
     }
 })

@@ -128,10 +128,10 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_REINDEXING = 9
     const val TEST_SPEC_ORDER_AFTER_SEARCH = 10
 
-    const val TOTAL_COUNT_ZAKEN = 12
-    const val TOTAL_COUNT_ZAKEN_AFGEROND = 2
-    const val TOTAL_COUNT_TASKS = 3
-    const val TOTAL_COUNT_DOCUMENTS = 11
+    const val TOTAL_COUNT_INDEXED_ZAKEN = 11
+    const val TOTAL_COUNT_INDEXED_ZAKEN_AFGEROND = 2
+    const val TOTAL_COUNT_INDEXED_TASKS = 3
+    const val TOTAL_COUNT_INDEXED_DOCUMENTS = 11
 
     /**
      * Test person that exists in both the BRP and the Klanten API databases
