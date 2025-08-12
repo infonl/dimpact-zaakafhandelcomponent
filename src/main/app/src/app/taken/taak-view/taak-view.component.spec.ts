@@ -21,6 +21,7 @@ import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { EditGroepBehandelaarComponent } from "../../shared/edit/edit-groep-behandelaar/edit-groep-behandelaar.component";
+import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
@@ -54,7 +55,7 @@ describe(TaakViewComponent.name, () => {
     status: "TOEGEKEND",
     taakdata: {},
     formulierDefinitie: undefined,
-    formulierDefinitieId: "test-formulierDefinitieId",
+    formulierDefinitieId: "DEFAULT_TAAKFORMULIER",
     tabellen: {},
     taakdocumenten: [],
     taakinformatie: {},
@@ -74,12 +75,13 @@ describe(TaakViewComponent.name, () => {
         EditGroepBehandelaarComponent,
       ],
       imports: [
-        NoopAnimationsModule,
         MatSidenav,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
         PipesModule,
         MaterialModule,
+        MaterialFormBuilderModule,
+        NoopAnimationsModule,
       ],
       providers: [
         WebsocketService,
@@ -101,7 +103,9 @@ describe(TaakViewComponent.name, () => {
       TestBed.createComponent(MatSidenav).componentInstance;
 
     websocketService = TestBed.inject(WebsocketService);
+
     takenService = TestBed.inject(TakenService);
+    jest.spyOn(takenService, "readTaak").mockReturnValue(of());
   });
 
   describe(TaakViewComponent.prototype.documentCreated.name, () => {
@@ -135,6 +139,18 @@ describe(TaakViewComponent.name, () => {
 
       expect(listHistorieVoorTaak).toHaveBeenCalledTimes(1);
       expect(listHistorieVoorTaak).toHaveBeenCalledWith(taak.id);
+    });
+
+    it("should read the task when a screen event is received", async () => {
+      const readTaak = jest.spyOn(takenService, "readTaak");
+
+      websocketService["onMessage"]({
+        opcode: Opcode.ANY,
+        objectType: ObjectType.TAAK,
+        objectId: new ScreenEventId(taak.id!),
+      });
+
+      expect(readTaak).toHaveBeenCalledWith(taak.id!);
     });
   });
 });

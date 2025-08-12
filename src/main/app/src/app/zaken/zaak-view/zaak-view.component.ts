@@ -662,17 +662,18 @@ export class ZaakViewComponent
       .afterClosed()
       .subscribe((result) => {
         this.activeSideAction = null;
-        if (result) {
-          if (result === "openBesluitVastleggen") {
-            this.activeSideAction = "actie.besluit.vastleggen";
-            void this.actionsSidenav.open();
-          } else {
-            this.utilService.openSnackbar(
-              "msg.planitem.uitgevoerd." + planItem.userEventListenerActie,
-            );
-            this.updateZaak();
-          }
+        if (!result) return;
+
+        if (result === "openBesluitVastleggen") {
+          this.activeSideAction = "actie.besluit.vastleggen";
+          this.actionsSidenav.open();
+          return;
         }
+
+        this.utilService.openSnackbar(
+          `msg.planitem.uitgevoerd.${planItem.userEventListenerActie}`,
+        );
+        this.updateZaak();
       });
   }
 

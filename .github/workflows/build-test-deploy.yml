@@ -66,7 +66,7 @@ jobs:
     outputs:
       changes-requiring-build: ${{ steps.paths-filter.outputs.changes-requiring-build }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Skip job when only certain files or file types are changed which do not require a pull request build
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -96,7 +96,7 @@ jobs:
       build_number: ${{ steps.gen_build_number.outputs.BUILD_NUMBER }}
       zac_docker_image: ${{ steps.gen_tag.outputs.ZAC_DOCKER_IMAGE }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Set branch name
         id: gen_branch_name
@@ -174,7 +174,7 @@ jobs:
       READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
       READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Setup JDK
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
@@ -249,7 +249,7 @@ jobs:
     steps:
       # Checkout the repository including tags
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
       # Determine the next semantic version based on the commit message tags
@@ -322,7 +322,7 @@ jobs:
           # disable cleaning up large packages since this takes a long time
           large-packages: false
 
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: authenticate with docker hub
         uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
@@ -489,7 +489,7 @@ jobs:
       NEXT_VERSION_TAG: ${{ needs.next-version.outputs.tag }}
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Create or update GitHub release
         uses: ncipollo/release-action@bcfe5470707e8832e12347755757cec0eb3c22af # v1.18.0
