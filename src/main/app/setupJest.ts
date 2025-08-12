@@ -36,3 +36,7 @@ Object.defineProperty(globalThis, "crypto", {
   writable: false,
   configurable: false,
 });
+
+afterEach(() => {
+  jest.clearAllMocks();
+});

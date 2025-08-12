@@ -42,11 +42,13 @@ fun createRESTTaakStuurGegevens(
 fun createRESTUserEventListenerData(
     zaakUuid: UUID,
     actie: UserEventListenerActie,
-    restMailGegevens: RESTMailGegevens,
-    resultaattypeUuid: UUID = UUID.randomUUID()
+    restMailGegevens: RESTMailGegevens? = null,
+    resultaattypeUuid: UUID = UUID.randomUUID(),
+    brondatumEigenschap: String? = null
 ) = RESTUserEventListenerData(
     zaakUuid = zaakUuid,
     actie = actie,
     restMailGegevens = restMailGegevens,
-    resultaattypeUuid = resultaattypeUuid
+    resultaattypeUuid = resultaattypeUuid,
+    brondatumEigenschap = brondatumEigenschap
 )

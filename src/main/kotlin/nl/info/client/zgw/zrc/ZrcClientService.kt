@@ -25,6 +25,7 @@ import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.zrc.model.generated.Status
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -237,6 +238,10 @@ class ZrcClientService @Inject constructor(
     fun createStatus(status: Status): Status {
         status.statustoelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
         return zrcClient.statusCreate(status)
+    }
+
+    fun createEigenschap(zaakUUID: UUID, zaakEigenschap: ZaakEigenschap): ZaakEigenschap {
+        return zrcClient.zaakeigenschapCreate(zaakUUID, zaakEigenschap)
     }
 
     private fun deleteDeletedRollen(
