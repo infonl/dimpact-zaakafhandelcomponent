@@ -23,6 +23,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
 import org.wildfly.security.http.oidc.RefreshableOidcSecurityContext
+import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.jvm.java
 
@@ -102,8 +103,8 @@ constructor(
     }
 
     /**
-     * Resolve application roles via PABC (enabled by a feature-flag) and fallback to the
-     * functional roles from Keycloak if PABC is disabled or fails.
+     * Resolve application roles via PABC (when enabled by a feature-flag)
+     *
      */
     @Suppress("TooGenericExceptionCaught")
     private fun resolveApplicationRolesFromPabc(functionalRoles: Set<String>): Set<String> {
@@ -120,29 +121,25 @@ constructor(
             )
         }
 
-        return try {
+        try {
             val applicationRolesResponse: GetApplicationRolesResponse =
                 pabcClientService.getApplicationRoles(filteredFunctionalRoles)
             LOG.info("Resolved application roles from PABC for user: $applicationRolesResponse")
 
-            applicationRolesResponse.results
+            return applicationRolesResponse.results
                 .flatMap { it.applicationRoles }
                 .mapNotNull { it.name }
                 .toSet()
         } catch (ex: Exception) {
-            LOG.warning(
-                "PABC application role lookup failed ($ex). " +
-                    "Falling back to functional roles from Keycloak."
-            )
-            functionalRoles
+            LOG.log(Level.SEVERE, "PABC application role lookup failed", ex);
+            throw ex
         }
     }
 
     private fun createLoggedInUser(oidcSecurityContext: OidcSecurityContext): LoggedInUser =
         oidcSecurityContext.token.let { accessToken ->
             val functionalRoles = accessToken.rolesClaim.toSet()
-            val rolesForLoggedInUser: Set<String> =
-                resolveApplicationRolesFromPabc(functionalRoles)
+            val rolesForLoggedInUser = resolveApplicationRolesFromPabc(functionalRoles)
 
             LoggedInUser(
                 id = accessToken.preferredUsername,
