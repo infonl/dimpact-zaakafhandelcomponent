@@ -13,7 +13,7 @@ dependencies:
 - name: opentelemetry-collector
   repository: '@opentelemetry'
   condition: opentelemetry-collector.enabled
-  version: 0.130.1
+  version: 0.130.2
 - name: solr-operator
   repository: '@solr'
   version: 0.9.1
