@@ -111,7 +111,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "ZAAKTYPE": [
                                 {
-                                    "aantal": 7,
+                                    "aantal": 8,
                                     "naam": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                                 },
                                 {
@@ -131,13 +131,13 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "GROEP": [
                                 {
-                                    "aantal": 14,
+                                    "aantal": 15,
                                     "naam": "$TEST_GROUP_A_DESCRIPTION"
                                 }
                             ],
                             "TOEGEKEND": [
                                 {
-                                    "aantal": 12,
+                                    "aantal": 13,
                                     "naam": "false"
                                 },
                                 {
@@ -181,7 +181,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "ZAAK_COMMUNICATIEKANAAL": [
                                 {
-                                    "aantal": 8,
+                                    "aantal": 9,
                                     "naam": "$COMMUNICATIEKANAAL_TEST_1"
                                 },
                                 {
@@ -195,7 +195,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "ZAAK_VERTROUWELIJKHEIDAANDUIDING": [
                                 {
-                                    "aantal": 11,
+                                    "aantal": 12,
                                     "naam": "OPENBAAR"
                                 }
                             ],
@@ -316,13 +316,13 @@ class SearchRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "foutmelding" : "",                     
-                      "totaal" : 4,
+                      "totaal" : 5,
                       "filters" : {
                         "ZAAKTYPE" : [ {
                           "aantal" : 4,
                           "naam" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                         }, {
-                          "aantal" : 4,
+                          "aantal" : 5,
                           "naam" : "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                         }, {
                           "aantal": 1,
@@ -330,12 +330,12 @@ class SearchRestServiceTest : BehaviorSpec({
                         }],          
                         "BEHANDELAAR": [
                           {
-                            "aantal": 4,
+                            "aantal": 5,
                             "naam": "-NULL-"
                           }
                         ],
                         "GROEP" : [ {
-                          "aantal" : 4,
+                          "aantal" : 5,
                           "naam" : "$TEST_GROUP_A_DESCRIPTION"
                         } ],
                         "ZAAK_STATUS" : [
@@ -344,7 +344,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                 "naam": "Intake"
                            },
                            {
-                                "aantal": 1,
+                                "aantal": 2,
                                 "naam": "In behandeling"
                             },
                             {
@@ -358,26 +358,26 @@ class SearchRestServiceTest : BehaviorSpec({
                             "naam": "Toegekend"
                           },                       
                           {
-                             "aantal" : 3,
+                             "aantal" : 4,
                              "naam" : "-NULL-"
                            } 
                         ],
                         "ZAAK_INDICATIES" : [                    
                           {                       
-                            "aantal" : 4,
+                            "aantal" : 5,
                             "naam" : "-NULL-"
                           } 
                         ],
                         "ZAAK_COMMUNICATIEKANAAL" : [ {                    
-                          "aantal" : 4,
+                          "aantal" : 5,
                           "naam" : "$COMMUNICATIEKANAAL_TEST_1"
                         } ],
                         "ZAAK_VERTROUWELIJKHEIDAANDUIDING" : [ {
-                          "aantal" : 4,
+                          "aantal" : 5,
                           "naam" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
                         } ],
                         "ZAAK_ARCHIEF_NOMINATIE" : [ {
-                          "aantal" : 4,
+                          "aantal" : 5,
                           "naam" : "-NULL-"
                         } ]
                       }
@@ -444,7 +444,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "type": "ZAAK"
                     }
                   ],
-                  "totaal": 11,
+                  "totaal": $TOTAL_COUNT_ZAKEN,
                   "filters": {}
                 }
                 """.trimIndent()
@@ -502,7 +502,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "type": "ZAAK"
                     }
                   ],
-                  "totaal": 11,
+                  "totaal": $TOTAL_COUNT_ZAKEN,
                   "filters": {}
                 }
                 """.trimIndent()
