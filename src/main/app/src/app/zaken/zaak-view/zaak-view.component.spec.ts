@@ -9,17 +9,25 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
+import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
+import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
+import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
+import { WebsocketService } from "../../core/websocket/websocket.service";
+import { IdentityService } from "../../identity/identity.service";
+import { KlantenService } from "../../klanten/klanten.service";
 import { PersoonsgegevensComponent } from "../../klanten/persoonsgegevens/persoonsgegevens.component";
 import { NotitiesComponent } from "../../notities/notities.component";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
+import { PolicyService } from "../../policy/policy.service";
 import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
@@ -27,6 +35,7 @@ import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { TakenService } from "../../taken/taken.service";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZakenService } from "../zaken.service";
@@ -40,6 +49,11 @@ describe(ZaakViewComponent.name, () => {
   let zakenService: ZakenService;
   let bagService: BAGService;
   let planItemsService: PlanItemsService;
+  let dialogRef: MatDialogRef<unknown>;
+  let takenService: TakenService;
+  let identityService: IdentityService;
+  let websocketService: WebsocketService;
+  let zaakafhandelParametersService: ZaakafhandelParametersService;
 
   const mockActivatedRoute = {
     data: new ReplaySubject<{ zaak: GeneratedType<"RestZaak"> }>(1),
@@ -59,6 +73,14 @@ describe(ZaakViewComponent.name, () => {
   });
 
   beforeEach(async () => {
+    dialogRef = {
+      afterClosed: jest.fn().mockReturnValue(of(undefined)),
+    } as unknown as MatDialogRef<unknown>;
+
+    const dialogMock = {
+      open: jest.fn().mockReturnValue(dialogRef),
+    };
+
     await TestBed.configureTestingModule({
       declarations: [
         ZaakViewComponent,
@@ -83,6 +105,10 @@ describe(ZaakViewComponent.name, () => {
         {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
+        },
+        {
+          provide: MatDialog,
+          useValue: dialogMock,
         },
         VertrouwelijkaanduidingToTranslationKeyPipe,
       ],
@@ -114,8 +140,44 @@ describe(ZaakViewComponent.name, () => {
       .spyOn(planItemsService, "listProcessTaskPlanItems")
       .mockReturnValue(of([]));
 
+    takenService = TestBed.inject(TakenService);
+    jest.spyOn(takenService, "listTakenVoorZaak").mockReturnValue(of([]));
+
+    identityService = TestBed.inject(IdentityService);
+    jest
+      .spyOn(identityService, "readLoggedInUser")
+      .mockReturnValue(of(fromPartial<GeneratedType<"RestLoggedInUser">>({})));
+
+    TestBed.inject(KlantenService);
+
+    websocketService = TestBed.inject(WebsocketService);
+    jest
+      .spyOn(websocketService, "addListener")
+      .mockReturnValue(fromPartial<WebsocketListener>({}));
+    jest.spyOn(websocketService, "doubleSuspendListener").mockImplementation();
+    jest.spyOn(websocketService, "removeListener").mockImplementation();
+    jest.spyOn(websocketService, "suspendListener").mockImplementation();
+
+    zaakafhandelParametersService = TestBed.inject(
+      ZaakafhandelParametersService,
+    );
+    jest
+      .spyOn(
+        zaakafhandelParametersService,
+        "listZaakbeeindigRedenenForZaaktype",
+      )
+      .mockReturnValue(of([]));
+
+    TestBed.inject(PolicyService);
+    TestBed.inject(MatDialog);
+
     fixture = TestBed.createComponent(ZaakViewComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
+
+    fixture.componentInstance.actionsSidenav = fromPartial<MatSidenav>({
+      close: jest.fn(),
+      open: jest.fn(),
+    });
   });
 
   describe("actie.zaak.opschorten", () => {
@@ -163,6 +225,46 @@ describe(ZaakViewComponent.name, () => {
         );
         expect(button).toBeNull();
       });
+    });
+  });
+
+  describe("openPlanItemStartenDialog", () => {
+    const mockPlanItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+      userEventListenerActie: "ZAAK_AFHANDELEN",
+    });
+
+    beforeEach(() => {
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+    });
+
+    it("should open side menu and set action when dialog returns 'openBesluitVastleggen'", () => {
+      const openSpy = jest.spyOn(
+        fixture.componentInstance.actionsSidenav,
+        "open",
+      );
+      jest
+        .spyOn(dialogRef, "afterClosed")
+        .mockReturnValue(of("openBesluitVastleggen"));
+
+      fixture.componentInstance.openPlanItemStartenDialog(mockPlanItem);
+
+      expect(openSpy).toHaveBeenCalled();
+      expect(fixture.componentInstance.activeSideAction).toBe(
+        "actie.besluit.vastleggen",
+      );
+    });
+
+    it("should show snackbar when dialog returns other value", () => {
+      const spy = jest.spyOn(utilService, "openSnackbar");
+      jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of("otherValue"));
+
+      fixture.componentInstance.openPlanItemStartenDialog(mockPlanItem);
+
+      expect(spy).toHaveBeenCalledWith(
+        "msg.planitem.uitgevoerd.ZAAK_AFHANDELEN",
+      );
+      expect(fixture.componentInstance.activeSideAction).toBe(null);
     });
   });
 });
