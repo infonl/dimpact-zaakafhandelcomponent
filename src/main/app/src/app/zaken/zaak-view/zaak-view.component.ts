@@ -148,8 +148,7 @@ export class ZaakViewComponent
   private zaakBesluitenListener!: WebsocketListener;
   private zaakTakenListener!: WebsocketListener;
   private datumPipe = new DatumPipe("nl");
-  private wasEinddatumGeplandExceededAtClose: boolean = false;
-  private wasUiterlijkeEinddatumAfdoeningExceededAtClose: boolean = false;
+
 
   @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
@@ -305,6 +304,7 @@ export class ZaakViewComponent
               this.zaak.einddatum,
             );
           }
+          
         },
         "report_problem",
         "warningVerlopen_icon",
@@ -829,11 +829,6 @@ export class ZaakViewComponent
           .build(),
       ],
       callback: ({ toelichting, resultaattype: { id } }) => {
-        this.wasEinddatumGeplandExceededAtClose = DateConditionals.isExceeded(
-          this.zaak.einddatumGepland!,
-        );
-        this.wasUiterlijkeEinddatumAfdoeningExceededAtClose =
-          DateConditionals.isExceeded(this.zaak.uiterlijkeEinddatumAfdoening!);
 
         return this.zakenService
           .afsluiten(this.zaak.uuid, {

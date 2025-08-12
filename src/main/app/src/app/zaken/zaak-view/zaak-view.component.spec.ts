@@ -31,6 +31,8 @@ import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.comp
 import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZakenService } from "../zaken.service";
 import { ZaakViewComponent } from "./zaak-view.component";
+import { ConditionalFn } from "src/app/shared/utils/date-conditionals";
+import { FormControl } from "@angular/forms";
 
 describe(ZaakViewComponent.name, () => {
   let fixture: ComponentFixture<ZaakViewComponent>;
@@ -175,23 +177,37 @@ describe(ZaakViewComponent.name, () => {
         .toISOString()
         .slice(0, 10);
 
+      const yesterdayFormControl = new FormControl(yesterdayDate);
+      const todayFormControl = new FormControl(today);
+      const tomorrowFormControl = new FormControl(tomorrowDate);
+
+
+      // interface FormControlStub {
+      //   value: string;
+      // }
+
       beforeEach(() => {
         component = fixture.componentInstance;
-        component.zaak = { ...zaak } as any;
-        // Only call the private method directly
-        (component as any).setDateFieldIconSet();
+        component.zaak = { ...zaak } as GeneratedType<"RestZaak">;
+        (
+          component as unknown as { setDateFieldIconSet: () => void }
+        ).setDateFieldIconSet();
       });
 
       function setZaakDates({
         einddatum,
         einddatumGepland,
         uiterlijkeEinddatumAfdoening,
-      }: any) {
+      }: {
+        einddatum: string | undefined;
+        einddatumGepland: string | undefined;
+        uiterlijkeEinddatumAfdoening: string | undefined;
+      }): void {
         component.zaak.einddatum = einddatum;
         component.zaak.einddatumGepland = einddatumGepland;
-        component.zaak.uiterlijkeEinddatumAfdoening =
-          uiterlijkeEinddatumAfdoening;
-        (component as any).setDateFieldIconSet();
+        component.zaak.uiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening;
+
+        (component as unknown as { setDateFieldIconSet: () => void }).setDateFieldIconSet();
       }
 
       it("shows icons for overdue dates in open case", () => {
@@ -200,17 +216,16 @@ describe(ZaakViewComponent.name, () => {
           einddatumGepland: yesterdayDate,
           uiterlijkeEinddatumAfdoening: yesterdayDate,
         });
-
         expect(
           component.dateFieldIconMap
             .get("einddatumGepland")!
-            .showIcon({ value: yesterdayDate } as any)
+            .showIcon(yesterdayFormControl)
         ).toBe(true);
 
         expect(
           component.dateFieldIconMap
             .get("uiterlijkeEinddatumAfdoening")!
-            .showIcon({ value: yesterdayDate } as any)
+            .showIcon(yesterdayFormControl)
         ).toBe(true);
       });
 
@@ -224,13 +239,13 @@ describe(ZaakViewComponent.name, () => {
         expect(
           component.dateFieldIconMap
             .get("einddatumGepland")!
-            .showIcon({ value: yesterdayDate } as any)
+            .showIcon(yesterdayFormControl)
         ).toBe(true);
 
         expect(
           component.dateFieldIconMap
             .get("uiterlijkeEinddatumAfdoening")!
-            .showIcon({ value: yesterdayDate } as any)
+            .showIcon(yesterdayFormControl)
         ).toBe(true);
       });
 
@@ -244,13 +259,13 @@ describe(ZaakViewComponent.name, () => {
         expect(
           component.dateFieldIconMap
             .get("einddatumGepland")!
-            .showIcon({ value: tomorrowDate } as any)
+            .showIcon(tomorrowFormControl)
         ).toBe(false);
 
         expect(
           component.dateFieldIconMap
             .get("uiterlijkeEinddatumAfdoening")!
-            .showIcon({ value: tomorrowDate } as any)
+            .showIcon(tomorrowFormControl)
         ).toBe(false);
       });
 
@@ -264,13 +279,13 @@ describe(ZaakViewComponent.name, () => {
         expect(
           component.dateFieldIconMap
             .get("einddatumGepland")!
-            .showIcon({ value: tomorrowDate } as any)
+            .showIcon(tomorrowFormControl)
         ).toBe(false);
 
         expect(
           component.dateFieldIconMap
             .get("uiterlijkeEinddatumAfdoening")!
-            .showIcon({ value: tomorrowDate } as any)
+            .showIcon(tomorrowFormControl)
         ).toBe(false);
       });
     });
