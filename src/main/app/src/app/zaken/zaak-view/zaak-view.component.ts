@@ -300,7 +300,10 @@ export class ZaakViewComponent
           if (!this.zaak.einddatum) {
             return DateConditionals.isExceeded(plannedDate);
           } else {
-            return DateConditionals.isExceeded(plannedDate, this.zaak.einddatum);
+            return DateConditionals.isExceeded(
+              plannedDate,
+              this.zaak.einddatum,
+            );
           }
         },
         "report_problem",
@@ -440,7 +443,7 @@ export class ZaakViewComponent
         ),
       );
     }
-    
+
     if (
       this.zaak.isOpen &&
       this.zaak.rechten.behandelen &&
@@ -827,11 +830,10 @@ export class ZaakViewComponent
       ],
       callback: ({ toelichting, resultaattype: { id } }) => {
         this.wasEinddatumGeplandExceededAtClose = DateConditionals.isExceeded(
-          this.zaak.einddatumGepland!
+          this.zaak.einddatumGepland!,
         );
-        this.wasUiterlijkeEinddatumAfdoeningExceededAtClose = DateConditionals.isExceeded(
-          this.zaak.uiterlijkeEinddatumAfdoening!
-        );
+        this.wasUiterlijkeEinddatumAfdoeningExceededAtClose =
+          DateConditionals.isExceeded(this.zaak.uiterlijkeEinddatumAfdoening!);
 
         return this.zakenService
           .afsluiten(this.zaak.uuid, {
@@ -839,12 +841,11 @@ export class ZaakViewComponent
             resultaattypeUuid: id,
           })
           .pipe(
-            tap(() => this.websocketService.suspendListener(this.zaakListener))
-          )
+            tap(() => this.websocketService.suspendListener(this.zaakListener)),
+          );
       },
       confirmButtonActionKey: "actie.zaak.afsluiten",
       icon: "thumb_up_alt",
-
     });
 
     this.dialog
