@@ -97,7 +97,7 @@ describe(ZaakViewComponent.name, () => {
     jest
       .spyOn(zakenService, "readOpschortingZaak")
       .mockReturnValue(
-        of(fromPartial<GeneratedType<"RESTZaakOpschorting">>({})),
+        of(fromPartial<GeneratedType<"RESTZaakOpschorting">>({}))
       );
 
     bagService = TestBed.inject(BAGService);
@@ -142,7 +142,7 @@ describe(ZaakViewComponent.name, () => {
 
     it("should show the button", async () => {
       const button = await loader.getHarness(
-        MatNavListItemHarness.with({ title: "actie.zaak.opschorten" }),
+        MatNavListItemHarness.with({ title: "actie.zaak.opschorten" })
       );
       expect(button).toBeTruthy();
     });
@@ -159,9 +159,119 @@ describe(ZaakViewComponent.name, () => {
 
       it("should not show the button", async () => {
         const button = await loader.getHarnessOrNull(
-          MatNavListItemHarness.with({ title: "actie.zaak.opschorten" }),
+          MatNavListItemHarness.with({ title: "actie.zaak.opschorten" })
         );
         expect(button).toBeNull();
+      });
+    });
+
+    describe("dateFieldIconMap icon logic", () => {
+      let component: ZaakViewComponent;
+      const yesterdayDate = new Date(Date.now() - 86400000)
+        .toISOString()
+        .split("T")[0];
+      const today = new Date().toISOString().slice(0, 10);
+      const tomorrowDate = new Date(Date.now() + 86400000)
+        .toISOString()
+        .slice(0, 10);
+
+      beforeEach(() => {
+        component = fixture.componentInstance;
+        component.zaak = { ...zaak } as any;
+        // Only call the private method directly
+        (component as any).setDateFieldIconSet();
+      });
+
+      function setZaakDates({
+        einddatum,
+        einddatumGepland,
+        uiterlijkeEinddatumAfdoening,
+      }: any) {
+        component.zaak.einddatum = einddatum;
+        component.zaak.einddatumGepland = einddatumGepland;
+        component.zaak.uiterlijkeEinddatumAfdoening =
+          uiterlijkeEinddatumAfdoening;
+        (component as any).setDateFieldIconSet();
+      }
+
+      it("shows icons for overdue dates in open case", () => {
+        setZaakDates({
+          einddatum: undefined,
+          einddatumGepland: yesterdayDate,
+          uiterlijkeEinddatumAfdoening: yesterdayDate,
+        });
+
+        expect(
+          component.dateFieldIconMap
+            .get("einddatumGepland")!
+            .showIcon({ value: yesterdayDate } as any)
+        ).toBe(true);
+
+        expect(
+          component.dateFieldIconMap
+            .get("uiterlijkeEinddatumAfdoening")!
+            .showIcon({ value: yesterdayDate } as any)
+        ).toBe(true);
+      });
+
+      it("shows icons for overdue dates when case is closed after deadlines", () => {
+        setZaakDates({
+          einddatum: today,
+          einddatumGepland: yesterdayDate,
+          uiterlijkeEinddatumAfdoening: yesterdayDate,
+        });
+
+        expect(
+          component.dateFieldIconMap
+            .get("einddatumGepland")!
+            .showIcon({ value: yesterdayDate } as any)
+        ).toBe(true);
+
+        expect(
+          component.dateFieldIconMap
+            .get("uiterlijkeEinddatumAfdoening")!
+            .showIcon({ value: yesterdayDate } as any)
+        ).toBe(true);
+      });
+
+      it("does not show icons for future dates in open case", () => {
+        setZaakDates({
+          einddatum: undefined,
+          einddatumGepland: tomorrowDate,
+          uiterlijkeEinddatumAfdoening: tomorrowDate,
+        });
+
+        expect(
+          component.dateFieldIconMap
+            .get("einddatumGepland")!
+            .showIcon({ value: tomorrowDate } as any)
+        ).toBe(false);
+
+        expect(
+          component.dateFieldIconMap
+            .get("uiterlijkeEinddatumAfdoening")!
+            .showIcon({ value: tomorrowDate } as any)
+        ).toBe(false);
+      });
+
+      it("does not show icons when case is closed before deadlines", () => {
+        setZaakDates({
+          einddatum: today,
+          einddatumGepland: tomorrowDate,
+          uiterlijkeEinddatumAfdoening: tomorrowDate,
+        });
+
+        expect(
+          component.dateFieldIconMap
+            .get("einddatumGepland")!
+            .showIcon({ value: tomorrowDate } as any)
+        ).toBe(false);
+
+        expect(
+          component.dateFieldIconMap
+            .get("uiterlijkeEinddatumAfdoening")!
+            .showIcon({ value: tomorrowDate } as any)
+        ).toBe(false);
       });
     });
   });
