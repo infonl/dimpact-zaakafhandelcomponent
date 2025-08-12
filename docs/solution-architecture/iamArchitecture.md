@@ -2,7 +2,7 @@
 
 ## Current ZAC IAM architecture
 
-The current IAM (Identify and Access Management) architecture of ZAC is illustrated in the following diagram:
+The current IAM (Identity and Access Management) architecture of ZAC is illustrated in the following diagram:
 
 ```mermaid
 C4Context
