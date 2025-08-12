@@ -34,6 +34,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
@@ -105,6 +106,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             logger.info { "Response: ${body.string()}" }
             code shouldBe HTTP_NO_CONTENT
         }
+
         When(
             """
             the create enkelvoudig informatie object with file upload endpoint is called for the zaak with a TXT file
@@ -160,6 +162,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 enkelvoudigInformatieObjectUUID = UUID.fromString(JSONObject(responseBody).getString("uuid"))
             }
         }
+
         When("the list human task plan items endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems"
@@ -179,8 +182,30 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             }
         }
 
-        // TODO: start the 'Goedkeuren' task
-        // POST https://zaakafhandelcomponent-zac-dev.dimpact.lifely.nl/rest/planitems/doHumanTaskPlanItem
+        When("the start human task plan item endpoint is called for the task 'Goedkeuren'") {
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
+                requestBodyAsString = """
+                {
+                    "planItemInstanceId": "$humanTaskItemGoedkeurenId",
+                    "groep": {
+                        "id": "$TEST_GROUP_A_ID",
+                        "naam": "$TEST_GROUP_A_DESCRIPTION"
+                    },
+                    "taakStuurGegevens": {},
+                    "taakdata": {
+                        "vraag": "fakeQuestion",
+                        "relevanteDocumenten": "$enkelvoudigInformatieObjectUUID"
+                    }
+                }
+                """.trimIndent()
+            )
+            Then("a task is started for this zaak") {
+                val responseBody = response.body.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+            }
+        }
 
         // GET https://zaakafhandelcomponent-zac-dev.dimpact.lifely.nl/rest/taken/zaak/f34c2f1b-de0b-4187-a318-877dac23acda
 
