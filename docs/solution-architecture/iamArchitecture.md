@@ -125,18 +125,27 @@ The following sequence diagram illustrates the scenario of a ZAC user logging in
 
 ```mermaid
 sequenceDiagram
-    participant Employee
+    actor Employee
     participant Keycloak
     participant ZAC
     participant PABC
 
     Employee->>ZAC: Requests ZAC user interface
+    activate ZAC
     ZAC->>Keycloak: Redirects to Keycloak for authentication
+    deactivate ZAC
     Employee->>Keycloak: Logs in
-    Keycloak-->>ZAC: Returns functional roles in JWT OIDC token
+    activate Keycloak
+    Keycloak-->>ZAC: Pass on functional roles in JWT OIDC token
+    deactivate Keycloak
+    activate ZAC
     ZAC->>PABC: Retrieve authorization mappings for functional roles
     PABC-->>ZAC: Returns authorization mappings
+    deactivate ZAC
+    Employee->>ZAC: Performs functionality in ZAC user interface for which authorization is required
+    activate ZAC
     ZAC->>OPA: Uses authorization mappings for authorization checks
+    deactivate ZAC
 ```    
 
 ## Internal endpoints
