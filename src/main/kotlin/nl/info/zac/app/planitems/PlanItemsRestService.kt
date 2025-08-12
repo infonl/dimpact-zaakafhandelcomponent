@@ -219,9 +219,10 @@ class PlanItemsRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(userEventListenerData.zaakUuid)
         val zaakRechten = policyService.readZaakRechten(zaak)
         assertPolicy(zaakRechten.startenTaak)
-        if (userEventListenerData.restMailGegevens !== null) {
+        userEventListenerData.restMailGegevens?.run {
             assertPolicy(zaakRechten.versturenEmail)
         }
+
         when (userEventListenerData.actie) {
             UserEventListenerActie.INTAKE_AFRONDEN -> this.handleIntakeAfronden(zaak, userEventListenerData)
             UserEventListenerActie.ZAAK_AFHANDELEN -> this.handleZaakAfhandelen(zaak, userEventListenerData)
@@ -303,10 +304,11 @@ class PlanItemsRestService @Inject constructor(
     private fun addEigenschapToZaak(eigenschap: String, waarde: String, zaak: Zaak) {
         val eigenschap = ztcClientService.readEigenschap(zaak.zaaktype, eigenschap)
 
-        val zaakEigenschap = ZaakEigenschap()
-        zaakEigenschap.eigenschap = eigenschap.url
-        zaakEigenschap.zaak = zaak.url
-        zaakEigenschap.waarde = waarde
+        val zaakEigenschap = ZaakEigenschap().apply {
+            this.eigenschap = eigenschap.url
+            this.zaak = zaak.url
+            this.waarde = waarde
+        }
         zrcClientService.createEigenschap(zaak.uuid, zaakEigenschap)
     }
 
