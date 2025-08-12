@@ -367,7 +367,10 @@ class ZtcClientService @Inject constructor(
             ztcClient.informatieObjectTypeRead(informatieobjecttypeUUID)
         }
 
-    fun readEigenschappen(zaaktype: URI, status: EigenschapListParametersStatus = EigenschapListParametersStatus.DEFINITIEF) =
+    fun readEigenschappen(
+        zaaktype: URI,
+        status: EigenschapListParametersStatus = EigenschapListParametersStatus.DEFINITIEF
+    ) =
         uriToEigenschappenCache.get(zaaktype) {
             val response = ztcClient.eigenschapList(
                 EigenschapListParameters().apply {
@@ -380,7 +383,9 @@ class ZtcClientService @Inject constructor(
 
     fun readEigenschap(zaaktype: URI, eigenschap: String) =
         this.readEigenschappen(zaaktype).find { it.naam == eigenschap }
-            ?: throw EigenschapNotFoundException("No '${EigenschapListParametersStatus.DEFINITIEF}' eigenschap with naam '$eigenschap' found for zaaktype '$zaaktype'.")
+            ?: throw EigenschapNotFoundException("""
+                No '${EigenschapListParametersStatus.DEFINITIEF}' eigenschap with naam '$eigenschap' found for zaaktype '$zaaktype'.
+           """.trimIndent())
 
     fun clearZaaktypeCache(): String {
         uuidToZaakTypeCache.invalidateAll()
