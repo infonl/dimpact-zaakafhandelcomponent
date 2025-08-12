@@ -70,6 +70,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
         val zaakUUID: UUID
         lateinit var enkelvoudigInformatieObjectUUID: UUID
         lateinit var humanTaskItemGoedkeurenId: String
+        var goedkeurenTaskId: Int
         val intakeId: Int
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
@@ -207,7 +208,19 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             }
         }
 
-        // GET https://zaakafhandelcomponent-zac-dev.dimpact.lifely.nl/rest/taken/zaak/f34c2f1b-de0b-4187-a318-877dac23acda
+        When("the get tasks for the zaak endpoint is called") {
+            val response = itestHttpClient.performGetRequest(
+                "$ZAC_API_URI/taken/zaak/$zaakUUID"
+            )
+
+            Then("the list with tasks for this zaak is returned") {
+                val responseBody = response.body.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+                // only the 'Goedkeuren' task should be active
+                goedkeurenTaskId = JSONArray(responseBody).getJSONObject(0).getString("id").toInt()
+            }
+        }
 
         // TODO: complete the 'Goedkeuren' task by approving the document
     }
