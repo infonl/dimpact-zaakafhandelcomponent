@@ -22,13 +22,13 @@ fun convertRESTZaakAfzenders(restZaakAfzender: List<RESTZaakAfzender>): List<Zaa
         .filter { !it.speciaal || it.defaultMail || it.replyTo != null }
         .map { convertRESTZaakAfzender(it) }
 
-fun convertZaakAfzender(zaakAfzender: ZaakAfzender) = RESTZaakAfzender().apply {
-    id = zaakAfzender.id
-    defaultMail = zaakAfzender.isDefault
-    mail = zaakAfzender.mail
-    replyTo = zaakAfzender.replyTo
-    speciaal = ZaakAfzender.Speciaal.entries.any { it.`is`(this.mail) }
-}
+fun convertZaakAfzender(zaakAfzender: ZaakAfzender) = RESTZaakAfzender(
+    id = zaakAfzender.id,
+    defaultMail = zaakAfzender.isDefault,
+    mail = zaakAfzender.mail,
+    replyTo = zaakAfzender.replyTo,
+    speciaal = ZaakAfzender.Speciaal.entries.any { it.`is`(zaakAfzender.mail) }
+)
 
 fun convertRESTZaakAfzender(restZaakAfzender: RESTZaakAfzender) = ZaakAfzender().apply {
     id = restZaakAfzender.id

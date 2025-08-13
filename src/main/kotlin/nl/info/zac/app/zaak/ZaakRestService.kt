@@ -1299,9 +1299,11 @@ class ZaakRestService @Inject constructor(
         afzenders: Stream<RESTZaakAfzender>
     ): Stream<RESTZaakAfzender> {
         return afzenders.peek { afzender ->
-            speciaalMail(afzender.mail)?.let { speciaal ->
-                afzender.suffix = "gegevens.mail.afzender.$speciaal"
-                afzender.mail = resolveMail(speciaal)
+            afzender.mail?.let {
+                speciaalMail(it)?.let { speciaal ->
+                    afzender.suffix = "gegevens.mail.afzender.$speciaal"
+                    afzender.mail = resolveMail(speciaal)
+                }
             }
             afzender.replyTo = afzender.replyTo?.let { replyTo ->
                 speciaalMail(replyTo)?.let { resolveMail(it) } ?: replyTo
@@ -1356,7 +1358,8 @@ class ZaakRestService @Inject constructor(
         afzenders: Stream<RESTZaakAfzender>
     ): List<RESTZaakAfzender> {
         val list = afzenders.sorted { a, b ->
-            val result: Int = a.mail.compareTo(b.mail)
+            // TODO: fix null handling
+            val result: Int = a.mail?.compareTo(b.mail!!) ?: 0
             if (result == 0) if (a.defaultMail) -1 else 0 else result
         }.collect(Collectors.toList())
         val i = list.iterator()

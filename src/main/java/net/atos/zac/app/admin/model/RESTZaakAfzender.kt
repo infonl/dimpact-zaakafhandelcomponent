@@ -1,31 +1,26 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.admin.model
 
-package net.atos.zac.app.admin.model;
+import net.atos.zac.admin.model.ZaakAfzender
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
-import net.atos.zac.admin.model.ZaakAfzender;
-
-public class RESTZaakAfzender {
-
-    public Long id;
-
-    public boolean defaultMail;
-
-    public String mail;
-
-    public String suffix;
-
-    public String replyTo;
-
-    public boolean speciaal;
-
-    public RESTZaakAfzender() {
-    }
-
-    public RESTZaakAfzender(ZaakAfzender.Speciaal speciaal) {
-        this.mail = speciaal.name();
-        this.speciaal = true;
-    }
+@NoArgConstructor
+@AllOpen
+data class RESTZaakAfzender(
+    var id: Long? = null,
+    var defaultMail: Boolean = false,
+    // TODO: should this be non-nullable?
+    var mail: String? = null,
+    var suffix: String? = null,
+    var replyTo: String? = null,
+    var speciaal: Boolean = false
+) {
+    constructor(speciaal: ZaakAfzender.Speciaal) : this(
+        mail = speciaal.name,
+        speciaal = true
+    )
 }
