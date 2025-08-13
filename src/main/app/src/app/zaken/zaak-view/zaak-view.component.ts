@@ -149,7 +149,6 @@ export class ZaakViewComponent
   private zaakTakenListener!: WebsocketListener;
   private datumPipe = new DatumPipe("nl");
 
-
   @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
   @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
@@ -295,7 +294,10 @@ export class ZaakViewComponent
       "einddatumGepland",
       new TextIcon(
         (control: FormControl) => {
-          return DateConditionals.isExceeded(control.value, this.zaak.einddatum ?? undefined);
+          return DateConditionals.isExceeded(
+            control.value,
+            this.zaak.einddatum ?? undefined,
+          );
         },
         "report_problem",
         "warningVerlopen_icon",
@@ -310,7 +312,10 @@ export class ZaakViewComponent
       "uiterlijkeEinddatumAfdoening",
       new TextIcon(
         (control: FormControl) => {
-          return DateConditionals.isExceeded(control.value, this.zaak.einddatum ?? undefined);
+          return DateConditionals.isExceeded(
+            control.value,
+            this.zaak.einddatum ?? undefined,
+          );
         },
         "report_problem",
         "errorVerlopen_icon",
@@ -815,7 +820,6 @@ export class ZaakViewComponent
           .build(),
       ],
       callback: ({ toelichting, resultaattype: { id } }) => {
-
         return this.zakenService
           .afsluiten(this.zaak.uuid, {
             reden: toelichting,

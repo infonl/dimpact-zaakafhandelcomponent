@@ -8,12 +8,15 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
+import { Component, Input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { FormControl } from "@angular/forms";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
+import moment from "moment";
 import { of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { BAGService } from "../../bag/bag.service";
@@ -25,17 +28,11 @@ import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
-import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZakenService } from "../zaken.service";
 import { ZaakViewComponent } from "./zaak-view.component";
-import { FormControl } from "@angular/forms";
-import moment from "moment";
-import { MatIconHarness } from "@angular/material/icon/testing";
-import { stat } from "fs";
-import { Component, Input } from "@angular/core";
 
 describe(ZaakViewComponent.name, () => {
   let fixture: ComponentFixture<ZaakViewComponent>;
@@ -54,7 +51,7 @@ describe(ZaakViewComponent.name, () => {
     `,
   })
   class ZacStaticTextStub {
-    @Input() icon: any;
+    @Input() icon: unknown;
   }
 
   let utilService: UtilService;
@@ -118,7 +115,7 @@ describe(ZaakViewComponent.name, () => {
     jest
       .spyOn(zakenService, "readOpschortingZaak")
       .mockReturnValue(
-        of(fromPartial<GeneratedType<"RESTZaakOpschorting">>({}))
+        of(fromPartial<GeneratedType<"RESTZaakOpschorting">>({})),
       );
 
     bagService = TestBed.inject(BAGService);
@@ -163,7 +160,7 @@ describe(ZaakViewComponent.name, () => {
 
     it("should show the button", async () => {
       const button = await loader.getHarness(
-        MatNavListItemHarness.with({ title: "actie.zaak.opschorten" })
+        MatNavListItemHarness.with({ title: "actie.zaak.opschorten" }),
       );
       expect(button).toBeTruthy();
     });
@@ -180,7 +177,7 @@ describe(ZaakViewComponent.name, () => {
 
       it("should not show the button", async () => {
         const button = await loader.getHarnessOrNull(
-          MatNavListItemHarness.with({ title: "actie.zaak.opschorten" })
+          MatNavListItemHarness.with({ title: "actie.zaak.opschorten" }),
         );
         expect(button).toBeNull();
       });
@@ -203,19 +200,19 @@ describe(ZaakViewComponent.name, () => {
         jest
           .spyOn(
             component as unknown as { loadHistorie: () => void },
-            "loadHistorie"
+            "loadHistorie",
           )
           .mockImplementation(() => {});
         jest
           .spyOn(
             component as unknown as { loadBetrokkenen: () => void },
-            "loadBetrokkenen"
+            "loadBetrokkenen",
           )
           .mockImplementation(() => {});
         jest
           .spyOn(
             component as unknown as { loadBagObjecten: () => void },
-            "loadBagObjecten"
+            "loadBagObjecten",
           )
           .mockImplementation(() => {});
         jest
@@ -224,7 +221,7 @@ describe(ZaakViewComponent.name, () => {
         jest
           .spyOn(
             component as unknown as { loadOpschorting: () => void },
-            "loadOpschorting"
+            "loadOpschorting",
           )
           .mockImplementation(() => {});
 
@@ -248,15 +245,15 @@ describe(ZaakViewComponent.name, () => {
         await fixture.whenStable();
 
         const staticTextIcons = fixture.nativeElement.querySelectorAll(
-          "zac-static-text mat-icon"
+          "zac-static-text mat-icon",
         );
 
-        const streefdatumIcon: any = Array.from(staticTextIcons).find((icon) =>
-          (icon as HTMLElement).className.includes("warning")
-        );
-        const fataledatumIcon: any = Array.from(staticTextIcons).find((icon) =>
-          (icon as HTMLElement).className.includes("error")
-        );
+        const streefdatumIcon = Array.from(staticTextIcons).find((icon) =>
+          (icon as HTMLElement).className.includes("warning"),
+        ) as HTMLElement;
+        const fataledatumIcon = Array.from(staticTextIcons).find((icon) =>
+          (icon as HTMLElement).className.includes("error"),
+        ) as HTMLElement;
 
         expect(streefdatumIcon.textContent?.trim()).toBe("report_problem");
         expect(streefdatumIcon.getAttribute("title")).toContain("overschreden");
@@ -267,13 +264,13 @@ describe(ZaakViewComponent.name, () => {
         expect(
           component.dateFieldIconMap
             .get("einddatumGepland")!
-            .showIcon(yesterdayFormControl)
+            .showIcon(yesterdayFormControl),
         ).toBe(true);
 
         expect(
           component.dateFieldIconMap
             .get("uiterlijkeEinddatumAfdoening")!
-            .showIcon(yesterdayFormControl)
+            .showIcon(yesterdayFormControl),
         ).toBe(true);
       });
 
@@ -289,15 +286,15 @@ describe(ZaakViewComponent.name, () => {
         await fixture.whenStable();
 
         const staticTextIcons = fixture.nativeElement.querySelectorAll(
-          "zac-static-text mat-icon"
+          "zac-static-text mat-icon",
         );
 
-        const streefdatumIcon: any = Array.from(staticTextIcons).find((icon) =>
-          (icon as HTMLElement).className.includes("warning")
-        );
-        const fataledatumIcon: any = Array.from(staticTextIcons).find((icon) =>
-          (icon as HTMLElement).className.includes("error")
-        );
+        const streefdatumIcon = Array.from(staticTextIcons).find((icon) =>
+          (icon as HTMLElement).className.includes("warning"),
+        ) as HTMLElement;
+        const fataledatumIcon = Array.from(staticTextIcons).find((icon) =>
+          (icon as HTMLElement).className.includes("error"),
+        ) as HTMLElement;
 
         expect(streefdatumIcon.textContent?.trim()).toBe("report_problem");
         expect(streefdatumIcon.getAttribute("title")).toContain("overschreden");
@@ -308,13 +305,13 @@ describe(ZaakViewComponent.name, () => {
         expect(
           component.dateFieldIconMap
             .get("einddatumGepland")!
-            .showIcon(yesterdayFormControl)
+            .showIcon(yesterdayFormControl),
         ).toBe(true);
 
         expect(
           component.dateFieldIconMap
             .get("uiterlijkeEinddatumAfdoening")!
-            .showIcon(yesterdayFormControl)
+            .showIcon(yesterdayFormControl),
         ).toBe(true);
       });
 
@@ -330,15 +327,16 @@ describe(ZaakViewComponent.name, () => {
         await fixture.whenStable();
 
         const staticTextIcons = fixture.nativeElement.querySelectorAll(
-          "zac-static-text mat-icon"
+          "zac-static-text mat-icon",
         );
 
-        const streefdatumIcon: any = Array.from(staticTextIcons).find((icon) =>
-          (icon as HTMLElement).className.includes("warning")
-        );
-        const fataledatumIcon: any = Array.from(staticTextIcons).find((icon) =>
-          (icon as HTMLElement).className.includes("error")
-        );
+        const streefdatumIcon = Array.from(staticTextIcons).find((icon) =>
+          (icon as HTMLElement).className.includes("warning"),
+        ) as HTMLElement;
+
+        const fataledatumIcon = Array.from(staticTextIcons).find((icon) =>
+          (icon as HTMLElement).className.includes("error"),
+        ) as HTMLElement;
 
         expect(streefdatumIcon).toBeUndefined();
         expect(fataledatumIcon).toBeUndefined();
@@ -346,13 +344,13 @@ describe(ZaakViewComponent.name, () => {
         expect(
           component.dateFieldIconMap
             .get("einddatumGepland")!
-            .showIcon(tomorrowFormControl)
+            .showIcon(tomorrowFormControl),
         ).toBe(false);
 
         expect(
           component.dateFieldIconMap
             .get("uiterlijkeEinddatumAfdoening")!
-            .showIcon(tomorrowFormControl)
+            .showIcon(tomorrowFormControl),
         ).toBe(false);
       });
 
@@ -368,14 +366,14 @@ describe(ZaakViewComponent.name, () => {
         await fixture.whenStable();
 
         const staticTextIcons = fixture.nativeElement.querySelectorAll(
-          "zac-static-text mat-icon"
+          "zac-static-text mat-icon",
         );
 
-        const streefdatumIcon: any = Array.from(staticTextIcons).find((icon) =>
-          (icon as HTMLElement).className.includes("warning")
+        const streefdatumIcon = Array.from(staticTextIcons).find((icon) =>
+          (icon as HTMLElement).className.includes("warning"),
         );
-        const fataledatumIcon: any = Array.from(staticTextIcons).find((icon) =>
-          (icon as HTMLElement).className.includes("error")
+        const fataledatumIcon = Array.from(staticTextIcons).find((icon) =>
+          (icon as HTMLElement).className.includes("error"),
         );
 
         expect(streefdatumIcon).toBeUndefined();
@@ -384,13 +382,13 @@ describe(ZaakViewComponent.name, () => {
         expect(
           component.dateFieldIconMap
             .get("einddatumGepland")!
-            .showIcon(tomorrowFormControl)
+            .showIcon(tomorrowFormControl),
         ).toBe(false);
 
         expect(
           component.dateFieldIconMap
             .get("uiterlijkeEinddatumAfdoening")!
-            .showIcon(tomorrowFormControl)
+            .showIcon(tomorrowFormControl),
         ).toBe(false);
       });
     });
