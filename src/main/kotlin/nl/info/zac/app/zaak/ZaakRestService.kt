@@ -33,7 +33,8 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_ID
 import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_REASON
 import net.atos.zac.admin.model.ZaakAfzender.Speciaal
-import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
+import net.atos.zac.app.admin.converter.convertZaakAfzender
+import net.atos.zac.app.admin.converter.convertZaakAfzenders
 import net.atos.zac.app.admin.model.RESTZaakAfzender
 import net.atos.zac.app.bag.converter.RestBagConverter
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
@@ -895,7 +896,7 @@ class ZaakRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUUID)
         return sortAndRemoveDuplicateAfzenders(
             resolveZaakAfzenderMail(
-                RESTZaakAfzenderConverter.convertZaakAfzenders(
+                convertZaakAfzenders(
                     zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid()).zaakAfzenders
                 ).stream()
             )
@@ -915,7 +916,7 @@ class ZaakRestService @Inject constructor(
         return zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid())
             .zaakAfzenders
             .firstOrNull { it.isDefault }
-            ?.let(RESTZaakAfzenderConverter::convertZaakAfzender)
+            ?.let(::convertZaakAfzender)
     }
 
     @GET

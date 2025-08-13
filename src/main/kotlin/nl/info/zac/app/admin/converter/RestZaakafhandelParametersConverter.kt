@@ -13,10 +13,10 @@ import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter
 import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter.convertRESTmailtemplateKoppelingen
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter.convertRESTUserEventListenerParameters
-import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
-import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter.convertRESTZaakAfzenders
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters
+import net.atos.zac.app.admin.converter.convertRESTZaakAfzenders
+import net.atos.zac.app.admin.converter.convertZaakAfzenders
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.app.admin.model.RestAutomaticEmailConfirmation
@@ -110,7 +110,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             restZaakafhandelParameters.mailtemplateKoppelingen = RESTMailtemplateKoppelingConverter.convert(
                 zaakafhandelParameters.mailtemplateKoppelingen
             )
-            restZaakafhandelParameters.zaakAfzenders = RESTZaakAfzenderConverter.convertZaakAfzenders(
+            restZaakafhandelParameters.zaakAfzenders = convertZaakAfzenders(
                 zaakafhandelParameters.zaakAfzenders
             )
         }

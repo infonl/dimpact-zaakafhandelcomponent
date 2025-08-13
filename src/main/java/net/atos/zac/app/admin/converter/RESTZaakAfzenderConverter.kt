@@ -1,58 +1,38 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.admin.converter
 
-package net.atos.zac.app.admin.converter;
+import net.atos.zac.admin.model.ZaakAfzender
+import net.atos.zac.app.admin.model.RESTZaakAfzender
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import net.atos.zac.admin.model.ZaakAfzender;
-import net.atos.zac.app.admin.model.RESTZaakAfzender;
-
-public final class RESTZaakAfzenderConverter {
-
-    public static List<RESTZaakAfzender> convertZaakAfzenders(final Set<ZaakAfzender> zaakAfzender) {
-        final List<RESTZaakAfzender> restZaakAfzenders = zaakAfzender.stream()
-                .map(RESTZaakAfzenderConverter::convertZaakAfzender)
-                .collect(Collectors.toList());
-        for (final ZaakAfzender.Speciaal speciaal : ZaakAfzender.Speciaal.values()) {
-            if (zaakAfzender.stream()
-                    .map(ZaakAfzender::getMail)
-                    .noneMatch(speciaal::is)) {
-                restZaakAfzenders.add(new RESTZaakAfzender(speciaal));
-            }
+fun convertZaakAfzenders(zaakAfzender: Set<ZaakAfzender>): List<RESTZaakAfzender> {
+    val restZaakAfzenders = zaakAfzender.map { convertZaakAfzender(it) }.toMutableList()
+    for (speciaal in ZaakAfzender.Speciaal.entries) {
+        if (zaakAfzender.map { it.mail }.none { speciaal.`is`(it) }) {
+            restZaakAfzenders.add(RESTZaakAfzender(speciaal))
         }
-        return restZaakAfzenders;
     }
+    return restZaakAfzenders
+}
 
-    public static List<ZaakAfzender> convertRESTZaakAfzenders(final List<RESTZaakAfzender> restZaakAfzender) {
-        return restZaakAfzender.stream()
-                .filter(afzender -> !afzender.speciaal || afzender.defaultMail || afzender.replyTo != null)
-                .map(RESTZaakAfzenderConverter::convertRESTZaakAfzender)
-                .toList();
-    }
+fun convertRESTZaakAfzenders(restZaakAfzender: List<RESTZaakAfzender>): List<ZaakAfzender> =
+    restZaakAfzender
+        .filter { !it.speciaal || it.defaultMail || it.replyTo != null }
+        .map { convertRESTZaakAfzender(it) }
 
-    public static RESTZaakAfzender convertZaakAfzender(final ZaakAfzender zaakAfzender) {
-        final RESTZaakAfzender restZaakAfzender = new RESTZaakAfzender();
-        restZaakAfzender.id = zaakAfzender.getId();
-        restZaakAfzender.defaultMail = zaakAfzender.isDefault();
-        restZaakAfzender.mail = zaakAfzender.getMail();
-        restZaakAfzender.replyTo = zaakAfzender.getReplyTo();
-        restZaakAfzender.speciaal = Arrays.stream(ZaakAfzender.Speciaal.values())
-                .anyMatch(speciaal -> speciaal.is(restZaakAfzender.mail));
-        return restZaakAfzender;
-    }
+fun convertZaakAfzender(zaakAfzender: ZaakAfzender) = RESTZaakAfzender().apply {
+    id = zaakAfzender.id
+    defaultMail = zaakAfzender.isDefault
+    mail = zaakAfzender.mail
+    replyTo = zaakAfzender.replyTo
+    speciaal = ZaakAfzender.Speciaal.entries.any { it.`is`(this.mail) }
+}
 
-    public static ZaakAfzender convertRESTZaakAfzender(final RESTZaakAfzender restZaakAfzender) {
-        final ZaakAfzender zaakAfzender = new ZaakAfzender();
-        zaakAfzender.setId(restZaakAfzender.id);
-        zaakAfzender.setDefault(restZaakAfzender.defaultMail);
-        zaakAfzender.setMail(restZaakAfzender.mail);
-        zaakAfzender.setReplyTo(restZaakAfzender.replyTo);
-        return zaakAfzender;
-    }
+fun convertRESTZaakAfzender(restZaakAfzender: RESTZaakAfzender) = ZaakAfzender().apply {
+    id = restZaakAfzender.id
+    isDefault = restZaakAfzender.defaultMail
+    mail = restZaakAfzender.mail
+    replyTo = restZaakAfzender.replyTo
 }
