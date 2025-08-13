@@ -5,17 +5,81 @@
 package nl.info.zac.itest.client
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
+import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
+import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import okhttp3.Headers
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.Response
+import java.io.File
+import java.net.URLDecoder
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 class ZacClient {
     private val logger = KotlinLogging.logger {}
     private var itestHttpClient = ItestHttpClient()
+
+    fun createEnkelvoudigInformatieobjectForZaak(
+        zaakUUID: UUID,
+        fileName: String,
+        fileMediaType: String,
+        vertrouwelijkheidaanduiding: String
+    ): Response {
+        val createEnkelvoudigInformatieobjectEndpointURI =
+            "$ZAC_API_URI/informatieobjecten/informatieobject/$zaakUUID/$zaakUUID"
+        val file = Thread.currentThread().contextClassLoader.getResource(fileName).let {
+            File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
+        }
+        val requestBody =
+            MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("bestandsnaam", fileName)
+                .addFormDataPart("titel", DOCUMENT_FILE_TITLE)
+                .addFormDataPart("bestandsomvang", file.length().toString())
+                .addFormDataPart("formaat", fileMediaType)
+                .addFormDataPart(
+                    "file",
+                    fileName,
+                    file.asRequestBody(fileMediaType.toMediaType())
+                )
+                .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID)
+                .addFormDataPart(
+                    "vertrouwelijkheidaanduiding",
+                    vertrouwelijkheidaanduiding
+                )
+                .addFormDataPart("status", DOCUMENT_STATUS_IN_BEWERKING)
+                .addFormDataPart(
+                    "creatiedatum",
+                    DateTimeFormatter.ofPattern(
+                        "yyyy-MM-dd'T'HH:mm+01:00"
+                    ).format(ZonedDateTime.now())
+                )
+                .addFormDataPart("auteur", TEST_USER_1_NAME)
+                .addFormDataPart("taal", "dut")
+                .build()
+        return itestHttpClient.performPostRequest(
+            url = createEnkelvoudigInformatieobjectEndpointURI,
+            headers = Headers.headersOf(
+                "Accept",
+                "application/json",
+                "Content-Type",
+                "multipart/form-data"
+            ),
+            requestBody = requestBody
+        )
+    }
 
     @Suppress("LongMethod", "LongParameterList")
     fun createZaakAfhandelParameters(
