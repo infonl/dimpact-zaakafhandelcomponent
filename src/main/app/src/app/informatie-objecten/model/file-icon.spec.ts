@@ -13,7 +13,7 @@ describe(FileIcon.name, () => {
       (fileName) => {
         expect(FileIcon.getIconByBestandsnaam(fileName)).toEqual({
           type: "unknown",
-          icon: "fa-file-circle-question",
+          icon: "unknown_document",
           color: undefined,
         });
       },
@@ -24,15 +24,15 @@ describe(FileIcon.name, () => {
       (fileName) => {
         expect(FileIcon.getIconByBestandsnaam(fileName)).toEqual({
           type: "unknown",
-          icon: "fa-file-circle-question",
+          icon: "unknown_document",
           color: undefined,
         });
       },
     );
 
     it.each([
-      ["foo.pdf", { color: "darkred", icon: "fa-file-pdf", type: "pdf" }],
-      ["foo.rtf", { icon: "fa-file-word", type: "rtf" }],
+      ["foo.pdf", { color: "darkred", icon: "picture_as_pdf", type: "pdf" }],
+      ["foo.rtf", { icon: "description", type: "rtf" }],
     ])('for the file "%s" it should return %p', (fileName, expected) => {
       expect(FileIcon.getIconByBestandsnaam(fileName)).toEqual(expected);
     });
