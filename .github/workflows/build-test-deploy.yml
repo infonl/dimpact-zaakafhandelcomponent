@@ -533,6 +533,7 @@ jobs:
       - name: Create or update GitHub release
         uses: ncipollo/release-action@bcfe5470707e8832e12347755757cec0eb3c22af # v1.18.0
         with:
+          commit: ${{ github.sha }}
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ env.NEXT_VERSION_TAG }}
           name: ${{ env.APPLICATION_NAME }} ${{ env.NEXT_VERSION }}
