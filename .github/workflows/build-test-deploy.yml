@@ -314,6 +314,7 @@ jobs:
           RELEASE_BRANCHES: main
           DRY_RUN: true
           BRANCH_HISTORY: last
+
       - name: Get next version
         id: get-version
         uses: frabert/replace-string-action@b6828c5a4cb6371753ff873b0d1c4c4fbd9a63cb # v2.5
@@ -321,10 +322,12 @@ jobs:
           pattern: 'v(.*)'
           string: ${{ github.ref == 'refs/heads/main' && steps.get-tag-main.outputs.new_tag || steps.get-tag-non-main.outputs.new_tag }}
           replace-with: '$1'
+
       - name: Print new tag and version
         run: |
           echo "Next version: ${{ steps.get-version.outputs.replaced }}"
           echo "Next version tag: ${{ github.ref == 'refs/heads/main' && steps.get-tag-main.outputs.new_tag || steps.get-tag-non-main.outputs.new_tag }}"
+
       - name: Comment next version on PR
         if: github.event_name == 'pull_request'
         env:
@@ -332,8 +335,31 @@ jobs:
         run: |
           gh pr comment ${{ github.event.pull_request.number }} --body ":tada: Merging this PR at this moment should result in version ${{ steps.get-version.outputs.replaced }}"
 
+
+  select-version:
+    runs-on: ubuntu-24.04
+    needs: [hotfix-version, next-version]
+    outputs:
+      version: ${{ steps.pick.outputs.version }}
+      tag: ${{ steps.pick.outputs.tag }}
+    steps:
+      - name: Pick version from hotfix or next-version
+        id: pick
+        run: |
+          echo "hotfix_version=${{ needs.hotfix-version.outputs.version }}"
+          echo "hotfix_tag=${{ needs.hotfix-version.outputs.tag }}"
+          echo "next_version=${{ needs.next-version.outputs.version }}"
+          echo "next_tag=${{ needs.next-version.outputs.tag }}"
+          if [[ -n "${{ needs.hotfix-version.outputs.version }}" ]]; then
+            echo "version=${{ needs.hotfix-version.outputs.version }}" >> "$GITHUB_OUTPUT"
+            echo "tag=${{ needs.hotfix-version.outputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${{ needs.next-version.outputs.version }}" >> "$GITHUB_OUTPUT"
+            echo "tag=${{ needs.next-version.outputs.tag }}" >> "$GITHUB_OUTPUT"
+          fi
+
   build-docker-image-and-run-itests:
-    needs: [build, paths-filter, validate-input, hotfix-version, next-version]
+    needs: [build, paths-filter, validate-input, select-version]
     # Do not run in the merge queue and do not run if the paths-filter step defines it to skip
     # but always run for the main branch
     if: ${{ (github.event_name != 'merge_group' && needs.paths-filter.outputs.changes-requiring-build == 'true') || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
@@ -346,7 +372,7 @@ jobs:
       GIT_COMMIT_HASH: ${{ github.sha }}
       BAG_API_CLIENT_MP_REST_URL: $${{ vars.BAG_API_CLIENT_MP_REST_URL }}
       BAG_API_KEY: ${{ secrets.BAG_API_KEY }}
-      NEXT_VERSION: ${{ startsWith(github.ref_name, 'hotfix/') && needs.hotfix-version.outputs.version || (needs.next-version.outputs.version || '') }}
+      NEXT_VERSION: ${{ needs.select-version.outputs.version }}
     steps:
       # workaround to avoid 'No space left on device' error
       - name: Free Disk Space (Ubuntu)
@@ -475,14 +501,14 @@ jobs:
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   push-docker-image:
-    needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version, hotfix-version]
+    needs: [build, run-unit-tests, build-docker-image-and-run-itests, select-version]
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     # Avoid infinite build loop on renovate updates
     if: ${{ (github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'update ghcr.io/infonl/zaakafhandelcomponent docker tag') && !contains(github.event.head_commit.message, 'update dependency infonl/dimpact-zaakafhandelcomponent to')) || startsWith(github.ref_name, 'hotfix/') }}
     env:
       ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
-      NEXT_VERSION: ${{ startsWith(github.ref_name, 'hotfix/') && needs.hotfix-version.outputs.version || (needs.next-version.outputs.version || '') }}
+      NEXT_VERSION: ${{ needs.select-version.outputs.version }}
     steps:
       - name: Docker Login
         uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
@@ -518,12 +544,12 @@ jobs:
         run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}
 
   create-release:
-    needs: [next-version, push-docker-image, hotfix-version]
+    needs: [push-docker-image, select-version]
     if: github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/')
     runs-on: ubuntu-24.04
     env:
-      NEXT_VERSION: ${{ startsWith(github.ref_name, 'hotfix/') && needs.hotfix-version.outputs.version || (needs.next-version.outputs.version || '') }}
-      NEXT_VERSION_TAG: ${{ github.ref == 'refs/heads/main' && needs.next-version.outputs.tag || (startsWith(github.ref_name,'hotfix/') && format('v{0}', needs.hotfix-version.outputs.version)) }}
+      NEXT_VERSION: ${{ needs.select-version.outputs.version }}
+      NEXT_VERSION_TAG: ${{ needs.select-version.outputs.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -543,9 +569,9 @@ jobs:
           generateReleaseNotes: true
 
   trigger-provision:
-    needs: [next-version, push-docker-image, create-release]
+    needs: [select-version, push-docker-image, create-release]
     env:
-      NEXT_VERSION: ${{ needs.next-version.outputs.version }}
+      NEXT_VERSION: ${{ needs.select-version.outputs.version }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     if: ${{ github.ref == 'refs/heads/main' && vars.ENABLE_AUTOMATIC_PROVISION == 'true' }}
