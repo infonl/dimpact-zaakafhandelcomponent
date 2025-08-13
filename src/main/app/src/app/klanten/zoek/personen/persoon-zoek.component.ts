@@ -12,6 +12,7 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
@@ -106,14 +107,15 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
         this.queries = personenParameters;
       });
 
-    // Update controls when form values change
-    this.formGroup.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
-      const parameters = {
-        ...this.formGroup.value,
-        geboortedatum: this.formGroup.value.geboortedatum?.toISOString(),
-      };
-      this.updateControls(this.getValidQueries(parameters, false));
-    });
+    this.formGroup.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((value) => {
+        const parameters = {
+          ...value,
+          geboortedatum: value.geboortedatum?.toISOString(),
+        };
+        this.updateControls(this.getValidQueries(parameters, false));
+      });
   }
 
   ngOnInit() {
@@ -201,8 +203,11 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
   }
 
   private updateControls(potential: GeneratedType<"RestPersonenParameters">[]) {
+    const hasValues = Object.values(potential).some((value) => value);
     for (const [key, control] of Object.entries(this.formGroup.controls)) {
-      if (
+      if (!hasValues) {
+        this.enableField(control, true);
+      } else if (
         this.allQueriesHaveCardinality(
           potential,
           key as keyof GeneratedType<"RestPersonenParameters">,
