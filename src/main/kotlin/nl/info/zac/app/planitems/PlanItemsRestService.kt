@@ -28,7 +28,6 @@ import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.zac.app.planitems.converter.RESTPlanItemConverter
 import nl.info.zac.app.planitems.model.RESTHumanTaskData
@@ -76,7 +75,6 @@ class PlanItemsRestService @Inject constructor(
     private var zaakafhandelParameterService: ZaakafhandelParameterService,
     private var planItemConverter: RESTPlanItemConverter,
     private var zgwApiService: ZGWApiService,
-    private var ztcClientService: ZtcClientService,
     private var indexingService: IndexingService,
     private var mailService: MailService,
     private var configuratieService: ConfiguratieService,

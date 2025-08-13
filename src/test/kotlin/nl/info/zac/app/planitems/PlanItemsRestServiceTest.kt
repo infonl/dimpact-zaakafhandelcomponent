@@ -30,7 +30,6 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Resultaat
-import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.zac.admin.model.createHumanTaskParameters
@@ -65,7 +64,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val planItemConverter = mockk<RESTPlanItemConverter>()
     val zgwApiService = mockk<ZGWApiService>()
-    val ztcClientService = mockk<ZtcClientService>()
     val indexingService = mockk<IndexingService>()
     val mailService = mockk<MailService>()
     val configuratieService = mockk<ConfiguratieService>()
@@ -83,7 +81,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         zaakafhandelParameterService,
         planItemConverter,
         zgwApiService,
-        ztcClientService,
         indexingService,
         mailService,
         configuratieService,
