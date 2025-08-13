@@ -39,3 +39,8 @@ fun ZaakAfzender.toRestZaakAfzender() = RestZaakAfzender(
     replyTo = this@toRestZaakAfzender.replyTo,
     speciaal = ZaakAfzender.Speciaal.entries.any { it.`is`(this@toRestZaakAfzender.mail) }
 )
+
+fun List<RestZaakAfzender>.toRestZaakAfzenders(): List<ZaakAfzender> =
+    this@toRestZaakAfzenders
+        .filter { !it.speciaal || it.defaultMail || it.replyTo != null }
+        .map { it.toZaakAfzender() }

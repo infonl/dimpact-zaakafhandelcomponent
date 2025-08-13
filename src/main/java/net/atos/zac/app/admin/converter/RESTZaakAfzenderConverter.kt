@@ -19,8 +19,3 @@ fun convertZaakAfzenders(zaakAfzender: Set<ZaakAfzender>): List<RestZaakAfzender
     return restZaakAfzenders
 }
 
-fun convertRESTZaakAfzenders(restZaakAfzender: List<RestZaakAfzender>): List<ZaakAfzender> =
-    restZaakAfzender
-        .filter { !it.speciaal || it.defaultMail || it.replyTo != null }
-        .map { it.toZaakAfzender() }
-
