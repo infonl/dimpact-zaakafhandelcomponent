@@ -18,6 +18,10 @@ on:
           - patch
           - minor
           - major
+      hotfix_version:
+        description: 'Explicit version for hotfix branch (e.g. 1.4.7). Required when dispatching on a hotfix/* branch.'
+        type: string
+        required: false
   push:
     branches:
       - main
@@ -57,8 +61,41 @@ jobs:
       - name: Manual version bump only allowed on main branch
         if: ${{ github.ref != 'refs/heads/main' && github.event_name == 'workflow_dispatch' }}
         run: |
-          echo "Version can only be bumped on the main branch!"
+          echo "Version bump input only valid on main (hotfix branches require explicit hotfix_version)."
           exit 1
+
+  hotfix-version:
+    if: startsWith(github.ref_name, 'hotfix/')
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.set.outputs.version }}
+      tag: v${{ steps.set.outputs.version }}
+    steps:
+      - name: Ensure hotfix_version input provided
+        run: |
+          if [ -z "${{ github.event.inputs.hotfix_version }}" ]; then
+            echo "hotfix_version input is required when running on a hotfix/* branch."
+            exit 1
+          fi
+      - name: Validate semantic version pattern
+        run: |
+          V='${{ github.event.inputs.hotfix_version }}'
+          if ! echo "$V" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9._-]+)?$'; then
+            echo "hotfix_version '$V' is not a valid semantic version (expected: N.N.N or N.N.N-suffix)."
+            exit 1
+          fi
+      - name: Check tag does not already exist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          V='${{ github.event.inputs.hotfix_version }}'
+          if git ls-remote --exit-code --tags origin "refs/tags/v${V}" >/dev/null 2>&1; then
+            echo "Tag v${V} already exists. Choose a different version."
+            exit 1
+          fi
+      - name: Set version output
+        id: set
+        run: echo "version=${{ github.event.inputs.hotfix_version }}" >> "$GITHUB_OUTPUT"
 
   paths-filter:
     runs-on: ubuntu-24.04
@@ -79,18 +116,18 @@ jobs:
             changes-requiring-build:
               - '**'
               - '!**/*.md'
-              - '!**/*.pdf'       
-              - '!**/*.png'                 
-              - '!charts/**'          
-              - '!docs/**'          
+              - '!**/*.pdf'
+              - '!**/*.png'
+              - '!charts/**'
+              - '!docs/**'
               - '!*.sh'
               - '!.github/CODEOWNERS'
 
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
-    needs: paths-filter
-    if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' || github.ref == 'refs/heads/main'}}
+    needs: [paths-filter, validate-input]
+    if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
     outputs:
       branch_name: ${{ steps.gen_branch_name.outputs.BRANCH_NAME }}
       build_number: ${{ steps.gen_build_number.outputs.BUILD_NUMBER }}
@@ -162,7 +199,7 @@ jobs:
 
   run-unit-tests:
     needs: [build, paths-filter]
-    if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' || github.ref == 'refs/heads/main'}}
+    if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
@@ -236,6 +273,8 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   next-version:
+    # hotfix branches versions are set on input
+    if: ${{ !startsWith(github.ref_name, 'hotfix/') }}
     needs: [validate-input]
     runs-on: ubuntu-24.04
     outputs:
@@ -247,6 +286,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
+
       # Determine the next semantic version based on the commit message tags
       - name: Get next tag on main
         id: get-tag-main
@@ -260,7 +300,8 @@ jobs:
           WITH_V: true
           RELEASE_BRANCHES: main
           BRANCH_HISTORY: last
-      # If not on main, Determine the next semantic version based on the commit message tags without pushing tags`
+
+      # If not on main, Determine the next semantic version based on the commit message tags without pushing tags
       - name: Get next tag on non-main
         id: get-tag-non-main
         if: ${{ github.ref != 'refs/heads/main'}}
@@ -292,10 +333,10 @@ jobs:
           gh pr comment ${{ github.event.pull_request.number }} --body ":tada: Merging this PR at this moment should result in version ${{ steps.get-version.outputs.replaced }}"
 
   build-docker-image-and-run-itests:
-    needs: [build, paths-filter, next-version, validate-input]
+    needs: [build, paths-filter, validate-input, hotfix-version, next-version]
     # Do not run in the merge queue and do not run if the paths-filter step defines it to skip
     # but always run for the main branch
-    if: ${{ (github.event_name != 'merge_group' && needs.paths-filter.outputs.changes-requiring-build == 'true') || github.ref == 'refs/heads/main'}}
+    if: ${{ (github.event_name != 'merge_group' && needs.paths-filter.outputs.changes-requiring-build == 'true') || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
@@ -305,7 +346,7 @@ jobs:
       GIT_COMMIT_HASH: ${{ github.sha }}
       BAG_API_CLIENT_MP_REST_URL: $${{ vars.BAG_API_CLIENT_MP_REST_URL }}
       BAG_API_KEY: ${{ secrets.BAG_API_KEY }}
-      NEXT_VERSION: ${{ needs.next-version.outputs.version }}
+      NEXT_VERSION: ${{ startsWith(github.ref_name, 'hotfix/') && needs.hotfix-version.outputs.version || (needs.next-version.outputs.version || '') }}
     steps:
       # workaround to avoid 'No space left on device' error
       - name: Free Disk Space (Ubuntu)
@@ -434,14 +475,14 @@ jobs:
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   push-docker-image:
-    needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version]
+    needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version, hotfix-version]
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     # Avoid infinite build loop on renovate updates
-    if: ${{ github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'update ghcr.io/infonl/zaakafhandelcomponent docker tag') && !contains(github.event.head_commit.message, 'update dependency infonl/dimpact-zaakafhandelcomponent to') }}
+    if: ${{ (github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'update ghcr.io/infonl/zaakafhandelcomponent docker tag') && !contains(github.event.head_commit.message, 'update dependency infonl/dimpact-zaakafhandelcomponent to')) || startsWith(github.ref_name, 'hotfix/') }}
     env:
       ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
-      NEXT_VERSION: ${{ needs.next-version.outputs.version }}
+      NEXT_VERSION: ${{ startsWith(github.ref_name, 'hotfix/') && needs.hotfix-version.outputs.version || (needs.next-version.outputs.version || '') }}
     steps:
       - name: Docker Login
         uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
@@ -460,6 +501,7 @@ jobs:
         run: docker load --input docker-image.tar
 
       - name: Tag Docker Image with 'latest' tag
+        if: github.ref == 'refs/heads/main'
         run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:latest
 
       - name: Tag Docker Image with next version tag
@@ -476,16 +518,15 @@ jobs:
         run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}
 
   create-release:
-    needs: [next-version, push-docker-image]
-    if: github.ref == 'refs/heads/main'
+    needs: [next-version, push-docker-image, hotfix-version]
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/')
     runs-on: ubuntu-24.04
     env:
-      NEXT_VERSION: ${{ needs.next-version.outputs.version }}
-      NEXT_VERSION_TAG: ${{ needs.next-version.outputs.tag }}
+      NEXT_VERSION: ${{ startsWith(github.ref_name, 'hotfix/') && needs.hotfix-version.outputs.version || (needs.next-version.outputs.version || '') }}
+      NEXT_VERSION_TAG: ${{ github.ref == 'refs/heads/main' && needs.next-version.outputs.tag || (startsWith(github.ref_name,'hotfix/') && format('v{0}', needs.hotfix-version.outputs.version)) }}
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
       - name: Create or update GitHub release
         uses: ncipollo/release-action@bcfe5470707e8832e12347755757cec0eb3c22af # v1.18.0
         with:
@@ -498,7 +539,7 @@ jobs:
           draft: false
           prerelease: false
           allowUpdates: true
-          makeLatest: true
+          makeLatest: ${{ github.ref == 'refs/heads/main' }}
           generateReleaseNotes: true
 
   trigger-provision:
