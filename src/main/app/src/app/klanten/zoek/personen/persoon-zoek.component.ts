@@ -203,7 +203,7 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
   }
 
   private updateControls(potential: GeneratedType<"RestPersonenParameters">[]) {
-    const hasValues = Object.values(potential).some((value) => value);
+    const hasValues = Object.values(potential).some(Boolean);
     for (const [key, control] of Object.entries(this.formGroup.controls)) {
       if (!hasValues) {
         this.enableField(control, true);
