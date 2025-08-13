@@ -31,12 +31,31 @@ import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.comp
 import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZakenService } from "../zaken.service";
 import { ZaakViewComponent } from "./zaak-view.component";
-import { ConditionalFn } from "src/app/shared/utils/date-conditionals";
 import { FormControl } from "@angular/forms";
+import moment from "moment";
+import { MatIconHarness } from "@angular/material/icon/testing";
+import { stat } from "fs";
+import { Component, Input } from "@angular/core";
 
 describe(ZaakViewComponent.name, () => {
   let fixture: ComponentFixture<ZaakViewComponent>;
   let loader: HarnessLoader;
+
+  @Component({
+    selector: "zac-static-text",
+    template: `
+      <mat-icon
+        *ngIf="icon"
+        [ngClass]="icon.styleClass"
+        [attr.title]="icon.title"
+      >
+        {{ icon.icon }}
+      </mat-icon>
+    `,
+  })
+  class ZacStaticTextStub {
+    @Input() icon: any;
+  }
 
   let utilService: UtilService;
   let zakenService: ZakenService;
@@ -64,8 +83,8 @@ describe(ZaakViewComponent.name, () => {
     await TestBed.configureTestingModule({
       declarations: [
         ZaakViewComponent,
+        ZacStaticTextStub,
         ZaakIndicatiesComponent,
-        StaticTextComponent,
         ZaakDocumentenComponent,
         NotitiesComponent,
         SideNavComponent,
@@ -169,53 +188,82 @@ describe(ZaakViewComponent.name, () => {
 
     describe("dateFieldIconMap icon logic", () => {
       let component: ZaakViewComponent;
-      const yesterdayDate = new Date(Date.now() - 86400000)
-        .toISOString()
-        .split("T")[0];
-      const today = new Date().toISOString().slice(0, 10);
-      const tomorrowDate = new Date(Date.now() + 86400000)
-        .toISOString()
-        .slice(0, 10);
+      const yesterdayDate = moment().subtract(1, "days").format("YYYY-MM-DD");
+      const today = moment().format("YYYY-MM-DD");
+      const tomorrowDate = moment().add(1, "days").format("YYYY-MM-DD");
 
       const yesterdayFormControl = new FormControl(yesterdayDate);
-      const todayFormControl = new FormControl(today);
       const tomorrowFormControl = new FormControl(tomorrowDate);
 
-
-      // interface FormControlStub {
-      //   value: string;
-      // }
-
-      beforeEach(() => {
+      beforeEach(async () => {
+        fixture = TestBed.createComponent(ZaakViewComponent);
         component = fixture.componentInstance;
         component.zaak = { ...zaak } as GeneratedType<"RestZaak">;
-        (
-          component as unknown as { setDateFieldIconSet: () => void }
-        ).setDateFieldIconSet();
+
+        jest
+          .spyOn(
+            component as unknown as { loadHistorie: () => void },
+            "loadHistorie"
+          )
+          .mockImplementation(() => {});
+        jest
+          .spyOn(
+            component as unknown as { loadBetrokkenen: () => void },
+            "loadBetrokkenen"
+          )
+          .mockImplementation(() => {});
+        jest
+          .spyOn(
+            component as unknown as { loadBagObjecten: () => void },
+            "loadBagObjecten"
+          )
+          .mockImplementation(() => {});
+        jest
+          .spyOn(component as unknown as { setupMenu: () => void }, "setupMenu")
+          .mockImplementation(() => {});
+        jest
+          .spyOn(
+            component as unknown as { loadOpschorting: () => void },
+            "loadOpschorting"
+          )
+          .mockImplementation(() => {});
+
+        component.init(component.zaak);
+        loader = TestbedHarnessEnvironment.loader(fixture);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
       });
 
-      function setZaakDates({
-        einddatum,
-        einddatumGepland,
-        uiterlijkeEinddatumAfdoening,
-      }: {
-        einddatum: string | undefined;
-        einddatumGepland: string | undefined;
-        uiterlijkeEinddatumAfdoening: string | undefined;
-      }): void {
-        component.zaak.einddatum = einddatum;
-        component.zaak.einddatumGepland = einddatumGepland;
-        component.zaak.uiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening;
-
-        (component as unknown as { setDateFieldIconSet: () => void }).setDateFieldIconSet();
-      }
-
-      it("shows icons for overdue dates in open case", () => {
-        setZaakDates({
+      it.only("shows icons for overdue dates in open case", async () => {
+        // Arrange: set up overdue dates
+        component.zaak = {
+          ...component.zaak,
           einddatum: undefined,
           einddatumGepland: yesterdayDate,
           uiterlijkeEinddatumAfdoening: yesterdayDate,
-        });
+        };
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        const staticTextIcons = fixture.nativeElement.querySelectorAll(
+          "zac-static-text mat-icon"
+        );
+
+        const streefdatumIcon: any = Array.from(staticTextIcons).find((icon) =>
+          (icon as HTMLElement).className.includes("warning")
+        );
+        const fataledatumIcon: any = Array.from(staticTextIcons).find((icon) =>
+          (icon as HTMLElement).className.includes("error")
+        );
+
+        expect(streefdatumIcon.textContent?.trim()).toBe("report_problem");
+        expect(streefdatumIcon.getAttribute("title")).toContain("overschreden");
+
+        expect(fataledatumIcon.textContent?.trim()).toBe("report_problem");
+        expect(fataledatumIcon.getAttribute("title")).toContain("overschreden");
+
         expect(
           component.dateFieldIconMap
             .get("einddatumGepland")!
@@ -229,12 +277,33 @@ describe(ZaakViewComponent.name, () => {
         ).toBe(true);
       });
 
-      it("shows icons for overdue dates when case is closed after deadlines", () => {
-        setZaakDates({
+      it("shows icons for overdue dates when case is closed after deadlines", async () => {
+        component.zaak = {
+          ...component.zaak,
           einddatum: today,
           einddatumGepland: yesterdayDate,
           uiterlijkeEinddatumAfdoening: yesterdayDate,
-        });
+        };
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        const staticTextIcons = fixture.nativeElement.querySelectorAll(
+          "zac-static-text mat-icon"
+        );
+
+        const streefdatumIcon: any = Array.from(staticTextIcons).find((icon) =>
+          (icon as HTMLElement).className.includes("warning")
+        );
+        const fataledatumIcon: any = Array.from(staticTextIcons).find((icon) =>
+          (icon as HTMLElement).className.includes("error")
+        );
+
+        expect(streefdatumIcon.textContent?.trim()).toBe("report_problem");
+        expect(streefdatumIcon.getAttribute("title")).toContain("overschreden");
+
+        expect(fataledatumIcon.textContent?.trim()).toBe("report_problem");
+        expect(fataledatumIcon.getAttribute("title")).toContain("overschreden");
 
         expect(
           component.dateFieldIconMap
@@ -249,12 +318,30 @@ describe(ZaakViewComponent.name, () => {
         ).toBe(true);
       });
 
-      it("does not show icons for future dates in open case", () => {
-        setZaakDates({
+      it("does not show icons for future dates in open case", async () => {
+        component.zaak = {
+          ...component.zaak,
           einddatum: undefined,
           einddatumGepland: tomorrowDate,
           uiterlijkeEinddatumAfdoening: tomorrowDate,
-        });
+        };
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        const staticTextIcons = fixture.nativeElement.querySelectorAll(
+          "zac-static-text mat-icon"
+        );
+
+        const streefdatumIcon: any = Array.from(staticTextIcons).find((icon) =>
+          (icon as HTMLElement).className.includes("warning")
+        );
+        const fataledatumIcon: any = Array.from(staticTextIcons).find((icon) =>
+          (icon as HTMLElement).className.includes("error")
+        );
+
+        expect(streefdatumIcon).toBeUndefined();
+        expect(fataledatumIcon).toBeUndefined();
 
         expect(
           component.dateFieldIconMap
@@ -269,12 +356,30 @@ describe(ZaakViewComponent.name, () => {
         ).toBe(false);
       });
 
-      it("does not show icons when case is closed before deadlines", () => {
-        setZaakDates({
+      it("does not show icons when case is closed before deadlines", async () => {
+        component.zaak = {
+          ...component.zaak,
           einddatum: today,
           einddatumGepland: tomorrowDate,
           uiterlijkeEinddatumAfdoening: tomorrowDate,
-        });
+        };
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        const staticTextIcons = fixture.nativeElement.querySelectorAll(
+          "zac-static-text mat-icon"
+        );
+
+        const streefdatumIcon: any = Array.from(staticTextIcons).find((icon) =>
+          (icon as HTMLElement).className.includes("warning")
+        );
+        const fataledatumIcon: any = Array.from(staticTextIcons).find((icon) =>
+          (icon as HTMLElement).className.includes("error")
+        );
+
+        expect(streefdatumIcon).toBeUndefined();
+        expect(fataledatumIcon).toBeUndefined();
 
         expect(
           component.dateFieldIconMap

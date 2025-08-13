@@ -295,16 +295,7 @@ export class ZaakViewComponent
       "einddatumGepland",
       new TextIcon(
         (control: FormControl) => {
-          const plannedDate = control.value;
-          if (!this.zaak.einddatum) {
-            return DateConditionals.isExceeded(plannedDate);
-          } else {
-            return DateConditionals.isExceeded(
-              plannedDate,
-              this.zaak.einddatum,
-            );
-          }
-          
+          return DateConditionals.isExceeded(control.value, this.zaak.einddatum ?? undefined);
         },
         "report_problem",
         "warningVerlopen_icon",
@@ -319,12 +310,7 @@ export class ZaakViewComponent
       "uiterlijkeEinddatumAfdoening",
       new TextIcon(
         (control: FormControl) => {
-          const fatalDate = control.value;
-          if (!this.zaak.einddatum) {
-            return DateConditionals.isExceeded(fatalDate);
-          } else {
-            return DateConditionals.isExceeded(fatalDate, this.zaak.einddatum);
-          }
+          return DateConditionals.isExceeded(control.value, this.zaak.einddatum ?? undefined);
         },
         "report_problem",
         "errorVerlopen_icon",
