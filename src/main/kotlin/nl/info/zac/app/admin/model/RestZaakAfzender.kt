@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2023 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.admin.model
+package nl.info.zac.app.admin.model
 
 import net.atos.zac.admin.model.ZaakAfzender
 import nl.info.zac.util.AllOpen
@@ -10,7 +10,7 @@ import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 @AllOpen
-data class RESTZaakAfzender(
+data class RestZaakAfzender(
     var id: Long? = null,
     var defaultMail: Boolean = false,
     // TODO: should this be non-nullable?
@@ -23,4 +23,11 @@ data class RESTZaakAfzender(
         mail = speciaal.name,
         speciaal = true
     )
+}
+
+fun RestZaakAfzender.toZaakAfzender() = ZaakAfzender().apply {
+    id = this.id
+    isDefault = this.isDefault
+    mail = this.mail
+    replyTo = this.replyTo
 }

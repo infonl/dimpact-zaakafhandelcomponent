@@ -35,7 +35,7 @@ import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_
 import net.atos.zac.admin.model.ZaakAfzender.Speciaal
 import net.atos.zac.app.admin.converter.convertZaakAfzender
 import net.atos.zac.app.admin.converter.convertZaakAfzenders
-import net.atos.zac.app.admin.model.RESTZaakAfzender
+import nl.info.zac.app.admin.model.RestZaakAfzender
 import net.atos.zac.app.bag.converter.RestBagConverter
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
@@ -892,7 +892,7 @@ class ZaakRestService @Inject constructor(
      */
     @GET
     @Path("zaak/{uuid}/afzender")
-    fun listAfzendersVoorZaak(@PathParam("uuid") zaakUUID: UUID): List<RESTZaakAfzender> {
+    fun listAfzendersVoorZaak(@PathParam("uuid") zaakUUID: UUID): List<RestZaakAfzender> {
         val zaak = zrcClientService.readZaak(zaakUUID)
         return sortAndRemoveDuplicateAfzenders(
             resolveZaakAfzenderMail(
@@ -911,7 +911,7 @@ class ZaakRestService @Inject constructor(
      */
     @GET
     @Path("zaak/{uuid}/afzender/default")
-    fun readDefaultAfzenderVoorZaak(@PathParam("uuid") zaakUUID: UUID): RESTZaakAfzender? {
+    fun readDefaultAfzenderVoorZaak(@PathParam("uuid") zaakUUID: UUID): RestZaakAfzender? {
         val zaak = zrcClientService.readZaak(zaakUUID)
         return zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid())
             .zaakAfzenders
@@ -1296,8 +1296,8 @@ class ZaakRestService @Inject constructor(
     }
 
     private fun resolveZaakAfzenderMail(
-        afzenders: Stream<RESTZaakAfzender>
-    ): Stream<RESTZaakAfzender> {
+        afzenders: Stream<RestZaakAfzender>
+    ): Stream<RestZaakAfzender> {
         return afzenders.peek { afzender ->
             afzender.mail?.let {
                 speciaalMail(it)?.let { speciaal ->
@@ -1355,8 +1355,8 @@ class ZaakRestService @Inject constructor(
     }
 
     private fun sortAndRemoveDuplicateAfzenders(
-        afzenders: Stream<RESTZaakAfzender>
-    ): List<RESTZaakAfzender> {
+        afzenders: Stream<RestZaakAfzender>
+    ): List<RestZaakAfzender> {
         val list = afzenders.sorted { a, b ->
             // TODO: fix null handling
             val result: Int = a.mail?.compareTo(b.mail!!) ?: 0
@@ -1365,7 +1365,7 @@ class ZaakRestService @Inject constructor(
         val i = list.iterator()
         var previous: String? = null
         while (i.hasNext()) {
-            val afzender: RESTZaakAfzender = i.next()
+            val afzender: RestZaakAfzender = i.next()
             if (afzender.mail == previous) {
                 i.remove()
             } else {
