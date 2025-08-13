@@ -351,7 +351,7 @@ jobs:
       BRANCH_NAME: ${{ needs.build.outputs.branch_name }}
       ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
       GIT_COMMIT_HASH: ${{ github.sha }}
-      BAG_API_CLIENT_MP_REST_URL: $${{ vars.BAG_API_CLIENT_MP_REST_URL }}
+      BAG_API_CLIENT_MP_REST_URL: ${{ vars.BAG_API_CLIENT_MP_REST_URL }}
       BAG_API_KEY: ${{ secrets.BAG_API_KEY }}
       NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
     steps:
