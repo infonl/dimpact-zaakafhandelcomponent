@@ -750,7 +750,6 @@
         </ng-template>
       </mat-step>
       <mat-step
-        *ngIf="parameters.smartDocuments.enabledGlobally"
         [stepControl]="smartDocumentsEnabledForm"
         [hasError]="
           !isSmartDocumentsStepValid || !brpDoelbindingFormGroup.valid
@@ -840,7 +839,7 @@
               </form>
             </mat-card-content>
           </mat-card>
-          <mat-card>
+          <mat-card *ngIf="parameters.smartDocuments.enabledGlobally">
             <mat-card-content>
               <form [formGroup]="smartDocumentsEnabledForm" class="flex-col">
                 <div class="flex-row items-center">
