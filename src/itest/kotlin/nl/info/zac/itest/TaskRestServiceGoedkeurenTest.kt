@@ -202,10 +202,16 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 response.isSuccessful shouldBe true
                 responseBody.shouldContainJsonKeyValue("status", "AFGEROND")
             }
-        }
 
-        // TODO: check if the document was signed and if the status was set to 'definitief'
-        // PUT https://zaakafhandelcomponent-zac-dev.dimpact.lifely.nl/rest/informatieobjecten/informatieobjectenList
-        // with body: {"zaakUUID":"f34c2f1b-de0b-4187-a318-877dac23acda","informatieobjectUUIDs":["6c226862-ba35-4a0d-b420-f7a8f1e814aa"]}
+            And("the document should be signed") {
+                val response = itestHttpClient.performGetRequest(
+                    "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID"
+                )
+                val responseBody = response.body.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+                JSONObject(responseBody).getJSONArray("indicaties")[0] shouldBe "ONDERTEKEND"
+            }
+        }
     }
 })
