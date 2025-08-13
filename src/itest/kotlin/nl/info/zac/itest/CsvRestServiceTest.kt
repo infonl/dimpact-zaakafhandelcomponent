@@ -7,6 +7,7 @@ package nl.info.zac.itest
 import com.github.doyaaaaaken.kotlincsv.dsl.context.InsufficientFieldsRowBehaviour.EMPTY_STRING
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -15,7 +16,6 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REINDEX
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_ZAKEN
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_ZAKEN_AFGEROND
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import org.junit.jupiter.api.Order
 import java.net.HttpURLConnection.HTTP_OK
 
 /**
@@ -81,7 +81,7 @@ class CsvRestServiceTest : BehaviorSpec({
         "bagObjectIDs"
     )
 
-    Given("Two open zaken") {
+    Given("Multiple open zaken") {
 
         When("all the open zaken are exported") {
             val response = itestHttpClient.performJSONPostRequest(
