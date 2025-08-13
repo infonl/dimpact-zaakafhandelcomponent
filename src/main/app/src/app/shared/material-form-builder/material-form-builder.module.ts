@@ -11,7 +11,6 @@ import {
 } from "@angular/common/http";
 import { ModuleWithProviders, NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { GoogleMapsModule } from "@angular/google-maps";
 import {
   MAT_MOMENT_DATE_ADAPTER_OPTIONS,
   MomentDateAdapter,
@@ -62,7 +61,6 @@ import { DividerComponent } from "./form-components/divider/divider.component";
 import { DocumentenLijstComponent } from "./form-components/documenten-lijst/documenten-lijst.component";
 import { DocumentenOndertekenenComponent } from "./form-components/documenten-ondertekenen/documenten-ondertekenen.component";
 import { FileComponent } from "./form-components/file/file.component";
-import { GoogleMapsComponent } from "./form-components/google-maps/google-maps.component";
 import { HeadingComponent } from "./form-components/heading/heading.component";
 import { HiddenComponent } from "./form-components/hidden/hidden.component";
 import { HtmlEditorVariabelenKiesMenuComponent } from "./form-components/html-editor/html-editor-variabelen-kies-menu.component";
@@ -79,10 +77,6 @@ import { TextareaComponent } from "./form-components/textarea/textarea.component
 import { FormFieldComponent } from "./form/form-field/form-field.component";
 import { FormFieldDirective } from "./form/form-field/form-field.directive";
 import { FormComponent } from "./form/form/form.component";
-import {
-  BUILDER_CONFIG,
-  MaterialFormBuilderConfig,
-} from "./material-form-builder-config";
 
 @NgModule({
   declarations: [
@@ -98,7 +92,6 @@ import {
     MedewerkerGroepComponent,
     CheckboxComponent,
     TextareaComponent,
-    GoogleMapsComponent,
     FormFieldDirective,
     ReadonlyComponent,
     AutocompleteComponent,
@@ -134,7 +127,6 @@ import {
     MedewerkerGroepComponent,
     CheckboxComponent,
     TextareaComponent,
-    GoogleMapsComponent,
     AutocompleteComponent,
     DocumentenLijstComponent,
     DocumentenOndertekenenComponent,
@@ -157,7 +149,6 @@ import {
     CommonModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
-    GoogleMapsModule,
     MatFormFieldModule,
     MatInputModule,
     MatRadioModule,
@@ -221,12 +212,10 @@ import {
   ],
 })
 export class MaterialFormBuilderModule {
-  static forRoot(
-    config?: MaterialFormBuilderConfig,
-  ): ModuleWithProviders<MaterialFormBuilderModule> {
+  static forRoot(): ModuleWithProviders<MaterialFormBuilderModule> {
     return {
       ngModule: MaterialFormBuilderModule,
-      providers: [{ provide: BUILDER_CONFIG, useValue: config }],
+      providers: [],
     };
   }
 }
