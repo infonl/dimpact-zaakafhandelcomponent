@@ -28,9 +28,8 @@ import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
+import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.zac.app.planitems.converter.RESTPlanItemConverter
 import nl.info.zac.app.planitems.model.RESTHumanTaskData
 import nl.info.zac.app.planitems.model.RESTPlanItem
@@ -263,6 +262,7 @@ class PlanItemsRestService @Inject constructor(
 
     private fun handleZaakAfhandelen(zaak: Zaak, userEventListenerData: RESTUserEventListenerData) {
         zaakService.checkZaakAfsluitbaar(zaak)
+
         if (!brcClientService.listBesluiten(zaak).isEmpty()) {
             val resultaat = zrcClientService.readResultaat(zaak.resultaat)
             resultaat.toelichting = userEventListenerData.resultaatToelichting
@@ -270,46 +270,23 @@ class PlanItemsRestService @Inject constructor(
             return
         }
 
-        zgwApiService.createResultaatForZaak(
-            zaak,
-            userEventListenerData.resultaattypeUuid ?: throw InputValidationFailedException(
-                errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
-                message = "Resultaattype UUID moet gevuld zijn bij het afhandelen van een zaak."
-            ),
-            userEventListenerData.resultaatToelichting
+        userEventListenerData.resultaattypeUuid?.let { resultaattypeUUID ->
+            zaakService.processSpecialBrondatumProcedure(
+                zaak, resultaattypeUUID,
+                BrondatumArchiefprocedure().apply {
+                    this.datumkenmerk = userEventListenerData.brondatumEigenschap
+                }
+            )
+
+            zgwApiService.createResultaatForZaak(
+                zaak,
+                resultaattypeUUID,
+                userEventListenerData.resultaatToelichting
+            )
+        } ?: throw InputValidationFailedException(
+            errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
+            message = "Resultaattype UUID moet gevuld zijn bij het afhandelen van een zaak."
         )
-
-        val resultaattype = ztcClientService.readResultaattype(userEventListenerData.resultaattypeUuid!!)
-
-        when (resultaattype.brondatumArchiefprocedure.afleidingswijze) {
-            AfleidingswijzeEnum.EIGENSCHAP -> {
-                userEventListenerData.brondatumEigenschap?.let {
-                    this.addEigenschapToZaak(
-                        eigenschap = resultaattype.brondatumArchiefprocedure.datumkenmerk,
-                        waarde = it,
-                        zaak = zaak,
-                    )
-                } ?: throw InputValidationFailedException(
-                    errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
-                    message = """
-                        'brondatumEigenschap' moet gevuld zijn bij het afhandelen van een zaak met een resultaattype dat
-                        een 'brondatumArchiefprocedure' heeft met 'afleidingswijze' 'EIGENSCHAP'.
-                    """.trimIndent()
-                )
-            }
-            else -> null
-        }
-    }
-
-    private fun addEigenschapToZaak(eigenschap: String, waarde: String, zaak: Zaak) {
-        val eigenschap = ztcClientService.readEigenschap(zaak.zaaktype, eigenschap)
-
-        val zaakEigenschap = ZaakEigenschap().apply {
-            this.eigenschap = eigenschap.url
-            this.zaak = zaak.url
-            this.waarde = waarde
-        }
-        zrcClientService.createEigenschap(zaak.uuid, zaakEigenschap)
     }
 
     private fun calculateFatalDate(

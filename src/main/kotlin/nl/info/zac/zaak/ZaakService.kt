@@ -24,15 +24,20 @@ import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
+import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.VESTIGING_IDENTIFICATIE_DELIMITER
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.exception.ErrorCode
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
@@ -357,5 +362,49 @@ class ZaakService @Inject constructor(
                 )
         }
         zrcClientService.createRol(role, explanation)
+    }
+
+    fun processSpecialBrondatumProcedure(zaak: Zaak, resultaatTypeUUID: UUID, brondatumArchiefprocedure: BrondatumArchiefprocedure) {
+        val resultaattype = ztcClientService.readResultaattype(resultaatTypeUUID)
+
+        when (resultaattype.brondatumArchiefprocedure.afleidingswijze) {
+            AfleidingswijzeEnum.EIGENSCHAP -> {
+                if (brondatumArchiefprocedure.datumkenmerk.isNullOrBlank()) {
+                    throw InputValidationFailedException(
+                        errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
+                        message = """
+                    'brondatumEigenschap' moet gevuld zijn bij het afhandelen van een zaak met een resultaattype dat
+                    een 'brondatumArchiefprocedure' heeft met 'afleidingswijze' 'EIGENSCHAP'.
+                        """.trimIndent()
+                    )
+                }
+                this.upsertEigenschapToZaak(
+                    resultaattype.brondatumArchiefprocedure.datumkenmerk,
+                    brondatumArchiefprocedure.datumkenmerk,
+                    zaak
+                )
+            }
+            else -> null
+        }
+    }
+
+    private fun upsertEigenschapToZaak(eigenschap: String, waarde: String, zaak: Zaak) {
+        zrcClientService.listZaakeigenschappen(zaak.uuid).firstOrNull { it.naam == eigenschap }?.let {
+            zrcClientService.updateZaakeigenschap(
+                zaak.uuid, it.uuid,
+                it.apply {
+                    this.waarde = waarde
+                }
+            )
+        } ?: run {
+            ztcClientService.readEigenschap(zaak.zaaktype, eigenschap).let {
+                val zaakEigenschap = ZaakEigenschap().apply {
+                    this.eigenschap = it.url
+                    this.zaak = zaak.url
+                    this.waarde = waarde
+                }
+                zrcClientService.createEigenschap(zaak.uuid, zaakEigenschap)
+            }
+        }
     }
 }
