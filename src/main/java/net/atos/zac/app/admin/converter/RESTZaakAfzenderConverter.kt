@@ -6,10 +6,11 @@ package net.atos.zac.app.admin.converter
 
 import net.atos.zac.admin.model.ZaakAfzender
 import nl.info.zac.app.admin.model.RestZaakAfzender
+import nl.info.zac.app.admin.model.toRestZaakAfzender
 import nl.info.zac.app.admin.model.toZaakAfzender
 
 fun convertZaakAfzenders(zaakAfzender: Set<ZaakAfzender>): List<RestZaakAfzender> {
-    val restZaakAfzenders = zaakAfzender.map { convertZaakAfzender(it) }.toMutableList()
+    val restZaakAfzenders = zaakAfzender.map { it.toRestZaakAfzender() }.toMutableList()
     for (speciaal in ZaakAfzender.Speciaal.entries) {
         if (zaakAfzender.map { it.mail }.none { speciaal.`is`(it) }) {
             restZaakAfzenders.add(RestZaakAfzender(speciaal))
@@ -23,10 +24,3 @@ fun convertRESTZaakAfzenders(restZaakAfzender: List<RestZaakAfzender>): List<Zaa
         .filter { !it.speciaal || it.defaultMail || it.replyTo != null }
         .map { it.toZaakAfzender() }
 
-fun convertZaakAfzender(zaakAfzender: ZaakAfzender) = RestZaakAfzender(
-    id = zaakAfzender.id,
-    defaultMail = zaakAfzender.isDefault,
-    mail = zaakAfzender.mail,
-    replyTo = zaakAfzender.replyTo,
-    speciaal = ZaakAfzender.Speciaal.entries.any { it.`is`(zaakAfzender.mail) }
-)

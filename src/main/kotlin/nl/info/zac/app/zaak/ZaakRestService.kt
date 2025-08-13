@@ -33,9 +33,7 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_ID
 import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_REASON
 import net.atos.zac.admin.model.ZaakAfzender.Speciaal
-import net.atos.zac.app.admin.converter.convertZaakAfzender
 import net.atos.zac.app.admin.converter.convertZaakAfzenders
-import nl.info.zac.app.admin.model.RestZaakAfzender
 import net.atos.zac.app.bag.converter.RestBagConverter
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
@@ -64,6 +62,8 @@ import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
+import nl.info.zac.app.admin.model.RestZaakAfzender
+import nl.info.zac.app.admin.model.toRestZaakAfzender
 import nl.info.zac.app.decision.DecisionService
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.converter.RestDecisionConverter
@@ -915,8 +915,7 @@ class ZaakRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUUID)
         return zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid())
             .zaakAfzenders
-            .firstOrNull { it.isDefault }
-            ?.let(::convertZaakAfzender)
+            .firstOrNull { it.isDefault }?.toRestZaakAfzender()
     }
 
     @GET

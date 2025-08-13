@@ -26,8 +26,16 @@ data class RestZaakAfzender(
 }
 
 fun RestZaakAfzender.toZaakAfzender() = ZaakAfzender().apply {
-    id = this.id
-    isDefault = this.isDefault
-    mail = this.mail
-    replyTo = this.replyTo
+    id = this@toZaakAfzender.id
+    isDefault = this@toZaakAfzender.defaultMail
+    mail = this@toZaakAfzender.mail
+    replyTo = this@toZaakAfzender.replyTo
 }
+
+fun ZaakAfzender.toRestZaakAfzender() = RestZaakAfzender(
+    id = this@toRestZaakAfzender.id,
+    defaultMail = this@toRestZaakAfzender.isDefault,
+    mail = this@toRestZaakAfzender.mail,
+    replyTo = this@toRestZaakAfzender.replyTo,
+    speciaal = ZaakAfzender.Speciaal.entries.any { it.`is`(this@toRestZaakAfzender.mail) }
+)
