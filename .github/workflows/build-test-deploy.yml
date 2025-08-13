@@ -59,7 +59,7 @@ jobs:
           echo "Version will be bumped to next ${{ github.event.inputs.confirm || 'patch' }} number."
 
       - name: Manual version bump only allowed on main branch
-        if: ${{ github.ref != 'refs/heads/main' && github.event_name == 'workflow_dispatch' }}
+        if: ${{ github.ref != 'refs/heads/main' && github.event_name == 'workflow_dispatch' && (!startsWith(github.ref_name, 'hotfix/') || github.event.inputs.hotfix_version == '') }}
         run: |
           echo "Version bump input only valid on main (hotfix branches require explicit hotfix_version)."
           exit 1
