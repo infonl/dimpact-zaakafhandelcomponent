@@ -662,17 +662,18 @@ export class ZaakViewComponent
       .afterClosed()
       .subscribe((result) => {
         this.activeSideAction = null;
-        if (result) {
-          if (result === "openBesluitVastleggen") {
-            this.activeSideAction = "actie.besluit.vastleggen";
-            this.actionsSidenav.open();
-          } else {
-            this.utilService.openSnackbar(
-              "msg.planitem.uitgevoerd." + planItem.userEventListenerActie,
-            );
-            this.updateZaak();
-          }
+        if (!result) return;
+
+        if (result === "openBesluitVastleggen") {
+          this.activeSideAction = "actie.besluit.vastleggen";
+          this.actionsSidenav.open();
+          return;
         }
+
+        this.utilService.openSnackbar(
+          `msg.planitem.uitgevoerd.${planItem.userEventListenerActie}`,
+        );
+        this.updateZaak();
       });
   }
 
@@ -716,7 +717,7 @@ export class ZaakViewComponent
   }
 
   private openZaakAfbrekenDialog() {
-    this.actionsSidenav.close();
+    void this.actionsSidenav.close();
 
     if (this.zaak.isOpgeschort) {
       this.dialog.open(ActieOnmogelijkDialogComponent);
@@ -797,7 +798,7 @@ export class ZaakViewComponent
   }
 
   private openZaakAfsluitenDialog() {
-    this.actionsSidenav.close();
+    void this.actionsSidenav.close();
     const dialogData = new DialogData<
       unknown,
       { toelichting: string; resultaattype: { id: string } }

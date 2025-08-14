@@ -6,6 +6,7 @@
 import {
   Component,
   EventEmitter,
+  input,
   Input,
   OnDestroy,
   OnInit,
@@ -39,6 +40,9 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
   @Output() bedrijf? = new EventEmitter<GeneratedType<"RestBedrijf">>();
   @Input() sideNav?: MatSidenav;
   @Input() syncEnabled = false;
+
+  protected blockSearch = input<boolean>(false);
+
   bedrijven = new MatTableDataSource<GeneratedType<"RestBedrijf">>();
   foutmelding?: string;
   bedrijfColumns = [
@@ -151,12 +155,14 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
     const postcode = this.postcodeFormField.formControl.value;
     const huisnummer = this.huisnummerFormField.formControl.value;
 
-    return Boolean(
-      kvkNummer ||
-        bedrijfsnaam ||
-        vestigingsnummer ||
-        rsin ||
-        (postcode && huisnummer),
+    return (
+      Boolean(
+        kvkNummer ||
+          bedrijfsnaam ||
+          vestigingsnummer ||
+          rsin ||
+          (postcode && huisnummer),
+      ) && !this.blockSearch()
     );
   }
 

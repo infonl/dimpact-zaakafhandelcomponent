@@ -2,9 +2,9 @@
 
 
 > **Colofon** <br>
-> Datum : 30-6-2025 <br>
-> Versie :   1.3 <br>
-> Verandering : ZAC v3.11 Inrichting Zaakafhandelcomponent <br>
+> Datum : 12-08-2025 <br>
+> Versie :   1.4 <br>
+> Verandering : ZAC v3.12 Inrichting Zaakafhandelcomponent <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -19,6 +19,7 @@ Versiegeschiedenis:
 | 1.1 | ZAC versie 3.7 |
 | 1.2 | ZAC versie 3.9 |
 | 1.3 | ZAC versie 3.11 |
+| 1.4 | ZAC versie 3.12 |
 
 # Inhoud
 

@@ -2,7 +2,7 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
-    "types": ["jest", "node", "@angular/google-maps"],
+    "types": ["jest", "node"],
     "lib": ["DOM", "DOM.Iterable", "ES2021"],
     "target": "ES2016",
     "strict": false
