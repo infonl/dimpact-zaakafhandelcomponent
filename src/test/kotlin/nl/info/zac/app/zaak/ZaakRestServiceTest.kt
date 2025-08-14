@@ -69,6 +69,7 @@ import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
+import nl.info.zac.admin.model.createZaakAfzender
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.app.decision.DecisionService
 import nl.info.zac.app.klant.model.klant.IdentificatieType
@@ -1765,6 +1766,77 @@ class ZaakRestServiceTest : BehaviorSpec({
                             type shouldBe "NIET_NATUURLIJK_PERSOON"
                             identificatie shouldBe rolNietNatuurlijkPersoonWithRSIN.identificatienummer
                             identificatieType shouldBe IdentificatieType.RSIN
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Context("Listing afzenders for zaak") {
+        Given("Zaakafhandelparameters with zaakafzenders, one of which uses 'special mails'") {
+            val zaakUUID = UUID.randomUUID()
+            val zaakTypeUUID = UUID.randomUUID()
+            val zaak = createZaak(
+                uuid = zaakUUID,
+                zaakTypeURI = URI("https://example.com/zaaktypes/$zaakTypeUUID")
+            )
+            val zaakafhandelparameters = createZaakafhandelParameters(zaaktypeUUID = zaakTypeUUID)
+            val zaakAfzenders = setOf(
+                createZaakAfzender(
+                    id = 1L,
+                    zaakafhandelParameters = zaakafhandelparameters,
+                    defaultMail = false,
+                    mail = "test@example.com",
+                    replyTo = null
+                ),
+                createZaakAfzender(
+                    id = 2L,
+                    zaakafhandelParameters = zaakafhandelparameters,
+                    defaultMail = true,
+                    mail = "GEMEENTE",
+                    replyTo = "MEDEWERKER"
+                ),
+            )
+            zaakafhandelparameters.setZaakAfzenders(zaakAfzenders)
+            every { zrcClientService.readZaak(zaakUUID) } returns zaak
+            every {
+                zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
+            } returns zaakafhandelparameters
+            every { configuratieService.readGemeenteMail() } returns "fake-gemeente@example.com"
+            every { loggedInUserInstance.get() } returns createLoggedInUser(
+                email = "fake-medewerker@example.com"
+            )
+
+            When("the zaakafzenders are requested") {
+                val returnedRestZaakAfzenders = zaakRestService.listAfzendersVoorZaak(zaakUUID)
+
+                Then("the zaakafzenders are returned, including special mails for GEMEENTE and MEDEWERKER") {
+                    with(returnedRestZaakAfzenders) {
+                        // we defined two afzender emails but expect three because
+                        // we did not define an 'MEDEWERKER' afzender email so this one
+                        // should be added automatically
+                        size shouldBe 3
+                        first().apply {
+                            id shouldBe 2L
+                            defaultMail shouldBe true
+                            mail shouldBe "fake-gemeente@example.com"
+                            replyTo shouldBe "fake-medewerker@example.com"
+                            speciaal shouldBe true
+                        }
+                        this[1].apply {
+                            id shouldBe null
+                            defaultMail shouldBe false
+                            mail shouldBe "fake-medewerker@example.com"
+                            replyTo shouldBe null
+                            speciaal shouldBe true
+                        }
+                        last().apply {
+                            id shouldBe 1L
+                            defaultMail shouldBe false
+                            mail shouldBe "test@example.com"
+                            replyTo shouldBe null
+                            speciaal shouldBe false
                         }
                     }
                 }

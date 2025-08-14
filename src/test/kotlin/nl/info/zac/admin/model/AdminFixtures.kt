@@ -98,7 +98,7 @@ fun createZaakafhandelParameters(
         zoekWaarde = ""
         raadpleegWaarde = ""
     },
-    automaticEmailConfirmation: AutomaticEmailConfirmation = createAutomaticEmailConfirmation(),
+    automaticEmailConfirmation: AutomaticEmailConfirmation = createAutomaticEmailConfirmation()
 ) =
     ZaakafhandelParameters().apply {
         this.id = id
