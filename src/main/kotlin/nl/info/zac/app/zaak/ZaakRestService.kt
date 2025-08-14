@@ -1295,18 +1295,18 @@ class ZaakRestService @Inject constructor(
     private fun resolveZaakAfzenderMail(
         restZaakAfzenders: List<RestZaakAfzender>
     ): List<RestZaakAfzender> = restZaakAfzenders.mapNotNull { restZaakAfzender ->
-            restZaakAfzender.mail?.let { mail ->
-                val specialMail = speciaalMail(mail)
-                RestZaakAfzender(
-                    id = restZaakAfzender.id,
-                    mail = specialMail?.let { resolveSpecialMail(it) } ?: mail,
-                    suffix = specialMail?.let { "gegevens.mail.afzender.$specialMail" },
-                    replyTo = restZaakAfzender.replyTo?.let { replyTo ->
-                        speciaalMail(replyTo)?.let { resolveSpecialMail(it) } ?: replyTo
-                    }
-                )
-            }
+        restZaakAfzender.mail?.let { mail ->
+            val specialMail = speciaalMail(mail)
+            RestZaakAfzender(
+                id = restZaakAfzender.id,
+                mail = specialMail?.let { resolveSpecialMail(it) } ?: mail,
+                suffix = specialMail?.let { "gegevens.mail.afzender.$specialMail" },
+                replyTo = restZaakAfzender.replyTo?.let { replyTo ->
+                    speciaalMail(replyTo)?.let { resolveSpecialMail(it) } ?: replyTo
+                }
+            )
         }
+    }
 
     private fun resolveSpecialMail(specialMail: SpecialMail) =
         when (specialMail) {
