@@ -29,9 +29,9 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REINDEXING
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_DOCUMENTS
-import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_TASKS
-import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_ZAKEN
+import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_DOCUMENTS
+import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_TASKS
+import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_ZAKEN
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
@@ -93,19 +93,19 @@ class SearchRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                         "foutmelding": "",                      
-                        "totaal": ${TOTAL_COUNT_ZAKEN + TOTAL_COUNT_TASKS + TOTAL_COUNT_DOCUMENTS},
+                        "totaal": ${TOTAL_COUNT_INDEXED_ZAKEN + TOTAL_COUNT_INDEXED_TASKS + TOTAL_COUNT_INDEXED_DOCUMENTS},
                         "filters": {
                             "TYPE": [
                                 {
-                                    "aantal": $TOTAL_COUNT_ZAKEN,
+                                    "aantal": $TOTAL_COUNT_INDEXED_ZAKEN,
                                     "naam": "ZAAK"
                                 },                           
                                 {
-                                    "aantal": $TOTAL_COUNT_TASKS,
+                                    "aantal": $TOTAL_COUNT_INDEXED_TASKS,
                                     "naam": "TAAK"
                                 },
                                 {
-                                    "aantal": $TOTAL_COUNT_DOCUMENTS,
+                                    "aantal": $TOTAL_COUNT_INDEXED_DOCUMENTS,
                                     "naam": "DOCUMENT"
                                 }
                             ],
@@ -683,7 +683,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
-                JSONObject(responseBody).getInt("totaal") shouldBe TOTAL_COUNT_DOCUMENTS
+                JSONObject(responseBody).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_DOCUMENTS
                 JSONObject(responseBody).getJSONObject("filters").toString() shouldEqualJsonIgnoringOrderAndExtraneousFields """                   
                       {
                         "ZAAKTYPE" : [ {
@@ -711,11 +711,11 @@ class SearchRestServiceTest : BehaviorSpec({
                           "naam" : "$INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING"
                         } ],
                         "DOCUMENT_VERGRENDELD_DOOR" : [ {
-                          "aantal" : $TOTAL_COUNT_DOCUMENTS,
+                          "aantal" : $TOTAL_COUNT_INDEXED_DOCUMENTS,
                           "naam" : "-NULL-"
                         } ],
                         "DOCUMENT_INDICATIES" : [ {
-                          "aantal" : $TOTAL_COUNT_DOCUMENTS,
+                          "aantal" : $TOTAL_COUNT_INDEXED_DOCUMENTS,
                           "naam" : "ONDERTEKEND"
                         }, {
                           "aantal" : 10,
