@@ -62,8 +62,12 @@ class PolicyService @Inject constructor(
     private val zrcClientService: ZrcClientService
 ) {
     fun readOverigeRechten(): OverigeRechten =
+        readOverigeRechten(zaaktype = null)
+
+    // for PABC based IAM integration
+    fun readOverigeRechten(zaaktype: String?): OverigeRechten =
         evaluationClient.readOverigeRechten(
-            RuleQuery(UserInput(loggedInUserInstance.get()))
+            RuleQuery(UserInput(loggedInUserInstance.get(), zaaktype))
         ).result
 
     fun readZaakRechten(zaak: Zaak): ZaakRechten {

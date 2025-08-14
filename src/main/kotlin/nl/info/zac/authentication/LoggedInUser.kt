@@ -18,7 +18,14 @@ class LoggedInUser(
     /**
      * List of zaaktypen for which the logged-in user is authorised, or 'null' if the user is authorised for all zaaktypen.
      */
-    val geautoriseerdeZaaktypen: Set<String>? = null
+    val geautoriseerdeZaaktypen: Set<String>? = null,
+
+    /**
+     * Application roles per zaaktype that the user is authorized for.
+     * When the PABC feature is enabled, this maps zaaktypes to sets of application roles (PABC).
+     */
+    val pabcMappings: Map<String, Set<String>> = emptyMap()
+
 ) : User(id, firstName, lastName, displayName, email) {
     fun isAuthorisedForAllZaaktypen(): Boolean = geautoriseerdeZaaktypen == null
 
