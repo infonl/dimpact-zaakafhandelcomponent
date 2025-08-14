@@ -62,7 +62,6 @@ import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.admin.model.RestZaakAfzender
-import nl.info.zac.app.admin.model.toRestZaakAfzender
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
 import nl.info.zac.app.decision.DecisionService
 import nl.info.zac.app.klant.model.klant.IdentificatieType
@@ -909,12 +908,8 @@ class ZaakRestService @Inject constructor(
      */
     @GET
     @Path("zaak/{uuid}/afzender/default")
-    fun readDefaultAfzenderVoorZaak(@PathParam("uuid") zaakUUID: UUID): RestZaakAfzender? {
-        val zaak = zrcClientService.readZaak(zaakUUID)
-        return zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid())
-            .zaakAfzenders
-            .firstOrNull { it.isDefault }?.toRestZaakAfzender()
-    }
+    fun readDefaultAfzenderVoorZaak(@PathParam("uuid") zaakUUID: UUID): RestZaakAfzender? =
+        listAfzendersVoorZaak(zaakUUID).firstOrNull { it.defaultMail }
 
     @GET
     @Path("besluit/zaakUuid/{zaakUuid}")
