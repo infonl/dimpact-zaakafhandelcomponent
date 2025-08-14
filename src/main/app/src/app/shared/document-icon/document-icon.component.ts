@@ -4,6 +4,7 @@
  */
 
 import { Component, Input } from "@angular/core";
+import { MatIcon } from "@angular/material/icon";
 import { TranslateService } from "@ngx-translate/core";
 import { FileIcon } from "../../informatie-objecten/model/file-icon";
 
@@ -11,6 +12,7 @@ import { FileIcon } from "../../informatie-objecten/model/file-icon";
   standalone: true,
   selector: "zac-document-icon",
   templateUrl: "./document-icon.component.html",
+  imports: [MatIcon],
   styleUrls: ["./document-icon.component.less"],
 })
 export class DocumentIconComponent {
