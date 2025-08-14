@@ -5,18 +5,25 @@
 package nl.info.zac.app.admin.model
 
 import net.atos.zac.admin.model.ZaakAfzender
+import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
+/**
+ * A REST representation of a ZaakAfzender.
+ * Note that all fields in this class need to be vars and not vals because of the way data value classes
+ * are instantiated in the ZAC REST API using JAX-RS.
+ */
 @NoArgConstructor
-open class RestZaakAfzender(
-    val id: Long? = null,
-    val defaultMail: Boolean = false,
-    // should probably be non-nullable but for now leave it nullable because making
+@AllOpen
+data class RestZaakAfzender(
+    var id: Long? = null,
+    var defaultMail: Boolean = false,
+    // should be non-nullable but for now leave it nullable because making
     // any of these field non-nullable currently breaks the ZAC frontend code build ('Conversion of type' errors)
-    val mail: String? = null,
-    val suffix: String? = null,
-    val replyTo: String? = null,
-    val speciaal: Boolean = false
+    var mail: String? = null,
+    var suffix: String? = null,
+    var replyTo: String? = null,
+    var speciaal: Boolean = false
 )
 
 fun RestZaakAfzender.toZaakAfzender() = ZaakAfzender().apply {

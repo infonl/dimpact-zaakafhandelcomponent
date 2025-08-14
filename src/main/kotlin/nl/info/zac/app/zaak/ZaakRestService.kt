@@ -1299,6 +1299,8 @@ class ZaakRestService @Inject constructor(
             val specialMail = speciaalMail(mail)
             RestZaakAfzender(
                 id = restZaakAfzender.id,
+                defaultMail = restZaakAfzender.defaultMail,
+                speciaal = specialMail != null,
                 mail = specialMail?.let { resolveSpecialMail(it) } ?: mail,
                 suffix = specialMail?.let { "gegevens.mail.afzender.$specialMail" },
                 replyTo = restZaakAfzender.replyTo?.let { replyTo ->
@@ -1353,23 +1355,13 @@ class ZaakRestService @Inject constructor(
 
     private fun sortAndRemoveDuplicateAfzenders(
         afzenders: List<RestZaakAfzender>
-    ): List<RestZaakAfzender> {
-        val list = afzenders.stream().sorted { a, b ->
-            val result: Int = (a.mail ?: "").compareTo(b.mail ?: "")
-            if (result == 0) if (a.defaultMail) -1 else 0 else result
-        }
-        val iterator = list.iterator()
-        var previous: String? = null
-        while (iterator.hasNext()) {
-            val afzender: RestZaakAfzender = iterator.next()
-            if (afzender.mail == previous) {
-                iterator.remove()
-            } else {
-                previous = afzender.mail
-            }
-        }
-        return list.toList()
-    }
+    ): List<RestZaakAfzender> =
+        afzenders
+            .sortedWith(
+                compareBy<RestZaakAfzender> { it.mail ?: "" }
+                    .thenByDescending { it.defaultMail }
+            )
+            .distinctBy { it.mail }
 
     private fun speciaalMail(mail: String): SpecialMail? = if (!mail.contains("@")) SpecialMail.valueOf(mail) else null
 
