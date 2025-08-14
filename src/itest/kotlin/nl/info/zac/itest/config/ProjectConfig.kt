@@ -19,6 +19,7 @@ import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.info.zac.itest.config.ItestConfiguration.KVK_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OFFICE_CONVERTER_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.PABC_API_KEY
+import nl.info.zac.itest.config.ItestConfiguration.PABC_CLIENT_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SMTP_SERVER_PORT
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
@@ -60,7 +61,7 @@ class ProjectConfig : AbstractProjectConfig() {
         "FEATURE_FLAG_PABC_INTEGRATION" to "true",
         "KVK_API_CLIENT_MP_REST_URL" to KVK_MOCK_BASE_URI,
         "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to OFFICE_CONVERTER_BASE_URI,
-        "PABC_API_CLIENT_MP_REST_URL" to "http://pabc:8006/pabc/api/v1/",
+        "PABC_API_CLIENT_MP_REST_URL" to "$PABC_CLIENT_BASE_URI/pabc/api/v1/",
         "PABC_API_KEY" to PABC_API_KEY,
         "SMARTDOCUMENTS_ENABLED" to "true",
         "SMARTDOCUMENTS_CLIENT_MP_REST_URL" to SMART_DOCUMENTS_MOCK_BASE_URI,
