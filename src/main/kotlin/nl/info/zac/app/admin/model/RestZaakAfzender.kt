@@ -12,7 +12,7 @@ open class RestZaakAfzender(
     val id: Long? = null,
     val defaultMail: Boolean = false,
     // should probably be non-nullable but for now leave it nullable because making
-    // any of these field non-nullable currently breaks the ZAC frontend code
+    // any of these field non-nullable currently breaks the ZAC frontend code build ('Conversion of type' errors)
     val mail: String? = null,
     val suffix: String? = null,
     val replyTo: String? = null,
