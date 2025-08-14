@@ -100,8 +100,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
         )
         val roles = arrayListOf(
             "fakeRole1",
-            "domein_elk_zaaktype",
-            "zaakafhandelcomponent_user"
+            "domein_elk_zaaktype"
         )
         val newHttpSession = mockk<HttpSession>()
         val expectedFunctionalRoles = listOf("fakeRole1")
@@ -301,8 +300,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
         val userId = "testUserId"
         val roles = listOf(
             "fakeRole1",
-            "domein_elk_zaaktype",
-            "zaakafhandelcomponent_user"
+            "domein_elk_zaaktype"
         )
 
         val loggedInUser = createLoggedInUser(id = userId)
