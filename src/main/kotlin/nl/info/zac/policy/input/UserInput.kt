@@ -8,12 +8,19 @@ import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.authentication.LoggedInUser
 
 open class UserInput(
-    loggedInUser: LoggedInUser
+    loggedInUser: LoggedInUser,
+    zaaktype: String? = null
 ) {
     @field:JsonbProperty("user")
     val user = UserData(
         id = loggedInUser.id,
-        rollen = loggedInUser.roles,
-        zaaktypen = if (loggedInUser.isAuthorisedForAllZaaktypen()) null else loggedInUser.geautoriseerdeZaaktypen
+        rollen = when {
+            zaaktype != null -> loggedInUser.pabcMappings[zaaktype].orEmpty()
+            else -> loggedInUser.roles
+        },
+        zaaktypen = when {
+            zaaktype != null -> setOf(zaaktype)
+            loggedInUser.isAuthorisedForAllZaaktypen() -> null else -> loggedInUser.geautoriseerdeZaaktypen
+        }
     )
 }

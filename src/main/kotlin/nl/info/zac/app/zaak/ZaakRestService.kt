@@ -289,7 +289,7 @@ class ZaakRestService @Inject constructor(
 
         // make sure to use the omschrijving of the zaaktype that was retrieved to perform authorization on zaaktype
         assertPolicy(
-            policyService.readOverigeRechten().startenZaak &&
+            policyService.readOverigeRechten(restZaak.zaaktype.omschrijving).startenZaak &&
                 loggedInUserInstance.get().isAuthorisedForZaaktype(zaakType.omschrijving)
         )
         restZaak.communicatiekanaal?.isNotBlank() == true || throw CommunicationChannelNotFound()

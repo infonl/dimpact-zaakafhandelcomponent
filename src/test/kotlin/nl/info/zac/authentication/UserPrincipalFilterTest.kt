@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaakafhandelParameterService
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.model.generated.ApplicationRoleModel
+import nl.info.client.pabc.model.generated.EntityTypeModel
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponseModel
 import nl.info.zac.admin.model.createZaakafhandelParameters
@@ -45,16 +46,19 @@ class UserPrincipalFilterTest : BehaviorSpec({
     val oidcSecurityContext = mockk<OidcSecurityContext>(relaxed = true)
     val accessToken = mockk<AccessToken>(relaxed = true)
 
-    fun pabcRolesResponse(vararg names: String): GetApplicationRolesResponse {
+    fun pabcRolesResponse(zaaktypeName: String, vararg names: String): GetApplicationRolesResponse {
         val applicationRolesResponse = mockk<GetApplicationRolesResponse>()
-        val applicationRolesResponseModel = mockk<GetApplicationRolesResponseModel>()
+        val responseModel = mockk<GetApplicationRolesResponseModel>()
+        val entityType = mockk<EntityTypeModel>()
+        every { entityType.type } returns "zaaktype"
+        every { entityType.name } returns zaaktypeName
+        every { responseModel.entityType } returns entityType
+
         val roleModels = names.map { roleName ->
-            mockk<ApplicationRoleModel>().also {
-                every { it.name } returns roleName
-            }
+            mockk<ApplicationRoleModel>().also { every { it.name } returns roleName }
         }
-        every { applicationRolesResponseModel.applicationRoles } returns roleModels
-        every { applicationRolesResponse.results } returns listOf(applicationRolesResponseModel)
+        every { responseModel.applicationRoles } returns roleModels
+        every { applicationRolesResponse.results } returns listOf(responseModel)
         return applicationRolesResponse
     }
 
@@ -119,13 +123,16 @@ class UserPrincipalFilterTest : BehaviorSpec({
         )
         val expectedFunctionalRoles = listOf("fakeRole1")
         val pabcRoleNames = listOf("applicationRoleA", "applicationRoleB")
+        val zaaktypeName = "fakeZaaktypeOmschrijving1"
         val zaakafhandelParameters = listOf(
             createZaakafhandelParameters(
                 domein = "fakeDomein1",
-                zaaktypeOmschrijving = "fakeZaaktypeOmschrijving1"
+                zaaktypeOmschrijving = zaaktypeName
             )
         )
         val newHttpSession = mockk<HttpSession>()
+        val capturedLoggedInUser = slot<LoggedInUser>()
+
         every { httpServletRequest.userPrincipal } returns oidcPrincipal
         every { httpServletRequest.getSession(true) } returns httpSession andThen newHttpSession
         every { httpServletRequest.servletContext.contextPath } returns "fakeContextPath"
@@ -142,11 +149,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
         every { accessToken.name } returns "fakeFullName"
         every { accessToken.email } returns "fakeemail@example.com"
         every { accessToken.getStringListClaimValue("group_membership") } returns emptyList()
-        every { zaakafhandelParameterService.listZaakafhandelParameters() } returns zaakafhandelParameters
-        every { newHttpSession.setAttribute(any(), any()) } just runs
+        every { newHttpSession.setAttribute("logged-in-user", capture(capturedLoggedInUser)) } just runs
         every {
             pabcClientService.getApplicationRoles(expectedFunctionalRoles)
-        } returns pabcRolesResponse(*pabcRoleNames.toTypedArray())
+        } returns pabcRolesResponse(zaaktypeName, *pabcRoleNames.toTypedArray())
 
         When("doFilter is called") {
             userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -161,6 +167,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     httpSession.invalidate()
                     newHttpSession.setAttribute("logged-in-user", any())
                     pabcClientService.getApplicationRoles(expectedFunctionalRoles)
+                }
+                with(capturedLoggedInUser.captured) {
+                    this.roles shouldContainAll roles
+                    this.pabcMappings[zaaktypeName]?.shouldContainAll(pabcRoleNames)
                 }
             }
         }
@@ -227,7 +237,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
         every { httpSession.setAttribute(any(), any()) } just runs
         every {
             pabcClientService.getApplicationRoles(any())
-        } returns pabcRolesResponse(*pabcRoleNames.toTypedArray())
+        } returns pabcRolesResponse("fakeZaaktypeOmschrijving1", *pabcRoleNames.toTypedArray())
 
         When("doFilter is called") {
             userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -249,9 +259,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     this.lastName shouldBe familyName
                     this.getFullName() shouldBe fullName
                     this.email shouldBe email
-                    this.roles shouldContainAll pabcRoleNames
+                    this.roles shouldContainAll roles
                     this.groupIds shouldContainAll groups
                     this.geautoriseerdeZaaktypen shouldContainExactly listOf("fakeZaaktypeOmschrijving1")
+                    this.pabcMappings["fakeZaaktypeOmschrijving1"]?.shouldContainAll(pabcRoleNames)
                 }
             }
         }
@@ -274,10 +285,11 @@ class UserPrincipalFilterTest : BehaviorSpec({
             "fakeRole1",
             "domein_elk_zaaktype"
         )
+        val zaaktypeName = "fakeZaaktypeOmschrijving1"
         val zaakafhandelParameters = listOf(
             createZaakafhandelParameters(
                 domein = "fakeDomein1",
-                zaaktypeOmschrijving = "fakeZaaktypeOmschrijving1"
+                zaaktypeOmschrijving = zaaktypeName
             )
         )
         val pabcRoleNames = listOf("fakeDomein1", "testApplicationRole2")
@@ -298,11 +310,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
         every { accessToken.name } returns fullName
         every { accessToken.email } returns email
         every { accessToken.getStringListClaimValue("group_membership") } returns groups
-        every { zaakafhandelParameterService.listZaakafhandelParameters() } returns zaakafhandelParameters
         every { httpSession.setAttribute(any(), any()) } just runs
         every {
             pabcClientService.getApplicationRoles(any())
-        } returns pabcRolesResponse(*pabcRoleNames.toTypedArray())
+        } returns pabcRolesResponse(zaaktypeName, *pabcRoleNames.toTypedArray())
 
         When("doFilter is called") {
             userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -320,8 +331,9 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 with(loggedInUserSlot.captured) {
                     this.id shouldBe userName
                     // null indicates that the user has access to all zaaktypen
-                    this.geautoriseerdeZaaktypen shouldBe listOf("fakeZaaktypeOmschrijving1")
-                    this.roles shouldContainAll pabcRoleNames
+                    this.geautoriseerdeZaaktypen shouldBe null
+                    this.roles shouldContainAll roles
+                    this.pabcMappings[zaaktypeName]?.shouldContainAll(pabcRoleNames)
                 }
             }
         }

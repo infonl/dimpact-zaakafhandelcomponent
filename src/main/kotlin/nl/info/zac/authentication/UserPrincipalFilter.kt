@@ -102,44 +102,11 @@ constructor(
         }
     }
 
-    /**
-     * Resolve application roles via PABC (when enabled by a feature-flag)
-     *
-     */
-    @Suppress("TooGenericExceptionCaught")
-    private fun resolveApplicationRolesFromPabc(functionalRoles: Set<String>): Set<String> {
-        if (!pabcIntegrationEnabled) {
-            LOG.info("PABC integration is disabled — using functional roles from Keycloak.")
-            return functionalRoles
-        }
-
-        // filtering out the roles that are currently not used by the PABC component
-        val filteredFunctionalRoles = functionalRoles.filterNot {
-            it in setOf(
-                ZACRole.DOMEIN_ELK_ZAAKTYPE.value,
-                ZACRole.ZAAKAFHANDELCOMPONENT_USER.value
-            )
-        }
-
-        try {
-            val applicationRolesResponse: GetApplicationRolesResponse =
-                pabcClientService.getApplicationRoles(filteredFunctionalRoles)
-            LOG.info("Resolved application roles from PABC for user: $applicationRolesResponse")
-
-            return applicationRolesResponse.results
-                .flatMap { it.applicationRoles }
-                .mapNotNull { it.name }
-                .toSet()
-        } catch (ex: Exception) {
-            LOG.log(Level.SEVERE, "PABC application role lookup failed", ex);
-            throw ex
-        }
-    }
-
     private fun createLoggedInUser(oidcSecurityContext: OidcSecurityContext): LoggedInUser =
         oidcSecurityContext.token.let { accessToken ->
             val functionalRoles = accessToken.rolesClaim.toSet()
-            val rolesForLoggedInUser = resolveApplicationRolesFromPabc(functionalRoles)
+            val pabcMappings: Map<String, Set<String>> =
+                buildApplicationRoleMappingsFromPabc(functionalRoles)
 
             LoggedInUser(
                 id = accessToken.preferredUsername,
@@ -147,13 +114,52 @@ constructor(
                 lastName = accessToken.familyName,
                 displayName = accessToken.name,
                 email = accessToken.email,
-                roles = rolesForLoggedInUser,
+                roles = functionalRoles,
                 groupIds = accessToken
                     .getStringListClaimValue(GROUP_MEMBERSHIP_CLAIM_NAME)
                     .toSet(),
-                geautoriseerdeZaaktypen = getAuthorisedZaaktypen(rolesForLoggedInUser)
+                geautoriseerdeZaaktypen = getAuthorisedZaaktypen(functionalRoles),
+                pabcMappings = pabcMappings
             )
         }
+
+    /**
+     * Build a map of zaaktype -> set(application role names) from PABC (when enabled).
+     * - Only include results where entityType.type == "zaaktype"
+     * - Key uses entityType.name
+     */
+    @Suppress("TooGenericExceptionCaught")
+    private fun buildApplicationRoleMappingsFromPabc(functionalRoles: Set<String>): Map<String, Set<String>> {
+        if (!pabcIntegrationEnabled) {
+            LOG.info("PABC integration is disabled — not building per-zaaktype mappings.")
+            return emptyMap()
+        }
+
+        // Filter out roles we shouldn't send to PABC
+        val filteredFunctionalRoles = functionalRoles.filterNot {
+            it in setOf(
+                ZACRole.DOMEIN_ELK_ZAAKTYPE.value,
+                ZACRole.ZAAKAFHANDELCOMPONENT_USER.value
+            )
+        }
+
+        return try {
+            val response: GetApplicationRolesResponse =
+                pabcClientService.getApplicationRoles(filteredFunctionalRoles)
+
+            response.results
+                .filter { it.entityType?.type.equals("zaaktype", ignoreCase = true) }
+                .mapNotNull { res ->
+                    val key = res.entityType?.name?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+                    val roleNames = res.applicationRoles.mapNotNull { it.name }.toSet()
+                    key to roleNames
+                }
+                .toMap()
+        } catch (ex: Exception) {
+            LOG.log(Level.SEVERE, "PABC application role lookup failed", ex)
+            throw ex
+        }
+    }
 
     /**
      * Returns the active zaaktypen for which the user is authorised, or `null` if the user is
