@@ -5,25 +5,19 @@
 package nl.info.zac.app.admin.model
 
 import net.atos.zac.admin.model.ZaakAfzender
-import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
-@AllOpen
-data class RestZaakAfzender(
-    var id: Long? = null,
-    var defaultMail: Boolean = false,
-    // TODO: should this be non-nullable?
-    var mail: String? = null,
-    var suffix: String? = null,
-    var replyTo: String? = null,
-    var speciaal: Boolean = false
-) {
-    constructor(speciaal: ZaakAfzender.Speciaal) : this(
-        mail = speciaal.name,
-        speciaal = true
-    )
-}
+open class RestZaakAfzender(
+    val id: Long? = null,
+    val defaultMail: Boolean = false,
+    // should probably be non-nullable but for now leave it nullable because making
+    // any of these field non-nullable currently breaks the ZAC frontend code
+    val mail: String? = null,
+    val suffix: String? = null,
+    val replyTo: String? = null,
+    val speciaal: Boolean = false
+)
 
 fun RestZaakAfzender.toZaakAfzender() = ZaakAfzender().apply {
     id = this@toZaakAfzender.id
@@ -37,10 +31,26 @@ fun ZaakAfzender.toRestZaakAfzender() = RestZaakAfzender(
     defaultMail = this@toRestZaakAfzender.isDefault,
     mail = this@toRestZaakAfzender.mail,
     replyTo = this@toRestZaakAfzender.replyTo,
-    speciaal = ZaakAfzender.Speciaal.entries.any { it.`is`(this@toRestZaakAfzender.mail) }
+    speciaal = ZaakAfzender.SpecialMail.entries.any { it.`is`(this@toRestZaakAfzender.mail) },
+    suffix = null
 )
 
-fun List<RestZaakAfzender>.toRestZaakAfzenders(): List<ZaakAfzender> =
-    this@toRestZaakAfzenders
-        .filter { !it.speciaal || it.defaultMail || it.replyTo != null }
+fun List<RestZaakAfzender>.toZaakAfzenders(): List<ZaakAfzender> =
+    this@toZaakAfzenders.filter { !it.speciaal || it.defaultMail || it.replyTo != null }
         .map { it.toZaakAfzender() }
+
+fun Set<ZaakAfzender>.toRestZaakAfzenders(): List<RestZaakAfzender> {
+    val restZaakAfzenders = this@toRestZaakAfzenders.map { it.toRestZaakAfzender() }.toMutableList()
+    // now add the 'special' zaakafzender emails, if they are not already present
+    for (speciaal in ZaakAfzender.SpecialMail.entries) {
+        if (this@toRestZaakAfzenders.map { it.mail }.none { speciaal.`is`(it) }) {
+            restZaakAfzenders.add(
+                RestZaakAfzender(
+                    mail = speciaal.name,
+                    speciaal = true,
+                )
+            )
+        }
+    }
+    return restZaakAfzenders
+}

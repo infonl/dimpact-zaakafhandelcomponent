@@ -16,8 +16,8 @@ public class RESTReplyTo {
     public RESTReplyTo() {
     }
 
-    public RESTReplyTo(ZaakAfzender.Speciaal speciaal) {
-        this.mail = speciaal.name();
+    public RESTReplyTo(ZaakAfzender.SpecialMail specialMail) {
+        this.mail = specialMail.name();
         this.speciaal = true;
     }
 }

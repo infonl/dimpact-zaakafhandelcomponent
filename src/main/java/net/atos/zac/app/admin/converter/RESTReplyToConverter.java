@@ -18,8 +18,8 @@ public final class RESTReplyToConverter {
         final List<RESTReplyTo> restReplyTos = waarden.stream()
                 .map(RESTReplyToConverter::convertReplyTo)
                 .collect(Collectors.toList());
-        for (final ZaakAfzender.Speciaal speciaal : ZaakAfzender.Speciaal.values()) {
-            restReplyTos.add(new RESTReplyTo(speciaal));
+        for (final ZaakAfzender.SpecialMail specialMail : ZaakAfzender.SpecialMail.values()) {
+            restReplyTos.add(new RESTReplyTo(specialMail));
         }
         restReplyTos.sort((a, b) -> a.speciaal != b.speciaal ? a.speciaal ? -1 : 1 : a.mail.compareTo(b.mail));
         return restReplyTos;

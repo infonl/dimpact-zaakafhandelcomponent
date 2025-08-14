@@ -116,7 +116,7 @@ class ProductaanvraagEmailService @Inject constructor(
 
     private fun String.generateMailAddress(configurationService: ConfiguratieService) =
         when (this) {
-            ZaakAfzender.Speciaal.GEMEENTE.toString() -> MailAdres(
+            ZaakAfzender.SpecialMail.GEMEENTE.toString() -> MailAdres(
                 email = configurationService.readGemeenteMail(),
                 name = configurationService.readGemeenteNaam()
             )

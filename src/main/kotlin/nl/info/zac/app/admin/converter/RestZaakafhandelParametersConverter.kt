@@ -15,7 +15,6 @@ import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter.convertRESTUserEventListenerParameters
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters
-import net.atos.zac.app.admin.converter.convertZaakAfzenders
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.app.admin.model.RestAutomaticEmailConfirmation
@@ -31,6 +30,7 @@ import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
 import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
+import nl.info.zac.app.admin.model.toZaakAfzenders
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.util.AllOpen
@@ -110,9 +110,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             restZaakafhandelParameters.mailtemplateKoppelingen = RESTMailtemplateKoppelingConverter.convert(
                 zaakafhandelParameters.mailtemplateKoppelingen
             )
-            restZaakafhandelParameters.zaakAfzenders = convertZaakAfzenders(
-                zaakafhandelParameters.zaakAfzenders
-            )
+            restZaakafhandelParameters.zaakAfzenders = zaakafhandelParameters.zaakAfzenders.toRestZaakAfzenders()
         }
         return restZaakafhandelParameters
     }
@@ -159,7 +157,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
                     restZaakafhandelParameters.mailtemplateKoppelingen
                 )
             )
-            it.setZaakAfzenders(restZaakafhandelParameters.zaakAfzenders.toRestZaakAfzenders())
+            it.setZaakAfzenders(restZaakafhandelParameters.zaakAfzenders.toZaakAfzenders())
             it.betrokkeneKoppelingen = restZaakafhandelParameters.betrokkeneKoppelingen.toBetrokkeneKoppelingen(it)
             it.brpDoelbindingen = restZaakafhandelParameters.brpDoelbindingen.toBrpDoelbindingen(it)
             it.automaticEmailConfirmation = restZaakafhandelParameters.automaticEmailConfirmation

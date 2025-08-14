@@ -32,8 +32,7 @@ import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_ID
 import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_REASON
-import net.atos.zac.admin.model.ZaakAfzender.Speciaal
-import net.atos.zac.app.admin.converter.convertZaakAfzenders
+import net.atos.zac.admin.model.ZaakAfzender.SpecialMail
 import net.atos.zac.app.bag.converter.RestBagConverter
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
@@ -64,6 +63,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.admin.model.toRestZaakAfzender
+import nl.info.zac.app.admin.model.toRestZaakAfzenders
 import nl.info.zac.app.decision.DecisionService
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.converter.RestDecisionConverter
@@ -137,8 +137,6 @@ import org.apache.commons.collections4.CollectionUtils
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
-import java.util.stream.Collectors
-import java.util.stream.Stream
 
 @Path("zaken")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -896,9 +894,9 @@ class ZaakRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUUID)
         return sortAndRemoveDuplicateAfzenders(
             resolveZaakAfzenderMail(
-                convertZaakAfzenders(
-                    zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid()).zaakAfzenders
-                ).stream()
+                zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid())
+                    .zaakAfzenders
+                    .toRestZaakAfzenders()
             )
         )
     }
@@ -1295,25 +1293,25 @@ class ZaakRestService @Inject constructor(
     }
 
     private fun resolveZaakAfzenderMail(
-        afzenders: Stream<RestZaakAfzender>
-    ): Stream<RestZaakAfzender> {
-        return afzenders.peek { afzender ->
-            afzender.mail?.let {
-                speciaalMail(it)?.let { speciaal ->
-                    afzender.suffix = "gegevens.mail.afzender.$speciaal"
-                    afzender.mail = resolveMail(speciaal)
-                }
+        restZaakAfzenders: List<RestZaakAfzender>
+    ): List<RestZaakAfzender> = restZaakAfzenders.mapNotNull { restZaakAfzender ->
+            restZaakAfzender.mail?.let { mail ->
+                val specialMail = speciaalMail(mail)
+                RestZaakAfzender(
+                    id = restZaakAfzender.id,
+                    mail = specialMail?.let { resolveSpecialMail(it) } ?: mail,
+                    suffix = specialMail?.let { "gegevens.mail.afzender.$specialMail" },
+                    replyTo = restZaakAfzender.replyTo?.let { replyTo ->
+                        speciaalMail(replyTo)?.let { resolveSpecialMail(it) } ?: replyTo
+                    }
+                )
             }
-            afzender.replyTo = afzender.replyTo?.let { replyTo ->
-                speciaalMail(replyTo)?.let { resolveMail(it) } ?: replyTo
-            }
-        }.filter { it.mail != null }
-    }
+        }
 
-    private fun resolveMail(speciaal: Speciaal) =
-        when (speciaal) {
-            Speciaal.GEMEENTE -> configuratieService.readGemeenteMail()
-            Speciaal.MEDEWERKER -> loggedInUserInstance.get().email
+    private fun resolveSpecialMail(specialMail: SpecialMail) =
+        when (specialMail) {
+            SpecialMail.GEMEENTE -> configuratieService.readGemeenteMail()
+            SpecialMail.MEDEWERKER -> loggedInUserInstance.get().email
         }
 
     private fun verlengOpenTaken(zaakUUID: UUID, durationDays: Long): Int =
@@ -1354,27 +1352,26 @@ class ZaakRestService @Inject constructor(
     }
 
     private fun sortAndRemoveDuplicateAfzenders(
-        afzenders: Stream<RestZaakAfzender>
+        afzenders: List<RestZaakAfzender>
     ): List<RestZaakAfzender> {
-        val list = afzenders.sorted { a, b ->
-            // TODO: fix null handling
-            val result: Int = a.mail?.compareTo(b.mail!!) ?: 0
+        val list = afzenders.stream().sorted { a, b ->
+            val result: Int = (a.mail ?: "").compareTo(b.mail ?: "")
             if (result == 0) if (a.defaultMail) -1 else 0 else result
-        }.collect(Collectors.toList())
-        val i = list.iterator()
+        }
+        val iterator = list.iterator()
         var previous: String? = null
-        while (i.hasNext()) {
-            val afzender: RestZaakAfzender = i.next()
+        while (iterator.hasNext()) {
+            val afzender: RestZaakAfzender = iterator.next()
             if (afzender.mail == previous) {
-                i.remove()
+                iterator.remove()
             } else {
                 previous = afzender.mail
             }
         }
-        return list
+        return list.toList()
     }
 
-    private fun speciaalMail(mail: String): Speciaal? = if (!mail.contains("@")) Speciaal.valueOf(mail) else null
+    private fun speciaalMail(mail: String): SpecialMail? = if (!mail.contains("@")) SpecialMail.valueOf(mail) else null
 
     private fun assertCanAddBetrokkene(restZaak: RestZaak) {
         restZaak.initiatorIdentificatieType?.let {
