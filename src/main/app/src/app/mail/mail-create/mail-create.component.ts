@@ -51,7 +51,7 @@ export class MailCreateComponent implements OnInit {
   fields: Array<AbstractFormField[]>;
   ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
 
-  verzenderFormField: SelectFormField<GeneratedType<"RESTZaakAfzender">>;
+  verzenderFormField: SelectFormField<GeneratedType<"RestZaakAfzender">>;
   ontvangerFormField: InputFormField;
   onderwerpFormField: AbstractFormControlField<string>;
   bodyFormField: AbstractFormControlField<string>;
