@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.2.0"
+kotlin = "2.2.10"
 kotlinx-coroutines = "1.10.2"
 jsonschema2pojo = "1.2.2"
 kotlin-csv = "1.10.0"
