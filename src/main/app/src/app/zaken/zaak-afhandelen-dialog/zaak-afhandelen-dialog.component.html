@@ -25,7 +25,7 @@
       [innerHTML]="data.planItem?.toelichting"
     ></p>
     <p
-      *ngIf="besluitVastleggen"
+      *ngIf="formGroup.controls.resultaattype.value?.besluitVerplicht"
       class="readonly error"
       [innerHTML]="'msg.besluit.verplicht' | translate"
     ></p>
@@ -100,7 +100,7 @@
   </mat-dialog-content>
   <mat-dialog-actions>
     <button
-      *ngIf="!besluitVastleggen"
+      *ngIf="!formGroup.controls.resultaattype.value?.besluitVerplicht"
       mat-raised-button
       color="primary"
       type="submit"
@@ -112,7 +112,7 @@
       {{ "actie.zaak.afhandelen" | translate }}
     </button>
     <button
-      *ngIf="besluitVastleggen"
+      *ngIf="formGroup.controls.resultaattype.value?.besluitVerplicht"
       mat-raised-button
       color="primary"
       (click)="openBesluitVastleggen()"

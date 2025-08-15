@@ -24,7 +24,6 @@ import { ZakenService } from "../zaken.service";
 export class ZaakAfhandelenDialogComponent {
   loading = false;
   sendMailDefault = false;
-  besluitVastleggen = false;
   mailtemplate?: GeneratedType<"RESTMailtemplate">;
   initiatorEmail?: string;
 
@@ -113,19 +112,28 @@ export class ZaakAfhandelenDialogComponent {
     this.formGroup.controls.resultaattype.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
-        this.besluitVastleggen = value?.besluitVerplicht ?? false;
-        if (this.besluitVastleggen) {
+        if (value?.besluitVerplicht) {
           this.formGroup.controls.toelichting.disable();
           this.formGroup.controls.sendMail.disable();
           this.formGroup.controls.verzender.disable();
           this.formGroup.controls.ontvanger.disable();
-          return;
+        } else {
+          this.formGroup.controls.toelichting.enable();
+          this.formGroup.controls.sendMail.enable();
+          this.formGroup.controls.verzender.enable();
+          this.formGroup.controls.ontvanger.enable();
         }
 
-        this.formGroup.controls.toelichting.enable();
-        this.formGroup.controls.sendMail.enable();
-        this.formGroup.controls.verzender.enable();
-        this.formGroup.controls.ontvanger.enable();
+        if (value?.datumKenmerkVerplicht) {
+          this.formGroup.controls.brondatumEigenschap.addValidators([
+            Validators.required,
+          ]);
+        } else {
+          this.formGroup.controls.brondatumEigenschap.removeValidators([
+            Validators.required,
+          ]);
+        }
+        this.formGroup.controls.brondatumEigenschap.updateValueAndValidity();
       });
   }
 
@@ -174,15 +182,15 @@ export class ZaakAfhandelenDialogComponent {
         resultaatToelichting: values.toelichting,
         restMailGegevens:
           values.sendMail && this.mailtemplate
-            ? {
-                verzender: values.verzender?.mail,
-                replyTo: values.verzender?.replyTo,
+            ? ({
+                verzender: values.verzender?.mail ?? undefined,
+                replyTo: values.verzender?.replyTo ?? undefined,
                 ontvanger: values.ontvanger ?? undefined,
                 onderwerp: this.mailtemplate.onderwerp,
                 body: this.mailtemplate.body,
                 createDocumentFromMail: true,
-              }
-            : null,
+              } satisfies GeneratedType<"RESTMailGegevens">)
+            : undefined,
         brondatumEigenschap: values.brondatumEigenschap?.toISOString() ?? null,
       })
       .subscribe({
