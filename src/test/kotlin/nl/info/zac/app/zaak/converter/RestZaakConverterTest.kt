@@ -106,10 +106,10 @@ class RestZaakConverterTest : BehaviorSpec({
             every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns false
             every { readZaakdata(zaak.uuid) } returns zaakdata
         }
-        every { restGroupConverter.convertGroupId(rolOrganisatorischeEenheid.identificatienummer) } returns restGroup
+        every { restGroupConverter.convertGroupId(rolOrganisatorischeEenheid.identificatienummer!!) } returns restGroup
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
         every { restDecisionConverter.convertToRestDecision(besluit) } returns restBesluit
-        every { restUserConverter.convertUserId(rolMedewerker.identificatienummer) } returns restUser
+        every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isProcessDriven(zaak.uuid) } returns false
 
@@ -268,10 +268,10 @@ class RestZaakConverterTest : BehaviorSpec({
         with(zaakVariabelenService) {
             every { readZaakdata(zaak.uuid) } returns zaakdata
         }
-        every { restGroupConverter.convertGroupId(rolOrganistorischeEenheid.identificatienummer) } returns restGroup
+        every { restGroupConverter.convertGroupId(rolOrganistorischeEenheid.identificatienummer!!) } returns restGroup
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
         every { restDecisionConverter.convertToRestDecision(besluit) } returns restBesluit
-        every { restUserConverter.convertUserId(rolMedewerker.identificatienummer) } returns restUser
+        every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isProcessDriven(zaak.uuid) } returns false
 
@@ -328,10 +328,10 @@ class RestZaakConverterTest : BehaviorSpec({
         with(zaakVariabelenService) {
             every { readZaakdata(zaak.uuid) } returns zaakdata
         }
-        every { restGroupConverter.convertGroupId(rolOrganistorischeEenheid.identificatienummer) } returns restGroup
+        every { restGroupConverter.convertGroupId(rolOrganistorischeEenheid.identificatienummer!!) } returns restGroup
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
         every { restDecisionConverter.convertToRestDecision(besluit) } returns restBesluit
-        every { restUserConverter.convertUserId(rolMedewerker.identificatienummer) } returns restUser
+        every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isProcessDriven(zaak.uuid) } returns false
 

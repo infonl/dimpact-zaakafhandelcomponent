@@ -30,6 +30,12 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Resultaat
+import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
+import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
+import nl.info.client.zgw.ztc.model.generated.Eigenschap
+import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.zac.admin.model.createHumanTaskParameters
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.app.planitems.converter.RESTPlanItemConverter
@@ -62,6 +68,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val planItemConverter = mockk<RESTPlanItemConverter>()
     val zgwApiService = mockk<ZGWApiService>()
+    val ztcClientService = mockk<ZtcClientService>()
     val indexingService = mockk<IndexingService>()
     val mailService = mockk<MailService>()
     val configuratieService = mockk<ConfiguratieService>()
@@ -79,6 +86,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         zaakafhandelParameterService,
         planItemConverter,
         zgwApiService,
+        ztcClientService,
         indexingService,
         mailService,
         configuratieService,
@@ -358,6 +366,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         val zaak = createZaak(
             resultaat = URI("https://example.com/resultaat/${UUID.randomUUID()}"),
         )
+
         val mailGegevens = createMailGegevens()
         val resultaat = createResultaat()
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
@@ -385,6 +394,61 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             Then("the zaak is settled and the email is sent") {
                 verify(exactly = 1) {
                     mailService.sendMail(mailGegevens, any<Bronnen>())
+                }
+            }
+        }
+    }
+
+    Given("Zaak exists with resultaattype that has afleidingswijze EIGENSCHAP") {
+        val zaak = createZaak(
+            resultaat = null,
+        )
+        val resultaattypeUuid = UUID.randomUUID()
+        val datumkenmerk = "testDatumkenmerk"
+        val brondatumEigenschap = "20231201" // YYYYMMDD format
+
+        val brondatumArchiefprocedure = BrondatumArchiefprocedure().apply {
+            afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP
+        }
+        brondatumArchiefprocedure.datumkenmerk = datumkenmerk
+
+        val resultaattype = ResultaatType().apply {
+            this.brondatumArchiefprocedure = brondatumArchiefprocedure
+        }
+
+        val eigenschap = Eigenschap()
+
+        val restUserEventListenerData = createRESTUserEventListenerData(
+            zaakUuid = zaak.uuid,
+            actie = UserEventListenerActie.ZAAK_AFHANDELEN,
+            restMailGegevens = null,
+            resultaattypeUuid = resultaattypeUuid,
+            brondatumEigenschap = brondatumEigenschap
+        )
+
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+        every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
+        every { brcClientService.listBesluiten(zaak) } returns emptyList()
+
+        every { ztcClientService.readResultaattype(resultaattypeUuid) } returns resultaattype
+        every { zgwApiService.createResultaatForZaak(zaak, restUserEventListenerData.resultaattypeUuid!!, null) } just runs
+        every { ztcClientService.readEigenschap(zaak.zaaktype, datumkenmerk) } returns eigenschap
+        every { zrcClientService.createEigenschap(zaak.uuid, any()) } returns ZaakEigenschap()
+
+        When("A user event to settle the zaak with eigenschap afleidingswijze is executed") {
+            planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+
+            Then("the eigenschap is created with correct values") {
+                verify(exactly = 1) {
+                    zrcClientService.createEigenschap(
+                        zaak.uuid,
+                        match {
+                            it.eigenschap == eigenschap.url &&
+                                it.zaak == zaak.url &&
+                                it.waarde == brondatumEigenschap
+                        }
+                    )
                 }
             }
         }

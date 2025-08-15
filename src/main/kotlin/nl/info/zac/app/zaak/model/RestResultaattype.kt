@@ -7,6 +7,7 @@ package nl.info.zac.app.zaak.model
 import net.atos.zac.util.time.PeriodUtil
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
+import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -20,11 +21,13 @@ data class RestResultaattype(
     var naam: String? = null,
     var naamGeneriek: String? = null,
     var vervaldatumBesluitVerplicht: Boolean,
+    var datumKenmerkVerplicht: Boolean,
     var besluitVerplicht: Boolean,
     var toelichting: String? = null,
     var archiefNominatie: String? = null,
     var archiefTermijn: String? = null,
     var selectielijst: String? = null,
+    var bronArchiefprocedure: BrondatumArchiefprocedure? = null,
 )
 
 fun ResultaatType.toRestResultaatType() = RestResultaattype(
@@ -36,8 +39,10 @@ fun ResultaatType.toRestResultaatType() = RestResultaattype(
     archiefTermijn = this.archiefactietermijn?.let {
         PeriodUtil.format(Period.parse(it))
     },
+    bronArchiefprocedure = this.brondatumArchiefprocedure,
     besluitVerplicht = this.isBesluitVerplicht(),
-    vervaldatumBesluitVerplicht = this.isVervaldatumBesluitVerplicht()
+    vervaldatumBesluitVerplicht = this.isVervaldatumBesluitVerplicht(),
+    datumKenmerkVerplicht = this.isDatumKenmerkVerplicht()
 )
 
 fun List<ResultaatType>.toRestResultaatTypes(): List<RestResultaattype> = this.map { it.toRestResultaatType() }
@@ -48,4 +53,8 @@ fun ResultaatType.isBesluitVerplicht() = brondatumArchiefprocedure?.afleidingswi
 
 fun ResultaatType.isVervaldatumBesluitVerplicht() = brondatumArchiefprocedure?.afleidingswijze?.let {
     it == AfleidingswijzeEnum.VERVALDATUM_BESLUIT
+} == true
+
+fun ResultaatType.isDatumKenmerkVerplicht() = brondatumArchiefprocedure?.afleidingswijze?.let {
+    it == AfleidingswijzeEnum.EIGENSCHAP
 } == true

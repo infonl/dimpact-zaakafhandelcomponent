@@ -50,6 +50,18 @@
       "datasourceTemplate": "java-version",
       "depNameTemplate": "java-jre",
       "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)[+]"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/workflows/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+	"version: (?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+) # helm version updated by renovate"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "helm/helm",
+      "versioningTemplate": "semver"
     }
   ],
   "packageRules": [
