@@ -4,7 +4,7 @@
  */
 
 import { Injectable } from "@angular/core";
-import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
+import {PostBody, PutBody, ZacHttpClient} from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
@@ -33,8 +33,14 @@ export class MailtemplateBeheerService {
     });
   }
 
-  persistMailtemplate(body: PutBody<"/rest/beheer/mailtemplates">) {
-    return this.zacHttpClient.PUT("/rest/beheer/mailtemplates", body);
+  createMailtemplate(body: PostBody<"/rest/beheer/mailtemplates">) {
+    return this.zacHttpClient.POST("/rest/beheer/mailtemplates", body);
+  }
+
+  updateMailtemplate(id: number, body: PutBody<"/rest/beheer/mailtemplates/{id}"> ) {
+    return this.zacHttpClient.PUT("/rest/beheer/mailtemplates/{id}", body, {
+      path: { id },
+    });
   }
 
   ophalenVariabelenVoorMail(mail: GeneratedType<"Mail">) {

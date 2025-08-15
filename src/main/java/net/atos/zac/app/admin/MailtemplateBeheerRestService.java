@@ -114,15 +114,7 @@ public class MailtemplateBeheerRestService {
         // MailTemplateNotFoundException is already thrown by service and maps to 404
     }
 
-    @PUT
-    @Path("")
-    @Deprecated
-    public RESTMailtemplate persistMailtemplate(final RESTMailtemplate mailtemplate) {
-        assertPolicy(policyService.readOverigeRechten().getBeheren());
-        return RESTMailtemplateConverter.convert(
-                mailTemplateService.storeMailtemplate(RESTMailtemplateConverter.convert(mailtemplate))
-        );
-    }
+
 
     @GET
     @Path("variabelen/{mail}")

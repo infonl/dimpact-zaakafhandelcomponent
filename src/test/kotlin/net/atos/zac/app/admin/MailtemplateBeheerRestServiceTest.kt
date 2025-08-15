@@ -37,54 +37,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("REST mail templates can be persisted") {
-        Given(
-            """
-                A REST mail template for a 'ZAAK_ALGEMEEN' email with a subject that includes HTML paragraph tags
-                and 'beheren' rechten
-                """
-        ) {
-            val restMailTemplate = createRestMailTemplate(
-                mail = Mail.ZAAK_ALGEMEEN,
-                subject = "fake<p>Subject</p>",
-            )
-            val storedMailTemplate = createMailTemplate(mail = Mail.ZAAK_ALGEMEEN)
-            val mailTemplateSlot = slot<MailTemplate>()
-            every { policyService.readOverigeRechten().beheren } returns true
-            every { mailTemplateService.storeMailtemplate(capture(mailTemplateSlot)) } returns storedMailTemplate
 
-            When("the mail template is persisted") {
-                val storedRestMailTemplate = mailtemplateBeheerRestService.persistMailtemplate(restMailTemplate)
-
-                Then(
-                    """
-                    the mail template service should be called to persist the template with the HTML paragraph tags stripped
-                    from the subject
-                    """
-                ) {
-                    with(mailTemplateSlot.captured) {
-                        id shouldBe restMailTemplate.id
-                        mailTemplateNaam shouldBe restMailTemplate.mailTemplateNaam
-                        onderwerp shouldBe "fakeSubject"
-                        body shouldBe restMailTemplate.body
-                        mail shouldBe restMailTemplate.mail
-                        isDefaultMailtemplate shouldBe restMailTemplate.defaultMailtemplate
-                    }
-                }
-
-                And("the stored REST mail template should be returned") {
-                    with(storedRestMailTemplate) {
-                        id shouldBe storedMailTemplate.id
-                        mailTemplateNaam shouldBe storedMailTemplate.mailTemplateNaam
-                        onderwerp shouldBe storedMailTemplate.onderwerp
-                        body shouldBe storedMailTemplate.body
-                        mail shouldBe storedMailTemplate.mail
-                        defaultMailtemplate shouldBe storedMailTemplate.isDefaultMailtemplate
-                    }
-                }
-            }
-        }
-    }
 
     Context("Creating new mail templates via POST endpoint") {
         Given("A REST mail template without ID and 'beheren' rechten") {
@@ -234,4 +187,6 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
             }
         }
     }
+
+
 })
