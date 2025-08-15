@@ -14,11 +14,13 @@ import jakarta.inject.Singleton;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import net.atos.zac.app.admin.converter.RESTMailtemplateConverter;
 import net.atos.zac.app.admin.model.RESTMailtemplate;
@@ -77,8 +79,30 @@ public class MailtemplateBeheerRestService {
         mailTemplateService.delete(id);
     }
 
+    @POST
+    @Path("")
+    public Response createMailtemplate(final RESTMailtemplate mailtemplate) {
+        assertPolicy(policyService.readOverigeRechten().getBeheren());
+        final MailTemplate createdTemplate = mailTemplateService.createMailtemplate(
+                RESTMailtemplateConverter.convertForCreate(mailtemplate)
+        );
+        final RESTMailtemplate response = RESTMailtemplateConverter.convert(createdTemplate);
+        return Response.status(Response.Status.CREATED).entity(response).build();
+    }
+
+    @PUT
+    @Path("{id}")
+    public RESTMailtemplate updateMailtemplate(@PathParam("id") final long id, final RESTMailtemplate mailtemplate) {
+        assertPolicy(policyService.readOverigeRechten().getBeheren());
+        final MailTemplate updatedTemplate = mailTemplateService.updateMailtemplate(
+                id, RESTMailtemplateConverter.convertForUpdate(mailtemplate)
+        );
+        return RESTMailtemplateConverter.convert(updatedTemplate);
+    }
+
     @PUT
     @Path("")
+    @Deprecated
     public RESTMailtemplate persistMailtemplate(final RESTMailtemplate mailtemplate) {
         assertPolicy(policyService.readOverigeRechten().getBeheren());
         return RESTMailtemplateConverter.convert(

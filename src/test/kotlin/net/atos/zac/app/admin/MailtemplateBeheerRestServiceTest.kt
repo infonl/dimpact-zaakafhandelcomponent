@@ -10,6 +10,8 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import io.mockk.verify
+import jakarta.ws.rs.core.Response
 import net.atos.zac.app.admin.model.createRestMailTemplate
 import nl.info.zac.mailtemplates.MailTemplateService
 import nl.info.zac.mailtemplates.model.Mail
@@ -74,6 +76,86 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         mail shouldBe storedMailTemplate.mail.name
                         defaultMailtemplate shouldBe storedMailTemplate.isDefaultMailtemplate
                     }
+                }
+            }
+        }
+    }
+
+    Context("Creating new mail templates via POST endpoint") {
+        Given("A REST mail template without ID and 'beheren' rechten") {
+            val restMailTemplate = createRestMailTemplate(
+                mail = Mail.ZAAK_ALGEMEEN.name,
+                subject = "New<p>Template</p>",
+            ).apply { id = null } // No ID provided for creation
+            val createdMailTemplate = createMailTemplate(
+                id = 123L,
+                mail = Mail.ZAAK_ALGEMEEN
+            )
+            val mailTemplateSlot = slot<MailTemplate>()
+            every { policyService.readOverigeRechten().beheren } returns true
+            every { mailTemplateService.createMailtemplate(capture(mailTemplateSlot)) } returns createdMailTemplate
+
+            When("the mail template is created via POST") {
+                val response = mailtemplateBeheerRestService.createMailtemplate(restMailTemplate)
+
+                Then("the mail template service should be called with convertForCreate") {
+                    verify { mailTemplateService.createMailtemplate(any()) }
+                    with(mailTemplateSlot.captured) {
+                        id shouldBe 0L // Should be 0 for new entities
+                        mailTemplateNaam shouldBe restMailTemplate.mailTemplateNaam
+                        onderwerp shouldBe "NewTemplate" // HTML tags stripped
+                        body shouldBe restMailTemplate.body
+                        mail.name shouldBe restMailTemplate.mail
+                        isDefaultMailtemplate shouldBe restMailTemplate.defaultMailtemplate
+                    }
+                }
+
+                And("it should return HTTP 201 Created with the created template") {
+                    response.status shouldBe Response.Status.CREATED.statusCode
+                    val createdRestTemplate = response.entity as net.atos.zac.app.admin.model.RESTMailtemplate
+                    createdRestTemplate.id shouldBe createdMailTemplate.id
+                    createdRestTemplate.mailTemplateNaam shouldBe createdMailTemplate.mailTemplateNaam
+                }
+            }
+        }
+    }
+
+    Context("Updating existing mail templates via PUT endpoint") {
+        Given("A REST mail template with ID and 'beheren' rechten") {
+            val templateId = 456L
+            val restMailTemplate = createRestMailTemplate(
+                mail = Mail.ZAAK_ALGEMEEN.name,
+                subject = "Updated<p>Template</p>",
+            )
+            val updatedMailTemplate = createMailTemplate(
+                id = templateId,
+                mail = Mail.ZAAK_ALGEMEEN
+            )
+            val idSlot = slot<Long>()
+            val mailTemplateSlot = slot<MailTemplate>()
+            every { policyService.readOverigeRechten().beheren } returns true
+            every { 
+                mailTemplateService.updateMailtemplate(capture(idSlot), capture(mailTemplateSlot)) 
+            } returns updatedMailTemplate
+
+            When("the mail template is updated via PUT") {
+                val updatedRestTemplate = mailtemplateBeheerRestService.updateMailtemplate(templateId, restMailTemplate)
+
+                Then("the mail template service should be called with the correct ID and convertForUpdate") {
+                    verify { mailTemplateService.updateMailtemplate(templateId, any()) }
+                    idSlot.captured shouldBe templateId
+                    with(mailTemplateSlot.captured) {
+                        mailTemplateNaam shouldBe restMailTemplate.mailTemplateNaam
+                        onderwerp shouldBe "UpdatedTemplate" // HTML tags stripped
+                        body shouldBe restMailTemplate.body
+                        mail.name shouldBe restMailTemplate.mail
+                        isDefaultMailtemplate shouldBe restMailTemplate.defaultMailtemplate
+                    }
+                }
+
+                And("it should return the updated template") {
+                    updatedRestTemplate.id shouldBe updatedMailTemplate.id
+                    updatedRestTemplate.mailTemplateNaam shouldBe updatedMailTemplate.mailTemplateNaam
                 }
             }
         }
