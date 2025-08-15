@@ -4,6 +4,7 @@
  */
 package net.atos.zac.app.admin.model
 
+import net.atos.zac.app.admin.model.RESTMailtemplate
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplateVariables
 
