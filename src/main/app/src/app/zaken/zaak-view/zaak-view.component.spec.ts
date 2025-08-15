@@ -40,29 +40,13 @@ import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.comp
 import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZakenService } from "../zaken.service";
 import { ZaakViewComponent } from "./zaak-view.component";
-import {MatIconHarness} from "@angular/material/icon/testing";
+import { MatIconHarness } from "@angular/material/icon/testing";
+import { MatDialog, MatDialogRef } from "@angular/material/dialog";
+import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 
 describe(ZaakViewComponent.name, () => {
   let fixture: ComponentFixture<ZaakViewComponent>;
   let loader: HarnessLoader;
-
-  // @Component({
-  //   selector: "zac-static-text",
-  //   template: `
-  //     <mat-icon
-  //       *ngIf="icon"
-  //       [ngClass]="icon.styleClass"
-  //       [attr.title]="icon.title"
-  //     >
-  //       {{ icon.icon }}
-  //     </mat-icon>
-  //   `,
-  // })
-  // class ZacStaticTextStub {
-  //   @Input() icon: unknown;
-  //   @Input() value!: string;
-  //   @Input() label!: string;
-  // }
 
   let utilService: UtilService;
   let zakenService: ZakenService;
@@ -103,20 +87,20 @@ describe(ZaakViewComponent.name, () => {
     await TestBed.configureTestingModule({
       declarations: [
         ZaakViewComponent,
-        // ZacStaticTextStub,
         ZaakIndicatiesComponent,
         ZaakDocumentenComponent,
         NotitiesComponent,
         SideNavComponent,
         PersoonsgegevensComponent,
+        StaticTextComponent,
         ZaakInitiatorToevoegenComponent,
       ],
       imports: [
         TranslateModule.forRoot(),
-        NoopAnimationsModule,
         PipesModule,
         MaterialModule,
         VertrouwelijkaanduidingToTranslationKeyPipe,
+        NoopAnimationsModule,
       ],
       providers: [
         provideHttpClient(),
@@ -142,7 +126,7 @@ describe(ZaakViewComponent.name, () => {
     jest
       .spyOn(zakenService, "readOpschortingZaak")
       .mockReturnValue(
-        of(fromPartial<GeneratedType<"RESTZaakOpschorting">>({})),
+        of(fromPartial<GeneratedType<"RESTZaakOpschorting">>({}))
       );
 
     bagService = TestBed.inject(BAGService);
@@ -178,12 +162,12 @@ describe(ZaakViewComponent.name, () => {
     jest.spyOn(websocketService, "suspendListener").mockImplementation();
 
     zaakafhandelParametersService = TestBed.inject(
-      ZaakafhandelParametersService,
+      ZaakafhandelParametersService
     );
     jest
       .spyOn(
         zaakafhandelParametersService,
-        "listZaakbeeindigRedenenForZaaktype",
+        "listZaakbeeindigRedenenForZaaktype"
       )
       .mockReturnValue(of([]));
 
@@ -218,12 +202,12 @@ describe(ZaakViewComponent.name, () => {
     } satisfies GeneratedType<"RestZaak">;
 
     beforeEach(() => {
-      mockActivatedRoute.data.next({zaak: opschortenZaak});
+      mockActivatedRoute.data.next({ zaak: opschortenZaak });
     });
 
     it("should show the button", async () => {
       const button = await loader.getHarness(
-          MatNavListItemHarness.with({title: "actie.zaak.opschorten"}),
+        MatNavListItemHarness.with({ title: "actie.zaak.opschorten" })
       );
       expect(button).toBeTruthy();
     });
@@ -240,7 +224,7 @@ describe(ZaakViewComponent.name, () => {
 
       it("should not show the button", async () => {
         const button = await loader.getHarnessOrNull(
-            MatNavListItemHarness.with({title: "actie.zaak.opschorten"}),
+          MatNavListItemHarness.with({ title: "actie.zaak.opschorten" })
         );
         expect(button).toBeNull();
       });
@@ -264,30 +248,67 @@ describe(ZaakViewComponent.name, () => {
       await fixture.whenStable();
     });
 
-    it.each([
-      [ {einddatum: undefined, einddatumGepland: undefined, uiterlijkeEinddatumAfdoening: yesterdayDate}, 1],
-      // [ {einddatum: undefined, einddatumGepland: yesterdayDate, uiterlijkeEinddatumAfdoening: yesterdayDate}, 2],
-      // [ {einddatum: undefined, einddatumGepland: undefined, uiterlijkeEinddatumAfdoening: yesterdayDate}, 1],
-      // [ {einddatum: undefined, einddatumGepland: undefined, uiterlijkeEinddatumAfdoening: undefined}, 0],
-      // [ {einddatum: undefined, einddatumGepland: tomorrowDate, uiterlijkeEinddatumAfdoening: tomorrowDate}, 0],
-      // [ {einddatum: today, einddatumGepland: tomorrowDate, uiterlijkeEinddatumAfdoening: tomorrowDate}, 0],
-    ])("shows the correct warning icons for overdue data", async (zaakData, expectedIcons) => {
-      mockActivatedRoute.data.next({ zaak: {...zaak, ...zaakData } });
-      
-      component.zaak = { ...zaak, ...zaakData } as GeneratedType<"RestZaak">;
+    it.only.each([
+      [
+        {
+          einddatum: undefined,
+          einddatumGepland: undefined,
+          uiterlijkeEinddatumAfdoening: yesterdayDate,
+        },
+        1,
+      ],
+      [
+        {
+          einddatum: undefined,
+          einddatumGepland: yesterdayDate,
+          uiterlijkeEinddatumAfdoening: yesterdayDate,
+        },
+        2,
+      ],
+      [
+        {
+          einddatum: undefined,
+          einddatumGepland: undefined,
+          uiterlijkeEinddatumAfdoening: yesterdayDate,
+        },
+        1,
+      ],
+      [
+        {
+          einddatum: undefined,
+          einddatumGepland: undefined,
+          uiterlijkeEinddatumAfdoening: undefined,
+        },
+        0,
+      ],
+      [
+        {
+          einddatum: undefined,
+          einddatumGepland: tomorrowDate,
+          uiterlijkeEinddatumAfdoening: tomorrowDate,
+        },
+        0,
+      ],
+      [
+        {
+          einddatum: today,
+          einddatumGepland: tomorrowDate,
+          uiterlijkeEinddatumAfdoening: tomorrowDate,
+        },
+        0,
+      ],
+    ])(
+      "shows the correct warning icons for overdue data",
+      async (zaakData, expectedIcons) => {
+        mockActivatedRoute.data.next({ zaak: { ...zaak, ...zaakData } });
 
-      console.log(component.zaak);
+        const icons = await loader.getAllHarnesses(
+          MatIconHarness.with({ name: "report_problem" })
+        );
 
-      component.init(component.zaak);
-
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      const icons = await loader.getAllHarnesses(MatIconHarness.with({ name: 'report_problem' }));
-      console.log('icons: ', icons);
-
-      expect(icons.length).toBe(expectedIcons);
-    })
+        expect(icons.length).toBe(expectedIcons);
+      }
+    );
   });
 
   describe("openPlanItemStartenDialog", () => {
@@ -303,7 +324,7 @@ describe(ZaakViewComponent.name, () => {
     it("should open side menu and set action when dialog returns 'openBesluitVastleggen'", () => {
       const openSpy = jest.spyOn(
         fixture.componentInstance.actionsSidenav,
-        "open",
+        "open"
       );
       jest
         .spyOn(dialogRef, "afterClosed")
@@ -313,7 +334,7 @@ describe(ZaakViewComponent.name, () => {
 
       expect(openSpy).toHaveBeenCalled();
       expect(fixture.componentInstance.activeSideAction).toBe(
-        "actie.besluit.vastleggen",
+        "actie.besluit.vastleggen"
       );
     });
 
@@ -324,7 +345,7 @@ describe(ZaakViewComponent.name, () => {
       fixture.componentInstance.openPlanItemStartenDialog(mockPlanItem);
 
       expect(spy).toHaveBeenCalledWith(
-        "msg.planitem.uitgevoerd.ZAAK_AFHANDELEN",
+        "msg.planitem.uitgevoerd.ZAAK_AFHANDELEN"
       );
       expect(fixture.componentInstance.activeSideAction).toBe(null);
     });

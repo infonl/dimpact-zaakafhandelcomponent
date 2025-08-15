@@ -65,7 +65,7 @@ export class MailCreateComponent implements OnInit {
     private mailtemplateService: MailtemplateService,
     private klantenService: KlantenService,
     public takenService: TakenService,
-    public utilService: UtilService,
+    public utilService: UtilService
   ) {}
 
   ngOnInit(): void {
@@ -79,7 +79,7 @@ export class MailCreateComponent implements OnInit {
 
     const mailtemplate = this.mailtemplateService.findMailtemplate(
       "ZAAK_ALGEMEEN",
-      this.zaak.uuid,
+      this.zaak.uuid
     );
 
     const documenten =
@@ -134,7 +134,7 @@ export class MailCreateComponent implements OnInit {
             const initiatorToevoegenIcon = new ActionIcon(
               "person",
               "actie.initiator.email.toevoegen",
-              new Subject<void>(),
+              new Subject<void>()
             );
             if (Array.isArray(this.ontvangerFormField.icons)) {
               this.ontvangerFormField.icons.push(initiatorToevoegenIcon);

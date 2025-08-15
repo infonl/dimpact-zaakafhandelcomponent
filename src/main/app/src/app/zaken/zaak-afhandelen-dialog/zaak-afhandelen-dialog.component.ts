@@ -54,13 +54,13 @@ export class ZaakAfhandelenDialogComponent {
     private readonly zakenService: ZakenService,
     private readonly planItemsService: PlanItemsService,
     private readonly mailtemplateService: MailtemplateService,
-    private readonly klantenService: KlantenService,
+    private readonly klantenService: KlantenService
   ) {
     this.resultaattypes = this.zakenService.listResultaattypes(
-      this.data.zaak.zaaktype.uuid,
+      this.data.zaak.zaaktype.uuid
     );
     this.afzenders = this.zakenService.listAfzendersVoorZaak(
-      this.data.zaak.uuid,
+      this.data.zaak.uuid
     );
     this.mailtemplateService
       .findMailtemplate("ZAAK_AFGEHANDELD", this.data.zaak.uuid)
@@ -102,10 +102,10 @@ export class ZaakAfhandelenDialogComponent {
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
         this.formGroup.controls.verzender.setValidators(
-          value ? [Validators.required] : null,
+          value ? [Validators.required] : null
         );
         this.formGroup.controls.ontvanger.setValidators(
-          value ? [Validators.required, CustomValidators.email] : null,
+          value ? [Validators.required, CustomValidators.email] : null
         );
         this.formGroup.updateValueAndValidity();
       });
