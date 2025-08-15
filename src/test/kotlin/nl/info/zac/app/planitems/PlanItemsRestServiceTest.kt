@@ -420,14 +420,14 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         every { brcClientService.listBesluiten(zaak) } returns emptyList()
 
         every { zgwApiService.createResultaatForZaak(zaak, restUserEventListenerData.resultaattypeUuid!!, null) } just runs
-        every { zaakService.processSpecialBrondatumProcedure(zaak, resultaattypeUuid, any()) } just runs
+        every { zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any()) } just runs
 
         When("the user event listener plan item is processed") {
             planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
 
             Then("the processing of special brondatum procedure is requested") {
                 verify(exactly = 1) {
-                    zaakService.processSpecialBrondatumProcedure(
+                    zaakService.processBrondatumProcedure(
                         zaak,
                         resultaattypeUuid,
                         match {

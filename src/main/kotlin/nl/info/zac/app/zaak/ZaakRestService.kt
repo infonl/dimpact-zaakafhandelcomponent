@@ -757,7 +757,7 @@ class ZaakRestService @Inject constructor(
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak, zaakType).behandelen)
 
-        zaakService.processSpecialBrondatumProcedure(
+        zaakService.processBrondatumProcedure(
             zaak,
             afsluitenGegevens.resultaattypeUuid,
             BrondatumArchiefprocedure().apply {

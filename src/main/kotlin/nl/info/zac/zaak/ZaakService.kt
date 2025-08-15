@@ -364,7 +364,7 @@ class ZaakService @Inject constructor(
         zrcClientService.createRol(role, explanation)
     }
 
-    fun processSpecialBrondatumProcedure(zaak: Zaak, resultaatTypeUUID: UUID, brondatumArchiefprocedure: BrondatumArchiefprocedure) {
+    fun processBrondatumProcedure(zaak: Zaak, resultaatTypeUUID: UUID, brondatumArchiefprocedure: BrondatumArchiefprocedure) {
         val resultaattype = ztcClientService.readResultaattype(resultaatTypeUUID)
 
         when (resultaattype.brondatumArchiefprocedure.afleidingswijze) {

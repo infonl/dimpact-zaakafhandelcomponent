@@ -269,7 +269,7 @@ class PlanItemsRestService @Inject constructor(
         }
 
         userEventListenerData.resultaattypeUuid?.let { resultaattypeUUID ->
-            zaakService.processSpecialBrondatumProcedure(
+            zaakService.processBrondatumProcedure(
                 zaak, resultaattypeUUID,
                 BrondatumArchiefprocedure().apply {
                     this.datumkenmerk = userEventListenerData.brondatumEigenschap

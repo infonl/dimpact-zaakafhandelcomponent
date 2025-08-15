@@ -991,8 +991,8 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(existingZaakEigenschap)
             every { zrcClientService.updateZaakeigenschap(any(), any(), any()) } returns existingZaakEigenschap
 
-            When("processSpecialBrondatumProcedure is called with existing zaakeigenschap") {
-                zaakService.processSpecialBrondatumProcedure(zaak, resultaatTypeUUID, brondatumArchiefprocedure)
+            When("processBrondatumProcedure is called with existing zaakeigenschap") {
+                zaakService.processBrondatumProcedure(zaak, resultaatTypeUUID, brondatumArchiefprocedure)
 
                 Then("it should update the existing zaakeigenschap") {
                     verify { zrcClientService.updateZaakeigenschap(zaak.uuid, existingZaakEigenschap.uuid, any()) }
@@ -1021,8 +1021,8 @@ class ZaakServiceTest : BehaviorSpec({
             every { ztcClientService.readEigenschap(zaak.zaaktype, brondatumArchiefprocedure.datumkenmerk) } returns eigenschap
             every { zrcClientService.createEigenschap(any(), any()) } returns mockk()
 
-            When("processSpecialBrondatumProcedure is called with non-existing zaakeigenschap") {
-                zaakService.processSpecialBrondatumProcedure(zaak, resultaatTypeUUID, brondatumArchiefprocedure)
+            When("processBrondatumProcedure is called with non-existing zaakeigenschap") {
+                zaakService.processBrondatumProcedure(zaak, resultaatTypeUUID, brondatumArchiefprocedure)
 
                 Then("it should create a new zaakeigenschap") {
                     verify { zrcClientService.createEigenschap(zaak.uuid, any()) }
