@@ -32,9 +32,7 @@ import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_ID
 import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_REASON
-import net.atos.zac.admin.model.ZaakAfzender.Speciaal
-import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
-import net.atos.zac.app.admin.model.RESTZaakAfzender
+import net.atos.zac.admin.model.ZaakAfzender.SpecialMail
 import net.atos.zac.app.bag.converter.RestBagConverter
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
@@ -64,6 +62,8 @@ import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
+import nl.info.zac.app.admin.model.RestZaakAfzender
+import nl.info.zac.app.admin.model.toRestZaakAfzenders
 import nl.info.zac.app.decision.DecisionService
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.converter.RestDecisionConverter
@@ -137,8 +137,6 @@ import org.apache.commons.collections4.CollectionUtils
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
-import java.util.stream.Collectors
-import java.util.stream.Stream
 
 @Path("zaken")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -902,13 +900,13 @@ class ZaakRestService @Inject constructor(
      */
     @GET
     @Path("zaak/{uuid}/afzender")
-    fun listAfzendersVoorZaak(@PathParam("uuid") zaakUUID: UUID): List<RESTZaakAfzender> {
+    fun listAfzendersVoorZaak(@PathParam("uuid") zaakUUID: UUID): List<RestZaakAfzender> {
         val zaak = zrcClientService.readZaak(zaakUUID)
         return sortAndRemoveDuplicateAfzenders(
             resolveZaakAfzenderMail(
-                RESTZaakAfzenderConverter.convertZaakAfzenders(
-                    zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid()).zaakAfzenders
-                ).stream()
+                zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid())
+                    .zaakAfzenders
+                    .toRestZaakAfzenders()
             )
         )
     }
@@ -921,13 +919,8 @@ class ZaakRestService @Inject constructor(
      */
     @GET
     @Path("zaak/{uuid}/afzender/default")
-    fun readDefaultAfzenderVoorZaak(@PathParam("uuid") zaakUUID: UUID): RESTZaakAfzender? {
-        val zaak = zrcClientService.readZaak(zaakUUID)
-        return zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid())
-            .zaakAfzenders
-            .firstOrNull { it.isDefault }
-            ?.let(RESTZaakAfzenderConverter::convertZaakAfzender)
-    }
+    fun readDefaultAfzenderVoorZaak(@PathParam("uuid") zaakUUID: UUID): RestZaakAfzender? =
+        listAfzendersVoorZaak(zaakUUID).firstOrNull { it.defaultMail }
 
     @GET
     @Path("besluit/zaakUuid/{zaakUuid}")
@@ -1306,23 +1299,27 @@ class ZaakRestService @Inject constructor(
     }
 
     private fun resolveZaakAfzenderMail(
-        afzenders: Stream<RESTZaakAfzender>
-    ): Stream<RESTZaakAfzender> {
-        return afzenders.peek { afzender ->
-            speciaalMail(afzender.mail)?.let { speciaal ->
-                afzender.suffix = "gegevens.mail.afzender.$speciaal"
-                afzender.mail = resolveMail(speciaal)
-            }
-            afzender.replyTo = afzender.replyTo?.let { replyTo ->
-                speciaalMail(replyTo)?.let { resolveMail(it) } ?: replyTo
-            }
-        }.filter { it.mail != null }
+        restZaakAfzenders: List<RestZaakAfzender>
+    ): List<RestZaakAfzender> = restZaakAfzenders.mapNotNull { restZaakAfzender ->
+        restZaakAfzender.mail?.let { mail ->
+            val specialMail = speciaalMail(mail)
+            RestZaakAfzender(
+                id = restZaakAfzender.id,
+                defaultMail = restZaakAfzender.defaultMail,
+                speciaal = specialMail != null,
+                mail = specialMail?.let { resolveSpecialMail(it) } ?: mail,
+                suffix = specialMail?.let { "gegevens.mail.afzender.$specialMail" },
+                replyTo = restZaakAfzender.replyTo?.let { replyTo ->
+                    speciaalMail(replyTo)?.let { resolveSpecialMail(it) } ?: replyTo
+                }
+            )
+        }
     }
 
-    private fun resolveMail(speciaal: Speciaal) =
-        when (speciaal) {
-            Speciaal.GEMEENTE -> configuratieService.readGemeenteMail()
-            Speciaal.MEDEWERKER -> loggedInUserInstance.get().email
+    private fun resolveSpecialMail(specialMail: SpecialMail) =
+        when (specialMail) {
+            SpecialMail.GEMEENTE -> configuratieService.readGemeenteMail()
+            SpecialMail.MEDEWERKER -> loggedInUserInstance.get().email
         }
 
     private fun verlengOpenTaken(zaakUUID: UUID, durationDays: Long): Int =
@@ -1363,26 +1360,16 @@ class ZaakRestService @Inject constructor(
     }
 
     private fun sortAndRemoveDuplicateAfzenders(
-        afzenders: Stream<RESTZaakAfzender>
-    ): List<RESTZaakAfzender> {
-        val list = afzenders.sorted { a, b ->
-            val result: Int = a.mail.compareTo(b.mail)
-            if (result == 0) if (a.defaultMail) -1 else 0 else result
-        }.collect(Collectors.toList())
-        val i = list.iterator()
-        var previous: String? = null
-        while (i.hasNext()) {
-            val afzender: RESTZaakAfzender = i.next()
-            if (afzender.mail == previous) {
-                i.remove()
-            } else {
-                previous = afzender.mail
-            }
-        }
-        return list
-    }
+        afzenders: List<RestZaakAfzender>
+    ): List<RestZaakAfzender> =
+        afzenders
+            .sortedWith(
+                compareBy<RestZaakAfzender> { it.mail ?: "" }
+                    .thenByDescending { it.defaultMail }
+            )
+            .distinctBy { it.mail }
 
-    private fun speciaalMail(mail: String): Speciaal? = if (!mail.contains("@")) Speciaal.valueOf(mail) else null
+    private fun speciaalMail(mail: String): SpecialMail? = if (!mail.contains("@")) SpecialMail.valueOf(mail) else null
 
     private fun assertCanAddBetrokkene(restZaak: RestZaak) {
         restZaak.initiatorIdentificatieType?.let {

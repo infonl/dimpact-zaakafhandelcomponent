@@ -29,7 +29,7 @@ export class ZaakAfhandelenDialogComponent {
   initiatorEmail?: string;
 
   resultaattypes: Observable<GeneratedType<"RestResultaattype">[]>;
-  afzenders: Observable<GeneratedType<"RESTZaakAfzender">[]>;
+  afzenders: Observable<GeneratedType<"RestZaakAfzender">[]>;
 
   formGroup = this.formBuilder.group({
     resultaattype:
@@ -37,7 +37,7 @@ export class ZaakAfhandelenDialogComponent {
     toelichting: this.formBuilder.control<string>(""),
     sendMail: this.formBuilder.control<boolean>(false),
     verzender:
-      this.formBuilder.control<GeneratedType<"RESTZaakAfzender"> | null>(null),
+      this.formBuilder.control<GeneratedType<"RestZaakAfzender"> | null>(null),
     ontvanger: this.formBuilder.control<string>("", [CustomValidators.email]),
     brondatumEigenschap: this.formBuilder.control<Moment | null>(null),
   });
@@ -198,7 +198,7 @@ export class ZaakAfhandelenDialogComponent {
   }
 
   protected afzenderOptionDisplayValue(
-    afzender: GeneratedType<"RESTZaakAfzender">,
+    afzender: GeneratedType<"RestZaakAfzender">,
   ) {
     const suffix = afzender.suffix
       ? ` ${this.translateService.instant(afzender.suffix)}`

@@ -90,7 +90,7 @@ export class ParameterEditComponent
   );
   zaakAfzenders: string[] = [];
   zaakAfzendersDataSource = new MatTableDataSource<
-    GeneratedType<"RESTZaakAfzender">
+    GeneratedType<"RestZaakAfzender">
   >();
   mailtemplateKoppelingen = getBeschikbareMailtemplateKoppelingen();
 
@@ -658,7 +658,7 @@ export class ParameterEditComponent
   }
 
   protected addZaakAfzender(afzender: string): void {
-    const zaakAfzender: GeneratedType<"RESTZaakAfzender"> & { index: number } =
+    const zaakAfzender: GeneratedType<"RestZaakAfzender"> & { index: number } =
       {
         speciaal: false,
         defaultMail: false,
@@ -695,7 +695,7 @@ export class ParameterEditComponent
   }
 
   private addZaakAfzenderControl(
-    zaakAfzender: GeneratedType<"RESTZaakAfzender">,
+    zaakAfzender: GeneratedType<"RestZaakAfzender">,
   ) {
     // @ts-expect-error TODO: add proper type to `mailFormGroup`
     this.mailFormGroup.addControl(
@@ -705,7 +705,7 @@ export class ParameterEditComponent
   }
 
   protected getZaakAfzenderControl(
-    zaakAfzender: GeneratedType<"RESTZaakAfzender"> & { index?: number },
+    zaakAfzender: GeneratedType<"RestZaakAfzender"> & { index?: number },
     field: string,
   ) {
     return this.mailFormGroup.get(`afzender${zaakAfzender.index}__${field}`);
@@ -899,7 +899,7 @@ export class ParameterEditComponent
             for (let i = 0; i < index.length; i++) {
               if (index[i] === afzender.mail) {
                 (
-                  afzender as GeneratedType<"RESTZaakAfzender"> & {
+                  afzender as GeneratedType<"RestZaakAfzender"> & {
                     index: number;
                   }
                 ).index = i;
