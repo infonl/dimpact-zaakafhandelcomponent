@@ -247,7 +247,7 @@ describe(ZaakViewComponent.name, () => {
       await fixture.whenStable();
     });
 
-    it.only.each([
+    it.each([
       [
         {
           einddatum: undefined,
