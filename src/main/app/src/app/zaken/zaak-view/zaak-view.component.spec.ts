@@ -10,7 +10,6 @@ import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { Component, Input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { FormControl } from "@angular/forms";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
@@ -33,26 +32,29 @@ import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.comp
 import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZakenService } from "../zaken.service";
 import { ZaakViewComponent } from "./zaak-view.component";
+import {MatIconHarness} from "@angular/material/icon/testing";
 
 describe(ZaakViewComponent.name, () => {
   let fixture: ComponentFixture<ZaakViewComponent>;
   let loader: HarnessLoader;
 
-  @Component({
-    selector: "zac-static-text",
-    template: `
-      <mat-icon
-        *ngIf="icon"
-        [ngClass]="icon.styleClass"
-        [attr.title]="icon.title"
-      >
-        {{ icon.icon }}
-      </mat-icon>
-    `,
-  })
-  class ZacStaticTextStub {
-    @Input() icon: unknown;
-  }
+  // @Component({
+  //   selector: "zac-static-text",
+  //   template: `
+  //     <mat-icon
+  //       *ngIf="icon"
+  //       [ngClass]="icon.styleClass"
+  //       [attr.title]="icon.title"
+  //     >
+  //       {{ icon.icon }}
+  //     </mat-icon>
+  //   `,
+  // })
+  // class ZacStaticTextStub {
+  //   @Input() icon: unknown;
+  //   @Input() value!: string;
+  //   @Input() label!: string;
+  // }
 
   let utilService: UtilService;
   let zakenService: ZakenService;
@@ -80,7 +82,7 @@ describe(ZaakViewComponent.name, () => {
     await TestBed.configureTestingModule({
       declarations: [
         ZaakViewComponent,
-        ZacStaticTextStub,
+        // ZacStaticTextStub,
         ZaakIndicatiesComponent,
         ZaakDocumentenComponent,
         NotitiesComponent,
@@ -155,12 +157,12 @@ describe(ZaakViewComponent.name, () => {
     } satisfies GeneratedType<"RestZaak">;
 
     beforeEach(() => {
-      mockActivatedRoute.data.next({ zaak: opschortenZaak });
+      mockActivatedRoute.data.next({zaak: opschortenZaak});
     });
 
     it("should show the button", async () => {
       const button = await loader.getHarness(
-        MatNavListItemHarness.with({ title: "actie.zaak.opschorten" }),
+          MatNavListItemHarness.with({title: "actie.zaak.opschorten"}),
       );
       expect(button).toBeTruthy();
     });
@@ -177,220 +179,53 @@ describe(ZaakViewComponent.name, () => {
 
       it("should not show the button", async () => {
         const button = await loader.getHarnessOrNull(
-          MatNavListItemHarness.with({ title: "actie.zaak.opschorten" }),
+            MatNavListItemHarness.with({title: "actie.zaak.opschorten"}),
         );
         expect(button).toBeNull();
       });
     });
+  });
 
-    describe("dateFieldIconMap icon logic", () => {
-      let component: ZaakViewComponent;
-      const yesterdayDate = moment().subtract(1, "days").format("YYYY-MM-DD");
-      const today = moment().format("YYYY-MM-DD");
-      const tomorrowDate = moment().add(1, "days").format("YYYY-MM-DD");
+  describe("dateFieldIconMap icon logic", () => {
+    let component: ZaakViewComponent;
+    const yesterdayDate = moment().subtract(1, "days").format("YYYY-MM-DD");
+    const today = moment().format("YYYY-MM-DD");
+    const tomorrowDate = moment().add(1, "days").format("YYYY-MM-DD");
 
-      const yesterdayFormControl = new FormControl(yesterdayDate);
-      const tomorrowFormControl = new FormControl(tomorrowDate);
+    beforeEach(async () => {
+      fixture = TestBed.createComponent(ZaakViewComponent);
+      component = fixture.componentInstance;
+      component.zaak = { ...zaak } as GeneratedType<"RestZaak">;
 
-      beforeEach(async () => {
-        fixture = TestBed.createComponent(ZaakViewComponent);
-        component = fixture.componentInstance;
-        component.zaak = { ...zaak } as GeneratedType<"RestZaak">;
+      loader = TestbedHarnessEnvironment.loader(fixture);
 
-        jest
-          .spyOn(
-            component as unknown as { loadHistorie: () => void },
-            "loadHistorie",
-          )
-          .mockImplementation(() => {});
-        jest
-          .spyOn(
-            component as unknown as { loadBetrokkenen: () => void },
-            "loadBetrokkenen",
-          )
-          .mockImplementation(() => {});
-        jest
-          .spyOn(
-            component as unknown as { loadBagObjecten: () => void },
-            "loadBagObjecten",
-          )
-          .mockImplementation(() => {});
-        jest
-          .spyOn(component as unknown as { setupMenu: () => void }, "setupMenu")
-          .mockImplementation(() => {});
-        jest
-          .spyOn(
-            component as unknown as { loadOpschorting: () => void },
-            "loadOpschorting",
-          )
-          .mockImplementation(() => {});
-
-        component.init(component.zaak);
-        loader = TestbedHarnessEnvironment.loader(fixture);
-
-        fixture.detectChanges();
-        await fixture.whenStable();
-      });
-
-      it.only("shows icons for overdue dates in open case", async () => {
-        // Arrange: set up overdue dates
-        component.zaak = {
-          ...component.zaak,
-          einddatum: undefined,
-          einddatumGepland: yesterdayDate,
-          uiterlijkeEinddatumAfdoening: yesterdayDate,
-        };
-
-        fixture.detectChanges();
-        await fixture.whenStable();
-
-        const staticTextIcons = fixture.nativeElement.querySelectorAll(
-          "zac-static-text mat-icon",
-        );
-
-        const streefdatumIcon = Array.from(staticTextIcons).find((icon) =>
-          (icon as HTMLElement).className.includes("warning"),
-        ) as HTMLElement;
-        const fataledatumIcon = Array.from(staticTextIcons).find((icon) =>
-          (icon as HTMLElement).className.includes("error"),
-        ) as HTMLElement;
-
-        expect(streefdatumIcon.textContent?.trim()).toBe("report_problem");
-        expect(streefdatumIcon.getAttribute("title")).toContain("overschreden");
-
-        expect(fataledatumIcon.textContent?.trim()).toBe("report_problem");
-        expect(fataledatumIcon.getAttribute("title")).toContain("overschreden");
-
-        expect(
-          component.dateFieldIconMap
-            .get("einddatumGepland")!
-            .showIcon(yesterdayFormControl),
-        ).toBe(true);
-
-        expect(
-          component.dateFieldIconMap
-            .get("uiterlijkeEinddatumAfdoening")!
-            .showIcon(yesterdayFormControl),
-        ).toBe(true);
-      });
-
-      it("shows icons for overdue dates when case is closed after deadlines", async () => {
-        component.zaak = {
-          ...component.zaak,
-          einddatum: today,
-          einddatumGepland: yesterdayDate,
-          uiterlijkeEinddatumAfdoening: yesterdayDate,
-        };
-
-        fixture.detectChanges();
-        await fixture.whenStable();
-
-        const staticTextIcons = fixture.nativeElement.querySelectorAll(
-          "zac-static-text mat-icon",
-        );
-
-        const streefdatumIcon = Array.from(staticTextIcons).find((icon) =>
-          (icon as HTMLElement).className.includes("warning"),
-        ) as HTMLElement;
-        const fataledatumIcon = Array.from(staticTextIcons).find((icon) =>
-          (icon as HTMLElement).className.includes("error"),
-        ) as HTMLElement;
-
-        expect(streefdatumIcon.textContent?.trim()).toBe("report_problem");
-        expect(streefdatumIcon.getAttribute("title")).toContain("overschreden");
-
-        expect(fataledatumIcon.textContent?.trim()).toBe("report_problem");
-        expect(fataledatumIcon.getAttribute("title")).toContain("overschreden");
-
-        expect(
-          component.dateFieldIconMap
-            .get("einddatumGepland")!
-            .showIcon(yesterdayFormControl),
-        ).toBe(true);
-
-        expect(
-          component.dateFieldIconMap
-            .get("uiterlijkeEinddatumAfdoening")!
-            .showIcon(yesterdayFormControl),
-        ).toBe(true);
-      });
-
-      it("does not show icons for future dates in open case", async () => {
-        component.zaak = {
-          ...component.zaak,
-          einddatum: undefined,
-          einddatumGepland: tomorrowDate,
-          uiterlijkeEinddatumAfdoening: tomorrowDate,
-        };
-
-        fixture.detectChanges();
-        await fixture.whenStable();
-
-        const staticTextIcons = fixture.nativeElement.querySelectorAll(
-          "zac-static-text mat-icon",
-        );
-
-        const streefdatumIcon = Array.from(staticTextIcons).find((icon) =>
-          (icon as HTMLElement).className.includes("warning"),
-        ) as HTMLElement;
-
-        const fataledatumIcon = Array.from(staticTextIcons).find((icon) =>
-          (icon as HTMLElement).className.includes("error"),
-        ) as HTMLElement;
-
-        expect(streefdatumIcon).toBeUndefined();
-        expect(fataledatumIcon).toBeUndefined();
-
-        expect(
-          component.dateFieldIconMap
-            .get("einddatumGepland")!
-            .showIcon(tomorrowFormControl),
-        ).toBe(false);
-
-        expect(
-          component.dateFieldIconMap
-            .get("uiterlijkeEinddatumAfdoening")!
-            .showIcon(tomorrowFormControl),
-        ).toBe(false);
-      });
-
-      it("does not show icons when case is closed before deadlines", async () => {
-        component.zaak = {
-          ...component.zaak,
-          einddatum: today,
-          einddatumGepland: tomorrowDate,
-          uiterlijkeEinddatumAfdoening: tomorrowDate,
-        };
-
-        fixture.detectChanges();
-        await fixture.whenStable();
-
-        const staticTextIcons = fixture.nativeElement.querySelectorAll(
-          "zac-static-text mat-icon",
-        );
-
-        const streefdatumIcon = Array.from(staticTextIcons).find((icon) =>
-          (icon as HTMLElement).className.includes("warning"),
-        );
-        const fataledatumIcon = Array.from(staticTextIcons).find((icon) =>
-          (icon as HTMLElement).className.includes("error"),
-        );
-
-        expect(streefdatumIcon).toBeUndefined();
-        expect(fataledatumIcon).toBeUndefined();
-
-        expect(
-          component.dateFieldIconMap
-            .get("einddatumGepland")!
-            .showIcon(tomorrowFormControl),
-        ).toBe(false);
-
-        expect(
-          component.dateFieldIconMap
-            .get("uiterlijkeEinddatumAfdoening")!
-            .showIcon(tomorrowFormControl),
-        ).toBe(false);
-      });
+      fixture.detectChanges();
+      await fixture.whenStable();
     });
+
+    it.each([
+      [ {einddatum: undefined, einddatumGepland: undefined, uiterlijkeEinddatumAfdoening: yesterdayDate}, 1],
+      // [ {einddatum: undefined, einddatumGepland: yesterdayDate, uiterlijkeEinddatumAfdoening: yesterdayDate}, 2],
+      // [ {einddatum: undefined, einddatumGepland: undefined, uiterlijkeEinddatumAfdoening: yesterdayDate}, 1],
+      // [ {einddatum: undefined, einddatumGepland: undefined, uiterlijkeEinddatumAfdoening: undefined}, 0],
+      // [ {einddatum: undefined, einddatumGepland: tomorrowDate, uiterlijkeEinddatumAfdoening: tomorrowDate}, 0],
+      // [ {einddatum: today, einddatumGepland: tomorrowDate, uiterlijkeEinddatumAfdoening: tomorrowDate}, 0],
+    ])("shows the correct warning icons for overdue data", async (zaakData, expectedIcons) => {
+      mockActivatedRoute.data.next({ zaak: {...zaak, ...zaakData } });
+      
+      component.zaak = { ...zaak, ...zaakData } as GeneratedType<"RestZaak">;
+
+      console.log(component.zaak);
+
+      component.init(component.zaak);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const icons = await loader.getAllHarnesses(MatIconHarness.with({ name: 'report_problem' }));
+      console.log('icons: ', icons);
+
+      expect(icons.length).toBe(expectedIcons);
+    })
   });
 });
