@@ -98,20 +98,23 @@ export class MailtemplateComponent
 
   saveMailtemplate() {
     const data = this.form.getRawValue();
+    const templateData = {
+      mail: data.mail!.value!,
+      mailTemplateNaam: data.mailTemplateNaam ?? "",
+      onderwerp: data.onderwerp ?? "",
+      body: data.body ?? "",
+      defaultMailtemplate: data.defaultMailtemplate ?? false,
+    };
 
-    this.mailTemplateBeheerService
-      .persistMailtemplate({
-        ...this.mailTemplate,
-        mail: data.mail?.value,
-        mailTemplateNaam: data.mailTemplateNaam ?? undefined,
-        onderwerp: data.onderwerp ?? undefined,
-        body: data.body ?? undefined,
-        defaultMailtemplate: data.defaultMailtemplate ?? false,
-      })
-      .subscribe(() => {
-        this.utilService.openSnackbar("msg.mailtemplate.opgeslagen");
-        void this.router.navigate(["/admin/mailtemplates"]);
-      });
+    // Determine if this is a create or update operation based on whether we have an existing ID
+    const operation = this.mailTemplate?.id
+      ? this.mailTemplateBeheerService.updateMailtemplate(this.mailTemplate.id, templateData)
+      : this.mailTemplateBeheerService.createMailtemplate(templateData);
+
+    operation.subscribe(() => {
+      this.utilService.openSnackbar("msg.mailtemplate.opgeslagen");
+      void this.router.navigate(["/admin/mailtemplates"]);
+    });
   }
 
   cancel() {

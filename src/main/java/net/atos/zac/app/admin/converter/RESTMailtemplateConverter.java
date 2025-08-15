@@ -24,17 +24,6 @@ public final class RESTMailtemplateConverter {
         return restMailtemplate;
     }
 
-    public static MailTemplate convert(final RESTMailtemplate restMailtemplate) {
-        final MailTemplate mailTemplate = new MailTemplate();
-        mailTemplate.setId(restMailtemplate.id);
-        mailTemplate.setMail(restMailtemplate.mail);
-        mailTemplate.setMailTemplateNaam(restMailtemplate.mailTemplateNaam);
-        mailTemplate.setOnderwerp(stripHtmlParagraphTags(restMailtemplate.onderwerp));
-        mailTemplate.setBody(restMailtemplate.body);
-        mailTemplate.setDefaultMailtemplate(restMailtemplate.defaultMailtemplate);
-        return mailTemplate;
-    }
-
     /**
      * Converts RESTMailtemplate to MailTemplate for create operations.
      * Explicitly does NOT set ID on domain model to allow database auto-generation.

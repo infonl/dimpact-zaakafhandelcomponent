@@ -40,10 +40,11 @@ BEGIN
     -- The 'false' parameter means the next nextval() will return next_sequence_value
     PERFORM setval('${schema}.sq_mail_template', next_sequence_value, false);
     
-    -- Verify the sequence was set correctly
-    IF currval('${schema}.sq_mail_template') != next_sequence_value THEN
+    -- Verify the sequence was set correctly by checking the last_value
+    -- We can't use currval() here because it requires nextval() to be called first in this session
+    IF (SELECT last_value FROM ${schema}.sq_mail_template) != next_sequence_value THEN
         RAISE EXCEPTION 'Failed to set sequence value correctly. Expected: %, Actual: %', 
-            next_sequence_value, currval('${schema}.sq_mail_template');
+            next_sequence_value, (SELECT last_value FROM ${schema}.sq_mail_template);
     END IF;
     
     -- Final validation: ensure no duplicate IDs exist
