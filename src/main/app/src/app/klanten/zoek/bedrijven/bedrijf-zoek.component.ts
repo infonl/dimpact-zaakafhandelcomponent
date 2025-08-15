@@ -98,44 +98,47 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
     private readonly utilService: UtilService,
     private readonly formCommunicationService: FormCommunicatieService,
     private readonly formBuilder: FormBuilder,
-    private readonly router: Router
+    private readonly router: Router,
   ) {
     this.formGroup.controls.type.valueChanges
-        .pipe(takeUntilDestroyed())
-        .subscribe((type) => {
-          const rsinRequired = type === "RECHTSPERSOON";
-          if (rsinRequired) {
-            this.formGroup.controls.rsin.addValidators([Validators.required]);
-          } else {
-            this.formGroup.controls.rsin.removeValidators([Validators.required]);
-          }
-        });
+      .pipe(takeUntilDestroyed())
+      .subscribe((type) => {
+        const rsinRequired = type === "RECHTSPERSOON";
+        if (rsinRequired) {
+          this.formGroup.controls.rsin.addValidators([Validators.required]);
+        } else {
+          this.formGroup.controls.rsin.removeValidators([Validators.required]);
+        }
+        this.formGroup.controls.rsin.updateValueAndValidity();
+      });
 
     this.formGroup.controls.postcode.valueChanges
-        .pipe(takeUntilDestroyed())
-        .subscribe((postcode) => {
-          if (postcode) {
-            this.formGroup.controls.huisnummer.addValidators([
-              Validators.required,
-            ]);
-          } else {
-            this.formGroup.controls.huisnummer.removeValidators([
-              Validators.required,
-            ]);
-          }
-        });
+      .pipe(takeUntilDestroyed())
+      .subscribe((postcode) => {
+        if (postcode) {
+          this.formGroup.controls.huisnummer.addValidators([
+            Validators.required,
+          ]);
+        } else {
+          this.formGroup.controls.huisnummer.removeValidators([
+            Validators.required,
+          ]);
+        }
+        this.formGroup.controls.huisnummer.updateValueAndValidity();
+      });
 
     this.formGroup.controls.huisnummer.valueChanges
-        .pipe(takeUntilDestroyed())
-        .subscribe((huisnummer) => {
-          if (huisnummer) {
-            this.formGroup.controls.postcode.addValidators([Validators.required]);
-          } else {
-            this.formGroup.controls.postcode.removeValidators([
-              Validators.required,
-            ]);
-          }
-        });
+      .pipe(takeUntilDestroyed())
+      .subscribe((huisnummer) => {
+        if (huisnummer) {
+          this.formGroup.controls.postcode.addValidators([Validators.required]);
+        } else {
+          this.formGroup.controls.postcode.removeValidators([
+            Validators.required,
+          ]);
+        }
+        this.formGroup.controls.postcode.updateValueAndValidity();
+      });
   }
 
   ngOnInit() {

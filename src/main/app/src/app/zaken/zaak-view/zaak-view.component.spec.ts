@@ -123,7 +123,7 @@ describe(ZaakViewComponent.name, () => {
     jest
       .spyOn(zakenService, "readOpschortingZaak")
       .mockReturnValue(
-        of(fromPartial<GeneratedType<"RESTZaakOpschorting">>({}))
+        of(fromPartial<GeneratedType<"RESTZaakOpschorting">>({})),
       );
 
     bagService = TestBed.inject(BAGService);
@@ -159,12 +159,12 @@ describe(ZaakViewComponent.name, () => {
     jest.spyOn(websocketService, "suspendListener").mockImplementation();
 
     zaakafhandelParametersService = TestBed.inject(
-      ZaakafhandelParametersService
+      ZaakafhandelParametersService,
     );
     jest
       .spyOn(
         zaakafhandelParametersService,
-        "listZaakbeeindigRedenenForZaaktype"
+        "listZaakbeeindigRedenenForZaaktype",
       )
       .mockReturnValue(of([]));
 
@@ -204,7 +204,7 @@ describe(ZaakViewComponent.name, () => {
 
     it("should show the button", async () => {
       const button = await loader.getHarness(
-        MatNavListItemHarness.with({ title: "actie.zaak.opschorten" })
+        MatNavListItemHarness.with({ title: "actie.zaak.opschorten" }),
       );
       expect(button).toBeTruthy();
     });
@@ -221,7 +221,7 @@ describe(ZaakViewComponent.name, () => {
 
       it("should not show the button", async () => {
         const button = await loader.getHarnessOrNull(
-          MatNavListItemHarness.with({ title: "actie.zaak.opschorten" })
+          MatNavListItemHarness.with({ title: "actie.zaak.opschorten" }),
         );
         expect(button).toBeNull();
       });
@@ -241,7 +241,7 @@ describe(ZaakViewComponent.name, () => {
     it("should open side menu and set action when dialog returns 'openBesluitVastleggen'", () => {
       const openSpy = jest.spyOn(
         fixture.componentInstance.actionsSidenav,
-        "open"
+        "open",
       );
       jest
         .spyOn(dialogRef, "afterClosed")
@@ -251,7 +251,7 @@ describe(ZaakViewComponent.name, () => {
 
       expect(openSpy).toHaveBeenCalled();
       expect(fixture.componentInstance.activeSideAction).toBe(
-        "actie.besluit.vastleggen"
+        "actie.besluit.vastleggen",
       );
     });
 
@@ -262,7 +262,7 @@ describe(ZaakViewComponent.name, () => {
       fixture.componentInstance.openPlanItemStartenDialog(mockPlanItem);
 
       expect(spy).toHaveBeenCalledWith(
-        "msg.planitem.uitgevoerd.ZAAK_AFHANDELEN"
+        "msg.planitem.uitgevoerd.ZAAK_AFHANDELEN",
       );
       expect(fixture.componentInstance.activeSideAction).toBe(null);
     });
