@@ -8,8 +8,9 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { Component, Input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatDialog, MatDialogRef } from "@angular/material/dialog";
+import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -19,6 +20,7 @@ import { fromPartial } from "@total-typescript/shoehorn";
 import moment from "moment";
 import { of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
+import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
@@ -40,9 +42,6 @@ import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.comp
 import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZakenService } from "../zaken.service";
 import { ZaakViewComponent } from "./zaak-view.component";
-import { MatIconHarness } from "@angular/material/icon/testing";
-import { MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 
 describe(ZaakViewComponent.name, () => {
   let fixture: ComponentFixture<ZaakViewComponent>;
@@ -126,7 +125,7 @@ describe(ZaakViewComponent.name, () => {
     jest
       .spyOn(zakenService, "readOpschortingZaak")
       .mockReturnValue(
-        of(fromPartial<GeneratedType<"RESTZaakOpschorting">>({}))
+        of(fromPartial<GeneratedType<"RESTZaakOpschorting">>({})),
       );
 
     bagService = TestBed.inject(BAGService);
@@ -162,12 +161,12 @@ describe(ZaakViewComponent.name, () => {
     jest.spyOn(websocketService, "suspendListener").mockImplementation();
 
     zaakafhandelParametersService = TestBed.inject(
-      ZaakafhandelParametersService
+      ZaakafhandelParametersService,
     );
     jest
       .spyOn(
         zaakafhandelParametersService,
-        "listZaakbeeindigRedenenForZaaktype"
+        "listZaakbeeindigRedenenForZaaktype",
       )
       .mockReturnValue(of([]));
 
@@ -207,7 +206,7 @@ describe(ZaakViewComponent.name, () => {
 
     it("should show the button", async () => {
       const button = await loader.getHarness(
-        MatNavListItemHarness.with({ title: "actie.zaak.opschorten" })
+        MatNavListItemHarness.with({ title: "actie.zaak.opschorten" }),
       );
       expect(button).toBeTruthy();
     });
@@ -224,7 +223,7 @@ describe(ZaakViewComponent.name, () => {
 
       it("should not show the button", async () => {
         const button = await loader.getHarnessOrNull(
-          MatNavListItemHarness.with({ title: "actie.zaak.opschorten" })
+          MatNavListItemHarness.with({ title: "actie.zaak.opschorten" }),
         );
         expect(button).toBeNull();
       });
@@ -303,11 +302,11 @@ describe(ZaakViewComponent.name, () => {
         mockActivatedRoute.data.next({ zaak: { ...zaak, ...zaakData } });
 
         const icons = await loader.getAllHarnesses(
-          MatIconHarness.with({ name: "report_problem" })
+          MatIconHarness.with({ name: "report_problem" }),
         );
 
         expect(icons.length).toBe(expectedIcons);
-      }
+      },
     );
   });
 
@@ -324,7 +323,7 @@ describe(ZaakViewComponent.name, () => {
     it("should open side menu and set action when dialog returns 'openBesluitVastleggen'", () => {
       const openSpy = jest.spyOn(
         fixture.componentInstance.actionsSidenav,
-        "open"
+        "open",
       );
       jest
         .spyOn(dialogRef, "afterClosed")
@@ -334,7 +333,7 @@ describe(ZaakViewComponent.name, () => {
 
       expect(openSpy).toHaveBeenCalled();
       expect(fixture.componentInstance.activeSideAction).toBe(
-        "actie.besluit.vastleggen"
+        "actie.besluit.vastleggen",
       );
     });
 
@@ -345,7 +344,7 @@ describe(ZaakViewComponent.name, () => {
       fixture.componentInstance.openPlanItemStartenDialog(mockPlanItem);
 
       expect(spy).toHaveBeenCalledWith(
-        "msg.planitem.uitgevoerd.ZAAK_AFHANDELEN"
+        "msg.planitem.uitgevoerd.ZAAK_AFHANDELEN",
       );
       expect(fixture.componentInstance.activeSideAction).toBe(null);
     });

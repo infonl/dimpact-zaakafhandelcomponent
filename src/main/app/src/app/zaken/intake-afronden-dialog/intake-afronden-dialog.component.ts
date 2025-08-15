@@ -37,7 +37,7 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
   initiatorToevoegenIcon = new ActionIcon(
     "person",
     "actie.initiator.email.toevoegen",
-    new Subject<void>()
+    new Subject<void>(),
   );
   formGroup: FormGroup;
   afzenders: Observable<GeneratedType<"RestZaakAfzender">[]>;
@@ -56,10 +56,10 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     private mailtemplateService: MailtemplateService,
     private klantenService: KlantenService,
     private zakenService: ZakenService,
-    private utilService: UtilService
+    private utilService: UtilService,
   ) {
     this.afzenders = this.zakenService.listAfzendersVoorZaak(
-      this.data.zaak.uuid
+      this.data.zaak.uuid,
     );
     this.mailtemplateService
       .findMailtemplate("ZAAK_ONTVANKELIJK", this.data.zaak.uuid)
@@ -126,7 +126,7 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
         this.formGroup
           .get("ontvanger")
           ?.setValidators(
-            value ? [Validators.required, CustomValidators.email] : null
+            value ? [Validators.required, CustomValidators.email] : null,
           );
         this.formGroup.get("ontvanger")?.updateValueAndValidity();
       });

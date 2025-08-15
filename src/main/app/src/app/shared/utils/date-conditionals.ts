@@ -28,7 +28,7 @@ export class DateConditionals {
 
   static isExceeded(
     value: Date | Moment | string,
-    actual?: Date | Moment | string | null
+    actual?: Date | Moment | string | null,
   ): boolean {
     if (!value) return false;
 
@@ -40,7 +40,7 @@ export class DateConditionals {
 
   static isPreceded(
     value: Date | Moment | string,
-    actual?: Date | Moment | string | null
+    actual?: Date | Moment | string | null,
   ): boolean {
     if (!value) return false;
 

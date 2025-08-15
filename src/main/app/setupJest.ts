@@ -4,7 +4,6 @@
  *
  */
 
-import moment from "moment";
 import "whatwg-fetch";
 
 const cryptoPolyfill = {

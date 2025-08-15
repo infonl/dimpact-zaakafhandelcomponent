@@ -191,7 +191,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await options[2]?.click();
 
       const besluitButton = await loader.getHarnessOrNull(
-        MatButtonHarness.with({ text: /actie\.besluit\.vastleggen/ })
+        MatButtonHarness.with({ text: /actie\.besluit\.vastleggen/ }),
       );
       const isDisabled = await besluitButton?.isDisabled();
       expect(isDisabled).toBeFalsy();
@@ -208,7 +208,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       const button = await loader.getHarness(
         MatButtonHarness.with({
           text: /actie\.besluit\.vastleggen/,
-        })
+        }),
       );
       await button.click();
 
@@ -219,7 +219,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   describe("actions", () => {
     it("should close dialog when close button is clicked", async () => {
       const closeButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.annuleren/ })
+        MatButtonHarness.with({ text: /actie\.annuleren/ }),
       );
       await closeButton.click();
 
@@ -230,7 +230,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   describe("form validation", () => {
     it("should disable submit button when form is invalid", async () => {
       const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ })
+        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
       );
       const isDisabled = await submitButton.isDisabled();
 
@@ -248,7 +248,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await fixture.whenStable();
 
       const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ })
+        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
       );
 
       const isDisabled = await submitButton.isDisabled();
@@ -266,7 +266,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await options[2]?.click();
 
       const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ })
+        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
       );
 
       await submitButton.click();
@@ -286,7 +286,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await inputs[1].setValue("2022-01-01");
 
       const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ })
+        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
       );
 
       await submitButton.click();
@@ -294,7 +294,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       expect(planItemsService.doUserEventListenerPlanItem).toHaveBeenCalledWith(
         expect.objectContaining({
           brondatumEigenschap: "2021-12-31T23:00:00.000Z", // ISO 8601 format
-        })
+        }),
       );
     });
   });

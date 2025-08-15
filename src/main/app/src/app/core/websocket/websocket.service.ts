@@ -81,7 +81,7 @@ export class WebsocketService implements OnDestroy {
       switchMap((openUrl) => {
         if (!this.connection$) {
           this.connection$ = webSocket(openUrl);
-          // console.log("Websocket geopend: " + openUrl);
+          console.log("Websocket geopend: " + openUrl);
         }
         return this.connection$;
       }),
@@ -102,14 +102,14 @@ export class WebsocketService implements OnDestroy {
     if (this.connection$) {
       this.connection$.next(data);
     } else {
-      // console.error("Websocket is niet open");
+      console.error("Websocket is niet open");
     }
   }
 
   private close() {
     if (this.connection$) {
       this.connection$.complete();
-      // console.warn("Websocket gesloten");
+      console.warn("Websocket gesloten");
       this.connection$ = null;
     }
   }
@@ -133,19 +133,19 @@ export class WebsocketService implements OnDestroy {
     for (const listenerId in callbacks) {
       try {
         if (!this.isSuspended(listenerId)) {
-          // console.debug("listener call: " + key);
+          console.debug("listener call: " + key);
           callbacks[listenerId](event);
         }
       } catch (error) {
-        // console.warn("Websocket callback error: ");
+        console.warn("Websocket callback error: ");
         console.error(error);
       }
     }
   }
 
   private onError = (error: unknown) => {
-    // console.error("Websocket error:");
-    // console.error(error);
+    console.error("Websocket error:");
+    console.error(error);
   };
 
   public addListener(
@@ -161,7 +161,7 @@ export class WebsocketService implements OnDestroy {
     );
     const listener = this.addCallback(event, callback);
     this.send(new SubscriptionMessage(SubscriptionType.CREATE, event));
-    // console.debug("listener added: " + listener.key);
+    console.debug("listener added: " + listener.key);
     return listener;
   }
 
@@ -204,7 +204,7 @@ export class WebsocketService implements OnDestroy {
     } else {
       this.suspended[listener.id] = new EventSuspension(timeout);
     }
-    // console.debug("listener suspended: " + listener.key);
+    console.debug("listener suspended: " + listener.key);
   }
 
   public doubleSuspendListener(listener: WebsocketListener) {
@@ -217,7 +217,7 @@ export class WebsocketService implements OnDestroy {
 
     this.removeCallback(listener);
     this.send(new SubscriptionMessage(SubscriptionType.DELETE, listener.event));
-    // console.debug("listener removed: " + listener.key);
+    console.debug("listener removed: " + listener.key);
   }
 
   public removeListeners(listeners: WebsocketListener[]): void {
