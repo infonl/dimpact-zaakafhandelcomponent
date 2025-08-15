@@ -61,6 +61,7 @@ import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
+import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
 import nl.info.zac.app.decision.DecisionService
@@ -753,11 +754,21 @@ class ZaakRestService @Inject constructor(
     ) {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak, zaakType).behandelen)
+
+        zaakService.processBrondatumProcedure(
+            zaak,
+            afsluitenGegevens.resultaattypeUuid,
+            BrondatumArchiefprocedure().apply {
+                datumkenmerk = afsluitenGegevens.brondatumEigenschap
+            }
+        )
+
         zgwApiService.updateResultaatForZaak(
             zaak,
             afsluitenGegevens.resultaattypeUuid,
             afsluitenGegevens.reden
         )
+
         zgwApiService.closeZaak(zaak, afsluitenGegevens.reden)
     }
 

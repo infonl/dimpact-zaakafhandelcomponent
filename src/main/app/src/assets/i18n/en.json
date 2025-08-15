@@ -88,6 +88,7 @@
   "uiterlijkereactiedatum": "Final response date",
   "einddatum": "End date",
   "zaak.einddatum": "Case end date",
+  "zaak.brondatum": "Case archiving source date",
   "streefdatum": "Due date",
   "einddatumGepland": "Due date",
   "einddatumGeplandWaarschuwing": "Due date warning window",

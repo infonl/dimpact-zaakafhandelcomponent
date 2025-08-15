@@ -38,10 +38,15 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createBrondatumArchiefprocedure
+import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
+import nl.info.client.zgw.ztc.model.generated.Eigenschap
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.app.klant.model.klant.IdentificatieType
@@ -956,6 +961,75 @@ class ZaakServiceTest : BehaviorSpec({
 
                 Then("it should return the correct zaaktype") {
                     result shouldBe zaakType
+                }
+            }
+        }
+    }
+
+    Context("Process special brondatum procedure") {
+        Given("A zaak and resultaattype with EIGENSCHAP afleidingswijze and existing zaakeigenschap") {
+            val zaak = createZaak()
+            val resultaatTypeUUID = UUID.randomUUID()
+            val resultaatType = createResultaatType(
+                brondatumArchiefprocedure = createBrondatumArchiefprocedure(
+                    afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP
+                )
+            )
+            val brondatumArchiefprocedure = createBrondatumArchiefprocedure(
+                afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP,
+            )
+
+            val existingZaakEigenschap = ZaakEigenschap(
+                URI(""),
+                UUID.randomUUID(),
+                brondatumArchiefprocedure.datumkenmerk
+            ).apply {
+                waarde = "testWaarde"
+            }
+
+            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(existingZaakEigenschap)
+            every { zrcClientService.updateZaakeigenschap(any(), any(), any()) } returns existingZaakEigenschap
+
+            When("processBrondatumProcedure is called with existing zaakeigenschap") {
+                zaakService.processBrondatumProcedure(zaak, resultaatTypeUUID, brondatumArchiefprocedure)
+
+                Then("it should update the existing zaakeigenschap") {
+                    verify { zrcClientService.updateZaakeigenschap(zaak.uuid, existingZaakEigenschap.uuid, any()) }
+                }
+
+                And("it should not create a new zaakeigenschap") {
+                    verify(exactly = 0) { zrcClientService.createEigenschap(zaak.uuid, any()) }
+                }
+            }
+        }
+
+        Given("A zaak and resultaattype with EIGENSCHAP afleidingswijze and non-existing zaakeigenschap") {
+            val zaak = createZaak()
+            val resultaatTypeUUID = UUID.randomUUID()
+            val resultaatType = createResultaatType(
+                brondatumArchiefprocedure = createBrondatumArchiefprocedure(
+                    afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP
+                )
+            )
+            val brondatumArchiefprocedure = createBrondatumArchiefprocedure(
+                afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP
+            )
+            val eigenschap = Eigenschap()
+            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every { ztcClientService.readEigenschap(zaak.zaaktype, brondatumArchiefprocedure.datumkenmerk) } returns eigenschap
+            every { zrcClientService.createEigenschap(any(), any()) } returns mockk()
+
+            When("processBrondatumProcedure is called with non-existing zaakeigenschap") {
+                zaakService.processBrondatumProcedure(zaak, resultaatTypeUUID, brondatumArchiefprocedure)
+
+                Then("it should create a new zaakeigenschap") {
+                    verify { zrcClientService.createEigenschap(zaak.uuid, any()) }
+                }
+
+                And("it should not update any existing zaakeigenschap") {
+                    verify(exactly = 0) { zrcClientService.updateZaakeigenschap(zaak.uuid, any(), any()) }
                 }
             }
         }

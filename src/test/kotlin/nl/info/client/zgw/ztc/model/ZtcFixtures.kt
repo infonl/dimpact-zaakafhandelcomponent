@@ -58,9 +58,11 @@ fun createBesluitType(
     }
 
 fun createBrondatumArchiefprocedure(
-    afleidingswijze: AfleidingswijzeEnum? = AfleidingswijzeEnum.VERVALDATUM_BESLUIT
+    afleidingswijze: AfleidingswijzeEnum? = AfleidingswijzeEnum.VERVALDATUM_BESLUIT,
+    datumkenmerk: String = "fakeDatumkenmerk",
 ) = BrondatumArchiefprocedure().apply {
     this.afleidingswijze = afleidingswijze
+    this.datumkenmerk = datumkenmerk
 }
 
 fun createCatalogus(
