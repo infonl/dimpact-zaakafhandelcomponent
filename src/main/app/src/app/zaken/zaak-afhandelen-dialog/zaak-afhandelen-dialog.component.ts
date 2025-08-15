@@ -133,6 +133,7 @@ export class ZaakAfhandelenDialogComponent {
             Validators.required,
           ]);
         }
+        this.formGroup.controls.brondatumEigenschap.updateValueAndValidity();
       });
   }
 
