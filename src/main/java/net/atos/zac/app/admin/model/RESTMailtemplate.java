@@ -6,22 +6,27 @@ package net.atos.zac.app.admin.model;
 
 import java.util.Set;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import nl.info.zac.mailtemplates.model.Mail;
 import nl.info.zac.mailtemplates.model.MailTemplateVariables;
 
 public class RESTMailtemplate {
 
-    // When storing a new mail template, the ID currently needs to be provided by client.
-    // We should refactor this. The backend (database) should be in control of generating IDs, not the client.
+    // ID is optional for POST requests (will be ignored) and required for responses
     public Long id;
 
+    @NotBlank(message = "Mail template name is required")
     public String mailTemplateNaam;
 
+    @NotBlank(message = "Subject is required")
     public String onderwerp;
 
+    @NotBlank(message = "Body is required")
     public String body;
 
-    // We should use the Mail enum here in future instead of a string
-    public String mail;
+    @NotNull(message = "Mail type is required")
+    public Mail mail;
 
     public Set<MailTemplateVariables> variabelen;
 

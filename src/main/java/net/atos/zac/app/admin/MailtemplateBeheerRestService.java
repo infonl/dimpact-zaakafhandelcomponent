@@ -11,14 +11,19 @@ import java.util.Set;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import net.atos.zac.app.admin.converter.RESTMailtemplateConverter;
 import net.atos.zac.app.admin.model.RESTMailtemplate;
@@ -50,9 +55,11 @@ public class MailtemplateBeheerRestService {
 
     @GET
     @Path("{id}")
-    public RESTMailtemplate readMailtemplate(@PathParam("id") final long id) {
+    public RESTMailtemplate readMailtemplate(@PathParam("id") @Positive final long id) {
         assertPolicy(policyService.readOverigeRechten().getBeheren());
+        
         return RESTMailtemplateConverter.convert(mailTemplateService.readMailtemplate(id));
+        // MailTemplateNotFoundException is already thrown by service and maps to 404
     }
 
     @GET
@@ -72,23 +79,48 @@ public class MailtemplateBeheerRestService {
 
     @DELETE
     @Path("{id}")
-    public void deleteMailtemplate(@PathParam("id") final long id) {
+    public void deleteMailtemplate(@PathParam("id") @Positive final long id) {
         assertPolicy(policyService.readOverigeRechten().getBeheren());
+        
         mailTemplateService.delete(id);
     }
 
-    @PUT
+    @POST
     @Path("")
-    public RESTMailtemplate persistMailtemplate(final RESTMailtemplate mailtemplate) {
+    public Response createMailtemplate(@Valid final RESTMailtemplate mailtemplate) {
         assertPolicy(policyService.readOverigeRechten().getBeheren());
-        return RESTMailtemplateConverter.convert(
-                mailTemplateService.storeMailtemplate(RESTMailtemplateConverter.convert(mailtemplate))
+        
+        // Explicitly ignore any provided ID in POST requests (requirement 1.1, 3.5)
+        if (mailtemplate.id != null) {
+            mailtemplate.id = null; // Ignore provided ID
+        }
+        
+        final MailTemplate createdTemplate = mailTemplateService.createMailtemplate(
+                RESTMailtemplateConverter.convertForCreate(mailtemplate)
         );
+        final RESTMailtemplate response = RESTMailtemplateConverter.convert(createdTemplate);
+        return Response.status(Response.Status.CREATED).entity(response).build();
     }
+
+    @PUT
+    @Path("{id}")
+    public RESTMailtemplate updateMailtemplate(@PathParam("id") @Positive final long id, @Valid final RESTMailtemplate mailtemplate) {
+        assertPolicy(policyService.readOverigeRechten().getBeheren());
+        
+        final MailTemplate updatedTemplate = mailTemplateService.updateMailtemplate(
+                id, RESTMailtemplateConverter.convertForUpdate(mailtemplate)
+        );
+        return RESTMailtemplateConverter.convert(updatedTemplate);
+        // MailTemplateNotFoundException is already thrown by service and maps to 404
+    }
+
+
 
     @GET
     @Path("variabelen/{mail}")
     public Set<MailTemplateVariables> getMailTemplateVariables(@PathParam("mail") final Mail mail) {
         return mail.getMailTemplateVariables();
     }
+
+
 }

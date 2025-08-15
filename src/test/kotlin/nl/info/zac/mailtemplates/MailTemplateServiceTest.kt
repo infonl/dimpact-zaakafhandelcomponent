@@ -227,33 +227,115 @@ class MailTemplateServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Mail templates can be stored") {
+    Context("Mail templates can be created") {
         val mailTemplate = createMailTemplate()
 
-        Given("a new mail template") {
-            every { entityManager.find(MailTemplate::class.java, mailTemplate.id) } returns null
+        Given("a new mail template with an ID") {
             every { entityManager.persist(mailTemplate) } just Runs
 
-            When("storeMailtemplate is called") {
-                val result = mailTemplateService.storeMailtemplate(mailTemplate)
+            When("createMailtemplate is called") {
+                val result = mailTemplateService.createMailtemplate(mailTemplate)
 
-                Then("it should persist the mail template") {
+                Then("it should reset the ID to 0 and persist the mail template") {
+                    mailTemplate.id shouldBe 0L
                     verify(exactly = 1) { entityManager.persist(mailTemplate) }
                     result shouldBe mailTemplate
                 }
             }
         }
 
+        Given("a new mail template without an ID") {
+            val newMailTemplate = createMailTemplate(id = 0L)
+            every { entityManager.persist(newMailTemplate) } just Runs
+
+            When("createMailtemplate is called") {
+                val result = mailTemplateService.createMailtemplate(newMailTemplate)
+
+                Then("it should persist the mail template") {
+                    verify(exactly = 1) { entityManager.persist(newMailTemplate) }
+                    result shouldBe newMailTemplate
+                }
+            }
+        }
+    }
+
+    Context("Mail templates can be updated") {
+        val mailTemplateId = 1234L
+        val existingTemplate = createMailTemplate(id = mailTemplateId)
+        val updatedTemplate = createMailTemplate(
+            id = 5678L, // Different ID that should be ignored
+            name = "updatedName",
+            onderwerp = "updatedOnderwerp",
+            body = "updatedBody"
+        )
+
         Given("an existing mail template") {
-            every { entityManager.find(MailTemplate::class.java, mailTemplate.id) } returns mailTemplate
-            every { entityManager.merge(mailTemplate) } returns mailTemplate
+            every { entityManager.find(MailTemplate::class.java, mailTemplateId) } returns existingTemplate
+            every { entityManager.merge(existingTemplate) } returns existingTemplate
+
+            When("updateMailtemplate is called") {
+                val result = mailTemplateService.updateMailtemplate(mailTemplateId, updatedTemplate)
+
+                Then("it should update the existing template fields and preserve the original ID") {
+                    existingTemplate.id shouldBe mailTemplateId // Original ID preserved
+                    existingTemplate.mailTemplateNaam shouldBe "updatedName"
+                    existingTemplate.onderwerp shouldBe "updatedOnderwerp"
+                    existingTemplate.body shouldBe "updatedBody"
+                    verify(exactly = 1) { entityManager.merge(existingTemplate) }
+                    result shouldBe existingTemplate
+                }
+            }
+        }
+
+        Given("a non-existent mail template") {
+            every { entityManager.find(MailTemplate::class.java, mailTemplateId) } returns null
+
+            When("updateMailtemplate is called") {
+                val exception = shouldThrow<MailTemplateNotFoundException> {
+                    mailTemplateService.updateMailtemplate(mailTemplateId, updatedTemplate)
+                }
+                Then("it should throw MailTemplateNotFoundException") {
+                    exception shouldBe MailTemplateNotFoundException(mailTemplateId)
+                }
+            }
+        }
+    }
+
+    Context("Mail templates can be stored (backward compatibility)") {
+        Given("a new mail template") {
+            val newMailTemplate = createMailTemplate()
+            every { entityManager.find(MailTemplate::class.java, newMailTemplate.id) } returns null
+            every { entityManager.persist(newMailTemplate) } just Runs
+
+            When("storeMailtemplate is called") {
+                val result = mailTemplateService.storeMailtemplate(newMailTemplate)
+
+                Then("it should delegate to createMailtemplate and persist the mail template") {
+                    newMailTemplate.id shouldBe 0L // ID should be reset
+                    verify(exactly = 1) { entityManager.persist(newMailTemplate) }
+                    result shouldBe newMailTemplate
+                }
+            }
+        }
+
+        Given("an existing mail template") {
+            val existingMailTemplate = createMailTemplate(id = 5678L)
+            val existingTemplate = createMailTemplate(id = 5678L)
+            every { entityManager.find(MailTemplate::class.java, existingMailTemplate.id) } returns existingTemplate
+            every { entityManager.merge(existingTemplate) } returns existingTemplate
 
             When("storeMailtemplate is called with an existing ID") {
-                val result = mailTemplateService.storeMailtemplate(mailTemplate)
+                val result = mailTemplateService.storeMailtemplate(existingMailTemplate)
 
-                Then("it should merge the mail template") {
-                    verify(exactly = 1) { entityManager.merge(mailTemplate) }
-                    result shouldBe mailTemplate
+                Then("it should delegate to updateMailtemplate and merge the mail template") {
+                    // Verify that the existing template fields were updated
+                    existingTemplate.mailTemplateNaam shouldBe existingMailTemplate.mailTemplateNaam
+                    existingTemplate.onderwerp shouldBe existingMailTemplate.onderwerp
+                    existingTemplate.body shouldBe existingMailTemplate.body
+                    existingTemplate.mail shouldBe existingMailTemplate.mail
+                    existingTemplate.isDefaultMailtemplate shouldBe existingMailTemplate.isDefaultMailtemplate
+                    verify(exactly = 1) { entityManager.merge(existingTemplate) }
+                    result shouldBe existingTemplate
                 }
             }
         }

@@ -52,3 +52,5 @@ fix-permissions.sh
 
 ### Docker ###
 .DS_store
+
+.kiro

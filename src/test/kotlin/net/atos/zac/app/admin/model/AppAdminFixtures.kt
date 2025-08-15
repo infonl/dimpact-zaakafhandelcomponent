@@ -4,6 +4,7 @@
  */
 package net.atos.zac.app.admin.model
 
+import net.atos.zac.app.admin.model.RESTMailtemplate
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplateVariables
 
@@ -13,7 +14,7 @@ fun createRestMailTemplate(
     mailTemplateName: String = "fakeTemplateName",
     subject: String = "fakeSubject",
     body: String = "fakeBody",
-    mail: String = Mail.ZAAK_ALGEMEEN.name,
+    mail: Mail = Mail.ZAAK_ALGEMEEN,
     mailTemplateVariables: Set<MailTemplateVariables> = emptySet(),
     defaultTemplate: Boolean = false
 ) = RESTMailtemplate().apply {
