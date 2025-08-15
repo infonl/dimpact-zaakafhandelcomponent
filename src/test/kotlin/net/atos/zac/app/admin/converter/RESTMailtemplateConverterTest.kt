@@ -4,10 +4,10 @@
  */
 package net.atos.zac.app.admin.converter
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
-import net.atos.zac.app.admin.converter.RESTMailtemplateConverter
+import io.kotest.matchers.string.shouldContain
 import net.atos.zac.app.admin.model.createRestMailTemplate
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.createMailTemplate
@@ -21,7 +21,7 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
                 mailTemplateName = "Test Template",
                 subject = "<p>Test Subject</p>",
                 body = "Test Body",
-                mail = Mail.ZAAK_ALGEMEEN.name,
+                mail = Mail.ZAAK_ALGEMEEN,
                 defaultTemplate = true
             )
 
@@ -61,7 +61,7 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
                 Mail.ZAAK_ALGEMEEN,
                 Mail.SIGNALERING_TAAK_OP_NAAM,
             ).forEach { mailType ->
-                val restMailTemplate = createRestMailTemplate(mail = mailType.name)
+                val restMailTemplate = createRestMailTemplate(mail = mailType)
 
                 When("convertForCreate is called with mail type ${mailType.name}") {
                     val domainMailTemplate = RESTMailtemplateConverter.convertForCreate(restMailTemplate)
@@ -81,7 +81,7 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
                 mailTemplateName = "Updated Template",
                 subject = "<p>Updated Subject</p>",
                 body = "Updated Body",
-                mail = Mail.ZAAK_ALGEMEEN.name,
+                mail = Mail.ZAAK_ALGEMEEN,
                 defaultTemplate = false
             )
 
@@ -124,7 +124,7 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
                 mailTemplateName = "Same Template",
                 subject = "<p>Same Subject</p>",
                 body = "Same Body",
-                mail = Mail.SIGNALERING_TAAK_OP_NAAM.name,
+                mail = Mail.SIGNALERING_TAAK_OP_NAAM,
                 defaultTemplate = true
             )
 
@@ -212,6 +212,56 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
                     result.id shouldBe 321L
                     result.mailTemplateNaam shouldBe "Domain Template"
                 }
+            }
+        }
+    }
+
+    Context("Error handling for convertForCreate") {
+        When("convertForCreate is called with null input") {
+            Then("it should throw IllegalArgumentException") {
+                val exception = shouldThrow<IllegalArgumentException> {
+                    RESTMailtemplateConverter.convertForCreate(null)
+                }
+                exception.message shouldContain "RESTMailtemplate cannot be null"
+            }
+        }
+
+        // Note: Field validation (null/empty checks, invalid enum values) is now handled by @Valid annotations
+        // on the REST model, so detailed validation tests are no longer needed at the converter level.
+        // The converter assumes it receives valid input from the JAX-RS validation layer.
+    }
+
+    Context("Error handling for convertForUpdate") {
+        When("convertForUpdate is called with null input") {
+            Then("it should throw IllegalArgumentException") {
+                val exception = shouldThrow<IllegalArgumentException> {
+                    RESTMailtemplateConverter.convertForUpdate(null)
+                }
+                exception.message shouldContain "RESTMailtemplate cannot be null"
+            }
+        }
+
+        // Note: Field validation (null/empty checks, invalid enum values) is now handled by @Valid annotations
+        // on the REST model, so detailed validation tests are no longer needed at the converter level.
+        // The converter assumes it receives valid input from the JAX-RS validation layer.
+    }
+
+    Context("Whitespace handling for template names") {
+        When("convertForCreate is called with template name containing whitespace") {
+            val restMailTemplate = createRestMailTemplate().apply { mailTemplateNaam = "  Test Template  " }
+
+            Then("it should trim whitespace and convert successfully") {
+                val result = RESTMailtemplateConverter.convertForCreate(restMailTemplate)
+                result.mailTemplateNaam shouldBe "Test Template"
+            }
+        }
+
+        When("convertForUpdate is called with template name containing whitespace") {
+            val restMailTemplate = createRestMailTemplate().apply { mailTemplateNaam = "  Updated Template  " }
+
+            Then("it should trim whitespace and convert successfully") {
+                val result = RESTMailtemplateConverter.convertForUpdate(restMailTemplate)
+                result.mailTemplateNaam shouldBe "Updated Template"
             }
         }
     }
