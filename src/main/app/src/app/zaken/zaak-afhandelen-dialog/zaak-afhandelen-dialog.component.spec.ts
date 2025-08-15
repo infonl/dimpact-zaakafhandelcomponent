@@ -89,7 +89,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   ];
 
   const mockAfzenders = [
-    fromPartial<GeneratedType<"RESTZaakAfzender">>({
+    fromPartial<GeneratedType<"RestZaakAfzender">>({
       mail: "test@example.com",
       suffix: "Test Afzender",
       replyTo: "reply@example.com",

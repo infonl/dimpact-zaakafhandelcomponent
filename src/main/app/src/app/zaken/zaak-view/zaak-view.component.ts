@@ -800,55 +800,21 @@ export class ZaakViewComponent
 
   private openZaakAfsluitenDialog() {
     void this.actionsSidenav.close();
-    const dialogData = new DialogData<
-      unknown,
-      { toelichting: string; resultaattype: { id: string } }
-    >({
-      formFields: [
-        new SelectFormFieldBuilder()
-          .id("resultaattype")
-          .label("resultaat")
-          .optionLabel("naam")
-          .options(
-            this.zakenService.listResultaattypes(this.zaak.zaaktype.uuid),
-          )
-          .validators(Validators.required)
-          .build(),
-        new InputFormFieldBuilder()
-          .id("toelichting")
-          .label("toelichting")
-          .maxlength(80)
-          .build(),
-      ],
-      callback: ({ toelichting, resultaattype: { id } }) => {
-        return this.zakenService
-          .afsluiten(this.zaak.uuid, {
-            reden: toelichting,
-            resultaattypeUuid: id,
-          })
-          .pipe(
-            tap(() => this.websocketService.suspendListener(this.zaakListener)),
-          );
-      },
-      confirmButtonActionKey: "actie.zaak.afsluiten",
-      icon: "thumb_up_alt",
-    });
 
     this.dialog
-      .open(DialogComponent, { data: dialogData })
+      .open(ZaakAfhandelenDialogComponent, { data: { zaak: this.zaak } })
       .afterClosed()
       .subscribe((result) => {
         this.activeSideAction = null;
-        if (result) {
-          this.updateZaak();
-          this.loadTaken();
-          this.utilService.openSnackbar("msg.zaak.afgesloten");
-        }
+        if (!result) return;
+        this.updateZaak();
+        this.loadTaken();
+        this.utilService.openSnackbar("msg.zaak.afgesloten");
       });
   }
 
   private openZaakOpschortenDialog() {
-    this.actionsSidenav.close();
+    void this.actionsSidenav.close();
     this.dialog
       .open(ZaakOpschortenDialogComponent, {
         data: { zaak: this.zaak },

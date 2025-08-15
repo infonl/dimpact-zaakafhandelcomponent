@@ -40,7 +40,7 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     new Subject<void>(),
   );
   formGroup: FormGroup;
-  afzenders: Observable<GeneratedType<"RESTZaakAfzender">[]>;
+  afzenders: Observable<GeneratedType<"RestZaakAfzender">[]>;
   private ngDestroy = new Subject<void>();
 
   constructor(

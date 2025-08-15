@@ -34,7 +34,7 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@b9e51907a09c216f16ebe8536097933489208112 # v4.3.0
         with:
-          version: v3.18.4 # helm version updated by renovate
+          version: v3.18.5 # helm version updated by renovate
 
       - name: Add repositories
         run: |

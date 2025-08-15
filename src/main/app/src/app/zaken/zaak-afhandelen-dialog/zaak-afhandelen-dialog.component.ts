@@ -26,11 +26,10 @@ export class ZaakAfhandelenDialogComponent {
   sendMailDefault = false;
   besluitVastleggen = false;
   mailtemplate?: GeneratedType<"RESTMailtemplate">;
-  planItem: GeneratedType<"RESTPlanItem">;
   initiatorEmail?: string;
 
   resultaattypes: Observable<GeneratedType<"RestResultaattype">[]>;
-  afzenders: Observable<GeneratedType<"RESTZaakAfzender">[]>;
+  afzenders: Observable<GeneratedType<"RestZaakAfzender">[]>;
 
   formGroup = this.formBuilder.group({
     resultaattype:
@@ -38,7 +37,7 @@ export class ZaakAfhandelenDialogComponent {
     toelichting: this.formBuilder.control<string>(""),
     sendMail: this.formBuilder.control<boolean>(false),
     verzender:
-      this.formBuilder.control<GeneratedType<"RESTZaakAfzender"> | null>(null),
+      this.formBuilder.control<GeneratedType<"RestZaakAfzender"> | null>(null),
     ontvanger: this.formBuilder.control<string>("", [CustomValidators.email]),
     brondatumEigenschap: this.formBuilder.control<Moment | null>(null),
   });
@@ -48,7 +47,7 @@ export class ZaakAfhandelenDialogComponent {
     @Inject(MAT_DIALOG_DATA)
     public readonly data: {
       zaak: GeneratedType<"RestZaak">;
-      planItem: GeneratedType<"RESTPlanItem">;
+      planItem?: GeneratedType<"RESTPlanItem">;
     },
     private readonly formBuilder: FormBuilder,
     private readonly translateService: TranslateService,
@@ -57,7 +56,6 @@ export class ZaakAfhandelenDialogComponent {
     private readonly mailtemplateService: MailtemplateService,
     private readonly klantenService: KlantenService,
   ) {
-    this.planItem = data.planItem;
     this.resultaattypes = this.zakenService.listResultaattypes(
       this.data.zaak.zaaktype.uuid,
     );
@@ -138,12 +136,37 @@ export class ZaakAfhandelenDialogComponent {
   protected afhandelen() {
     this.dialogRef.disableClose = true;
     this.loading = true;
+    if (!this.data.planItem) {
+      this.afsluiten();
+      return;
+    }
+
+    this.planItemAfhandelen(this.data.planItem);
+  }
+
+  private afsluiten() {
+    const values = this.formGroup.value;
+    this.zakenService
+      .afsluiten(this.data.zaak.uuid, {
+        reden: values.toelichting,
+        resultaattypeUuid: values.resultaattype!.id,
+        brondatumEigenschap: values.brondatumEigenschap?.toISOString() ?? null,
+      })
+      .subscribe({
+        next: () => {
+          this.dialogRef.close(true);
+        },
+        error: () => this.dialogRef.close(false),
+      });
+  }
+
+  private planItemAfhandelen(planItem: GeneratedType<"RESTPlanItem">) {
     const values = this.formGroup.value;
 
     this.planItemsService
       .doUserEventListenerPlanItem({
         actie: "ZAAK_AFHANDELEN",
-        planItemInstanceId: this.planItem.id,
+        planItemInstanceId: planItem.id,
         zaakUuid: this.data.zaak.uuid,
         resultaattypeUuid:
           this.data.zaak.resultaat?.resultaattype?.id ??
@@ -175,7 +198,7 @@ export class ZaakAfhandelenDialogComponent {
   }
 
   protected afzenderOptionDisplayValue(
-    afzender: GeneratedType<"RESTZaakAfzender">,
+    afzender: GeneratedType<"RestZaakAfzender">,
   ) {
     const suffix = afzender.suffix
       ? ` ${this.translateService.instant(afzender.suffix)}`

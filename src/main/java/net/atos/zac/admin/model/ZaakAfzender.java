@@ -24,7 +24,7 @@ import jakarta.validation.constraints.NotNull;
 @SequenceGenerator(schema = SCHEMA, name = "sq_zaakafzender", sequenceName = "sq_zaakafzender", allocationSize = 1)
 public class ZaakAfzender {
 
-    public enum Speciaal {
+    public enum SpecialMail {
         GEMEENTE,
         MEDEWERKER;
 

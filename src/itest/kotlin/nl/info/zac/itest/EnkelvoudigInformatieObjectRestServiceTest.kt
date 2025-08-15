@@ -11,6 +11,7 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_3_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_4_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
@@ -57,6 +58,7 @@ import java.time.format.DateTimeFormatter
 class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
+    val zacClient = ZacClient()
     lateinit var enkelvoudigInformatieObject2UUID: String
 
     Given(
@@ -67,53 +69,19 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             the create enkelvoudig informatie object with file upload endpoint is called for the zaak with a PDF file
             """
         ) {
-            val endpointUrl =
-                "$ZAC_API_URI/informatieobjecten/informatieobject/$zaakProductaanvraag1Uuid/$zaakProductaanvraag1Uuid"
-            logger.info { "Calling $endpointUrl endpoint" }
             val file = Thread.currentThread().contextClassLoader.getResource(TEST_PDF_FILE_NAME).let {
                 File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
             }
-            val requestBody =
-                MultipartBody.Builder()
-                    .setType(MultipartBody.FORM)
-                    .addFormDataPart("bestandsnaam", TEST_PDF_FILE_NAME)
-                    .addFormDataPart("titel", DOCUMENT_FILE_TITLE)
-                    .addFormDataPart("bestandsomvang", file.length().toString())
-                    .addFormDataPart("formaat", PDF_MIME_TYPE)
-                    .addFormDataPart(
-                        "file",
-                        TEST_PDF_FILE_NAME,
-                        file.asRequestBody(PDF_MIME_TYPE.toMediaType())
-                    )
-                    .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID)
-                    .addFormDataPart(
-                        "vertrouwelijkheidaanduiding",
-                        DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
-                    )
-                    .addFormDataPart("status", DOCUMENT_STATUS_IN_BEWERKING)
-                    .addFormDataPart(
-                        "creatiedatum",
-                        DateTimeFormatter.ofPattern(
-                            "yyyy-MM-dd'T'HH:mm+01:00"
-                        ).format(ZonedDateTime.now())
-                    )
-                    .addFormDataPart("auteur", TEST_USER_1_NAME)
-                    .addFormDataPart("taal", "dut")
-                    .build()
-            val response = itestHttpClient.performPostRequest(
-                url = endpointUrl,
-                headers = Headers.headersOf(
-                    "Accept",
-                    "application/json",
-                    "Content-Type",
-                    "multipart/form-data"
-                ),
-                requestBody = requestBody
+            val response = zacClient.createEnkelvoudigInformatieobjectForZaak(
+                zaakUUID = zaakProductaanvraag1Uuid,
+                fileName = TEST_PDF_FILE_NAME,
+                fileMediaType = PDF_MIME_TYPE,
+                vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
             )
 
             Then("the response should be OK and contain information for the created document and uploaded file") {
                 val responseBody = response.body.string()
-                logger.info { "$endpointUrl response: $responseBody" }
+                logger.info { "response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                          {
