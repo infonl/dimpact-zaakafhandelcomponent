@@ -19,6 +19,9 @@ import net.atos.client.bag.BagClientService
 import net.atos.client.klant.KlantClientService
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.exception.DrcRuntimeException
+import net.atos.client.zgw.shared.exception.ZgwValidationErrorException
+import net.atos.client.zgw.shared.model.createFieldValidationError
+import net.atos.client.zgw.shared.model.createValidationZgwError
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.exception.BrcRuntimeException
 import nl.info.client.zgw.shared.exception.ZgwRuntimeException
@@ -67,6 +70,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
+
     Given("A BRC runtime exception") {
         val exceptionMessage = "FakeRuntimeException"
         val exception = BrcRuntimeException(exceptionMessage)
@@ -80,6 +84,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
+
     Given("A DRC runtime exception") {
         val exceptionMessage = "FakeRuntimeException"
         val exception = DrcRuntimeException(exceptionMessage)
@@ -93,6 +98,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
+
     Given("A ZRC runtime exception") {
         val exceptionMessage = "FakeRuntimeException"
         val exception = ZrcRuntimeException(exceptionMessage)
@@ -106,6 +112,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
+
     Given("A ZGW runtime exception") {
         val exceptionMessage = "FakeRuntimeException"
         val exception = ZgwRuntimeException(exceptionMessage)
@@ -119,6 +126,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
+
     Given("A ZTC runtime exception") {
         val exceptionMessage = "FakeRuntimeException"
         val exception = ZtcRuntimeException(exceptionMessage)
@@ -132,6 +140,60 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
+
+    Given("A ZGW validation error exception with two invalid parameters") {
+        val zgwValidationErrorException = ZgwValidationErrorException(
+            createValidationZgwError(
+                code = "fakeCode",
+                title = "fakeTitle",
+                status = 12345,
+                detail = "fakeDetail",
+                invalidParams = listOf(
+                    createFieldValidationError(
+                        name = "fakeFieldName1",
+                        code = "fakeCode1",
+                        reason = "fakeReason1"
+                    ),
+                    createFieldValidationError(
+                        name = "fakeFieldName2",
+                        code = "fakeCode2",
+                        reason = "fakeReason2"
+                    )
+                )
+            )
+        )
+
+        When("the exception is mapped to a response") {
+            val response = restExceptionMapper.toResponse(zgwValidationErrorException)
+
+            Then(
+                """
+                it should return the zgw validation error code and the exception message consisting of the reasons of the 
+                field validation errors separated by a comma
+                """
+            ) {
+                checkResponse(
+                    response = response,
+                    errorMessage = "msg.error.validation.zgw",
+                    exceptionMessage = "fakeReason1, fakeReason2",
+                    expectedStatus = HttpStatus.SC_BAD_REQUEST
+                )
+            }
+            And("it should log the exception at the level FINE with the expected exception message") {
+                verify(exactly = 1) {
+                    log(
+                        logger = any(),
+                        level = Level.FINE,
+                        message = "fakeTitle [12345 fakeCode] fakeDetail: fakeFieldName1 [fakeCode1] fakeReason1, " +
+                            "fakeFieldName2 [fakeCode2] fakeReason2 " +
+                            "(https://localhost:8080/validation-error https://localhost:8080/validation-error-instance)",
+                        throwable = zgwValidationErrorException
+                    )
+                }
+            }
+        }
+    }
+
     Given(
         """
         A JAX-RS processing exception with as root cause a HttpHostConnectException
@@ -156,6 +218,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """
         A JAX-RS processing exception with as root cause a HttpHostConnectException
@@ -180,6 +243,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """
         A JAX-RS processing exception with as root cause a HttpHostConnectException
@@ -204,6 +268,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """
         A JAX-RS processing exception with as root cause a HttpHostConnectException
@@ -228,6 +293,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """
         A JAX-RS processing exception with as root cause a UnknownHostException
@@ -249,6 +315,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """
         A JAX-RS processing exception without a HttpHostConnectException or UnknownHostException
@@ -272,6 +339,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
+
     Given("An input validation exception with an error code and a message") {
         val exception = InputValidationFailedException(
             errorCode = ERROR_CODE_BAG_CLIENT,
@@ -305,6 +373,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
+
     Given("An input validation exception with an error code and no message") {
         val exception = InputValidationFailedException(
             errorCode = ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
@@ -336,6 +405,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
+
     Given("A DecisionPublicationDisabledException exception") {
         val exception = DecisionPublicationDisabledException("error")
 
@@ -352,6 +422,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
+
     Given("A DecisionPublicationDateMissingException exception") {
         val exception = DecisionPublicationDateMissingException()
 
@@ -377,6 +448,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
+
     Given("A DecisionResponseDateInvalidException exception") {
         val exception = DecisionResponseDateInvalidException("error")
 
@@ -393,7 +465,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
-    Given("A ZAC runtime exception") {
+    Given("A server error exception") {
         val errorCode = mockk<ErrorCode>()
         val exception = ServerErrorException(errorCode, "error")
         every { errorCode.value } returns "fakeErrorCodeValue"

@@ -14,6 +14,7 @@ import net.atos.client.klant.KlantClientService
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.exception.DrcRuntimeException
+import net.atos.client.zgw.shared.exception.ZgwValidationErrorException
 import nl.info.client.brp.BrpClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.exception.BrcRuntimeException
@@ -25,6 +26,7 @@ import nl.info.client.zgw.ztc.exception.ZtcRuntimeException
 import nl.info.zac.app.exception.RestExceptionResponseBuilder.createResponse
 import nl.info.zac.app.exception.RestExceptionResponseBuilder.generateResponse
 import nl.info.zac.app.exception.RestExceptionResponseBuilder.generateServerErrorResponse
+import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BAG_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BRC_CLIENT
@@ -69,13 +71,13 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
      */
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     override fun toResponse(exception: Exception): Response =
-        when {
-            exception is WebApplicationException &&
-                Response.Status.Family.familyOf(exception.response.status) != Response.Status.Family.SERVER_ERROR -> {
+        when (exception) {
+            is WebApplicationException if
+            Response.Status.Family.familyOf(exception.response.status) != Response.Status.Family.SERVER_ERROR -> {
                 createResponse(exception)
             }
             // handle execution exceptions thrown from asynchronous Java concurrent methods
-            exception is ExecutionException && (exception.cause is WebApplicationException) &&
+            is ExecutionException if (exception.cause is WebApplicationException) &&
                 Response.Status.Family.familyOf(
                     (
                         exception.cause as WebApplicationException
@@ -83,31 +85,32 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 ) != Response.Status.Family.SERVER_ERROR -> {
                 createResponse(exception.cause as WebApplicationException)
             }
-            exception is ZgwRuntimeException -> handleZgwRuntimeException(exception)
-            exception is ProcessingException && (exception.cause is ConnectException || exception.cause is UnknownHostException) -> {
+            is ZgwRuntimeException -> handleZgwRuntimeException(exception)
+            is ZgwValidationErrorException -> handleZgwValidationErrorException(exception)
+            is ProcessingException if (exception.cause is ConnectException || exception.cause is UnknownHostException) -> {
                 handleProcessingException(exception)
             }
-            exception is PolicyException -> generateResponse(
+            is PolicyException -> generateResponse(
                 responseStatus = Response.Status.FORBIDDEN,
                 errorCode = ERROR_CODE_FORBIDDEN,
                 exception = exception
             )
-            exception is BetrokkeneIsAlreadyAddedToZaakException -> generateResponse(
+            is BetrokkeneIsAlreadyAddedToZaakException -> generateResponse(
                 responseStatus = Response.Status.CONFLICT,
                 errorCode = ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK,
                 exception = exception
             )
-            exception is InputValidationFailedException -> generateResponse(
+            is InputValidationFailedException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
                 errorCode = exception.errorCode ?: ERROR_CODE_SERVER_GENERIC,
                 exception = exception
             )
-            exception is ServerErrorException -> generateResponse(
+            is ServerErrorException -> generateResponse(
                 responseStatus = Response.Status.INTERNAL_SERVER_ERROR,
                 errorCode = exception.errorCode,
                 exception = exception
             )
-            exception is ZaakWithADecisionCannotBeTerminatedException -> generateResponse(
+            is ZaakWithADecisionCannotBeTerminatedException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
                 errorCode = ERROR_CODE_CASE_WITH_DECISION_CANNOT_BE_TERMINATION,
                 exception = exception
@@ -137,6 +140,15 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             // fall back to generic server error
             else -> generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
         }
+
+    private fun handleZgwValidationErrorException(exception: ZgwValidationErrorException): Response =
+        generateResponse(
+            responseStatus = Response.Status.BAD_REQUEST,
+            errorCode = ErrorCode.ERROR_CODE_VALIDATION_ZGW,
+            exception = exception,
+            // we only want to set the 'reason' field for the invalid parameters in the response
+            exceptionMessage = exception.validatieFout.invalidParams.joinToString(separator = ", ") { it.reason }
+        )
 
     /**
      * Handle JAX-RS processing exceptions which can be thrown by the various
