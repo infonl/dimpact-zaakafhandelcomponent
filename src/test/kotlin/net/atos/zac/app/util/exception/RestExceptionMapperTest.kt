@@ -397,7 +397,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                     log(
                         any(),
                         Level.FINE,
-                        "Exception was thrown. Returning response with error message: " +
+                        "Exception was thrown. Returning response with error code: " +
                             "'${ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS.value}'.",
                         exception
                     )
@@ -441,7 +441,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                     log(
                         any(),
                         Level.FINE,
-                        "Exception was thrown. Returning response with error message: 'msg.error.besluit.publication.date.missing'.",
+                        "Exception was thrown. Returning response with error code: 'msg.error.besluit.publication.date.missing'.",
                         exception
                     )
                 }
