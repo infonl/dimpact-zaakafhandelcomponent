@@ -138,7 +138,7 @@
         },
         {
           "legend": "Zaak Result",
-          "type": "zaakResultFieldset",
+          "type": "zaakResultTypesFieldset",
           "key": "FS_ZaakResult",
           "input": false,
           "components": [
@@ -159,7 +159,7 @@
         },
         {
           "legend": "Zaak Status",
-          "type": "zaakStatusFieldset",
+          "type": "zaakStatusTypesFieldset",
           "key": "FS_ZaakStatus",
           "input": false,
           "components": [

@@ -74,11 +74,11 @@ export class FormioSetupService {
           case "documentsFieldset":
             this.initializeAvailableDocumentsFieldsetComponent(component);
             break;
-          case "zaakResultFieldset":
-            this.initializeZaakResultFieldsetComponent(component);
+          case "zaakResultTypesFieldset":
+            this.initializeZaakResultTypesFieldsetComponent(component);
             break;
-          case "zaakStatusFieldset":
-            this.initializeZaakStatusFieldsetComponent(component);
+          case "zaakStatusTypesFieldset":
+            this.initializeZaakStatusTypesFieldsetComponent(component);
             break;
         }
         if ("components" in component && Array.isArray(component.components)) {
@@ -364,7 +364,7 @@ export class FormioSetupService {
     });
   }
 
-  private initializeZaakResultFieldsetComponent(
+  private initializeZaakResultTypesFieldsetComponent(
     fieldsetComponent: ExtendedComponentSchema,
   ): void {
     const zaakResultComponent = fieldsetComponent.components?.find(
@@ -379,12 +379,12 @@ export class FormioSetupService {
 
     zaakResultComponent.data = {
       custom: () => {
-        return this.zaakResultsQuery(this.taak!.zaakUuid).data();
+        return this.zaakResultTypesQuery(this.taak!.zaakUuid).data();
       },
     };
   }
 
-  private zaakResultsQuery(zaakUuid: string) {
+  private zaakResultTypesQuery(zaakUuid: string) {
     return runInInjectionContext(this.injector, () => {
       return injectQuery(() => ({
         queryKey: ["zaakResultsQuery", zaakUuid],
@@ -399,7 +399,7 @@ export class FormioSetupService {
     });
   }
 
-  private initializeZaakStatusFieldsetComponent(
+  private initializeZaakStatusTypesFieldsetComponent(
     fieldsetComponent: ExtendedComponentSchema,
   ): void {
     const zaakStatusComponent = fieldsetComponent.components?.find(
@@ -413,11 +413,11 @@ export class FormioSetupService {
     fieldsetComponent.type = "fieldset";
 
     zaakStatusComponent.data = {
-      custom: () => this.zaakStatusesQuery(this.taak!.zaakUuid).data(),
+      custom: () => this.zaakStatusTypesQuery(this.taak!.zaakUuid).data(),
     };
   }
 
-  private zaakStatusesQuery(zaakUuid: string) {
+  private zaakStatusTypesQuery(zaakUuid: string) {
     return runInInjectionContext(this.injector, () => {
       return injectQuery(() => ({
         queryKey: ["zaakStatusesQuery", zaakUuid],
