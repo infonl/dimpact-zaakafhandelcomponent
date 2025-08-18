@@ -691,7 +691,6 @@ services:
     volumes:
       - ./scripts/docker-compose/imports/pabc-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/pabc-database-data:/var/lib/postgresql/data
-    profiles: [ "pabc" ]
 
   pabc-migrations:
     image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.1@sha256:c6b8d66909dfed7709385490a8fb357870b331535bf1da8fce0103dc441f897a
@@ -701,7 +700,6 @@ services:
     depends_on:
       pabc-database:
         condition: "service_healthy"
-    profiles: [ "pabc" ]
 
   pabc-api:
     image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.1@sha256:f1e98366ebfd062a7f8b46bb633049a2d7519b553087af4e700c20a14ceb2f06
@@ -718,7 +716,6 @@ services:
         condition: "service_started"
       pabc-migrations:
         condition: "service_completed_successfully"
-    profiles: [ "pabc" ]
 
   zac-database:
     image: docker.io/postgres:17.6@sha256:a7fdfd815005ea658281c60b06020f49ab8a6bbe21434d3a59fe14654f6d4293
