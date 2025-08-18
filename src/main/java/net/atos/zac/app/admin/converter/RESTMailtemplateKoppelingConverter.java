@@ -23,7 +23,7 @@ public final class RESTMailtemplateKoppelingConverter {
     public static MailtemplateKoppeling convert(final RESTMailtemplateKoppeling restMailtemplateKoppeling) {
         final MailtemplateKoppeling mailtemplateKoppeling = new MailtemplateKoppeling();
         mailtemplateKoppeling.setMailTemplate(
-                RESTMailtemplateConverter.convertForUpdate(restMailtemplateKoppeling.mailtemplate)
+                RESTMailtemplateConverter.convert(restMailtemplateKoppeling.mailtemplate)
         );
         return mailtemplateKoppeling;
     }

@@ -23,6 +23,21 @@ public final class RESTMailtemplateConverter {
         return restMailtemplate;
     }
 
+    public static MailTemplate convert(final RESTMailtemplate restMailtemplate) {
+        if (restMailtemplate == null) {
+            throw new IllegalArgumentException("RESTMailtemplate cannot be null");
+        }
+
+        final MailTemplate mailTemplate = new MailTemplate();
+        mailTemplate.setId(restMailtemplate.id); // ID is set for retrieval
+        mailTemplate.setMail(restMailtemplate.mail);
+        mailTemplate.setMailTemplateNaam(restMailtemplate.mailTemplateNaam != null ? restMailtemplate.mailTemplateNaam.trim() : null);
+        mailTemplate.setOnderwerp(stripHtmlParagraphTags(restMailtemplate.onderwerp));
+        mailTemplate.setBody(restMailtemplate.body);
+        mailTemplate.setDefaultMailtemplate(restMailtemplate.defaultMailtemplate);
+        return mailTemplate;
+    }
+
     /**
      * Converts RESTMailtemplate to MailTemplate for create operations.
      * Explicitly does NOT set ID on domain model to allow database auto-generation.

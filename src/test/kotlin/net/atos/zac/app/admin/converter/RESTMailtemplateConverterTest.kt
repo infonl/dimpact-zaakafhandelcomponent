@@ -187,9 +187,9 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
 
     Context("Existing convert method behavior (for comparison)") {
         Given("A REST mail template with ID") {
-            val restMailTemplate = createMailTemplate(
+            val restMailTemplate = createRestMailTemplate(
                 id = 789L,
-                name = "Legacy Template"
+                mailTemplateName = "Legacy Template"
             )
 
             When("the existing convert method is called") {
@@ -203,8 +203,8 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
         }
 
         Given("A REST mail template with null ID") {
-            val restMailTemplate = createMailTemplate(
-                name = "Template with null ID"
+            val restMailTemplate = createRestMailTemplate(
+                mailTemplateName = "Template with null ID"
             ).apply { id = null }
 
             When("the existing convert method is called") {

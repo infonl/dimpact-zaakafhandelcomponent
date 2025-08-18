@@ -21,6 +21,7 @@ import nl.info.zac.util.NoArgConstructor
 @Transactional
 @AllOpen
 @NoArgConstructor
+@Suppress("TooManyFunctions")
 class MailTemplateService @Inject constructor(
     private val entityManager: EntityManager
 ) {
