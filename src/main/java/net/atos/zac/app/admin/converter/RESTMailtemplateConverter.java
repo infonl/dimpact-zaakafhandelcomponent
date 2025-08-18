@@ -7,7 +7,6 @@ package net.atos.zac.app.admin.converter;
 import static nl.info.zac.util.HtmlUtilsKt.stripHtmlParagraphTags;
 
 import net.atos.zac.app.admin.model.RESTMailtemplate;
-import nl.info.zac.mailtemplates.model.Mail;
 import nl.info.zac.mailtemplates.model.MailTemplate;
 
 public final class RESTMailtemplateConverter {
@@ -16,7 +15,7 @@ public final class RESTMailtemplateConverter {
         final RESTMailtemplate restMailtemplate = new RESTMailtemplate();
         restMailtemplate.id = mailTemplate.getId();
         restMailtemplate.mailTemplateNaam = mailTemplate.getMailTemplateNaam();
-        restMailtemplate.mail = mailTemplate.getMail().name();
+        restMailtemplate.mail = mailTemplate.getMail();
         restMailtemplate.variabelen = mailTemplate.getMail().getMailTemplateVariables();
         restMailtemplate.onderwerp = mailTemplate.getOnderwerp();
         restMailtemplate.body = mailTemplate.getBody();
@@ -25,10 +24,56 @@ public final class RESTMailtemplateConverter {
     }
 
     public static MailTemplate convert(final RESTMailtemplate restMailtemplate) {
+        if (restMailtemplate == null) {
+            throw new IllegalArgumentException("RESTMailtemplate cannot be null");
+        }
+
         final MailTemplate mailTemplate = new MailTemplate();
-        mailTemplate.setId(restMailtemplate.id);
-        mailTemplate.setMail(Mail.valueOf(restMailtemplate.mail));
-        mailTemplate.setMailTemplateNaam(restMailtemplate.mailTemplateNaam);
+        mailTemplate.setId(restMailtemplate.id); // ID is set for retrieval
+        mailTemplate.setMail(restMailtemplate.mail);
+        mailTemplate.setMailTemplateNaam(restMailtemplate.mailTemplateNaam != null ? restMailtemplate.mailTemplateNaam.trim() : null);
+        mailTemplate.setOnderwerp(stripHtmlParagraphTags(restMailtemplate.onderwerp));
+        mailTemplate.setBody(restMailtemplate.body);
+        mailTemplate.setDefaultMailtemplate(restMailtemplate.defaultMailtemplate);
+        return mailTemplate;
+    }
+
+    /**
+     * Converts RESTMailtemplate to MailTemplate for create operations.
+     * Explicitly does NOT set ID on domain model to allow database auto-generation.
+     * 
+     * @return MailTemplate domain model without ID set
+     */
+    public static MailTemplate convertForCreate(final RESTMailtemplate restMailtemplate) {
+        if (restMailtemplate == null) {
+            throw new IllegalArgumentException("RESTMailtemplate cannot be null");
+        }
+
+        final MailTemplate mailTemplate = new MailTemplate();
+        // Explicitly do NOT set ID - let database generate it
+        mailTemplate.setMail(restMailtemplate.mail);
+        mailTemplate.setMailTemplateNaam(restMailtemplate.mailTemplateNaam != null ? restMailtemplate.mailTemplateNaam.trim() : null);
+        mailTemplate.setOnderwerp(stripHtmlParagraphTags(restMailtemplate.onderwerp));
+        mailTemplate.setBody(restMailtemplate.body);
+        mailTemplate.setDefaultMailtemplate(restMailtemplate.defaultMailtemplate);
+        return mailTemplate;
+    }
+
+    /**
+     * Converts RESTMailtemplate to MailTemplate for update operations.
+     * Handles field mapping without ID concerns - ID will be set by the service layer.
+     *
+     * @return MailTemplate domain model with fields mapped (ID not set)
+     */
+    public static MailTemplate convertForUpdate(final RESTMailtemplate restMailtemplate) {
+        if (restMailtemplate == null) {
+            throw new IllegalArgumentException("RESTMailtemplate cannot be null");
+        }
+
+        final MailTemplate mailTemplate = new MailTemplate();
+        // ID will be set by the service layer from the path parameter
+        mailTemplate.setMail(restMailtemplate.mail);
+        mailTemplate.setMailTemplateNaam(restMailtemplate.mailTemplateNaam != null ? restMailtemplate.mailTemplateNaam.trim() : null);
         mailTemplate.setOnderwerp(stripHtmlParagraphTags(restMailtemplate.onderwerp));
         mailTemplate.setBody(restMailtemplate.body);
         mailTemplate.setDefaultMailtemplate(restMailtemplate.defaultMailtemplate);
