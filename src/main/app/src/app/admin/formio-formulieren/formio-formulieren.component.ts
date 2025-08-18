@@ -14,10 +14,9 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { FormioFormulierenService } from "../formio-formulieren.service";
-import { FormioFormulier } from "../model/formio-formulier";
-import { FormioFormulierContent } from "../model/formio-formulier-content";
 
 @Component({
   templateUrl: "./formio-formulieren.component.html",
@@ -27,26 +26,25 @@ export class FormioFormulierenComponent
   extends AdminComponent
   implements OnInit
 {
-  @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
-  @ViewChild("menuSidenav") menuSidenav: MatSidenav;
-  @ViewChild("fileInput", { static: false }) fileInput: ElementRef;
+  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
+  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
+  @ViewChild("fileInput", { static: false }) fileInput!: ElementRef;
 
   isLoadingResults = false;
   columns: string[] = ["name", "title", "id"];
-  dataSource: MatTableDataSource<FormioFormulier> =
-    new MatTableDataSource<FormioFormulier>();
+  dataSource = new MatTableDataSource<GeneratedType<"RestFormioFormulier">>();
 
   constructor(
-    public dialog: MatDialog,
-    public utilService: UtilService,
-    public configuratieService: ConfiguratieService,
-    private formioFormulierenService: FormioFormulierenService,
-    private foutAfhandelingService: FoutAfhandelingService,
+    public readonly dialog: MatDialog,
+    public readonly utilService: UtilService,
+    public readonly configuratieService: ConfiguratieService,
+    private readonly formioFormulierenService: FormioFormulierenService,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
   ) {
     super(utilService, configuratieService);
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.setupMenu("title.formioformulieren");
     this.loadFormioFormulieren();
   }
@@ -58,24 +56,24 @@ export class FormioFormulierenComponent
   fileSelected(event: Event) {
     const target = event.target as HTMLInputElement | null;
     const file = target?.files?.[0];
-    if (file) {
-      this.readFileContent(file)
-        .then((content) => {
-          this.formioFormulierenService
-            .uploadFormioFormulier(
-              new FormioFormulierContent(file.name, content),
-            )
-            .subscribe(() => {
-              this.loadFormioFormulieren();
-            });
-        })
-        .catch((error) => {
-          this.foutAfhandelingService.foutAfhandelen(error);
-        });
-    }
+    if (!file) return;
+    this.readFileContent(file)
+      .then((content) => {
+        this.formioFormulierenService
+          .uploadFormioFormulier({
+            filename: file.name,
+            content,
+          })
+          .subscribe(() => {
+            this.loadFormioFormulieren();
+          });
+      })
+      .catch((error) => {
+        this.foutAfhandelingService.foutAfhandelen(error);
+      });
   }
 
-  delete(formioFormulier: FormioFormulier): void {
+  delete(formioFormulier: GeneratedType<"RestFormioFormulier">) {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
@@ -83,7 +81,9 @@ export class FormioFormulierenComponent
             key: "msg.formioformulier.verwijderen.bevestigen",
             args: { naam: formioFormulier.name },
           },
-          this.formioFormulierenService.deleteFormioFormulier(formioFormulier),
+          this.formioFormulierenService.deleteFormioFormulier(
+            formioFormulier.id!,
+          ),
         ),
       })
       .afterClosed()
@@ -98,7 +98,7 @@ export class FormioFormulierenComponent
       });
   }
 
-  private loadFormioFormulieren(): void {
+  private loadFormioFormulieren() {
     this.isLoadingResults = true;
     this.utilService.setLoading(true);
     this.formioFormulierenService
