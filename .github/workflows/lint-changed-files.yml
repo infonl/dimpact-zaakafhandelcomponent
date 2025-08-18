@@ -146,10 +146,9 @@ jobs:
               
               The linting check for changed files has failed. Please fix the linting errors in your newly added or modified code.
               
-              You can run the following commands locally to check for issues:
+              You can run the following command locally to check for issues:
               \`\`\`bash
-              cd src/main/app
-              npm run lint
+              ./scripts/lint-changed-files.sh
               \`\`\`
               
               For TypeScript strict checking, you can temporarily enable strict mode in \`tsconfig.app.json\` to see all issues.`

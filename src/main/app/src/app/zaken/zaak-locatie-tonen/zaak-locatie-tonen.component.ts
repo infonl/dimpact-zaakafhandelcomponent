@@ -197,7 +197,7 @@ export class LocatieTonenComponent implements OnInit, AfterViewInit, OnChanges {
     const mapCenter: Array<number> = proj.transform(
       coordinate,
       "EPSG:4326",
-      "EPSG:3857"
+      "EPSG:3857",
     );
     this.map.getView().setCenter(mapCenter);
     const locationExtent = this.locationSource.getExtent();
