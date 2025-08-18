@@ -127,7 +127,6 @@ mkdir -p $volumeDataFolder/zac-keycloak-database-data
 mkdir -p $volumeDataFolder/solr-data
 mkdir -p $volumeDataFolder/zac-database-data
 mkdir -p $volumeDataFolder/zac-keycloak-database-data
-mkdir -p $volumeDataFolder/zgw-referentielijsten-database-data
 
 # Build comma separated profile list
 profilesList=""
