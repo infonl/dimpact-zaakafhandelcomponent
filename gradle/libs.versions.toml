@@ -60,7 +60,7 @@ wildfly-security-elytron-http-oidc = "2.6.4.Final"
 
 eclipse-yasson = "3.0.4"
 
-kotest-runner-junit5 = "5.9.1"
+kotest-runner-junit5 = "6.0.0"
 kotest-assertions-json = "5.9.1"
 mockk = "1.14.5"
 
