@@ -186,7 +186,7 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
 
   isValid() {
     const value = this.formGroup.value;
-    const hasValues = Object.values(value).some((value) => value !== null);
+    const hasValues = Object.values(value).some(Boolean);
     return hasValues && this.formGroup.valid && !this.blockSearch();
   }
 
