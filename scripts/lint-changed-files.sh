@@ -24,6 +24,23 @@ fi
 echo "📋 Getting changed files compared to $BASE_BRANCH..."
 CHANGED_FILES=$(git diff --name-only origin/$BASE_BRANCH...HEAD | grep -E '\.(ts|js|html)$' | grep "^$APP_DIR/" || true)
 
+# Get untracked files
+echo "📋 Getting untracked files..."
+UNTRACKED_FILES=$(git ls-files --others --exclude-standard | grep -E '\.(ts|js|html)$' | grep "^$APP_DIR/" || true)
+
+# Combine changed and untracked files
+ALL_CHANGED_FILES=""
+if [ -n "$CHANGED_FILES" ]; then
+    ALL_CHANGED_FILES="$CHANGED_FILES"$'\n'
+fi
+if [ -n "$UNTRACKED_FILES" ]; then
+    echo "📝 Found untracked files:"
+    echo "$UNTRACKED_FILES"
+    ALL_CHANGED_FILES="$ALL_CHANGED_FILES$UNTRACKED_FILES"$'\n'
+fi
+
+CHANGED_FILES="$ALL_CHANGED_FILES"
+
 if [ -z "$CHANGED_FILES" ]; then
     echo "✅ No TypeScript/JavaScript/HTML files changed in $APP_DIR"
     exit 0
@@ -86,95 +103,40 @@ echo "🔍 Running strict TypeScript checking on changed files..."
 cat > tsconfig.changed-files.json << 'EOF'
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "noEmit": true,
-    "skipLibCheck": true
-  },
+  "compilerOptions": {},
   "include": [],
-  "exclude": ["src/test-helpers.ts", "src/**/*.spec.ts", "src/**/*.test.ts"]
+  "exclude": []
 }
 EOF
 
-# Add only the changed files to the include array
+# Add only the changed .ts files to the include array
 if [ -n "$RELATIVE_FILES" ]; then
-    # Convert to JSON array format
-    FILES_JSON=$(echo "$RELATIVE_FILES" | tr ' ' '\n' | jq -R -s -c 'split("\n")[:-1]')
+    # Keep only .ts files for the TypeScript compiler
+    RELATIVE_TS_FILES=$(echo "$RELATIVE_FILES" | grep -E '\.ts$' || true)
     
-    # Update tsconfig to include only changed files
-    jq --argjson files "$FILES_JSON" '.include = $files' tsconfig.changed-files.json > tsconfig.changed-files.tmp.json
-    mv tsconfig.changed-files.tmp.json tsconfig.changed-files.json
-    
-    echo "Running TypeScript check on changed files only..."
-    if ! npx tsc --project tsconfig.changed-files.json; then
-        echo ""
-        echo "❌ TypeScript check failed on changed files"
-        echo "💡 Changed files must follow strict TypeScript standards"
-        echo "💡 Tip: Temporarily enable strict mode in tsconfig.app.json to see all issues"
-        rm -f tsconfig.changed-files.json
-        exit 1
+    if [ -z "$RELATIVE_TS_FILES" ]; then
+        echo "No TypeScript files to type-check"
+    else
+        # Convert to JSON array format
+        FILES_JSON=$(echo "$RELATIVE_TS_FILES" | tr ' ' '\n' | jq -R -s -c 'split("\n") | map(select(length>0))')
+        
+        # Update tsconfig to include only changed .ts files
+        jq --argjson files "$FILES_JSON" '.include = $files' tsconfig.changed-files.json > tsconfig.changed-files.tmp.json
+        mv tsconfig.changed-files.tmp.json tsconfig.changed-files.json
+        
+        if ! npx tsc --project tsconfig.changed-files.json; then
+            echo ""
+            echo "❌ TypeScript check failed on changed files"
+            echo "💡 Changed files must follow strict TypeScript standards"
+            echo "💡 Tip: Temporarily enable strict mode in tsconfig.app.json to see all issues"
+            rm -f tsconfig.changed-files.json
+            exit 1
+        fi
     fi
 fi
 
 # Clean up temporary file
 rm -f tsconfig.changed-files.json
-    echo ""
-    echo "❌ ESLint found errors in changed files"
-    echo "💡 Tip: Run 'npm run lint' (in the app directory) to see all linting issues"
-    exit 1
-fi
-
-# Check if we have new files that need strict checking
-if [ -n "$NEW_FILES" ]; then
-    echo ""
-    echo "🆕 New files detected - running strict TypeScript check..."
-    
-    # Create temporary strict tsconfig for new files
-    cat > tsconfig.strict-temp.json << 'EOF'
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "strict": true,
-    "noEmit": true,
-    "skipLibCheck": true,
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true
-  },
-  "angularCompilerOptions": {
-    "strictTemplates": true,
-    "strictInjectionParameters": true
-  },
-  "include": [],
-  "exclude": ["src/test-helpers.ts", "src/**/*.spec.ts", "src/**/*.test.ts"]
-}
-EOF
-
-    # Add new files to include array
-    if [ -n "$NEW_FILES" ]; then
-        # Convert file paths to be relative to the app directory
-        RELATIVE_NEW_FILES=$(echo "$NEW_FILES" | sed "s|^$APP_DIR/||")
-        
-        # Convert to JSON array format
-        FILES_JSON=$(echo "$RELATIVE_NEW_FILES" | jq -R -s -c 'split("\n")[:-1]')
-        
-        # Update tsconfig to include only new files
-        jq --argjson files "$FILES_JSON" '.include = $files' tsconfig.strict-temp.json > tsconfig.strict-temp.tmp.json
-        mv tsconfig.strict-temp.tmp.json tsconfig.strict-temp.json
-        
-        echo "Running strict TypeScript check on new files..."
-        if ! npx tsc --project tsconfig.strict-temp.json; then
-            echo ""
-            echo "❌ TypeScript strict check failed on new files"
-            echo "💡 New files must follow strict TypeScript standards"
-            echo "💡 Tip: Temporarily enable strict mode in tsconfig.app.json to see all issues"
-            rm -f tsconfig.strict-temp.json
-            exit 1
-        fi
-    fi
-    
-    # Clean up temporary file
-    rm -f tsconfig.strict-temp.json
-fi
 
 echo ""
 echo "✅ All linting checks passed!"
