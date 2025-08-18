@@ -62,6 +62,12 @@ jobs:
             echo "files_to_lint=" >> $GITHUB_OUTPUT
           fi
 
+      - name: Build project to generate OpenAPI specs
+        if: steps.changed-files.outputs.files_to_lint != ''
+        run: |
+          echo "Building project to generate OpenAPI specs..."
+          ./gradlew build -x test --info --no-configuration-cache
+
       - name: Generate TypeScript types
         if: steps.changed-files.outputs.files_to_lint != ''
         working-directory: src/main/app

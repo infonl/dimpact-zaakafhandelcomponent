@@ -86,7 +86,7 @@ echo "Current directory: $(pwd)"
 echo "ESLint config file exists: $([ -f .eslintrc.js ] && echo 'Yes' || echo 'No')"
 echo ""
 
-# Generate types first
+# Generate types
 echo ""
 echo "🔧 Generating TypeScript types..."
 if ! npm run generate:types:zac-openapi; then
