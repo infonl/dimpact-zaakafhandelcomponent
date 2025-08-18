@@ -58,7 +58,6 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.ZACRole
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
-import nl.info.zac.policy.output.createWerklijstRechten
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.exception.CaseHasLockedInformationObjectsException
 import java.net.URI
