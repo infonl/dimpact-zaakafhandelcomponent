@@ -126,10 +126,10 @@ class ProjectConfig : AbstractProjectConfig() {
     @OptIn(ExperimentalStdlibApi::class)
     override suspend fun afterProject() {
         // stop ZAC Docker Container gracefully to give JaCoCo a change to generate the code coverage report
-        dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).getOrNull()?.let { zacContaner ->
+        dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).getOrNull()?.let { zacContainer ->
             logger.info { "Stopping ZAC Docker container" }
-            zacContaner.dockerClient
-                .stopContainerCmd(zacContaner.containerId)
+            zacContainer.dockerClient
+                .stopContainerCmd(zacContainer.containerId)
                 .withTimeout(30.seconds.inWholeSeconds.toInt())
                 .exec()
             logger.info { "Stopped ZAC Docker container" }
