@@ -15,6 +15,7 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
+import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
@@ -31,8 +32,6 @@ import java.time.format.DateTimeFormatter
  */
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
 class PlanItemsRestServiceTest : BehaviorSpec({
-    val humanTaskType = "HUMAN_TASK"
-
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
@@ -56,7 +55,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     shouldContainJsonKeyValue("actief", "true")
                     shouldContainJsonKeyValue("formulierDefinitie", FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE)
                     shouldContainJsonKeyValue("naam", HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM)
-                    shouldContainJsonKeyValue("type", humanTaskType)
+                    shouldContainJsonKeyValue("type", HUMAN_TASK_TYPE)
                     shouldContainJsonKeyValue("zaakUuid", zaakProductaanvraag1Uuid.toString())
                     shouldContainJsonKey("id")
                 }
@@ -76,7 +75,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     shouldContainJsonKeyValue("actief", "true")
                     shouldContainJsonKeyValue("formulierDefinitie", FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE)
                     shouldContainJsonKeyValue("naam", HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM)
-                    shouldContainJsonKeyValue("type", humanTaskType)
+                    shouldContainJsonKeyValue("type", HUMAN_TASK_TYPE)
                     shouldContainJsonKeyValue("zaakUuid", zaakProductaanvraag1Uuid.toString())
                     shouldContainJsonKeyValue("id", humanTaskItemAanvullendeInformatieId)
                 }

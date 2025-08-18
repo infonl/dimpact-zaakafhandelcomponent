@@ -89,7 +89,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   ];
 
   const mockAfzenders = [
-    fromPartial<GeneratedType<"RESTZaakAfzender">>({
+    fromPartial<GeneratedType<"RestZaakAfzender">>({
       mail: "test@example.com",
       suffix: "Test Afzender",
       replyTo: "reply@example.com",
@@ -296,6 +296,21 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
           brondatumEigenschap: "2021-12-31T23:00:00.000Z", // ISO 8601 format
         }),
       );
+    });
+
+    it("should not allow the form to be submitted when a brondatumEigenschap is required", async () => {
+      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
+      await resultaattypeSelect.open();
+
+      const options = await resultaattypeSelect.getOptions();
+      await options[0]?.click();
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
+      );
+      const isDisabled = await submitButton.isDisabled();
+
+      expect(isDisabled).toBe(true);
     });
   });
 

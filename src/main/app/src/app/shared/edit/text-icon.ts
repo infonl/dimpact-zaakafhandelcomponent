@@ -11,7 +11,7 @@ export class TextIcon {
   id: string;
   title: string;
   styleClass: string;
-  outlined: boolean;
+  outlined?: boolean;
 
   constructor(
     showIcon: ConditionalFn,

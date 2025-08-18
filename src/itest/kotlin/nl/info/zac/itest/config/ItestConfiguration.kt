@@ -54,6 +54,7 @@ object ItestConfiguration {
     const val DOMEIN_TEST_1 = "domein_test_1"
     const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
+    const val HUMAN_TASK_TYPE = "HUMAN_TASK"
     const val BPMN_TEST_TASK_NAAM = "Test form"
     const val BPMN_SUMMARY_TASK_NAAM = "Summary form"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING = "bijlage"
@@ -127,11 +128,12 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED = 8
     const val TEST_SPEC_ORDER_AFTER_REINDEXING = 9
     const val TEST_SPEC_ORDER_AFTER_SEARCH = 10
+    const val TEST_SPEC_ORDER_AFTER_KOPPELEN = 11
 
-    const val TOTAL_COUNT_ZAKEN = 11
-    const val TOTAL_COUNT_ZAKEN_AFGEROND = 2
-    const val TOTAL_COUNT_TASKS = 3
-    const val TOTAL_COUNT_DOCUMENTS = 11
+    const val TOTAL_COUNT_INDEXED_ZAKEN = 11
+    const val TOTAL_COUNT_INDEXED_ZAKEN_AFGEROND = 2
+    const val TOTAL_COUNT_INDEXED_TASKS = 3
+    const val TOTAL_COUNT_INDEXED_DOCUMENTS = 11
 
     /**
      * Test person that exists in both the BRP and the Klanten API databases

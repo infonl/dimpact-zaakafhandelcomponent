@@ -244,6 +244,16 @@ class ZrcClientService @Inject constructor(
         return zrcClient.zaakeigenschapCreate(zaakUUID, zaakEigenschap)
     }
 
+    fun listZaakeigenschappen(zaakUUID: UUID): List<ZaakEigenschap> {
+        return zrcClient.zaakeigenschapList(zaakUUID)
+    }
+
+    fun updateZaakeigenschap(
+        zaakUUID: UUID,
+        uuid: UUID,
+        zaakEigenschap: ZaakEigenschap
+    ): ZaakEigenschap = zrcClient.zaakEigenschapUpdate(zaakUUID, uuid, zaakEigenschap)
+
     private fun deleteDeletedRollen(
         currentRoles: List<Rol<*>>,
         rolesToBeDeleted: List<Rol<*>>,

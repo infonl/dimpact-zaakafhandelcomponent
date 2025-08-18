@@ -14,7 +14,7 @@ type ShiftTuple<T extends Array<unknown>> = T extends [T[0], ...infer R]
   ? R
   : never;
 
-const DATE_FORMATS = ["YYYY-MM-DD", "DD-MM-YYYY"];
+const DATE_FORMATS = ["YYYY-MM-DD", "DD-MM-YYYY", "MM/DD/YYYY"];
 
 export class DateConditionals {
   static provideFormControlValue<
@@ -28,7 +28,7 @@ export class DateConditionals {
 
   static isExceeded(
     value: Date | Moment | string,
-    actual?: Date | Moment | string,
+    actual?: Date | Moment | string | null,
   ): boolean {
     if (!value) return false;
 
@@ -40,7 +40,7 @@ export class DateConditionals {
 
   static isPreceded(
     value: Date | Moment | string,
-    actual?: Date | Moment | string,
+    actual?: Date | Moment | string | null,
   ): boolean {
     if (!value) return false;
 

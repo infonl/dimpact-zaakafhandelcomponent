@@ -5,8 +5,11 @@
 
 <mat-toolbar role="heading" class="gap-16" mat-dialog-title>
   <mat-icon>thumb_up_alt</mat-icon>
-  <span class="flex-grow-1">
-    {{ "planitem." + data.planItem.userEventListenerActie | translate }}
+  <span class="flex-grow-1" *ngIf="data.planItem">
+    {{ "planitem." + data.planItem?.userEventListenerActie | translate }}
+  </span>
+  <span class="flex-grow-1" *ngIf="!data.planItem">
+    {{ "actie.zaak.afsluiten" | translate }}
   </span>
   <button mat-icon-button (click)="close()">
     <mat-icon>close</mat-icon>
@@ -17,12 +20,12 @@
 <form [formGroup]="formGroup" (submit)="afhandelen()">
   <mat-dialog-content>
     <p
-      *ngIf="data.planItem.toelichting"
+      *ngIf="data.planItem?.toelichting"
       class="readonly"
-      [innerHTML]="planItem.toelichting"
+      [innerHTML]="data.planItem?.toelichting"
     ></p>
     <p
-      *ngIf="besluitVastleggen"
+      *ngIf="formGroup.controls.resultaattype.value?.besluitVerplicht"
       class="readonly error"
       [innerHTML]="'msg.besluit.verplicht' | translate"
     ></p>
@@ -49,11 +52,13 @@
       [form]="formGroup"
       key="brondatumEigenschap"
       *ngIf="formGroup.controls.resultaattype.value?.datumKenmerkVerplicht"
-    />
+    >
+      <mat-label>{{ "zaak.brondatum" | translate }}</mat-label>
+    </zac-date>
     <div
       *ngIf="
         data.zaak.zaaktype.zaakafhandelparameters?.afrondenMail !==
-        'NIET_BESCHIKBAAR'
+          'NIET_BESCHIKBAAR' && !!data.planItem
       "
     >
       <mat-checkbox id="sendMail" formControlName="sendMail">
@@ -95,7 +100,7 @@
   </mat-dialog-content>
   <mat-dialog-actions>
     <button
-      *ngIf="!besluitVastleggen"
+      *ngIf="!formGroup.controls.resultaattype.value?.besluitVerplicht"
       mat-raised-button
       color="primary"
       type="submit"
@@ -107,7 +112,7 @@
       {{ "actie.zaak.afhandelen" | translate }}
     </button>
     <button
-      *ngIf="besluitVastleggen"
+      *ngIf="formGroup.controls.resultaattype.value?.besluitVerplicht"
       mat-raised-button
       color="primary"
       (click)="openBesluitVastleggen()"
