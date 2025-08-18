@@ -78,10 +78,6 @@ export class MailCreateComponent implements OnInit {
         this.form.controls.verzender.setValue(defaultVerzenderVoorZaak);
       });
 
-    this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
-      zaakUUID: this.zaak.uuid,
-    });
-
     const documenten =
       this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
         zaakUUID: this.zaak.uuid,
