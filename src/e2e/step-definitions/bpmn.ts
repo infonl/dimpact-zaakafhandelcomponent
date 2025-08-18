@@ -174,10 +174,10 @@ When(
     await this.page.getByLabel("Test form").getByText("file A").click();
     await this.page.getByLabel("Test form").getByText("file B").click();
     await this.page.getByLabel("Communication channel").selectOption("E-mail");
-    await this.page.getByLabel('Select result').click();
-    await this.page.getByLabel('Select result').selectOption('Verleend');
-    await this.page.getByLabel('Select status').click();
-    await this.page.getByLabel('Select status').selectOption('Afgerond');
+    await this.page.getByLabel("Select result").click();
+    await this.page.getByLabel("Select result").selectOption("Verleend");
+    await this.page.getByLabel("Select status").click();
+    await this.page.getByLabel("Select status").selectOption("Afgerond");
   },
 );
 
