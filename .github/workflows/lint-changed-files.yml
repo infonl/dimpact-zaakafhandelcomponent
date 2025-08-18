@@ -62,17 +62,17 @@ jobs:
             echo "files_to_lint=" >> $GITHUB_OUTPUT
           fi
 
-      - name: Build project to generate OpenAPI specs
+      - name: Generate OpenAPI specs
         if: steps.changed-files.outputs.files_to_lint != ''
         run: |
-          echo "Building project to generate OpenAPI specs..."
-          ./gradlew build -x test --info --no-configuration-cache
+          echo "Generating OpenAPI specs..."
+          ./gradlew generateOpenApiSpec
 
-      - name: Generate TypeScript types
+      - name: Generate OpenAPI TypeScript types
         if: steps.changed-files.outputs.files_to_lint != ''
         working-directory: src/main/app
         run: |
-          echo "Generating TypeScript types..."
+          echo "Generating OpenAPI TypeScript types..."
           npm run generate:types:zac-openapi
 
       - name: Lint changed files

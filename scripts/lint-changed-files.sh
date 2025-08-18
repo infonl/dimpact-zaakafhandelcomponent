@@ -86,9 +86,21 @@ echo "Current directory: $(pwd)"
 echo "ESLint config file exists: $([ -f .eslintrc.js ] && echo 'Yes' || echo 'No')"
 echo ""
 
-# Generate types
+# Generate OpenAPI specs first
 echo ""
-echo "🔧 Generating TypeScript types..."
+echo "🔧 Generating OpenAPI specs..."
+cd ../../..
+if ! ./gradlew generateOpenApiSpec; then
+    echo ""
+    echo "❌ OpenAPI spec generation failed"
+    echo "💡 Tip: Run './gradlew generateOpenApiSpec' from the project root to generate OpenAPI specs"
+    exit 1
+fi
+cd "$APP_DIR"
+
+# Generate TypeScript types from OpenAPI specs
+echo ""
+echo "🔧 Generating TypeScript types from OpenAPI specs..."
 if ! npm run generate:types:zac-openapi; then
     echo ""
     echo "❌ Type generation failed"
