@@ -4,7 +4,6 @@
  */
 // Configured using https://github.com/angular-eslint/angular-eslint/blob/main/docs/CONFIGURING_ESLINTRC.md
 module.exports = {
-  root: true,
   ignorePatterns: ["dist", "coverage"],
   parserOptions: {
     ecmaVersion: 2020,
