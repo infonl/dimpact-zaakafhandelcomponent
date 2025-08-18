@@ -221,8 +221,8 @@ class PlanItemsRestService @Inject constructor(
         }
 
         when (userEventListenerData.actie) {
-            UserEventListenerActie.INTAKE_AFRONDEN -> this.handleIntakeAfronden(zaak, userEventListenerData)
-            UserEventListenerActie.ZAAK_AFHANDELEN -> this.handleZaakAfhandelen(zaak, userEventListenerData)
+            UserEventListenerActie.INTAKE_AFRONDEN -> handleIntakeAfronden(zaak, userEventListenerData)
+            UserEventListenerActie.ZAAK_AFHANDELEN -> handleZaakAfhandelen(zaak, userEventListenerData)
         }
 
         userEventListenerData.planItemInstanceId?.let {

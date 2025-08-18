@@ -33,6 +33,7 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_SMARTDOCUMENTS_NOT_CONFIGURED("msg.error.smartdocuments.not.configured"),
     ERROR_CODE_SMARTDOCUMENTS_DISABLED("msg.error.smartdocuments.disabled"),
     ERROR_CODE_VALIDATION_GENERIC("msg.error.validation.generic"),
+    ERROR_CODE_VALIDATION_ZGW("msg.error.validation.zgw"),
     ERROR_CODE_BESLUIT_PUBLICATION_DISABLED_TYPE("msg.error.besluit.publication.disabled"),
     ERROR_CODE_BESLUIT_PUBLICATION_DATE_MISSING_TYPE("msg.error.besluit.publication.date.missing"),
     ERROR_CODE_BESLUIT_RESPONSE_DATE_MISSING_TYPE("msg.error.besluit.response.date.missing"),

@@ -266,7 +266,6 @@ Example:
         }
       ]
     }
-
 ```
 :warning: prefixing the reference table code with 'BPMN_' is recommended to avoid conflicts with other ZAAK types and reference tables.
 
@@ -307,6 +306,66 @@ Example:
           "validate": {
             "required": true
           }
+        }
+      ]
+    }
+```
+
+### Zaak resultaattypes
+The available result types for a zaak can be displayed with:
+* a fieldset with type `zaakResultTypesFieldset`
+* `select` component, part of the fieldset
+
+Example:
+```json
+    {
+      "legend": "Zaak Result",
+      "type": "zaakResultTypesFieldset",
+      "key": "FS_ZaakResult",
+      "input": false,
+      "components": [
+        {
+          "label": "Select result",
+          "optionsLabelPosition": "right",
+          "key": "ZK_Result",
+          "widget": "html5",
+          "validate": {
+            "required": true,
+            "onlyAvailableItems": true
+          },
+          "type": "select",
+          "input": true,
+          "dataSrc": "custom"
+        }
+      ]
+    }
+```
+
+### Zaak statustypes
+The available status types for a zaak can be displayed with:
+* a fieldset with type `zaakStatusTypesFieldset`
+* `select` component, part of the fieldset
+
+Example:
+```json
+    {
+      "legend": "Zaak Status",
+      "type": "zaakStatusTypesFieldset",
+      "key": "FS_ZaakStatus",
+      "input": false,
+      "components": [
+        {
+          "label": "Select status",
+          "optionsLabelPosition": "right",
+          "key": "ZK_Status",
+          "widget": "html5",
+          "validate": {
+            "required": true,
+            "onlyAvailableItems": true
+          },
+          "type": "select",
+          "input": true,
+          "dataSrc": "custom"
         }
       ]
     }
