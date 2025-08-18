@@ -10,14 +10,17 @@ import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
+import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
+import moment from "moment";
 import { of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
+import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
@@ -33,7 +36,6 @@ import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
-import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../../taken/taken.service";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
@@ -85,19 +87,19 @@ describe(ZaakViewComponent.name, () => {
       declarations: [
         ZaakViewComponent,
         ZaakIndicatiesComponent,
-        StaticTextComponent,
         ZaakDocumentenComponent,
         NotitiesComponent,
         SideNavComponent,
         PersoonsgegevensComponent,
+        StaticTextComponent,
         ZaakInitiatorToevoegenComponent,
       ],
       imports: [
         TranslateModule.forRoot(),
-        NoopAnimationsModule,
         PipesModule,
         MaterialModule,
         VertrouwelijkaanduidingToTranslationKeyPipe,
+        NoopAnimationsModule,
       ],
       providers: [
         provideHttpClient(),
@@ -226,6 +228,86 @@ describe(ZaakViewComponent.name, () => {
         expect(button).toBeNull();
       });
     });
+  });
+
+  describe("dateFieldIconMap icon logic", () => {
+    let component: ZaakViewComponent;
+    const yesterdayDate = moment().subtract(1, "days").format("YYYY-MM-DD");
+    const today = moment().format("YYYY-MM-DD");
+    const tomorrowDate = moment().add(1, "days").format("YYYY-MM-DD");
+
+    beforeEach(async () => {
+      fixture = TestBed.createComponent(ZaakViewComponent);
+      component = fixture.componentInstance;
+      component.zaak = { ...zaak } as GeneratedType<"RestZaak">;
+
+      loader = TestbedHarnessEnvironment.loader(fixture);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+    });
+
+    it.each([
+      [
+        {
+          einddatum: undefined,
+          einddatumGepland: undefined,
+          uiterlijkeEinddatumAfdoening: yesterdayDate,
+        },
+        1,
+      ],
+      [
+        {
+          einddatum: undefined,
+          einddatumGepland: yesterdayDate,
+          uiterlijkeEinddatumAfdoening: yesterdayDate,
+        },
+        2,
+      ],
+      [
+        {
+          einddatum: undefined,
+          einddatumGepland: undefined,
+          uiterlijkeEinddatumAfdoening: yesterdayDate,
+        },
+        1,
+      ],
+      [
+        {
+          einddatum: undefined,
+          einddatumGepland: undefined,
+          uiterlijkeEinddatumAfdoening: undefined,
+        },
+        0,
+      ],
+      [
+        {
+          einddatum: undefined,
+          einddatumGepland: tomorrowDate,
+          uiterlijkeEinddatumAfdoening: tomorrowDate,
+        },
+        0,
+      ],
+      [
+        {
+          einddatum: today,
+          einddatumGepland: tomorrowDate,
+          uiterlijkeEinddatumAfdoening: tomorrowDate,
+        },
+        0,
+      ],
+    ])(
+      "shows the correct warning icons for overdue data",
+      async (zaakData, expectedIcons) => {
+        mockActivatedRoute.data.next({ zaak: { ...zaak, ...zaakData } });
+
+        const icons = await loader.getAllHarnesses(
+          MatIconHarness.with({ name: "report_problem" }),
+        );
+
+        expect(icons.length).toBe(expectedIcons);
+      },
+    );
   });
 
   describe("openPlanItemStartenDialog", () => {
