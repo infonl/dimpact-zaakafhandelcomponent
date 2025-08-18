@@ -249,8 +249,6 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { configuratieService.readBronOrganisatie() } returns bronOrganisatie
             every { configuratieService.readVerantwoordelijkeOrganisatie() } returns verantwoordelijkeOrganisatie
             every { cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null) } just runs
-            every { identityService.readGroup(restZaakAanmaakGegevens.zaak.groep!!.id) } returns group
-            every { identityService.readUser(restZaakAanmaakGegevens.zaak.behandelaar!!.id) } returns user
             every {
                 inboxProductaanvraagService.delete(restZaakAanmaakGegevens.inboxProductaanvraag?.id)
             } just runs
@@ -302,7 +300,9 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { bpmnService.findProcessDefinitionForZaaktype(zaakTypeUUID) } returns null
 
             When("a zaaktype is created for which the user has permissions and no BPMN process definition is found") {
-                every { policyService.readOverigeRechten(zaak.omschrijving) } returns createOverigeRechtenAllDeny(startenZaak = true)
+                every { identityService.readGroup(restZaakAanmaakGegevens.zaak.groep!!.id) } returns group
+                every { identityService.readUser(restZaakAanmaakGegevens.zaak.behandelaar!!.id) } returns user
+                every { policyService.readOverigeRechten(null) } returns createOverigeRechtenAllDeny(startenZaak = true)
                 every {
                     policyService.readZaakRechten(zaak, zaakType)
                 } returns createZaakRechtenAllDeny(toevoegenInitiatorPersoon = true)
@@ -346,7 +346,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaak = createRestZaak(communicatiekanaal = null)
             )
             every { zaakService.readZaakTypeByUUID(any()) } returns zaakType
-            every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechtenAllDeny(startenZaak = true)
+            every {
+                policyService.readOverigeRechten(zaakType.omschrijving)
+            } returns createOverigeRechtenAllDeny(startenZaak = true)
             every { loggedInUserInstance.get() } returns createLoggedInUser()
             every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
@@ -367,7 +369,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaak = createRestZaak(communicatiekanaal = "      ")
             )
             every { zaakService.readZaakTypeByUUID(any<UUID>()) } returns zaakType
-            every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechtenAllDeny(startenZaak = true)
+            every {
+                policyService.readOverigeRechten(zaakType.omschrijving)
+            } returns createOverigeRechtenAllDeny(startenZaak = true)
             every { loggedInUserInstance.get() } returns createLoggedInUser()
             every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 

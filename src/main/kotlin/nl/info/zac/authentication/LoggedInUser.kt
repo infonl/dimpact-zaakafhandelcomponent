@@ -38,6 +38,6 @@ class LoggedInUser(
             return pabcMappings[zaaktypeOmschrijving]?.isNotEmpty() == true
         }
         return geautoriseerdeZaaktypen == null ||
-                geautoriseerdeZaaktypen.contains(zaaktypeOmschrijving)
+            geautoriseerdeZaaktypen.contains(zaaktypeOmschrijving)
     }
 }
