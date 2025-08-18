@@ -35,6 +35,7 @@ import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.VESTIGING_IDENTIFICATIE_DELIMITER
+import nl.info.zac.app.zaak.model.toRestResultaatTypes
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
@@ -407,4 +408,14 @@ class ZaakService @Inject constructor(
             }
         }
     }
+
+    fun listStatusTypes(zaaktypeUUID: UUID) =
+        ztcClientService.readStatustypen(
+            ztcClientService.readZaaktype(zaaktypeUUID).url
+        ).toRestResultaatTypes()
+
+    fun listResultTypes(zaaktypeUUID: UUID) =
+        ztcClientService.readResultaattypen(
+            ztcClientService.readZaaktype(zaaktypeUUID).url
+        ).toRestResultaatTypes()
 }

@@ -1006,9 +1006,7 @@ class ZaakRestService @Inject constructor(
         assertPolicy(
             policyService.readWerklijstRechten().zakenTaken || policyService.readOverigeRechten().beheren
         )
-        return ztcClientService.readResultaattypen(
-            ztcClientService.readZaaktype(zaaktypeUUID).url
-        ).toRestResultaatTypes()
+        return zaakService.listResultTypes(zaaktypeUUID)
     }
 
     @GET
@@ -1019,9 +1017,7 @@ class ZaakRestService @Inject constructor(
         assertPolicy(
             policyService.readWerklijstRechten().zakenTaken || policyService.readOverigeRechten().beheren
         )
-        return ztcClientService.readStatustypen(
-            ztcClientService.readZaaktype(zaaktypeUUID).url
-        ).toRestResultaatTypes()
+        return zaakService.listStatusTypes(zaaktypeUUID)
     }
 
     @GET

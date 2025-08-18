@@ -8,6 +8,7 @@ package nl.info.zac.zaak
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
@@ -57,6 +58,7 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.ZACRole
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
+import nl.info.zac.policy.output.createWerklijstRechten
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.exception.CaseHasLockedInformationObjectsException
 import java.net.URI
@@ -1030,6 +1032,64 @@ class ZaakServiceTest : BehaviorSpec({
 
                 And("it should not update any existing zaakeigenschap") {
                     verify(exactly = 0) { zrcClientService.updateZaakeigenschap(zaak.uuid, any(), any()) }
+                }
+            }
+        }
+    }
+
+    Context("Listing status types for a zaaktype") {
+        Given("a zaak with status types") {
+            val zaak = createZaak()
+            val zaaktypeUuid = zaak.zaaktype.extractUuid()
+            val zaakType = createZaakType()
+            val statusTypes = listOf(
+                createStatusType(omschrijving = "first"),
+                createStatusType(omschrijving = "second")
+            )
+
+            every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaakType
+            every { ztcClientService.readStatustypen(zaakType.url) } returns statusTypes
+
+            When("list of zaak status types is requested") {
+                val statusTypeData = zaakService.listStatusTypes(zaaktypeUuid)
+
+                Then("correct status type data is returned") {
+                    statusTypeData shouldHaveSize 2
+                    with(statusTypeData.first()) {
+                        naam shouldBe "first"
+                    }
+                    with(statusTypeData.last()) {
+                        naam shouldBe "second"
+                    }
+                }
+            }
+        }
+    }
+
+    Context("Listing result types for a zaaktype") {
+        Given("a zaak with result types") {
+            val zaak = createZaak()
+            val zaaktypeUuid = zaak.zaaktype.extractUuid()
+            val zaakType = createZaakType()
+            val resultTypes = listOf(
+                createResultaatType(omschrijving = "first"),
+                createResultaatType(omschrijving = "second")
+            )
+
+            every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaakType
+            every { ztcClientService.readResultaattypen(zaakType.url) } returns resultTypes
+
+            When("list of zaak result types is requested") {
+                val resultTypeData = zaakService.listResultTypes(zaaktypeUuid)
+
+                Then("correct result type data is returned") {
+                    resultTypeData shouldHaveSize 2
+                    with(resultTypeData.first()) {
+                        naam shouldBe "first"
+                    }
+                    with(resultTypeData.last()) {
+                        naam shouldBe "second"
+                    }
                 }
             }
         }
