@@ -14,7 +14,11 @@ import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplateVariables
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
+@NoArgConstructor
+@AllOpen
 @Singleton
 @Path("beheer/mailtemplates")
 @Consumes(MediaType.APPLICATION_JSON)
