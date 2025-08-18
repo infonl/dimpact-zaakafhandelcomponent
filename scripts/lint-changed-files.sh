@@ -86,8 +86,19 @@ echo "Current directory: $(pwd)"
 echo "ESLint config file exists: $([ -f .eslintrc.js ] && echo 'Yes' || echo 'No')"
 echo ""
 
+# Generate types first
+echo ""
+echo "🔧 Generating TypeScript types..."
+if ! npm run generate:types:zac-openapi; then
+    echo ""
+    echo "❌ Type generation failed"
+    echo "💡 Tip: Run 'npm run generate:types:zac-openapi' (in the app directory) to generate types"
+    exit 1
+fi
+
 # Run regular linting first to check basic issues
-echo "Running regular lint command to check basic issues..."
+echo ""
+echo "🔍 Running regular lint command to check basic issues..."
 if ! npm run lint; then
     echo ""
     echo "❌ Basic linting failed"

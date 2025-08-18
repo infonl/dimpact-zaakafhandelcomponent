@@ -62,6 +62,13 @@ jobs:
             echo "files_to_lint=" >> $GITHUB_OUTPUT
           fi
 
+      - name: Generate TypeScript types
+        if: steps.changed-files.outputs.files_to_lint != ''
+        working-directory: src/main/app
+        run: |
+          echo "Generating TypeScript types..."
+          npm run generate:types:zac-openapi
+
       - name: Lint changed files
         if: steps.changed-files.outputs.files_to_lint != ''
         working-directory: src/main/app
