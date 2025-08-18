@@ -96,7 +96,8 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                      "SD_SmartDocuments_Template": "OpenZaakTest",
                      "SD_SmartDocuments_Create": false,
                      "RT_ReferenceTable_Values": "Post",
-                     "RB_Status": "In behandeling"
+                     "ZK_Result": "Verleend",
+                     "ZK_Status": "In behandeling"
                    }
                 """.trimIndent()
             )
@@ -165,7 +166,8 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                     "SD_SmartDocuments_Template": "OpenZaakTest",
                     "SD_SmartDocuments_Create": false,
                     "RT_ReferenceTable_Values": "Post",
-                    "RB_Status": "In behandeling",
+                    "ZK_Result": "Verleend",
+                    "ZK_Status": "In behandeling"
                     "TF_EMAIL_TO": "shared-team-dimpact@info.nl"
                   }
                 """.trimIndent()
