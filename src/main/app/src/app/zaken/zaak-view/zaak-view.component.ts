@@ -293,12 +293,12 @@ export class ZaakViewComponent
     this.dateFieldIconMap.set(
       "einddatumGepland",
       new TextIcon(
-        DateConditionals.provideFormControlValue(
-          this.zaak.einddatum
-            ? DateConditionals.isPreceded
-            : DateConditionals.isExceeded,
-          this.zaak.einddatum ?? "",
-        ),
+        (control: FormControl) => {
+          return DateConditionals.isExceeded(
+            control.value,
+            this.zaak.einddatum,
+          );
+        },
         "report_problem",
         "warningVerlopen_icon",
         this.zaak.einddatum
@@ -307,15 +307,16 @@ export class ZaakViewComponent
         "warning",
       ),
     );
+
     this.dateFieldIconMap.set(
       "uiterlijkeEinddatumAfdoening",
       new TextIcon(
-        DateConditionals.provideFormControlValue(
-          this.zaak.einddatum
-            ? DateConditionals.isPreceded
-            : DateConditionals.isExceeded,
-          this.zaak.einddatum ?? "",
-        ),
+        (control: FormControl) => {
+          return DateConditionals.isExceeded(
+            control.value,
+            this.zaak.einddatum,
+          );
+        },
         "report_problem",
         "errorVerlopen_icon",
         this.zaak.einddatum

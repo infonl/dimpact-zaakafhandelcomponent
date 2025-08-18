@@ -297,6 +297,21 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
         }),
       );
     });
+
+    it("should not allow the form to be submitted when a brondatumEigenschap is required", async () => {
+      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
+      await resultaattypeSelect.open();
+
+      const options = await resultaattypeSelect.getOptions();
+      await options[0]?.click();
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
+      );
+      const isDisabled = await submitButton.isDisabled();
+
+      expect(isDisabled).toBe(true);
+    });
   });
 
   describe("mail expansion panel", () => {
