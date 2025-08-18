@@ -65,7 +65,9 @@ import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
 import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
+import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
@@ -1906,6 +1908,62 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 Then("no default afzender should be returned") {
                     returnedDefaultRestZaakAfzender shouldBe null
+                }
+            }
+        }
+    }
+
+    Given("a zaak with status types") {
+        val zaak = createZaak()
+        val zaaktypeUuid = zaak.zaaktype.extractUuid()
+        val zaakType = createZaakType()
+        val statusTypes = listOf(
+            createStatusType(omschrijving = "first"),
+            createStatusType(omschrijving = "second")
+        )
+
+        every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
+        every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaakType
+        every { ztcClientService.readStatustypen(zaakType.url) } returns statusTypes
+
+        When("list of zaak status types is requested") {
+            val statusData = zaakRestService.listStatustypesForZaaktype(zaaktypeUuid)
+
+            Then("correct status data is returned") {
+                statusData shouldHaveSize 2
+                with(statusData.first()) {
+                    naam shouldBe "first"
+                }
+                with(statusData.last()) {
+                    naam shouldBe "second"
+                }
+            }
+        }
+    }
+
+    Given("a zaak with result types") {
+        val zaak = createZaak()
+        val zaaktypeUuid = zaak.zaaktype.extractUuid()
+        val zaakType = createZaakType()
+        val resultTypes = listOf(
+            createResultaatType(omschrijving = "first"),
+            createResultaatType(omschrijving = "second")
+        )
+
+        every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
+        every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaakType
+        every { ztcClientService.readResultaattypen(zaakType.url) } returns resultTypes
+
+        When("list of zaak status types is requested") {
+            val statusData = zaakRestService.listResultaattypesForZaaktype(zaaktypeUuid)
+
+            Then("correct status data is returned") {
+                statusData shouldHaveSize 2
+                with(statusData.first()) {
+                    naam shouldBe "first"
+                }
+                with(statusData.last()) {
+                    naam shouldBe "second"
                 }
             }
         }

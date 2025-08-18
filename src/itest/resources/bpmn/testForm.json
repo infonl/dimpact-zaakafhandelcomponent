@@ -137,32 +137,44 @@
           ]
         },
         {
+          "legend": "Zaak Result",
+          "type": "zaakResultFieldset",
+          "key": "FS_ZaakResult",
+          "input": false,
+          "components": [
+            {
+              "label": "Select result",
+              "optionsLabelPosition": "right",
+              "key": "ZK_Result",
+              "widget": "html5",
+              "validate": {
+                "required": true,
+                "onlyAvailableItems": true
+              },
+              "type": "select",
+              "input": true,
+              "dataSrc": "custom"
+            }
+          ]
+        },
+        {
           "legend": "Zaak Status",
-          "type": "fieldset",
+          "type": "zaakStatusFieldset",
           "key": "FS_ZaakStatus",
           "input": false,
           "components": [
             {
               "label": "Select status",
               "optionsLabelPosition": "right",
-              "key": "RB_Status",
-              "values": [
-                {
-                  "label": "In behandeling",
-                  "value": "In behandeling"
-                },
-                {
-                  "label": "Onderzoek afgerond",
-                  "value": "Onderzoek afgerond"
-                }
-              ],
+              "key": "ZK_Status",
+              "widget": "html5",
               "validate": {
                 "required": true,
                 "onlyAvailableItems": true
               },
-              "type": "radio",
+              "type": "select",
               "input": true,
-              "defaultValue": "In behandeling"
+              "dataSrc": "custom"
             }
           ]
         }

@@ -93,6 +93,7 @@ import nl.info.zac.app.zaak.model.RestDecisionCreateData
 import nl.info.zac.app.zaak.model.RestDecisionType
 import nl.info.zac.app.zaak.model.RestDecisionWithdrawalData
 import nl.info.zac.app.zaak.model.RestResultaattype
+import nl.info.zac.app.zaak.model.RestStatustype
 import nl.info.zac.app.zaak.model.RestZaak
 import nl.info.zac.app.zaak.model.RestZaakAssignmentData
 import nl.info.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
@@ -1006,6 +1007,19 @@ class ZaakRestService @Inject constructor(
             policyService.readWerklijstRechten().zakenTaken || policyService.readOverigeRechten().beheren
         )
         return ztcClientService.readResultaattypen(
+            ztcClientService.readZaaktype(zaaktypeUUID).url
+        ).toRestResultaatTypes()
+    }
+
+    @GET
+    @Path("statustypes/{zaaktypeUUID}")
+    fun listStatustypesForZaaktype(
+        @PathParam("zaaktypeUUID") zaaktypeUUID: UUID
+    ): List<RestStatustype> {
+        assertPolicy(
+            policyService.readWerklijstRechten().zakenTaken || policyService.readOverigeRechten().beheren
+        )
+        return ztcClientService.readStatustypen(
             ztcClientService.readZaaktype(zaaktypeUUID).url
         ).toRestResultaatTypes()
     }

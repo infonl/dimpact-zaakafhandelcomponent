@@ -21,6 +21,7 @@ import { IdentityService } from "../../../identity/identity.service";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { OrderUtil } from "../../../shared/order/order-util";
 import { GeneratedType } from "../../../shared/utils/generated-types";
+import { ZakenService } from "../../../zaken/zaken.service";
 
 @Injectable({
   providedIn: "root",
@@ -34,6 +35,7 @@ export class FormioSetupService {
     public utilService: UtilService,
     private identityService: IdentityService,
     private zaakafhandelParametersService: ZaakafhandelParametersService,
+    private zakenService: ZakenService,
     private referenceTableService: ReferentieTabelService,
     private informatieObjectenService: InformatieObjectenService,
   ) {}
@@ -71,6 +73,12 @@ export class FormioSetupService {
             break;
           case "documentsFieldset":
             this.initializeAvailableDocumentsFieldsetComponent(component);
+            break;
+          case "zaakResultFieldset":
+            this.initializeZaakResultFieldsetComponent(component);
+            break;
+          case "zaakStatusFieldset":
+            this.initializeZaakStatusFieldsetComponent(component);
             break;
         }
         if ("components" in component && Array.isArray(component.components)) {
@@ -352,6 +360,74 @@ export class FormioSetupService {
               ),
           );
         },
+      }));
+    });
+  }
+
+  private initializeZaakResultFieldsetComponent(
+    fieldsetComponent: ExtendedComponentSchema,
+  ): void {
+    const zaakResultComponent = fieldsetComponent.components?.find(
+      (component: { type: string }) => component.type === "select",
+    );
+
+    if (!zaakResultComponent) {
+      return;
+    }
+
+    fieldsetComponent.type = "fieldset";
+
+    zaakResultComponent.data = {
+      custom: () => {
+        return this.zaakResultsQuery(this.taak!.zaakUuid).data();
+      },
+    };
+  }
+
+  private zaakResultsQuery(zaakUuid: string) {
+    return runInInjectionContext(this.injector, () => {
+      return injectQuery(() => ({
+        queryKey: ["zaakResultsQuery", zaakUuid],
+        refetchOnWindowFocus: false,
+        queryFn: () =>
+          lastValueFrom(
+            this.zakenService
+              .listResultaattypes(this.taak!.zaaktypeUUID!)
+              .pipe(map((results) => results.map((result) => result.naam))),
+          ),
+      }));
+    });
+  }
+
+  private initializeZaakStatusFieldsetComponent(
+    fieldsetComponent: ExtendedComponentSchema,
+  ): void {
+    const zaakStatusComponent = fieldsetComponent.components?.find(
+      (component: { type: string }) => component.type === "select",
+    );
+
+    if (!zaakStatusComponent) {
+      return;
+    }
+
+    fieldsetComponent.type = "fieldset";
+
+    zaakStatusComponent.data = {
+      custom: () => this.zaakStatusesQuery(this.taak!.zaakUuid).data(),
+    };
+  }
+
+  private zaakStatusesQuery(zaakUuid: string) {
+    return runInInjectionContext(this.injector, () => {
+      return injectQuery(() => ({
+        queryKey: ["zaakStatusesQuery", zaakUuid],
+        refetchOnWindowFocus: false,
+        queryFn: () =>
+          lastValueFrom(
+            this.zakenService
+              .listStatustypes(this.taak!.zaaktypeUUID!)
+              .pipe(map((results) => results.map((result) => result.naam))),
+          ),
       }));
     });
   }
