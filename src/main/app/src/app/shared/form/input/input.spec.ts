@@ -62,7 +62,7 @@ describe(ZacInput.name, () => {
 
     translateService = TestBed.inject(TranslateService);
     fixture = TestBed.createComponent(
-      ZacInput<TestForm, keyof TestForm, any, any>
+      ZacInput<TestForm, keyof TestForm, unknown, () => string>
     );
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
