@@ -536,7 +536,7 @@ opentelemetry-collector:
   image:
     repository: otel/opentelemetry-collector-contrib
     pullPolicy: IfNotPresent
-    tag: "0.132.2@sha256:8d5c6595ac5d6fd8ee0ca91868bead6426353b077722b85f5ae98e583caa259b"
+    tag: "0.132.3@sha256:346b686bd07255bc5dbb2a7c0c613a5c2f90de78cea82c7447db0eb470f7c49c"
   presets:
     clusterMetrics:
       enabled: false
