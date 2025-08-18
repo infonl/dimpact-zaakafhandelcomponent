@@ -1913,57 +1913,61 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("a zaak with status types") {
-        val zaak = createZaak()
-        val zaaktypeUuid = zaak.zaaktype.extractUuid()
-        val zaakType = createZaakType()
-        val statusTypes = listOf(
-            createStatusType(omschrijving = "first"),
-            createStatusType(omschrijving = "second")
-        )
+    Context("Listing status types for a zaaktype") {
+        Given("a zaak with status types") {
+            val zaak = createZaak()
+            val zaaktypeUuid = zaak.zaaktype.extractUuid()
+            val zaakType = createZaakType()
+            val statusTypes = listOf(
+                createStatusType(omschrijving = "first"),
+                createStatusType(omschrijving = "second")
+            )
 
-        every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
-        every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaakType
-        every { ztcClientService.readStatustypen(zaakType.url) } returns statusTypes
+            every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
+            every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaakType
+            every { ztcClientService.readStatustypen(zaakType.url) } returns statusTypes
 
-        When("list of zaak status types is requested") {
-            val statusData = zaakRestService.listStatustypesForZaaktype(zaaktypeUuid)
+            When("list of zaak status types is requested") {
+                val statusTypeData = zaakRestService.listStatustypesForZaaktype(zaaktypeUuid)
 
-            Then("correct status data is returned") {
-                statusData shouldHaveSize 2
-                with(statusData.first()) {
-                    naam shouldBe "first"
-                }
-                with(statusData.last()) {
-                    naam shouldBe "second"
+                Then("correct status type data is returned") {
+                    statusTypeData shouldHaveSize 2
+                    with(statusTypeData.first()) {
+                        naam shouldBe "first"
+                    }
+                    with(statusTypeData.last()) {
+                        naam shouldBe "second"
+                    }
                 }
             }
         }
     }
 
-    Given("a zaak with result types") {
-        val zaak = createZaak()
-        val zaaktypeUuid = zaak.zaaktype.extractUuid()
-        val zaakType = createZaakType()
-        val resultTypes = listOf(
-            createResultaatType(omschrijving = "first"),
-            createResultaatType(omschrijving = "second")
-        )
+    Context("Listing result types for a zaaktype") {
+        Given("a zaak with result types") {
+            val zaak = createZaak()
+            val zaaktypeUuid = zaak.zaaktype.extractUuid()
+            val zaakType = createZaakType()
+            val resultTypes = listOf(
+                createResultaatType(omschrijving = "first"),
+                createResultaatType(omschrijving = "second")
+            )
 
-        every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
-        every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaakType
-        every { ztcClientService.readResultaattypen(zaakType.url) } returns resultTypes
+            every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
+            every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaakType
+            every { ztcClientService.readResultaattypen(zaakType.url) } returns resultTypes
 
-        When("list of zaak status types is requested") {
-            val statusData = zaakRestService.listResultaattypesForZaaktype(zaaktypeUuid)
+            When("list of zaak result types is requested") {
+                val resultTypeData = zaakRestService.listResultaattypesForZaaktype(zaaktypeUuid)
 
-            Then("correct status data is returned") {
-                statusData shouldHaveSize 2
-                with(statusData.first()) {
-                    naam shouldBe "first"
-                }
-                with(statusData.last()) {
-                    naam shouldBe "second"
+                Then("correct result type data is returned") {
+                    resultTypeData shouldHaveSize 2
+                    with(resultTypeData.first()) {
+                        naam shouldBe "first"
+                    }
+                    with(resultTypeData.last()) {
+                        naam shouldBe "second"
+                    }
                 }
             }
         }
