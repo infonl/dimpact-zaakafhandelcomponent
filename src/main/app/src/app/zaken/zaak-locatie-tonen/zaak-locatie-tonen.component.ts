@@ -43,6 +43,7 @@ export class LocatieTonenComponent implements OnInit, AfterViewInit, OnChanges {
 
   @ViewChild("openLayersMap", { static: true }) openLayersMapRef: ElementRef;
 
+  // Test annotation
   protected nearestAddress: AddressResult;
 
   private map: ol.Map;

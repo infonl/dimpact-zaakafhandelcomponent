@@ -11,7 +11,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: ["*.ts"],
+      files: ["**/*.ts"],
       parserOptions: {
         project: "tsconfig.json",
         tsconfigRootDir: __dirname,
@@ -38,7 +38,7 @@ module.exports = {
       },
     },
     {
-      files: ["*.html"],
+      files: ["**/*.html"],
       extends: [
         "plugin:@angular-eslint/template/recommended",
         "plugin:@angular-eslint/template/accessibility",
