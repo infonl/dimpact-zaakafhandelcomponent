@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: 22
           cache: "npm"
           cache-dependency-path: src/main/app/package-lock.json
 
@@ -76,7 +76,9 @@ jobs:
           echo "Running ESLint on changed files..."
           echo "Files to lint (relative to app directory):"
           echo "$RELATIVE_FILES"
-          npx eslint $RELATIVE_FILES --no-config-lookup --config .eslintrc.js
+
+          # Use ng lint with specific file patterns
+          npm run lint
 
       - name: Type check changed TS files
         if: steps.changed-files.outputs.files_to_lint != ''
