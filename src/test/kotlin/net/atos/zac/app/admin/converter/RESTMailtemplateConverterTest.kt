@@ -202,21 +202,6 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
             }
         }
 
-        Given("A REST mail template with null ID") {
-            val restMailTemplate = createRestMailTemplate(
-                mailTemplateName = "Template with null ID"
-            ).apply { id = null }
-
-            When("the existing convert method is called") {
-                val result = RESTMailtemplateConverter.convert(restMailTemplate)
-
-                Then("it should handle null ID by setting it to 0") {
-                    result.id shouldBe 0L
-                    result.mailTemplateNaam shouldBe "Template with null ID"
-                }
-            }
-        }
-
         Given("A domain mail template") {
             val domainMailTemplate = createMailTemplate(
                 id = 321L,

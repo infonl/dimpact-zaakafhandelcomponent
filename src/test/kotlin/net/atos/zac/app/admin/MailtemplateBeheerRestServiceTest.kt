@@ -130,16 +130,14 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
 
     Context("Error handling for POST requests") {
         Given("'beheren' rechten") {
-            every { policyService.readOverigeRechten().beheren } returns true
-
             When("creating a mail template with provided ID") {
                 val restMailTemplate = createRestMailTemplate(
                     mail = Mail.ZAAK_ALGEMEEN
                 ).apply { id = 999L } // ID provided in POST request
-                val createdMailTemplate = createMailTemplate(id = 123L, mail = Mail.ZAAK_ALGEMEEN)
-                every { mailTemplateService.createMailtemplate(any()) } returns createdMailTemplate
-
                 Then("it should ignore the provided ID and create successfully") {
+                    every { policyService.readOverigeRechten().beheren } returns true
+                    val createdMailTemplate = createMailTemplate(id = 123L, mail = Mail.ZAAK_ALGEMEEN)
+                    every { mailTemplateService.createMailtemplate(any()) } returns createdMailTemplate
                     val response = mailtemplateBeheerRestService.createMailtemplate(restMailTemplate)
 
                     response.status shouldBe Response.Status.CREATED.statusCode
@@ -152,13 +150,12 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
 
     Context("Error handling for PUT requests") {
         Given("'beheren' rechten") {
-            every { policyService.readOverigeRechten().beheren } returns true
-
             When("updating a non-existent mail template") {
-                val restMailTemplate = createRestMailTemplate()
-                every { mailTemplateService.updateMailtemplate(999L, any()) } throws MailTemplateNotFoundException(999L)
-
                 Then("it should propagate MailTemplateNotFoundException (404)") {
+                    every { policyService.readOverigeRechten().beheren } returns true
+                    val restMailTemplate = createRestMailTemplate()
+                    every { mailTemplateService.updateMailtemplate(999L, any()) } throws MailTemplateNotFoundException(999L)
+
                     shouldThrow<MailTemplateNotFoundException> {
                         mailtemplateBeheerRestService.updateMailtemplate(999L, restMailTemplate)
                     }
@@ -169,12 +166,10 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
 
     Context("Error handling for GET requests") {
         Given("'beheren' rechten") {
-            every { policyService.readOverigeRechten().beheren } returns true
-
             When("reading a non-existent mail template") {
-                every { mailTemplateService.readMailtemplate(999L) } throws MailTemplateNotFoundException(999L)
-
                 Then("it should propagate MailTemplateNotFoundException (404)") {
+                    every { policyService.readOverigeRechten().beheren } returns true
+                    every { mailTemplateService.readMailtemplate(999L) } throws MailTemplateNotFoundException(999L)
                     shouldThrow<MailTemplateNotFoundException> {
                         mailtemplateBeheerRestService.readMailtemplate(999L)
                     }
