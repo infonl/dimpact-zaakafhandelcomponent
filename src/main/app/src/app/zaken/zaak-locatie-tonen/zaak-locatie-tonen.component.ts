@@ -43,7 +43,6 @@ export class LocatieTonenComponent implements OnInit, AfterViewInit, OnChanges {
 
   @ViewChild("openLayersMap", { static: true }) openLayersMapRef: ElementRef;
 
-  // Test annotation
   protected nearestAddress: AddressResult;
 
   private map: ol.Map;
@@ -198,7 +197,7 @@ export class LocatieTonenComponent implements OnInit, AfterViewInit, OnChanges {
     const mapCenter: Array<number> = proj.transform(
       coordinate,
       "EPSG:4326",
-      "EPSG:3857",
+      "EPSG:3857"
     );
     this.map.getView().setCenter(mapCenter);
     const locationExtent = this.locationSource.getExtent();

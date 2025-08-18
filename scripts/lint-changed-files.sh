@@ -69,9 +69,54 @@ echo "Current directory: $(pwd)"
 echo "ESLint config file exists: $([ -f .eslintrc.js ] && echo 'Yes' || echo 'No')"
 echo ""
 
-# For now, just run the regular lint command to check if the configuration works
-echo "Running regular lint command to verify configuration..."
+# Run regular linting first to check basic issues
+echo "Running regular lint command to check basic issues..."
 if ! npm run lint; then
+    echo ""
+    echo "❌ Basic linting failed"
+    echo "💡 Tip: Run 'npm run lint' (in the app directory) to see all linting issues"
+    exit 1
+fi
+
+# Now run strict linting on changed files
+echo ""
+echo "🔍 Running strict TypeScript checking on changed files..."
+
+# Create a temporary tsconfig that only includes the changed files
+cat > tsconfig.changed-files.json << 'EOF'
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "include": [],
+  "exclude": ["src/test-helpers.ts", "src/**/*.spec.ts", "src/**/*.test.ts"]
+}
+EOF
+
+# Add only the changed files to the include array
+if [ -n "$RELATIVE_FILES" ]; then
+    # Convert to JSON array format
+    FILES_JSON=$(echo "$RELATIVE_FILES" | tr ' ' '\n' | jq -R -s -c 'split("\n")[:-1]')
+    
+    # Update tsconfig to include only changed files
+    jq --argjson files "$FILES_JSON" '.include = $files' tsconfig.changed-files.json > tsconfig.changed-files.tmp.json
+    mv tsconfig.changed-files.tmp.json tsconfig.changed-files.json
+    
+    echo "Running TypeScript check on changed files only..."
+    if ! npx tsc --project tsconfig.changed-files.json; then
+        echo ""
+        echo "❌ TypeScript check failed on changed files"
+        echo "💡 Changed files must follow strict TypeScript standards"
+        echo "💡 Tip: Temporarily enable strict mode in tsconfig.app.json to see all issues"
+        rm -f tsconfig.changed-files.json
+        exit 1
+    fi
+fi
+
+# Clean up temporary file
+rm -f tsconfig.changed-files.json
     echo ""
     echo "❌ ESLint found errors in changed files"
     echo "💡 Tip: Run 'npm run lint' (in the app directory) to see all linting issues"
