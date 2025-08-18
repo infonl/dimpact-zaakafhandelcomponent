@@ -24,18 +24,20 @@ class LoggedInUser(
      * Application roles per zaaktype that the user is authorized for.
      * When the PABC feature is enabled, this maps zaaktypes to sets of application roles (PABC).
      */
-    val pabcMappings: Map<String, Set<String>> = emptyMap()
+    val applicationRolesPerZaaktype: Map<String, Set<String>> = emptyMap(),
+
+    val pabcIntegrationEnabled: Boolean
 
 ) : User(id, firstName, lastName, displayName, email) {
     fun isAuthorisedForAllZaaktypen(): Boolean = geautoriseerdeZaaktypen == null
 
     /**
-     * If PABC-based authorization is active, it takes precedence over
-     * legacy functional (Keycloak) role-based authorization.
+     * If PABC-based authorization is active, use the map of application roles per zaaktype.
+     * Otherwise, legacy functional (Keycloak) role-based authorization is used.
      */
     fun isAuthorisedForZaaktype(zaaktypeOmschrijving: String): Boolean {
-        if (pabcMappings.isNotEmpty()) {
-            return pabcMappings[zaaktypeOmschrijving]?.isNotEmpty() == true
+        if (pabcIntegrationEnabled) {
+            return applicationRolesPerZaaktype[zaaktypeOmschrijving]?.isNotEmpty() == true
         }
         return geautoriseerdeZaaktypen == null ||
             geautoriseerdeZaaktypen.contains(zaaktypeOmschrijving)

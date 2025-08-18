@@ -367,7 +367,8 @@ class PolicyServiceTest : BehaviorSpec({
             roles = functionalRoles,
             groupIds = emptySet(),
             geautoriseerdeZaaktypen = setOf("zaakType1", "zaakType2"),
-            pabcMappings = mapOf(zaaktype to pabcRolesForZaakType)
+            applicationRolesPerZaaktype = mapOf(zaaktype to pabcRolesForZaakType),
+            pabcIntegrationEnabled = true
         )
 
         val rqSlot = slot<RuleQuery<UserInput>>()
@@ -403,7 +404,8 @@ class PolicyServiceTest : BehaviorSpec({
             roles = functionalRoles,
             groupIds = emptySet(),
             geautoriseerdeZaaktypen = geautoriseerde,
-            pabcMappings = emptyMap()
+            applicationRolesPerZaaktype = emptyMap(),
+            pabcIntegrationEnabled = false
         )
 
         val rqSlot = slot<RuleQuery<UserInput>>()

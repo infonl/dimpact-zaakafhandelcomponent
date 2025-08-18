@@ -170,7 +170,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 }
                 with(capturedLoggedInUser.captured) {
                     this.roles shouldContainAll roles
-                    this.pabcMappings[zaaktypeName]?.shouldContainAll(pabcRoleNames)
+                    this.applicationRolesPerZaaktype[zaaktypeName]?.shouldContainAll(pabcRoleNames)
                 }
             }
         }
@@ -262,7 +262,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     this.roles shouldContainAll roles
                     this.groupIds shouldContainAll groups
                     this.geautoriseerdeZaaktypen shouldContainExactly listOf("fakeZaaktypeOmschrijving1")
-                    this.pabcMappings["fakeZaaktypeOmschrijving1"]?.shouldContainAll(pabcRoleNames)
+                    this.applicationRolesPerZaaktype["fakeZaaktypeOmschrijving1"]?.shouldContainAll(pabcRoleNames)
                 }
             }
         }
@@ -333,7 +333,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     // null indicates that the user has access to all zaaktypen
                     this.geautoriseerdeZaaktypen shouldBe null
                     this.roles shouldContainAll roles
-                    this.pabcMappings[zaaktypeName]?.shouldContainAll(pabcRoleNames)
+                    this.applicationRolesPerZaaktype[zaaktypeName]?.shouldContainAll(pabcRoleNames)
                 }
             }
         }

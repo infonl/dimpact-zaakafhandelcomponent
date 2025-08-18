@@ -15,7 +15,7 @@ open class UserInput(
     val user = UserData(
         id = loggedInUser.id,
         rollen = when {
-            zaaktype != null -> loggedInUser.pabcMappings[zaaktype].orEmpty()
+            zaaktype != null -> loggedInUser.applicationRolesPerZaaktype[zaaktype].orEmpty()
             else -> loggedInUser.roles
         },
         zaaktypen = when {

@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaakafhandelParameterService
 import nl.info.client.pabc.PabcClientService
+import nl.info.client.pabc.exception.PabcRuntimeException
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
 import nl.info.zac.identity.model.ZACRole
 import nl.info.zac.util.AllOpen
@@ -105,8 +106,12 @@ constructor(
     private fun createLoggedInUser(oidcSecurityContext: OidcSecurityContext): LoggedInUser =
         oidcSecurityContext.token.let { accessToken ->
             val functionalRoles = accessToken.rolesClaim.toSet()
-            val pabcMappings: Map<String, Set<String>> =
-                buildApplicationRoleMappingsFromPabc(functionalRoles)
+            val applicationRolesPerZaaktype: Map<String, Set<String>> =
+                if (pabcIntegrationEnabled) {
+                    buildApplicationRoleMappingsFromPabc(functionalRoles)
+                } else {
+                    emptyMap()
+                }
 
             LoggedInUser(
                 id = accessToken.preferredUsername,
@@ -119,7 +124,8 @@ constructor(
                     .getStringListClaimValue(GROUP_MEMBERSHIP_CLAIM_NAME)
                     .toSet(),
                 geautoriseerdeZaaktypen = getAuthorisedZaaktypen(functionalRoles),
-                pabcMappings = pabcMappings
+                applicationRolesPerZaaktype = applicationRolesPerZaaktype,
+                pabcIntegrationEnabled = pabcIntegrationEnabled
             )
         }
 
@@ -130,17 +136,17 @@ constructor(
      */
     @Suppress("TooGenericExceptionCaught")
     private fun buildApplicationRoleMappingsFromPabc(functionalRoles: Set<String>): Map<String, Set<String>> {
-        if (!pabcIntegrationEnabled) {
-            LOG.info("PABC integration is disabled — not building per-zaaktype mappings.")
-            return emptyMap()
-        }
-
         // Filter out roles we shouldn't send to PABC
         val filteredFunctionalRoles = functionalRoles.filterNot {
             it in setOf(
                 ZACRole.DOMEIN_ELK_ZAAKTYPE.value,
                 ZACRole.ZAAKAFHANDELCOMPONENT_USER.value
             )
+        }
+
+        if (filteredFunctionalRoles.isEmpty()) {
+            LOG.warning("No functional roles to send to PABC after filtering, returning empty mapping")
+            return emptyMap()
         }
 
         return try {
@@ -157,7 +163,7 @@ constructor(
                 .toMap()
         } catch (ex: Exception) {
             LOG.log(Level.SEVERE, "PABC application role lookup failed", ex)
-            throw ex
+            throw PabcRuntimeException("Failed to get application roles from PABC", ex)
         }
     }
 
