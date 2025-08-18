@@ -167,7 +167,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                     "SD_SmartDocuments_Create": false,
                     "RT_ReferenceTable_Values": "Post",
                     "ZK_Result": "Verleend",
-                    "ZK_Status": "In behandeling"
+                    "ZK_Status": "In behandeling",
                     "TF_EMAIL_TO": "shared-team-dimpact@info.nl"
                   }
                 """.trimIndent()
