@@ -7,22 +7,19 @@ package net.atos.zac.app.admin
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import jakarta.validation.ConstraintViolationException
-import jakarta.ws.rs.BadRequestException
 import jakarta.ws.rs.core.Response
 import net.atos.zac.app.admin.model.createRestMailTemplate
 import nl.info.zac.mailtemplates.MailTemplateService
+import nl.info.zac.mailtemplates.exception.MailTemplateNotFoundException
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
 import nl.info.zac.mailtemplates.model.MailTemplateVariables.Companion.ZAAK_VOORTGANG_VARIABELEN
 import nl.info.zac.mailtemplates.model.createMailTemplate
-import nl.info.zac.mailtemplates.exception.MailTemplateNotFoundException
 import nl.info.zac.policy.PolicyService
 
 class MailtemplateBeheerRestServiceTest : BehaviorSpec({
@@ -36,8 +33,6 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
     beforeEach {
         checkUnnecessaryStub()
     }
-
-
 
     Context("Creating new mail templates via POST endpoint") {
         Given("A REST mail template without ID and 'beheren' rechten") {
@@ -92,8 +87,8 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
             val idSlot = slot<Long>()
             val mailTemplateSlot = slot<MailTemplate>()
             every { policyService.readOverigeRechten().beheren } returns true
-            every { 
-                mailTemplateService.updateMailtemplate(capture(idSlot), capture(mailTemplateSlot)) 
+            every {
+                mailTemplateService.updateMailtemplate(capture(idSlot), capture(mailTemplateSlot))
             } returns updatedMailTemplate
 
             When("the mail template is updated via PUT") {
@@ -146,7 +141,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
 
                 Then("it should ignore the provided ID and create successfully") {
                     val response = mailtemplateBeheerRestService.createMailtemplate(restMailTemplate)
-                    
+
                     response.status shouldBe Response.Status.CREATED.statusCode
                     // Verify that the ID was ignored (set to null before processing)
                     restMailTemplate.id shouldBe null
@@ -187,6 +182,4 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
             }
         }
     }
-
-
 })

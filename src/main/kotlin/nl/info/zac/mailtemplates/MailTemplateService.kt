@@ -82,7 +82,7 @@ class MailTemplateService @Inject constructor(
 
     fun updateMailtemplate(id: Long, mailTemplate: MailTemplate): MailTemplate {
         ValidationUtil.valideerObject(mailTemplate)
-        val existingTemplate = readMailtemplate(id) // Throws exception if not found
+        val existingTemplate = readMailtemplate(id)
 
         existingTemplate.apply {
             this.mailTemplateNaam = mailTemplate.mailTemplateNaam
@@ -91,7 +91,7 @@ class MailTemplateService @Inject constructor(
             this.mail = mailTemplate.mail
             this.isDefaultMailtemplate = mailTemplate.isDefaultMailtemplate
         }
-        
+
         return entityManager.merge(existingTemplate)
     }
 

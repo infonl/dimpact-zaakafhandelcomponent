@@ -106,9 +106,11 @@ export class MailtemplateComponent
       defaultMailtemplate: data.defaultMailtemplate ?? false,
     };
 
-    // Determine if this is a create or update operation based on whether we have an existing ID
     const operation = this.mailTemplate?.id
-      ? this.mailTemplateBeheerService.updateMailtemplate(this.mailTemplate.id, templateData)
+      ? this.mailTemplateBeheerService.updateMailtemplate(
+          this.mailTemplate.id,
+          templateData,
+        )
       : this.mailTemplateBeheerService.createMailtemplate(templateData);
 
     operation.subscribe(() => {

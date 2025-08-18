@@ -13,7 +13,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
-import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -57,9 +56,8 @@ public class MailtemplateBeheerRestService {
     @Path("{id}")
     public RESTMailtemplate readMailtemplate(@PathParam("id") @Positive final long id) {
         assertPolicy(policyService.readOverigeRechten().getBeheren());
-        
+
         return RESTMailtemplateConverter.convert(mailTemplateService.readMailtemplate(id));
-        // MailTemplateNotFoundException is already thrown by service and maps to 404
     }
 
     @GET
@@ -81,7 +79,7 @@ public class MailtemplateBeheerRestService {
     @Path("{id}")
     public void deleteMailtemplate(@PathParam("id") @Positive final long id) {
         assertPolicy(policyService.readOverigeRechten().getBeheren());
-        
+
         mailTemplateService.delete(id);
     }
 
@@ -89,12 +87,11 @@ public class MailtemplateBeheerRestService {
     @Path("")
     public Response createMailtemplate(@Valid final RESTMailtemplate mailtemplate) {
         assertPolicy(policyService.readOverigeRechten().getBeheren());
-        
-        // Explicitly ignore any provided ID in POST requests (requirement 1.1, 3.5)
+
         if (mailtemplate.id != null) {
             mailtemplate.id = null; // Ignore provided ID
         }
-        
+
         final MailTemplate createdTemplate = mailTemplateService.createMailtemplate(
                 RESTMailtemplateConverter.convertForCreate(mailtemplate)
         );
@@ -106,21 +103,16 @@ public class MailtemplateBeheerRestService {
     @Path("{id}")
     public RESTMailtemplate updateMailtemplate(@PathParam("id") @Positive final long id, @Valid final RESTMailtemplate mailtemplate) {
         assertPolicy(policyService.readOverigeRechten().getBeheren());
-        
+
         final MailTemplate updatedTemplate = mailTemplateService.updateMailtemplate(
                 id, RESTMailtemplateConverter.convertForUpdate(mailtemplate)
         );
         return RESTMailtemplateConverter.convert(updatedTemplate);
-        // MailTemplateNotFoundException is already thrown by service and maps to 404
     }
-
-
 
     @GET
     @Path("variabelen/{mail}")
     public Set<MailTemplateVariables> getMailTemplateVariables(@PathParam("mail") final Mail mail) {
         return mail.getMailTemplateVariables();
     }
-
-
 }

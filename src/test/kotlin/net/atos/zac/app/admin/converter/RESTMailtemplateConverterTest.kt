@@ -135,7 +135,7 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
                 Then("both should produce identical domain models except for ID handling") {
                     createResult.id shouldBe 0L
                     updateResult.id shouldBe 0L
-                    
+
                     createResult.mailTemplateNaam shouldBe updateResult.mailTemplateNaam
                     createResult.onderwerp shouldBe updateResult.onderwerp
                     createResult.body shouldBe updateResult.body
@@ -157,7 +157,10 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
     Context("ID handling verification") {
         Given("REST mail templates with various ID values") {
             val testCases = listOf(
-                0L, 1L, 999L, Long.MAX_VALUE
+                0L,
+                1L,
+                999L,
+                Long.MAX_VALUE
             )
 
             testCases.forEach { idValue ->
@@ -184,9 +187,9 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
 
     Context("Existing convert method behavior (for comparison)") {
         Given("A REST mail template with ID") {
-            val restMailTemplate = createRestMailTemplate(
+            val restMailTemplate = createMailTemplate(
                 id = 789L,
-                mailTemplateName = "Legacy Template"
+                name = "Legacy Template"
             )
 
             When("the existing convert method is called") {
@@ -200,8 +203,8 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
         }
 
         Given("A REST mail template with null ID") {
-            val restMailTemplate = createRestMailTemplate(
-                mailTemplateName = "Template with null ID"
+            val restMailTemplate = createMailTemplate(
+                name = "Template with null ID"
             ).apply { id = null }
 
             When("the existing convert method is called") {
@@ -240,10 +243,6 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
                 exception.message shouldContain "RESTMailtemplate cannot be null"
             }
         }
-
-        // Note: Field validation (null/empty checks, invalid enum values) is now handled by @Valid annotations
-        // on the REST model, so detailed validation tests are no longer needed at the converter level.
-        // The converter assumes it receives valid input from the JAX-RS validation layer.
     }
 
     Context("Error handling for convertForUpdate") {
@@ -255,10 +254,6 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
                 exception.message shouldContain "RESTMailtemplate cannot be null"
             }
         }
-
-        // Note: Field validation (null/empty checks, invalid enum values) is now handled by @Valid annotations
-        // on the REST model, so detailed validation tests are no longer needed at the converter level.
-        // The converter assumes it receives valid input from the JAX-RS validation layer.
     }
 
     Context("Whitespace handling for template names") {

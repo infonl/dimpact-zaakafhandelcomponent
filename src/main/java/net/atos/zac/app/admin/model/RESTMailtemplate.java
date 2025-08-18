@@ -8,6 +8,7 @@ import java.util.Set;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
 import nl.info.zac.mailtemplates.model.Mail;
 import nl.info.zac.mailtemplates.model.MailTemplateVariables;
 

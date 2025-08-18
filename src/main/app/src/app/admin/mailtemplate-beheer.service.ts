@@ -4,7 +4,11 @@
  */
 
 import { Injectable } from "@angular/core";
-import {PostBody, PutBody, ZacHttpClient} from "../shared/http/zac-http-client";
+import {
+  PostBody,
+  PutBody,
+  ZacHttpClient,
+} from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
@@ -37,7 +41,10 @@ export class MailtemplateBeheerService {
     return this.zacHttpClient.POST("/rest/beheer/mailtemplates", body);
   }
 
-  updateMailtemplate(id: number, body: PutBody<"/rest/beheer/mailtemplates/{id}"> ) {
+  updateMailtemplate(
+    id: number,
+    body: PutBody<"/rest/beheer/mailtemplates/{id}">,
+  ) {
     return this.zacHttpClient.PUT("/rest/beheer/mailtemplates/{id}", body, {
       path: { id },
     });
