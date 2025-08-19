@@ -1244,7 +1244,7 @@ export class ZaakViewComponent
   sluitSidenav() {
     this.activeSideAction = null;
     this.actiefPlanItem = null;
-    this.actionsSidenav.close();
+    void this.actionsSidenav.close();
   }
 
   taakGestart() {
@@ -1259,16 +1259,14 @@ export class ZaakViewComponent
 
   mailVerstuurd(mailVerstuurd: boolean) {
     this.sluitSidenav();
-    if (mailVerstuurd) {
-      this.updateZaak();
-    }
+    if (!mailVerstuurd) return;
+    this.updateZaak();
   }
 
   ontvangstBevestigd(ontvangstBevestigd: boolean) {
     this.sluitSidenav();
-    if (ontvangstBevestigd) {
-      this.updateZaak();
-    }
+    if (!ontvangstBevestigd) return;
+    this.updateZaak();
   }
 
   documentToegevoegd() {
