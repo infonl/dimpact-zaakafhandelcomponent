@@ -263,9 +263,7 @@ export class WebsocketService implements OnDestroy {
 
   private addCallback(event: ScreenEvent, callback: EventCallback) {
     const listener: WebsocketListener = new WebsocketListener(event, callback);
-    const callbacks = this.getCallbacks(
-      event.key,
-    );
+    const callbacks = this.getCallbacks(event.key);
 
     callbacks.set(listener.id, callback);
     return listener;
