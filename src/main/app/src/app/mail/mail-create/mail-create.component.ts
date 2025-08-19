@@ -47,6 +47,7 @@ export class MailCreateComponent implements OnInit {
 
   protected verzenderOptions: GeneratedType<"RestZaakAfzender">[] = [];
   protected contactGegevens: GeneratedType<"RestContactGegevens"> | null = null;
+  protected variabelen: string[] = [];
 
   constructor(
     private readonly zakenService: ZakenService,
@@ -70,6 +71,8 @@ export class MailCreateComponent implements OnInit {
       .subscribe((mailTemplate) => {
         this.form.controls.onderwerp.setValue(mailTemplate.onderwerp ?? null);
         this.form.controls.body.setValue(mailTemplate.body ?? null);
+        console.log("Mail template:", mailTemplate);
+        this.variabelen = mailTemplate.variabelen ?? [];
       });
 
     this.zakenService

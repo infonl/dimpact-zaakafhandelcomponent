@@ -22,12 +22,23 @@
       suffix="suffix"
     />
     <zac-input [form]="form" key="ontvanger">
-      <button (click)="setOntvanger()" mat-icon-button matSuffix>
+      <button
+        (click)="setOntvanger()"
+        *ngIf="this.contactGegevens?.emailadres"
+        type="button"
+        mat-icon-button
+        matSuffix
+      >
         <mat-icon>person</mat-icon>
       </button>
     </zac-input>
-    <zac-html-editor [form]="form" key="onderwerp" hideToolbar />
-    <zac-html-editor [form]="form" key="body" />
+    <zac-html-editor
+      [form]="form"
+      key="onderwerp"
+      noToolbar
+      [variables]="variabelen"
+    />
+    <zac-html-editor [form]="form" key="body" [variables]="variabelen" />
   </fieldset>
   <fieldset>
     <mfb-form-field [field]="bijlagenFormField" />
@@ -42,7 +53,7 @@
       >
         {{ "actie.versturen" | translate }}
       </button>
-      <button type="button" mat-raised-button (click)="sideNav.close()">
+      <button mat-raised-button (click)="sideNav.close()" type="reset">
         {{ "actie.annuleren" | translate }}
       </button>
     </mat-action-row>
