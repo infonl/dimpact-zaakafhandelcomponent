@@ -49,7 +49,7 @@ Feature: BPMN
 
   Scenario: Bob inspects the summary task form
     Given "Bob" is logged in to zac
-    And Employee "Bob" is on the newly created zaak with status "In behandeling"
+    And Employee "Bob" is on the newly created zaak
     When "Bob" opens the active task
     Then "Bob" sees that the summary form contains all filled-in data
 
