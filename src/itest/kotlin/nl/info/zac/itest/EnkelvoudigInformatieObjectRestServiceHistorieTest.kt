@@ -35,7 +35,7 @@ import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 
 @OptIn(ExperimentalKotest::class)
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED)
-class InformatieobjectenHistorieTest : BehaviorSpec({
+class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
@@ -160,8 +160,9 @@ class InformatieobjectenHistorieTest : BehaviorSpec({
                             string("applicatie")
                             string("attribuutLabel")
                             string("datumTijd") {
-                                // "2024-07-16T10:46:53.405553Z"
-                                match("""\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6}Z""".toRegex())
+                                // accept formats "2024-07-16T10:46:53.405553Z" or "2024-07-16T10:46:53.405Z"
+                                // (if the nanoseconds are divisible by 1,000, they are truncated to milliseconds)
+                                match("""\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}(\d{3})?Z""".toRegex())
                             }
                             string("door")
                             string("nieuweWaarde")
