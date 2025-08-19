@@ -255,6 +255,9 @@ export class InformatieObjectenService {
     return this.zacHttpClient.POST(
       "/rest/informatieobjecten/download/zip",
       body,
+      {
+        responseType: "blob",
+      } as Record<string, unknown>,
     );
   }
 
