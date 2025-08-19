@@ -30,7 +30,7 @@ export class ScreenEvent {
     this._key = this.makeKey(this.opcode, this.objectType, this.objectId);
   }
 
-  get timestamp(): number | undefined {
+  get timestamp() {
     return this._timestamp;
   }
 

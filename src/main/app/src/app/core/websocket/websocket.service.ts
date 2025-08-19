@@ -59,9 +59,8 @@ export class WebsocketService implements OnDestroy {
 
   private destroyed$ = new Subject<void>();
 
-  private listeners: Record<string, Record<string, EventCallback>> = {};
-
-  private suspended: Record<string, EventSuspension> = {};
+  private listeners = new Map<string, Map<string, EventCallback>>();
+  private suspended = new Map<string, EventSuspension>();
 
   constructor(
     private translate: TranslateService,
@@ -134,7 +133,10 @@ export class WebsocketService implements OnDestroy {
       try {
         if (!this.isSuspended(listenerId)) {
           console.debug("listener call: " + key);
-          callbacks[listenerId](event);
+          const callback = callbacks.get(listenerId);
+          if (callback) {
+            callback(event);
+          }
         }
       } catch (error) {
         console.warn("Websocket callback error: ");
@@ -198,11 +200,11 @@ export class WebsocketService implements OnDestroy {
   ): void {
     if (!listener) return;
 
-    const suspension: EventSuspension = this.suspended[listener.id];
+    const suspension = this.suspended.get(listener.id);
     if (suspension) {
       suspension.increment();
     } else {
-      this.suspended[listener.id] = new EventSuspension(timeout);
+      this.suspended.set(listener.id, new EventSuspension(timeout));
     }
     console.debug("listener suspended: " + listener.key);
   }
@@ -261,36 +263,36 @@ export class WebsocketService implements OnDestroy {
 
   private addCallback(event: ScreenEvent, callback: EventCallback) {
     const listener: WebsocketListener = new WebsocketListener(event, callback);
-    const callbacks: Record<string, EventCallback> = this.getCallbacks(
+    const callbacks = this.getCallbacks(
       event.key,
     );
 
-    callbacks[listener.id] = callback;
+    callbacks.set(listener.id, callback);
     return listener;
   }
 
   private removeCallback(listener: WebsocketListener): void {
-    const callbacks: Record<string, EventCallback> = this.getCallbacks(
+    const callbacks: Map<string, EventCallback> = this.getCallbacks(
       listener.event.key,
     );
-    delete callbacks[listener.id];
-    delete this.suspended[listener.id];
+    callbacks.delete(listener.id);
+    this.suspended.delete(listener.id);
   }
 
-  private getCallbacks(key: string): Record<string, EventCallback> {
-    if (!this.listeners[key]) {
-      this.listeners[key] = {};
+  private getCallbacks(key: string): Map<string, EventCallback> {
+    if (!this.listeners.get(key)) {
+      this.listeners.set(key, new Map());
     }
-    return this.listeners[key];
+    return this.listeners.get(key)!;
   }
 
   private isSuspended(listenerId: string): boolean {
-    const suspension: EventSuspension = this.suspended[listenerId];
+    const suspension = this.suspended.get(listenerId);
     if (suspension) {
       const expired: boolean = suspension.isExpired();
       const done = suspension.isDone(); // Do not short circuit calling this method (here be side effects)
       if (done || expired) {
-        delete this.suspended[listenerId];
+        this.suspended.delete(listenerId);
       }
       return !expired;
     }
