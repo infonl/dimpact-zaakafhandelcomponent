@@ -8,7 +8,7 @@
  */
 export class EventSuspension {
   private _ttl: number;
-  private _expires: number;
+  private _expires!: number;
   private _count = 0;
 
   constructor(seconds: number) {
