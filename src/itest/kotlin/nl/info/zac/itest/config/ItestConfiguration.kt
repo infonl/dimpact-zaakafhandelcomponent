@@ -82,7 +82,7 @@ object ItestConfiguration {
     const val OPEN_ZAAK_EXTERNAL_URI = "http://localhost:$OPEN_ZAAK_EXTERNAL_PORT"
     const val OPEN_ZAAK_CLIENT_ID = "zac_client"
     const val OPEN_ZAAK_CLIENT_SECRET = "openzaakZaakafhandelcomponentClientSecret"
-    const val PABC_CLIENT_BASE_URI = "http://pabc:8006"
+    const val PABC_CLIENT_BASE_URI = "http://pabc-api:8000"
     const val PABC_API_KEY = "zac-test-api-key"
     const val PRODUCTAANVRAAG_TYPE_1 = "productaanvraag-type-1"
     const val PRODUCTAANVRAAG_TYPE_2 = "productaanvraag-type-2"

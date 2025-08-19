@@ -82,16 +82,23 @@ constructor(
     ) =
         createLoggedInUser(oidcPrincipal.oidcSecurityContext).let { loggedInUser ->
             setLoggedInUser(httpSession, loggedInUser)
-            LOG.info(
-                "User logged in: '${loggedInUser.id}' with roles: ${loggedInUser.roles}, " +
-                    "groups: ${loggedInUser.groupIds} and zaaktypen: ${
-                        if (loggedInUser.isAuthorisedForAllZaaktypen()) {
-                            "ELK-ZAAKTYPE"
-                        } else {
-                            loggedInUser.geautoriseerdeZaaktypen.toString()
-                        }
-                    }"
-            )
+            if (!pabcIntegrationEnabled) {
+                LOG.info(
+                    "User logged in: '${loggedInUser.id}' with roles: ${loggedInUser.roles}, " +
+                        "groups: ${loggedInUser.groupIds} and zaaktypen: ${
+                            if (loggedInUser.isAuthorisedForAllZaaktypen()) {
+                                "ELK-ZAAKTYPE"
+                            } else {
+                                loggedInUser.geautoriseerdeZaaktypen.toString()
+                            }
+                        }"
+                )
+            } else {
+                LOG.info(
+                    "User logged in: '${loggedInUser.id}' with groups: ${loggedInUser.groupIds}, " +
+                        "and application roles per zaaktype: ${loggedInUser.applicationRolesPerZaaktype}"
+                )
+            }
             this.addRefreshTokenToHttpSession(oidcPrincipal, httpSession)
         }
 

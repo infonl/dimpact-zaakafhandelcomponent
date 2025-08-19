@@ -35,11 +35,10 @@ class LoggedInUser(
      * If PABC-based authorization is active, use the map of application roles per zaaktype.
      * Otherwise, legacy functional (Keycloak) role-based authorization is used.
      */
-    fun isAuthorisedForZaaktype(zaaktypeOmschrijving: String): Boolean {
+    fun isAuthorisedForZaaktype(zaaktypeOmschrijving: String) =
         if (pabcIntegrationEnabled) {
-            return applicationRolesPerZaaktype[zaaktypeOmschrijving]?.isNotEmpty() == true
+            applicationRolesPerZaaktype[zaaktypeOmschrijving]?.isNotEmpty() == true
+        } else {
+            geautoriseerdeZaaktypen?.contains(zaaktypeOmschrijving) ?: true
         }
-        return geautoriseerdeZaaktypen == null ||
-            geautoriseerdeZaaktypen.contains(zaaktypeOmschrijving)
-    }
 }

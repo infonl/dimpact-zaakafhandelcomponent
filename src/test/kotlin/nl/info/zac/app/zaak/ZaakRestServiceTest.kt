@@ -252,7 +252,6 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 inboxProductaanvraagService.delete(restZaakAanmaakGegevens.inboxProductaanvraag?.id)
             } just runs
-            every { loggedInUserInstance.get() } returns createLoggedInUser()
             every {
                 objectsClientService
                     .readObject(restZaakAanmaakGegevens.inboxProductaanvraag?.productaanvraagObjectUUID)
@@ -349,7 +348,6 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 policyService.readOverigeRechten(zaakType.omschrijving)
             } returns createOverigeRechtenAllDeny(startenZaak = true)
-            every { loggedInUserInstance.get() } returns createLoggedInUser()
             every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
             When("zaak creation is attempted") {
@@ -372,7 +370,6 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 policyService.readOverigeRechten(zaakType.omschrijving)
             } returns createOverigeRechtenAllDeny(startenZaak = true)
-            every { loggedInUserInstance.get() } returns createLoggedInUser()
             every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
             When("zaak creation is attempted") {
