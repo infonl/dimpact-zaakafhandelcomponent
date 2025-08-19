@@ -97,18 +97,7 @@ jobs:
         if: steps.changed-files.outputs.files_to_lint != ''
         working-directory: src/main/app
         run: |
-          # Create a temporary tsconfig that extends the base strict config,
-          # but only includes the changed TS files
-          cat > tsconfig.changed-files.json << 'EOF'
-          {
-            "extends": "./tsconfig.json",
-            "compilerOptions": {},
-            "include": [],
-            "exclude": []
-          }
-          EOF
-
-          # Add changed files to the include array
+          # Get changed TypeScript files
           FILES_TO_CHECK="${{ steps.changed-files.outputs.files_to_lint }}"
           if [ -n "$FILES_TO_CHECK" ]; then
             # Convert file paths to be relative to the app directory
@@ -122,15 +111,59 @@ jobs:
               exit 0
             fi
             
-            # Convert to JSON array format
-            FILES_JSON=$(echo "$RELATIVE_TS_FILES" | jq -R -s -c 'split("\n") | map(select(length>0))')
+            echo "🔍 Running strict TypeScript checking on changed files..."
+            echo "TypeScript files to check:"
+            echo "$RELATIVE_TS_FILES"
+            echo ""
             
-            # Update tsconfig to include only changed files
-            jq --argjson files "$FILES_JSON" '.include = $files' tsconfig.changed-files.json > tsconfig.changed-files.tmp.json
-            mv tsconfig.changed-files.tmp.json tsconfig.changed-files.json
+            # Run TypeScript compilation for the entire project and filter for changed files
+            echo "Running TypeScript compilation check..."
+            TSC_TEMP_FILE=$(mktemp)
+            if timeout 60s npx tsc --noEmit --project . > "$TSC_TEMP_FILE" 2>&1; then
+              TSC_EXIT_CODE=0
+            else
+              TSC_EXIT_CODE=$?
+            fi
             
-            echo "Running TypeScript check on changed files..."
-            npx tsc --project tsconfig.changed-files.json
+            # Check if timeout occurred
+            if [ $TSC_EXIT_CODE -eq 124 ]; then
+              echo "⚠️  TypeScript check timed out (60s)"
+              rm -f "$TSC_TEMP_FILE"
+              exit 1
+            fi
+            
+            FAILED_FILES=""
+            # Check each changed TypeScript file for errors
+            for file in $RELATIVE_TS_FILES; do
+              echo ""
+              echo "👀 Checking: $file"
+              # Filter output to only show errors from the current file being checked
+              # TypeScript error format: "src/app/file.ts(line,col): error message"
+              FILTERED_ERRORS=$(grep "^$file(" "$TSC_TEMP_FILE" || true)
+              
+              if [ -n "$FILTERED_ERRORS" ]; then
+                echo "❌ TypeScript errors found in $file:"
+                echo "$FILTERED_ERRORS"
+                FAILED_FILES="$FAILED_FILES$file"$'\n'
+              else
+                echo "✅ $file passed TypeScript check"
+              fi
+            done
+            
+            # Clean up temp file
+            rm -f "$TSC_TEMP_FILE"
+            
+            if [ -n "$FAILED_FILES" ]; then
+              echo ""
+              echo "❌ TypeScript check failed for changed files with errors in the files themselves"
+              echo "💡 Changed files must follow strict TypeScript standards"
+              echo "💡 Files with errors:"
+              echo "$FAILED_FILES"
+              exit 1
+            fi
+            
+            echo ""
+            echo "✅ All TypeScript files passed strict checking"
           fi
 
       - name: Comment on PR if linting failed
