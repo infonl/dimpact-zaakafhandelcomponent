@@ -44,7 +44,7 @@
       >
         {{ "actie.zoeken" | translate }}
       </button>
-      <button mat-raised-button (click)="clearFormAndData()">
+      <button mat-raised-button (click)="clearFormAndData()" type="reset">
         {{ "actie.wissen" | translate }}
       </button>
     </mat-action-row>
@@ -94,10 +94,9 @@
           <mat-icon>emoji_people</mat-icon>
         </button>
         <button
-          *ngIf="!persoon.observed"
+          *ngIf="!persoon?.observed"
           mat-icon-button
           (click)="openPersoonPagina(row)"
-          [id]="'persoonBekijken_' + row.identificatie + '_button'"
           title="{{ 'actie.persoon.bekijken' | translate }}"
         >
           <mat-icon>visibility</mat-icon>
