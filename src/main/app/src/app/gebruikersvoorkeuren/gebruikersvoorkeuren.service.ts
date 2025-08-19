@@ -4,12 +4,6 @@
  */
 
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { catchError } from "rxjs/operators";
-
-import { HttpClient } from "@angular/common/http";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { TabelGegevens } from "../shared/dynamic-table/model/tabel-gegevens";
 import {
   DeleteBody,
   PostBody,
@@ -22,13 +16,7 @@ import { GeneratedType } from "../shared/utils/generated-types";
   providedIn: "root",
 })
 export class GebruikersvoorkeurenService {
-  private basepath = "/rest/gebruikersvoorkeuren";
-
-  constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
-    private readonly zacHttpClient: ZacHttpClient,
-  ) {}
+  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   listZoekOpdrachten(lijstID: GeneratedType<"Werklijst">) {
     return this.zacHttpClient.GET(
@@ -48,12 +36,13 @@ export class GebruikersvoorkeurenService {
     );
   }
 
-  deleteZoekOpdrachten(id: number): Observable<void> {
-    return this.http
-      .delete<void>(`${this.basepath}/zoekopdracht/${id}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  deleteZoekOpdrachten(id: number) {
+    return this.zacHttpClient.DELETE(
+      "/rest/gebruikersvoorkeuren/zoekopdracht/{id}",
+      {
+        path: { id },
+      },
+    );
   }
 
   setZoekopdrachtActief(
@@ -65,38 +54,32 @@ export class GebruikersvoorkeurenService {
     );
   }
 
-  removeZoekopdrachtActief(
-    werklijst: GeneratedType<"Werklijst">,
-  ): Observable<void> {
-    return this.http
-      .delete<void>(`${this.basepath}/zoekopdracht/${werklijst}/actief`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  removeZoekopdrachtActief(werklijst: GeneratedType<"Werklijst">) {
+    return this.zacHttpClient.DELETE(
+      "/rest/gebruikersvoorkeuren/zoekopdracht/{werklijst}/actief",
+      {
+        path: { werklijst },
+      },
+    );
   }
 
-  readTabelGegevens(
-    werklijst: GeneratedType<"Werklijst">,
-  ): Observable<TabelGegevens> {
-    return this.http
-      .get<TabelGegevens>(`${this.basepath}/tabel-gegevens/${werklijst}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readTabelGegevens(werklijst: GeneratedType<"Werklijst">) {
+    return this.zacHttpClient.GET(
+      "/rest/gebruikersvoorkeuren/tabel-gegevens/{werklijst}",
+      {
+        path: { werklijst },
+      },
+    );
   }
 
-  updateAantalPerPagina(
-    werklijst: GeneratedType<"Werklijst">,
-    aantal: number,
-  ): Observable<void> {
-    return this.http
-      .put<void>(
-        `${this.basepath}/aantal-per-pagina/${werklijst}/${aantal}`,
-        {},
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  updateAantalPerPagina(werklijst: GeneratedType<"Werklijst">, aantal: number) {
+    return this.zacHttpClient.PUT(
+      "/rest/gebruikersvoorkeuren/aantal-per-pagina/{werklijst}/{aantal}",
+      undefined as never,
+      {
+        path: { werklijst, aantal },
+      },
+    );
   }
 
   listDashboardCards() {
