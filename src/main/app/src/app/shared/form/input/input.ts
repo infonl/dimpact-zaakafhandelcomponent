@@ -26,12 +26,12 @@ export class ZacInput<
   @Input() type: "text" | "number" = "text";
   @Input() label?: string;
   /**
-   * When a `displayValue` is declared the `input` will be hidden, and it will use an overlay for the value.
-   * The input will also be put in an `readonly` mode.
+   * When a `displayValue` is declared, the `input` will be hidden, and it will use an overlay for the value.
+   * The input will also be put in a `readonly` mode.
    */
   @Input() displayValue?: DisplayValue;
 
-  protected control?: AbstractControl<Option>;
+  protected control?: AbstractControl<Option | null>;
   protected maxlength: number | null = null;
   protected min?: number | null = null;
   protected max?: number | null = null;
@@ -74,10 +74,10 @@ export class ZacInput<
     const value = target.value;
     switch (this.type) {
       case "text":
-        if (value !== "") break;
-        this.control?.reset(); // Ensure we send over `null` instead of an empty string
-        break;
       case "number":
+        if (value !== "") break;
+        this.control?.setValue(null); // Ensure we send over `null` instead of an empty string
+        break;
       default:
         // Nothing to do...
         break;
