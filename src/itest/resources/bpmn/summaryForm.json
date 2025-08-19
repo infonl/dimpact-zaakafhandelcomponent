@@ -55,7 +55,23 @@
           "disabled": true
         },
         {
-          "label": "Mail reciever",
+          "label": "Zaak Result",
+          "labelPosition": "left-left",
+          "type": "textfield",
+          "key": "ZK_Result",
+          "input": false,
+          "disabled": true
+        },
+        {
+          "label": "Zaak Status",
+          "labelPosition": "left-left",
+          "type": "textfield",
+          "key": "ZK_Status",
+          "input": false,
+          "disabled": true
+        },
+        {
+          "label": "Mail receiver",
           "labelPosition": "left-left",
           "disabled": true,
           "key": "TF_EMAIL_TO",

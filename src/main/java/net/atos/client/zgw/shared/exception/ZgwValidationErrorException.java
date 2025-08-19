@@ -2,23 +2,23 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.shared.exception;
 
 import java.net.URI;
 import java.util.stream.Collectors;
 
 import net.atos.client.zgw.shared.model.ValidationZgwError;
+import nl.info.zac.exception.InputValidationFailedException;
 
 /**
- * Exception to indicate a validation error that occurred in an external service.
+ * Exception to indicate a validation error that occurred in when calling the ZGW API.
  */
-public class ValidationErrorException extends RuntimeException {
+public class ZgwValidationErrorException extends InputValidationFailedException {
 
     private final ValidationZgwError validatieFout;
 
-    public ValidationErrorException(final ValidationZgwError validatieFout) {
-        this.validatieFout = validatieFout;
+    public ZgwValidationErrorException(final ValidationZgwError validationZgwError) {
+        this.validatieFout = validationZgwError;
     }
 
     public ValidationZgwError getValidatieFout() {
@@ -34,9 +34,12 @@ public class ValidationErrorException extends RuntimeException {
                         validatieFout.getDetail(),
                         validatieFout.getInvalidParams().stream()
                                 .map(error -> "%s [%s] %s"
-                                        .formatted(error.getName(),
-                                                error.getCode(),
-                                                error.getReason()))
+                                        .formatted(
+                                                error.name(),
+                                                error.code(),
+                                                error.reason()
+                                        )
+                                )
                                 .collect(Collectors.joining(", ")),
                         uri(validatieFout.getType()),
                         uri(validatieFout.getInstance()));

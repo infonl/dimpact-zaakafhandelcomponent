@@ -93,6 +93,7 @@ import nl.info.zac.app.zaak.model.RestDecisionCreateData
 import nl.info.zac.app.zaak.model.RestDecisionType
 import nl.info.zac.app.zaak.model.RestDecisionWithdrawalData
 import nl.info.zac.app.zaak.model.RestResultaattype
+import nl.info.zac.app.zaak.model.RestStatustype
 import nl.info.zac.app.zaak.model.RestZaak
 import nl.info.zac.app.zaak.model.RestZaakAssignmentData
 import nl.info.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
@@ -107,7 +108,6 @@ import nl.info.zac.app.zaak.model.RestZaaktype
 import nl.info.zac.app.zaak.model.toGeoJSONGeometry
 import nl.info.zac.app.zaak.model.toPatchZaak
 import nl.info.zac.app.zaak.model.toRestDecisionTypes
-import nl.info.zac.app.zaak.model.toRestResultaatTypes
 import nl.info.zac.app.zaak.model.toRestZaakBetrokkenen
 import nl.info.zac.app.zaak.model.toZaak
 import nl.info.zac.authentication.LoggedInUser
@@ -1005,9 +1005,18 @@ class ZaakRestService @Inject constructor(
         assertPolicy(
             policyService.readWerklijstRechten().zakenTaken || policyService.readOverigeRechten().beheren
         )
-        return ztcClientService.readResultaattypen(
-            ztcClientService.readZaaktype(zaaktypeUUID).url
-        ).toRestResultaatTypes()
+        return zaakService.listResultTypes(zaaktypeUUID)
+    }
+
+    @GET
+    @Path("statustypes/{zaaktypeUUID}")
+    fun listStatustypesForZaaktype(
+        @PathParam("zaaktypeUUID") zaaktypeUUID: UUID
+    ): List<RestStatustype> {
+        assertPolicy(
+            policyService.readWerklijstRechten().zakenTaken || policyService.readOverigeRechten().beheren
+        )
+        return zaakService.listStatusTypes(zaaktypeUUID)
     }
 
     @GET
