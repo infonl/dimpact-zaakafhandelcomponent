@@ -18,6 +18,7 @@ import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.exception.DrcRuntimeException
 import net.atos.client.zgw.shared.exception.ZgwValidationErrorException
+import net.atos.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
 import nl.info.client.brp.BrpClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.exception.BrcRuntimeException
@@ -94,6 +95,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             }
             is ZgwRuntimeException -> handleZgwRuntimeException(exception)
             is ZgwValidationErrorException -> handleZgwValidationErrorException(exception)
+            is FlowableZgwValidationErrorException -> handleZgwValidationErrorException(exception.cause)
             is ProcessingException if (exception.cause is ConnectException || exception.cause is UnknownHostException) -> {
                 handleProcessingException(exception)
             }

@@ -38,9 +38,13 @@ export class ZacSelect<
   @Input() optionDisplayValue?: OptionDisplayValue;
   @Input() compare?: Compare;
   @Input() label?: string;
+
   /**
    * The suffix to display after the input field.
    * It will get translated using the `translate` pipe.
+   *
+   * - If the suffix is a `Key` of the `Option` type, it will display the value of that key.
+   * - If the suffix is a string, it will display that string.
    */
   @Input() suffix?: string;
 
@@ -80,6 +84,13 @@ export class ZacSelect<
       default:
         return String(option[this.optionDisplayValue as keyof Option]);
     }
+  };
+
+  protected displaySuffix = (option: Option) => {
+    if (!this.suffix) return null;
+    if (this.suffix in option) return option[this.suffix];
+
+    return this.suffix;
   };
 
   protected isRequired() {

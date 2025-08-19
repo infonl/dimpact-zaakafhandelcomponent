@@ -32,7 +32,7 @@ itextpdf = "9.2.0"
 itextpdf-html2pdf = "6.2.0"
 flyway = "11.11.1"
 apache-solr = "9.9.0"
-webdav-servlet = "1.2.188"
+webdav-servlet = "1.2.191"
 htmlcleaner = "2.29"
 infinispan = "15.2.5.Final"
 apache-httpclient = "4.5.14"
@@ -68,7 +68,7 @@ testcontainers = "1.21.3"
 json-json = "20250517"
 slf4j-simple = "2.0.17"
 
-github-kotlin-logging = "7.0.12"
+github-kotlin-logging = "7.0.13"
 okhttp = "5.1.0"
 
 [libraries]

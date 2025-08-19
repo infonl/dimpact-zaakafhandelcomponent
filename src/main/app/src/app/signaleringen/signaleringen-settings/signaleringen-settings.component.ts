@@ -15,7 +15,7 @@ import { SignaleringenSettingsService } from "../signaleringen-settings.service"
 })
 export class SignaleringenSettingsComponent implements OnInit, AfterViewInit {
   isLoadingResults = true;
-  columns: string[] = ["subjecttype", "type", "dashboard", "mail"];
+  columns = ["subjecttype", "type", "dashboard", "mail"] as const;
   dataSource = new MatTableDataSource<
     GeneratedType<"RestSignaleringInstellingen">
   >();
@@ -25,11 +25,11 @@ export class SignaleringenSettingsComponent implements OnInit, AfterViewInit {
     private utilService: UtilService,
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.utilService.setTitle("title.signaleringen.settings");
   }
 
-  ngAfterViewInit(): void {
+  ngAfterViewInit() {
     this.service.list().subscribe((instellingen) => {
       this.dataSource.data = instellingen;
       this.isLoadingResults = false;
@@ -38,9 +38,12 @@ export class SignaleringenSettingsComponent implements OnInit, AfterViewInit {
 
   changed(
     row: GeneratedType<"RestSignaleringInstellingen">,
-    column: string,
+    column: keyof Pick<
+      GeneratedType<"RestSignaleringInstellingen">,
+      "dashboard" | "mail"
+    >,
     checked: boolean,
-  ): void {
+  ) {
     this.utilService.setLoading(true);
     row[column] = checked;
     this.service.put(row).subscribe(() => {

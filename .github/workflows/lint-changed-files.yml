@@ -1,0 +1,188 @@
+# SPDX-FileCopyrightText: 2025 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+
+name: Lint Changed Files
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/main/app/**/*.ts"
+      - "src/main/app/**/*.js"
+      - "src/main/app/**/*.html"
+
+jobs:
+  lint-changed-files:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          fetch-depth: 0 # Fetch full history to compare with base branch
+
+      - name: Setup Node.js
+        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+        with:
+          node-version: 22
+          cache: "npm"
+          cache-dependency-path: src/main/app/package-lock.json
+
+      - name: Install dependencies
+        working-directory: src/main/app
+        run: npm ci
+
+      - name: Get changed files
+        id: changed-files
+        run: |
+          # Get list of changed files compared to base branch
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(ts|js|html)$' | grep '^src/main/app/' || true)
+
+          # Filter out deleted files (files that exist in the diff but not in the current working directory)
+          EXISTING_FILES=""
+          for file in $CHANGED_FILES; do
+            if [ -f "$file" ]; then
+              EXISTING_FILES="$EXISTING_FILES$file"$'\n'
+            else
+              echo "⚠️  Skipping deleted file: $file"
+            fi
+          done
+
+          # Filter out test files and other non-source files
+          FILTERED_FILES=$(echo "$EXISTING_FILES" | grep -v '\.spec\.' | grep -v '\.test\.' | grep -v 'test-helpers' || true)
+
+          if [ -n "$FILTERED_FILES" ]; then
+            echo "Changed files to lint:"
+            echo "$FILTERED_FILES"
+            echo "files_to_lint<<EOF" >> $GITHUB_OUTPUT
+            echo "$FILTERED_FILES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "No relevant files changed"
+            echo "files_to_lint=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate OpenAPI specs
+        if: steps.changed-files.outputs.files_to_lint != ''
+        run: |
+          echo "Generating OpenAPI specs..."
+          ./gradlew generateOpenApiSpec
+
+      - name: Generate OpenAPI TypeScript types
+        if: steps.changed-files.outputs.files_to_lint != ''
+        working-directory: src/main/app
+        run: |
+          echo "Generating OpenAPI TypeScript types..."
+          npm run generate:types:zac-openapi
+
+      - name: Lint changed files
+        if: steps.changed-files.outputs.files_to_lint != ''
+        working-directory: src/main/app
+        run: |
+          # Convert the files list to space-separated for eslint
+          FILES_TO_LINT="${{ steps.changed-files.outputs.files_to_lint }}"
+
+          # Convert file paths to be relative to the app directory
+          RELATIVE_FILES=$(echo "$FILES_TO_LINT" | sed 's|^src/main/app/||')
+
+          # Run ESLint on changed files
+          echo "Running ESLint on changed files..."
+          echo "Files to lint (relative to app directory):"
+          echo "$RELATIVE_FILES"
+
+          # Use ng lint with specific file patterns
+          npm run lint
+
+      - name: Type check changed TS files
+        if: steps.changed-files.outputs.files_to_lint != ''
+        working-directory: src/main/app
+        run: |
+          # Get changed TypeScript files
+          FILES_TO_CHECK="${{ steps.changed-files.outputs.files_to_lint }}"
+          if [ -n "$FILES_TO_CHECK" ]; then
+            # Convert file paths to be relative to the app directory
+            RELATIVE_FILES=$(echo "$FILES_TO_CHECK" | sed 's|^src/main/app/||')
+            
+            # Keep only .ts files for the TypeScript compiler
+            RELATIVE_TS_FILES=$(echo "$RELATIVE_FILES" | grep -E '\.ts$' || true)
+            
+            if [ -z "$RELATIVE_TS_FILES" ]; then
+              echo "No TypeScript files to type-check"
+              exit 0
+            fi
+            
+            echo "🔍 Running strict TypeScript checking on changed files..."
+            echo "TypeScript files to check:"
+            echo "$RELATIVE_TS_FILES"
+            echo ""
+            
+            # Run TypeScript compilation for the entire project and filter for changed files
+            echo "Running TypeScript compilation check..."
+            TSC_TEMP_FILE=$(mktemp)
+            if timeout 60s npx tsc --noEmit --project . > "$TSC_TEMP_FILE" 2>&1; then
+              TSC_EXIT_CODE=0
+            else
+              TSC_EXIT_CODE=$?
+            fi
+            
+            # Check if timeout occurred
+            if [ $TSC_EXIT_CODE -eq 124 ]; then
+              echo "⚠️  TypeScript check timed out (60s)"
+              rm -f "$TSC_TEMP_FILE"
+              exit 1
+            fi
+            
+            FAILED_FILES=""
+            # Check each changed TypeScript file for errors
+            for file in $RELATIVE_TS_FILES; do
+              echo ""
+              echo "👀 Checking: $file"
+              # Filter output to only show errors from the current file being checked
+              # TypeScript error format: "src/app/file.ts(line,col): error message"
+              FILTERED_ERRORS=$(grep "^$file(" "$TSC_TEMP_FILE" || true)
+              
+              if [ -n "$FILTERED_ERRORS" ]; then
+                echo "❌ TypeScript errors found in $file:"
+                echo "$FILTERED_ERRORS"
+                FAILED_FILES="$FAILED_FILES$file"$'\n'
+              else
+                echo "✅ $file passed TypeScript check"
+              fi
+            done
+            
+            # Clean up temp file
+            rm -f "$TSC_TEMP_FILE"
+            
+            if [ -n "$FAILED_FILES" ]; then
+              echo ""
+              echo "❌ TypeScript check failed for changed files with errors in the files themselves"
+              echo "💡 Changed files must follow strict TypeScript standards"
+              echo "💡 Files with errors:"
+              echo "$FAILED_FILES"
+              exit 1
+            fi
+            
+            echo ""
+            echo "✅ All TypeScript files passed strict checking"
+          fi
+
+      - name: Comment on PR if linting failed
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `❌ **Linting check failed**
+              
+              The linting check for changed files has failed. Please fix the linting errors in your newly added or modified code.
+              
+              You can run the following command locally to check for issues:
+              \`\`\`bash
+              ./scripts/lint-changed-files.sh
+              \`\`\`
+              
+              For TypeScript strict checking, you can temporarily enable strict mode in \`tsconfig.app.json\` to see all issues.`
+            })

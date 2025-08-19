@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.util.exception
 
 import io.kotest.core.spec.style.BehaviorSpec
@@ -22,6 +21,7 @@ import net.atos.client.zgw.drc.exception.DrcRuntimeException
 import net.atos.client.zgw.shared.exception.ZgwValidationErrorException
 import net.atos.client.zgw.shared.model.createFieldValidationError
 import net.atos.client.zgw.shared.model.createValidationZgwError
+import net.atos.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.exception.BrcRuntimeException
 import nl.info.client.zgw.shared.exception.ZgwRuntimeException
@@ -186,6 +186,52 @@ class RestExceptionMapperTest : BehaviorSpec({
                         level = Level.FINE,
                         message = "fakeTitle [12345 fakeCode] fakeDetail: fakeFieldName1 [fakeCode1] fakeReason1, " +
                             "fakeFieldName2 [fakeCode2] fakeReason2 " +
+                            "(https://localhost:8080/validation-error https://localhost:8080/validation-error-instance)",
+                        throwable = zgwValidationErrorException
+                    )
+                }
+            }
+        }
+    }
+
+    Given(
+        "A Flowable ZGW validation error exception with a ZGW validation error exception without invalid parameters as cause"
+    ) {
+        val zgwValidationErrorException = ZgwValidationErrorException(
+            createValidationZgwError(
+                code = "fakeCode",
+                title = "fakeTitle",
+                status = 12345,
+                detail = "fakeDetail",
+                invalidParams = emptyList()
+            )
+        )
+        val flowableZgwValidationErrorException = FlowableZgwValidationErrorException(
+            message = "fakeMessage",
+            cause = zgwValidationErrorException
+        )
+
+        When("the exception is mapped to a response") {
+            val response = restExceptionMapper.toResponse(flowableZgwValidationErrorException)
+
+            Then(
+                """
+                it should return the zgw validation error code and the exception message
+                """
+            ) {
+                checkResponse(
+                    response = response,
+                    errorMessage = "msg.error.validation.zgw",
+                    exceptionMessage = "",
+                    expectedStatus = HttpStatus.SC_BAD_REQUEST
+                )
+            }
+            And("it should log the exception at the level FINE with the expected root cause exception message") {
+                verify(exactly = 1) {
+                    log(
+                        logger = any(),
+                        level = Level.FINE,
+                        message = "fakeTitle [12345 fakeCode] fakeDetail:  " +
                             "(https://localhost:8080/validation-error https://localhost:8080/validation-error-instance)",
                         throwable = zgwValidationErrorException
                     )
