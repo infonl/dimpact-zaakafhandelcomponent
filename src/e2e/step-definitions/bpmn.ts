@@ -174,6 +174,10 @@ When(
     await this.page.getByLabel("Test form").getByText("file A").click();
     await this.page.getByLabel("Test form").getByText("file B").click();
     await this.page.getByLabel("Communication channel").selectOption("E-mail");
+    await this.page.getByLabel("Select result").click();
+    await this.page.getByLabel("Select result").selectOption("Verleend");
+    await this.page.getByLabel("Select status").click();
+    await this.page.getByLabel("Select status").selectOption("Afgerond");
   },
 );
 
@@ -191,14 +195,14 @@ Then(
   "{string} sees that the initial task is completed",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await expect(
+      this.page.getByRole("cell", { name: "Test form" }),
+    ).not.toBeVisible();
     await this.page
       .getByRole("switch", { name: "Toon afgeronde taken" })
       .click();
     await expect(
       this.page.getByRole("cell", { name: "Test form" }),
-    ).toBeVisible();
-    await expect(
-      this.page.locator("span").filter({ hasText: "Afgerond" }).nth(1),
     ).toBeVisible();
   },
 );

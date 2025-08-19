@@ -243,6 +243,12 @@ export class ZakenService {
     });
   }
 
+  listStatustypes(zaaktypeUUID: string) {
+    return this.zacHttpClient.GET("/rest/zaken/statustypes/{zaaktypeUUID}", {
+      path: { zaaktypeUUID },
+    });
+  }
+
   koppelZaak(body: PatchBody<"/rest/zaken/zaak/koppel">) {
     return this.zacHttpClient.PATCH("/rest/zaken/zaak/koppel", body);
   }

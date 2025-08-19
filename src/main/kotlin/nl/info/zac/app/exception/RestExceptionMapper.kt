@@ -4,8 +4,11 @@
  */
 package nl.info.zac.app.exception
 
+import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.WebApplicationException
+import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.ext.ExceptionMapper
 import jakarta.ws.rs.ext.Provider
@@ -14,6 +17,7 @@ import net.atos.client.klant.KlantClientService
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.exception.DrcRuntimeException
+import net.atos.client.zgw.shared.exception.ZgwValidationErrorException
 import nl.info.client.brp.BrpClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.exception.BrcRuntimeException
@@ -22,9 +26,7 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.exception.ZtcRuntimeException
-import nl.info.zac.app.exception.RestExceptionResponseBuilder.createResponse
-import nl.info.zac.app.exception.RestExceptionResponseBuilder.generateResponse
-import nl.info.zac.app.exception.RestExceptionResponseBuilder.generateServerErrorResponse
+import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BAG_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BRC_CLIENT
@@ -39,18 +41,25 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZTC_CLIENT
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.ServerErrorException
+import nl.info.zac.log.log
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.exception.ZaakWithADecisionCannotBeTerminatedException
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException
+import java.util.logging.Level
+import java.util.logging.Logger
 
 /**
  * Maps exceptions to JAX-RS responses for use in REST responses.
  */
 @Provider
 class RestExceptionMapper : ExceptionMapper<Exception> {
+    companion object {
+        private val LOG = Logger.getLogger(RestExceptionMapper::class.java.name)
+        const val JSON_CONVERSION_ERROR_MESSAGE = "Failed to convert exception to JSON"
+    }
 
     /**
      * Converts an exception to a JAX-RS response based on the exception type.
@@ -69,13 +78,13 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
      */
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     override fun toResponse(exception: Exception): Response =
-        when {
-            exception is WebApplicationException &&
-                Response.Status.Family.familyOf(exception.response.status) != Response.Status.Family.SERVER_ERROR -> {
+        when (exception) {
+            is WebApplicationException if
+            Response.Status.Family.familyOf(exception.response.status) != Response.Status.Family.SERVER_ERROR -> {
                 createResponse(exception)
             }
             // handle execution exceptions thrown from asynchronous Java concurrent methods
-            exception is ExecutionException && (exception.cause is WebApplicationException) &&
+            is ExecutionException if (exception.cause is WebApplicationException) &&
                 Response.Status.Family.familyOf(
                     (
                         exception.cause as WebApplicationException
@@ -83,31 +92,32 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 ) != Response.Status.Family.SERVER_ERROR -> {
                 createResponse(exception.cause as WebApplicationException)
             }
-            exception is ZgwRuntimeException -> handleZgwRuntimeException(exception)
-            exception is ProcessingException && (exception.cause is ConnectException || exception.cause is UnknownHostException) -> {
+            is ZgwRuntimeException -> handleZgwRuntimeException(exception)
+            is ZgwValidationErrorException -> handleZgwValidationErrorException(exception)
+            is ProcessingException if (exception.cause is ConnectException || exception.cause is UnknownHostException) -> {
                 handleProcessingException(exception)
             }
-            exception is PolicyException -> generateResponse(
+            is PolicyException -> generateResponse(
                 responseStatus = Response.Status.FORBIDDEN,
                 errorCode = ERROR_CODE_FORBIDDEN,
                 exception = exception
             )
-            exception is BetrokkeneIsAlreadyAddedToZaakException -> generateResponse(
+            is BetrokkeneIsAlreadyAddedToZaakException -> generateResponse(
                 responseStatus = Response.Status.CONFLICT,
                 errorCode = ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK,
                 exception = exception
             )
-            exception is InputValidationFailedException -> generateResponse(
+            is InputValidationFailedException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
                 errorCode = exception.errorCode ?: ERROR_CODE_SERVER_GENERIC,
                 exception = exception
             )
-            exception is ServerErrorException -> generateResponse(
+            is ServerErrorException -> generateResponse(
                 responseStatus = Response.Status.INTERNAL_SERVER_ERROR,
                 errorCode = exception.errorCode,
                 exception = exception
             )
-            exception is ZaakWithADecisionCannotBeTerminatedException -> generateResponse(
+            is ZaakWithADecisionCannotBeTerminatedException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
                 errorCode = ERROR_CODE_CASE_WITH_DECISION_CANNOT_BE_TERMINATION,
                 exception = exception
@@ -137,6 +147,15 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             // fall back to generic server error
             else -> generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
         }
+
+    private fun handleZgwValidationErrorException(exception: ZgwValidationErrorException): Response =
+        generateResponse(
+            responseStatus = Response.Status.BAD_REQUEST,
+            errorCode = ErrorCode.ERROR_CODE_VALIDATION_ZGW,
+            exception = exception,
+            // we only want to set the 'reason' field for the invalid parameters in the response
+            exceptionMessage = exception.validatieFout.invalidParams.joinToString(separator = ", ") { it.reason }
+        )
 
     /**
      * Handle JAX-RS processing exceptions which can be thrown by the various
@@ -170,5 +189,55 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZTC_CLIENT)
                 else -> generateServerErrorResponse(exception)
             }
+        }
+
+    private fun createResponse(exception: WebApplicationException): Response =
+        Response.status(exception.response.status)
+            .type(MediaType.APPLICATION_JSON)
+            .entity(getJSONMessage(errorMessage = exception.message ?: ERROR_CODE_SERVER_GENERIC.value))
+            .build()
+
+    private fun generateResponse(
+        responseStatus: Response.Status,
+        errorCode: ErrorCode? = null,
+        exception: Exception,
+        exceptionMessage: String? = null
+    ): Response = Response.status(responseStatus)
+        .type(MediaType.APPLICATION_JSON)
+        .entity(
+            getJSONMessage(
+                errorMessage = errorCode?.value ?: "",
+                exceptionMessage = exceptionMessage
+            )
+        )
+        .build().also {
+            log(
+                logger = LOG,
+                level = if (responseStatus == Response.Status.INTERNAL_SERVER_ERROR) Level.SEVERE else Level.FINE,
+                message = exception.message
+                    ?: "Exception was thrown. Returning response with error code: '${errorCode?.value}'.",
+                throwable = exception
+            )
+        }
+
+    private fun generateServerErrorResponse(
+        exception: Exception,
+        errorCode: ErrorCode? = null,
+        exceptionMessage: String? = null
+    ) = generateResponse(
+        responseStatus = Response.Status.INTERNAL_SERVER_ERROR,
+        errorCode = errorCode ?: ERROR_CODE_SERVER_GENERIC,
+        exception = exception,
+        exceptionMessage = exceptionMessage
+    )
+
+    private fun getJSONMessage(errorMessage: String, exceptionMessage: String? = null) =
+        try {
+            val errorJsonHashMap = mutableMapOf("message" to errorMessage)
+            exceptionMessage?.let { errorJsonHashMap["exception"] = it }
+            ObjectMapper().writeValueAsString(errorJsonHashMap)
+        } catch (jsonProcessingException: JsonProcessingException) {
+            log(LOG, Level.SEVERE, JSON_CONVERSION_ERROR_MESSAGE, jsonProcessingException)
+            JSON_CONVERSION_ERROR_MESSAGE
         }
 }

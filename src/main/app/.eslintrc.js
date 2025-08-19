@@ -4,14 +4,13 @@
  */
 // Configured using https://github.com/angular-eslint/angular-eslint/blob/main/docs/CONFIGURING_ESLINTRC.md
 module.exports = {
-  root: true,
-  ignorePatterns: ["dist", "coverage"],
+  ignorePatterns: ["dist/**", "coverage/**"],
   parserOptions: {
     ecmaVersion: 2020,
   },
   overrides: [
     {
-      files: ["*.ts"],
+      files: ["**/*.ts"],
       parserOptions: {
         project: "tsconfig.json",
         tsconfigRootDir: __dirname,
@@ -38,7 +37,7 @@ module.exports = {
       },
     },
     {
-      files: ["*.html"],
+      files: ["**/*.html"],
       extends: [
         "plugin:@angular-eslint/template/recommended",
         "plugin:@angular-eslint/template/accessibility",

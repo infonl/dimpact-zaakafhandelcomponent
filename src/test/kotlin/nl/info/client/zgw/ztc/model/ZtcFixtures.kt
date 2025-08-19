@@ -185,6 +185,7 @@ fun createReferentieProcess(
 fun createResultaatType(
     url: URI = URI("http://example.com/zaaktype/${UUID.randomUUID()}"),
     zaaktypeIdentificatie: String = "fakeZaaktypeIdentificatie",
+    omschrijving: String = "fakeOmschrijving",
     omschrijvingGeneriek: String = "fakeOmschrijvingGeneriek",
     catalogus: URI = URI("http://example.com/catalogus${UUID.randomUUID()}"),
     besluittypeOmschrijving: MutableList<String> = mutableListOf("fakeBesluittypeOmschrijving"),
@@ -204,6 +205,7 @@ fun createResultaatType(
     beginObject,
     eindeObject
 ).apply {
+    this.omschrijving = omschrijving
     this.archiefnominatie = archiefnominatie
     this.archiefactietermijn = archiefactietermijn
     this.brondatumArchiefprocedure = brondatumArchiefprocedure
