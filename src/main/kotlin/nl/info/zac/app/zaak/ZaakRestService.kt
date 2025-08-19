@@ -565,6 +565,8 @@ class ZaakRestService @Inject constructor(
     @Path("zaaktypes")
     fun listZaaktypes(): List<RestZaaktype> =
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
+            // After PABC is fully integrated, `isAuthorisedForZaaktype` will be decommissioned
+            // (to be replaced by PolicyService)
             .filter { loggedInUserInstance.get().isAuthorisedForZaaktype(it.omschrijving) }
             .filter { !it.concept }
             .filter { it.isNuGeldig() }

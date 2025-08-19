@@ -61,7 +61,7 @@ class ProjectConfig : AbstractProjectConfig() {
         "FEATURE_FLAG_PABC_INTEGRATION" to "true",
         "KVK_API_CLIENT_MP_REST_URL" to KVK_MOCK_BASE_URI,
         "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to OFFICE_CONVERTER_BASE_URI,
-        "PABC_API_CLIENT_MP_REST_URL" to "$PABC_CLIENT_BASE_URI/pabc/api/v1/",
+        "PABC_API_CLIENT_MP_REST_URL" to PABC_CLIENT_BASE_URI,
         "PABC_API_KEY" to PABC_API_KEY,
         "SMARTDOCUMENTS_ENABLED" to "true",
         "SMARTDOCUMENTS_CLIENT_MP_REST_URL" to SMART_DOCUMENTS_MOCK_BASE_URI,
@@ -185,6 +185,11 @@ class ProjectConfig : AbstractProjectConfig() {
             .waitingFor(
                 "openzaak.local",
                 Wait.forLogMessage(".*spawned uWSGI worker 2.*", 1)
+                    .withStartupTimeout(3.minutes.toJavaDuration())
+            )
+            .waitingFor(
+                "pabc-api",
+                Wait.forLogMessage(".* Application started.*", 1)
                     .withStartupTimeout(3.minutes.toJavaDuration())
             )
             .waitingFor(
