@@ -3,11 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { catchError } from "rxjs/operators";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { GeneratedType } from "../shared/utils/generated-types";
+import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",
@@ -15,26 +12,13 @@ import { GeneratedType } from "../shared/utils/generated-types";
 export class SignaleringenSettingsService {
   private basepath = "/rest/signaleringen";
 
-  constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
-  ) {}
+  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   list() {
-    return this.http
-      .get<
-        GeneratedType<"RestSignaleringInstellingen">[]
-      >(`${this.basepath}/instellingen`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.GET("/rest/signaleringen/instellingen");
   }
 
-  put(instellingen: GeneratedType<"RestSignaleringInstellingen">) {
-    return this.http
-      .put<void>(`${this.basepath}/instellingen`, instellingen)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  put(body: PutBody<"/rest/signaleringen/instellingen">) {
+    return this.zacHttpClient.PUT("/rest/signaleringen/instellingen", body);
   }
 }
