@@ -81,6 +81,7 @@ import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
 import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowedException
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
+import nl.info.zac.app.zaak.exception.DueDateNotAllowed
 import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.RESTReden
 import nl.info.zac.app.zaak.model.RESTZaakAfbrekenGegevens
@@ -373,6 +374,29 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             When("zaak creation is attempted") {
                 val exception = shouldThrow<CommunicationChannelNotFound> {
+                    zaakRestService.createZaak(restZaakAanmaakGegevens)
+                }
+
+                Then("an exception is thrown") {
+                    exception.errorCode shouldNotBe null
+                }
+            }
+        }
+
+        Given("zaak input data has due date when servicenorm is not specifed in OpenZaak") {
+            val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+            val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
+                zaak = createRestZaak(einddatumGepland = LocalDate.now())
+            )
+            every { zaakService.readZaakTypeByUUID(any<UUID>()) } returns zaakType
+            every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
+            every { loggedInUserInstance.get() } returns createLoggedInUser()
+            every {
+                zaakafhandelParameterService.readZaakafhandelParameters(any())
+            } returns createZaakafhandelParameters()
+
+            When("zaak creation is attempted") {
+                val exception = shouldThrow<DueDateNotAllowed> {
                     zaakRestService.createZaak(restZaakAanmaakGegevens)
                 }
 
@@ -1115,6 +1139,30 @@ class ZaakRestServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         zrcClientService.patchZaak(zaak.uuid, any(), any())
                     }
+                }
+            }
+        }
+
+        Given("due date change when servicenorm is not specifed in OpenZaak") {
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten()
+            val restZaak = createRestZaak(einddatumGepland = LocalDate.now())
+            val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaak, "change description")
+
+            every {
+                zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
+            } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
+            every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
+
+            When("zaak update is requested with a new final date") {
+                val exception = shouldThrow<DueDateNotAllowed> {
+                    zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+                }
+
+                Then("it fails") {
+                    exception.message shouldBe null
                 }
             }
         }

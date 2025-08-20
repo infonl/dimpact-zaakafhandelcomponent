@@ -72,6 +72,7 @@ import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
 import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowedException
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
+import nl.info.zac.app.zaak.exception.DueDateNotAllowed
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
 import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.RESTDocumentOntkoppelGegevens
@@ -292,6 +293,9 @@ class ZaakRestService @Inject constructor(
                 loggedInUserInstance.get().isAuthorisedForZaaktype(zaakType.omschrijving)
         )
         restZaak.communicatiekanaal?.isNotBlank() == true || throw CommunicationChannelNotFound()
+        restZaak.einddatumGepland?.let {
+            zaakType.servicenorm?.isNotBlank() == true || throw DueDateNotAllowed()
+        }
         val bronOrganisatie = configuratieService.readBronOrganisatie()
         val verantwoordelijkeOrganisatie = configuratieService.readVerantwoordelijkeOrganisatie()
         val zaak = restZaak.toZaak(
@@ -389,6 +393,9 @@ class ZaakRestService @Inject constructor(
                 assertPolicy(verlengenDoorlooptijd)
                 assertPolicy(wijzigenDoorlooptijd)
             }
+        }
+        restZaakEditMetRedenGegevens.zaak.einddatumGepland?.let {
+            zaakType.servicenorm?.isNotBlank() == true || throw DueDateNotAllowed()
         }
         restZaakEditMetRedenGegevens.zaak.run {
             behandelaar?.id?.let { behandelaarId ->
