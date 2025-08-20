@@ -393,17 +393,6 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         return updateEnkelvoudigInformatieobject(enkelvoudigInformatieObjectVersieGegevens, document, updatedDocument)
     }
 
-    private fun updateEnkelvoudigInformatieobject(
-        enkelvoudigInformatieObjectVersieGegevens: RestEnkelvoudigInformatieObjectVersieGegevens,
-        enkelvoudigInformatieObject: EnkelvoudigInformatieObject,
-        enkelvoudigInformatieObjectWithLockRequest: EnkelvoudigInformatieObjectWithLockRequest
-    ): RestEnkelvoudigInformatieobject =
-        enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-            enkelvoudigInformatieObject.url.extractUuid(),
-            enkelvoudigInformatieObjectWithLockRequest,
-            enkelvoudigInformatieObjectVersieGegevens.toelichting
-        ).let(restInformatieobjectConverter::convertToREST)
-
     @POST
     @Path("/informatieobject/{uuid}/lock")
     fun lockDocument(@PathParam("uuid") uuid: UUID, @QueryParam("zaak") zaakUUID: UUID): Response {
@@ -559,4 +548,15 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 )
             }
         }
+
+    private fun updateEnkelvoudigInformatieobject(
+        enkelvoudigInformatieObjectVersieGegevens: RestEnkelvoudigInformatieObjectVersieGegevens,
+        enkelvoudigInformatieObject: EnkelvoudigInformatieObject,
+        enkelvoudigInformatieObjectWithLockRequest: EnkelvoudigInformatieObjectWithLockRequest
+    ): RestEnkelvoudigInformatieobject =
+        enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
+            enkelvoudigInformatieObject.url.extractUuid(),
+            enkelvoudigInformatieObjectWithLockRequest,
+            enkelvoudigInformatieObjectVersieGegevens.toelichting
+        ).let(restInformatieobjectConverter::convertToREST)
 }

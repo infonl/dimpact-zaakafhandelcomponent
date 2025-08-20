@@ -52,9 +52,18 @@ INSERT INTO "Mappings" ("Id", "FunctionalRoleId", "DomainId", "ApplicationRoleId
 -- create zaaktype entity types
 INSERT INTO "EntityTypes" ("Id", "EntityTypeId", "Type", "Name", "Uri") VALUES
     ('e2fd7b9f-f104-4ac8-9293-2086661d36e8','zaaktype_test_1', 'zaaktype', 'Test zaaktype 1', 'https://example.com/zaaktype/test-1'),
-    ('d8ae5c97-1288-4d3a-8f90-8cd6d98717be','zaaktype_test_2', 'zaaktype', 'Test zaaktype 2', 'https://example.com/zaaktype/test-2');
+    ('d8ae5c97-1288-4d3a-8f90-8cd6d98717be','zaaktype_test_2', 'zaaktype', 'Test zaaktype 2', 'https://example.com/zaaktype/test-2'),
+    ('5b5d4f41-4c9c-4ff3-b59e-2f6a0f7f1d6c','BPMN Evenementen Vooroverleg', 'zaaktype', 'BPMN Evenementen Vooroverleg', 'https://example.com/zaaktype/8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a'),
+    ('a6c7f182-0e7d-4f0f-9067-fd8a4ec7f3f1','BPMN test zaaktype', 'zaaktype', 'BPMN test zaaktype', 'https://example.com/zaaktype/26076928-ce07-4d5d-8638-c2d276f6caca'),
+    ('0db3c76a-2911-48c7-a24c-f6e4f3b18c48','Indienen aansprakelijkstelling door derden behandelen', 'zaaktype', 'Indienen aansprakelijkstelling door derden behandelen', 'https://example.com/zaaktype/fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'),
+    ('e9dbe8f7-7b30-41d2-bb0d-187d4a4d6822','Melding evenement organiseren behandelen', 'zaaktype', 'Melding evenement organiseren behandelen', 'https://example.com/zaaktype/448356ff-dcfb-4504-9501-7fe929077c4f');
 
 --create mappings between entity types and domains
 INSERT INTO "DomainEntityType" ("DomainId", "EntityTypesId") VALUES
     ((SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_1'), (SELECT "Id" FROM "EntityTypes" WHERE "EntityTypeId" = 'zaaktype_test_1')),
-    ((SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_2'), (SELECT "Id" FROM "EntityTypes" WHERE "EntityTypeId" = 'zaaktype_test_2'));
+    ((SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_2'), (SELECT "Id" FROM "EntityTypes" WHERE "EntityTypeId" = 'zaaktype_test_2')),
+    ((SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_1'), (SELECT "Id" FROM "EntityTypes" WHERE "Name" = 'BPMN Evenementen Vooroverleg')),
+    ((SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_1'), (SELECT "Id" FROM "EntityTypes" WHERE "Name" = 'BPMN test zaaktype')),
+    ((SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_1'), (SELECT "Id" FROM "EntityTypes" WHERE "Name" = 'Indienen aansprakelijkstelling door derden behandelen')),
+    ((SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_1'), (SELECT "Id" FROM "EntityTypes" WHERE "Name" = 'Melding evenement organiseren behandelen'));
+

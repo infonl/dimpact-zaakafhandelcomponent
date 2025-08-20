@@ -17,7 +17,9 @@ fun createLoggedInUser(
     email: String = "fake@example.com",
     roles: Set<String> = setOf("fakeRole1", "fakeRole2"),
     groups: Set<String> = setOf("fakeGroup1", "fakeGroup2"),
-    zaakTypes: Set<String> = setOf(ZAAK_TYPE_1_OMSCHRIJVING, ZAAK_TYPE_2_OMSCHRIJVING)
+    zaakTypes: Set<String>? = setOf(ZAAK_TYPE_1_OMSCHRIJVING, ZAAK_TYPE_2_OMSCHRIJVING),
+    pabcMappings: Map<String, Set<String>> = emptyMap(),
+    pabcIntegrationEnabled: Boolean = false
 ) = LoggedInUser(
     id,
     firstName,
@@ -26,5 +28,7 @@ fun createLoggedInUser(
     email,
     roles,
     groups,
-    zaakTypes
+    zaakTypes,
+    pabcMappings,
+    pabcIntegrationEnabled
 )

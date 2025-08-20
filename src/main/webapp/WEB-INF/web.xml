@@ -43,7 +43,19 @@
     </filter-mapping>
 
     <security-role>
-        <role-name>zaakafhandelcomponent_user</role-name>
+        <role-name>raadpleger</role-name>
+    </security-role>
+
+    <security-role>
+        <role-name>behandelaar</role-name>
+    </security-role>
+
+    <security-role>
+        <role-name>coordinator</role-name>
+    </security-role>
+
+    <security-role>
+        <role-name>recordmanager</role-name>
     </security-role>
 
     <security-role>
@@ -157,13 +169,17 @@
     </security-constraint>
 
     <security-constraint>
-        <display-name>Require the 'zaakafhandelcomponent_user' role for all other endpoints</display-name>
+        <display-name>Require at least one of the ZAC application roles for all other endpoints</display-name>
         <web-resource-collection>
             <web-resource-name>zaakafhandelcomponent</web-resource-name>
             <url-pattern>/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
-            <role-name>zaakafhandelcomponent_user</role-name>
+            <role-name>raadpleger</role-name>
+            <role-name>behandelaar</role-name>
+            <role-name>coordinator</role-name>
+            <role-name>recordmanager</role-name>
+            <role-name>beheerder</role-name>
         </auth-constraint>
     </security-constraint>
 

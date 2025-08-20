@@ -35,6 +35,7 @@ import nl.info.zac.policy.input.DocumentInput
 import nl.info.zac.policy.input.UserInput
 import nl.info.zac.policy.input.ZaakInput
 import nl.info.zac.policy.output.createDocumentRechten
+import nl.info.zac.policy.output.createOverigeRechten
 import nl.info.zac.policy.output.createWerklijstRechten
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie
@@ -348,6 +349,81 @@ class PolicyServiceTest : BehaviorSpec({
                     zaaktype shouldBe zaakType.omschrijving
                     zaakOpen shouldBe true
                 }
+            }
+        }
+    }
+
+    Given("readOverigeRechten with zaaktype present in pabcMappings -> rollen from PABC, zaaktypen is single") {
+        val zaaktype = "test-zaaktype1"
+        val pabcRolesForZaakType = setOf("applicationRole1", "applicationRole2")
+        val functionalRoles = setOf("fakeRole1", "fakeRole2")
+
+        val loggedInUserWithMappings = LoggedInUser(
+            id = "user1",
+            firstName = "Given",
+            lastName = "Family",
+            displayName = "Full Name",
+            email = "user@example.com",
+            roles = functionalRoles,
+            groupIds = emptySet(),
+            geautoriseerdeZaaktypen = setOf("zaakType1", "zaakType2"),
+            applicationRolesPerZaaktype = mapOf(zaaktype to pabcRolesForZaakType),
+            pabcIntegrationEnabled = true
+        )
+
+        val rqSlot = slot<RuleQuery<UserInput>>()
+        val expected = createOverigeRechten()
+        every { loggedInUserInstance.get() } returns loggedInUserWithMappings
+        every { opaEvaluationClient.readOverigeRechten(capture(rqSlot)) } returns RuleResponse(expected)
+
+        When("calling readOverigeRechten with a zaaktype") {
+            val actual = policyService.readOverigeRechten(zaaktype)
+
+            Then("OPA receives rollen from PABC for that zaaktype and zaaktypen contains only that zaaktype") {
+                actual shouldBe expected
+
+                verify(exactly = 1) { opaEvaluationClient.readOverigeRechten(any()) }
+
+                val userData = rqSlot.captured.input.user
+                userData.id shouldBe loggedInUserWithMappings.id
+                userData.rollen shouldBe pabcRolesForZaakType
+                userData.zaaktypen shouldBe setOf(zaaktype)
+            }
+        }
+    }
+
+    Given("readOverigeRechten with null zaaktype - use functional roles + existing zaaktypen") {
+        val functionalRoles = setOf("fakeRole1", "fakeRole2")
+        val geautoriseerde = setOf("zaaktype1", "zaaktype2")
+        val loggedInUserLegacy = LoggedInUser(
+            id = "user1",
+            firstName = null,
+            lastName = null,
+            displayName = null,
+            email = null,
+            roles = functionalRoles,
+            groupIds = emptySet(),
+            geautoriseerdeZaaktypen = geautoriseerde,
+            applicationRolesPerZaaktype = emptyMap(),
+            pabcIntegrationEnabled = false
+        )
+
+        val rqSlot = slot<RuleQuery<UserInput>>()
+        val expected = createOverigeRechten()
+        every { loggedInUserInstance.get() } returns loggedInUserLegacy
+        every { opaEvaluationClient.readOverigeRechten(capture(rqSlot)) } returns RuleResponse(expected)
+
+        When("calling readOverigeRechten with null") {
+            val actual = policyService.readOverigeRechten(null)
+
+            Then("OPA receives functional roles and original geautoriseerde zaaktypen") {
+                actual shouldBe expected
+
+                verify(exactly = 1) { opaEvaluationClient.readOverigeRechten(any()) }
+
+                val userData = rqSlot.captured.input.user
+                userData.rollen shouldBe functionalRoles
+                userData.zaaktypen shouldBe geautoriseerde
             }
         }
     }

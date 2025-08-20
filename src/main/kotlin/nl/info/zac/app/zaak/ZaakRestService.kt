@@ -288,8 +288,7 @@ class ZaakRestService @Inject constructor(
 
         // make sure to use the omschrijving of the zaaktype that was retrieved to perform authorization on zaaktype
         assertPolicy(
-            policyService.readOverigeRechten().startenZaak &&
-                loggedInUserInstance.get().isAuthorisedForZaaktype(zaakType.omschrijving)
+            policyService.readOverigeRechten(restZaak.zaaktype.omschrijving).startenZaak
         )
         restZaak.communicatiekanaal?.isNotBlank() == true || throw CommunicationChannelNotFound()
         val bronOrganisatie = configuratieService.readBronOrganisatie()
@@ -566,6 +565,8 @@ class ZaakRestService @Inject constructor(
     @Path("zaaktypes")
     fun listZaaktypes(): List<RestZaaktype> =
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
+            // After PABC is fully integrated, `isAuthorisedForZaaktype` will be decommissioned
+            // (to be replaced by PolicyService)
             .filter { loggedInUserInstance.get().isAuthorisedForZaaktype(it.omschrijving) }
             .filter { !it.concept }
             .filter { it.isNuGeldig() }

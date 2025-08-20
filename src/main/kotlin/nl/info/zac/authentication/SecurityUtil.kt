@@ -37,7 +37,8 @@ class SecurityUtil @Inject constructor(
             "Functionele gebruiker",
             null,
             emptySet(),
-            emptySet()
+            emptySet(),
+            pabcIntegrationEnabled = false,
         )
 
         val systemUser: ThreadLocal<Boolean> = ThreadLocal.withInitial { false }

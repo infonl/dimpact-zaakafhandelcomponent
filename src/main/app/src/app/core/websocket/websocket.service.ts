@@ -59,9 +59,9 @@ export class WebsocketService implements OnDestroy {
 
   private destroyed$ = new Subject<void>();
 
-  private listeners: EventCallback[][] = [];
+  private listeners: Record<string, Record<string, EventCallback>> = {};
 
-  private suspended: EventSuspension[] = [];
+  private suspended: Record<string, EventSuspension> = {};
 
   constructor(
     private translate: TranslateService,
@@ -129,7 +129,7 @@ export class WebsocketService implements OnDestroy {
   };
 
   private dispatch(event: ScreenEvent, key: string) {
-    const callbacks: EventCallback[] = this.getCallbacks(key);
+    const callbacks = this.getCallbacks(key);
     for (const listenerId in callbacks) {
       try {
         if (!this.isSuspended(listenerId)) {
@@ -261,20 +261,25 @@ export class WebsocketService implements OnDestroy {
 
   private addCallback(event: ScreenEvent, callback: EventCallback) {
     const listener: WebsocketListener = new WebsocketListener(event, callback);
-    const callbacks: EventCallback[] = this.getCallbacks(event.key);
+    const callbacks: Record<string, EventCallback> = this.getCallbacks(
+      event.key,
+    );
+
     callbacks[listener.id] = callback;
     return listener;
   }
 
   private removeCallback(listener: WebsocketListener): void {
-    const callbacks: EventCallback[] = this.getCallbacks(listener.event.key);
+    const callbacks: Record<string, EventCallback> = this.getCallbacks(
+      listener.event.key,
+    );
     delete callbacks[listener.id];
     delete this.suspended[listener.id];
   }
 
-  private getCallbacks(key: string): EventCallback[] {
+  private getCallbacks(key: string): Record<string, EventCallback> {
     if (!this.listeners[key]) {
-      this.listeners[key] = [];
+      this.listeners[key] = {};
     }
     return this.listeners[key];
   }
