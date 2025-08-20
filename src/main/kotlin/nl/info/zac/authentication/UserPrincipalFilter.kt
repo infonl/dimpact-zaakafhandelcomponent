@@ -146,8 +146,7 @@ constructor(
         // Filter out roles we shouldn't send to PABC
         val filteredFunctionalRoles = functionalRoles.filterNot {
             it in setOf(
-                ZACRole.DOMEIN_ELK_ZAAKTYPE.value,
-                ZACRole.ZAAKAFHANDELCOMPONENT_USER.value
+                ZACRole.DOMEIN_ELK_ZAAKTYPE.value
             )
         }
 

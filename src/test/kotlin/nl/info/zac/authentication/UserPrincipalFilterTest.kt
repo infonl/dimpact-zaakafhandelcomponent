@@ -118,8 +118,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
         )
         val roles = arrayListOf(
             "fakeRole1",
-            "domein_elk_zaaktype",
-            "zaakafhandelcomponent_user"
+            "domein_elk_zaaktype"
         )
         val expectedFunctionalRoles = listOf("fakeRole1")
         val pabcRoleNames = listOf("applicationRoleA", "applicationRoleB")
@@ -348,8 +347,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
         val username = "user"
         val roles = listOf(
             "fakeRole1",
-            "domein_elk_zaaktype",
-            "zaakafhandelcomponent_user"
+            "domein_elk_zaaktype"
         )
 
         val loggedInUser = createLoggedInUser(id = userId)
