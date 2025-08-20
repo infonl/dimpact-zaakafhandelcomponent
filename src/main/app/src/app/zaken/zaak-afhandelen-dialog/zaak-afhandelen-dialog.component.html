@@ -119,7 +119,12 @@
     >
       {{ "actie.besluit.vastleggen" | translate }}
     </button>
-    <button mat-raised-button [disabled]="loading" (click)="close()">
+    <button
+      mat-raised-button
+      [disabled]="loading"
+      (click)="close()"
+      type="reset"
+    >
       {{ "actie.annuleren" | translate }}
     </button>
   </mat-dialog-actions>
