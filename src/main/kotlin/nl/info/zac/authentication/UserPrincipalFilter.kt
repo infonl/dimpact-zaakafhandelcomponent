@@ -92,13 +92,8 @@ constructor(
             // for now, we only log the application roles for the logged-in user.
             // filtering out the roles that are currently not used by the PABC component
             if (pabcIntegrationEnabled) {
-                val filteredRoles = loggedInUser.roles.filterNot {
-                    it in setOf(
-                        ZACRole.DOMEIN_ELK_ZAAKTYPE.value,
-                        ZACRole.ZAAKAFHANDELCOMPONENT_USER.value
-                    )
-                }
-                val applicationRoles = pabcClientService.getApplicationRoles(filteredRoles)
+                val filteredRoles = loggedInUser.roles - ZACRole.DOMEIN_ELK_ZAAKTYPE.value
+                val applicationRoles = pabcClientService.getApplicationRoles(filteredRoles.toList())
                 LOG.info("User: '${loggedInUser.id}' with application roles from PABC: '$applicationRoles'")
             } else {
                 LOG.info("PABC integration is disabled — skipping application role lookup.")

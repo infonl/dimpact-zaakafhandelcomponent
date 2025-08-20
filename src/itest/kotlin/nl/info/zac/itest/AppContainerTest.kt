@@ -13,6 +13,8 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_PASSWORD
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_MANAGEMENT_URI
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
@@ -57,6 +59,15 @@ class AppContainerTest : BehaviorSpec({
             authenticate(username = TEST_BEHANDELAAR_1_USERNAME, password = TEST_BEHANDELAAR_1_PASSWORD)
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_BASE_URI/admin"
+            )
+            Then("the response should be forbidden") {
+                response.code shouldBe HTTP_FORBIDDEN
+            }
+        }
+        When("The ZAC base URL is requested for a user who does not have any of the ZAC application roles") {
+            authenticate(username = TEST_USER_WITHOUT_ANY_ROLE_USERNAME, password = TEST_USER_WITHOUT_ANY_ROLE_PASSWORD)
+            val response = itestHttpClient.performGetRequest(
+                url = ZAC_BASE_URI
             )
             Then("the response should be forbidden") {
                 response.code shouldBe HTTP_FORBIDDEN
