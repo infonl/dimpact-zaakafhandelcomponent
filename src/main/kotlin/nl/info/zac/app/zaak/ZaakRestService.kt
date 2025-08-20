@@ -62,6 +62,7 @@ import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
+import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
 import nl.info.zac.app.decision.DecisionService
@@ -229,7 +230,7 @@ class ZaakRestService @Inject constructor(
         val (identificationType, identification) = composeBetrokkeneIdentification(
             restZaakInitiatorGegevens.betrokkeneIdentificatie
         )
-        addInitiator(
+        updateInitiator(
             identificationType,
             identification,
             zaak,
@@ -303,73 +304,17 @@ class ZaakRestService @Inject constructor(
             bronOrganisatie = bronOrganisatie,
             verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie
         ).let(zgwApiService::createZaak)
-        restZaak.initiatorIdentificatie?.takeIf { it.isNotEmpty() }?.let { initiatorId ->
-            restZaak.initiatorIdentificatieType?.let { initiatorType ->
-                val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
-                val identification = when (initiatorType) {
-                    IdentificatieType.VN -> createVestigingIdentificationString(restZaak.kvkNummer, initiatorId)
-                    else -> initiatorId
-                }
-                addInitiator(
-                    identificationType = initiatorType,
-                    identification = identification,
-                    zaak = zaak,
-                    zaakRechten = zaakRechten,
-                    explanation = AANMAKEN_ZAAK_REDEN
-                )
-            }
-        }
 
+        addInitiator(restZaak, zaak, zaakType)
         updateZaakRoles(restZaak, zaak)
+        startZaak(zaaktypeUUID, zaak, zaakType, restZaak)
 
-        // if BPMN support is enabled and a BPMN process definition is defined for the zaaktype, start a BPMN process;
-        // otherwise start a CMMN case
-        val processDefinition = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
-        if (configuratieService.featureFlagBpmnSupport() && processDefinition != null) {
-            bpmnService.startProcess(
-                zaak = zaak,
-                zaaktype = zaakType,
-                processDefinitionKey = processDefinition.bpmnProcessDefinitionKey,
-                zaakData = buildMap {
-                    restZaak.groep?.let { put(VAR_ZAAK_GROUP, it.naam) }
-                    restZaak.behandelaar?.let { put(VAR_ZAAK_USER, it.naam) }
-                }
-            )
-        } else {
-            cmmnService.startCase(
-                zaak = zaak,
-                zaaktype = zaakType,
-                zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                    zaakType.url.extractUuid()
-                )
-            )
-        }
         restZaakAanmaakGegevens.inboxProductaanvraag?.let { koppelInboxProductaanvraag(zaak, it) }
         restZaakAanmaakGegevens.bagObjecten?.forEach {
             zrcClientService.createZaakobject(RestBagConverter.convertToZaakobject(it, zaak))
         }
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
         return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
-    }
-
-    private fun updateZaakRoles(
-        restZaak: RestZaak,
-        zaak: Zaak
-    ) {
-        restZaak.groep?.let {
-            zrcClientService.updateRol(
-                zaak,
-                zaakService.bepaalRolGroep(identityService.readGroup(it.id), zaak),
-                AANMAKEN_ZAAK_REDEN
-            )
-        }
-        restZaak.behandelaar?.let {
-            zrcClientService.updateRol(
-                zaak,
-                zaakService.bepaalRolMedewerker(identityService.readUser(it.id), zaak),
-                AANMAKEN_ZAAK_REDEN
-            )
-        }
     }
 
     @PATCH
@@ -1092,6 +1037,29 @@ class ZaakRestService @Inject constructor(
     }
 
     private fun addInitiator(
+        restZaak: RestZaak,
+        zaak: Zaak,
+        zaakType: ZaakType
+    ) {
+        restZaak.initiatorIdentificatie?.takeIf { it.isNotEmpty() }?.let { initiatorId ->
+            restZaak.initiatorIdentificatieType?.let { initiatorType ->
+                val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
+                val identification = when (initiatorType) {
+                    IdentificatieType.VN -> createVestigingIdentificationString(restZaak.kvkNummer, initiatorId)
+                    else -> initiatorId
+                }
+                updateInitiator(
+                    identificationType = initiatorType,
+                    identification = identification,
+                    zaak = zaak,
+                    zaakRechten = zaakRechten,
+                    explanation = AANMAKEN_ZAAK_REDEN
+                )
+            }
+        }
+    }
+
+    private fun updateInitiator(
         identificationType: IdentificatieType,
         identification: String,
         zaak: Zaak,
@@ -1109,6 +1077,56 @@ class ZaakRestService @Inject constructor(
             zaak = zaak,
             explanation = explanation?.ifEmpty { ROL_TOEVOEGEN_REDEN } ?: ROL_TOEVOEGEN_REDEN
         )
+    }
+
+    private fun startZaak(
+        zaaktypeUUID: UUID,
+        zaak: Zaak,
+        zaakType: ZaakType,
+        restZaak: RestZaak
+    ) {
+        // if BPMN support is enabled and a BPMN process definition is defined for the zaaktype, start a BPMN process;
+        // otherwise start a CMMN case
+        val processDefinition = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
+        if (configuratieService.featureFlagBpmnSupport() && processDefinition != null) {
+            bpmnService.startProcess(
+                zaak = zaak,
+                zaaktype = zaakType,
+                processDefinitionKey = processDefinition.bpmnProcessDefinitionKey,
+                zaakData = buildMap {
+                    restZaak.groep?.let { put(VAR_ZAAK_GROUP, it.naam) }
+                    restZaak.behandelaar?.let { put(VAR_ZAAK_USER, it.naam) }
+                }
+            )
+        } else {
+            cmmnService.startCase(
+                zaak = zaak,
+                zaaktype = zaakType,
+                zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
+                    zaakType.url.extractUuid()
+                )
+            )
+        }
+    }
+
+    private fun updateZaakRoles(
+        restZaak: RestZaak,
+        zaak: Zaak
+    ) {
+        restZaak.groep?.let {
+            zrcClientService.updateRol(
+                zaak,
+                zaakService.bepaalRolGroep(identityService.readGroup(it.id), zaak),
+                AANMAKEN_ZAAK_REDEN
+            )
+        }
+        restZaak.behandelaar?.let {
+            zrcClientService.updateRol(
+                zaak,
+                zaakService.bepaalRolMedewerker(identityService.readUser(it.id), zaak),
+                AANMAKEN_ZAAK_REDEN
+            )
+        }
     }
 
     private fun addRelevanteZaak(

@@ -219,8 +219,8 @@ class ZaakRestServiceTest : BehaviorSpec({
             val formulierData = mapOf(Pair("fakeKey", "fakeValue"))
             val objectRegistratieObject = createORObject()
             val productaanvraagDimpact = createProductaanvraagDimpact()
-            val restZaak = createRestZaak()
-            val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+            val restZaak = createRestZaak(einddatumGepland = LocalDate.now().minusDays(1))
+            val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING, servicenorm = "P10D")
             val zaakTypeUUID = zaakType.url.extractUuid()
             val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
                 zaak = createRestZaak(
@@ -985,11 +985,13 @@ class ZaakRestServiceTest : BehaviorSpec({
         Given("a zaak with tasks exists and zaak and tasks have final date set") {
             val changeDescription = "change description"
             val zaak = createZaak()
-            val zaakType = createZaakType()
+            val zaakType = createZaakType(servicenorm = "P10D")
             val zaakRechten = createZaakRechten()
             val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.minusDays(10)
-            val restZaak = createRestZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate)
-            val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaak, changeDescription)
+            val restZaak = createRestZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate).apply {
+                einddatumGepland = startdatum
+            }
+            val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(zaak = restZaak, reden = changeDescription)
             val patchedZaak = createZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate)
             val task = mockk<Task>()
 
