@@ -168,18 +168,30 @@ class SearchService @Inject constructor(
             }
         }
 
+    @Suppress("NestedBlockDepth")
     private fun applyAllowedZaaktypenPolicy(query: SolrQuery) {
         // signaleringen job does not have a logged-in user so check if logged-in user is present
         loggedInUserInstance.get()?.let { loggedInUser ->
-            if (!loggedInUser.isAuthorisedForAllZaaktypen()) {
-                val filterQuery = if (loggedInUser.geautoriseerdeZaaktypen.isNullOrEmpty()) {
+            if (loggedInUser.pabcIntegrationEnabled) {
+                // PABC enabled: build the filterQuery from per‑zaaktype mappings (keys)
+                val allowedZaaktypen = loggedInUser.applicationRolesPerZaaktype.keys
+                val filterQuery = if (allowedZaaktypen.isEmpty()) {
                     "$ZAAKTYPE_OMSCHRIJVING_VELD:$NON_EXISTING_ZAAKTYPE"
                 } else {
-                    loggedInUser.geautoriseerdeZaaktypen.joinToString(
-                        " OR "
-                    ) { "$ZAAKTYPE_OMSCHRIJVING_VELD:${quoted(it)}" }
+                    allowedZaaktypen.joinToString(" OR ") { "$ZAAKTYPE_OMSCHRIJVING_VELD:${quoted(it)}" }
                 }
                 query.addFilterQuery(filterQuery)
+            } else {
+                if (!loggedInUser.isAuthorisedForAllZaaktypen()) {
+                    val filterQuery = if (loggedInUser.geautoriseerdeZaaktypen.isNullOrEmpty()) {
+                        "$ZAAKTYPE_OMSCHRIJVING_VELD:$NON_EXISTING_ZAAKTYPE"
+                    } else {
+                        loggedInUser.geautoriseerdeZaaktypen.joinToString(" OR ") {
+                            "$ZAAKTYPE_OMSCHRIJVING_VELD:${quoted(it)}"
+                        }
+                    }
+                    query.addFilterQuery(filterQuery)
+                }
             }
         }
     }

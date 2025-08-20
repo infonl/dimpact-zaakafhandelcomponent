@@ -15,6 +15,8 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaakafhandelParameterService
 import nl.info.client.pabc.PabcClientService
+import nl.info.client.pabc.exception.PabcRuntimeException
+import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
 import nl.info.zac.identity.model.ZACRole
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -22,6 +24,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
 import org.wildfly.security.http.oidc.RefreshableOidcSecurityContext
+import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.jvm.java
 
@@ -79,26 +82,23 @@ constructor(
     ) =
         createLoggedInUser(oidcPrincipal.oidcSecurityContext).let { loggedInUser ->
             setLoggedInUser(httpSession, loggedInUser)
-            LOG.info(
-                "User logged in: '${loggedInUser.id}' with roles: ${loggedInUser.roles}, " +
-                    "groups: ${loggedInUser.groupIds} and zaaktypen: ${
-                        if (loggedInUser.isAuthorisedForAllZaaktypen()) {
-                            "ELK-ZAAKTYPE"
-                        } else {
-                            loggedInUser.geautoriseerdeZaaktypen.toString()
-                        }
-                    }"
-            )
-            // for now, we only log the application roles for the logged-in user.
-            // filtering out the roles that are currently not used by the PABC component
-            if (pabcIntegrationEnabled) {
-                val filteredRoles = loggedInUser.roles - ZACRole.DOMEIN_ELK_ZAAKTYPE.value
-                val applicationRoles = pabcClientService.getApplicationRoles(filteredRoles.toList())
-                LOG.info("User: '${loggedInUser.id}' with application roles from PABC: '$applicationRoles'")
+            if (!pabcIntegrationEnabled) {
+                LOG.info(
+                    "User logged in: '${loggedInUser.id}' with roles: ${loggedInUser.roles}, " +
+                        "groups: ${loggedInUser.groupIds} and zaaktypen: ${
+                            if (loggedInUser.isAuthorisedForAllZaaktypen()) {
+                                "ELK-ZAAKTYPE"
+                            } else {
+                                loggedInUser.geautoriseerdeZaaktypen.toString()
+                            }
+                        }"
+                )
             } else {
-                LOG.info("PABC integration is disabled — skipping application role lookup.")
+                LOG.info(
+                    "User logged in: '${loggedInUser.id}' with groups: ${loggedInUser.groupIds}, " +
+                        "and application roles per zaaktype: ${loggedInUser.applicationRolesPerZaaktype}"
+                )
             }
-
             this.addRefreshTokenToHttpSession(oidcPrincipal, httpSession)
         }
 
@@ -112,22 +112,66 @@ constructor(
 
     private fun createLoggedInUser(oidcSecurityContext: OidcSecurityContext): LoggedInUser =
         oidcSecurityContext.token.let { accessToken ->
-            accessToken.rolesClaim.toSet().let { roles ->
-                LoggedInUser(
-                    id = accessToken.preferredUsername,
-                    firstName = accessToken.givenName,
-                    lastName = accessToken.familyName,
-                    displayName = accessToken.name,
-                    email = accessToken.email,
-                    roles = roles,
-                    groupIds =
-                    accessToken
-                        .getStringListClaimValue(GROUP_MEMBERSHIP_CLAIM_NAME)
-                        .toSet(),
-                    geautoriseerdeZaaktypen = getAuthorisedZaaktypen(roles)
-                )
-            }
+            val functionalRoles = accessToken.rolesClaim.toSet()
+            val applicationRolesPerZaaktype: Map<String, Set<String>> =
+                if (pabcIntegrationEnabled) {
+                    buildApplicationRoleMappingsFromPabc(functionalRoles)
+                } else {
+                    emptyMap()
+                }
+
+            LoggedInUser(
+                id = accessToken.preferredUsername,
+                firstName = accessToken.givenName,
+                lastName = accessToken.familyName,
+                displayName = accessToken.name,
+                email = accessToken.email,
+                roles = functionalRoles,
+                groupIds = accessToken
+                    .getStringListClaimValue(GROUP_MEMBERSHIP_CLAIM_NAME)
+                    .toSet(),
+                geautoriseerdeZaaktypen = getAuthorisedZaaktypen(functionalRoles),
+                applicationRolesPerZaaktype = applicationRolesPerZaaktype,
+                pabcIntegrationEnabled = pabcIntegrationEnabled
+            )
         }
+
+    /**
+     * Build a map of zaaktype -> set(application role names) from PABC (when enabled).
+     * - Only include results where entityType.type == "zaaktype"
+     * - Key uses entityType.name
+     */
+    @Suppress("TooGenericExceptionCaught")
+    private fun buildApplicationRoleMappingsFromPabc(functionalRoles: Set<String>): Map<String, Set<String>> {
+        // Filter out roles we shouldn't send to PABC
+        val filteredFunctionalRoles = functionalRoles.filterNot {
+            it in setOf(
+                ZACRole.DOMEIN_ELK_ZAAKTYPE.value
+            )
+        }
+
+        if (filteredFunctionalRoles.isEmpty()) {
+            LOG.warning("No functional roles to send to PABC after filtering, returning empty mapping")
+            return emptyMap()
+        }
+
+        return try {
+            val response: GetApplicationRolesResponse =
+                pabcClientService.getApplicationRoles(filteredFunctionalRoles)
+
+            response.results
+                .filter { it.entityType?.type.equals("zaaktype", ignoreCase = true) }
+                .mapNotNull { res ->
+                    val key = res.entityType?.id?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+                    val roleNames = res.applicationRoles.mapNotNull { it.name }.toSet()
+                    key to roleNames
+                }
+                .toMap()
+        } catch (ex: Exception) {
+            LOG.log(Level.SEVERE, "PABC application role lookup failed", ex)
+            throw PabcRuntimeException("Failed to get application roles from PABC", ex)
+        }
+    }
 
     /**
      * Returns the active zaaktypen for which the user is authorised, or `null` if the user is
