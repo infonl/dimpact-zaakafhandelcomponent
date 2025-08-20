@@ -51,7 +51,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
         val responseModel = mockk<GetApplicationRolesResponseModel>()
         val entityType = mockk<EntityTypeModel>()
         every { entityType.type } returns "zaaktype"
-        every { entityType.name } returns zaaktypeName
+        every { entityType.id } returns zaaktypeName
         every { responseModel.entityType } returns entityType
 
         val roleModels = names.map { roleName ->

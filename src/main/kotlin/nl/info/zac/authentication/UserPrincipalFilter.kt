@@ -163,7 +163,7 @@ constructor(
             response.results
                 .filter { it.entityType?.type.equals("zaaktype", ignoreCase = true) }
                 .mapNotNull { res ->
-                    val key = res.entityType?.name?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+                    val key = res.entityType?.id?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
                     val roleNames = res.applicationRoles.mapNotNull { it.name }.toSet()
                     key to roleNames
                 }
