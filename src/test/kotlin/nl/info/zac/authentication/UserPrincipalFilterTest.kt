@@ -267,8 +267,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
     }
     Given(
         """
-            No logged-in user is present in the HTTP session and an OIDC security context is present with a token
-            that contains user information with roles retrieved from PABC
+            No logged-in user is present in the HTTP session, and an OIDC security context 
+            is available with a token containing user information. 
+            Functional roles from the token are filtered against the PABC-defined roles 
+            and mapped into application roles per zaaktype.
             """
     ) {
         val userName = "fakeUserName"
