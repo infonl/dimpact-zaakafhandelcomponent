@@ -355,16 +355,6 @@ jobs:
       BAG_API_KEY: ${{ secrets.BAG_API_KEY }}
       NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
     steps:
-      # workaround to avoid 'No space left on device' error
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
-        with:
-          tool-cache: true
-          # do not clean up Docker images since we need them
-          docker-images: false
-          # disable cleaning up large packages since this takes a long time
-          large-packages: false
-
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: authenticate with docker hub
