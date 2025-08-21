@@ -211,7 +211,7 @@ jobs:
         run: echo "ZAC_DOCKER_IMAGE=${{ env.CONTAINER_REGISTRY_URL }}/${{ env.APPLICATION_NAME }}:${{ steps.gen_build_number.outputs.BUILD_NUMBER }}" >> $GITHUB_OUTPUT
 
       - name: Setup JDK
-        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
@@ -276,7 +276,7 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Setup JDK
-        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
@@ -374,7 +374,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Setup JDK
-        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
