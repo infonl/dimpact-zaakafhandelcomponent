@@ -40,7 +40,7 @@ constructor(
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val pabcClientService: PabcClientService,
     @ConfigProperty(name = "FEATURE_FLAG_PABC_INTEGRATION", defaultValue = "false")
-    private val pabcIntegrationEnabled: Boolean,
+    private val pabcIntegrationEnabled: Boolean
 ) : Filter {
     companion object {
         private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
