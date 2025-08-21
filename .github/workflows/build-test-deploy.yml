@@ -419,7 +419,7 @@ jobs:
           # Delete the integration test data to ensure that the next run starts with a clean slate
           # This is required because the integration tests use the same data sources and we do not want to
           # have leftover data from previous runs.
-          rm -rf ./scripts/docker-compose/volume-data
+          sudo rm -rf ./scripts/docker-compose/volume-data
 
       - name: Run integration tests with ZAC PABC integration feature flag enabled
         run: |
