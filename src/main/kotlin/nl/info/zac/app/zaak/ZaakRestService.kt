@@ -288,13 +288,16 @@ class ZaakRestService @Inject constructor(
 
         val loggedInUser = loggedInUserInstance.get()
         // for PABC-based IAM integration, check if the user has the right to start a zaak
-        if (loggedInUser.pabcIntegrationEnabled) {
+        if (configuratieService.featureFlagPabcIntegration()) {
             assertPolicy(policyService.readOverigeRechten(zaakType.omschrijving).startenZaak)
         } else {
             // make sure to use the omschrijving of the zaaktype that was retrieved to perform authorization on zaaktype
             assertPolicy(
                 policyService.readOverigeRechten().startenZaak &&
-                    loggedInUser.isAuthorisedForZaaktype(zaakType.omschrijving)
+                    loggedInUser.isAuthorisedForZaaktype(
+                        zaakType.omschrijving,
+                        configuratieService.featureFlagPabcIntegration()
+                    )
             )
         }
 
@@ -575,7 +578,12 @@ class ZaakRestService @Inject constructor(
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             // After PABC is fully integrated, `isAuthorisedForZaaktype` will be decommissioned
             // (to be replaced by PolicyService)
-            .filter { loggedInUserInstance.get().isAuthorisedForZaaktype(it.omschrijving) }
+            .filter {
+                loggedInUserInstance.get().isAuthorisedForZaaktype(
+                    it.omschrijving,
+                    configuratieService.featureFlagPabcIntegration()
+                )
+            }
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
             .filter {

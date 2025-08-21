@@ -246,6 +246,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val updatedRolesSlot = mutableListOf<Rol<*>>()
 
             every { configuratieService.featureFlagBpmnSupport() } returns false
+            every { configuratieService.featureFlagPabcIntegration() } returns false
             every { configuratieService.readBronOrganisatie() } returns bronOrganisatie
             every { configuratieService.readVerantwoordelijkeOrganisatie() } returns verantwoordelijkeOrganisatie
             every { cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null) } just runs
@@ -1485,6 +1486,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             )
             val zaaktypeInrichtingscheck = createZaaktypeInrichtingscheck()
             every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogueURI
+            every { configuratieService.featureFlagPabcIntegration() } returns false
             every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
             every { loggedInUserInstance.get() } returns loggedInUser
             zaaktypes.forEach {
@@ -1551,6 +1553,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 "BPMN support is enabled and a BPMN process definition exists for the second but not for the first zaaktype"
             ) {
                 every { configuratieService.featureFlagBpmnSupport() } returns true
+                every { configuratieService.featureFlagPabcIntegration() } returns false
                 every { bpmnService.findProcessDefinitionForZaaktype(zaakType1UUID) } returns null
                 every { bpmnService.findProcessDefinitionForZaaktype(zaakType2UUID) } returns createZaaktypeBpmnProcessDefinition()
 

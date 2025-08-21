@@ -131,8 +131,7 @@ constructor(
                     .getStringListClaimValue(GROUP_MEMBERSHIP_CLAIM_NAME)
                     .toSet(),
                 geautoriseerdeZaaktypen = getAuthorisedZaaktypen(functionalRoles),
-                applicationRolesPerZaaktype = applicationRolesPerZaaktype,
-                pabcIntegrationEnabled = pabcIntegrationEnabled
+                applicationRolesPerZaaktype = applicationRolesPerZaaktype
             )
         }
 

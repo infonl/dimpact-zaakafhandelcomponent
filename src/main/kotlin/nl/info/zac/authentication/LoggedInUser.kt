@@ -26,8 +26,6 @@ class LoggedInUser(
      */
     val applicationRolesPerZaaktype: Map<String, Set<String>> = emptyMap(),
 
-    val pabcIntegrationEnabled: Boolean
-
 ) : User(id, firstName, lastName, displayName, email) {
     fun isAuthorisedForAllZaaktypen(): Boolean = geautoriseerdeZaaktypen == null
 
@@ -35,7 +33,7 @@ class LoggedInUser(
      * If PABC-based authorization is active, use the map of application roles per zaaktype.
      * Otherwise, legacy functional (Keycloak) role-based authorization is used.
      */
-    fun isAuthorisedForZaaktype(zaaktypeOmschrijving: String) =
+    fun isAuthorisedForZaaktype(zaaktypeOmschrijving: String, pabcIntegrationEnabled: Boolean) =
         if (pabcIntegrationEnabled) {
             applicationRolesPerZaaktype[zaaktypeOmschrijving]?.isNotEmpty() == true
         } else {
