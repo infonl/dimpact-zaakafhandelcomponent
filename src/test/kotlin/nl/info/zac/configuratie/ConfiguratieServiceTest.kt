@@ -31,6 +31,7 @@ class ConfiguratieServiceTest : BehaviorSpec({
     val gemeenteNaam = "Gemeente Name"
     val gemeenteMail = "gemeente@example.com"
     val bpmnSupport = false
+    val pabcIntegration = false
 
     beforeEach {
         checkUnnecessaryStub()
@@ -55,6 +56,7 @@ class ConfiguratieServiceTest : BehaviorSpec({
             gemeenteNaam,
             gemeenteMail,
             bpmnSupport,
+            pabcIntegration,
             bronOrganisatie,
             verantwoordelijkeOrganisatie,
             catalogusDomein
@@ -113,6 +115,7 @@ class ConfiguratieServiceTest : BehaviorSpec({
                         gemeenteNaam,
                         gemeenteMail,
                         bpmnSupport,
+                        pabcIntegration,
                         bronOrganisatie,
                         verantwoordelijkeOrganisatie,
                         catalogusDomein
@@ -141,6 +144,7 @@ class ConfiguratieServiceTest : BehaviorSpec({
             gemeenteNaam,
             gemeenteMail,
             bpmnSupport,
+            pabcIntegration,
             bronOrganisatie,
             verantwoordelijkeOrganisatie,
             catalogusDomein
