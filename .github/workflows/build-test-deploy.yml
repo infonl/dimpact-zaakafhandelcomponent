@@ -355,16 +355,6 @@ jobs:
       BAG_API_KEY: ${{ secrets.BAG_API_KEY }}
       NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
     steps:
-      # workaround to avoid 'No space left on device' error
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
-        with:
-          tool-cache: true
-          # do not clean up Docker images since we need them
-          docker-images: false
-          # disable cleaning up large packages since this takes a long time
-          large-packages: false
-
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: authenticate with docker hub
@@ -407,11 +397,41 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Run integration tests
+      - name: Run integration tests without ZAC PABC integration feature flag enabled
         run: |
           ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} \
+            -PfeatureFlagPabcIntegration=false \
             -x compileJava -x processResources -x compileKotlin -x classes -x buildDockerImage \
             itest --info --rerun-tasks
+
+      - name: Upload integration test results to CodeCov
+        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: integrationtests
+
+      - name: Publish integration test results
+        uses: EnricoMi/publish-unit-test-result-action@3a74b2957438d0b6e2e61d67b05318aa25c9e6c6 # v2.20.0
+        if: ${{ !cancelled() }}
+        with:
+          check_name: integration-test-results
+          files: |
+            build/test-results/itest/**/*.xml    
+
+      - name: Delete integration test data
+        run: |
+          # Delete the integration test data to ensure that the next run starts with a clean slate
+          # This is required because the integration tests use the same data sources and we do not want to
+          # have leftover data from previous runs.
+          sudo rm -rf ./scripts/docker-compose/volume-data
+
+      - name: Run integration tests with ZAC PABC integration feature flag enabled
+        run: |
+          ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} \
+            -PfeatureFlagPabcIntegration=true \
+            -x compileJava -x processResources -x compileKotlin -x classes -x buildDockerImage \
+            itest --info --rerun-tasks    
 
       - name: Upload integration test results to CodeCov
         uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
@@ -466,7 +486,7 @@ jobs:
 
       - name: Upload Trivy scan results to GitHub Security tab
         if: github.ref == 'refs/heads/main'
-        uses: github/codeql-action/upload-sarif@96f518a34f7a870018057716cc4d7a5c014bd61c # v3.29.10
+        uses: github/codeql-action/upload-sarif@3c3833e0f8c1c83d449a7478aa59c036a9165498 # v3.29.11
         with:
           sarif_file: 'trivy-results.sarif'
 
