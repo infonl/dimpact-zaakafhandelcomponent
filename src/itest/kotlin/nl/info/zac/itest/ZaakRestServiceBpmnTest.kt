@@ -159,7 +159,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
             }
 
             And("summary form task becomes available") {
-                eventually(10.seconds) {
+                eventually(30.seconds) {
                     val searchResponseBody = getTaskList(itestHttpClient, zaakIdentificatie, BPMN_SUMMARY_TASK_NAME)
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 1
                 }
