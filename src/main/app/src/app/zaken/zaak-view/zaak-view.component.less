@@ -66,39 +66,22 @@ mat-slide-toggle {
   width: 1000px;
 }
 
-.fields-flex-grow {
-  flex: 1 1 auto;  /* takes all available space, but can shrink if needed */
-  min-width: 0;    /* allows text inside to shrink instead of overflowing */
-}
-
 .text-flexible {
-  flex: 1 1 auto;   // can grow and shrink
-  min-width: 0;     // allows text to shrink if needed
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
-.flex-row.relative-parent {
-  position: relative; /* parent for absolute positioning */
+.padding-r {
+  padding-right: 55px;
 }
 
 .editable {
-  position: absolute;
+  position: relative;
+  display: block;
   top: -8px;
   right: 0;
   display: flex;
   justify-content: flex-end;
-}
-
-@media (max-width: 1430px) {
-  .editable {
-    display: block;
-    position: relative;
-    top: -8px;
-    right: 0;
-  }
-  .fields {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
 }
 
 .editable-location {
