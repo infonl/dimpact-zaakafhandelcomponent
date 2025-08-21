@@ -256,6 +256,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 objectsClientService
                     .readObject(restZaakAanmaakGegevens.inboxProductaanvraag?.productaanvraagObjectUUID)
             } returns objectRegistratieObject
+            every { loggedInUserInstance.get() } returns createLoggedInUser()
             every { productaanvraagService.getAanvraaggegevens(objectRegistratieObject) } returns formulierData
             every {
                 productaanvraagService.getProductaanvraag(objectRegistratieObject)
@@ -301,7 +302,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             When("a zaaktype is created for which the user has permissions and no BPMN process definition is found") {
                 every { identityService.readGroup(restZaakAanmaakGegevens.zaak.groep!!.id) } returns group
                 every { identityService.readUser(restZaakAanmaakGegevens.zaak.behandelaar!!.id) } returns user
-                every { policyService.readOverigeRechten(null) } returns createOverigeRechtenAllDeny(startenZaak = true)
+                every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
                 every {
                     policyService.readZaakRechten(zaak, zaakType)
                 } returns createZaakRechtenAllDeny(toevoegenInitiatorPersoon = true)
@@ -345,9 +346,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaak = createRestZaak(communicatiekanaal = null)
             )
             every { zaakService.readZaakTypeByUUID(any()) } returns zaakType
-            every {
-                policyService.readOverigeRechten(zaakType.omschrijving)
-            } returns createOverigeRechtenAllDeny(startenZaak = true)
+            every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
+            every { loggedInUserInstance.get() } returns createLoggedInUser()
             every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
             When("zaak creation is attempted") {
@@ -367,9 +367,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaak = createRestZaak(communicatiekanaal = "      ")
             )
             every { zaakService.readZaakTypeByUUID(any<UUID>()) } returns zaakType
-            every {
-                policyService.readOverigeRechten(zaakType.omschrijving)
-            } returns createOverigeRechtenAllDeny(startenZaak = true)
+            every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
+            every { loggedInUserInstance.get() } returns createLoggedInUser()
             every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
             When("zaak creation is attempted") {

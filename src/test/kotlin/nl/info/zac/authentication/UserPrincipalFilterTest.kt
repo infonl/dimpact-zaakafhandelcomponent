@@ -117,10 +117,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
             id = userId
         )
         val roles = arrayListOf(
-            "fakeRole1",
+            "behandelaar",
             "domein_elk_zaaktype"
         )
-        val expectedFunctionalRoles = listOf("fakeRole1")
+        val expectedFunctionalRoles = listOf("behandelaar")
         val pabcRoleNames = listOf("applicationRoleA", "applicationRoleB")
         val zaaktypeName = "fakeZaaktypeOmschrijving1"
         val zaakafhandelParameters = listOf(
@@ -192,8 +192,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             "fakeGroup2"
         )
         val roles = arrayListOf(
-            "fakeRole1",
-            "fakeRole2",
+            "beheerder",
             domein1
         )
         val zaakafhandelParameters = listOf(
@@ -281,7 +280,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             "fakeGroup1",
         )
         val roles = arrayListOf(
-            "fakeRole1",
+            "coordinator",
             "domein_elk_zaaktype"
         )
         val zaaktypeName = "fakeZaaktypeOmschrijving1"
