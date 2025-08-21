@@ -223,7 +223,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
             And("the task is removed from the task list") {
                 eventually(10.seconds) {
                     val searchResponseBody = getTaskList(itestHttpClient, zaakIdentificatie, BPMN_SUMMARY_TASK_NAAM)
-                   JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
+                    JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                 }
             }
         }
