@@ -286,10 +286,20 @@ class ZaakRestService @Inject constructor(
         val zaakType = zaakService.readZaakTypeByUUID(zaaktypeUUID)
         assertCanAddBetrokkene(restZaak)
 
-        // make sure to use the omschrijving of the zaaktype that was retrieved to perform authorization on zaaktype
-        assertPolicy(
-            policyService.readOverigeRechten(restZaak.zaaktype.omschrijving).startenZaak
-        )
+        val loggedInUser = loggedInUserInstance.get()
+        // for PABC-based IAM integration, check if the user has the right to start a zaak
+        if (configuratieService.featureFlagPabcIntegration()) {
+            assertPolicy(policyService.readOverigeRechten(zaakType.omschrijving).startenZaak)
+        } else {
+            // make sure to use the omschrijving of the zaaktype that was retrieved to perform authorization on zaaktype
+            assertPolicy(
+                policyService.readOverigeRechten().startenZaak &&
+                    loggedInUser.isAuthorisedForZaaktype(
+                        zaakType.omschrijving
+                    )
+            )
+        }
+
         restZaak.communicatiekanaal?.isNotBlank() == true || throw CommunicationChannelNotFound()
         val bronOrganisatie = configuratieService.readBronOrganisatie()
         val verantwoordelijkeOrganisatie = configuratieService.readVerantwoordelijkeOrganisatie()
@@ -567,7 +577,13 @@ class ZaakRestService @Inject constructor(
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             // After PABC is fully integrated, `isAuthorisedForZaaktype` will be decommissioned
             // (to be replaced by PolicyService)
-            .filter { loggedInUserInstance.get().isAuthorisedForZaaktype(it.omschrijving) }
+            .filter { zt ->
+                if (configuratieService.featureFlagPabcIntegration()) {
+                    loggedInUserInstance.get().isAuthorisedForZaaktypePabc(zt.omschrijving)
+                } else {
+                    loggedInUserInstance.get().isAuthorisedForZaaktype(zt.omschrijving)
+                }
+            }
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
             .filter {

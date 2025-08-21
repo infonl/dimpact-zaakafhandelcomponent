@@ -246,6 +246,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val updatedRolesSlot = mutableListOf<Rol<*>>()
 
             every { configuratieService.featureFlagBpmnSupport() } returns false
+            every { configuratieService.featureFlagPabcIntegration() } returns false
             every { configuratieService.readBronOrganisatie() } returns bronOrganisatie
             every { configuratieService.readVerantwoordelijkeOrganisatie() } returns verantwoordelijkeOrganisatie
             every { cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null) } just runs
@@ -256,6 +257,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 objectsClientService
                     .readObject(restZaakAanmaakGegevens.inboxProductaanvraag?.productaanvraagObjectUUID)
             } returns objectRegistratieObject
+            every { loggedInUserInstance.get() } returns createLoggedInUser()
             every { productaanvraagService.getAanvraaggegevens(objectRegistratieObject) } returns formulierData
             every {
                 productaanvraagService.getProductaanvraag(objectRegistratieObject)
@@ -301,7 +303,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             When("a zaaktype is created for which the user has permissions and no BPMN process definition is found") {
                 every { identityService.readGroup(restZaakAanmaakGegevens.zaak.groep!!.id) } returns group
                 every { identityService.readUser(restZaakAanmaakGegevens.zaak.behandelaar!!.id) } returns user
-                every { policyService.readOverigeRechten(null) } returns createOverigeRechtenAllDeny(startenZaak = true)
+                every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
                 every {
                     policyService.readZaakRechten(zaak, zaakType)
                 } returns createZaakRechtenAllDeny(toevoegenInitiatorPersoon = true)
@@ -345,9 +347,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaak = createRestZaak(communicatiekanaal = null)
             )
             every { zaakService.readZaakTypeByUUID(any()) } returns zaakType
-            every {
-                policyService.readOverigeRechten(zaakType.omschrijving)
-            } returns createOverigeRechtenAllDeny(startenZaak = true)
+            every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
+            every { loggedInUserInstance.get() } returns createLoggedInUser()
             every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
             When("zaak creation is attempted") {
@@ -367,9 +368,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaak = createRestZaak(communicatiekanaal = "      ")
             )
             every { zaakService.readZaakTypeByUUID(any<UUID>()) } returns zaakType
-            every {
-                policyService.readOverigeRechten(zaakType.omschrijving)
-            } returns createOverigeRechtenAllDeny(startenZaak = true)
+            every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
+            every { loggedInUserInstance.get() } returns createLoggedInUser()
             every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
             When("zaak creation is attempted") {
@@ -1486,6 +1486,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             )
             val zaaktypeInrichtingscheck = createZaaktypeInrichtingscheck()
             every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogueURI
+            every { configuratieService.featureFlagPabcIntegration() } returns false
             every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
             every { loggedInUserInstance.get() } returns loggedInUser
             zaaktypes.forEach {
@@ -1552,6 +1553,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 "BPMN support is enabled and a BPMN process definition exists for the second but not for the first zaaktype"
             ) {
                 every { configuratieService.featureFlagBpmnSupport() } returns true
+                every { configuratieService.featureFlagPabcIntegration() } returns false
                 every { bpmnService.findProcessDefinitionForZaaktype(zaakType1UUID) } returns null
                 every { bpmnService.findProcessDefinitionForZaaktype(zaakType2UUID) } returns createZaaktypeBpmnProcessDefinition()
 

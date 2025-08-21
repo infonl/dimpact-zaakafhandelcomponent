@@ -54,6 +54,9 @@ class ConfiguratieService @Inject constructor(
     @ConfigProperty(name = "FEATURE_FLAG_BPMN_SUPPORT")
     private val bpmnSupport: Boolean,
 
+    @ConfigProperty(name = "FEATURE_FLAG_PABC_INTEGRATION")
+    private val pabcIntegration: Boolean,
+
     @ConfigProperty(name = "BRON_ORGANISATIE_RSIN")
     private val bronOrganisatie: String,
 
@@ -124,6 +127,8 @@ class ConfiguratieService @Inject constructor(
     }
 
     fun featureFlagBpmnSupport(): Boolean = bpmnSupport
+
+    fun featureFlagPabcIntegration(): Boolean = pabcIntegration
 
     fun readMaxFileSizeMB() = MAX_FILE_SIZE_MB.toLong()
 
