@@ -58,16 +58,53 @@ mat-slide-toggle {
   margin-top: 10px;
 }
 
-.editable {
-  position: relative;
-  margin-top: 10px;
+.fields-container {
+  width: 100%;
+}
 
-  & button {
-    position: absolute;
-    right: 0;
+.fields {
+  width: 1000px;
+}
+
+.fields-flex-grow {
+  flex: 1 1 auto;  /* takes all available space, but can shrink if needed */
+  min-width: 0;    /* allows text inside to shrink instead of overflowing */
+}
+
+.text-flexible {
+  flex: 1 1 auto;   // can grow and shrink
+  min-width: 0;     // allows text to shrink if needed
+}
+
+.flex-row.relative-parent {
+  position: relative; /* parent for absolute positioning */
+}
+
+.editable {
+  position: absolute;
+  top: -8px;
+  right: 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 1430px) {
+  .editable {
+    display: block;
+    position: relative;
     top: -8px;
-    margin-right: 0;
+    right: 0;
   }
+  .fields {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+.editable-location {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .remark {
@@ -88,4 +125,8 @@ mat-slide-toggle {
   position: relative;
   font-size: 18px;
   top: 2px;
+}
+
+.margin-top {
+  margin-top: 10px;
 }
