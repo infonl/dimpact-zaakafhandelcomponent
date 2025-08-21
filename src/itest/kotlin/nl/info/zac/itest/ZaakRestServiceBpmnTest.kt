@@ -8,6 +8,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.json.shouldNotContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
+import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -28,6 +29,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -37,6 +39,11 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
+
+    val afterThirtySeconds = eventuallyConfig {
+        duration = 30.seconds
+        interval = 500.milliseconds
+    }
 
     fun submitFormData(bpmnZaakUuid: UUID, taakData: String): String {
         val takenCreateResponse = itestHttpClient.performGetRequest(
@@ -159,7 +166,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
             }
 
             And("summary form task becomes available") {
-                eventually(30.seconds) {
+                eventually(afterThirtySeconds) {
                     val searchResponseBody = getTaskList(itestHttpClient, zaakIdentificatie, BPMN_SUMMARY_TASK_NAME)
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 1
                 }
