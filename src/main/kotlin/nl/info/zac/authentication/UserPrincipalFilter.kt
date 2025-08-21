@@ -161,6 +161,8 @@ constructor(
             return emptyMap()
         }
 
+        LOG.info("Roles to be sent to PABC: $filteredFunctionalRoles")
+
         return try {
             val response: GetApplicationRolesResponse =
                 pabcClientService.getApplicationRoles(filteredFunctionalRoles)
