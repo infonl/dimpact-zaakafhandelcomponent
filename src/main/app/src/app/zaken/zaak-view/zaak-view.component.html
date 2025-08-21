@@ -94,7 +94,7 @@
                 <mat-icon>topic</mat-icon>
                 {{ "gegevens.algemeen" | translate }}</ng-template>
               <div class="content">
-                <div class="flex flex-row flex-wrap justify-start gap-10">
+                <div class="flex flex-row flex-wrap justify-start gap-10 padding-r">
                   <zac-static-text [label]="'status' | translate" [value]="zaak.status | empty: 'naam'"
                     class="flex-item"></zac-static-text>
                   <zac-static-text [label]="'registratiedatum' | translate" [value]="zaak.registratiedatum | datum"
@@ -113,7 +113,7 @@
                     " class="flex-item"></zac-static-text>
                 </div>
                 <mat-divider class="mat-divider-wrapper"></mat-divider>
-                <div class="flex flex-row relative-parent">
+                <div class="flex flex-row">
                   <div class="fields">
                     <div class="flex flex-row justify-start gap-10">
                       <zac-static-text [label]="'groep' | translate" [value]="zaak.groep?.naam | empty"
