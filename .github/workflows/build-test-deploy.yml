@@ -414,6 +414,21 @@ jobs:
             -x compileJava -x processResources -x compileKotlin -x classes -x buildDockerImage \
             itest --info --rerun-tasks
 
+      - name: Upload integration test results to CodeCov
+        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: integrationtests
+
+      - name: Publish integration test results
+        uses: EnricoMi/publish-unit-test-result-action@3a74b2957438d0b6e2e61d67b05318aa25c9e6c6 # v2.20.0
+        if: ${{ !cancelled() }}
+        with:
+          check_name: integration-test-results
+          files: |
+            build/test-results/itest/**/*.xml    
+
       - name: Delete integration test data
         run: |
           # Delete the integration test data to ensure that the next run starts with a clean slate
