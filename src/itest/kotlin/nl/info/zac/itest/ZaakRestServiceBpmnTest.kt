@@ -13,8 +13,8 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_TASK_NAAM
-import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_TASK_NAAM
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_TASK_NAME
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_USERNAME
@@ -153,14 +153,14 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
 
             And("the task is removed from the task list") {
                 eventually(10.seconds) {
-                    val searchResponseBody = getTaskList(itestHttpClient, zaakIdentificatie, BPMN_TEST_TASK_NAAM)
+                    val searchResponseBody = getTaskList(itestHttpClient, zaakIdentificatie, BPMN_TEST_TASK_NAME)
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                 }
             }
 
-            And("summary form becomes available") {
+            And("summary form task becomes available") {
                 eventually(10.seconds) {
-                    val searchResponseBody = getTaskList(itestHttpClient, zaakIdentificatie, BPMN_SUMMARY_TASK_NAAM)
+                    val searchResponseBody = getTaskList(itestHttpClient, zaakIdentificatie, BPMN_SUMMARY_TASK_NAME)
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 1
                 }
             }
@@ -222,7 +222,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
 
             And("the task is removed from the task list") {
                 eventually(10.seconds) {
-                    val searchResponseBody = getTaskList(itestHttpClient, zaakIdentificatie, BPMN_SUMMARY_TASK_NAAM)
+                    val searchResponseBody = getTaskList(itestHttpClient, zaakIdentificatie, BPMN_SUMMARY_TASK_NAME)
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                 }
             }

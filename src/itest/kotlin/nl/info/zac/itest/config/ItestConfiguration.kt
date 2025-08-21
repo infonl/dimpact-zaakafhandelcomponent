@@ -433,8 +433,10 @@ object ItestConfiguration {
     const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_ID.bpmn"
     const val BPMN_TEST_FORM_RESOURCE_PATH = "bpmn/testForm.json"
     const val BPMN_SUMMARY_FORM_RESOURCE_PATH = "bpmn/summaryForm.json"
-    const val BPMN_TEST_TASK_NAAM = "Test form"
-    const val BPMN_SUMMARY_TASK_NAAM = "Summary form"
+    const val BPMN_TEST_TASK_NAME = "Test"
+    const val BPMN_SUMMARY_TASK_NAME = "Summary"
+    const val BPMN_TEST_FORM_NAME = "Test form"
+    const val BPMN_SUMMARY_FORM_NAME = "Summary form"
 
     /**
      * Global variable to store the id of a task that is created in the integration tests as
