@@ -837,6 +837,7 @@
   "msg.error.case.has.open.subcases": "This case has open subcases and cannot be closed.",
   "msg.error.case.has.locked.information.objects": "This case has locked documents and cannot be closed.",
   "msg.error.case.has.no.communication.channel": "The case has no communication channel.",
+  "msg.error.case.cannot.have.due.date": "The case cannot have a due date.",
   "msg.error.case.has.decision.cannot.be.terminated": "The case cannot be terminated because a decision is already linked to it.",
   "msg.error.case.explanation.required": "Explanation is required.",
   "msg.error.convert.not.possible": "This document cannot be converted.",
