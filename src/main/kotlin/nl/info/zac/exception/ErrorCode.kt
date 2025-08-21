@@ -40,6 +40,7 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_BESLUIT_RESPONSE_DATE_INVALID_TYPE("msg.error.besluit.response.date.invalid"),
     ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS("msg.error.case.has.locked.information.objects"),
     ERROR_CODE_CASE_HAS_NO_COMMUNICATION_CHANNEL("msg.error.case.has.no.communication.channel"),
+    ERROR_CODE_CASE_CANNOT_HAVE_DUE_DATE("msg.error.case.cannot.have.due.date"),
     ERROR_CODE_CASE_WITH_DECISION_CANNOT_BE_TERMINATION("msg.error.case.has.decision.cannot.be.terminated"),
     ERROR_CODE_CASE_BETROKKENE_NOT_ALLOWED("msg.error.case.betrokkene.not.allowed"),
     ERROR_CODE_CASE_EXPLANATION_REQUIRED("msg.error.case.explanation.required"),

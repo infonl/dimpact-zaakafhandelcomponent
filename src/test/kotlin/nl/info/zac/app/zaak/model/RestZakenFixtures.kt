@@ -135,7 +135,7 @@ fun createRestZaak(
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.of(2023, 10, 10),
     uuid: UUID = UUID.randomUUID(),
     rechten: RestZaakRechten = createRestZaakRechten(),
-    einddatumGepland: LocalDate? = LocalDate.of(2023, 10, 10),
+    einddatumGepland: LocalDate? = null,
     communicatiekanaal: String? = "fakeCommunicatiekanaal",
     isOpen: Boolean = true,
     startDatum: LocalDate = LocalDate.of(2023, 9, 15),

@@ -837,6 +837,7 @@
   "msg.error.case.has.open.subcases": "Deze hoofdzaak heeft open deelzaken en kan niet afgesloten worden.",
   "msg.error.case.has.locked.information.objects": "Deze zaak heeft vergrendelde documenten en kan niet afgesloten worden.",
   "msg.error.case.has.no.communication.channel": "De zaak heeft geen communicatiekanaal.",
+  "msg.error.case.cannot.have.due.date": "De zaak kan geen streefdatum hebben.",
   "msg.error.case.has.decision.cannot.be.terminated": "De zaak kan niet afgebroken worden als er een besluit aan hangt.",
   "msg.error.case.explanation.required": "Toelichting is verplicht.",
   "msg.error.convert.not.possible": "Dit document kan niet worden geconverteerd.",
