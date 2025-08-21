@@ -295,8 +295,7 @@ class ZaakRestService @Inject constructor(
             assertPolicy(
                 policyService.readOverigeRechten().startenZaak &&
                     loggedInUser.isAuthorisedForZaaktype(
-                        zaakType.omschrijving,
-                        false
+                        zaakType.omschrijving
                     )
             )
         }
@@ -578,11 +577,12 @@ class ZaakRestService @Inject constructor(
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             // After PABC is fully integrated, `isAuthorisedForZaaktype` will be decommissioned
             // (to be replaced by PolicyService)
-            .filter {
-                loggedInUserInstance.get().isAuthorisedForZaaktype(
-                    it.omschrijving,
-                    configuratieService.featureFlagPabcIntegration()
-                )
+            .filter { zt ->
+                if (configuratieService.featureFlagPabcIntegration()) {
+                    loggedInUserInstance.get().isAuthorisedForZaaktypePabc(zt.omschrijving)
+                } else {
+                    loggedInUserInstance.get().isAuthorisedForZaaktype(zt.omschrijving)
+                }
             }
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
