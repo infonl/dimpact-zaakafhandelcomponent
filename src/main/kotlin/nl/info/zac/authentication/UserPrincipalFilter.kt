@@ -150,7 +150,8 @@ constructor(
     @Suppress("TooGenericExceptionCaught")
     private fun buildApplicationRoleMappingsFromPabc(functionalRoles: Set<String>): Map<String, Set<String>> {
         // Filter out roles we shouldn't send to PABC
-        // Currently PABC has only the following roles defined
+        // Currently PABC does not allow us to request mappings for functional roles which are not defined in the PABC (this will change in a future version of the PABC).
+        // As a temporary workaround we filter out the set of functional roles we sent to the PABC to a limited set for which we know we have defined mappings.
         val filteredFunctionalRoles = functionalRoles.filter {
             it in SUPPORTED_PABC_FUNCTIONAL_ROLES
         }
