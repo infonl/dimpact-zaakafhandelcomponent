@@ -13,6 +13,8 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_TASK_NAAM
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_TASK_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_USERNAME
@@ -45,7 +47,6 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
             it.code shouldBe HTTP_OK
             responseBody
         }
-        val zaakIdentificatie = JSONArray(takenCreateResponse).getJSONObject(0).get("zaakIdentificatie")
 
         val patchedTakenData = takenCreateResponse.replace(""""taakdata":{}""", taakData)
         logger.info { "Patched request: $patchedTakenData" }
@@ -60,6 +61,36 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
             responseBody
         }
     }
+
+    fun getTaskList(
+        itestHttpClient: ItestHttpClient,
+        zaakIdentificatie: String,
+        taskName: String
+    ): String = itestHttpClient.performPutRequest(
+        url = "$ZAC_API_URI/zoeken/list",
+        requestBodyAsString = """
+            {
+              "rows": 10,
+              "page": 0,
+              "alleenMijnZaken": false,
+              "alleenOpenstaandeZaken": false,
+              "alleenAfgeslotenZaken": false,
+              "alleenMijnTaken": false,
+              "datums": {},
+              "zoeken": {
+                "TAAK_ZAAK_ID": "$zaakIdentificatie"
+              },
+              "filters": {
+                "TAAK_NAAM": {
+                  "values": [ "$taskName" ],
+                  "inverse": "false"
+                }
+              },
+              "sorteerRichting": "",
+              "type": "TAAK"
+            }
+        """.trimIndent()
+    ).body.string()
 
     Given("A BPMN type zaak has been created") {
         var bpmnZaakUuid: UUID
@@ -122,32 +153,15 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
 
             And("the task is removed from the task list") {
                 eventually(10.seconds) {
-                    val searchResponseBody = itestHttpClient.performPutRequest(
-                        url = "$ZAC_API_URI/zoeken/list",
-                        requestBodyAsString = """
-                            {
-                              "rows": 10,
-                              "page": 0,
-                              "alleenMijnZaken": false,
-                              "alleenOpenstaandeZaken": false,
-                              "alleenAfgeslotenZaken": false,
-                              "alleenMijnTaken": false,
-                              "datums": {},
-                              "zoeken": {
-                                "TAAK_ZAAK_ID": "$zaakIdentificatie"
-                              },
-                              "filters": {
-                                "TAAK_NAAM": {
-                                  "values": [ "Test form" ],
-                                  "inverse": "false"
-                                }
-                              },
-                              "sorteerRichting": "",
-                              "type": "TAAK"
-                            }
-                        """.trimIndent()
-                    ).body.string()
+                    val searchResponseBody = getTaskList(itestHttpClient, zaakIdentificatie, BPMN_TEST_TASK_NAAM)
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
+                }
+            }
+
+            And("summary form becomes available") {
+                eventually(10.seconds) {
+                    val searchResponseBody = getTaskList(itestHttpClient, zaakIdentificatie, BPMN_SUMMARY_TASK_NAAM)
+                    JSONObject(searchResponseBody).getInt("totaal") shouldBe 1
                 }
             }
         }
@@ -208,32 +222,8 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
 
             And("the task is removed from the task list") {
                 eventually(10.seconds) {
-                    val searchResponseBody = itestHttpClient.performPutRequest(
-                        url = "$ZAC_API_URI/zoeken/list",
-                        requestBodyAsString = """
-                            {
-                              "rows": 10,
-                              "page": 0,
-                              "alleenMijnZaken": false,
-                              "alleenOpenstaandeZaken": false,
-                              "alleenAfgeslotenZaken": false,
-                              "alleenMijnTaken": false,
-                              "datums": {},
-                              "zoeken": {
-                                "TAAK_ZAAK_ID": "$zaakIdentificatie"
-                              },
-                              "filters": {
-                                "TAAK_NAAM": {
-                                  "values": [ "Summary" ],
-                                  "inverse": "false"
-                                }
-                              },
-                              "sorteerRichting": "",
-                              "type": "TAAK"
-                            }
-                        """.trimIndent()
-                    ).body.string()
-                    JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
+                    val searchResponseBody = getTaskList(itestHttpClient, zaakIdentificatie, BPMN_SUMMARY_TASK_NAAM)
+                   JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                 }
             }
         }

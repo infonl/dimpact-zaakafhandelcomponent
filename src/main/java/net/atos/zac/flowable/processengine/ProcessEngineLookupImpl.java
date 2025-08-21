@@ -76,7 +76,7 @@ public class ProcessEngineLookupImpl implements ProcessEngineLookup {
         processEngineConfiguration.setDelegateExpressionFieldInjectionMode(DISABLED);
         processEngineConfiguration.setEnableHistoricTaskLogging(true);
         processEngineConfiguration.setDisableIdmEngine(true);
-        processEngineConfiguration.setAsyncExecutorActivate(false);
+        processEngineConfiguration.setAsyncExecutorActivate(true);
         processEngineConfiguration.setCreateUserTaskInterceptor(new CreateUserTaskInterceptor());
         var eventListeners = processEngineConfiguration.getEventListeners();
         if (eventListeners == null) {

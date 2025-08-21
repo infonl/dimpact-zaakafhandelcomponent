@@ -41,10 +41,6 @@ object ItestConfiguration {
     const val BETROKKENE_IDENTIFICATION_TYPE_BSN = "BSN"
     const val BETROKKENE_IDENTIFACTION_TYPE_VESTIGING = "VN"
     const val BETROKKENE_ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
-    const val BPMN_TEST_PROCESS_ID = "itProcessDefinition"
-    const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_ID.bpmn"
-    const val BPMN_TEST_FORM_RESOURCE_PATH = "bpmn/testForm.json"
-    const val BPMN_SUMMARY_FORM_RESOURCE_PATH = "bpmn/summaryForm.json"
     const val BRON_ORGANISATIE = "123443210"
     const val CONFIG_MAX_FILE_SIZE_IN_MB = 80L
     const val CONFIG_GEMEENTE_CODE = "9999"
@@ -55,8 +51,6 @@ object ItestConfiguration {
     const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
     const val HUMAN_TASK_TYPE = "HUMAN_TASK"
-    const val BPMN_TEST_TASK_NAAM = "Test form"
-    const val BPMN_SUMMARY_TASK_NAAM = "Summary form"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING = "bijlage"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
     const val INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING = "factuur"
@@ -402,15 +396,6 @@ object ItestConfiguration {
     val DATE_TIME_2024_01_01: ZonedDateTime = DATE_2024_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
     val DATE_TIME_2024_01_31: ZonedDateTime = DATE_2024_01_31.atStartOfDay(TimeZone.getDefault().toZoneId())
 
-    val ZAAKTYPE_BPMN_TEST_UUID: UUID = UUID.fromString("26076928-ce07-4d5d-8638-c2d276f6caca")
-    const val ZAAK_BPMN_TEST_IDENTIFICATION: String = "ZAAK-2000-0000000004"
-    const val ZAAKTYPE_BPMN_TEST_IDENTIFICATIE = "bpmn-test-zaaktype"
-    const val ZAAKTYPE_BPMN_TEST_DESCRIPTION = "BPMN test zaaktype"
-
-    val ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_UUID: UUID = UUID.fromString("8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a")
-    const val ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_IDENTIFICATIE = "bpmn-evenementen-vooroverleg"
-    const val ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_DESCRIPTION = "BPMN Evenementen Vooroverleg"
-
     val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
     val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID: UUID =
         UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
@@ -431,6 +416,25 @@ object ItestConfiguration {
         "74799b20-0350-457d-8773-a0f1ab16b299"
 
     val START_DATE: LocalDateTime = LocalDateTime.now()
+
+    /**
+     * BPMN tests constants
+     */
+    val ZAAKTYPE_BPMN_TEST_UUID: UUID = UUID.fromString("26076928-ce07-4d5d-8638-c2d276f6caca")
+    const val ZAAK_BPMN_TEST_IDENTIFICATION: String = "ZAAK-2000-0000000004"
+    const val ZAAKTYPE_BPMN_TEST_IDENTIFICATIE = "bpmn-test-zaaktype"
+    const val ZAAKTYPE_BPMN_TEST_DESCRIPTION = "BPMN test zaaktype"
+
+    val ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_UUID: UUID = UUID.fromString("8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a")
+    const val ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_IDENTIFICATIE = "bpmn-evenementen-vooroverleg"
+    const val ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_DESCRIPTION = "BPMN Evenementen Vooroverleg"
+
+    const val BPMN_TEST_PROCESS_ID = "itProcessDefinition"
+    const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_ID.bpmn"
+    const val BPMN_TEST_FORM_RESOURCE_PATH = "bpmn/testForm.json"
+    const val BPMN_SUMMARY_FORM_RESOURCE_PATH = "bpmn/summaryForm.json"
+    const val BPMN_TEST_TASK_NAAM = "Test form"
+    const val BPMN_SUMMARY_TASK_NAAM = "Summary form"
 
     /**
      * Global variable to store the id of a task that is created in the integration tests as
