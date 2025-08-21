@@ -45,6 +45,13 @@ constructor(
     companion object {
         private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
         private const val GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership"
+        val SUPPORTED_PABC_FUNCTIONAL_ROLES: Set<String> = setOf(
+            "behandelaar",
+            "coordinator",
+            "beheerder",
+            "recordmanager",
+            "raadpleger"
+        )
     }
 
     override fun doFilter(
@@ -143,10 +150,9 @@ constructor(
     @Suppress("TooGenericExceptionCaught")
     private fun buildApplicationRoleMappingsFromPabc(functionalRoles: Set<String>): Map<String, Set<String>> {
         // Filter out roles we shouldn't send to PABC
-        val filteredFunctionalRoles = functionalRoles.filterNot {
-            it in setOf(
-                ZACRole.DOMEIN_ELK_ZAAKTYPE.value
-            )
+        // Currently PABC has only the following roles defined
+        val filteredFunctionalRoles = functionalRoles.filter {
+            it in SUPPORTED_PABC_FUNCTIONAL_ROLES
         }
 
         if (filteredFunctionalRoles.isEmpty()) {
