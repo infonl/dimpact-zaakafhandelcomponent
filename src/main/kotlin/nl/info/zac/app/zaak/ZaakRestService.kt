@@ -296,7 +296,7 @@ class ZaakRestService @Inject constructor(
                 policyService.readOverigeRechten().startenZaak &&
                     loggedInUser.isAuthorisedForZaaktype(
                         zaakType.omschrijving,
-                        configuratieService.featureFlagPabcIntegration()
+                        false
                     )
             )
         }
