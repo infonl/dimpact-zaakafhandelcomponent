@@ -45,7 +45,7 @@ constructor(
     companion object {
         private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
         private const val GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership"
-        val pabcDefinedRoles: Set<String> = setOf(
+        val SUPPORTED_PABC_FUNCTIONAL_ROLES: Set<String> = setOf(
             "behandelaar",
             "coordinator",
             "beheerder",
@@ -153,7 +153,7 @@ constructor(
         // Filter out roles we shouldn't send to PABC
         // Currently PABC has only the following roles defined
         val filteredFunctionalRoles = functionalRoles.filter {
-            it in pabcDefinedRoles
+            it in SUPPORTED_PABC_FUNCTIONAL_ROLES
         }
 
         if (filteredFunctionalRoles.isEmpty()) {
