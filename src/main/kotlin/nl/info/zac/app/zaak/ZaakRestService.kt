@@ -289,7 +289,7 @@ class ZaakRestService @Inject constructor(
         val loggedInUser = loggedInUserInstance.get()
         // for PABC-based IAM integration, check if the user has the right to start a zaak
         if (loggedInUser.pabcIntegrationEnabled) {
-            policyService.readOverigeRechten(restZaak.zaaktype.omschrijving).startenZaak
+            assertPolicy(policyService.readOverigeRechten(zaakType.omschrijving).startenZaak)
         } else {
             // make sure to use the omschrijving of the zaaktype that was retrieved to perform authorization on zaaktype
             assertPolicy(
