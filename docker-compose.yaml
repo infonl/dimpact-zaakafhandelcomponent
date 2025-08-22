@@ -574,7 +574,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web:
-    image: maykinmedia/open-archiefbeheer:1.0.1@sha256:0369bd51594bee412b2564ab04060ef6d2748d1441090d85e9c9d83a0ce3f6f4
+    image: maykinmedia/open-archiefbeheer:1.1.0@sha256:64219b232f7efa49e8c3fcd134920c6e47664ca8b8416691c1371dc46a10a7a1
     platform: linux/amd64
     environment: &web_env
       - ALLOWED_HOSTS="*"
@@ -625,7 +625,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web-init:
-    image: maykinmedia/open-archiefbeheer:1.0.1@sha256:0369bd51594bee412b2564ab04060ef6d2748d1441090d85e9c9d83a0ce3f6f4
+    image: maykinmedia/open-archiefbeheer:1.1.0@sha256:64219b232f7efa49e8c3fcd134920c6e47664ca8b8416691c1371dc46a10a7a1
     platform: linux/amd64
     environment: *web_env
     command: /setup_configuration.sh
@@ -639,7 +639,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery:
-    image: maykinmedia/open-archiefbeheer:1.0.1@sha256:0369bd51594bee412b2564ab04060ef6d2748d1441090d85e9c9d83a0ce3f6f4
+    image: maykinmedia/open-archiefbeheer:1.1.0@sha256:64219b232f7efa49e8c3fcd134920c6e47664ca8b8416691c1371dc46a10a7a1
     platform: linux/amd64
     command: /celery_worker.sh
     environment: *web_env
@@ -655,7 +655,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery-beat:
-    image: maykinmedia/open-archiefbeheer:1.0.1@sha256:0369bd51594bee412b2564ab04060ef6d2748d1441090d85e9c9d83a0ce3f6f4
+    image: maykinmedia/open-archiefbeheer:1.1.0@sha256:64219b232f7efa49e8c3fcd134920c6e47664ca8b8416691c1371dc46a10a7a1
     platform: linux/amd64
     command: /celery_beat.sh
     environment: *web_env
