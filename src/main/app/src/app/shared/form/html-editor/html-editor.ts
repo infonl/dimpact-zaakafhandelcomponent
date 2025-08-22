@@ -10,8 +10,10 @@ import {
   Input,
   OnDestroy,
   OnInit,
+  SecurityContext,
 } from "@angular/core";
 import { AbstractControl, FormGroup, Validators } from "@angular/forms";
+import { DomSanitizer } from "@angular/platform-browser";
 import { TranslateService } from "@ngx-translate/core";
 import { Editor, Toolbar } from "ngx-editor";
 import { Schema } from "prosemirror-model";
@@ -64,7 +66,10 @@ export class ZacHtmlEditor<
   protected maxlength: number | null = null;
   protected control?: AbstractControl<string | null>;
 
-  constructor(private readonly translateService: TranslateService) {}
+  constructor(
+    private readonly translateService: TranslateService,
+    private readonly domSanitizer: DomSanitizer,
+  ) {}
 
   ngOnInit() {
     this.control = this.form.get(String(this.key))!;
@@ -77,8 +82,11 @@ export class ZacHtmlEditor<
     this.toolbar = [];
     this.editor.destroy();
 
-    const plainText = this.control?.value?.replace(/<[^>]*>/g, "") ?? null;
-    this.control?.setValue(plainText);
+    const sanitized = this.domSanitizer.sanitize(
+      SecurityContext.HTML,
+      this.control?.value ?? null,
+    );
+    this.control?.setValue(sanitized);
 
     this.editor = new Editor({
       keyboardShortcuts: false,
