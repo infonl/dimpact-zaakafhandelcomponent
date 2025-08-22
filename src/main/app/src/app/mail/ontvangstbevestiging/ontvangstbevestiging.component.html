@@ -14,11 +14,50 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<div class="form">
-  <mfb-form
-    *ngIf="fields"
-    (formSubmit)="onFormSubmit($event)"
-    [formFields]="fields"
-    [config]="formConfig"
-  ></mfb-form>
-</div>
+<form [formGroup]="form" (submit)="submit()" class="mt-2">
+  <fieldset>
+    <zac-select
+      [form]="form"
+      key="verzender"
+      [options]="afzenders"
+      suffix="suffix"
+      optionDisplayValue="mail"
+    />
+    <zac-input [form]="form" key="ontvanger">
+      <button
+        (click)="setOntvanger()"
+        *ngIf="this.contactGegevens?.emailadres"
+        type="button"
+        mat-icon-button
+        matSuffix
+      >
+        <mat-icon>person</mat-icon>
+      </button>
+    </zac-input>
+    <zac-html-editor
+      [form]="form"
+      key="onderwerp"
+      noToolbar
+      [variables]="variables"
+    />
+    <zac-html-editor [form]="form" key="body" [variables]="variables" />
+  </fieldset>
+  <fieldset>
+    <mfb-form-field [field]="bijlagenFormField" />
+  </fieldset>
+  <fieldset>
+    <mat-action-row>
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        [disabled]="form.invalid"
+      >
+        {{ "actie.versturen" | translate }}
+      </button>
+      <button mat-button type="button" (click)="sideNav.close()">
+        {{ "actie.annuleren" | translate }}
+      </button>
+    </mat-action-row>
+  </fieldset>
+</form>
