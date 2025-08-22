@@ -310,6 +310,125 @@ describe(ZaakViewComponent.name, () => {
     );
   });
 
+  describe("actie.ontvangstbevestiging.versturen", () => {
+    const baseZaak = {
+      ...zaak,
+      heeftOntvangstbevestigingVerstuurd: false,
+      rechten: {
+        ...zaak.rechten,
+        behandelen: true,
+        versturenOntvangstbevestiging: true,
+      },
+      isProcesGestuurd: false,
+      indicaties: ["ONTVANGSTBEVESTIGING_NIET_VERSTUURD"],
+    } satisfies GeneratedType<"RestZaak">;
+
+    beforeEach(() => {
+      mockActivatedRoute.data.next({ zaak: baseZaak });
+      fixture.detectChanges();
+    });
+
+    it("should show the button when all conditions are met", async () => {
+      const button = await loader.getHarness(
+        MatNavListItemHarness.with({
+          title: "actie.ontvangstbevestiging.versturen",
+        }),
+      );
+      expect(button).toBeTruthy();
+    });
+
+    describe("when behandelen right is false", () => {
+      beforeEach(() => {
+        mockActivatedRoute.data.next({
+          zaak: {
+            ...baseZaak,
+            heeftOntvangstbevestigingVerstuurd: false,
+            rechten: {
+              ...baseZaak.rechten,
+              behandelen: false,
+            },
+          },
+        });
+        fixture.detectChanges();
+      });
+
+      it("should not show the button", async () => {
+        const button = await loader.getHarnessOrNull(
+          MatNavListItemHarness.with({
+            title: "actie.ontvangstbevestiging.versturen",
+          }),
+        );
+        expect(button).toBeNull();
+      });
+    });
+
+    describe("when isProcesGestuurd is true", () => {
+      beforeEach(() => {
+        mockActivatedRoute.data.next({
+          zaak: {
+            ...baseZaak,
+            isProcesGestuurd: true,
+          },
+        });
+        fixture.detectChanges();
+      });
+
+      it("should not show the button", async () => {
+        const button = await loader.getHarnessOrNull(
+          MatNavListItemHarness.with({
+            title: "actie.ontvangstbevestiging.versturen",
+          }),
+        );
+        expect(button).toBeNull();
+      });
+    });
+
+    describe("when versturenOntvangstbevestiging right is false", () => {
+      beforeEach(() => {
+        mockActivatedRoute.data.next({
+          zaak: {
+            ...baseZaak,
+            rechten: {
+              ...baseZaak.rechten,
+              versturenOntvangstbevestiging: false,
+            },
+          },
+        });
+        fixture.detectChanges();
+      });
+
+      it("should not show the button", async () => {
+        const button = await loader.getHarnessOrNull(
+          MatNavListItemHarness.with({
+            title: "actie.ontvangstbevestiging.versturen",
+          }),
+        );
+        expect(button).toBeNull();
+      });
+    });
+
+    describe("when heeftOntvangenBevestigingVerstuurd is set", () => {
+      beforeEach(() => {
+        mockActivatedRoute.data.next({
+          zaak: {
+            ...baseZaak,
+            heeftOntvangstbevestigingVerstuurd: true,
+          },
+        });
+        fixture.detectChanges();
+      });
+
+      it("should not show the button", async () => {
+        const button = await loader.getHarnessOrNull(
+          MatNavListItemHarness.with({
+            title: "actie.ontvangstbevestiging.versturen",
+          }),
+        );
+        expect(button).toBeNull();
+      });
+    });
+  });
+
   describe("openPlanItemStartenDialog", () => {
     const mockPlanItem = fromPartial<GeneratedType<"RESTPlanItem">>({
       userEventListenerActie: "ZAAK_AFHANDELEN",
