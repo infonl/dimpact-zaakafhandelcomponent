@@ -18,12 +18,14 @@
       );
     }
 
-    &:hover {
-      .mat-mdc-form-field-infix::after {
-        background-color: var(
-          --mdc-filled-text-field-container-color-hover,
-          var(--mat-app-surface-variant)
-        );
+    &:not(:has(input[disabled])) {
+      &:hover {
+        .mat-mdc-form-field-infix::after {
+          background-color: var(
+            --mdc-filled-text-field-container-color-hover,
+            var(--mat-app-surface-variant)
+          );
+        }
       }
     }
 
