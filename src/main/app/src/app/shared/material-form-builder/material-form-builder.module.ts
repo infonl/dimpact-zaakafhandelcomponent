@@ -77,6 +77,7 @@ import { TextareaComponent } from "./form-components/textarea/textarea.component
 import { FormFieldComponent } from "./form/form-field/form-field.component";
 import { FormFieldDirective } from "./form/form-field/form-field.directive";
 import { FormComponent } from "./form/form/form.component";
+import {ZacFile} from "../form/file/file";
 
 @NgModule({
   declarations: [
@@ -113,6 +114,7 @@ import { FormComponent } from "./form/form/form.component";
     ZacToggle,
     ZacCheckbox,
     ZacHtmlEditor,
+      ZacFile
   ],
   exports: [
     FileDragAndDropDirective,
@@ -142,6 +144,7 @@ import { FormComponent } from "./form/form/form.component";
     ZacToggle,
     ZacCheckbox,
     ZacHtmlEditor,
+      ZacFile,
     CapitalizeFirstLetterPipe,
   ],
   imports: [

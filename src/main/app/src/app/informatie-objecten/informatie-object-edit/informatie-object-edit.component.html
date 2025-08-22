@@ -12,11 +12,70 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<div class="form">
-  <mfb-form
-    *ngIf="fields"
-    (formSubmit)="onFormSubmit($event)"
-    [formFields]="fields"
-    [config]="formConfig"
-  ></mfb-form>
-</div>
+<form (submit)="submit()">
+  <fieldset>
+    <section class="row">
+        <!-- TODO: file upload -->
+<!--      <zac-file-upload-->
+<!--        [formControl]="form.controls.bestand"-->
+<!--        [accept]="['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']"-->
+<!--        [maxSize]="10000000"-->
+<!--        [required]="true"-->
+<!--      ></zac-file-upload>-->
+        <zac-file [form]="form" key="bestand" />
+      <zac-input class="col-12" [form]="form" key="titel" />
+      <zac-input class="col-12" [form]="form" key="beschrijving" />
+      <zac-select
+        class="col-12 col-md-6"
+        [form]="form"
+        key="informatieobjectType"
+        [options]="informatieObjectTypes"
+      />
+      <zac-select
+        class="col-12 col-md-6"
+        [form]="form"
+        key="vertrouwelijkheidaanduiding"
+        [options]="vertrouwelijkheidsAanduidingen"
+      />
+      <zac-select
+        class="col-12 col-md-6"
+        [form]="form"
+        key="status"
+        [options]="informatieobjectStatussen"
+      />
+      <div class="col-12 col-md-6">
+        <!-- spacer -->
+      </div>
+      <zac-input class="col-12 col-md-6" [form]="form" key="auteur" />
+      <zac-select class="col-12 col-md-6" [form]="form" key="taal" [options]="talen" />
+      <zac-input class="col-12 col-md-6" [form]="form" key="ontvangstdatum" />
+      <zac-input class="col-12 col-md-6" [form]="form" key="verzenddatum" />
+      <zac-input class="col-12" [form]="form" key="toelichting" />
+      <!-- this.fields = [
+      [inhoudField],
+      [titel],
+      [beschrijving],
+      [informatieobjectType, vertrouwelijk],
+      [status, emptyField],
+      [auteur, taal],
+      [ontvangstDatum, verzenddatum],
+      [toelichting],
+    ]; -->
+    </section>
+  </fieldset>
+  <fieldset>
+    <mat-action-row>
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        (click)="submit()"
+      >
+        {{ "actie.opslaan" | translate }}
+      </button>
+      <button mat-button type="reset" (click)="resetAndClose()">
+        {{ "actie.annuleren" | translate }}
+      </button>
+    </mat-action-row>
+  </fieldset>
+</form>

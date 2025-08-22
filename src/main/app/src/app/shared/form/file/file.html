@@ -1,0 +1,74 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  ~
+  -->
+
+<div DropZone (fileDropped)="droppedFile($event)">
+  <mat-form-field
+    appearance="fill"
+    subscriptSizing="dynamic"
+    class="file-field full-width"
+    [formGroup]="form"
+    (click)="fileInput.click()"
+  >
+    <mat-label>
+      <ng-content select="mat-label">
+        {{ label ?? key | translate | capitalizeFirstLetter }}
+      </ng-content>
+    </mat-label>
+    <input
+      matInput
+      [formControlName]="key"
+      [readonly]="true"
+      [required]="required"
+    />
+    <button
+      *ngIf="status == 'SELECTEER_BESTAND'"
+      mat-mini-fab
+      matSuffix
+      type="button"
+    >
+      <mat-icon>upload</mat-icon>
+    </button>
+    <button
+      *ngIf="status == 'BEZIG'"
+      mat-mini-fab
+      matSuffix
+      (click)="reset($event)"
+      type="button"
+    >
+      <mat-icon>cancel</mat-icon>
+    </button>
+    <button
+      *ngIf="status == 'GEREED'"
+      mat-mini-fab
+      matSuffix
+      (click)="reset($event)"
+      type="button"
+    >
+      <mat-icon>delete</mat-icon>
+    </button>
+
+    <span matSuffix>
+      <ng-content select="button"></ng-content>
+      <ng-content select="span"></ng-content>
+      <ng-content select="mat-icon"></ng-content>
+    </span>
+
+    <mat-error *ngIf="getErrorMessage()">{{ getErrorMessage() }}</mat-error>
+    <mat-hint>
+      <ng-content select="mat-hint"></ng-content>
+    </mat-hint>
+
+    <input
+      hidden="hidden"
+      type="file"
+      [accept]="allowedFileTypes?.join(',')"
+      #fileInput
+      id="uploadFile"
+      (change)="uploadFile($event.target.files[0])"
+      name="uploadFile"
+    />
+  </mat-form-field>
+</div>

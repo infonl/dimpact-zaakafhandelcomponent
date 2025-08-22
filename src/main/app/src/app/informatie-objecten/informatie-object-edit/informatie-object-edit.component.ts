@@ -8,45 +8,32 @@ import {
   EventEmitter,
   Input,
   OnChanges,
-  OnDestroy,
-  OnInit,
   Output,
   SimpleChanges,
-  ViewChild,
 } from "@angular/core";
-import { FormGroup, Validators } from "@angular/forms";
+import { FormBuilder, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
-import { Subscription, tap } from "rxjs";
-import { FileInputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/file-input/file-input-form-field-builder";
-import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
+import { lastValueFrom } from "rxjs";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
-import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
-import { FormComponent } from "../../shared/material-form-builder/form/form/form.component";
-import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { FormConfig } from "../../shared/material-form-builder/model/form-config";
-import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { OrderUtil } from "../../shared/order/order-util";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
+import moment, { Moment } from "moment";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 @Component({
   selector: "zac-informatie-object-edit",
   templateUrl: "./informatie-object-edit.component.html",
   styleUrls: ["./informatie-object-edit.component.less"],
 })
-export class InformatieObjectEditComponent
-  implements OnInit, OnDestroy, OnChanges
-{
-  @Input({ required: true })
-  infoObject!: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
+export class InformatieObjectEditComponent implements OnChanges {
+  @Input()
+  infoObject?: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Input({ required: true }) zaakUuid!: string;
 
@@ -54,13 +41,56 @@ export class InformatieObjectEditComponent
     GeneratedType<"RestEnkelvoudigInformatieobject">
   >();
 
-  @ViewChild(FormComponent) form!: FormComponent;
+  protected readonly informatieobjectStatussen =
+    this.utilService.getEnumAsSelectListExceptFor(
+      "informatieobject.status",
+      InformatieobjectStatus,
+      [InformatieobjectStatus.GEARCHIVEERD]
+    );
 
-  fields: Array<AbstractFormField[]> = [];
-  formConfig!: FormConfig;
-  private ingelogdeMedewerker!: GeneratedType<"RestLoggedInUser">;
+  protected readonly vertrouwelijkheidsAanduidingen =
+    this.utilService.getEnumAsSelectList(
+      "vertrouwelijkheidaanduiding",
+      Vertrouwelijkheidaanduiding
+    );
 
-  private subscriptions$: Subscription[] = [];
+  protected informatieObjectTypes: GeneratedType<"RestInformatieobjecttype">[] =
+    [];
+
+  protected readonly talen = this.configuratieService.listTalen();
+
+  protected readonly form = this.formBuilder.group({
+    bestand: this.formBuilder.control<File | null>(null),
+    titel: this.formBuilder.control<string | null>(null, [
+      Validators.required,
+      Validators.maxLength(100),
+    ]),
+    beschrijving: this.formBuilder.control<string | null>(null, [
+      Validators.maxLength(100),
+    ]),
+    taal: this.formBuilder.control<GeneratedType<"RestTaal"> | null>(null, [
+      Validators.required,
+    ]),
+    status: this.formBuilder.control<
+      (typeof this.informatieobjectStatussen)[number] | null
+    >(null, [Validators.required]),
+    verzenddatum: this.formBuilder.control<Moment | null>(null),
+    ontvangstdatum: this.formBuilder.control<Moment | null>(null),
+    informatieobjectType:
+      this.formBuilder.control<GeneratedType<"RestInformatieobjecttype"> | null>(
+        null,
+        [Validators.required]
+      ),
+    vertrouwelijkheidaanduiding: this.formBuilder.control<
+      (typeof this.vertrouwelijkheidsAanduidingen)[number] | null
+    >(null, [Validators.required]),
+    auteur: this.formBuilder.control<string | null>(null, [
+      Validators.required,
+    ]),
+    toelichting: this.formBuilder.control<string | null>(null, [
+      Validators.maxLength(1000),
+    ]),
+  });
 
   constructor(
     private informatieObjectenService: InformatieObjectenService,
@@ -69,268 +99,151 @@ export class InformatieObjectEditComponent
     private translateService: TranslateService,
     private identityService: IdentityService,
     private vertrouwelijkaanduidingToTranslationKeyPipe: VertrouwelijkaanduidingToTranslationKeyPipe,
-  ) {}
+    private readonly formBuilder: FormBuilder
+  ) {
+    this.form.controls.ontvangstdatum.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((value) => {
+        if (!value && !this.form.controls.verzenddatum.disabled) {
+          this.form.controls.status.enable();
+          this.form.controls.verzenddatum.enable();
+          return;
+        }
 
-  ngOnInit() {
-    this.formConfig = new FormConfigBuilder()
-      .saveText("actie.toevoegen")
-      .cancelText("actie.annuleren")
-      .requireUserChanges()
-      .build();
+        if (value && this.form.controls.verzenddatum.enabled) {
+          this.form.controls.status.disable();
+          this.form.controls.verzenddatum.disable();
+          this.form.controls.status.setValue(
+            this.informatieobjectStatussen.find(
+              (option) => option.value === InformatieobjectStatus.DEFINITIEF
+            ) ?? null
+          );
+          return;
+        }
+      });
+
+    this.form.controls.verzenddatum.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((value) => {
+        if (!value && this.form.controls.ontvangstdatum.disabled) {
+          this.form.controls.ontvangstdatum.enable();
+          return;
+        }
+
+        if (value && this.form.controls.ontvangstdatum.enabled) {
+          this.form.controls.ontvangstdatum.disable();
+        }
+      });
+
+    this.form.controls.bestand.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((value) => {
+        this.form.controls.titel.setValue(
+          value?.name?.replace(/\.[^/.]+$/, "") || ""
+        );
+      });
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (!changes.infoObject.currentValue) {
-      return;
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.infoObject && changes.infoObject.currentValue) {
+      this.infoObject = changes.infoObject.currentValue;
+      if (!this.infoObject) return;
+      void this.initForm(this.infoObject);
     }
-
-    this.getIngelogdeMedewerker();
-    this.initializeFormFields();
   }
 
-  private initializeFormFields() {
-    const vertrouwelijkheidsAanduidingen = this.utilService.getEnumAsSelectList(
-      "vertrouwelijkheidaanduiding",
-      Vertrouwelijkheidaanduiding,
+  async initForm(
+    infoObject: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">
+  ) {
+    const ingelogdeMedewerker = await lastValueFrom(
+      this.identityService.readLoggedInUser()
     );
-    const informatieobjectStatussen =
-      this.utilService.getEnumAsSelectListExceptFor(
-        "informatieobject.status",
-        InformatieobjectStatus,
-        [InformatieobjectStatus.GEARCHIVEERD],
-      );
 
-    const inhoudField = new FileInputFormFieldBuilder()
-      .id("bestand")
-      .label("bestandsnaam")
-      .maxFileSizeMB(this.configuratieService.readMaxFileSizeMB())
-      .additionalAllowedFileTypes(
-        this.configuratieService.readAdditionalAllowedFileTypes(),
-      )
-      .build();
-
-    const titel = new InputFormFieldBuilder(this.infoObject.titel)
-      .id("titel")
-      .label("titel")
-      .validators(Validators.required)
-      .maxlength(100)
-      .build();
-
-    const beschrijving = new InputFormFieldBuilder(this.infoObject.beschrijving)
-      .id("beschrijving")
-      .label("beschrijving")
-      .maxlength(100)
-      .build();
-
-    const taal = new SelectFormFieldBuilder(this.infoObject.taal)
-      .id("taal")
-      .label("taal")
-      .optionLabel("naam")
-      .options(this.configuratieService.listTalen())
-      .validators(Validators.required)
-      .build();
-
-    const status = new SelectFormFieldBuilder(
-      this.infoObject.status
+    this.form.setValue({
+      bestand: null,
+      titel: infoObject.titel ?? null,
+      beschrijving: infoObject.beschrijving ?? null,
+      taal: infoObject.taal ?? null,
+      status: infoObject.status
         ? {
             label: this.translateService.instant(
-              "informatieobject.status." + this.infoObject.status,
+              "informatieobject.status." + infoObject.status
             ),
-            value: String(this.infoObject.status),
+            value: infoObject.status,
           }
         : null,
-    )
-      .id("status")
-      .label("status")
-      .validators(Validators.required)
-      .optionLabel("label")
-      .options(informatieobjectStatussen)
-      .build();
-
-    const verzenddatum = new DateFormFieldBuilder(this.infoObject.verzenddatum)
-      .id("verzenddatum")
-      .label("verzenddatum")
-      .build();
-
-    const ontvangstDatum = new DateFormFieldBuilder(
-      this.infoObject.ontvangstdatum,
-    )
-      .id("ontvangstdatum")
-      .label("ontvangstdatum")
-      .hint("msg.document.ontvangstdatum.hint")
-      .build();
-
-    const types = this.informatieObjectenService
-      .listInformatieobjecttypesForZaak(this.zaakUuid)
-      .pipe(
-        tap((x) => {
-          informatieobjectType.formControl.setValue(
-            x.find((y) => y.uuid === this.infoObject.informatieobjectTypeUUID),
-          );
-        }),
-      );
-
-    const informatieobjectType = new SelectFormFieldBuilder()
-      .id("informatieobjectTypeUUID")
-      .label("informatieobjectType")
-      .options(types)
-      .optionLabel("omschrijving")
-      .validators(Validators.required)
-      .settings({ translateLabels: false, capitalizeFirstLetter: true })
-      .build();
-
-    const auteur = new InputFormFieldBuilder(this.ingelogdeMedewerker.naam)
-      .id("auteur")
-      .label("auteur")
-      .validators(Validators.required)
-      .build();
-
-    const vertrouwelijk = new SelectFormFieldBuilder({
-      label: this.translateService.instant(
-        this.vertrouwelijkaanduidingToTranslationKeyPipe.transform(
-          this.infoObject
-            .vertrouwelijkheidaanduiding as GeneratedType<"VertrouwelijkheidaanduidingEnum">, // TODO: `RestEnkelvoudigInformatieObjectVersieGegevens` has the wrong `vertrouwelijkheidaanduiding` type
-        ),
-      ),
-      value: this.infoObject.vertrouwelijkheidaanduiding,
-    })
-      .id("vertrouwelijkheidaanduiding")
-      .label("vertrouwelijkheidaanduiding")
-      .optionLabel("label")
-      .options(vertrouwelijkheidsAanduidingen)
-      .optionsOrder(OrderUtil.orderAsIs())
-      .validators(Validators.required)
-      .build();
-
-    const toelichting = new InputFormFieldBuilder()
-      .id("toelichting")
-      .label("toelichting")
-      .maxlength(1000)
-      .build();
-
-    this.subscriptions$.push(
-      inhoudField.formControl.valueChanges.subscribe((file) => {
-        titel.formControl.setValue(file?.name?.replace(/\.[^/.]+$/, "") || "");
-        titel.formControl.markAsDirty();
-      }),
-    );
-
-    const emptyField = new ParagraphFormFieldBuilder().text("").build();
-
-    this.fields = [
-      [inhoudField],
-      [titel],
-      [beschrijving],
-      [informatieobjectType, vertrouwelijk],
-      [status, emptyField],
-      [auteur, taal],
-      [ontvangstDatum, verzenddatum],
-      [toelichting],
-    ];
-
-    this.subscriptions$.push(
-      ontvangstDatum.formControl.valueChanges.subscribe((value) => {
-        if (value && verzenddatum.formControl.enabled) {
-          status.formControl.setValue(
-            informatieobjectStatussen.find(
-              (option) =>
-                option.value ===
-                this.utilService.getEnumKeyByValue(
-                  InformatieobjectStatus,
-                  InformatieobjectStatus.DEFINITIEF,
-                ),
+      verzenddatum: infoObject.verzenddatum
+        ? moment(infoObject.verzenddatum)
+        : null,
+      ontvangstdatum: infoObject.ontvangstdatum
+        ? moment(infoObject.ontvangstdatum)
+        : null,
+      informatieobjectType: null,
+      vertrouwelijkheidaanduiding: infoObject.vertrouwelijkheidaanduiding
+        ? {
+            label: this.translateService.instant(
+              this.vertrouwelijkaanduidingToTranslationKeyPipe.transform(
+                infoObject.vertrouwelijkheidaanduiding as GeneratedType<"VertrouwelijkheidaanduidingEnum"> // TODO: `RestEnkelvoudigInformatieObjectVersieGegevens` has the wrong `vertrouwelijkheidaanduiding` type
+              )
             ),
-          );
-          status.formControl.disable();
-          verzenddatum.formControl.disable();
-        } else if (!value && verzenddatum.formControl.disabled) {
-          status.formControl.enable();
-          verzenddatum.formControl.enable();
-        }
-      }),
-    );
-
-    this.subscriptions$.push(
-      verzenddatum.formControl.valueChanges.subscribe((value) => {
-        if (value && ontvangstDatum.formControl.enabled) {
-          ontvangstDatum.formControl.disable();
-        } else if (!value && ontvangstDatum.formControl.disabled) {
-          ontvangstDatum.formControl.enable();
-        }
-      }),
-    );
-
-    if (ontvangstDatum.formControl.value) {
-      verzenddatum.formControl.disable();
-      status.formControl.disable();
-    }
-    if (verzenddatum.formControl.value) {
-      ontvangstDatum.formControl.disable();
-    }
-  }
-
-  ngOnDestroy() {
-    for (const subscription of this.subscriptions$) {
-      subscription.unsubscribe();
-    }
-  }
-
-  onFormSubmit(formGroup: FormGroup): void {
-    if (!formGroup) {
-      this.sideNav.close();
-      return;
-    }
-    const nieuweVersie: Partial<
-      GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">
-    > = {
-      uuid: this.infoObject.uuid,
-    };
-
-    Object.keys(formGroup.controls).forEach((key) => {
-      const control = formGroup.controls[key];
-      const value = control.value;
-
-      switch (key) {
-        case "status":
-          nieuweVersie[key] = InformatieobjectStatus[value.value.toUpperCase()];
-          break;
-        case "vertrouwelijkheidaanduiding":
-          nieuweVersie[key] = value.value;
-          break;
-        case "bestand":
-          if (value) {
-            nieuweVersie["bestandsnaam"] = value.name;
-            nieuweVersie["file"] = value;
-            nieuweVersie["formaat"] = value.type;
+            value: infoObject.vertrouwelijkheidaanduiding,
           }
-          break;
-        case "informatieobjectTypeUUID":
-          nieuweVersie[key] = value.uuid;
-          break;
-        default:
-          nieuweVersie[key] = value;
-          break;
-      }
+        : null,
+      auteur: infoObject.auteur ?? ingelogdeMedewerker?.naam ?? null,
+      toelichting: infoObject.toelichting ?? null,
     });
 
     this.informatieObjectenService
+      .listInformatieobjecttypesForZaak(this.zaakUuid)
+      .subscribe((informatieObjectTypes) => {
+        this.informatieObjectTypes = informatieObjectTypes;
+        this.form.controls.informatieobjectType.setValue(
+          informatieObjectTypes.find(
+            (informatieObjectType) =>
+              informatieObjectType.uuid === infoObject.informatieobjectTypeUUID
+          ) ?? null
+        );
+      });
+
+    if (infoObject.ontvangstdatum) {
+      this.form.controls.verzenddatum.disable();
+      this.form.controls.status.disable();
+    }
+
+    if (infoObject.verzenddatum) {
+      this.form.controls.ontvangstdatum.disable();
+    }
+  }
+
+  submit() {
+    const { value } = this.form;
+
+    this.informatieObjectenService
       .updateEnkelvoudigInformatieobject(
-        nieuweVersie.uuid!,
+        this.infoObject!.uuid!,
         this.zaakUuid,
-        nieuweVersie as GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">,
+        {
+          informatieobjectTypeUUID: value.informatieobjectType!.uuid!,
+          titel: value.titel ?? undefined,
+          vertrouwelijkheidaanduiding:
+            value.vertrouwelijkheidaanduiding?.value ?? undefined,
+          auteur: value.auteur ?? undefined,
+          toelichting: value.toelichting ?? undefined,
+          bestandsnaam: value.bestand?.name ?? undefined,
+          file: (value.bestand as unknown as string) ?? undefined,
+          formaat: value.bestand?.type ?? undefined,
+          beschrijving: value.beschrijving ?? undefined,
+        }
       )
       .subscribe((document) => {
         this.document.emit(document);
         this.utilService.openSnackbar("msg.document.nieuwe.versie.toegevoegd");
-        this.ngOnInit();
-        this.sideNav.close();
-        this.form.reset();
+        this.resetAndClose();
       });
   }
 
-  private getIngelogdeMedewerker() {
-    this.identityService.readLoggedInUser().subscribe((ingelogdeMedewerker) => {
-      this.ingelogdeMedewerker = ingelogdeMedewerker!;
-    });
+  protected resetAndClose() {
+    void this.sideNav.close();
+    this.form.reset();
   }
 }
