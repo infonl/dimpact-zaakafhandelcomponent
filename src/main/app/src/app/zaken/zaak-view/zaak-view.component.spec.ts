@@ -407,7 +407,7 @@ describe(ZaakViewComponent.name, () => {
       });
     });
 
-    describe("when heeftOntvangenBevestigingVerstuurd is set", () => {
+    describe("when heeftOntvangstbevestigingVerstuurd is set", () => {
       beforeEach(() => {
         mockActivatedRoute.data.next({
           zaak: {
