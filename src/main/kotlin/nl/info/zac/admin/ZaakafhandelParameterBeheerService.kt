@@ -26,6 +26,7 @@ import net.atos.zac.admin.model.ZaakbeeindigReden
 import net.atos.zac.util.ValidationUtil
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
@@ -146,9 +147,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         val zaakafhandelParameters = currentZaakafhandelParameters(zaaktypeUuid)
         zaakafhandelParameters.apply {
             zaaktypeOmschrijving = zaaktype.omschrijving
-            einddatumGeplandWaarschuwing = zaaktype.servicenorm?.let {
-                zaakafhandelParameters.einddatumGeplandWaarschuwing
-            }
+            einddatumGeplandWaarschuwing = zaakafhandelParameters.einddatumGeplandWaarschuwing.takeIf { zaaktype.isServicenormAvailable() }
         }
 
         if (zaakafhandelParameters.zaakTypeUUID != null) {
@@ -192,8 +191,8 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             caseDefinitionID = previousZaakafhandelparameters.caseDefinitionID
             groepID = previousZaakafhandelparameters.groepID
             gebruikersnaamMedewerker = previousZaakafhandelparameters.gebruikersnaamMedewerker
-            einddatumGeplandWaarschuwing = zaaktype.servicenorm?.let {
-                previousZaakafhandelparameters.einddatumGeplandWaarschuwing
+            einddatumGeplandWaarschuwing = previousZaakafhandelparameters.einddatumGeplandWaarschuwing.takeIf {
+                zaaktype.isServicenormAvailable()
             }
             uiterlijkeEinddatumAfdoeningWaarschuwing =
                 previousZaakafhandelparameters.uiterlijkeEinddatumAfdoeningWaarschuwing

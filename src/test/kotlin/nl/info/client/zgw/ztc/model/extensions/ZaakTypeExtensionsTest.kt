@@ -15,8 +15,8 @@ class ZaakTypeExtensionsTest : BehaviorSpec({
         Given("servicenorm was never set") {
             val zaakType = createZaakType(servicenorm = null)
 
-            When("calling isServicenormBeschikbaar") {
-                val result = zaakType.isServicenormBeschikbaar()
+            When("calling isServicenormAvailable") {
+                val result = zaakType.isServicenormAvailable()
 
                 Then("it should return false") {
                     result shouldBe false
@@ -27,8 +27,8 @@ class ZaakTypeExtensionsTest : BehaviorSpec({
         Given("servicenorm is not set") {
             val zaakType = createZaakType(servicenorm = "P0Y0M0W0D")
 
-            When("calling isServicenormBeschikbaar") {
-                val result = zaakType.isServicenormBeschikbaar()
+            When("calling isServicenormAvailable") {
+                val result = zaakType.isServicenormAvailable()
 
                 Then("it should return false") {
                     result shouldBe false
@@ -39,8 +39,8 @@ class ZaakTypeExtensionsTest : BehaviorSpec({
         Given("servicenorm is set") {
             val zaakType = createZaakType(servicenorm = "P0Y0M0W30D")
 
-            When("calling isServicenormBeschikbaar") {
-                val result = zaakType.isServicenormBeschikbaar()
+            When("calling isServicenormAvailable") {
+                val result = zaakType.isServicenormAvailable()
 
                 Then("it should return true") {
                     result shouldBe true
