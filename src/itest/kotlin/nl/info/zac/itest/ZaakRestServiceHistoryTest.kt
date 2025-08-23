@@ -15,7 +15,9 @@ import nl.info.zac.itest.config.ItestConfiguration.FUNCTIONELE_GEBRUIKER_ID
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_TITLE
+import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_2_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_3_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
@@ -84,20 +86,34 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                     "actie": "ONTKOPPELD",
                     "attribuutLabel": "Behandelaar",
                     "door": "$FUNCTIONELE_GEBRUIKER_ID",
-                    "oudeWaarde": "$TEST_USER_1_NAME",
+                    "oudeWaarde": "$TEST_BEHANDELAAR_1_NAME",
                     "toelichting": "fakeLijstVrijgevenReason"
                   },
                   {
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "Behandelaar",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "$TEST_USER_1_NAME",
+                    "door": "$TEST_BEHANDELAAR_1_NAME",
+                    "nieuweWaarde": "$TEST_GROUP_BEHANDELAARS_DESCRIPTION",
                     "toelichting": "fakeAssignToMeFromListReason"
                   },
                   {
                     "actie": "ONTKOPPELD",
                     "attribuutLabel": "Behandelaar",
-                    "door": "$TEST_USER_1_NAME",
+                    "door": "$TEST_BEHANDELAAR_1_NAME",
+                    "oudeWaarde": "$TEST_GROUP_A_DESCRIPTION",
+                    "toelichting": "fakeAssignToMeFromListReason"
+                  },
+                  {
+                    "actie": "GEKOPPELD",
+                    "attribuutLabel": "Behandelaar",
+                    "door": "$TEST_BEHANDELAAR_1_NAME",
+                    "nieuweWaarde": "$TEST_BEHANDELAAR_1_NAME",
+                    "toelichting": "fakeAssignToMeFromListReason"
+                  },
+                  {
+                    "actie": "ONTKOPPELD",
+                    "attribuutLabel": "Behandelaar",
+                    "door": "$TEST_BEHANDELAAR_1_NAME",
                     "oudeWaarde": "$TEST_USER_2_NAME",
                     "toelichting": "fakeAssignToMeFromListReason"
                   },
