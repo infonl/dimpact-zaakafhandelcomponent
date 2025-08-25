@@ -49,7 +49,7 @@
           [form]="form"
           readonly
           class="col-12 col-md-6"
-          [displayValue]="'naam'"
+          [displayValue]="form.controls.initiator.value?.naam || ''"
           (click)="canAddInitiator() && openSideNav('actie.initiator.koppelen')"
         >
           <button

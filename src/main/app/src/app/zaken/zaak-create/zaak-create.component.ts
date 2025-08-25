@@ -35,6 +35,7 @@ export class ZaakCreateComponent implements OnDestroy {
   @ViewChild(MatSidenav) protected readonly actionsSidenav!: MatSidenav;
 
   protected activeSideAction: string | null = null;
+  public initiatornaam = "dax";
 
   private readonly inboxProductaanvraag: GeneratedType<"RESTInboxProductaanvraag">;
 
@@ -265,13 +266,10 @@ export class ZaakCreateComponent implements OnDestroy {
   }
 
   hasInitiator(): boolean {
-    console.debug("initiator: ", this.form.controls.initiator.value);
-
     return !!this.form.controls.initiator.value;
   }
 
   clearInitiator() {
-    console.debug("clearing initiator");
     this.form.controls.initiator.setValue(null);
   }
 
