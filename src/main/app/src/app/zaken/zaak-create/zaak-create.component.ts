@@ -35,7 +35,6 @@ export class ZaakCreateComponent implements OnDestroy {
   @ViewChild(MatSidenav) protected readonly actionsSidenav!: MatSidenav;
 
   protected activeSideAction: string | null = null;
-  public initiatornaam = "dax";
 
   private readonly inboxProductaanvraag: GeneratedType<"RESTInboxProductaanvraag">;
 
@@ -45,13 +44,13 @@ export class ZaakCreateComponent implements OnDestroy {
   protected communicationChannels: string[] = [];
   protected confidentialityNotices = this.utilService.getEnumAsSelectList(
     "vertrouwelijkheidaanduiding",
-    Vertrouwelijkheidaanduiding
+    Vertrouwelijkheidaanduiding,
   );
 
   protected readonly form = this.formBuilder.group({
     zaaktype: this.formBuilder.control<GeneratedType<"RestZaaktype"> | null>(
       null,
-      [Validators.required]
+      [Validators.required],
     ),
     initiator: this.formBuilder.control<
       GeneratedType<"RestPersoon" | "RestBedrijf"> | null | undefined
@@ -84,7 +83,7 @@ export class ZaakCreateComponent implements OnDestroy {
     private readonly utilService: UtilService,
     private readonly formBuilder: FormBuilder,
     private identityService: IdentityService,
-    protected readonly navigationService: NavigationService
+    protected readonly navigationService: NavigationService,
   ) {
     utilService.setTitle("title.zaak.aanmaken");
     this.inboxProductaanvraag =
@@ -100,7 +99,7 @@ export class ZaakCreateComponent implements OnDestroy {
 
         if (channels.includes(ZaakCreateComponent.DEFAULT_CHANNEL)) {
           this.form.controls.communicatiekanaal.setValue(
-            ZaakCreateComponent.DEFAULT_CHANNEL
+            ZaakCreateComponent.DEFAULT_CHANNEL,
           );
         }
       });
@@ -134,8 +133,8 @@ export class ZaakCreateComponent implements OnDestroy {
               ({ id }) =>
                 id ===
                 this.form.controls.zaaktype.value?.zaakafhandelparameters
-                  ?.defaultBehandelaarId
-            )
+                  ?.defaultBehandelaarId,
+            ),
           );
         });
       });
@@ -162,10 +161,10 @@ export class ZaakCreateComponent implements OnDestroy {
         catchError(() => {
           this.form.reset();
           return EMPTY;
-        })
+        }),
       )
       .subscribe((zaak) =>
-        this.router.navigate(["/zaken/", zaak?.identificatie])
+        this.router.navigate(["/zaken/", zaak?.identificatie]),
       );
   }
 
@@ -182,14 +181,14 @@ export class ZaakCreateComponent implements OnDestroy {
 
     this.groups.subscribe((groups) => {
       this.form.controls.groep.setValue(
-        groups?.find(({ id }) => id === zaakafhandelparameters?.defaultGroepId)
+        groups?.find(({ id }) => id === zaakafhandelparameters?.defaultGroepId),
       );
     });
 
     this.form.controls.vertrouwelijkheidaanduiding.setValue(
       this.confidentialityNotices.find(
-        ({ value }) => value === vertrouwelijkheidaanduiding
-      )
+        ({ value }) => value === vertrouwelijkheidaanduiding,
+      ),
     );
 
     if (
@@ -206,12 +205,12 @@ export class ZaakCreateComponent implements OnDestroy {
   }
 
   private handleProductRequest(
-    productRequest?: GeneratedType<"RESTInboxProductaanvraag">
+    productRequest?: GeneratedType<"RESTInboxProductaanvraag">,
   ) {
     if (!productRequest?.initiatorID) return;
 
     this.form.controls.toelichting.setValue(
-      `Vanuit productaanvraag van type ${productRequest.type}`
+      `Vanuit productaanvraag van type ${productRequest.type}`,
     );
 
     let observable:
@@ -247,7 +246,7 @@ export class ZaakCreateComponent implements OnDestroy {
       "msg.aantal.bagObjecten.geselecteerd",
       {
         aantal: bagObjects.length,
-      }
+      },
     );
   }
 
@@ -266,10 +265,13 @@ export class ZaakCreateComponent implements OnDestroy {
   }
 
   hasInitiator(): boolean {
+    console.debug("initiator: ", this.form.controls.initiator.value);
+
     return !!this.form.controls.initiator.value;
   }
 
   clearInitiator() {
+    console.debug("clearing initiator");
     this.form.controls.initiator.setValue(null);
   }
 
