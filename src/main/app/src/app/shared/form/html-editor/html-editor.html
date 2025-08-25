@@ -7,7 +7,7 @@
 <div [formGroup]="form" class="full-width">
   <mat-label>
     <ng-content select="mat-label">
-      {{ key | translate | capitalizeFirstLetter }}
+      {{ label ?? key | translate | capitalizeFirstLetter }}
     </ng-content>
   </mat-label>
   <section class="editor">
