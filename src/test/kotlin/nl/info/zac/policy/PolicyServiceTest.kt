@@ -50,6 +50,7 @@ class PolicyServiceTest : BehaviorSpec({
     val opaEvaluationClient = mockk<OpaEvaluationClient>()
     val ztcClientService = mockk<ZtcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
+    val configuratieService = mockk<ConfiguratieService>()
     val loggedInUser = createLoggedInUser()
 
     val policyService = PolicyService(
@@ -57,7 +58,8 @@ class PolicyServiceTest : BehaviorSpec({
         opaEvaluationClient,
         ztcClientService,
         enkelvoudigInformatieObjectLockService,
-        zrcClientService
+        zrcClientService,
+        configuratieService
     )
 
     Given("zaak with no status") {
