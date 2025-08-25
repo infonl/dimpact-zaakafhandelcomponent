@@ -29,13 +29,12 @@ class LoggedInUser(
 ) : User(id, firstName, lastName, displayName, email) {
     fun isAuthorisedForAllZaaktypen(): Boolean = geautoriseerdeZaaktypen == null
 
-    /**
-     * If PABC-based authorization is active, use the map of application roles per zaaktype.
-     * Otherwise, legacy functional (Keycloak) role-based authorization is used.
-     */
     fun isAuthorisedForZaaktype(zaaktypeOmschrijving: String) =
         geautoriseerdeZaaktypen?.contains(zaaktypeOmschrijving) ?: true
 
+    /**
+     * If PABC-based authorization is active, use the map of application roles per zaaktype.
+     */
     fun isAuthorisedForZaaktypePabc(zaaktypeOmschrijving: String) =
         applicationRolesPerZaaktype[zaaktypeOmschrijving]?.isNotEmpty() == true
 }
