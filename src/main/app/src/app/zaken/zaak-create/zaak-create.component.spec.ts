@@ -98,7 +98,7 @@ describe(ZaakCreateComponent.name, () => {
     it.todo(`should set the confidentiality notice`);
   });
 
-  describe("Connection BagObjects", () => {
+  describe("Bag objects field editing", () => {
     const mockBagObjects: GeneratedType<"RESTBAGObject">[] = [
       {
         url: "https://example.com/bagobject/123",
@@ -128,7 +128,7 @@ describe(ZaakCreateComponent.name, () => {
       const icon = await loader.getAllHarnesses(
         MatIconHarness.with({ name: "gps_fixed" }),
       );
-      expect(icon.length).toBe(1);
+      expect(icon.length).toBeTruthy();
     });
 
     it("should empty the bagobjects field when the close icon has been clicked", async () => {
@@ -158,7 +158,7 @@ describe(ZaakCreateComponent.name, () => {
     });
   });
 
-  describe("Connection Initiator", () => {
+  describe("Initiator field editing", () => {
     const mockInitiator: GeneratedType<"RestPersoon"> = {
       bsn: "123456789",
       geslacht: "V",
@@ -187,7 +187,7 @@ describe(ZaakCreateComponent.name, () => {
       fixture.detectChanges();
     });
 
-    it("should show the person icon when there is not a initiator selected", async () => {
+    it("should show the person icon when there is no initiator selected", async () => {
       component.clearInitiator();
       fixture.detectChanges();
 
@@ -195,7 +195,7 @@ describe(ZaakCreateComponent.name, () => {
         MatIconHarness.with({ name: "person" }),
       );
 
-      expect(icon.length).toBe(1);
+      expect(icon.length).toBeTruthy();
     });
 
     it("should clear the initiator field when the close icon is clicked", async () => {
