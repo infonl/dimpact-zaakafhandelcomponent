@@ -90,7 +90,7 @@ class MailServiceTest : BehaviorSpec({
             )
         } returns zaakInformatieobject
         mockkObject(MailService.Companion)
-        every { MailService.Companion.mailSession.properties } returns Properties()
+        every { MailService.mailSession.properties } returns Properties()
         mockkStatic(Transport::class)
         val transportSendRequest = slot<Message>()
         every { Transport.send(capture(transportSendRequest)) } just runs

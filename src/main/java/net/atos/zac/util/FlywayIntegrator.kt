@@ -31,7 +31,7 @@ class FlywayIntegrator {
     @Resource(lookup = "java:comp/env/jdbc/Datasource")
     private lateinit var dataSource: DataSource
 
-    fun onStartup(@Observes @Initialized(ApplicationScoped::class) event: Any) {
+    fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
         if (!::dataSource.isInitialized) {
             throw DatabaseConfigurationException("No data source found to execute the ZAC database migrations")
         }
@@ -42,13 +42,11 @@ class FlywayIntegrator {
             .placeholders(mapOf(SCHEMA_PLACEHOLDER to SCHEMA))
             .outOfOrder(true)
             .load()
-        flyway.info().current()?.let { migrationInfo ->
-            LOG.info {
-                "Found an existing ZAC database with version '${migrationInfo.version}' " +
-                    "and migration description: '${migrationInfo.description}'"
-            }
-        } ?: LOG.info { "No existing ZAC database at the configured datasource" }
+        flyway.info().current()?.let {
+            LOG.info("Found existing ZAC database: version '${it.version}', description: '${it.description}'")
+        } ?: LOG.info("No existing ZAC database at the configured datasource")
+
         flyway.migrate()
-        LOG.info { "Successfully migrated to database version: '${flyway.info().current().version}'" }
+        LOG.info("Successfully migrated to database version: '${flyway.info().current().version}'")
     }
 }
