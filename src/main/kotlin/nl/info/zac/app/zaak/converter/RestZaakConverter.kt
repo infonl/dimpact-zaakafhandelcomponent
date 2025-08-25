@@ -101,6 +101,8 @@ class RestZaakConverter @Inject constructor(
             ?.betrokkeneIdentificatie
             ?.let { restUserConverter.convertUserId(it.identificatie) }
         val initiator = zgwApiService.findInitiatorRoleForZaak(zaak)
+
+        val hasSentConfirmationOfReceipt = zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) ?: false
         return RestZaak(
             identificatie = zaak.identificatie,
             uuid = zaak.uuid,
@@ -175,6 +177,7 @@ class RestZaakConverter @Inject constructor(
             isInIntakeFase = statustype.isIntake(),
             isBesluittypeAanwezig = zaakType.besluittypen?.isNotEmpty() ?: false,
             isProcesGestuurd = bpmnService.isProcessDriven(zaak.uuid),
+            heeftOntvangstbevestigingVerstuurd = hasSentConfirmationOfReceipt,
             rechten = zaakRechten.toRestZaakRechten(),
             zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid),
             indicaties = noneOf(ZaakIndicatie::class.java).apply {
@@ -183,7 +186,7 @@ class RestZaakConverter @Inject constructor(
                 if (statustype.isHeropend()) add(HEROPEND)
                 if (zaak.isOpgeschort()) add(OPSCHORTING)
                 if (zaak.isVerlengd()) add(VERLENGD)
-                if (shouldOntvangstbevestigingNietVerstuurdIndicatieBeSet(zaak, statustype)) {
+                if (!hasSentConfirmationOfReceipt) {
                     add(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
             }
@@ -225,8 +228,4 @@ class RestZaakConverter @Inject constructor(
             ?.forEach(gerelateerdeZaken::add)
         return gerelateerdeZaken
     }
-
-    private fun shouldOntvangstbevestigingNietVerstuurdIndicatieBeSet(zaak: Zaak, statustype: StatusType?) =
-        !(zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) ?: false) &&
-            !statustype.isHeropend()
 }
