@@ -208,9 +208,15 @@ constructor(
                 .filter { it.domein != null && roles.contains(it.domein) }
                 .map { it.zaaktypeOmschrijving }
                 .toSet()
+
+            // Note that for BPMN zaaktypes below, we're not doing ANY filtering/authorisation, as we have no domain
+            // entity. This means that ALL BPMN zaaktypes will be visible to the user.
+            // This function should be removed once we have migrated to the new PABC-based IAM architecture, and the
+            // code below should be replaced with proper authorisation logic for BPMN zaaktypes.
             val zaaktypeBpmnProcessDefinitionDescriptions = zaaktypeBpmnProcessDefinitionService
                 .listBpmnProcessDefinitions()
                 .map { it.zaaktypeOmschrijving }
+
             zaakafhandelParameterDescriptions + zaaktypeBpmnProcessDefinitionDescriptions
         }
 }
