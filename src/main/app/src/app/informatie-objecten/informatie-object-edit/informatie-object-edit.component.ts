@@ -11,9 +11,11 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
+import moment, { Moment } from "moment";
 import { lastValueFrom } from "rxjs";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
@@ -23,8 +25,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
-import moment, { Moment } from "moment";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 @Component({
   selector: "zac-informatie-object-edit",
@@ -45,13 +45,13 @@ export class InformatieObjectEditComponent implements OnChanges {
     this.utilService.getEnumAsSelectListExceptFor(
       "informatieobject.status",
       InformatieobjectStatus,
-      [InformatieobjectStatus.GEARCHIVEERD]
+      [InformatieobjectStatus.GEARCHIVEERD],
     );
 
   protected readonly vertrouwelijkheidsAanduidingen =
     this.utilService.getEnumAsSelectList(
       "vertrouwelijkheidaanduiding",
-      Vertrouwelijkheidaanduiding
+      Vertrouwelijkheidaanduiding,
     );
 
   protected informatieObjectTypes: GeneratedType<"RestInformatieobjecttype">[] =
@@ -60,7 +60,7 @@ export class InformatieObjectEditComponent implements OnChanges {
   protected readonly talen = this.configuratieService.listTalen();
 
   protected readonly form = this.formBuilder.group({
-    bestand: this.formBuilder.control<File | null>(null),
+    bestand: this.formBuilder.control<File | null>(null, [Validators.required]),
     titel: this.formBuilder.control<string | null>(null, [
       Validators.required,
       Validators.maxLength(100),
@@ -79,7 +79,7 @@ export class InformatieObjectEditComponent implements OnChanges {
     informatieobjectType:
       this.formBuilder.control<GeneratedType<"RestInformatieobjecttype"> | null>(
         null,
-        [Validators.required]
+        [Validators.required],
       ),
     vertrouwelijkheidaanduiding: this.formBuilder.control<
       (typeof this.vertrouwelijkheidsAanduidingen)[number] | null
@@ -93,17 +93,18 @@ export class InformatieObjectEditComponent implements OnChanges {
   });
 
   constructor(
-    private informatieObjectenService: InformatieObjectenService,
-    public utilService: UtilService,
-    private configuratieService: ConfiguratieService,
-    private translateService: TranslateService,
-    private identityService: IdentityService,
-    private vertrouwelijkaanduidingToTranslationKeyPipe: VertrouwelijkaanduidingToTranslationKeyPipe,
-    private readonly formBuilder: FormBuilder
+    private readonly informatieObjectenService: InformatieObjectenService,
+    private readonly utilService: UtilService,
+    private readonly configuratieService: ConfiguratieService,
+    private readonly translateService: TranslateService,
+    private readonly identityService: IdentityService,
+    private readonly vertrouwelijkaanduidingToTranslationKeyPipe: VertrouwelijkaanduidingToTranslationKeyPipe,
+    private readonly formBuilder: FormBuilder,
   ) {
     this.form.controls.ontvangstdatum.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
+          console.debug("ontvangstdatum", value);
         if (!value && !this.form.controls.verzenddatum.disabled) {
           this.form.controls.status.enable();
           this.form.controls.verzenddatum.enable();
@@ -115,8 +116,8 @@ export class InformatieObjectEditComponent implements OnChanges {
           this.form.controls.verzenddatum.disable();
           this.form.controls.status.setValue(
             this.informatieobjectStatussen.find(
-              (option) => option.value === InformatieobjectStatus.DEFINITIEF
-            ) ?? null
+              (option) => option.value === InformatieobjectStatus.DEFINITIEF,
+            ) ?? null,
           );
           return;
         }
@@ -139,7 +140,7 @@ export class InformatieObjectEditComponent implements OnChanges {
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
         this.form.controls.titel.setValue(
-          value?.name?.replace(/\.[^/.]+$/, "") || ""
+          value?.name?.replace(/\.[^/.]+$/, "") || "",
         );
       });
   }
@@ -153,10 +154,10 @@ export class InformatieObjectEditComponent implements OnChanges {
   }
 
   async initForm(
-    infoObject: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">
+    infoObject: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">,
   ) {
     const ingelogdeMedewerker = await lastValueFrom(
-      this.identityService.readLoggedInUser()
+      this.identityService.readLoggedInUser(),
     );
 
     this.form.setValue({
@@ -167,7 +168,7 @@ export class InformatieObjectEditComponent implements OnChanges {
       status: infoObject.status
         ? {
             label: this.translateService.instant(
-              "informatieobject.status." + infoObject.status
+              "informatieobject.status." + infoObject.status,
             ),
             value: infoObject.status,
           }
@@ -183,8 +184,8 @@ export class InformatieObjectEditComponent implements OnChanges {
         ? {
             label: this.translateService.instant(
               this.vertrouwelijkaanduidingToTranslationKeyPipe.transform(
-                infoObject.vertrouwelijkheidaanduiding as GeneratedType<"VertrouwelijkheidaanduidingEnum"> // TODO: `RestEnkelvoudigInformatieObjectVersieGegevens` has the wrong `vertrouwelijkheidaanduiding` type
-              )
+                infoObject.vertrouwelijkheidaanduiding as GeneratedType<"VertrouwelijkheidaanduidingEnum">, // TODO: `RestEnkelvoudigInformatieObjectVersieGegevens` has the wrong `vertrouwelijkheidaanduiding` type
+              ),
             ),
             value: infoObject.vertrouwelijkheidaanduiding,
           }
@@ -200,8 +201,8 @@ export class InformatieObjectEditComponent implements OnChanges {
         this.form.controls.informatieobjectType.setValue(
           informatieObjectTypes.find(
             (informatieObjectType) =>
-              informatieObjectType.uuid === infoObject.informatieobjectTypeUUID
-          ) ?? null
+              informatieObjectType.uuid === infoObject.informatieobjectTypeUUID,
+          ) ?? null,
         );
       });
 
@@ -233,7 +234,7 @@ export class InformatieObjectEditComponent implements OnChanges {
           file: (value.bestand as unknown as string) ?? undefined,
           formaat: value.bestand?.type ?? undefined,
           beschrijving: value.beschrijving ?? undefined,
-        }
+        },
       )
       .subscribe((document) => {
         this.document.emit(document);

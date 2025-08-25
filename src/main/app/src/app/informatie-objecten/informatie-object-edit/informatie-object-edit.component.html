@@ -12,17 +12,15 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<form (submit)="submit()">
+<form [formGroup]="form" (submit)="submit()" class="mt-2">
   <fieldset>
     <section class="row">
-        <!-- TODO: file upload -->
-<!--      <zac-file-upload-->
-<!--        [formControl]="form.controls.bestand"-->
-<!--        [accept]="['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']"-->
-<!--        [maxSize]="10000000"-->
-<!--        [required]="true"-->
-<!--      ></zac-file-upload>-->
-        <zac-file [form]="form" key="bestand" />
+      <zac-file
+        class="col-12"
+        [form]="form"
+        key="bestand"
+        label="bestandsnaam"
+      />
       <zac-input class="col-12" [form]="form" key="titel" />
       <zac-input class="col-12" [form]="form" key="beschrijving" />
       <zac-select
@@ -30,37 +28,40 @@
         [form]="form"
         key="informatieobjectType"
         [options]="informatieObjectTypes"
+        optionDisplayValue="omschrijving"
       />
       <zac-select
         class="col-12 col-md-6"
         [form]="form"
         key="vertrouwelijkheidaanduiding"
         [options]="vertrouwelijkheidsAanduidingen"
+        optionDisplayValue="label"
       />
       <zac-select
         class="col-12 col-md-6"
         [form]="form"
         key="status"
         [options]="informatieobjectStatussen"
+        optionDisplayValue="label"
       />
       <div class="col-12 col-md-6">
         <!-- spacer -->
       </div>
       <zac-input class="col-12 col-md-6" [form]="form" key="auteur" />
-      <zac-select class="col-12 col-md-6" [form]="form" key="taal" [options]="talen" />
-      <zac-input class="col-12 col-md-6" [form]="form" key="ontvangstdatum" />
-      <zac-input class="col-12 col-md-6" [form]="form" key="verzenddatum" />
+      <zac-select
+        class="col-12 col-md-6"
+        [form]="form"
+        key="taal"
+        [options]="talen"
+        optionDisplayValue="naam"
+      />
+      <zac-date class="col-12 col-md-6" [form]="form" key="ontvangstdatum">
+        <mat-hint>{{
+          "msg.document.ontvangstdatum.hint" | translate
+        }}</mat-hint>
+      </zac-date>
+      <zac-date class="col-12 col-md-6" [form]="form" key="verzenddatum" />
       <zac-input class="col-12" [form]="form" key="toelichting" />
-      <!-- this.fields = [
-      [inhoudField],
-      [titel],
-      [beschrijving],
-      [informatieobjectType, vertrouwelijk],
-      [status, emptyField],
-      [auteur, taal],
-      [ontvangstDatum, verzenddatum],
-      [toelichting],
-    ]; -->
     </section>
   </fieldset>
   <fieldset>
@@ -69,9 +70,10 @@
         mat-raised-button
         color="primary"
         type="submit"
+        [disabled]="!form.valid"
         (click)="submit()"
       >
-        {{ "actie.opslaan" | translate }}
+        {{ "actie.toevoegen" | translate }}
       </button>
       <button mat-button type="reset" (click)="resetAndClose()">
         {{ "actie.annuleren" | translate }}

@@ -6,65 +6,72 @@
 
 import {
   booleanAttribute,
+  ChangeDetectorRef,
   Component,
+  ElementRef,
   Input,
+  numberAttribute,
+  OnDestroy,
   OnInit,
   ViewChild,
-  ElementRef,
-  ChangeDetectorRef,
 } from "@angular/core";
-import { AbstractControl, FormGroup, Validators } from "@angular/forms";
-import { TranslateService } from "@ngx-translate/core";
 import {
-  HttpClient,
-  HttpEvent,
-  HttpEventType,
-  HttpHeaders,
-} from "@angular/common/http";
-import { Subscription } from "rxjs";
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from "@angular/forms";
+import { TranslateService } from "@ngx-translate/core";
+import { Subject, Subscription, takeUntil } from "rxjs";
+import { FileIcon } from "../../../informatie-objecten/model/file-icon";
 import { FormHelper } from "../helpers";
-import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
-
-enum UploadStatus {
-  SELECTEER_BESTAND = "SELECTEER_BESTAND",
-  BEZIG = "BEZIG",
-  GEREED = "GEREED",
-}
 
 @Component({
   selector: "zac-file",
   templateUrl: "./file.html",
-  styleUrls: ["./file.less"],
 })
 export class ZacFile<
-  Form extends Record<string, AbstractControl>,
-  Key extends keyof Form,
-> implements OnInit
+    Form extends Record<string, AbstractControl>,
+    Key extends keyof Form,
+  >
+  implements OnInit, OnDestroy
 {
   @Input({ required: true }) key!: Key & string;
   @Input({ required: true }) form!: FormGroup<Form>;
   @Input({ transform: booleanAttribute }) readonly = false;
   @Input() label?: string;
-  @Input() uploadURL?: string;
-  @Input() allowedFileTypes?: string[];
-  @Input() maxFileSizeMB?: number;
+  @Input() allowedFileTypes: string[] = FileIcon.fileIcons.map((icon) =>
+    icon.getBestandsextensie()
+  );
+  @Input({ transform: numberAttribute }) maxFileSizeMB: number = 500;
   @ViewChild("fileInput") fileInput!: ElementRef;
 
-  protected control?: AbstractControl;
-  protected progress = 0;
-  protected subscription?: Subscription;
-  protected status: string = UploadStatus.SELECTEER_BESTAND;
-  protected uploadError?: string;
+  protected control?: AbstractControl<File | null>;
+  protected displayControl = this.formBuilder.control<string | null>(null);
+  private destroy$ = new Subject<void>();
+
+  public allowedFormats = "";
 
   constructor(
     private readonly translateService: TranslateService,
-    private readonly http: HttpClient,
-    private readonly foutAfhandelingService: FoutAfhandelingService,
-    private readonly changeDetector: ChangeDetectorRef
+    private readonly changeDetector: ChangeDetectorRef,
+    private readonly formBuilder: FormBuilder
   ) {}
 
   ngOnInit() {
     this.control = this.form.get(String(this.key))!;
+    this.allowedFormats = this.allowedFileTypes.join(", ");
+
+    // Subscribe to form control status changes to sync errors
+    this.control?.statusChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.displayControl.setErrors(this.control?.errors ?? null);
+    });
+  }
+
+  ngOnDestroy() {
+    this.reset();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   protected get required() {
@@ -72,126 +79,78 @@ export class ZacFile<
   }
 
   protected getErrorMessage = () => {
-    if (this.uploadError) return this.uploadError;
     return FormHelper.getErrorMessage(this.control, this.translateService);
   };
 
-  protected uploadFile(file: File) {
-    this.uploadError = undefined;
-    if (!file) {
-      this.updateInput("");
-      return;
-    }
+  protected reset() {
+    this.fileInput.nativeElement.value = null;
+    this.updateInputControls(null);
+  }
 
-    if (!this.isBestandstypeToegestaan(file)) {
-      this.uploadError = `Het bestandstype is niet toegestaan (${this.getBestandsextensie(file)})`;
-      this.control?.setErrors({ file: true });
-      return;
-    }
+  protected droppedFile(files: FileList) {
+    if (!files.length) return;
+    this.setFile(files[0]);
+  }
 
-    if (!this.isBestandsgrootteToegestaan(file)) {
-      this.uploadError = `Het bestand is te groot (${this.getBestandsgrootteMB(file)}MB)`;
-      this.control?.setErrors({ file: true });
+  protected selectedFile(event: Event) {
+    if (!event.target) return;
+    const fileInput = event.target as HTMLInputElement;
+    if (!fileInput.files?.length) return;
+    this.setFile(fileInput.files[0]);
+  }
+
+  private setFile(file: File) {
+    this.control?.setErrors(null);
+    this.updateInputControls(file);
+
+    if (!this.isFileTypeAllowed(file)) {
+      this.control?.setErrors({
+        fileTypeInvalid: { type: this.getFileExtension(file) },
+      });
       return;
     }
 
     if (!file.size) {
-      this.uploadError = "Het bestand is leeg";
-      this.control?.setErrors({ file: true });
+      this.control?.setErrors({
+        fileEmpty: true,
+      });
       return;
     }
 
-    if (!this.uploadURL) {
-      this.uploadError = "Upload URL is niet geconfigureerd";
-      this.control?.setErrors({ file: true });
+    if (!this.isFileSizeAllowed(file)) {
+      this.control?.setErrors({
+        fileTooLarge: { size: this.getFileSizeInMB(file) },
+      });
       return;
     }
-
-    this.subscription = this.createRequest(file).subscribe({
-      next: (event: HttpEvent<unknown>) => {
-        switch (event.type) {
-          case HttpEventType.Sent:
-            this.status = UploadStatus.BEZIG;
-            break;
-          case HttpEventType.ResponseHeader:
-            break;
-          case HttpEventType.UploadProgress:
-            this.progress = Math.round(
-              (event.loaded / (event.total ?? event.loaded)) * 100
-            );
-            this.updateInput(`${file.name} | ${this.progress}%`);
-            break;
-          case HttpEventType.Response:
-            this.fileInput.nativeElement.value = null;
-            this.updateInput(file.name);
-            this.status = UploadStatus.GEREED;
-            setTimeout(() => {
-              this.progress = 0;
-            }, 1500);
-        }
-      },
-      error: (error) => {
-        this.status = UploadStatus.SELECTEER_BESTAND;
-        this.fileInput.nativeElement.value = null;
-        this.uploadError = this.foutAfhandelingService.getFout(error);
-      },
-    });
   }
 
-  protected reset($event?: MouseEvent) {
-    $event?.stopPropagation();
-    if (this.subscription && !this.subscription.closed) {
-      this.subscription.unsubscribe();
-    }
-    this.status = UploadStatus.SELECTEER_BESTAND;
-    this.fileInput.nativeElement.value = null;
-    this.updateInput("");
-  }
-
-  protected droppedFile(files: FileList): void {
-    if (!files.length) return;
-    this.uploadFile(files[0]);
-  }
-
-  private createRequest(file: File) {
-    this.updateInput(file.name);
-    const formData = new FormData();
-    formData.append("filename", file.name);
-    formData.append("filesize", file.size.toString());
-    formData.append("type", file.type);
-    formData.append("file", file, file.name);
-    const httpHeaders = new HttpHeaders();
-    httpHeaders.append("Content-Type", "multipart/form-data");
-    httpHeaders.append("Accept", "application/json");
-    return this.http.post(this.uploadURL!, formData, {
-      reportProgress: true,
-      observe: "events",
-      headers: httpHeaders,
-    });
-  }
-
-  private updateInput(inputValue: string) {
-    this.control?.setValue(inputValue as unknown as File);
+  private updateInputControls(file: File | null) {
+    this.control?.patchValue(file, { emitEvent: false });
+    this.displayControl.patchValue(
+      file ? file.name.replace(`.${this.getFileExtension(file)}`, "") : null,
+      { emitEvent: false }
+    );
     this.changeDetector.detectChanges();
   }
 
-  private isBestandstypeToegestaan(file: File): boolean {
-    if (!this.allowedFileTypes?.length) return true;
-    const extension = this.getBestandsextensie(file);
-    return this.allowedFileTypes.includes(extension);
+  private isFileTypeAllowed(file: File) {
+    if (!this.allowedFileTypes.length) return false;
+    const extension = this.getFileExtension(file);
+    return this.allowedFileTypes.includes(`.${extension}`);
   }
 
-  private isBestandsgrootteToegestaan(file: File): boolean {
+  private isFileSizeAllowed(file: File) {
     if (!this.maxFileSizeMB) return true;
-    const fileSizeMB = this.getBestandsgrootteMB(file);
+    const fileSizeMB = this.getFileSizeInMB(file);
     return fileSizeMB <= this.maxFileSizeMB;
   }
 
-  private getBestandsextensie(file: File): string {
+  private getFileExtension(file: File) {
     return file.name.split(".").pop()?.toLowerCase() || "";
   }
 
-  private getBestandsgrootteMB(file: File): number {
+  private getFileSizeInMB(file: File) {
     return Math.round((file.size / 1024 / 1024) * 100) / 100;
   }
 }
