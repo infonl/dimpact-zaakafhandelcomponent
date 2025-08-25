@@ -142,6 +142,7 @@ fun createRestZaak(
     initiatorIdentificatieType: IdentificatieType = IdentificatieType.BSN,
     kvkNummer: String? = null,
     vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name,
+    heeftOntvangstbevestigingVerstuurd: Boolean = false,
 ) = RestZaak(
     uuid = uuid,
     identificatie = "ZA2023001",
@@ -186,6 +187,7 @@ fun createRestZaak(
     isBesluittypeAanwezig = false,
     isInIntakeFase = true,
     isProcesGestuurd = false,
+    heeftOntvangstbevestigingVerstuurd = heeftOntvangstbevestigingVerstuurd,
     rechten = rechten,
     vestigingsNummer = null
 )

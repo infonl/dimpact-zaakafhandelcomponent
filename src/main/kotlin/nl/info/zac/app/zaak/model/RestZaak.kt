@@ -69,6 +69,9 @@ data class RestZaak(
     @get:JsonbProperty("isInIntakeFase")
     var isInIntakeFase: Boolean,
 
+    @get:JsonbProperty("heeftOntvangstbevestigingVerstuurd")
+    var heeftOntvangstbevestigingVerstuurd: Boolean,
+
     /**
      * Indicates whether the case is driven using a BPMN process or not.
      * If not, it is in most cases driven by the ZAC CMMN model.
