@@ -4,7 +4,7 @@
  */
 
 UPDATE ${schema}.zaaktype_bpmn_process_definition
-    SET zaaktype_omschrijving = 'default_value'
+    SET zaaktype_omschrijving = 'na'
     WHERE zaaktype_omschrijving IS NULL;
 
 ALTER TABLE ${schema}.zaaktype_bpmn_process_definition
