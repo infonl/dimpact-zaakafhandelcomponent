@@ -9,7 +9,8 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_TASK_NAAM
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_2
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
@@ -26,8 +27,12 @@ import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.TAAK_1_FATAL_DATE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_1_PASSWORD
+import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REINDEXING
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_DOCUMENTS
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_TASKS
@@ -53,17 +58,26 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONObject
 
-// Run this test after reindexing so that all the required data is available in the Solr index
+/**
+ * Run this test after reindexing so that all the required data is available in the Solr index.
+ */
 @Order(TEST_SPEC_ORDER_AFTER_REINDEXING)
 @Suppress("LargeClass")
 class SearchRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
 
-    Given("""Multiple zaken, tasks and documents have been created and are indexed""") {
-        When(
-            """the search endpoint is called to search for all objects of all types"""
-        ) {
+    beforeSpec {
+        authenticate(username = TEST_RAADPLEGER_1_USERNAME, password = TEST_RAADPLEGER_1_PASSWORD)
+    }
+
+    afterSpec {
+        // re-authenticate using testuser1 since currently subsequent integration tests rely on this user being logged in
+        authenticate(username = TEST_USER_1_USERNAME, password = TEST_USER_1_PASSWORD)
+    }
+
+    Given("A logged-in raadpleger and multiple zaken, tasks and documents have been created and are indexed") {
+        When("the search endpoint is called to search for all objects of all types") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zoeken/list",
                 requestBodyAsString = """
@@ -81,11 +95,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     }
                 """.trimIndent()
             )
-            Then(
-                """
-                   the response is successful and the search results include the indexed zaken, tasks and documents
-                """
-            ) {
+            Then("the response is successful and the search results include the indexed zaken, tasks and documents") {
                 val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
@@ -125,23 +135,27 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "BEHANDELAAR": [
                                 {
-                                    "aantal": 2,
+                                    "aantal": 1,
                                     "naam": "$TEST_USER_1_NAME"
                                 }
                             ],
                             "GROEP": [
                                 {
-                                    "aantal": 14,
+                                    "aantal": 11,
                                     "naam": "$TEST_GROUP_A_DESCRIPTION"
+                                },
+                                {
+                                    "aantal": 3,
+                                    "naam": "$TEST_GROUP_BEHANDELAARS_DESCRIPTION"
                                 }
                             ],
                             "TOEGEKEND": [
                                 {
-                                    "aantal": 12,
+                                    "aantal": 13,
                                     "naam": "false"
                                 },
                                 {
-                                    "aantal": 2,
+                                    "aantal": 1,
                                     "naam": "true"
                                 }
                             ],
@@ -212,7 +226,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                 },
                                 {
                                     "aantal": 1,
-                                    "naam": "$BPMN_TEST_TASK_NAAM"
+                                    "naam": "$BPMN_TEST_TASK_NAME"
                                 }
                             ],
                             "TAAK_STATUS": [
@@ -269,9 +283,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             }
         }
-    }
 
-    Given("""Multiple zaken have been created and are indexed""") {
         When(
             """
                 the search endpoint is called to search for all objects of type 'ZAAK' filtered on a specific zaaktype
@@ -385,9 +397,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             }
         }
-    }
 
-    Given("""Multiple zaken have been created and are indexed""") {
         When(
             """
                 the search endpoint is called to search for all objects of type 'ZAAK' with a specific information 
@@ -409,7 +419,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 """
                    the response is successful and the search results include the indexed zaken with compatibility info 
                    about the information object type UUID
-                """
+                """.trimMargin()
             ) {
                 val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
@@ -508,9 +518,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             }
         }
-    }
 
-    Given("""Multiple taken have been created and are indexed""") {
         When(
             """the search endpoint is called to search for all objects of type 'TAAK'"""
         ) {
@@ -533,7 +541,10 @@ class SearchRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then(
-                """the response is successful and the search results include the indexed taken"""
+                """
+                    the response is successful and the search results include the indexed taken 
+                    and the returned permissions are those for the raadpleger role
+                """.trimMargin()
             ) {
                 val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
@@ -543,13 +554,13 @@ class SearchRestServiceTest : BehaviorSpec({
                         "foutmelding": "",
                         "resultaten": [
                             {
-                              "groepNaam": "$TEST_GROUP_A_DESCRIPTION",
-                              "naam": "$BPMN_TEST_TASK_NAAM",
+                              "groepNaam": "$TEST_GROUP_BEHANDELAARS_DESCRIPTION",
+                              "naam": "$BPMN_TEST_TASK_NAME",
                               "rechten": {
                                 "lezen": true,
-                                "toekennen": true,
+                                "toekennen": false,
                                 "toevoegenDocument": false,
-                                "wijzigen": true
+                                "wijzigen": false
                               },
                               "status": "NIET_TOEGEKEND",
                               "type": "TAAK",
@@ -567,9 +578,9 @@ class SearchRestServiceTest : BehaviorSpec({
                                 "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
                                 "rechten": {
                                     "lezen": true,
-                                    "toekennen": true,
+                                    "toekennen": false,
                                     "toevoegenDocument": false,
-                                    "wijzigen": true
+                                    "wijzigen": false
                                 },
                                 "status": "TOEGEKEND",
                                 "zaakOmschrijving": "$ZAAK_DESCRIPTION_1",
@@ -583,9 +594,9 @@ class SearchRestServiceTest : BehaviorSpec({
                                 "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
                                 "rechten": {
                                     "lezen": true,
-                                    "toekennen": true,
+                                    "toekennen": false,
                                     "toevoegenDocument": false,
-                                    "wijzigen": true
+                                    "wijzigen": false
                                 },
                                 "status": "NIET_TOEGEKEND",
                                 "zaakIdentificatie": "$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
@@ -622,8 +633,12 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "GROEP": [
                                 {
-                                    "aantal": 3,
+                                    "aantal": 2,
                                     "naam": "$TEST_GROUP_A_DESCRIPTION"
+                                },
+                                {
+                                    "aantal": 1,
+                                    "naam": "$TEST_GROUP_BEHANDELAARS_DESCRIPTION"
                                 }
                             ],
                             "TAAK_NAAM": [
@@ -633,7 +648,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                 },
                                 {
                                     "aantal": 1,
-                                    "naam": "$BPMN_TEST_TASK_NAAM"
+                                    "naam": "$BPMN_TEST_TASK_NAME"
                                 }
                             ],
                             "TAAK_STATUS": [
@@ -651,8 +666,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             }
         }
-    }
-    Given("""Documents have been created and are indexed""") {
+
         When(
             """the search endpoint is called to search for all objects of type 'DOCUMENT'"""
         ) {
@@ -728,8 +742,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 """
             }
         }
-    }
-    Given("""Documents have been created and are indexed""") {
+
         When(
             """the search endpoint is called to search for a specific document"""
         ) {
@@ -754,6 +767,7 @@ class SearchRestServiceTest : BehaviorSpec({
             Then(
                 """
                     the response is successful and the search results should include the expected document
+                    and the returned permissions are those for the raadpleger role
                 """.trimMargin()
             ) {
                 val responseBody = response.body.string()
@@ -778,11 +792,11 @@ class SearchRestServiceTest : BehaviorSpec({
                         "rechten" : {
                           "lezen" : true,
                           "ondertekenen" : false,
-                          "ontgrendelen" : true,
-                          "toevoegenNieuweVersie" : true,
+                          "ontgrendelen" : false,
+                          "toevoegenNieuweVersie" : false,
                           "vergrendelen" : false,
-                          "verwijderen" : true,
-                          "wijzigen" : true
+                          "verwijderen" : false,
+                          "wijzigen" : false
                         },
                         "registratiedatum" : "$ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_CREATION_DATE",
                         "status" : "definitief",

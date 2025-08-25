@@ -21,9 +21,9 @@ import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.MailTemplateService
 import nl.info.zac.mailtemplates.model.MailGegevens
+import org.flowable.common.engine.impl.el.FixedValue
+import org.flowable.common.engine.impl.el.JuelExpression
 import org.flowable.engine.delegate.DelegateExecution
-import org.flowable.engine.impl.el.FixedValue
-import org.flowable.engine.impl.el.JuelExpression
 
 class SendEmailDelegateTest : BehaviorSpec({
     val delegateExecution = mockk<DelegateExecution>()

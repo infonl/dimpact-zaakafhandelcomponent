@@ -45,6 +45,13 @@ constructor(
     companion object {
         private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
         private const val GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership"
+        val SUPPORTED_PABC_FUNCTIONAL_ROLES: Set<String> = setOf(
+            "behandelaar",
+            "coordinator",
+            "beheerder",
+            "recordmanager",
+            "raadpleger"
+        )
     }
 
     override fun doFilter(
@@ -131,8 +138,7 @@ constructor(
                     .getStringListClaimValue(GROUP_MEMBERSHIP_CLAIM_NAME)
                     .toSet(),
                 geautoriseerdeZaaktypen = getAuthorisedZaaktypen(functionalRoles),
-                applicationRolesPerZaaktype = applicationRolesPerZaaktype,
-                pabcIntegrationEnabled = pabcIntegrationEnabled
+                applicationRolesPerZaaktype = applicationRolesPerZaaktype
             )
         }
 
@@ -144,16 +150,20 @@ constructor(
     @Suppress("TooGenericExceptionCaught")
     private fun buildApplicationRoleMappingsFromPabc(functionalRoles: Set<String>): Map<String, Set<String>> {
         // Filter out roles we shouldn't send to PABC
-        val filteredFunctionalRoles = functionalRoles.filterNot {
-            it in setOf(
-                ZACRole.DOMEIN_ELK_ZAAKTYPE.value
-            )
+        // Currently, PABC does not allow us to request mappings for functional roles which are not defined in the PABC
+        // (this will change in a future version of the PABC).
+        // As a temporary workaround we filter out the set of functional roles we sent to the PABC to a limited set
+        // for which we know we have defined mappings.
+        val filteredFunctionalRoles = functionalRoles.filter {
+            it in SUPPORTED_PABC_FUNCTIONAL_ROLES
         }
 
         if (filteredFunctionalRoles.isEmpty()) {
             LOG.warning("No functional roles to send to PABC after filtering, returning empty mapping")
             return emptyMap()
         }
+
+        LOG.info("Roles to be sent to PABC: $filteredFunctionalRoles")
 
         return try {
             val response: GetApplicationRolesResponse =

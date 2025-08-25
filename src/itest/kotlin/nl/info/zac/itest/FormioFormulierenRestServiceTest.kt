@@ -9,10 +9,10 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_FORM_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_FORM_RESOURCE_PATH
-import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_TASK_NAAM
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_FORM_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_FORM_RESOURCE_PATH
-import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_TASK_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
@@ -81,12 +81,12 @@ class FormioFormulierenRestServiceTest : BehaviorSpec({
                     {
                         "id": 2,
                         "name": "summaryForm",
-                        "title": "$BPMN_SUMMARY_TASK_NAAM"
+                        "title": "$BPMN_SUMMARY_FORM_NAME"
                     },
                     {
                         "id": 1,
                         "name": "testForm",
-                        "title": "$BPMN_TEST_TASK_NAAM"
+                        "title": "$BPMN_TEST_FORM_NAME"
                     }
                 ]
                 """.trimIndent()

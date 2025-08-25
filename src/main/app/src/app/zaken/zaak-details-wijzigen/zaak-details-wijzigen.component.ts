@@ -102,6 +102,10 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       this.form.controls.toelichting.disable();
     }
 
+    if (!this.zaak.zaaktype.servicenorm) {
+      this.form.controls.einddatumGepland.disable();
+    }
+
     this.form.controls.behandelaar.disable();
     if (!this.zaak.rechten.toekennen) {
       this.form.controls.groep.disable();
@@ -129,7 +133,9 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       ),
       behandelaar: null,
       communicatiekanaal: this.zaak.communicatiekanaal ?? null,
-      einddatumGepland: moment(this.zaak.einddatumGepland),
+      einddatumGepland: this.zaak.einddatumGepland
+        ? moment(this.zaak.einddatumGepland)
+        : null,
       groep: null,
       omschrijving: this.zaak.omschrijving,
       reden: null,

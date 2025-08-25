@@ -117,10 +117,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
             id = userId
         )
         val roles = arrayListOf(
-            "fakeRole1",
+            "behandelaar",
             "domein_elk_zaaktype"
         )
-        val expectedFunctionalRoles = listOf("fakeRole1")
+        val expectedFunctionalRoles = listOf("behandelaar")
         val pabcRoleNames = listOf("applicationRoleA", "applicationRoleB")
         val zaaktypeName = "fakeZaaktypeOmschrijving1"
         val zaakafhandelParameters = listOf(
@@ -192,8 +192,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             "fakeGroup2"
         )
         val roles = arrayListOf(
-            "fakeRole1",
-            "fakeRole2",
+            "beheerder",
             domein1
         )
         val zaakafhandelParameters = listOf(
@@ -268,8 +267,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
     }
     Given(
         """
-            No logged-in user is present in the HTTP session and an OIDC security context is present with a token
-            that contains user information with roles retrieved from PABC
+            No logged-in user is present in the HTTP session, and an OIDC security context 
+            is available with a token containing user information. 
+            Functional roles from the token are filtered against the PABC-defined roles 
+            and mapped into application roles per zaaktype.
             """
     ) {
         val userName = "fakeUserName"
@@ -281,7 +282,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             "fakeGroup1",
         )
         val roles = arrayListOf(
-            "fakeRole1",
+            "coordinator",
             "domein_elk_zaaktype"
         )
         val zaaktypeName = "fakeZaaktypeOmschrijving1"
