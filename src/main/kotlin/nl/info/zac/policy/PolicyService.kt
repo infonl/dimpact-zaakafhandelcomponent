@@ -23,6 +23,7 @@ import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
 import nl.info.zac.enkelvoudiginformatieobject.util.isSigned
@@ -59,13 +60,16 @@ class PolicyService @Inject constructor(
     @RestClient private val evaluationClient: OpaEvaluationClient,
     private val ztcClientService: ZtcClientService,
     private val lockService: EnkelvoudigInformatieObjectLockService,
-    private val zrcClientService: ZrcClientService
+    private val zrcClientService: ZrcClientService,
+    private val configuratieService: ConfiguratieService
 ) {
-    fun readOverigeRechten(): OverigeRechten =
-        readOverigeRechten(zaaktype = null)
-
-    // for PABC based IAM integration
-    fun readOverigeRechten(zaaktype: String?): OverigeRechten =
+    /**
+     * Read 'overige' permissions.
+     * Note that for PABC-based authorization, the 'zaaktype' parameter is required, but for legacy
+     * ZAC-only authorization it is ignored.
+     * Until the old legacy authorization has been removed it is therefore nullable.
+     */
+    fun readOverigeRechten(zaaktype: String? = null): OverigeRechten =
         evaluationClient.readOverigeRechten(
             RuleQuery(UserInput(loggedInUserInstance.get(), zaaktype))
         ).result
@@ -187,6 +191,18 @@ class PolicyService @Inject constructor(
         evaluationClient.readWerklijstRechten(
             RuleQuery(UserInput(loggedInUserInstance.get()))
         ).result
+
+    /**
+     * For PABC-based authorization, the concept of being authorised for a zaaktype is meaningless,
+     * since you are always authorised for specific application roles for a zaaktype,
+     * so we always return true in that case.
+     */
+    fun isAuthorisedForZaaktype(zaakTypeOmschrijving: String) =
+        if (configuratieService.featureFlagPabcIntegration()) {
+            true
+        } else {
+            loggedInUserInstance.get().isAuthorisedForZaaktype(zaakTypeOmschrijving)
+        }
 }
 
 /**

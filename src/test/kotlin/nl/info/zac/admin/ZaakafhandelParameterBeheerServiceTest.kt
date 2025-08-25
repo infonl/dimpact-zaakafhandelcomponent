@@ -190,7 +190,7 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
     Given("A new zaaktype was created and no previous version exists") {
         val zaaktypeUUID = UUID.randomUUID()
         val zaaktypeUri = URI("https://example.com/zaaktypes/$zaaktypeUUID")
-        val zaakType = createZaakType(uri = zaaktypeUri, servicenorm = "fakeServiceNorm", concept = false)
+        val zaakType = createZaakType(uri = zaaktypeUri, servicenorm = "P30D", concept = false)
 
         every { zaakafhandelParameterService.clearListCache() } returns "Cache cleared"
 
@@ -228,7 +228,7 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
     Given("A zaaktype that has been updated") {
         val zaaktypeUUID = UUID.randomUUID()
         val zaaktypeUri = URI("https://example.com/zaaktypes/$zaaktypeUUID")
-        val zaakType = createZaakType(uri = zaaktypeUri, servicenorm = "fakeServiceNorm", concept = false)
+        val zaakType = createZaakType(uri = zaaktypeUri, servicenorm = "P30D", concept = false)
 
         every { zaakafhandelParameterService.clearListCache() } returns "Cache cleared"
 

@@ -61,6 +61,7 @@ import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
+import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.admin.model.RestZaakAfzender
@@ -287,24 +288,13 @@ class ZaakRestService @Inject constructor(
         val zaaktypeUUID = restZaak.zaaktype.uuid
         val zaakType = zaakService.readZaakTypeByUUID(zaaktypeUUID)
         assertCanAddBetrokkene(restZaak)
-
-        val loggedInUser = loggedInUserInstance.get()
-        // for PABC-based IAM integration, check if the user has the right to start a zaak
-        if (configuratieService.featureFlagPabcIntegration()) {
-            assertPolicy(policyService.readOverigeRechten(zaakType.omschrijving).startenZaak)
-        } else {
-            // make sure to use the omschrijving of the zaaktype that was retrieved to perform authorization on zaaktype
-            assertPolicy(
-                policyService.readOverigeRechten().startenZaak &&
-                    loggedInUser.isAuthorisedForZaaktype(
-                        zaakType.omschrijving
-                    )
-            )
-        }
-
+        assertPolicy(
+            policyService.readOverigeRechten(zaakType.omschrijving).startenZaak &&
+                policyService.isAuthorisedForZaaktype(zaakType.omschrijving)
+        )
         restZaak.communicatiekanaal?.isNotBlank() == true || throw CommunicationChannelNotFound()
         restZaak.einddatumGepland?.let {
-            zaakType.servicenorm?.isNotBlank() == true || throw DueDateNotAllowed()
+            zaakType.isServicenormAvailable() || throw DueDateNotAllowed()
         }
         val bronOrganisatie = configuratieService.readBronOrganisatie()
         val verantwoordelijkeOrganisatie = configuratieService.readVerantwoordelijkeOrganisatie()
@@ -349,7 +339,7 @@ class ZaakRestService @Inject constructor(
             }
         }
         restZaakEditMetRedenGegevens.zaak.einddatumGepland?.let {
-            zaakType.servicenorm?.isNotBlank() == true || throw DueDateNotAllowed()
+            zaakType.isServicenormAvailable() || throw DueDateNotAllowed()
         }
         restZaakEditMetRedenGegevens.zaak.run {
             behandelaar?.id?.let { behandelaarId ->
