@@ -38,4 +38,10 @@ class ZaaktypeBpmnProcessDefinition {
     @NotBlank
     @Column(name = "bpmn_process_definition_key")
     lateinit var bpmnProcessDefinitionKey: String
+
+    @Column(name = "zaaktype_omschrijving")
+    lateinit var zaaktypeOmschrijving: String
+
+    @Column(name = "productaanvraagtype")
+    var productAanvraagType: String? = null
 }

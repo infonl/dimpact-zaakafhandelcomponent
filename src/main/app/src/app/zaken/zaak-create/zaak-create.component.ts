@@ -264,6 +264,25 @@ export class ZaakCreateComponent implements OnDestroy {
     return Boolean(brpKoppelen || kvkKoppelen);
   }
 
+  hasInitiator(): boolean {
+    return !!this.form.controls.initiator.value;
+  }
+
+  clearInitiator() {
+    this.form.controls.initiator.setValue(null);
+  }
+
+  hasBagObject(): boolean {
+    return (
+      Array.isArray(this.form.controls.bagObjecten.value) &&
+      this.form.controls.bagObjecten.value.length > 0
+    );
+  }
+
+  clearBagObjecten() {
+    this.form.controls.bagObjecten.setValue([]);
+  }
+
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();

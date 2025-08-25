@@ -220,8 +220,12 @@ class ZaakRestServiceTest : BehaviorSpec({
             val objectRegistratieObject = createORObject()
             val productaanvraagDimpact = createProductaanvraagDimpact()
             val restZaak = createRestZaak(einddatumGepland = LocalDate.now().minusDays(1))
-            val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING, servicenorm = "P10D")
-            val zaakTypeUUID = zaakType.url.extractUuid()
+            val zaakTypeUUID = UUID.randomUUID()
+            val zaakType = createZaakType(
+                omschrijving = ZAAK_TYPE_1_OMSCHRIJVING,
+                servicenorm = "P10D",
+                uri = URI("https://example.com/zaaktypes/$zaakTypeUUID")
+            )
             val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
                 zaak = createRestZaak(
                     restZaakType = RestZaaktype(
@@ -247,7 +251,6 @@ class ZaakRestServiceTest : BehaviorSpec({
             val updatedRolesSlot = mutableListOf<Rol<*>>()
 
             every { configuratieService.featureFlagBpmnSupport() } returns false
-            every { configuratieService.featureFlagPabcIntegration() } returns false
             every { configuratieService.readBronOrganisatie() } returns bronOrganisatie
             every { configuratieService.readVerantwoordelijkeOrganisatie() } returns verantwoordelijkeOrganisatie
             every { cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null) } just runs
@@ -258,7 +261,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                 objectsClientService
                     .readObject(restZaakAanmaakGegevens.inboxProductaanvraag?.productaanvraagObjectUUID)
             } returns objectRegistratieObject
-            every { loggedInUserInstance.get() } returns createLoggedInUser()
             every { productaanvraagService.getAanvraaggegevens(objectRegistratieObject) } returns formulierData
             every {
                 productaanvraagService.getProductaanvraag(objectRegistratieObject)
@@ -301,13 +303,20 @@ class ZaakRestServiceTest : BehaviorSpec({
             } just runs
             every { bpmnService.findProcessDefinitionForZaaktype(zaakTypeUUID) } returns null
 
-            When("a zaaktype is created for which the user has permissions and no BPMN process definition is found") {
+            When(
+                """
+                a zaak is created for a zaaktype for which the user has permissions and no BPMN process definition is found
+                """.trimMargin()
+            ) {
                 every { identityService.readGroup(restZaakAanmaakGegevens.zaak.groep!!.id) } returns group
                 every { identityService.readUser(restZaakAanmaakGegevens.zaak.behandelaar!!.id) } returns user
-                every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
+                every {
+                    policyService.readOverigeRechten(zaakType.omschrijving)
+                } returns createOverigeRechtenAllDeny(startenZaak = true)
                 every {
                     policyService.readZaakRechten(zaak, zaakType)
                 } returns createZaakRechtenAllDeny(toevoegenInitiatorPersoon = true)
+                every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
 
                 val restZaakReturned = zaakRestService.createZaak(restZaakAanmaakGegevens)
 
@@ -348,8 +357,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaak = createRestZaak(communicatiekanaal = null)
             )
             every { zaakService.readZaakTypeByUUID(any()) } returns zaakType
-            every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
-            every { loggedInUserInstance.get() } returns createLoggedInUser()
             every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
             When("zaak creation is attempted") {
@@ -369,8 +376,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaak = createRestZaak(communicatiekanaal = "      ")
             )
             every { zaakService.readZaakTypeByUUID(any<UUID>()) } returns zaakType
-            every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
-            every { loggedInUserInstance.get() } returns createLoggedInUser()
             every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
             When("zaak creation is attempted") {
@@ -384,14 +389,12 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("zaak input data has due date when servicenorm is not specifed in OpenZaak") {
+        Given("zaak input data has due date when servicenorm is not specified in OpenZaak") {
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
                 zaak = createRestZaak(einddatumGepland = LocalDate.now())
             )
             every { zaakService.readZaakTypeByUUID(any<UUID>()) } returns zaakType
-            every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
-            every { loggedInUserInstance.get() } returns createLoggedInUser()
             every {
                 zaakafhandelParameterService.readZaakafhandelParameters(any())
             } returns createZaakafhandelParameters()

@@ -9,7 +9,7 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.util.time.PeriodUtil
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
-import nl.info.client.zgw.ztc.model.extensions.isServicenormBeschikbaar
+import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
 import nl.info.zac.app.zaak.model.RelatieType
@@ -40,7 +40,7 @@ class RestZaaktypeConverter @Inject constructor(
             identificatie = zaaktype.identificatie,
             doel = zaaktype.doel,
             omschrijving = zaaktype.omschrijving,
-            servicenorm = zaaktype.isServicenormBeschikbaar(),
+            servicenorm = zaaktype.isServicenormAvailable(),
             versiedatum = zaaktype.versiedatum,
             nuGeldig = zaaktype.isNuGeldig(),
             beginGeldigheid = zaaktype.beginGeldigheid,
