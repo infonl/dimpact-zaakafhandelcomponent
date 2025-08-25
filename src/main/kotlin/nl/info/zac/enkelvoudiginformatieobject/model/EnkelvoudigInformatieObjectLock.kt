@@ -12,7 +12,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
-import net.atos.zac.util.FlywayIntegrator
+import nl.info.zac.database.flyway.FlywayIntegrator
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID

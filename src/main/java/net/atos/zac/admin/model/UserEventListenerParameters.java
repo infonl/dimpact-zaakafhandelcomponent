@@ -4,7 +4,7 @@
  */
 package net.atos.zac.admin.model;
 
-import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
+import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
