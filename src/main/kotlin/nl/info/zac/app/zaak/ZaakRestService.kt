@@ -287,21 +287,10 @@ class ZaakRestService @Inject constructor(
         val zaaktypeUUID = restZaak.zaaktype.uuid
         val zaakType = zaakService.readZaakTypeByUUID(zaaktypeUUID)
         assertCanAddBetrokkene(restZaak)
-
-        val loggedInUser = loggedInUserInstance.get()
-        // for PABC-based IAM integration, check if the user has the right to start a zaak
-        if (configuratieService.featureFlagPabcIntegration()) {
-            assertPolicy(policyService.readOverigeRechten(zaakType.omschrijving).startenZaak)
-        } else {
-            // make sure to use the omschrijving of the zaaktype that was retrieved to perform authorization on zaaktype
-            assertPolicy(
-                policyService.readOverigeRechten().startenZaak &&
-                    loggedInUser.isAuthorisedForZaaktype(
-                        zaakType.omschrijving
-                    )
-            )
-        }
-
+        assertPolicy(
+            policyService.readOverigeRechten(zaakType.omschrijving).startenZaak &&
+                policyService.isAuthorisedForZaaktype(zaakType.omschrijving)
+        )
         restZaak.communicatiekanaal?.isNotBlank() == true || throw CommunicationChannelNotFound()
         restZaak.einddatumGepland?.let {
             zaakType.servicenorm?.isNotBlank() == true || throw DueDateNotAllowed()
