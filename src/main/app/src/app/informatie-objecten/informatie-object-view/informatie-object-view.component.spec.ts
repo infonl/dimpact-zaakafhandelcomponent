@@ -14,14 +14,18 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
+import { IdentityService } from "../../identity/identity.service";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
 import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
+import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { InformatieObjectEditComponent } from "../informatie-object-edit/informatie-object-edit.component";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 import { InformatieObjectViewComponent } from "./informatie-object-view.component";
@@ -61,15 +65,17 @@ describe(InformatieObjectViewComponent.name, () => {
         InformatieObjectViewComponent,
         SideNavComponent,
         StaticTextComponent,
+        InformatieObjectEditComponent,
       ],
       imports: [
         MaterialModule,
-        NoopAnimationsModule,
         InformatieObjectIndicatiesComponent,
         TranslateModule.forRoot(),
         VertrouwelijkaanduidingToTranslationKeyPipe,
         DocumentIconComponent,
         PipesModule,
+        MaterialFormBuilderModule,
+        NoopAnimationsModule,
       ],
       providers: [
         provideHttpClient(),
@@ -88,6 +94,29 @@ describe(InformatieObjectViewComponent.name, () => {
     jest
       .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
       .mockReturnValue(of(enkelvoudigInformatieobject));
+
+    jest
+      .spyOn(
+        informatieObjectenService,
+        "readHuidigeVersieEnkelvoudigInformatieObject",
+      )
+      .mockReturnValue(
+        of({
+          uuid: "enkelvoudig-informatieobject-001",
+          informatieobjectTypeUUID: "test-uuid",
+          titel: "test informatieobject",
+          vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding.openbaar,
+          rechten: {},
+        }),
+      );
+
+    const identityService = TestBed.inject(IdentityService);
+    jest
+      .spyOn(identityService, "readLoggedInUser")
+      .mockReturnValue(of({ id: "1234", naam: "Test User" }));
+
+    const configuratieService = TestBed.inject(ConfiguratieService);
+    jest.spyOn(configuratieService, "listTalen").mockReturnValue(of([]));
 
     fixture = TestBed.createComponent(InformatieObjectViewComponent);
     component = fixture.componentInstance;

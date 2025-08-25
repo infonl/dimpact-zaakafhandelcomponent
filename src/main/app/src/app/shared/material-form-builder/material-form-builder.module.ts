@@ -45,6 +45,7 @@ import { DocumentIconComponent } from "../document-icon/document-icon.component"
 import { ZacAutoComplete } from "../form/auto-complete/auto-complete";
 import { ZacCheckbox } from "../form/checkbox/checkbox";
 import { ZacDate } from "../form/date/date";
+import { ZacFile } from "../form/file/file";
 import { ZacHtmlEditor } from "../form/html-editor/html-editor";
 import { ZacInput } from "../form/input/input";
 import { ZacSelect } from "../form/select/select";
@@ -113,6 +114,7 @@ import { FormComponent } from "./form/form/form.component";
     ZacToggle,
     ZacCheckbox,
     ZacHtmlEditor,
+    ZacFile,
   ],
   exports: [
     FileDragAndDropDirective,
@@ -142,6 +144,7 @@ import { FormComponent } from "./form/form/form.component";
     ZacToggle,
     ZacCheckbox,
     ZacHtmlEditor,
+    ZacFile,
     CapitalizeFirstLetterPipe,
   ],
   imports: [

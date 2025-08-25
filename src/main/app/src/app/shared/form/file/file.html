@@ -1,0 +1,61 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  ~
+  -->
+
+<div DropZone (fileDropped)="droppedFile($event)">
+  <mat-form-field
+    appearance="fill"
+    class="full-width"
+    [formGroup]="form"
+    (click)="fileInput.click()"
+  >
+    <mat-label>
+      <ng-content select="mat-label">
+        {{ label ?? key | translate | capitalizeFirstLetter }}
+      </ng-content>
+    </mat-label>
+    <input
+      matInput
+      [formControl]="displayControl"
+      readonly="true"
+      [required]="required"
+    />
+    <span matSuffix>
+      <ng-content select="button">
+        <button *ngIf="!control?.value" mat-icon-button type="button">
+          <mat-icon>upload</mat-icon>
+        </button>
+        <button
+          *ngIf="control?.value"
+          mat-icon-button
+          (click)="reset()"
+          type="button"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </ng-content>
+      <ng-content select="span"></ng-content>
+      <ng-content select="mat-icon"></ng-content>
+    </span>
+
+    <mat-error>{{ getErrorMessage() }}</mat-error>
+    <mat-hint>
+      <ng-content select="mat-hint">
+        {{
+          "form.input.file.hint"
+            | translate: { sizeInMB: maxFileSizeMB, formats: allowedFormats }
+        }}
+      </ng-content>
+    </mat-hint>
+
+    <input
+      hidden="hidden"
+      type="file"
+      [accept]="allowedFileTypes.join(',')"
+      (change)="selectedFile($event)"
+      #fileInput
+    />
+  </mat-form-field>
+</div>

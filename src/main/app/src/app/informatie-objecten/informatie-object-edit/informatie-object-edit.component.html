@@ -12,11 +12,72 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<div class="form">
-  <mfb-form
-    *ngIf="fields"
-    (formSubmit)="onFormSubmit($event)"
-    [formFields]="fields"
-    [config]="formConfig"
-  ></mfb-form>
-</div>
+<form [formGroup]="form" (submit)="submit()" class="mt-2">
+  <fieldset>
+    <section class="row">
+      <zac-file
+        class="col-12"
+        [form]="form"
+        key="bestand"
+        label="bestandsnaam"
+      />
+      <zac-input class="col-12" [form]="form" key="titel" />
+      <zac-input class="col-12" [form]="form" key="beschrijving" />
+      <zac-select
+        class="col-12 col-md-6"
+        [form]="form"
+        key="informatieobjectType"
+        [options]="informatieObjectTypes"
+        optionDisplayValue="omschrijving"
+      />
+      <zac-select
+        class="col-12 col-md-6"
+        [form]="form"
+        key="vertrouwelijkheidaanduiding"
+        [options]="vertrouwelijkheidsAanduidingen"
+        optionDisplayValue="label"
+      />
+      <zac-select
+        class="col-12 col-md-6"
+        [form]="form"
+        key="status"
+        [options]="informatieobjectStatussen"
+        optionDisplayValue="label"
+      />
+      <div class="col-12 col-md-6">
+        <!-- spacer -->
+      </div>
+      <zac-input class="col-12 col-md-6" [form]="form" key="auteur" />
+      <zac-select
+        class="col-12 col-md-6"
+        [form]="form"
+        key="taal"
+        [options]="talen"
+        optionDisplayValue="naam"
+      />
+      <zac-date class="col-12 col-md-6" [form]="form" key="ontvangstdatum">
+        <mat-hint>{{
+          "msg.document.ontvangstdatum.hint" | translate
+        }}</mat-hint>
+      </zac-date>
+      <zac-date class="col-12 col-md-6" [form]="form" key="verzenddatum" />
+      <zac-input class="col-12" [form]="form" key="toelichting" />
+    </section>
+  </fieldset>
+  <fieldset>
+    <mat-action-row>
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="!form.valid"
+        (click)="submit()"
+      >
+        {{ "actie.toevoegen" | translate }}
+      </button>
+      <button mat-button type="reset" (click)="resetAndClose()">
+        {{ "actie.annuleren" | translate }}
+      </button>
+    </mat-action-row>
+  </fieldset>
+</form>
