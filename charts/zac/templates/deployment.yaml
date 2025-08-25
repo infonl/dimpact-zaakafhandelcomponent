@@ -85,6 +85,30 @@ spec:
             - zaakafhandelcomponent.jar
           {{- end }}
       {{- if .Values.opa.enabled }}
+      {{- if .Values.opa.sidecar }}
+        - name: "{{ .Values.opa.name }}"
+          image: "{{ .Values.opa.image.repository }}:{{ .Values.opa.image.tag }}"
+          imagePullPolicy: {{ .Values.opa.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8181
+          args:
+            - run
+            - --server
+            - --addr=0.0.0.0:8181
+            - --ignore=.*  # exclude hidden dirs created by Kubernetes
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              port: 8181
+            initialDelaySeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              scheme: HTTP
+              port: 8181
+            initialDelaySeconds: 5
+      {{- end }}
       {{- if not .Values.opa.sidecar }}
       {{- if .Values.initContainer.enabled }}
       initContainers:
@@ -111,31 +135,3 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-{{- if .Values.opa.enabled }}
-{{- if .Values.opa.sidecar }}
-        - name: "{{ .Values.opa.name }}"
-          image: "{{ .Values.opa.image.repository }}:{{ .Values.opa.image.tag }}"
-          imagePullPolicy: {{ .Values.opa.image.pullPolicy }}
-          resources:
-            {{- toYaml .Values.opa.resources | nindent 12 }}
-          ports:
-            - name: http
-              containerPort: 8181
-          args:
-            - run
-            - --server
-            - --addr=0.0.0.0:8181
-            - --ignore=.*  # exclude hidden dirs created by Kubernetes
-          livenessProbe:
-            httpGet:
-              scheme: HTTP
-              port: 8181
-            initialDelaySeconds: 5
-          readinessProbe:
-            httpGet:
-              path: /health
-              scheme: HTTP
-              port: 8181
-            initialDelaySeconds: 5
-{{- end }}
-{{- end }}
