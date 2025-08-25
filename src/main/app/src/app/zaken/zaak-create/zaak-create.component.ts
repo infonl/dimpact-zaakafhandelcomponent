@@ -266,8 +266,6 @@ export class ZaakCreateComponent implements OnDestroy {
   }
 
   hasInitiator(): boolean {
-    console.log("initiator", this.form.controls.initiator.value?.naam);
-
     return !!this.form.controls.initiator.value;
   }
 
