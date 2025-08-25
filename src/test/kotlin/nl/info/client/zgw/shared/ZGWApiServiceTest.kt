@@ -10,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -137,9 +138,8 @@ class ZGWApiServiceTest : BehaviorSpec({
                         // the doorlooptijd is 5 days, so the uiterlijkeEinddatumAfdoening should be 5 days
                         // after the start date
                         this.uiterlijkeEinddatumAfdoening shouldBe LocalDate.of(1975, 12, 10)
-                        // the servicenorm is 10 days, so the einddatumGepland should be 10 days
-                        // after the start date
-                        this.einddatumGepland shouldBe LocalDate.of(1975, 12, 15)
+                        // the zaaktype has no 'servicenorm' so the einddatumGepland should be null
+                        this.einddatumGepland shouldBe null
                     }
                 }
             }
@@ -191,6 +191,9 @@ class ZGWApiServiceTest : BehaviorSpec({
             val resultaatSlot = slot<Resultaat>()
             val updatedResultaat = createResultaat()
             val resultaattType = createResultaatType()
+
+            clearMocks(ztcClientService, zrcClientService)
+
             every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaattType
             every { zrcClientService.createResultaat(capture(resultaatSlot)) } returns updatedResultaat
 
