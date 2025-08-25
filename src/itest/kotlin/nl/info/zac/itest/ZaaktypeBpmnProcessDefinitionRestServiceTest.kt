@@ -29,7 +29,8 @@ class ZaaktypeBpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                   "zaaktypeUuid": "$ZAAKTYPE_BPMN_TEST_UUID",
                   "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
                   "productaanvraagtype": "$ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE"
-                }""".trimIndent()
+                }
+                """.trimIndent()
             )
 
             Then("the response is successful") {

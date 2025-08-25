@@ -149,5 +149,4 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
             }
         }
     }
-
 })

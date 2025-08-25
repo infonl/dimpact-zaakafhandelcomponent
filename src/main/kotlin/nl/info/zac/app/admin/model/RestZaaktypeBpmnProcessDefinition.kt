@@ -7,7 +7,6 @@ package nl.info.zac.app.admin.model
 import jakarta.validation.constraints.NotNull
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import strings.StringsNl
 import java.util.UUID
 
 @NoArgConstructor

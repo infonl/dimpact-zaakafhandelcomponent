@@ -5,6 +5,7 @@
 package nl.info.zac.app.zaak
 
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.annotation.Tags
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -130,6 +131,7 @@ import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.test.date.toDate
+import nl.info.zac.test.listener.MockkClearingTestListener.Companion.NO_MOCK_CLEANUP
 import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.exception.ZaakWithADecisionCannotBeTerminatedException
 import org.apache.http.HttpStatus
@@ -141,6 +143,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 @Suppress("LongParameterList", "LargeClass")
+@Tags(NO_MOCK_CLEANUP)
 class ZaakRestServiceTest : BehaviorSpec({
     val decisionService = mockk<DecisionService>()
     val bpmnService = mockk<BpmnService>()
