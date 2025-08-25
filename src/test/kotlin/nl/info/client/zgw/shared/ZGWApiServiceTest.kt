@@ -284,7 +284,7 @@ class ZGWApiServiceTest : BehaviorSpec({
 
                 Then("an exception should be thrown") {
                     exception.message shouldBe
-                            "More than one behandelaar role found for zaak with UUID: '${zaak.uuid}' (count: 2)"
+                        "More than one behandelaar role found for zaak with UUID: '${zaak.uuid}' (count: 2)"
                 }
             }
         }
@@ -300,7 +300,8 @@ class ZGWApiServiceTest : BehaviorSpec({
             every { zrcClientService.listRollen(any<RolListParameters>()) } returns Results(
                 listOf(
                     rolOrganisatorischeEenheid
-                ), 1
+                ),
+                1
             )
 
             When("the group is requested") {
