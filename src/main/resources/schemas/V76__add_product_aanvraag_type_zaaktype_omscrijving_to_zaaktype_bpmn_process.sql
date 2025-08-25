@@ -5,4 +5,4 @@
 
 ALTER TABLE ${schema}.zaaktype_bpmn_process_definition
     ADD COLUMN zaaktype_omschrijving VARCHAR,
-    ADD COLUMN product_aanvraag_type VARCHAR;
+    ADD COLUMN productaanvraagtype VARCHAR;

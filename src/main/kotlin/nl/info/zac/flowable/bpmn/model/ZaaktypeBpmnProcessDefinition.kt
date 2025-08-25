@@ -42,6 +42,6 @@ class ZaaktypeBpmnProcessDefinition {
     @Column(name = "zaaktype_omschrijving")
     lateinit var zaaktypeOmschrijving: String
 
-    @Column(name = "product_aanvraag_type")
-    lateinit var productAanvraagType: String
+    @Column(name = "productaanvraagtype")
+    var productAanvraagType: String? = null
 }
