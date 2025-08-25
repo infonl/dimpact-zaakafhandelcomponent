@@ -137,17 +137,5 @@ spec:
               scheme: HTTP
               port: 8181
             initialDelaySeconds: 5
-      {{- with .Values.opa.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.opa.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.opa.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
 {{- end }}
 {{- end }}
