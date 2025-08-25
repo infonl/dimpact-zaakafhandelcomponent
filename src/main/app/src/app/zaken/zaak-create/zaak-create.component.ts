@@ -35,7 +35,6 @@ export class ZaakCreateComponent implements OnDestroy {
   @ViewChild(MatSidenav) protected readonly actionsSidenav!: MatSidenav;
 
   protected activeSideAction: string | null = null;
-  public initiatornaam = "dax";
 
   private readonly inboxProductaanvraag: GeneratedType<"RESTInboxProductaanvraag">;
 
