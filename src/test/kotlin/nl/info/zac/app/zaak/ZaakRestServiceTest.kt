@@ -989,6 +989,8 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Context("Updating a zaak") {
+        clearAllMocks()
+
         Given("a zaak with tasks exists and zaak and tasks have final date set") {
             val changeDescription = "change description"
             val zaak = createZaak()
