@@ -8,16 +8,20 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
+import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
+import { MatDatepickerInputHarness } from "@angular/material/datepicker/testing";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
-import { MatInputHarness } from "@angular/material/input/testing";
 import { MatIconModule } from "@angular/material/icon";
+import { MatInputHarness } from "@angular/material/input/testing";
 import { MatDrawer } from "@angular/material/sidenav";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
+import moment from "moment";
 import { of } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -26,13 +30,8 @@ import { MaterialModule } from "../../shared/material/material.module";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
-import { InformatieObjectEditComponent } from "./informatie-object-edit.component";
-import { ComponentRef } from "@angular/core";
-import { By } from "@angular/platform-browser";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
-import moment from "moment";
-import { MatDatepickerInput } from "@angular/material/datepicker";
-import { MatDatepickerInputHarness } from "@angular/material/datepicker/testing";
+import { InformatieObjectEditComponent } from "./informatie-object-edit.component";
 
 describe(InformatieObjectEditComponent.name, () => {
   let component: InformatieObjectEditComponent;
@@ -44,9 +43,9 @@ describe(InformatieObjectEditComponent.name, () => {
   let configuratieService: ConfiguratieService;
   let translateService: TranslateService;
 
-  const mockSideNav = {
+  const mockSideNav = fromPartial<MatDrawer>({
     close: jest.fn(),
-  } as unknown as MatDrawer;
+  });
 
   const enkelvoudigInformatieObjectVersieGegevens = fromPartial<
     GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">
@@ -89,6 +88,10 @@ describe(InformatieObjectEditComponent.name, () => {
     type: "text/plain",
   });
 
+  // This test is sometimes cheating slightly in order to fill the form (`component['form']....`)
+  // instead of setting the fields properly through the `TestbedHarnessEnvironment`.
+  // This form contains a file field which makes it (nearly) impossible to test properly
+  // As a refactor, it would be nice to have a custom method to fill the form (via the UI elements)
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [InformatieObjectEditComponent],
@@ -137,13 +140,13 @@ describe(InformatieObjectEditComponent.name, () => {
     jest
       .spyOn(informatieObjectenService, "updateEnkelvoudigInformatieobject")
       .mockReturnValue(
-        of(fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({}))
+        of(fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({})),
       );
 
     jest
       .spyOn(translateService, "instant")
       .mockImplementation((key: string | string[]) =>
-        typeof key === "string" ? key : key[0]
+        typeof key === "string" ? key : key[0],
       );
 
     // Set required inputs
@@ -195,7 +198,7 @@ describe(InformatieObjectEditComponent.name, () => {
     beforeEach(() => {
       componentRef.setInput(
         "infoObject",
-        enkelvoudigInformatieObjectVersieGegevens
+        enkelvoudigInformatieObjectVersieGegevens,
       );
       fixture.detectChanges();
     });
@@ -205,7 +208,7 @@ describe(InformatieObjectEditComponent.name, () => {
 
       componentRef.setInput(
         "infoObject",
-        enkelvoudigInformatieObjectVersieGegevens
+        enkelvoudigInformatieObjectVersieGegevens,
       );
 
       expect(readLoggedInUser).toHaveBeenCalled();
@@ -214,7 +217,7 @@ describe(InformatieObjectEditComponent.name, () => {
     it("should load informatieobject types", () => {
       const listInformatieObjectTypes = jest.spyOn(
         informatieObjectenService,
-        "listInformatieobjecttypesForZaak"
+        "listInformatieobjecttypesForZaak",
       );
 
       expect(listInformatieObjectTypes).toHaveBeenCalledWith("test-zaak-uuid");
@@ -227,7 +230,7 @@ describe(InformatieObjectEditComponent.name, () => {
       dataTransfer.items.add(mockFile);
 
       const inputDebugEl = fixture.debugElement.query(
-        By.css("input[type=file]")
+        By.css("input[type=file]"),
       );
       inputDebugEl.nativeElement.files = dataTransfer.files;
       inputDebugEl.nativeElement.dispatchEvent(new InputEvent("change"));
@@ -236,7 +239,7 @@ describe(InformatieObjectEditComponent.name, () => {
 
       // Check that the titel input is updated
       const titleInput = await loader.getHarness(
-        MatInputHarness.with({ placeholder: "titel" })
+        MatInputHarness.with({ placeholder: "titel" }),
       );
 
       const value = await titleInput.getValue();
@@ -258,7 +261,7 @@ describe(InformatieObjectEditComponent.name, () => {
     beforeEach(() => {
       componentRef.setInput(
         "infoObject",
-        enkelvoudigInformatieObjectVersieGegevens
+        enkelvoudigInformatieObjectVersieGegevens,
       );
       fixture.detectChanges();
     });
@@ -266,11 +269,10 @@ describe(InformatieObjectEditComponent.name, () => {
     it("should call updateEnkelvoudigInformatieobject when submit button is clicked", async () => {
       const updateSpy = jest.spyOn(
         informatieObjectenService,
-        "updateEnkelvoudigInformatieobject"
+        "updateEnkelvoudigInformatieobject",
       );
 
-      // Set form values
-      (component as any).form.patchValue({
+      component["form"].patchValue({
         bestand: mockFile,
         titel: "Test Title",
         beschrijving: "Test Description",
@@ -284,9 +286,8 @@ describe(InformatieObjectEditComponent.name, () => {
 
       fixture.detectChanges();
 
-      // Find and click submit button
       const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: "actie.toevoegen" })
+        MatButtonHarness.with({ text: "actie.toevoegen" }),
       );
 
       await submitButton.click();
@@ -298,14 +299,14 @@ describe(InformatieObjectEditComponent.name, () => {
           beschrijving: "Test Description",
           auteur: "Test Author",
           toelichting: "Test Explanation",
-        })
+        }),
       );
     });
 
     it("should emit document event after successful update", async () => {
       const emitSpy = jest.spyOn(component.document, "emit");
 
-      (component as any).form.patchValue({
+      component["form"].patchValue({
         bestand: mockFile,
         titel: "Test Title",
         taal: mockTalen[0],
@@ -318,7 +319,7 @@ describe(InformatieObjectEditComponent.name, () => {
       fixture.detectChanges();
 
       const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: "actie.toevoegen" })
+        MatButtonHarness.with({ text: "actie.toevoegen" }),
       );
 
       if (submitButton) {
@@ -328,7 +329,7 @@ describe(InformatieObjectEditComponent.name, () => {
     });
 
     it("should close side nav after successful update", async () => {
-      (component as any).form.patchValue({
+      component["form"].patchValue({
         bestand: mockFile,
         titel: "Test Title",
         taal: mockTalen[0],
@@ -341,7 +342,7 @@ describe(InformatieObjectEditComponent.name, () => {
       fixture.detectChanges();
 
       const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: "actie.toevoegen" })
+        MatButtonHarness.with({ text: "actie.toevoegen" }),
       );
 
       await submitButton.click();
@@ -351,7 +352,7 @@ describe(InformatieObjectEditComponent.name, () => {
 
   describe("Reset", () => {
     it("should reset form and close side nav when cancel button is clicked", async () => {
-      (component as any).form.patchValue({
+      component["form"].patchValue({
         bestand: mockFile,
         titel: "Test Title",
       });
@@ -360,7 +361,7 @@ describe(InformatieObjectEditComponent.name, () => {
 
       // Find and click cancel button
       const cancelButton = await loader.getHarness(
-        MatButtonHarness.with({ text: "actie.annuleren" })
+        MatButtonHarness.with({ text: "actie.annuleren" }),
       );
 
       await cancelButton.click();

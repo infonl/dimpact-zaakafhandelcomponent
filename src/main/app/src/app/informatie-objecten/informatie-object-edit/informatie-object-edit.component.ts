@@ -29,7 +29,6 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
 @Component({
   selector: "zac-informatie-object-edit",
   templateUrl: "./informatie-object-edit.component.html",
-  styleUrls: ["./informatie-object-edit.component.less"],
 })
 export class InformatieObjectEditComponent implements OnChanges {
   @Input()
@@ -104,7 +103,6 @@ export class InformatieObjectEditComponent implements OnChanges {
     this.form.controls.ontvangstdatum.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
-          console.debug("ontvangstdatum", value);
         if (!value && !this.form.controls.verzenddatum.disabled) {
           this.form.controls.status.enable();
           this.form.controls.verzenddatum.enable();

@@ -19,11 +19,12 @@ import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { fromPartial } from "@total-typescript/shoehorn";
 import { FileDragAndDropDirective } from "../../directives/file-drag-and-drop.directive";
+import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../material/material.module";
 import { PipesModule } from "../../pipes/pipes.module";
 import { ZacFile } from "./file";
-import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
 
 interface TestForm extends Record<string, AbstractControl> {
   document: FormControl<File | null>;
@@ -31,6 +32,8 @@ interface TestForm extends Record<string, AbstractControl> {
   requiredDocument: FormControl<File | null>;
 }
 
+// These tests are not perfect as they are calling internal (protected) methods -- e.g., `component['selectedFile']`
+// It is (near) impossible to mock the actual file uploading so we fake it in these tests
 describe(ZacFile.name, () => {
   let component: ZacFile<TestForm, keyof TestForm>;
   let fixture: ComponentFixture<typeof component>;
@@ -50,7 +53,7 @@ describe(ZacFile.name, () => {
   const createMockFile = (
     name: string,
     size: number,
-    type: string = "text/plain"
+    type: string = "text/plain",
   ): File => {
     const file = new File(["test content"], name, { type });
     Object.defineProperty(file, "size", { value: size });
@@ -144,13 +147,13 @@ describe(ZacFile.name, () => {
 
     it("should handle file selection via input change event", () => {
       const mockFile = createMockFile("test.txt", 1024);
-      const mockEvent = {
-        target: {
+      const mockEvent = fromPartial<Event>({
+        target: fromPartial<HTMLInputElement>({
           files: [mockFile],
-        },
-      } as unknown as Event;
+        }),
+      });
 
-      (component as any).selectedFile(mockEvent);
+      component["selectedFile"](mockEvent);
 
       expect(component.form.controls.document.value).toBe(mockFile);
     });
@@ -159,7 +162,7 @@ describe(ZacFile.name, () => {
       const mockFile = createMockFile("test.txt", 1024);
       const mockFileList = [mockFile] as unknown as FileList;
 
-      (component as any).droppedFile(mockFileList);
+      component["droppedFile"](mockFileList);
 
       expect(component.form.controls.document.value).toBe(mockFile);
     });
@@ -168,7 +171,7 @@ describe(ZacFile.name, () => {
       const emptyFileList = [] as unknown as FileList;
       const initialValue = component.form.controls.document.value;
 
-      (component as any).droppedFile(emptyFileList);
+      component["droppedFile"](emptyFileList);
 
       expect(component.form.controls.document.value).toBe(initialValue);
     });
@@ -185,13 +188,13 @@ describe(ZacFile.name, () => {
     it("should validate file type", async () => {
       component.allowedFileTypes = [".txt", ".pdf"];
       const invalidFile = createMockFile("test.doc", 1024);
-      const mockEvent = {
-        target: {
+      const mockEvent = fromPartial<Event>({
+        target: fromPartial<HTMLInputElement>({
           files: [invalidFile],
-        },
-      } as unknown as Event;
+        }),
+      });
 
-      (component as any).selectedFile(mockEvent);
+      component["selectedFile"](mockEvent);
 
       expect(component.form.controls.document.errors).toEqual({
         fileTypeInvalid: { type: "doc" },
@@ -201,13 +204,13 @@ describe(ZacFile.name, () => {
     it("should validate file size", () => {
       component.maxFileSizeMB = 1;
       const largeFile = createMockFile("test.txt", 2 * 1024 * 1024); // 2MB
-      const mockEvent = {
-        target: {
+      const mockEvent = fromPartial<Event>({
+        target: fromPartial<HTMLInputElement>({
           files: [largeFile],
-        },
-      } as unknown as Event;
+        }),
+      });
 
-      (component as any).selectedFile(mockEvent);
+      component["selectedFile"](mockEvent);
 
       expect(component.form.controls.document.errors).toEqual({
         fileTooLarge: { size: 2 },
@@ -216,13 +219,13 @@ describe(ZacFile.name, () => {
 
     it("should validate empty file", () => {
       const emptyFile = createMockFile("test.txt", 0);
-      const mockEvent = {
-        target: {
+      const mockEvent = fromPartial<Event>({
+        target: fromPartial<HTMLInputElement>({
           files: [emptyFile],
-        },
-      } as unknown as Event;
+        }),
+      });
 
-      (component as any).selectedFile(mockEvent);
+      component["selectedFile"](mockEvent);
 
       expect(component.form.controls.document.errors).toEqual({
         fileEmpty: true,
@@ -233,13 +236,13 @@ describe(ZacFile.name, () => {
       component.allowedFileTypes = [".txt"];
       component.maxFileSizeMB = 5;
       const validFile = createMockFile("test.txt", 1024);
-      const mockEvent = {
-        target: {
+      const mockEvent = fromPartial<Event>({
+        target: fromPartial<HTMLInputElement>({
           files: [validFile],
-        },
-      } as unknown as Event;
+        }),
+      });
 
-      (component as any).selectedFile(mockEvent);
+      component["selectedFile"](mockEvent);
 
       expect(component.form.controls.document.value).toBe(validFile);
       expect(component.form.controls.document.errors).toBeNull();
@@ -313,7 +316,7 @@ describe(ZacFile.name, () => {
       component.key = "requiredDocument";
       component.ngOnInit();
       component.form.controls.requiredDocument.addValidators(
-        Validators.required
+        Validators.required,
       );
       fixture.detectChanges();
     });
@@ -340,13 +343,13 @@ describe(ZacFile.name, () => {
       component.allowedFileTypes = [".txt", ".pdf"];
       fixture.detectChanges();
       const validFile = createMockFile("document.txt", 1024);
-      const mockEvent = {
-        target: {
+      const mockEvent = fromPartial<Event>({
+        target: fromPartial<HTMLInputElement>({
           files: [validFile],
-        },
-      } as unknown as Event;
+        }),
+      });
 
-      (component as any).selectedFile(mockEvent);
+      component["selectedFile"](mockEvent);
 
       expect(component.form.controls.document.value).toBe(validFile);
       expect(component.form.controls.document.errors).toBeNull();
@@ -365,13 +368,13 @@ describe(ZacFile.name, () => {
       component.maxFileSizeMB = 2;
       fixture.detectChanges();
       const validFile = createMockFile("test.txt", 1024 * 1024); // 1MB
-      const mockEvent = {
-        target: {
+      const mockEvent = fromPartial<Event>({
+        target: fromPartial<HTMLInputElement>({
           files: [validFile],
-        },
-      } as unknown as Event;
+        }),
+      });
 
-      (component as any).selectedFile(mockEvent);
+      component["selectedFile"](mockEvent);
 
       expect(component.form.controls.document.value).toBe(validFile);
       expect(component.form.controls.document.errors).toBeNull();
@@ -388,23 +391,26 @@ describe(ZacFile.name, () => {
 
     it("should update display control with file name without extension", () => {
       const mockFile = createMockFile("test-document.txt", 1024);
-      const mockEvent = {
-        target: {
+      const mockEvent = fromPartial<Event>({
+        target: fromPartial<HTMLInputElement>({
           files: [mockFile],
-        },
-      } as unknown as Event;
+        }),
+      });
 
-      (component as any).selectedFile(mockEvent);
+      component["selectedFile"](mockEvent);
 
       expect(component["displayControl"].value).toBe("test-document");
     });
 
-    it("should clear display control when file is reset", () => {
+    it("should clear display control when file is reset", async () => {
       const mockFile = createMockFile("test.txt", 1024);
       component.form.controls.document.setValue(mockFile);
       component["displayControl"].setValue("test");
 
-      (component as any).reset();
+      const resetButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "delete" }),
+      );
+      await resetButton.click();
 
       expect(component["displayControl"].value).toBeNull();
     });

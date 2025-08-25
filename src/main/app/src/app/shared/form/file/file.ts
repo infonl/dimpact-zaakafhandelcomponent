@@ -22,7 +22,7 @@ import {
   Validators,
 } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { Subject, Subscription, takeUntil } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 import { FileIcon } from "../../../informatie-objecten/model/file-icon";
 import { FormHelper } from "../helpers";
 
@@ -41,7 +41,7 @@ export class ZacFile<
   @Input({ transform: booleanAttribute }) readonly = false;
   @Input() label?: string;
   @Input() allowedFileTypes: string[] = FileIcon.fileIcons.map((icon) =>
-    icon.getBestandsextensie()
+    icon.getBestandsextensie(),
   );
   @Input({ transform: numberAttribute }) maxFileSizeMB: number = 500;
   @ViewChild("fileInput") fileInput!: ElementRef;
@@ -55,7 +55,7 @@ export class ZacFile<
   constructor(
     private readonly translateService: TranslateService,
     private readonly changeDetector: ChangeDetectorRef,
-    private readonly formBuilder: FormBuilder
+    private readonly formBuilder: FormBuilder,
   ) {}
 
   ngOnInit() {
@@ -129,7 +129,7 @@ export class ZacFile<
     this.control?.patchValue(file, { emitEvent: false });
     this.displayControl.patchValue(
       file ? file.name.replace(`.${this.getFileExtension(file)}`, "") : null,
-      { emitEvent: false }
+      { emitEvent: false },
     );
     this.changeDetector.detectChanges();
   }
