@@ -41,4 +41,15 @@ class ZaaktypeBpmnProcessDefinitionService @Inject constructor(
                 entityManager.createQuery(query).resultStream.findFirst().orElse(null)
             }
         }
+
+    /**
+     * Returns a list of all BPMN process definitions.
+     */
+    fun listBpmnProcessDefinitions(): List<ZaaktypeBpmnProcessDefinition> =
+        entityManager.criteriaBuilder.let { criteriaBuilder ->
+            criteriaBuilder.createQuery(ZaaktypeBpmnProcessDefinition::class.java).let { query ->
+                query.from(ZaaktypeBpmnProcessDefinition::class.java)
+                entityManager.createQuery(query).resultList
+            }
+        }
 }

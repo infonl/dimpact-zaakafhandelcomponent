@@ -5,6 +5,7 @@
 package nl.info.zac.mailtemplates
 
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.annotation.Tags
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
@@ -24,7 +25,9 @@ import nl.info.zac.mailtemplates.exception.MailTemplateNotFoundException
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
 import nl.info.zac.mailtemplates.model.createMailTemplate
+import nl.info.zac.test.listener.MockkClearingTestListener.Companion.NO_MOCK_CLEANUP
 
+@Tags(NO_MOCK_CLEANUP)
 class MailTemplateServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>()
     val criteriaBuilder = mockk<CriteriaBuilder>()

@@ -11,6 +11,8 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_INITIALIZATION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 
@@ -23,7 +25,12 @@ class ZaaktypeBpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         When("a mapping is created") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/bpmn-process-definition/$BPMN_TEST_PROCESS_ID/connect",
-                requestBodyAsString = """{ "zaaktypeUuid": "$ZAAKTYPE_BPMN_TEST_UUID" }"""
+                requestBodyAsString = """{ 
+                  "zaaktypeUuid": "$ZAAKTYPE_BPMN_TEST_UUID",
+                  "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
+                  "productaanvraagtype": "$ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE"
+                }
+                """.trimIndent()
             )
 
             Then("the response is successful") {

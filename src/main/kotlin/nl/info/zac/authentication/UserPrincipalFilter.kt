@@ -17,6 +17,7 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.exception.PabcRuntimeException
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
+import nl.info.zac.flowable.bpmn.ZaaktypeBpmnProcessDefinitionService
 import nl.info.zac.identity.model.ZACRole
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -38,6 +39,7 @@ class UserPrincipalFilter
 @Inject
 constructor(
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
+    private val zaaktypeBpmnProcessDefinitionService: ZaaktypeBpmnProcessDefinitionService,
     private val pabcClientService: PabcClientService,
     @ConfigProperty(name = "FEATURE_FLAG_PABC_INTEGRATION", defaultValue = "false")
     private val pabcIntegrationEnabled: Boolean
@@ -191,7 +193,7 @@ constructor(
         if (roles.contains(ZACRole.DOMEIN_ELK_ZAAKTYPE.value)) {
             null
         } else {
-            zaakafhandelParameterService
+            val zaakafhandelParameterDescriptions = zaakafhandelParameterService
                 .listZaakafhandelParameters()
                 // group by zaaktype omschrijving since this is the unique identifier for a
                 // zaaktype
@@ -206,5 +208,15 @@ constructor(
                 .filter { it.domein != null && roles.contains(it.domein) }
                 .map { it.zaaktypeOmschrijving }
                 .toSet()
+
+            // Note that for BPMN zaaktypes below, we're not doing ANY filtering/authorisation, as we have no domain
+            // entity. This means that ALL BPMN zaaktypes will be visible to the user.
+            // This function should be removed once we have migrated to the new PABC-based IAM architecture, and the
+            // code below should be replaced with proper authorisation logic for BPMN zaaktypes.
+            val zaaktypeBpmnProcessDefinitionDescriptions = zaaktypeBpmnProcessDefinitionService
+                .listBpmnProcessDefinitions()
+                .map { it.zaaktypeOmschrijving }
+
+            zaakafhandelParameterDescriptions + zaaktypeBpmnProcessDefinitionDescriptions
         }
 }
