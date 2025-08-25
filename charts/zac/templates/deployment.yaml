@@ -89,7 +89,8 @@ spec:
       {{- if .Values.initContainer.enabled }}
       initContainers:
       - name: check-opa-ready
-        image: {{ .Values.initContainer.image.repository }}:{{ .Values.initContainer.image.tag }}
+        image: {{ .Values.global.curlImage.repository }}:{{ .Values.global.curlImage.tag }}
+        imagePullPolicy: {{ .Values.global.curlImage.pullPolicy }}
         {{- if .Values.opa.url }}
         command: ['sh','-c','until curl {{ .Values.opa.url }};do echo waiting for opa;sleep 5;done;']
         {{- else }}

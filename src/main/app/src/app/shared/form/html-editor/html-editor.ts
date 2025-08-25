@@ -4,11 +4,34 @@
  *
  */
 
-import { booleanAttribute, Component, Input, OnInit } from "@angular/core";
+import {
+  booleanAttribute,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  SecurityContext,
+} from "@angular/core";
 import { AbstractControl, FormGroup, Validators } from "@angular/forms";
+import { DomSanitizer } from "@angular/platform-browser";
 import { TranslateService } from "@ngx-translate/core";
 import { Editor, Toolbar } from "ngx-editor";
+import { Schema } from "prosemirror-model";
 import { FormHelper } from "../helpers";
+
+const plainTextSchema = new Schema({
+  nodes: {
+    doc: { content: "text*" },
+    paragraph: {
+      content: "text*",
+      group: "block",
+      parseDOM: [{ tag: "p" }],
+      toDOM: () => ["p", 0],
+    },
+    text: {},
+  },
+  marks: {},
+});
 
 @Component({
   selector: "zac-html-editor",
@@ -16,14 +39,15 @@ import { FormHelper } from "../helpers";
   styleUrls: ["./html-editor.less"],
 })
 export class ZacHtmlEditor<
-  Form extends Record<string, AbstractControl>,
-  Key extends keyof Form,
-> implements OnInit
+    Form extends Record<string, AbstractControl>,
+    Key extends keyof Form,
+  >
+  implements OnInit, OnDestroy
 {
   @Input({ required: true }) key!: Key & string;
   @Input({ required: true }) form!: FormGroup<Form>;
   @Input({ transform: booleanAttribute }) readonly = false;
-  @Input({ transform: booleanAttribute }) noToolbar = false;
+  @Input({ transform: booleanAttribute }) isPlainText = false;
   @Input() toolbar: Toolbar = [
     ["bold", "italic", "underline"],
     ["blockquote"],
@@ -37,17 +61,37 @@ export class ZacHtmlEditor<
   @Input() variables: string[] = [];
   @Input() label?: string;
 
-  protected readonly editor = new Editor();
+  protected editor = new Editor();
 
   protected maxlength: number | null = null;
-  protected control?: AbstractControl<string>;
+  protected control?: AbstractControl<string | null>;
 
-  constructor(private readonly translateService: TranslateService) {}
+  constructor(
+    private readonly translateService: TranslateService,
+    private readonly domSanitizer: DomSanitizer,
+  ) {}
 
   ngOnInit() {
     this.control = this.form.get(String(this.key))!;
     this.maxlength = FormHelper.getValidatorValue("maxLength", this.control);
-    if (this.noToolbar) this.toolbar = [];
+
+    if (this.isPlainText) this.setupPlainTextEditor();
+  }
+
+  private setupPlainTextEditor() {
+    this.toolbar = [];
+    this.editor.destroy();
+
+    const sanitized = this.domSanitizer.sanitize(
+      SecurityContext.HTML,
+      this.control?.value ?? null,
+    );
+    this.control?.setValue(sanitized);
+
+    this.editor = new Editor({
+      keyboardShortcuts: false,
+      schema: plainTextSchema,
+    });
   }
 
   protected get required() {
@@ -56,4 +100,8 @@ export class ZacHtmlEditor<
 
   protected getErrorMessage = () =>
     FormHelper.getErrorMessage(this.control, this.translateService);
+
+  ngOnDestroy() {
+    this.editor.destroy();
+  }
 }

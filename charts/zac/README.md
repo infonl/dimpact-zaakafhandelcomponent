@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.110](https://img.shields.io/badge/Version-1.0.110-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
+![Version: 1.0.111](https://img.shields.io/badge/Version-1.0.111-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -78,6 +78,9 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | gemeente.code | string | `""` |  |
 | gemeente.mail | string | `""` |  |
 | gemeente.naam | string | `""` |  |
+| global.curlImage.pullPolicy | string | `"IfNotPresent"` |  |
+| global.curlImage.repository | string | `"curlimages/curl"` | curl docker repository used throughout the chart |
+| global.curlImage.tag | string | `"8.15.0@sha256:4026b29997dc7c823b51c164b71e2b51e0fd95cce4601f78202c513d97da2922"` | curl docker tag to pull |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/infonl/zaakafhandelcomponent"` |  |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
@@ -90,8 +93,6 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` |  |
 | ingress.tls | list | `[]` |  |
 | initContainer.enabled | bool | `true` |  |
-| initContainer.image.repository | string | `"curlimages/curl"` |  |
-| initContainer.image.tag | string | `"8.15.0@sha256:4026b29997dc7c823b51c164b71e2b51e0fd95cce4601f78202c513d97da2922"` |  |
 | javaOptions | string | `""` | JVM startup options. defaults to "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime" |
 | keycloak.adminClient.id | string | `""` | Keycloak ZAC admin client name |
 | keycloak.adminClient.secret | string | `""` | Keycloak ZAC admin client secret |
@@ -271,9 +272,6 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | signaleringen.deleteOldSignaleringenSchedule | string | `"0 3 * * *"` | Schedule of the 'delete old signaleringen' send job in CRON job format |
 | signaleringen.deleteOlderThanDays | string | `"14"` | Delete any signaleringen older than this number of days when the corresponding admin endpoint is called. |
 | signaleringen.failedJobsHistoryLimit | int | `3` |  |
-| signaleringen.image.pullPolicy | string | `"IfNotPresent"` |  |
-| signaleringen.image.repository | string | `"curlimages/curl"` |  |
-| signaleringen.image.tag | string | `"8.15.0@sha256:4026b29997dc7c823b51c164b71e2b51e0fd95cce4601f78202c513d97da2922"` |  |
 | signaleringen.imagePullSecrets | list | `[]` |  |
 | signaleringen.nodeSelector | object | `{}` |  |
 | signaleringen.podSecurityContext | object | `{}` |  |
@@ -310,9 +308,6 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |
 | solr-operator.solr.jobs.createZacCore | bool | `true` | enable createZacCore to have a curl statement generate the zac core in the provided solrcloud if it does not exist yet |
-| solr-operator.solr.jobs.image.pullPolicy | string | `"IfNotPresent"` | solr jobs imagePullPolicy |
-| solr-operator.solr.jobs.image.repository | string | `"curlimages/curl"` | solr jobs repository |
-| solr-operator.solr.jobs.image.tag | string | `"8.15.0@sha256:4026b29997dc7c823b51c164b71e2b51e0fd95cce4601f78202c513d97da2922"` | solr jobs tag |
 | solr-operator.solr.jobs.nodeSelector | object | `{}` | nodeSelector for jobs |
 | solr-operator.solr.jobs.tolerations | list | `[]` | tolerations for jobs |
 | solr-operator.solr.logLevel | string | `"INFO"` | solr loglevel |
