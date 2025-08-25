@@ -261,9 +261,7 @@ services:
         condition: service_started
 
   brp-personen-mock:
-    # do not upgrade to version '2.7.0-202508211438' because that fails to run on a Mac (ARM)
-    image: ghcr.io/brp-api/personen-mock:2.7.0-202507011650@sha256:5c8006ac4e4b7e96a32a7a1a42cab43f74ca95f0174cdb6b40dece2e717f8df4
-    platform: linux/amd64
+    image: ghcr.io/brp-api/personen-mock:2.7.0-202508211438@sha256:43062e9200a1ae7cb92f1830acf0ab7ca19272dea0756400caaeb4748bed9fa5
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
