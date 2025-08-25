@@ -27,7 +27,7 @@ class ZaaktypeBpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/bpmn-process-definition/$BPMN_TEST_PROCESS_ID/connect",
                 requestBodyAsString = """{ 
                   "zaaktypeUuid": "$ZAAKTYPE_BPMN_TEST_UUID",
-                  "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
+                  "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
                   "productaanvraagtype": "$ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE"
                 }
                 """.trimIndent()
