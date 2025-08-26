@@ -59,6 +59,9 @@ public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoonIdentific
         if (betrokkeneIdentificatie.getInnNnpId() != null || identificatie.getInnNnpId() != null) {
             return Objects.equals(betrokkeneIdentificatie.getInnNnpId(), identificatie.getInnNnpId());
         }
+        if (betrokkeneIdentificatie.getKvkNummer() != null || identificatie.getKvkNummer() != null) {
+            return Objects.equals(betrokkeneIdentificatie.getKvkNummer(), identificatie.getKvkNummer());
+        }
         if (betrokkeneIdentificatie.getVestigingsNummer() != null || identificatie.getVestigingsNummer() != null) {
             return Objects.equals(betrokkeneIdentificatie.getVestigingsNummer(), identificatie.getVestigingsNummer());
         }
@@ -83,9 +86,16 @@ public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoonIdentific
         if (identificatie == null) {
             return null;
         }
+        // new 'RSIN-type' initiators only have a KVK number (but no vestigingsnummer)
+        if (StringUtils.isNotBlank(identificatie.getKvkNummer()) && StringUtils.isBlank(identificatie.getVestigingsNummer())) {
+            return identificatie.getKvkNummer();
+        }
+        // we also support 'legacy' RSIN-type initiators with only an RSIN (no KVK number)
         if (StringUtils.isNotEmpty(identificatie.getInnNnpId())) {
             return identificatie.getInnNnpId();
         }
+        // lastly we support the 'vestiging-type' initiators that have both a KVK number and a vestigingsnummer
+        // note that the KVK number is not part of this class but returned differently
         return identificatie.getVestigingsNummer();
     }
 
@@ -97,6 +107,9 @@ public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoonIdentific
         }
         if (identificatie.getInnNnpId() != null) {
             return Objects.hash(getBetrokkeneIdentificatie().getInnNnpId());
+        }
+        if (identificatie.getKvkNummer() != null) {
+            return Objects.hash(getBetrokkeneIdentificatie().getKvkNummer());
         }
         if (identificatie.getVestigingsNummer() != null) {
             return Objects.hash(getBetrokkeneIdentificatie().getVestigingsNummer());

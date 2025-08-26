@@ -139,10 +139,13 @@ class RestZaakConverter @Inject constructor(
             groep = groep,
             behandelaar = behandelaar,
             initiatorIdentificatie = initiator?.identificatienummer,
+            // KVK nummer is only set for vestigingen (which also have a vestigingsnummer)
+            // rechtspersonen, which only have a KVK nummer, instead set the KVK number in the `initiatorIdentificatie` field
+            // we should probably refactor this logic at some point
             kvkNummer = when (initiator?.betrokkeneType) {
                 NIET_NATUURLIJK_PERSOON -> {
                     val identificatie = initiator.betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie
-                    if (identificatie?.vestigingsNummer?.isNotBlank() == true) identificatie?.kvkNummer else null
+                    if (identificatie?.vestigingsNummer?.isNotBlank() == true) identificatie.kvkNummer else null
                 }
                 else -> null
             },
@@ -153,10 +156,13 @@ class RestZaakConverter @Inject constructor(
             initiatorIdentificatieType = when (val betrokkeneType = initiator?.betrokkeneType) {
                 NATUURLIJK_PERSOON -> IdentificatieType.BSN
                 VESTIGING -> IdentificatieType.VN
-                // niet_natuurlijk_persoon rol type is used for 'RSIN-type' niet-natuurlijke personen but also for vestigingen
+                // the niet_natuurlijk_persoon rol type is used both for rechtspersonen ('RSIN') as well as vestigingen
                 NIET_NATUURLIJK_PERSOON -> (initiator.betrokkeneIdentificatie as NietNatuurlijkPersoonIdentificatie).let {
                     when {
-                        it.innNnpId?.isNotBlank() == true -> IdentificatieType.RSIN
+                        // we support 'legacy' RSIN-type initiators with only an RSIN (no KVK number)
+                        // as well as new 'RSIN-type' initiators with only a KVK number (but no vestigingsnummer)
+                        (it.innNnpId?.isNotBlank() == true) ||
+                            (it.kvkNummer?.isNotBlank() == true && it.vestigingsNummer?.isBlank() == true) -> IdentificatieType.RSIN
                         it.vestigingsNummer?.isNotBlank() == true -> IdentificatieType.VN
                         else -> null
                     }
