@@ -50,7 +50,6 @@ class AanvullendeInformatieTaskCompleteTest : BehaviorSpec({
                 val responseBody = completeTaskResponse.body.string()
                 logger.info { "Response: $responseBody" }
                 completeTaskResponse.isSuccessful shouldBe true
-                responseBody.shouldBeJsonObject()
                 responseBody.shouldContainJsonKeyValue("toelichting", "completed")
                 responseBody.shouldContainJsonKeyValue("status", "AFGEROND")
             }
