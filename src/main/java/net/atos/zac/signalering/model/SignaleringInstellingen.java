@@ -7,7 +7,7 @@ package net.atos.zac.signalering.model;
 
 import static net.atos.zac.signalering.model.SignaleringTarget.GROUP;
 import static net.atos.zac.signalering.model.SignaleringTarget.USER;
-import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
+import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
