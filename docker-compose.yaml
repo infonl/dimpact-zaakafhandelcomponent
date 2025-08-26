@@ -701,7 +701,7 @@ services:
         condition: "service_healthy"
 
   pabc-api:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.1@sha256:f1e98366ebfd062a7f8b46bb633049a2d7519b553087af4e700c20a14ceb2f06
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.2@sha256:0de32f1e2b688162f1f4eaf89a07030c9ecdd5cd2d0e3854a541ab65cb890430
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
