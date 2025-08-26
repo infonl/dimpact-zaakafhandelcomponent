@@ -54,7 +54,7 @@ jobs:
 
       - name: Run Snyk to check Docker image for vulnerabilities
         continue-on-error: true
-        uses: snyk/actions/docker@10a13eb1b556d09c820d6dbc05233e68b30f10b0 # master
+        uses: snyk/actions/docker@42be729e2071b5ae341ef325acdfaf4b7357a068 # master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
