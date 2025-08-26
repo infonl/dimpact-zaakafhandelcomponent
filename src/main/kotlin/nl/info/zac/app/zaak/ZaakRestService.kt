@@ -102,6 +102,7 @@ import nl.info.zac.app.zaak.model.RestZaakAssignmentData
 import nl.info.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
 import nl.info.zac.app.zaak.model.RestZaakBetrokkene
 import nl.info.zac.app.zaak.model.RestZaakBetrokkeneGegevens
+import nl.info.zac.app.zaak.model.RestZaakCreateData
 import nl.info.zac.app.zaak.model.RestZaakInitiatorGegevens
 import nl.info.zac.app.zaak.model.RestZaakLinkData
 import nl.info.zac.app.zaak.model.RestZaakLocatieGegevens
@@ -1044,7 +1045,7 @@ class ZaakRestService @Inject constructor(
     }
 
     private fun addInitiator(
-        restZaak: RestZaak,
+        restZaak: RestZaakCreateData,
         zaak: Zaak,
         zaakType: ZaakType
     ) {
@@ -1090,7 +1091,7 @@ class ZaakRestService @Inject constructor(
         zaaktypeUUID: UUID,
         zaak: Zaak,
         zaakType: ZaakType,
-        restZaak: RestZaak
+        restZaak: RestZaakCreateData
     ) {
         // if BPMN support is enabled and a BPMN process definition is defined for the zaaktype, start a BPMN process;
         // otherwise start a CMMN case
@@ -1117,7 +1118,7 @@ class ZaakRestService @Inject constructor(
     }
 
     private fun updateZaakRoles(
-        restZaak: RestZaak,
+        restZaak: RestZaakCreateData,
         zaak: Zaak
     ) {
         restZaak.groep?.let {
@@ -1412,7 +1413,7 @@ class ZaakRestService @Inject constructor(
 
     private fun speciaalMail(mail: String): SpecialMail? = if (!mail.contains("@")) SpecialMail.valueOf(mail) else null
 
-    private fun assertCanAddBetrokkene(restZaak: RestZaak) {
+    private fun assertCanAddBetrokkene(restZaak: RestZaakCreateData) {
         restZaak.initiatorIdentificatieType?.let {
             val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
                 restZaak.zaaktype.uuid

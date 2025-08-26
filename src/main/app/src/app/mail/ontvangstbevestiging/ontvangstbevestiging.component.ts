@@ -83,10 +83,10 @@ export class OntvangstbevestigingComponent implements OnInit {
         this.variables = mailtemplate?.variabelen ?? [];
       });
 
-    if (!this.zaak.initiatorIdentificatie) return;
+    if (!this.zaak.initiatorIdentificatie?.bsnNummer) return;
 
     this.klantenService
-      .ophalenContactGegevens(this.zaak.initiatorIdentificatie)
+      .ophalenContactGegevens(this.zaak.initiatorIdentificatie.bsnNummer)
       .subscribe((gegevens) => {
         this.contactGegevens = gegevens;
       });

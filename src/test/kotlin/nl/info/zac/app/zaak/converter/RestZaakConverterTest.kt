@@ -127,8 +127,10 @@ class RestZaakConverterTest : BehaviorSpec({
                 with(restZaak) {
                     uuid shouldBe zaak.uuid
                     identificatie shouldBe zaak.identificatie
-                    initiatorIdentificatie shouldBe bsn
-                    initiatorIdentificatieType shouldBe IdentificatieType.BSN
+                    with(initiatorIdentificatie!!) {
+                        this.type shouldBe IdentificatieType.BSN
+                        this.bsnNummer shouldBe bsn
+                    }
                     omschrijving shouldBe zaak.omschrijving
                     toelichting shouldBe zaak.toelichting
                     this.zaaktype shouldBe zaaktype
@@ -179,8 +181,10 @@ class RestZaakConverterTest : BehaviorSpec({
                 with(restZaak) {
                     uuid shouldBe zaak.uuid
                     identificatie shouldBe zaak.identificatie
-                    initiatorIdentificatie shouldBe vestigingsNummer
-                    initiatorIdentificatieType shouldBe IdentificatieType.VN
+                    with(initiatorIdentificatie!!) {
+                        this.type shouldBe IdentificatieType.VN
+                        this.vestigingsnummer shouldBe vestigingsNummer
+                    }
                     omschrijving shouldBe zaak.omschrijving
                     toelichting shouldBe zaak.toelichting
                     this.zaaktype shouldBe zaaktype
@@ -231,8 +235,10 @@ class RestZaakConverterTest : BehaviorSpec({
                 with(restZaak) {
                     uuid shouldBe zaak.uuid
                     identificatie shouldBe zaak.identificatie
-                    initiatorIdentificatie shouldBe rsin
-                    initiatorIdentificatieType shouldBe IdentificatieType.RSIN
+                    with(initiatorIdentificatie!!) {
+                        this.type shouldBe IdentificatieType.RSIN
+                        this.rsinNummer shouldBe rsin
+                    }
                     omschrijving shouldBe zaak.omschrijving
                     toelichting shouldBe zaak.toelichting
                     this.zaaktype shouldBe zaaktype

@@ -1505,7 +1505,7 @@ export class ZaakViewComponent
 
     return Boolean(
       brpKoppelen &&
-        ["BSN"].includes(this.zaak.initiatorIdentificatieType ?? ""),
+        ["BSN"].includes(this.zaak.initiatorIdentificatie?.type ?? ""),
     );
   }
 
@@ -1518,7 +1518,7 @@ export class ZaakViewComponent
 
     return Boolean(
       kvkKoppelen &&
-        ["VN", "RSIN"].includes(this.zaak.initiatorIdentificatieType ?? ""),
+        ["VN", "RSIN"].includes(this.zaak.initiatorIdentificatie?.type ?? ""),
     );
   }
 
