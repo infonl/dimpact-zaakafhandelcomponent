@@ -1293,7 +1293,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A zaak without an initiator") {
+        Given("A zaak without an initiator and an initiator of type vestiging") {
             val kvkNummer = "1234567"
             val vestigingsnummer = "00012352546"
             val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens(
@@ -1322,14 +1322,14 @@ class ZaakRestServiceTest : BehaviorSpec({
             } just runs
             every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten) } returns createRestZaak()
 
-            When("the initiator is updated with an explanation") {
+            When("the initiator is updated") {
                 zaakRestService.updateInitiator(
                     restZaakInitiatorGegevens.apply {
                         toelichting = "test reden"
                     }
                 )
 
-                Then("the explanation should get saved") {
+                Then("the initiator should be added to the zaak") {
                     verify(exactly = 1) {
                         zaakService.addInitiatorToZaak(
                             IdentificatieType.VN,
@@ -1356,6 +1356,85 @@ class ZaakRestServiceTest : BehaviorSpec({
                             any(),
                             "Toegekend door de medewerker tijdens het behandelen van de zaak"
                         )
+                    }
+                }
+            }
+        }
+
+        Given("A zaak without an initiator and an initiator of type rechtspersoon") {
+            val kvkNummer = "1234567"
+            val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens(
+                betrokkeneIdentificatie = BetrokkeneIdentificatie(
+                    type = IdentificatieType.RSIN,
+                    kvkNummer = kvkNummer,
+                )
+            )
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten()
+
+            every {
+                zaakService.readZaakAndZaakTypeByZaakUUID(restZaakInitiatorGegevens.zaakUUID)
+            } returns Pair(zaak, zaakType)
+            every { zgwApiService.findInitiatorRoleForZaak(any()) } returns null
+            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
+            every {
+                zaakService.addInitiatorToZaak(
+                    IdentificatieType.RSIN,
+                    kvkNummer,
+                    zaak,
+                    any()
+                )
+            } just runs
+            every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten) } returns createRestZaak()
+
+            When("the initiator is updated") {
+                zaakRestService.updateInitiator(
+                    restZaakInitiatorGegevens.apply {
+                        toelichting = "test reden"
+                    }
+                )
+
+                Then("the initiator should be added to the zaak") {
+                    verify(exactly = 1) {
+                        zaakService.addInitiatorToZaak(
+                            IdentificatieType.RSIN,
+                            kvkNummer,
+                            any(),
+                            "test reden"
+                        )
+                    }
+                }
+            }
+        }
+
+        Given("A zaak without an initiator and an initiator of type rechtspersoon without a KVK nummer") {
+            clearAllMocks()
+            val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens(
+                betrokkeneIdentificatie = BetrokkeneIdentificatie(
+                    type = IdentificatieType.RSIN,
+                    kvkNummer = null,
+                )
+            )
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten()
+
+            every {
+                zaakService.readZaakAndZaakTypeByZaakUUID(restZaakInitiatorGegevens.zaakUUID)
+            } returns Pair(zaak, zaakType)
+            every { zgwApiService.findInitiatorRoleForZaak(any()) } returns null
+            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
+
+            When("the initiator is updated without a required KVK nummer") {
+                val exception = shouldThrow<IllegalArgumentException> {
+                    zaakRestService.updateInitiator(restZaakInitiatorGegevens)
+                }
+
+                Then("and exception should be thrown and the initiator should not be added to the zaak") {
+                    exception.message shouldBe "KVK nummer is required for type RSIN"
+                    verify(exactly = 0) {
+                        zaakService.addInitiatorToZaak(any(), any(), any(), any())
                     }
                 }
             }

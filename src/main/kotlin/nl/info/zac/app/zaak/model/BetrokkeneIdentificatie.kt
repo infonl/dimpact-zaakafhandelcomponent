@@ -22,8 +22,7 @@ data class BetrokkeneIdentificatie(
     var type: IdentificatieType,
     var bsnNummer: String? = null,
     var kvkNummer: String? = null,
-    var vestigingsnummer: String? = null,
-    var rsinNummer: String? = null
+    var vestigingsnummer: String? = null
 )
 
 @Target(AnnotationTarget.CLASS)
@@ -38,19 +37,15 @@ annotation class ValidBetrokkeneIdentificatie(
 class BetrokkeneIdentificatieValidator : ConstraintValidator<ValidBetrokkeneIdentificatie, BetrokkeneIdentificatie> {
     override fun isValid(value: BetrokkeneIdentificatie?, context: ConstraintValidatorContext): Boolean {
         if (value == null) return false
-
         return when (value.type) {
             IdentificatieType.BSN -> !value.bsnNummer.isNullOrBlank() &&
                 value.kvkNummer.isNullOrBlank() &&
-                value.vestigingsnummer.isNullOrBlank() &&
-                value.rsinNummer.isNullOrBlank()
+                value.vestigingsnummer.isNullOrBlank()
             IdentificatieType.VN -> !value.kvkNummer.isNullOrBlank() &&
                 !value.vestigingsnummer.isNullOrBlank() &&
+                value.bsnNummer.isNullOrBlank()
+            IdentificatieType.RSIN -> !value.kvkNummer.isNullOrBlank() &&
                 value.bsnNummer.isNullOrBlank() &&
-                value.rsinNummer.isNullOrBlank()
-            IdentificatieType.RSIN -> !value.rsinNummer.isNullOrBlank() &&
-                value.bsnNummer.isNullOrBlank() &&
-                value.kvkNummer.isNullOrBlank() &&
                 value.vestigingsnummer.isNullOrBlank()
         }
     }

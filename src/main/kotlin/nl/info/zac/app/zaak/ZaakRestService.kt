@@ -1036,9 +1036,9 @@ class ZaakRestService @Inject constructor(
                 IdentificatieType.VN to createVestigingIdentificationString(kvk, vestiging)
             }
             IdentificatieType.RSIN -> {
-                val rsin = betrokkeneIdentificatie.rsinNummer
-                require(!rsin.isNullOrBlank()) { "RSIN is required for type RSIN" }
-                IdentificatieType.RSIN to rsin
+                val kvk = betrokkeneIdentificatie.kvkNummer
+                require(!kvk.isNullOrBlank()) { "KVK nummer is required for type RSIN" }
+                IdentificatieType.RSIN to kvk
             }
         }
     }
