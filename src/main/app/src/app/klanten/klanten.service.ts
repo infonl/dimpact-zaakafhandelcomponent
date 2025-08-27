@@ -61,7 +61,7 @@ export class KlantenService {
     }
 
     // legacy solution
-    return this.zacHttpClient.GET("/rest/klanten/rechtspersoon/{rsin}", {
+    return this.zacHttpClient.GET("/rest/klanten/rechtspersoon/rsin/{rsin}", {
       path: { rsin: rsinNummer ?? "823807071" },
     });
   }

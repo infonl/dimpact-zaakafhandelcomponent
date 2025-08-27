@@ -49,12 +49,12 @@
     ></zac-informatie-object-add>
     <zac-informatie-object-link
       *ngSwitchCase="'actie.document.verplaatsen'"
-      [actionLabel]="'actie.document.verplaatsen'"
+      actionLabel="actie.document.verplaatsen"
       [infoObject]="documentToMove"
       [sideNav]="actionsSidenav"
       [source]="zaak?.identificatie"
       (informationObjectLinked)="updateZaakDocumentList()"
-    ></zac-informatie-object-link>
+    />
   </mat-drawer>
   <mat-drawer-content>
     <div class="flex-row flex-wrap gap-10">
@@ -105,15 +105,15 @@
                   class="content flex flex-row flex-wrap justify-start gap-10"
                 >
                   <zac-static-text
-                    [label]="'naam' | translate"
+                    label="naam"
                     [value]="taak?.naam"
                     class="flex-item"
-                  ></zac-static-text>
+                  />
                   <zac-static-text
-                    [label]="'taak.status' | translate"
+                    label="taak.status"
                     [value]="'taak.status.' + taak?.status | translate"
                     class="flex-item"
-                  ></zac-static-text>
+                  />
 
                   <div class="flex-double-item">
                     <zac-edit-groep-behandelaar
@@ -132,16 +132,16 @@
                     <mat-divider></mat-divider>
                   </div>
                   <zac-static-text
-                    [label]="'creatiedatum' | translate"
+                    label="creatiedatum"
                     [value]="taak?.creatiedatumTijd | datum"
                     class="flex-item"
-                  ></zac-static-text>
+                  />
                   <zac-static-text
-                    [label]="'fataledatum' | translate"
+                    label="fataledatum"
                     [value]="taak?.fataledatum | datum"
                     [icon]="fataledatumIcon"
                     class="flex-item"
-                  ></zac-static-text>
+                  />
                 </div>
               </mat-tab>
               <mat-tab label="{{ 'historie' | translate }}">

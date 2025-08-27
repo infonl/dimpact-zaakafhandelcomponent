@@ -14,18 +14,25 @@
 
 <div class="form" *ngIf="infoObject">
   <p>{{ intro }}</p>
-  <mfb-form-field class="flex-1" [field]="caseSearchField"></mfb-form-field>
-  <button
-    mat-raised-button
-    color="primary"
-    [disabled]="!isValid || loading"
-    (click)="searchCases()"
-  >
-    {{ "actie.zoeken" | translate }}
-  </button>
-  <button mat-raised-button (click)="reset()">
-    {{ "actie.wissen" | translate }}
-  </button>
+  <form [formGroup]="form" (submit)="searchCases()" class="mt-2">
+    <fieldset class="p-0">
+      <zac-input [form]="form" key="caseSearch" label="zaak.identificatie" />
+    </fieldset>
+    <fieldset class="p-0">
+      <mat-action-row>
+        <button
+          mat-raised-button
+          type="submit"
+          [disabled]="form.invalid || loading"
+        >
+          {{ "actie.zoeken" | translate }}
+        </button>
+        <button mat-raised-button type="reset" (click)="reset()">
+          {{ "actie.wissen" | translate }}
+        </button>
+      </mat-action-row>
+    </fieldset>
+  </form>
 
   <div class="table-wrapper">
     <table mat-table [dataSource]="cases" matSort>

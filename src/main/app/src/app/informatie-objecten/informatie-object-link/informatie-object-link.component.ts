@@ -8,92 +8,72 @@ import {
   EventEmitter,
   Input,
   OnChanges,
-  OnDestroy,
   OnInit,
   Output,
   SimpleChanges,
 } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { TranslateService } from "@ngx-translate/core";
-import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
-import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
-import { AbstractFormControlField } from "src/app/shared/material-form-builder/model/abstract-form-control-field";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 
-enum DocumentAction {
-  LINK = "actie.document.koppelen",
-  MOVE = "actie.document.verplaatsen",
-}
+type DocumentAction = "actie.document.koppelen" | "actie.document.verplaatsen";
 
 @Component({
   selector: "zac-informatie-object-link",
   templateUrl: "./informatie-object-link.component.html",
   styleUrls: ["./informatie-object-link.component.less"],
 })
-export class InformatieObjectLinkComponent
-  implements OnInit, OnChanges, OnDestroy
-{
-  @Input() infoObject!:
-    | GeneratedType<"RESTOntkoppeldDocument">
-    | GeneratedType<"RESTInboxDocument">
-    | GeneratedType<"RestEnkelvoudigInformatieobject">;
+export class InformatieObjectLinkComponent implements OnInit, OnChanges {
+  @Input() infoObject?: GeneratedType<
+    | "RESTOntkoppeldDocument"
+    | "RESTInboxDocument"
+    | "RestEnkelvoudigInformatieobject"
+  > | null = null;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Input({ required: true }) source!: string;
-  @Input({ required: true }) actionLabel!: string;
+  @Input({ required: true })
+  actionLabel!: DocumentAction;
   @Output() informationObjectLinked = new EventEmitter<void>();
 
-  public intro: string = "";
-  public caseSearchField?: AbstractFormControlField<string>;
-  public isValid = false;
-  public loading = false;
+  protected intro = "";
+  protected loading = false;
 
-  public documentAction!: DocumentAction;
-  public actionIcon!: string;
+  protected actionIcon!: string;
 
-  public cases = new MatTableDataSource<
+  protected cases = new MatTableDataSource<
     GeneratedType<"RestZaakKoppelenZoekObject">
   >();
-  public totalCases: number = 0;
-  public caseColumns: string[] = [
+  protected totalCases = 0;
+  protected caseColumns = [
     "identificatie",
     "zaaktypeOmschrijving",
     "statustypeOmschrijving",
     "omschrijving",
     "acties",
-  ];
+  ] as const;
 
-  private ngDestroy = new Subject<void>();
+  protected form = this.formBuilder.group({
+    caseSearch: this.formBuilder.control<string | null>(null, [
+      Validators.minLength(2),
+    ]),
+  });
 
   constructor(
-    private zoekenService: ZoekenService,
-    private informatieObjectService: InformatieObjectenService,
-    private utilService: UtilService,
-    private translate: TranslateService,
+    private readonly zoekenService: ZoekenService,
+    private readonly informatieObjectService: InformatieObjectenService,
+    private readonly utilService: UtilService,
+    private readonly translate: TranslateService,
+    private readonly formBuilder: FormBuilder,
   ) {}
 
   ngOnInit() {
-    this.caseSearchField = new InputFormFieldBuilder()
-      .id("zaak")
-      .label("zaak.identificatie")
-      .build();
-
-    this.caseSearchField.formControl.valueChanges
-      .pipe(takeUntil(this.ngDestroy))
-      .subscribe((value) => {
-        this.isValid = (value?.length ?? 0) >= 2;
-      });
-
-    this.documentAction =
-      this.actionLabel === DocumentAction.LINK
-        ? DocumentAction.LINK
-        : DocumentAction.MOVE;
-
     this.actionIcon =
-      this.documentAction === DocumentAction.LINK ? "link" : "move_item";
+      this.actionLabel === "actie.document.koppelen" ? "link" : "move_item";
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -108,15 +88,15 @@ export class InformatieObjectLinkComponent
     }
   }
 
-  searchCases() {
+  protected searchCases() {
     this.loading = true;
     this.utilService.setLoading(true);
-    if (!this.caseSearchField?.formControl.value) return;
-    if (!this.infoObject.informatieobjectTypeUUID) return;
+    if (!this.infoObject?.informatieobjectTypeUUID) return;
 
+    const { caseSearch } = this.form.value;
     this.zoekenService
       .listDocumentKoppelbareZaken({
-        zaakIdentificator: this.caseSearchField.formControl.value!,
+        zaakIdentificator: caseSearch!,
         informationObjectTypeUuid: this.infoObject.informatieobjectTypeUUID,
       })
       .subscribe({
@@ -133,36 +113,23 @@ export class InformatieObjectLinkComponent
       });
   }
 
-  selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
-    const linkDocumentDetails: GeneratedType<"RESTDocumentVerplaatsGegevens"> & {
-      documentTitel?: string;
-    } = {
-      documentUUID:
-        "uuid" in this.infoObject
-          ? this.infoObject.uuid
-          : "documentUUID" in this.infoObject
-            ? this.infoObject.documentUUID
-            : "enkelvoudiginformatieobjectUUID" in this.infoObject
-              ? this.infoObject.enkelvoudiginformatieobjectUUID
-              : "",
-      documentTitel: this.infoObject.titel,
-      bron: this.source,
-      nieuweZaakID: row.identificatie ?? undefined,
-    };
-
-    const msgSnackbarKey =
-      this.documentAction === DocumentAction.LINK
-        ? "msg.document.koppelen.uitgevoerd"
-        : "msg.document.verplaatsen.uitgevoerd";
-
+  protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
     this.informatieObjectService
-      .linkDocumentToCase(linkDocumentDetails)
-      .pipe(takeUntil(this.ngDestroy))
+      .linkDocumentToCase({
+        documentUUID: this.getDocumentUUID(),
+        bron: this.source,
+        nieuweZaakID: row.identificatie ?? undefined,
+      })
       .subscribe({
         next: () => {
+          const msgSnackbarKey =
+            this.actionLabel === "actie.document.koppelen"
+              ? "msg.document.koppelen.uitgevoerd"
+              : "msg.document.verplaatsen.uitgevoerd";
+
           this.utilService.openSnackbar(msgSnackbarKey, {
-            document: this.infoObject.titel,
-            case: linkDocumentDetails.nieuweZaakID,
+            document: this.infoObject!.titel,
+            case: row.identificatie ?? undefined,
           });
           this.close();
           this.informationObjectLinked.emit();
@@ -174,24 +141,28 @@ export class InformatieObjectLinkComponent
       });
   }
 
-  close() {
-    this.sideNav.close();
+  private getDocumentUUID() {
+    if (!this.infoObject) return "";
+    if ("uuid" in this.infoObject) return this.infoObject.uuid;
+    if ("documentUUID" in this.infoObject) return this.infoObject.documentUUID;
+    if ("enkelvoudiginformatieobjectUUID" in this.infoObject)
+      return this.infoObject.enkelvoudiginformatieobjectUUID;
+    return "";
+  }
+
+  protected close() {
+    void this.sideNav.close();
     this.reset();
   }
 
-  rowDisabled(row: GeneratedType<"RestZaakKoppelenZoekObject">): boolean {
+  protected rowDisabled(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
     return !row.isKoppelbaar || row.identificatie === this.source;
   }
 
   protected reset() {
-    this.caseSearchField?.formControl.reset();
+    this.form.reset();
     this.cases.data = [];
     this.totalCases = 0;
     this.loading = false;
-  }
-
-  ngOnDestroy() {
-    this.ngDestroy.next();
-    this.ngDestroy.complete();
   }
 }
