@@ -5,7 +5,7 @@
 
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, ValidatorFn, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import moment, { Moment } from "moment";
 import { UtilService } from "../../core/service/util.service";
@@ -55,6 +55,10 @@ export class BesluitCreateComponent implements OnInit {
     uiterlijkereactiedatum: this.formBuilder.control<Moment | null>(null),
   });
 
+  // For dynamically add minimum date validators
+  private uiterlijkereactiedatumMinDateValidator: ValidatorFn | null = null;
+  private vervaldatumMinDateValidator: ValidatorFn | null = null;
+
   constructor(
     private readonly zakenService: ZakenService,
     private readonly utilService: UtilService,
@@ -67,21 +71,31 @@ export class BesluitCreateComponent implements OnInit {
         if (value?.vervaldatumBesluitVerplicht) {
           this.form.controls.vervaldatum.addValidators([Validators.required]);
         } else {
-          this.form.controls.vervaldatum.removeValidators([Validators.required]);
+          this.form.controls.vervaldatum.removeValidators([
+            Validators.required,
+          ]);
         }
       });
 
     this.form.controls.ingangsdatum.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
+        if (this.vervaldatumMinDateValidator) {
+          this.form.controls.vervaldatum.removeValidators([
+            this.vervaldatumMinDateValidator,
+          ]);
+          this.vervaldatumMinDateValidator = null;
+        }
+
         if (value) {
+          this.vervaldatumMinDateValidator = Validators.min(
+            moment(value).startOf("day").valueOf(),
+          );
           this.form.controls.vervaldatum.addValidators([
-            Validators.min(moment(value).startOf("day").valueOf()),
+            this.vervaldatumMinDateValidator,
           ]);
           return;
         }
-
-        this.form.controls.vervaldatum.removeValidators([Validators.min(0)]);
       });
 
     this.form.controls.besluit.valueChanges
@@ -134,9 +148,18 @@ export class BesluitCreateComponent implements OnInit {
       .clone()
       .add(responseTermDays ?? 0, "days");
     this.form.controls.uiterlijkereactiedatum.setValue(uiterlijkereactiedatum);
-    this.form.controls.uiterlijkereactiedatum.addValidators(
-      Validators.min(moment(uiterlijkereactiedatum).startOf("day").valueOf()),
+
+    if (this.uiterlijkereactiedatumMinDateValidator) {
+      this.form.controls.uiterlijkereactiedatum.removeValidators([
+        this.uiterlijkereactiedatumMinDateValidator,
+      ]);
+    }
+    this.uiterlijkereactiedatumMinDateValidator = Validators.min(
+      moment(uiterlijkereactiedatum).startOf("day").valueOf(),
     );
+    this.form.controls.uiterlijkereactiedatum.addValidators([
+      this.uiterlijkereactiedatumMinDateValidator,
+    ]);
   }
 
   ngOnInit() {
