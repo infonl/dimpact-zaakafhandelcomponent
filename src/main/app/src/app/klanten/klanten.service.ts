@@ -6,7 +6,7 @@
 import { Injectable } from "@angular/core";
 import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { of } from "rxjs";
+import { Observable, of } from "rxjs";
 
 @Injectable({
   providedIn: "root",
@@ -26,7 +26,7 @@ export class KlantenService {
 
   readBedrijf(
     betrokkeneIdentificatie: GeneratedType<"BetrokkeneIdentificatie">,
-  ) {
+  ): Observable<unknown> {
     switch (betrokkeneIdentificatie.type) {
       case "VN":
         return this.readVestiging(
@@ -40,7 +40,7 @@ export class KlantenService {
         );
       case "BSN":
       default:
-        of(null);
+        return of(null);
     }
   }
 
