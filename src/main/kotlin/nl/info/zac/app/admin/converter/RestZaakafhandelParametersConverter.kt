@@ -88,12 +88,12 @@ class RestZaakafhandelParametersConverter @Inject constructor(
                 ?: RestAutomaticEmailConfirmation(),
         )
         if (inclusiefRelaties) {
-            restZaakafhandelParameters.addRelations(zaakafhandelParameters)
+            restZaakafhandelParameters.addRelatedData(zaakafhandelParameters)
         }
         return restZaakafhandelParameters
     }
 
-    private fun RestZaakafhandelParameters.addRelations(zaakafhandelParameters: ZaakafhandelParameters) {
+    private fun RestZaakafhandelParameters.addRelatedData(zaakafhandelParameters: ZaakafhandelParameters) {
         this.caseDefinition?.let { caseDefinition ->
             this.humanTaskParameters =
                 humanTaskParametersConverter.convertHumanTaskParametersCollection(
