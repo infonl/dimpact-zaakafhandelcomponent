@@ -114,6 +114,7 @@ export class BesluitCreateComponent implements OnInit {
     this.form.controls.publicatiedatum.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
+        console.log(value, value?.toISOString());
         if (!value) {
           this.form.controls.uiterlijkereactiedatum.setValue(null);
           this.form.controls.uiterlijkereactiedatum.clearValidators();
@@ -131,7 +132,10 @@ export class BesluitCreateComponent implements OnInit {
     date: Moment,
     responseTermDays?: number | null,
   ) {
-    const uiterlijkereactiedatum = date.add(responseTermDays ?? 0, "days");
+    const uiterlijkereactiedatum = date
+      .clone()
+      .add(responseTermDays ?? 0, "days");
+    console.log(responseTermDays);
     this.form.controls.uiterlijkereactiedatum.setValue(uiterlijkereactiedatum);
     this.form.controls.uiterlijkereactiedatum.addValidators(
       Validators.min(moment(uiterlijkereactiedatum).startOf("day").valueOf()),
@@ -175,9 +179,14 @@ export class BesluitCreateComponent implements OnInit {
             }
           : {}),
       })
-      .subscribe(() => {
-        this.utilService.openSnackbar("msg.besluit.vastgelegd");
-        this.besluitVastgelegd.emit(true);
+      .subscribe({
+        next: () => {
+          this.utilService.openSnackbar("msg.besluit.vastgelegd");
+          this.besluitVastgelegd.emit(true);
+        },
+        error: () => {
+          this.besluitVastgelegd.emit(false);
+        },
       });
   }
 }
