@@ -64,12 +64,11 @@ export class BesluitCreateComponent implements OnInit {
     this.form.controls.resultaat.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
-        if (value) {
+        if (value?.vervaldatumBesluitVerplicht) {
           this.form.controls.vervaldatum.addValidators([Validators.required]);
-          return;
+        } else {
+          this.form.controls.vervaldatum.removeValidators([Validators.required]);
         }
-
-        this.form.controls.vervaldatum.removeValidators([Validators.required]);
       });
 
     this.form.controls.ingangsdatum.valueChanges
