@@ -23,66 +23,54 @@
             id="bedrijfsgegevens"
             class="content flex-row flex-wrap space-between"
           >
+            <zac-static-text label="bedrijfsnaam" [value]="bedrijf?.naam" />
+            <zac-static-text label="kvknummer" [value]="bedrijf?.kvkNummer" />
             <zac-static-text
-              label="bedrijfsnaam"
-              [value]="bedrijf.naam"
-            ></zac-static-text>
-            <zac-static-text
-              label="kvknummer"
-              [value]="bedrijf.kvkNummer"
-            ></zac-static-text>
-            <zac-static-text
-              *ngIf="bedrijf.vestigingsnummer"
+              *ngIf="bedrijf?.vestigingsnummer"
               label="vestigingsnummer"
-              [value]="bedrijf.vestigingsnummer"
-            ></zac-static-text>
+              [value]="bedrijf?.vestigingsnummer"
+            />
             <zac-static-text
-              *ngIf="bedrijf.rsin"
+              *ngIf="bedrijf?.rsin"
               label="rsin"
-              [value]="bedrijf.rsin"
-            ></zac-static-text>
-            <zac-static-text
-              label="type"
-              [value]="bedrijf.type | translate"
-            ></zac-static-text>
+              [value]="bedrijf?.rsin"
+            />
+            <zac-static-text label="type" [value]="bedrijf?.type | translate" />
             <zac-static-text
               *ngIf="!vestigingsprofiel"
               label="adres"
-              [value]="bedrijf.adres | empty"
-            ></zac-static-text>
+              [value]="bedrijf?.adres"
+            />
             <zac-static-text
               *ngFor="let adres of vestigingsprofiel?.adressen"
               [label]="adres.type | titlecase"
-              [value]="adres.volledigAdres | empty"
-            ></zac-static-text>
+              [value]="adres.volledigAdres"
+            />
             <zac-static-text
               label="telefoonnummer"
-              [value]="bedrijf.telefoonnummer | empty"
-            ></zac-static-text>
-            <zac-static-text
-              label="emailadres"
-              [value]="bedrijf.emailadres | empty"
-            ></zac-static-text>
+              [value]="bedrijf?.telefoonnummer"
+            />
+            <zac-static-text label="emailadres" [value]="bedrijf?.emailadres" />
             <zac-static-text
               *ngIf="vestigingsprofiel"
               label="totaalWerkzamePersonen"
-              [value]="vestigingsprofiel.totaalWerkzamePersonen | empty"
-            ></zac-static-text>
+              [value]="vestigingsprofiel.totaalWerkzamePersonen"
+            />
             <zac-static-text
               *ngIf="vestigingsprofiel"
               label="hoofdactiviteit"
-              [value]="vestigingsprofiel.sbiHoofdActiviteit | empty"
-            ></zac-static-text>
+              [value]="vestigingsprofiel.sbiHoofdActiviteit"
+            />
             <zac-static-text
               *ngIf="vestigingsprofiel"
               label="activiteiten"
               [value]="vestigingsprofiel.sbiActiviteiten?.join(',\r\n')"
-            ></zac-static-text>
+            />
             <zac-static-text
               *ngIf="vestigingsprofiel"
               label="website"
-              [value]="vestigingsprofiel.website | empty"
-            ></zac-static-text>
+              [value]="vestigingsprofiel.website"
+            />
           </div>
         </mat-card-content>
       </mat-card>

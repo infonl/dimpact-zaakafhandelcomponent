@@ -45,22 +45,22 @@
             class="w25 w50-md"
             label="resultaat"
             [value]="result?.resultaattype?.naam"
-          ></zac-static-text>
+          />
           <zac-static-text
             class="w25 w50-md"
             label="besluit"
             [value]="besluit.besluittype?.naam"
-          ></zac-static-text>
+          />
           <zac-static-text
             class="w25 w50-md"
             label="datum"
             [value]="besluit.datum | datum"
-          ></zac-static-text>
+          />
           <zac-static-text
             class="w25 w50-md"
             label="ingangsdatum"
             [value]="besluit.ingangsdatum | datum"
-          ></zac-static-text>
+          />
           <zac-static-text
             class="w25 w50-md"
             label="vervaldatum"
@@ -77,24 +77,24 @@
                 ? ('besluit.vervalreden.' + besluit.vervalreden | translate)
                 : null
             "
-          ></zac-static-text>
+          />
           <zac-static-text
             class="w25 w50-md"
             *ngIf="besluit.besluittype?.publication?.enabled"
             label="publicatiedatum"
             [value]="besluit.publicationDate | datum"
-          ></zac-static-text>
+          />
           <zac-static-text
             class="w25 w50-md"
             *ngIf="besluit.besluittype?.publication?.enabled"
             label="uiterlijkereactiedatum"
             [value]="besluit.lastResponseDate | datum"
-          ></zac-static-text>
+          />
           <zac-static-text
             class="flex-fill-row"
             label="besluitToelichting"
             [value]="besluit.toelichting"
-          ></zac-static-text>
+          />
           <mfb-form-field
             class="flex-fill-row"
             *ngIf="besluitInformatieobjecten[besluit.uuid]"

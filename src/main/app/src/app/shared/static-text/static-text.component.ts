@@ -29,7 +29,7 @@ export class StaticTextComponent<
    * Will get translated automatically
    */
   @Input() label?: string;
-  @Input() value: T = "" as T;
+  @Input() value?: T;
   @Input() icon?: TextIcon | null;
   @Input({ transform: numberAttribute }) maxLength?: number;
   @Output() iconClicked = new EventEmitter<void>();

@@ -60,8 +60,7 @@
                 <zac-static-text
                   label="identificatie"
                   [value]="infoObject.identificatie"
-                >
-                </zac-static-text>
+                />
               </div>
               <div
                 class="flex top-wrapper flex-row flex-wrap justify-start gap-10"
@@ -70,24 +69,24 @@
                   label="creatiedatum"
                   [value]="infoObject.creatiedatum | datum"
                   class="flex-item"
-                ></zac-static-text>
+                />
                 <zac-static-text
                   label="registratiedatum"
                   [value]="infoObject.registratiedatumTijd | datum: 'short'"
                   class="flex-item"
-                ></zac-static-text>
+                />
                 <zac-static-text
                   label="verzenddatum"
                   [value]="infoObject.verzenddatum | datum"
                   *ngIf="infoObject.verzenddatum"
                   class="flex-item"
-                ></zac-static-text>
+                />
                 <zac-static-text
                   label="ontvangstdatum"
                   *ngIf="infoObject.ontvangstdatum"
                   [value]="infoObject.ontvangstdatum | datum"
                   class="flex-item"
-                ></zac-static-text>
+                />
               </div>
               <mat-divider class="mat-divider-wrapper"></mat-divider>
 
@@ -96,25 +95,24 @@
                   label="titel"
                   [value]="infoObject.titel"
                   class="flex-item"
-                >
-                </zac-static-text>
+                />
                 <zac-static-text
-                  label="'auteu"
+                  label="auteur"
                   [value]="infoObject.auteur"
                   class="flex-item"
-                ></zac-static-text>
+                />
                 <zac-static-text
                   label="taal"
                   [value]="infoObject.taal"
                   class="flex-item"
-                ></zac-static-text>
+                />
               </div>
               <div class="flex flex-row justify-start gap-10">
                 <zac-static-text
-                  label="'documentTyp"
+                  label="documentType"
                   [value]="infoObject.informatieobjectTypeOmschrijving"
                   class="flex-item"
-                ></zac-static-text>
+                />
                 <zac-static-text
                   label="bestandsnaam"
                   [value]="infoObject.bestandsnaam"
@@ -130,7 +128,7 @@
                   label="bestandsomvang"
                   [value]="infoObject.bestandsomvang | bestandsomvang"
                   class="flex-item"
-                ></zac-static-text>
+                />
               </div>
               <div class="flex flex-row justify-start gap-10">
                 <zac-static-text
@@ -140,7 +138,7 @@
                   "
                   *ngIf="infoObject.status"
                   class="flex-item"
-                ></zac-static-text>
+                />
                 <zac-static-text
                   label="vertrouwelijkheidaanduiding"
                   [value]="
@@ -149,18 +147,18 @@
                       | translate
                   "
                   class="flex-item"
-                ></zac-static-text>
+                />
                 <zac-static-text
                   label="versie"
                   [value]="infoObject.versie"
                   class="flex-item"
-                ></zac-static-text>
+                />
               </div>
               <zac-static-text
                 label="beschrijving"
                 [value]="infoObject.beschrijving"
                 class="flex-item beschrijving"
-              ></zac-static-text>
+              />
               <mat-divider class="mat-divider-wrapper"></mat-divider>
               <div class="version-navigation">
                 <div class="flex-row items-center fex-wrap">
@@ -171,7 +169,7 @@
                   >
                     <mat-icon>chevron_left</mat-icon>
                   </button>
-                  <zac-static-text [value]="versieInformatie"></zac-static-text>
+                  <zac-static-text [value]="versieInformatie" />
                   <button
                     [disabled]="
                       laatsteVersieInfoObject &&
@@ -324,17 +322,17 @@
                 class="flex-1 w33"
                 label="status"
                 [value]="zaak.zaakStatus | empty: 'naam'"
-              ></zac-static-text>
+              />
               <zac-static-text
                 class="flex-1 w33"
                 label="startdatum"
                 [value]="zaak.zaakStartDatum | datum"
-              ></zac-static-text>
+              />
               <zac-static-text
                 class="flex-1 w33"
                 label="einddatumGepland"
-                [value]="zaak.zaakEinddatumGepland | datum | empty"
-              ></zac-static-text>
+                [value]="zaak.zaakEinddatumGepland | datum"
+              />
             </div>
           </mat-card-content>
         </mat-card>

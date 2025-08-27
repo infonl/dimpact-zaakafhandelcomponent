@@ -9,44 +9,29 @@
       [zoekObject]="taak"
       [sideNav]="sideNav"
     ></zac-zoek-object-link>
-    <zac-static-text
-      label="zaaktype"
-      [value]="taak.zaaktypeOmschrijving"
-    ></zac-static-text>
+    <zac-static-text label="zaaktype" [value]="taak.zaaktypeOmschrijving" />
     <zac-static-text
       label="status"
       [value]="'taak.status.' + taak.status | translate"
-    ></zac-static-text>
+    />
   </div>
   <div class="flex-1 w33">
     <zac-static-text
       label="zaakIdentificatie"
       [value]="taak.zaakIdentificatie"
-    ></zac-static-text>
-    <zac-static-text
-      label="behandelaar"
-      [value]="taak.behandelaarNaam"
-    ></zac-static-text>
-    <zac-static-text label="groep" [value]="taak.groepNaam"></zac-static-text>
+    />
+    <zac-static-text label="behandelaar" [value]="taak.behandelaarNaam" />
+    <zac-static-text label="groep" [value]="taak.groepNaam" />
   </div>
   <div class="flex-1 w33">
-    <zac-static-text
-      label="creatiedatum"
-      [value]="taak.creatiedatum | datum"
-    ></zac-static-text>
-    <zac-static-text
-      label="fataledatum"
-      [value]="taak.fataledatum | datum"
-    ></zac-static-text>
+    <zac-static-text label="creatiedatum" [value]="taak.creatiedatum | datum" />
+    <zac-static-text label="fataledatum" [value]="taak.fataledatum | datum" />
     <zac-static-text
       label="toekenningsdatum"
       [value]="taak.toekenningsdatum | datum"
-    ></zac-static-text>
+    />
   </div>
 </div>
 <div class="toelichting">
-  <zac-static-text
-    label="toelichting"
-    [value]="taak.toelichting"
-  ></zac-static-text>
+  <zac-static-text label="toelichting" [value]="taak.toelichting" />
 </div>

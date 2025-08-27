@@ -547,56 +547,56 @@
                 [icon]="einddatumGeplandIcon"
                 class="flex-1 w33"
                 [label]="column"
-              ></zac-static-text>
+              />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.DAGEN_TOT_STREEFDATUM"
                 [value]="row.einddatumGepland | dagen"
                 class="flex-1 w33"
                 [label]="column"
-              ></zac-static-text>
+              />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.UITERLIJKE_EINDDATUM_AFDOENING"
                 [value]="row.uiterlijkeEinddatumAfdoening | datum"
                 [icon]="uiterlijkeEinddatumAfdoeningIcon"
                 class="flex-1 w33"
                 [label]="column"
-              ></zac-static-text>
+              />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.DAGEN_TOT_FATALEDATUM"
                 [value]="row.uiterlijkeEinddatumAfdoening | dagen"
                 class="flex-1 w33"
                 [label]="column"
-              ></zac-static-text>
+              />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.STARTDATUM"
                 [value]="row.startdatum | datum"
                 class="flex-1 w33"
                 [label]="column"
-              ></zac-static-text>
+              />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.ZAAK_DOT_IDENTIFICATIE"
                 [value]="row.identificatie"
                 class="flex-1 w33"
                 [label]="column"
-              ></zac-static-text>
+              />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.GROEP"
                 [value]="row.groepNaam"
                 class="flex-1 w33"
                 [label]="column"
-              ></zac-static-text>
+              />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.REGISTRATIEDATUM"
                 [value]="row.registratiedatum | datum"
                 class="flex-1 w33"
                 [label]="column"
-              ></zac-static-text>
+              />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.COMMUNICATIEKANAAL"
                 [value]="row.communicatiekanaal"
                 class="flex-1 w33"
                 [label]="column"
-              ></zac-static-text>
+              />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.VERTROUWELIJKHEIDAANDUIDING"
                 [value]="
@@ -608,37 +608,37 @@
                 "
                 class="flex-1 w33"
                 [label]="column"
-              ></zac-static-text>
+              />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.BEHANDELAAR"
                 [label]="column"
                 class="flex-1 w33"
-                [value]="row.behandelaarNaam | empty"
-              ></zac-static-text>
+                [value]="row.behandelaarNaam"
+              />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.ZAAKTYPE"
                 [value]="row.zaaktypeOmschrijving"
                 class="flex-1 w33"
                 [label]="column"
-              ></zac-static-text>
+              />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.STATUS"
                 [value]="row.statustypeOmschrijving"
                 class="flex-1 w33"
                 [label]="column"
-              ></zac-static-text>
+              />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.OPENSTAANDE_TAKEN"
                 [value]="row.aantalOpenstaandeTaken"
                 class="flex-1 w33"
                 [label]="column"
-              ></zac-static-text>
+              />
               <zac-static-text
                 *ngSwitchDefault
                 [label]="column"
                 [value]="row[column] | translate"
                 class="flex-1 w33"
-              ></zac-static-text>
+              />
               <div
                 class="flex-1 w33 static-text"
                 *ngSwitchCase="zoekenColumn.INDICATIES"

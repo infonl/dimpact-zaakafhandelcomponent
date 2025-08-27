@@ -27,26 +27,26 @@
         label="status"
         [value]="zaak.status | empty: 'naam'"
         class="flex-item"
-      ></zac-static-text>
+      />
 
       <zac-static-text
         label="startdatum"
         [value]="zaak.startdatum | datum"
         class="flex-item"
-      ></zac-static-text>
+      />
 
       <zac-static-text
         label="einddatumGepland"
         [value]="zaak.einddatumGepland | datum"
         [icon]="einddatumGeplandIcon"
         class="flex-item"
-      ></zac-static-text>
+      />
 
       <zac-static-text
         class="toelichting-field flex-1 w100"
         label="toelichting"
         [value]="zaak.toelichting"
-      ></zac-static-text>
+      />
     </div>
   </mat-card-content>
 </mat-card>

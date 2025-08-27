@@ -219,29 +219,29 @@
                     label="status"
                     [value]="zaak.status | empty: 'naam'"
                     class="flex-item"
-                  ></zac-static-text>
+                  />
                   <zac-static-text
                     label="registratiedatum"
                     [value]="zaak.registratiedatum | datum"
                     class="flex-item"
-                  ></zac-static-text>
+                  />
                   <zac-static-text
                     label="resultaat"
                     [value]="zaak.resultaat?.resultaattype | empty: 'naam'"
                     class="flex-item"
-                  ></zac-static-text>
+                  />
                   <zac-static-text
                     *ngIf="zaak.einddatum"
                     label="einddatum"
                     [value]="zaak.einddatum | datum"
                     class="flex-item"
-                  ></zac-static-text>
+                  />
                   <zac-static-text
                     *ngIf="zaak.archiefNominatie === 'VERNIETIGEN'"
                     [label]="'archiefNominatie.datum.' + zaak.archiefNominatie"
                     [value]="zaak.archiefActiedatum | datum"
                     class="flex-item"
-                  ></zac-static-text>
+                  />
                   <zac-static-text
                     *ngIf="zaak.archiefNominatie === 'BLIJVEND_BEWAREN'"
                     label="archiefNominatie"
@@ -249,7 +249,7 @@
                       'archiefNominatie.' + zaak.archiefNominatie | translate
                     "
                     class="flex-item"
-                  ></zac-static-text>
+                  />
                 </div>
                 <mat-divider class="mat-divider-wrapper"></mat-divider>
 
@@ -267,27 +267,27 @@
                     label="groep"
                     [value]="zaak.groep?.naam | empty"
                     class="flex-item"
-                  ></zac-static-text>
+                  />
                   <zac-static-text
                     label="behandelaar"
                     [value]="zaak.behandelaar?.naam | empty"
                     class="flex-item"
-                  ></zac-static-text>
+                  />
                   <zac-static-text
                     label="communicatiekanaal"
                     [value]="zaak.communicatiekanaal | empty"
                     class="flex-item"
-                  ></zac-static-text>
+                  />
                 </div>
                 <div class="flex flex-row justify-start gap-10">
                   <zac-static-text
                     label="startdatum"
                     [value]="zaak.startdatum | datum | empty"
                     class="flex-item"
-                  ></zac-static-text>
+                  />
                   <zac-static-text
                     label="streefdatum"
-                    [value]="zaak.einddatumGepland | datum | empty"
+                    [value]="zaak.einddatumGepland | datum"
                     [icon]="dateFieldIconMap.get('einddatumGepland')"
                     class="flex-item"
                   >
@@ -295,12 +295,12 @@
                   </zac-static-text>
                   <zac-static-text
                     label="fataledatum"
-                    [value]="zaak.uiterlijkeEinddatumAfdoening | datum | empty"
+                    [value]="zaak.uiterlijkeEinddatumAfdoening | datum"
                     [icon]="
                       dateFieldIconMap.get('uiterlijkeEinddatumAfdoening')
                     "
                     class="flex-item"
-                  ></zac-static-text>
+                  />
                 </div>
                 <div
                   *ngIf="zaak.duurVerlenging || zaakOpschorting?.duurDagen"
@@ -341,18 +341,18 @@
                         | empty
                     "
                     class="flex-item"
-                  ></zac-static-text>
+                  />
                 </div>
 
                 <div class="flex flex-col gap-10">
                   <zac-static-text
                     label="omschrijving"
-                    [value]="zaak.omschrijving | empty"
-                  ></zac-static-text>
+                    [value]="zaak.omschrijving"
+                  />
                   <zac-static-text
                     label="toelichting"
-                    [value]="zaak.toelichting | empty"
-                  ></zac-static-text>
+                    [value]="zaak.toelichting"
+                  />
                 </div>
               </div>
             </mat-tab>
@@ -375,9 +375,9 @@
 
                   <zac-static-text
                     label="coordinates"
-                    [value]="zaak.zaakgeometrie | location | empty"
+                    [value]="zaak.zaakgeometrie | location"
                     class="flex-item"
-                  ></zac-static-text>
+                  />
                   <zac-locatie-tonen
                     [currentLocation]="zaak.zaakgeometrie"
                   ></zac-locatie-tonen>
@@ -957,17 +957,17 @@
                           [value]="
                             row.data.taakinformatie?.uitkomst | translate
                           "
-                        ></zac-static-text>
+                        />
                         <zac-static-text
                           label="bijlage"
                           *ngIf="row.data.taakinformatie?.bijlagen"
                           [value]="row.data.taakinformatie?.bijlagen"
-                        ></zac-static-text>
+                        />
                         <zac-static-text
                           label="opmerking"
                           *ngIf="row.data.taakinformatie?.opmerking"
                           [value]="row.data.taakinformatie?.opmerking"
-                        ></zac-static-text>
+                        />
                       </div>
                     </div>
                   </td>
