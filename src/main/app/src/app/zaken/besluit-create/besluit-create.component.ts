@@ -114,7 +114,6 @@ export class BesluitCreateComponent implements OnInit {
     this.form.controls.publicatiedatum.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
-        console.log(value, value?.toISOString());
         if (!value) {
           this.form.controls.uiterlijkereactiedatum.setValue(null);
           this.form.controls.uiterlijkereactiedatum.clearValidators();
