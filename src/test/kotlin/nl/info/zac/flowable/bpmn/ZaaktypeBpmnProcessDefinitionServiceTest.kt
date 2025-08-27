@@ -29,6 +29,7 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
     val root = mockk<Root<ZaaktypeBpmnProcessDefinition>>()
     val predicate = mockk<Predicate>()
     val pathUuid = mockk<Path<UUID>>()
+    val pathProductAanvraagType = mockk<Path<String>>()
     val entityManager = mockk<EntityManager>()
     val zaaktypeBpmnProcessDefinitionService = ZaaktypeBpmnProcessDefinitionService(entityManager)
 
@@ -108,6 +109,49 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
             When("finding the BPMN process definition by zaaktype UUID") {
                 val result =
                     zaaktypeBpmnProcessDefinitionService.findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeUUID)
+
+                Then("null is returned") {
+                    result shouldBe null
+                }
+            }
+        }
+    }
+
+    Context("Finding a BPMN process definition by productaanvraagtype") {
+        Given("A productaanvraagtype with a corresponding BPMN process definition") {
+            val productAanvraagType = "fakeProductaanvraagtype"
+            val definition = createZaaktypeBpmnProcessDefinition()
+            every { entityManager.criteriaBuilder } returns criteriaBuilder
+            every { criteriaBuilder.createQuery(ZaaktypeBpmnProcessDefinition::class.java) } returns criteriaQuery
+            every { criteriaQuery.from(ZaaktypeBpmnProcessDefinition::class.java) } returns root
+            every { criteriaQuery.where(predicate) } returns criteriaQuery
+            every { root.get<String>("productaanvraagtype") } returns pathProductAanvraagType
+            every { criteriaBuilder.equal(pathProductAanvraagType, productAanvraagType) } returns predicate
+            every { entityManager.createQuery(criteriaQuery).resultStream.findFirst() } returns Optional.of(definition)
+
+            When("finding the BPMN process definition by productaanvraagtype") {
+                val result =
+                    zaaktypeBpmnProcessDefinitionService.findByProductAanvraagType(productAanvraagType)
+
+                Then("the BPMN process definition is returned") {
+                    result shouldBe definition
+                }
+            }
+        }
+
+        Given("A productaanvraagtype without a corresponding BPMN process definition") {
+            val productAanvraagType = "notExistingProductaanvraagtype"
+            every { entityManager.criteriaBuilder } returns criteriaBuilder
+            every { criteriaBuilder.createQuery(ZaaktypeBpmnProcessDefinition::class.java) } returns criteriaQuery
+            every { criteriaQuery.from(ZaaktypeBpmnProcessDefinition::class.java) } returns root
+            every { criteriaQuery.where(predicate) } returns criteriaQuery
+            every { root.get<String>("productaanvraagtype") } returns pathProductAanvraagType
+            every { criteriaBuilder.equal(pathProductAanvraagType, productAanvraagType) } returns predicate
+            every { entityManager.createQuery(criteriaQuery).resultStream.findFirst() } returns Optional.empty()
+
+            When("finding the BPMN process definition by productaanvraagtype") {
+                val result =
+                    zaaktypeBpmnProcessDefinitionService.findByProductAanvraagType(productAanvraagType)
 
                 Then("null is returned") {
                     result shouldBe null
