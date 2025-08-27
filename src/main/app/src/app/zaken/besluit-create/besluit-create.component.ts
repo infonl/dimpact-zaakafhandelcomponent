@@ -134,7 +134,6 @@ export class BesluitCreateComponent implements OnInit {
     const uiterlijkereactiedatum = date
       .clone()
       .add(responseTermDays ?? 0, "days");
-    console.log(responseTermDays);
     this.form.controls.uiterlijkereactiedatum.setValue(uiterlijkereactiedatum);
     this.form.controls.uiterlijkereactiedatum.addValidators(
       Validators.min(moment(uiterlijkereactiedatum).startOf("day").valueOf()),
