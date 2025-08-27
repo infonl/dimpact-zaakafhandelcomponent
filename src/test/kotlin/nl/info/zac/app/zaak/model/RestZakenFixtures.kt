@@ -31,13 +31,13 @@ fun createBetrokkeneIdentificatie(
     type: IdentificatieType = IdentificatieType.BSN,
     bsnNummer: String? = "123456677",
     kvkNummer: String? = null,
-    rsinNummer: String? = null,
+    rsin: String? = null,
     vestigingsnummer: String? = null
 ) = BetrokkeneIdentificatie(
     type = type,
     bsnNummer = bsnNummer,
     kvkNummer = kvkNummer,
-    rsinNummer = rsinNummer,
+    rsin = rsin,
     vestigingsnummer = vestigingsnummer
 )
 

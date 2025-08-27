@@ -238,7 +238,7 @@ class RestZaakConverter @Inject constructor(
                 type = it,
                 bsnNummer = (betrokkeneIdentificatie as? NatuurlijkPersoonIdentificatie)?.inpBsn,
                 kvkNummer = (betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)?.kvkNummer,
-                rsinNummer = (betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)?.innNnpId,
+                rsin = (betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)?.innNnpId,
                 vestigingsnummer = (betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)?.vestigingsNummer
                     // we also support the legacy type of vestiging role
                     ?: (betrokkeneIdentificatie as? VestigingIdentificatie)?.vestigingsNummer

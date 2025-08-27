@@ -22,7 +22,7 @@ data class BetrokkeneIdentificatie(
     var type: IdentificatieType,
     var bsnNummer: String? = null,
     var kvkNummer: String? = null,
-    var rsinNummer: String? = null,
+    var rsin: String? = null,
     var vestigingsnummer: String? = null
 )
 

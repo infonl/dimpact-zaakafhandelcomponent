@@ -5,8 +5,8 @@
 
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
-import { KlantenService } from "../klanten.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
+import { KlantenService } from "../klanten.service";
 
 @Injectable({
   providedIn: "root",
@@ -23,7 +23,7 @@ export class BedrijfResolverService {
     const baseIdentificatie = {
       kvkNummer: null,
       vestigingsnummer: null,
-      rsinNummer: null,
+      rsin: null,
       bsnNummer: null,
     };
 
@@ -57,7 +57,7 @@ export class BedrijfResolverService {
         this.initiatorIdentificatie = {
           ...baseIdentificatie,
           type: "RSIN",
-          rsinNummer: route.paramMap.get("rsin"),
+          rsin: route.paramMap.get("rsin"),
         };
         break;
 

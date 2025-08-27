@@ -237,7 +237,7 @@ class RestZaakConverterTest : BehaviorSpec({
                     identificatie shouldBe zaak.identificatie
                     with(initiatorIdentificatie!!) {
                         this.type shouldBe IdentificatieType.RSIN
-                        this.rsinNummer shouldBe rsin
+                        this.rsin shouldBe rsin
                     }
                     omschrijving shouldBe zaak.omschrijving
                     toelichting shouldBe zaak.toelichting

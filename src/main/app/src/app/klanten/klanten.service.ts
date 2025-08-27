@@ -4,9 +4,9 @@
  */
 
 import { Injectable } from "@angular/core";
+import { Observable, of } from "rxjs";
 import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { Observable, of } from "rxjs";
 
 @Injectable({
   providedIn: "root",
@@ -36,7 +36,7 @@ export class KlantenService {
       case "RSIN":
         return this.readRechtspersoon(
           betrokkeneIdentificatie.kvkNummer ?? null,
-          betrokkeneIdentificatie.rsinNummer ?? null,
+          betrokkeneIdentificatie.rsin ?? null,
         );
       case "BSN":
       default:
@@ -45,24 +45,21 @@ export class KlantenService {
   }
 
   /* istanbul ignore next */
-  private readRechtspersoon(
-    kvkNummer: string | null,
-    rsinNummer: string | null,
-  ) {
+  private readRechtspersoon(kvkNummer: string | null, rsin: string | null) {
     if (kvkNummer) {
       // to be built in backend
       of(null);
     }
 
-    if (!rsinNummer) {
+    if (!rsin) {
       return of(null).pipe(() => {
-        throw new Error("rsinNummer is required");
+        throw new Error("RSIN is required");
       });
     }
 
     // legacy solution
     return this.zacHttpClient.GET("/rest/klanten/rechtspersoon/rsin/{rsin}", {
-      path: { rsin: rsinNummer ?? "823807071" },
+      path: { rsin: rsin ?? "823807071" },
     });
   }
 
