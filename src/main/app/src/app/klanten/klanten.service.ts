@@ -27,7 +27,6 @@ export class KlantenService {
   readBedrijf(
     betrokkeneIdentificatie: GeneratedType<"BetrokkeneIdentificatie">,
   ) {
-    console.log("initiatorIdentificatie", betrokkeneIdentificatie);
     switch (betrokkeneIdentificatie.type) {
       case "VN":
         return this.readVestiging(

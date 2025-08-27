@@ -1400,12 +1400,6 @@ export class ZaakViewComponent
             bsnNummer: null,
           };
 
-        console.log("BBBBBBBBB betrokkene", betrokkene);
-        console.log(
-          "BBBBBBBBB initiatorIdentificatieinitiatorIdentificatieinitiatorIdentificatie",
-          betrokkeneIdentificatie,
-        );
-
         this.klantenService
           .readBedrijf(betrokkeneIdentificatie)
           .subscribe((bedrijf) => {
