@@ -31,14 +31,14 @@
     ></p>
     <zac-static-text
       *ngIf="data.zaak.resultaat"
-      [label]="'resultaat' | translate"
+      label="resultaat"
       [value]="data.zaak.resultaat.resultaattype?.naam"
-    ></zac-static-text>
+    />
     <zac-static-text
       *ngFor="let besluit of data.zaak.besluiten"
       [label]="besluit.identificatie | empty"
       [value]="besluit.besluittype?.naam"
-    ></zac-static-text>
+    />
     <zac-select
       [form]="formGroup"
       key="resultaattype"
