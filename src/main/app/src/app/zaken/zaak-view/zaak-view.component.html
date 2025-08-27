@@ -146,17 +146,17 @@
   </mat-drawer>
   <mat-drawer-content>
     <div class="flex-row flex-wrap gap-12">
-      <section class="w100 flex-1" *ngIf="showInitiator()">
+      <section *ngIf="showInitiator()" class="w100 flex-1">
         <zac-zaak-initiator-toevoegen
-          class="w100 flex-1"
           *ngIf="!(showPersoonsgegevens() || showBedrijfsgegevens())"
+          class="w100 flex-1"
           [toevoegenToegestaan]="allowedToAddBetrokkene()"
           (add)="addOrEditZaakInitiator()"
         >
         </zac-zaak-initiator-toevoegen>
         <zac-persoongegevens
-          class="w100 flex-1"
           *ngIf="showPersoonsgegevens()"
+          class="w100 flex-1"
           [zaakIdentificatie]="zaak.identificatie"
           [bsn]="zaak.initiatorIdentificatie?.bsnNummer"
           action="initiator tonen"
@@ -167,13 +167,12 @@
         >
         </zac-persoongegevens>
         <zac-bedrijfsgegevens
-          class="w100 flex-1"
           *ngIf="showBedrijfsgegevens()"
-          [rsinOfVestigingsnummer]="zaak.initiatorIdentificatie"
-          [kvkNummer]="zaak.initiatorIdentificatie?.kvkNummer"
+          class="w100 flex-1"
+          [initiatorIdentificatie]="zaak.initiatorIdentificatie"
           [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
-          (edit)="addOrEditZaakInitiator()"
           [isWijzigbaar]="zaak.rechten.toevoegenInitiatorBedrijf"
+          (edit)="addOrEditZaakInitiator()"
           (delete)="deleteInitiator()"
         >
         </zac-bedrijfsgegevens>
@@ -571,6 +570,7 @@
                 <mat-icon>groups</mat-icon>
                 {{ "betrokkenen" | translate }}
               </ng-template>
+              dsl fgkjdlkfjdflkg jdflkj
               <div class="table-wrapper">
                 <table mat-table [dataSource]="betrokkenen" matSort>
                   <ng-container matColumnDef="roltype">

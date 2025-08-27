@@ -1095,11 +1095,7 @@ export class ZaakViewComponent
 
     this.zaak = zaak;
     this.utilService.openSnackbar(notification, {
-      naam:
-        zaak.initiatorIdentificatie?.bsnNummer ??
-        zaak.initiatorIdentificatie?.kvkNummer ??
-        zaak.initiatorIdentificatie?.rsinNummer ??
-        zaak.initiatorIdentificatie?.vestigingsnummer,
+      naam: zaak.initiatorIdentificatie,
     });
     this.loadHistorie();
   }
@@ -1368,7 +1364,7 @@ export class ZaakViewComponent
   ) {
     betrokkene["gegevens"] = "LOADING";
     switch (betrokkene.type) {
-      case "NATUURLIJK_PERSOON":
+      case "NATUURLIJK_PERSOON": {
         this.klantenService
           .readPersoon(betrokkene.identificatie, {
             context: this.zaak.uuid,
@@ -1386,21 +1382,52 @@ export class ZaakViewComponent
             }
           });
         break;
+      }
       case "NIET_NATUURLIJK_PERSOON":
-      case "VESTIGING":
+      case "VESTIGING": {
+        const betrokkeneIdentificatie: GeneratedType<"BetrokkeneIdentificatie"> =
+          {
+            // @ts-expect-error @todo (waiting for new PR to resolve this)
+            type: betrokkene.identificatieType,
+            vestigingsnummer:
+              betrokkene.identificatieType === "VN"
+                ? betrokkene.identificatie
+                : null,
+            rsinNummer:
+              betrokkene.identificatieType === "RSIN"
+                ? betrokkene.identificatie
+                : null,
+            kvkNummer: betrokkene.kvkNummer,
+            bsnNummer: null,
+          };
+
+        console.log("BBBBBBBBB betrokkene", betrokkene);
+        console.log(
+          "BBBBBBBBB initiatorIdentificatieinitiatorIdentificatieinitiatorIdentificatie",
+          betrokkeneIdentificatie,
+        );
+
+        // @ts-expect-error @todo (waiting for new PR to resolve this)
         this.klantenService
-          .readBedrijf(betrokkene.identificatie, betrokkene.kvkNummer ?? null)
+          .readBedrijf(betrokkeneIdentificatie)
           .subscribe((bedrijf) => {
+            if (!bedrijf) return;
+
+            // @ts-expect-error @todo (waiting for new PR to resolve this)
             betrokkene["gegevens"] = bedrijf.naam;
+            // @ts-expect-error @todo (waiting for new PR to resolve this)
             if (bedrijf.adres) {
+              // @ts-expect-error @todo (waiting for new PR to resolve this)
               betrokkene["gegevens"] += `,\n${bedrijf.adres}`;
             }
           });
         break;
+      }
       case "ORGANISATORISCHE_EENHEID":
-      case "MEDEWERKER":
+      case "MEDEWERKER": {
         betrokkene["gegevens"] = "-";
         break;
+      }
     }
   }
 

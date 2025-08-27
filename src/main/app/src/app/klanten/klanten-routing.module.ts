@@ -22,12 +22,46 @@ const routes: Routes = [
     ],
   },
   {
-    path: "bedrijf",
+    path: "bedrijf/kvkvestigingsnummer",
     children: [
       {
-        path: ":vesOrRSIN",
+        path: ":kvk/:vestigingsnummer",
         component: BedrijfViewComponent,
         resolve: { bedrijf: BedrijfResolverService },
+        data: { lookupType: "kvkvestigingsnummer" },
+      },
+    ],
+  },
+  {
+    path: "bedrijf/kvk",
+    children: [
+      {
+        path: ":kvk",
+        component: BedrijfViewComponent,
+        resolve: { bedrijf: BedrijfResolverService },
+        data: { lookupType: "kvk" },
+      },
+    ],
+  },
+  {
+    path: "bedrijf/vestigingsnummer",
+    children: [
+      {
+        path: ":vestigingsnummer",
+        component: BedrijfViewComponent,
+        resolve: { bedrijf: BedrijfResolverService },
+        data: { lookupType: "vestigingsnummer" },
+      },
+    ],
+  },
+  {
+    path: "bedrijf/rsin",
+    children: [
+      {
+        path: ":rsin",
+        component: BedrijfViewComponent,
+        resolve: { bedrijf: BedrijfResolverService },
+        data: { lookupType: "rsin" },
       },
     ],
   },

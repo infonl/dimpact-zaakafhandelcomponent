@@ -5,7 +5,8 @@
 
 import { Injectable } from "@angular/core";
 import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
-import { BSN_LENGTH, VESTIGINGSNUMMER_LENGTH } from "../shared/utils/constants";
+import { GeneratedType } from "../shared/utils/generated-types";
+import { of } from "rxjs";
 
 @Injectable({
   providedIn: "root",
@@ -23,30 +24,64 @@ export class KlantenService {
     });
   }
 
-  readBedrijf(rsinOfVestigingsnummer: string, kvkNummer: string | null) {
-    switch (rsinOfVestigingsnummer.length) {
-      case BSN_LENGTH:
-        return this.readRechtspersoon(rsinOfVestigingsnummer);
-      case VESTIGINGSNUMMER_LENGTH:
+  readBedrijf(
+    betrokkeneIdentificatie: GeneratedType<"BetrokkeneIdentificatie">,
+  ) {
+    console.log("initiatorIdentificatie", betrokkeneIdentificatie);
+    switch (betrokkeneIdentificatie.type) {
+      case "VN":
+        return this.readVestiging(
+          betrokkeneIdentificatie.kvkNummer ?? null,
+          betrokkeneIdentificatie.vestigingsnummer ?? "",
+        );
+      case "RSIN":
+        return this.readRechtspersoon(
+          betrokkeneIdentificatie.kvkNummer ?? null,
+          betrokkeneIdentificatie.rsinNummer ?? null,
+        );
+      case "BSN":
       default:
-        return this.readVestiging(rsinOfVestigingsnummer, kvkNummer);
+        of(null);
     }
   }
 
   /* istanbul ignore next */
-  private readVestiging(vestigingsnummer: string, kvkNummer: string | null) {
-    if (!kvkNummer) {
+  private readRechtspersoon(
+    kvkNummer: string | null,
+    rsinNummer: string | null,
+  ) {
+    if (kvkNummer) {
+      // to be built in backend
+      of(null);
+    }
+
+    if (!rsinNummer) {
+      return of(null).pipe(() => {
+        throw new Error("rsinNummer is required");
+      });
+    }
+
+    // legacy solution
+    return this.zacHttpClient.GET("/rest/klanten/rechtspersoon/{rsin}", {
+      path: { rsin: rsinNummer ?? "823807071" },
+    });
+  }
+
+  /* istanbul ignore next */
+  private readVestiging(kvkNummer: string | null, vestigingsnummer: string) {
+    if (kvkNummer && vestigingsnummer) {
       return this.zacHttpClient.GET(
-        "/rest/klanten/vestiging/{vestigingsnummer}",
-        { path: { vestigingsnummer } },
+        "/rest/klanten/vestiging/{vestigingsnummer}/{kvkNummer}",
+        {
+          path: { vestigingsnummer, kvkNummer },
+        },
       );
     }
 
+    // legacy solution
     return this.zacHttpClient.GET(
-      "/rest/klanten/vestiging/{vestigingsnummer}/{kvkNummer}",
-      {
-        path: { vestigingsnummer, kvkNummer },
-      },
+      "/rest/klanten/vestiging/{vestigingsnummer}",
+      { path: { vestigingsnummer } },
     );
   }
 
@@ -58,13 +93,6 @@ export class KlantenService {
         path: { vestigingsnummer },
       },
     );
-  }
-
-  /* istanbul ignore next */
-  private readRechtspersoon(rsin: string) {
-    return this.zacHttpClient.GET("/rest/klanten/rechtspersoon/{rsin}", {
-      path: { rsin },
-    });
   }
 
   /* istanbul ignore next */
