@@ -431,7 +431,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val name = "fakeName"
             val kvkNummer = "12345678"
             val postcode = "fakePostcode"
-            every { kvkClientService.findRechtspersoonByRsin(kvkNummer) } returns createResultaatItem(
+            every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns createResultaatItem(
                 rsin = rsin,
                 naam = name,
                 kvkNummer = kvkNummer,
@@ -441,7 +441,7 @@ class KlantRestServiceTest : BehaviorSpec({
             )
 
             When("when the rechtspersoon is retrieved by KVK nummer") {
-                val restBedrijf = klantRestService.readRechtspersoonByRsin(kvkNummer)
+                val restBedrijf = klantRestService.readRechtspersoonByKvkNummer(kvkNummer)
 
                 Then("the rechtspersoon should be returned") {
                     with(restBedrijf) {
