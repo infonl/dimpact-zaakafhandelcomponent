@@ -3,34 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-  ViewChild,
-} from "@angular/core";
-import { FormGroup, Validators } from "@angular/forms";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { FormBuilder, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
-import { TranslateService } from "@ngx-translate/core";
-import moment from "moment";
-import { Subject, Subscription } from "rxjs";
-import { takeUntil } from "rxjs/operators";
-import { DividerFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/divider/divider-form-field-builder";
-import { MessageFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/message/message-form-field-builder";
-import { MessageLevel } from "src/app/shared/material-form-builder/form-components/message/message-level.enum";
-import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
-import { FormComponent } from "src/app/shared/material-form-builder/form/form/form.component";
+import moment, { Moment } from "moment";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
-import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
-import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
-import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
@@ -39,240 +19,165 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./besluit-create.component.html",
   styleUrls: ["./besluit-create.component.less"],
 })
-export class BesluitCreateComponent implements OnInit, OnDestroy {
-  formConfig = new FormConfigBuilder()
-    .saveText("actie.aanmaken")
-    .cancelText("actie.annuleren")
-    .build();
+export class BesluitCreateComponent implements OnInit {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Output() besluitVastgelegd = new EventEmitter<boolean>();
-  @ViewChild(FormComponent) formComponent!: FormComponent;
 
-  fields: Array<AbstractFormField[]> = [];
+  protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
+  protected besluittypes: GeneratedType<"RestDecisionType">[] = [];
 
-  private subscription?: Subscription;
-  private ngDestroy = new Subject<void>();
+  protected documentenField = new DocumentenLijstFieldBuilder()
+    .id("documenten")
+    .label("documenten")
+    .build();
+
+  protected form = this.formBuilder.group({
+    resultaat:
+      this.formBuilder.control<GeneratedType<"RestResultaattype"> | null>(
+        null,
+        Validators.required,
+      ),
+    besluit: this.formBuilder.control<GeneratedType<"RestDecisionType"> | null>(
+      null,
+      Validators.required,
+    ),
+    toelichting: this.formBuilder.control<string | null>(
+      null,
+      Validators.maxLength(1000),
+    ),
+    ingangsdatum: this.formBuilder.control(moment(), Validators.required),
+    vervaldatum: this.formBuilder.control<Moment | null>(null, [
+      Validators.min(moment().startOf("day").valueOf()),
+    ]),
+    publicationEnabled: this.formBuilder.control(false),
+    publicatiedatum: this.formBuilder.control<Moment | null>(moment()),
+    uiterlijkereactiedatum: this.formBuilder.control<Moment | null>(null),
+  });
 
   constructor(
     private readonly zakenService: ZakenService,
     private readonly utilService: UtilService,
     private readonly informatieObjectenService: InformatieObjectenService,
-    private readonly translate: TranslateService,
-  ) {}
-
-  ngOnInit() {
-    const resultaattypeField = new SelectFormFieldBuilder(
-      this.zaak.resultaat?.resultaattype,
-    )
-      .id("resultaattype")
-      .label("resultaat")
-      .validators(Validators.required)
-      .optionLabel("naam")
-      .options(this.zakenService.listResultaattypes(this.zaak.zaaktype.uuid))
-      .build();
-    const besluittypeField = new SelectFormFieldBuilder<
-      GeneratedType<"RestDecisionType">
-    >()
-      .id("besluittype")
-      .label("besluit")
-      .validators(Validators.required)
-      .optionLabel("naam")
-      .options(this.zakenService.listBesluittypes(this.zaak.zaaktype.uuid))
-      .build();
-    const toelichtingField = new TextareaFormFieldBuilder()
-      .id("toelichting")
-      .label("toelichting")
-      .maxlength(1000)
-      .build();
-    const ingangsdatumField = new DateFormFieldBuilder(moment())
-      .id("ingangsdatum")
-      .label("ingangsdatum")
-      .validators(Validators.required)
-      .build();
-    const vervaldatumField = new DateFormFieldBuilder()
-      .id("vervaldatum")
-      .label("vervaldatum")
-      .minDate(new Date(String(ingangsdatumField.formControl.value)))
-      .build();
-    const documentenField = new DocumentenLijstFieldBuilder()
-      .id("documenten")
-      .label("documenten")
-      .build();
-
-    this.fields = [
-      [resultaattypeField],
-      [besluittypeField],
-      [ingangsdatumField],
-      [vervaldatumField],
-      [toelichtingField],
-      [documentenField],
-    ];
-
-    resultaattypeField.formControl.valueChanges
-      .pipe(takeUntil(this.ngDestroy))
+    private readonly formBuilder: FormBuilder,
+  ) {
+    this.form.controls.resultaat.valueChanges
+      .pipe(takeUntilDestroyed())
       .subscribe((value) => {
-        vervaldatumField.required = value?.vervaldatumBesluitVerplicht ?? false;
+        if (value) {
+          this.form.controls.vervaldatum.addValidators([Validators.required]);
+          return;
+        }
+
+        this.form.controls.vervaldatum.removeValidators([Validators.required]);
       });
 
-    ingangsdatumField.formControl.valueChanges
-      .pipe(takeUntil(this.ngDestroy))
+    this.form.controls.ingangsdatum.valueChanges
+      .pipe(takeUntilDestroyed())
       .subscribe((value) => {
-        if (!value) return;
-        vervaldatumField.minDate = new Date(String(value));
+        if (value) {
+          this.form.controls.vervaldatum.addValidators([
+            Validators.min(moment(value).startOf("day").valueOf()),
+          ]);
+          return;
+        }
+
+        this.form.controls.vervaldatum.removeValidators([Validators.min(0)]);
       });
 
-    besluittypeField.formControl.valueChanges
-      .pipe(takeUntil(this.ngDestroy))
+    this.form.controls.besluit.valueChanges
+      .pipe(takeUntilDestroyed())
       .subscribe((value) => {
         if (!value) return;
 
-        documentenField.updateDocumenten(
-          this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+        this.informatieObjectenService
+          .listEnkelvoudigInformatieobjecten({
             zaakUUID: this.zaak.uuid,
             besluittypeUUID: value.id,
-          }),
-        );
+          })
+          .subscribe((documenten) => {
+            this.documentenField.formControl.setValue(
+              documenten.map((document) => document.uuid).join(";"),
+            );
+          });
 
-        this.updatePublicationsFormPart(value);
+        this.form.controls.publicationEnabled.setValue(
+          value.publication.enabled ?? null,
+        );
+        if (!value.publication.enabled) return;
+        this.setUiterlijkereactiedatum(
+          moment(),
+          value.publication.responseTermDays,
+        );
+      });
+
+    this.form.controls.publicatiedatum.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((value) => {
+        if (!value) {
+          this.form.controls.uiterlijkereactiedatum.setValue(null);
+          this.form.controls.uiterlijkereactiedatum.clearValidators();
+          return;
+        }
+
+        this.setUiterlijkereactiedatum(
+          value,
+          this.form.controls.besluit.value?.publication.responseTermDays,
+        );
       });
   }
 
-  updatePublicationsFormPart({
-    publication,
-  }: GeneratedType<"RestDecisionType">): void {
-    this.fields = this.fields.filter((fieldGroup) =>
-      fieldGroup.every(
-        (group) =>
-          ![
-            "divider",
-            "publicationParagraph",
-            "publicationDate",
-            "messageField",
-            "lastResponseDate",
-          ].includes(group.id),
-      ),
+  private setUiterlijkereactiedatum(
+    date: Moment,
+    responseTermDays?: number | null,
+  ) {
+    const uiterlijkereactiedatum = date.add(responseTermDays ?? 0, "days");
+    this.form.controls.uiterlijkereactiedatum.setValue(uiterlijkereactiedatum);
+    this.form.controls.uiterlijkereactiedatum.addValidators(
+      Validators.min(moment(uiterlijkereactiedatum).startOf("day").valueOf()),
     );
-
-    this.subscription?.unsubscribe();
-
-    if (publication.enabled) {
-      const divider = new DividerFormFieldBuilder().id("divider").build();
-
-      const publicationParagraph = new ParagraphFormFieldBuilder()
-        .id("publicationParagraph")
-        .text(`besluit.publicatie.indicatie.koptitel`)
-        .build();
-
-      const publicationDateField = new DateFormFieldBuilder(moment())
-        .id("publicationDate")
-        .label("publicatiedatum")
-        .build();
-
-      const publicationMessageField = new MessageFormFieldBuilder()
-        .id("messageField")
-        .text(
-          this.translate.instant(
-            `besluit.publicatie.indicatie.onderschrift${(publication.publicationTermDays ?? 0) > 1 ? ".meervoud" : ""}`,
-            {
-              publicationTermDays: publication.publicationTermDays,
-            },
-          ),
-        )
-        .level(MessageLevel.INFO)
-        .build();
-
-      const lastResponseDate = moment().add(
-        (
-          this.getFormField("besluittype")?.formControl.value as
-            | GeneratedType<"RestDecisionType">
-            | undefined
-        )?.publication.responseTermDays,
-        "days",
-      );
-
-      const lastResponseDateField = new DateFormFieldBuilder(lastResponseDate)
-        .id("lastResponseDate")
-        .label("uiterlijkereactiedatum")
-        .minDate(lastResponseDate.toDate())
-        .build();
-
-      this.fields.push(
-        [divider],
-        [publicationParagraph],
-        [publicationDateField],
-        [publicationMessageField],
-        [lastResponseDateField],
-      );
-
-      this.subscription = publicationDateField.formControl.valueChanges
-        .pipe(takeUntil(this.ngDestroy))
-        .subscribe((value) => {
-          if (!value) return;
-          const adjustedLastResponseDate = moment(value)
-            .clone()
-            .add(
-              (
-                this.getFormField("besluittype")?.formControl.value as
-                  | GeneratedType<"RestDecisionType">
-                  | undefined
-              )?.publication.responseTermDays,
-              "days",
-            );
-
-          lastResponseDateField.formControl.setValue(adjustedLastResponseDate);
-          lastResponseDateField.minDate = adjustedLastResponseDate.toDate();
-        });
-    }
-
-    this.formComponent.refreshFormfields(this.fields);
   }
 
-  private getFormField(id: string) {
-    const field = this.fields.find((fields) =>
-      fields.find((group) => group.id === id),
-    );
+  ngOnInit() {
+    this.zakenService
+      .listResultaattypes(this.zaak.zaaktype.uuid)
+      .subscribe((resultaattypes) => {
+        this.resultaattypes = resultaattypes;
+      });
 
-    return field?.[0];
+    this.zakenService
+      .listBesluittypes(this.zaak.zaaktype.uuid)
+      .subscribe((besluittypes) => {
+        this.besluittypes = besluittypes;
+      });
+
+    this.form.patchValue({
+      resultaat: this.zaak.resultaat?.resultaattype,
+    });
   }
 
-  onFormSubmit(formGroup: FormGroup) {
-    if (formGroup) {
-      const data: GeneratedType<"RestDecisionCreateData"> = {
+  submit() {
+    const value = this.form.value;
+
+    this.zakenService
+      .createBesluit({
         zaakUuid: this.zaak.uuid,
-        resultaattypeUuid: (
-          formGroup.controls["resultaattype"]
-            .value as GeneratedType<"RestResultaattype">
-        ).id,
-        besluittypeUuid: (
-          formGroup.controls["besluittype"]
-            .value as GeneratedType<"RestDecisionType">
-        ).id,
-        ...(formGroup.controls["besluittype"].value.publication.enabled
+        resultaattypeUuid: value.resultaat!.id,
+        besluittypeUuid: value.besluit!.id,
+        toelichting: value.toelichting ?? undefined,
+        ingangsdatum: value.ingangsdatum?.toISOString(),
+        vervaldatum: value.vervaldatum?.toISOString(),
+        informatieobjecten: this.documentenField.value.toString().split(";"),
+        ...(value.publicationEnabled
           ? {
-              publicationDate: formGroup.controls["publicationDate"].value,
-              lastResponseDate: formGroup.controls["lastResponseDate"].value,
+              publicationDate: value.publicatiedatum?.toISOString(),
+              lastResponseDate: value.uiterlijkereactiedatum?.toISOString(),
             }
           : {}),
-        toelichting: formGroup.controls["toelichting"].value,
-        ingangsdatum: formGroup.controls["ingangsdatum"].value,
-        vervaldatum: formGroup.controls["vervaldatum"].value,
-        informatieobjecten: formGroup.controls["documenten"].value
-          ? formGroup.controls["documenten"].value.split(";")
-          : [],
-      };
-
-      this.zakenService.createBesluit(data).subscribe(() => {
+      })
+      .subscribe(() => {
         this.utilService.openSnackbar("msg.besluit.vastgelegd");
         this.besluitVastgelegd.emit(true);
       });
-    } else {
-      this.besluitVastgelegd.emit(false);
-    }
-  }
-
-  ngOnDestroy() {
-    this.ngDestroy.next();
-    this.ngDestroy.complete();
   }
 }
