@@ -62,7 +62,7 @@ export class KlantenService {
 
   /* istanbul ignore next */
   private readRechtspersoon(rsin: string) {
-    return this.zacHttpClient.GET("/rest/klanten/rechtspersoon/{rsin}", {
+    return this.zacHttpClient.GET("/rest/klanten/rechtspersoon/rsin/{rsin}", {
       path: { rsin },
     });
   }

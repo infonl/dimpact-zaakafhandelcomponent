@@ -38,7 +38,6 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.productaanvraag.ProductaanvraagService
-import java.util.Optional
 
 class DocumentCreationDataConverterTest : BehaviorSpec({
     val zgwApiService = mockk<ZGWApiService>()
@@ -137,7 +136,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolVestiging
         every {
             kvkClientService.findVestiging(rolVestiging.identificatienummer!!)
-        } returns Optional.of(resultaatItem)
+        } returns resultaatItem
         every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
         every { zgwApiService.findGroepForZaak(zaak) } returns null
@@ -197,7 +196,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
         every {
             kvkClientService.findVestiging(vestigingsNummer)
-        } returns Optional.of(resultaatItem)
+        } returns resultaatItem
         every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
         every { zgwApiService.findGroepForZaak(zaak) } returns null
