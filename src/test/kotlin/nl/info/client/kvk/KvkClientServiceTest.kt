@@ -75,8 +75,7 @@ class KvkClientServiceTest : BehaviorSpec({
             val result = kvkClientService.findVestigingsprofiel(vestigingsnummer)
 
             Then("it should return the expected vestiging") {
-                result.isPresent shouldBe true
-                result.get() shouldBe expectedVestiging
+                result shouldBe expectedVestiging
             }
         }
     }

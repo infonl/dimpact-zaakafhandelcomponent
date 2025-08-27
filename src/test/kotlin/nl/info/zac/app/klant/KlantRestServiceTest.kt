@@ -80,7 +80,7 @@ class KlantRestServiceTest : BehaviorSpec({
             When("a request is made to get the vestiging by vestigingsnummer") {
                 every {
                     kvkClientService.findVestiging(vestigingsnummer)
-                } returns Optional.of(kvkResultaatItem)
+                } returns kvkResultaatItem
 
                 val restBedrijf = klantRestService.readVestigingByVestigingsnummer(vestigingsnummer)
 
@@ -119,7 +119,7 @@ class KlantRestServiceTest : BehaviorSpec({
             )
             every {
                 kvkClientService.findVestiging(vestigingsnummer)
-            } returns Optional.of(kvkResultaatItem)
+            } returns kvkResultaatItem
             every {
                 klantClientService.findDigitalAddressesByNumber(vestigingsnummer)
             } returns emptyList()
@@ -144,7 +144,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val vestigingsnummer = "fakeVestigingsnummer"
             every {
                 kvkClientService.findVestiging(vestigingsnummer)
-            } returns Optional.empty()
+            } returns null
             every {
                 klantClientService.findDigitalAddressesByNumber(vestigingsnummer)
             } returns emptyList()
@@ -188,7 +188,7 @@ class KlantRestServiceTest : BehaviorSpec({
             When("a request is made to get the vestiging by vestigingsnummer and kvkNummer") {
                 every {
                     kvkClientService.findVestiging(vestigingsnummer, kvkResultaatItem.kvkNummer)
-                } returns Optional.of(kvkResultaatItem)
+                } returns kvkResultaatItem
 
                 val restBedrijf = klantRestService.readVestigingByVestigingsnummerAndKvkNummer(
                     vestigingsnummer,
@@ -221,7 +221,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val kvkNummer = "fakeKvkNummer"
             every {
                 kvkClientService.findVestiging(vestigingsnummer, kvkNummer)
-            } returns Optional.empty()
+            } returns null
             every {
                 klantClientService.findDigitalAddressesByNumber(vestigingsnummer)
             } returns emptyList()
@@ -365,7 +365,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     )
                 )
             )
-            every { kvkClientService.findVestigingsprofiel(vestiging.vestigingsnummer) } returns Optional.of(vestiging)
+            every { kvkClientService.findVestigingsprofiel(vestiging.vestigingsnummer) } returns vestiging
 
             When("the vestigingsprofiel is requested for a given vestigingsnummer") {
                 val vestigingsProfiel = klantRestService.readVestigingsprofiel(vestiging.vestigingsnummer)
@@ -410,7 +410,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 sbiActiviteiten = null,
                 adressen = null
             )
-            every { kvkClientService.findVestigingsprofiel(vestiging.vestigingsnummer) } returns Optional.of(vestiging)
+            every { kvkClientService.findVestigingsprofiel(vestiging.vestigingsnummer) } returns vestiging
 
             When("the vestigingsprofiel is requested for a given vestigingsnummer") {
                 val vestigingsProfiel = klantRestService.readVestigingsprofiel(vestiging.vestigingsnummer)

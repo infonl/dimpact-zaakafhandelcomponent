@@ -288,7 +288,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
-            every { kvkClientService.findVestiging(vestigingsnummer) } returns Optional.of(resultaatItem)
+            every { kvkClientService.findVestiging(vestigingsnummer) } returns resultaatItem
 
             When("the variables are resolved with a text containing a placeholder for the zaak initiator") {
                 val resolvedText = mailTemplateHelper.resolveZaakVariables(

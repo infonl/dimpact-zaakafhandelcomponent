@@ -111,22 +111,34 @@ class KlantRestService @Inject constructor(
     @GET
     @Path("vestigingsprofiel/{vestigingsnummer}")
     fun readVestigingsprofiel(@PathParam("vestigingsnummer") vestigingsnummer: String): RestVestigingsprofiel =
-        kvkClientService.findVestigingsprofiel(vestigingsnummer).let {
-            if (it.isPresent) {
-                it.get().toRestVestigingsProfiel()
-            } else {
-                throw VestigingNotFoundException(
-                    "Geen vestigingsprofiel gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'"
-                )
-            }
-        }
+        kvkClientService.findVestigingsprofiel(vestigingsnummer)
+            ?.toRestVestigingsProfiel()
+            ?: throw VestigingNotFoundException(
+                "Geen vestigingsprofiel gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'"
+            )
 
+    /**
+     * Read a rechtspersoon by RSIN.
+     *
+     * This endpoint is provided for legacy reasons.
+     * Prefer using the KVK number for retrieving rechtspersonen using [readRechtspersoonByKvkNummer] where possible.
+     */
     @GET
-    @Path("rechtspersoon/{rsin}")
+    @Path("rechtspersoon/rsin/{rsin}")
     fun readRechtspersoon(@PathParam("rsin") @Length(min = 9, max = 9) rsin: String): RestBedrijf =
-        kvkClientService.findRechtspersoon(rsin)
-            .map { it.toRestBedrijf() }
-            .orElseThrow { RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor RSIN '$rsin'") }
+        kvkClientService.findRechtspersoonByRsin(rsin)
+            ?.toRestBedrijf()
+            ?: throw RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor RSIN '$rsin'")
+
+    /**
+     * Read a rechtspersoon by KVK number.
+     */
+    @GET
+    @Path("rechtspersoon/kvknummer/{kvkNummer}")
+    fun readRechtspersoonByKvkNummer(@PathParam("kvkNummer") @Length(min = 9, max = 9) kvkNummer: String): RestBedrijf =
+        kvkClientService.findRechtspersoonByKvkNummer(kvkNummer)
+            ?.toRestBedrijf()
+            ?: throw RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor KVK nummer '$kvkNummer'")
 
     @GET
     @Path("personen/parameters")
@@ -204,7 +216,7 @@ class KlantRestService @Inject constructor(
                 async { klantClientService.findDigitalAddressesByNumber(vestigingsnummer) }
             val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
             klantVestigingDigitalAddresses.await().toRestPersoon().let { klantVestigingRestPersoon ->
-                vestiging.await().getOrNull()?.toRestBedrijf()?.apply {
+                vestiging.await()?.toRestBedrijf()?.apply {
                     emailadres = klantVestigingRestPersoon.emailadres
                     telefoonnummer = klantVestigingRestPersoon.telefoonnummer
                 } ?: throw VestigingNotFoundException(

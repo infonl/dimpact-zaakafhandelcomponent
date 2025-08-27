@@ -282,7 +282,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 """
         ) {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/klanten/rechtspersoon/$TEST_KVK_RSIN_1",
+                url = "$ZAC_API_URI/klanten/rechtspersoon/rsin/$TEST_KVK_RSIN_1",
             )
             Then("the response should be ok and the test company should be returned without contact data") {
                 val responseBody = response.body.string()
