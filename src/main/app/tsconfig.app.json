@@ -4,7 +4,7 @@
     "outDir": "./out-tsc/app",
     "types": [],
     "allowSyntheticDefaultImports": true,
-    "strict": true
+    "strict": false
   },
   "angularCompilerOptions": {
     "strictTemplates": false

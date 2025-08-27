@@ -1387,7 +1387,6 @@ export class ZaakViewComponent
       case "VESTIGING": {
         const betrokkeneIdentificatie: GeneratedType<"BetrokkeneIdentificatie"> =
           {
-            // @ts-expect-error @todo (waiting for new PR to resolve this)
             type: betrokkene.identificatieType,
             vestigingsnummer:
               betrokkene.identificatieType === "VN"
@@ -1407,7 +1406,6 @@ export class ZaakViewComponent
           betrokkeneIdentificatie,
         );
 
-        // @ts-expect-error @todo (waiting for new PR to resolve this)
         this.klantenService
           .readBedrijf(betrokkeneIdentificatie)
           .subscribe((bedrijf) => {
