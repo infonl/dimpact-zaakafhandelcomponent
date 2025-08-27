@@ -16,7 +16,7 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
-import net.atos.zac.util.FlywayIntegrator;
+import nl.info.zac.database.flyway.FlywayIntegrator;
 
 @Entity
 @Table(schema = FlywayIntegrator.SCHEMA, name = "brp_doelbindingen")

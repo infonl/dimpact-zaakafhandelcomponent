@@ -5,7 +5,7 @@
 
 package net.atos.zac.documenten.model;
 
-import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
+import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
 
 import java.time.LocalDate;
 import java.util.UUID;

@@ -55,7 +55,7 @@
                 },
                 "zaak": {
                   "communicatiekanaal": "E-formulier",
-                  "groep": "Test group A",
+                  "groep": "Test group Behandelaars",
                   "identificatie": "ZAAK-1970-0000000001",
                   "omschrijving": "fakeZaakOmschrijving",
                   "registratiedatum": "${json-unit.any-string}",
@@ -99,7 +99,7 @@
                 },
                 "zaak": {
                   "communicatiekanaal": "fakeCommunicatiekanaal1",
-                  "groep": "Test group A",
+                  "groep": "Test group Behandelaars",
                   "identificatie": "ZAAK-2000-0000000004",
                   "omschrijving": "fakeOmschrijving",
                   "registratiedatum": "${json-unit.any-string}",

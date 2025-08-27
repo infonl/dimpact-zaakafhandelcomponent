@@ -199,7 +199,9 @@ When(
       .first()
       .getByRole("button", { name: "Koppelen" })
       .click();
-    await this.page.getByText("close").click();
+    await this.page
+      .locator("mat-toolbar button mat-icon", { hasText: "close" })
+      .click();
 
     const group = this.page.getByRole("combobox", {
       name: "Zaak toekennen aan groep",

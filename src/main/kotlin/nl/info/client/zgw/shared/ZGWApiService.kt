@@ -25,6 +25,7 @@ import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.zrc.model.generated.Status
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
@@ -321,8 +322,8 @@ class ZGWApiService @Inject constructor(
 
     private fun calculateDoorlooptijden(zaak: Zaak) {
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
-        zaaktype.servicenorm?.let {
-            zaak.einddatumGepland = zaak.startdatum.plus(Period.parse(it))
+        if (zaaktype.isServicenormAvailable()) {
+            zaak.einddatumGepland = zaak.startdatum.plus(Period.parse(zaaktype.servicenorm))
         }
         zaak.uiterlijkeEinddatumAfdoening = zaak.startdatum.plus(Period.parse(zaaktype.doorlooptijd))
     }

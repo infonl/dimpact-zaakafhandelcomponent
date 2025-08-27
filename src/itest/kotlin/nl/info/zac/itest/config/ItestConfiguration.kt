@@ -168,11 +168,13 @@ object ItestConfiguration {
     const val TEST_RECORD_MANAGER_1_USERNAME = "recordmanager1"
     const val TEST_RECORD_MANAGER_1_NAME = "Test Recordmanager1"
     const val TEST_COORDINATOR_1_USERNAME = "coordinator1"
+    const val TEST_COORDINATOR_1_PASSWORD = "coordinator1"
     const val TEST_COORDINATOR_1_NAME = "Test Coordinator1"
     const val TEST_BEHANDELAAR_1_USERNAME = "behandelaar1"
     const val TEST_BEHANDELAAR_1_PASSWORD = "behandelaar1"
     const val TEST_BEHANDELAAR_1_NAME = "Test Behandelaar1"
-    const val TEST_RAADPLEGER_1_ID = "raadpleger1"
+    const val TEST_RAADPLEGER_1_USERNAME = "raadpleger1"
+    const val TEST_RAADPLEGER_1_PASSWORD = "raadpleger1"
     const val TEST_RAADPLEGER_1_NAME = "Test Raadpleger1"
     const val TEST_USER_WITHOUT_ANY_ROLE_USERNAME = "userwithoutanyrole"
     const val TEST_USER_WITHOUT_ANY_ROLE_PASSWORD = "userwithoutanyrole"
@@ -424,6 +426,7 @@ object ItestConfiguration {
     const val ZAAK_BPMN_TEST_IDENTIFICATION: String = "ZAAK-2000-0000000004"
     const val ZAAKTYPE_BPMN_TEST_IDENTIFICATIE = "bpmn-test-zaaktype"
     const val ZAAKTYPE_BPMN_TEST_DESCRIPTION = "BPMN test zaaktype"
+    const val ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE = "bpmn-test-zaaktype"
 
     val ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_UUID: UUID = UUID.fromString("8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a")
     const val ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_IDENTIFICATIE = "bpmn-evenementen-vooroverleg"

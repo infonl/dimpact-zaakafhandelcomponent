@@ -11,6 +11,14 @@
 # have field descriptions. Otherwise, leaf nodes with field descriptions will be ignored and will not be included in the generated README.md.
 # See: https://github.com/norwoodj/helm-docs for details.
 
+global:
+  curlImage:
+    # -- curl docker repository used throughout the chart
+    repository: curlimages/curl
+    # -- curl docker tag to pull
+    tag: 8.15.0@sha256:4026b29997dc7c823b51c164b71e2b51e0fd95cce4601f78202c513d97da2922
+    pullPolicy: IfNotPresent
+
 # -- JVM startup options. defaults to "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime"
 javaOptions: ""
 
@@ -152,10 +160,6 @@ signaleringen:
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 3
   restartPolicy: Never
-  image:
-    repository: curlimages/curl
-    tag: 8.15.0@sha256:4026b29997dc7c823b51c164b71e2b51e0fd95cce4601f78202c513d97da2922
-    pullPolicy: IfNotPresent
   imagePullSecrets: []
   resources: {}
   podSecurityContext: {}
@@ -284,9 +288,6 @@ affinity: {}
 # set initContainer parameters
 initContainer:
   enabled: true
-  image:
-    repository: curlimages/curl
-    tag: 8.15.0@sha256:4026b29997dc7c823b51c164b71e2b51e0fd95cce4601f78202c513d97da2922
 
 # Open Policy Agent (OPA) configuration, prefilled resources values are the minimum recommended
 opa:
@@ -394,14 +395,6 @@ solr-operator:
       annotations: {}
       # -- enable createZacCore to have a curl statement generate the zac core in the provided solrcloud if it does not exist yet
       createZacCore: true
-      # solr jobs image parameters
-      image:
-        # -- solr jobs imagePullPolicy
-        pullPolicy: IfNotPresent
-        # -- solr jobs repository
-        repository: curlimages/curl
-        # -- solr jobs tag
-        tag: 8.15.0@sha256:4026b29997dc7c823b51c164b71e2b51e0fd95cce4601f78202c513d97da2922
       # -- nodeSelector for jobs
       nodeSelector: {}
       # -- tolerations for jobs
@@ -536,7 +529,7 @@ opentelemetry-collector:
   image:
     repository: otel/opentelemetry-collector-contrib
     pullPolicy: IfNotPresent
-    tag: "0.132.4@sha256:bcb6d6d0e56645a75cbce0b7aeb3cf7c304299788bc573080b0351eddc786c9b"
+    tag: "0.133.0@sha256:98274b756324abdb2473fa0c898247a246091e861e61d1548f9be483198eecea"
   presets:
     clusterMetrics:
       enabled: false

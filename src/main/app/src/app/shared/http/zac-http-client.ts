@@ -80,7 +80,7 @@ export class ZacHttpClient {
     return this.http
       .get<
         Response<Path, Method>
-      >(this.formatUrl(url, parameters), this.addHttpHeaders(parameters))
+      >(this.formatUrl(url, parameters), this.addHttpOptions(parameters))
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),
@@ -97,10 +97,11 @@ export class ZacHttpClient {
     ...args: ArgsTuple<PathParameters<Path, Method>>
   ) {
     const parameters = args.at(0) ?? ({} as PathParameters<Path, Method>);
+
     return this.http
       .post<
         Response<Path, Method>
-      >(this.formatUrl(url, parameters), body, this.addHttpHeaders(parameters))
+      >(this.formatUrl(url, parameters), body, this.addHttpOptions(parameters))
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),
@@ -120,7 +121,7 @@ export class ZacHttpClient {
     return this.http
       .put<
         Response<Path, Method>
-      >(this.formatUrl(url, parameters), body, this.addHttpHeaders(parameters))
+      >(this.formatUrl(url, parameters), body, this.addHttpOptions(parameters))
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),
@@ -149,7 +150,7 @@ export class ZacHttpClient {
     const body = args.at(1) ?? ({} as DeleteBody<Path, Method>);
     return this.http
       .delete<Response<Path, Method>>(this.formatUrl(url, parameters), {
-        ...this.addHttpHeaders(parameters),
+        ...this.addHttpOptions(parameters),
         body: body,
       })
       .pipe(
@@ -171,7 +172,7 @@ export class ZacHttpClient {
     return this.http
       .patch<
         Response<Path, "patch">
-      >(this.formatUrl(url, parameters), body, this.addHttpHeaders(parameters))
+      >(this.formatUrl(url, parameters), body, this.addHttpOptions(parameters))
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),
@@ -228,17 +229,23 @@ export class ZacHttpClient {
     return url;
   }
 
-  private addHttpHeaders<
+  private addHttpOptions<
     Path extends PathsWithMethod<Paths, Method>,
     Method extends Methods,
   >(
     parameters: PathParameters<Path, Method>,
   ): Parameters<typeof this.http.get>[1] {
-    const headers =
-      parameters && "header" in parameters ? parameters.header : undefined;
-    return {
-      headers: new HttpHeaders(headers),
-    };
+    const result: Parameters<typeof this.http.get>[1] = {};
+
+    if (parameters && "header" in parameters && parameters.header) {
+      result.headers = new HttpHeaders(parameters.header);
+    }
+
+    if (parameters && "responseType" in parameters && parameters.responseType) {
+      result.responseType = parameters.responseType as "json";
+    }
+
+    return result;
   }
 }
 

@@ -85,11 +85,36 @@ spec:
             - zaakafhandelcomponent.jar
           {{- end }}
       {{- if .Values.opa.enabled }}
+      {{- if .Values.opa.sidecar }}
+        - name: "{{ .Values.opa.name }}"
+          image: "{{ .Values.opa.image.repository }}:{{ .Values.opa.image.tag }}"
+          imagePullPolicy: {{ .Values.opa.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8181
+          args:
+            - run
+            - --server
+            - --addr=0.0.0.0:8181
+            - --ignore=.*  # exclude hidden dirs created by Kubernetes
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              port: 8181
+            initialDelaySeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              scheme: HTTP
+              port: 8181
+            initialDelaySeconds: 5
+      {{- end }}
       {{- if not .Values.opa.sidecar }}
       {{- if .Values.initContainer.enabled }}
       initContainers:
       - name: check-opa-ready
-        image: {{ .Values.initContainer.image.repository }}:{{ .Values.initContainer.image.tag }}
+        image: {{ .Values.global.curlImage.repository }}:{{ .Values.global.curlImage.tag }}
+        imagePullPolicy: {{ .Values.global.curlImage.pullPolicy }}
         {{- if .Values.opa.url }}
         command: ['sh','-c','until curl {{ .Values.opa.url }};do echo waiting for opa;sleep 5;done;']
         {{- else }}
@@ -110,43 +135,3 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-{{- if .Values.opa.enabled }}
-{{- if .Values.opa.sidecar }}
-        - name: "{{ .Values.opa.name }}"
-          image: "{{ .Values.opa.image.repository }}:{{ .Values.opa.image.tag }}"
-          imagePullPolicy: {{ .Values.opa.image.pullPolicy }}
-          resources:
-            {{- toYaml .Values.opa.resources | nindent 12 }}
-          ports:
-            - name: http
-              containerPort: 8181
-          args:
-            - run
-            - --server
-            - --addr=0.0.0.0:8181
-            - --ignore=.*  # exclude hidden dirs created by Kubernetes
-          livenessProbe:
-            httpGet:
-              scheme: HTTP
-              port: 8181
-            initialDelaySeconds: 5
-          readinessProbe:
-            httpGet:
-              path: /health?bundle=true  # Include bundle activation in readiness
-              scheme: HTTP
-              port: 8181
-            initialDelaySeconds: 5
-      {{- with .Values.opa.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.opa.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.opa.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-{{- end }}
-{{- end }}

@@ -21,8 +21,8 @@ import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_GROUP_NAME
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
+import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
@@ -49,8 +49,8 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
     val zacClient = ZacClient()
     var bpmnZaakUuid = zacClient.createZaak(
         zaakTypeUUID = ZAAKTYPE_BPMN_TEST_UUID,
-        groupId = TEST_GROUP_A_ID,
-        groupName = TEST_GROUP_A_DESCRIPTION,
+        groupId = TEST_GROUP_BEHANDELAARS_ID,
+        groupName = TEST_GROUP_BEHANDELAARS_DESCRIPTION,
         startDate = DATE_TIME_2000_01_01
     ).run {
         val responseBody = body.string()

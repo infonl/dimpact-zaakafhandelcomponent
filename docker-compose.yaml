@@ -261,9 +261,7 @@ services:
         condition: service_started
 
   brp-personen-mock:
-    # do not upgrade to version '2.7.0-202508211438' because that fails to run on a Mac (ARM)
-    image: ghcr.io/brp-api/personen-mock:2.7.0-202507011650@sha256:5c8006ac4e4b7e96a32a7a1a42cab43f74ca95f0174cdb6b40dece2e717f8df4
-    platform: linux/amd64
+    image: ghcr.io/brp-api/personen-mock:2.7.0-202508211438@sha256:43062e9200a1ae7cb92f1830acf0ab7ca19272dea0756400caaeb4748bed9fa5
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
@@ -367,7 +365,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.132.4@sha256:e62264a5ab729c6252c43664c60619abdb0db78fbdac5a9b78375795e63431f7
+    image: docker.io/otel/opentelemetry-collector:0.133.0@sha256:01268c1bf7f561f1df20a0ea2875db8cb388508f1845a96c8e9ff83efe970a80
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -694,7 +692,7 @@ services:
       - ./scripts/docker-compose/volume-data/pabc-database-data:/var/lib/postgresql/data
 
   pabc-migrations:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.1@sha256:c6b8d66909dfed7709385490a8fb357870b331535bf1da8fce0103dc441f897a
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.2@sha256:5ce0199e6f2582708513b964b05a8758e7b94d09ecf55cbd88be795b5cea283c
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
@@ -703,7 +701,7 @@ services:
         condition: "service_healthy"
 
   pabc-api:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.1@sha256:f1e98366ebfd062a7f8b46bb633049a2d7519b553087af4e700c20a14ceb2f06
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.2@sha256:0de32f1e2b688162f1f4eaf89a07030c9ecdd5cd2d0e3854a541ab65cb890430
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
