@@ -13,28 +13,6 @@
 
     <title>SmartDocuments wizard resultaatpagina</title>
 
-    <!-- Preload critical assets for performance -->
-    <link
-      rel="preload"
-      href="/assets/fonts/Roboto/400.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="preload"
-      href="/assets/fonts/Roboto/500.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="preload"
-      href="/assets/i18n/nl.json"
-      as="fetch"
-      crossorigin="anonymous"
-    />
-
     <!-- Optimized CSS -->
     <style>
       :root {
@@ -50,15 +28,7 @@
         --warning-fill: #ffa500;
       }
 
-      @font-face {
-        font-family: Roboto;
-        font-style: normal;
-        font-weight: 400 500;
-        font-display: swap;
-        src:
-          url("/assets/fonts/Roboto/400.woff2") format("woff2"),
-          url("/assets/fonts/Roboto/500.woff2") format("woff2");
-      }
+      /* Font-face rules will be injected dynamically */
 
       body {
         font-family: Roboto, "Helvetica Neue", sans-serif;
@@ -176,6 +146,77 @@
     </style>
 
     <script>
+      // Font injection with cache busting
+      function injectFonts() {
+        const fontHash = "FONT_HASH"; // This will be replaced during build
+
+        // Inject font preloads
+        const fonts = [
+          `/assets/fonts/Roboto/300.woff2?v=${fontHash}`,
+          `/assets/fonts/Roboto/400.woff2?v=${fontHash}`,
+          `/assets/fonts/Roboto/500.woff2?v=${fontHash}`,
+          `/assets/MaterialSymbolsOutlined.woff2?v=${fontHash}`,
+        ];
+
+        fonts.forEach((href) => {
+          // Check if link already exists
+          if (!document.querySelector(`link[href="${href}"]`)) {
+            const link = document.createElement("link");
+            link.rel = "preload";
+            link.href = href;
+            link.as = "font";
+            link.type = "font/woff2";
+            link.crossOrigin = "anonymous";
+
+            // Insert at the beginning of head for optimal loading
+            document.head.insertBefore(link, document.head.firstChild);
+          }
+        });
+
+        // Inject @font-face rules
+        const fontFaceCSS = `
+          @font-face {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 300;
+            font-display: swap;
+            src: url('/assets/fonts/Roboto/300.woff2?v=${fontHash}') format('woff2');
+          }
+          @font-face {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url('/assets/fonts/Roboto/400.woff2?v=${fontHash}') format('woff2');
+          }
+          @font-face {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 500;
+            font-display: swap;
+            src: url('/assets/fonts/Roboto/500.woff2?v=${fontHash}') format('woff2');
+          }
+          @font-face {
+            font-family: 'material-symbols-outlined';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url('/assets/MaterialSymbolsOutlined.woff2?v=${fontHash}') format('woff2');
+          }
+        `;
+
+        // Check if font-face rules already exist
+        if (!document.querySelector("style[data-font-face-injected]")) {
+          const style = document.createElement("style");
+          style.setAttribute("data-font-face-injected", "true");
+          style.textContent = fontFaceCSS;
+          document.head.appendChild(style);
+        }
+      }
+
+      // Inject fonts immediately
+      injectFonts();
+
       document.addEventListener("DOMContentLoaded", () => {
         const urlParams = new URLSearchParams(window.location.search);
 
@@ -224,7 +265,7 @@
               updatePageContent(
                 finalResultValue,
                 fetchedLabels.result[finalResultValue],
-                fetchedLabels.subText[finalResultValue],
+                fetchedLabels.subText[finalResultValue]
               );
             } else {
               displayError(language);
@@ -259,14 +300,14 @@
             "msg.smartdocuments.wizard.result.",
             typeValue,
             nameValue,
-            docValue,
+            docValue
           );
           const subText = processLabels(
             data,
             "msg.smartdocuments.wizard.subtext.",
             typeValue,
             nameValue,
-            docValue,
+            docValue
           );
 
           return { result, subText };

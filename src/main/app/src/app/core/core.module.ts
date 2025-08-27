@@ -7,6 +7,7 @@ import { registerLocaleData } from "@angular/common";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  HttpClient,
 } from "@angular/common/http";
 import localeNl from "@angular/common/locales/nl";
 import { LOCALE_ID, NgModule, Optional, SkipSelf } from "@angular/core";
@@ -15,12 +16,12 @@ import {
   MAT_DIALOG_DEFAULT_OPTIONS,
   MatDialogConfig,
 } from "@angular/material/dialog";
-import { TranslateModule } from "@ngx-translate/core";
-import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
+import { TranslateModule, TranslateLoader } from "@ngx-translate/core";
 import { SharedModule } from "../shared/shared.module";
 import { EnsureModuleLoadedOnceGuard } from "./ensure-module-loaded-once.guard";
 import { LoadingComponent } from "./loading/loading.component";
 import { UtilService } from "./service/util.service";
+import { createCacheBustingTranslateLoader } from "./translate-loader.service";
 
 registerLocaleData(localeNl, "nl-NL");
 
@@ -30,10 +31,11 @@ registerLocaleData(localeNl, "nl-NL");
   imports: [
     TranslateModule.forRoot({
       fallbackLang: "nl",
-      loader: provideTranslateHttpLoader({
-        prefix: "./assets/i18n/",
-        suffix: ".json",
-      }),
+      loader: {
+        provide: TranslateLoader,
+        useFactory: createCacheBustingTranslateLoader,
+        deps: [HttpClient],
+      },
     }),
     SharedModule,
   ],

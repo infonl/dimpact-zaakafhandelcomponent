@@ -7,6 +7,8 @@ import { AfterViewInit, Component, OnInit } from "@angular/core";
 import { Title } from "@angular/platform-browser";
 import { TranslateService } from "@ngx-translate/core";
 import { UtilService } from "./core/service/util.service";
+import { FontLoaderService } from "./core/font-loader.service";
+import { FontPreloadInjectorService } from "./core/font-preload-injector.service";
 import { IdentityService } from "./identity/identity.service";
 import { SessionStorageUtil } from "./shared/storage/session-storage.util";
 
@@ -22,6 +24,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     private readonly translate: TranslateService,
     private readonly titleService: Title,
     public readonly utilService: UtilService,
+    private readonly fontLoaderService: FontLoaderService,
+    private readonly fontPreloadInjectorService: FontPreloadInjectorService
   ) {}
 
   ngOnInit() {
@@ -30,9 +34,13 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.translate.setFallbackLang("nl");
     const browserLanguage = this.translate.getBrowserLang();
     this.translate.use(
-      browserLanguage?.match(/nl|en/) ? browserLanguage : "nl",
+      browserLanguage?.match(/nl|en/) ? browserLanguage : "nl"
     );
     SessionStorageUtil.removeItem(IdentityService.LOGGED_IN_USER_KEY);
+
+    // Inject font preloads and load fonts with cache busting
+    this.fontPreloadInjectorService.injectFontPreloads();
+    this.fontLoaderService.loadFonts();
   }
 
   ngAfterViewInit() {
