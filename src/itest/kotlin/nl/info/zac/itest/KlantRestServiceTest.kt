@@ -23,6 +23,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NAAM_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_PLAATS_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_RSIN_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_TYPE_RECHTSPERSOON
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_HOOFDACTIVITEIT
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_NEVENACTIVITEIT1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_NEVENACTIVITEIT2
@@ -290,13 +291,38 @@ class KlantRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJson """
                     {
-                      "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                      "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
-                      "identificatieType": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
-                      "kvkNummer": "$TEST_KVK_NUMMER_1",
-                      "naam": "$TEST_KVK_NAAM_1",
-                      "type": "$VESTIGINGTYPE_NEVENVESTIGING",
-                      "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_1"
+                      "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                      "identificatie" : "$TEST_KVK_RSIN_1",
+                      "identificatieType" : "RSIN",
+                      "kvkNummer" : "$TEST_KVK_NUMMER_1",
+                      "naam" : "$TEST_KVK_NAAM_1",
+                      "rsin" : "$TEST_KVK_RSIN_1",
+                      "type" : "$TEST_KVK_TYPE_RECHTSPERSOON"
+                    }
+                """.trimIndent()
+            }
+        }
+        When(
+            """
+                the read rechtspersoon endpoint is called with the KVK nummer of a test company available in the KVK mock
+                """
+        ) {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/klanten/rechtspersoon/kvknummer/$TEST_KVK_NUMMER_1",
+            )
+            Then("the response should be ok and the test company should be returned without contact data") {
+                val responseBody = response.body.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                responseBody shouldEqualJson """
+                   {
+                      "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                      "identificatie" : "$TEST_KVK_RSIN_1",
+                      "identificatieType" : "RSIN",
+                      "kvkNummer" : "$TEST_KVK_NUMMER_1",
+                      "naam" : "$TEST_KVK_NAAM_1",
+                      "rsin" : "$TEST_KVK_RSIN_1",
+                      "type" : "$TEST_KVK_TYPE_RECHTSPERSOON"
                     }
                 """.trimIndent()
             }

@@ -429,8 +429,8 @@ class KlantRestServiceTest : BehaviorSpec({
         Given("A rechtspersoon with a matching KVK nummer in the KVK client") {
             val rsin = "123456789"
             val name = "fakeName"
-            val kvkNummer = "912345678"
-            val postcode = "1234AB"
+            val kvkNummer = "12345678"
+            val postcode = "fakePostcode"
             every { kvkClientService.findRechtspersoonByRsin(kvkNummer) } returns createResultaatItem(
                 rsin = rsin,
                 naam = name,
