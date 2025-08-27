@@ -38,7 +38,6 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.productaanvraag.ProductaanvraagService
-import java.util.Optional
 
 class DocumentCreationDataConverterTest : BehaviorSpec({
     val zgwApiService = mockk<ZGWApiService>()

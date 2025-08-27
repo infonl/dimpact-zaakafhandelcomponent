@@ -33,7 +33,6 @@ import nl.info.zac.app.klant.model.personen.RestListPersonenParameters
 import nl.info.zac.app.klant.model.personen.createRestListBedrijvenParameters
 import nl.info.zac.app.klant.model.personen.toPersonenQuery
 import java.time.LocalDate
-import java.util.Optional
 
 const val NON_BREAKING_SPACE = '\u00A0'.toString()
 const val CONTEXT = "ZAAK AANMAKEN"

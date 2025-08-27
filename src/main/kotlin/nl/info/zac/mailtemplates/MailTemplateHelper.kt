@@ -36,7 +36,6 @@ import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo
 import java.time.format.DateTimeFormatter
 import java.util.logging.Logger
-import kotlin.jvm.optionals.getOrNull
 
 @AllOpen
 @NoArgConstructor

@@ -35,7 +35,6 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
 import java.net.URI
 import java.time.LocalDate
-import java.util.Optional
 import java.util.UUID
 
 class MailTemplateHelperTest : BehaviorSpec({

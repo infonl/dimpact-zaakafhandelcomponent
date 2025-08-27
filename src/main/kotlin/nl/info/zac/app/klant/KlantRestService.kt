@@ -54,7 +54,6 @@ import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import org.hibernate.validator.constraints.Length
 import java.util.UUID
-import kotlin.jvm.optionals.getOrNull
 
 @Path("klanten")
 @Consumes(MediaType.APPLICATION_JSON)
