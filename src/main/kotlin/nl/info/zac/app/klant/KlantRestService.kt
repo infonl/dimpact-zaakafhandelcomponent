@@ -124,7 +124,7 @@ class KlantRestService @Inject constructor(
      */
     @GET
     @Path("rechtspersoon/rsin/{rsin}")
-    fun readRechtspersoon(@PathParam("rsin") @Length(min = 9, max = 9) rsin: String): RestBedrijf =
+    fun readRechtspersoonByRsin(@PathParam("rsin") @Length(min = 9, max = 9) rsin: String): RestBedrijf =
         kvkClientService.findRechtspersoonByRsin(rsin)
             ?.toRestBedrijf()
             ?: throw RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor RSIN '$rsin'")
