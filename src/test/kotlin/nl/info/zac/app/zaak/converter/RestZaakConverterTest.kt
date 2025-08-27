@@ -251,6 +251,89 @@ class RestZaakConverterTest : BehaviorSpec({
         }
     }
 
+    Given("A CMMN zaak with a niet-natuurlijk persoon initiator with only a KVK nummer") {
+        val zaak = createZaak()
+        val zaakType = createZaakType()
+        val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoon(
+            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                innNnpId = null,
+                kvkNummer = "12344321",
+                vestigingsnummer = null
+            )
+        )
+        val restZaakType = createRestZaaktype()
+        val zaakRechten = createZaakRechten()
+        val zaakdata = mapOf("fakeKey" to "fakeValue")
+
+        with(zgwApiService) {
+            every { findGroepForZaak(zaak) } returns null
+            every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+            every { findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+        }
+        with(zaakVariabelenService) {
+            every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns false
+            every { readZaakdata(zaak.uuid) } returns zaakdata
+        }
+        every { brcClientService.listBesluiten(zaak) } returns emptyList()
+        every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
+        every { bpmnService.isProcessDriven(zaak.uuid) } returns false
+
+        When("converting a zaak to a rest zaak") {
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
+
+            Then("the zaak should be converted correctly without a RSIN-type initiatorIdentificatie") {
+                with(restZaak) {
+                    uuid shouldBe zaak.uuid
+                    with(initiatorIdentificatie!!) {
+                        this.type shouldBe IdentificatieType.RSIN
+                        this.kvkNummer shouldBe kvkNummer
+                    }
+                }
+            }
+        }
+    }
+
+    Given("A CMMN zaak with a niet-natuurlijk persoon initiator without required identificatie fields") {
+        val zaak = createZaak()
+        val zaakType = createZaakType()
+        val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoon(
+            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                innNnpId = null,
+                kvkNummer = null,
+                vestigingsnummer = null,
+                // unsupported identificatie type
+                annIdentificatie = "fakeAnnId"
+            )
+        )
+        val restZaakType = createRestZaaktype()
+        val zaakRechten = createZaakRechten()
+        val zaakdata = mapOf("fakeKey" to "fakeValue")
+
+        with(zgwApiService) {
+            every { findGroepForZaak(zaak) } returns null
+            every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+            every { findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+        }
+        with(zaakVariabelenService) {
+            every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns false
+            every { readZaakdata(zaak.uuid) } returns zaakdata
+        }
+        every { brcClientService.listBesluiten(zaak) } returns emptyList()
+        every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
+        every { bpmnService.isProcessDriven(zaak.uuid) } returns false
+
+        When("converting a zaak to a rest zaak") {
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
+
+            Then("the zaak should be converted correctly without an initiatorIdentificatie") {
+                with(restZaak) {
+                    uuid shouldBe zaak.uuid
+                    initiatorIdentificatie shouldBe null
+                }
+            }
+        }
+    }
+
     Given("A zaak that was closed and later reopened") {
         val status = createZaakStatus()
         status.statustoelichting = "fake status"

@@ -142,7 +142,7 @@ class RestZaakConverter @Inject constructor(
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name,
             groep = groep,
             behandelaar = behandelaar,
-            initiatorIdentificatie = initiator?.let { createInitiatorIdentificatie(it) },
+            initiatorIdentificatie = initiator?.let { createBetrokkeneIdentificatieForInitiatorRole(it) },
             isHoofdzaak = zaak.isHoofdzaak(),
             isDeelzaak = zaak.isDeelzaak(),
             isOpen = zaak.isOpen(),
@@ -202,7 +202,7 @@ class RestZaakConverter @Inject constructor(
         return gerelateerdeZaken
     }
 
-    private fun createInitiatorIdentificatie(initiatorRole: Rol<*>): BetrokkeneIdentificatie? {
+    private fun createBetrokkeneIdentificatieForInitiatorRole(initiatorRole: Rol<*>): BetrokkeneIdentificatie? {
         val betrokkeneIdentificatie = initiatorRole.betrokkeneIdentificatie
         val initiatorIdentificatieType = when (val betrokkeneType = initiatorRole.betrokkeneType) {
             NATUURLIJK_PERSOON -> IdentificatieType.BSN
@@ -216,7 +216,10 @@ class RestZaakConverter @Inject constructor(
                     // as well as new 'RSIN-type' initiators with only a KVK number (but no vestigingsnummer)
                     it.vestigingsNummer?.isNotBlank() == true -> IdentificatieType.VN
                     else -> {
-                        logUnsupportedType(betrokkeneType, initiatorRole.uuid)
+                        LOG.warning(
+                            "Unsupported identification fields for betrokkene type: '$betrokkeneType' " +
+                                "for role with UUID: '${initiatorRole.uuid}'"
+                        )
                         null
                     }
                 }
@@ -224,7 +227,9 @@ class RestZaakConverter @Inject constructor(
             // betrokkeneType may be null (sadly enough)
             null -> null
             else -> {
-                logUnsupportedType(betrokkeneType, initiatorRole.uuid)
+                LOG.warning(
+                    "Unsupported betrokkene type: '$betrokkeneType' for role with UUID: '${initiatorRole.uuid}'"
+                )
                 null
             }
         }
@@ -240,7 +245,4 @@ class RestZaakConverter @Inject constructor(
             )
         }
     }
-
-    private fun logUnsupportedType(type: Any?, uuid: UUID) =
-        LOG.warning("Unsupported identification type: '$type' for role with UUID '$uuid'")
 }
