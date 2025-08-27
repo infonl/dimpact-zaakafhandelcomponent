@@ -1095,7 +1095,10 @@ export class ZaakViewComponent
 
     this.zaak = zaak;
     this.utilService.openSnackbar(notification, {
-      naam: zaak.initiatorIdentificatie,
+        naam: zaak.initiatorIdentificatie?.bsnNummer ??
+            zaak.initiatorIdentificatie?.kvkNummer ??
+            zaak.initiatorIdentificatie?.rsinNummer ??
+            zaak.initiatorIdentificatie?.vestigingsnummer,
     });
     this.loadHistorie();
   }
