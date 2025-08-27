@@ -7,6 +7,7 @@ import {
   Component,
   EventEmitter,
   Input,
+  numberAttribute,
   OnChanges,
   OnInit,
   Output,
@@ -19,30 +20,31 @@ import { TextIcon } from "../edit/text-icon";
   templateUrl: "./static-text.component.html",
   styleUrls: ["./static-text.component.less"],
 })
-export class StaticTextComponent<T = unknown> implements OnInit, OnChanges {
+export class StaticTextComponent<
+    T extends string | number | null | undefined = string,
+  >
+  implements OnInit, OnChanges
+{
+  /**
+   * Will get translated automatically
+   */
   @Input() label?: string;
   @Input() value?: T;
   @Input() icon?: TextIcon | null;
-  @Input() maxLength?: number;
+  @Input({ transform: numberAttribute }) maxLength?: number;
   @Output() iconClicked = new EventEmitter<void>();
 
   showIcon = false;
 
-  constructor() {}
-
-  ngOnInit(): void {
+  ngOnInit() {
     this.setIcon();
   }
 
-  ngOnChanges(): void {
+  ngOnChanges() {
     this.setIcon();
   }
 
-  get hasIcon(): boolean {
-    return this.showIcon;
-  }
-
-  setIcon(): void {
+  setIcon() {
     this.showIcon = Boolean(this.icon?.showIcon?.(new FormControl(this.value)));
   }
 }
