@@ -87,32 +87,39 @@ class RestZaakafhandelParametersConverter @Inject constructor(
                 ?.toRestAutomaticEmailConfirmation()
                 ?: RestAutomaticEmailConfirmation(),
         )
-        restZaakafhandelParameters.caseDefinition?.takeIf { inclusiefRelaties }?.let { caseDefinition ->
-            zaakafhandelParameters.nietOntvankelijkResultaattype?.let {
-                ztcClientService.readResultaattype(it).let { resultaatType ->
-                    restZaakafhandelParameters.zaakNietOntvankelijkResultaattype = resultaatType.toRestResultaatType()
-                }
-            }
-            restZaakafhandelParameters.humanTaskParameters =
+        if (inclusiefRelaties) {
+            restZaakafhandelParameters.addRelatedData(zaakafhandelParameters)
+        }
+        return restZaakafhandelParameters
+    }
+
+    private fun RestZaakafhandelParameters.addRelatedData(zaakafhandelParameters: ZaakafhandelParameters) {
+        this.caseDefinition?.let { caseDefinition ->
+            this.humanTaskParameters =
                 humanTaskParametersConverter.convertHumanTaskParametersCollection(
                     zaakafhandelParameters.humanTaskParametersCollection,
                     caseDefinition.humanTaskDefinitions
                 )
-            restZaakafhandelParameters.userEventListenerParameters = RESTUserEventListenerParametersConverter
+            this.userEventListenerParameters = RESTUserEventListenerParametersConverter
                 .convertUserEventListenerParametersCollection(
                     zaakafhandelParameters.userEventListenerParametersCollection,
                     caseDefinition.userEventListenerDefinitions
                 )
-            restZaakafhandelParameters.zaakbeeindigParameters =
-                zaakbeeindigParameterConverter.convertZaakbeeindigParameters(
-                    zaakafhandelParameters.zaakbeeindigParameters
-                )
-            restZaakafhandelParameters.mailtemplateKoppelingen = RESTMailtemplateKoppelingConverter.convert(
-                zaakafhandelParameters.mailtemplateKoppelingen
-            )
-            restZaakafhandelParameters.zaakAfzenders = zaakafhandelParameters.zaakAfzenders.toRestZaakAfzenders()
         }
-        return restZaakafhandelParameters
+        zaakafhandelParameters.nietOntvankelijkResultaattype?.let {
+            ztcClientService.readResultaattype(it).let { resultaatType ->
+                this.zaakNietOntvankelijkResultaattype =
+                    resultaatType.toRestResultaatType()
+            }
+        }
+        this.zaakbeeindigParameters =
+            zaakbeeindigParameterConverter.convertZaakbeeindigParameters(
+                zaakafhandelParameters.zaakbeeindigParameters
+            )
+        this.mailtemplateKoppelingen = RESTMailtemplateKoppelingConverter.convert(
+            zaakafhandelParameters.mailtemplateKoppelingen
+        )
+        this.zaakAfzenders = zaakafhandelParameters.zaakAfzenders.toRestZaakAfzenders()
     }
 
     fun toZaakafhandelParameters(
