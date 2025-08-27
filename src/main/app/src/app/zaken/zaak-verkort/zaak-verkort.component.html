@@ -24,19 +24,19 @@
   <mat-card-content>
     <div class="content flex flex-row flex-wrap justify-start gap-10">
       <zac-static-text
-        [label]="'status' | translate"
+        label="status"
         [value]="zaak.status | empty: 'naam'"
         class="flex-item"
       ></zac-static-text>
 
       <zac-static-text
-        [label]="'startdatum' | translate"
+        label="startdatum"
         [value]="zaak.startdatum | datum"
         class="flex-item"
       ></zac-static-text>
 
       <zac-static-text
-        [label]="'einddatumGepland' | translate"
+        label="einddatumGepland"
         [value]="zaak.einddatumGepland | datum"
         [icon]="einddatumGeplandIcon"
         class="flex-item"
@@ -44,7 +44,7 @@
 
       <zac-static-text
         class="toelichting-field flex-1 w100"
-        [label]="'toelichting' | translate"
+        label="toelichting"
         [value]="zaak.toelichting"
       ></zac-static-text>
     </div>

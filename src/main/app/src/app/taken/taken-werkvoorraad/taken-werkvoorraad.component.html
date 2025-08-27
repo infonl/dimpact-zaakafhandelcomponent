@@ -370,42 +370,42 @@
                 [value]="row.fataledatum | dagen"
                 [icon]="fataledatumIcon"
                 class="w33 flex-1"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.FATALEDATUM"
                 [value]="row.fataledatum | datum"
                 [icon]="fataledatumIcon"
                 class="w33 flex-1"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.CREATIEDATUM"
                 [value]="row.creatiedatum | datum"
                 class="w33 flex-1"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.GROEP"
                 [value]="row.groepNaam"
                 class="w33 flex-1"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.BEHANDELAAR"
                 class="w33 flex-1"
-                [label]="column | translate"
-                [value]="row.behandelaarNaam | empty"
+                [label]="column"
+                [value]="row.behandelaarNaam"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.STATUS"
                 [value]="row.statustypeOmschrijving"
                 class="w33 flex-1"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchDefault
-                [label]="column | translate"
+                [label]="column"
                 [value]="row[column] | translate"
                 class="w33 flex-1"
               ></zac-static-text>

@@ -58,7 +58,7 @@
               </ng-template>
               <div class="top-wrapper">
                 <zac-static-text
-                  [label]="'identificatie' | translate"
+                  label="identificatie"
                   [value]="infoObject.identificatie"
                 >
                 </zac-static-text>
@@ -67,23 +67,23 @@
                 class="flex top-wrapper flex-row flex-wrap justify-start gap-10"
               >
                 <zac-static-text
-                  [label]="'creatiedatum' | translate"
+                  label="creatiedatum"
                   [value]="infoObject.creatiedatum | datum"
                   class="flex-item"
                 ></zac-static-text>
                 <zac-static-text
-                  [label]="'registratiedatum' | translate"
+                  label="registratiedatum"
                   [value]="infoObject.registratiedatumTijd | datum: 'short'"
                   class="flex-item"
                 ></zac-static-text>
                 <zac-static-text
-                  [label]="'verzenddatum' | translate"
+                  label="verzenddatum"
                   [value]="infoObject.verzenddatum | datum"
                   *ngIf="infoObject.verzenddatum"
                   class="flex-item"
                 ></zac-static-text>
                 <zac-static-text
-                  [label]="'ontvangstdatum' | translate"
+                  label="ontvangstdatum"
                   *ngIf="infoObject.ontvangstdatum"
                   [value]="infoObject.ontvangstdatum | datum"
                   class="flex-item"
@@ -93,30 +93,30 @@
 
               <div class="flex flex-row justify-start gap-10">
                 <zac-static-text
-                  [label]="'titel' | translate"
+                  label="titel"
                   [value]="infoObject.titel"
                   class="flex-item"
                 >
                 </zac-static-text>
                 <zac-static-text
-                  [label]="'auteur' | translate"
+                  label="'auteu"
                   [value]="infoObject.auteur"
                   class="flex-item"
                 ></zac-static-text>
                 <zac-static-text
-                  [label]="'taal' | translate"
+                  label="taal"
                   [value]="infoObject.taal"
                   class="flex-item"
                 ></zac-static-text>
               </div>
               <div class="flex flex-row justify-start gap-10">
                 <zac-static-text
-                  [label]="'documentType' | translate"
+                  label="'documentTyp"
                   [value]="infoObject.informatieobjectTypeOmschrijving"
                   class="flex-item"
                 ></zac-static-text>
                 <zac-static-text
-                  [label]="'bestandsnaam' | translate"
+                  label="bestandsnaam"
                   [value]="infoObject.bestandsnaam"
                   class="flex-item"
                 >
@@ -127,14 +127,14 @@
                   <span position="content-before">&nbsp;</span>
                 </zac-static-text>
                 <zac-static-text
-                  [label]="'bestandsomvang' | translate"
+                  label="bestandsomvang"
                   [value]="infoObject.bestandsomvang | bestandsomvang"
                   class="flex-item"
                 ></zac-static-text>
               </div>
               <div class="flex flex-row justify-start gap-10">
                 <zac-static-text
-                  [label]="'informatieobject.status' | translate"
+                  label="informatieobject.status"
                   [value]="
                     'informatieobject.status.' + infoObject.status | translate
                   "
@@ -142,7 +142,7 @@
                   class="flex-item"
                 ></zac-static-text>
                 <zac-static-text
-                  [label]="'vertrouwelijkheidaanduiding' | translate"
+                  label="vertrouwelijkheidaanduiding"
                   [value]="
                     infoObject.vertrouwelijkheidaanduiding
                       | vertrouwelijkaanduidingToTranslationKey
@@ -151,13 +151,13 @@
                   class="flex-item"
                 ></zac-static-text>
                 <zac-static-text
-                  [label]="'versie' | translate"
+                  label="versie"
                   [value]="infoObject.versie"
                   class="flex-item"
                 ></zac-static-text>
               </div>
               <zac-static-text
-                [label]="'beschrijving' | translate"
+                label="beschrijving"
                 [value]="infoObject.beschrijving"
                 class="flex-item beschrijving"
               ></zac-static-text>
@@ -322,17 +322,17 @@
             <div class="content flex-row flex-wrap flex-col-xs">
               <zac-static-text
                 class="flex-1 w33"
-                [label]="'status' | translate"
+                label="status"
                 [value]="zaak.zaakStatus | empty: 'naam'"
               ></zac-static-text>
               <zac-static-text
                 class="flex-1 w33"
-                [label]="'startdatum' | translate"
+                label="startdatum"
                 [value]="zaak.zaakStartDatum | datum"
               ></zac-static-text>
               <zac-static-text
                 class="flex-1 w33"
-                [label]="'einddatumGepland' | translate"
+                label="einddatumGepland"
                 [value]="zaak.zaakEinddatumGepland | datum | empty"
               ></zac-static-text>
             </div>

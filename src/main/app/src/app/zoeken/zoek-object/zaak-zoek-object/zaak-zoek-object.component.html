@@ -9,54 +9,51 @@
       [sideNav]="sideNav"
     ></zac-zoek-object-link>
     <zac-static-text
-      [label]="'zaaktype' | translate"
+      label="zaaktype"
       [value]="zaak.zaaktypeOmschrijving"
     ></zac-static-text>
     <zac-static-text
-      [label]="'status' | translate"
+      label="status"
       [value]="zaak.statustypeOmschrijving"
     ></zac-static-text>
   </div>
   <div class="flex-1 w33">
+    <zac-static-text label="groep" [value]="zaak.groepNaam"></zac-static-text>
     <zac-static-text
-      [label]="'groep' | translate"
-      [value]="zaak.groepNaam"
-    ></zac-static-text>
-    <zac-static-text
-      [label]="'behandelaar' | translate"
+      label="behandelaar"
       [value]="zaak.behandelaarNaam"
     ></zac-static-text>
     <zac-static-text
-      [label]="'resultaat' | translate"
+      label="resultaat"
       [value]="zaak.resultaattypeOmschrijving"
     ></zac-static-text>
   </div>
   <div class="flex-1 w33">
     <zac-static-text
-      [label]="'startdatum' | translate"
+      label="startdatum"
       [value]="zaak.startdatum | datum"
     ></zac-static-text>
     <zac-static-text
-      [label]="'einddatumGepland' | translate"
+      label="einddatumGepland"
       [value]="zaak.einddatumGepland | datum"
     ></zac-static-text>
     <zac-static-text
-      [label]="'uiterlijkeEinddatumAfdoening' | translate"
+      label="uiterlijkeEinddatumAfdoening"
       [value]="zaak.uiterlijkeEinddatumAfdoening | datum"
     ></zac-static-text>
     <zac-static-text
-      [label]="'einddatum' | translate"
+      label="einddatum"
       [value]="zaak.einddatum | datum"
     ></zac-static-text>
   </div>
 </div>
 <div class="toelichting">
   <zac-static-text
-    [label]="'omschrijving' | translate"
+    label="omschrijving"
     [value]="zaak.omschrijving"
   ></zac-static-text>
   <zac-static-text
-    [label]="'toelichting' | translate"
+    label="toelichting"
     [value]="zaak.toelichting"
   ></zac-static-text>
 </div>

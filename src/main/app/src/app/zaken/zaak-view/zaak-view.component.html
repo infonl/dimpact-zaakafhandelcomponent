@@ -216,38 +216,35 @@
               <div class="content">
                 <div class="flex flex-row flex-wrap justify-start gap-10">
                   <zac-static-text
-                    [label]="'status' | translate"
+                    label="status"
                     [value]="zaak.status | empty: 'naam'"
                     class="flex-item"
                   ></zac-static-text>
                   <zac-static-text
-                    [label]="'registratiedatum' | translate"
+                    label="registratiedatum"
                     [value]="zaak.registratiedatum | datum"
                     class="flex-item"
                   ></zac-static-text>
                   <zac-static-text
-                    [label]="'resultaat' | translate"
+                    label="resultaat"
                     [value]="zaak.resultaat?.resultaattype | empty: 'naam'"
                     class="flex-item"
                   ></zac-static-text>
                   <zac-static-text
                     *ngIf="zaak.einddatum"
-                    [label]="'einddatum' | translate"
+                    label="einddatum"
                     [value]="zaak.einddatum | datum"
                     class="flex-item"
                   ></zac-static-text>
                   <zac-static-text
                     *ngIf="zaak.archiefNominatie === 'VERNIETIGEN'"
-                    [label]="
-                      'archiefNominatie.datum.' + zaak.archiefNominatie
-                        | translate
-                    "
-                    [value]="zaak.archiefActiedatum | datum | empty"
+                    [label]="'archiefNominatie.datum.' + zaak.archiefNominatie"
+                    [value]="zaak.archiefActiedatum | datum"
                     class="flex-item"
                   ></zac-static-text>
                   <zac-static-text
                     *ngIf="zaak.archiefNominatie === 'BLIJVEND_BEWAREN'"
-                    [label]="'archiefNominatie' | translate"
+                    label="archiefNominatie"
                     [value]="
                       'archiefNominatie.' + zaak.archiefNominatie | translate
                     "
@@ -267,29 +264,29 @@
                   </button>
 
                   <zac-static-text
-                    [label]="'groep' | translate"
+                    label="groep"
                     [value]="zaak.groep?.naam | empty"
                     class="flex-item"
                   ></zac-static-text>
                   <zac-static-text
-                    [label]="'behandelaar' | translate"
+                    label="behandelaar"
                     [value]="zaak.behandelaar?.naam | empty"
                     class="flex-item"
                   ></zac-static-text>
                   <zac-static-text
-                    [label]="'communicatiekanaal' | translate"
+                    label="communicatiekanaal"
                     [value]="zaak.communicatiekanaal | empty"
                     class="flex-item"
                   ></zac-static-text>
                 </div>
                 <div class="flex flex-row justify-start gap-10">
                   <zac-static-text
-                    [label]="'startdatum' | translate"
+                    label="startdatum"
                     [value]="zaak.startdatum | datum | empty"
                     class="flex-item"
                   ></zac-static-text>
                   <zac-static-text
-                    [label]="'streefdatum' | translate"
+                    label="streefdatum"
                     [value]="zaak.einddatumGepland | datum | empty"
                     [icon]="dateFieldIconMap.get('einddatumGepland')"
                     class="flex-item"
@@ -297,7 +294,7 @@
                     <mat-icon>label-icon</mat-icon>
                   </zac-static-text>
                   <zac-static-text
-                    [label]="'fataledatum' | translate"
+                    label="fataledatum"
                     [value]="zaak.uiterlijkeEinddatumAfdoening | datum | empty"
                     [icon]="
                       dateFieldIconMap.get('uiterlijkeEinddatumAfdoening')
@@ -336,7 +333,7 @@
                 </div>
                 <div class="flex flex-row justify-start gap-10">
                   <zac-static-text
-                    [label]="'vertrouwelijkheidaanduiding' | translate"
+                    label="vertrouwelijkheidaanduiding"
                     [value]="
                       zaak.vertrouwelijkheidaanduiding
                         | vertrouwelijkaanduidingToTranslationKey
@@ -349,11 +346,11 @@
 
                 <div class="flex flex-col gap-10">
                   <zac-static-text
-                    [label]="'omschrijving' | translate"
+                    label="omschrijving"
                     [value]="zaak.omschrijving | empty"
                   ></zac-static-text>
                   <zac-static-text
-                    [label]="'toelichting' | translate"
+                    label="toelichting"
                     [value]="zaak.toelichting | empty"
                   ></zac-static-text>
                 </div>
@@ -377,7 +374,7 @@
                   </button>
 
                   <zac-static-text
-                    [label]="'coordinates' | translate"
+                    label="coordinates"
                     [value]="zaak.zaakgeometrie | location | empty"
                     class="flex-item"
                   ></zac-static-text>
@@ -956,18 +953,18 @@
                     >
                       <div class="flex-row flex-wrap gap-10">
                         <zac-static-text
-                          [label]="'uitkomst' | translate"
+                          label="uitkomst"
                           [value]="
                             row.data.taakinformatie?.uitkomst | translate
                           "
                         ></zac-static-text>
                         <zac-static-text
-                          [label]="'bijlage' | translate"
+                          label="bijlage"
                           *ngIf="row.data.taakinformatie?.bijlagen"
                           [value]="row.data.taakinformatie?.bijlagen"
                         ></zac-static-text>
                         <zac-static-text
-                          [label]="'opmerking' | translate"
+                          label="opmerking"
                           *ngIf="row.data.taakinformatie?.opmerking"
                           [value]="row.data.taakinformatie?.opmerking"
                         ></zac-static-text>

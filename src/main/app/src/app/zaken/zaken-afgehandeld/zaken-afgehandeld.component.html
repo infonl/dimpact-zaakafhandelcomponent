@@ -605,63 +605,63 @@
                 [value]="row.einddatumGepland | datum"
                 [icon]="einddatumGeplandIcon"
                 class="flex-1 w33"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.DAGEN_TOT_STREEFDATUM"
                 [value]="row.einddatumGepland | dagen"
                 [icon]="einddatumGeplandIcon"
                 class="flex-1 w33"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.UITERLIJKE_EINDDATUM_AFDOENING"
                 [value]="row.uiterlijkeEinddatumAfdoening | datum"
                 [icon]="uiterlijkeEinddatumAfdoeningIcon"
                 class="flex-1 w33"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.DAGEN_TOT_FATALEDATUM"
                 [value]="row.uiterlijkeEinddatumAfdoening | dagen"
                 class="flex-1 w33"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.STARTDATUM"
                 [value]="row.startdatum | datum"
                 class="flex-1 w33"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.EINDDATUM"
                 [value]="row.einddatum | datum"
                 class="flex-1 w33"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.ZAAK_DOT_IDENTIFICATIE"
                 [value]="row.identificatie"
                 class="flex-1 w33"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.GROEP"
                 [value]="row.groepNaam"
                 class="flex-1 w33"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.REGISTRATIEDATUM"
                 [value]="row.registratiedatum | datum"
                 class="flex-1 w33"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.COMMUNICATIEKANAAL"
                 [value]="row.communicatiekanaal"
                 class="flex-1 w33"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.VERTROUWELIJKHEIDAANDUIDING"
@@ -673,31 +673,31 @@
                     : '-'
                 "
                 class="flex-1 w33"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.ZAAKTYPE"
                 [value]="row.zaaktypeOmschrijving"
                 class="flex-1 w33"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.STATUS"
                 [value]="row.statustypeOmschrijving"
                 class="flex-1 w33"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.BEHANDELAAR"
                 [value]="row.behandelaarNaam"
                 class="flex-1 w33"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.RESULTAAT"
                 [value]="row.resultaattypeOmschrijving"
                 class="flex-1 w33"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.ARCHIEF_NOMINATIE"
@@ -708,17 +708,17 @@
                     : '-'
                 "
                 class="flex-1 w33"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.ARCHIEF_ACTIEDATUM"
                 [value]="row.archiefActiedatum | datum"
                 class="flex-1 w33"
-                [label]="column | translate"
+                [label]="column"
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchDefault
-                [label]="column | translate"
+                [label]="column"
                 [value]="row[column] | translate"
                 class="flex-1 w33"
               ></zac-static-text>
