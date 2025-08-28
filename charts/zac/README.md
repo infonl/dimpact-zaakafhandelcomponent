@@ -228,7 +228,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.service.annotations | object | `{}` |  |
 | opa.service.port | int | `8181` |  |
 | opa.service.type | string | `"ClusterIP"` |  |
-| opa.sidecar | bool | `true` | set sidecar to false to run the opa service as a standalone pod and service |
+| opa.sidecar | bool | `true` | set sidecar to true to run the opa service as a sidecar container within the ZAC pod (set to false to run as a standalone pod and service) |
 | opa.tolerations | list | `[]` |  |
 | openForms.url | string | `""` | Not used at the moment. |
 | opentelemetry-collector.config.receivers.jaeger | object | `{}` |  |
