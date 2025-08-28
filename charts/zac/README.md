@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.114](https://img.shields.io/badge/Version-1.0.114-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
+![Version: 1.0.115](https://img.shields.io/badge/Version-1.0.115-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -228,7 +228,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.service.annotations | object | `{}` |  |
 | opa.service.port | int | `8181` |  |
 | opa.service.type | string | `"ClusterIP"` |  |
-| opa.sidecar | bool | `false` | set sidecar to true to run the opa service together with the zac pod |
+| opa.sidecar | bool | `true` | set sidecar to false to run the opa service as a standalone pod and service |
 | opa.tolerations | list | `[]` |  |
 | openForms.url | string | `""` | Not used at the moment. |
 | opentelemetry-collector.config.receivers.jaeger | object | `{}` |  |
