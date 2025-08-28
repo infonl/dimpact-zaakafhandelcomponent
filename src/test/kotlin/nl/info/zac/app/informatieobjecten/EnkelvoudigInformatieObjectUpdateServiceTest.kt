@@ -209,7 +209,9 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
             val explanation = "fakeExplanation"
             val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
-            every { enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID) } returns enkelvoudigInformatieObjectLock
+            every {
+                enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID)
+            } returns enkelvoudigInformatieObjectLock
             every {
                 drcClientService.updateEnkelvoudigInformatieobject(
                     enkelvoudigInformatieObjectUUID, enkelvoudigInformatieObjectWithLockRequest, explanation
