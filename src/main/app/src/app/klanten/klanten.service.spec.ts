@@ -15,8 +15,8 @@ import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { UtilService } from "../core/service/util.service";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { KlantenService } from "./klanten.service";
 import { GeneratedType } from "../shared/utils/generated-types";
+import { KlantenService } from "./klanten.service";
 
 describe(KlantenService.name, () => {
   let service: KlantenService;

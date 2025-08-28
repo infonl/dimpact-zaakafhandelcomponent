@@ -5,12 +5,12 @@
 
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
-import { KlantenService } from "../klanten.service";
 import {
   KVK_LENGTH,
   VESTIGINGSNUMMER_LENGTH,
 } from "src/app/shared/utils/constants";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
+import { KlantenService } from "../klanten.service";
 
 @Injectable({
   providedIn: "root",
