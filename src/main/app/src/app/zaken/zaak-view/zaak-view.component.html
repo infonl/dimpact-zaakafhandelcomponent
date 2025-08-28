@@ -125,12 +125,12 @@
     ></zac-besluit-edit>
     <zac-informatie-object-link
       *ngSwitchCase="'actie.document.verplaatsen'"
-      [actionLabel]="'actie.document.verplaatsen'"
+      actionLabel="actie.document.verplaatsen"
       [infoObject]="documentToMove"
       [sideNav]="actionsSidenav"
       [source]="zaak.identificatie"
       (informationObjectLinked)="updateDocumentList()"
-    ></zac-informatie-object-link>
+    />
     <zac-zaak-link
       *ngSwitchCase="'actie.zaak.koppelen'"
       [zaak]="zaak"
