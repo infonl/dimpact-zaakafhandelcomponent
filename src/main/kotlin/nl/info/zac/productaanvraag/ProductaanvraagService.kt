@@ -440,63 +440,71 @@ class ProductaanvraagService @Inject constructor(
         inboxDocumentenService.find(documentUUID).ifPresent { inboxDocumentenService.delete(it.id) }
 
     /**
-     * Handles a productaanvraag-Dimpact [ModelObject] by creating a zaak and starting a CMMN process for it
-     * if there is a zaakafhandelparameters configured for the productaanvraagtype.
-     * Else it will create an 'inbox productaanvraag'.
+     * Handles a productaanvraag-Dimpact [ModelObject]
+     * - If a CMMN mapping exists for the productaanvraagtype (via ZaakafhandelParameters),
+     *   a zaak is created and a CMMN case is started for that zaak.
+     * - Else if a BPMN mapping exists for the productaanvraagtype, a zaak is created, and a BPMN
+     *   process is started for that zaak using the configured process definition key.
+     * - If both CMMN and BPMN mappings exist, CMMN takes precedence: a warning is logged, and
+     *   the BPMN mapping is ignored.
+     * - If no mapping exists, it will create an 'inbox productaanvraag'.
      *
      */
     private fun handleProductaanvraagDimpact(productaanvraagObject: ModelObject) {
         LOG.fine { "Start handling productaanvraag with object URL: ${productaanvraagObject.url}" }
         val productaanvraag = getProductaanvraag(productaanvraagObject)
 
-        val cmmnParameters = zaakafhandelParameterBeheerService
+        val zaakafhandelparameters = zaakafhandelParameterBeheerService
             .findActiveZaakafhandelparametersByProductaanvraagtype(productaanvraag.type)
-        val bpmnDefinition = zaaktypeBpmnProcessDefinitionService.findByProductAanvraagType(productaanvraag.type)
+        val zaaktypeBpmnProcessDefinition = zaaktypeBpmnProcessDefinitionService.findByProductAanvraagType(productaanvraag.type)
 
-        val productaanvraagtypeNotDefined = cmmnParameters.isEmpty() && bpmnDefinition == null
-        val productaanvraagtypeDefinedForBothZaaktypes = cmmnParameters.isNotEmpty() && bpmnDefinition != null
-        val productaanvraagtypeDefinedForBpmnOnly = bpmnDefinition != null && cmmnParameters.isEmpty()
+        val hasCmmnDefinition = zaakafhandelparameters.isNotEmpty()
+        val hasBpmnDefinition = zaaktypeBpmnProcessDefinition != null
 
-        if (productaanvraagtypeNotDefined) {
-            LOG.info(
-                "No zaaktype found for productaanvraag-Dimpact type '${productaanvraag.type}'. No zaak was created."
-            )
-            registreerInbox(productaanvraag, productaanvraagObject)
-            return
-        }
+        when {
+            !hasCmmnDefinition && !hasBpmnDefinition -> {
+                LOG.info(
+                    "No zaaktype found for productaanvraag-Dimpact type '${productaanvraag.type}'. No zaak was created."
+                )
+                registreerInbox(productaanvraag, productaanvraagObject)
+                return
+            }
 
-        if (productaanvraagtypeDefinedForBothZaaktypes) {
-            LOG.warning(
-                "Both CMMN and BPMN are defined for productaanvraag type '${productaanvraag.type}'. " +
-                    "Starting CMMN zaak. BPMN mapping (zaaktypeUuid='${bpmnDefinition.zaaktypeUuid}') ignored."
-            )
-        }
+            // if productaanvraag defined only for BPMN, start BPMN
+            hasBpmnDefinition && !hasCmmnDefinition -> {
+                processProductaanvraagWithBpmnZaaktype(zaaktypeBpmnProcessDefinition, productaanvraag, productaanvraagObject)
+            }
 
-        // Create BPMN zaak if productaanvraagtype defined only for BPMN, else create CMMN
-        if (productaanvraagtypeDefinedForBpmnOnly) {
-            processProductaanvraagWithBpmnZaaktype(bpmnDefinition, productaanvraag, productaanvraagObject)
-        } else {
-            processProductaanvraagWithCmmnZaaktype(cmmnParameters, productaanvraag, productaanvraagObject)
+            // productaanvraag defined for CMMN (with or without BPMN). if both log warning, then start CMMN
+            else -> {
+                if (hasBpmnDefinition) {
+                    LOG.warning(
+                        "Both CMMN and BPMN are defined for productaanvraag type '${productaanvraag.type}'. " +
+                                "Starting CMMN zaak. BPMN mapping (zaaktypeUuid='${zaaktypeBpmnProcessDefinition.zaaktypeUuid}') ignored."
+                    )
+                }
+                processProductaanvraagWithCmmnZaaktype(zaakafhandelparameters, productaanvraag, productaanvraagObject)
+            }
         }
     }
 
     @Suppress("TooGenericExceptionCaught")
     private fun processProductaanvraagWithCmmnZaaktype(
-        cmmnParameters: List<ZaakafhandelParameters>,
-        productaanvraag: ProductaanvraagDimpact,
+        zaakafhandelParameters: List<ZaakafhandelParameters>,
+        productaanvraagDimpact: ProductaanvraagDimpact,
         productaanvraagObject: ModelObject
     ) {
-        if (cmmnParameters.size > 1) {
+        if (zaakafhandelParameters.size > 1) {
             LOG.warning(
-                "Multiple zaakafhandelparameters found for productaanvraag type '${productaanvraag.type}'. " +
-                    "Using the first one with zaaktype UUID: '${cmmnParameters.first().zaakTypeUUID}' " +
-                    "and zaaktype omschrijving: '${cmmnParameters.first().zaaktypeOmschrijving}'."
+                "Multiple zaakafhandelparameters found for productaanvraag type '${productaanvraagDimpact.type}'. " +
+                    "Using the first one with zaaktype UUID: '${zaakafhandelParameters.first().zaakTypeUUID}' " +
+                    "and zaaktype omschrijving: '${zaakafhandelParameters.first().zaaktypeOmschrijving}'."
             )
         }
 
-        val firstZaakafhandelparameters = cmmnParameters.first()
+        val firstZaakafhandelparameters = zaakafhandelParameters.first()
         try {
-            productaanvraag.betrokkenen?.run {
+            productaanvraagDimpact.betrokkenen?.run {
                 validateBetrokkenenForZaakafhandelparameters(
                     betrokkenen = this,
                     productaanvraagObject = productaanvraagObject,
@@ -508,13 +516,13 @@ class ProductaanvraagService @Inject constructor(
             }
             startZaakWithCmmnProcess(
                 zaaktypeUuid = firstZaakafhandelparameters.zaakTypeUUID,
-                productaanvraag = productaanvraag,
+                productaanvraag = productaanvraagDimpact,
                 productaanvraagObject = productaanvraagObject
             )
         } catch (exception: ExplanationRequiredException) {
-            logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
+            logZaakCouldNotBeCreatedWarning("CMMN", productaanvraagDimpact, exception)
         } catch (exception: RuntimeException) {
-            logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
+            logZaakCouldNotBeCreatedWarning("CMMN", productaanvraagDimpact, exception)
         }
     }
 
@@ -531,11 +539,11 @@ class ProductaanvraagService @Inject constructor(
         }
 
     private fun pairDocumentsWithZaak(
-        productaanvraag: ProductaanvraagDimpact,
+        productaanvraagDimpact: ProductaanvraagDimpact,
         zaak: Zaak
     ) {
-        pairAanvraagPDFWithZaak(productaanvraag, zaak.url)
-        productaanvraag.bijlagen?.let { pairBijlagenWithZaak(it, zaak.url) }
+        pairAanvraagPDFWithZaak(productaanvraagDimpact, zaak.url)
+        productaanvraagDimpact.bijlagen?.let { pairBijlagenWithZaak(it, zaak.url) }
     }
 
     private fun registreerInbox(productaanvraag: ProductaanvraagDimpact, productaanvraagObject: ModelObject) {
@@ -567,16 +575,16 @@ class ProductaanvraagService @Inject constructor(
     }
 
     private fun processProductaanvraagWithBpmnZaaktype(
-        bpmnProcessDefinition: ZaaktypeBpmnProcessDefinition,
-        productaanvraag: ProductaanvraagDimpact,
+        zaaktypeBpmnProcessDefinition: ZaaktypeBpmnProcessDefinition,
+        productaanvraagDimpact: ProductaanvraagDimpact,
         productaanvraagObject: ModelObject
     ) {
-        val zaaktype = ztcClientService.readZaaktype(bpmnProcessDefinition.zaaktypeUuid)
-        val bpmnZaak = createZaak(zaaktype, productaanvraag, productaanvraagObject)
+        val zaaktype = ztcClientService.readZaaktype(zaaktypeBpmnProcessDefinition.zaaktypeUuid)
+        val bpmnZaak = createZaak(zaaktype, productaanvraagDimpact, productaanvraagObject)
 
-        bpmnService.startProcess(bpmnZaak, zaaktype, bpmnProcessDefinition.bpmnProcessDefinitionKey)
+        bpmnService.startProcess(bpmnZaak, zaaktype, zaaktypeBpmnProcessDefinition.bpmnProcessDefinitionKey)
         pairProductaanvraagWithZaak(productaanvraagObject, bpmnZaak.url)
-        pairDocumentsWithZaak(productaanvraag, bpmnZaak)
+        pairDocumentsWithZaak(productaanvraagDimpact, bpmnZaak)
     }
 
     private fun startZaakWithCmmnProcess(
@@ -607,7 +615,7 @@ class ProductaanvraagService @Inject constructor(
 
     private fun createZaak(
         zaakType: ZaakType,
-        productaanvraag: ProductaanvraagDimpact,
+        productaanvraagDimpact: ProductaanvraagDimpact,
         productaanvraagObject: ModelObject
     ): Zaak {
         return Zaak().apply {
@@ -616,14 +624,14 @@ class ProductaanvraagService @Inject constructor(
             bronorganisatie = configuratieService.readBronOrganisatie()
             communicatiekanaalNaam = ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER
             verantwoordelijkeOrganisatie = configuratieService.readBronOrganisatie()
-            productaanvraag.zaakgegevens?.let { zaakgegevens ->
+            productaanvraagDimpact.zaakgegevens?.let { zaakgegevens ->
                 // note that ZAC currently only supports 'POINT' zaakgeometries
                 zaakgegevens.geometry?.takeIf { it.type == Geometry.Type.POINT }?.let {
                     zaakgeometrie = it.toGeoJSONGeometry()
                 }
                 zaakgegevens.omschrijving?.let { omschrijving = it }
             }
-            toelichting = generateZaakExplanationFromProductaanvraag(productaanvraag)
+            toelichting = generateZaakExplanationFromProductaanvraag(productaanvraagDimpact)
         }.let(zgwApiService::createZaak)
     }
 
@@ -637,12 +645,12 @@ class ProductaanvraagService @Inject constructor(
 
     private fun logZaakCouldNotBeCreatedWarning(
         processType: String,
-        productaanvraag: ProductaanvraagDimpact,
+        productaanvraagDimpact: ProductaanvraagDimpact,
         exception: RuntimeException
     ) {
         LOG.log(
             Level.WARNING,
-            "Failed to create a zaak of process type: '$processType' for productaanvraag with PDF '${productaanvraag.pdf}'",
+            "Failed to create a zaak of process type: '$processType' for productaanvraag with PDF '${productaanvraagDimpact.pdf}'",
             exception
         )
     }

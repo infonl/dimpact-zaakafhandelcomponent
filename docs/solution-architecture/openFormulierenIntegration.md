@@ -22,7 +22,11 @@ After receiving the notification of creating a new Product Request, the followin
    3. The Product Request is linked to the zaak.
    4. The existing PDF document of the completed form is linked to the zaak in Open Zaak.
    5. The BSN or Chamber of Commerce number from the Product Request is used to link a Role of the type Applicant to the zaak. The BSN or establishment number is stored with the Role.
-   6. A CMMN Case (process) is started for the zaak. The started CMMN Case is derived from the zaak type and can be configured in ZAC using zaak handling parameters.
+   6. A CMMN Case or BPMN process is started for the zaak.
+      1. If a CMMN mapping for the Product Request type exists (via zaak handling parameters), a CMMN Case is started for the zaak.
+      2. if a BPMN mapping for the Product Request type exists (via a configured BPMN process for the zaak type), a BPMN process is started for the zaak.
+      3. If both CMMN and BPMN are defined for the same Product Request type, CMMN takes precedence: the CMMN Case is started, and the BPMN mapping is ignored (a warning is logged).
+
 
 This flow is visualised in the following sequence diagram:
 
@@ -47,6 +51,12 @@ sequenceDiagram
     ZAC->>+OpenZaak: Link product request to case
     ZAC->>+OpenZaak: Link PDF document to case
     ZAC->>+OpenZaak: Link applicant to case
-    ZAC->>+ZAC: Start CMMN case
+    alt CMMN configured (or both CMMN & BPMN)
+        ZAC->>+ZAC: Start CMMN case
+    else BPMN configured only
+        ZAC->>+ZAC: Start BPMN process
+    else no mapping
+        ZAC->>+ZAC: Register inbox product request (no case started)
+    end
 ```
 
