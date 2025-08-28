@@ -30,7 +30,12 @@
       </mat-icon>
       {{ "actie.ontkoppelen" | translate }}
     </button>
-    <button [disabled]="loading" mat-raised-button (click)="dialogRef.close()">
+    <button
+      [disabled]="loading"
+      mat-raised-button
+      (click)="dialogRef.close()"
+      type="button"
+    >
       {{ "actie.annuleren" | translate }}
     </button>
   </mat-dialog-actions>
