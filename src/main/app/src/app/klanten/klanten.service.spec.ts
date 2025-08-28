@@ -16,6 +16,7 @@ import { UtilService } from "../core/service/util.service";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { KlantenService } from "./klanten.service";
+import { GeneratedType } from "../shared/utils/generated-types";
 
 describe(KlantenService.name, () => {
   let service: KlantenService;
@@ -46,16 +47,53 @@ describe(KlantenService.name, () => {
   });
 
   describe(KlantenService.prototype.readBedrijf.name, () => {
+    const baseIdentificatie = {
+      kvkNummer: null,
+      vestigingsnummer: null,
+      rsin: null,
+      bsnNummer: null,
+    };
+
     test.each([
-      ["123456789", "rechtspersoon", { rsin: "123456789" }],
-      ["12345678", "vestiging", { vestigingsnummer: "12345678" }],
-      ["1234567890", "vestiging", { vestigingsnummer: "1234567890" }],
+      [
+        {
+          ...baseIdentificatie,
+          type: "VN",
+          kvkNummer: "12345678",
+          vestigingsnummer: "12345678",
+        },
+        "vestiging",
+        { kvkNummer: "12345678", vestigingsnummer: "12345678" },
+      ],
+      [
+        // legacy
+        { ...baseIdentificatie, type: "VN", vestigingsnummer: "1234567890" },
+        "vestiging",
+        { vestigingsnummer: "1234567890" },
+      ],
+      [
+        {
+          ...baseIdentificatie,
+          type: "RSIN",
+          kvkNummer: "12345678",
+        },
+        "rechtspersoon",
+        { kvkNummer: "12345678" },
+      ],
+      [
+        // legacy
+        { ...baseIdentificatie, type: "RSIN", rsin: "123456789" },
+        "rechtspersoon",
+        { rsin: "123456789" },
+      ],
     ])(
-      "for the rsinOfVestigingsnummer %i it should call the %s endpoint",
-      (rsinOfVestigingsnummer, endpoint, path) => {
+      "for betrokkeneIdentificatie %o it should call the %s endpoint",
+      (betrokkeneIdentificatie, endpoint, path) => {
         const get = jest.spyOn(zacHttpClient, "GET");
 
-        service.readBedrijf(rsinOfVestigingsnummer, null);
+        service.readBedrijf(
+          betrokkeneIdentificatie as GeneratedType<"BetrokkeneIdentificatie">,
+        );
 
         expect(get).toHaveBeenCalledWith(expect.stringContaining(endpoint), {
           path,

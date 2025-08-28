@@ -26,7 +26,7 @@ export class KlantenService {
 
   readBedrijf(
     betrokkeneIdentificatie: GeneratedType<"BetrokkeneIdentificatie">,
-  ): Observable<unknown> {
+  ): Observable<GeneratedType<"RestBedrijf" | "RestVestigingsprofiel"> | null> {
     switch (betrokkeneIdentificatie.type) {
       case "VN":
         return this.readVestiging(
