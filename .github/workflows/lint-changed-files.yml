@@ -11,9 +11,18 @@ on:
       - "src/main/app/**/*.js"
       - "src/main/app/**/*.html"
 
+permissions:
+  contents: read
+
+concurrency:
+  group: lint-changed-files-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint-changed-files:
-    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout code

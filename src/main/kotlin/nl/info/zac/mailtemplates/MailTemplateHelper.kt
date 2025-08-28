@@ -36,7 +36,6 @@ import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo
 import java.time.format.DateTimeFormatter
 import java.util.logging.Logger
-import kotlin.jvm.optionals.getOrNull
 
 @AllOpen
 @NoArgConstructor
@@ -240,18 +239,18 @@ class MailTemplateHelper @Inject constructor(
             BetrokkeneTypeEnum.VESTIGING ->
                 replaceInitiatorVariablesResultaatItem(
                     resolvedText,
-                    kvkClientService.findVestiging(identificatie).getOrNull()
+                    kvkClientService.findVestiging(identificatie)
                 )
 
             BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON -> {
                 val resultaatItem = (initiatorRole.betrokkeneIdentificatie as NietNatuurlijkPersoonIdentificatie).let {
                     when {
-                        it.innNnpId?.isNotBlank() == true -> kvkClientService.findRechtspersoon(
+                        it.innNnpId?.isNotBlank() == true -> kvkClientService.findRechtspersoonByRsin(
                             identificatie
-                        ).getOrNull()
+                        )
                         it.vestigingsNummer?.isNotBlank() == true -> kvkClientService.findVestiging(
                             identificatie
-                        ).getOrNull()
+                        )
                         else -> {
                             LOG.warning { "Unsupported niet-natuurlijk persoon identificatie: '$it'" }
                             null
