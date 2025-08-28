@@ -292,7 +292,7 @@ initContainer:
 # Open Policy Agent (OPA) configuration, prefilled resources values are the minimum recommended
 opa:
   enabled: true
-  # -- set sidecar to false to run the opa service as a standalone pod and service
+  # -- set sidecar to true to run the opa service as a sidecar container within the ZAC pod (set to false to run as a standalone pod and service)
   sidecar: true
   # set url if the opa url cannot be automatically determined and is not run as a sidecar. the opa url should be the url the openpolicyagent can be reached on from ZAC ( for example: http://release-opa.default.svc.cluster.local:8181 )
   # url: ""
