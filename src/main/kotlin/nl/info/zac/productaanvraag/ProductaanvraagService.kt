@@ -456,7 +456,9 @@ class ProductaanvraagService @Inject constructor(
 
         val zaakafhandelparameters = zaakafhandelParameterBeheerService
             .findActiveZaakafhandelparametersByProductaanvraagtype(productaanvraag.type)
-        val zaaktypeBpmnProcessDefinition = zaaktypeBpmnProcessDefinitionService.findByProductAanvraagType(productaanvraag.type)
+        val zaaktypeBpmnProcessDefinition = zaaktypeBpmnProcessDefinitionService.findByProductAanvraagType(
+            productaanvraag.type
+        )
 
         val hasCmmnDefinition = zaakafhandelparameters.isNotEmpty()
         val hasBpmnDefinition = zaaktypeBpmnProcessDefinition != null
@@ -472,7 +474,11 @@ class ProductaanvraagService @Inject constructor(
 
             // if productaanvraag defined only for BPMN, start BPMN
             hasBpmnDefinition && !hasCmmnDefinition -> {
-                processProductaanvraagWithBpmnZaaktype(zaaktypeBpmnProcessDefinition, productaanvraag, productaanvraagObject)
+                processProductaanvraagWithBpmnZaaktype(
+                    zaaktypeBpmnProcessDefinition,
+                    productaanvraag,
+                    productaanvraagObject
+                )
             }
 
             // productaanvraag defined for CMMN (with or without BPMN). if both log warning, then start CMMN
@@ -480,7 +486,7 @@ class ProductaanvraagService @Inject constructor(
                 if (hasBpmnDefinition) {
                     LOG.warning(
                         "Both CMMN and BPMN are defined for productaanvraag type '${productaanvraag.type}'. " +
-                                "Starting CMMN zaak. BPMN mapping (zaaktypeUuid='${zaaktypeBpmnProcessDefinition.zaaktypeUuid}') ignored."
+                            "Starting CMMN zaak. BPMN mapping (zaaktypeUuid='${zaaktypeBpmnProcessDefinition.zaaktypeUuid}') ignored."
                     )
                 }
                 processProductaanvraagWithCmmnZaaktype(zaakafhandelparameters, productaanvraag, productaanvraagObject)
