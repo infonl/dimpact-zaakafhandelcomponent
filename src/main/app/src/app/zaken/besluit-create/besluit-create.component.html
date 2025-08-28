@@ -9,13 +9,78 @@
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
-<mat-divider></mat-divider>
+<mat-divider />
 
-<div class="form">
-  <mfb-form
-    *ngIf="fields"
-    (formSubmit)="onFormSubmit($event)"
-    [formFields]="fields"
-    [config]="formConfig"
-  ></mfb-form>
-</div>
+<form [formGroup]="form" (ngSubmit)="submit()" class="mt-2">
+  <fieldset>
+    <zac-select
+      [form]="form"
+      key="resultaat"
+      [options]="resultaattypes"
+      optionDisplayValue="naam"
+    />
+    <zac-select
+      [form]="form"
+      key="besluit"
+      [options]="besluittypes"
+      optionDisplayValue="naam"
+    />
+    <zac-date [form]="form" key="ingangsdatum" />
+    <zac-date [form]="form" key="vervaldatum" />
+    <zac-textarea [form]="form" key="toelichting" />
+  </fieldset>
+  <section *ngIf="form.controls.besluit.value?.publication?.enabled">
+    <mat-divider />
+    <fieldset>
+      <div class="mb-2">
+        {{ "besluit.publicatie.indicatie.koptitel" | translate }}
+      </div>
+      <zac-date [form]="form" key="publicatiedatum" />
+      <div
+        class="mb-2"
+        *ngIf="
+          (form.controls.besluit.value?.publication?.publicationTermDays ??
+            0) <= 1
+        "
+      >
+        {{ "besluit.publicatie.indicatie.onderschrift" | translate }}
+      </div>
+      <div
+        class="mb-2"
+        *ngIf="
+          (form.controls.besluit.value?.publication?.publicationTermDays ?? 0) >
+          1
+        "
+      >
+        {{
+          "besluit.publicatie.indicatie.onderschrift.meervoud"
+            | translate
+              : {
+                  publicationTermDays:
+                    form.controls.besluit.value?.publication
+                      ?.publicationTermDays,
+                }
+        }}
+      </div>
+      <zac-date [form]="form" key="uiterlijkereactiedatum" />
+    </fieldset>
+  </section>
+  <fieldset>
+    <mfb-form-field [field]="documentenField" />
+  </fieldset>
+  <fieldset>
+    <mat-action-row>
+      <button
+        mat-raised-button
+        type="submit"
+        color="primary"
+        [disabled]="!form.valid"
+      >
+        {{ "actie.aanmaken" | translate }}
+      </button>
+      <button mat-raised-button (click)="sideNav.close()" type="reset">
+        {{ "actie.annuleren" | translate }}
+      </button>
+    </mat-action-row>
+  </fieldset>
+</form>
