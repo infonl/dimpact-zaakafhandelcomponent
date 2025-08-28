@@ -29,13 +29,15 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
     private val zrcClientService: ZrcClientService
 ) {
     @Transactional(REQUIRED)
-    fun createLock(informationObjectUUID: UUID, userID: String): EnkelvoudigInformatieObjectLock =
-        EnkelvoudigInformatieObjectLock().apply {
+    fun createLock(informationObjectUUID: UUID, userID: String): EnkelvoudigInformatieObjectLock {
+        val enkelvoudigInformatieObjectLock = EnkelvoudigInformatieObjectLock().apply {
             enkelvoudiginformatieobjectUUID = informationObjectUUID
             userId = userID
             lock = drcClientService.lockEnkelvoudigInformatieobject(informationObjectUUID)
-            entityManager.persist(this)
         }
+        entityManager.persist(enkelvoudigInformatieObjectLock)
+        return enkelvoudigInformatieObjectLock
+    }
 
     fun findLock(informationObjectUUID: UUID): EnkelvoudigInformatieObjectLock? {
         val builder = entityManager.criteriaBuilder
