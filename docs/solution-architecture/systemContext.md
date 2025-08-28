@@ -129,7 +129,7 @@ Notes:
 
 #### KVK organisation identifiers
 
-ZAC supports the following KVK organisation identifiers both in the ZGW ZRC API to integrate with the zaakregister (e.g. Open Zaak):
+ZAC supports the following KVK organisation identifiers in the ZGW ZRC API to integrate with the zaakregister (e.g. Open Zaak):
 
 | Organisation type                                      | Identifier type               | ZGW API read supported | ZGW API write supported | Remarks                                                                                                                                           |
 |--------------------------------------------------------|-------------------------------|------------------------|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
