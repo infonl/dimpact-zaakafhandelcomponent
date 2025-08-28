@@ -1,10 +1,9 @@
+#!/usr/bin/env node
+
 /*
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
-#!/usr/bin/env node
-
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
@@ -14,16 +13,23 @@ const crypto = require("crypto");
  */
 function generateTranslationHash() {
   const i18nDir = path.join(__dirname, "../src/assets/i18n");
-  const files = ["en.json", "nl.json"];
+
+  if (!fs.existsSync(i18nDir)) {
+    console.log("i18n directory not found, returning empty hash");
+    return crypto.createHash("md5").update("").digest("hex").substring(0, 8);
+  }
+
+  const files = fs
+    .readdirSync(i18nDir)
+    .filter((file) => file.endsWith(".json"))
+    .sort(); // Sort for consistent ordering
 
   let combinedContent = "";
 
   files.forEach((file) => {
     const filePath = path.join(i18nDir, file);
-    if (fs.existsSync(filePath)) {
-      const content = fs.readFileSync(filePath, "utf8");
-      combinedContent += content;
-    }
+    const content = fs.readFileSync(filePath, "utf8");
+    combinedContent += content;
   });
 
   // Generate a short hash from the combined content
@@ -65,7 +71,7 @@ function generateFontHash() {
 }
 
 /**
- * Replaces BUILD_HASH placeholder with actual hash in the compiled JavaScript
+ * Replaces TRANSLATION_HASH placeholder with actual hash in the compiled JavaScript
  */
 function replaceBuildHash() {
   const distDir = path.join(__dirname, "../dist/zaakafhandelcomponent");
@@ -95,9 +101,9 @@ function replaceBuildHash() {
         let content = fs.readFileSync(filePath, "utf8");
         let fileUpdated = false;
 
-        // Replace BUILD_HASH with actual hash (only in JS files)
-        if (file.endsWith(".js") && content.includes("BUILD_HASH")) {
-          content = content.replace(/BUILD_HASH/g, translationHash);
+        // Replace TRANSLATION_HASH with actual hash (only in JS files)
+        if (file.endsWith(".js") && content.includes("TRANSLATION_HASH")) {
+          content = content.replace(/TRANSLATION_HASH/g, translationHash);
           fs.writeFileSync(filePath, content, "utf8");
           console.log(`Updated translation hash in: ${filePath}`);
           fileUpdated = true;

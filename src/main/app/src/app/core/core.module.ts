@@ -5,9 +5,9 @@
 
 import { registerLocaleData } from "@angular/common";
 import {
+  HttpClient,
   provideHttpClient,
   withInterceptorsFromDi,
-  HttpClient,
 } from "@angular/common/http";
 import localeNl from "@angular/common/locales/nl";
 import { LOCALE_ID, NgModule, Optional, SkipSelf } from "@angular/core";
@@ -16,7 +16,7 @@ import {
   MAT_DIALOG_DEFAULT_OPTIONS,
   MatDialogConfig,
 } from "@angular/material/dialog";
-import { TranslateModule, TranslateLoader } from "@ngx-translate/core";
+import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
 import { SharedModule } from "../shared/shared.module";
 import { EnsureModuleLoadedOnceGuard } from "./ensure-module-loaded-once.guard";
 import { LoadingComponent } from "./loading/loading.component";

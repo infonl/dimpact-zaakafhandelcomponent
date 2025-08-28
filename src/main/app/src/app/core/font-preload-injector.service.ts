@@ -13,7 +13,7 @@ export class FontPreloadInjectorService {
   private injected = false;
 
   constructor(
-    private readonly fontCacheBustingService: FontCacheBustingService
+    private readonly fontCacheBustingService: FontCacheBustingService,
   ) {}
 
   /**
@@ -60,7 +60,7 @@ export class FontPreloadInjectorService {
    */
   removeFontPreloads() {
     const preloadLinks = document.querySelectorAll(
-      'link[rel="preload"][as="font"]'
+      'link[rel="preload"][as="font"]',
     );
     preloadLinks.forEach((link) => {
       if (link.getAttribute("href")?.includes("/assets/fonts/")) {

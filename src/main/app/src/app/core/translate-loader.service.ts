@@ -5,16 +5,16 @@
 
 import { HttpClient } from "@angular/common/http";
 import { TranslateLoader } from "@ngx-translate/core";
-import { Observable, of } from "rxjs";
+import { of } from "rxjs";
 import { catchError, map } from "rxjs/operators";
 
 export class CacheBustingTranslateLoader implements TranslateLoader {
-  private cacheBuster: string;
+  private readonly cacheBuster: string;
 
   constructor(
     private readonly http: HttpClient,
     private readonly prefix: string = "./assets/i18n/",
-    private readonly suffix: string = ".json"
+    private readonly suffix: string = ".json",
   ) {
     // Generate a cache buster based on build time or version
     // This will be replaced during build time with the actual hash
@@ -28,7 +28,7 @@ export class CacheBustingTranslateLoader implements TranslateLoader {
     const url = `${this.prefix}${lang}${this.suffix}?v=${this.cacheBuster}`;
 
     return this.http.get(url).pipe(
-      map((response: any) => {
+      map((response: unknown) => {
         if (typeof response === "string") {
           return JSON.parse(response);
         }
@@ -37,10 +37,10 @@ export class CacheBustingTranslateLoader implements TranslateLoader {
       catchError((error) => {
         console.error(
           `Failed to load translation file for language: ${lang}`,
-          error
+          error,
         );
         return of({});
-      })
+      }),
     );
   }
 
@@ -58,7 +58,7 @@ export class CacheBustingTranslateLoader implements TranslateLoader {
     }
 
     // In production, this will be replaced during build
-    return "BUILD_HASH";
+    return "TRANSLATION_HASH";
   }
 }
 

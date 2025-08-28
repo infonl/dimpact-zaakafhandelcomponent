@@ -13,7 +13,7 @@ export class FontLoaderService {
   private loadedFonts = new Set<string>();
 
   constructor(
-    private readonly fontCacheBustingService: FontCacheBustingService
+    private readonly fontCacheBustingService: FontCacheBustingService,
   ) {}
 
   /**

@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { TestBed } from "@angular/core/testing";
 import { FontCacheBustingService } from "./font-cache-busting.service";
 
 // Mock window.location for testing
@@ -37,7 +36,7 @@ describe("FontCacheBustingService", () => {
     const result = service.getFontUrl(fontPath);
 
     expect(result).toBe(
-      "./assets/fonts/Roboto/400.woff2?existing=param&v=test1234"
+      "./assets/fonts/Roboto/400.woff2?existing=param&v=test1234",
     );
   });
 

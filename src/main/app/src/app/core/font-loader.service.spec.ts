@@ -3,9 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { TestBed } from "@angular/core/testing";
 import { FontLoaderService } from "./font-loader.service";
-import { FontCacheBustingService } from "./font-cache-busting.service";
 
 // Mock FontCacheBustingService for testing
 class MockFontCacheBustingService {
@@ -15,7 +13,7 @@ class MockFontCacheBustingService {
   getRobotoFontUrl = jest
     .fn()
     .mockImplementation(
-      (weight: string) => `./assets/fonts/Roboto/${weight}.woff2?v=abc12345`
+      (weight: string) => `./assets/fonts/Roboto/${weight}.woff2?v=abc12345`,
     );
 }
 
@@ -25,7 +23,7 @@ describe("FontLoaderService", () => {
 
   beforeEach(() => {
     fontCacheBustingService = new MockFontCacheBustingService();
-    service = new FontLoaderService(fontCacheBustingService as any);
+    service = new FontLoaderService(fontCacheBustingService);
   });
 
   it("should be created", () => {
@@ -41,16 +39,16 @@ describe("FontLoaderService", () => {
     service.loadFonts();
 
     expect(
-      fontCacheBustingService.getMaterialSymbolsFontUrl
+      fontCacheBustingService.getMaterialSymbolsFontUrl,
     ).toHaveBeenCalled();
     expect(fontCacheBustingService.getRobotoFontUrl).toHaveBeenCalledWith(
-      "300"
+      "300",
     );
     expect(fontCacheBustingService.getRobotoFontUrl).toHaveBeenCalledWith(
-      "400"
+      "400",
     );
     expect(fontCacheBustingService.getRobotoFontUrl).toHaveBeenCalledWith(
-      "500"
+      "500",
     );
   });
 
@@ -86,16 +84,16 @@ describe("FontLoaderService", () => {
 
     // Check that both Material Symbols and Roboto fonts were requested
     expect(
-      fontCacheBustingService.getMaterialSymbolsFontUrl
+      fontCacheBustingService.getMaterialSymbolsFontUrl,
     ).toHaveBeenCalled();
     expect(fontCacheBustingService.getRobotoFontUrl).toHaveBeenCalledWith(
-      "300"
+      "300",
     );
     expect(fontCacheBustingService.getRobotoFontUrl).toHaveBeenCalledWith(
-      "400"
+      "400",
     );
     expect(fontCacheBustingService.getRobotoFontUrl).toHaveBeenCalledWith(
-      "500"
+      "500",
     );
   });
 

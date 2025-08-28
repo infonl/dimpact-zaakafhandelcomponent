@@ -265,7 +265,7 @@
               updatePageContent(
                 finalResultValue,
                 fetchedLabels.result[finalResultValue],
-                fetchedLabels.subText[finalResultValue]
+                fetchedLabels.subText[finalResultValue],
               );
             } else {
               displayError(language);
@@ -300,14 +300,14 @@
             "msg.smartdocuments.wizard.result.",
             typeValue,
             nameValue,
-            docValue
+            docValue,
           );
           const subText = processLabels(
             data,
             "msg.smartdocuments.wizard.subtext.",
             typeValue,
             nameValue,
-            docValue
+            docValue,
           );
 
           return { result, subText };

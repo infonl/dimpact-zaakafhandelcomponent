@@ -1,9 +1,9 @@
+#!/usr/bin/env node
+
 /*
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
-#!/usr/bin/env node
 
 const fs = require("fs");
 const path = require("path");
@@ -38,14 +38,17 @@ function testCacheBusting() {
 
     builtFiles.forEach((file) => {
       const content = fs.readFileSync(file, "utf8");
-      if (content.includes("BUILD_HASH") || content.includes("FONT_HASH")) {
+      if (
+        content.includes("TRANSLATION_HASH") ||
+        content.includes("FONT_HASH")
+      ) {
         console.log(
-          `⚠️  Warning: Placeholder hash found in ${path.relative(distDir, file)}`
+          `⚠️  Warning: Placeholder hash found in ${path.relative(distDir, file)}`,
         );
       } else if (content.includes("?v=")) {
         hashReplaced = true;
         console.log(
-          `✅ Cache busting hash found in ${path.relative(distDir, file)}`
+          `✅ Cache busting hash found in ${path.relative(distDir, file)}`,
         );
       }
     });
@@ -75,7 +78,7 @@ function testCacheBusting() {
       }
 
       console.log(
-        `✅ Translation file ${file} is valid (${Object.keys(parsed).length} keys)`
+        `✅ Translation file ${file} is valid (${Object.keys(parsed).length} keys)`,
       );
     });
 
@@ -98,7 +101,7 @@ function testCacheBusting() {
 
       const stats = fs.statSync(filePath);
       console.log(
-        `✅ Font file ${fontFile} exists (${(stats.size / 1024).toFixed(1)} KB)`
+        `✅ Font file ${fontFile} exists (${(stats.size / 1024).toFixed(1)} KB)`,
       );
     });
 
@@ -116,9 +119,12 @@ function testCacheBusting() {
 
     finalBuiltFiles.forEach((file) => {
       const content = fs.readFileSync(file, "utf8");
-      if (content.includes("BUILD_HASH") || content.includes("FONT_HASH")) {
+      if (
+        content.includes("TRANSLATION_HASH") ||
+        content.includes("FONT_HASH")
+      ) {
         throw new Error(
-          `Placeholder hash still found in ${path.relative(distDir, file)}`
+          `Placeholder hash still found in ${path.relative(distDir, file)}`,
         );
       } else if (content.includes("?v=")) {
         finalHashReplaced = true;

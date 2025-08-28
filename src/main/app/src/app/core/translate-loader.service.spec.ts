@@ -3,12 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { TestBed } from "@angular/core/testing";
 import { HttpClient } from "@angular/common/http";
-import {
-  HttpClientTestingModule,
-  HttpTestingController,
-} from "@angular/common/http/testing";
 import {
   CacheBustingTranslateLoader,
   createCacheBustingTranslateLoader,
@@ -37,8 +32,8 @@ describe("CacheBustingTranslateLoader", () => {
       head: jest.fn(),
       options: jest.fn(),
       request: jest.fn(),
-      handler: {} as any,
-    } as any;
+      handler: {},
+    } as unknown as HttpClient;
 
     loader = createCacheBustingTranslateLoader(httpClient);
   });
@@ -53,14 +48,14 @@ describe("CacheBustingTranslateLoader", () => {
 
     (httpClient.get as jest.Mock).mockReturnValue({
       pipe: jest.fn().mockReturnValue({
-        subscribe: (callback: any) => callback(mockTranslation),
+        subscribe: (callback: () => void) => callback(mockTranslation),
       }),
     });
 
     loader.getTranslation(language).subscribe((translation) => {
       expect(translation).toEqual(mockTranslation);
       expect(httpClient.get).toHaveBeenCalledWith(
-        expect.stringMatching(/^\.\/assets\/i18n\/en\.json\?v=[a-f0-9]+$/)
+        expect.stringMatching(/^\.\/assets\/i18n\/en\.json\?v=[a-f0-9]+$/),
       );
       done();
     });
@@ -71,7 +66,7 @@ describe("CacheBustingTranslateLoader", () => {
 
     (httpClient.get as jest.Mock).mockReturnValue({
       pipe: jest.fn().mockReturnValue({
-        subscribe: (callback: any) => {
+        subscribe: (callback: () => void) => {
           // The service uses catchError which returns of({}), so we should get an empty object
           callback({});
         },
@@ -90,7 +85,7 @@ describe("CacheBustingTranslateLoader", () => {
 
     (httpClient.get as jest.Mock).mockReturnValue({
       pipe: jest.fn().mockReturnValue({
-        subscribe: (callback: any) => callback(mockTranslationString),
+        subscribe: (callback: () => void) => callback(mockTranslationString),
       }),
     });
 
@@ -105,13 +100,13 @@ describe("CacheBustingTranslateLoader", () => {
 
     (httpClient.get as jest.Mock).mockReturnValue({
       pipe: jest.fn().mockReturnValue({
-        subscribe: (callback: any) => callback({}),
+        subscribe: (callback: () => void) => callback({}),
       }),
     });
 
     loader.getTranslation(language).subscribe(() => {
       expect(httpClient.get).toHaveBeenCalledWith(
-        expect.stringMatching(/^\.\/assets\/i18n\/nl\.json\?v=[a-f0-9]+$/)
+        expect.stringMatching(/^\.\/assets\/i18n\/nl\.json\?v=[a-f0-9]+$/),
       );
       done();
     });

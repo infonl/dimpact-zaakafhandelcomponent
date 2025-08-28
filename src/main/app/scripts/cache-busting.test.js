@@ -1,10 +1,9 @@
+#!/usr/bin/env node
+
 /*
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
-#!/usr/bin/env node
-
 const fs = require("fs");
 const path = require("path");
 const {
@@ -96,19 +95,19 @@ describe("Cache Busting Script", () => {
       // Create test font files
       fs.writeFileSync(
         path.join(assetsDir, "MaterialSymbolsOutlined.woff2"),
-        "font-data-1"
+        "font-data-1",
       );
       fs.writeFileSync(
         path.join(assetsDir, "fonts", "Roboto", "300.woff2"),
-        "font-data-2"
+        "font-data-2",
       );
       fs.writeFileSync(
         path.join(assetsDir, "fonts", "Roboto", "400.woff2"),
-        "font-data-3"
+        "font-data-3",
       );
       fs.writeFileSync(
         path.join(assetsDir, "fonts", "Roboto", "500.woff2"),
-        "font-data-4"
+        "font-data-4",
       );
 
       const originalDir = process.cwd();
@@ -129,11 +128,11 @@ describe("Cache Busting Script", () => {
       // Create test font files
       fs.writeFileSync(
         path.join(assetsDir, "MaterialSymbolsOutlined.woff2"),
-        "font-data-1"
+        "font-data-1",
       );
       fs.writeFileSync(
         path.join(assetsDir, "fonts", "Roboto", "300.woff2"),
-        "font-data-2"
+        "font-data-2",
       );
 
       const originalDir = process.cwd();
@@ -144,7 +143,7 @@ describe("Cache Busting Script", () => {
       // Change font file
       fs.writeFileSync(
         path.join(assetsDir, "MaterialSymbolsOutlined.woff2"),
-        "font-data-changed"
+        "font-data-changed",
       );
 
       const hash2 = generateFontHash();
