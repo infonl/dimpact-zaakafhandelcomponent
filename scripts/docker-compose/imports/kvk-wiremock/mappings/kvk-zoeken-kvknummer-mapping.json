@@ -1,6 +1,6 @@
 {
   "request": {
-    "url": "/api/v2/zoeken?type=rechtspersoon&rsin=123456789",
+    "url": "/api/v2/zoeken?kvkNummer=12345678&type=rechtspersoon",
     "method": "GET",
     "headers": {
       "Accept": {

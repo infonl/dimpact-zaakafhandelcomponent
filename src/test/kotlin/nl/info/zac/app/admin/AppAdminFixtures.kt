@@ -4,6 +4,8 @@
  */
 package nl.info.zac.app.admin
 
+import net.atos.zac.app.admin.model.RESTZaakbeeindigParameter
+import net.atos.zac.app.admin.model.RESTZaakbeeindigReden
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.RestBrpDoelbindingen
@@ -14,6 +16,7 @@ import nl.info.zac.app.admin.model.RestReferenceTableValue
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.admin.model.RestZaaktypeOverzicht
+import nl.info.zac.app.zaak.model.RestResultaattype
 import java.time.LocalDate
 import java.util.UUID
 
@@ -122,3 +125,21 @@ fun createRestZaaktypeOverzicht(
     vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
     nuGeldig = nuGeldig
 )
+
+fun createRestZaakbeeindigReden(
+    id: String = "fakeZaakbeeindigRedenId",
+    name: String = "fakeZaakbeeindigRedenName"
+) = RESTZaakbeeindigReden().apply {
+    this.id = id
+    this.naam = name
+}
+
+fun createRestZaakbeeindigParameter(
+    id: Long = 1L,
+    zaakbeeindigReden: RESTZaakbeeindigReden = createRestZaakbeeindigReden(),
+    resultaattype: RestResultaattype
+) = RESTZaakbeeindigParameter().apply {
+    this.id = id
+    this.zaakbeeindigReden = zaakbeeindigReden
+    this.resultaattype = resultaattype
+}

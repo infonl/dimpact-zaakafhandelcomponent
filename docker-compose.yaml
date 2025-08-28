@@ -692,7 +692,7 @@ services:
       - ./scripts/docker-compose/volume-data/pabc-database-data:/var/lib/postgresql/data
 
   pabc-migrations:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.1@sha256:c6b8d66909dfed7709385490a8fb357870b331535bf1da8fce0103dc441f897a
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.2@sha256:5ce0199e6f2582708513b964b05a8758e7b94d09ecf55cbd88be795b5cea283c
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
@@ -701,7 +701,7 @@ services:
         condition: "service_healthy"
 
   pabc-api:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.1@sha256:f1e98366ebfd062a7f8b46bb633049a2d7519b553087af4e700c20a14ceb2f06
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.2@sha256:0de32f1e2b688162f1f4eaf89a07030c9ecdd5cd2d0e3854a541ab65cb890430
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
