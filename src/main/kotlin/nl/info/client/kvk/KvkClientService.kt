@@ -15,7 +15,6 @@ import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
-import java.util.Optional
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -45,33 +44,37 @@ class KvkClientService @Inject constructor(
         }
     }
 
-    fun findVestigingsprofiel(vestigingsnummer: String): Optional<Vestiging> =
-        Optional.of<Vestiging>(kvkVestigingsprofielClient.getVestigingByVestigingsnummer(vestigingsnummer, false))
+    fun findVestigingsprofiel(vestigingsnummer: String): Vestiging? =
+        kvkVestigingsprofielClient.getVestigingByVestigingsnummer(vestigingsnummer, false)
 
-    fun findVestiging(vestigingsnummer: String, kvkNummer: String? = null): Optional<ResultaatItem> =
-        convertToSingleItem(
-            search(
-                KvkSearchParameters().apply {
-                    this.vestigingsnummer = vestigingsnummer
-                    this.kvkNummer = kvkNummer
-                }
-            )
-        )
+    fun findVestiging(vestigingsnummer: String, kvkNummer: String? = null): ResultaatItem? =
+        search(
+            KvkSearchParameters().apply {
+                this.vestigingsnummer = vestigingsnummer
+                this.kvkNummer = kvkNummer
+            }
+        ).let(::convertToSingleItem)
 
-    fun findRechtspersoon(rsin: String): Optional<ResultaatItem> =
-        convertToSingleItem(
-            search(
-                KvkSearchParameters().apply {
-                    this.type = BedrijfType.RECHTSPERSOON
-                    this.rsin = rsin
-                }
-            )
-        )
+    fun findRechtspersoonByRsin(rsin: String): ResultaatItem? =
+        search(
+            KvkSearchParameters().apply {
+                this.type = BedrijfType.RECHTSPERSOON
+                this.rsin = rsin
+            }
+        ).let(::convertToSingleItem)
 
-    private fun convertToSingleItem(resultaat: Resultaat): Optional<ResultaatItem> =
+    fun findRechtspersoonByKvkNummer(kvkNummer: String): ResultaatItem? =
+        search(
+            KvkSearchParameters().apply {
+                this.type = BedrijfType.RECHTSPERSOON
+                this.kvkNummer = kvkNummer
+            }
+        ).let(::convertToSingleItem)
+
+    private fun convertToSingleItem(resultaat: Resultaat): ResultaatItem? =
         when (resultaat.totaal) {
-            0 -> Optional.empty<ResultaatItem>()
-            1 -> Optional.of(resultaat.resultaten.first())
+            0 -> null
+            1 -> resultaat.resultaten.first()
             else -> error("Too many results: ${resultaat.totaal}")
         }
 }
