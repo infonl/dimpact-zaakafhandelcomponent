@@ -1385,15 +1385,15 @@ export class ZaakViewComponent
       }
       case "NIET_NATUURLIJK_PERSOON":
       case "VESTIGING": {
+        // code below is temporary and will be replaced when Betrokkene is factored into same typed setup
         const betrokkeneIdentificatie: GeneratedType<"BetrokkeneIdentificatie"> =
           {
-            // @ts-expect-error @todo (waiting for new PR to resolve this)
-            type: betrokkene.identificatieType,
+            type: betrokkene.identificatieType as "BSN" | "VN" | "RSIN",
             vestigingsnummer:
               betrokkene.identificatieType === "VN"
                 ? betrokkene.identificatie
                 : null,
-            rsin:
+            rsinNummer:
               betrokkene.identificatieType === "RSIN"
                 ? betrokkene.identificatie
                 : null,
