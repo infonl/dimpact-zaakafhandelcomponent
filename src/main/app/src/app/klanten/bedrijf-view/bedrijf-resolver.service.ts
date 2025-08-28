@@ -7,7 +7,6 @@ import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
 import { KlantenService } from "../klanten.service";
 import {
-  BSN_LENGTH,
   KVK_LENGTH,
   VESTIGINGSNUMMER_LENGTH,
 } from "src/app/shared/utils/constants";
