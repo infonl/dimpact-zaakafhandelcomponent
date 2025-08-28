@@ -170,8 +170,8 @@ export class TaakViewComponent
 
     this.zakenService.readZaak(taak.zaakUuid).subscribe((zaak) => {
       this.zaak = zaak;
+      this.initTaakGegevens(taak);
       this.initialized = true;
-      this.setupMenu();
     });
   }
 
