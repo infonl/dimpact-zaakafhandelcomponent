@@ -48,7 +48,8 @@ describe("CacheBustingTranslateLoader", () => {
 
     (httpClient.get as jest.Mock).mockReturnValue({
       pipe: jest.fn().mockReturnValue({
-        subscribe: (callback: () => void) => callback(mockTranslation),
+        subscribe: (callback: (arg: unknown) => void) =>
+          callback(mockTranslation),
       }),
     });
 
@@ -66,7 +67,7 @@ describe("CacheBustingTranslateLoader", () => {
 
     (httpClient.get as jest.Mock).mockReturnValue({
       pipe: jest.fn().mockReturnValue({
-        subscribe: (callback: () => void) => {
+        subscribe: (callback: (arg: unknown) => void) => {
           // The service uses catchError which returns of({}), so we should get an empty object
           callback({});
         },
@@ -85,7 +86,8 @@ describe("CacheBustingTranslateLoader", () => {
 
     (httpClient.get as jest.Mock).mockReturnValue({
       pipe: jest.fn().mockReturnValue({
-        subscribe: (callback: () => void) => callback(mockTranslationString),
+        subscribe: (callback: (arg: unknown) => void) =>
+          callback(mockTranslationString),
       }),
     });
 
@@ -100,7 +102,7 @@ describe("CacheBustingTranslateLoader", () => {
 
     (httpClient.get as jest.Mock).mockReturnValue({
       pipe: jest.fn().mockReturnValue({
-        subscribe: (callback: () => void) => callback({}),
+        subscribe: (callback: (arg: unknown) => void) => callback({}),
       }),
     });
 
