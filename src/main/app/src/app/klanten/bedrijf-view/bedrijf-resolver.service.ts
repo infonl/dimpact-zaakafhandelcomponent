@@ -1,12 +1,17 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
-import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
+import {
+  BSN_LENGTH,
+  KVK_LENGTH,
+  VESTIGINGSNUMMER_LENGTH,
+} from "src/app/shared/utils/constants";
+import { GeneratedType } from "src/app/shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
@@ -18,7 +23,13 @@ export class BedrijfResolverService {
   constructor(private klantenService: KlantenService) {}
 
   resolve(route: ActivatedRouteSnapshot) {
-    const lookupType = route.data["lookupType"];
+    const id = route.paramMap.get("vesOrRSIN");
+
+    if (!id) {
+      throw new Error(
+        `${BedrijfResolverService.name}: no 'vesOrRSIN' found in route`,
+      );
+    }
 
     const baseIdentificatie = {
       kvkNummer: null,
@@ -27,25 +38,16 @@ export class BedrijfResolverService {
       bsnNummer: null,
     };
 
-    switch (lookupType) {
-      case "kvkvestigingsnummer":
+    switch (id.length) {
+      case VESTIGINGSNUMMER_LENGTH:
         this.initiatorIdentificatie = {
           ...baseIdentificatie,
           type: "VN",
-          kvkNummer: route.paramMap.get("kvk"),
-          vestigingsnummer: route.paramMap.get("vestigingsnummer"),
+          vestigingsnummer: id,
         };
         break;
 
-      case "vestigingsnummer":
-        this.initiatorIdentificatie = {
-          ...baseIdentificatie,
-          type: "VN",
-          vestigingsnummer: route.paramMap.get("vestigingsnummer"),
-        };
-        break;
-
-      case "kvk":
+      case KVK_LENGTH:
         this.initiatorIdentificatie = {
           ...baseIdentificatie,
           type: "RSIN",
@@ -53,22 +55,13 @@ export class BedrijfResolverService {
         };
         break;
 
-      case "rsin":
+      default:
         this.initiatorIdentificatie = {
           ...baseIdentificatie,
           type: "RSIN",
           rsin: route.paramMap.get("rsin"),
         };
         break;
-
-      default:
-        break;
-    }
-
-    if (!this.initiatorIdentificatie) {
-      throw new Error(
-        `${BedrijfResolverService.name}: Unknown lookup type or missing route params`,
-      );
     }
 
     return this.klantenService.readBedrijf(this.initiatorIdentificatie);

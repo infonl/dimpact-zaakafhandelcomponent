@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -22,46 +22,12 @@ const routes: Routes = [
     ],
   },
   {
-    path: "bedrijf/kvkvestigingsnummer",
+    path: "bedrijf",
     children: [
       {
-        path: ":kvk/:vestigingsnummer",
+        path: ":vesOrRSIN",
         component: BedrijfViewComponent,
         resolve: { bedrijf: BedrijfResolverService },
-        data: { lookupType: "kvkvestigingsnummer" },
-      },
-    ],
-  },
-  {
-    path: "bedrijf/kvk",
-    children: [
-      {
-        path: ":kvk",
-        component: BedrijfViewComponent,
-        resolve: { bedrijf: BedrijfResolverService },
-        data: { lookupType: "kvk" },
-      },
-    ],
-  },
-  {
-    path: "bedrijf/vestigingsnummer",
-    children: [
-      {
-        path: ":vestigingsnummer",
-        component: BedrijfViewComponent,
-        resolve: { bedrijf: BedrijfResolverService },
-        data: { lookupType: "vestigingsnummer" },
-      },
-    ],
-  },
-  {
-    path: "bedrijf/rsin",
-    children: [
-      {
-        path: ":rsin",
-        component: BedrijfViewComponent,
-        resolve: { bedrijf: BedrijfResolverService },
-        data: { lookupType: "rsin" },
       },
     ],
   },

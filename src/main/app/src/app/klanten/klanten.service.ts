@@ -47,19 +47,17 @@ export class KlantenService {
   /* istanbul ignore next */
   private readRechtspersoon(kvkNummer: string | null, rsin: string | null) {
     if (kvkNummer) {
-      // to be built in backend
-      of(null);
-    }
-
-    if (!rsin) {
-      return of(null).pipe(() => {
-        throw new Error("RSIN is required");
-      });
+      return this.zacHttpClient.GET(
+        "/rest/klanten/rechtspersoon/kvknummer/{kvkNummer}",
+        {
+          path: { kvkNummer },
+        },
+      );
     }
 
     // legacy solution
     return this.zacHttpClient.GET("/rest/klanten/rechtspersoon/rsin/{rsin}", {
-      path: { rsin: rsin ?? "823807071" },
+      path: { rsin: rsin ?? "" },
     });
   }
 
