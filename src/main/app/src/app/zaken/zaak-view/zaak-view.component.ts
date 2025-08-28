@@ -1393,7 +1393,7 @@ export class ZaakViewComponent
               betrokkene.identificatieType === "VN"
                 ? betrokkene.identificatie
                 : null,
-            rsinNummer:
+            rsin:
               betrokkene.identificatieType === "RSIN"
                 ? betrokkene.identificatie
                 : null,
