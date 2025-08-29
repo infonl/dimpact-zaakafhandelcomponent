@@ -20,6 +20,7 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.documenten.InboxDocumentenService
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
@@ -587,8 +588,14 @@ class ProductaanvraagService @Inject constructor(
     ) {
         val zaaktype = ztcClientService.readZaaktype(zaaktypeBpmnProcessDefinition.zaaktypeUuid)
         val bpmnZaak = createZaak(zaaktype, productaanvraagDimpact, productaanvraagObject)
-
-        bpmnService.startProcess(bpmnZaak, zaaktype, zaaktypeBpmnProcessDefinition.bpmnProcessDefinitionKey)
+        bpmnService.startProcess(
+            bpmnZaak,
+            zaaktype,
+            zaaktypeBpmnProcessDefinition.bpmnProcessDefinitionKey,
+            zaakData = buildMap {
+                zaaktypeBpmnProcessDefinition.groepNaam?.let { put(VAR_ZAAK_GROUP, it) }
+            }
+        )
         pairProductaanvraagWithZaak(productaanvraagObject, bpmnZaak.url)
         pairDocumentsWithZaak(productaanvraagDimpact, bpmnZaak)
     }

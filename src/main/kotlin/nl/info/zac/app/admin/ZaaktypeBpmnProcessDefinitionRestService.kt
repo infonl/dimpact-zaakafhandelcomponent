@@ -46,6 +46,7 @@ class ZaaktypeBpmnProcessDefinitionRestService @Inject constructor(
                 bpmnProcessDefinitionKey = processDefinitionKey
                 zaaktypeOmschrijving = restZaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
                 productaanvraagtype = restZaaktypeBpmnProcessDefinition.productaanvraagtype
+                groepNaam = restZaaktypeBpmnProcessDefinition.groepNaam
             }
         )
         return Response.created(null).build()

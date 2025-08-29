@@ -1241,6 +1241,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
             val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
             val formulierBron = createBron()
+            val groepName = "test-groep"
             val productAanvraagORObject = createORObject(
                 record = createObjectRecord(
                     data = mapOf(
@@ -1253,6 +1254,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val bpmnDefinition = mockk<ZaaktypeBpmnProcessDefinition>()
             every { bpmnDefinition.zaaktypeUuid } returns zaakTypeUUID
             every { bpmnDefinition.bpmnProcessDefinitionKey } returns "fakeBpmnProcessKey"
+            every { bpmnDefinition.groepNaam } returns groepName
+
+            val zaakDataSlot = slot<Map<String, Any>>()
 
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
             every {
@@ -1265,7 +1269,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { zgwApiService.createZaak(any()) } returns createdZaak
             every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
             every { zrcClientService.createZaakInformatieobject(any(), any()) } returns createdZaakInformatieobject
-            every { bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey") } just Runs
+            every { bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", capture(zaakDataSlot)) } just Runs
             every { configuratieService.readBronOrganisatie() } returns "123443210"
 
             When("the productaanvraag is handled") {
@@ -1282,12 +1286,16 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         zgwApiService.createZaak(any())
                         zrcClientService.createZaakobject(any())
                         zrcClientService.createZaakInformatieobject(any(), any())
-                        bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey")
+                        bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", any())
                     }
                     verify(exactly = 0) {
                         cmmnService.startCase(any(), any(), any(), any())
                         zrcClientService.createRol(any())
                         productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(any(), any(), any())
+                    }
+                    with(zaakDataSlot.captured) {
+                        size shouldBe 1
+                        values.first() shouldBe groepName
                     }
                 }
             }

@@ -24,6 +24,8 @@ import nl.info.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRA
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_BPMN_BRON_KENMERK
+import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_BPMN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_2_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
@@ -37,16 +39,21 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BS
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_INITIALIZATION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_VESTIGING_EMAIL
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_BPMN_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Betrokkene1Uuid
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag2Uuid
+import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag3Uuid
 import nl.info.zac.itest.config.dockerComposeContainer
 import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
@@ -216,6 +223,83 @@ class NotificationsTest : BehaviorSpec({
             }
         }
     }
+
+    Given(
+        """
+        ZAC and all related Docker containers are running, a productaanvraag object exists in Objecten with
+        a productaanvraag type, BPMN definition exists in ZAC for the same productaanvraag type,
+        and the related productaanvraag PDF exists in Open Zaak
+        """.trimIndent()
+    ) {
+        When(
+            """
+            the notificaties endpoint is called with a 'create productaanvraag' payload with authentication header
+            and initiator of type 'BSN'
+            """.trimIndent()
+        ) {
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/notificaties",
+                headers = Headers.headersOf(
+                    "Content-Type",
+                    "application/json",
+                    "Authorization",
+                    OPEN_NOTIFICATIONS_API_SECRET_KEY
+                ),
+                requestBodyAsString = JSONObject(
+                    mapOf(
+                        "kanaal" to "objecten",
+                        "resource" to "object",
+                        "resourceUrl" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_BPMN_UUID",
+                        "hoofdObject" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_BPMN_UUID",
+                        "actie" to "create",
+                        "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
+                        "kenmerken" to mapOf(
+                            "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
+                        )
+                    )
+                ).toString(),
+                addAuthorizationHeader = false
+            )
+            Then(
+                """the response should be 'no content', a zaak should be created in OpenZaak
+                    using the BPMN-configured zaaktype and a BPMN process should be started in ZAC"""
+            ) {
+                response.code shouldBe HTTP_NO_CONTENT
+
+                itestHttpClient.performGetRequest(
+                    "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION"
+                ).use { getZaakResponse ->
+                    val responseBody = getZaakResponse.body.string()
+                    logger.info { "Response: $responseBody" }
+                    with(JSONObject(responseBody)) {
+                        getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION
+                        getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_BPMN_TEST_UUID.toString()
+                        getJSONObject("zaaktype").getString("omschrijving") shouldBe ZAAKTYPE_BPMN_TEST_DESCRIPTION.toString()
+                        getBoolean("isOpen") shouldBe true
+                        getBoolean("isProcesGestuurd") shouldBe true
+                        getString("communicatiekanaal") shouldBe "E-formulier"
+                        getString("uiterlijkeEinddatumAfdoening") shouldBe ZAAK_PRODUCTAANVRAAG_BPMN_UITERLIJKE_EINDDATUM_AFDOENING
+                        getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
+                            "met kenmerk '$OBJECT_PRODUCTAANVRAAG_BPMN_BRON_KENMERK'."
+                        zaakProductaanvraag3Uuid = getString("uuid").let(UUID::fromString)
+                    }
+                }
+            }
+        }
+
+        When("the get betrokkene endpoint is called for the BPMN-started zaak created from the productaanvraag") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraag3Uuid/betrokkene",
+            )
+            Then("the response should be a 200 HTTP response with an empty list") {
+                response.code shouldBe HTTP_OK
+                val responseBody = response.body.string()
+                logger.info { "Response: $responseBody" }
+                responseBody shouldEqualJsonIgnoringExtraneousFields "[]"
+            }
+        }
+    }
+
     Given(
         """"ZAC and all related Docker containers are running, productaanvraag object exists in Objecten API
                     and productaanvraag PDF exists in Open Zaak"""
