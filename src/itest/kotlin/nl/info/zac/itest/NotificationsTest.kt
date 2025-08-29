@@ -227,8 +227,7 @@ class NotificationsTest : BehaviorSpec({
     Given(
         """
         ZAC and all related Docker containers are running, a productaanvraag object exists in Objecten with
-        a productaanvraag type, BPMN definition exists in ZAC for the same productaanvraag type,
-        and the related productaanvraag PDF exists in Open Zaak
+        a productaanvraag type, BPMN definition exists in ZAC for the same productaanvraag type
         """.trimIndent()
     ) {
         When(
