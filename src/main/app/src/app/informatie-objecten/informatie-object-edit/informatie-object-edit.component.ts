@@ -59,7 +59,7 @@ export class InformatieObjectEditComponent implements OnChanges {
   protected readonly talen = this.configuratieService.listTalen();
 
   protected readonly form = this.formBuilder.group({
-    bestand: this.formBuilder.control<File | null>(null, [Validators.required]),
+    bestand: this.formBuilder.control<File | null>(null, []),
     titel: this.formBuilder.control<string | null>(null, [
       Validators.required,
       Validators.maxLength(100),
