@@ -41,7 +41,12 @@
     </mat-icon>
     {{ "actie.vrijgeven" | translate }}
   </button>
-  <button [disabled]="loading" mat-raised-button (click)="close()">
+  <button
+    [disabled]="loading"
+    mat-raised-button
+    (click)="close()"
+    type="button"
+  >
     {{ "actie.annuleren" | translate }}
   </button>
 </mat-dialog-actions>
