@@ -72,10 +72,6 @@ export class ZacFile<
       );
     }
 
-    if (!this.allowedFileTypes.length) {
-      this.allowedFormats = this.allowedFileTypes.join(", ");
-    }
-
     const additionalFileTypes = await lastValueFrom(
       this.configuratieService.readAdditionalAllowedFileTypes(),
     );
