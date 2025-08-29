@@ -15,8 +15,6 @@ import {
   PathLocationStrategy,
 } from "@angular/common";
 import { MatIconRegistry } from "@angular/material/icon";
-import { TranslateModule } from "@ngx-translate/core";
-import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
 import {
   QueryClient,
   provideTanStackQuery,
@@ -61,12 +59,6 @@ import { ZoekenModule } from "./zoeken/zoeken.module";
     AdminModule,
     GebruikersvoorkeurenModule,
     AppRoutingModule,
-    TranslateModule.forRoot({
-      loader: provideTranslateHttpLoader({
-        prefix: "./assets/i18n/",
-        suffix: ".json",
-      }),
-    }),
   ],
   providers: [
     { provide: APP_BASE_HREF, useValue: "/" },
