@@ -140,7 +140,8 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       .verlengenZaak(this.data.zaak.uuid, {
         ...value,
         einddatumGepland: value.einddatumGepland?.toISOString(),
-        uiterlijkeEinddatumAfdoening: value.uiterlijkeEinddatumAfdoening?.toISOString(),
+        uiterlijkeEinddatumAfdoening:
+          value.uiterlijkeEinddatumAfdoening?.toISOString(),
         takenVerlengen: value.takenVerlengen ?? false,
       })
       .subscribe({
