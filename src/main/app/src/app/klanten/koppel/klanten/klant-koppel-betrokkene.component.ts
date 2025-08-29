@@ -101,11 +101,11 @@ export class KlantKoppelBetrokkeneComponent implements OnInit {
   }
 
   klantGeselecteerd(klant: GeneratedType<"RestPersoon" | "RestBedrijf">) {
-    const data = this.form.value;
+    const { value } = this.form;
     this.klantGegevens.emit({
       klant,
-      betrokkeneRoltype: data.betrokkeneRoltype!,
-      betrokkeneToelichting: data.toelichting ?? "",
+      betrokkeneRoltype: value.betrokkeneRoltype!,
+      betrokkeneToelichting: value.toelichting ?? "",
     });
   }
 }

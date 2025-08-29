@@ -22,7 +22,8 @@ import {
   Validators,
 } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { Subject, takeUntil } from "rxjs";
+import { lastValueFrom, Subject, takeUntil } from "rxjs";
+import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { FileIcon } from "../../../informatie-objecten/model/file-icon";
 import { FormHelper } from "../helpers";
 
@@ -40,10 +41,8 @@ export class ZacFile<
   @Input({ required: true }) form!: FormGroup<Form>;
   @Input({ transform: booleanAttribute }) readonly = false;
   @Input() label?: string;
-  @Input() allowedFileTypes: string[] = FileIcon.fileIcons.map((icon) =>
-    icon.getBestandsextensie(),
-  );
-  @Input({ transform: numberAttribute }) maxFileSizeMB: number = 500;
+  @Input() allowedFileTypes: string[] = [];
+  @Input({ transform: numberAttribute }) maxFileSizeMB: number = 0;
   @ViewChild("fileInput") fileInput!: ElementRef;
 
   protected control?: AbstractControl<File | null>;
@@ -56,16 +55,41 @@ export class ZacFile<
     private readonly translateService: TranslateService,
     private readonly changeDetector: ChangeDetectorRef,
     private readonly formBuilder: FormBuilder,
+    private readonly configuratieService: ConfiguratieService,
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     this.control = this.form.get(String(this.key))!;
-    this.allowedFormats = this.allowedFileTypes.join(", ");
 
     // Subscribe to form control status changes to sync errors
     this.control?.statusChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.displayControl.setErrors(this.control?.errors ?? null);
     });
+
+    if (!this.maxFileSizeMB) {
+      this.maxFileSizeMB = await lastValueFrom(
+        this.configuratieService.readMaxFileSizeMB(),
+      );
+    }
+
+    if (!this.allowedFileTypes.length) {
+      this.allowedFormats = this.allowedFileTypes.join(", ");
+    }
+
+    const additionalFileTypes = await lastValueFrom(
+      this.configuratieService.readAdditionalAllowedFileTypes(),
+    );
+
+    if (!this.allowedFileTypes.length) {
+      const defaultFileTypes = FileIcon.fileIcons.map((icon) =>
+        icon.getBestandsextensie(),
+      );
+      this.allowedFileTypes = defaultFileTypes.concat(additionalFileTypes);
+    } else {
+      this.allowedFileTypes = this.allowedFileTypes.concat(additionalFileTypes);
+    }
+
+    this.allowedFormats = this.allowedFileTypes.join(", ");
   }
 
   ngOnDestroy() {

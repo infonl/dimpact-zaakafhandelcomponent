@@ -20,6 +20,8 @@ import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
+import { of } from "rxjs";
+import { ConfiguratieService } from "src/app/configuratie/configuratie.service";
 import { FileDragAndDropDirective } from "../../directives/file-drag-and-drop.directive";
 import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../material/material.module";
@@ -76,6 +78,13 @@ describe(ZacFile.name, () => {
     }).compileComponents();
 
     translateService = TestBed.inject(TranslateService);
+
+    const configuratieService = TestBed.inject(ConfiguratieService);
+    configuratieService.readMaxFileSizeMB = jest.fn().mockReturnValue(of(10));
+    configuratieService.readAdditionalAllowedFileTypes = jest
+      .fn()
+      .mockReturnValue(of([]));
+
     fixture = TestBed.createComponent(ZacFile<TestForm, keyof TestForm>);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);

@@ -28,7 +28,7 @@ export class ZaakOpschortenDialogComponent {
       null,
       [Validators.required],
     ),
-    reden: this.formBuilder.control<string | null>(null, [
+    redenOpschorting: this.formBuilder.control<string | null>(null, [
       Validators.required,
       Validators.maxLength(200),
     ]),
@@ -103,7 +103,7 @@ export class ZaakOpschortenDialogComponent {
   private updateDateFields(duur: number) {
     if (duur <= 0) return this.resetFields();
 
-    this.form.setValue(
+    this.form.patchValue(
       {
         duurDagen: duur,
         einddatumGepland: this.data.zaak.einddatumGepland
@@ -112,7 +112,6 @@ export class ZaakOpschortenDialogComponent {
         uiterlijkeEinddatumAfdoening: moment(
           this.data.zaak.uiterlijkeEinddatumAfdoening,
         ).add(duur, "days"),
-        reden: this.form.controls.reden.value,
       },
       { emitEvent: false },
     );
@@ -129,7 +128,7 @@ export class ZaakOpschortenDialogComponent {
           .uiterlijkeEinddatumAfdoening
           ? moment(this.data.zaak.uiterlijkeEinddatumAfdoening)
           : null,
-        reden: null,
+        redenOpschorting: null,
       },
       { emitEvent: false },
     );
@@ -141,16 +140,15 @@ export class ZaakOpschortenDialogComponent {
     this.dialogRef.disableClose = true;
     this.loading = true;
 
-    const data = this.form.getRawValue();
+    const value = this.form.getRawValue();
 
     this.zakenService
       .opschortenZaak(this.data.zaak.uuid, {
+        ...value,
         indicatieOpschorting: true,
-        duurDagen: data.duurDagen ?? undefined,
-        einddatumGepland: data.einddatumGepland?.toISOString(),
+        einddatumGepland: value.einddatumGepland?.toISOString(),
         uiterlijkeEinddatumAfdoening:
-          data.uiterlijkeEinddatumAfdoening?.toISOString(),
-        redenOpschorting: data.reden,
+          value.uiterlijkeEinddatumAfdoening?.toISOString(),
       })
       .subscribe({
         next: (result) => {
