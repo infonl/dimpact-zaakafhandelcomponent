@@ -99,13 +99,12 @@ export class OntvangstbevestigingComponent implements OnInit {
   }
 
   submit() {
+    const { value } = this.form;
     this.mailService
       .sendAcknowledgeReceipt(this.zaak.uuid, {
-        verzender: this.form.controls.verzender.value?.mail ?? undefined,
-        replyTo: this.form.controls.verzender.value?.replyTo ?? undefined,
-        ontvanger: this.form.controls.ontvanger.value ?? undefined,
-        onderwerp: this.form.controls.onderwerp.value ?? undefined,
-        body: this.form.controls.body.value ?? undefined,
+        ...value,
+        verzender: value.verzender?.mail,
+        replyTo: value.verzender?.replyTo,
         bijlagen:
           (this.bijlagenFormField.formControl.value as string) ?? undefined,
         createDocumentFromMail: true,

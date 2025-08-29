@@ -153,12 +153,12 @@ export class ZaakAfhandelenDialogComponent {
   }
 
   private afsluiten() {
-    const values = this.formGroup.value;
+    const { value } = this.formGroup;
     this.zakenService
       .afsluiten(this.data.zaak.uuid, {
-        reden: values.toelichting,
-        resultaattypeUuid: values.resultaattype!.id,
-        brondatumEigenschap: values.brondatumEigenschap?.toISOString() ?? null,
+        reden: value.toelichting,
+        resultaattypeUuid: value.resultaattype!.id,
+        brondatumEigenschap: value.brondatumEigenschap?.toISOString(),
       })
       .subscribe({
         next: () => {
@@ -169,7 +169,7 @@ export class ZaakAfhandelenDialogComponent {
   }
 
   private planItemAfhandelen(planItem: GeneratedType<"RESTPlanItem">) {
-    const values = this.formGroup.value;
+    const { value } = this.formGroup;
 
     this.planItemsService
       .doUserEventListenerPlanItem({
@@ -178,20 +178,20 @@ export class ZaakAfhandelenDialogComponent {
         zaakUuid: this.data.zaak.uuid,
         resultaattypeUuid:
           this.data.zaak.resultaat?.resultaattype?.id ??
-          values.resultaattype?.id,
-        resultaatToelichting: values.toelichting,
+          value.resultaattype?.id,
+        resultaatToelichting: value.toelichting,
         restMailGegevens:
-          values.sendMail && this.mailtemplate
+          value.sendMail && this.mailtemplate
             ? ({
-                verzender: values.verzender?.mail ?? undefined,
-                replyTo: values.verzender?.replyTo ?? undefined,
-                ontvanger: values.ontvanger ?? undefined,
+                verzender: value.verzender?.mail,
+                replyTo: value.verzender?.replyTo,
+                ontvanger: value.ontvanger,
                 onderwerp: this.mailtemplate.onderwerp,
                 body: this.mailtemplate.body,
                 createDocumentFromMail: true,
               } satisfies GeneratedType<"RESTMailGegevens">)
             : undefined,
-        brondatumEigenschap: values.brondatumEigenschap?.toISOString() ?? null,
+        brondatumEigenschap: value.brondatumEigenschap?.toISOString(),
       })
       .subscribe({
         next: () => {

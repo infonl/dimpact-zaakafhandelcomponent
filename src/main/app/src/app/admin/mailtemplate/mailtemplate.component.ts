@@ -72,17 +72,14 @@ export class MailtemplateComponent
       this.mailTemplate = data.template ?? {};
 
       this.setupMenu("title.mailtemplate");
-      this.form.setValue({
-        mailTemplateNaam: this.mailTemplate?.mailTemplateNaam ?? "",
-        defaultMailtemplate: this.mailTemplate?.defaultMailtemplate ?? false,
-        body: this.mailTemplate?.body ?? "",
+      this.form.patchValue({
+        ...this.mailTemplate,
         mail: this.mailTemplate?.mail
           ? {
               label: "mail." + this.mailTemplate?.mail,
               value: this.mailTemplate?.mail as GeneratedType<"Mail">,
             }
           : null,
-        onderwerp: this.mailTemplate?.onderwerp ?? "",
       });
 
       if (!this.mailTemplate?.mail) return;
