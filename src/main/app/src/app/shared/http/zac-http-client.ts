@@ -14,6 +14,7 @@ import type {
 import { catchError } from "rxjs/operators";
 import { paths } from "../../../generated/types/zac-openapi-types";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { NullableIfOptional } from "../utils/generated-types";
 
 type Paths = paths;
 type Methods = Extract<HttpMethod, "get" | "post" | "put" | "delete" | "patch">;
@@ -36,7 +37,7 @@ type PathParameters<
 type Body<
   Path extends PathsWithMethod<Paths, Method>,
   Method extends Methods,
-> = FetchOptions<FilterKeys<Paths[Path], Method>>["body"];
+> = NullableIfOptional<FetchOptions<FilterKeys<Paths[Path], Method>>["body"]>;
 
 export type PostBody<
   Path extends PathsWithMethod<Paths, Method>,

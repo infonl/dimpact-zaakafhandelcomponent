@@ -254,9 +254,8 @@ export class TakenWerkvoorraadComponent
           taak.groepNaam = this.toekenning?.groep?.naam ?? taak.groepNaam;
           taak.groepID = this.toekenning?.groep?.id ?? taak.groepID;
 
-          taak.behandelaarGebruikersnaam =
-            this.toekenning?.medewerker?.id ?? undefined;
-          taak.behandelaarNaam = this.toekenning?.medewerker?.naam ?? undefined;
+          taak.behandelaarGebruikersnaam = this.toekenning?.medewerker?.id;
+          taak.behandelaarNaam = this.toekenning?.medewerker?.naam;
         },
       },
       finalSubscription: {

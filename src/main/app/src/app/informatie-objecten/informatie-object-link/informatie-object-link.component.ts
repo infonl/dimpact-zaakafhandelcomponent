@@ -118,7 +118,7 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
       .linkDocumentToCase({
         documentUUID: this.getDocumentUUID(),
         bron: this.source,
-        nieuweZaakID: row.identificatie ?? undefined,
+        nieuweZaakID: row.identificatie,
       })
       .subscribe({
         next: () => {
@@ -129,7 +129,7 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
 
           this.utilService.openSnackbar(msgSnackbarKey, {
             document: this.infoObject!.titel,
-            case: row.identificatie ?? undefined,
+            case: row.identificatie,
           });
           this.close();
           this.informationObjectLinked.emit();

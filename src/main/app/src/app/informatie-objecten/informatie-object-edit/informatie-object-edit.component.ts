@@ -158,11 +158,8 @@ export class InformatieObjectEditComponent implements OnChanges {
       this.identityService.readLoggedInUser(),
     );
 
-    this.form.setValue({
-      bestand: null,
-      titel: infoObject.titel ?? null,
-      beschrijving: infoObject.beschrijving ?? null,
-      taal: infoObject.taal ?? null,
+    this.form.patchValue({
+      ...infoObject,
       status: infoObject.status
         ? {
             label: this.translateService.instant(
@@ -177,7 +174,6 @@ export class InformatieObjectEditComponent implements OnChanges {
       ontvangstdatum: infoObject.ontvangstdatum
         ? moment(infoObject.ontvangstdatum)
         : null,
-      informatieobjectType: null,
       vertrouwelijkheidaanduiding: infoObject.vertrouwelijkheidaanduiding
         ? {
             label: this.translateService.instant(
@@ -188,15 +184,14 @@ export class InformatieObjectEditComponent implements OnChanges {
             value: infoObject.vertrouwelijkheidaanduiding,
           }
         : null,
-      auteur: infoObject.auteur ?? ingelogdeMedewerker?.naam ?? null,
-      toelichting: infoObject.toelichting ?? null,
+      auteur: infoObject.auteur ?? ingelogdeMedewerker?.naam,
     });
 
     this.informatieObjectenService
       .listInformatieobjecttypesForZaak(this.zaakUuid)
       .subscribe((informatieObjectTypes) => {
         this.informatieObjectTypes = informatieObjectTypes;
-        this.form.controls.informatieobjectType.setValue(
+        this.form.controls.informatieobjectType.patchValue(
           informatieObjectTypes.find(
             (informatieObjectType) =>
               informatieObjectType.uuid === infoObject.informatieobjectTypeUUID,
@@ -216,22 +211,20 @@ export class InformatieObjectEditComponent implements OnChanges {
 
   submit() {
     const { value } = this.form;
-
     this.informatieObjectenService
       .updateEnkelvoudigInformatieobject(
         this.infoObject!.uuid!,
         this.zaakUuid,
         {
+          ...value,
           informatieobjectTypeUUID: value.informatieobjectType!.uuid!,
-          titel: value.titel ?? undefined,
-          vertrouwelijkheidaanduiding:
-            value.vertrouwelijkheidaanduiding?.value ?? undefined,
-          auteur: value.auteur ?? undefined,
-          toelichting: value.toelichting ?? undefined,
-          bestandsnaam: value.bestand?.name ?? undefined,
-          file: (value.bestand as unknown as string) ?? undefined,
-          formaat: value.bestand?.type ?? undefined,
-          beschrijving: value.beschrijving ?? undefined,
+          status: value.status?.value as unknown as GeneratedType<"StatusEnum">,
+          vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
+          bestandsnaam: value.bestand?.name,
+          verzenddatum: value.verzenddatum?.toISOString(),
+          ontvangstdatum: value.ontvangstdatum?.toISOString(),
+          file: value.bestand as unknown as string,
+          formaat: value.bestand?.type,
         },
       )
       .subscribe((document) => {

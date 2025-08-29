@@ -82,7 +82,7 @@ export class InformatieObjectenService {
           );
           break;
         case "bestand":
-          formData.append("file", value as Blob, infoObject.bestandsnaam);
+          formData.append("file", value as Blob, infoObject.bestandsnaam!);
           break;
         default:
           formData.append(key, value.toString());
@@ -139,7 +139,7 @@ export class InformatieObjectenService {
           formData.append(
             "file",
             value as unknown as Blob,
-            infoObject.bestandsnaam,
+            infoObject.bestandsnaam!,
           );
           break;
         case "taal":
@@ -261,7 +261,7 @@ export class InformatieObjectenService {
     );
   }
 
-  getPreviewUrl(uuid: string, versie?: number): string {
+  getPreviewUrl(uuid: string, versie?: number | null): string {
     if (versie) {
       return `${this.basepath}/informatieobject/${uuid}/${versie}/preview`;
     }

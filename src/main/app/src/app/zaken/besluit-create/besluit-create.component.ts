@@ -181,14 +181,14 @@ export class BesluitCreateComponent implements OnInit {
   }
 
   submit() {
-    const value = this.form.value;
+    const { value } = this.form;
 
     this.zakenService
       .createBesluit({
+        ...value,
         zaakUuid: this.zaak.uuid,
         resultaattypeUuid: value.resultaat!.id,
         besluittypeUuid: value.besluit!.id,
-        toelichting: value.toelichting ?? undefined,
         ingangsdatum: value.ingangsdatum?.toISOString(),
         vervaldatum: value.vervaldatum?.toISOString(),
         informatieobjecten: this.documentenField.value.toString().split(";"),
