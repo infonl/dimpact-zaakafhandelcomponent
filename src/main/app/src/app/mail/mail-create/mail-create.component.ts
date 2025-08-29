@@ -112,9 +112,9 @@ export class MailCreateComponent implements OnInit {
 
     this.mailService
       .sendMail(this.zaak.uuid, {
-        verzender: value.verzender?.mail ?? undefined,
-        replyTo: value.verzender?.replyTo ?? undefined,
-        ontvanger: value.ontvanger ?? undefined,
+        ...value,
+        verzender: value.verzender?.mail,
+        replyTo: value.verzender?.replyTo,
         onderwerp: value.onderwerp ?? "",
         body: value.body ?? "",
         bijlagen: this.bijlagenFormField?.formControl.value ?? "",

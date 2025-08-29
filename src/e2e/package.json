@@ -2,7 +2,7 @@
   "name": "app",
   "version": "0.0.1",
   "engines": {
-    "node": "22.18.0",
+    "node": "22.19.0",
     "npm": "10.9.3"
   },
   "scripts": {
@@ -17,7 +17,7 @@
     "cross-fetch": "4.1.0",
     "pdf-parse": "1.1.1",
     "uniqid": "5.4.0",
-    "zod": "4.1.4"
+    "zod": "4.1.5"
   },
   "devDependencies": {
     "@types/node": "22.18.0",

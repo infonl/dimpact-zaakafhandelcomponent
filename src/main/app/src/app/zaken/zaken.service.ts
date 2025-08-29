@@ -47,7 +47,7 @@ export class ZakenService {
     return this.zacHttpClient.PATCH(
       "/rest/zaken/zaak/{uuid}",
       {
-        zaak: update.zaak as GeneratedType<"RestZaak">,
+        zaak: update.zaak as PatchBody<"/rest/zaken/zaak/{uuid}">["zaak"],
         reden: update.reden ?? "",
       },
       { path: { uuid } },
@@ -94,7 +94,7 @@ export class ZakenService {
     return this.zacHttpClient.GET("/rest/zaken/zaaktypes");
   }
 
-  updateZaakdata(zaak: GeneratedType<"RestZaak">) {
+  updateZaakdata(zaak: PutBody<"/rest/zaken/zaakdata">) {
     return this.zacHttpClient.PUT("/rest/zaken/zaakdata", zaak);
   }
 

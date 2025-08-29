@@ -252,14 +252,13 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.utilService.setLoading(true);
     this.personen.data = [];
-    const data = this.formGroup.value;
+    const { value } = this.formGroup;
     this.klantenService
       .listPersonen(
         {
-          ...data,
-          geboortedatum: data.geboortedatum?.toISOString() ?? null,
-          gemeenteVanInschrijving:
-            data.gemeenteVanInschrijving?.toString() ?? null,
+          ...value,
+          geboortedatum: value.geboortedatum?.toISOString(),
+          gemeenteVanInschrijving: value.gemeenteVanInschrijving?.toString(),
         },
         {
           context: this.context(),
