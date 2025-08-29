@@ -38,7 +38,7 @@ export class ZakenService {
     uuid: string,
     update: {
       zaak: Omit<
-        Partial<GeneratedType<"RestZaak">>,
+        Partial<GeneratedType<"RestZaakCreateData">>,
         "zaakgeometrie" | "behandelaar"
       >;
       reden?: string;
@@ -47,7 +47,7 @@ export class ZakenService {
     return this.zacHttpClient.PATCH(
       "/rest/zaken/zaak/{uuid}",
       {
-        zaak: update.zaak as GeneratedType<"RestZaak">,
+        zaak: update.zaak as GeneratedType<"RestZaakCreateData">,
         reden: update.reden ?? "",
       },
       { path: { uuid } },

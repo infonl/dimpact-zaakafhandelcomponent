@@ -14,7 +14,7 @@ import nl.info.zac.util.NoArgConstructor
 @AllOpen
 data class RESTZaakAanmaakGegevens(
     @field:Valid
-    var zaak: RestZaak,
+    var zaak: RestZaakCreateData,
 
     var inboxProductaanvraag: RESTInboxProductaanvraag? = null,
 

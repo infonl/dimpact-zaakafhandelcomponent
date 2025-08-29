@@ -1364,7 +1364,7 @@ export class ZaakViewComponent
   ) {
     betrokkene["gegevens"] = "LOADING";
     switch (betrokkene.type) {
-      case "NATUURLIJK_PERSOON":
+      case "NATUURLIJK_PERSOON": {
         this.klantenService
           .readPersoon(betrokkene.identificatie, {
             context: this.zaak.uuid,
@@ -1382,21 +1382,45 @@ export class ZaakViewComponent
             }
           });
         break;
+      }
       case "NIET_NATUURLIJK_PERSOON":
-      case "VESTIGING":
+      case "VESTIGING": {
+        // code below is temporary and will be replaced when Betrokkene is factored into same typed setup
+        const betrokkeneIdentificatie: GeneratedType<"BetrokkeneIdentificatie"> =
+          {
+            type: betrokkene.identificatieType as "BSN" | "VN" | "RSIN",
+            vestigingsnummer:
+              betrokkene.identificatieType === "VN"
+                ? betrokkene.identificatie
+                : null,
+            rsin:
+              betrokkene.identificatieType === "RSIN"
+                ? betrokkene.identificatie
+                : null,
+            kvkNummer: betrokkene.kvkNummer,
+            bsnNummer: null,
+          };
+
         this.klantenService
-          .readBedrijf(betrokkene.identificatie, betrokkene.kvkNummer ?? null)
+          .readBedrijf(betrokkeneIdentificatie)
           .subscribe((bedrijf) => {
+            if (!bedrijf) return;
+
+            // @ts-expect-error @todo (waiting for new PR to resolve this)
             betrokkene["gegevens"] = bedrijf.naam;
+            // @ts-expect-error @todo (waiting for new PR to resolve this)
             if (bedrijf.adres) {
+              // @ts-expect-error @todo (waiting for new PR to resolve this)
               betrokkene["gegevens"] += `,\n${bedrijf.adres}`;
             }
           });
         break;
+      }
       case "ORGANISATORISCHE_EENHEID":
-      case "MEDEWERKER":
+      case "MEDEWERKER": {
         betrokkene["gegevens"] = "-";
         break;
+      }
     }
   }
 
@@ -1505,7 +1529,7 @@ export class ZaakViewComponent
 
     return Boolean(
       brpKoppelen &&
-        ["BSN"].includes(this.zaak.initiatorIdentificatieType ?? ""),
+        ["BSN"].includes(this.zaak.initiatorIdentificatie?.type ?? ""),
     );
   }
 
@@ -1518,7 +1542,7 @@ export class ZaakViewComponent
 
     return Boolean(
       kvkKoppelen &&
-        ["VN", "RSIN"].includes(this.zaak.initiatorIdentificatieType ?? ""),
+        ["VN", "RSIN"].includes(this.zaak.initiatorIdentificatie?.type ?? ""),
     );
   }
 

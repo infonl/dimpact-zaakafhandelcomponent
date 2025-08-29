@@ -22,8 +22,8 @@ import { KlantenService } from "../klanten.service";
 export class BedrijfsgegevensComponent implements OnChanges {
   @Input() isVerwijderbaar?: boolean = false;
   @Input() isWijzigbaar?: boolean = false;
-  @Input() rsinOfVestigingsnummer?: string | null = null;
-  @Input() kvkNummer?: string | null = null;
+  @Input()
+  initiatorIdentificatie?: GeneratedType<"BetrokkeneIdentificatie"> | null;
   @Output() delete = new EventEmitter<GeneratedType<"RestBedrijf">>();
   @Output() edit = new EventEmitter<GeneratedType<"RestBedrijf">>();
 
@@ -44,11 +44,14 @@ export class BedrijfsgegevensComponent implements OnChanges {
   ngOnChanges(): void {
     this.bedrijf = null;
     this.vestigingsprofiel = null;
-    if (!this.rsinOfVestigingsnummer) return;
+
+    if (!this.initiatorIdentificatie) return;
 
     this.klantenService
-      .readBedrijf(this.rsinOfVestigingsnummer, this.kvkNummer ?? null)
+      .readBedrijf(this.initiatorIdentificatie)
       .subscribe((bedrijf) => {
+        if (!bedrijf) return;
+
         this.bedrijf = bedrijf;
         this.klantExpanded = true;
         this.vestigingsprofielOphalenMogelijk = !!this.bedrijf.vestigingsnummer;

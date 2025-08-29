@@ -359,7 +359,7 @@ class ZaakService @Inject constructor(
                     zaak.url,
                     roleType,
                     explanation,
-                    NietNatuurlijkPersoonIdentificatie().apply { this.innNnpId = identification }
+                    NietNatuurlijkPersoonIdentificatie().apply { this.kvkNummer = identification }
                 )
         }
         zrcClientService.createRol(role, explanation)

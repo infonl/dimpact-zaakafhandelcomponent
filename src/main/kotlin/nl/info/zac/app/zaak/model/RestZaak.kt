@@ -5,16 +5,8 @@
 package nl.info.zac.app.zaak.model
 
 import jakarta.json.bind.annotation.JsonbProperty
-import jakarta.validation.Valid
-import jakarta.validation.constraints.Size
-import nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum
-import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.client.zgw.zrc.model.generated.Zaak.OMSCHRIJVING_MAX_LENGTH
-import nl.info.client.zgw.zrc.model.generated.Zaak.TOELICHTING_MAX_LENGTH
-import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
-import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.policy.model.RestZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.util.AllOpen
@@ -36,14 +28,10 @@ data class RestZaak(
     var einddatumGepland: LocalDate?,
     var einddatum: LocalDate?,
     var gerelateerdeZaken: List<RestGerelateerdeZaak>?,
-    @field:Valid
     var groep: RestGroup?,
     var identificatie: String,
     var indicaties: EnumSet<ZaakIndicatie>,
-    var initiatorIdentificatie: String?,
-    var kvkNummer: String?,
-    var vestigingsNummer: String?,
-    var initiatorIdentificatieType: IdentificatieType?,
+    var initiatorIdentificatie: BetrokkeneIdentificatie?,
 
     @get:JsonbProperty("isOpgeschort")
     var isOpgeschort: Boolean,
@@ -83,10 +71,7 @@ data class RestZaak(
     var isVerlengd: Boolean,
 
     var kenmerken: List<RESTZaakKenmerk>?,
-
-    @field:Size(max = OMSCHRIJVING_MAX_LENGTH)
     var omschrijving: String,
-
     var publicatiedatum: LocalDate?,
     var rechten: RestZaakRechten,
     var redenOpschorting: String?,
@@ -95,10 +80,7 @@ data class RestZaak(
     var resultaat: RestZaakResultaat?,
     var startdatum: LocalDate?,
     var status: RestZaakStatus?,
-
-    @field:Size(max = TOELICHTING_MAX_LENGTH)
     var toelichting: String?,
-
     var uiterlijkeEinddatumAfdoening: LocalDate?,
     var uuid: UUID,
     var verantwoordelijkeOrganisatie: String?,
@@ -107,53 +89,3 @@ data class RestZaak(
     var zaakgeometrie: RestGeometry?,
     var zaaktype: RestZaaktype
 )
-
-fun RestZaak.toZaak(
-    zaaktype: ZaakType,
-    bronOrganisatie: String,
-    verantwoordelijkeOrganisatie: String
-) = Zaak(
-    null,
-    this.uuid,
-    this.einddatum,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null
-).apply {
-    this.bronorganisatie = bronOrganisatie
-    this.verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie
-    this.startdatum = this@toZaak.startdatum
-    this.zaaktype = zaaktype.url
-    this.communicatiekanaalNaam = this@toZaak.communicatiekanaal
-    this.omschrijving = this@toZaak.omschrijving
-    this.toelichting = this@toZaak.toelichting
-    this.registratiedatum = LocalDate.now()
-    this.vertrouwelijkheidaanduiding = this@toZaak.vertrouwelijkheidaanduiding?.let {
-        // convert this enum to uppercase in case the client sends it in lowercase
-        VertrouwelijkheidaanduidingEnum.valueOf(it.uppercase())
-    }
-    this.zaakgeometrie = this@toZaak.zaakgeometrie?.toGeoJSONGeometry()
-}
-
-/**
- * Converts a RestZaak to a Zaak object suitable for PATCH requests.
- * This is used when updating an existing case with partial data.
- */
-fun RestZaak.toPatchZaak() = Zaak().apply {
-    toelichting = this@toPatchZaak.toelichting
-    omschrijving = this@toPatchZaak.omschrijving
-    startdatum = this@toPatchZaak.startdatum
-    einddatumGepland = this@toPatchZaak.einddatumGepland
-    uiterlijkeEinddatumAfdoening = this@toPatchZaak.uiterlijkeEinddatumAfdoening
-    vertrouwelijkheidaanduiding = this@toPatchZaak.vertrouwelijkheidaanduiding?.let {
-        // convert this enum to uppercase in case the client sends it in lowercase
-        VertrouwelijkheidaanduidingEnum.valueOf(it.uppercase())
-    }
-    communicatiekanaalNaam = this@toPatchZaak.communicatiekanaal
-    zaakgeometrie = this@toPatchZaak.zaakgeometrie?.toGeoJSONGeometry()
-}

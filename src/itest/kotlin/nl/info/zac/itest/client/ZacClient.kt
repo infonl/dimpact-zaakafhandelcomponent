@@ -322,7 +322,6 @@ class ZacClient {
                     "zaaktype": {
                         "uuid": "$zaakTypeUUID"
                     },
-                    "initiatorIdentificatie": null,
                     "startdatum": "$startDate",
                     "groep": {
                         "id": "$groupId",

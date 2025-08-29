@@ -72,11 +72,11 @@ export class ZaakAfhandelenDialogComponent {
       zaakafhandelparameters?.afrondenMail === "BESCHIKBAAR_AAN";
 
     if (
-      this.data.zaak.initiatorIdentificatieType &&
-      this.data.zaak.initiatorIdentificatie
+      this.data.zaak.initiatorIdentificatie?.type &&
+      this.data.zaak.initiatorIdentificatie?.bsnNummer
     ) {
       this.klantenService
-        .ophalenContactGegevens(this.data.zaak.initiatorIdentificatie)
+        .ophalenContactGegevens(this.data.zaak.initiatorIdentificatie.bsnNummer)
         .subscribe(({ emailadres }) => {
           if (!emailadres) return;
           this.initiatorEmail = emailadres;

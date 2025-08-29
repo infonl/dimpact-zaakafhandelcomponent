@@ -94,13 +94,13 @@ export class MailCreateComponent implements OnInit {
       .build();
 
     if (
-      !this.zaak.initiatorIdentificatieType ||
-      !this.zaak.initiatorIdentificatie
+      !this.zaak.initiatorIdentificatie?.type ||
+      !this.zaak.initiatorIdentificatie?.bsnNummer
     )
       return;
 
     this.klantenService
-      .ophalenContactGegevens(this.zaak.initiatorIdentificatie)
+      .ophalenContactGegevens(this.zaak.initiatorIdentificatie.bsnNummer)
       .subscribe((contactGegevens) => {
         if (!contactGegevens.emailadres) return;
         this.contactGegevens = contactGegevens;

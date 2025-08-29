@@ -1,16 +1,24 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
+import {
+  KVK_LENGTH,
+  VESTIGINGSNUMMER_LENGTH,
+} from "src/app/shared/utils/constants";
+import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
 
 @Injectable({
   providedIn: "root",
 })
 export class BedrijfResolverService {
+  private initiatorIdentificatie: GeneratedType<"BetrokkeneIdentificatie"> | null =
+    null;
+
   constructor(private klantenService: KlantenService) {}
 
   resolve(route: ActivatedRouteSnapshot) {
@@ -22,6 +30,39 @@ export class BedrijfResolverService {
       );
     }
 
-    return this.klantenService.readBedrijf(id, null);
+    const baseIdentificatie = {
+      kvkNummer: null,
+      vestigingsnummer: null,
+      rsin: null,
+      bsnNummer: null,
+    };
+
+    switch (id.length) {
+      case VESTIGINGSNUMMER_LENGTH:
+        this.initiatorIdentificatie = {
+          ...baseIdentificatie,
+          type: "VN",
+          vestigingsnummer: id,
+        };
+        break;
+
+      case KVK_LENGTH:
+        this.initiatorIdentificatie = {
+          ...baseIdentificatie,
+          type: "RSIN",
+          kvkNummer: route.paramMap.get("kvk"),
+        };
+        break;
+
+      default:
+        this.initiatorIdentificatie = {
+          ...baseIdentificatie,
+          type: "RSIN",
+          rsin: route.paramMap.get("rsin"),
+        };
+        break;
+    }
+
+    return this.klantenService.readBedrijf(this.initiatorIdentificatie);
   }
 }

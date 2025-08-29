@@ -156,8 +156,10 @@ class NotificationsTest : BehaviorSpec({
                             getBigDecimal("latitude") shouldBe PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE.toBigDecimal()
                             getBigDecimal("longitude") shouldBe PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE.toBigDecimal()
                         }
-                        getString("initiatorIdentificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
-                        getString("initiatorIdentificatieType") shouldBe BETROKKENE_IDENTIFICATION_TYPE_BSN
+                        with(getJSONObject("initiatorIdentificatie")) {
+                            getString("type") shouldBe BETROKKENE_IDENTIFICATION_TYPE_BSN
+                            getString("bsnNummer") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
+                        }
                         zaakProductaanvraag1Uuid = getString("uuid").let(UUID::fromString)
                     }
                 }
@@ -274,8 +276,10 @@ class NotificationsTest : BehaviorSpec({
                         getString("communicatiekanaal") shouldBe "E-formulier"
                         getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
                             "met kenmerk '$OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_2_BRON_KENMERK'."
-                        getString("initiatorIdentificatie") shouldBe TEST_KVK_VESTIGINGSNUMMER_1
-                        getString("initiatorIdentificatieType") shouldBe BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
+                        with(getJSONObject("initiatorIdentificatie")) {
+                            getString("vestigingsnummer") shouldBe TEST_KVK_VESTIGINGSNUMMER_1
+                            getString("type") shouldBe BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
+                        }
                         zaakProductaanvraag2Uuid = getString("uuid").let(UUID::fromString)
                     }
                 }

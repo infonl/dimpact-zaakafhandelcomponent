@@ -11,7 +11,6 @@ export class BetrokkeneIdentificatie
   public readonly bsnNummer?: string | null = null;
   public readonly kvkNummer?: string | null = null;
   public readonly vestigingsnummer?: string | null = null;
-  public readonly rsinNummer?: string | null = null;
   public readonly type: GeneratedType<"IdentificatieType">;
 
   constructor(betrokkene: GeneratedType<"RestPersoon" | "RestBedrijf">) {
@@ -38,10 +37,10 @@ export class BetrokkeneIdentificatie
         break;
       case "RSIN":
         if ("rsin" in betrokkene) {
-          this.rsinNummer = betrokkene.rsin;
+          this.kvkNummer = betrokkene.kvkNummer;
         } else {
           throw new Error(
-            `${BetrokkeneIdentificatie.name}: Tried to add a betrokkene without a RSIN number`,
+            `${BetrokkeneIdentificatie.name}: Tried to add a betrokkene without a KVK number`,
           );
         }
         break;
