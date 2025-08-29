@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { FontCacheBustingService } from "./font-cache-busting.service";
 import { FontLoaderService } from "./font-loader.service";
 
 // Mock FontCacheBustingService for testing
@@ -23,7 +24,9 @@ describe("FontLoaderService", () => {
 
   beforeEach(() => {
     fontCacheBustingService = new MockFontCacheBustingService();
-    service = new FontLoaderService(fontCacheBustingService);
+    service = new FontLoaderService(
+      fontCacheBustingService as unknown as FontCacheBustingService,
+    );
   });
 
   it("should be created", () => {

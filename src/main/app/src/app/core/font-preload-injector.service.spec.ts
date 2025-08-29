@@ -101,7 +101,9 @@ describe("FontPreloadInjectorService", () => {
     mockHead.appendChild(mockLink2);
 
     jest.spyOn(document, "head", "get").mockReturnValue(mockHead);
-    jest.spyOn(document, "querySelectorAll").mockReturnValue([mockLink1]);
+    jest
+      .spyOn(document, "querySelectorAll")
+      .mockReturnValue([mockLink1] as unknown as NodeListOf<Element>);
 
     service.removeFontPreloads();
 
