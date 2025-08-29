@@ -198,6 +198,14 @@
     }
   },
   {
+    "model": "core.object",
+    "pk": 34,
+    "fields": {
+      "uuid": "fb6b2c0e-f745-4725-ae27-2317f0cfbfc4",
+      "object_type": 4
+    }
+  },
+  {
     "model": "core.objectrecord",
     "pk": 4,
     "fields": {
@@ -943,6 +951,57 @@
       "start_at": "1999-01-01",
       "end_at": null,
       "registration_at": "1999-01-01",
+      "correct": null,
+      "geometry": null
+    }
+  },
+  {
+    "model": "core.objectrecord",
+    "pk": 45,
+    "fields": {
+      "index": 1,
+      "object": 34,
+      "version": 1,
+      "data": {
+        "bron": {
+          "naam": "open-forms",
+          "kenmerk": "c7e9e087-853d-4b16-9750-fddd7c0b9b0d"
+        },
+        "type": "bpmn-test-productaanvraagtype",
+        "aanvraaggegevens": {
+          "stap1": {
+            "naam": "fakeBpmnApplicantName",
+            "telefoonnummer": "0612345678"
+          },
+          "stap2": {
+            "omschrijving": "fakeDescription"
+          }
+        },
+        "taal": "nld",
+        "betrokkenen": [
+          {
+            "vestigingsNummer": "000012345678",
+            "rolOmschrijvingGeneriek": "initiator"
+          },
+          {
+            "inpBsn": "999991838",
+            "roltypeOmschrijving": "Medeaanvrager",
+            "rolOmschrijvingGeneriek": "mede_initiator"
+          },
+          {
+            "inpBsn": "999991838",
+            "roltypeOmschrijving": "Bewindvoerder"
+          },
+          {
+            "inpBsn": "999992958",
+            "rolOmschrijvingGeneriek": "adviseur"
+          }
+        ],
+        "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e"
+      },
+      "start_at": "1998-01-01",
+      "end_at": null,
+      "registration_at": "1998-01-01",
       "correct": null,
       "geometry": null
     }

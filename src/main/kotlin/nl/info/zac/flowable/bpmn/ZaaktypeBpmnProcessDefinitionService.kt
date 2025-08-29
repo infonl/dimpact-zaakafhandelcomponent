@@ -52,4 +52,14 @@ class ZaaktypeBpmnProcessDefinitionService @Inject constructor(
                 entityManager.createQuery(query).resultList
             }
         }
+
+    fun findByProductAanvraagType(productAanvraagType: String): ZaaktypeBpmnProcessDefinition? =
+        entityManager.criteriaBuilder.let { criteriaBuilder ->
+            criteriaBuilder.createQuery(ZaaktypeBpmnProcessDefinition::class.java).let { query ->
+                query.from(ZaaktypeBpmnProcessDefinition::class.java).let {
+                    query.where(criteriaBuilder.equal(it.get<String>("productaanvraagtype"), productAanvraagType))
+                }
+                entityManager.createQuery(query).resultStream.findFirst().orElse(null)
+            }
+        }
 }
