@@ -49,6 +49,7 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.flowable.bpmn.ZaaktypeBpmnProcessDefinitionService
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition
+import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.productaanvraag.model.generated.Geometry
@@ -1315,9 +1316,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
             val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
             val zaakafhandelParameters = createZaakafhandelParameters(zaaktypeUUID = zaakTypeUUID)
-            val bpmnDefinition = mockk<ZaaktypeBpmnProcessDefinition>()
-            every { bpmnDefinition.zaaktypeUuid } returns UUID.randomUUID()
-
+            val bpmnDefinition = createZaaktypeBpmnProcessDefinition()
             val formulierBron = createBron()
             val productAanvraagORObject = createORObject(
                 record = createObjectRecord(

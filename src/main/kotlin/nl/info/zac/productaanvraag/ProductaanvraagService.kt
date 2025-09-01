@@ -454,43 +454,40 @@ class ProductaanvraagService @Inject constructor(
     private fun handleProductaanvraagDimpact(productaanvraagObject: ModelObject) {
         LOG.fine { "Start handling productaanvraag with object URL: ${productaanvraagObject.url}" }
         val productaanvraag = getProductaanvraag(productaanvraagObject)
-
         val zaakafhandelparameters = zaakafhandelParameterBeheerService
             .findActiveZaakafhandelparametersByProductaanvraagtype(productaanvraag.type)
         val zaaktypeBpmnProcessDefinition = zaaktypeBpmnProcessDefinitionService.findByProductAanvraagType(
             productaanvraag.type
         )
-
         val hasCmmnDefinition = zaakafhandelparameters.isNotEmpty()
         val hasBpmnDefinition = zaaktypeBpmnProcessDefinition != null
-
+        if (hasCmmnDefinition && hasBpmnDefinition) {
+            LOG.warning(
+                "Both CMMN and BPMN zaaktype definitions found for productaanvraag-Dimpact type '${productaanvraag.type}'. " +
+                    "CMMN takes precedence, so the BPMN definition is ignored."
+            )
+        }
         when {
-            !hasCmmnDefinition && !hasBpmnDefinition -> {
+            hasCmmnDefinition ->
+                processProductaanvraagWithCmmnZaaktype(
+                    zaakafhandelParameters = zaakafhandelparameters,
+                    productaanvraagDimpact = productaanvraag,
+                    productaanvraagObject = productaanvraagObject
+                )
+
+            hasBpmnDefinition ->
+                processProductaanvraagWithBpmnZaaktype(
+                    zaaktypeBpmnProcessDefinition = zaaktypeBpmnProcessDefinition,
+                    productaanvraagDimpact = productaanvraag,
+                    productaanvraagObject = productaanvraagObject
+                )
+
+            else -> {
                 LOG.info(
-                    "No zaaktype found for productaanvraag-Dimpact type '${productaanvraag.type}'. No zaak was created."
+                    "No CMMN nor BPMN zaaktype configured for productaanvraag-Dimpact type '${productaanvraag.type}'. " +
+                        "No zaak was created. Registering productaanvraag as inbox productaanvraag."
                 )
                 registreerInbox(productaanvraag, productaanvraagObject)
-                return
-            }
-
-            // if productaanvraag defined only for BPMN, start BPMN
-            hasBpmnDefinition && !hasCmmnDefinition -> {
-                processProductaanvraagWithBpmnZaaktype(
-                    zaaktypeBpmnProcessDefinition,
-                    productaanvraag,
-                    productaanvraagObject
-                )
-            }
-
-            // productaanvraag defined for CMMN (with or without BPMN). if both log warning, then start CMMN
-            else -> {
-                if (hasBpmnDefinition) {
-                    LOG.warning(
-                        "Both CMMN and BPMN are defined for productaanvraag type '${productaanvraag.type}'. " +
-                            "Starting CMMN zaak. BPMN mapping (zaaktypeUuid='${zaaktypeBpmnProcessDefinition.zaaktypeUuid}') ignored."
-                    )
-                }
-                processProductaanvraagWithCmmnZaaktype(zaakafhandelparameters, productaanvraag, productaanvraagObject)
             }
         }
     }
