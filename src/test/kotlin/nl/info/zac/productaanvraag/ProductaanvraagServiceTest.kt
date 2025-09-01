@@ -1228,14 +1228,13 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
 
-//        Given(
-//            """
-//        A productaanvraag-dimpact object registration object with an initiator betrokkene,
-//        no matching CMMN zaakafhandelparameters,
-//        but a BPMN definition for the productaanvraagtype
-//        """
-//        ) {
-        Given("xxx") {
+        Given(
+            """
+        A productaanvraag-dimpact object registration object with an initiator betrokkene,
+        no matching CMMN zaakafhandelparameters,
+        but a BPMN definition for the productaanvraagtype
+        """
+        ) {
             clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
