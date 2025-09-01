@@ -27,13 +27,27 @@ data class RestBedrijf(
     override var naam: String? = null,
     override var telefoonnummer: String? = null
 ) : RestKlant() {
-    override fun getIdentificatieType(): IdentificatieType? {
-        return if (vestigingsnummer != null) IdentificatieType.VN else (if (rsin != null) IdentificatieType.RSIN else null)
-    }
+    /**
+     * If a [vestigingsnummer] is present (with or without a (KVK nummer)[kvkNummer]), we return a vestiging type,
+     * if we either have a (KVK nummer)[kvkNummer] or an (RSIN)[rsin] we return a rechtspersoon (RSIN) type.
+     * If none of these are present (invalid bedrijf) we return null.
+     */
+    override fun getIdentificatieType(): IdentificatieType? =
+        if (vestigingsnummer != null) {
+            IdentificatieType.VN
+        } else if (kvkNummer != null || rsin != null) {
+            IdentificatieType.RSIN
+        } else {
+            // invalid bedrijf without any identification. should never happen but we currently lack proper validation
+            null
+        }
 
-    override fun getIdentificatie(): String? {
-        return if (vestigingsnummer != null) vestigingsnummer else rsin
-    }
+    /**
+     * Remove this function? It seems obsolete because we already return all the individual fields.
+     * Check with frontend.
+     */
+    override fun getIdentificatie(): String? =
+        if (vestigingsnummer != null) vestigingsnummer else if (rsin != null) rsin else kvkNummer
 }
 
 fun ResultaatItem.toRestBedrijf() = RestBedrijf(
