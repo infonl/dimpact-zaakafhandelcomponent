@@ -24,7 +24,7 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
 @Singleton
-@Path("bpmn-process-definition")
+@Path("zaaktype-bpmn-process-definition")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @AllOpen
@@ -34,8 +34,8 @@ class ZaaktypeBpmnProcessDefinitionRestService @Inject constructor(
     private val policyService: PolicyService
 ) {
     @POST
-    @Path("{processDefinitionKey}/connect")
-    fun connectWithZaaktype(
+    @Path("{processDefinitionKey}")
+    fun createZaaktypeBpmnProcessDefinition(
         @NotEmpty @PathParam("processDefinitionKey") processDefinitionKey: String,
         @Valid restZaaktypeBpmnProcessDefinition: RestZaaktypeBpmnProcessDefinition
     ): Response {

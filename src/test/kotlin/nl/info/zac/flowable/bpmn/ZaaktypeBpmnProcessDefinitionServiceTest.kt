@@ -37,7 +37,7 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Creating a BPMN process definition mapping") {
+    Context("Creating a zaaktype - BPMN process definition") {
         Given("A zaaktype - BPMN process definition relation") {
             val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnProcessDefinition()
             every { entityManager.persist(zaaktypeBpmnProcessDefinition) } just Runs
@@ -54,7 +54,7 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Deleting a BPMN process definition mapping") {
+    Context("Deleting a zaaktype - BPMN process definition") {
         Given("A stored zaaktype BPMN process definition relation") {
             val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnProcessDefinition()
             every { entityManager.remove(zaaktypeBpmnProcessDefinition) } just Runs
@@ -71,7 +71,7 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
         }
     }
 
-    Context("finding a BPMN process definition by zaaktype UUID") {
+    Context("Finding a BPMN process definition by zaaktype UUID") {
         Given("A valid zaaktype UUID with a corresponding BPMN process definition") {
             val zaaktypeUUID = UUID.randomUUID()
             val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnProcessDefinition(zaaktypeUuid = zaaktypeUUID)

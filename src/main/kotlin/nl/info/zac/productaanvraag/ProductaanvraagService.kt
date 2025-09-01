@@ -593,7 +593,7 @@ class ProductaanvraagService @Inject constructor(
             zaaktype,
             zaaktypeBpmnProcessDefinition.bpmnProcessDefinitionKey,
             zaakData = buildMap {
-                zaaktypeBpmnProcessDefinition.groepNaam?.let { put(VAR_ZAAK_GROUP, it) }
+                put(VAR_ZAAK_GROUP, zaaktypeBpmnProcessDefinition.groepNaam)
             }
         )
         pairProductaanvraagWithZaak(productaanvraagObject, bpmnZaak.url)
