@@ -49,7 +49,7 @@
   <div *ngIf="bedrijf" id="bedrijfsgegevens" class="content flex-row flex-wrap">
     <zac-static-text label="bedrijfsnaam" [value]="bedrijf.naam" />
     <zac-static-text
-      *ngIf="kvkNummer"
+      *ngIf="bedrijf.kvkNummer"
       label="kvknummer"
       [value]="bedrijf.kvkNummer"
     />
