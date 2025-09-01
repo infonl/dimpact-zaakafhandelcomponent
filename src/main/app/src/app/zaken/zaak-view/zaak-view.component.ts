@@ -1385,21 +1385,12 @@ export class ZaakViewComponent
       }
       case "NIET_NATUURLIJK_PERSOON":
       case "VESTIGING": {
-        // code below is temporary and will be replaced when Betrokkene is factored into same typed setup
-        const betrokkeneIdentificatie: GeneratedType<"BetrokkeneIdentificatie"> =
-          {
-            type: betrokkene.identificatieType as "BSN" | "VN" | "RSIN",
-            vestigingsnummer:
-              betrokkene.identificatieType === "VN"
-                ? betrokkene.identificatie
-                : null,
-            rsin:
-              betrokkene.identificatieType === "RSIN"
-                ? betrokkene.identificatie
-                : null,
-            kvkNummer: betrokkene.kvkNummer,
-            bsnNummer: null,
-          };
+        const betrokkeneIdentificatie = new BetrokkeneIdentificatie({
+          identificatie: betrokkene.identificatie,
+          identificatieType: betrokkene.identificatieType,
+          kvkNummer: betrokkene.kvkNummer,
+          vestigingsnummer: betrokkene.identificatie,
+        });
 
         this.klantenService
           .readBedrijf(betrokkeneIdentificatie)
