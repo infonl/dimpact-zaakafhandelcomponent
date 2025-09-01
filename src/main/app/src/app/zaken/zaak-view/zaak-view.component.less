@@ -37,9 +37,8 @@ mat-slide-toggle {
 }
 
 .flex-item {
-  flex: 0 1 calc(33% - 5px);
-  box-sizing: border-box;
-  max-width: 300px;
+  flex: 1 0 auto;
+  min-width: 150px;
 }
 
 .flex-double-item {
@@ -58,16 +57,24 @@ mat-slide-toggle {
   margin-top: 10px;
 }
 
-.editable {
-  position: relative;
-  margin-top: 10px;
+.zaak-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+}
 
-  & button {
-    position: absolute;
-    right: 0;
-    top: -8px;
-    margin-right: 0;
-  }
+.zaak-grid button {
+  grid-column: 4;
+  align-self: start;
+}
+
+.zaak-grid .full-width {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+}
+
+.grid-placeholder {
+  visibility: hidden;
 }
 
 .remark {
