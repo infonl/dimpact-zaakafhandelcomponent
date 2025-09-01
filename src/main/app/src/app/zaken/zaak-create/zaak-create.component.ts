@@ -22,8 +22,8 @@ import {
   BSN_LENGTH,
   VESTIGINGSNUMMER_LENGTH,
 } from "../../shared/utils/constants";
-import { ZakenService } from "../zaken.service";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
+import { ZakenService } from "../zaken.service";
 
 @Component({
   selector: "zac-zaak-create",
