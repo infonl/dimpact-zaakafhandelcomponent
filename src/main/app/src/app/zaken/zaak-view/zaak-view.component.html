@@ -213,47 +213,71 @@
                 <mat-icon>topic</mat-icon>
                 {{ "gegevens.algemeen" | translate }}</ng-template
               >
-              <div class="content">
-                <div class="flex flex-row flex-wrap justify-start gap-10">
+              <div class="content grid">
+                <div class="zaak-grid">
                   <zac-static-text
-                    label="status"
+                    class="grid-text"
+                    [label]="'status' | translate"
                     [value]="zaak.status | empty: 'naam'"
-                    class="flex-item"
-                  />
+                  >
+                  </zac-static-text>
                   <zac-static-text
-                    label="registratiedatum"
+                    class="grid-text"
+                    [label]="'registratiedatum' | translate"
                     [value]="zaak.registratiedatum | datum"
-                    class="flex-item"
-                  />
+                  >
+                  </zac-static-text>
                   <zac-static-text
-                    label="resultaat"
+                    class="grid-text"
+                    [label]="'resultaat' | translate"
                     [value]="zaak.resultaat?.resultaattype | empty: 'naam'"
-                    class="flex-item"
-                  />
+                  >
+                  </zac-static-text>
+                  <div class="grid-placeholder"></div>
                   <zac-static-text
                     *ngIf="zaak.einddatum"
-                    label="einddatum"
+                    [label]="'einddatum' | translate"
                     [value]="zaak.einddatum | datum"
-                    class="flex-item"
-                  />
+                  >
+                  </zac-static-text>
                   <zac-static-text
                     *ngIf="zaak.archiefNominatie === 'VERNIETIGEN'"
-                    [label]="'archiefNominatie.datum.' + zaak.archiefNominatie"
-                    [value]="zaak.archiefActiedatum | datum"
-                    class="flex-item"
-                  />
+                    [label]="
+                      'archiefNominatie.datum.' + zaak.archiefNominatie
+                        | translate
+                    "
+                    [value]="zaak.archiefActiedatum | datum | empty"
+                  >
+                  </zac-static-text>
                   <zac-static-text
                     *ngIf="zaak.archiefNominatie === 'BLIJVEND_BEWAREN'"
-                    label="archiefNominatie"
+                    [label]="'archiefNominatie' | translate"
                     [value]="
                       'archiefNominatie.' + zaak.archiefNominatie | translate
                     "
-                    class="flex-item"
-                  />
-                </div>
-                <mat-divider class="mat-divider-wrapper"></mat-divider>
-
-                <div class="flex flex-row justify-start gap-10 editable">
+                  >
+                  </zac-static-text>
+                  <mat-divider
+                    class="mat-divider-wrapper full-width"
+                  ></mat-divider>
+                  <zac-static-text
+                    class="grid-text"
+                    [label]="'groep' | translate"
+                    [value]="zaak.groep?.naam | empty"
+                  >
+                  </zac-static-text>
+                  <zac-static-text
+                    class="grid-text"
+                    [label]="'behandelaar' | translate"
+                    [value]="zaak.behandelaar?.naam | empty"
+                  >
+                  </zac-static-text>
+                  <zac-static-text
+                    class="grid-text"
+                    [label]="'communicatiekanaal' | translate"
+                    [value]="zaak.communicatiekanaal | empty"
+                  >
+                  </zac-static-text>
                   <button
                     *ngIf="zaak.rechten.wijzigen || zaak.rechten.toekennen"
                     mat-icon-button
@@ -262,97 +286,79 @@
                   >
                     <mat-icon>edit</mat-icon>
                   </button>
-
                   <zac-static-text
-                    label="groep"
-                    [value]="zaak.groep?.naam | empty"
-                    class="flex-item"
-                  />
-                  <zac-static-text
-                    label="behandelaar"
-                    [value]="zaak.behandelaar?.naam | empty"
-                    class="flex-item"
-                  />
-                  <zac-static-text
-                    label="communicatiekanaal"
-                    [value]="zaak.communicatiekanaal | empty"
-                    class="flex-item"
-                  />
-                </div>
-                <div class="flex flex-row justify-start gap-10">
-                  <zac-static-text
-                    label="startdatum"
+                    class="grid-text"
+                    [label]="'startdatum' | translate"
                     [value]="zaak.startdatum | datum | empty"
-                    class="flex-item"
-                  />
+                  >
+                  </zac-static-text>
                   <zac-static-text
-                    label="streefdatum"
-                    [value]="zaak.einddatumGepland | datum"
+                    class="grid-text"
+                    [label]="'streefdatum' | translate"
+                    [value]="zaak.einddatumGepland | datum | empty"
                     [icon]="dateFieldIconMap.get('einddatumGepland')"
-                    class="flex-item"
                   >
                     <mat-icon>label-icon</mat-icon>
                   </zac-static-text>
                   <zac-static-text
-                    label="fataledatum"
-                    [value]="zaak.uiterlijkeEinddatumAfdoening | datum"
+                    class="grid-text"
+                    [label]="'fataledatum' | translate"
+                    [value]="zaak.uiterlijkeEinddatumAfdoening | datum | empty"
                     [icon]="
                       dateFieldIconMap.get('uiterlijkeEinddatumAfdoening')
                     "
-                    class="flex-item"
-                  />
-                </div>
-                <div
-                  *ngIf="zaak.duurVerlenging || zaakOpschorting?.duurDagen"
-                  class="flex flex-row justify-start gap-10 remark"
-                >
-                  <div class="flex-col gap-5">
-                    <div
-                      class="flex-row items-center gap-5"
-                      *ngIf="zaakOpschorting?.duurDagen"
-                    >
-                      <mat-icon>pause</mat-icon>
-                      {{
-                        (zaakOpschorting?.duurDagen === 1
-                          ? "duurDagenOpschorting.enkelvoud"
-                          : "duurDagenOpschorting"
+                  >
+                  </zac-static-text>
+                  <div
+                    *ngIf="zaak.duurVerlenging || zaakOpschorting?.duurDagen"
+                    class="full-width remark"
+                  >
+                    <div class="flex-col gap-5">
+                      <div
+                        class="flex-row items-center gap-5"
+                        *ngIf="zaakOpschorting?.duurDagen"
+                      >
+                        <mat-icon>pause</mat-icon>
+                        {{
+                          (zaakOpschorting?.duurDagen === 1
+                            ? "duurDagenOpschorting.enkelvoud"
+                            : "duurDagenOpschorting"
                           ) | translate: { duur: zaakOpschorting?.duurDagen }
-                          }}
-                        </div>
-                        <div
-                          class="flex-row items-center gap-5"
-                          *ngIf="zaak.duurVerlenging"
-                        >
-                          <mat-icon>update</mat-icon>
-                          {{
+                        }}
+                      </div>
+                      <div
+                        class="flex-row items-center gap-5"
+                        *ngIf="zaak.duurVerlenging"
+                      >
+                        <mat-icon>update</mat-icon>
+                        {{
                           "duurVerlenging"
-                          | translate: { duur: zaak.duurVerlenging }
-                      }}
+                            | translate: { duur: zaak.duurVerlenging }
+                        }}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div class="flex flex-row justify-start gap-10">
                   <zac-static-text
-                    label="vertrouwelijkheidaanduiding"
+                    class="full-width"
+                    [label]="'vertrouwelijkheidaanduiding' | translate"
                     [value]="
                       zaak.vertrouwelijkheidaanduiding
                         | vertrouwelijkaanduidingToTranslationKey
                         | translate
                         | empty
                     "
-                    class="flex-item"
-                  />
-                </div>
-
-                <div class="flex flex-col gap-10">
+                  >
+                  </zac-static-text>
                   <zac-static-text
-                    label="omschrijving"
-                    [value]="zaak.omschrijving"
-                  />
+                    class="full-width"
+                    [label]="'omschrijving' | translate"
+                    [value]="zaak.omschrijving | empty"
+                  ></zac-static-text>
                   <zac-static-text
-                    label="toelichting"
-                    [value]="zaak.toelichting"
-                  />
+                    class="full-width"
+                    [label]="'toelichting' | translate"
+                    [value]="zaak.toelichting | empty"
+                  ></zac-static-text>
                 </div>
               </div>
             </mat-tab>
@@ -362,21 +368,22 @@
                 {{ "locatie" | translate }}</ng-template
               >
               <div class="table-wrapper">
-                <div class="flex flex-col gap-10 editable">
-                  <button
-                    *ngIf="zaak.rechten.wijzigenLocatie"
-                    mat-icon-button
-                    mat-small-icon-button
-                    (click)="editLocationDetails()"
-                  >
-                    <mat-icon>edit</mat-icon>
-                  </button>
-
-                  <zac-static-text
-                    label="coordinates"
-                    [value]="zaak.zaakgeometrie | location"
-                    class="flex-item"
-                  />
+                <div class="flex flex-col gap-10 mt-2 editable">
+                  <div class="flex flex-row items-center space-between">
+                    <zac-static-text
+                      label="coordinates"
+                      [value]="zaak.zaakgeometrie | location"
+                      class="flex-item"
+                    />
+                    <button
+                      *ngIf="zaak.rechten.wijzigenLocatie"
+                      mat-icon-button
+                      mat-small-icon-button
+                      (click)="editLocationDetails()"
+                    >
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  </div>
                   <zac-locatie-tonen
                     [currentLocation]="zaak.zaakgeometrie"
                   ></zac-locatie-tonen>
