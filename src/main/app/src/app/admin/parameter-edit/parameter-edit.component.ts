@@ -300,20 +300,7 @@ export class ParameterEditComponent
   }
 
   async createForm() {
-    this.algemeenFormGroup.setValue(
-      {
-        caseDefinition: this.parameters.caseDefinition ?? null,
-        domein: this.parameters.domein ?? null,
-        defaultGroep: null,
-        defaultBehandelaar: null,
-        einddatumGeplandWaarschuwing:
-          this.parameters.einddatumGeplandWaarschuwing ?? null,
-        uiterlijkeEinddatumAfdoeningWaarschuwing:
-          this.parameters.uiterlijkeEinddatumAfdoeningWaarschuwing ?? null,
-        productaanvraagtype: this.parameters.productaanvraagtype ?? null,
-      },
-      { emitEvent: true },
-    );
+    this.algemeenFormGroup.patchValue(this.parameters, { emitEvent: true });
 
     const { defaultGroepId, defaultBehandelaarId } = this.parameters;
 
@@ -542,21 +529,19 @@ export class ParameterEditComponent
         this.automatischeOntvangstbevestigingFormGroup.updateValueAndValidity();
       });
 
-    this.automatischeOntvangstbevestigingFormGroup.setValue({
-      templateName:
-        this.getBeschikbareMailtemplates("TAAK_ONTVANGSTBEVESTIGING").find(
-          (template) =>
-            template.mailTemplateNaam ===
-            automaticEmailConfirmation.templateName,
-        ) ?? null,
-      emailSender:
-        this.replyTos.find(
-          (replyTo) => replyTo.mail === automaticEmailConfirmation.emailSender,
-        ) ?? null,
-      emailReply:
-        this.replyTos.find(
-          (replyTo) => replyTo.mail === automaticEmailConfirmation.emailReply,
-        ) ?? null,
+    this.automatischeOntvangstbevestigingFormGroup.patchValue({
+      templateName: this.getBeschikbareMailtemplates(
+        "TAAK_ONTVANGSTBEVESTIGING",
+      ).find(
+        ({ mailTemplateNaam }) =>
+          mailTemplateNaam === automaticEmailConfirmation.templateName,
+      ),
+      emailSender: this.replyTos.find(
+        ({ mail }) => mail === automaticEmailConfirmation.emailSender,
+      ),
+      emailReply: this.replyTos.find(
+        ({ mail }) => mail === automaticEmailConfirmation.emailReply,
+      ),
       enabled: automaticEmailConfirmation.enabled ?? false,
     });
   }
@@ -588,8 +573,7 @@ export class ParameterEditComponent
     zaakafhandelParameters: GeneratedType<"RestZaakafhandelParameters">,
   ) {
     const parameter: GeneratedType<"RESTZaakbeeindigParameter"> = {
-      resultaattype:
-        zaakafhandelParameters.zaakNietOntvankelijkResultaattype ?? undefined,
+      resultaattype: zaakafhandelParameters.zaakNietOntvankelijkResultaattype,
     };
     this.selection.select(parameter);
     return parameter;
@@ -880,9 +864,9 @@ export class ParameterEditComponent
     const { templateName, emailSender, emailReply, enabled } =
       this.automatischeOntvangstbevestigingFormGroup.value;
     this.parameters.automaticEmailConfirmation = {
-      templateName: templateName?.mailTemplateNaam ?? null,
-      emailReply: emailReply?.mail ?? null,
-      emailSender: emailSender?.mail ?? null,
+      templateName: templateName?.mailTemplateNaam,
+      emailReply: emailReply?.mail,
+      emailSender: emailSender?.mail,
       enabled: Boolean(enabled),
     };
 

@@ -2,14 +2,17 @@
   "name": "app",
   "version": "0.0.3",
   "engines": {
-    "node": "22.18.0",
+    "node": "22.19.0",
     "npm": "10.9.3"
   },
   "scripts": {
     "ng": "ng",
     "dev": "npm run generate:types:zac-openapi && ng serve --hmr --proxy-config proxy.conf.json",
     "start": "npm run generate:types:zac-openapi && ng serve --proxy-config proxy.conf.json",
-    "build": "npm run generate:types:zac-openapi && ng build --configuration=production --base-href=/",
+    "build": "npm run generate:types:zac-openapi && ng build --configuration=production --base-href=/ && npm run cache-bust",
+    "build:dev": "npm run generate:types:zac-openapi && ng build --base-href=/ && npm run cache-bust",
+    "cache-bust": "node scripts/cache-busting.js",
+    "test:cache-busting": "node scripts/test-cache-busting.js",
     "test": "ng test",
     "test:watch": "ng test --watch --verbose --silent=false",
     "test:ci": "npx jest -t",

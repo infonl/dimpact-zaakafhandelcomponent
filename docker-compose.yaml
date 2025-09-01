@@ -244,7 +244,7 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:1.7.1-static@sha256:7ec12543a94d513f0381f4619386a380cdbdae48aed7929e84d68892650e6ce3
+    image: docker.io/openpolicyagent/opa:1.8.0-static@sha256:3c350b0f3130e71000c43c859e1479d8bb9c693442e7e5180e59026b61c068a1
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
@@ -349,7 +349,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:1.7.1@sha256:e14c54bddfd680d051db44eab44d4b7ec96609a60d4359e04273b9a1457ce3c4
+    image: docker.io/openpolicyagent/opa:1.8.0@sha256:0917dda453560b65798d3c78caed0376c4db0708f1e4df5724058a5dfd412948
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -568,11 +568,12 @@ services:
     ports:
       - "54328:5432"
     volumes:
+      - ./scripts/docker-compose/imports/openarchiefbeheer-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/openarchiefbeheer-database-data:/var/lib/postgresql/data
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web:
-    image: maykinmedia/open-archiefbeheer:1.0.1@sha256:0369bd51594bee412b2564ab04060ef6d2748d1441090d85e9c9d83a0ce3f6f4
+    image: maykinmedia/open-archiefbeheer:1.1.0@sha256:64219b232f7efa49e8c3fcd134920c6e47664ca8b8416691c1371dc46a10a7a1
     platform: linux/amd64
     environment: &web_env
       - ALLOWED_HOSTS="*"
@@ -623,7 +624,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web-init:
-    image: maykinmedia/open-archiefbeheer:1.0.1@sha256:0369bd51594bee412b2564ab04060ef6d2748d1441090d85e9c9d83a0ce3f6f4
+    image: maykinmedia/open-archiefbeheer:1.1.0@sha256:64219b232f7efa49e8c3fcd134920c6e47664ca8b8416691c1371dc46a10a7a1
     platform: linux/amd64
     environment: *web_env
     command: /setup_configuration.sh
@@ -637,7 +638,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery:
-    image: maykinmedia/open-archiefbeheer:1.0.1@sha256:0369bd51594bee412b2564ab04060ef6d2748d1441090d85e9c9d83a0ce3f6f4
+    image: maykinmedia/open-archiefbeheer:1.1.0@sha256:64219b232f7efa49e8c3fcd134920c6e47664ca8b8416691c1371dc46a10a7a1
     platform: linux/amd64
     command: /celery_worker.sh
     environment: *web_env
@@ -653,7 +654,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery-beat:
-    image: maykinmedia/open-archiefbeheer:1.0.1@sha256:0369bd51594bee412b2564ab04060ef6d2748d1441090d85e9c9d83a0ce3f6f4
+    image: maykinmedia/open-archiefbeheer:1.1.0@sha256:64219b232f7efa49e8c3fcd134920c6e47664ca8b8416691c1371dc46a10a7a1
     platform: linux/amd64
     command: /celery_beat.sh
     environment: *web_env

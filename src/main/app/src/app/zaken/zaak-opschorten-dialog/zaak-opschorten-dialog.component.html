@@ -23,7 +23,7 @@
       *ngIf="data.zaak.einddatumGepland"
     ></zac-date>
     <zac-date [form]="form" key="uiterlijkeEinddatumAfdoening"></zac-date>
-    <zac-textarea [form]="form" key="reden"></zac-textarea>
+    <zac-textarea [form]="form" key="redenOpschorting"></zac-textarea>
   </mat-dialog-content>
   <mat-dialog-actions>
     <button
@@ -38,7 +38,13 @@
       </mat-icon>
       {{ "actie.zaak.opschorten" | translate }}
     </button>
-    <button autofocus mat-raised-button [disabled]="loading" (click)="close()">
+    <button
+      autofocus
+      mat-raised-button
+      [disabled]="loading"
+      (click)="close()"
+      type="button"
+    >
       {{ "actie.annuleren" | translate }}
     </button>
   </mat-dialog-actions>

@@ -36,6 +36,7 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
             lock = drcClientService.lockEnkelvoudigInformatieobject(informationObjectUUID)
         }
         entityManager.persist(enkelvoudigInformatieObjectLock)
+        entityManager.flush()
         return enkelvoudigInformatieObjectLock
     }
 
@@ -60,6 +61,7 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
         findLock(informationObjectUUID)?.let { lock ->
             drcClientService.unlockEnkelvoudigInformatieobject(informationObjectUUID, lock.lock)
             entityManager.remove(lock)
+            entityManager.flush()
         }
 
     fun hasLockedInformatieobjecten(zaak: Zaak): Boolean {
