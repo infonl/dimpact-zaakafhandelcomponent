@@ -17,6 +17,7 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
+import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_TYPE_NATUURLIJK_PERSOON
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_GEMEENTE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.OBJECTS_BASE_URI
@@ -35,6 +36,7 @@ import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAAK_ROLLEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_EMAIL_ADDRESS
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_3_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_INITIALIZATION
@@ -290,11 +292,28 @@ class NotificationsTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraag3Uuid/betrokkene",
             )
-            Then("the response should be a 200 HTTP response with an empty list") {
+            Then("the response should be a 200 HTTP response with the betrokkenen defined in the productaanvraag") {
                 response.code shouldBe HTTP_OK
                 val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
-                responseBody shouldEqualJsonIgnoringExtraneousFields "[]"
+                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                    [
+                      {
+                        "identificatie": "$TEST_PERSON_3_BSN",
+                        "identificatieType": "BSN",
+                        "roltoelichting": "Overgenomen vanuit de product aanvraag",
+                        "roltype": "Bewindvoerder",
+                        "type": "$BETROKKENE_TYPE_NATUURLIJK_PERSOON"
+                      },
+                      {
+                        "identificatie": "$TEST_PERSON_3_BSN",
+                        "identificatieType": "BSN",
+                        "roltoelichting": "Overgenomen vanuit de product aanvraag",
+                        "roltype": "Medeaanvrager",
+                        "type": "$BETROKKENE_TYPE_NATUURLIJK_PERSOON"
+                      }
+                    ]
+                """.trimIndent()
             }
         }
     }

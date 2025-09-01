@@ -4,6 +4,7 @@
  */
 package nl.info.zac.productaanvraag
 
+import io.kotest.assertions.any
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
@@ -20,6 +21,7 @@ import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.or.`object`.model.createObjectRecord
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.Rol
+import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.admin.ZaakafhandelParameterService
@@ -48,7 +50,6 @@ import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.flowable.bpmn.ZaaktypeBpmnProcessDefinitionService
-import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
@@ -1227,12 +1228,14 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
-            """
-        A productaanvraag-dimpact object registration object with no zaakafhandelparameters exist,
-        but a BPMN definition exists for the productaanvraagtype
-        """
-        ) {
+//        Given(
+//            """
+//        A productaanvraag-dimpact object registration object with an initiator betrokkene,
+//        no matching CMMN zaakafhandelparameters,
+//        but a BPMN definition for the productaanvraagtype
+//        """
+//        ) {
+        Given("xxx") {
             clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
@@ -1242,23 +1245,42 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
             val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
             val formulierBron = createBron()
-            val groepName = "test-groep"
+            val groupName = "fakeGroup"
+            val group = createGroup(
+                id = groupName,
+                name = "Fake Group",
+            )
+            val behandelaarRolType = createRolType(
+                zaakTypeUri = zaakType.url,
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+            )
+            val bsnNumber = "123456789"
             val productAanvraagORObject = createORObject(
                 record = createObjectRecord(
                     data = mapOf(
                         "bron" to formulierBron,
                         "type" to productAanvraagType,
-                        "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue"))
+                        "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue")),
+                        "betrokkenen" to listOf(
+                            mapOf(
+                                "inpBsn" to bsnNumber,
+                                "roltypeOmschrijving" to "Initiator"
+                            ),
+                        )
                     )
                 )
             )
-            val bpmnDefinition = mockk<ZaaktypeBpmnProcessDefinition>()
-            every { bpmnDefinition.zaaktypeUuid } returns zaakTypeUUID
-            every { bpmnDefinition.bpmnProcessDefinitionKey } returns "fakeBpmnProcessKey"
-            every { bpmnDefinition.groepNaam } returns groepName
+            val bpmnDefinition = createZaaktypeBpmnProcessDefinition(
+                zaaktypeUuid = zaakTypeUUID,
+                groupName = groupName,
+                bpmnProcessDefinitionKey = "fakeBpmnProcessKey"
 
+            )
             val zaakDataSlot = slot<Map<String, Any>>()
-
+            val rolTypeInitiator = createRolType(
+                zaakTypeUri = zaakType.url,
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR
+            )
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
             every {
                 zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
@@ -1269,34 +1291,54 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
             every { zgwApiService.createZaak(any()) } returns createdZaak
             every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
-            every { zrcClientService.createZaakInformatieobject(any(), any()) } returns createdZaakInformatieobject
+            every {
+                zrcClientService.createZaakInformatieobject(
+                    any(),
+                    "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                )
+            } returns createdZaakInformatieobject
             every { bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", capture(zaakDataSlot)) } just Runs
             every { configuratieService.readBronOrganisatie() } returns "123443210"
+            every { identityService.readGroup(groupName) } returns group
+            every {
+                ztcClientService.readRoltype(createdZaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            } returns behandelaarRolType
+            every { ztcClientService.findRoltypen(any(), "Initiator") } returns listOf(rolTypeInitiator)
+            every { zrcClientService.createRol(any<RolOrganisatorischeEenheid>()) } returns createRolOrganisatorischeEenheid()
+            every { zrcClientService.createRol(any<RolNatuurlijkPersoon>()) } returns mockk()
 
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                Then(
-                    """
-                    A zaak should be created and a BPMN process should be started,
-                    the productaanvraag and documents should be paired,
-                    and no CMMN process, roles or emails should be created/sent
-                    """
-                ) {
+                Then(" A zaak should be created and a BPMN process should be started") {
                     verify(exactly = 1) {
                         zgwApiService.createZaak(any())
-                        zrcClientService.createZaakobject(any())
-                        zrcClientService.createZaakInformatieobject(any(), any())
                         bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", any())
-                    }
-                    verify(exactly = 0) {
-                        cmmnService.startCase(any(), any(), any(), any())
-                        zrcClientService.createRol(any())
-                        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(any(), any(), any())
                     }
                     with(zaakDataSlot.captured) {
                         size shouldBe 1
-                        values.first() shouldBe groepName
+                        values.first() shouldBe groupName
+                    }
+                }
+                And("and the productaanvraag and documents should be paired") {
+                    verify(exactly = 1) {
+                        zrcClientService.createZaakobject(any())
+                        zrcClientService.createZaakInformatieobject(any(), any())
+                    }
+                }
+                And("the group and natuurlijk persoon role should be created for the group and initiator") {
+                    verify(exactly = 2) {
+                        zrcClientService.createRol(any())
+                    }
+                }
+                And("no CMMN process be started") {
+                    verify(exactly = 0) {
+                        cmmnService.startCase(any(), any(), any(), any())
+                    }
+                }
+                And("no email notification should be sent") {
+                    verify(exactly = 0) {
+                        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(any(), any(), any())
                     }
                 }
             }

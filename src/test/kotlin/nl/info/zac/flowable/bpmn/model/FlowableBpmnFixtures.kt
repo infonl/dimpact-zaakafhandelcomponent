@@ -11,11 +11,13 @@ fun createZaaktypeBpmnProcessDefinition(
     zaaktypeUuid: UUID = UUID.randomUUID(),
     bpmnProcessDefinitionKey: String = "bpmnProcessDefinitionKey",
     zaaktypeOmschrijving: String = "zaaktypeOmschrijving",
-    productaanvraagtype: String = "fakeProductaanvraagtype"
+    productaanvraagtype: String = "fakeProductaanvraagtype",
+    groupName: String = "fakeGroupNaam",
 ) = ZaaktypeBpmnProcessDefinition().apply {
     this.id = id
     this.zaaktypeUuid = zaaktypeUuid
     this.bpmnProcessDefinitionKey = bpmnProcessDefinitionKey
     this.zaaktypeOmschrijving = zaaktypeOmschrijving
     this.productaanvraagtype = productaanvraagtype
+    this.groepNaam = groupName
 }
