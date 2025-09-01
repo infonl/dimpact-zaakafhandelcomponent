@@ -27,6 +27,11 @@ import java.util.UUID
 )
 @AllOpen
 class ZaaktypeBpmnProcessDefinition {
+    companion object {
+        const val PRODUCTAANVRAAGTTYPE_VARIABELE_NAME = "productaanvraagtype"
+        const val ZAAKTYPE_UUID_VARIABLE_NAME = "zaaktypeUuid"
+    }
+
     @Id
     @GeneratedValue(generator = "sq_zaaktype_bpmn_process_definition", strategy = GenerationType.SEQUENCE)
     var id: Long = 0
