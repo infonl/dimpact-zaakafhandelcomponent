@@ -151,8 +151,14 @@ export class ZaakCreateComponent implements OnDestroy {
       .createZaak({
         zaak: {
           ...zaak,
-          initiatorIdentificatie: initiator?.identificatie,
+          initiatorIdentificatie:
+            initiator.identificatieType === "RSIN"
+              ? // @ts-ignore
+                initiator?.kvkNummer
+              : initiator?.identificatie,
           initiatorIdentificatieType: initiator?.identificatieType,
+          // @ts-ignore
+          kvkNummer: initiator?.kvkNummer,
           vertrouwelijkheidaanduiding: vertrouwelijkheidaanduiding?.value,
         } as unknown as GeneratedType<"RESTZaakAanmaakGegevens">["zaak"],
         bagObjecten: bagObjecten,
