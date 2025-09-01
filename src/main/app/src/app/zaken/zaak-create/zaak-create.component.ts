@@ -153,11 +153,11 @@ export class ZaakCreateComponent implements OnDestroy {
           ...zaak,
           initiatorIdentificatie:
             initiator.identificatieType === "RSIN"
-              ? // @ts-ignore
+              ? // @ts-expect-error Because of union the Type does not have a kvkNummer field
                 initiator?.kvkNummer
               : initiator?.identificatie,
           initiatorIdentificatieType: initiator?.identificatieType,
-          // @ts-ignore
+          // @ts-expect-error Because of union the Type does not have a kvkNummer field
           kvkNummer: initiator?.kvkNummer,
           vertrouwelijkheidaanduiding: vertrouwelijkheidaanduiding?.value,
         } as unknown as GeneratedType<"RESTZaakAanmaakGegevens">["zaak"],
