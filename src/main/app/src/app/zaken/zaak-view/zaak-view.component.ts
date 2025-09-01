@@ -1403,14 +1403,11 @@ export class ZaakViewComponent
 
         this.klantenService
           .readBedrijf(betrokkeneIdentificatie)
-          .subscribe((bedrijf) => {
+          .subscribe((bedrijf: GeneratedType<"RestBedrijf">) => {
             if (!bedrijf) return;
 
-            // @ts-expect-error @todo (waiting for new PR to resolve this)
             betrokkene["gegevens"] = bedrijf.naam;
-            // @ts-expect-error @todo (waiting for new PR to resolve this)
             if (bedrijf.adres) {
-              // @ts-expect-error @todo (waiting for new PR to resolve this)
               betrokkene["gegevens"] += `,\n${bedrijf.adres}`;
             }
           });

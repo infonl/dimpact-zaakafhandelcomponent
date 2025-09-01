@@ -23,6 +23,7 @@ import {
   VESTIGINGSNUMMER_LENGTH,
 } from "../../shared/utils/constants";
 import { ZakenService } from "../zaken.service";
+import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 
 @Component({
   selector: "zac-zaak-create",
@@ -219,16 +220,21 @@ export class ZaakCreateComponent implements OnDestroy {
 
     const { initiatorID } = productRequest;
     switch (initiatorID.length) {
-      case BSN_LENGTH:
+      case BSN_LENGTH: {
         observable = this.klantenService.readPersoon(initiatorID, {
           context: "ZAAK_AANMAKEN",
           action: "find user",
         });
         break;
-      case VESTIGINGSNUMMER_LENGTH:
-        // @ts-expect-error @TODO
-        observable = this.klantenService.readBedrijf(initiatorID, null);
+      }
+      case VESTIGINGSNUMMER_LENGTH: {
+        const initiatorIdentificatie = new BetrokkeneIdentificatie({
+          identificatie: initiatorID,
+          identificatieType: "VN",
+        });
+        observable = this.klantenService.readBedrijf(initiatorIdentificatie);
         break;
+      }
     }
 
     observable?.subscribe((result) => {
