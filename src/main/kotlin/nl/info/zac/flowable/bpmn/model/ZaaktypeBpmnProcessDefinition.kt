@@ -51,11 +51,9 @@ class ZaaktypeBpmnProcessDefinition {
     var productaanvraagtype: String? = null
 
     /**
-     * Optional name of the group to assign when starting a BPMN process via the Dimpact productaanvraag flow.
-     * When a BPMN process is started from the UI, the user selects the group; but when it is started from
-     * [nl.info.zac.notification.NotificationReceiver], there is no selection, so this value is used.
-     * If null, the productaanvraag flow fails to create a BPMN process.
+     * Name of the user group that will be assigned by default to BPMN zaken started for this zaaktype.
+     * Note that the group name acts as the unique group ID. Both terms are used interchangeably.
      */
-    @Column(name = "naam_groep")
-    var groepNaam: String? = null
+    @Column(name = "naam_groep", nullable = false)
+    lateinit var groepNaam: String
 }

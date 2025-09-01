@@ -22,10 +22,10 @@ class ZaaktypeBpmnProcessDefinitionRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given("No existing zaaktype to BPMN process definition mappings") {
+    Given("No existing zaaktype - BPMN process definition mapping") {
         When("a mapping is created") {
             val response = itestHttpClient.performJSONPostRequest(
-                url = "$ZAC_API_URI/bpmn-process-definition/$BPMN_TEST_PROCESS_ID/connect",
+                url = "$ZAC_API_URI/zaaktype-bpmn-process-definition/$BPMN_TEST_PROCESS_ID",
                 requestBodyAsString = """{ 
                   "zaaktypeUuid": "$ZAAKTYPE_BPMN_TEST_UUID",
                   "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
