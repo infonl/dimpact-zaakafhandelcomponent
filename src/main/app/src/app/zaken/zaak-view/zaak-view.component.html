@@ -231,18 +231,21 @@
                     class="flex-item"
                   />
                   <zac-static-text
+                    class="grid-text"
                     *ngIf="zaak.einddatum"
                     label="einddatum"
                     [value]="zaak.einddatum | datum"
                     class="flex-item"
                   />
                   <zac-static-text
+                    class="grid-text"
                     *ngIf="zaak.archiefNominatie === 'VERNIETIGEN'"
                     [label]="'archiefNominatie.datum.' + zaak.archiefNominatie"
                     [value]="zaak.archiefActiedatum | datum"
                     class="flex-item"
                   />
                   <zac-static-text
+                    class="grid-text"
                     *ngIf="zaak.archiefNominatie === 'BLIJVEND_BEWAREN'"
                     label="archiefNominatie"
                     [value]="

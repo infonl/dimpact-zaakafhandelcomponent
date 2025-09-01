@@ -71,12 +71,31 @@ mat-slide-toggle {
   min-width: 0;
 }
 
-.padding-r {
-  padding-right: 55px;
+.zaak-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+}
+
+.zaak-grid .text {
+  grid-column: span 1;
+}
+
+.zaak-grid button {
+  grid-column: 4;
+  align-self: start;
+}
+
+.zaak-grid .full-width {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+}
+
+.grid-placeholder {
+  visibility: hidden;
 }
 
 .editable {
-  position: relative;
   display: block;
   top: -8px;
   right: 0;
