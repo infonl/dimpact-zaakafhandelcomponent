@@ -6,6 +6,7 @@ package nl.info.zac.flowable.bpmn.model
 
 import java.util.UUID
 
+@Suppress("LongParameterList")
 fun createZaaktypeBpmnProcessDefinition(
     id: Long = 1234L,
     zaaktypeUuid: UUID = UUID.randomUUID(),
