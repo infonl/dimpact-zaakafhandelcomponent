@@ -143,25 +143,26 @@ export class ZaakCreateComponent implements OnDestroy {
     this.handleProductRequest(this.inboxProductaanvraag);
   }
 
-  formSubmit(form: typeof this.form): void {
-    const { bagObjecten, initiator, vertrouwelijkheidaanduiding, ...zaak } =
-      form.value;
+  formSubmit(): void {
+    const { value } = this.form;
 
     this.zakenService
       .createZaak({
         zaak: {
-          ...zaak,
-          initiatorIdentificatie:
-            initiator.identificatieType === "RSIN"
-              ? // @ts-expect-error Because of union the Type does not have a kvkNummer field
-                initiator?.kvkNummer
-              : initiator?.identificatie,
-          initiatorIdentificatieType: initiator?.identificatieType,
-          // @ts-expect-error Because of union the Type does not have a kvkNummer field
-          kvkNummer: initiator?.kvkNummer,
-          vertrouwelijkheidaanduiding: vertrouwelijkheidaanduiding?.value,
-        } as unknown as GeneratedType<"RESTZaakAanmaakGegevens">["zaak"],
-        bagObjecten: bagObjecten,
+          ...value,
+          initiatorIdentificatie: 'kvkNummer' in value.initiator ? value.initiator?.kvkNummer : value.initiator?.identificatie,
+          initiatorIdentificatieType: value.initiator?.identificatieType,
+          kvkNummer: 'kvkNummer' in value.initiator ? value.initiator.kvkNummer : null,
+          vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
+          rechten: [] as GeneratedType<"RestZaakRechten">,
+          identificatie: '',
+          uuid: '',
+          startdatum: value.startdatum?.toISOString(),
+          indicaties: [],
+          omschrijving: value.omschrijving?.trim() ?? "",
+          zaaktype: value.zaaktype!,
+        },
+        bagObjecten: value.bagObjecten,
         inboxProductaanvraag: this.inboxProductaanvraag,
       })
       .pipe(
