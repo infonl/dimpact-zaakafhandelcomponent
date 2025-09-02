@@ -606,7 +606,7 @@ class ProductaanvraagService @Inject constructor(
         )
         // note: BPMN zaaktypes do not yet support a default employee to be assigned to the zaak, as is the case for CMMN
         pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
-        addInitiatorAndBetrokkenenToZaak(productaanvraag = productaanvraagDimpact, zaak = zaak)
+        // note: BPMN zaaktypes do not yet support adding an initiator nor other betrokkenen to the zaak, as is the case for CMMN
         // note: BPMN zaaktypes do not yet support automatic email notifications, as is the case for CMMN
     }
 

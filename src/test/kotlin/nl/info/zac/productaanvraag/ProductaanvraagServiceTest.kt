@@ -21,7 +21,6 @@ import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.or.`object`.model.createObjectRecord
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.admin.ZaakafhandelParameterService
@@ -1302,9 +1301,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every {
                 ztcClientService.readRoltype(createdZaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
             } returns behandelaarRolType
-            every { ztcClientService.findRoltypen(any(), "Initiator") } returns listOf(rolTypeInitiator)
             every { zrcClientService.createRol(any<RolOrganisatorischeEenheid>()) } returns createRolOrganisatorischeEenheid()
-            every { zrcClientService.createRol(any<RolNatuurlijkPersoon>()) } returns mockk()
 
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
@@ -1325,8 +1322,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         zrcClientService.createZaakInformatieobject(any(), any())
                     }
                 }
-                And("the group and natuurlijk persoon role should be created for the group and initiator") {
-                    verify(exactly = 2) {
+                And("the group role should be created for the assigned group") {
+                    verify(exactly = 1) {
                         zrcClientService.createRol(any())
                     }
                 }
