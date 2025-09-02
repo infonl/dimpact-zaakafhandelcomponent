@@ -21,7 +21,6 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 import java.util.EnumSet
-import java.util.UUID
 
 @NoArgConstructor
 @AllOpen
@@ -100,7 +99,6 @@ data class RestZaakCreateData(
     var toelichting: String?,
 
     var uiterlijkeEinddatumAfdoening: LocalDate?,
-    var uuid: UUID?,
     var verantwoordelijkeOrganisatie: String?,
     var vertrouwelijkheidaanduiding: String?,
     var zaakdata: Map<String, Any>?,
@@ -114,7 +112,7 @@ fun RestZaakCreateData.toZaak(
     verantwoordelijkeOrganisatie: String
 ) = Zaak(
     null,
-    this.uuid,
+    null,
     this.einddatum,
     null,
     null,

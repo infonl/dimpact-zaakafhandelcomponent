@@ -83,8 +83,8 @@ export class ZaakCreateComponent implements OnDestroy {
     private readonly translateService: TranslateService,
     private readonly utilService: UtilService,
     private readonly formBuilder: FormBuilder,
-    private identityService: IdentityService,
-    protected readonly navigationService: NavigationService,
+    private readonly identityService: IdentityService,
+    private readonly navigationService: NavigationService,
   ) {
     utilService.setTitle("title.zaak.aanmaken");
     this.inboxProductaanvraag =
@@ -146,22 +146,22 @@ export class ZaakCreateComponent implements OnDestroy {
   formSubmit(): void {
     const { value } = this.form;
 
-    console.log("value", value);
-
     this.zakenService
       .createZaak({
         zaak: {
           ...value,
-          initiatorIdentificatie: value.initiator && 'kvkNummer' in value.initiator ? value.initiator?.kvkNummer : value.initiator?.identificatie,
+          initiatorIdentificatie:
+            value.initiator && "kvkNummer" in value.initiator
+              ? value.initiator?.kvkNummer
+              : value.initiator?.identificatie,
           initiatorIdentificatieType: value.initiator?.identificatieType,
-          kvkNummer: value.initiator && 'kvkNummer' in value.initiator ? value.initiator.kvkNummer : null,
+          kvkNummer:
+            value.initiator && "kvkNummer" in value.initiator
+              ? value.initiator.kvkNummer
+              : null,
           vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
-          rechten: [] as GeneratedType<"RestZaakRechten">,
-          identificatie: "",
-          uuid: "",
           startdatum: value.startdatum?.toISOString(),
-          indicaties: [],
-          omschrijving: value.omschrijving ?? "",
+          omschrijving: value.omschrijving!,
           zaaktype: value.zaaktype!,
         },
         bagObjecten: value.bagObjecten,
@@ -226,22 +226,27 @@ export class ZaakCreateComponent implements OnDestroy {
     const { initiatorID } = productRequest;
     switch (initiatorID.length) {
       case BSN_LENGTH: {
-        this.klantenService.readPersoon(initiatorID, {
-          context: "ZAAK_AANMAKEN",
-          action: "find user",
-        }).subscribe((result) => {
-          this.form.controls.initiator.setValue(result)
-        })
+        this.klantenService
+          .readPersoon(initiatorID, {
+            context: "ZAAK_AANMAKEN",
+            action: "find user",
+          })
+          .subscribe((result) => {
+            this.form.controls.initiator.setValue(result);
+          });
         break;
       }
       case VESTIGINGSNUMMER_LENGTH: {
-        const initiatorIdentificatie = new BetrokkeneIdentificatie({
-          identificatie: initiatorID,
-          identificatieType: "VN",
-        });
-        this.klantenService.readBedrijf(initiatorIdentificatie).subscribe((result) => {
-          this.form.controls.initiator.setValue(result)
-        })
+        this.klantenService
+          .readBedrijf(
+            new BetrokkeneIdentificatie({
+              identificatie: initiatorID,
+              identificatieType: "VN",
+            }),
+          )
+          .subscribe((result) => {
+            this.form.controls.initiator.setValue(result);
+          });
         break;
       }
     }
@@ -293,6 +298,10 @@ export class ZaakCreateComponent implements OnDestroy {
 
   clearBagObjecten() {
     this.form.controls.bagObjecten.setValue([]);
+  }
+
+  protected back() {
+    this.navigationService.back();
   }
 
   ngOnDestroy() {

@@ -8,17 +8,27 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 export class BetrokkeneIdentificatie
   implements GeneratedType<"BetrokkeneIdentificatie">
 {
-  public readonly bsnNummer?: string | null = null;
+  public readonly bsn?: string | null = null;
   public readonly kvkNummer?: string | null = null;
   public readonly vestigingsnummer?: string | null = null;
+  /**
+   * @deprecated - use `kvkNummer` or `rsin` instead
+   *
+   * This should only be used for backwards compatibility and fetching data from the API.
+   */
+  public readonly rsin?: string | null = null;
   public readonly type: GeneratedType<"IdentificatieType">;
 
-  constructor(betrokkene: GeneratedType<"RestPersoon" | "RestBedrijf">) {
-    this.type = betrokkene.identificatieType!;
-    switch (betrokkene.identificatieType) {
+  constructor(
+    betrokkene: GeneratedType<
+      "RestPersoon" | "RestBedrijf" | "RestVestigingsprofiel"
+    >,
+  ) {
+    this.type = this.getType(betrokkene);
+    switch (this.type) {
       case "BSN":
         if ("bsn" in betrokkene) {
-          this.bsnNummer = betrokkene.bsn;
+          this.bsn = betrokkene.bsn;
         } else {
           throw new Error(
             `${BetrokkeneIdentificatie.name}: Tried to add a betrokkene without a BSN number`,
@@ -31,23 +41,36 @@ export class BetrokkeneIdentificatie
           this.vestigingsnummer = betrokkene.vestigingsnummer;
         } else {
           throw new Error(
-            `${BetrokkeneIdentificatie.name}: Tried to add a betrokkene without a KVK or vestigings number`,
+            `${BetrokkeneIdentificatie.name}: Tried to add a betrokkene without a kvkNummer or vestigingsnummer`,
           );
         }
         break;
       case "RSIN":
-        if ("rsin" in betrokkene) {
+        if ("kvkNummer" in betrokkene || "rsin" in betrokkene) {
           this.kvkNummer = betrokkene.kvkNummer;
+          this.rsin = betrokkene.rsin;
         } else {
           throw new Error(
-            `${BetrokkeneIdentificatie.name}: Tried to add a betrokkene without a KVK number`,
+            `${BetrokkeneIdentificatie.name}: Tried to add a betrokkene without a kvkNummer or rsin`,
           );
         }
         break;
       default:
         throw new Error(
-          `${BetrokkeneIdentificatie.name}: Unsupported identificatie type ${betrokkene.identificatieType}`,
+          `${BetrokkeneIdentificatie.name}: Unsupported identificatie type ${this.type}`,
         );
     }
+  }
+
+  private getType(
+    betrokkene: GeneratedType<
+      "RestPersoon" | "RestBedrijf" | "RestVestigingsprofiel"
+    >,
+  ) {
+    if ("identificatieType" in betrokkene) {
+      return betrokkene.identificatieType!;
+    }
+
+    return "RSIN";
   }
 }

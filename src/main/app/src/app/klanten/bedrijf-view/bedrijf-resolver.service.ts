@@ -9,60 +9,48 @@ import {
   KVK_LENGTH,
   VESTIGINGSNUMMER_LENGTH,
 } from "src/app/shared/utils/constants";
-import { GeneratedType } from "src/app/shared/utils/generated-types";
+import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { KlantenService } from "../klanten.service";
 
 @Injectable({
   providedIn: "root",
 })
 export class BedrijfResolverService {
-  private initiatorIdentificatie: GeneratedType<"BetrokkeneIdentificatie"> | null =
-    null;
-
   constructor(private klantenService: KlantenService) {}
 
   resolve(route: ActivatedRouteSnapshot) {
-    const id = route.paramMap.get("vesOrRSIN");
+    const id = route.paramMap.get("id");
 
     if (!id) {
-      throw new Error(
-        `${BedrijfResolverService.name}: no 'vesOrRSIN' found in route`,
-      );
+      throw new Error(`${BedrijfResolverService.name}: no 'id' found in route`);
     }
 
-    const baseIdentificatie = {
-      kvkNummer: null,
-      vestigingsnummer: null,
-      rsin: null,
-      bsnNummer: null,
-    };
+    const identificatieType = this.getType(id);
+    return this.klantenService.readBedrijf(
+      new BetrokkeneIdentificatie({
+        identificatieType,
+        vestigingsnummer: identificatieType === "VN" ? id : null,
+        kvkNummer:
+          identificatieType === "RSIN" &&
+          identificatieType.length === KVK_LENGTH
+            ? id
+            : null,
+        rsin:
+          identificatieType === "RSIN" &&
+          identificatieType.length !== KVK_LENGTH
+            ? id
+            : null,
+      }),
+    );
+  }
 
+  private getType(id: string) {
     switch (id.length) {
       case VESTIGINGSNUMMER_LENGTH:
-        this.initiatorIdentificatie = {
-          ...baseIdentificatie,
-          type: "VN",
-          vestigingsnummer: id,
-        };
-        break;
-
+        return "VN";
       case KVK_LENGTH:
-        this.initiatorIdentificatie = {
-          ...baseIdentificatie,
-          type: "RSIN",
-          kvkNummer: route.paramMap.get("kvk"),
-        };
-        break;
-
       default:
-        this.initiatorIdentificatie = {
-          ...baseIdentificatie,
-          type: "RSIN",
-          rsin: route.paramMap.get("rsin"),
-        };
-        break;
+        return "RSIN";
     }
-
-    return this.klantenService.readBedrijf(this.initiatorIdentificatie);
   }
 }

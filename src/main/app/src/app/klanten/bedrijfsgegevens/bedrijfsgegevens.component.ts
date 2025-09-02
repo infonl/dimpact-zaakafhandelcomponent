@@ -12,6 +12,7 @@ import {
 } from "@angular/core";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { KlantenService } from "../klanten.service";
 
 @Component({
@@ -48,7 +49,7 @@ export class BedrijfsgegevensComponent implements OnChanges {
     if (!this.initiatorIdentificatie) return;
 
     this.klantenService
-      .readBedrijf(this.initiatorIdentificatie)
+      .readBedrijf(new BetrokkeneIdentificatie(this.initiatorIdentificatie))
       .subscribe((bedrijf) => {
         if (!bedrijf) return;
 

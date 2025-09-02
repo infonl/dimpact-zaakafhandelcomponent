@@ -4,9 +4,8 @@
  */
 
 import { Injectable } from "@angular/core";
-import { Observable, of } from "rxjs";
 import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
-import { GeneratedType } from "../shared/utils/generated-types";
+import { BetrokkeneIdentificatie } from "../zaken/model/betrokkeneIdentificatie";
 
 @Injectable({
   providedIn: "root",
@@ -24,28 +23,28 @@ export class KlantenService {
     });
   }
 
-  readBedrijf(
-    betrokkeneIdentificatie: GeneratedType<"BetrokkeneIdentificatie">,
-  ) {
+  readBedrijf(betrokkeneIdentificatie: BetrokkeneIdentificatie) {
     switch (betrokkeneIdentificatie.type) {
       case "VN":
         return this.readVestiging(
-          betrokkeneIdentificatie.kvkNummer ?? null,
-          betrokkeneIdentificatie.vestigingsnummer ?? "",
+          betrokkeneIdentificatie.vestigingsnummer,
+          betrokkeneIdentificatie.kvkNummer,
         );
       case "RSIN":
         return this.readRechtspersoon(
-          betrokkeneIdentificatie.kvkNummer ?? null,
-          betrokkeneIdentificatie.rsin ?? null,
+          betrokkeneIdentificatie.kvkNummer,
+          betrokkeneIdentificatie.rsin,
         );
       case "BSN":
       default:
-        return of(null);
+        throw new Error(
+          `${KlantenService.name}: Unsupported identificatie type ${betrokkeneIdentificatie.type}`,
+        );
     }
   }
 
   /* istanbul ignore next */
-  private readRechtspersoon(kvkNummer: string | null, rsin: string | null) {
+  private readRechtspersoon(kvkNummer?: string | null, rsin?: string | null) {
     if (kvkNummer) {
       return this.zacHttpClient.GET(
         "/rest/klanten/rechtspersoon/kvknummer/{kvkNummer}",
@@ -55,14 +54,21 @@ export class KlantenService {
       );
     }
 
+    if (!rsin) {
+      throw new Error("Rsin is required for rechtspersoon lookup.");
+    }
+
     // legacy solution
     return this.zacHttpClient.GET("/rest/klanten/rechtspersoon/rsin/{rsin}", {
-      path: { rsin: rsin ?? "" },
+      path: { rsin },
     });
   }
 
   /* istanbul ignore next */
-  private readVestiging(kvkNummer: string | null, vestigingsnummer: string) {
+  private readVestiging(
+    vestigingsnummer?: string | null,
+    kvkNummer?: string | null,
+  ) {
     if (kvkNummer && vestigingsnummer) {
       return this.zacHttpClient.GET(
         "/rest/klanten/vestiging/{vestigingsnummer}/{kvkNummer}",
@@ -70,6 +76,10 @@ export class KlantenService {
           path: { vestigingsnummer, kvkNummer },
         },
       );
+    }
+
+    if (!vestigingsnummer) {
+      throw new Error("Vestigingsnummer is required for vestiging lookup.");
     }
 
     // legacy solution

@@ -25,7 +25,7 @@ const routes: Routes = [
     path: "bedrijf",
     children: [
       {
-        path: ":vesOrRSIN",
+        path: ":id", // This can be a `vestigingsnummer`, `kvkNummer` or `rsin`
         component: BedrijfViewComponent,
         resolve: { bedrijf: BedrijfResolverService },
       },
