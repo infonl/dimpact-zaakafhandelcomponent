@@ -407,7 +407,7 @@ class ProductaanvraagService @Inject constructor(
     }
 
     private fun assignZaakToEmployee(zaak: Zaak, employeeName: String) {
-        LOG.info("Assigning zaak ${zaak.uuid}: to assignee: '$employeeName'")
+        LOG.info("Assigning zaak '${zaak.uuid}' to assignee: '$employeeName'")
         zrcClientService.createRol(creeerRolMedewerker(employeeName, zaak))
     }
 
