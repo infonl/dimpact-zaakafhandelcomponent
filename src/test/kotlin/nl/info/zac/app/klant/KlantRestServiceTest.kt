@@ -672,8 +672,7 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A KVK company without a vestigings number and without a RSIN") {
-            val restListBedrijvenParameters = createRestListBedrijvenParameters()
+        Given("A KVK company with only a KVK nummer but without a vestigingsnummer and without a RSIN") {
             val resultaatItem = createResultaatItem(
                 naam = "fakeName",
                 kvkNummer = "fakeKvkNummer",
@@ -684,9 +683,56 @@ class KlantRestServiceTest : BehaviorSpec({
             every { kvkClientService.search(any()).resultaten } returns listOf(resultaatItem)
 
             When("the listBedrijven function is called") {
-                val result = klantRestService.listBedrijven(restListBedrijvenParameters)
+                val result = klantRestService.listBedrijven(createRestListBedrijvenParameters())
 
-                Then("the result should contain no companies since the available company is not koppelbaar") {
+                Then(
+                    "the result should contain the company since the available company is koppelbaar since it has a KVK number"
+                ) {
+                    result.resultaten.size shouldBe 1
+                }
+            }
+        }
+
+        Given("A KVK company with a KVK nummer and an RSIN but without a vestigingsnummer") {
+            val resultaatItem = createResultaatItem(
+                naam = "fakeName",
+                kvkNummer = "fakeKvkNummer",
+                rsin = "fakeRsin",
+                type = "fakeType",
+                vestingsnummer = null
+            )
+            every { kvkClientService.search(any()).resultaten } returns listOf(resultaatItem)
+
+            When("the listBedrijven function is called") {
+                val result = klantRestService.listBedrijven(createRestListBedrijvenParameters())
+
+                Then(
+                    "the result should contain the company since the available company is koppelbaar since it has a KVK number"
+                ) {
+                    result.resultaten.size shouldBe 1
+                }
+            }
+        }
+
+        Given("A KVK company without a KVK nummer and without a vestigingsnummer but with an RSIN") {
+            val resultaatItem = createResultaatItem(
+                naam = "fakeName",
+                kvkNummer = null,
+                rsin = "fakeRsin",
+                type = "fakeType",
+                vestingsnummer = null
+            )
+            every { kvkClientService.search(any()).resultaten } returns listOf(resultaatItem)
+
+            When("the listBedrijven function is called") {
+                val result = klantRestService.listBedrijven(createRestListBedrijvenParameters())
+
+                Then(
+                    """
+                        the result should contain no results since the available company is not koppelbaar since it lacks a KVK number
+                         or a vestigingsnummer
+                    """.trimIndent()
+                ) {
                     result.resultaten.size shouldBe 0
                 }
             }
