@@ -24,7 +24,7 @@ class ResumeZaakDelegate : AbstractDelegate() {
 
         LOG.info(
             "Resuming zaak '${zaak.identificatie}' from activity '${execution.currentActivityName}' " +
-                    "with reason '$hervattenReden'"
+                "with reason '$hervattenReden'"
         )
 
         flowableHelper.suspensionZaakHelper.resumeZaak(

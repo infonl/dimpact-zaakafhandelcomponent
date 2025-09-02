@@ -27,7 +27,7 @@ class SuspendZaakDelegate : AbstractDelegate() {
 
         LOG.info(
             "Suspending zaak '${zaak.identificatie}' from activity '${execution.currentActivityName}' " +
-                    "for $aantalDagen days with reason '$opschortingReden'"
+                "for $aantalDagen days with reason '$opschortingReden'"
         )
 
         flowableHelper.suspensionZaakHelper.suspendZaak(
