@@ -146,15 +146,22 @@ export class ZaakCreateComponent implements OnDestroy {
   formSubmit(): void {
     const { value } = this.form;
 
+    console.log("value", value);
+
     this.zakenService
       .createZaak({
         zaak: {
           ...value,
           initiatorIdentificatie:
-            value?.initiator && "kvkNummer" in value?.initiator
-              ? value.initiator?.kvkNummer
-              : value.initiator?.identificatie,
-          initiatorIdentificatieType: value.initiator?.identificatieType,
+            value && value.initiator && "kvkNummer" in value.initiator
+              ? value.initiator.kvkNummer
+              : value && value.initiator
+                ? value.initiator.identificatie
+                : undefined,
+          initiatorIdentificatieType:
+            value && value.initiator
+              ? value.initiator.identificatieType
+              : undefined,
           kvkNummer:
             value?.initiator && "kvkNummer" in value.initiator
               ? value.initiator.kvkNummer
