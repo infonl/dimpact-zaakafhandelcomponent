@@ -38,8 +38,8 @@ data class RestZaakCreateData(
     var gerelateerdeZaken: List<RestGerelateerdeZaak>?,
     @field:Valid
     var groep: RestGroup?,
-    var identificatie: String,
-    var indicaties: EnumSet<ZaakIndicatie>,
+    var identificatie: String?,
+    var indicaties: EnumSet<ZaakIndicatie>?,
     var initiatorIdentificatie: String?,
     var kvkNummer: String?,
     var vestigingsNummer: String?,
@@ -88,7 +88,7 @@ data class RestZaakCreateData(
     var omschrijving: String,
 
     var publicatiedatum: LocalDate?,
-    var rechten: RestZaakRechten,
+    var rechten: RestZaakRechten?,
     var redenOpschorting: String?,
     var redenVerlenging: String?,
     var registratiedatum: LocalDate?,
@@ -100,7 +100,7 @@ data class RestZaakCreateData(
     var toelichting: String?,
 
     var uiterlijkeEinddatumAfdoening: LocalDate?,
-    var uuid: UUID,
+    var uuid: UUID?,
     var verantwoordelijkeOrganisatie: String?,
     var vertrouwelijkheidaanduiding: String?,
     var zaakdata: Map<String, Any>?,

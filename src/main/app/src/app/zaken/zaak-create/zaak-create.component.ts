@@ -152,27 +152,16 @@ export class ZaakCreateComponent implements OnDestroy {
       .createZaak({
         zaak: {
           ...value,
-          initiatorIdentificatie:
-            value && value.initiator && "kvkNummer" in value.initiator
-              ? value.initiator.kvkNummer
-              : value && value.initiator
-                ? value.initiator.identificatie
-                : undefined,
-          initiatorIdentificatieType:
-            value && value.initiator
-              ? value.initiator.identificatieType
-              : undefined,
-          kvkNummer:
-            value?.initiator && "kvkNummer" in value.initiator
-              ? value.initiator.kvkNummer
-              : null,
+          initiatorIdentificatie: value.initiator && 'kvkNummer' in value.initiator ? value.initiator?.kvkNummer : value.initiator?.identificatie,
+          initiatorIdentificatieType: value.initiator?.identificatieType,
+          kvkNummer: value.initiator && 'kvkNummer' in value.initiator ? value.initiator.kvkNummer : null,
           vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
           rechten: [] as GeneratedType<"RestZaakRechten">,
           identificatie: "",
           uuid: "",
           startdatum: value.startdatum?.toISOString(),
           indicaties: [],
-          omschrijving: value.omschrijving?.trim() ?? "",
+          omschrijving: value.omschrijving ?? "",
           zaaktype: value.zaaktype!,
         },
         bagObjecten: value.bagObjecten,
@@ -234,17 +223,15 @@ export class ZaakCreateComponent implements OnDestroy {
       `Vanuit productaanvraag van type ${productRequest.type}`,
     );
 
-    let observable:
-      | Observable<GeneratedType<"RestPersoon"> | GeneratedType<"RestBedrijf">>
-      | undefined = undefined;
-
     const { initiatorID } = productRequest;
     switch (initiatorID.length) {
       case BSN_LENGTH: {
-        observable = this.klantenService.readPersoon(initiatorID, {
+        this.klantenService.readPersoon(initiatorID, {
           context: "ZAAK_AANMAKEN",
           action: "find user",
-        });
+        }).subscribe((result) => {
+          this.form.controls.initiator.setValue(result)
+        })
         break;
       }
       case VESTIGINGSNUMMER_LENGTH: {
@@ -252,14 +239,12 @@ export class ZaakCreateComponent implements OnDestroy {
           identificatie: initiatorID,
           identificatieType: "VN",
         });
-        observable = this.klantenService.readBedrijf(initiatorIdentificatie);
+        this.klantenService.readBedrijf(initiatorIdentificatie).subscribe((result) => {
+          this.form.controls.initiator.setValue(result)
+        })
         break;
       }
     }
-
-    observable?.subscribe((result) => {
-      this.form.controls.initiator.setValue(result);
-    });
   }
 
   protected bagDisplayValue(bagObjects: GeneratedType<"RESTBAGObject">[]) {
