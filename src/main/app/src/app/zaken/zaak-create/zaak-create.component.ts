@@ -150,13 +150,19 @@ export class ZaakCreateComponent implements OnDestroy {
       .createZaak({
         zaak: {
           ...value,
-          initiatorIdentificatie: 'kvkNummer' in value.initiator ? value.initiator?.kvkNummer : value.initiator?.identificatie,
+          initiatorIdentificatie:
+            value?.initiator && "kvkNummer" in value?.initiator
+              ? value.initiator?.kvkNummer
+              : value.initiator?.identificatie,
           initiatorIdentificatieType: value.initiator?.identificatieType,
-          kvkNummer: 'kvkNummer' in value.initiator ? value.initiator.kvkNummer : null,
+          kvkNummer:
+            value?.initiator && "kvkNummer" in value.initiator
+              ? value.initiator.kvkNummer
+              : null,
           vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
           rechten: [] as GeneratedType<"RestZaakRechten">,
-          identificatie: '',
-          uuid: '',
+          identificatie: "",
+          uuid: "",
           startdatum: value.startdatum?.toISOString(),
           indicaties: [],
           omschrijving: value.omschrijving?.trim() ?? "",
