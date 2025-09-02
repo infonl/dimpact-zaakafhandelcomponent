@@ -1049,21 +1049,23 @@ class ZaakRestService @Inject constructor(
         zaak: Zaak,
         zaakType: ZaakType
     ) {
-        restZaak.initiatorIdentificatie?.takeIf { it.isNotEmpty() }?.let { initiatorId ->
-            restZaak.initiatorIdentificatieType?.let { initiatorType ->
-                val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
-                val identification = when (initiatorType) {
-                    IdentificatieType.VN -> createVestigingIdentificationString(restZaak.kvkNummer, initiatorId)
-                    else -> initiatorId
-                }
-                updateInitiator(
-                    identificationType = initiatorType,
-                    identification = identification,
-                    zaak = zaak,
-                    zaakRechten = zaakRechten,
-                    explanation = AANMAKEN_ZAAK_REDEN
+        restZaak.initiatorIdentificatie?.let { initiator ->
+            val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
+            val identification = when (initiator.type) {
+                IdentificatieType.VN -> createVestigingIdentificationString(
+                    initiator.kvkNummer,
+                    initiator.vestigingsnummer
                 )
+                IdentificatieType.RSIN -> initiator.rsin
+                else -> error("Unsupported identification type: ${initiator.type}")
             }
+            updateInitiator(
+                identificationType = initiator.type,
+                identification = identification!!,
+                zaak = zaak,
+                zaakRechten = zaakRechten,
+                explanation = AANMAKEN_ZAAK_REDEN
+            )
         }
     }
 
@@ -1414,15 +1416,15 @@ class ZaakRestService @Inject constructor(
     private fun speciaalMail(mail: String): SpecialMail? = if (!mail.contains("@")) SpecialMail.valueOf(mail) else null
 
     private fun assertCanAddBetrokkene(restZaak: RestZaakCreateData) {
-        restZaak.initiatorIdentificatieType?.let {
-            val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                restZaak.zaaktype.uuid
-            )
+        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
+            restZaak.zaaktype.uuid
+        )
 
-            if (it.isKvK && !zaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen) {
+        restZaak.initiatorIdentificatie?.let {
+            if (it.type.isKvK && !zaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen) {
                 throw BetrokkeneNotAllowedException()
             }
-            if (it.isBsn && !zaakafhandelParameters.betrokkeneKoppelingen.brpKoppelen) {
+            if (it.type.isBsn && !zaakafhandelParameters.betrokkeneKoppelingen.brpKoppelen) {
                 throw BetrokkeneNotAllowedException()
             }
         }

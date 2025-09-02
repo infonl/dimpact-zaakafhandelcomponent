@@ -53,8 +53,8 @@ export class ZaakCreateComponent implements OnDestroy {
       null,
       [Validators.required],
     ),
-    initiator: this.formBuilder.control<
-      GeneratedType<"RestPersoon" | "RestBedrijf"> | null | undefined
+    initiatorIdentificatie: this.formBuilder.control<
+      GeneratedType<"BetrokkeneIdentificatie"> | null | undefined
     >(null),
     startdatum: this.formBuilder.control(moment(), [Validators.required]),
     bagObjecten: this.formBuilder.control<GeneratedType<"RESTBAGObject">[]>([]),
@@ -91,7 +91,7 @@ export class ZaakCreateComponent implements OnDestroy {
       router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
     this.form.controls.groep.disable();
     this.form.controls.behandelaar.disable();
-    this.form.controls.initiator.disable();
+    this.form.controls.initiatorIdentificatie.disable();
 
     referentieTabelService
       .listCommunicatiekanalen(Boolean(this.inboxProductaanvraag))
@@ -111,12 +111,12 @@ export class ZaakCreateComponent implements OnDestroy {
         this.caseTypeSelected(caseType);
 
         if (!this.canAddInitiator()) {
-          this.form.controls.initiator.setValue(null);
-          this.form.controls.initiator.disable();
+          this.form.controls.initiatorIdentificatie.setValue(null);
+          this.form.controls.initiatorIdentificatie.disable();
           return;
         }
 
-        this.form.controls.initiator.enable();
+        this.form.controls.initiatorIdentificatie.enable();
       });
     this.form.controls.groep.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -150,15 +150,6 @@ export class ZaakCreateComponent implements OnDestroy {
       .createZaak({
         zaak: {
           ...value,
-          initiatorIdentificatie:
-            value.initiator && "kvkNummer" in value.initiator
-              ? value.initiator?.kvkNummer
-              : value.initiator?.identificatie,
-          initiatorIdentificatieType: value.initiator?.identificatieType,
-          kvkNummer:
-            value.initiator && "kvkNummer" in value.initiator
-              ? value.initiator.kvkNummer
-              : null,
           vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
           startdatum: value.startdatum?.toISOString(),
           omschrijving: value.omschrijving!,
@@ -179,7 +170,10 @@ export class ZaakCreateComponent implements OnDestroy {
   }
 
   async initiatorSelected(user: GeneratedType<"RestPersoon" | "RestBedrijf">) {
-    this.form.controls.initiator.setValue(user);
+    this.form.controls.initiatorIdentificatie.setValue({
+      ...user,
+      type: user.identificatieType!,
+    });
     await this.actionsSidenav.close();
   }
 
@@ -205,7 +199,7 @@ export class ZaakCreateComponent implements OnDestroy {
       !caseType.zaakafhandelparameters?.betrokkeneKoppelingen?.kvkKoppelen &&
       !caseType.zaakafhandelparameters?.betrokkeneKoppelingen?.brpKoppelen
     ) {
-      this.form.controls.initiator.setValue(null);
+      this.form.controls.initiatorIdentificatie.setValue(null);
     }
   }
 
@@ -232,7 +226,10 @@ export class ZaakCreateComponent implements OnDestroy {
             action: "find user",
           })
           .subscribe((result) => {
-            this.form.controls.initiator.setValue(result);
+            this.form.controls.initiatorIdentificatie.setValue({
+              ...result,
+              type: result.identificatieType!,
+            });
           });
         break;
       }
@@ -245,7 +242,10 @@ export class ZaakCreateComponent implements OnDestroy {
             }),
           )
           .subscribe((result) => {
-            this.form.controls.initiator.setValue(result);
+            this.form.controls.initiatorIdentificatie.setValue({
+              ...result,
+              type: result.identificatieType!,
+            });
           });
         break;
       }
@@ -282,11 +282,11 @@ export class ZaakCreateComponent implements OnDestroy {
   }
 
   hasInitiator(): boolean {
-    return !!this.form.controls.initiator.value;
+    return !!this.form.controls.initiatorIdentificatie.value;
   }
 
   clearInitiator() {
-    this.form.controls.initiator.setValue(null);
+    this.form.controls.initiatorIdentificatie.setValue(null);
   }
 
   hasBagObject(): boolean {
