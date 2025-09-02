@@ -1135,7 +1135,6 @@
       "auth_type": "api_key",
       "header_key": "Authorization",
       "header_value": "Token 123456",
-      "oas": "http://objecttypen-api:8000/api/v1/schema/openapi.yaml",
       "nlx": "",
       "user_id": "",
       "user_representation": ""
@@ -1154,7 +1153,6 @@
       "auth_type": "zgw",
       "header_key": "",
       "header_value": "",
-      "oas": "http://open-notificaties:8000/api/v1/schema/openapi.yaml",
       "nlx": "",
       "user_id": "objects-api",
       "user_representation": "Objects API"
