@@ -209,7 +209,6 @@ fun createRestZaakCreateData(
     indicaties: EnumSet<ZaakIndicatie> = EnumSet.noneOf(ZaakIndicatie::class.java),
     restZaakType: RestZaaktype = createRestZaaktype(),
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.of(2023, 10, 10),
-    uuid: UUID = UUID.randomUUID(),
     rechten: RestZaakRechten = createRestZaakRechten(),
     einddatumGepland: LocalDate? = null,
     communicatiekanaal: String? = "fakeCommunicatiekanaal",
@@ -220,7 +219,6 @@ fun createRestZaakCreateData(
     vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name,
     heeftOntvangstbevestigingVerstuurd: Boolean = false,
 ) = RestZaakCreateData(
-    uuid = uuid,
     identificatie = "ZA2023001",
     omschrijving = "Sample Zaak",
     toelichting = "This is a test zaak",

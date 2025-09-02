@@ -427,7 +427,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 val zaakafhandelParameters = createZaakafhandelParameters(betrokkeneKoppelingen = betrokkeneKoppelingen)
                 val zaakType = createZaakType()
                 val restZaakCreateData =
-                    createRestZaakCreateData(uuid = zaakUUID, initiatorIdentificatieType = IdentificatieType.BSN)
+                    createRestZaakCreateData(initiatorIdentificatieType = IdentificatieType.BSN)
                 val zaakAanmaakGegevens = createRESTZaakAanmaakGegevens(restZaakCreateData = restZaakCreateData)
 
                 every { zaakService.readZaakTypeByUUID(restZaakCreateData.zaaktype.uuid) } returns zaakType
