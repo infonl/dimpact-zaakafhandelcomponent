@@ -15,7 +15,7 @@ import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { UtilService } from "../core/service/util.service";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { GeneratedType } from "../shared/utils/generated-types";
+import { BetrokkeneIdentificatie } from "../zaken/model/betrokkeneIdentificatie";
 import { KlantenService } from "./klanten.service";
 
 describe(KlantenService.name, () => {
@@ -47,42 +47,39 @@ describe(KlantenService.name, () => {
   });
 
   describe(KlantenService.prototype.readBedrijf.name, () => {
-    const baseIdentificatie = {
-      kvkNummer: null,
-      vestigingsnummer: null,
-      rsin: null,
-      bsnNummer: null,
-    };
-
     test.each([
       [
-        {
-          ...baseIdentificatie,
-          type: "VN",
+        new BetrokkeneIdentificatie({
+          identificatieType: "VN",
           kvkNummer: "12345678",
           vestigingsnummer: "12345678",
-        },
+        }),
         "vestiging",
         { kvkNummer: "12345678", vestigingsnummer: "12345678" },
       ],
       [
         // legacy
-        { ...baseIdentificatie, type: "VN", vestigingsnummer: "1234567890" },
+        new BetrokkeneIdentificatie({
+          identificatieType: "VN",
+          vestigingsnummer: "1234567890",
+        }),
         "vestiging",
         { vestigingsnummer: "1234567890" },
       ],
       [
-        {
-          ...baseIdentificatie,
-          type: "RSIN",
+        new BetrokkeneIdentificatie({
+          identificatieType: "RSIN",
           kvkNummer: "12345678",
-        },
+        }),
         "rechtspersoon",
         { kvkNummer: "12345678" },
       ],
       [
         // legacy
-        { ...baseIdentificatie, type: "RSIN", rsin: "123456789" },
+        new BetrokkeneIdentificatie({
+          identificatieType: "RSIN",
+          rsin: "123456789",
+        }),
         "rechtspersoon",
         { rsin: "123456789" },
       ],
@@ -91,9 +88,7 @@ describe(KlantenService.name, () => {
       (betrokkeneIdentificatie, endpoint, path) => {
         const get = jest.spyOn(zacHttpClient, "GET");
 
-        service.readBedrijf(
-          betrokkeneIdentificatie as GeneratedType<"BetrokkeneIdentificatie">,
-        );
+        service.readBedrijf(betrokkeneIdentificatie);
 
         expect(get).toHaveBeenCalledWith(expect.stringContaining(endpoint), {
           path,
