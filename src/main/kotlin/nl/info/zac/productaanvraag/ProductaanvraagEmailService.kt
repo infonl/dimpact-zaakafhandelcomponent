@@ -42,26 +42,26 @@ class ProductaanvraagEmailService @Inject constructor(
     }
 
     fun sendEmailForZaakFromProductaanvraag(
-        zaakFromProductaanvraag: Zaak,
+        zaak: Zaak,
         betrokkene: Betrokkene?,
         zaakafhandelParameters: ZaakafhandelParameters
     ) {
         zaakafhandelParameters.automaticEmailConfirmation?.takeIf { it.enabled }?.let { automaticEmailConfirmation ->
-            betrokkene?.let { initiator ->
-                extractInitiatorEmail(initiator)?.let { to ->
-                    sendMail(automaticEmailConfirmation, to, zaakFromProductaanvraag)
+            betrokkene?.let { betrokkene ->
+                extractBetrokkeneEmail(betrokkene)?.let { to ->
+                    sendMail(automaticEmailConfirmation, to, zaak)
                 } ?: LOG.fine(
-                    "No email address found for initiator '$initiator'. " +
+                    "No email address found for initiator '$betrokkene'. " +
                         "Skipping automatic email confirmation."
                 )
             } ?: LOG.fine(
-                "No initiator provided for zaak '$zaakFromProductaanvraag'. " +
+                "No initiator provided for zaak '$zaak'. " +
                     "Skipping automatic email confirmation."
             )
         }
     }
 
-    private fun extractInitiatorEmail(betrokkene: Betrokkene) =
+    private fun extractBetrokkeneEmail(betrokkene: Betrokkene) =
         betrokkene.performAction(
             onNatuurlijkPersoonIdentity = ::fetchEmail,
             onVestigingIdentity = ::fetchEmail,

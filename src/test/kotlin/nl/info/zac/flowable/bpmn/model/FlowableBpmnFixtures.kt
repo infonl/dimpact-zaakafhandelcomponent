@@ -6,16 +6,19 @@ package nl.info.zac.flowable.bpmn.model
 
 import java.util.UUID
 
+@Suppress("LongParameterList")
 fun createZaaktypeBpmnProcessDefinition(
     id: Long = 1234L,
     zaaktypeUuid: UUID = UUID.randomUUID(),
     bpmnProcessDefinitionKey: String = "bpmnProcessDefinitionKey",
     zaaktypeOmschrijving: String = "zaaktypeOmschrijving",
-    productaanvraagtype: String = "fakeProductaanvraagtype"
+    productaanvraagtype: String = "fakeProductaanvraagtype",
+    groupName: String = "fakeGroupNaam",
 ) = ZaaktypeBpmnProcessDefinition().apply {
     this.id = id
     this.zaaktypeUuid = zaaktypeUuid
     this.bpmnProcessDefinitionKey = bpmnProcessDefinitionKey
     this.zaaktypeOmschrijving = zaaktypeOmschrijving
     this.productaanvraagtype = productaanvraagtype
+    this.groepNaam = groupName
 }
