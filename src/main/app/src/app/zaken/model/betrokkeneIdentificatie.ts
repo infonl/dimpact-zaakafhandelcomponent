@@ -31,7 +31,7 @@ export class BetrokkeneIdentificatie
           this.bsnNummer = betrokkene.bsn;
           break;
         }
-        if('bsnNummer' in betrokkene) {
+        if ("bsnNummer" in betrokkene) {
           this.bsnNummer = betrokkene.bsnNummer;
           break;
         }
