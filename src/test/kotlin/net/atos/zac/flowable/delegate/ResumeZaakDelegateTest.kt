@@ -6,6 +6,7 @@
 package net.atos.zac.flowable.delegate
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -25,6 +26,10 @@ class ResumeZaakDelegateTest : BehaviorSpec({
     val suspensionZaakHelper = mockk<SuspensionZaakHelper>()
     val zaak = createZaak()
     val reason = "test"
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given("Suspended zaak") {
         mockkStatic(FlowableHelper::class)
