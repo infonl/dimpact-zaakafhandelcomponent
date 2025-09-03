@@ -114,7 +114,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
         }
         Given(
             """A logged-in user is present in the HTTP session and a servlet request containing 
-            |a user principal with a different id as the logged-in user"""
+            a user principal with a different id as the logged-in user"""
         ) {
             val userId = "fakeId"
             val loggedInUser = createLoggedInUser(
@@ -124,7 +124,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 "behandelaar",
                 "domein_elk_zaaktype"
             )
-            val expectedFunctionalRoles = listOf("behandelaar")
+            val expectedFunctionalRoles = listOf("behandelaar", "domein_elk_zaaktype")
             val pabcRoleNames = listOf("applicationRoleA", "applicationRoleB")
             val zaaktypeName = "fakeZaaktypeOmschrijving1"
             val newHttpSession = mockk<HttpSession>()
