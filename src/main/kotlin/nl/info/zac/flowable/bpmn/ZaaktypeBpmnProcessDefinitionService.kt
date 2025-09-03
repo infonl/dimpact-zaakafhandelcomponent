@@ -9,6 +9,8 @@ import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition
+import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition.Companion.PRODUCTAANVRAAGTTYPE_VARIABELE_NAME
+import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
@@ -36,7 +38,7 @@ class ZaaktypeBpmnProcessDefinitionService @Inject constructor(
         entityManager.criteriaBuilder.let { criteriaBuilder ->
             criteriaBuilder.createQuery(ZaaktypeBpmnProcessDefinition::class.java).let { query ->
                 query.from(ZaaktypeBpmnProcessDefinition::class.java).let {
-                    query.where(criteriaBuilder.equal(it.get<UUID>("zaaktypeUuid"), zaaktypeUUID))
+                    query.where(criteriaBuilder.equal(it.get<UUID>(ZAAKTYPE_UUID_VARIABLE_NAME), zaaktypeUUID))
                 }
                 entityManager.createQuery(query).resultStream.findFirst().orElse(null)
             }
@@ -50,6 +52,18 @@ class ZaaktypeBpmnProcessDefinitionService @Inject constructor(
             criteriaBuilder.createQuery(ZaaktypeBpmnProcessDefinition::class.java).let { query ->
                 query.from(ZaaktypeBpmnProcessDefinition::class.java)
                 entityManager.createQuery(query).resultList
+            }
+        }
+
+    fun findByProductAanvraagType(productAanvraagType: String): ZaaktypeBpmnProcessDefinition? =
+        entityManager.criteriaBuilder.let { criteriaBuilder ->
+            criteriaBuilder.createQuery(ZaaktypeBpmnProcessDefinition::class.java).let { query ->
+                query.from(ZaaktypeBpmnProcessDefinition::class.java).let {
+                    query.where(
+                        criteriaBuilder.equal(it.get<String>(PRODUCTAANVRAAGTTYPE_VARIABELE_NAME), productAanvraagType)
+                    )
+                }
+                entityManager.createQuery(query).resultStream.findFirst().orElse(null)
             }
         }
 }

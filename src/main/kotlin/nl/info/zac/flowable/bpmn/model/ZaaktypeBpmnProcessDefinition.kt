@@ -27,6 +27,11 @@ import java.util.UUID
 )
 @AllOpen
 class ZaaktypeBpmnProcessDefinition {
+    companion object {
+        const val PRODUCTAANVRAAGTTYPE_VARIABELE_NAME = "productaanvraagtype"
+        const val ZAAKTYPE_UUID_VARIABLE_NAME = "zaaktypeUuid"
+    }
+
     @Id
     @GeneratedValue(generator = "sq_zaaktype_bpmn_process_definition", strategy = GenerationType.SEQUENCE)
     var id: Long = 0
@@ -44,4 +49,11 @@ class ZaaktypeBpmnProcessDefinition {
 
     @Column(name = "productaanvraagtype")
     var productaanvraagtype: String? = null
+
+    /**
+     * Name of the user group that will be assigned by default to BPMN zaken started for this zaaktype.
+     * Note that the group name acts as the unique group ID. Both terms are used interchangeably.
+     */
+    @Column(name = "naam_groep", nullable = false)
+    lateinit var groepNaam: String
 }

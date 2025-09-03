@@ -64,7 +64,9 @@ object ItestConfiguration {
     const val KVK_MOCK_BASE_URI = "http://kvk-wiremock:8080"
     const val OBJECT_PRODUCTAANVRAAG_1_UUID = "9dbed186-89ca-48d7-8c6c-f9995ceb8e27"
     const val OBJECT_PRODUCTAANVRAAG_2_UUID = "f1f6f670-fda8-4e98-81a6-6528937f10ee"
+    const val OBJECT_PRODUCTAANVRAAG_BPMN_UUID = "fb6b2c0e-f745-4725-ae27-2317f0cfbfc4"
     const val OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK = "f8534f13-0669-4d4d-a364-6b6c4ad3d243"
+    const val OBJECT_PRODUCTAANVRAAG_BPMN_BRON_KENMERK = "c7e9e087-853d-4b16-9750-fddd7c0b9b0d"
     const val OBJECTS_BASE_URI = "http://objecten-api.local:8000"
     const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT = "021f685e-9482-4620-b157-34cd4003da6b"
     const val OFFICE_CONVERTER_BASE_URI = "http://office-converter:8080"
@@ -124,9 +126,9 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_SEARCH = 10
     const val TEST_SPEC_ORDER_AFTER_KOPPELEN = 11
 
-    const val TOTAL_COUNT_INDEXED_ZAKEN = 11
+    const val TOTAL_COUNT_INDEXED_ZAKEN = 12
     const val TOTAL_COUNT_INDEXED_ZAKEN_AFGEROND = 2
-    const val TOTAL_COUNT_INDEXED_TASKS = 3
+    const val TOTAL_COUNT_INDEXED_TASKS = 4
     const val TOTAL_COUNT_INDEXED_DOCUMENTS = 11
 
     /**
@@ -321,6 +323,9 @@ object ItestConfiguration {
     const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_TITEL = "Fake test document"
     const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_FILE_NAME = "fake-test-document.pdf"
 
+    const val ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION = "ZAAK-1998-0000000001"
+    const val ZAAK_PRODUCTAANVRAAG_BPMN_UITERLIJKE_EINDDATUM_AFDOENING = "1998-01-31"
+
     const val ZAAK_MANUAL_2000_03_IDENTIFICATION = "ZAAK-2000-0000000003"
     const val ZAAK_MANUAL_2020_01_IDENTIFICATION = "ZAAK-2020-0000000001"
     const val ZAAK_MANUAL_2024_01_IDENTIFICATION = "ZAAK-2024-0000000001"
@@ -427,7 +432,7 @@ object ItestConfiguration {
     const val ZAAK_BPMN_TEST_IDENTIFICATION: String = "ZAAK-2000-0000000004"
     const val ZAAKTYPE_BPMN_TEST_IDENTIFICATIE = "bpmn-test-zaaktype"
     const val ZAAKTYPE_BPMN_TEST_DESCRIPTION = "BPMN test zaaktype"
-    const val ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE = "bpmn-test-zaaktype"
+    const val ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE = "bpmn-test-productaanvraagtype"
 
     val ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_UUID: UUID = UUID.fromString("8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a")
     const val ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_IDENTIFICATIE = "bpmn-evenementen-vooroverleg"
@@ -464,6 +469,12 @@ object ItestConfiguration {
      * from a productaanvraag.
      */
     lateinit var zaakProductaanvraag2Uuid: UUID
+
+    /**
+     * Global variable to store the UUID of a BPMN zaak that is created in the integration tests
+     * from a productaanvraag.
+     */
+    lateinit var zaakProductaanvraag3Uuid: UUID
 
     /**
      * Global variable to store the UUID of an uploaded file in the integration tests.
