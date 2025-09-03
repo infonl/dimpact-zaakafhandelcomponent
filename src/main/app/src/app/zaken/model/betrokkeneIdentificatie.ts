@@ -8,7 +8,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 export class BetrokkeneIdentificatie
   implements GeneratedType<"BetrokkeneIdentificatie">
 {
-  public readonly bsn?: string | null = null;
+  public readonly bsnNummer?: string | null = null;
   public readonly kvkNummer?: string | null = null;
   public readonly vestigingsnummer?: string | null = null;
   /**
@@ -29,7 +29,7 @@ export class BetrokkeneIdentificatie
     switch (this.type) {
       case "BSN":
         if ("bsn" in betrokkene) {
-          this.bsn = betrokkene.bsn;
+          this.bsnNummer = betrokkene.bsn;
           break;
         }
         throw new Error(

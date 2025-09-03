@@ -1057,6 +1057,7 @@ class ZaakRestService @Inject constructor(
                     initiator.vestigingsnummer
                 )
                 IdentificatieType.RSIN -> initiator.rsin ?: initiator.kvkNummer // A `rechtspersoon` has the type RSIN but gets passes with a `kvkNummer`
+                IdentificatieType.BSN -> initiator.bsnNummer ?: error("BSN is required for initiator identification type BSN")
                 else -> error("Unsupported identification type: ${initiator.type}")
             }
             updateInitiator(
