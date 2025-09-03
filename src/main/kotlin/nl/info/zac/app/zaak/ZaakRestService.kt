@@ -288,7 +288,7 @@ class ZaakRestService @Inject constructor(
         val restZaak = restZaakAanmaakGegevens.zaak
         val zaaktypeUUID = restZaak.zaaktype.uuid
         val zaakType = zaakService.readZaakTypeByUUID(zaaktypeUUID)
-        assertCanAddBetrokkene(restZaak)
+        assertCanAddBetrokkene(restZaakAanmaakGegevens.zaak, zaaktypeUUID)
         assertPolicy(
             policyService.readOverigeRechten(zaakType.omschrijving).startenZaak &&
                 policyService.isAuthorisedForZaaktype(zaakType.omschrijving)
@@ -325,7 +325,7 @@ class ZaakRestService @Inject constructor(
     ): RestZaak {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
-        assertCanAddBetrokkene(restZaakEditMetRedenGegevens.zaak)
+        assertCanAddBetrokkene(restZaakEditMetRedenGegevens.zaak, zaakType.url.extractUuid())
         with(zaakRechten) {
             assertPolicy(wijzigen)
             if (
@@ -1052,13 +1052,12 @@ class ZaakRestService @Inject constructor(
         restZaak.initiatorIdentificatie?.let { initiator ->
             val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
             val identification = when (initiator.type) {
+                IdentificatieType.BSN -> initiator.bsnNummer
+                IdentificatieType.RSIN -> initiator.rsin ?: initiator.kvkNummer // A `rechtspersoon` has the type RSIN but gets passed a `kvkNummer`
                 IdentificatieType.VN -> createVestigingIdentificationString(
                     initiator.kvkNummer,
                     initiator.vestigingsnummer
                 )
-                IdentificatieType.RSIN -> initiator.rsin ?: initiator.kvkNummer // A `rechtspersoon` has the type RSIN but gets passes with a `kvkNummer`
-                IdentificatieType.BSN -> initiator.bsnNummer ?: error("BSN is required for initiator identification type BSN")
-                else -> error("Unsupported identification type: ${initiator.type}")
             }
             updateInitiator(
                 identificationType = initiator.type,
@@ -1416,10 +1415,8 @@ class ZaakRestService @Inject constructor(
 
     private fun speciaalMail(mail: String): SpecialMail? = if (!mail.contains("@")) SpecialMail.valueOf(mail) else null
 
-    private fun assertCanAddBetrokkene(restZaak: RestZaakCreateData) {
-        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-            restZaak.zaaktype.uuid
-        )
+    private fun assertCanAddBetrokkene(restZaak: RestZaakCreateData, zaakTypeUUID: UUID) {
+        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
 
         restZaak.initiatorIdentificatie?.let {
             if (it.type.isKvK && !zaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen) {

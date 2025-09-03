@@ -25,7 +25,6 @@ export class BetrokkeneIdentificatie
     >,
   ) {
     this.type = this.getType(betrokkene);
-    console.log(betrokkene, this.type);
     switch (this.type) {
       case "BSN":
         if ("bsn" in betrokkene) {
@@ -48,7 +47,7 @@ export class BetrokkeneIdentificatie
       case "RSIN":
         if ("kvkNummer" in betrokkene || "rsin" in betrokkene) {
           this.kvkNummer = betrokkene.kvkNummer;
-          this.rsin = betrokkene.rsin ?? betrokkene.kvkNummer; // For a `rechtspersoon` (RSIN) we have the kvkNummer
+          this.rsin = betrokkene.rsin ?? betrokkene.kvkNummer; // A `rechtspersoon` has the type RSIN but gets passed a `kvkNummer`
           break;
         }
         throw new Error(
