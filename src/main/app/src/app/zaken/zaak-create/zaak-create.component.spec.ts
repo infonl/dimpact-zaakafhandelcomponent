@@ -159,17 +159,9 @@ describe(ZaakCreateComponent.name, () => {
   });
 
   describe("Initiator field editing", () => {
-    const mockInitiator: GeneratedType<"RestPersoon"> = {
-      bsn: "123456789",
-      geslacht: "V",
-      geboortedatum: "1990-01-01",
-      verblijfplaats: "Amsterdam",
-      naam: "Test User",
-      emailadres: "test.user@example.com",
-      telefoonnummer: "0612345678",
-      indicaties: [],
-      identificatieType: "BSN",
-      identificatie: "123456789",
+    const mockInitiator: GeneratedType<"BetrokkeneIdentificatie"> = {
+      bsnNummer: "123456789",
+      type: "BSN",
     };
 
     beforeEach(() => {
@@ -201,24 +193,18 @@ describe(ZaakCreateComponent.name, () => {
     it("should clear the initiator field when the close icon is clicked", async () => {
       component.clearInitiator();
 
-      component["form"].get("initiator")?.setValue(mockInitiator);
+      component["form"].controls.initiatorIdentificatie.setValue(mockInitiator);
       fixture.detectChanges();
 
       expect(component.hasInitiator()).toBe(true);
 
-      const closeIcon = await loader.getHarness(
-        MatIconHarness.with({ name: "close" }),
-      );
-      expect(closeIcon).toBeTruthy();
-
-      const button = await loader.getHarness(
+      const buttons = await loader.getAllHarnesses(
         MatButtonHarness.with({
-          selector:
-            'zac-input[key="initiator"] button[mat-icon-button][matSuffix]',
+          text: "clear",
         }),
       );
 
-      await button.click();
+      await buttons[0].click();
       fixture.detectChanges();
 
       expect(component.hasInitiator()).toBe(false);
