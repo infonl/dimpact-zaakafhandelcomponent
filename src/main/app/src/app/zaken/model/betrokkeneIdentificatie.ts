@@ -31,6 +31,10 @@ export class BetrokkeneIdentificatie
           this.bsnNummer = betrokkene.bsn;
           break;
         }
+        if('bsnNummer' in betrokkene) {
+          this.bsnNummer = betrokkene.bsnNummer;
+          break;
+        }
         throw new Error(
           `${BetrokkeneIdentificatie.name}: Tried to add a ${this.type} betrokkene without a BSN number`,
         );
