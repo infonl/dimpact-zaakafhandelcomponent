@@ -40,6 +40,7 @@ reactive-streams = "1.0.4"
 jakarta-mail = "2.1.4"
 caffeine = "3.2.2"
 jackson = "2.20.0"
+jackson-annotations = "2.20"
 jacobras-human-readable = "1.12.0"
 
 # Versions of dependencies provided by Wildfly.
@@ -110,7 +111,7 @@ jakarta-mail = { group = "jakarta.mail", name = "jakarta.mail-api", version.ref 
 caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version.ref = "caffeine" }
 
 jackson-core = { group = "com.fasterxml.jackson.core", name = "jackson-core", version.ref = "jackson" }
-jackson-annotations = { group = "com.fasterxml.jackson.core", name = "jackson-annotations", version.ref = "jackson" }
+jackson-annotations = { group = "com.fasterxml.jackson.core", name = "jackson-annotations", version.ref = "jackson-annotations" }
 jackson-jsr310 = { group = "com.fasterxml.jackson.datatype", name = "jackson-datatype-jsr310", version.ref = "jackson" }
 jackson-kotlin = { group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version.ref = "jackson" }
 
