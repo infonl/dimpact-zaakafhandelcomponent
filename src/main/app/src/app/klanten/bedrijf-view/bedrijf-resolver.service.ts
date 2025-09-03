@@ -31,15 +31,9 @@ export class BedrijfResolverService {
         identificatieType,
         vestigingsnummer: identificatieType === "VN" ? id : null,
         kvkNummer:
-          identificatieType === "RSIN" &&
-          identificatieType.length === KVK_LENGTH
-            ? id
-            : null,
+          identificatieType === "RSIN" && id.length === KVK_LENGTH ? id : null,
         rsin:
-          identificatieType === "RSIN" &&
-          identificatieType.length !== KVK_LENGTH
-            ? id
-            : null,
+          identificatieType === "RSIN" && id.length !== KVK_LENGTH ? id : null,
       }),
     );
   }
