@@ -54,7 +54,7 @@ fun ResultaatItem.toRestBedrijf() = RestBedrijf(
     kvkNummer = this.kvkNummer,
     vestigingsnummer = this.vestigingsnummer,
     naam = this.toName(),
-    postcode = this.adres.binnenlandsAdres.postcode,
+    postcode = this.adres?.binnenlandsAdres?.postcode,
     rsin = this.rsin,
     type = this.type.uppercase(Locale.getDefault()),
     adres = this.toAddress()
@@ -65,8 +65,8 @@ fun List<RestBedrijf>.toRestResultaat() = RESTResultaat(this)
 private fun ResultaatItem.toName(): String =
     this.naam.replace(" ", StringUtil.NON_BREAKING_SPACE)
 
-private fun ResultaatItem.toAddress(): String =
-    this.adres.binnenlandsAdres.let { binnenlandsAdres ->
+private fun ResultaatItem.toAddress(): String? =
+    this.adres?.binnenlandsAdres?.let { binnenlandsAdres ->
         StringUtil.joinNonBlankWith(
             StringUtil.NON_BREAKING_SPACE,
             binnenlandsAdres.straatnaam,

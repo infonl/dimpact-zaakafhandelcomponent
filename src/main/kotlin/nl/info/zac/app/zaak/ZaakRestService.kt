@@ -1053,7 +1053,8 @@ class ZaakRestService @Inject constructor(
             val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
             val identification = when (initiator.type) {
                 IdentificatieType.BSN -> initiator.bsnNummer
-                IdentificatieType.RSIN -> initiator.rsin ?: initiator.kvkNummer // A `rechtspersoon` has the type RSIN but gets passed a `kvkNummer`
+                // A `rechtspersoon` has the type RSIN but gets passed a `kvkNummer` if available
+                IdentificatieType.RSIN -> initiator.kvkNummer ?: initiator.rsin
                 IdentificatieType.VN -> createVestigingIdentificationString(
                     initiator.kvkNummer,
                     initiator.vestigingsnummer
