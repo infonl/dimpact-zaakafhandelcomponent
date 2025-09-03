@@ -1056,12 +1056,12 @@ class ZaakRestService @Inject constructor(
                     initiator.kvkNummer,
                     initiator.vestigingsnummer
                 )
-                IdentificatieType.RSIN -> initiator.rsin
+                IdentificatieType.RSIN -> initiator.rsin ?: initiator.kvkNummer // A `rechtspersoon` has the type RSIN but gets passes with a `kvkNummer`
                 else -> error("Unsupported identification type: ${initiator.type}")
             }
             updateInitiator(
                 identificationType = initiator.type,
-                identification = identification!!,
+                identification = identification ?: error("No identification provided for initiator"),
                 zaak = zaak,
                 zaakRechten = zaakRechten,
                 explanation = AANMAKEN_ZAAK_REDEN

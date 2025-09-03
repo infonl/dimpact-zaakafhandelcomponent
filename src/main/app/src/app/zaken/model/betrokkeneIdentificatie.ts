@@ -48,7 +48,7 @@ export class BetrokkeneIdentificatie
       case "RSIN":
         if ("kvkNummer" in betrokkene || "rsin" in betrokkene) {
           this.kvkNummer = betrokkene.kvkNummer;
-          this.rsin = betrokkene.rsin;
+          this.rsin = betrokkene.rsin ?? betrokkene.kvkNummer; // For a `rechtspersoon` (RSIN) we have the kvkNummer
           break;
         }
         throw new Error(
