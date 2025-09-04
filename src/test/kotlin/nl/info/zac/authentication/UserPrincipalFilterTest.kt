@@ -114,17 +114,11 @@ class UserPrincipalFilterTest : BehaviorSpec({
         }
         Given(
             """A logged-in user is present in the HTTP session and a servlet request containing 
-            |a user principal with a different id as the logged-in user"""
+            a user principal with a different id as the logged-in user"""
         ) {
             val userId = "fakeId"
-            val loggedInUser = createLoggedInUser(
-                id = userId
-            )
-            val roles = arrayListOf(
-                "behandelaar",
-                "domein_elk_zaaktype"
-            )
-            val expectedFunctionalRoles = listOf("behandelaar")
+            val loggedInUser = createLoggedInUser(id = userId)
+            val roles = listOf("fakeRole1", "fakeRole2")
             val pabcRoleNames = listOf("applicationRoleA", "applicationRoleB")
             val zaaktypeName = "fakeZaaktypeOmschrijving1"
             val newHttpSession = mockk<HttpSession>()
@@ -148,8 +142,12 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every { accessToken.getStringListClaimValue("group_membership") } returns emptyList()
             every { newHttpSession.setAttribute("logged-in-user", capture(capturedLoggedInUser)) } just runs
             every {
-                pabcClientService.getApplicationRoles(expectedFunctionalRoles)
+                pabcClientService.getApplicationRoles(roles)
             } returns pabcRolesResponse(zaaktypeName, *pabcRoleNames.toTypedArray())
+            every {
+                zaakafhandelParameterService.listZaakafhandelParameters()
+            } returns listOf(createZaakafhandelParameters())
+            every { zaaktypeBpmnProcessDefinitionService.listBpmnProcessDefinitions() } returns emptyList()
 
             When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -159,7 +157,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                         filterChain.doFilter(httpServletRequest, servletResponse)
                         httpSession.invalidate()
                         newHttpSession.setAttribute("logged-in-user", any())
-                        pabcClientService.getApplicationRoles(expectedFunctionalRoles)
+                        pabcClientService.getApplicationRoles(roles)
                     }
                     with(capturedLoggedInUser.captured) {
                         this.roles shouldContainAll roles

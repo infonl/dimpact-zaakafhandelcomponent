@@ -18,6 +18,7 @@ import nl.info.zac.identity.IdentityService;
 import nl.info.zac.mail.MailService;
 import nl.info.zac.mailtemplates.MailTemplateService;
 import nl.info.zac.search.IndexingService;
+import nl.info.zac.shared.helper.SuspensionZaakHelper;
 
 /**
  * A Helper for Flowable CMMN and BPMN LifecycleListener's, Interceptors etc. in order to get access to CDI resources.
@@ -54,6 +55,9 @@ public class FlowableHelper {
 
     @Inject
     private MailTemplateService mailTemplateService;
+
+    @Inject
+    private SuspensionZaakHelper suspensionZaakHelper;
 
     public static FlowableHelper getInstance() {
         return CDI.current().select(FlowableHelper.class).get();
@@ -97,5 +101,9 @@ public class FlowableHelper {
 
     public MailTemplateService getMailTemplateService() {
         return mailTemplateService;
+    }
+
+    public SuspensionZaakHelper getSuspensionZaakHelper() {
+        return suspensionZaakHelper;
     }
 }

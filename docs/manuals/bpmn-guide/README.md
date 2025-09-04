@@ -66,19 +66,77 @@ For example, the emails can be validated by specifying `validate` and `type` key
 }
 ```
 
-### ZAC extensions
+## ZAC extensions
 
-#### Variables
-* `zaakGroep` - group assigned to the zaak
-* `zaakBehandelaar` (optional) - user assigned to the zaak
+### Zaak
 
-#### Zaak status
+#### Listing statustypes
+The available status types for a zaak can be displayed with:
+* a fieldset with type `zaakStatusTypesFieldset`
+* `select` component, part of the fieldset
+
+Example:
+```json
+    {
+      "legend": "Zaak Status",
+      "type": "zaakStatusTypesFieldset",
+      "key": "FS_ZaakStatus",
+      "input": false,
+      "components": [
+        {
+          "label": "Select status",
+          "optionsLabelPosition": "right",
+          "key": "ZK_Status",
+          "widget": "html5",
+          "validate": {
+            "required": true,
+            "onlyAvailableItems": true
+          },
+          "type": "select",
+          "input": true,
+          "dataSrc": "custom"
+        }
+      ]
+    }
+```
+
+#### Listing resultaattypes
+The available result types for a zaak can be displayed with:
+* a fieldset with type `zaakResultTypesFieldset`
+* `select` component, part of the fieldset
+
+Example:
+```json
+    {
+      "legend": "Zaak Result",
+      "type": "zaakResultTypesFieldset",
+      "key": "FS_ZaakResult",
+      "input": false,
+      "components": [
+        {
+          "label": "Select result",
+          "optionsLabelPosition": "right",
+          "key": "ZK_Result",
+          "widget": "html5",
+          "validate": {
+            "required": true,
+            "onlyAvailableItems": true
+          },
+          "type": "select",
+          "input": true,
+          "dataSrc": "custom"
+        }
+      ]
+    }
+```
+
+#### Changing status and result
 To change zaak status, you have to:
 * create a service task
 * set class `net.atos.zac.flowable.delegate.UpdateZaakJavaDelegate`
 * add fields
-   * `statustypeOmschrijving` to `stringvalue` equal to your desired zaak statustype omschrijving
-   * `resultaattypeOmschrijving` to a valid `stringvalue`, required by your zaak statustype
+   * `statustypeOmschrijving` to `stringvalue` or `expression` representing your desired zaak statustype omschrijving
+   * `resultaattypeOmschrijving` to a valid `stringvalue` or `expression`, required by your zaak statustype
 
 For example:
 ```xml
@@ -96,15 +154,60 @@ For example:
     </serviceTask>
 ```
 
-#### Send email
+#### Suspending
+To suspend a zaak:
+* create a service task
+* set class `net.atos.zac.flowable.delegate.SuspendZaakDelegate`
+* add fields:
+  * `aantalDagen` - number of days to suspend the zaak for. Added to the current date.
+  * `opschortingReden` - reason for suspension
+
+For example:
+```xml
+    <serviceTask id="ServiceTask_360" name="Suspend" flowable:class="net.atos.zac.flowable.delegate.SuspendZaakDelegate">
+      <extensionElements>
+        <flowable:field name="aantalDagen">
+          <flowable:expression><![CDATA[10]]></flowable:expression>
+        </flowable:field>
+        <flowable:field name="opschortingReden">
+          <flowable:expression><![CDATA[suspend test]]></flowable:expression>
+        </flowable:field>
+        <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
+        <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+      </extensionElements>
+    </serviceTask>
+```
+
+#### Resuming
+To resume a zaak:
+* create a service task
+* set class `net.atos.zac.flowable.delegate.ResumeZaakDelegate`
+* add fields:
+  * `hervattenReden` - reason for resuming
+
+For example:
+```xml
+    <serviceTask id="ServiceTask_361" name="Resume" flowable:class="net.atos.zac.flowable.delegate.ResumeZaakDelegate">
+      <extensionElements>
+        <flowable:field name="hervattenReden">
+          <flowable:expression><![CDATA[resume test]]></flowable:expression>
+        </flowable:field>
+        <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
+        <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+      </extensionElements>
+    </serviceTask>
+```
+
+
+### Send email
 To send email:
 * create a service task
 * set class `net.atos.zac.flowable.delegate.SendEmailDelegate`
 * add fields:
-  * `to` as `stringvalue` equal to the receiver's email address
-  * `from` as `stringvalue` - the sender's email address
-  * `replyTo` as `stringvalue` - the replyTo's email address
-  * `template` as `stringvalue` - the name of the email template you want to use
+  * `to` - equal to the receiver's email address
+  * `from` - the sender's email address
+  * `replyTo` - the replyTo's email address
+  * `template` - the name of the email template you want to use
 
 For example:
 ```xml
@@ -128,7 +231,9 @@ For example:
     </serviceTask>
 ```
 
-#### User/group
+### User/group
+
+#### Listing groups and users
 To list the ZAC groups and users (groep / medewerker) you should use a `fieldset` layout component with:
 * `"type": "groepMedewerkerFieldset"`
 * two `select` components with:
@@ -174,7 +279,61 @@ For example:
     }
 ```
 
+#### Setting task group and user
+The following BPMN-specific variables can be used in expressions in the BPMN process:
+* `zaakGroep` - group assigned to the zaak
+* `zaakBehandelaar` (optional) - user assigned to the zaak
+
+The above variables can be used in `assignee` and `candidateGroups` attributes for example:
+```xml
+<userTask id="summary" name="Summary" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="summaryForm" flowable:formFieldValidation="false">
+```
+
 ### SmartDocuments
+
+#### Listing available documents
+To display linked documents of a zaak you can use:
+* a fieldset with type `documentsFieldset`
+* `select` type component with:
+    * custom data source
+    * multi select attribute (`type=select` with `multiple=true`)
+
+Example:
+```json
+    {
+      "legend": "Available Documents",
+      "type": "documentsFieldset",
+      "key": "ZAAK_Documents",
+      "input": false,
+      "components": [
+        {
+          "label": "Documents",
+          "type": "select",
+          "key": "ZAAK_Documents_Select",
+          "input": true,
+          "widget": "choicesjs",
+          "multiple": true,
+          "defaultValue": [],
+          "clearOnRefresh": true,
+          "dataSrc": "custom",
+          "placeholder": "Select one or more documents",
+          "customOptions": {
+            "choicesOptions": {
+              "removeItemButton": true,
+              "placeholder": false,
+              "searchEnabled": true,
+              "shouldSort": false
+            }
+          },
+          "validate": {
+            "required": true
+          }
+        }
+      ]
+    }
+```
+
+#### Creating documents
 To create and attach a file generated by SmartDocuments to the current task, you should use a `fieldset` layout component with:
 * `"type": "smartDocumentsFieldset"`
 * a `select` component with:
@@ -184,7 +343,6 @@ To create and attach a file generated by SmartDocuments to the current task, you
    * SmartDocument properties
    * custom event: `"event": "createDocument"`
 
-#### Properties
 The following properties can be used to configure the integration: 
 * `SmartDocuments_Group` - path to the SmartDocuments group
 * `SmartDocuments_InformatieobjecttypeUuid` - default informatieobjecttype UUID
@@ -268,105 +426,3 @@ Example:
     }
 ```
 :warning: prefixing the reference table code with 'BPMN_' is recommended to avoid conflicts with other ZAAK types and reference tables.
-
-### Available documents section
-To display linked documents of a zaak you can use:
-* a fieldset with type `documentsFieldset`
-* `select` type component with:
-  * custom data source
-  * multi select attribute (`type=select` with `multiple=true`) 
-
-Example:
-```json
-    {
-      "legend": "Available Documents",
-      "type": "documentsFieldset",
-      "key": "ZAAK_Documents",
-      "input": false,
-      "components": [
-        {
-          "label": "Documents",
-          "type": "select",
-          "key": "ZAAK_Documents_Select",
-          "input": true,
-          "widget": "choicesjs",
-          "multiple": true,
-          "defaultValue": [],
-          "clearOnRefresh": true,
-          "dataSrc": "custom",
-          "placeholder": "Select one or more documents",
-          "customOptions": {
-            "choicesOptions": {
-              "removeItemButton": true,
-              "placeholder": false,
-              "searchEnabled": true,
-              "shouldSort": false
-            }
-          },
-          "validate": {
-            "required": true
-          }
-        }
-      ]
-    }
-```
-
-### Zaak resultaattypes
-The available result types for a zaak can be displayed with:
-* a fieldset with type `zaakResultTypesFieldset`
-* `select` component, part of the fieldset
-
-Example:
-```json
-    {
-      "legend": "Zaak Result",
-      "type": "zaakResultTypesFieldset",
-      "key": "FS_ZaakResult",
-      "input": false,
-      "components": [
-        {
-          "label": "Select result",
-          "optionsLabelPosition": "right",
-          "key": "ZK_Result",
-          "widget": "html5",
-          "validate": {
-            "required": true,
-            "onlyAvailableItems": true
-          },
-          "type": "select",
-          "input": true,
-          "dataSrc": "custom"
-        }
-      ]
-    }
-```
-
-### Zaak statustypes
-The available status types for a zaak can be displayed with:
-* a fieldset with type `zaakStatusTypesFieldset`
-* `select` component, part of the fieldset
-
-Example:
-```json
-    {
-      "legend": "Zaak Status",
-      "type": "zaakStatusTypesFieldset",
-      "key": "FS_ZaakStatus",
-      "input": false,
-      "components": [
-        {
-          "label": "Select status",
-          "optionsLabelPosition": "right",
-          "key": "ZK_Status",
-          "widget": "html5",
-          "validate": {
-            "required": true,
-            "onlyAvailableItems": true
-          },
-          "type": "select",
-          "input": true,
-          "dataSrc": "custom"
-        }
-      ]
-    }
-```
