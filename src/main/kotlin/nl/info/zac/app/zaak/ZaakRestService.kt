@@ -543,7 +543,7 @@ class ZaakRestService @Inject constructor(
 
     private fun ZaakType.hasBPMNProcessDefinition() =
         configuratieService.featureFlagBpmnSupport() &&
-                bpmnService.findProcessDefinitionForZaaktype(this.url.extractUuid()) != null
+            bpmnService.findProcessDefinitionForZaaktype(this.url.extractUuid()) != null
 
     @PUT
     @Path("zaakdata")

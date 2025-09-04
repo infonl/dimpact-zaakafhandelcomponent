@@ -1633,7 +1633,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 pabcMappings = mapOf(
                     "Zaaktype 1" to setOf("applicationRole1", "behandelaar"), // authorized CMMN
                     "Zaaktype 2" to setOf("behandelaar", "applicationRole2"), // BPMN
-                    "Zaaktype 3" to setOf("applicationRole3"),                // unauthorized CMMN
+                    "Zaaktype 3" to setOf("applicationRole3"), // unauthorized CMMN
                 )
             )
             val zaaktypeInrichtingscheck = createZaaktypeInrichtingscheck()

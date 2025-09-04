@@ -7,4 +7,3 @@ package nl.info.zac.authentication
 enum class ApplicationRole(val value: String) {
     BEHANDELAAR("behandelaar")
 }
-
