@@ -50,8 +50,8 @@ export class BetrokkeneIdentificatie
         );
       case "RSIN":
         if ("kvkNummer" in betrokkene || "rsin" in betrokkene) {
-          this.kvkNummer = betrokkene.kvkNummer;
-          this.rsin = betrokkene.rsin ?? betrokkene.kvkNummer; // A `rechtspersoon` has the type RSIN but gets passed a `kvkNummer`
+          this.kvkNummer = betrokkene.kvkNummer; // A `rechtspersoon` has the type RSIN
+          this.rsin = betrokkene.rsin; // For backwards compatibility
           break;
         }
         throw new Error(
@@ -68,13 +68,24 @@ export class BetrokkeneIdentificatie
     betrokkene: GeneratedType<
       "RestPersoon" | "RestBedrijf" | "BetrokkeneIdentificatie"
     >,
-  ) {
+  ): GeneratedType<"IdentificatieType"> {
     if ("identificatieType" in betrokkene) {
       return betrokkene.identificatieType!;
     }
 
     if ("type" in betrokkene) {
-      return betrokkene.type as GeneratedType<"IdentificatieType">;
+      switch (
+        betrokkene.type as GeneratedType<"BedrijfType" | "IdentificatieType">
+      ) {
+        case "RECHTSPERSOON":
+        case "RSIN":
+          return "RSIN";
+        case "VN":
+        case "BSN":
+          return betrokkene.type as GeneratedType<"IdentificatieType">;
+        default:
+          throw new Error(`Unsupported betrokkene type ${betrokkene.type}`);
+      }
     }
 
     throw new Error(
