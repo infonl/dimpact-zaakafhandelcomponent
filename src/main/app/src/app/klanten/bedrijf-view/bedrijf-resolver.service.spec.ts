@@ -9,8 +9,8 @@ import {
   KVK_LENGTH,
   VESTIGINGSNUMMER_LENGTH,
 } from "src/app/shared/utils/constants";
-import { BedrijfResolverService } from "./bedrijf-resolver.service";
 import { KlantenService } from "../klanten.service";
+import { BedrijfResolverService } from "./bedrijf-resolver.service";
 
 describe(BedrijfResolverService.name, () => {
   let bedrijfResolverService: BedrijfResolverService;

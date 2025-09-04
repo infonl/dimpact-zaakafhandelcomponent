@@ -82,11 +82,14 @@ fun Rol<*>.toRestZaakBetrokkene(): RestZaakBetrokkene? {
             identificatie = betrokkene.innNnpId.takeIf {
                 !it.isNullOrBlank()
             } ?: betrokkene.vestigingsNummer ?: return null
-            identificatieType =
-                if (betrokkene.innNnpId.isNullOrBlank() && !betrokkene.vestigingsNummer.isNullOrBlank())
-                    IdentificatieType.VN
-                else
-                    IdentificatieType.RSIN
+            identificatieType = if (
+                betrokkene.innNnpId.isNullOrBlank() &&
+                !betrokkene.vestigingsNummer.isNullOrBlank()
+            ) {
+                IdentificatieType.VN
+            } else {
+                IdentificatieType.RSIN
+            }
             kvkNummer = betrokkene.kvkNummer
         }
         VESTIGING -> {
