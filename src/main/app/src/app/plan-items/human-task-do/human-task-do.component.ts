@@ -4,16 +4,19 @@
  */
 
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { FormGroup } from "@angular/forms";
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
-import { ActivatedRoute } from "@angular/router";
 import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-formulier";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
+import { FormField, FormConfig as NewFormConfig } from "../../shared/form/form";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { PlanItemsService } from "../plan-items.service";
+import {KlantenService} from "../../klanten/klanten.service";
+import {IdentityService} from "../../identity/identity.service";
+import {lastValueFrom} from "rxjs";
 
 @Component({
   selector: "zac-human-task-do",
@@ -29,30 +32,77 @@ export class HumanTaskDoComponent implements OnInit {
   @Input() zaak: GeneratedType<"RestZaak">;
   @Output() done = new EventEmitter<void>();
 
+  protected form = this.formBuilder.group({});
+
+  protected formFields: FormField[] = [];
+
+  protected _formConfig: NewFormConfig = {
+    submitLabel: "actie.starten",
+  };
+
   constructor(
-    private route: ActivatedRoute,
-    private planItemsService: PlanItemsService,
-    private taakFormulierenService: TaakFormulierenService,
+    private readonly planItemsService: PlanItemsService,
+    private readonly identityService: IdentityService,
+    private readonly taakFormulierenService: TaakFormulierenService,
+    private readonly formBuilder: FormBuilder,
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit() {
     this.formConfig = new FormConfigBuilder()
       .saveText("actie.starten")
       .cancelText("actie.annuleren")
       .build();
 
-    if (this.planItem.type === "HUMAN_TASK") {
+    if (this.planItem.type !== "HUMAN_TASK") {
+      this.formItems = [[]];
+      this.formFields = [];
+      return;
+    }
+
+    try {
+      this.taakFormulierenService.getNewFormBuilder(this.planItem.formulierDefinitie).map(([formControl, formField]) => {
+        this.form.addControl(formField.key, formControl);
+        this.formFields.push(formField)
+      })
+
+      const groupControl = this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [Validators.required]);
+      this.form.addControl("group", groupControl);
+
+      const groups = await lastValueFrom(this.identityService.listGroups())
+      this.formFields.push({ type: 'auto-complete', key: 'group', options: groups, optionDisplayValue: 'naam' })
+
+      const userControl = this.formBuilder.control<GeneratedType<"RestUser"> | null>(null, []);
+      this.form.addControl("user", userControl);
+      this.formFields.push({ type: 'auto-complete', key: 'user', options: [], optionDisplayValue: 'naam' })
+
+      groupControl.valueChanges.subscribe(value => {
+        userControl.reset()
+
+        if(!value) return
+        this.identityService.listUsersInGroup(value.id).subscribe(users => {
+         this.formFields = this.formFields.map(field => {
+           if(field.key === 'user') (field as {options: unknown[]}).options = users
+
+           return field
+         })
+        })
+      })
+
+    } catch (e) {
       this.formulier = this.taakFormulierenService
-        .getFormulierBuilder(this.planItem.formulierDefinitie)
-        .startForm(this.planItem, this.zaak)
-        .build();
+          .getFormulierBuilder(this.planItem.formulierDefinitie)
+          .startForm(this.planItem, this.zaak)
+          .build();
       if (this.formulier.disablePartialSave) {
         this.formConfig.partialButtonText = null;
       }
+      console.log(this.formulier);
       this.formItems = this.formulier.form;
-    } else {
-      this.formItems = [[]];
     }
+  }
+
+  onFormCancel() {
+    this.done.emit();
   }
 
   onFormSubmit(formGroup?: FormGroup) {
@@ -61,10 +111,33 @@ export class HumanTaskDoComponent implements OnInit {
       return;
     }
 
-    this.planItemsService
-      .doHumanTaskPlanItem(this.formulier.getHumanTaskData(formGroup))
-      .subscribe(() => {
-        this.done.emit();
-      });
+    try {
+      const taakData = this.formulier.getHumanTaskData(formGroup)
+      this.planItemsService
+          .doHumanTaskPlanItem(taakData)
+          .subscribe(() => {
+            this.done.emit();
+          });
+    } catch {
+      // new style form
+      this.planItemsService
+          .doHumanTaskPlanItem({
+            planItemInstanceId: this.planItem.id,
+            groep: this.form.get("group")!.value!,
+            medewerker: this.form.get("user")!.value!,
+            taakStuurGegevens: {
+              sendMail: false,
+              mail: ""
+            },
+            taakdata: Object.entries(formGroup.controls).reduce((acc, [key, control]) => {
+              const {value} = control;
+              acc[key] = typeof value === 'boolean' ? `${value}` : value;
+              return acc
+            }, {} as Record<string, string>)
+          })
+          .subscribe(() => {
+            this.done.emit();
+          });
+    }
   }
 }

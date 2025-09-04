@@ -9,7 +9,7 @@ import {
   transferArrayItem,
 } from "@angular/cdk/drag-drop";
 import { Component, OnInit, ViewChild } from "@angular/core";
-import { FormControl } from "@angular/forms";
+import { FormControl} from "@angular/forms";
 import { MatMenuTrigger } from "@angular/material/menu";
 import moment from "moment";
 import { forkJoin } from "rxjs";
@@ -73,7 +73,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private readonly utilService: UtilService,
     private readonly signaleringenService: SignaleringenService,
-    private readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
+    private readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService
   ) {}
 
   ngOnInit() {

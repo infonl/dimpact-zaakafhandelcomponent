@@ -14,7 +14,16 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<div class="form">
+<section *ngIf="formFields.length" class="mt-2">
+    <zac-form
+        [form]="form"
+        [fields]="formFields"
+        [config]="_formConfig"
+        (formSubmitted)="onFormSubmit($event)"
+        (formCancelled)="onFormCancel()"
+    />
+</section>
+<div class="form" *ngIf="!formFields.length">
   <mfb-form
     *ngIf="formItems"
     (formSubmit)="onFormSubmit($event)"
