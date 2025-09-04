@@ -523,7 +523,10 @@ class ZaakRestService @Inject constructor(
                 // (to be replaced by PolicyService)
                 .filter {
                     if (configuratieService.featureFlagPabcIntegration()) {
-                        loggedInUser.isAuthorisedForZaaktypePabc(it.omschrijving, BEHANDELAAR)
+                        // return zaaktypes for which a BPMN process definition key is defined
+                        // or an application role authorizes it for the current user
+                        it.hasBPMNProcessDefinition() ||
+                            loggedInUser.isAuthorisedForZaaktypePabc(it.omschrijving, BEHANDELAAR)
                     } else {
                         loggedInUser.isAuthorisedForZaaktype(it.omschrijving)
                     }
@@ -533,13 +536,14 @@ class ZaakRestService @Inject constructor(
                 .filter {
                     // return zaaktypes for which a BPMN process definition key
                     // or a valid (CMMN) zaakafhandelparameters has been configured
-                    (
-                        configuratieService.featureFlagBpmnSupport() &&
-                            bpmnService.findProcessDefinitionForZaaktype(it.url.extractUuid()) != null
-                        ) || healthCheckService.controleerZaaktype(it.url).isValide
+                    it.hasBPMNProcessDefinition() || healthCheckService.controleerZaaktype(it.url).isValide
                 }
                 .map(restZaaktypeConverter::convert)
         }
+
+    private fun ZaakType.hasBPMNProcessDefinition() =
+        configuratieService.featureFlagBpmnSupport() &&
+                bpmnService.findProcessDefinitionForZaaktype(this.url.extractUuid()) != null
 
     @PUT
     @Path("zaakdata")

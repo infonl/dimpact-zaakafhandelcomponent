@@ -1520,7 +1520,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     Context("Listing zaak types") {
         Given(
             """
-        Two existing zaaktypes in the configured catalogue for which the logged in user is authorised
+        Two existing CMMN zaaktypes in the configured catalogue for which the logged in user is authorised
         and which are valid on the current date
         """
         ) {
@@ -1528,7 +1528,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val now = LocalDate.now()
             val zaaktypes = listOf(
                 createZaakType(
-                    omschrijving = "",
+                    omschrijving = "Zaaktype 1",
                     identification = "ZAAKTYPE1",
                     beginGeldigheid = now.minusDays(1)
                 ),
@@ -1539,9 +1539,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     eindeGeldigheid = now.plusDays(1)
                 )
             )
-            val restZaaktype1 = createRestZaaktype()
-            val restZaaktype2 = createRestZaaktype()
-            val restZaaktypes = listOf(restZaaktype1, restZaaktype2)
+            val restZaaktypes = listOf(createRestZaaktype(), createRestZaaktype())
             val loggedInUser = createLoggedInUser(
                 zaakTypes = zaaktypes.map { it.omschrijving }.toSet(),
                 pabcMappings = mapOf(
@@ -1557,7 +1555,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
             }
 
-            And("PABC is disabled, BPMN support is disabled") {
+            And("PABC is disabled") {
                 every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogueURI
                 every { configuratieService.featureFlagPabcIntegration() } returns false
                 every { configuratieService.featureFlagBpmnSupport() } returns false
@@ -1565,7 +1563,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 When("the zaaktypes are requested") {
                     val returnedRestZaaktypes = zaakRestService.listZaaktypes()
 
-                    Then("the zaaktypes are returned for which the user is authorised") {
+                    Then("only CMMN zaaktypes are returned for which the user is authorised") {
                         verify(exactly = 1) {
                             ztcClientService.listZaaktypen(defaultCatalogueURI)
                         }
@@ -1574,7 +1572,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     }
                 }
             }
-            And("PABC is enabled, BPMN support is disabled") {
+            And("PABC is enabled") {
                 clearMocks(configuratieService, ztcClientService)
 
                 every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
@@ -1585,99 +1583,115 @@ class ZaakRestServiceTest : BehaviorSpec({
                 When("the zaaktypes are requested") {
                     val returnedRestZaaktypes = zaakRestService.listZaaktypes()
 
-                    Then("the zaaktypes are returned for which the user is authorised") {
+                    Then("CMMN only zaaktypes are returned for which the user is authorised") {
                         verify(exactly = 1) {
                             ztcClientService.listZaaktypen(defaultCatalogueURI)
                         }
-                        returnedRestZaaktypes shouldHaveSize 1
-                        returnedRestZaaktypes shouldBe arrayOf(restZaaktype2)
-                    }
-                }
-            }
-            And("PABC and BPMN support are enabled") {
-                clearMocks(configuratieService, ztcClientService)
-
-                every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
-                every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogueURI
-                every { configuratieService.featureFlagPabcIntegration() } returns true
-                every { configuratieService.featureFlagBpmnSupport() } returns true
-                every {
-                    bpmnService.findProcessDefinitionForZaaktype(zaaktypes.last().url.extractUuid())
-                } returns createZaaktypeBpmnProcessDefinition()
-
-                When("the zaaktypes are requested") {
-                    val returnedRestZaaktypes = zaakRestService.listZaaktypes()
-
-                    Then("the zaaktypes are returned for which the user is authorised") {
-                        verify(exactly = 1) {
-                            ztcClientService.listZaaktypen(defaultCatalogueURI)
-                        }
-                        returnedRestZaaktypes shouldHaveSize 1
-                        returnedRestZaaktypes shouldBe arrayOf(restZaaktype2)
+                        returnedRestZaaktypes shouldHaveSize 2
+                        returnedRestZaaktypes shouldBe restZaaktypes
                     }
                 }
             }
         }
 
-        Given(
-            """
-        Two existing zaaktypes in the configured catalogue for which the logged in user is authorised
-        and which are valid on the current date and of which the first zaaktype has valid zaakafhandelparameters
-        """
-        ) {
+        Given("Two CMMN and a BPMN zaaktypes valid on the current date") {
             clearAllMocks()
             val defaultCatalogueURI = URI("http://example.com/fakeCatalogue")
             val now = LocalDate.now()
             val zaakType1UUID = UUID.randomUUID()
             val zaakType2UUID = UUID.randomUUID()
+            val zaakType3UUID = UUID.randomUUID()
             val zaaktypes = listOf(
+                // authorized CMMN
                 createZaakType(
                     omschrijving = "Zaaktype 1",
                     identification = "ZAAKTYPE1",
                     uri = URI("https://example.com/zaaktypes/$zaakType1UUID"),
                     beginGeldigheid = now.minusDays(1)
                 ),
+                // BPMN zaaktype
                 createZaakType(
                     omschrijving = "Zaaktype 2",
                     identification = "ZAAKTYPE2",
                     uri = URI("https://example.com/zaaktypes/$zaakType2UUID"),
                     beginGeldigheid = now.minusDays(1)
+                ),
+                // not authorized CMMN
+                createZaakType(
+                    omschrijving = "Zaaktype 3",
+                    identification = "ZAAKTYPE3",
+                    uri = URI("https://example.com/zaaktypes/$zaakType3UUID"),
+                    beginGeldigheid = now.minusDays(1)
                 )
             )
-            val restZaaktypes = listOf(createRestZaaktype(), createRestZaaktype())
+            val restZaaktype1 = createRestZaaktype()
+            val restZaaktype2 = createRestZaaktype()
+            val restZaaktype3 = createRestZaaktype()
+            val restZaaktypes = listOf(restZaaktype1, restZaaktype2, restZaaktype3)
             val loggedInUser = createLoggedInUser(
-                zaakTypes = zaaktypes.map { it.omschrijving }.toSet()
+                zaakTypes = zaaktypes.map { it.omschrijving }.toSet(),
+                pabcMappings = mapOf(
+                    "Zaaktype 1" to setOf("applicationRole1", "behandelaar"), // authorized CMMN
+                    "Zaaktype 2" to setOf("behandelaar", "applicationRole2"), // BPMN
+                    "Zaaktype 3" to setOf("applicationRole3"),                // unauthorized CMMN
+                )
             )
             val zaaktypeInrichtingscheck = createZaaktypeInrichtingscheck()
-            every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogueURI
-            every { configuratieService.featureFlagBpmnSupport() } returns true
-            every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
             every { loggedInUserInstance.get() } returns loggedInUser
             every { healthCheckService.controleerZaaktype(zaaktypes[0].url) } returns zaaktypeInrichtingscheck
+            every { healthCheckService.controleerZaaktype(zaaktypes[2].url) } returns zaaktypeInrichtingscheck
             zaaktypes.forEach {
                 every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
             }
 
-            And(
-                "BPMN support is enabled and a BPMN process definition exists for the second but not for the first zaaktype"
-            ) {
-                every { configuratieService.featureFlagBpmnSupport() } returns true
+            And("PABC is disabled") {
                 every { configuratieService.featureFlagPabcIntegration() } returns false
+                every { configuratieService.featureFlagBpmnSupport() } returns true
+                every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogueURI
+                every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
+
                 every { bpmnService.findProcessDefinitionForZaaktype(zaakType1UUID) } returns null
                 every { bpmnService.findProcessDefinitionForZaaktype(zaakType2UUID) } returns createZaaktypeBpmnProcessDefinition()
+                every { bpmnService.findProcessDefinitionForZaaktype(zaakType3UUID) } returns null
 
                 When("the zaaktypes are requested") {
                     val returnedRestZaaktypes = zaakRestService.listZaaktypes()
 
-                    Then("the zaaktypes are returned for which the user is authorised") {
+                    Then("the zaaktypes for which the user is authorised are returned") {
                         verify(exactly = 1) {
                             ztcClientService.listZaaktypen(defaultCatalogueURI)
                         }
-                        verify(exactly = 2) {
+                        verify(exactly = 3) {
+                            bpmnService.findProcessDefinitionForZaaktype(any())
+                        }
+                        returnedRestZaaktypes shouldHaveSize 3
+                        returnedRestZaaktypes shouldBe restZaaktypes
+                    }
+                }
+            }
+            And("PABC is enabled") {
+                clearMocks(configuratieService, ztcClientService, bpmnService)
+                every { configuratieService.featureFlagPabcIntegration() } returns true
+                every { configuratieService.featureFlagBpmnSupport() } returns true
+                every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogueURI
+                every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
+
+                every { bpmnService.findProcessDefinitionForZaaktype(zaakType1UUID) } returns null
+                every { bpmnService.findProcessDefinitionForZaaktype(zaakType2UUID) } returns createZaaktypeBpmnProcessDefinition()
+                every { bpmnService.findProcessDefinitionForZaaktype(zaakType3UUID) } returns null
+
+                When("the zaaktypes are requested") {
+                    val returnedRestZaaktypes = zaakRestService.listZaaktypes()
+
+                    Then("only the zaaktypes for which the user is authorised are returned, plus BPMN ones") {
+                        verify(exactly = 1) {
+                            ztcClientService.listZaaktypen(defaultCatalogueURI)
+                        }
+                        verify(exactly = 5) {
                             bpmnService.findProcessDefinitionForZaaktype(any())
                         }
                         returnedRestZaaktypes shouldHaveSize 2
-                        returnedRestZaaktypes shouldBe restZaaktypes
+                        returnedRestZaaktypes shouldBe listOf(restZaaktype1, restZaaktype2)
                     }
                 }
             }
