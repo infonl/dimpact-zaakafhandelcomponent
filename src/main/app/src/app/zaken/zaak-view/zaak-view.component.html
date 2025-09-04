@@ -596,9 +596,15 @@
                       {{ "identificatie" | translate }}
                     </th>
                     <td mat-cell *matCellDef="let betrokkene">
-                      {{ betrokkene.identificatie }}
+                      <span *ngIf="betrokkene.identificatie">
+                        {{ betrokkene.identificatie }}
+                      </span>
+                      <span
+                        *ngIf="betrokkene.identificatie && betrokkene.kvkNummer"
+                        >/</span
+                      >
                       <span *ngIf="betrokkene.kvkNummer"
-                        >/ {{ betrokkene.kvkNummer }}&nbsp;</span
+                        >{{ betrokkene.kvkNummer }}&nbsp;</span
                       >
                       <span
                         *ngIf="
