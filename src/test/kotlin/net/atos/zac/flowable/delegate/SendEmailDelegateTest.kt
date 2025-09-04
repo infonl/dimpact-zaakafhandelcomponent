@@ -50,9 +50,9 @@ class SendEmailDelegateTest : BehaviorSpec({
         every { flowableHelper.mailService } returns mailService
 
         every { delegateExecution.parent } returns parentDelegateExecution
-        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns "fakeUUID"
+        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
 
-        every { zrcClientService.readZaakByID("fakeUUID") } returns zaak
+        every { zrcClientService.readZaakByID(zaak.identificatie) } returns zaak
 
         val fromExpression = mockk<JuelExpression>()
         every { fromExpression.getValue(delegateExecution) } returns fromEmail
@@ -108,9 +108,9 @@ class SendEmailDelegateTest : BehaviorSpec({
         every { flowableHelper.mailService } returns mailService
 
         every { delegateExecution.parent } returns parentDelegateExecution
-        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns "fakeUUID"
+        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
 
-        every { zrcClientService.readZaakByID("fakeUUID") } returns zaak
+        every { zrcClientService.readZaakByID(zaak.identificatie) } returns zaak
 
         val fromExpression = mockk<FixedValue>()
         every { fromExpression.getValue(delegateExecution) } returns fromEmail

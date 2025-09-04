@@ -41,9 +41,9 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         every { flowableHelper.zgwApiService } returns zgwApiService
 
         every { delegateExecution.parent } returns parentDelegateExecution
-        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns "fakeUUID"
+        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
 
-        every { zrcClientService.readZaakByID("fakeUUID") } returns zaak
+        every { zrcClientService.readZaakByID(zaak.identificatie) } returns zaak
 
         val juelExpression = mockk<JuelExpression>()
         every { juelExpression.getValue(delegateExecution) } returns zaakStatusName
@@ -81,9 +81,9 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         every { flowableHelper.zgwApiService } returns zgwApiService
 
         every { delegateExecution.parent } returns parentDelegateExecution
-        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns "fakeUUID"
+        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
 
-        every { zrcClientService.readZaakByID("fakeUUID") } returns zaak
+        every { zrcClientService.readZaakByID(zaak.identificatie) } returns zaak
 
         val fixedValueExpression = mockk<FixedValue>()
         every { fixedValueExpression.getValue(delegateExecution) } returns zaakStatusName
