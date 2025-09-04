@@ -32,9 +32,6 @@ class LoggedInUser(
     fun isAuthorisedForZaaktype(zaaktypeOmschrijving: String) =
         geautoriseerdeZaaktypen?.contains(zaaktypeOmschrijving) ?: true
 
-    /**
-     * If PABC-based authorization is active, use the map of application roles per zaaktype.
-     */
-    fun isAuthorisedForZaaktypePabc(zaaktypeOmschrijving: String) =
-        applicationRolesPerZaaktype[zaaktypeOmschrijving]?.isNotEmpty() == true
+    fun isAuthorisedForZaaktypePabc(zaaktypeOmschrijving: String, applicationRole: ApplicationRole) =
+        applicationRolesPerZaaktype[zaaktypeOmschrijving]?.contains(applicationRole.value) ?: false
 }

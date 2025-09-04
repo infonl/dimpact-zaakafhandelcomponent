@@ -113,6 +113,7 @@ import nl.info.zac.app.zaak.model.toPatchZaak
 import nl.info.zac.app.zaak.model.toRestDecisionTypes
 import nl.info.zac.app.zaak.model.toRestZaakBetrokkenen
 import nl.info.zac.app.zaak.model.toZaak
+import nl.info.zac.authentication.ApplicationRole.BEHANDELAAR
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.flowable.bpmn.BpmnService
@@ -516,27 +517,29 @@ class ZaakRestService @Inject constructor(
     @GET
     @Path("zaaktypes")
     fun listZaaktypes(): List<RestZaaktype> =
-        ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
-            // After PABC is fully integrated, `isAuthorisedForZaaktype` will be decommissioned
-            // (to be replaced by PolicyService)
-            .filter { zt ->
-                if (configuratieService.featureFlagPabcIntegration()) {
-                    loggedInUserInstance.get().isAuthorisedForZaaktypePabc(zt.omschrijving)
-                } else {
-                    loggedInUserInstance.get().isAuthorisedForZaaktype(zt.omschrijving)
+        loggedInUserInstance.get().let { loggedInUser ->
+            ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
+                // After PABC is fully integrated, `isAuthorisedForZaaktype` will be decommissioned
+                // (to be replaced by PolicyService)
+                .filter {
+                    if (configuratieService.featureFlagPabcIntegration()) {
+                        loggedInUser.isAuthorisedForZaaktypePabc(it.omschrijving, BEHANDELAAR)
+                    } else {
+                        loggedInUser.isAuthorisedForZaaktype(it.omschrijving)
+                    }
                 }
-            }
-            .filter { !it.concept }
-            .filter { it.isNuGeldig() }
-            .filter {
-                // return zaaktypes for which a BPMN process definition key
-                // or a valid (CMMN) zaakafhandelparameters has been configured
-                (
-                    configuratieService.featureFlagBpmnSupport() &&
-                        bpmnService.findProcessDefinitionForZaaktype(it.url.extractUuid()) != null
-                    ) || healthCheckService.controleerZaaktype(it.url).isValide
-            }
-            .map(restZaaktypeConverter::convert)
+                .filter { !it.concept }
+                .filter { it.isNuGeldig() }
+                .filter {
+                    // return zaaktypes for which a BPMN process definition key
+                    // or a valid (CMMN) zaakafhandelparameters has been configured
+                    (
+                        configuratieService.featureFlagBpmnSupport() &&
+                            bpmnService.findProcessDefinitionForZaaktype(it.url.extractUuid()) != null
+                        ) || healthCheckService.controleerZaaktype(it.url).isValide
+                }
+                .map(restZaaktypeConverter::convert)
+        }
 
     @PUT
     @Path("zaakdata")
