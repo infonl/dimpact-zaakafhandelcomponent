@@ -69,7 +69,7 @@ import { PersoonZoekComponent } from "../../zoek/personen/persoon-zoek.component
 })
 export class KlantKoppelBetrokkeneComponent implements OnInit {
   @Input({ required: true }) type!: "persoon" | "bedrijf";
-  @Input({ required: true }) zaaktypeUUID!: string;
+  @Input() zaaktypeUUID?: string | null = null;
   @Output() klantGegevens = new EventEmitter<KlantGegevens>();
   @ViewChild("zoek") zoek!: PersoonZoekComponent | BedrijfZoekComponent;
 
@@ -93,6 +93,8 @@ export class KlantKoppelBetrokkeneComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    if (!this.zaaktypeUUID) return;
+
     this.klantenService
       .listBetrokkeneRoltypen(this.zaaktypeUUID)
       .subscribe((betrokkeneRoltypen) => {

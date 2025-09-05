@@ -184,11 +184,11 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
     }
 
     if (
-      this.zaak.initiatorIdentificatieType &&
-      this.zaak.initiatorIdentificatie
+      this.zaak.initiatorIdentificatie?.type &&
+      this.zaak.initiatorIdentificatie?.bsnNummer
     ) {
       this.klantenService
-        .ophalenContactGegevens(this.zaak.initiatorIdentificatie)
+        .ophalenContactGegevens(this.zaak.initiatorIdentificatie.bsnNummer)
         .subscribe((gegevens) => {
           if (gegevens.emailadres) {
             const initiatorToevoegenIcon = new ActionIcon(

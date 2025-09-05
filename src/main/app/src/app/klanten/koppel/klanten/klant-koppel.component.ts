@@ -57,6 +57,7 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
           </ng-template>
           <zac-klant-koppel-initiator-persoon
             type="bedrijf"
+            [context]="this.context()"
             (klantGegevens)="klantGegevens.emit($event)"
           />
         </mat-tab>
@@ -101,10 +102,10 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
 })
 export class KlantKoppelComponent {
   @Input() initiator = false;
-  @Input() zaaktypeUUID: string;
-  @Input() sideNav: MatDrawer;
-  @Input() allowPersoon: boolean;
-  @Input() allowBedrijf: boolean;
+  @Input() zaaktypeUUID?: string | null = null;
+  @Input({ required: true }) sideNav!: MatDrawer;
+  @Input() allowPersoon?: boolean;
+  @Input() allowBedrijf?: boolean;
   @Output() klantGegevens = new EventEmitter<KlantGegevens>();
 
   context = input.required<string>();

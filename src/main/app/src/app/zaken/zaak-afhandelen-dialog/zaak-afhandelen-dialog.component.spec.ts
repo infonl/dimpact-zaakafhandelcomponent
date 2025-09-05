@@ -55,8 +55,12 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
         afrondenMail: "BESCHIKBAAR_AAN",
       },
     }),
-    initiatorIdentificatieType: "BSN",
-    initiatorIdentificatie: "123456789",
+    initiatorIdentificatie: fromPartial<
+      GeneratedType<"BetrokkeneIdentificatie">
+    >({
+      type: "BSN",
+      bsnNummer: "123456789",
+    }),
     resultaat: null,
     besluiten: [],
   });

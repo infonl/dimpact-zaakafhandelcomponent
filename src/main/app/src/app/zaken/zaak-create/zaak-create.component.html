@@ -27,7 +27,7 @@
       [sideNav]="actionsSidenav"
     ></zac-bag-zoek>
   </mat-sidenav>
-  <form [formGroup]="form" (ngSubmit)="formSubmit(form)">
+  <form [formGroup]="form" (ngSubmit)="formSubmit()">
     <fieldset>
       <legend>
         <h1>{{ "actie.zaak.aanmaken" | translate }}</h1>
@@ -45,7 +45,8 @@
           }}</mat-hint>
         </zac-auto-complete>
         <zac-input
-          key="initiator"
+          key="initiatorIdentificatie"
+          label="initiator"
           [form]="form"
           readonly
           class="col-12 col-md-6"
@@ -158,11 +159,7 @@
         >
           {{ "actie.aanmaken" | translate }}
         </button>
-        <button
-          type="button"
-          mat-raised-button
-          (click)="navigationService.back()"
-        >
+        <button type="button" mat-raised-button (click)="back()">
           {{ "actie.annuleren" | translate }}
         </button>
       </mat-action-row>

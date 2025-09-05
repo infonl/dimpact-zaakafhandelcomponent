@@ -90,6 +90,7 @@ import nl.info.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestZaaktype
 import nl.info.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
+import nl.info.zac.app.zaak.model.createBetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.createRESTGeometry
 import nl.info.zac.app.zaak.model.createRESTZaakAanmaakGegevens
 import nl.info.zac.app.zaak.model.createRESTZaakAssignmentData
@@ -98,6 +99,7 @@ import nl.info.zac.app.zaak.model.createRestDocumentOntkoppelGegevens
 import nl.info.zac.app.zaak.model.createRestGroup
 import nl.info.zac.app.zaak.model.createRestZaak
 import nl.info.zac.app.zaak.model.createRestZaakAssignmentToLoggedInUserData
+import nl.info.zac.app.zaak.model.createRestZaakCreateData
 import nl.info.zac.app.zaak.model.createRestZaakInitiatorGegevens
 import nl.info.zac.app.zaak.model.createRestZaakLinkData
 import nl.info.zac.app.zaak.model.createRestZaakLocatieGegevens
@@ -222,6 +224,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val formulierData = mapOf(Pair("fakeKey", "fakeValue"))
             val objectRegistratieObject = createORObject()
             val productaanvraagDimpact = createProductaanvraagDimpact()
+            val restZaakCreateData = createRestZaakCreateData(einddatumGepland = LocalDate.now().minusDays(1))
             val restZaak = createRestZaak(einddatumGepland = LocalDate.now().minusDays(1))
             val zaakTypeUUID = UUID.randomUUID()
             val zaakType = createZaakType(
@@ -230,7 +233,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 uri = URI("https://example.com/zaaktypes/$zaakTypeUUID")
             )
             val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
-                zaak = createRestZaak(
+                restZaakCreateData = createRestZaakCreateData(
                     restZaakType = RestZaaktype(
                         uuid = zaakTypeUUID
                     ),
@@ -298,8 +301,8 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { zaakService.readZaakTypeByUUID(zaakTypeUUID) } returns zaakType
             every {
                 zaakService.addInitiatorToZaak(
-                    identificationType = restZaak.initiatorIdentificatieType!!,
-                    identification = restZaak.initiatorIdentificatie!!,
+                    identificationType = restZaakCreateData.initiatorIdentificatie!!.type,
+                    identification = restZaakCreateData.initiatorIdentificatie!!.bsnNummer!!,
                     zaak = zaak,
                     explanation = "Aanmaken zaak"
                 )
@@ -357,7 +360,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         Given("zaak input data has no communication channel") {
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
-                zaak = createRestZaak(communicatiekanaal = null)
+                restZaakCreateData = createRestZaakCreateData(communicatiekanaal = null)
             )
             every { zaakService.readZaakTypeByUUID(any()) } returns zaakType
             every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
@@ -376,7 +379,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         Given("zaak input data has blank communication channel") {
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
-                zaak = createRestZaak(communicatiekanaal = "      ")
+                restZaakCreateData = createRestZaakCreateData(communicatiekanaal = "      ")
             )
             every { zaakService.readZaakTypeByUUID(any<UUID>()) } returns zaakType
             every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
@@ -395,7 +398,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         Given("zaak input data has due date when servicenorm is not specified in OpenZaak") {
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
-                zaak = createRestZaak(einddatumGepland = LocalDate.now())
+                restZaakCreateData = createRestZaakCreateData(einddatumGepland = LocalDate.now())
             )
             every { zaakService.readZaakTypeByUUID(any<UUID>()) } returns zaakType
             every {
@@ -423,12 +426,12 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
                 val zaakafhandelParameters = createZaakafhandelParameters(betrokkeneKoppelingen = betrokkeneKoppelingen)
                 val zaakType = createZaakType()
-                val zaak = createRestZaak(uuid = zaakUUID, initiatorIdentificatieType = IdentificatieType.BSN)
-                val zaakAanmaakGegevens = createRESTZaakAanmaakGegevens(zaak = zaak)
+                val restZaakCreateData = createRestZaakCreateData()
+                val zaakAanmaakGegevens = createRESTZaakAanmaakGegevens(restZaakCreateData = restZaakCreateData)
 
-                every { zaakService.readZaakTypeByUUID(zaak.zaaktype.uuid) } returns zaakType
+                every { zaakService.readZaakTypeByUUID(restZaakCreateData.zaaktype.uuid) } returns zaakType
                 every {
-                    zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.uuid)
+                    zaakafhandelParameterService.readZaakafhandelParameters(restZaakCreateData.zaaktype.uuid)
                 } returns zaakafhandelParameters
 
                 val exception = shouldThrow<BetrokkeneNotAllowedException> {
@@ -997,11 +1000,13 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaakType = createZaakType(servicenorm = "P10D")
             val zaakRechten = createZaakRechten()
             val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.minusDays(10)
-            val restZaak = createRestZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate).apply {
+            val restZaakCreateData = createRestZaakCreateData(uiterlijkeEinddatumAfdoening = newZaakFinalDate).apply {
                 einddatumGepland = startdatum
             }
-            val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(zaak = restZaak, reden = changeDescription)
-            val patchedZaak = createZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate)
+            val restZaakEditMetRedenGegevens =
+                RESTZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
+            val patchedZaak = createZaak()
+            val patchedRestZaak = createRestZaak()
             val task = mockk<Task>()
 
             every {
@@ -1009,24 +1014,24 @@ class ZaakRestServiceTest : BehaviorSpec({
             } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
             every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
-            every { flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns listOf(task, task, task)
+            every { flowableTaskService.listOpenTasksForZaak(any()) } returns listOf(task, task, task)
             every { task.dueDate } returns zaak.uiterlijkeEinddatumAfdoening.toDate()
             every { task.name } returnsMany listOf("fakeTask", AANVULLENDE_INFORMATIE_TASK_NAME, "another task")
             every { task.dueDate = newZaakFinalDate.toDate() } just runs
             every { flowableTaskService.updateTask(task) } returns task
             every { task.id } returns "id"
             every { eventingService.send(any<ScreenEvent>()) } just runs
-            every { restZaakConverter.toRestZaak(patchedZaak, zaakType, zaakRechten) } returns restZaak
-            every { identityService.validateIfUserIsInGroup(restZaak.behandelaar!!.id, restZaak.groep!!.id) } just runs
+            every { restZaakConverter.toRestZaak(patchedZaak, zaakType, zaakRechten) } returns patchedRestZaak
+            every {
+                identityService.validateIfUserIsInGroup(restZaakCreateData.behandelaar!!.id, restZaakCreateData.groep!!.id)
+            } just runs
             every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
 
             When("zaak final date is set to a later date") {
                 val updatedRestZaak = zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
 
                 Then("zaak is updated with the new data") {
-                    with(updatedRestZaak) {
-                        uiterlijkeEinddatumAfdoening shouldBe newZaakFinalDate
-                    }
+                    updatedRestZaak shouldBe patchedRestZaak
                 }
 
                 And("tasks final date are shifted accordingly") {
@@ -1047,8 +1052,8 @@ class ZaakRestServiceTest : BehaviorSpec({
             val changeDescription = "change description"
             val zaak = createZaak()
             val zaakType = createZaakType()
-            val restZaak = createRestZaak()
-            val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaak, changeDescription)
+            val restZaakCreateData = createRestZaakCreateData()
+            val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaakCreateData, changeDescription)
 
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
@@ -1071,8 +1076,9 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten(verlengenDoorlooptijd = false)
             val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.minusDays(10)
-            val restZaak = createRestZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate, einddatumGepland = null)
-            val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaak, "change description")
+            val restZaakCreateData =
+                createRestZaakCreateData(uiterlijkeEinddatumAfdoening = newZaakFinalDate, einddatumGepland = null)
+            val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaakCreateData, "change description")
 
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
@@ -1091,16 +1097,17 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
 
             When("zaak update is requested without a new final date") {
-                val zaakWithoutDateChange = restZaak.copy(
+                val restZaakCreateData = restZaakCreateData.copy(
                     uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening
                 )
+                val restZaak = createRestZaak()
                 val zaakRechten = createZaakRechten()
                 every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
                 every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
-                every { restZaakConverter.toRestZaak(any(), zaakType, zaakRechten) } returns zaakWithoutDateChange
+                every { restZaakConverter.toRestZaak(any(), zaakType, zaakRechten) } returns restZaak
                 every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
 
-                zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens.copy(zaak = zaakWithoutDateChange))
+                zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens.copy(zaak = restZaakCreateData))
 
                 Then("it succeeds") {
                     verify(exactly = 1) {
@@ -1115,8 +1122,9 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten(wijzigenDoorlooptijd = false)
             val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.minusDays(10)
-            val restZaak = createRestZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate, einddatumGepland = null)
-            val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaak, "change description")
+            val restZaakCreateData =
+                createRestZaakCreateData(uiterlijkeEinddatumAfdoening = newZaakFinalDate, einddatumGepland = null)
+            val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaakCreateData, "change description")
 
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
@@ -1135,16 +1143,16 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
 
             When("zaak update is requested without a new final date") {
-                val zaakWithoutDateChange = restZaak.copy(
+                val restZaak = createRestZaak(
                     uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening
                 )
                 val zaakRechten = createZaakRechten()
                 every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
                 every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
-                every { restZaakConverter.toRestZaak(any(), zaakType, zaakRechten) } returns zaakWithoutDateChange
+                every { restZaakConverter.toRestZaak(any(), zaakType, zaakRechten) } returns restZaak
                 every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
 
-                zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens.copy(zaak = zaakWithoutDateChange))
+                zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens.copy(zaak = restZaakCreateData))
 
                 Then("it succeeds") {
                     verify(exactly = 1) {
@@ -1158,8 +1166,8 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
-            val restZaak = createRestZaak(einddatumGepland = LocalDate.now())
-            val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaak, "change description")
+            val restZaakCreateData = createRestZaakCreateData(einddatumGepland = LocalDate.now())
+            val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaakCreateData, "change description")
 
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
@@ -1293,7 +1301,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A zaak without an initiator") {
+        Given("A zaak without an initiator and an initiator of type vestiging") {
             val kvkNummer = "1234567"
             val vestigingsnummer = "00012352546"
             val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens(
@@ -1322,14 +1330,14 @@ class ZaakRestServiceTest : BehaviorSpec({
             } just runs
             every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten) } returns createRestZaak()
 
-            When("the initiator is updated with an explanation") {
+            When("the initiator is updated") {
                 zaakRestService.updateInitiator(
                     restZaakInitiatorGegevens.apply {
                         toelichting = "test reden"
                     }
                 )
 
-                Then("the explanation should get saved") {
+                Then("the initiator should be added to the zaak") {
                     verify(exactly = 1) {
                         zaakService.addInitiatorToZaak(
                             IdentificatieType.VN,
@@ -1356,6 +1364,85 @@ class ZaakRestServiceTest : BehaviorSpec({
                             any(),
                             "Toegekend door de medewerker tijdens het behandelen van de zaak"
                         )
+                    }
+                }
+            }
+        }
+
+        Given("A zaak without an initiator and an initiator of type rechtspersoon") {
+            val kvkNummer = "1234567"
+            val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens(
+                betrokkeneIdentificatie = BetrokkeneIdentificatie(
+                    type = IdentificatieType.RSIN,
+                    kvkNummer = kvkNummer,
+                )
+            )
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten()
+
+            every {
+                zaakService.readZaakAndZaakTypeByZaakUUID(restZaakInitiatorGegevens.zaakUUID)
+            } returns Pair(zaak, zaakType)
+            every { zgwApiService.findInitiatorRoleForZaak(any()) } returns null
+            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
+            every {
+                zaakService.addInitiatorToZaak(
+                    IdentificatieType.RSIN,
+                    kvkNummer,
+                    zaak,
+                    any()
+                )
+            } just runs
+            every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten) } returns createRestZaak()
+
+            When("the initiator is updated") {
+                zaakRestService.updateInitiator(
+                    restZaakInitiatorGegevens.apply {
+                        toelichting = "test reden"
+                    }
+                )
+
+                Then("the initiator should be added to the zaak") {
+                    verify(exactly = 1) {
+                        zaakService.addInitiatorToZaak(
+                            IdentificatieType.RSIN,
+                            kvkNummer,
+                            any(),
+                            "test reden"
+                        )
+                    }
+                }
+            }
+        }
+
+        Given("A zaak without an initiator and an initiator of type rechtspersoon without a KVK nummer") {
+            clearAllMocks()
+            val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens(
+                betrokkeneIdentificatie = BetrokkeneIdentificatie(
+                    type = IdentificatieType.RSIN,
+                    kvkNummer = null,
+                )
+            )
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten()
+
+            every {
+                zaakService.readZaakAndZaakTypeByZaakUUID(restZaakInitiatorGegevens.zaakUUID)
+            } returns Pair(zaak, zaakType)
+            every { zgwApiService.findInitiatorRoleForZaak(any()) } returns null
+            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
+
+            When("the initiator is updated without a required KVK nummer") {
+                val exception = shouldThrow<IllegalArgumentException> {
+                    zaakRestService.updateInitiator(restZaakInitiatorGegevens)
+                }
+
+                Then("and exception should be thrown and the initiator should not be added to the zaak") {
+                    exception.message shouldBe "KVK nummer is required for type RSIN"
+                    verify(exactly = 0) {
+                        zaakService.addInitiatorToZaak(any(), any(), any(), any())
                     }
                 }
             }
@@ -1660,14 +1747,18 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Context("Reading a zaak") {
-        Given("A zaak for which signaleringen exist") {
+        Given("A zaak with an initiator of type BSN for which signaleringen exist") {
             val zaakUUID = UUID.randomUUID()
             val zaak = createZaak(uuid = zaakUUID)
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten(lezen = true)
             val restZaak = createRestZaak(
                 uuid = zaakUUID,
-                rechten = zaakRechten.toRestZaakRechten()
+                rechten = zaakRechten.toRestZaakRechten(),
+                initiatorBetrokkeneIdentificatie = createBetrokkeneIdentificatie(
+                    type = IdentificatieType.BSN,
+                    bsnNummer = "123456789"
+                )
             )
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)

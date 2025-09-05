@@ -1364,7 +1364,7 @@ export class ZaakViewComponent
   ) {
     betrokkene["gegevens"] = "LOADING";
     switch (betrokkene.type) {
-      case "NATUURLIJK_PERSOON":
+      case "NATUURLIJK_PERSOON": {
         this.klantenService
           .readPersoon(betrokkene.identificatie, {
             context: this.zaak.uuid,
@@ -1382,21 +1382,33 @@ export class ZaakViewComponent
             }
           });
         break;
+      }
       case "NIET_NATUURLIJK_PERSOON":
-      case "VESTIGING":
+      case "VESTIGING": {
+        const betrokkeneIdentificatie = new BetrokkeneIdentificatie({
+          identificatie: betrokkene.identificatie,
+          identificatieType: betrokkene.identificatieType,
+          kvkNummer: betrokkene.kvkNummer,
+          vestigingsnummer: betrokkene.identificatie,
+        });
+
         this.klantenService
-          .readBedrijf(betrokkene.identificatie, betrokkene.kvkNummer ?? null)
-          .subscribe((bedrijf) => {
+          .readBedrijf(betrokkeneIdentificatie)
+          .subscribe((bedrijf: GeneratedType<"RestBedrijf">) => {
+            if (!bedrijf) return;
+
             betrokkene["gegevens"] = bedrijf.naam;
             if (bedrijf.adres) {
               betrokkene["gegevens"] += `,\n${bedrijf.adres}`;
             }
           });
         break;
+      }
       case "ORGANISATORISCHE_EENHEID":
-      case "MEDEWERKER":
+      case "MEDEWERKER": {
         betrokkene["gegevens"] = "-";
         break;
+      }
     }
   }
 
@@ -1505,7 +1517,7 @@ export class ZaakViewComponent
 
     return Boolean(
       brpKoppelen &&
-        ["BSN"].includes(this.zaak.initiatorIdentificatieType ?? ""),
+        ["BSN"].includes(this.zaak.initiatorIdentificatie?.type ?? ""),
     );
   }
 
@@ -1518,7 +1530,7 @@ export class ZaakViewComponent
 
     return Boolean(
       kvkKoppelen &&
-        ["VN", "RSIN"].includes(this.zaak.initiatorIdentificatieType ?? ""),
+        ["VN", "RSIN"].includes(this.zaak.initiatorIdentificatie?.type ?? ""),
     );
   }
 

@@ -64,7 +64,7 @@ data class RestZaakBetrokkene(
  * @returns the converted [RestZaakBetrokkene], or `null` if the rol has no [Rol.betrokkeneIdentificatie]
  * since we do not support [RestZaakBetrokkene] objects without an identification.
  */
-@Suppress("ReturnCount")
+@Suppress("ReturnCount", "CyclomaticComplexMethod")
 fun Rol<*>.toRestZaakBetrokkene(): RestZaakBetrokkene? {
     var identificatieType: IdentificatieType? = null
     var identificatie: String
@@ -79,8 +79,17 @@ fun Rol<*>.toRestZaakBetrokkene(): RestZaakBetrokkene? {
             // or a KVK vestiging with a vestigingsnummer.
             // If the INN NNP ID is not present (and note that it may be an empty string), we use the vestigingsnummer.
             val betrokkene = (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie ?: return null
-            identificatie = betrokkene.innNnpId.takeIf { !it.isNullOrBlank() } ?: betrokkene.vestigingsNummer ?: return null
-            identificatieType = if (betrokkene.innNnpId.isNullOrBlank()) IdentificatieType.VN else IdentificatieType.RSIN
+            identificatie = betrokkene.innNnpId.takeIf {
+                !it.isNullOrBlank()
+            } ?: betrokkene.vestigingsNummer ?: return null
+            identificatieType = if (
+                betrokkene.innNnpId.isNullOrBlank() &&
+                !betrokkene.vestigingsNummer.isNullOrBlank()
+            ) {
+                IdentificatieType.VN
+            } else {
+                IdentificatieType.RSIN
+            }
             kvkNummer = betrokkene.kvkNummer
         }
         VESTIGING -> {

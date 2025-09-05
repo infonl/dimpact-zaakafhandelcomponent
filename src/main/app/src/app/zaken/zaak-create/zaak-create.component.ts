@@ -22,6 +22,7 @@ import {
   BSN_LENGTH,
   VESTIGINGSNUMMER_LENGTH,
 } from "../../shared/utils/constants";
+import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -52,8 +53,8 @@ export class ZaakCreateComponent implements OnDestroy {
       null,
       [Validators.required],
     ),
-    initiator: this.formBuilder.control<
-      GeneratedType<"RestPersoon" | "RestBedrijf"> | null | undefined
+    initiatorIdentificatie: this.formBuilder.control<
+      GeneratedType<"BetrokkeneIdentificatie"> | null | undefined
     >(null),
     startdatum: this.formBuilder.control(moment(), [Validators.required]),
     bagObjecten: this.formBuilder.control<GeneratedType<"RESTBAGObject">[]>([]),
@@ -82,15 +83,15 @@ export class ZaakCreateComponent implements OnDestroy {
     private readonly translateService: TranslateService,
     private readonly utilService: UtilService,
     private readonly formBuilder: FormBuilder,
-    private identityService: IdentityService,
-    protected readonly navigationService: NavigationService,
+    private readonly identityService: IdentityService,
+    private readonly navigationService: NavigationService,
   ) {
     utilService.setTitle("title.zaak.aanmaken");
     this.inboxProductaanvraag =
       router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
     this.form.controls.groep.disable();
     this.form.controls.behandelaar.disable();
-    this.form.controls.initiator.disable();
+    this.form.controls.initiatorIdentificatie.disable();
 
     referentieTabelService
       .listCommunicatiekanalen(Boolean(this.inboxProductaanvraag))
@@ -110,12 +111,12 @@ export class ZaakCreateComponent implements OnDestroy {
         this.caseTypeSelected(caseType);
 
         if (!this.canAddInitiator()) {
-          this.form.controls.initiator.setValue(null);
-          this.form.controls.initiator.disable();
+          this.form.controls.initiatorIdentificatie.setValue(null);
+          this.form.controls.initiatorIdentificatie.disable();
           return;
         }
 
-        this.form.controls.initiator.enable();
+        this.form.controls.initiatorIdentificatie.enable();
       });
     this.form.controls.groep.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -142,19 +143,22 @@ export class ZaakCreateComponent implements OnDestroy {
     this.handleProductRequest(this.inboxProductaanvraag);
   }
 
-  formSubmit(form: typeof this.form): void {
-    const { bagObjecten, initiator, vertrouwelijkheidaanduiding, ...zaak } =
-      form.value;
+  formSubmit(): void {
+    const { value } = this.form;
 
     this.zakenService
       .createZaak({
         zaak: {
-          ...zaak,
-          initiatorIdentificatie: initiator?.identificatie,
-          initiatorIdentificatieType: initiator?.identificatieType,
-          vertrouwelijkheidaanduiding: vertrouwelijkheidaanduiding?.value,
-        } as unknown as GeneratedType<"RESTZaakAanmaakGegevens">["zaak"],
-        bagObjecten: bagObjecten,
+          ...value,
+          initiatorIdentificatie: new BetrokkeneIdentificatie(
+            value.initiatorIdentificatie!,
+          ),
+          vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
+          startdatum: value.startdatum?.toISOString(),
+          omschrijving: value.omschrijving!,
+          zaaktype: value.zaaktype!,
+        },
+        bagObjecten: value.bagObjecten,
         inboxProductaanvraag: this.inboxProductaanvraag,
       })
       .pipe(
@@ -169,7 +173,10 @@ export class ZaakCreateComponent implements OnDestroy {
   }
 
   async initiatorSelected(user: GeneratedType<"RestPersoon" | "RestBedrijf">) {
-    this.form.controls.initiator.setValue(user);
+    this.form.controls.initiatorIdentificatie.setValue({
+      ...user,
+      type: user.identificatieType!,
+    });
     await this.actionsSidenav.close();
   }
 
@@ -195,7 +202,7 @@ export class ZaakCreateComponent implements OnDestroy {
       !caseType.zaakafhandelparameters?.betrokkeneKoppelingen?.kvkKoppelen &&
       !caseType.zaakafhandelparameters?.betrokkeneKoppelingen?.brpKoppelen
     ) {
-      this.form.controls.initiator.setValue(null);
+      this.form.controls.initiatorIdentificatie.setValue(null);
     }
   }
 
@@ -213,26 +220,39 @@ export class ZaakCreateComponent implements OnDestroy {
       `Vanuit productaanvraag van type ${productRequest.type}`,
     );
 
-    let observable:
-      | Observable<GeneratedType<"RestPersoon"> | GeneratedType<"RestBedrijf">>
-      | undefined = undefined;
-
     const { initiatorID } = productRequest;
     switch (initiatorID.length) {
-      case BSN_LENGTH:
-        observable = this.klantenService.readPersoon(initiatorID, {
-          context: "ZAAK_AANMAKEN",
-          action: "find user",
-        });
+      case BSN_LENGTH: {
+        this.klantenService
+          .readPersoon(initiatorID, {
+            context: "ZAAK_AANMAKEN",
+            action: "find user",
+          })
+          .subscribe((result) => {
+            this.form.controls.initiatorIdentificatie.setValue({
+              ...result,
+              type: result.identificatieType!,
+            });
+          });
         break;
-      case VESTIGINGSNUMMER_LENGTH:
-        observable = this.klantenService.readBedrijf(initiatorID, null);
+      }
+      case VESTIGINGSNUMMER_LENGTH: {
+        this.klantenService
+          .readBedrijf(
+            new BetrokkeneIdentificatie({
+              identificatie: initiatorID,
+              identificatieType: "VN",
+            }),
+          )
+          .subscribe((result) => {
+            this.form.controls.initiatorIdentificatie.setValue({
+              ...result,
+              type: result.identificatieType!,
+            });
+          });
         break;
+      }
     }
-
-    observable?.subscribe((result) => {
-      this.form.controls.initiator.setValue(result);
-    });
   }
 
   protected bagDisplayValue(bagObjects: GeneratedType<"RESTBAGObject">[]) {
@@ -265,11 +285,11 @@ export class ZaakCreateComponent implements OnDestroy {
   }
 
   hasInitiator(): boolean {
-    return !!this.form.controls.initiator.value;
+    return !!this.form.controls.initiatorIdentificatie.value;
   }
 
   clearInitiator() {
-    this.form.controls.initiator.setValue(null);
+    this.form.controls.initiatorIdentificatie.setValue(null);
   }
 
   hasBagObject(): boolean {
@@ -281,6 +301,10 @@ export class ZaakCreateComponent implements OnDestroy {
 
   clearBagObjecten() {
     this.form.controls.bagObjecten.setValue([]);
+  }
+
+  protected back() {
+    this.navigationService.back();
   }
 
   ngOnDestroy() {

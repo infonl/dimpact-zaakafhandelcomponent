@@ -5,7 +5,6 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.assertions.json.shouldBeJsonObject
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
@@ -50,7 +49,6 @@ class AanvullendeInformatieTaskCompleteTest : BehaviorSpec({
                 val responseBody = completeTaskResponse.body.string()
                 logger.info { "Response: $responseBody" }
                 completeTaskResponse.isSuccessful shouldBe true
-                responseBody.shouldBeJsonObject()
                 responseBody.shouldContainJsonKeyValue("toelichting", "completed")
                 responseBody.shouldContainJsonKeyValue("status", "AFGEROND")
             }
