@@ -10,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import nl.info.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
 import nl.info.zac.app.zaak.model.ZAAK_TYPE_2_OMSCHRIJVING
+import nl.info.zac.authentication.ApplicationRole.BEHANDELAAR
 
 class LoggedInUserAuthorisationTest : BehaviorSpec({
 
@@ -20,7 +21,7 @@ class LoggedInUserAuthorisationTest : BehaviorSpec({
     Given("PABC integration enabled -> use application roles per zaaktype") {
         val userAuthorizedWithPabc = createLoggedInUser(
             pabcMappings = mapOf(
-                ZAAK_TYPE_1_OMSCHRIJVING to setOf("applicationRole1"),
+                ZAAK_TYPE_1_OMSCHRIJVING to setOf("applicationRole1", "behandelaar"),
                 ZAAK_TYPE_2_OMSCHRIJVING to emptySet()
             )
         )
@@ -28,15 +29,15 @@ class LoggedInUserAuthorisationTest : BehaviorSpec({
         When("authorisation is checked for various zaaktypen") {
 
             Then("authorised for ZAAK_TYPE_1_OMSCHRIJVING (mapped with roles)") {
-                userAuthorizedWithPabc.isAuthorisedForZaaktypePabc(ZAAK_TYPE_1_OMSCHRIJVING) shouldBe true
+                userAuthorizedWithPabc.isAuthorisedForZaaktypePabc(ZAAK_TYPE_1_OMSCHRIJVING, BEHANDELAAR) shouldBe true
             }
 
             Then("not authorised for ZAAK_TYPE_2_OMSCHRIJVING (mapped but no roles)") {
-                userAuthorizedWithPabc.isAuthorisedForZaaktypePabc(ZAAK_TYPE_2_OMSCHRIJVING) shouldBe false
+                userAuthorizedWithPabc.isAuthorisedForZaaktypePabc(ZAAK_TYPE_2_OMSCHRIJVING, BEHANDELAAR) shouldBe false
             }
 
             Then("not authorised for zaaktype not present in mappings") {
-                userAuthorizedWithPabc.isAuthorisedForZaaktypePabc("zaaktype3") shouldBe false
+                userAuthorizedWithPabc.isAuthorisedForZaaktypePabc("zaaktype3", BEHANDELAAR) shouldBe false
             }
         }
     }
