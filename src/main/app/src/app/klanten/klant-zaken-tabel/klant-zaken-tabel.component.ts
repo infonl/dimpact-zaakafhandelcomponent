@@ -7,10 +7,7 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
+  input,
   ViewChild,
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
@@ -18,11 +15,12 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { Observable, lastValueFrom, merge } from "rxjs";
+import { merge, Observable } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import {
   DEFAULT_ZOEK_PARAMETERS,
@@ -38,14 +36,15 @@ import { KlantenService } from "../klanten.service";
   templateUrl: "./klant-zaken-tabel.component.html",
   styleUrls: ["./klant-zaken-tabel.component.less"],
 })
-export class KlantZakenTabelComponent
-  implements OnInit, AfterViewInit, OnChanges
-{
-  @Input() klantIdentificatie: string;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
-  dataSource = new MatTableDataSource<ZaakZoekObject>();
-  columns = [
+export class KlantZakenTabelComponent implements AfterViewInit {
+  protected readonly klant =
+    input.required<GeneratedType<"RestBedrijf" | "RestPersoon">>();
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
+  protected dataSource = new MatTableDataSource<ZaakZoekObject>();
+  protected columns = [
     "identificatie",
     "betrokkene",
     "status",
@@ -56,42 +55,36 @@ export class KlantZakenTabelComponent
     "omschrijving",
     "url",
   ] as const;
-  filterColumns = this.columns.map((n) => n + "_filter");
-  isLoadingResults = true;
-  filterChange = new EventEmitter<void>();
-  zoekParameters = DEFAULT_ZOEK_PARAMETERS;
-  actieveFilters = false;
-  zoekResultaat = new ZoekResultaat<ZaakZoekObject>();
-  init: boolean;
-  inclusiefAfgerondeZaken = new FormControl(false);
-  ZoekVeld = ZoekVeld;
-  betrokkeneSelectControl = new FormControl<ZoekVeld>(null);
-  private laatsteBetrokkenheid: string;
+  protected filterColumns = this.columns.map((n) => n + "_filter");
+  protected isLoadingResults = true;
+  protected filterChange = new EventEmitter<void>();
+  protected zoekParameters: GeneratedType<"RestZoekParameters"> = {
+    ...DEFAULT_ZOEK_PARAMETERS,
+    type: "ZAAK",
+  };
+  protected actieveFilters = false;
+  protected zoekResultaat = new ZoekResultaat<ZaakZoekObject>();
+  protected init: boolean = false;
+  protected inclusiefAfgerondeZaken = new FormControl(false);
+  protected betrokkeneSelectControl = new FormControl<ZoekVeld | null>(null);
+  private laatsteBetrokkenheid?: string | null = null;
 
-  distinctRoltypenQuery = injectQuery(() => ({
+  protected distinctRoltypenQuery = injectQuery(() => ({
     queryKey: ["roltypen", "distinct"],
-    queryFn: () => this.listDistinctRoltypen(),
+    queryFn: () =>
+      this.klantenService
+        .listRoltypen()
+        .pipe(map((typen) => this.distinct(typen.map(({ naam }) => naam)))),
   }));
 
   constructor(
-    private utilService: UtilService,
-    private zoekenService: ZoekenService,
-    private klantenService: KlantenService,
+    private readonly utilService: UtilService,
+    private readonly zoekenService: ZoekenService,
+    private readonly klantenService: KlantenService,
   ) {}
-
-  ngOnInit(): void {
-    this.zoekParameters.type = "ZAAK";
-  }
 
   private distinct<T>(values: T[]): T[] {
     return [...new Set(values)];
-  }
-
-  private listDistinctRoltypen() {
-    const distinctRoltypen$ = this.klantenService
-      .listRoltypen()
-      .pipe(map((typen) => this.distinct(typen.map(({ naam }) => naam))));
-    return lastValueFrom(distinctRoltypen$);
   }
 
   private loadZaken(): Observable<ZoekResultaat<ZaakZoekObject>> {
@@ -120,11 +113,13 @@ export class KlantZakenTabelComponent
   }
 
   private setZoekParameterBetrokkenheid(betrokkenheid: ZoekVeld) {
+    if (!this.zoekParameters.zoeken) this.zoekParameters.zoeken = {};
+    const betrokkene = new BetrokkeneIdentificatie(this.klant());
     this.zoekParameters.zoeken[(this.laatsteBetrokkenheid = betrokkenheid)] =
-      this.klantIdentificatie;
+      betrokkene.bsnNummer ?? betrokkene.kvkNummer ?? "";
   }
 
-  ngAfterViewInit(): void {
+  ngAfterViewInit() {
     this.init = true;
     this.filtersChanged();
     this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
@@ -149,32 +144,26 @@ export class KlantZakenTabelComponent
       });
   }
 
-  getBetrokkenheid(zaak: ZaakZoekObject): string[] {
-    const rollen = [];
-    Object.entries(zaak.betrokkenen).forEach((value: [string, string[]]) => {
-      const rol = value[0];
-      const ids = value[1];
-      if (ids.includes(this.klantIdentificatie)) {
-        rollen.push(rol);
+  private getBetrokkenheid(zaak: ZaakZoekObject) {
+    const betrokkene = new BetrokkeneIdentificatie(this.klant());
+    return Array.from(zaak.betrokkenen).reduce((acc, [rol, ids]) => {
+      if (betrokkene.bsnNummer && ids.includes(betrokkene.bsnNummer)) {
+        acc.push(rol);
       }
-    });
-    return rollen;
+      if (betrokkene.kvkNummer && ids.includes(betrokkene.kvkNummer)) {
+        acc.push(rol);
+      }
+      return acc;
+    }, [] as string[]);
   }
 
-  filtersChanged(): void {
+  protected filtersChanged() {
     this.paginator.pageIndex = 0;
     this.filterChange.emit();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    this.klantIdentificatie = changes.klantIdentificatie.currentValue;
-    if (this.init) {
-      this.filtersChanged();
-    }
-  }
-
-  clearFilters() {
-    this.sort.sort({ id: null, start: "asc", disableClear: false });
+  public clearFilters() {
+    this.sort.sort({ id: "", start: "asc", disableClear: false });
     this.zoekParameters.zoeken = {};
     this.zoekParameters.filters = {};
     this.zoekParameters.datums = {};
