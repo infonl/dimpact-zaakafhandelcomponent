@@ -150,9 +150,9 @@ export class ZaakCreateComponent implements OnDestroy {
       .createZaak({
         zaak: {
           ...value,
-          initiatorIdentificatie: new BetrokkeneIdentificatie(
-            value.initiatorIdentificatie!,
-          ),
+          initiatorIdentificatie: value.initiatorIdentificatie
+            ? new BetrokkeneIdentificatie(value.initiatorIdentificatie)
+            : null,
           vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
           startdatum: value.startdatum?.toISOString(),
           omschrijving: value.omschrijving!,
