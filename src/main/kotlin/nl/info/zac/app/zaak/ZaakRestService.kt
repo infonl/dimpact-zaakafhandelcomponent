@@ -523,8 +523,8 @@ class ZaakRestService @Inject constructor(
                 // (to be replaced by PolicyService)
                 .filter {
                     if (configuratieService.featureFlagPabcIntegration()) {
-                        // return zaaktypes for which a BPMN process definition key is defined
-                        // or an application role authorizes it for the current user
+                        // Always return zaaktypes for which a BPMN process definition key is defined.
+                        // Check if the current user has the BEHANDELAAR application role
                         it.hasBPMNProcessDefinition() ||
                             loggedInUser.isAuthorisedForZaaktypePabc(it.omschrijving, BEHANDELAAR)
                     } else {
