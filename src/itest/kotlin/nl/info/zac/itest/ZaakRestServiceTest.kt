@@ -5,10 +5,8 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.assertions.json.schema.JsonSchema
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
-import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.assertions.json.shouldNotContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
@@ -117,7 +115,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         authenticate(username = TEST_USER_1_USERNAME, password = TEST_USER_1_PASSWORD)
     }
 
-    Given("ZAC Docker container is running and zaakafhandelparameters have been created and a raadpleger is logged-in") {
+    Given(
+        "ZAC Docker container is running and zaakafhandelparameters have been created and a raadpleger is logged-in"
+    ) {
         authenticate(username = TEST_RAADPLEGER_1_USERNAME, password = TEST_RAADPLEGER_1_PASSWORD)
         lateinit var responseBody: String
         When("zaak types are listed") {
@@ -209,7 +209,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("ZAC Docker container is running and zaakafhandelparameters have been created and a behandelaar is logged-in") {
+    Given(
+        "ZAC Docker container is running and zaakafhandelparameters have been created and a behandelaar is logged-in"
+    ) {
         authenticate(username = TEST_BEHANDELAAR_1_USERNAME, password = TEST_BEHANDELAAR_1_PASSWORD)
         lateinit var responseBody: String
         When("zaak types are listed") {
