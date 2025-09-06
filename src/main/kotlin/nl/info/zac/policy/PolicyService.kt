@@ -37,7 +37,6 @@ import nl.info.zac.policy.input.ZaakData
 import nl.info.zac.policy.input.ZaakInput
 import nl.info.zac.policy.output.DocumentRechten
 import nl.info.zac.policy.output.NotitieRechten
-import nl.info.zac.policy.output.OverigeRechten
 import nl.info.zac.policy.output.TaakRechten
 import nl.info.zac.policy.output.WerklijstRechten
 import nl.info.zac.policy.output.ZaakRechten
