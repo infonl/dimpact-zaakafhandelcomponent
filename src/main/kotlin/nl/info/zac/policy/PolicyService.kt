@@ -37,7 +37,6 @@ import nl.info.zac.policy.input.ZaakData
 import nl.info.zac.policy.input.ZaakInput
 import nl.info.zac.policy.output.DocumentRechten
 import nl.info.zac.policy.output.NotitieRechten
-import nl.info.zac.policy.output.OverigeRechten
 import nl.info.zac.policy.output.TaakRechten
 import nl.info.zac.policy.output.WerklijstRechten
 import nl.info.zac.policy.output.ZaakRechten
@@ -67,11 +66,16 @@ class PolicyService @Inject constructor(
      * Read 'overige' permissions.
      * Note that for PABC-based authorization, the 'zaaktype' parameter is required, but for legacy
      * ZAC-only authorization it is ignored.
-     * Until the old legacy authorization has been removed it is therefore nullable.
+     * Until the old legacy authorization has been removed, it is therefore nullable.
      */
-    fun readOverigeRechten(zaaktype: String? = null): OverigeRechten =
+    fun readOverigeRechten(zaaktype: String? = null) =
         evaluationClient.readOverigeRechten(
-            RuleQuery(UserInput(loggedInUserInstance.get(), zaaktype))
+            RuleQuery(
+                UserInput(
+                    loggedInUser = loggedInUserInstance.get(),
+                    zaaktype = if (configuratieService.featureFlagPabcIntegration()) zaaktype else null
+                )
+            )
         ).result
 
     fun readZaakRechten(zaak: Zaak): ZaakRechten {
