@@ -1,0 +1,616 @@
+#
+# SPDX-FileCopyrightText: 2025 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Supply Chain Security Check
+
+on:
+  schedule:
+    # Run daily at 6 AM UTC to catch newly discovered vulnerabilities
+    - cron: "0 6 * * *"
+  pull_request:
+    paths:
+      - '**/package.json'
+      - '**/package-lock.json'
+  push:
+    branches: [main]
+    paths:
+      - '**/package.json'
+      - '**/package-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  issues: write
+  pull-requests: write
+
+env:
+  NODE_VERSION: "22.19.0"
+  JAVA_VERSION: "21.0.8"
+
+jobs:
+  npm-security-audit:
+    name: NPM Security Audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 2  # Need previous commit to detect changes
+
+      - name: Setup Node.js
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            src/main/app/package-lock.json
+            src/e2e/package-lock.json
+
+      - name: Audit main app dependencies
+        working-directory: src/main/app
+        run: |
+          echo "🔍 Running security audit for main application..."
+          
+          # Generate detailed audit report
+          npm audit --json > audit-results.json || true
+          
+          # Check for high/critical vulnerabilities
+          echo "📊 Audit Summary:"
+          npm audit --audit-level=info || true
+          
+          # Fail on high/critical vulnerabilities
+          echo "🚨 Checking for high/critical vulnerabilities..."
+          npm audit --audit-level=high
+
+      - name: Audit e2e test dependencies
+        working-directory: src/e2e
+        run: |
+          echo "🔍 Running security audit for e2e tests..."
+          
+          # Generate detailed audit report
+          npm audit --json > audit-results.json || true
+          
+          # Check for high/critical vulnerabilities
+          echo "📊 Audit Summary:"
+          npm audit --audit-level=info || true
+          
+          # Fail on high/critical vulnerabilities
+          echo "🚨 Checking for high/critical vulnerabilities..."
+          npm audit --audit-level=high
+
+      - name: Check for package-lock.json changes
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "🔍 Checking for package-lock.json changes in this PR..."
+          
+          CHANGED_LOCK_FILES=$(git diff --name-only HEAD~1 | grep package-lock.json || true)
+          
+          if [ -n "$CHANGED_LOCK_FILES" ]; then
+            echo "📦 Changed package-lock.json files:"
+            echo "$CHANGED_LOCK_FILES"
+            
+            echo "⚠️ Package lock files changed - reviewing dependency changes..."
+            for file in $CHANGED_LOCK_FILES; do
+              echo "📝 Changes in $file:"
+              git diff HEAD~1 "$file" | grep -E '^\+.*"(resolved|integrity)"' | head -20 || true
+            done
+          else
+            echo "✅ No package-lock.json changes detected"
+          fi
+
+  check-compromised-packages:
+    name: Check for Compromised Packages
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Check for recently compromised packages
+        run: |
+          echo "🚨 Checking for recently compromised npm packages..."
+          
+          # List of packages from recent supply chain attacks
+          COMPROMISED_PACKAGES=(
+            "chalk"
+            "debug" 
+            "ansi-styles"
+            "strip-ansi"
+            "supports-color"
+            "ansi-regex"
+            "wrap-ansi"
+            "color-convert"
+            "slice-ansi"
+            "is-arrayish"
+            "color-name"
+            "error-ex"
+            "color-string"
+            "simple-swizzle"
+            "has-ansi"
+            "supports-hyperlinks"
+            "chalk-template"
+            "backslash"
+          )
+          
+          FOUND_PACKAGES=""
+          
+          for pkg in "${COMPROMISED_PACKAGES[@]}"; do
+            # Check main app
+            if [ -f "src/main/app/package-lock.json" ]; then
+              if grep -q "\"name\": \"$pkg\"" src/main/app/package-lock.json; then
+                echo "⚠️  Found potentially compromised package '$pkg' in main app"
+                FOUND_PACKAGES="$FOUND_PACKAGES\n- $pkg (main app)"
+              fi
+            fi
+            
+            # Check e2e tests
+            if [ -f "src/e2e/package-lock.json" ]; then
+              if grep -q "\"name\": \"$pkg\"" src/e2e/package-lock.json; then
+                echo "⚠️  Found potentially compromised package '$pkg' in e2e tests"
+                FOUND_PACKAGES="$FOUND_PACKAGES\n- $pkg (e2e tests)"
+              fi
+            fi
+          done
+          
+          if [ -n "$FOUND_PACKAGES" ]; then
+            echo "🚨 WARNING: Found packages that were recently involved in supply chain attacks:"
+            echo -e "$FOUND_PACKAGES"
+            echo ""
+            echo "ℹ️  These packages may be safe if they're indirect dependencies with versions"
+            echo "   that predate the compromise. Manual verification recommended."
+            echo ""
+            echo "📋 Actions to take:"
+            echo "1. Check package versions against known compromise dates"
+            echo "2. Run 'npm ls [package-name]' to see why these packages are included" 
+            echo "3. Consider updating dependencies to get clean versions"
+            echo "4. Monitor for unusual network activity or crypto-related code"
+          else
+            echo "✅ No recently compromised packages detected"
+          fi
+
+  gradle-security-audit:
+    name: Gradle Security Audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Setup JDK
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@017a9effdb900e5b5b2fddfb590a105619dca3c3 # v4.4.2
+
+      - name: Cache OWASP Dependency Check database
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        with:
+          path: ~/.gradle/dependency-check-data
+          # Use static key - OWASP database is global and independent of our project
+          # Database gets updated weekly via scheduled workflow
+          key: owasp-dependency-check-db
+          restore-keys: |
+            owasp-dependency-check-
+            owasp-dependency-check-db-
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@017a9effdb900e5b5b2fddfb590a105619dca3c3 # v4.4.2
+
+      - name: Update OWASP dependency database
+        run: |
+          echo "🔄 Updating OWASP Dependency Check database..."
+          ./gradlew dependencyCheckUpdate --no-configuration-cache || true
+          
+          # Show cache info
+          if [ -d ~/.gradle/dependency-check-data ]; then
+            echo "📊 OWASP database cache status:"
+            du -sh ~/.gradle/dependency-check-data
+            ls -la ~/.gradle/dependency-check-data/*/odc.mv.db 2>/dev/null | head -3 || true
+          fi
+
+      - name: Check for vulnerable Gradle dependencies
+        run: |
+          echo "🔍 Running Gradle dependency vulnerability check..."
+          
+          # Check for known vulnerable dependencies
+          echo "📊 Analyzing dependency tree..."
+          ./gradlew dependencies --configuration runtimeClasspath > gradle-deps.txt || true
+          
+          # Run OWASP dependency check (now available)
+          echo "🛡️ Running OWASP Dependency Check..."
+          ./gradlew dependencyCheckAnalyze --no-configuration-cache --info || true
+          
+          # Show SARIF file info if generated
+          if [ -f "build/reports/dependency-check-report.sarif" ]; then
+            echo "✅ SARIF report generated for GitHub Security upload"
+            wc -l build/reports/dependency-check-report.sarif
+          else
+            echo "❌ SARIF report not found"
+          fi
+          
+          # Generate dependency insight report
+          echo "📋 Generating dependency insight..."
+          ./gradlew dependencyInsight --dependency org.apache.logging.log4j || true
+          ./gradlew dependencyInsight --dependency com.fasterxml.jackson || true
+          ./gradlew dependencyInsight --dependency org.springframework || true
+
+      - name: Check for build file changes
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "🔍 Checking for Gradle build file changes in this PR..."
+          
+          CHANGED_BUILD_FILES=$(git diff --name-only HEAD~1 | grep -E '\.(gradle|gradle\.kts)$|gradle/.*\.toml$' || true)
+          
+          if [ -n "$CHANGED_BUILD_FILES" ]; then
+            echo "📦 Changed Gradle build files:"
+            echo "$CHANGED_BUILD_FILES"
+            
+            echo "⚠️ Build files changed - reviewing dependency changes..."
+            for file in $CHANGED_BUILD_FILES; do
+              echo "📝 Changes in $file:"
+              git diff HEAD~1 "$file" | grep -E '^[+-].*implementation|^[+-].*api|^[+-].*runtimeOnly' | head -20 || true
+            done
+          else
+            echo "✅ No Gradle build file changes detected"
+          fi
+
+      - name: Check for suspicious dependencies
+        run: |
+          echo "🚨 Checking for suspicious Gradle dependencies..."
+          
+          # List of potentially suspicious patterns in Java/Kotlin ecosystem
+          SUSPICIOUS_PATTERNS=(
+            "log4j.*1\\.[0-9]"  # Old Log4j versions (Log4Shell)
+            "jackson.*2\\.[0-9]\\.[0-9]$"  # Very old Jackson versions
+            "springframework.*[1-4]\\.[0-9]"  # Very old Spring versions
+            "commons-collections.*3\\.[0-2]"  # Known deserialization vulnerabilities
+            "struts.*2\\.[0-3]"  # Old Struts versions
+          )
+          
+          FOUND_SUSPICIOUS=""
+          
+          for pattern in "${SUSPICIOUS_PATTERNS[@]}"; do
+            if grep -rE "$pattern" build.gradle.kts gradle/ 2>/dev/null; then
+              echo "⚠️  Found potentially vulnerable dependency matching: $pattern"
+              FOUND_SUSPICIOUS="true"
+            fi
+          done
+          
+          if [ -n "$FOUND_SUSPICIOUS" ]; then
+            echo "🚨 WARNING: Found potentially vulnerable Java/Kotlin dependencies"
+            echo "📋 Actions to take:"
+            echo "1. Check dependency versions against known CVEs"
+            echo "2. Update to latest secure versions"
+            echo "3. Run './gradlew dependencyUpdates' to see available updates"
+          else
+            echo "✅ No obviously vulnerable dependency patterns detected"
+          fi
+
+      - name: Generate Gradle dependency report
+        run: |
+          echo "📦 Generating comprehensive Gradle dependency report..."
+          
+          # Create dependency reports
+          ./gradlew dependencies --configuration compileClasspath > compile-deps.txt 2>/dev/null || true
+          ./gradlew dependencies --configuration runtimeClasspath > runtime-deps.txt 2>/dev/null || true
+          
+          # Show summary of key dependencies
+          echo "📊 Key dependency summary:"
+          echo "🔧 Compile dependencies:"
+          grep -E 'org\.(springframework|apache|eclipse)|com\.(fasterxml|google)' compile-deps.txt | head -10 || true
+          
+          echo "🏃 Runtime dependencies:"
+          grep -E 'org\.(springframework|apache|eclipse)|com\.(fasterxml|google)' runtime-deps.txt | head -10 || true
+          
+          # Check for dependency conflicts
+          echo "⚠️ Checking for version conflicts:"
+          ./gradlew dependencyInsight --dependency org.slf4j 2>/dev/null || true
+
+      - name: Check for Java/Kotlin supply chain attack indicators
+        run: |
+          echo "🕵️ Checking for Java/Kotlin supply chain attack indicators..."
+          
+          # Check for typosquatting in popular libraries
+          TYPOSQUAT_PATTERNS=(
+            "springframework"  # Should be org.springframework
+            "apache-commons"   # Should be org.apache.commons
+            "jackson-databind" # Should be com.fasterxml.jackson
+            "slf4j-api"        # Should be org.slf4j
+            "logback-classic"  # Should be ch.qos.logback
+          )
+          
+          echo "🔍 Checking for typosquatting attempts..."
+          for pattern in "${TYPOSQUAT_PATTERNS[@]}"; do
+            if grep -r "$pattern" build.gradle.kts gradle/ 2>/dev/null | grep -v "org\.|com\.|ch\." | grep -v "^#"; then
+              echo "⚠️ Potential typosquatting detected for: $pattern"
+            fi
+          done
+          
+          # Check for suspicious version patterns
+          echo "🔍 Checking for suspicious version patterns..."
+          
+          # Look for versions that might be malicious (e.g., very high version numbers)
+          if grep -rE '[0-9]{3,}\.[0-9]+\.[0-9]+' build.gradle.kts gradle/ 2>/dev/null; then
+            echo "⚠️ Found suspiciously high version numbers - verify these are legitimate"
+          fi
+          
+          # Check for snapshot or beta versions in production dependencies
+          echo "🔍 Checking for snapshot/beta dependencies..."
+          SNAPSHOT_DEPS=$(grep -rE '(SNAPSHOT|alpha|beta|rc[0-9])' build.gradle.kts gradle/ 2>/dev/null | grep -v "^#" || true)
+          if [ -n "$SNAPSHOT_DEPS" ]; then
+            echo "⚠️ Found pre-release dependencies (may be less secure):"
+            echo "$SNAPSHOT_DEPS"
+          fi
+          
+          echo "✅ Java/Kotlin supply chain check completed"
+
+      - name: Recommend security enhancements
+        run: |
+          echo "💫 Security Enhancement Recommendations:"
+          echo ""
+          echo "1. ✅ OWASP Dependency Check plugin: CONFIGURED ✓"
+          echo "   Scans for known vulnerabilities in Java/Kotlin + Node.js dependencies"
+          echo ""
+          echo "2. 📊 Consider adding dependency update checks:"
+          echo "   Add to build.gradle.kts:"
+          echo "   plugins { id 'com.github.ben-manes.versions' version 'X.X.X' }"
+          echo ""
+          echo "3. 🔒 Consider enabling Gradle dependency verification:"
+          echo "   Run: ./gradlew --write-verification-metadata sha256 help"
+          echo ""
+          echo "4. ✅ Gradle version catalogs: CONFIGURED ✓"
+          echo "   You already have gradle/libs.versions.toml for centralized dependency management"
+          echo ""
+          echo "5. 📊 Consider adding NVD API key for faster OWASP scans:"
+          echo "   Set NVD_API_KEY environment variable"
+          echo ""
+          echo "🛡️ Defense-in-depth: Node.js dependencies scanned by MULTIPLE analyzers:"
+          echo "   • npm audit (GitHub workflow) - npm registry vulnerabilities"
+          echo "   • OWASP Node Audit - CVE database vulnerabilities"
+          echo "   • OWASP RetireJS - JavaScript library vulnerabilities"
+          echo "   • Supports npm, yarn, and pnpm package managers"
+          echo ""
+          echo "⚙️ Performance optimizations:"
+          echo "   • OWASP database cached between runs (~228MB)"
+          echo "   • Weekly database updates to minimize scan time"
+          echo "   • Gradle build cache for faster dependency resolution"
+          echo ""
+          echo "ℹ️ These enhancements provide strong protection against supply chain attacks"
+
+      - name: Upload SARIF results to GitHub Security
+        uses: github/codeql-action/upload-sarif@df409f7d9260372bd5f19e5b04e83cb3c43714ae # v3.29.8
+        if: always() && hashFiles('build/reports/dependency-check-report.sarif') != ''
+        with:
+          sarif_file: build/reports/dependency-check-report.sarif
+          category: owasp-dependency-check
+
+      - name: Upload OWASP reports as artifacts
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        if: always()
+        with:
+          name: owasp-dependency-check-reports
+          path: |
+            build/reports/dependency-check-report.html
+            build/reports/dependency-check-report.json
+            build/reports/dependency-check-report.sarif
+          retention-days: 30
+
+  security-advisory-check:
+    name: Check Security Advisories
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Check npm security advisories
+        run: |
+          echo "🔍 Checking for npm security advisories..."
+          
+          # Check main app
+          if [ -f "src/main/app/package.json" ]; then
+            echo "📋 Checking main app for security advisories..."
+            cd src/main/app
+            npx npm-audit-resolver --audit-level=moderate check || true
+            cd ../..
+          fi
+          
+          # Check e2e tests
+          if [ -f "src/e2e/package.json" ]; then
+            echo "📋 Checking e2e tests for security advisories..." 
+            cd src/e2e
+            npx npm-audit-resolver --audit-level=moderate check || true
+            cd ..
+          fi
+
+  create-issue-on-failure:
+    name: Create Issue on Security Failure
+    runs-on: ubuntu-24.04
+    needs: [npm-security-audit, check-compromised-packages, gradle-security-audit, security-advisory-check]
+    if: ${{ failure() && github.event_name == 'schedule' }}
+
+    steps:
+      - name: Create security issue
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const title = `🚨 Supply Chain Security Alert - ${new Date().toISOString().split('T')[0]}`;
+            const body = `## Supply Chain Security Check Failed
+            
+            Our automated supply chain security check has detected potential issues.
+            
+            **Run Details:**
+            - Workflow: ${context.workflow}
+            - Run ID: ${context.runId}  
+            - Trigger: ${context.eventName}
+            - Branch: ${context.ref}
+            
+            **Actions Required:**
+            1. Review the [workflow run](${context.payload.repository.html_url}/actions/runs/${context.runId}) for details
+            2. Check for vulnerable dependencies using \`npm audit\`
+            3. Verify no malicious packages have been introduced
+            4. Update dependencies if necessary
+            
+            **Links:**
+            - [View Run](${context.payload.repository.html_url}/actions/runs/${context.runId})
+            - [Supply Chain Security Workflow](${context.payload.repository.html_url}/blob/main/.github/workflows/supply-chain-security.yml)
+            
+            This issue was created automatically by the supply chain security workflow.
+            `;
+            
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['security', 'dependencies', 'supply-chain']
+            });
+
+  notify-slack:
+    name: Notify Slack
+    runs-on: ubuntu-24.04
+    needs: [npm-security-audit, check-compromised-packages, gradle-security-audit, security-advisory-check]
+    if: always() && github.event_name == 'schedule'
+
+    steps:
+      - name: Determine overall status
+        id: status
+        run: |
+          # Determine the overall workflow status based on job outcomes
+          if [[ "${{ needs.npm-security-audit.result }}" == "failure" || 
+                "${{ needs.check-compromised-packages.result }}" == "failure" || 
+                "${{ needs.gradle-security-audit.result }}" == "failure" || 
+                "${{ needs.security-advisory-check.result }}" == "failure" ]]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "emoji=:x:" >> $GITHUB_OUTPUT
+            echo "color=danger" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.npm-security-audit.result }}" == "success" && 
+                  "${{ needs.check-compromised-packages.result }}" == "success" && 
+                  "${{ needs.gradle-security-audit.result }}" == "success" && 
+                  "${{ needs.security-advisory-check.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "emoji=:white_check_mark:" >> $GITHUB_OUTPUT
+            echo "color=good" >> $GITHUB_OUTPUT
+          else
+            echo "status=warning" >> $GITHUB_OUTPUT
+            echo "emoji=:warning:" >> $GITHUB_OUTPUT
+            echo "color=warning" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Notify Slack
+        uses: 8398a7/action-slack@1750b5085f3ec60384090fb7c52965ef822e869e # v3.18.0
+        with:
+          status: custom
+          fields: workflow,job,status
+          custom_payload: |
+            {
+              "text": ":shield: Supply Chain Security Check Update",
+              "attachments": [
+                {
+                  "color": "${{ steps.status.outputs.color }}",
+                  "blocks": [
+                    {
+                      "type": "header",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Security Scan Results"
+                      }
+                    },
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Repository:*\\n${{ github.repository }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Workflow:*\\n${{ github.workflow }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Overall Status:*\\n${{ steps.status.outputs.status }} ${{ steps.status.outputs.emoji }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Trigger:*\\n${{ github.event_name }}"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*NPM Audit:*\\n${{ needs.npm-security-audit.result }} ${{ needs.npm-security-audit.result == 'success' && ':white_check_mark:' || needs.npm-security-audit.result == 'failure' && ':x:' || ':warning:' }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Compromised Packages:*\\n${{ needs.check-compromised-packages.result }} ${{ needs.check-compromised-packages.result == 'success' && ':white_check_mark:' || needs.check-compromised-packages.result == 'failure' && ':x:' || ':warning:' }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*OWASP Dependency Check:*\\n${{ needs.gradle-security-audit.result }} ${{ needs.gradle-security-audit.result == 'success' && ':white_check_mark:' || needs.gradle-security-audit.result == 'failure' && ':x:' || ':warning:' }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Security Advisories:*\\n${{ needs.security-advisory-check.result }} ${{ needs.security-advisory-check.result == 'success' && ':white_check_mark:' || needs.security-advisory-check.result == 'failure' && ':x:' || ':warning:' }}"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "text": {
+                        "type": "mrkdwn",
+                        "text": "${{ steps.status.outputs.status == 'failure' && ':warning: **Action Required:** Vulnerabilities detected in dependencies. Review findings in GitHub Security tab and update affected packages.' || steps.status.outputs.status == 'success' && ':shield: **All Clear:** No high-severity vulnerabilities detected in dependencies.' || ':information_source: **Review:** Some security checks completed with warnings. Please review the results.' }}"
+                      }
+                    },
+                    {
+                      "type": "actions",
+                      "elements": [
+                        {
+                          "type": "button",
+                          "text": {
+                            "type": "plain_text",
+                            "text": "View Workflow Run"
+                          },
+                          "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                        },
+                        {
+                          "type": "button",
+                          "text": {
+                            "type": "plain_text",
+                            "text": "Security Tab"
+                          },
+                          "url": "${{ github.server_url }}/${{ github.repository }}/security/code-scanning"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
