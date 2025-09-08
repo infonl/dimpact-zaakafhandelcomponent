@@ -113,7 +113,6 @@ import nl.info.zac.app.zaak.model.toPatchZaak
 import nl.info.zac.app.zaak.model.toRestDecisionTypes
 import nl.info.zac.app.zaak.model.toRestZaakBetrokkenen
 import nl.info.zac.app.zaak.model.toZaak
-import nl.info.zac.authentication.ApplicationRole.BEHANDELAAR
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.flowable.bpmn.BpmnService
@@ -519,17 +518,12 @@ class ZaakRestService @Inject constructor(
     fun listZaaktypes(): List<RestZaaktype> =
         loggedInUserInstance.get().let { loggedInUser ->
             ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
-                // After PABC is fully integrated, `isAuthorisedForZaaktype` will be decommissioned
-                // (to be replaced by PolicyService)
                 .filter {
-                    if (configuratieService.featureFlagPabcIntegration()) {
-                        // Always return zaaktypes for which a BPMN process definition key is defined.
-                        // Check if the current user has the BEHANDELAAR application role
-                        it.hasBPMNProcessDefinition() ||
-                            loggedInUser.isAuthorisedForZaaktypePabc(it.omschrijving, BEHANDELAAR)
-                    } else {
-                        loggedInUser.isAuthorisedForZaaktype(it.omschrijving)
-                    }
+                    // Return zaaktypes with a BPMN process definition or with correct rights and authorization
+                    it.hasBPMNProcessDefinition() || (
+                        policyService.readOverigeRechten(it.omschrijving).startenZaak &&
+                            policyService.isAuthorisedForZaaktype(it.omschrijving)
+                        )
                 }
                 .filter { !it.concept }
                 .filter { it.isNuGeldig() }

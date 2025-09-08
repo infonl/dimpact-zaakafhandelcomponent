@@ -121,6 +121,7 @@ import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
+import nl.info.zac.policy.output.createOverigeRechten
 import nl.info.zac.policy.output.createOverigeRechtenAllDeny
 import nl.info.zac.policy.output.createWerklijstRechten
 import nl.info.zac.policy.output.createZaakRechten
@@ -1553,48 +1554,26 @@ class ZaakRestServiceTest : BehaviorSpec({
             zaaktypes.forEach {
                 every { healthCheckService.controleerZaaktype(it.url) } returns zaaktypeInrichtingscheck
                 every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
+                every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
+                every { policyService.isAuthorisedForZaaktype(it.omschrijving) } returns true
             }
+            every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogueURI
+            every { configuratieService.featureFlagBpmnSupport() } returns false
 
-            And("PABC is disabled") {
-                every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogueURI
-                every { configuratieService.featureFlagPabcIntegration() } returns false
-                every { configuratieService.featureFlagBpmnSupport() } returns false
+            When("the zaaktypes are requested") {
+                val returnedRestZaaktypes = zaakRestService.listZaaktypes()
 
-                When("the zaaktypes are requested") {
-                    val returnedRestZaaktypes = zaakRestService.listZaaktypes()
-
-                    Then("only CMMN zaaktypes are returned for which the user is authorised") {
-                        verify(exactly = 1) {
-                            ztcClientService.listZaaktypen(defaultCatalogueURI)
-                        }
-                        returnedRestZaaktypes shouldHaveSize 2
-                        returnedRestZaaktypes shouldBe restZaaktypes
+                Then("only CMMN zaaktypes are returned for which the user is authorised") {
+                    verify(exactly = 1) {
+                        ztcClientService.listZaaktypen(defaultCatalogueURI)
                     }
-                }
-            }
-            And("PABC is enabled") {
-                clearMocks(configuratieService, ztcClientService)
-
-                every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
-                every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogueURI
-                every { configuratieService.featureFlagPabcIntegration() } returns true
-                every { configuratieService.featureFlagBpmnSupport() } returns false
-
-                When("the zaaktypes are requested") {
-                    val returnedRestZaaktypes = zaakRestService.listZaaktypes()
-
-                    Then("CMMN only zaaktypes are returned for which the user is authorised") {
-                        verify(exactly = 1) {
-                            ztcClientService.listZaaktypen(defaultCatalogueURI)
-                        }
-                        returnedRestZaaktypes shouldHaveSize 2
-                        returnedRestZaaktypes shouldBe restZaaktypes
-                    }
+                    returnedRestZaaktypes shouldHaveSize 2
+                    returnedRestZaaktypes shouldBe restZaaktypes
                 }
             }
         }
 
-        Given("Two CMMN and a BPMN zaaktypes valid on the current date") {
+        Given("Two CMMN and one BPMN zaaktypes valid on the current date") {
             clearAllMocks()
             val defaultCatalogueURI = URI("http://example.com/fakeCatalogue")
             val now = LocalDate.now()
@@ -1602,27 +1581,24 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaakType2UUID = UUID.randomUUID()
             val zaakType3UUID = UUID.randomUUID()
             val zaaktypes = listOf(
-                // authorized CMMN
                 createZaakType(
                     omschrijving = "Zaaktype 1",
                     identification = "ZAAKTYPE1",
                     uri = URI("https://example.com/zaaktypes/$zaakType1UUID"),
                     beginGeldigheid = now.minusDays(1)
                 ),
-                // BPMN zaaktype
                 createZaakType(
                     omschrijving = "Zaaktype 2",
                     identification = "ZAAKTYPE2",
                     uri = URI("https://example.com/zaaktypes/$zaakType2UUID"),
                     beginGeldigheid = now.minusDays(1)
                 ),
-                // not authorized CMMN
                 createZaakType(
                     omschrijving = "Zaaktype 3",
                     identification = "ZAAKTYPE3",
                     uri = URI("https://example.com/zaaktypes/$zaakType3UUID"),
                     beginGeldigheid = now.minusDays(1)
-                )
+                ),
             )
             val restZaaktype1 = createRestZaaktype()
             val restZaaktype2 = createRestZaaktype()
@@ -1631,37 +1607,43 @@ class ZaakRestServiceTest : BehaviorSpec({
             val loggedInUser = createLoggedInUser(
                 zaakTypes = zaaktypes.map { it.omschrijving }.toSet(),
                 pabcMappings = mapOf(
-                    "Zaaktype 1" to setOf("applicationRole1", "behandelaar"), // authorized CMMN
-                    "Zaaktype 2" to setOf("behandelaar", "applicationRole2"), // BPMN
-                    "Zaaktype 3" to setOf("applicationRole3"), // unauthorized CMMN
+                    "Zaaktype 1" to setOf("applicationRole1"),
+                    "Zaaktype 2" to setOf("applicationRole2"),
+                    "Zaaktype 3" to setOf("applicationRole3"),
                 )
             )
             val zaaktypeInrichtingscheck = createZaaktypeInrichtingscheck()
             every { loggedInUserInstance.get() } returns loggedInUser
-            every { healthCheckService.controleerZaaktype(zaaktypes[0].url) } returns zaaktypeInrichtingscheck
-            every { healthCheckService.controleerZaaktype(zaaktypes[2].url) } returns zaaktypeInrichtingscheck
-            zaaktypes.forEach {
+            zaaktypes.slice(0..1).forEach {
                 every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
+                every { healthCheckService.controleerZaaktype(it.url) } returns zaaktypeInrichtingscheck
+                every { bpmnService.findProcessDefinitionForZaaktype(it.url.extractUuid()) } returns null
+            }
+            zaaktypes.last().let {
+                every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
+                every {
+                    bpmnService.findProcessDefinitionForZaaktype(it.url.extractUuid())
+                } returns createZaaktypeBpmnProcessDefinition()
             }
 
-            And("PABC is disabled") {
-                every { configuratieService.featureFlagPabcIntegration() } returns false
+            And("all zaaktypes are authorised") {
+                zaaktypes.slice(0..1).forEach {
+                    every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
+                    every { policyService.isAuthorisedForZaaktype(it.omschrijving) } returns true
+                }
+
                 every { configuratieService.featureFlagBpmnSupport() } returns true
                 every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogueURI
                 every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
 
-                every { bpmnService.findProcessDefinitionForZaaktype(zaakType1UUID) } returns null
-                every { bpmnService.findProcessDefinitionForZaaktype(zaakType2UUID) } returns createZaaktypeBpmnProcessDefinition()
-                every { bpmnService.findProcessDefinitionForZaaktype(zaakType3UUID) } returns null
-
-                When("the zaaktypes are requested") {
+                When("the zaaktypes are listed") {
                     val returnedRestZaaktypes = zaakRestService.listZaaktypes()
 
-                    Then("the zaaktypes for which the user is authorised are returned") {
+                    Then("all zaaktypes are returned") {
                         verify(exactly = 1) {
                             ztcClientService.listZaaktypen(defaultCatalogueURI)
                         }
-                        verify(exactly = 3) {
+                        verify(exactly = 6) {
                             bpmnService.findProcessDefinitionForZaaktype(any())
                         }
                         returnedRestZaaktypes shouldHaveSize 3
@@ -1669,18 +1651,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                     }
                 }
             }
-            And("PABC is enabled") {
-                clearMocks(configuratieService, ztcClientService, bpmnService)
-                every { configuratieService.featureFlagPabcIntegration() } returns true
-                every { configuratieService.featureFlagBpmnSupport() } returns true
-                every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogueURI
-                every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
+            And("a CMMN zaaktype is not authorised because of missing startenZaak right") {
+                clearMocks(ztcClientService, bpmnService, answers = false)
+                zaaktypes[1].let {
+                    every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten(startenZaak = false)
+                }
 
-                every { bpmnService.findProcessDefinitionForZaaktype(zaakType1UUID) } returns null
-                every { bpmnService.findProcessDefinitionForZaaktype(zaakType2UUID) } returns createZaaktypeBpmnProcessDefinition()
-                every { bpmnService.findProcessDefinitionForZaaktype(zaakType3UUID) } returns null
-
-                When("the zaaktypes are requested") {
+                When("the zaaktypes are listed") {
                     val returnedRestZaaktypes = zaakRestService.listZaaktypes()
 
                     Then("only the zaaktypes for which the user is authorised are returned, plus BPMN ones") {
@@ -1691,7 +1668,29 @@ class ZaakRestServiceTest : BehaviorSpec({
                             bpmnService.findProcessDefinitionForZaaktype(any())
                         }
                         returnedRestZaaktypes shouldHaveSize 2
-                        returnedRestZaaktypes shouldBe listOf(restZaaktype1, restZaaktype2)
+                        returnedRestZaaktypes shouldBe listOf(restZaaktype1, restZaaktype3)
+                    }
+                }
+            }
+            And("a CMMN zaaktype is not authorised for a zaaktype") {
+                clearMocks(ztcClientService, bpmnService, answers = false)
+                zaaktypes[1].let {
+                    every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
+                    every { policyService.isAuthorisedForZaaktype(it.omschrijving) } returns false
+                }
+
+                When("the zaaktypes are listed") {
+                    val returnedRestZaaktypes = zaakRestService.listZaaktypes()
+
+                    Then("only the zaaktypes for which the user is authorised are returned, plus BPMN ones") {
+                        verify(exactly = 1) {
+                            ztcClientService.listZaaktypen(defaultCatalogueURI)
+                        }
+                        verify(exactly = 5) {
+                            bpmnService.findProcessDefinitionForZaaktype(any())
+                        }
+                        returnedRestZaaktypes shouldHaveSize 2
+                        returnedRestZaaktypes shouldBe listOf(restZaaktype1, restZaaktype3)
                     }
                 }
             }

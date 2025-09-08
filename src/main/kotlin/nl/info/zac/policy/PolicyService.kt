@@ -71,7 +71,12 @@ class PolicyService @Inject constructor(
      */
     fun readOverigeRechten(zaaktype: String? = null): OverigeRechten =
         evaluationClient.readOverigeRechten(
-            RuleQuery(UserInput(loggedInUserInstance.get(), zaaktype))
+            RuleQuery(
+                UserInput(
+                    loggedInUser = loggedInUserInstance.get(),
+                    zaaktype = if (configuratieService.featureFlagPabcIntegration()) zaaktype else null
+                )
+            )
         ).result
 
     fun readZaakRechten(zaak: Zaak): ZaakRechten {
