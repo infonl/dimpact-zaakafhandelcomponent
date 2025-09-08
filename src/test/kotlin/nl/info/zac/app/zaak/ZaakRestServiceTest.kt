@@ -1628,16 +1628,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
             )
             val restZaaktypes = listOf(createRestZaaktype(), createRestZaaktype())
-            val loggedInUser = createLoggedInUser(
-                zaakTypes = zaaktypes.map { it.omschrijving }.toSet(),
-                pabcMappings = mapOf(
-                    "Zaaktype 1" to setOf("applicationRole1", "behandelaar"),
-                    "Zaaktype 2" to setOf("behandelaar", "applicationRole2")
-                )
-            )
             val zaaktypeInrichtingscheck = createZaaktypeInrichtingscheck()
             every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
-            every { loggedInUserInstance.get() } returns loggedInUser
             zaaktypes.forEach {
                 every { healthCheckService.controleerZaaktype(it.url) } returns zaaktypeInrichtingscheck
                 every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
@@ -1691,16 +1683,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val restZaaktype2 = createRestZaaktype()
             val restZaaktype3 = createRestZaaktype()
             val restZaaktypes = listOf(restZaaktype1, restZaaktype2, restZaaktype3)
-            val loggedInUser = createLoggedInUser(
-                zaakTypes = zaaktypes.map { it.omschrijving }.toSet(),
-                pabcMappings = mapOf(
-                    "Zaaktype 1" to setOf("applicationRole1"),
-                    "Zaaktype 2" to setOf("applicationRole2"),
-                    "Zaaktype 3" to setOf("applicationRole3"),
-                )
-            )
             val zaaktypeInrichtingscheck = createZaaktypeInrichtingscheck()
-            every { loggedInUserInstance.get() } returns loggedInUser
             zaaktypes.slice(0..1).forEach {
                 every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
                 every { healthCheckService.controleerZaaktype(it.url) } returns zaaktypeInrichtingscheck
