@@ -10,8 +10,6 @@ import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
-import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
-import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
 import { MailService } from "../mail.service";
@@ -27,8 +25,8 @@ export class OntvangstbevestigingComponent implements OnInit {
 
   protected afzenders: GeneratedType<"RestZaakAfzender">[] = [];
   protected variables: GeneratedType<"MailTemplateVariables">[] = [];
-  protected bijlagenFormField!: AbstractFormField;
   protected contactGegevens: GeneratedType<"RestContactGegevens"> | null = null;
+  protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
 
   protected readonly form = this.formBuilder.group({
     verzender:
@@ -45,6 +43,9 @@ export class OntvangstbevestigingComponent implements OnInit {
       Validators.maxLength(100),
     ]),
     body: this.formBuilder.control<string | null>(null, [Validators.required]),
+    bijlagen: this.formBuilder.control<
+      GeneratedType<"RestEnkelvoudigInformatieobject">[]
+    >([]),
   });
 
   constructor(
@@ -58,16 +59,13 @@ export class OntvangstbevestigingComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    const documenten =
-      this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+    this.informatieObjectenService
+      .listEnkelvoudigInformatieobjecten({
         zaakUUID: this.zaak.uuid,
+      })
+      .subscribe((documents) => {
+        this.documents = documents;
       });
-
-    this.bijlagenFormField = new DocumentenLijstFieldBuilder()
-      .id("bijlagen")
-      .label("bijlagen")
-      .documenten(documenten)
-      .build();
 
     this.zakenService
       .listAfzendersVoorZaak(this.zaak.uuid)
@@ -105,8 +103,7 @@ export class OntvangstbevestigingComponent implements OnInit {
         ...value,
         verzender: value.verzender?.mail,
         replyTo: value.verzender?.replyTo,
-        bijlagen:
-          (this.bijlagenFormField.formControl.value as string) ?? undefined,
+        bijlagen: value.bijlagen?.map((document) => document.uuid).join(";"),
         createDocumentFromMail: true,
       })
       .subscribe(() => {
