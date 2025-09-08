@@ -48,7 +48,8 @@ export class KlantenRoutingModule {}
 export function buildBedrijfRouteLink(
   bedrijf?: GeneratedType<"RestBedrijf"> | null,
 ) {
-  const path = ["/bedrijf", bedrijf?.kvkNummer];
+  if(!bedrijf?.kvkNummer) throw new Error("Cannot build bedrijf route: kvkNummer is missing.");
+  const path = ["/bedrijf", bedrijf.kvkNummer];
   if (bedrijf?.vestigingsnummer) path.push(bedrijf?.vestigingsnummer);
   return path;
 }
