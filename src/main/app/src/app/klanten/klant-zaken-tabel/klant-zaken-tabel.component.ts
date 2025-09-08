@@ -5,6 +5,7 @@
 
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   input,
@@ -15,7 +16,7 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { merge, Observable } from "rxjs";
+import { lastValueFrom, merge, Observable } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -70,22 +71,23 @@ export class KlantZakenTabelComponent implements AfterViewInit {
   private laatsteBetrokkenheid?: string | null = null;
 
   protected distinctRoltypenQuery = injectQuery(() => ({
-    queryKey: ["roltypen", "distinct"],
+    queryKey: ["klantenService", "listRoltypen", "distinct"],
     queryFn: () =>
-      this.klantenService
-        .listRoltypen()
-        .pipe(map((typen) => this.distinct(typen.map(({ naam }) => naam)))),
+      lastValueFrom(
+        this.klantenService.listRoltypen().pipe(
+          map((typen) => {
+            return [...new Set(typen.map(({ naam }) => naam))];
+          }),
+        ),
+      ),
   }));
 
   constructor(
     private readonly utilService: UtilService,
     private readonly zoekenService: ZoekenService,
     private readonly klantenService: KlantenService,
+    private readonly changeDetectorRef: ChangeDetectorRef,
   ) {}
-
-  private distinct<T>(values: T[]): T[] {
-    return [...new Set(values)];
-  }
 
   private loadZaken(): Observable<ZoekResultaat<ZaakZoekObject>> {
     if (this.laatsteBetrokkenheid) {
@@ -94,20 +96,9 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     if (this.betrokkeneSelectControl.value) {
       this.setZoekParameterBetrokkenheid(this.betrokkeneSelectControl.value);
     }
-    this.actieveFilters =
-      this.zoekParameters &&
-      heeftActieveZoekFilters({
-        ...this.zoekParameters,
-        filtersType: "ZoekParameters",
-        zoeken: this.zoekParameters.zoeken ?? {},
-        filters: this.zoekParameters.filters ?? {},
-        datums:
-          (this.zoekParameters.datums as unknown as Record<
-            string,
-            DatumRange
-          >) ?? null,
-        type: this.zoekParameters.type as string,
-      }); // before default values
+
+    this.updateActieveFilters();
+
     if (!this.betrokkeneSelectControl.value) {
       this.setZoekParameterBetrokkenheid(ZoekVeld.ZAAK_BETROKKENEN);
     }
@@ -121,6 +112,25 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     return this.zoekenService.list(this.zoekParameters) as Observable<
       ZoekResultaat<ZaakZoekObject>
     >;
+  }
+
+  private updateActieveFilters() {
+    this.actieveFilters =
+      this.zoekParameters &&
+      heeftActieveZoekFilters({
+        ...this.zoekParameters,
+        filtersType: "ZoekParameters",
+        zoeken: this.zoekParameters.zoeken ?? {},
+        filters: this.zoekParameters.filters ?? {},
+        datums:
+          (this.zoekParameters.datums as unknown as Record<
+            string,
+            DatumRange
+          >) ?? null,
+        type: this.zoekParameters.type as string,
+      });
+
+    this.changeDetectorRef.detectChanges();
   }
 
   private setZoekParameterBetrokkenheid(betrokkenheid: ZoekVeld) {
@@ -155,15 +165,17 @@ export class KlantZakenTabelComponent implements AfterViewInit {
       });
   }
 
-  private getBetrokkenheid(zaak: ZaakZoekObject) {
+  protected getBetrokkenheid(zaak: ZaakZoekObject) {
     const betrokkene = new BetrokkeneIdentificatie(this.klant());
     return Array.from(zaak.betrokkenen).reduce((acc, [rol, ids]) => {
       if (betrokkene.bsnNummer && ids.includes(betrokkene.bsnNummer)) {
         acc.push(rol);
       }
+
       if (betrokkene.kvkNummer && ids.includes(betrokkene.kvkNummer)) {
         acc.push(rol);
       }
+
       return acc;
     }, [] as string[]);
   }
