@@ -967,6 +967,75 @@ dependencyCheck {
     }
 }
 
+// OWASP Dependency Check configuration
+// This plugin scans all dependencies for known vulnerabilities
+dependencyCheck {
+    // Skip scanning test configurations to speed up the check
+    skipConfigurations = listOf(
+        "testImplementation",
+        "itestImplementation", 
+        "detektPlugins"
+    )
+    
+    // Configure output formats - generates HTML, JSON, and SARIF reports
+    formats = listOf("HTML", "JSON", "SARIF")
+    
+    // Set severity threshold - only report HIGH and CRITICAL vulnerabilities
+    failBuildOnCVSS = 7.0f
+    
+    // Configure data directory (for caching in CI)
+    data.directory = "${System.getProperty("user.home")}/.gradle/dependency-check-data"
+    
+    // Configure suppression file if we need to suppress false positives
+    // suppressionFile = "config/owasp-suppression.xml"
+    
+    // Configure analyzers - disable some that might not be relevant
+    analyzers {
+        // Enable/disable specific analyzers
+        assemblyEnabled = false      // .NET assemblies
+        nuspecEnabled = false        // NuGet packages
+        cocoapodsEnabled = false     // iOS CocoaPods
+        swiftEnabled = false         // Swift packages
+        bundleAuditEnabled = false   // Ruby Bundle Audit
+        pyDistributionEnabled = false // Python distributions
+        pyPackageEnabled = false     // Python packages
+        composerEnabled = false      // PHP Composer
+        // Node.js analyzers - enabled for defense-in-depth alongside npm audit
+        nodeEnabled = true           // Node.js dependency analyzer
+        nodeAudit {
+            enabled = true           // Node Audit analyzer for package-lock.json/yarn.lock  
+            useCache = true          // Cache audit results for performance
+            skipDevDependencies = true  // Skip devDependencies to focus on production
+            yarnEnabled = true       // Enable Yarn audit analyzer
+            pnpmEnabled = true       // Enable PNPM audit analyzer
+        }
+        retirejs {
+            enabled = true           // RetireJS analyzer for JavaScript vulnerabilities
+            filterNonVulnerable = true  // Remove non-vulnerable JS from reports
+        }
+        
+        // Keep enabled for Java/Kotlin ecosystem
+        jarEnabled = true            // JAR files
+        centralEnabled = true        // Maven Central
+        nexusEnabled = true          // Nexus repository analyzer
+        
+        // Keep OS package analyzers disabled unless needed
+        autoconfEnabled = false
+        cmakeEnabled = false
+    }
+    
+    // Configure NVD API settings (optional - improves performance)
+    // nvd {
+    //     apiKey = providers.environmentVariable("NVD_API_KEY").orNull
+    //     delay = 16000  // 16 seconds between API calls (free tier limit)
+    // }
+}
+
+// Add OWASP check to the standard check task
+tasks.check {
+    dependsOn("dependencyCheckAnalyze")
+}
+
 abstract class Maven : Exec() {
     // Simple function to invoke a maven goal, dependent on the os, with optional arguments
     fun execGoal(goal: String, vararg args: String) = commandLine(
