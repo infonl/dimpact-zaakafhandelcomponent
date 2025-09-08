@@ -1752,7 +1752,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 When("the zaaktypes are listed") {
                     val returnedRestZaaktypes = zaakRestService.listZaaktypes()
 
-                    Then("only the zaaktypes for which the user is authorised are returned, plus BPMN ones") {
+                    Then("the authorised CMMN plus BPMN zaaktypes are returned") {
                         verify(exactly = 1) {
                             ztcClientService.listZaaktypen(defaultCatalogueURI)
                         }
