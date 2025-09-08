@@ -18,9 +18,9 @@ import { injectQuery } from "@tanstack/angular-query-experimental";
 import { merge, Observable } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
-import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
+import { DatumRange } from "../../zoeken/model/datum-range";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import {
   DEFAULT_ZOEK_PARAMETERS,
@@ -62,7 +62,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     ...DEFAULT_ZOEK_PARAMETERS,
     type: "ZAAK",
   };
-  protected actieveFilters = false;
+  protected actieveFilters = true;
   protected zoekResultaat = new ZoekResultaat<ZaakZoekObject>();
   protected init: boolean = false;
   protected inclusiefAfgerondeZaken = new FormControl(false);
@@ -96,7 +96,18 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     }
     this.actieveFilters =
       this.zoekParameters &&
-      heeftActieveZoekFilters(this.zoekParameters as unknown as ZoekFilters); // before default values
+      heeftActieveZoekFilters({
+        ...this.zoekParameters,
+        filtersType: "ZoekParameters",
+        zoeken: this.zoekParameters.zoeken ?? {},
+        filters: this.zoekParameters.filters ?? {},
+        datums:
+          (this.zoekParameters.datums as unknown as Record<
+            string,
+            DatumRange
+          >) ?? null,
+        type: this.zoekParameters.type as string,
+      }); // before default values
     if (!this.betrokkeneSelectControl.value) {
       this.setZoekParameterBetrokkenheid(ZoekVeld.ZAAK_BETROKKENEN);
     }

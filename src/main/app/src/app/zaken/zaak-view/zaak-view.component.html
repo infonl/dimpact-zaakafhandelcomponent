@@ -688,12 +688,6 @@
                         *ngIf="betrokkene.type === 'NATUURLIJK_PERSOON'"
                         mat-icon-button
                         [routerLink]="['/persoon', betrokkene.identificatie]"
-                        (click)="$event.stopPropagation()"
-                        [id]="
-                          'persoonBekijken_' +
-                          betrokkene.identificatie +
-                          '_button'
-                        "
                         title="{{ 'actie.persoon.bekijken' | translate }}"
                       >
                         <mat-icon>visibility</mat-icon>
@@ -704,18 +698,7 @@
                           betrokkene.type === 'VESTIGING'
                         "
                         mat-icon-button
-                        [routerLink]="[
-                          '/bedrijf',
-                          betrokkene.identificatie
-                            ? betrokkene.identificatie
-                            : betrokkene.kvkNummer,
-                        ]"
-                        (click)="$event.stopPropagation()"
-                        [id]="
-                          'bedrijfBekijken_' +
-                          betrokkene.identificatie +
-                          '_button'
-                        "
+                        [routerLink]="bedrijfRouteLink(betrokkene)"
                         title="{{ 'actie.bedrijf.bekijken' | translate }}"
                       >
                         <mat-icon>visibility</mat-icon>
