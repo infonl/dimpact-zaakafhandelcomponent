@@ -517,24 +517,22 @@ class ZaakRestService @Inject constructor(
     @GET
     @Path("zaaktypes")
     fun listZaaktypes(): List<RestZaaktype> =
-        loggedInUserInstance.get().let { loggedInUser ->
-            ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
-                .filter {
-                    // Return zaaktypes with a BPMN process definition or with correct rights and authorization
-                    it.hasBPMNProcessDefinition() || (
-                        policyService.readOverigeRechten(it.omschrijving).startenZaak &&
-                            policyService.isAuthorisedForZaaktype(it.omschrijving)
-                        )
-                }
-                .filter { !it.concept }
-                .filter { it.isNuGeldig() }
-                .filter {
-                    // return zaaktypes for which a BPMN process definition key
-                    // or a valid (CMMN) zaakafhandelparameters has been configured
-                    it.hasBPMNProcessDefinition() || healthCheckService.controleerZaaktype(it.url).isValide
-                }
-                .map(restZaaktypeConverter::convert)
-        }
+        ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
+            .filter {
+                // Return zaaktypes with a BPMN process definition or with correct rights and authorization
+                it.hasBPMNProcessDefinition() || (
+                    policyService.readOverigeRechten(it.omschrijving).startenZaak &&
+                        policyService.isAuthorisedForZaaktype(it.omschrijving)
+                    )
+            }
+            .filter { !it.concept }
+            .filter { it.isNuGeldig() }
+            .filter {
+                // return zaaktypes for which a BPMN process definition key
+                // or a valid (CMMN) zaakafhandelparameters has been configured
+                it.hasBPMNProcessDefinition() || healthCheckService.controleerZaaktype(it.url).isValide
+            }
+            .map(restZaaktypeConverter::convert)
 
     private fun ZaakType.hasBPMNProcessDefinition() =
         configuratieService.featureFlagBpmnSupport() &&
