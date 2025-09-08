@@ -38,7 +38,7 @@ export class ZakenService {
     uuid: string,
     update: {
       zaak: Omit<
-        Partial<GeneratedType<"RestZaak">>,
+        Partial<GeneratedType<"RestZaakCreateData">>,
         "zaakgeometrie" | "behandelaar"
       >;
       reden?: string;

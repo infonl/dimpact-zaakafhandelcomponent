@@ -102,6 +102,7 @@ import nl.info.zac.app.zaak.model.RestZaakAssignmentData
 import nl.info.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
 import nl.info.zac.app.zaak.model.RestZaakBetrokkene
 import nl.info.zac.app.zaak.model.RestZaakBetrokkeneGegevens
+import nl.info.zac.app.zaak.model.RestZaakCreateData
 import nl.info.zac.app.zaak.model.RestZaakInitiatorGegevens
 import nl.info.zac.app.zaak.model.RestZaakLinkData
 import nl.info.zac.app.zaak.model.RestZaakLocatieGegevens
@@ -287,7 +288,7 @@ class ZaakRestService @Inject constructor(
         val restZaak = restZaakAanmaakGegevens.zaak
         val zaaktypeUUID = restZaak.zaaktype.uuid
         val zaakType = zaakService.readZaakTypeByUUID(zaaktypeUUID)
-        assertCanAddBetrokkene(restZaak)
+        assertCanAddBetrokkene(restZaakAanmaakGegevens.zaak, zaaktypeUUID)
         assertPolicy(
             policyService.readOverigeRechten(zaakType.omschrijving).startenZaak &&
                 policyService.isAuthorisedForZaaktype(zaakType.omschrijving)
@@ -324,7 +325,7 @@ class ZaakRestService @Inject constructor(
     ): RestZaak {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
-        assertCanAddBetrokkene(restZaakEditMetRedenGegevens.zaak)
+        assertCanAddBetrokkene(restZaakEditMetRedenGegevens.zaak, zaakType.url.extractUuid())
         with(zaakRechten) {
             assertPolicy(wijzigen)
             if (
@@ -1037,33 +1038,36 @@ class ZaakRestService @Inject constructor(
                 IdentificatieType.VN to createVestigingIdentificationString(kvk, vestiging)
             }
             IdentificatieType.RSIN -> {
-                val rsin = betrokkeneIdentificatie.rsinNummer
-                require(!rsin.isNullOrBlank()) { "RSIN is required for type RSIN" }
-                IdentificatieType.RSIN to rsin
+                val kvk = betrokkeneIdentificatie.kvkNummer
+                require(!kvk.isNullOrBlank()) { "KVK nummer is required for type RSIN" }
+                IdentificatieType.RSIN to kvk
             }
         }
     }
 
     private fun addInitiator(
-        restZaak: RestZaak,
+        restZaak: RestZaakCreateData,
         zaak: Zaak,
         zaakType: ZaakType
     ) {
-        restZaak.initiatorIdentificatie?.takeIf { it.isNotEmpty() }?.let { initiatorId ->
-            restZaak.initiatorIdentificatieType?.let { initiatorType ->
-                val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
-                val identification = when (initiatorType) {
-                    IdentificatieType.VN -> createVestigingIdentificationString(restZaak.kvkNummer, initiatorId)
-                    else -> initiatorId
-                }
-                updateInitiator(
-                    identificationType = initiatorType,
-                    identification = identification,
-                    zaak = zaak,
-                    zaakRechten = zaakRechten,
-                    explanation = AANMAKEN_ZAAK_REDEN
+        restZaak.initiatorIdentificatie?.let { initiator ->
+            val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
+            val identification = when (initiator.type) {
+                IdentificatieType.BSN -> initiator.bsnNummer
+                // A `rechtspersoon` has the type RSIN but gets passed a `kvkNummer` if available
+                IdentificatieType.RSIN -> initiator.kvkNummer ?: initiator.rsin
+                IdentificatieType.VN -> createVestigingIdentificationString(
+                    initiator.kvkNummer,
+                    initiator.vestigingsnummer
                 )
             }
+            updateInitiator(
+                identificationType = initiator.type,
+                identification = identification ?: error("No identification provided for initiator"),
+                zaak = zaak,
+                zaakRechten = zaakRechten,
+                explanation = AANMAKEN_ZAAK_REDEN
+            )
         }
     }
 
@@ -1091,7 +1095,7 @@ class ZaakRestService @Inject constructor(
         zaaktypeUUID: UUID,
         zaak: Zaak,
         zaakType: ZaakType,
-        restZaak: RestZaak
+        restZaak: RestZaakCreateData
     ) {
         // if BPMN support is enabled and a BPMN process definition is defined for the zaaktype, start a BPMN process;
         // otherwise start a CMMN case
@@ -1118,7 +1122,7 @@ class ZaakRestService @Inject constructor(
     }
 
     private fun updateZaakRoles(
-        restZaak: RestZaak,
+        restZaak: RestZaakCreateData,
         zaak: Zaak
     ) {
         restZaak.groep?.let {
@@ -1413,16 +1417,14 @@ class ZaakRestService @Inject constructor(
 
     private fun speciaalMail(mail: String): SpecialMail? = if (!mail.contains("@")) SpecialMail.valueOf(mail) else null
 
-    private fun assertCanAddBetrokkene(restZaak: RestZaak) {
-        restZaak.initiatorIdentificatieType?.let {
-            val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                restZaak.zaaktype.uuid
-            )
+    private fun assertCanAddBetrokkene(restZaak: RestZaakCreateData, zaakTypeUUID: UUID) {
+        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
 
-            if (it.isKvK && !zaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen) {
+        restZaak.initiatorIdentificatie?.let {
+            if (it.type.isKvK && !zaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen) {
                 throw BetrokkeneNotAllowedException()
             }
-            if (it.isBsn && !zaakafhandelParameters.betrokkeneKoppelingen.brpKoppelen) {
+            if (it.type.isBsn && !zaakafhandelParameters.betrokkeneKoppelingen.brpKoppelen) {
                 throw BetrokkeneNotAllowedException()
             }
         }

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -25,7 +25,7 @@ const routes: Routes = [
     path: "bedrijf",
     children: [
       {
-        path: ":vesOrRSIN",
+        path: ":id", // This can be a `vestigingsnummer`, `kvkNummer` or `rsin`
         component: BedrijfViewComponent,
         resolve: { bedrijf: BedrijfResolverService },
       },

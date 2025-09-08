@@ -6,7 +6,12 @@
 <form [formGroup]="formGroup" (submit)="zoekBedrijven()" class="py-2">
   <fieldset>
     <section class="row">
-      <zac-input class="col-12" [form]="formGroup" key="kvkNummer" />
+      <zac-input
+        class="col-12"
+        [form]="formGroup"
+        key="kvkNummer"
+        label="kvknummer"
+      />
       <zac-input class="col-12" [form]="formGroup" key="vestigingsnummer" />
       <zac-input class="col-12" [form]="formGroup" key="rsin" />
     </section>

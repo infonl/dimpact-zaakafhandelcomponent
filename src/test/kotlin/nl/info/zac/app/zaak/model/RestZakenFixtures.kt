@@ -27,6 +27,20 @@ import java.util.UUID
 const val ZAAK_TYPE_1_OMSCHRIJVING = "zaaktype1"
 const val ZAAK_TYPE_2_OMSCHRIJVING = "zaaktype2"
 
+fun createBetrokkeneIdentificatie(
+    type: IdentificatieType = IdentificatieType.BSN,
+    bsnNummer: String? = "123456677",
+    kvkNummer: String? = null,
+    rsin: String? = null,
+    vestigingsnummer: String? = null
+) = BetrokkeneIdentificatie(
+    type = type,
+    bsnNummer = bsnNummer,
+    kvkNummer = kvkNummer,
+    rsin = rsin,
+    vestigingsnummer = vestigingsnummer
+)
+
 fun createRestDecision(
     url: URI = URI("http://localhost:8080/${UUID.randomUUID()}"),
     uuid: UUID = UUID.randomUUID()
@@ -139,10 +153,9 @@ fun createRestZaak(
     communicatiekanaal: String? = "fakeCommunicatiekanaal",
     isOpen: Boolean = true,
     startDatum: LocalDate = LocalDate.of(2023, 9, 15),
-    initiatorIdentificatieType: IdentificatieType = IdentificatieType.BSN,
-    kvkNummer: String? = null,
     vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name,
     heeftOntvangstbevestigingVerstuurd: Boolean = false,
+    initiatorBetrokkeneIdentificatie: BetrokkeneIdentificatie? = null
 ) = RestZaak(
     uuid = uuid,
     identificatie = "ZA2023001",
@@ -177,9 +190,6 @@ fun createRestZaak(
     kenmerken = listOf(createRESTZaakKenmerk()),
     zaakdata = createZaakData(),
     indicaties = indicaties,
-    initiatorIdentificatieType = initiatorIdentificatieType,
-    kvkNummer = kvkNummer,
-    initiatorIdentificatie = "Sample Initiator Identificatie",
     isOpen = isOpen,
     isHeropend = false,
     isHoofdzaak = true,
@@ -189,12 +199,42 @@ fun createRestZaak(
     isProcesGestuurd = false,
     heeftOntvangstbevestigingVerstuurd = heeftOntvangstbevestigingVerstuurd,
     rechten = rechten,
-    vestigingsNummer = null
+    initiatorIdentificatie = initiatorBetrokkeneIdentificatie
+)
+
+@Suppress("LongParameterList")
+fun createRestZaakCreateData(
+    behandelaar: RestUser = createRestUser(),
+    restGroup: RestGroup = createRestGroup(),
+    restZaakType: RestZaaktype = createRestZaaktype(),
+    uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.of(2023, 10, 10),
+    einddatumGepland: LocalDate? = null,
+    communicatiekanaal: String? = "fakeCommunicatiekanaal",
+    startDatum: LocalDate = LocalDate.of(2023, 9, 15),
+    vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name
+) = RestZaakCreateData(
+    omschrijving = "Sample Zaak",
+    toelichting = "This is a test zaak",
+    zaaktype = restZaakType,
+    bronorganisatie = "Sample Bronorganisatie",
+    registratiedatum = LocalDate.of(2023, 9, 14),
+    startdatum = startDatum,
+    einddatumGepland = einddatumGepland,
+    einddatum = LocalDate.of(2023, 10, 5),
+    uiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening,
+    publicatiedatum = LocalDate.of(2023, 9, 16),
+    communicatiekanaal = communicatiekanaal,
+    vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
+    zaakgeometrie = createRESTGeometry(),
+    groep = restGroup,
+    behandelaar = behandelaar,
+    gerelateerdeZaken = listOf(createRESTGerelateerdeZaak()),
+    initiatorIdentificatie = createBetrokkeneIdentificatie()
 )
 
 fun createRESTZaakAanmaakGegevens(
     zaakTypeUUID: UUID = UUID.randomUUID(),
-    zaak: RestZaak = createRestZaak(
+    restZaakCreateData: RestZaakCreateData = createRestZaakCreateData(
         restZaakType = RestZaaktype(
             // we only need a UUID for the zaaktype when creating a zaak
             uuid = zaakTypeUUID
@@ -203,7 +243,7 @@ fun createRESTZaakAanmaakGegevens(
     inboxProductaanvraag: RESTInboxProductaanvraag = createRESTInboxProductaanvraag(),
     bagObjecten: List<RESTBAGObject> = listOf(createRESTPand(), createRESTOpenbareRuimte())
 ) = RESTZaakAanmaakGegevens(
-    zaak = zaak,
+    zaak = restZaakCreateData,
     inboxProductaanvraag = inboxProductaanvraag,
     bagObjecten = bagObjecten
 )

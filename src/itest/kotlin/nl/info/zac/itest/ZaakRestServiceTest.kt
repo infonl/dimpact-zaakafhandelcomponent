@@ -1279,7 +1279,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
         When("an initiator is added to the zaak with a vestigingsnummer") {
-            val vestigingsnummer = "$TEST_KVK_VESTIGINGSNUMMER_1"
+            val vestigingsnummer = TEST_KVK_VESTIGINGSNUMMER_1
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/initiator",
                 requestBodyAsString = """
@@ -1297,9 +1297,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                 val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
-                with(responseBody) {
-                    shouldContainJsonKeyValue("initiatorIdentificatieType", "VN")
-                    shouldContainJsonKeyValue("initiatorIdentificatie", vestigingsnummer)
+                with(JSONObject(responseBody).getJSONObject("initiatorIdentificatie").toString()) {
+                    shouldContainJsonKeyValue("type", "VN")
+                    shouldContainJsonKeyValue("vestigingsnummer", vestigingsnummer)
                 }
             }
         }

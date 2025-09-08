@@ -71,7 +71,11 @@ describe(ZaakViewComponent.name, () => {
     groep: {},
     vertrouwelijkheidaanduiding: "OPENBAAR",
     gerelateerdeZaken: [],
-    initiatorIdentificatieType: "BSN",
+    initiatorIdentificatie: fromPartial<
+      GeneratedType<"BetrokkeneIdentificatie">
+    >({
+      type: "BSN",
+    }),
   });
 
   beforeEach(async () => {

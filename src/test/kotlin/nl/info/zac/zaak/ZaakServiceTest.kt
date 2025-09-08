@@ -861,7 +861,7 @@ class ZaakServiceTest : BehaviorSpec({
     }
 
     Context("Add initiator to zaak") {
-        Given("An existing zaak") {
+        Given("An existing zaak and a vestiging identification with a KVK number and a vestigingsnummer") {
             val kvkNummer = "12345567"
             val vestingsnummer = "fakeVestigingsnummer"
             val identification = "$kvkNummer|$vestingsnummer"
@@ -875,7 +875,7 @@ class ZaakServiceTest : BehaviorSpec({
             } returns roleType
             every { zrcClientService.createRol(capture(roleSlot), explanation) } returns createdRole
 
-            When("an initiator with a vestigingsnummer is added to the zaak") {
+            When("an initiator of type vestiging is added to the zaak") {
                 zaakService.addInitiatorToZaak(
                     identificationType = IdentificatieType.VN,
                     identification = identification,
@@ -883,14 +883,52 @@ class ZaakServiceTest : BehaviorSpec({
                     explanation = explanation
                 )
 
-                Then("an initiator role of type niet-natuurlijk persoon with a vestigingsnummer is added to the zaak") {
+                Then(
+                    "an initiator role of type niet-natuurlijk persoon with a KVK number and a vestigingsnummer is added to the zaak"
+                ) {
                     with(roleSlot.captured) {
                         this.zaak shouldBe zaak.url
                         roltype shouldBe roleType.url
                         roltoelichting shouldBe explanation
                         omschrijving shouldBe zaak.omschrijving
                         omschrijvingGeneriek shouldBe OmschrijvingGeneriekEnum.INITIATOR.toString()
-                        (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie?.vestigingsNummer shouldBe vestingsnummer
+                        with((this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie!!) {
+                            this.kvkNummer shouldBe kvkNummer
+                            this.vestigingsNummer shouldBe vestingsnummer
+                        }
+                    }
+                }
+            }
+        }
+
+        Given("An existing zaak and an identication of KVK number") {
+            val kvkNummer = "12345567"
+            val explanation = "fakeExplanation"
+            val zaak = createZaak()
+            val roleType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
+            val roleSlot = slot<Rol<*>>()
+            val createdRole = createRolNietNatuurlijkPersoon()
+            every {
+                ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
+            } returns roleType
+            every { zrcClientService.createRol(capture(roleSlot), explanation) } returns createdRole
+
+            When("an initiator of type rechtspersoon (RSIN) is added to the zaak") {
+                zaakService.addInitiatorToZaak(
+                    identificationType = IdentificatieType.RSIN,
+                    identification = kvkNummer,
+                    zaak = zaak,
+                    explanation = explanation
+                )
+
+                Then("an initiator role of type niet-natuurlijk persoon with a KVK number is added to the zaak") {
+                    with(roleSlot.captured) {
+                        this.zaak shouldBe zaak.url
+                        roltype shouldBe roleType.url
+                        roltoelichting shouldBe explanation
+                        omschrijving shouldBe zaak.omschrijving
+                        omschrijvingGeneriek shouldBe OmschrijvingGeneriekEnum.INITIATOR.toString()
+                        (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie!!.kvkNummer shouldBe kvkNummer
                     }
                 }
             }
