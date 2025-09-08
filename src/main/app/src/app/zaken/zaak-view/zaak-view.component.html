@@ -697,6 +697,9 @@
                           betrokkene.type === 'NIET_NATUURLIJK_PERSOON' ||
                           betrokkene.type === 'VESTIGING'
                         "
+                        [disabled]="
+                          betrokkene.identificatie && !betrokkene.kvkNummer
+                        "
                         mat-icon-button
                         [routerLink]="bedrijfRouteLink(betrokkene)"
                         title="{{ 'actie.bedrijf.bekijken' | translate }}"
