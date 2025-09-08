@@ -1,0 +1,100 @@
+<fieldset class="px-3 py-0">
+  <legend class="mb-1">{{ label ?? key | translate }}</legend>
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z1">
+    <ng-container matColumnDef="select">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ selectLabel | translate }}
+      </th>
+      <td mat-cell *matCellDef="let document">
+        <mat-checkbox
+          (change)="onToggleOption(document)"
+          [disabled]="readonly"
+          [checked]="selection.isSelected(document)"
+        >
+        </mat-checkbox>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="titel">
+      <th mat-header-cell *matHeaderCellDef>{{ "titel" | translate }}</th>
+      <td mat-cell *matCellDef="let document">
+        <zac-document-icon
+          [bestandsnaam]="document.bestandsnaam"
+        ></zac-document-icon>
+        {{ document.titel }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="documentType">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ "documentType" | translate }}
+      </th>
+      <td mat-cell *matCellDef="let document">
+        {{ document.informatieobjectTypeOmschrijving }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>{{ "status" | translate }}</th>
+      <td mat-cell *matCellDef="let document">
+        {{ "informatieobject.status." + document.status | translate }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="versie">
+      <th mat-header-cell *matHeaderCellDef>{{ "versie" | translate }}</th>
+      <td mat-cell *matCellDef="let document">{{ document.versie }}</td>
+    </ng-container>
+    <ng-container matColumnDef="auteur">
+      <th mat-header-cell *matHeaderCellDef>{{ "auteur" | translate }}</th>
+      <td mat-cell *matCellDef="let document">{{ document.auteur }}</td>
+    </ng-container>
+    <ng-container matColumnDef="creatiedatum">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ "creatiedatum" | translate }}
+      </th>
+      <td mat-cell *matCellDef="let document">
+        {{ document.creatiedatum }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="bestandsomvang">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ "bestandsomvang" | translate }}
+      </th>
+      <td mat-cell *matCellDef="let document">
+        {{ document.bestandsomvang | bestandsomvang }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="indicaties">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ "indicaties" | translate }}
+      </th>
+      <td mat-cell *matCellDef="let document">
+        <zac-informatie-object-indicaties
+          [document]="document"
+          layout="COMPACT"
+        ></zac-informatie-object-indicaties>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="url" stickyEnd>
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let document">
+        <div class="flex-row">
+          <a
+            mat-icon-button
+            [href]="document.viewLink"
+            target="{{ viewDocumentInNewTab ? '_blank' : '' }}"
+            title="{{ 'actie.document.bekijken' | translate }}"
+          >
+            <mat-icon>visibility</mat-icon>
+          </a>
+          <a
+            mat-icon-button
+            [href]="document.downloadLink"
+            title="{{ 'actie.downloaden' | translate }}"
+          >
+            <mat-icon>download</mat-icon>
+          </a>
+        </div>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="columnsWithSelect; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnsWithSelect"></tr>
+  </table>
+</fieldset>
