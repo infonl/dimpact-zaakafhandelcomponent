@@ -98,6 +98,7 @@ constructor(
             } else {
                 LOG.info(
                     "User logged in: '${loggedInUser.id}' with groups: ${loggedInUser.groupIds}, " +
+                        "functional roles: '${loggedInUser.roles}' " +
                         "and application roles per zaaktype: ${loggedInUser.applicationRolesPerZaaktype}"
                 )
             }

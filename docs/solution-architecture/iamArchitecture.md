@@ -1,6 +1,6 @@
 # Identity and Access Management (IAM)
 
-## Current ZAC IAM architecture
+## Current ('legacy') ZAC IAM architecture
 
 The current IAM (Identity and Access Management) architecture of ZAC is illustrated in the following diagram:
 
