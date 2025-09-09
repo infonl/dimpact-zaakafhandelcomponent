@@ -141,7 +141,7 @@ class ProjectConfig : AbstractProjectConfig() {
 
     @Suppress("UNCHECKED_CAST")
     private fun createDockerComposeContainer(): ComposeContainer {
-        logger.info { "Using Docker Compose environment variables: $dockerComposeEnvironment"}
+        logger.info { "Using Docker Compose environment variables: $dockerComposeEnvironment" }
 
         return ComposeContainer(File("docker-compose.yaml"))
             .withLocalCompose(true)
