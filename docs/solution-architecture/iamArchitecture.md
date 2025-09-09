@@ -96,11 +96,12 @@ C4Context
 
 The following components are part of the new ZAC IAM architecture:
 
-| Component                                | Description                           | ZAC usage                                                                                                                                                                                                                   |
-|------------------------------------------|---------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [OPA](https://www.openpolicyagent.org/) | Open Policy Agent. Policy engine that manages security policies. | ZAC manages all security policies (= role-permission mappings) in OPA.                                                                                                                                                      |
-| [Keycloak](https://www.keycloak.org/)    | Open Source Identity and Access Management product. | ZAC uses Keycloak for authentication and functional roles mappings. ZAC authenticates to Keycloak using OIDC (OpenID Connect). ZAC also uses Keycloak to retrieve users and groups, for example to be able to assign zaken. |
-| [PABC](https://github.com/Platform-Autorisatie-Beheer-Component) | Platform Autorisatie Beheer Component | ZAC uses the PABC to retrieve application roles and zaaktype-application roles combinations from the user's functional roles. In a future version PABC will also integrate with Keycloak.                                   |
+| Component                                                        | Description                                                      | Data managed                                                                                      | Usage in ZAC IAM architecture                                                                                                                                                                                                                    |
+|------------------------------------------------------------------|------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [Keycloak](https://www.keycloak.org/)                            | Open Source Identity and Access Management product.              | Users, groups, functional roles and mappings between them                                         | ZAC uses Keycloak for authentication and user-to-functional-role mappings (via groups). ZAC authenticates to Keycloak using OIDC (OpenID Connect). ZAC also uses Keycloak to retrieve users and groups, for example to be able to assign zaken. |
+| [PABC](https://github.com/Platform-Autorisatie-Beheer-Component) | Platform Autorisatie Beheer Component                            | Domains and authorization mappings (= functional roles to zaaktypes + application roles mappings) | ZAC uses the PABC to retrieve authorization mappings for the user's functional roles. In a future version PABC will also integrate with Keycloak.                                                                                                |
+| ZAC                                                              | The Zaakafhandelcomponent application.                           | Application roles                                                                                 | ZAC uses the authorization mappings retrieved from PABC to perform authorization policy checks using OPA.                                                                                                                                        |
+| - [OPA](https://www.openpolicyagent.org/)                        | Open Policy Agent. Policy engine that manages security policies. | ZAC policies (= application roles to permission mappings)                                         | ZAC manages all security policies (= application role - permission mappings) in OPA.                                                                                                                                                             |
 
 The new IAM architecture is quite different from the old IAM architecture in that it allows different application roles _per_ zaaktype per user.
 This is implemented using the following concepts which are managed in the PABC:
@@ -113,8 +114,7 @@ This is implemented using the following concepts which are managed in the PABC:
 
 In the PABC the concept of `zaaktype` is abstracted as a generic `entity type` concept, allowing for the possibility to use the PABC for authorisations on other entity types in the future.
 
-Internally in the PABC these `entity types` are grouped using `domains`.
-In the new IAM architecture `domains` are a PABC-internal concept only. 
+Internally in the PABC these `entity types` are grouped using `domains`. In the new IAM architecture `domains` are a PABC-internal concept only. 
 ZAC, nor Keycloak, have any knowledge of these `domains`.
 
 The functional roles and mappings from users (typically through groups) to functional roles are managed in Keycloak.
@@ -147,6 +147,14 @@ sequenceDiagram
     ZAC->>OPA: Uses authorization mappings for authorization checks
     deactivate ZAC
 ```    
+
+The following concrete example illustrates this scenario:
+1. A user in Keycloak belongs to the group `behandelaars_domein_x`.
+2. The group `behandelaars_domein_x` is mapped to the functional role `behandelaar_domein_x`.
+3. The functional role `behandelaar_domein_x` is mapped in the PABC to: zaaktype `zaaktype_1` with the ZAC application role `behandelaar`.
+4. The user logs in to ZAC and has the functional role `behandelaar_domein_x` in the Keycloak OIDC token.
+5. ZAC retrieves the authorisation mappings for the functional role `behandelaar_domein_x` from the PABC, which includes the mapping to zaaktype `zaaktype_1` with the ZAC application role `behandelaar`.
+6. The user can now perform actions in ZAC on zaken of `zaaktype_1` as a `behandelaar`.
 
 ## Internal endpoints
 
