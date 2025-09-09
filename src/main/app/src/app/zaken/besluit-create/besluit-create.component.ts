@@ -48,7 +48,9 @@ export class BesluitCreateComponent implements OnInit {
     publicationEnabled: this.formBuilder.control(false),
     publicatiedatum: this.formBuilder.control<Moment | null>(moment()),
     uiterlijkereactiedatum: this.formBuilder.control<Moment | null>(null),
-      documenten: this.formBuilder.control<GeneratedType<"RestEnkelvoudigInformatieobject">[]>([]),
+    documenten: this.formBuilder.control<
+      GeneratedType<"RestEnkelvoudigInformatieobject">[]
+    >([]),
   });
 
   // For dynamically add minimum date validators
@@ -105,10 +107,7 @@ export class BesluitCreateComponent implements OnInit {
             besluittypeUUID: value.id,
           })
           .subscribe((documents) => {
-              this.documents = documents
-            // this.documentenField.formControl.setValue(
-            //   documenten.map((document) => document.uuid).join(";"),
-            // );
+            this.documents = documents;
           });
 
         this.form.controls.publicationEnabled.setValue(
@@ -188,7 +187,9 @@ export class BesluitCreateComponent implements OnInit {
         besluittypeUuid: value.besluit!.id,
         ingangsdatum: value.ingangsdatum?.toISOString(),
         vervaldatum: value.vervaldatum?.toISOString(),
-        informatieobjecten: value.documenten?.map(document => document.uuid!).filter(Boolean),
+        informatieobjecten: value.documenten
+          ?.map(({ uuid }) => uuid!)
+          .filter(Boolean),
         ...(value.publicationEnabled
           ? {
               publicationDate: value.publicatiedatum?.toISOString(),

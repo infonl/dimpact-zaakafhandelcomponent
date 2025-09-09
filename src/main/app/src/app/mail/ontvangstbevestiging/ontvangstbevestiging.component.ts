@@ -103,7 +103,7 @@ export class OntvangstbevestigingComponent implements OnInit {
         ...value,
         verzender: value.verzender?.mail,
         replyTo: value.verzender?.replyTo,
-        bijlagen: value.bijlagen?.map((document) => document.uuid).join(";"),
+        bijlagen: value.bijlagen?.map(({ uuid }) => uuid).join(";"),
         createDocumentFromMail: true,
       })
       .subscribe(() => {

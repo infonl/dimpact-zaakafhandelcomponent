@@ -89,7 +89,6 @@ export class MailCreateComponent implements OnInit {
       })
       .subscribe((documents) => {
         this.documents = documents;
-        console.log(documents);
       });
 
     if (
@@ -109,8 +108,6 @@ export class MailCreateComponent implements OnInit {
   onFormSubmit() {
     const { value } = this.form;
 
-    console.log("Mail template:", value);
-
     this.mailService
       .sendMail(this.zaak.uuid, {
         ...value,
@@ -118,7 +115,7 @@ export class MailCreateComponent implements OnInit {
         replyTo: value.verzender?.replyTo,
         onderwerp: value.onderwerp ?? "",
         body: value.body ?? "",
-        bijlagen: value.bijlagen?.map((bijlage) => bijlage.uuid).join(";"),
+        bijlagen: value.bijlagen?.map(({ uuid }) => uuid).join(";"),
         createDocumentFromMail: true,
       })
       .subscribe({
