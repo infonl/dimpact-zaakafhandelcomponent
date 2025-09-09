@@ -11,6 +11,7 @@ import io.kotest.assertions.json.shouldNotContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.ItestHttpClient
@@ -127,84 +128,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
             }
-            And("the response body should contain the BPMN zaak types") {
-                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
-                [
-                  {
-                    "beginGeldigheid": "$DATE_2025_01_01",
-                    "doel": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
-                    "identificatie": "$ZAAKTYPE_BPMN_TEST_IDENTIFICATIE",
-                    "informatieobjecttypes": [
-                      "$TEST_INFORMATIE_OBJECT_TYPE_1_UUID",
-                      "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID",
-                      "a8dfd5b8-8657-48bf-b624-f962709f6e19",
-                      "12dbb9de-6b5c-4649-b9f3-06e6190f2cc6",
-                      "ce22f2f5-d8d1-4c6e-8649-3b24f6c2c38a",
-                      "8ca36dd0-7da4-498b-b095-12ac50d13677",
-                      "e30d5680-cce3-4e8a-b895-4d358d354198",
-                      "ecdb5ee6-846e-4afe-bb87-bee2a87109a9"
-                    ],
-                    "nuGeldig": true,
-                    "omschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
-                    "opschortingMogelijk": true,
-                    "referentieproces": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
-                    "servicenorm": false,
-                    "uuid": "$ZAAKTYPE_BPMN_TEST_UUID",
-                    "verlengingMogelijk": true,
-                    "verlengingstermijn": 30,
-                    "versiedatum": "$DATE_2025_01_01",
-                    "vertrouwelijkheidaanduiding": "openbaar",
-                    "zaakafhandelparameters": {
-                      "afrondenMail": "BESCHIKBAAR_UIT",
-                      "automaticEmailConfirmation": {
-                        "enabled": false
-                      },
-                      "betrokkeneKoppelingen": {
-                        "brpKoppelen": false,
-                        "kvkKoppelen": false
-                      },
-                      "brpDoelbindingen": {
-                        "raadpleegWaarde": "",
-                        "zoekWaarde": ""
-                      },
-                      "humanTaskParameters": [],
-                      "intakeMail": "BESCHIKBAAR_UIT",
-                      "mailtemplateKoppelingen": [],
-                      "smartDocuments": {
-                        "enabledForZaaktype": false,
-                        "enabledGlobally": true
-                      },
-                      "userEventListenerParameters": [],
-                      "valide": false,
-                      "zaakAfzenders": [
-                        {
-                          "defaultMail": false,
-                          "mail": "GEMEENTE",
-                          "speciaal": true
-                        },
-                        {
-                          "defaultMail": false,
-                          "mail": "MEDEWERKER",
-                          "speciaal": true
-                        }
-                      ],
-                      "zaakbeeindigParameters": [],
-                      "zaaktype": {
-                        "beginGeldigheid": "$DATE_2025_01_01",
-                        "doel": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_BPMN_TEST_IDENTIFICATIE",
-                        "nuGeldig": true,
-                        "omschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
-                        "servicenorm": false,
-                        "uuid": "$ZAAKTYPE_BPMN_TEST_UUID",
-                        "versiedatum": "$DATE_2025_01_01",
-                        "vertrouwelijkheidaanduiding": "openbaar"
-                      }
-                    },
-                    "zaaktypeRelaties": []
-                  }
-                ]
-                """.trimIndent()
+            And("the response body should contain no zaak types") {
+                JSONArray(responseBody) shouldHaveSize 0
             }
         }
     }
