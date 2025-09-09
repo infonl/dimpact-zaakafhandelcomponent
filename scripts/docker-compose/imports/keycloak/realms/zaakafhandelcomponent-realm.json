@@ -428,6 +428,46 @@
           "attributes": {}
         },
         {
+          "id": "f3e2e2b1-2d0e-4c8e-9f3a-5e1f3c6d1f4e",
+          "name": "raadpleger_domein_test_1",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
+          "attributes": {}
+        },
+        {
+          "id": "f5c3c8e4-2d6b-4f4a-9f1e-3c9e2b7a6d5f",
+          "name": "behandelaar_domein_test_1",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
+          "attributes": {}
+        },
+        {
+          "id": "c1d2e3f4-5a6b-7c8d-9e0f-1a2b3c4d5e6f",
+          "name": "coordinator_domein_test_1",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
+          "attributes": {}
+        },
+        {
+          "id": "e1f3c6d1-2d0e-4c8e-9f3a-f3e2e2b15e1f",
+          "name": "recordmanager_domein_test_1_en_domein_test_2",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
+          "attributes": {}
+        },
+        {
+          "id": "d1f4e2e2-b12d-0e4c-8e9f-3a5e1f3c6d1f",
+          "name": "beheerder_elk_domein",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
+          "attributes": {}
+        },
+        {
           "id": "79226e68-19c9-4fce-a407-8e883a75bd25",
           "name": "domein_elk_zaaktype",
           "composite": false,
@@ -462,7 +502,12 @@
           "behandelaar",
           "coordinator",
           "recordmanager",
-          "beheerder"
+          "beheerder",
+          "raadpleger_domein_test_1",
+          "behandelaar_domein_test_1",
+          "coordinator_domein_test_1",
+          "recordmanager_domein_test_1_en_domein_test_2",
+          "beheerder_elk_domein"
         ]
       }
     },
@@ -481,7 +526,12 @@
           "behandelaar",
           "coordinator",
           "recordmanager",
-          "beheerder"
+          "beheerder",
+          "raadpleger_domein_test_1",
+          "behandelaar_domein_test_1",
+          "coordinator_domein_test_1",
+          "recordmanager_domein_test_1_en_domein_test_2",
+          "beheerder_elk_domein"
         ]
       }
     },
@@ -499,7 +549,11 @@
           "raadpleger",
           "behandelaar",
           "coordinator",
-          "recordmanager"
+          "recordmanager",
+          "raadpleger_domein_test_1",
+          "behandelaar_domein_test_1",
+          "coordinator_domein_test_1",
+          "recordmanager_domein_test_1_en_domein_test_2"
         ]
       }
     },
@@ -512,7 +566,13 @@
         "email": ["${ZAC_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
-        "zaakafhandelcomponent": ["domein_test_1", "raadpleger", "behandelaar"]
+        "zaakafhandelcomponent": [
+          "domein_test_1",
+          "raadpleger",
+          "behandelaar",
+          "raadpleger_domein_test_1",
+          "behandelaar_domein_test_1"
+        ]
       }
     },
     {
@@ -528,7 +588,10 @@
           "domein_elk_zaaktype",
           "raadpleger",
           "behandelaar",
-          "coordinator"
+          "coordinator",
+          "raadpleger_domein_test_1",
+          "behandelaar_domein_test_1",
+          "coordinator_domein_test_1"
         ]
       }
     },
@@ -544,7 +607,9 @@
         "zaakafhandelcomponent": [
           "domein_elk_zaaktype",
           "raadpleger",
-          "behandelaar"
+          "behandelaar",
+          "raadpleger_domein_test_1",
+          "behandelaar_domein_test_1"
         ]
       }
     },
@@ -557,7 +622,11 @@
         "email": ["${ZAC_GROUP_RAADPLEGERS_1_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
-        "zaakafhandelcomponent": ["domein_elk_zaaktype", "raadpleger"]
+        "zaakafhandelcomponent": [
+          "domein_elk_zaaktype",
+          "raadpleger",
+          "raadpleger_domein_test_1"
+        ]
       }
     }
   ],
