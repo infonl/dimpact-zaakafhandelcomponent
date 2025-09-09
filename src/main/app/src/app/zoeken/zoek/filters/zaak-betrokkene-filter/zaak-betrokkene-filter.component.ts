@@ -23,7 +23,8 @@ import { KlantZoekDialog } from "./klant-zoek-dialog.component";
   styleUrls: ["./zaak-betrokkene-filter.component.less"],
 })
 export class ZaakBetrokkeneFilterComponent implements OnInit {
-  @Input({ required: true }) zoekparameters!: GeneratedType<"RestZoekParameters">;
+  @Input({ required: true })
+  zoekparameters!: GeneratedType<"RestZoekParameters">;
   @Output() changed = new EventEmitter<string>();
   dialogOpen: boolean = false;
   betrokkeneSelectControl = new FormControl<ZoekVeld>(ZoekVeld.ZAAK_INITIATOR);
@@ -38,7 +39,7 @@ export class ZaakBetrokkeneFilterComponent implements OnInit {
   ngOnInit(): void {
     this.bepaalHuidigRoltype();
     this.klantIdControl.setValue(
-      this.zoekparameters.zoeken![this.huidigeRoltype!] ?? ""
+      this.zoekparameters.zoeken![this.huidigeRoltype!] ?? "",
     );
   }
 
@@ -53,7 +54,8 @@ export class ZaakBetrokkeneFilterComponent implements OnInit {
       this.dialogOpen = false;
       if (result) {
         this.klantIdControl.setValue(result.identificatie);
-        this.zoekparameters.zoeken![this.huidigeRoltype!] = result.identificatie;
+        this.zoekparameters.zoeken![this.huidigeRoltype!] =
+          result.identificatie;
       }
       this.changed.emit();
     });
