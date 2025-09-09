@@ -31,7 +31,7 @@ jobs:
           fetch-depth: 0 # Fetch full history to compare with base branch
 
       - name: Setup Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 22
           cache: "npm"
@@ -177,7 +177,7 @@ jobs:
 
       - name: Comment on PR if linting failed
         if: failure() && github.event_name == 'pull_request'
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
           script: |
             github.rest.issues.createComment({

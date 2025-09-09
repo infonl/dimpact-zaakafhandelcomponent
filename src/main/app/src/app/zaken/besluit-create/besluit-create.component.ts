@@ -10,7 +10,6 @@ import { MatDrawer } from "@angular/material/sidenav";
 import moment, { Moment } from "moment";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
@@ -26,11 +25,7 @@ export class BesluitCreateComponent implements OnInit {
 
   protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
   protected besluittypes: GeneratedType<"RestDecisionType">[] = [];
-
-  protected documentenField = new DocumentenLijstFieldBuilder()
-    .id("documenten")
-    .label("documenten")
-    .build();
+  protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
 
   protected form = this.formBuilder.group({
     resultaat:
@@ -53,6 +48,9 @@ export class BesluitCreateComponent implements OnInit {
     publicationEnabled: this.formBuilder.control(false),
     publicatiedatum: this.formBuilder.control<Moment | null>(moment()),
     uiterlijkereactiedatum: this.formBuilder.control<Moment | null>(null),
+    documenten: this.formBuilder.control<
+      GeneratedType<"RestEnkelvoudigInformatieobject">[]
+    >([]),
   });
 
   // For dynamically add minimum date validators
@@ -108,10 +106,8 @@ export class BesluitCreateComponent implements OnInit {
             zaakUUID: this.zaak.uuid,
             besluittypeUUID: value.id,
           })
-          .subscribe((documenten) => {
-            this.documentenField.formControl.setValue(
-              documenten.map((document) => document.uuid).join(";"),
-            );
+          .subscribe((documents) => {
+            this.documents = documents;
           });
 
         this.form.controls.publicationEnabled.setValue(
@@ -191,7 +187,9 @@ export class BesluitCreateComponent implements OnInit {
         besluittypeUuid: value.besluit!.id,
         ingangsdatum: value.ingangsdatum?.toISOString(),
         vervaldatum: value.vervaldatum?.toISOString(),
-        informatieobjecten: this.documentenField.value.toString().split(";"),
+        informatieobjecten: value.documenten
+          ?.map(({ uuid }) => uuid!)
+          .filter(Boolean),
         ...(value.publicationEnabled
           ? {
               publicationDate: value.publicatiedatum?.toISOString(),

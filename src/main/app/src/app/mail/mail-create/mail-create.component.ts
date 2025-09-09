@@ -10,7 +10,6 @@ import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
-import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { DocumentenLijstFormField } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-form-field";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
@@ -43,11 +42,15 @@ export class MailCreateComponent implements OnInit {
       Validators.maxLength(100),
     ]),
     body: this.formBuilder.control("", [Validators.required]),
+    bijlagen: this.formBuilder.control<
+      GeneratedType<"RestEnkelvoudigInformatieobject">[]
+    >([], [Validators.required]),
   });
 
   protected verzenderOptions: GeneratedType<"RestZaakAfzender">[] = [];
   protected contactGegevens: GeneratedType<"RestContactGegevens"> | null = null;
   protected variabelen: string[] = [];
+  protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
 
   constructor(
     private readonly zakenService: ZakenService,
@@ -71,7 +74,6 @@ export class MailCreateComponent implements OnInit {
       .subscribe((mailTemplate) => {
         this.form.controls.onderwerp.setValue(mailTemplate.onderwerp ?? null);
         this.form.controls.body.setValue(mailTemplate.body ?? null);
-        console.log("Mail template:", mailTemplate);
         this.variabelen = mailTemplate.variabelen ?? [];
       });
 
@@ -81,17 +83,13 @@ export class MailCreateComponent implements OnInit {
         this.form.controls.verzender.setValue(defaultVerzenderVoorZaak);
       });
 
-    const documenten =
-      this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+    this.informatieObjectenService
+      .listEnkelvoudigInformatieobjecten({
         zaakUUID: this.zaak.uuid,
+      })
+      .subscribe((documents) => {
+        this.documents = documents;
       });
-
-    this.bijlagenFormField = new DocumentenLijstFieldBuilder()
-      .id("bijlagen")
-      .label("bijlagen")
-      .documenten(documenten)
-      .openInNieuweTab()
-      .build();
 
     if (
       !this.zaak.initiatorIdentificatie?.type ||
@@ -117,7 +115,7 @@ export class MailCreateComponent implements OnInit {
         replyTo: value.verzender?.replyTo,
         onderwerp: value.onderwerp ?? "",
         body: value.body ?? "",
-        bijlagen: this.bijlagenFormField?.formControl.value ?? "",
+        bijlagen: value.bijlagen?.map(({ uuid }) => uuid).join(";"),
         createDocumentFromMail: true,
       })
       .subscribe({

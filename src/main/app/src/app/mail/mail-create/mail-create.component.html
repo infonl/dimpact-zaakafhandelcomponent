@@ -40,9 +40,7 @@
     />
     <zac-html-editor [form]="form" key="body" [variables]="variabelen" />
   </fieldset>
-  <fieldset>
-    <mfb-form-field [field]="bijlagenFormField" />
-  </fieldset>
+  <zac-documents [form]="form" key="bijlagen" [options]="documents" />
   <fieldset>
     <mat-action-row>
       <button
