@@ -519,11 +519,8 @@ class ZaakRestService @Inject constructor(
     fun listZaaktypes(): List<RestZaaktype> =
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .filter {
-                // Return zaaktypes with a BPMN process definition or with correct rights and authorization
-                it.hasBPMNProcessDefinition() || (
-                    policyService.readOverigeRechten(it.omschrijving).startenZaak &&
-                        policyService.isAuthorisedForZaaktype(it.omschrijving)
-                    )
+                policyService.readOverigeRechten(it.omschrijving).startenZaak &&
+                    policyService.isAuthorisedForZaaktype(it.omschrijving)
             }
             .filter { !it.concept }
             .filter { it.isNuGeldig() }

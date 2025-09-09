@@ -1697,7 +1697,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
 
             And("all zaaktypes are authorised") {
-                zaaktypes.slice(0..1).forEach {
+                zaaktypes.forEach {
                     every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
                     every { policyService.isAuthorisedForZaaktype(it.omschrijving) } returns true
                 }
@@ -1713,7 +1713,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         verify(exactly = 1) {
                             ztcClientService.listZaaktypen(defaultCatalogueURI)
                         }
-                        verify(exactly = 6) {
+                        verify(exactly = 3) {
                             bpmnService.findProcessDefinitionForZaaktype(any())
                         }
                         returnedRestZaaktypes shouldHaveSize 3
@@ -1721,7 +1721,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     }
                 }
             }
-            And("a CMMN zaaktype is not authorised because of missing startenZaak right") {
+            And("a user is not authorised for a CMMN zaaktype, because of missing startenZaak right") {
                 clearMocks(ztcClientService, bpmnService, answers = false)
                 zaaktypes[1].let {
                     every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten(startenZaak = false)
@@ -1730,11 +1730,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                 When("the zaaktypes are listed") {
                     val returnedRestZaaktypes = zaakRestService.listZaaktypes()
 
-                    Then("only the zaaktypes for which the user is authorised are returned, plus BPMN ones") {
+                    Then("only the zaaktypes for which the user is authorised are returned") {
                         verify(exactly = 1) {
                             ztcClientService.listZaaktypen(defaultCatalogueURI)
                         }
-                        verify(exactly = 5) {
+                        verify(exactly = 2) {
                             bpmnService.findProcessDefinitionForZaaktype(any())
                         }
                         returnedRestZaaktypes shouldHaveSize 2
@@ -1742,7 +1742,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     }
                 }
             }
-            And("a CMMN zaaktype is not authorised for a zaaktype") {
+            And("user is not authorised for a CMMN zaaktype") {
                 clearMocks(ztcClientService, bpmnService, answers = false)
                 zaaktypes[1].let {
                     every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
@@ -1752,11 +1752,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                 When("the zaaktypes are listed") {
                     val returnedRestZaaktypes = zaakRestService.listZaaktypes()
 
-                    Then("the authorised CMMN plus BPMN zaaktypes are returned") {
+                    Then("the authorised zaaktypes are returned") {
                         verify(exactly = 1) {
                             ztcClientService.listZaaktypen(defaultCatalogueURI)
                         }
-                        verify(exactly = 5) {
+                        verify(exactly = 2) {
                             bpmnService.findProcessDefinitionForZaaktype(any())
                         }
                         returnedRestZaaktypes shouldHaveSize 2
