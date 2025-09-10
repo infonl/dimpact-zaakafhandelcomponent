@@ -1605,7 +1605,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing zaak types") {
+    Context("Listing zaak types that can be used for zaak creation") {
         Given(
             """
         Two existing CMMN zaaktypes in the configured catalogue for which the logged in user is authorised
@@ -1640,7 +1640,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { configuratieService.featureFlagBpmnSupport() } returns false
 
             When("the zaaktypes are requested") {
-                val returnedRestZaaktypes = zaakRestService.listZaaktypes()
+                val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
 
                 Then("only CMMN zaaktypes are returned for which the user is authorised") {
                     verify(exactly = 1) {
@@ -1707,7 +1707,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
 
                 When("the zaaktypes are listed") {
-                    val returnedRestZaaktypes = zaakRestService.listZaaktypes()
+                    val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
 
                     Then("all zaaktypes are returned") {
                         verify(exactly = 1) {
@@ -1728,7 +1728,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
 
                 When("the zaaktypes are listed") {
-                    val returnedRestZaaktypes = zaakRestService.listZaaktypes()
+                    val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
 
                     Then("only the zaaktypes for which the user is authorised are returned") {
                         verify(exactly = 1) {
@@ -1750,7 +1750,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
 
                 When("the zaaktypes are listed") {
-                    val returnedRestZaaktypes = zaakRestService.listZaaktypes()
+                    val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
 
                     Then("the authorised zaaktypes are returned") {
                         verify(exactly = 1) {
