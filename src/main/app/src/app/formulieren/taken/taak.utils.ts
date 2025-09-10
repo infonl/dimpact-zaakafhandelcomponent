@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { AbstractControl, FormGroup } from "@angular/forms";
 import { GeneratedType } from "../../shared/utils/generated-types";
 type ControlMapOptions = {
