@@ -102,12 +102,12 @@ export type FormField<Form extends _Form = _Form> =
   templateUrl: "./form.html",
 })
 export class ZacForm<Form extends _Form> implements OnChanges {
-  @Input({required: true}) form!: FormGroup<Form>;
-  @Input({required: true}) fields: FormField[] = [];
+  @Input({ required: true }) form!: FormGroup<Form>;
+  @Input({ required: true }) fields: FormField[] = [];
   @Input() config: FormConfig = {
     hideCancelButton: false,
   };
-  @Input({transform: booleanAttribute}) readonly = false;
+  @Input({ transform: booleanAttribute }) readonly = false;
 
   @Output() formSubmitted = new EventEmitter<FormGroup<Form>>();
   @Output() formPartiallySubmitted = new EventEmitter<FormGroup<Form>>();

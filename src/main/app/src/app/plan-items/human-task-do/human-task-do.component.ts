@@ -6,16 +6,16 @@
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
+import { lastValueFrom } from "rxjs";
 import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-formulier";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { mapFormGroupToTaskData } from "../../formulieren/taken/taak.utils";
+import { IdentityService } from "../../identity/identity.service";
 import { FormField, FormConfig as NewFormConfig } from "../../shared/form/form";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { PlanItemsService } from "../plan-items.service";
-import {IdentityService} from "../../identity/identity.service";
-import {lastValueFrom} from "rxjs";
 
 @Component({
   selector: "zac-human-task-do",
@@ -110,9 +110,9 @@ export class HumanTaskDoComponent implements OnInit {
       console.warn(e);
 
       this.formulier = this.taakFormulierenService
-          .getFormulierBuilder(this.planItem.formulierDefinitie)
-          .startForm(this.planItem, this.zaak)
-          .build();
+        .getFormulierBuilder(this.planItem.formulierDefinitie)
+        .startForm(this.planItem, this.zaak)
+        .build();
       if (this.formulier.disablePartialSave) {
         this.formConfig.partialButtonText = null;
       }
