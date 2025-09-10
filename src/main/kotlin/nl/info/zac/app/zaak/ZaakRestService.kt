@@ -515,7 +515,7 @@ class ZaakRestService @Inject constructor(
     }
 
     @GET
-    @Path("zaaktypes")
+    @Path("zaaktypes-for-creation")
     fun listZaaktypesForZaakCreation(): List<RestZaaktype> =
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .filter {
