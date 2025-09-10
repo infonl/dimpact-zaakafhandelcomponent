@@ -20,13 +20,15 @@ type Paths = paths;
 type Methods = Extract<HttpMethod, "get" | "post" | "put" | "delete" | "patch">;
 
 type Response<Path extends keyof Paths, Method extends Methods> = NonNullable<
-  FetchResponse<
-    Paths[Path][Method] extends Record<string | number, unknown>
-      ? Paths[Path][Method]
-      : never,
-    Record<string, unknown>,
-    "application/json"
-  >["data"]
+  NullableIfOptional<
+    FetchResponse<
+      Paths[Path][Method] extends Record<string | number, unknown>
+        ? Paths[Path][Method]
+        : never,
+      Record<string, unknown>,
+      "application/json"
+    >["data"]
+  >
 >;
 
 type PathParameters<
