@@ -270,8 +270,8 @@ export class TaakViewComponent
         readonly: true,
         options: attachments,
       });
-    } catch(e) {
-      console.warn(e)
+    } catch (e) {
+      console.warn(e);
       // Handle form in the old way
       this.formulier = this.taakFormulierenService
         .getFormulierBuilder(
@@ -571,7 +571,7 @@ export class TaakViewComponent
 
     this.taak.taakdocumenten.push(informatieobject.uuid!);
 
-    if(this.formulier) {
+    if (this.formulier) {
       // Old way of handling new attachments (using the ATOS forms)
       this.formulier.refreshTaakdocumentenEnBijlagen();
     } else {
