@@ -577,6 +577,7 @@ class ZaakRestService @Inject constructor(
     fun assignZaakToLoggedInUserFromList(
         @Valid restZaakAssignmentToLoggedInUserData: RestZaakAssignmentToLoggedInUserData
     ): RestZaakOverzicht {
+        // Checking the user's authorization for the zaak's zaaktype could improve this in the future.
         assertPolicy(policyService.readWerklijstRechten().zakenTaken)
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
@@ -607,6 +608,8 @@ class ZaakRestService @Inject constructor(
     @PUT
     @Path("lijst/verdelen")
     fun assignFromList(@Valid restZakenVerdeelGegevens: RESTZakenVerdeelGegevens) {
+        // Only the 'zaken taken verdelen' permission is currently required to assign tasks from the list.
+        // Checking the user's authorization for each task's zaaktype could improve this in the future.
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation, so run it asynchronously
         CoroutineScope(dispatcher).launch {
