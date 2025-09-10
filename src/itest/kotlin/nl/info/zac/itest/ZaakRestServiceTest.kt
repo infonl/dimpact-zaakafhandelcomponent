@@ -11,7 +11,6 @@ import io.kotest.assertions.json.shouldNotContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.ItestHttpClient
@@ -49,6 +48,8 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_PASSWORD
+import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
@@ -57,8 +58,6 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_INFORMATIE_OBJECT_TYPE_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
@@ -112,9 +111,12 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Given(
-        "ZAC Docker container is running and zaakafhandelparameters have been created and a raadpleger is logged-in"
+        """
+            ZAC Docker container is running and zaakafhandelparameters have been created and
+            a functioneelbeheerder1 is logged-in
+        """.trimIndent()
     ) {
-        authenticate(username = TEST_RAADPLEGER_1_USERNAME, password = TEST_RAADPLEGER_1_PASSWORD)
+        authenticate(username = TEST_FUNCTIONAL_ADMIN_1_USERNAME, password = TEST_FUNCTIONAL_ADMIN_1_PASSWORD)
         lateinit var responseBody: String
         When("zaak types are listed") {
             val response = itestHttpClient.performGetRequest("$ZAC_API_URI/zaken/zaaktypes-for-creation")
@@ -123,14 +125,34 @@ class ZaakRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
             }
-            And("the response body should contain no zaak types as user is not authorized for any") {
-                JSONArray(responseBody) shouldHaveSize 0
+            And("the response body should contain all configured zaaktypes") {
+                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                [
+                  {
+                    "doel": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
+                    "identificatie": "$ZAAKTYPE_BPMN_TEST_IDENTIFICATIE",
+                    "omschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
+                  },
+                  {
+                    "doel": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
+                    "identificatie": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE",
+                    "omschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                  },
+                  {
+                    "doel": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
+                    "identificatie": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE",
+                    "omschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                  }
+                ]
+                """.trimIndent()
             }
         }
     }
 
     Given(
-        "ZAC Docker container is running and zaakafhandelparameters have been created and a behandelaar is logged-in"
+        """
+            ZAC Docker container is running and zaakafhandelparameters have been created and a behandelaar is logged-in
+        """.trimIndent()
     ) {
         authenticate(username = TEST_BEHANDELAAR_1_USERNAME, password = TEST_BEHANDELAAR_1_PASSWORD)
         lateinit var responseBody: String
@@ -141,14 +163,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
             }
-            And("the response body should contain the zaak types for which the user is authorized") {
+            And("the response body should contain only the zaaktypes for which the user is authorized") {
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                 [
-                  {
-                    "doel": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
-                    "identificatie": "$ZAAKTYPE_BPMN_TEST_IDENTIFICATIE",
-                    "omschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
-                  },
                   {
                     "doel": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
                     "identificatie": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE",

@@ -61,8 +61,8 @@ INSERT INTO "EntityTypes" ("Id", "EntityTypeId", "Type", "Name", "Uri") VALUES
 INSERT INTO "DomainEntityType" ("DomainId", "EntityTypesId") VALUES
     ((SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_1'), (SELECT "Id" FROM "EntityTypes" WHERE "EntityTypeId" = 'zaaktype_test_1')),
     ((SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_2'), (SELECT "Id" FROM "EntityTypes" WHERE "EntityTypeId" = 'zaaktype_test_2')),
-    ((SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_1'), (SELECT "Id" FROM "EntityTypes" WHERE "Name" = 'BPMN Evenementen Vooroverleg')),
-    ((SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_1'), (SELECT "Id" FROM "EntityTypes" WHERE "Name" = 'BPMN test zaaktype')),
+    ((SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_2'), (SELECT "Id" FROM "EntityTypes" WHERE "Name" = 'BPMN Evenementen Vooroverleg')),
+    ((SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_2'), (SELECT "Id" FROM "EntityTypes" WHERE "Name" = 'BPMN test zaaktype')),
     ((SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_1'), (SELECT "Id" FROM "EntityTypes" WHERE "Name" = 'Indienen aansprakelijkstelling door derden behandelen')),
     ((SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_1'), (SELECT "Id" FROM "EntityTypes" WHERE "Name" = 'Melding evenement organiseren behandelen'));
 

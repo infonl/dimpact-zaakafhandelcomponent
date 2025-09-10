@@ -128,8 +128,11 @@ object ItestConfiguration {
 
     const val TOTAL_COUNT_INDEXED_ZAKEN = 12
     const val TOTAL_COUNT_INDEXED_ZAKEN_AFGEROND = 2
+    const val TOTAL_COUNT_INDEXED_ZAKEN_DOMEIN_1 = 10
     const val TOTAL_COUNT_INDEXED_TASKS = 4
+    const val TOTAL_COUNT_INDEXED_TASKS_DOMEIN_1 = 2
     const val TOTAL_COUNT_INDEXED_DOCUMENTS = 11
+    const val TOTAL_COUNT_INDEXED_DOCUMENTS_DOMEIN_1 = 9
 
     /**
      * Test person that exists in both the BRP and the Klanten API databases
@@ -167,6 +170,7 @@ object ItestConfiguration {
     const val TEST_USER_DOMEIN_TEST_1_PASSWORD = "testuserdomeintest1"
     const val TEST_USER_DOMEIN_TEST_1_NAME = "Test Testuserdomeintest1"
     const val TEST_FUNCTIONAL_ADMIN_1_USERNAME = "functioneelbeheerder1"
+    const val TEST_FUNCTIONAL_ADMIN_1_PASSWORD = "functioneelbeheerder1"
     const val TEST_FUNCTIONAL_ADMIN_1_NAME = "Test Functioneelbeheerder1"
     const val TEST_RECORD_MANAGER_1_USERNAME = "recordmanager1"
     const val TEST_RECORD_MANAGER_1_NAME = "Test Recordmanager1"
