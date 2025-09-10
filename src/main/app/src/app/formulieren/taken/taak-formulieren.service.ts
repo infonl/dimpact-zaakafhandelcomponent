@@ -66,7 +66,7 @@ export class TaakFormulierenService {
           ],
         ];
       default:
-        throw new Error(`Onbekende formulierDefinitie: ${formulierDefinitie}`);
+        throw new Error(`Onbekende formulierDefinitie for Angular form: ${formulierDefinitie}`);
     }
   }
 
@@ -137,7 +137,7 @@ export class TaakFormulierenService {
       }
       default:
         throw new Error(
-          `Onbekende formulierDefinitie: ${taak.formulierDefinitie}`,
+          `Onbekende formulierDefinitie for Angular form: ${taak.formulierDefinitie}`,
         );
     }
   }

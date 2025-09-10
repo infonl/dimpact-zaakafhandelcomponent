@@ -270,7 +270,8 @@ export class TaakViewComponent
         readonly: true,
         options: attachments,
       });
-    } catch {
+    } catch(e) {
+      console.warn(e)
       // Handle form in the old way
       this.formulier = this.taakFormulierenService
         .getFormulierBuilder(
