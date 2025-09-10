@@ -336,7 +336,9 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
             infoObject[key] = value.code;
             break;
           case "status":
-            infoObject[key] = InformatieobjectStatus[value.value.toUpperCase()];
+            infoObject[key] = InformatieobjectStatus[
+              value.value.toUpperCase() as keyof typeof InformatieobjectStatus
+            ] as never;
             break;
           case "vertrouwelijkheidaanduiding":
             infoObject[key] = value.value;
@@ -348,7 +350,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
             infoObject["formaat"] = value.type;
             break;
           default:
-            infoObject[key] = value;
+            infoObject[key as keyof typeof infoObject] = value as never;
             break;
         }
       });
@@ -360,24 +362,30 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
           infoObject,
           !!this.taak,
         )
-        .subscribe((document) => {
-          this.document.emit(document);
-          const iterations = this.formIterations$.getValue();
-          if (formGroup.get("nogmaals")?.value) {
-            this.formIterations$.next([
-              ...iterations,
-              iterations.slice(-1)[0] + 1,
-            ]);
-          } else {
-            this.formIterations$.next([
-              ...iterations,
-              iterations.slice(-1)[0] + 1,
-            ]);
-            this.sideNav.close();
-          }
+        .subscribe({
+          next: (document) => {
+            this.document.emit(document);
+            const iterations = this.formIterations$.getValue();
+            if (formGroup.get("nogmaals")?.value) {
+              this.formIterations$.next([
+                ...iterations,
+                iterations.slice(-1)[0] + 1,
+              ]);
+            } else {
+              this.formIterations$.next([
+                ...iterations,
+                iterations.slice(-1)[0] + 1,
+              ]);
+              void this.sideNav.close();
+            }
+          },
+          error: () => {
+            console.log("Error bij toevoegen document");
+            void this.sideNav.close();
+          },
         });
     } else {
-      this.sideNav.close();
+      void this.sideNav.close();
     }
   }
 
