@@ -39,7 +39,7 @@ export class ZaakBetrokkeneFilterComponent implements OnInit {
     this.bepaalHuidigRoltype();
     if (this.zoekparameters?.zoeken && this.huidigeRoltype != null) {
       this.klantIdControl.setValue(
-        this.zoekparameters.zoeken[this.huidigeRoltype] ?? ""
+        this.zoekparameters.zoeken[this.huidigeRoltype] ?? "",
       );
     }
   }
