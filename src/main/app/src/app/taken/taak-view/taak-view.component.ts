@@ -10,13 +10,14 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
-import { FormGroup } from "@angular/forms";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { FormioForm } from "@formio/angular";
 import { TranslateService } from "@ngx-translate/core";
+import { lastValueFrom } from "rxjs";
 import { ZaakDocumentenComponent } from "src/app/zaken/zaak-documenten/zaak-documenten.component";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
@@ -29,9 +30,16 @@ import {
 } from "../../formulieren/formio-wrapper/formio-wrapper.component";
 import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-formulier";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
+import {
+  mapFormGroupToTaskData,
+  mapTaskdataToTaskInformation,
+} from "../../formulieren/taken/taak.utils";
 import { IdentityService } from "../../identity/identity.service";
+import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
 import { TextIcon } from "../../shared/edit/text-icon";
+import { FormField, FormConfig as NewFormConfig } from "../../shared/form/form";
+import { PatchBody, PutBody } from "../../shared/http/zac-http-client";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
@@ -96,6 +104,14 @@ export class TaakViewComponent
   readonly TaakStatusAfgerond =
     "AFGEROND" satisfies GeneratedType<"TaakStatus">;
 
+  protected form = this.formBuilder.group({});
+  protected formFields: FormField[] = [];
+  protected _formConfig: NewFormConfig = {
+    submitLabel: "actie.opslaan.afronden",
+    partialSubmitLabel: "actie.opslaan",
+    hideCancelButton: true,
+  };
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly takenService: TakenService,
@@ -107,6 +123,8 @@ export class TaakViewComponent
     protected readonly translate: TranslateService,
     private readonly formioSetupService: FormioSetupService,
     private readonly changeDetectorRef: ChangeDetectorRef,
+    private readonly formBuilder: FormBuilder,
+    private readonly informatieObjectenService: InformatieObjectenService,
   ) {
     super();
   }
@@ -115,14 +133,16 @@ export class TaakViewComponent
     this.getIngelogdeMedewerker();
     this.route.data.subscribe((data) => {
       this.createZaakFromTaak(data.taak);
-      this.init(data.taak, true);
+      this.init(data.taak);
 
       this.taakListener = this.websocketService.addListenerWithSnackbar(
         Opcode.ANY,
         ObjectType.TAAK,
         data.taak.id,
-        (event) => {
-          this.reloadTaak(event.objectId.resource);
+        () => {
+          this.takenService.readTaak(data.taak.id).subscribe((task) => {
+            this.init(task, false);
+          });
         },
       );
 
@@ -160,17 +180,21 @@ export class TaakViewComponent
     this.loadHistorie();
     this.setEditableFormFields();
     this.setupMenu();
-    this.createTaakForm(taak, this.zaak!);
   }
 
-  private init(taak: GeneratedType<"RestTask">, initZaak: boolean) {
+  private init(taak: GeneratedType<"RestTask">, readZaak = true) {
+    this.initialized = false;
     this.initTaakGegevens(taak);
 
-    if (!initZaak) return;
+    // For legacy forms, we need to re-create the form to fix the loading state
+    if (!readZaak && !this.formulier) {
+      this.initialized = true;
+      return;
+    }
 
     this.zakenService.readZaak(taak.zaakUuid).subscribe((zaak) => {
       this.zaak = zaak;
-      this.initTaakGegevens(taak);
+      this.createTaakForm(taak, zaak);
       this.initialized = true;
     });
   }
@@ -187,7 +211,7 @@ export class TaakViewComponent
     this.changeDetectorRef.detectChanges();
 
     if (taak.formulierDefinitieId) {
-      this.createHardCodedTaakForm(taak, zaak);
+      void this.createHardCodedTaakForm(taak, zaak);
     } else if (taak.formulierDefinitie) {
       this.createConfigurableTaakForm(taak.formulierDefinitie);
     } else if (!this.formioFormulier) {
@@ -197,11 +221,11 @@ export class TaakViewComponent
     }
   }
 
-  private createHardCodedTaakForm(
+  private async createHardCodedTaakForm(
     taak: GeneratedType<"RestTask">,
     zaak: GeneratedType<"RestZaak">,
   ) {
-    if (this.taak?.status !== "AFGEROND" && this.taak?.rechten.wijzigen) {
+    if (taak.status !== "AFGEROND" && taak.rechten.wijzigen) {
       this.formConfig = new FormConfigBuilder()
         .partialText("actie.opslaan")
         .saveText("actie.opslaan.afronden")
@@ -210,17 +234,64 @@ export class TaakViewComponent
       this.formConfig = null;
     }
 
-    this.formulier = this.taakFormulierenService
-      .getFormulierBuilder(
-        this.taak?.formulierDefinitieId as GeneratedType<"FormulierDefinitie">,
-      )
-      .behandelForm(taak, zaak)
-      .build();
-    if (this.formulier.disablePartialSave && this.formConfig) {
-      this.formConfig.partialButtonText = null;
+    try {
+      const form =
+        await this.taakFormulierenService.getAngularHandleFormBuilder(taak);
+
+      form.forEach(([formField, formControl]) => {
+        if ("key" in formField && formControl) {
+          this.form.addControl(formField.key, formControl);
+        }
+
+        this.formFields.push(formField);
+      });
+
+      const explanationControl = this.formBuilder.control(taak.toelichting, [
+        Validators.maxLength(1000),
+      ]);
+      this.form.addControl("toelichting", explanationControl);
+      this.formFields.push({ type: "textarea", key: "toelichting" });
+
+      const attachments = await lastValueFrom(
+        this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+          zaakUUID: zaak.uuid,
+          informatieobjectUUIDs: taak.taakdocumenten,
+        }),
+      );
+      const attachmentsControl =
+        this.formBuilder.control<
+          GeneratedType<"RestEnkelvoudigInformatieobject">[]
+        >(attachments); // Make sure the control initially has all the attachments checked
+
+      this.form.addControl("bijlagen", attachmentsControl);
+      this.formFields.push({
+        type: "documents",
+        key: "bijlagen",
+        readonly: true,
+        options: attachments,
+      });
+    } catch (e) {
+      console.warn(e);
+      // Handle form in the old way
+      this.formulier = this.taakFormulierenService
+        .getFormulierBuilder(
+          this.taak
+            ?.formulierDefinitieId as GeneratedType<"FormulierDefinitie">,
+        )
+        .behandelForm(taak, zaak)
+        .build();
+      if (this.formulier.disablePartialSave && this.formConfig) {
+        this.formConfig.partialButtonText = null;
+      }
     }
+
     this.utilService.setTitle("title.taak", {
-      taak: this.formulier.getBehandelTitel(),
+      taak: this.translate.instant(
+        this.isReadonly() ? "title.taak.raadplegen" : "title.taak.behandelen",
+        {
+          taak: taak.naam,
+        },
+      ),
     });
   }
 
@@ -307,25 +378,55 @@ export class TaakViewComponent
       });
   }
 
-  onHardCodedFormPartial(formGroup: FormGroup) {
-    if (!this.formulier) return;
+  onHardCodedFormSubmit(formGroup: FormGroup, partial = false) {
+    let taskBody:
+      | PutBody<"/rest/taken/taakdata">
+      | PatchBody<"/rest/taken/complete">;
 
-    this.takenService
-      .updateTaakdata(this.formulier.getTaak(formGroup))
-      .subscribe(() => {
+    try {
+      if (!this.formulier) throw new Error("Handling form in Angular way");
+      console.info("Handling form in the DEPRECATED way");
+      taskBody = this.formulier.getTaak(formGroup);
+    } catch {
+      console.info("Handling form in Angular way");
+      taskBody = {
+        ...this.taak!,
+        taakdata: {
+          ...this.taak!.taakdata,
+          ...mapFormGroupToTaskData(formGroup, {
+            ignoreKeys: ["bijlagen"],
+          }),
+        },
+        toelichting: formGroup.get("toelichting")?.value,
+        taakinformatie: {
+          ...this.taak!.taakinformatie,
+          ...mapTaskdataToTaskInformation(
+            mapFormGroupToTaskData(formGroup, {
+              mapControlOptions: {
+                documentKey: "titel",
+                documentSeparator: ", ",
+              },
+            }),
+            this.taak!,
+          ),
+        },
+      };
+    }
+
+    if (!taskBody) return;
+
+    if (partial) {
+      this.takenService.updateTaakdata(taskBody).subscribe((task) => {
         this.utilService.openSnackbar("msg.taak.opgeslagen");
+        this.init(task, false);
       });
-  }
+      return;
+    }
 
-  onHardCodedFormSubmit(formGroup?: FormGroup) {
-    if (!formGroup) return;
-    if (!this.formulier) return;
-
-    this.takenService
-      .complete(this.formulier.getTaak(formGroup))
-      .subscribe(() => {
-        this.utilService.openSnackbar("msg.taak.afgerond");
-      });
+    this.takenService.complete(taskBody).subscribe((task) => {
+      this.utilService.openSnackbar("msg.taak.afgerond");
+      this.init(task, false);
+    });
   }
 
   onConfigurableFormPartial(formState?: Record<string, string>) {
@@ -333,8 +434,9 @@ export class TaakViewComponent
     if (!this.taak) return;
 
     this.taak.taakdata = formState;
-    this.takenService.updateTaakdata(this.taak).subscribe(() => {
+    this.takenService.updateTaakdata(this.taak).subscribe((task) => {
       this.utilService.openSnackbar("msg.taak.opgeslagen");
+      this.init(task);
     });
   }
 
@@ -343,8 +445,9 @@ export class TaakViewComponent
     if (!this.taak) return;
 
     this.taak.taakdata = formState;
-    this.takenService.complete(this.taak).subscribe(() => {
+    this.takenService.complete(this.taak).subscribe((task) => {
       this.utilService.openSnackbar("msg.taak.afgerond");
+      this.init(task);
     });
   }
 
@@ -435,12 +538,6 @@ export class TaakViewComponent
       });
   }
 
-  private reloadTaak(taakId: string) {
-    this.takenService.readTaak(taakId).subscribe((taak) => {
-      this.init(taak, true);
-    });
-  }
-
   private getIngelogdeMedewerker() {
     this.identityService.readLoggedInUser().subscribe((ingelogdeMedewerker) => {
       this.ingelogdeMedewerker = ingelogdeMedewerker;
@@ -473,8 +570,22 @@ export class TaakViewComponent
     }
 
     this.taak.taakdocumenten.push(informatieobject.uuid!);
-    if (!this.formulier) return;
-    this.formulier.refreshTaakdocumentenEnBijlagen();
+
+    if (this.formulier) {
+      // Old way of handling new attachments (using the ATOS forms)
+      this.formulier.refreshTaakdocumentenEnBijlagen();
+    } else {
+      // New way of handling new attachments (using Angular forms)
+      const control = this.form.get("bijlagen");
+      if (!control) return;
+      const newAttachments = [...(control.value ?? []), informatieobject];
+      this.formFields.forEach((field) => {
+        if (field.type === "documents" && field.key === "bijlagen") {
+          field.options = newAttachments;
+        }
+      });
+      control.setValue(newAttachments as never);
+    }
   }
 
   documentCreated() {
