@@ -158,7 +158,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                     "doel": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
                     "identificatie": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE",
                     "omschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
-                    }
                   }
                 ]
                 """.trimIndent()
