@@ -109,12 +109,12 @@ export class DashboardComponent implements OnInit {
       const card = this.cards.find((c) => c.id === instelling.cardId);
       if (!card) return;
       if (card.signaleringType == null) {
-        this.putCard(card, instelling.column);
+        this.putCard(card, instelling.column ?? undefined);
         return;
       }
       const i = signaleringenInstellingen.indexOf(card.signaleringType);
       if (i < 0) return;
-      this.putCard(card, instelling.column);
+      this.putCard(card, instelling.column ?? undefined);
       signaleringenInstellingen.splice(i, 1);
     });
   }

@@ -4,26 +4,16 @@
  */
 
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-<<<<<<< HEAD
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
-import { lastValueFrom } from "rxjs";
 import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-formulier";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { mapFormGroupToTaskData } from "../../formulieren/taken/taak.utils";
-import { IdentityService } from "../../identity/identity.service";
-=======
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import { MatDrawer } from "@angular/material/sidenav";
-import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-formulier";
-import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
->>>>>>> origin/feature/zac-form
 import { FormField, FormConfig as NewFormConfig } from "../../shared/form/form";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { PlanItemsService } from "../plan-items.service";
-import {KlantenService} from "../../klanten/klanten.service";
 import {IdentityService} from "../../identity/identity.service";
 import {lastValueFrom} from "rxjs";
 
@@ -39,7 +29,6 @@ export class HumanTaskDoComponent implements OnInit {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Output() done = new EventEmitter<void>();
 
-<<<<<<< HEAD
   protected formItems: Array<AbstractFormField[]> = [];
   protected formConfig = new FormConfigBuilder()
     .saveText("actie.starten")
@@ -47,10 +36,6 @@ export class HumanTaskDoComponent implements OnInit {
     .build();
 
   protected form = this.formBuilder.group({});
-=======
-  protected form = this.formBuilder.group({});
-
->>>>>>> origin/feature/zac-form
   protected formFields: FormField[] = [];
 
   protected _formConfig: NewFormConfig = {
@@ -65,7 +50,6 @@ export class HumanTaskDoComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-<<<<<<< HEAD
     if (this.planItem?.type !== "HUMAN_TASK") {
       this.formItems = [[]];
       this.formFields = [];
@@ -124,49 +108,7 @@ export class HumanTaskDoComponent implements OnInit {
       });
     } catch (e) {
       console.warn(e);
-=======
-    this.formConfig = new FormConfigBuilder()
-      .saveText("actie.starten")
-      .cancelText("actie.annuleren")
-      .build();
 
-    if (this.planItem.type !== "HUMAN_TASK") {
-      this.formItems = [[]];
-      this.formFields = [];
-      return;
-    }
-
-    try {
-      this.taakFormulierenService.getNewFormBuilder(this.planItem.formulierDefinitie).map(([formControl, formField]) => {
-        this.form.addControl(formField.key, formControl);
-        this.formFields.push(formField)
-      })
-
-      const groupControl = this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [Validators.required]);
-      this.form.addControl("group", groupControl);
-
-      const groups = await lastValueFrom(this.identityService.listGroups())
-      this.formFields.push({ type: 'auto-complete', key: 'group', options: groups, optionDisplayValue: 'naam' })
-
-      const userControl = this.formBuilder.control<GeneratedType<"RestUser"> | null>(null, []);
-      this.form.addControl("user", userControl);
-      this.formFields.push({ type: 'auto-complete', key: 'user', options: [], optionDisplayValue: 'naam' })
-
-      groupControl.valueChanges.subscribe(value => {
-        userControl.reset()
-
-        if(!value) return
-        this.identityService.listUsersInGroup(value.id).subscribe(users => {
-         this.formFields = this.formFields.map(field => {
-           if(field.key === 'user') (field as {options: unknown[]}).options = users
-
-           return field
-         })
-        })
-      })
-
-    } catch (e) {
->>>>>>> origin/feature/zac-form
       this.formulier = this.taakFormulierenService
           .getFormulierBuilder(this.planItem.formulierDefinitie)
           .startForm(this.planItem, this.zaak)
@@ -190,7 +132,6 @@ export class HumanTaskDoComponent implements OnInit {
     }
 
     try {
-<<<<<<< HEAD
       if (!this.formulier) throw new Error("Handling form in Angular way");
       const taakData = this.formulier.getHumanTaskData(formGroup);
       this.planItemsService.doHumanTaskPlanItem(taakData).subscribe(() => {
@@ -215,34 +156,6 @@ export class HumanTaskDoComponent implements OnInit {
         .subscribe(() => {
           this.done.emit();
         });
-=======
-      const taakData = this.formulier.getHumanTaskData(formGroup)
-      this.planItemsService
-          .doHumanTaskPlanItem(taakData)
-          .subscribe(() => {
-            this.done.emit();
-          });
-    } catch {
-      // new style form
-      this.planItemsService
-          .doHumanTaskPlanItem({
-            planItemInstanceId: this.planItem.id,
-            groep: this.form.get("group")!.value!,
-            medewerker: this.form.get("user")!.value!,
-            taakStuurGegevens: {
-              sendMail: false,
-              mail: ""
-            },
-            taakdata: Object.entries(formGroup.controls).reduce((acc, [key, control]) => {
-              const {value} = control;
-              acc[key] = typeof value === 'boolean' ? `${value}` : value;
-              return acc
-            }, {} as Record<string, string>)
-          })
-          .subscribe(() => {
-            this.done.emit();
-          });
->>>>>>> origin/feature/zac-form
     }
   }
 }

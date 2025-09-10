@@ -4,7 +4,6 @@
 -->
 
 <form [formGroup]="form" (ngSubmit)="submitForm()">
-<<<<<<< HEAD
   <fieldset>
     @for (field of fields; track field) {
       @switch (field.type) {
@@ -93,42 +92,4 @@
       </button>
     </mat-action-row>
   </fieldset>
-=======
-    <fieldset>
-        @for(field of fields; track field) {
-            @switch (field.type) {
-                @case ('input') {
-                    <zac-input [form]="form" [key]="field.key" [label]="field.label"/>
-                }
-                @case ('date') {
-                    <zac-date [form]="form" [key]="field.key"/>
-                }
-                @case ('select') {
-                    <zac-select [form]="form" [key]="field.key" [label]="field.label" [options]="field.options" [optionDisplayValue]="field.optionDisplayValue"/>
-                }
-                @case('textarea') {
-                    <zac-textarea [form]="form" [key]="field.key" [label]="field.label"/>
-                }
-                @case ('auto-complete') {
-                    <zac-auto-complete [form]="form" [key]="field.key" [options]="field.options" [optionDisplayValue]="field.optionDisplayValue"/>
-                }
-            }
-        }
-    </fieldset>
-    <fieldset>
-        <mat-action-row>
-            <button
-                    mat-raised-button
-                    type="submit"
-                    color="primary"
-                    [disabled]="form.invalid"
-            >
-                {{ config.submitLabel ?? "actie.verstuur" | translate }}
-            </button>
-            <button mat-raised-button type="reset" (click)="cancelForm()">
-                {{ config.cancelLabel ?? "actie.annuleren" | translate }}
-            </button>
-        </mat-action-row>
-    </fieldset>
->>>>>>> origin/feature/zac-form
 </form>

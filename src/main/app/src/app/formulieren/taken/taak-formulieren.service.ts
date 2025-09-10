@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-<<<<<<< HEAD
 import { Injectable } from "@angular/core";
 import { FormBuilder, FormControl, Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
@@ -23,27 +22,6 @@ import { DocumentVerzendenPost } from "./model/document-verzenden-post";
 import { ExternAdviesMail } from "./model/extern-advies-mail";
 import { ExternAdviesVastleggen } from "./model/extern-advies-vastleggen";
 import { TaakFormulierBuilder } from "./taak-formulier-builder";
-=======
-import {Injectable} from "@angular/core";
-import {TranslateService} from "@ngx-translate/core";
-import {InformatieObjectenService} from "../../informatie-objecten/informatie-objecten.service";
-import {KlantenService} from "../../klanten/klanten.service";
-import {MailtemplateService} from "../../mailtemplate/mailtemplate.service";
-import {GeneratedType} from "../../shared/utils/generated-types";
-import {TakenService} from "../../taken/taken.service";
-import {ZakenService} from "../../zaken/zaken.service";
-import {AanvullendeInformatie} from "./model/aanvullende-informatie";
-import {Advies} from "./model/advies";
-import {DefaultTaakformulier} from "./model/default-taakformulier";
-import {DocumentVerzendenPost} from "./model/document-verzenden-post";
-import {ExternAdviesMail} from "./model/extern-advies-mail";
-import {ExternAdviesVastleggen} from "./model/extern-advies-vastleggen";
-import {Goedkeuren} from "./model/goedkeuren";
-import {TaakFormulierBuilder} from "./taak-formulier-builder";
-import {FormField} from "../../shared/form/form";
-import {FieldType} from "../../shared/material-form-builder/model/field-type.enum";
-import {FormBuilder, FormControl, Validators} from "@angular/forms";
->>>>>>> origin/feature/zac-form
 
 @Injectable({
   providedIn: "root",
@@ -59,7 +37,6 @@ export class TaakFormulierenService {
     private readonly formBuilder: FormBuilder,
   ) {}
 
-<<<<<<< HEAD
   public getAngularRequestFormBuilder(
     zaak: GeneratedType<"RestZaak">,
     formulierDefinitie?: GeneratedType<"FormulierDefinitie"> | null,
@@ -162,20 +139,6 @@ export class TaakFormulierenService {
         throw new Error(
           `Onbekende formulierDefinitie: ${taak.formulierDefinitie}`,
         );
-=======
-  public getNewFormBuilder(formulierDefinitie?: GeneratedType<"FormulierDefinitie"> | null): [FormControl, FormField][] {
-    switch (formulierDefinitie) {
-      case 'GOEDKEUREN':
-        return [
-          [
-              this.formBuilder.control('', [Validators.required, Validators.maxLength(1000)]),
-              { type: 'textarea', key: 'vraag'}
-          ]
-        ]
-        break;
-      default:
-        throw new Error(`Onbekend formulier: ${formulierDefinitie}`);
->>>>>>> origin/feature/zac-form
     }
   }
 
