@@ -117,7 +117,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         authenticate(username = TEST_RAADPLEGER_1_USERNAME, password = TEST_RAADPLEGER_1_PASSWORD)
         lateinit var responseBody: String
         When("zaak types are listed") {
-            val response = itestHttpClient.performGetRequest("$ZAC_API_URI/zaken/zaaktypes")
+            val response = itestHttpClient.performGetRequest("$ZAC_API_URI/zaken/zaaktypes-for-creation")
             Then("the response should be a 200 HTTP response") {
                 responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
@@ -135,7 +135,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         authenticate(username = TEST_BEHANDELAAR_1_USERNAME, password = TEST_BEHANDELAAR_1_PASSWORD)
         lateinit var responseBody: String
         When("zaak types are listed") {
-            val response = itestHttpClient.performGetRequest("$ZAC_API_URI/zaken/zaaktypes")
+            val response = itestHttpClient.performGetRequest("$ZAC_API_URI/zaken/zaaktypes-for-creation")
             Then("the response should be a 200 HTTP response") {
                 responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
@@ -147,17 +147,17 @@ class ZaakRestServiceTest : BehaviorSpec({
                   {
                     "doel": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
                     "identificatie": "$ZAAKTYPE_BPMN_TEST_IDENTIFICATIE",
-                    "omschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
+                    "omschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
                   },
                   {
                     "doel": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
                     "identificatie": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE",
-                    "omschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
+                    "omschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                   },
                   {
                     "doel": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
                     "identificatie": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE",
-                    "omschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
+                    "omschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                   }
                 ]
                 """.trimIndent()

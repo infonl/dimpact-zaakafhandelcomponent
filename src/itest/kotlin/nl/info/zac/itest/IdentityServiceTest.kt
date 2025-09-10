@@ -14,8 +14,8 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUPS_ALL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION
@@ -29,8 +29,8 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_1_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
@@ -106,7 +106,7 @@ class IdentityServiceTest : BehaviorSpec({
                 response.body.string() shouldEqualSpecifiedJsonIgnoringOrder """
                             [
                                 {
-                                    "id": "$TEST_FUNCTIONAL_ADMIN_1_ID",
+                                    "id": "$TEST_FUNCTIONAL_ADMIN_1_USERNAME",
                                     "naam": "$TEST_FUNCTIONAL_ADMIN_1_NAME"
                                 },
                                 {
@@ -134,7 +134,7 @@ class IdentityServiceTest : BehaviorSpec({
                                     "naam": "$TEST_USER_2_NAME"
                                 },
                                 {
-                                    "id": "$TEST_USER_DOMEIN_TEST_1_ID",
+                                    "id": "$TEST_USER_DOMEIN_TEST_1_USERNAME",
                                     "naam": "$TEST_USER_DOMEIN_TEST_1_NAME"
                                 },
                                 {

@@ -163,9 +163,10 @@ object ItestConfiguration {
      * Test user 2 does not have a first name, so their full name should be equal to their last name.
      */
     const val TEST_USER_2_NAME = "User2"
-    const val TEST_USER_DOMEIN_TEST_1_ID = "testuserdomeintest1"
+    const val TEST_USER_DOMEIN_TEST_1_USERNAME = "testuserdomeintest1"
+    const val TEST_USER_DOMEIN_TEST_1_PASSWORD = "testuserdomeintest1"
     const val TEST_USER_DOMEIN_TEST_1_NAME = "Test Testuserdomeintest1"
-    const val TEST_FUNCTIONAL_ADMIN_1_ID = "functioneelbeheerder1"
+    const val TEST_FUNCTIONAL_ADMIN_1_USERNAME = "functioneelbeheerder1"
     const val TEST_FUNCTIONAL_ADMIN_1_NAME = "Test Functioneelbeheerder1"
     const val TEST_RECORD_MANAGER_1_USERNAME = "recordmanager1"
     const val TEST_RECORD_MANAGER_1_NAME = "Test Recordmanager1"
