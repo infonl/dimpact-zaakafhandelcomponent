@@ -1,0 +1,21 @@
+<section [formGroup]="form" class="flex-col gap-5">
+  <mat-label style="font-weight: bold" class="mb-2">
+    <ng-content select="mat-label">
+      {{ label ?? key | translate | capitalizeFirstLetter }}
+      {{ isRequired() ? "*" : "" }}
+    </ng-content>
+  </mat-label>
+  <mat-radio-group [formControlName]="key" class="flex flex-col gap-5">
+    <mat-radio-button
+      [required]="isRequired()"
+      *ngFor="let option of availableOptions"
+      [value]="option"
+    >
+      {{ displayWith(option) | translate }}
+    </mat-radio-button>
+  </mat-radio-group>
+  <mat-error *ngIf="getErrorMessage()">{{ getErrorMessage() }}</mat-error>
+  <mat-hint>
+    <ng-content select="mat-hint"></ng-content>
+  </mat-hint>
+</section>

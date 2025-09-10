@@ -10,24 +10,27 @@ import {
   Component,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   SimpleChanges,
 } from "@angular/core";
 import { AbstractControl, FormGroup } from "@angular/forms";
 import { MatTableDataSource } from "@angular/material/table";
 import { Observable, Subject, takeUntil } from "rxjs";
+import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../utils/generated-types";
 
 @Component({
   selector: "zac-documents",
   templateUrl: "./documents.html",
+  styleUrls: ["./documents.less"],
 })
 export class ZacDocuments<
     Form extends Record<string, AbstractControl>,
     Key extends keyof Form,
     Option extends GeneratedType<"RestEnkelvoudigInformatieobject">,
   >
-  implements OnInit, OnChanges
+  implements OnInit, OnChanges, OnDestroy
 {
   @Input({ required: true }) key!: Key & string;
   @Input({ required: true }) form!: FormGroup<Form>;
@@ -39,13 +42,13 @@ export class ZacDocuments<
     | Observable<Array<Option>>;
   @Input({ transform: booleanAttribute }) viewDocumentInNewTab = false;
 
-  private destroy$ = new Subject();
+  private destroy$ = new Subject<void>();
 
   protected control?: AbstractControl<Option[] | null>;
 
   protected selection = new SelectionModel<Option>(true, []);
   protected dataSource = new MatTableDataSource<Option>();
-  protected columnsWithSelect: (string | keyof Option)[] = [
+  protected columnsWithSelect = [
     "select",
     "titel",
     "documentType",
@@ -58,9 +61,18 @@ export class ZacDocuments<
     "url",
   ] as const;
 
+  constructor(
+    private readonly informatieObjectenService: InformatieObjectenService,
+  ) {}
+
   ngOnInit() {
     this.control = this.form.get(String(this.key))!;
     this.setOptions(this.options);
+    this.control.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((options) => {
+        this.selection.select(...(options ?? [])); // Re-select current values
+      });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -69,9 +81,23 @@ export class ZacDocuments<
     }
   }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   protected onToggleOption(option: Option) {
     this.selection.toggle(option);
-    this.control?.setValue(this.selection.selected);
+    this.control?.setValue(this.selection.selected, { emitEvent: false });
+  }
+
+  protected viewLink(option: Option) {
+    return `/informatie-objecten/${option.uuid}`;
+  }
+
+  protected downloadLink(option: Option) {
+    if (!option.uuid) return null;
+    return this.informatieObjectenService.getDownloadURL(option.uuid);
   }
 
   private setOptions(options: Array<Option> | Observable<Array<Option>> = []) {
@@ -83,6 +109,6 @@ export class ZacDocuments<
     }
 
     this.dataSource.data = options;
-    this.selection.clear();
+    this.selection.select(...(this.control?.value ?? [])); // Re-select current values
   }
 }
