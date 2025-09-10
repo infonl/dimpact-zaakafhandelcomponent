@@ -64,7 +64,7 @@ class ProductaanvraagEmailService @Inject constructor(
     private fun extractBetrokkeneEmail(betrokkene: Betrokkene) =
         betrokkene.performAction(
             onNatuurlijkPersoonIdentity = ::fetchEmail,
-            onVestigingIdentity = ::fetchEmail,
+            onKvkIdentity = { kvkNummer, vestigingsNummer -> fetchEmail(kvkNummer) },
             onNoIdentity = { null }
         )
 
