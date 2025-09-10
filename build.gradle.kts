@@ -89,6 +89,14 @@ val zacDockerImage by extra {
     }
 }
 
+val featureFlagPabcIntegration by extra {
+    if (project.hasProperty("featureFlagPabcIntegration")) {
+        project.property("featureFlagPabcIntegration").toString()
+    } else {
+        "true"
+    }
+}
+
 fun Directory.toProjectRelativePath() = toString().replace("${layout.projectDirectory}/", "")
 
 // For consistency, the layout of some known paths are determined here, and below as relative paths.
@@ -801,6 +809,7 @@ tasks {
         testClassesDirs = sourceSets["itest"].output.classesDirs
         classpath = sourceSets["itest"].runtimeClasspath
         systemProperty("zacDockerImage", zacDockerImage)
+        systemProperty("featureFlagPabcIntegration", featureFlagPabcIntegration)
         // do not use the Gradle build cache for this task
         outputs.cacheIf { false }
     }

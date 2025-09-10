@@ -833,6 +833,7 @@
   "msg.error.document.has.already.been.signed": "This document has already been signed.",
   "msg.error.formio.init": "Error while initializing form component '{{context}}': {{error}}",
   "msg.error.kvk.unknown": "CoC-number is unknown.",
+  "msg.hint.kvk.unknown": "Re-link the involved party with a known CoC-number.",
   "msg.email.verstuurd": "E-mail has been sent",
   "msg.extern.advies.vastleggen.behandelen": "An external advice has been requested. The answer can be recorded below.",
   "msg.formioformulier.verwijderen.bevestigen": "Delete form '{{naam}}'?",

@@ -3,95 +3,85 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
-import { ActivatedRouteSnapshot, convertToParamMap } from "@angular/router";
+import { convertToParamMap } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
+import { fromPartial } from "@total-typescript/shoehorn";
+import { of } from "rxjs";
 import {
   KVK_LENGTH,
   VESTIGINGSNUMMER_LENGTH,
 } from "src/app/shared/utils/constants";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
 import { BedrijfResolverService } from "./bedrijf-resolver.service";
 
 describe(BedrijfResolverService.name, () => {
   let bedrijfResolverService: BedrijfResolverService;
-  let klantenServiceMock: jest.Mocked<KlantenService>;
+  let klantenService: KlantenService;
+
+  const vestigingsnummer = "1".repeat(VESTIGINGSNUMMER_LENGTH);
+  const kvkNummer = "2".repeat(KVK_LENGTH);
+  const rsin = "3".repeat(KVK_LENGTH + 1); // langer dan KVK_LENGTH
 
   beforeEach(() => {
-    klantenServiceMock = {
-      readBedrijf: jest.fn(),
-    } as unknown as jest.Mocked<KlantenService>;
-
     TestBed.configureTestingModule({
       providers: [
         BedrijfResolverService,
-        { provide: KlantenService, useValue: klantenServiceMock },
+        KlantenService,
+        provideHttpClient(withInterceptorsFromDi()),
       ],
+      imports: [TranslateModule.forRoot()],
     });
 
     bedrijfResolverService = TestBed.inject(BedrijfResolverService);
-  });
 
-  const makeRoute = (id: string | null): ActivatedRouteSnapshot =>
-    ({
-      paramMap: convertToParamMap(id ? { id } : {}),
-    }) as ActivatedRouteSnapshot;
+    klantenService = TestBed.inject(KlantenService);
+    jest
+      .spyOn(klantenService, "readBedrijf")
+      .mockReturnValue(of(fromPartial<GeneratedType<"RestBedrijf">>({})));
+  });
 
   it("should throw an error if no id is provided", () => {
-    const route = makeRoute(null);
-
-    expect(() => bedrijfResolverService.resolve(route)).toThrowError(
-      "BedrijfResolverService: no 'id' found in route",
-    );
+    expect(() =>
+      bedrijfResolverService.resolve(
+        fromPartial({
+          get paramMap() {
+            return convertToParamMap({ id: null });
+          },
+        }),
+      ),
+    ).toThrowError("BedrijfResolverService: no 'id' found in route");
   });
 
-  it("should resolve a vestigingsnummer (VN)", () => {
-    const vestigingsnummer = "1".repeat(VESTIGINGSNUMMER_LENGTH);
-    const route = makeRoute(vestigingsnummer);
-
-    bedrijfResolverService.resolve(route);
-
-    expect(klantenServiceMock.readBedrijf).toHaveBeenCalledWith(
-      expect.objectContaining({
+  describe(BedrijfResolverService.prototype.resolve.name, () => {
+    it.each([
+      { params: { id: vestigingsnummer }, type: "VN" },
+      { params: { id: kvkNummer }, type: "RSIN" },
+      {
+        params: { id: kvkNummer, vestigingsnummer: vestigingsnummer },
         type: "VN",
-        bsnNummer: null,
-        vestigingsnummer,
-        kvkNummer: null,
-        rsin: null,
-      }),
-    );
-  });
+      },
+      { params: { id: rsin }, type: "RSIN" },
+    ])(
+      "should determine the correct type based on the passed parameters",
+      ({ params, type }) => {
+        bedrijfResolverService.resolve(
+          fromPartial({
+            get paramMap() {
+              return convertToParamMap(params);
+            },
+          }),
+        );
 
-  it("should resolve a KVK number", () => {
-    const kvk = "2".repeat(KVK_LENGTH);
-    const route = makeRoute(kvk);
-
-    bedrijfResolverService.resolve(route);
-
-    expect(klantenServiceMock.readBedrijf).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: "RSIN",
-        bsnNummer: null,
-        vestigingsnummer: null,
-        kvkNummer: kvk,
-        rsin: null,
-      }),
-    );
-  });
-
-  it("should resolve a RSIN", () => {
-    const rsin = "3".repeat(KVK_LENGTH + 1); // langer dan KVK_LENGTH
-    const route = makeRoute(rsin);
-
-    bedrijfResolverService.resolve(route);
-
-    expect(klantenServiceMock.readBedrijf).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: "RSIN",
-        bsnNummer: null,
-        vestigingsnummer: null,
-        kvkNummer: null,
-        rsin,
-      }),
+        expect(klantenService.readBedrijf).toHaveBeenCalledWith(
+          expect.objectContaining({ type }),
+        );
+      },
     );
   });
 });

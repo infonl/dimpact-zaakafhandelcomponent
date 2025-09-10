@@ -74,8 +74,7 @@ export class InboxDocumentenListComponent
   };
   filterChange = new EventEmitter<void>();
   clearZoekopdracht = new EventEmitter<void>();
-  selectedInformationObject: GeneratedType<"RESTOntkoppeldDocument"> | null =
-    null;
+  selectedInformationObject: GeneratedType<"RESTInboxDocument"> | null = null;
 
   constructor(
     private readonly inboxDocumentenService: InboxDocumentenService,
@@ -90,11 +89,11 @@ export class InboxDocumentenListComponent
 
   ngOnInit() {
     super.ngOnInit();
-    this.listParametersSort = SessionStorageUtil.getItem(
+    this.utilService.setTitle("title.documenten.inboxDocumenten");
+    this.listParameters = SessionStorageUtil.getItem(
       "INBOX_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
     );
-    this.utilService.setTitle("title.documenten.inboxDocumenten");
   }
 
   ngAfterViewInit() {
@@ -124,8 +123,8 @@ export class InboxDocumentenListComponent
   }
 
   updateListParameters() {
-    this.listParameters.sort = this.sort.active ?? "creatiedatum";
-    this.listParameters.order = this.sort.direction ?? "desc";
+    this.listParameters.sort = this.sort.active;
+    this.listParameters.order = this.sort.direction;
     this.listParameters.page = this.paginator.pageIndex;
     this.listParameters.maxResults = this.paginator.pageSize;
     SessionStorageUtil.setItem(
@@ -158,7 +157,7 @@ export class InboxDocumentenListComponent
           this.utilService.openSnackbar("msg.document.verwijderen.uitgevoerd", {
             document: inboxDocument.titel,
           });
-          this.paginator.page.emit();
+          this.filterChange.emit();
         }
       });
   }
@@ -170,7 +169,7 @@ export class InboxDocumentenListComponent
   }
 
   resetSearch() {
-    this.listParametersSort = SessionStorageUtil.setItem(
+    this.listParameters = SessionStorageUtil.setItem(
       "INBOX_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
     );
@@ -210,9 +209,7 @@ export class InboxDocumentenListComponent
     return "INBOX_DOCUMENTEN";
   }
 
-  openDrawer(
-    selectedInformationObject: GeneratedType<"RESTOntkoppeldDocument">,
-  ) {
+  openDrawer(selectedInformationObject: GeneratedType<"RESTInboxDocument">) {
     this.selectedInformationObject = selectedInformationObject;
     void this.actionsSidenav.open();
   }
