@@ -5,6 +5,7 @@
 
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { BedrijfResolverService } from "./bedrijf-view/bedrijf-resolver.service";
 import { BedrijfViewComponent } from "./bedrijf-view/bedrijf-view.component";
 import { PersoonResolverService } from "./persoon-view/persoon-resolver.service";
@@ -29,6 +30,11 @@ const routes: Routes = [
         component: BedrijfViewComponent,
         resolve: { bedrijf: BedrijfResolverService },
       },
+      {
+        path: ":id/:vestigingsnummer", // `id` must be a `kvkNummer`
+        component: BedrijfViewComponent,
+        resolve: { bedrijf: BedrijfResolverService },
+      },
     ],
   },
 ];
@@ -38,3 +44,11 @@ const routes: Routes = [
   exports: [RouterModule],
 })
 export class KlantenRoutingModule {}
+
+export function buildBedrijfRouteLink(
+  bedrijf?: GeneratedType<"RestBedrijf"> | null,
+) {
+  const path = ["/bedrijf", bedrijf?.kvkNummer ?? bedrijf?.identificatie]; // use `identificatie` to support legacy
+  if (bedrijf?.vestigingsnummer) path.push(bedrijf?.vestigingsnummer);
+  return path;
+}

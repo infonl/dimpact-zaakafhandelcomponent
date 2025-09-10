@@ -77,10 +77,11 @@
 
       <div class="flex-1 w75">
         <zac-klant-zaken-tabel
-          [klantIdentificatie]="bedrijf.identificatie"
+          *ngIf="bedrijf"
+          [klant]="bedrijf"
         ></zac-klant-zaken-tabel>
         <zac-klant-contactmomenten-tabel
-          *ngIf="bedrijf.vestigingsnummer"
+          *ngIf="bedrijf && bedrijf.vestigingsnummer"
           [vestigingsnummer]="bedrijf.vestigingsnummer"
         ></zac-klant-contactmomenten-tabel>
       </div>

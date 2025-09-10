@@ -13,6 +13,7 @@ import {
 import { TextIcon } from "../../shared/edit/text-icon";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
+import { buildBedrijfRouteLink } from "../klanten-routing.module";
 import { KlantenService } from "../klanten.service";
 
 @Component({
@@ -21,8 +22,8 @@ import { KlantenService } from "../klanten.service";
   styleUrls: ["./bedrijfsgegevens.component.less"],
 })
 export class BedrijfsgegevensComponent implements OnChanges {
-  @Input() isVerwijderbaar?: boolean = false;
-  @Input() isWijzigbaar?: boolean = false;
+  @Input() isVerwijderbaar?: boolean | null = false;
+  @Input() isWijzigbaar?: boolean | null = false;
   @Input()
   initiatorIdentificatie?: GeneratedType<"BetrokkeneIdentificatie"> | null;
   @Output() delete = new EventEmitter<GeneratedType<"RestBedrijf">>();
@@ -57,6 +58,10 @@ export class BedrijfsgegevensComponent implements OnChanges {
         this.klantExpanded = true;
         this.vestigingsprofielOphalenMogelijk = !!this.bedrijf.vestigingsnummer;
       });
+  }
+
+  protected bedrijfRouteLink() {
+    return buildBedrijfRouteLink(this.bedrijf);
   }
 
   ophalenVestigingsprofiel() {

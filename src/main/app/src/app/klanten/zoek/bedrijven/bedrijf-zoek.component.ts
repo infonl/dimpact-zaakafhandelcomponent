@@ -27,6 +27,7 @@ import {
 } from "../../../shared/utils/constants";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { CustomValidators } from "../../../shared/validators/customValidators";
+import { buildBedrijfRouteLink } from "../../klanten-routing.module";
 import { KlantenService } from "../../klanten.service";
 import { FormCommunicatieService } from "../form-communicatie-service";
 
@@ -168,7 +169,7 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
 
   openBedrijfPagina(bedrijf: GeneratedType<"RestBedrijf">) {
     this.sideNav?.close();
-    void this.router.navigate(["/bedrijf/", bedrijf.identificatie]);
+    void this.router.navigate(buildBedrijfRouteLink(bedrijf));
   }
 
   selectBedrijf(bedrijf: GeneratedType<"RestBedrijf">) {
