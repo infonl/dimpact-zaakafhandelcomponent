@@ -39,7 +39,7 @@ export class ZacRadio<
   protected control?: AbstractControl<Option | null>;
   protected availableOptions: Option[] = [];
 
-  private destroy$ = new Subject();
+  private destroy$ = new Subject<void>();
 
   constructor(private readonly translateService: TranslateService) {}
 
@@ -55,7 +55,7 @@ export class ZacRadio<
   }
 
   ngOnDestroy() {
-    this.destroy$.next(true);
+    this.destroy$.next();
     this.destroy$.complete();
   }
 
