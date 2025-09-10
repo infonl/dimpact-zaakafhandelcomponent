@@ -90,7 +90,7 @@ export class InboxDocumentenListComponent
 
   ngOnInit() {
     super.ngOnInit();
-    this.listParametersSort = SessionStorageUtil.getItem(
+    this.listParameters = SessionStorageUtil.getItem(
       "INBOX_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
     );
