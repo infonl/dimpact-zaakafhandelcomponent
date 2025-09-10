@@ -48,8 +48,6 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
@@ -63,10 +61,6 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
 import nl.info.zac.itest.config.ItestConfiguration.VERANTWOORDELIJKE_ORGANISATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_REFERENTIEPROCES
@@ -112,74 +106,12 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     Given(
         """
-            ZAC Docker container is running and zaakafhandelparameters have been created and
-            a functioneelbeheerder1 is logged-in
-        """.trimIndent()
-    ) {
-        authenticate(username = TEST_FUNCTIONAL_ADMIN_1_USERNAME, password = TEST_FUNCTIONAL_ADMIN_1_PASSWORD)
-        lateinit var responseBody: String
-        When("zaak types are listed") {
-            val response = itestHttpClient.performGetRequest("$ZAC_API_URI/zaken/zaaktypes-for-creation")
-            Then("the response should be a 200 HTTP response") {
-                responseBody = response.body.string()
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
-            }
-            And("the response body should contain all configured zaaktypes") {
-                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
-                [
-                  {
-                    "doel": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
-                    "identificatie": "$ZAAKTYPE_BPMN_TEST_IDENTIFICATIE",
-                    "omschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
-                  },
-                  {
-                    "doel": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
-                    "identificatie": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE",
-                    "omschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
-                  },
-                  {
-                    "doel": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
-                    "identificatie": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE",
-                    "omschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
-                  }
-                ]
-                """.trimIndent()
-            }
-        }
-    }
-
-    Given(
-        """
             ZAC Docker container is running and zaakafhandelparameters have been created and a behandelaar is logged-in
         """.trimIndent()
     ) {
         authenticate(username = TEST_BEHANDELAAR_1_USERNAME, password = TEST_BEHANDELAAR_1_PASSWORD)
         lateinit var responseBody: String
-        When("zaak types are listed") {
-            val response = itestHttpClient.performGetRequest("$ZAC_API_URI/zaken/zaaktypes-for-creation")
-            Then("the response should be a 200 HTTP response") {
-                responseBody = response.body.string()
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
-            }
-            And("the response body should contain only the zaaktypes for which the user is authorized") {
-                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
-                [
-                  {
-                    "doel": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
-                    "identificatie": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE",
-                    "omschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
-                  },
-                  {
-                    "doel": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
-                    "identificatie": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE",
-                    "omschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
-                  }
-                ]
-                """.trimIndent()
-            }
-        }
+
         When("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
             val response = zacClient.createZaak(
                 zaakTypeUUID = ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,

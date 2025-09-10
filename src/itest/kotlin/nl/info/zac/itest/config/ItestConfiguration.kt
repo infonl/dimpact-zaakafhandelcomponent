@@ -48,6 +48,7 @@ object ItestConfiguration {
     const val COMMUNICATIEKANAAL_TEST_1 = "fakeCommunicatiekanaal1"
     const val COMMUNICATIEKANAAL_TEST_2 = "fakeCommunicatiekanaal2"
     const val DOMEIN_TEST_1 = "domein_test_1"
+    const val DOMEIN_TEST_2 = "domein_test_2"
     const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
     const val HUMAN_TASK_TYPE = "HUMAN_TASK"
@@ -82,6 +83,7 @@ object ItestConfiguration {
     const val PABC_API_KEY = "zac-test-api-key"
     const val PRODUCTAANVRAAG_TYPE_1 = "productaanvraag-type-1"
     const val PRODUCTAANVRAAG_TYPE_2 = "productaanvraag-type-2"
+    const val PRODUCTAANVRAAG_TYPE_3 = "productaanvraag-type-3"
     const val PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE = 52.08968250760225
     const val PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE = 5.114358701512936
     const val REFERENCE_TABLE_ADVIES_CODE = "ADVIES"
@@ -128,11 +130,8 @@ object ItestConfiguration {
 
     const val TOTAL_COUNT_INDEXED_ZAKEN = 12
     const val TOTAL_COUNT_INDEXED_ZAKEN_AFGEROND = 2
-    const val TOTAL_COUNT_INDEXED_ZAKEN_DOMEIN_1 = 10
     const val TOTAL_COUNT_INDEXED_TASKS = 4
-    const val TOTAL_COUNT_INDEXED_TASKS_DOMEIN_1 = 2
     const val TOTAL_COUNT_INDEXED_DOCUMENTS = 11
-    const val TOTAL_COUNT_INDEXED_DOCUMENTS_DOMEIN_1 = 9
 
     /**
      * Test person that exists in both the BRP and the Klanten API databases
@@ -167,7 +166,6 @@ object ItestConfiguration {
      */
     const val TEST_USER_2_NAME = "User2"
     const val TEST_USER_DOMEIN_TEST_1_USERNAME = "testuserdomeintest1"
-    const val TEST_USER_DOMEIN_TEST_1_PASSWORD = "testuserdomeintest1"
     const val TEST_USER_DOMEIN_TEST_1_NAME = "Test Testuserdomeintest1"
     const val TEST_FUNCTIONAL_ADMIN_1_USERNAME = "functioneelbeheerder1"
     const val TEST_FUNCTIONAL_ADMIN_1_PASSWORD = "functioneelbeheerder1"
@@ -410,12 +408,12 @@ object ItestConfiguration {
     val DATE_TIME_2024_01_31: ZonedDateTime = DATE_2024_01_31.atStartOfDay(TimeZone.getDefault().toZoneId())
 
     val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
-    val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID: UUID =
-        UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE = "melding-evenement-organiseren-behandelen"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION = "Melding evenement organiseren behandelen"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_REFERENTIEPROCES = "melding klein evenement"
 
+    val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID: UUID =
+        UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE =
         "indienen-aansprakelijkstelling-behandelen"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION =
@@ -428,6 +426,10 @@ object ItestConfiguration {
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_PLAATSVERVANGER =
         "74799b20-0350-457d-8773-a0f1ab16b299"
 
+    val ZAAKTYPE_TEST_1_UUID: UUID = UUID.fromString("8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a")
+    const val ZAAKTYPE_TEST_1_IDENTIFICATIE = "zaaktype-test-1"
+    const val ZAAKTYPE_TEST_1_DESCRIPTION = "Test zaaktype 1"
+
     val START_DATE: LocalDateTime = LocalDateTime.now()
 
     /**
@@ -438,10 +440,6 @@ object ItestConfiguration {
     const val ZAAKTYPE_BPMN_TEST_IDENTIFICATIE = "bpmn-test-zaaktype"
     const val ZAAKTYPE_BPMN_TEST_DESCRIPTION = "BPMN test zaaktype"
     const val ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE = "bpmn-test-productaanvraagtype"
-
-    val ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_UUID: UUID = UUID.fromString("8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a")
-    const val ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_IDENTIFICATIE = "bpmn-evenementen-vooroverleg"
-    const val ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_DESCRIPTION = "BPMN Evenementen Vooroverleg"
 
     const val BPMN_TEST_PROCESS_ID = "itProcessDefinition"
     const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_ID.bpmn"
