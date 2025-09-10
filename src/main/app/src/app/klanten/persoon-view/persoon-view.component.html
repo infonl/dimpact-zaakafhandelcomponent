@@ -47,7 +47,8 @@
       </mat-card>
       <div class="flex-1 w75">
         <zac-klant-zaken-tabel
-          [klantIdentificatie]="persoon.bsn"
+          *ngIf="persoon"
+          [klant]="persoon"
         ></zac-klant-zaken-tabel>
         <zac-klant-contactmomenten-tabel
           [bsn]="persoon.bsn"

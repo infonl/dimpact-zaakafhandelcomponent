@@ -36,9 +36,7 @@
         <a
           *ngIf="bedrijf"
           mat-icon-button
-          [routerLink]="['/bedrijf', bedrijf.identificatie]"
-          (click)="$event.stopPropagation()"
-          [id]="'bedrijfBekijken_' + bedrijf.identificatie + '_button'"
+          [routerLink]="bedrijfRouteLink()"
           title="{{ 'actie.bedrijf.bekijken' | translate }}"
         >
           <mat-icon>visibility</mat-icon>

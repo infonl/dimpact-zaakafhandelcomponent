@@ -20,16 +20,21 @@ export class BedrijfResolverService {
 
   resolve(route: ActivatedRouteSnapshot) {
     const id = route.paramMap.get("id");
+    const vestigingsnummer = route.paramMap.get("vestigingsnummer");
 
     if (!id) {
       throw new Error(`${BedrijfResolverService.name}: no 'id' found in route`);
     }
 
-    const identificatieType = this.getType(id);
+    const identificatieType = vestigingsnummer ? "VN" : this.getType(id);
     return this.klantenService.readBedrijf(
       new BetrokkeneIdentificatie({
         identificatieType,
-        vestigingsnummer: identificatieType === "VN" ? id : null,
+        vestigingsnummer: vestigingsnummer
+          ? vestigingsnummer
+          : identificatieType === "VN"
+            ? id
+            : null,
         kvkNummer:
           identificatieType === "RSIN" && id.length === KVK_LENGTH ? id : null,
         rsin:
