@@ -570,10 +570,12 @@ export class TaakViewComponent
     }
 
     this.taak.taakdocumenten.push(informatieobject.uuid!);
-    this.formulier?.refreshTaakdocumentenEnBijlagen();
 
-    if (!this.formulier) {
-      // new form attachments
+    if(this.formulier) {
+      // Old way of handling new attachments (using the ATOS forms)
+      this.formulier.refreshTaakdocumentenEnBijlagen();
+    } else {
+      // New way of handling new attachments (using Angular forms)
       const control = this.form.get("bijlagen");
       if (!control) return;
       const newAttachments = [...(control.value ?? []), informatieobject];
