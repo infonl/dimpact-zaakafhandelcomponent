@@ -88,7 +88,6 @@ export function mapTaskdataToTaskInformation(
   taak: GeneratedType<"RestTask">,
 ) {
   const mapping = getToelichtingMapping(taak);
-  console.log({ taskData });
   return {
     uitkomst: taskData[mapping.uitkomst] ?? "",
     bijlagen: mapping.bijlagen ? (taskData[mapping.bijlagen] ?? "") : "",

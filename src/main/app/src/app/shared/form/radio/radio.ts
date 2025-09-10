@@ -40,7 +40,6 @@ export class ZacRadio<
 
   ngOnInit() {
     this.control = this.form.get(String(this.key))!;
-    console.log(this.control.value);
     this.setOptions(this.options);
   }
 

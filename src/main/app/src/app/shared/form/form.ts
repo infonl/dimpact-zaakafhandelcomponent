@@ -115,7 +115,6 @@ export class ZacForm<Form extends _Form> implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if ("readonly" in changes) {
-      console.log(changes.readonly.currentValue);
       if (changes.readonly.currentValue) {
         this.form.disable();
       } else {
@@ -129,7 +128,6 @@ export class ZacForm<Form extends _Form> implements OnChanges {
   }
 
   protected partiallySubmitForm() {
-    console.log("partiallySubmitForm");
     this.formPartiallySubmitted.emit(this.form);
   }
 
