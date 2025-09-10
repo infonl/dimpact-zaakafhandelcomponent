@@ -187,7 +187,7 @@ export class TaakViewComponent
     this.initTaakGegevens(taak);
 
     // For legacy forms, we need to re-create the form to fix the loading state
-    if (!readZaak && !readZaak && !this.formulier) {
+    if (!readZaak && !this.formulier) {
       this.initialized = true;
       return;
     }
@@ -261,7 +261,7 @@ export class TaakViewComponent
       const attachmentsControl =
         this.formBuilder.control<
           GeneratedType<"RestEnkelvoudigInformatieobject">[]
-        >(attachments); // Make sure the control intialy has all the attachments checked
+        >(attachments); // Make sure the control initially has all the attachments checked
 
       this.form.addControl("bijlagen", attachmentsControl);
       this.formFields.push({

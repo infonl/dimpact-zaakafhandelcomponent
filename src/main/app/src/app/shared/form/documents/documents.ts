@@ -88,7 +88,7 @@ export class ZacDocuments<
 
   protected onToggleOption(option: Option) {
     this.selection.toggle(option);
-    this.control?.setValue(this.selection.selected, { emitEvent: false });
+    this.control?.setValue(this.selection.selected);
   }
 
   protected viewLink(option: Option) {

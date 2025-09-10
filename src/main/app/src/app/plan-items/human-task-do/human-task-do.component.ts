@@ -116,7 +116,6 @@ export class HumanTaskDoComponent implements OnInit {
       if (this.formulier.disablePartialSave) {
         this.formConfig.partialButtonText = null;
       }
-      console.log(this.formulier);
       this.formItems = this.formulier.form;
     }
   }
