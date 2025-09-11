@@ -8,12 +8,11 @@ package nl.info.zac.app.search.converter
 
 import jakarta.inject.Inject
 import nl.info.zac.app.search.model.AbstractRestZoekObject
-import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
-import nl.info.zac.app.search.model.RestZaakZoekObject
 import nl.info.zac.app.search.model.RestZoekParameters
 import nl.info.zac.app.search.model.RestZoekResultaat
 import nl.info.zac.app.search.model.toRestDocumentZoekObject
 import nl.info.zac.app.search.model.toRestTaakZoekObject
+import nl.info.zac.app.search.model.toRestZaakKoppelenZoekObject
 import nl.info.zac.app.search.model.toRestZaakZoekObject
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.model.FilterParameters
@@ -38,7 +37,7 @@ class RestZoekResultaatConverter @Inject constructor(
         zoekParameters: RestZoekParameters
     ): RestZoekResultaat<out AbstractRestZoekObject> {
         val restZoekResultaat = RestZoekResultaat(
-            zoekResultaat.items.map { convert(it) },
+            zoekResultaat.items.map { it.toAbstractRestZoekObject() },
             zoekResultaat.count
         )
         restZoekResultaat.filters.putAll(zoekResultaat.getFilters())
@@ -54,41 +53,27 @@ class RestZoekResultaatConverter @Inject constructor(
         return restZoekResultaat
     }
 
-    private fun convert(zoekObject: ZoekObject): AbstractRestZoekObject =
-        when (zoekObject.getType()) {
-            ZoekObjectType.ZAAK -> (zoekObject as ZaakZoekObject).toRestZaakZoekObject(
-                policyService.readZaakRechtenForZaakZoekObject(zoekObject)
-            )
-            ZoekObjectType.TAAK -> (zoekObject as TaakZoekObject).toRestTaakZoekObject(
-                policyService.readTaakRechten(zoekObject)
-            )
-            ZoekObjectType.DOCUMENT -> (zoekObject as DocumentZoekObject).toRestDocumentZoekObject(
-                policyService.readDocumentRechten(zoekObject)
-            )
-        }
-
     fun convert(zoekResultaat: ZoekResultaat<out ZoekObject>, documentLinkableList: List<Boolean>) =
         RestZoekResultaat(
             zoekResultaat.items.mapIndexed { index, result ->
                 with(result as ZaakZoekObject) {
-                    convert(
-                        result.toRestZaakZoekObject(policyService.readZaakRechtenForZaakZoekObject(result)),
-                        documentLinkableList[index]
-                    )
+                    result.toRestZaakZoekObject(policyService.readZaakRechtenForZaakZoekObject(result))
+                        .toRestZaakKoppelenZoekObject(documentLinkableList[index])
                 }
             },
             zoekResultaat.count
         )
 
-    private fun convert(restZaakZoekObject: RestZaakZoekObject, documentLinkable: Boolean) =
-        RestZaakKoppelenZoekObject(
-            id = restZaakZoekObject.id,
-            type = restZaakZoekObject.type,
-            identificatie = restZaakZoekObject.identificatie,
-            omschrijving = restZaakZoekObject.omschrijving,
-            toelichting = restZaakZoekObject.toelichting,
-            zaaktypeOmschrijving = restZaakZoekObject.zaaktypeOmschrijving,
-            statustypeOmschrijving = restZaakZoekObject.statustypeOmschrijving,
-            isKoppelbaar = documentLinkable
-        )
+    private fun ZoekObject.toAbstractRestZoekObject(): AbstractRestZoekObject =
+        when (this.getType()) {
+            ZoekObjectType.ZAAK -> (this as ZaakZoekObject).toRestZaakZoekObject(
+                policyService.readZaakRechtenForZaakZoekObject(this)
+            )
+            ZoekObjectType.TAAK -> (this as TaakZoekObject).toRestTaakZoekObject(
+                policyService.readTaakRechten(this)
+            )
+            ZoekObjectType.DOCUMENT -> (this as DocumentZoekObject).toRestDocumentZoekObject(
+                policyService.readDocumentRechten(this)
+            )
+        }
 }
