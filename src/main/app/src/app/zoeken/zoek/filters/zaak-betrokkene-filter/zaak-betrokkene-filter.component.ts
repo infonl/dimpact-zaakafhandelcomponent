@@ -56,7 +56,6 @@ export class ZaakBetrokkeneFilterComponent implements OnInit {
       this.dialogOpen = false;
 
       if (
-        result &&
         this.zoekparameters?.zoeken &&
         this.huidigeRoltype != null
       ) {
