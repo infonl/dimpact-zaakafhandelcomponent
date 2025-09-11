@@ -69,7 +69,7 @@
             (formSubmitted)="onHardCodedFormSubmit($event, false)"
             (formPartiallySubmitted)="onHardCodedFormSubmit($event, true)"
           />
-          <div class="form" *ngIf="formulier">
+          <div class="form">
             <mfb-form
               *ngIf="formulier"
               (formPartial)="onHardCodedFormSubmit($event, true)"
@@ -96,7 +96,7 @@
               (createDocument)="onDocumentCreate($event)"
             ></zac-formio-wrapper>
             <mat-progress-bar
-              *ngIf="!formulier && !formulierDefinitie && !formioFormulier"
+              *ngIf="!formulier && !formulierDefinitie && !formioFormulier && !formFields.length"
               mode="query"
             ></mat-progress-bar>
           </div>
