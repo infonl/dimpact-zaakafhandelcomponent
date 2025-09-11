@@ -91,9 +91,9 @@ val zacDockerImage by extra {
 
 val featureFlagPabcIntegration by extra {
     if (project.hasProperty("featureFlagPabcIntegration")) {
-        project.property("featureFlagPabcIntegration").toString().toBoolean()
+        project.property("featureFlagPabcIntegration").toString()
     } else {
-        true
+        "true"
     }
 }
 
@@ -810,7 +810,6 @@ tasks {
         classpath = sourceSets["itest"].runtimeClasspath
         systemProperty("zacDockerImage", zacDockerImage)
         systemProperty("featureFlagPabcIntegration", featureFlagPabcIntegration)
-        systemProperty("kotest.tags", if (featureFlagPabcIntegration) "pabc" else "!pabc")
         // do not use the Gradle build cache for this task
         outputs.cacheIf { false }
     }
