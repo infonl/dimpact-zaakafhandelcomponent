@@ -28,6 +28,8 @@ object ItestConfiguration {
      */
     const val HTTP_READ_TIMEOUT_SECONDS = 60L
 
+    val FEATURE_FLAG_PABC_INTEGRATION = (System.getProperty("featureFlagPabcIntegration") ?: "true").toBoolean()
+
     const val ACTIE_INTAKE_AFRONDEN = "INTAKE_AFRONDEN"
     const val ACTIE_ZAAK_AFHANDELEN = "ZAAK_AFHANDELEN"
 
@@ -178,6 +180,9 @@ object ItestConfiguration {
     const val TEST_BEHANDELAAR_1_USERNAME = "behandelaar1"
     const val TEST_BEHANDELAAR_1_PASSWORD = "behandelaar1"
     const val TEST_BEHANDELAAR_1_NAME = "Test Behandelaar1"
+    const val TEST_BEHANDELAAR_2_USERNAME = "behandelaar2"
+    const val TEST_BEHANDELAAR_2_PASSWORD = "behandelaar2"
+    const val TEST_BEHANDELAAR_2_NAME = "Test Behandelaar2"
     const val TEST_RAADPLEGER_1_USERNAME = "raadpleger1"
     const val TEST_RAADPLEGER_1_PASSWORD = "raadpleger1"
     const val TEST_RAADPLEGER_1_NAME = "Test Raadpleger1"

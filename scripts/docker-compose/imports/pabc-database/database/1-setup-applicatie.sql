@@ -10,6 +10,7 @@ INSERT INTO "ApplicationRoles" ("Id", "Name", "Application") VALUES
 INSERT INTO "FunctionalRoles" ("Id", "Name") VALUES
     ('f0c1b2d3-4e5f-6789-0a1b-2c3d4e5f6789','raadpleger_domein_test_1'),
     ('12345678-90ab-cdef-1234-567890abcdef','behandelaar_domein_test_1'),
+    ('f4fdde87-71c1-467d-9241-421d59484ad8','behandelaar_domein_test_2'),
     ('23456789-0abc-def1-2345-67890abcdef1','coordinator_domein_test_1'),
     ('34567890-abcd-ef12-3456-7890abcdef12','recordmanager_domein_test_1_en_domein_test_2'),
     ('45678901-bcde-f123-4567-890abcdef123','beheerder_elk_domein');
@@ -37,7 +38,9 @@ INSERT INTO "Mappings" ("Id", "FunctionalRoleId", "DomainId", "ApplicationRoleId
     ('ac0f0745-8e74-4966-a706-b8ef0e806bdc', (SELECT "Id" FROM "FunctionalRoles" WHERE "Name" = 'beheerder_elk_domein'), (SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_1'), (SELECT "Id" FROM "ApplicationRoles" WHERE "Name" = 'coordinator')),
     ('5fcb04d7-731e-4b87-98c0-3afd8692d064', (SELECT "Id" FROM "FunctionalRoles" WHERE "Name" = 'beheerder_elk_domein'), (SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_1'), (SELECT "Id" FROM "ApplicationRoles" WHERE "Name" = 'beheerder')),
     ('33c36417-b0df-45db-8c11-36d18cf63425', (SELECT "Id" FROM "FunctionalRoles" WHERE "Name" = 'beheerder_elk_domein'), (SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_1'), (SELECT "Id" FROM "ApplicationRoles" WHERE "Name" = 'recordmanager')),
-    -- create mappings for recordmanager and beheerder to the corresponding application role in 'domein_test_2'
+    -- create mappings for application roles in 'domein_test_2'
+    ('e83ed1fd-ca96-488d-b2d0-2d52c364f487', (SELECT "Id" FROM "FunctionalRoles" WHERE "Name" = 'behandelaar_domein_test_2'), (SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_2'), (SELECT "Id" FROM "ApplicationRoles" WHERE "Name" = 'raadpleger')),
+    ('7a37e060-8039-4528-8f55-f32b129b6ef1', (SELECT "Id" FROM "FunctionalRoles" WHERE "Name" = 'behandelaar_domein_test_2'), (SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_2'), (SELECT "Id" FROM "ApplicationRoles" WHERE "Name" = 'behandelaar')),
     ('699daaf5-9978-4739-9a18-2cfb26958e77', (SELECT "Id" FROM "FunctionalRoles" WHERE "Name" = 'recordmanager_domein_test_1_en_domein_test_2'), (SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_2'), (SELECT "Id" FROM "ApplicationRoles" WHERE "Name" = 'raadpleger')),
     ('db7e0427-68ec-4bd9-ad3b-a5a945230b24', (SELECT "Id" FROM "FunctionalRoles" WHERE "Name" = 'recordmanager_domein_test_1_en_domein_test_2'), (SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_2'), (SELECT "Id" FROM "ApplicationRoles" WHERE "Name" = 'behandelaar')),
     ('0e5dc382-c26b-491f-8a45-6025f150c3a9', (SELECT "Id" FROM "FunctionalRoles" WHERE "Name" = 'recordmanager_domein_test_1_en_domein_test_2'), (SELECT "Id" FROM "Domains" WHERE "Name" = 'domein_test_2'), (SELECT "Id" FROM "ApplicationRoles" WHERE "Name" = 'coordinator')),

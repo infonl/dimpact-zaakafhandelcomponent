@@ -12,6 +12,8 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_2_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_2_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_NAME
@@ -120,6 +122,10 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                     "id": "$TEST_BEHANDELAAR_1_USERNAME",
                                     "naam": "$TEST_BEHANDELAAR_1_NAME"
+                                },
+                                {
+                                    "id": "$TEST_BEHANDELAAR_2_USERNAME",
+                                    "naam": "$TEST_BEHANDELAAR_2_NAME"
                                 },
                                 {
                                     "id": "$TEST_RAADPLEGER_1_USERNAME",
