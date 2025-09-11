@@ -96,7 +96,12 @@
               (createDocument)="onDocumentCreate($event)"
             ></zac-formio-wrapper>
             <mat-progress-bar
-              *ngIf="!formulier && !formulierDefinitie && !formioFormulier && !formFields.length"
+              *ngIf="
+                !formulier &&
+                !formulierDefinitie &&
+                !formioFormulier &&
+                !formFields.length
+              "
               mode="query"
             ></mat-progress-bar>
           </div>
