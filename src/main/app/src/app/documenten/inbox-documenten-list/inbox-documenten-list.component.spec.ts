@@ -86,29 +86,4 @@ describe("InboxDocumentenListComponent tests", () => {
    * The test is therefore skipped for now until the component is refactored.
    */
   //   it("should preserve pagination after simulated page reload", () => {
-  //     jest.spyOn(SessionStorageUtil, "getItem").mockReturnValue({
-  //       sort: "titel",
-  //       order: "asc",
-  //       page: 0,
-  //       maxResults: 25,
-  //       filtersType: "InboxDocumentListParameters",
-  //     });
-
-  //     component.sort.sortChange.emit({
-  //       active: "creatiedatum",
-  //       direction: "desc",
-  //     });
-  //     component.paginator.page.emit({ pageIndex: 0, pageSize: 25, length: 100 });
-  //     component.ngOnInit();
-  //     component.ngAfterViewInit();
-
-  //     expect(putSpy.mock.calls[1][0]).toBe("/rest/inboxdocumenten");
-  //     expect(putSpy.mock.calls[1][1]).toEqual({
-  //       filtersType: "InboxDocumentListParameters",
-  //       maxResults: 25,
-  //       order: "desc",
-  //       page: 0,
-  //       sort: "creatiedatum",
-  //     });
-  //   });
 });
