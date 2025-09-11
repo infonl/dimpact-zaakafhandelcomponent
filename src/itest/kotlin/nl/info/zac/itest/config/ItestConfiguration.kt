@@ -28,6 +28,8 @@ object ItestConfiguration {
      */
     const val HTTP_READ_TIMEOUT_SECONDS = 60L
 
+    val FEATURE_FLAG_PABC_INTEGRATION = (System.getProperty("featureFlagPabcIntegration") ?: "true").toBoolean()
+
     const val ACTIE_INTAKE_AFRONDEN = "INTAKE_AFRONDEN"
     const val ACTIE_ZAAK_AFHANDELEN = "ZAAK_AFHANDELEN"
 
@@ -48,6 +50,7 @@ object ItestConfiguration {
     const val COMMUNICATIEKANAAL_TEST_1 = "fakeCommunicatiekanaal1"
     const val COMMUNICATIEKANAAL_TEST_2 = "fakeCommunicatiekanaal2"
     const val DOMEIN_TEST_1 = "domein_test_1"
+    const val DOMEIN_TEST_2 = "domein_test_2"
     const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
     const val HUMAN_TASK_TYPE = "HUMAN_TASK"
@@ -82,6 +85,7 @@ object ItestConfiguration {
     const val PABC_API_KEY = "zac-test-api-key"
     const val PRODUCTAANVRAAG_TYPE_1 = "productaanvraag-type-1"
     const val PRODUCTAANVRAAG_TYPE_2 = "productaanvraag-type-2"
+    const val PRODUCTAANVRAAG_TYPE_3 = "productaanvraag-type-3"
     const val PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE = 52.08968250760225
     const val PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE = 5.114358701512936
     const val REFERENCE_TABLE_ADVIES_CODE = "ADVIES"
@@ -163,9 +167,10 @@ object ItestConfiguration {
      * Test user 2 does not have a first name, so their full name should be equal to their last name.
      */
     const val TEST_USER_2_NAME = "User2"
-    const val TEST_USER_DOMEIN_TEST_1_ID = "testuserdomeintest1"
+    const val TEST_USER_DOMEIN_TEST_1_USERNAME = "testuserdomeintest1"
     const val TEST_USER_DOMEIN_TEST_1_NAME = "Test Testuserdomeintest1"
-    const val TEST_FUNCTIONAL_ADMIN_1_ID = "functioneelbeheerder1"
+    const val TEST_FUNCTIONAL_ADMIN_1_USERNAME = "functioneelbeheerder1"
+    const val TEST_FUNCTIONAL_ADMIN_1_PASSWORD = "functioneelbeheerder1"
     const val TEST_FUNCTIONAL_ADMIN_1_NAME = "Test Functioneelbeheerder1"
     const val TEST_RECORD_MANAGER_1_USERNAME = "recordmanager1"
     const val TEST_RECORD_MANAGER_1_NAME = "Test Recordmanager1"
@@ -175,6 +180,9 @@ object ItestConfiguration {
     const val TEST_BEHANDELAAR_1_USERNAME = "behandelaar1"
     const val TEST_BEHANDELAAR_1_PASSWORD = "behandelaar1"
     const val TEST_BEHANDELAAR_1_NAME = "Test Behandelaar1"
+    const val TEST_BEHANDELAAR_2_USERNAME = "behandelaar2"
+    const val TEST_BEHANDELAAR_2_PASSWORD = "behandelaar2"
+    const val TEST_BEHANDELAAR_2_NAME = "Test Behandelaar2"
     const val TEST_RAADPLEGER_1_USERNAME = "raadpleger1"
     const val TEST_RAADPLEGER_1_PASSWORD = "raadpleger1"
     const val TEST_RAADPLEGER_1_NAME = "Test Raadpleger1"
@@ -361,9 +369,7 @@ object ItestConfiguration {
     const val ZAC_MANAGEMENT_URI = "http://localhost:$ZAC_MANAGEMENT_PORT"
     const val ZAC_HEALTH_READY_URL = "$ZAC_MANAGEMENT_URI/health/ready"
 
-    /**
-     * Zaak beeindig constants
-     */
+    // Zaak beeindig constants
     const val ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_ID = "-1"
     const val ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_NAME = "Verzoek is door initiator ingetrokken"
     const val ZAAK_BEEINDIG_ZAAK_IS_EEN_DUPLICAAT_ID = "-2"
@@ -405,12 +411,12 @@ object ItestConfiguration {
     val DATE_TIME_2024_01_31: ZonedDateTime = DATE_2024_01_31.atStartOfDay(TimeZone.getDefault().toZoneId())
 
     val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
-    val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID: UUID =
-        UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE = "melding-evenement-organiseren-behandelen"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION = "Melding evenement organiseren behandelen"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_REFERENTIEPROCES = "melding klein evenement"
 
+    val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID: UUID =
+        UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE =
         "indienen-aansprakelijkstelling-behandelen"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION =
@@ -423,20 +429,18 @@ object ItestConfiguration {
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_PLAATSVERVANGER =
         "74799b20-0350-457d-8773-a0f1ab16b299"
 
+    val ZAAKTYPE_TEST_1_UUID: UUID = UUID.fromString("8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a")
+    const val ZAAKTYPE_TEST_1_IDENTIFICATIE = "zaaktype-test-1"
+    const val ZAAKTYPE_TEST_1_DESCRIPTION = "Test zaaktype 1"
+
     val START_DATE: LocalDateTime = LocalDateTime.now()
 
-    /**
-     * BPMN tests constants
-     */
+    // BPMN tests constants
     val ZAAKTYPE_BPMN_TEST_UUID: UUID = UUID.fromString("26076928-ce07-4d5d-8638-c2d276f6caca")
     const val ZAAK_BPMN_TEST_IDENTIFICATION: String = "ZAAK-2000-0000000004"
     const val ZAAKTYPE_BPMN_TEST_IDENTIFICATIE = "bpmn-test-zaaktype"
     const val ZAAKTYPE_BPMN_TEST_DESCRIPTION = "BPMN test zaaktype"
     const val ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE = "bpmn-test-productaanvraagtype"
-
-    val ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_UUID: UUID = UUID.fromString("8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a")
-    const val ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_IDENTIFICATIE = "bpmn-evenementen-vooroverleg"
-    const val ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_DESCRIPTION = "BPMN Evenementen Vooroverleg"
 
     const val BPMN_TEST_PROCESS_ID = "itProcessDefinition"
     const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_ID.bpmn"

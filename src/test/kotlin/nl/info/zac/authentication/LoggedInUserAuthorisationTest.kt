@@ -17,30 +17,6 @@ class LoggedInUserAuthorisationTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("PABC integration enabled -> use application roles per zaaktype") {
-        val userAuthorizedWithPabc = createLoggedInUser(
-            pabcMappings = mapOf(
-                ZAAK_TYPE_1_OMSCHRIJVING to setOf("applicationRole1"),
-                ZAAK_TYPE_2_OMSCHRIJVING to emptySet()
-            )
-        )
-
-        When("authorisation is checked for various zaaktypen") {
-
-            Then("authorised for ZAAK_TYPE_1_OMSCHRIJVING (mapped with roles)") {
-                userAuthorizedWithPabc.isAuthorisedForZaaktypePabc(ZAAK_TYPE_1_OMSCHRIJVING) shouldBe true
-            }
-
-            Then("not authorised for ZAAK_TYPE_2_OMSCHRIJVING (mapped but no roles)") {
-                userAuthorizedWithPabc.isAuthorisedForZaaktypePabc(ZAAK_TYPE_2_OMSCHRIJVING) shouldBe false
-            }
-
-            Then("not authorised for zaaktype not present in mappings") {
-                userAuthorizedWithPabc.isAuthorisedForZaaktypePabc("zaaktype3") shouldBe false
-            }
-        }
-    }
-
     Given("PABC integration is disabled -> functional roles are used") {
         val userAuthorizedForAllWithPabcDisabled = createLoggedInUser(
             zaakTypes = null,

@@ -29,12 +29,12 @@ class LoggedInUser(
 ) : User(id, firstName, lastName, displayName, email) {
     fun isAuthorisedForAllZaaktypen(): Boolean = geautoriseerdeZaaktypen == null
 
+    /**
+     * Check if a zaaktype is authorised when PABC is disabled
+     *
+     * @deprecated In PABC-based authorization, the concept of being authorised just for a zaaktype is meaningless,
+     * since you are authorised for specific application roles for a zaaktype.
+     */
     fun isAuthorisedForZaaktype(zaaktypeOmschrijving: String) =
         geautoriseerdeZaaktypen?.contains(zaaktypeOmschrijving) ?: true
-
-    /**
-     * If PABC-based authorization is active, use the map of application roles per zaaktype.
-     */
-    fun isAuthorisedForZaaktypePabc(zaaktypeOmschrijving: String) =
-        applicationRolesPerZaaktype[zaaktypeOmschrijving]?.isNotEmpty() == true
 }

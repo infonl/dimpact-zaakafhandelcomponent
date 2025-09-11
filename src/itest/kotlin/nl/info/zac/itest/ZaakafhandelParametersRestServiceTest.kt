@@ -68,7 +68,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         When(
             """
             the create zaakafhandelparameters endpoint is called to create a new zaakafhandelparameters
-            for the 'indienen aansprakelijkheidstelling' zaaktype with specifying a the existing test domein
+            for the 'indienen aansprakelijkheidstelling' zaaktype with specifying the existing test domein
             """.trimIndent()
         ) {
             val response = zacClient.createZaakAfhandelParameters(
