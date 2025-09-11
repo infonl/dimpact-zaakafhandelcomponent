@@ -436,6 +436,15 @@
           "attributes": {}
         },
         {
+          "id": "0815385d-ab08-4f40-b1aa-23a552fb8c5d",
+          "name": "raadpleger_domein_test_2",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
+          "attributes": {}
+        },
+
+        {
           "id": "f5c3c8e4-2d6b-4f4a-9f1e-3c9e2b7a6d5f",
           "name": "behandelaar_domein_test_1",
           "composite": false,
@@ -591,6 +600,26 @@
           "behandelaar",
           "raadpleger_domein_test_1",
           "behandelaar_domein_test_1"
+        ]
+      }
+    },
+    {
+      "id": "42217708-030a-41fc-93b8-3cbf46277bce",
+      "name": "test-group-domein-test-2",
+      "path": "/test-group-domein-test-2",
+      "subGroups": [],
+      "attributes": {
+        "description": ["Test group which has access to domein_test_2 only"],
+        "email": ["${ZAC_GROUP_DOMEIN_TEST_2_EMAIL_ADDRESS}"]
+      },
+      "realmRoles": [],
+      "clientRoles": {
+        "zaakafhandelcomponent": [
+          "domein_test_2",
+          "raadpleger",
+          "behandelaar",
+          "raadpleger_domein_test_2",
+          "behandelaar_domein_test_2"
         ]
       }
     },
@@ -2585,6 +2614,32 @@
       "groups": ["/test-group-domein-test-1"]
     },
     {
+      "id": "238b79c1-5c59-4c2c-bdc1-edbc76ea06a5",
+      "username": "testuserdomeintest2",
+      "firstName": "Test",
+      "lastName": "Testuserdomeintest2",
+      "email": "${ZAC_TESTUSER_DOMEIN_TEST_2_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1757603133809,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "75f85b5e-7c0a-466f-b73a-631cdf20cb5c",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1757603144715,
+          "secretData": "{\"value\":\"yAYDl+DajGvVqHqMmtVjcMgqiaZECM2BP6skM4RPMGI=\",\"salt\":\"Y6Kv7NQRk3kAfx/XAFFVPQ==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/test-group-domein-test-2"]
+    },
+    {
       "id": "86025ca3-ff4d-43fa-952d-a8a08db92db0",
       "username": "coordinator1",
       "firstName": "Test",
@@ -2658,15 +2713,9 @@
       ],
       "disableableCredentialTypes": [],
       "requiredActions": [],
-      "clientRoles": {
-        "zaakafhandelcomponent": [
-          "domein_test_2",
-          "behandelaar_domein_test_2",
-          "behandelaar"
-        ]
-      },
+      "realmRoles": ["default-roles-zac"],
       "notBefore": 0,
-      "groups": []
+      "groups": ["/test-group-bh"]
     },
     {
       "id": "63f88440-1fac-464e-88a8-28c3228045ae",

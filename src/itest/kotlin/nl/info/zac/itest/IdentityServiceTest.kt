@@ -33,6 +33,8 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_2_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_2_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
@@ -103,7 +105,7 @@ class IdentityServiceTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/identity/users"
             )
-            Then("All 8 specific users are returned") {
+            Then("All specific users are returned") {
                 response.isSuccessful shouldBe true
                 response.body.string() shouldEqualSpecifiedJsonIgnoringOrder """
                             [
@@ -142,6 +144,10 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                     "id": "$TEST_USER_DOMEIN_TEST_1_USERNAME",
                                     "naam": "$TEST_USER_DOMEIN_TEST_1_NAME"
+                                },
+                                {
+                                    "id": "$TEST_USER_DOMEIN_TEST_2_USERNAME",
+                                    "naam": "$TEST_USER_DOMEIN_TEST_2_NAME"
                                 },
                                 {
                                     "id": "$TEST_USER_WITHOUT_ANY_ROLE_USERNAME",
