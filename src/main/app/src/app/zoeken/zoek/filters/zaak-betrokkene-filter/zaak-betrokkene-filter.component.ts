@@ -55,10 +55,7 @@ export class ZaakBetrokkeneFilterComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       this.dialogOpen = false;
 
-      if (
-        this.zoekparameters?.zoeken &&
-        this.huidigeRoltype != null
-      ) {
+      if (this.zoekparameters?.zoeken && this.huidigeRoltype != null) {
         this.klantIdControl.setValue(result.identificatie ?? "");
         this.zoekparameters.zoeken[this.huidigeRoltype] =
           result.identificatie ?? "";
