@@ -369,7 +369,6 @@ object ItestConfiguration {
     const val ZAC_MANAGEMENT_URI = "http://localhost:$ZAC_MANAGEMENT_PORT"
     const val ZAC_HEALTH_READY_URL = "$ZAC_MANAGEMENT_URI/health/ready"
 
-
     // Zaak beeindig constants
     const val ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_ID = "-1"
     const val ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_NAME = "Verzoek is door initiator ingetrokken"
