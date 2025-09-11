@@ -12,9 +12,7 @@
             <h3 *ngIf="field.header" style="font-weight: bold">
               {{ field.header | translate }}
             </h3>
-            <div>
-              {{ field.text | translate }}
-            </div>
+            <div [innerHTML]="field.text | translate"></div>
           </section>
         }
         @case ("input") {
