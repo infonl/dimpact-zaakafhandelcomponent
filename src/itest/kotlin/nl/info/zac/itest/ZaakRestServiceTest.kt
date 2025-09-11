@@ -202,6 +202,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 And("the response body should contain only the zaaktypes for which the user is authorized") {
                     // In non-PABC case we always return BPMN zaken
                     val nonPABCPayload = if (FEATURE_FLAG_PABC_INTEGRATION) {
+                        ""
+                    } else {
                         """
                          , {
                              "doel": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
@@ -209,8 +211,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                              "omschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
                            }
                         """.trimIndent()
-                    } else {
-                        ""
                     }
 
                     responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """

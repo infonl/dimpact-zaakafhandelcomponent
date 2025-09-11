@@ -369,9 +369,8 @@ object ItestConfiguration {
     const val ZAC_MANAGEMENT_URI = "http://localhost:$ZAC_MANAGEMENT_PORT"
     const val ZAC_HEALTH_READY_URL = "$ZAC_MANAGEMENT_URI/health/ready"
 
-    /**
-     * Zaak beeindig constants
-     */
+
+    // Zaak beeindig constants
     const val ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_ID = "-1"
     const val ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_NAME = "Verzoek is door initiator ingetrokken"
     const val ZAAK_BEEINDIG_ZAAK_IS_EEN_DUPLICAAT_ID = "-2"
@@ -437,9 +436,7 @@ object ItestConfiguration {
 
     val START_DATE: LocalDateTime = LocalDateTime.now()
 
-    /**
-     * BPMN tests constants
-     */
+    // BPMN tests constants
     val ZAAKTYPE_BPMN_TEST_UUID: UUID = UUID.fromString("26076928-ce07-4d5d-8638-c2d276f6caca")
     const val ZAAK_BPMN_TEST_IDENTIFICATION: String = "ZAAK-2000-0000000004"
     const val ZAAKTYPE_BPMN_TEST_IDENTIFICATIE = "bpmn-test-zaaktype"
