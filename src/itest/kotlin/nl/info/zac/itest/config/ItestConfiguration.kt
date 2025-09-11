@@ -169,6 +169,9 @@ object ItestConfiguration {
     const val TEST_USER_2_NAME = "User2"
     const val TEST_USER_DOMEIN_TEST_1_USERNAME = "testuserdomeintest1"
     const val TEST_USER_DOMEIN_TEST_1_NAME = "Test Testuserdomeintest1"
+    const val TEST_USER_DOMEIN_TEST_2_USERNAME = "testuserdomeintest2"
+    const val TEST_USER_DOMEIN_TEST_2_PASSWORD = "testuserdomeintest2"
+    const val TEST_USER_DOMEIN_TEST_2_NAME = "Test Testuserdomeintest2"
     const val TEST_FUNCTIONAL_ADMIN_1_USERNAME = "functioneelbeheerder1"
     const val TEST_FUNCTIONAL_ADMIN_1_PASSWORD = "functioneelbeheerder1"
     const val TEST_FUNCTIONAL_ADMIN_1_NAME = "Test Functioneelbeheerder1"
@@ -203,6 +206,8 @@ object ItestConfiguration {
     const val TEST_GROUP_RAADPLEGERS_DESCRIPTION = "Test group Raadplegers"
     const val TEST_GROUP_DOMEIN_TEST_1_ID = "test-group-domein-test-1"
     const val TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION = "Test group which has access to domein_test_1 only"
+    const val TEST_GROUP_DOMEIN_TEST_2_ID = "test-group-domein-test-2"
+    const val TEST_GROUP_DOMEIN_TEST_2_DESCRIPTION = "Test group which has access to domein_test_2 only"
     const val TEST_GROUPS_ALL =
         """
             [
@@ -233,6 +238,10 @@ object ItestConfiguration {
                 {
                     "id": "$TEST_GROUP_DOMEIN_TEST_1_ID",
                     "naam": "$TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION"
+                },
+                {
+                    "id": "$TEST_GROUP_DOMEIN_TEST_2_ID",
+                    "naam": "$TEST_GROUP_DOMEIN_TEST_2_DESCRIPTION"
                 }
             ]
         """

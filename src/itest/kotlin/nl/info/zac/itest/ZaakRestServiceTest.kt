@@ -49,8 +49,6 @@ import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_VRIJG
 import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_2_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_2_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_PASSWORD
@@ -67,6 +65,8 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CR
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_2_PASSWORD
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_2_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.VERANTWOORDELIJKE_ORGANISATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_IDENTIFICATIE
@@ -186,10 +186,11 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         Given(
             """
-        ZAC Docker container is running and zaakafhandelparameters have been created and a behandelaar2 is logged-in
+            ZAC Docker container is running and zaakafhandelparameters have been created
+            and a testuserdomaintest2 is logged-in
             """.trimIndent()
         ) {
-            authenticate(username = TEST_BEHANDELAAR_2_USERNAME, password = TEST_BEHANDELAAR_2_PASSWORD)
+            authenticate(username = TEST_USER_DOMEIN_TEST_2_USERNAME, password = TEST_USER_DOMEIN_TEST_2_PASSWORD)
             lateinit var responseBody: String
 
             When("zaak types are listed") {
