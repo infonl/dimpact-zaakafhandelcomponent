@@ -28,7 +28,9 @@ export class BedrijfResolverService {
     const vestigingsnummer = route.paramMap.get("vestigingsnummer");
 
     if (!id) {
-      throw new Error(`${BedrijfResolverService.name}: no 'id' found in route`);
+      return Promise.reject(
+        new Error(`${BedrijfResolverService.name}: no 'id' found in route`),
+      );
     }
 
     const identificatieType = vestigingsnummer ? "VN" : this.getType(id);
