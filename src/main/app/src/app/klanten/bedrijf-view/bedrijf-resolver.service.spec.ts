@@ -16,6 +16,7 @@ import {
   KVK_LENGTH,
   VESTIGINGSNUMMER_LENGTH,
 } from "src/app/shared/utils/constants";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
 import { BedrijfResolverService } from "./bedrijf-resolver.service";
@@ -23,6 +24,7 @@ import { BedrijfResolverService } from "./bedrijf-resolver.service";
 describe(BedrijfResolverService.name, () => {
   let bedrijfResolverService: BedrijfResolverService;
   let klantenService: KlantenService;
+  let foutAfhandelingService: FoutAfhandelingService;
 
   const vestigingsnummer = "1".repeat(VESTIGINGSNUMMER_LENGTH);
   const kvkNummer = "2".repeat(KVK_LENGTH);
@@ -32,6 +34,7 @@ describe(BedrijfResolverService.name, () => {
     TestBed.configureTestingModule({
       providers: [
         BedrijfResolverService,
+        FoutAfhandelingService,
         KlantenService,
         provideHttpClient(withInterceptorsFromDi()),
       ],
@@ -40,14 +43,17 @@ describe(BedrijfResolverService.name, () => {
 
     bedrijfResolverService = TestBed.inject(BedrijfResolverService);
 
+    foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
+    jest.spyOn(foutAfhandelingService, "openFoutDialog").mockImplementation();
+
     klantenService = TestBed.inject(KlantenService);
     jest
       .spyOn(klantenService, "readBedrijf")
       .mockReturnValue(of(fromPartial<GeneratedType<"RestBedrijf">>({})));
   });
 
-  it("should throw an error if no id is provided", () => {
-    expect(() =>
+  it("should throw an error if no id is provided", async () => {
+    await expect(async () =>
       bedrijfResolverService.resolve(
         fromPartial({
           get paramMap() {
@@ -55,12 +61,11 @@ describe(BedrijfResolverService.name, () => {
           },
         }),
       ),
-    ).toThrowError("BedrijfResolverService: no 'id' found in route");
+    ).rejects.toThrowError("BedrijfResolverService: no 'id' found in route");
   });
 
   describe(BedrijfResolverService.prototype.resolve.name, () => {
     it.each([
-      { params: { id: vestigingsnummer }, type: "VN" },
       { params: { id: kvkNummer }, type: "RSIN" },
       {
         params: { id: kvkNummer, vestigingsnummer: vestigingsnummer },
@@ -69,8 +74,8 @@ describe(BedrijfResolverService.name, () => {
       { params: { id: rsin }, type: "RSIN" },
     ])(
       "should determine the correct type based on the passed parameters",
-      ({ params, type }) => {
-        bedrijfResolverService.resolve(
+      async ({ params, type }) => {
+        await bedrijfResolverService.resolve(
           fromPartial({
             get paramMap() {
               return convertToParamMap(params);
@@ -83,5 +88,18 @@ describe(BedrijfResolverService.name, () => {
         );
       },
     );
+
+    it("should call the error handling when trying to call just a vestigingsnummer", async () => {
+      const spy = jest.spyOn(foutAfhandelingService, "openFoutDialog");
+      await bedrijfResolverService.resolve(
+        fromPartial({
+          get paramMap() {
+            return convertToParamMap({ id: vestigingsnummer });
+          },
+        }),
+      );
+
+      expect(spy).toHaveBeenCalled();
+    });
   });
 });

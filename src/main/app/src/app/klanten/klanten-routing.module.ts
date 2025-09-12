@@ -26,12 +26,12 @@ const routes: Routes = [
     path: "bedrijf",
     children: [
       {
-        path: ":id", // This can be a `vestigingsnummer`, `kvkNummer` or `rsin`
+        path: ":id", // This can only be a valid `RSIN` or `KVK` number
         component: BedrijfViewComponent,
         resolve: { bedrijf: BedrijfResolverService },
       },
       {
-        path: ":id/:vestigingsnummer", // `id` must be a `kvkNummer`
+        path: ":id/vestiging/:vestigingsnummer", // `id` must be a `kvkNummer`
         component: BedrijfViewComponent,
         resolve: { bedrijf: BedrijfResolverService },
       },
@@ -49,6 +49,9 @@ export function buildBedrijfRouteLink(
   bedrijf?: GeneratedType<"RestBedrijf"> | null,
 ) {
   const path = ["/bedrijf", bedrijf?.kvkNummer ?? bedrijf?.identificatie]; // use `identificatie` to support legacy
-  if (bedrijf?.vestigingsnummer) path.push(bedrijf?.vestigingsnummer);
+  if (bedrijf?.vestigingsnummer)
+    path.push("vestiging", bedrijf?.vestigingsnummer);
+  else if (bedrijf?.kvkNummer && bedrijf?.identificatie)
+    path.push("vestiging", bedrijf?.identificatie);
   return path;
 }
