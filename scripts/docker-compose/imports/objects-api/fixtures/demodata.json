@@ -206,6 +206,22 @@
     }
   },
   {
+    "model": "core.object",
+    "pk": 35,
+    "fields": {
+      "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "object_type": 4
+    }
+  },
+  {
+    "model": "core.object",
+    "pk": 36,
+    "fields": {
+      "uuid": "b2c3d4e5-f6g7-8901-bcde-f23456789012",
+      "object_type": 4
+    }
+  },
+  {
     "model": "core.objectrecord",
     "pk": 4,
     "fields": {
@@ -925,7 +941,7 @@
         "taal": "nld",
         "betrokkenen": [
           {
-            "vestigingsNummer": "000012345678",
+            "kvkNummer": "12345678",
             "rolOmschrijvingGeneriek": "initiator"
           },
           {
@@ -980,6 +996,7 @@
         "taal": "nld",
         "betrokkenen": [
           {
+            "kvkNummer": "87654321",
             "vestigingsNummer": "000012345678",
             "rolOmschrijvingGeneriek": "initiator"
           },
@@ -1002,6 +1019,93 @@
       "start_at": "1998-01-01",
       "end_at": null,
       "registration_at": "1998-01-01",
+      "correct": null,
+      "geometry": null
+    }
+  },
+  {
+    "model": "core.objectrecord",
+    "pk": 46,
+    "fields": {
+      "index": 1,
+      "object": 35,
+      "version": 1,
+      "data": {
+        "bron": {
+          "naam": "open-forms",
+          "kenmerk": "invalid-vestiging-only-12345678-9abc-def0"
+        },
+        "type": "productaanvraag-type-1",
+        "aanvraaggegevens": {
+          "stap1": {
+            "naam": "Invalid Vestiging Only",
+            "telefoonnummer": "0612345678"
+          },
+          "stap2": {
+            "omschrijving": "This should be invalid - only vestigingsNummer"
+          }
+        },
+        "taal": "nld",
+        "betrokkenen": [
+          {
+            "vestigingsNummer": "000099999999",
+            "rolOmschrijvingGeneriek": "initiator"
+          },
+          {
+            "inpBsn": "999991838",
+            "roltypeOmschrijving": "Medeaanvrager",
+            "rolOmschrijvingGeneriek": "mede_initiator"
+          }
+        ],
+        "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e"
+      },
+      "start_at": "1997-01-01",
+      "end_at": null,
+      "registration_at": "1997-01-01",
+      "correct": null,
+      "geometry": null
+    }
+  },
+  {
+    "model": "core.objectrecord",
+    "pk": 47,
+    "fields": {
+      "index": 1,
+      "object": 36,
+      "version": 1,
+      "data": {
+        "bron": {
+          "naam": "open-forms",
+          "kenmerk": "kvk-vestiging-combo-87654321-000012345678"
+        },
+        "type": "productaanvraag-type-1",
+        "aanvraaggegevens": {
+          "stap1": {
+            "naam": "KVK Vestiging Combo",
+            "telefoonnummer": "0612345678"
+          },
+          "stap2": {
+            "omschrijving": "Valid scenario with both kvkNummer and vestigingsNummer"
+          }
+        },
+        "taal": "nld",
+        "betrokkenen": [
+          {
+            "kvkNummer": "87654321",
+            "vestigingsNummer": "000012345678",
+            "rolOmschrijvingGeneriek": "initiator"
+          },
+          {
+            "inpBsn": "999991838",
+            "roltypeOmschrijving": "Medeaanvrager",
+            "rolOmschrijvingGeneriek": "mede_initiator"
+          }
+        ],
+        "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e"
+      },
+      "start_at": "1996-01-01",
+      "end_at": null,
+      "registration_at": "1996-01-01",
       "correct": null,
       "geometry": null
     }
