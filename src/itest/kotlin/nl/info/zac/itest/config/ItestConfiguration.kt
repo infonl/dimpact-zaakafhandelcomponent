@@ -346,12 +346,12 @@ object ItestConfiguration {
 
     const val ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION = "ZAAK-1998-0000000001"
     const val ZAAK_PRODUCTAANVRAAG_BPMN_UITERLIJKE_EINDDATUM_AFDOENING = "1998-01-31"
-    
+
     /**
      * Invalid zaak that should not be created due to only vestigingsNummer (no kvkNummer).
      */
     const val ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION = "ZAAK-1997-0000000001"
-    
+
     /**
      * Zaak created from productaanvraag with both kvkNummer and vestigingsNummer.
      */
