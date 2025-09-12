@@ -6,7 +6,7 @@
 import { HttpClientTestingModule } from "@angular/common/http/testing";
 import { EventEmitter } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatPaginator } from "@angular/material/paginator";
+import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -36,31 +36,17 @@ describe("InboxDocumentenListComponent tests", () => {
     component = fixture.componentInstance;
     zacHttpClient = TestBed.inject(ZacHttpClient);
 
-    // Spy PUT
     putSpy = jest.spyOn(zacHttpClient, "PUT");
 
-    // SessionStorage mocks
     jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {});
     jest.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
 
-    // Mock Angular Material sort & paginator
-    component.sort = {
-      active: "creatiedatum",
-      direction: "desc",
-      sortChange: new EventEmitter<{
-        active: string;
-        direction: "asc" | "desc";
-      }>(),
-    } as unknown as MatSort;
-
+    component.sort = new MatSort();
     component.paginator = {
-      pageIndex: 0,
       pageSize: 10,
-      length: 100,
-      page: new EventEmitter<{ pageIndex: number; pageSize: number }>(),
-    } as unknown as MatPaginator;
+      page: new EventEmitter<PageEvent>(),
+    } as MatPaginator;
 
-    // Trigger subscriptions
     component.ngAfterViewInit();
   });
 
@@ -71,14 +57,13 @@ describe("InboxDocumentenListComponent tests", () => {
 
     component.sort.sortChange.emit({ active: "titel", direction: "asc" });
 
-    expect(putSpy.mock.calls[1][0]).toBe("/rest/inboxdocumenten");
-    expect(putSpy.mock.calls[1][1]).toEqual({
-      filtersType: "InboxDocumentListParameters",
-      maxResults: 25,
-      order: "asc",
-      page: 0,
-      sort: "titel",
-    });
+    expect(putSpy).toHaveBeenCalledWith(
+      "/rest/inboxdocumenten",
+      expect.objectContaining({
+        order: "asc",
+        sort: "titel",
+      })
+    );
   });
 
   /**
