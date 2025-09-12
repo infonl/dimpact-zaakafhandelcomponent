@@ -29,10 +29,8 @@ import net.atos.zac.productaanvraag.util.GeometryTypeEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.IndicatieMachtigingEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter
 import net.atos.zac.util.JsonbUtil
-import nl.info.client.kvk.util.KVK_NUMMER_LENGTH
-import nl.info.client.kvk.util.KVK_VESTIGINGSNUMMER_LENGTH
-import nl.info.client.kvk.util.isValidKvkNummer
-import nl.info.client.kvk.util.isValidKvkVestigingsnummer
+import nl.info.client.kvk.util.validateKvKVestigingsnummer
+import nl.info.client.kvk.util.validateKvkNummer
 import nl.info.client.or.objects.model.generated.ModelObject
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
@@ -356,12 +354,14 @@ class ProductaanvraagService @Inject constructor(
     ) {
         betrokkene.performAction(
             onNatuurlijkPersoonIdentity = { addNatuurlijkPersoonRole(type, it, zaak.url) },
-            onKvkIdentity = { kvkNummer, vestigingsNummer -> addVestigingRole(
-                type,
-                kvkNummer,
-                vestigingsNummer,
-                zaak.url
-            ) },
+            onKvkIdentity = { kvkNummer, vestigingsNummer ->
+                addRechtspersoonOrVestiging(
+                    type,
+                    kvkNummer,
+                    vestigingsNummer,
+                    zaak.url
+                )
+            },
             onNoIdentity = {
                 val prefix = if (genericRolType) "generic " else ""
                 LOG.warning(
@@ -385,25 +385,15 @@ class ProductaanvraagService @Inject constructor(
         )
     )
 
-    private fun addVestigingRole(
+    private fun addRechtspersoonOrVestiging(
         rolType: RolType,
         kvkNummer: String,
         vestigingsNummer: String?,
         zaak: URI
     ): Rol<*> {
-        if (!kvkNummer.isValidKvkNummer()) {
-            throw ProductaanvraagNotSupportedException(
-                "Invalid KVK nummer: '$kvkNummer'. It should be a $KVK_NUMMER_LENGTH-digit number."
-            )
-        }
-        vestigingsNummer?.let {
-            if (!it.isValidKvkVestigingsnummer()) {
-                throw ProductaanvraagNotSupportedException(
-                    "Invalid KVK vestigingsnummer: '$vestigingsNummer'. " +
-                        "It should be a $KVK_VESTIGINGSNUMMER_LENGTH-digit number."
-                )
-            }
-        }
+        kvkNummer.validateKvkNummer()
+        vestigingsNummer?.validateKvKVestigingsnummer()
+
         return zrcClientService.createRol(
             // note that niet-natuurlijk persoon roles can be used both for KVK niet-natuurlijk personen (with an RSIN)
             // as well as for KVK vestigingen
