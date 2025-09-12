@@ -515,29 +515,25 @@ class ZaakRestService @Inject constructor(
     }
 
     @GET
-    @Path("zaaktypes")
-    fun listZaaktypes(): List<RestZaaktype> =
+    @Path("zaaktypes-for-creation")
+    fun listZaaktypesForZaakCreation(): List<RestZaaktype> =
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
-            // After PABC is fully integrated, `isAuthorisedForZaaktype` will be decommissioned
-            // (to be replaced by PolicyService)
-            .filter { zt ->
-                if (configuratieService.featureFlagPabcIntegration()) {
-                    loggedInUserInstance.get().isAuthorisedForZaaktypePabc(zt.omschrijving)
-                } else {
-                    loggedInUserInstance.get().isAuthorisedForZaaktype(zt.omschrijving)
-                }
+            .filter {
+                policyService.readOverigeRechten(it.omschrijving).startenZaak &&
+                    policyService.isAuthorisedForZaaktype(it.omschrijving)
             }
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
             .filter {
                 // return zaaktypes for which a BPMN process definition key
                 // or a valid (CMMN) zaakafhandelparameters has been configured
-                (
-                    configuratieService.featureFlagBpmnSupport() &&
-                        bpmnService.findProcessDefinitionForZaaktype(it.url.extractUuid()) != null
-                    ) || healthCheckService.controleerZaaktype(it.url).isValide
+                it.hasBPMNProcessDefinition() || healthCheckService.controleerZaaktype(it.url).isValide
             }
             .map(restZaaktypeConverter::convert)
+
+    private fun ZaakType.hasBPMNProcessDefinition() =
+        configuratieService.featureFlagBpmnSupport() &&
+            bpmnService.findProcessDefinitionForZaaktype(this.url.extractUuid()) != null
 
     @PUT
     @Path("zaakdata")
@@ -577,6 +573,7 @@ class ZaakRestService @Inject constructor(
     fun assignZaakToLoggedInUserFromList(
         @Valid restZaakAssignmentToLoggedInUserData: RestZaakAssignmentToLoggedInUserData
     ): RestZaakOverzicht {
+        // Checking the user's authorization for the zaak's zaaktype could improve this in the future.
         assertPolicy(policyService.readWerklijstRechten().zakenTaken)
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
@@ -607,6 +604,8 @@ class ZaakRestService @Inject constructor(
     @PUT
     @Path("lijst/verdelen")
     fun assignFromList(@Valid restZakenVerdeelGegevens: RESTZakenVerdeelGegevens) {
+        // Only the 'zaken taken verdelen' permission is currently required to assign tasks from the list.
+        // Checking the user's authorization for each task's zaaktype could improve this in the future.
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation, so run it asynchronously
         CoroutineScope(dispatcher).launch {

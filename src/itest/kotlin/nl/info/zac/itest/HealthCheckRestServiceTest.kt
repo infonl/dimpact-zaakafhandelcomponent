@@ -13,9 +13,6 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_10_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2025_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2025_07_01
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
@@ -25,6 +22,9 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELI
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 
 class HealthCheckRestServiceTest : BehaviorSpec({
@@ -69,22 +69,22 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         "resultaattypeAanwezig": true,
                         "resultaattypesMetVerplichtBesluit": [],
                         "rolOverigeAanwezig": true,
-                        "statustypeAanvullendeInformatieVereist": false,
-                        "statustypeAfgerondAanwezig": false,
-                        "statustypeAfgerondLaatsteVolgnummer": false,
+                        "statustypeAanvullendeInformatieVereist": true,
+                        "statustypeAfgerondAanwezig": true,
+                        "statustypeAfgerondLaatsteVolgnummer": true,
                         "statustypeHeropendAanwezig": true,
                         "statustypeInBehandelingAanwezig": true,
-                        "statustypeIntakeAanwezig": false,
-                        "valide": false,
-                        "zaakafhandelParametersValide": false,
+                        "statustypeIntakeAanwezig": true,
+                        "valide": true,
+                        "zaakafhandelParametersValide": true,
                         "zaaktype": {
                           "beginGeldigheid": "$DATE_2025_07_01",
-                          "doel": "$ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_DESCRIPTION",
-                          "identificatie": "$ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_IDENTIFICATIE",
+                          "doel": "$ZAAKTYPE_TEST_1_DESCRIPTION",
+                          "identificatie": "$ZAAKTYPE_TEST_1_IDENTIFICATIE",
                           "nuGeldig": true,
-                          "omschrijving": "$ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_DESCRIPTION",
+                          "omschrijving": "$ZAAKTYPE_TEST_1_DESCRIPTION",
                           "servicenorm": false,
-                          "uuid": "$ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_UUID",
+                          "uuid": "$ZAAKTYPE_TEST_1_UUID",
                           "versiedatum": "$DATE_2025_07_01",
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }
