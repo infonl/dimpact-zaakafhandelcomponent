@@ -89,15 +89,4 @@ describe("InboxDocumentenListComponent tests", () => {
 
     expect(component.listParameters).toEqual(rememberedParams);
   });
-
-  /**
-   * TODO make this test work
-   * Due to the bad logic of the component it is hard to test the preservation of pagination
-   * after a page reload. The component heavily relies on the lifecycle hooks ngOnInit and
-   * ngAfterViewInit, which makes it hard to simulate a page reload in a test.
-   * The test below is an attempt to simulate a page reload by calling ngOnInit and
-   * ngAfterViewInit again, but it does not work as expected.
-   * The test is therefore skipped for now until the component is refactored.
-   */
-  //   it("should preserve pagination after simulated page reload", () => {
 });
