@@ -18,7 +18,7 @@ open class UserInput(
         rollen = when {
             featureFlagPabcIntegration ->
                 if (zaaktype != null) {
-                    loggedInUser.applicationRolesPerZaaktype[zaaktype]
+                    loggedInUser.applicationRolesPerZaaktype[zaaktype].orEmpty()
                 } else {
                     // No zaaktype is specified so this concerns a policy check that is zaaktype-independent.
                     // In that case the authorized application roles are those for which at least one zaaktype is authorized.
