@@ -397,7 +397,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Run integration tests without ZAC PABC integration feature flag enabled
+      - name: Run integration tests with ZAC PABC integration feature flag disabled
         run: |
           ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} \
             -PfeatureFlagPabcIntegration=false \
