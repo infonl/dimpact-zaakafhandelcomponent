@@ -19,7 +19,6 @@ describe("InboxDocumentenListComponent tests", () => {
   let fixture: ComponentFixture<InboxDocumentenListComponent>;
   let component: InboxDocumentenListComponent;
   let zacHttpClient: ZacHttpClient;
-  let putSpy: jest.SpyInstance;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -36,8 +35,6 @@ describe("InboxDocumentenListComponent tests", () => {
     fixture = TestBed.createComponent(InboxDocumentenListComponent);
     component = fixture.componentInstance;
     zacHttpClient = TestBed.inject(ZacHttpClient);
-
-    putSpy = jest.spyOn(zacHttpClient, "PUT");
 
     jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {});
     jest.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
