@@ -12,6 +12,7 @@ import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { ZacHttpClient } from "src/app/shared/http/zac-http-client";
+import { SessionStorageUtil } from "src/app/shared/storage/session-storage.util";
 import { InboxDocumentenListComponent } from "./inbox-documenten-list.component";
 
 describe("InboxDocumentenListComponent tests", () => {
@@ -50,20 +51,43 @@ describe("InboxDocumentenListComponent tests", () => {
     component.ngAfterViewInit();
   });
 
-  it("should call service with correct listParameters after manual update", () => {
+  it("should remember user data in SessionStorageUtil when updating list parameters", () => {
+    const setItemSpy = jest.spyOn(SessionStorageUtil, "setItem");
+
     component.sort.active = "titel";
     component.sort.direction = "asc";
     component.paginator.pageSize = 25;
 
-    component.sort.sortChange.emit({ active: "titel", direction: "asc" });
+    component.updateListParameters();
 
-    expect(putSpy).toHaveBeenCalledWith(
-      "/rest/inboxdocumenten",
-      expect.objectContaining({
-        order: "asc",
-        sort: "titel",
-      })
-    );
+    expect(setItemSpy).toHaveBeenCalledWith("INBOX_DOCUMENTEN_ZOEKPARAMETERS", {
+      maxResults: 25,
+      order: "asc",
+      page: undefined,
+      sort: "titel",
+    });
+  });
+
+  it("should use remembered user data when reloading (ngOnInit)", () => {
+    const rememberedParams = {
+      sort: "titel",
+      order: "asc",
+      maxResults: 25,
+      filtersType: "InboxDocumentListParameters",
+    };
+
+    jest
+      .spyOn(SessionStorageUtil, "getItem")
+      .mockImplementation((key: string) => {
+        if (key === "INBOX_DOCUMENTEN_ZOEKPARAMETERS") {
+          return rememberedParams;
+        }
+        return null;
+      });
+
+    component.ngOnInit();
+
+    expect(component.listParameters).toEqual(rememberedParams);
   });
 
   /**
