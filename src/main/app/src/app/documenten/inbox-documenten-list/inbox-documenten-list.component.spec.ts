@@ -11,14 +11,12 @@ import { MatSort } from "@angular/material/sort";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
-import { ZacHttpClient } from "src/app/shared/http/zac-http-client";
 import { SessionStorageUtil } from "src/app/shared/storage/session-storage.util";
 import { InboxDocumentenListComponent } from "./inbox-documenten-list.component";
 
 describe("InboxDocumentenListComponent tests", () => {
   let fixture: ComponentFixture<InboxDocumentenListComponent>;
   let component: InboxDocumentenListComponent;
-  let zacHttpClient: ZacHttpClient;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -34,7 +32,6 @@ describe("InboxDocumentenListComponent tests", () => {
 
     fixture = TestBed.createComponent(InboxDocumentenListComponent);
     component = fixture.componentInstance;
-    zacHttpClient = TestBed.inject(ZacHttpClient);
 
     jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {});
     jest.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
