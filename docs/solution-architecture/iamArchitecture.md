@@ -143,7 +143,7 @@ block-beta
         Users("Users")
         Groups("Groups")
         ApplicationRolesSource("Application roles*")
-        Polices("Authorisation policies ('permissions')")
+        Policies("Authorisation policies ('permissions')")
     end
     space
     block:PABC
