@@ -119,6 +119,58 @@ ZAC, nor Keycloak, have any knowledge of these `domains`.
 
 The functional roles and mappings from users (typically through groups) to functional roles are managed in Keycloak.
 
+### Main IAM components and used data types
+
+The relationship between the three main components in the IAM architecture (Keycloak, ZAC, PABC) as well as the main 
+data types used within each component is illustrated in the following diagram. 
+Note that this is a simplified overview.
+'*' indicates that the current component is the source of a data type. 
+
+```mermaid
+block-beta
+    columns 1
+    block:Keycloak
+        columns 2
+        keycloakBlockTitle("Keycloak"):2
+        UsersSource("Users*")
+        GroupsSource("Groups*")
+        FunctionalRolesSource("Functional roles*")
+    end
+    space
+    block:ZAC
+        columns 2
+        zacBlockTitle("ZAC"):2
+        Users("Users")
+        Groups("Groups")
+        ApplicationRolesSource("Application roles*")
+        Polices("Authorisation policies ('permissions')")
+    end
+    space
+    block:PABC
+        columns 2
+        pabcBlockTitle("PABC"):2
+        Domains("Domains*")
+        FunctionalRoles("Functional roles")
+        ApplicationRoles("Application roles")
+        EntityTypes("Entity types (zaaktypes)*")
+        AuthorizationMappings("Authorization mappings*")
+    end
+    
+    Keycloak --> ZAC
+    ZAC --> PABC
+    
+    %% workaround to make sure titles of sub-blocks are vertically aligned
+    %% see: https://github.com/mermaid-js/mermaid/issues/5423
+    class keycloakBlockTitle BT
+    class zacBlockTitle BT
+    class pabcBlockTitle BT
+    classDef BT stroke:transparent,fill:transparent
+
+    style Keycloak fill:darkgrey,stroke:#333,stroke-width:4px
+    style ZAC fill:red,stroke:#333,stroke-width:4px
+    style PABC fill:darkslateblue,stroke:#333,stroke-width:4px
+```
+
 ### Scenarios
 
 The following sequence diagram illustrates the scenario of a ZAC user logging in and retrieving the authorization mappings from the PABC:
