@@ -5,10 +5,12 @@
 
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
+import { lastValueFrom } from "rxjs";
 import {
   KVK_LENGTH,
   VESTIGINGSNUMMER_LENGTH,
 } from "src/app/shared/utils/constants";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { KlantenService } from "../klanten.service";
 
@@ -16,30 +18,48 @@ import { KlantenService } from "../klanten.service";
   providedIn: "root",
 })
 export class BedrijfResolverService {
-  constructor(private klantenService: KlantenService) {}
+  constructor(
+    private readonly klantenService: KlantenService,
+    private readonly foutafhandelingService: FoutAfhandelingService,
+  ) {}
 
-  resolve(route: ActivatedRouteSnapshot) {
+  async resolve(route: ActivatedRouteSnapshot) {
     const id = route.paramMap.get("id");
     const vestigingsnummer = route.paramMap.get("vestigingsnummer");
 
     if (!id) {
-      throw new Error(`${BedrijfResolverService.name}: no 'id' found in route`);
+      return Promise.reject(
+        new Error(`${BedrijfResolverService.name}: no 'id' found in route`),
+      );
     }
 
     const identificatieType = vestigingsnummer ? "VN" : this.getType(id);
-    return this.klantenService.readBedrijf(
-      new BetrokkeneIdentificatie({
+
+    try {
+      const betrokkeneIdentificatie = new BetrokkeneIdentificatie({
         identificatieType,
         vestigingsnummer: vestigingsnummer
           ? vestigingsnummer
           : identificatieType === "VN"
             ? id
             : null,
-        kvkNummer:
-          identificatieType === "RSIN" && id.length === KVK_LENGTH ? id : null,
+        kvkNummer: id.length === KVK_LENGTH ? id : null,
         rsin:
           identificatieType === "RSIN" && id.length !== KVK_LENGTH ? id : null,
-      }),
+      });
+
+      return lastValueFrom(
+        this.klantenService.readBedrijf(betrokkeneIdentificatie),
+      );
+    } catch (error) {
+      this.handleBetrokkeneError(error);
+    }
+  }
+
+  private handleBetrokkeneError(error: unknown) {
+    console.warn(error);
+    this.foutafhandelingService.openFoutDialog(
+      "msg.error.search.bedrijf.not-found",
     );
   }
 
