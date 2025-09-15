@@ -103,9 +103,10 @@ class ProductaanvraagService @Inject constructor(
     }
 
     fun handleProductaanvraag(productaanvraagObjectUUID: UUID) {
+        LOG.info { "Handling productaanvraag with object UUID: $productaanvraagObjectUUID" }
         productaanvraagObjectUUID
             .runCatching(objectsClientService::readObject)
-            .onFailure { LOG.fine("Unable to read object with UUID: $productaanvraagObjectUUID") }
+            .onFailure { LOG.warning("Unable to read object with UUID: $productaanvraagObjectUUID") }
             .onSuccess { modelObject ->
                 modelObject
                     .takeIf(::isProductaanvraagDimpact)
