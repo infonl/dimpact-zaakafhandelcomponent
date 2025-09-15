@@ -7,6 +7,7 @@ package net.atos.zac.admin.model;
 
 import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
 
+import java.util.Objects;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -71,5 +72,19 @@ public class ZaakbeeindigParameter {
 
     public void setResultaattype(final UUID resultaattypeUUID) {
         this.resultaattype = resultaattypeUUID;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ZaakbeeindigParameter that))
+            return false;
+        return Objects.equals(zaakafhandelParameters.getId(), that.zaakafhandelParameters.getId()) &&
+               Objects.equals(zaakbeeindigReden.getId(), that.zaakbeeindigReden.getId()) &&
+               Objects.equals(resultaattype, that.resultaattype);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(zaakafhandelParameters.getId(), zaakbeeindigReden.getId(), resultaattype);
     }
 }

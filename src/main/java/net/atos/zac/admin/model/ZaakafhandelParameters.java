@@ -244,13 +244,14 @@ public class ZaakafhandelParameters {
         return zaakbeeindigParameters != null ? zaakbeeindigParameters : Collections.emptySet();
     }
 
-    public void setZaakbeeindigParameters(final Collection<ZaakbeeindigParameter> zaakbeeindigParameters) {
+    public void setZaakbeeindigParameters(final Collection<ZaakbeeindigParameter> desiredZaakbeeindigParameters) {
         if (this.zaakbeeindigParameters == null) {
             this.zaakbeeindigParameters = new HashSet<>();
-        } else {
-            this.zaakbeeindigParameters.clear();
         }
-        zaakbeeindigParameters.forEach(this::addZaakbeeindigParameter);
+        desiredZaakbeeindigParameters.forEach(this::addZaakbeeindigParameter);
+        this.zaakbeeindigParameters.removeIf(
+                zaakbeeindigParameter -> !desiredZaakbeeindigParameters.contains(zaakbeeindigParameter)
+        );
     }
 
     public Set<UserEventListenerParameters> getUserEventListenerParametersCollection() {
@@ -258,14 +259,15 @@ public class ZaakafhandelParameters {
     }
 
     public void setUserEventListenerParametersCollection(
-            final Collection<UserEventListenerParameters> userEventListenerParametersCollection
+            final Collection<UserEventListenerParameters> desiredUserEventListenerParametersCollection
     ) {
         if (this.userEventListenerParametersCollection == null) {
             this.userEventListenerParametersCollection = new HashSet<>();
-        } else {
-            this.userEventListenerParametersCollection.clear();
         }
         userEventListenerParametersCollection.forEach(this::addUserEventListenerParameters);
+        this.userEventListenerParametersCollection.removeIf(
+                userEventListenerParam -> !desiredUserEventListenerParametersCollection.contains(userEventListenerParam)
+        );
     }
 
     public Set<ZaakAfzender> getZaakAfzenders() {

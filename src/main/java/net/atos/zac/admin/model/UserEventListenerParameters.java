@@ -6,6 +6,8 @@ package net.atos.zac.admin.model;
 
 import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
 
+import java.util.Objects;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -68,5 +70,19 @@ public class UserEventListenerParameters {
 
     public void setToelichting(final String toelichting) {
         this.toelichting = toelichting;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof UserEventListenerParameters that))
+            return false;
+        return Objects.equals(planItemDefinitionID, that.planItemDefinitionID) &&
+               Objects.equals(zaakafhandelParameters.getId(), that.zaakafhandelParameters.getId()) &&
+               Objects.equals(toelichting, that.toelichting);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(planItemDefinitionID, zaakafhandelParameters.getId(), toelichting);
     }
 }

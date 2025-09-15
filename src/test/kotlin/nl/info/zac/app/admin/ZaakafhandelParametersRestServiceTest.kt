@@ -8,11 +8,11 @@ package nl.info.zac.app.admin
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import io.mockk.verify
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
@@ -63,159 +63,151 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given(
-        """
-            Zaakafhandelparameters with an ID (indicating existing zaakafhandelparameters) 
-            and without a productaanvraagtype
-            """
-    ) {
-        val initialDomein = "initialDomein"
-        val updatedDomein = "updatedDomein"
-        val restZaakafhandelParameters = createRestZaakAfhandelParameters(domein = initialDomein)
-        val updatedRestZaakafhandelParameters = createRestZaakAfhandelParameters(domein = updatedDomein)
-        val zaakafhandelParameters = createZaakafhandelParameters(
-            id = 1234L,
-            domein = initialDomein
-        )
-        val updatedZaakafhandelParameters = createZaakafhandelParameters(
-            id = 1234L,
-            domein = updatedDomein
-        )
-        every { policyService.readOverigeRechten().beheren } returns true
-        every {
-            zaakafhandelParametersConverter.toZaakafhandelParameters(restZaakafhandelParameters)
-        } returns zaakafhandelParameters
-        every { zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters) } returns
-            updatedZaakafhandelParameters
-        every {
-            zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
-        } just Runs
-        every { zaakafhandelParameterService.clearListCache() } returns "cache cleared"
-        every {
-            zaakafhandelParametersConverter.toRestZaakafhandelParameters(updatedZaakafhandelParameters, true)
-        } returns updatedRestZaakafhandelParameters
+    Context(" Zaakafhandelparameters with an ID (indicating existing zaakafhandelparameters)") {
+        Given("no productaanvraagtype") {
+            val initialDomein = "initialDomein"
+            val updatedDomein = "updatedDomein"
+            val restZaakafhandelParameters = createRestZaakAfhandelParameters(domein = initialDomein)
+            val updatedRestZaakafhandelParameters = createRestZaakAfhandelParameters(domein = updatedDomein)
+            val zaakafhandelParameters = createZaakafhandelParameters(
+                id = 1234L,
+                domein = initialDomein
+            )
+            val updatedZaakafhandelParameters = createZaakafhandelParameters(
+                id = 1234L,
+                domein = updatedDomein
+            )
+            every { policyService.readOverigeRechten().beheren } returns true
+            every {
+                zaakafhandelParametersConverter.toZaakafhandelParameters(restZaakafhandelParameters)
+            } returns zaakafhandelParameters
+            every { zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters) } returns
+                updatedZaakafhandelParameters
+            every {
+                zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
+            } just runs
+            every { zaakafhandelParameterService.clearListCache() } returns "cache cleared"
+            every {
+                zaakafhandelParametersConverter.toRestZaakafhandelParameters(updatedZaakafhandelParameters, true)
+            } returns updatedRestZaakafhandelParameters
 
-        When("the zaakafhandelparameters are updated with a different domein") {
-            val returnedRestZaakafhandelParameters =
-                zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
-                    restZaakafhandelParameters
-                )
+            When("the zaakafhandelparameters are updated with a different domein") {
+                val returnedRestZaakafhandelParameters =
+                    zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
+                        restZaakafhandelParameters
+                    )
 
-            Then(
-                """
+                Then(
+                    """
                 the zaakafhandelparameters should be updated and both the zaakafhandelparameters read cache as well as the 
                 zaakafhandelparameters list cache should be updated
                 """
-            ) {
-                returnedRestZaakafhandelParameters shouldBe updatedRestZaakafhandelParameters
-                verify(exactly = 1) {
-                    zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
-                    zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
-                    zaakafhandelParameterService.clearListCache()
+                ) {
+                    returnedRestZaakafhandelParameters shouldBe updatedRestZaakafhandelParameters
+                    verify(exactly = 1) {
+                        zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
+                        zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(
+                            zaakafhandelParameters.zaakTypeUUID
+                        )
+                        zaakafhandelParameterService.clearListCache()
+                    }
                 }
             }
         }
     }
-    Given(
-        """
-            Zaakafhandelparameters without an ID (indicating new zaakafhandelparameters) 
-            and with a productaanvraagtype that is not already in use by another zaaktype
-            """
-    ) {
-        val productaanvraagtype = "fakeProductaanvraagtype"
-        val restZaakafhandelParameters = createRestZaakAfhandelParameters(
-            id = null,
-            productaanvraagtype = productaanvraagtype
-        )
-        val zaakafhandelParameters = createZaakafhandelParameters(
-            id = null
-        )
-        val createdZaakafhandelParameters = createZaakafhandelParameters(
-            id = 1234L
-        )
-        val updatedRestZaakafhandelParameters = createRestZaakAfhandelParameters(
-            id = 1234L,
-            productaanvraagtype = productaanvraagtype
-        )
-        every { policyService.readOverigeRechten().beheren } returns true
-        every {
-            zaakafhandelParametersConverter.toZaakafhandelParameters(restZaakafhandelParameters)
-        } returns zaakafhandelParameters
-        every {
-            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
-                productaanvraagtype
+
+    Context("Zaakafhandelparameters without an ID (indicating new zaakafhandelparameters)") {
+        Given("productaanvraagtype that is not already in use by another zaaktype") {
+            val productaanvraagtype = "fakeProductaanvraagtype"
+            val restZaakafhandelParameters = createRestZaakAfhandelParameters(
+                id = null,
+                productaanvraagtype = productaanvraagtype
             )
-        } returns
-            emptyList()
-        every {
-            zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
-        } returns createdZaakafhandelParameters
-        every {
-            zaakafhandelParametersConverter.toRestZaakafhandelParameters(createdZaakafhandelParameters, true)
-        } returns updatedRestZaakafhandelParameters
-
-        When("the zaakafhandelparameters are created") {
-            val returnedRestZaakafhandelParameters =
-                zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
-                    restZaakafhandelParameters
+            val zaakafhandelParameters = createZaakafhandelParameters(
+                id = null
+            )
+            val createdZaakafhandelParameters = createZaakafhandelParameters(
+                id = 1234L
+            )
+            val updatedRestZaakafhandelParameters = createRestZaakAfhandelParameters(
+                id = 1234L,
+                productaanvraagtype = productaanvraagtype
+            )
+            every { policyService.readOverigeRechten().beheren } returns true
+            every {
+                zaakafhandelParametersConverter.toZaakafhandelParameters(restZaakafhandelParameters)
+            } returns zaakafhandelParameters
+            every {
+                zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                    productaanvraagtype
                 )
+            } returns
+                emptyList()
+            every {
+                zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
+            } returns createdZaakafhandelParameters
+            every {
+                zaakafhandelParametersConverter.toRestZaakafhandelParameters(createdZaakafhandelParameters, true)
+            } returns updatedRestZaakafhandelParameters
 
-            Then(
-                """
+            When("the zaakafhandelparameters are created") {
+                val returnedRestZaakafhandelParameters =
+                    zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
+                        restZaakafhandelParameters
+                    )
+
+                Then(
+                    """
                 the zaakafhandelparameters should be created
                 """
-            ) {
-                returnedRestZaakafhandelParameters shouldBe updatedRestZaakafhandelParameters
-                verify(exactly = 1) {
-                    zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
+                ) {
+                    returnedRestZaakafhandelParameters shouldBe updatedRestZaakafhandelParameters
+                    verify(exactly = 1) {
+                        zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
+                    }
                 }
             }
         }
-    }
-    Given(
-        """
-            Zaakafhandelparameters without an ID (indicating new zaakafhandelparameters) 
-            and with a productaanvraagtype that is already in use by another zaaktype
-            """
-    ) {
-        val productaanvraagtype = "fakeProductaanvraagtype"
-        val restZaakafhandelParameters = createRestZaakAfhandelParameters(
-            id = null,
-            productaanvraagtype = productaanvraagtype,
-            restZaaktypeOverzicht = createRestZaaktypeOverzicht(omschrijving = "fakeZaaktypeOmschrijving2")
-        )
-        val zaakafhandelParameters = createZaakafhandelParameters(
-            id = null
-        )
-        val activeZaakafhandelParametersForThisProductaanvraagtype = createZaakafhandelParameters(
-            id = 1234L,
-            productaanvraagtype = productaanvraagtype,
-            zaaktypeOmschrijving = "fakeZaaktypeOmschrijving1"
-        )
-        every { policyService.readOverigeRechten().beheren } returns true
-        every {
-            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
-                productaanvraagtype
+        Given("productaanvraagtype that is already in use by another zaaktype") {
+            val productaanvraagtype = "fakeProductaanvraagtype"
+            val restZaakafhandelParameters = createRestZaakAfhandelParameters(
+                id = null,
+                productaanvraagtype = productaanvraagtype,
+                restZaaktypeOverzicht = createRestZaaktypeOverzicht(omschrijving = "fakeZaaktypeOmschrijving2")
             )
-        } returns
-            listOf(activeZaakafhandelParametersForThisProductaanvraagtype)
-
-        When("the zaakafhandelparameters are created") {
-            val exception = shouldThrow<InputValidationFailedException> {
-                zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
-                    restZaakafhandelParameters
+            val zaakafhandelParameters = createZaakafhandelParameters(
+                id = null
+            )
+            val activeZaakafhandelParametersForThisProductaanvraagtype = createZaakafhandelParameters(
+                id = 1234L,
+                productaanvraagtype = productaanvraagtype,
+                zaaktypeOmschrijving = "fakeZaaktypeOmschrijving1"
+            )
+            every { policyService.readOverigeRechten().beheren } returns true
+            every {
+                zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                    productaanvraagtype
                 )
-            }
+            } returns
+                listOf(activeZaakafhandelParametersForThisProductaanvraagtype)
 
-            Then(
-                """
+            When("the zaakafhandelparameters are created") {
+                val exception = shouldThrow<InputValidationFailedException> {
+                    zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
+                        restZaakafhandelParameters
+                    )
+                }
+
+                Then(
+                    """
                 an exception should be thrown indicating that the provided productaanvraagtype is already in use
                 """
-            ) {
-                exception.errorCode shouldBe ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
-                exception.message shouldBe null
-                verify(exactly = 0) {
-                    zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
+                ) {
+                    exception.errorCode shouldBe ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
+                    exception.message shouldBe null
+                    verify(exactly = 0) {
+                        zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
+                    }
                 }
             }
         }
