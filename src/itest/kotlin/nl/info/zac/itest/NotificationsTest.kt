@@ -15,6 +15,7 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration
+import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_KVK
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_GEMEENTE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
@@ -36,6 +37,9 @@ import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAAK_ROLLEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_EMAIL_ADDRESS
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_KVK_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_2
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_INITIALIZATION
@@ -66,9 +70,9 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.testcontainers.containers.wait.strategy.Wait
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
+import java.net.HttpURLConnection.HTTP_NOT_FOUND
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
-import java.net.HttpURLConnection.HTTP_NOT_FOUND
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -372,8 +376,8 @@ class NotificationsTest : BehaviorSpec({
                         getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
                             "met kenmerk '$OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_2_BRON_KENMERK'."
                         with(getJSONObject("initiatorIdentificatie")) {
-                            getString("kvkNummer") shouldBe "12345678"
-                            getString("type") shouldBe "KVK"
+                            getString("kvkNummer") shouldBe TEST_KVK_KVK_1
+                            getString("type") shouldBe BETROKKENE_IDENTIFACTION_TYPE_KVK
                         }
                         zaakProductaanvraag2Uuid = getString("uuid").let(UUID::fromString)
                     }
@@ -458,9 +462,9 @@ class NotificationsTest : BehaviorSpec({
                         getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
                             "met kenmerk '$OBJECT_PRODUCTAANVRAAG_COMBO_BRON_KENMERK'."
                         with(getJSONObject("initiatorIdentificatie")) {
-                            getString("kvkNummer") shouldBe "87654321"
-                            getString("vestigingsnummer") shouldBe "000012345678"
-                            getString("type") shouldBe "KVK"
+                            getString("kvkNummer") shouldBe TEST_KVK_NUMMER_2
+                            getString("vestigingsnummer") shouldBe TEST_KVK_VESTIGINGSNUMMER_1
+                            getString("type") shouldBe BETROKKENE_IDENTIFACTION_TYPE_KVK
                         }
                         zaakProductaanvraagComboUuid = getString("uuid").let(UUID::fromString)
                     }

@@ -13,7 +13,7 @@ fun <T> Betrokkene.performAction(
     onNoIdentity: () -> T
 ) =
     when {
-        kvkNummer != null -> onKvkIdentity(kvkNummer, vestigingsNummer)
         inpBsn != null -> onNatuurlijkPersoonIdentity(inpBsn)
+        kvkNummer != null -> onKvkIdentity(kvkNummer, vestigingsNummer)
         else -> onNoIdentity()
     }

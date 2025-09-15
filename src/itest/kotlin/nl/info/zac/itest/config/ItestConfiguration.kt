@@ -42,6 +42,7 @@ object ItestConfiguration {
     const val BETROKKENE_TYPE_NATUURLIJK_PERSOON = "NATUURLIJK_PERSOON"
     const val BETROKKENE_IDENTIFICATION_TYPE_BSN = "BSN"
     const val BETROKKENE_IDENTIFACTION_TYPE_VESTIGING = "VN"
+    const val BETROKKENE_IDENTIFACTION_TYPE_KVK = "RSIN"
     const val BETROKKENE_ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
     const val BRON_ORGANISATIE = "123443210"
     const val CONFIG_MAX_FILE_SIZE_IN_MB = 80L
@@ -274,8 +275,10 @@ object ItestConfiguration {
     const val TEST_KVK_EERSTE_HANDELSNAAM_1 = "fakeEersteHandelsnaam1"
     const val TEST_KVK_NAAM_1 = "fakeNaam1"
     const val TEST_KVK_NUMMER_1 = "12345678"
+    const val TEST_KVK_NUMMER_2 = "87654321"
     const val TEST_KVK_PLAATS_1 = "fakePlaats1"
     const val TEST_KVK_RSIN_1 = "123456789"
+    const val TEST_KVK_KVK_1 = "12345678"
     const val TEST_KVK_VESTIGINGSNUMMER_1 = "000012345678"
     const val TEST_KVK_VESTIGINGSTYPE_HOOFDVESTIGING = "HOOFDVESTIGING"
     const val TEST_KVK_TYPE_RECHTSPERSOON = "RECHTSPERSOON"
