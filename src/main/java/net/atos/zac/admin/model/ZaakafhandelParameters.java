@@ -264,7 +264,7 @@ public class ZaakafhandelParameters {
         if (this.userEventListenerParametersCollection == null) {
             this.userEventListenerParametersCollection = new HashSet<>();
         }
-        userEventListenerParametersCollection.forEach(this::addUserEventListenerParameters);
+        desiredUserEventListenerParametersCollection.forEach(this::addUserEventListenerParameters);
         this.userEventListenerParametersCollection.removeIf(
                 userEventListenerParam -> !desiredUserEventListenerParametersCollection.contains(userEventListenerParam)
         );
