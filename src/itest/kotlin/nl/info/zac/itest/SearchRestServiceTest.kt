@@ -127,7 +127,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                                 },
                                 {
-                                    "aantal": 14,
+                                    "aantal": 15,
                                     "naam": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                                 },
                                 {
@@ -333,7 +333,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "totaal" : 4,
                       "filters" : {
                         "ZAAKTYPE" : [ {
-                          "aantal" : 4,
+                          "aantal" : 5,
                           "naam" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                         }, {
                           "aantal" : 4,
