@@ -27,11 +27,11 @@ export class BetrokkeneIdentificatie
     this.type = this.getType(betrokkene);
     switch (this.type) {
       case "BSN":
-        if ("bsn" in betrokkene) {
+        if ("bsn" in betrokkene && betrokkene.bsn !== null) {
           this.bsnNummer = betrokkene.bsn;
           break;
         }
-        if ("bsnNummer" in betrokkene) {
+        if ("bsnNummer" in betrokkene && betrokkene.bsnNummer !== null) {
           this.bsnNummer = betrokkene.bsnNummer;
           break;
         }
@@ -40,7 +40,11 @@ export class BetrokkeneIdentificatie
         );
         break;
       case "VN":
-        if ("kvkNummer" in betrokkene || "vestigingsnummer" in betrokkene) {
+        if (
+          "kvkNummer" in betrokkene &&
+          betrokkene.kvkNummer !== null &&
+          "vestigingsnummer" in betrokkene
+        ) {
           this.kvkNummer = betrokkene.kvkNummer;
           this.vestigingsnummer = betrokkene.vestigingsnummer;
           break;
@@ -49,7 +53,10 @@ export class BetrokkeneIdentificatie
           `${BetrokkeneIdentificatie.name}: Tried to add a ${this.type} betrokkene without a kvkNummer or vestigingsnummer`,
         );
       case "RSIN":
-        if ("kvkNummer" in betrokkene || "rsin" in betrokkene) {
+        if (
+          ("kvkNummer" in betrokkene && betrokkene.kvkNummer !== null) ||
+          ("rsin" in betrokkene && betrokkene.rsin !== null)
+        ) {
           this.kvkNummer = betrokkene.kvkNummer; // A `rechtspersoon` has the type RSIN
           this.rsin = betrokkene.rsin; // For backwards compatibility
           break;
