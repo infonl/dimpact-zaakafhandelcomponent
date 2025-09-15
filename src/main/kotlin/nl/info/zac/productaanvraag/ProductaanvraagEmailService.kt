@@ -64,12 +64,17 @@ class ProductaanvraagEmailService @Inject constructor(
     private fun extractBetrokkeneEmail(betrokkene: Betrokkene) =
         betrokkene.performAction(
             onNatuurlijkPersoonIdentity = ::fetchEmail,
-            onKvkIdentity = { kvkNummer, vestigingsNummer -> fetchEmail(kvkNummer) },
+            onKvkIdentity = ::fetchEmail,
             onNoIdentity = { null }
         )
 
     private fun fetchEmail(identity: String): String? =
         klantClientService.findDigitalAddressesByNumber(identity)
+            .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
+            ?.adres
+
+    private fun fetchEmail(kvkNummer: String, vestigingsNummer: String?): String? =
+        klantClientService.findDigitalAddressesByNumber(vestigingsNummer?: kvkNummer)
             .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
             ?.adres
 
