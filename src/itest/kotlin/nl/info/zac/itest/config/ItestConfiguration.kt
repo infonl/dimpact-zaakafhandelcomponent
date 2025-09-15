@@ -159,6 +159,7 @@ object ItestConfiguration {
     const val TEST_TXT_CONVERTED_TO_PDF_FILE_NAME = "tëstTextDocument.pdf"
     const val TEST_TXT_FILE_SIZE = 62
     const val TEST_VESTIGING_EMAIL = "fake.vestiging@example.com"
+    const val TEST_KVK_EMAIL = "fake.kvk@example.com"
     const val TEST_VESTIGING_TELEPHONE_NUMBER = "0201234567"
     const val TEST_WORD_FILE_NAME = "fakeWordDocument.docx"
     const val TEST_USER_1_USERNAME = "testuser1"
