@@ -1059,7 +1059,7 @@
       "data": {
         "bron": {
           "naam": "open-forms",
-          "kenmerk": "kvk-vestiging-combo-12345678-000012345678"
+          "kenmerk": "kvk-vestiging-combo-12345678-000012345679"
         },
         "type": "productaanvraag-type-1",
         "aanvraaggegevens": {
@@ -1075,7 +1075,7 @@
         "betrokkenen": [
           {
             "kvkNummer": "12345678",
-            "vestigingsNummer": "000012345678",
+            "vestigingsNummer": "000012345679",
             "rolOmschrijvingGeneriek": "initiator"
           },
           {

@@ -41,6 +41,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_EMAIL_ADDRESS
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_2
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_INITIALIZATION
@@ -463,7 +464,7 @@ class NotificationsTest : BehaviorSpec({
                             "met kenmerk '$OBJECT_PRODUCTAANVRAAG_COMBO_BRON_KENMERK'."
                         with(getJSONObject("initiatorIdentificatie")) {
                             getString("kvkNummer") shouldBe TEST_KVK_NUMMER_1
-                            getString("vestigingsnummer") shouldBe TEST_KVK_VESTIGINGSNUMMER_1
+                            getString("vestigingsnummer") shouldBe TEST_KVK_VESTIGINGSNUMMER_2
                             getString("type") shouldBe BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
                         }
                         zaakProductaanvraagComboUuid = getString("uuid").let(UUID::fromString)
