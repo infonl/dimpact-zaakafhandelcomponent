@@ -53,7 +53,7 @@
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </userTask>
-    <serviceTask id="ServiceTask_360" name="Suspend" flowable:class="net.atos.zac.flowable.delegate.SuspendZaakDelegate">
+    <serviceTask id="ServiceTask_360" name="Create GPP publication and suspend" flowable:class="net.atos.zac.flowable.delegate.CreateGppPublicationDelegate">
       <extensionElements>
         <flowable:field name="aantalDagen">
           <flowable:expression><![CDATA[10]]></flowable:expression>
