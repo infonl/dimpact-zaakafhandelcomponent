@@ -104,7 +104,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 // we only test on the total number of results and the filters, not on the actual results, to keep the test maintainable
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
-                        "foutmelding": "",                      
+                        "foutmelding": "",
                         "totaal": ${TOTAL_COUNT_INDEXED_ZAKEN + TOTAL_COUNT_INDEXED_TASKS + TOTAL_COUNT_INDEXED_DOCUMENTS},
                         "filters": {
                             "TYPE": [
@@ -127,7 +127,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                                 },
                                 {
-                                    "aantal": 15,
+                                    "aantal": 17,
                                     "naam": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                                 },
                                 {
@@ -143,7 +143,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "GROEP": [
                                 {
-                                    "aantal": 13,
+                                    "aantal": 14,
                                     "naam": "$TEST_GROUP_A_DESCRIPTION"
                                 },
                                 {
@@ -153,7 +153,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "TOEGEKEND": [
                                 {
-                                    "aantal": 15,
+                                    "aantal": 16,
                                     "naam": "false"
                                 },
                                 {
@@ -717,24 +717,24 @@ class SearchRestServiceTest : BehaviorSpec({
                 JSONObject(responseBody).getJSONObject("filters").toString() shouldEqualJsonIgnoringOrderAndExtraneousFields """                   
                       {
                         "ZAAKTYPE" : [ {
-                          "aantal" : 9,
+                          "aantal" : 11,
                           "naam" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                         }, {
                           "aantal": 2,
                           "naam": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
                         } ],
                         "DOCUMENT_STATUS" : [ {
-                          "aantal" : 7,
+                          "aantal" : 9,
                           "naam" : "$DOCUMENT_STATUS_DEFINITIEF"
                         }, {
                           "aantal" : 4,
                           "naam" : "$DOCUMENT_STATUS_IN_BEWERKING"
                         } ],
                         "DOCUMENT_TYPE" : [ {
-                          "aantal" : 7,
+                          "aantal" : 8,
                           "naam" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING"
                         }, {
-                          "aantal" : 3,
+                          "aantal" : 4,
                           "naam" : "$INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING"
                         }, {
                           "aantal" : 1,
@@ -748,10 +748,10 @@ class SearchRestServiceTest : BehaviorSpec({
                           "aantal" : $TOTAL_COUNT_INDEXED_DOCUMENTS,
                           "naam" : "ONDERTEKEND"
                         }, {
-                          "aantal" : 10,
+                          "aantal" : 11,
                           "naam" : "GEBRUIKSRECHT"
                         }, {
-                          "aantal" : 3,
+                          "aantal" : 4,
                           "naam" : "VERZONDEN"
                         } ]
                       }                                                                  
@@ -824,8 +824,10 @@ class SearchRestServiceTest : BehaviorSpec({
                         "zaaktypeIdentificatie" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE",
                         "zaaktypeOmschrijving" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
                         "zaaktypeUuid" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
+                      }, {
+                        "type" : "DOCUMENT"
                       } ],
-                      "totaal" : 1.0,
+                      "totaal" : 2.0,
                       "filters" : {
                         "ZAAKTYPE" : [ {
                           "aantal" : 1,
