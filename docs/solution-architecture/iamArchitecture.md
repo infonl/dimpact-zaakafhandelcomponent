@@ -121,43 +121,46 @@ The functional roles and mappings from users (typically through groups) to funct
 
 ### Main IAM components and used data types
 
-The relationship between the three main components in the IAM architecture (Keycloak, ZAC, PABC) as well as the main 
+The relationship between the three main components in the new IAM architecture (Keycloak, PABC, ZAC) as well as the main 
 data types used within each component is illustrated in the following diagram. 
 Note that this is a simplified overview.
-'*' indicates that the current component is the source of a data type. 
+
+- A '*' indicates that the current component is the source of a data type.
+- The arrows indicate the flow of data between the components, not dependencies.
 
 ```mermaid
 block-beta
     columns 1
-    block:Keycloak
-        columns 2
-        keycloakBlockTitle("Keycloak"):2
-        UsersSource("Users*")
-        GroupsSource("Groups*")
-        FunctionalRolesSource("Functional roles*")
+    block:IAM
+        block:Keycloak
+            columns 1
+            keycloakBlockTitle("Keycloak"):1
+            UsersSource("Users*")
+            GroupsSource("Groups*")
+            FunctionalRolesSource("Functional roles*")
+        end
+        space
+        block:PABC
+            columns 1
+            pabcBlockTitle("PABC"):1
+            Domains("Domains*")
+            FunctionalRoles("Functional roles")
+            ApplicationRoles("Application roles")
+            EntityTypes("Entity types (zaaktypes)*")
+        end
     end
     space
     block:ZAC
-        columns 2
-        zacBlockTitle("ZAC"):2
+        columns 1
+        zacBlockTitle("ZAC"):1
         Users("Users")
         Groups("Groups")
         ApplicationRolesSource("Application roles*")
         Policies("Authorisation policies ('permissions')")
     end
-    space
-    block:PABC
-        columns 2
-        pabcBlockTitle("PABC"):2
-        Domains("Domains*")
-        FunctionalRoles("Functional roles")
-        ApplicationRoles("Application roles")
-        EntityTypes("Entity types (zaaktypes)*")
-        AuthorizationMappings("Authorization mappings*")
-    end
     
     Keycloak --> ZAC
-    ZAC --> PABC
+    PABC --> ZAC
     
     %% workaround to make sure titles of sub-blocks are vertically aligned
     %% see: https://github.com/mermaid-js/mermaid/issues/5423
