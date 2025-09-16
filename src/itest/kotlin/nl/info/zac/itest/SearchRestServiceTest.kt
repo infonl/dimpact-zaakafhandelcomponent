@@ -167,7 +167,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "Wacht op aanvullende informatie"
                                 },
                                 {
-                                    "aantal": 5,
+                                    "aantal": 6,
                                     "naam": "Intake"
                                 },
                                 {
@@ -205,13 +205,13 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "$COMMUNICATIEKANAAL_TEST_2"
                                 },
                                 {
-                                    "aantal": 3,
+                                    "aantal": 4,
                                     "naam": "E-formulier"
                                 }                               
                             ],
                             "ZAAK_VERTROUWELIJKHEIDAANDUIDING": [
                                 {
-                                    "aantal": 12,
+                                    "aantal": 13,
                                     "naam": "OPENBAAR"
                                 }
                             ],
@@ -243,7 +243,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "DOCUMENT_STATUS": [
                                 {
-                                    "aantal": 7,
+                                    "aantal": 9,
                                     "naam": "definitief"
                                 },
                                 {
@@ -253,11 +253,11 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "DOCUMENT_TYPE": [
                                 {
-                                    "aantal": 7,
+                                    "aantal": 8,
                                     "naam": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING"
                                 },
                                 {
-                                    "aantal": 3,
+                                    "aantal": 4,
                                     "naam": "$INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING"
                                 },
                                 {
@@ -268,15 +268,15 @@ class SearchRestServiceTest : BehaviorSpec({
                             "DOCUMENT_VERGRENDELD_DOOR": [],
                             "DOCUMENT_INDICATIES": [
                                 {
-                                    "aantal": 10,
+                                    "aantal": 11,
                                     "naam": "GEBRUIKSRECHT"
                                 },
                                 {
-                                    "aantal": 11,
+                                    "aantal": 13,
                                     "naam": "ONDERTEKEND"
                                 },
                                 {
-                                    "aantal": 3,
+                                    "aantal": 4,
                                     "naam": "VERZONDEN"
                                 }
                             ]
@@ -633,7 +633,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                                 },
                                 {
-                                    "aantal": 1,
+                                    "aantal": 2,
                                     "naam": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                                 }
                             ],
