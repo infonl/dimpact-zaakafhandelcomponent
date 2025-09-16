@@ -11,11 +11,11 @@ import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_HOSTNAME_URL
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_REALM
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
+import okhttp3.Credentials
 import okhttp3.FormBody
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.Credentials
 import org.json.JSONObject
 
 lateinit var refreshToken: String
