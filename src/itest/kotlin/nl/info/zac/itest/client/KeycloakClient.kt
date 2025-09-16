@@ -15,6 +15,7 @@ import okhttp3.FormBody
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Credentials
 import org.json.JSONObject
 
 lateinit var refreshToken: String
@@ -30,14 +31,13 @@ fun authenticate(
 ) = okHttpClient.newCall(
     Request.Builder()
         .headers(Headers.headersOf("Content-Type", "application/x-www-form-urlencoded"))
+        .header("Authorization", Credentials.basic(KEYCLOAK_CLIENT, KEYCLOAK_CLIENT_SECRET))
         .url("$KEYCLOAK_HOSTNAME_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/token")
         .post(
             FormBody.Builder()
-                .add("client_id", KEYCLOAK_CLIENT)
                 .add("grant_type", "password")
                 .add("username", username)
                 .add("password", password)
-                .add("client_secret", KEYCLOAK_CLIENT_SECRET)
                 .build()
         )
         .build()
@@ -49,20 +49,17 @@ fun authenticate(
 /**
  * Always request a new access token using the current refresh token to make sure we remain
  * authenticated and our access token does not expire.
- * Note that this assumes that subsequent calls to this method are done quickly enough so that the
- * refresh token does not expire in the meantime.
  */
 fun refreshAccessToken(): String {
     okHttpClient.newCall(
         Request.Builder()
             .headers(Headers.headersOf("Content-Type", "application/x-www-form-urlencoded"))
+            .header("Authorization", Credentials.basic(KEYCLOAK_CLIENT, KEYCLOAK_CLIENT_SECRET))
             .url("$KEYCLOAK_HOSTNAME_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/token")
             .post(
                 FormBody.Builder()
-                    .add("client_id", KEYCLOAK_CLIENT)
-                    .add("grant_type", REFRESH_TOKEN_ATTRIBUTE)
-                    .add(REFRESH_TOKEN_ATTRIBUTE, refreshToken)
-                    .add("client_secret", KEYCLOAK_CLIENT_SECRET)
+                    .add("grant_type", "refresh_token")
+                    .add("refresh_token", refreshToken)
                     .build()
             )
             .build()
