@@ -1,0 +1,146 @@
+[
+{
+    "model": "authorizations.applicatie",
+    "pk": 1,
+    "fields": {
+        "uuid": "4dd384d6-a941-4523-9b68-49746921e78d",
+        "client_ids": "[\"woo-publications-dev\"]",
+        "label": "WOO Publicatiebank",
+        "heeft_alle_autorisaties": true
+    }
+},
+{
+    "model": "vng_api_common.jwtsecret",
+    "pk": 1,
+    "fields": {
+        "identifier": "woo-publications-dev",
+        "secret": "insecure-yQL9Rzh4eHGVmYx5w3J2gu"
+    }
+},
+{
+    "model": "config.internalservice",
+    "pk": 1,
+    "fields": {
+        "api_type": "ac",
+        "enabled": true
+    }
+},
+{
+    "model": "config.internalservice",
+    "pk": 2,
+    "fields": {
+        "api_type": "zrc",
+        "enabled": false
+    }
+},
+{
+    "model": "config.internalservice",
+    "pk": 3,
+    "fields": {
+        "api_type": "ztc",
+        "enabled": false
+    }
+},
+{
+    "model": "config.internalservice",
+    "pk": 4,
+    "fields": {
+        "api_type": "drc",
+        "enabled": true
+    }
+},
+{
+    "model": "config.internalservice",
+    "pk": 5,
+    "fields": {
+        "api_type": "brc",
+        "enabled": false
+    }
+},
+{
+    "model": "config.featureflags",
+    "pk": 1,
+    "fields": {
+        "allow_unpublished_typen": false
+    }
+},
+{
+    "model": "zgw_consumers.service",
+    "fields": {
+        "label": "VNG Selectielijst",
+        "slug": "",
+        "oas": "https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml",
+        "oas_file": "",
+        "uuid": "fd46ec3f-db03-4915-b406-b874a706a1b4",
+        "api_type": "orc",
+        "api_root": "https://selectielijst.openzaak.nl/api/v1/",
+        "client_id": "",
+        "secret": "",
+        "auth_type": "no_auth",
+        "header_key": "",
+        "header_value": "",
+        "nlx": "",
+        "user_id": "",
+        "user_representation": "",
+        "client_certificate": null,
+        "server_certificate": null,
+        "timeout": 10
+    }
+},
+{
+    "model": "zgw_consumers.service",
+    "fields": {
+        "label": "Woo Publications (docker)",
+        "slug": "gpp-publicatiebank-docker",
+        "oas": "http://host.docker.internal:8000/catalogi/api/v1/",
+        "oas_file": "",
+        "uuid": "120d62ff-5f95-44ee-8439-19c162a020c1",
+        "api_type": "orc",
+        "api_root": "http://host.docker.internal:8000/catalogi/api/v1/",
+        "client_id": "",
+        "secret": "",
+        "auth_type": "no_auth",
+        "header_key": "Authorization",
+        "header_value": "Token :future:",
+        "nlx": "",
+        "user_id": "",
+        "user_representation": "",
+        "client_certificate": null,
+        "server_certificate": null,
+        "timeout": 10
+    }
+},
+{
+    "model": "zgw_consumers.service",
+    "fields": {
+        "label": "Woo Publications (automated tests)",
+        "slug": "gpp-publicatiebank-automated-tests",
+        "oas": "http://host.docker.internal:8100/catalogi/api/v1/",
+        "oas_file": "",
+        "uuid": "97ccb23d-7fec-498a-8f16-b8930e91d383",
+        "api_type": "orc",
+        "api_root": "http://host.docker.internal:8100/catalogi/api/v1/",
+        "client_id": "",
+        "secret": "",
+        "auth_type": "no_auth",
+        "header_key": "Authorization",
+        "header_value": "Token :future:",
+        "nlx": "",
+        "user_id": "",
+        "user_representation": "",
+        "client_certificate": null,
+        "server_certificate": null,
+        "timeout": 10
+    }
+},
+{
+    "model": "zgw_consumers.nlxconfig",
+    "pk": 1,
+    "fields": {
+        "directory": "",
+        "outway": "",
+        "certificate": "",
+        "certificate_key": ""
+    }
+}
+]

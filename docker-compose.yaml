@@ -739,6 +739,18 @@ services:
       - ./scripts/docker-compose/imports/zac-database/init-zac-database.sql:/docker-entrypoint-initdb.d/init-zac-database.sql
       - ./scripts/docker-compose/volume-data/zac-database-data:/var/lib/postgresql/data
 
+  gpp-publicatiebank-database:
+    image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
+    platform: linux/amd64
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - ./scripts/docker-compose/imports/gpp-publicatiebank-database/init-db.sql:/docker-entrypoint-initdb.d/init_db.sql
+      - ./scripts/docker-compose/imports/gpp-publicatiebank-database/open-zaak/db/0001-init-open-zaak-db.sql:/docker-entrypoint-initdb.d/0001-init-open-zaak-db.sql
+      - ./scripts/docker-compose/imports/gpp-publicatiebank-database/open-zaak/db/0002-extensions.sh:/docker-entrypoint-initdb.d/0002-extensions.sh
+      - ./scripts/docker-compose/imports/gpp-publicatiebank-database/gpp-zoeken/db/0001-init-gpp-zoeken-db.sql:/docker-entrypoint-initdb.d/0001-gpp-zoeken-db.sql
+      - ./scripts/docker-compose/volume-data/gpp-publicatiebank-database:/var/lib/postgresql/data
+
   zac:
     # By default, we use the most recent ZAC Docker Image. Change this if you wish to use a specific version.
     image: ${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:latest}
