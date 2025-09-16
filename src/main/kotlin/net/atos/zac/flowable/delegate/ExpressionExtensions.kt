@@ -11,3 +11,5 @@ import org.flowable.engine.delegate.DelegateExecution
 fun Expression.resolveValueAsString(execution: DelegateExecution) = this.getValue(execution) as String
 
 fun Expression.resolveValueAsLong(execution: DelegateExecution) = (this.getValue(execution) as String).toLong()
+
+fun Expression.resolveValueAsList(execution: DelegateExecution) = this.getValue(execution) as List<*>

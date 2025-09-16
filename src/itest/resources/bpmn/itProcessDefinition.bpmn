@@ -61,6 +61,9 @@
         <flowable:field name="opschortingReden">
           <flowable:expression><![CDATA[suspend test]]></flowable:expression>
         </flowable:field>
+        <flowable:field name="selectedDocuments">
+          <flowable:expression><![CDATA[${ZAAK_Documents_Select}]]></flowable:expression>
+        </flowable:field>
         <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>

@@ -20,10 +20,23 @@ class CreateGppPublicationDelegate : AbstractDelegate() {
     // Set by Flowable. Can be either FixedValue or JuelExpression
     lateinit var opschortingReden: Expression
 
-    override fun execute(execution: DelegateExecution) {
-        LOG.info { "Creating GPP publication for zaak '${getZaakIdentificatie(execution)}'" }
-        // TODO
+    // Set by Flowable. Can be either FixedValue or JuelExpression
+    lateinit var selectedDocuments: Expression
 
+    override fun execute(execution: DelegateExecution) {
+        createGppPublication(execution)
+        suspendZaak(execution)
+    }
+
+    private fun createGppPublication(execution: DelegateExecution) {
+        // TODO Implement GPP publication creation logic here
+        LOG.info {
+            "Creating GPP publication for zaak '${getZaakIdentificatie(execution)}' " +
+                "and selected documents: '${selectedDocuments.resolveValueAsList(execution)}'."
+        }
+    }
+
+    private fun suspendZaak(execution: DelegateExecution) {
         val flowableHelper = FlowableHelper.getInstance()
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
         LOG.info(
