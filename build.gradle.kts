@@ -249,6 +249,7 @@ java {
         .srcDir(srcGenerated.dir("zgw/ztc/java"))
         .srcDir(srcGenerated.dir("or/objects/java"))
         .srcDir(srcGenerated.dir("pabc/java"))
+        .srcDir(srcGenerated.dir("gpppublicatiebank/java"))
 }
 
 jsonSchema2Pojo {
@@ -694,6 +695,9 @@ tasks {
     }
 
     register<GenerateTask>("generateGppPublicatiebankClient") {
+        // disabled because the generated Java code does not compile at the moment
+        isEnabled = false
+
         description = "Generates Java client code for the GPP Publicatiebank API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/gpp-publicatiebank/gpp-publicatiebank-openapi.yaml")
         outputDir.set("$rootDir/src/generated/gpppublicatiebank/java")
