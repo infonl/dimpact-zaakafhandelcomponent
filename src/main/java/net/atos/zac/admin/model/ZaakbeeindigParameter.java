@@ -78,13 +78,12 @@ public class ZaakbeeindigParameter {
     public boolean equals(Object o) {
         if (!(o instanceof ZaakbeeindigParameter that))
             return false;
-        return Objects.equals(zaakafhandelParameters.getId(), that.zaakafhandelParameters.getId()) &&
-               Objects.equals(zaakbeeindigReden.getId(), that.zaakbeeindigReden.getId()) &&
+        return Objects.equals(zaakbeeindigReden.getId(), that.zaakbeeindigReden.getId()) &&
                Objects.equals(resultaattype, that.resultaattype);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(zaakafhandelParameters.getId(), zaakbeeindigReden.getId(), resultaattype);
+        return Objects.hash(zaakbeeindigReden.getId(), resultaattype);
     }
 }

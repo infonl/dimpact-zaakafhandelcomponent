@@ -46,6 +46,24 @@ class ReferenceTableValue {
 
     @Column(name = "is_systeem_waarde", nullable = false)
     var isSystemValue: Boolean = false
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ReferenceTableValue) return false
+
+        if (sortOrder != other.sortOrder) return false
+        if (isSystemValue != other.isSystemValue) return false
+        if (name != other.name) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = sortOrder
+        result = 31 * result + isSystemValue.hashCode()
+        result = 31 * result + name.hashCode()
+        return result
+    }
 }
 
 fun ReferenceTableValue.toRestReferenceTableValue() =

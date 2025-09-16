@@ -210,13 +210,14 @@ public class ZaakafhandelParameters {
         return humanTaskParametersCollection != null ? humanTaskParametersCollection : Collections.emptySet();
     }
 
-    public void setHumanTaskParametersCollection(final Collection<HumanTaskParameters> humanTaskParametersCollection) {
+    public void setHumanTaskParametersCollection(final Collection<HumanTaskParameters> desiredHumanTaskParametersCollection) {
         if (this.humanTaskParametersCollection == null) {
             this.humanTaskParametersCollection = new HashSet<>();
-        } else {
-            this.humanTaskParametersCollection.clear();
         }
-        humanTaskParametersCollection.forEach(this::addHumanTaskParameters);
+        desiredHumanTaskParametersCollection.forEach(this::addHumanTaskParameters);
+        this.humanTaskParametersCollection.removeIf(
+                humanTaskParameters -> !desiredHumanTaskParametersCollection.contains(humanTaskParameters)
+        );
     }
 
     public Set<MailtemplateKoppeling> getMailtemplateKoppelingen() {
@@ -284,28 +285,33 @@ public class ZaakafhandelParameters {
     }
 
     private void addMailtemplateKoppeling(final MailtemplateKoppeling mailtemplateKoppeling) {
-        mailtemplateKoppeling.setZaakafhandelParameters(this);
-        mailtemplateKoppelingen.add(mailtemplateKoppeling);
+        if (mailtemplateKoppelingen.add(mailtemplateKoppeling)) {
+            mailtemplateKoppeling.setZaakafhandelParameters(this);
+        }
     }
 
     private void addHumanTaskParameters(final HumanTaskParameters humanTaskParameters) {
-        humanTaskParameters.setZaakafhandelParameters(this);
-        humanTaskParametersCollection.add(humanTaskParameters);
+        if (humanTaskParametersCollection.add(humanTaskParameters)) {
+            humanTaskParameters.setZaakafhandelParameters(this);
+        }
     }
 
     private void addZaakbeeindigParameter(final ZaakbeeindigParameter zaakbeeindigParameter) {
-        zaakbeeindigParameter.setZaakafhandelParameters(this);
-        zaakbeeindigParameters.add(zaakbeeindigParameter);
+        if (zaakbeeindigParameters.add(zaakbeeindigParameter)) {
+            zaakbeeindigParameter.setZaakafhandelParameters(this);
+        }
     }
 
     private void addUserEventListenerParameters(final UserEventListenerParameters userEventListenerParameters) {
-        userEventListenerParameters.setZaakafhandelParameters(this);
-        userEventListenerParametersCollection.add(userEventListenerParameters);
+        if (userEventListenerParametersCollection.add(userEventListenerParameters)) {
+            userEventListenerParameters.setZaakafhandelParameters(this);
+        }
     }
 
     private void addZaakAfzender(final ZaakAfzender zaakAfzender) {
-        zaakAfzender.setZaakafhandelParameters(this);
-        zaakAfzenders.add(zaakAfzender);
+        if (zaakAfzenders.add(zaakAfzender)) {
+            zaakAfzender.setZaakafhandelParameters(this);
+        }
     }
 
     public String getZaaktypeOmschrijving() {

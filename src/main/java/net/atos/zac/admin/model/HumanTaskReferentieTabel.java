@@ -21,6 +21,8 @@ import jakarta.validation.constraints.NotNull;
 
 import nl.info.zac.admin.model.ReferenceTable;
 
+import java.util.Objects;
+
 @Entity
 @Table(schema = SCHEMA, name = "humantask_referentie_tabel")
 @SequenceGenerator(schema = SCHEMA, name = "sq_humantask_referentie_tabel", sequenceName = "sq_humantask_referentie_tabel", allocationSize = 1)
@@ -80,5 +82,18 @@ public class HumanTaskReferentieTabel {
 
     public void setVeld(final String veld) {
         this.veld = veld;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof HumanTaskReferentieTabel that))
+            return false;
+        return Objects.equals(tabel, that.tabel) &&
+               Objects.equals(veld, that.veld);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tabel, veld);
     }
 }

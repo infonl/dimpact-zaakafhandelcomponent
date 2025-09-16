@@ -77,12 +77,11 @@ public class UserEventListenerParameters {
         if (!(o instanceof UserEventListenerParameters that))
             return false;
         return Objects.equals(planItemDefinitionID, that.planItemDefinitionID) &&
-               Objects.equals(zaakafhandelParameters.getId(), that.zaakafhandelParameters.getId()) &&
                Objects.equals(toelichting, that.toelichting);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(planItemDefinitionID, zaakafhandelParameters.getId(), toelichting);
+        return Objects.hash(planItemDefinitionID, toelichting);
     }
 }

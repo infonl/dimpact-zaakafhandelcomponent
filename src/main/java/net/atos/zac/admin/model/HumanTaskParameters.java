@@ -10,6 +10,7 @@ import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -168,5 +169,21 @@ public class HumanTaskParameters {
 
     public void setActief(final boolean actief) {
         this.actief = actief;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof HumanTaskParameters that))
+            return false;
+        return actief == that.actief &&
+               Objects.equals(formulierDefinitieID, that.formulierDefinitieID) &&
+               Objects.equals(planItemDefinitionID, that.planItemDefinitionID) &&
+               Objects.equals(groepID, that.groepID) &&
+               Objects.equals(doorlooptijd, that.doorlooptijd);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(actief, formulierDefinitieID, planItemDefinitionID, groepID, doorlooptijd);
     }
 }
