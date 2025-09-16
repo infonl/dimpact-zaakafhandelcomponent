@@ -68,12 +68,12 @@ class PolicyService @Inject constructor(
      * ZAC-only authorization it is ignored.
      * Until the old legacy authorization has been removed, it is therefore nullable.
      */
-    fun readOverigeRechten(zaaktype: String? = null) =
+    fun readOverigeRechten(zaaktypeDescription: String? = null) =
         evaluationClient.readOverigeRechten(
             RuleQuery(
                 UserInput(
                     loggedInUser = loggedInUserInstance.get(),
-                    zaaktype = if (configuratieService.featureFlagPabcIntegration()) zaaktype else null
+                    zaaktype = if (configuratieService.featureFlagPabcIntegration()) zaaktypeDescription else null
                 )
             )
         ).result

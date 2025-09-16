@@ -14,24 +14,26 @@ import java.util.UUID
 fun createZaakZoekObject(
     uuidAsString: String = UUID.randomUUID().toString(),
     type: ZoekObjectType = ZoekObjectType.ZAAK,
-    zaaktypeOmschrijving: String = "fakeZaakTypeOmschrijving",
+    zaaktypeIdentificatie: String = "fakeZaaktypeIdentificatie",
+    zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
+    zaaktypeUuid: String = UUID.randomUUID().toString(),
     identificatie: String = "identificatie",
     omschrijving: String = "fakeOmschrijving",
     statustypeOmschrijving: String = "fakeStatustypeOmschrijving",
-    zaaktypeUuid: String = UUID.randomUUID().toString(),
     archiefNominatie: String = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
     indicatie: ZaakIndicatie? = null,
     behandelaarGebruikersnaam: String? = null
 ) = ZaakZoekObject(
     id = uuidAsString,
     type = type.name,
-    identificatie = "fakeZaakIdentificatie"
+    identificatie = "fakeZaakIdentificatie",
+    zaaktypeIdentificatie = zaaktypeIdentificatie,
+    zaaktypeUuid = zaaktypeUuid,
+    zaaktypeOmschrijving = zaaktypeOmschrijving
 ).apply {
-    this.zaaktypeOmschrijving = zaaktypeOmschrijving
     this.identificatie = identificatie
     this.omschrijving = omschrijving
     this.statustypeOmschrijving = statustypeOmschrijving
-    this.zaaktypeUuid = zaaktypeUuid
     this.archiefNominatie = archiefNominatie
     this.behandelaarGebruikersnaam = behandelaarGebruikersnaam
     indicatie?.let { setIndicatie(it, true) }
