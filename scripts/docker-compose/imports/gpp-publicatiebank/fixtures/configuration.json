@@ -69,6 +69,7 @@
     "fields": {
         "label": "VNG Selectielijst",
         "slug": "",
+        "oas_file": "",
         "uuid": "fd46ec3f-db03-4915-b406-b874a706a1b4",
         "api_type": "orc",
         "api_root": "https://selectielijst.openzaak.nl/api/v1/",
@@ -90,6 +91,7 @@
     "fields": {
         "label": "Woo Publications (docker)",
         "slug": "gpp-publicatiebank-docker",
+        "oas_file": "",
         "uuid": "120d62ff-5f95-44ee-8439-19c162a020c1",
         "api_type": "orc",
         "api_root": "http://host.docker.internal:8000/catalogi/api/v1/",
@@ -111,6 +113,7 @@
     "fields": {
         "label": "Woo Publications (automated tests)",
         "slug": "gpp-publicatiebank-automated-tests",
+        "oas_file": "",
         "uuid": "97ccb23d-7fec-498a-8f16-b8930e91d383",
         "api_type": "orc",
         "api_root": "http://host.docker.internal:8100/catalogi/api/v1/",
