@@ -1040,7 +1040,7 @@
             "rolOmschrijvingGeneriek": "mede_initiator"
           }
         ],
-        "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e"
+        "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/d20e1896-ab41-411b-9a20-1bce5a609df4"
       },
       "start_at": "1997-01-01",
       "end_at": null,
@@ -1084,7 +1084,7 @@
             "rolOmschrijvingGeneriek": "mede_initiator"
           }
         ],
-        "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e"
+        "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/41ccba34-5b31-4dd9-a375-543733a5359b"
       },
       "start_at": "1996-01-01",
       "end_at": null,
