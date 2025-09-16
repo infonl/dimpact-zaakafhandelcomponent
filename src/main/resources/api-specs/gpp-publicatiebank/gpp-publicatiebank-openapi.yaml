@@ -1,0 +1,4251 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "WOO Publications",
+    "version": "2.0.0 (1)",
+    "description": "\n## Documentatie\n\nDe Woo-Publicatiebank API stelt client-applicaties in staat om publicaties van documenten te raadplegen en te beheren in het kader van een open overheid. Deze API-documentatie bevat drie logische 'domeinen'.\n\n### Domeinen\n\n**Metadata**\n\nPublicaties en hun gerelateerde documenten moeten bepaalde metadata hebben. De metadata-endpoints stellen client-applicaties in staat om beschikbare metadata op te halen (en in sommige resources ook aan te maken of bij te werken).\n\n* [Organisaties](#tag/Organisaties): bekende overheidsorganisaties, zoals gemeentes, provincies...\n* [Informatiecategorieën](#tag/Informatiecategorieen): de voorgeschreven categorieën voor de [DiWoo](https://standaarden.overheid.nl/diwoo/metadata)-standaard, optioneel uitgebreid met organisatiespecifieke categorieën.\n* [Thema's](#tag/Themas): een boomstructuur van ouder/kind-thema's om verder te beschrijven waar publicaties over gaan.\n\n**Publicaties**\n\n* [Publicaties](#tag/Publicaties): een publicatie is een logische eenheid van informatie die openbaar gemaakt moet worden - die kan één of meerdere documenten bevatten. Metadata wordt typisch gekoppeld aan de publicatie in plaats van aan de documenten die erin zitten.\n* [Documenten](#tag/Documenten): de daadwerkelijke bestanden/documenten die openbaar worden gemaakt en geïndexeerd in zoekmachines.\n\n**Catalogi API**\n\nDe [Catalogi API](#tag/Catalogi-API)-eindpunten zijn een implementatiedetail van hoe deze API werkt. Client-applicaties hoeven hier niets mee te doen.\nZe zijn nodig om de Documenten API te kunnen hergebruiken voor de daadwerkelijke opslag van bestanden.\n\n### Authenticatie\n\n**API-sleutel**\n\nDe API-endpoints vereisen authenticatie waarvoor je een API-sleutel moet hebben. API-sleutels worden aangemaakt in de beheerinterface (zie de functionele documentatie).\n\nWanneer je een API-sleutel hebt, dan moet je deze meesturen in elk verzoek in een request header:\n\n```\nAuthorization: Token mijn-voorbeeld-api-sleutel\n```\n\nVervang `mijn-voorbeeld-api-sleutel` door je eigen API-sleutel.\n\n**Audit-headers**\n\nDaarnaast vereisen de meeste endpoints dat er request headers worden meegestuurd voor de audit logs:\n\n```\nAudit-User-ID: unieke-identificatie@example.com\nAudit-User-Representation: Alice B. Tables\nAudit-Remarks: Eigen publicaties ophalen\n```\n",
+    "contact": {
+      "url": "https://github.com/GPP-Woo/GPP-publicatiebank",
+      "email": "support@maykinmedia.nl"
+    },
+    "license": {
+      "name": "EUPL",
+      "url": "https://github.com/GPP-Woo/GPP-publicatiebank/blob/main/LICENSE.md"
+    }
+  },
+  "paths": {
+    "/api/v2/documenten": {
+      "get": {
+        "operationId": "documentenList",
+        "description": "Geeft een resultatenlijst (met paginering) terug van de bestaande documenten.",
+        "summary": "Alle beschikbare documenten.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "creatiedatumTot",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter documenten op creatiedatum voor de opgegeven datumtijd."
+          },
+          {
+            "in": "query",
+            "name": "creatiedatumTotEnMet",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter documenten op creatiedatum op of voor de opgegeven datumtijd."
+          },
+          {
+            "in": "query",
+            "name": "creatiedatumVanaf",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter documenten op creatiedatum op of na de opgegeven datumtijd."
+          },
+          {
+            "in": "query",
+            "name": "eigenaar",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter documenten op basis van de identificatie van de eigenaar."
+          },
+          {
+            "in": "query",
+            "name": "identifier",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search the document based on the identifier field."
+          },
+          {
+            "in": "query",
+            "name": "informatieCategorieen",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Filter documenten die binnen een bepaalde informatiecategorie vallen. Als je meerdere categorieën opgeeft, dan krijg je alle documenten die aan één van deze categorieën gerelateerd zijn.\n\nDe filterwaarden zijn UUIDs van de categorieën. Gebruik komma's om meerdere waarden van elkaar te scheiden.",
+            "explode": true,
+            "style": "form"
+          },
+          {
+            "in": "query",
+            "name": "laatstGewijzigdDatumTot",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter documenten op laastste wijzigingsdatum voor de opgegeven datumtijd."
+          },
+          {
+            "in": "query",
+            "name": "laatstGewijzigdDatumTotEnMet",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter documenten op laastste wijzigingsdatum op of voor de opgegeven datumtijd."
+          },
+          {
+            "in": "query",
+            "name": "laatstGewijzigdDatumVanaf",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter documenten op laastste wijzigingsdatum op of na de opgegeven datumtijd."
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "description": "Number of results to return per page.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "publicatie",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Filter documenten op basis van de unieke publicatie-identificatie (UUID) waartoe ze horen. **Opmerkingen**: negeer het gedocumenteerde type `integer`, het correcte type is `string` met formaat `uuid`."
+          },
+          {
+            "in": "query",
+            "name": "publicatiestatus",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "title": "Status",
+                "enum": [
+                  "concept",
+                  "gepubliceerd",
+                  "ingetrokken"
+                ]
+              }
+            },
+            "description": "Filter documenten op publicatiestatus.\n\n* `gepubliceerd` - Gepubliceerd\n* `concept` - Concept\n* `ingetrokken` - Ingetrokken",
+            "explode": true,
+            "style": "form"
+          },
+          {
+            "in": "query",
+            "name": "registratiedatumTot",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter documenten op registratiedatum voor de opgegeven datumtijd."
+          },
+          {
+            "in": "query",
+            "name": "registratiedatumTotEnMet",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter documenten op registratiedatum op of voor de opgegeven datumtijd."
+          },
+          {
+            "in": "query",
+            "name": "registratiedatumVanaf",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter documenten op registratiedatum op of na de opgegeven datumtijd."
+          },
+          {
+            "in": "query",
+            "name": "sorteer",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "-creatiedatum",
+                  "-officiele_titel",
+                  "-verkorte_titel",
+                  "creatiedatum",
+                  "officiele_titel",
+                  "verkorte_titel"
+                ]
+              }
+            },
+            "description": "Sorteren op.\n\n* `creatiedatum` - Creatiedatum\n* `-creatiedatum` - Creatiedatum (aflopend)\n* `officiele_titel` - Officiele titel\n* `-officiele_titel` - Officiele titel (aflopend)\n* `verkorte_titel` - Verkorte titel\n* `-verkorte_titel` - Verkorte titel (aflopend)",
+            "explode": false,
+            "style": "form"
+          }
+        ],
+        "tags": [
+          "Documenten"
+        ],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedDocumentList"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "operationId": "documentenCreate",
+        "description": "Het registreren van een document zorgt ervoor dat de metadata vastgelegd wordt en geeft informatie terug aan de client zodat de bestandsinhoud geüpload kan worden.\n\nHet document (= de metadata) wordt meteen vastgelegd in de achterliggende Documenten-API, en je krijgt een lijst van bestandsdelen terug in het antwoord waarmee je de eigenlijke bestandsinhoud kan uploaden.\n\nMerk op dat de record in de achterliggende Documenten-API vergrendeld is tot dat alle bestandsdelen toegevoegd zijn.\n\n**NOTE**\nJe moet hiervoor een aantal algemene instellingen doen in de beheeromgeving. Met name:\n\n* een Documenten-API-service instellen en selecteren\n* een organisatie-RSIN instellen om te gebruiken voor geregistreerde documenten",
+        "summary": "Registreer de metadata van een document.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          }
+        ],
+        "tags": [
+          "Documenten"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DocumentCreate"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentCreate"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v2/documenten/{uuid}": {
+      "get": {
+        "operationId": "documentenRetrieve",
+        "description": "Haal een specifiek document op.",
+        "summary": "Haal een specifiek document op.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Documenten"
+        ],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "operationId": "documentenUpdate",
+        "description": "Werk de metadata van een specifiek document bij.",
+        "summary": "Werk de metadata van een specifiek document bij.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Documenten"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DocumentUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentUpdate"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "patch": {
+        "operationId": "documentenPartialUpdate",
+        "description": "Werk de metadata van een specifiek document gedeeltelijk bij.",
+        "summary": "Werk de metadata van een specifiek document gedeeltelijk bij.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Documenten"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchedDocumentUpdate"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentUpdate"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "operationId": "documentenDestroy",
+        "description": "Vernietig een specifiek document.",
+        "summary": "Vernietig een specifiek document.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Documenten"
+        ],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/api/v2/documenten/{uuid}/bestandsdelen/{partUuid}": {
+      "put": {
+        "operationId": "documentenBestandsdelenUpdate",
+        "description": "Upload de binaire data voor een bestandsdeel. De response van de document create endpoint geeft een lijst van verwachtte bestandsdelen terug die naar dit endpoint verwijzen. De client moet het bestand opknippen in de verwachtte bestandsdeelgroottes en dan elk stuk individueel uploaden.\n\nEenmaal alle bestandsdelen voor het document ontvangen zijn, zal het document automatisch ontgrendeld worden in de achterliggende Documenten-API en dan is het document klaar voor gebruik.\n\n**NOTE** dit endpoint verwacht `multipart/form-data` gegevens in plaats van JSON - op deze manier kan de base64-encoding overhead voorkomen worden.",
+        "summary": "Bestandsdeel uploaden",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "partUuid",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Documenten"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/FilePart"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentStatus"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v2/documenten/{uuid}/download": {
+      "get": {
+        "operationId": "documentenDownloadRetrieve",
+        "description": "Download de inhoud van het document als binaire data. Dit endpoint geeft geen JSON terug, in de plaats daarvan wordt de bestandsinhoud direct gestreamed.\n\nJe kan enkel bestanden downloaden waarvan de upload naar de achterliggende Documenten-API voltooid is.",
+        "summary": "Download de binaire bestandsdata",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Documenten"
+        ],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "Content-Length": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Totale grootte (in bytes) van de download."
+              },
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Markeert het bestand als 'bijlage' en bevat de bestandsnaam van het document."
+              }
+            },
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "description": "De binaire bestandsinhoud."
+          },
+          "409": {
+            "description": "Conflict - het document is (nog) niet beschikbaar voor download."
+          },
+          "502": {
+            "description": "Bad gateway - kon de inhoud niet streamen."
+          }
+        }
+      }
+    },
+    "/api/v2/informatiecategorieen": {
+      "get": {
+        "operationId": "informatiecategorieenList",
+        "description": "Geeft een resultatenlijst (met paginering) terug van de bestaande informatiecategorieën.",
+        "summary": "Alle beschikbare informatiecategorieën.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "identifier",
+            "schema": {
+              "type": "string",
+              "format": "uri",
+              "title": "Identificatie"
+            },
+            "description": "Zoek een informatiecategorie op basis van de unieke IRI die een specifieke categorie identificeert."
+          },
+          {
+            "in": "query",
+            "name": "naam",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Zoek informatiecategorieën op basis van de categorienaam."
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "description": "Number of results to return per page.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "tags": [
+          "Informatiecategorieën"
+        ],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedInformationCategoryList"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v2/informatiecategorieen/{uuid}": {
+      "get": {
+        "operationId": "informatiecategorieenRetrieve",
+        "description": "Haal een specifiieke informatiecategorie op.",
+        "summary": "Haal een specifiieke informatiecategorie op.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Informatiecategorieën"
+        ],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InformationCategory"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v2/onderwerpen": {
+      "get": {
+        "operationId": "onderwerpenList",
+        "description": "Geeft een resultatenlijst (met paginering) terug van de bestaande onderwerpen.",
+        "summary": "Alle beschikbare onderwerpen.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "description": "Number of results to return per page.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "publicaties",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "description": "Filter onderwerpen die bij een bepaald onderwerp horen. Als je meerdere publicaties opgeeft, dan krijg je alle onderwerpen die aan één van deze publicaties gerelateerd zijn.\n\nDe filterwaarden zijn de UUIDs van de publicaties. Gebruik komma's om meerdere waarden van elkaar te scheiden.",
+            "explode": true,
+            "style": "form"
+          },
+          {
+            "in": "query",
+            "name": "publicatiestatus",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "title": "Status",
+                "enum": [
+                  "concept",
+                  "gepubliceerd",
+                  "ingetrokken"
+                ]
+              }
+            },
+            "description": "Filter onderwerpen op publicatiestatus.\n\n* `gepubliceerd` - Gepubliceerd\n* `concept` - Concept\n* `ingetrokken` - Ingetrokken",
+            "explode": true,
+            "style": "form"
+          }
+        ],
+        "tags": [
+          "Onderwerpen"
+        ],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedTopicList"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v2/onderwerpen/{uuid}": {
+      "get": {
+        "operationId": "onderwerpenRetrieve",
+        "description": "Haal een specifiek onderwerp op.",
+        "summary": "Haal een specifiek onderwerp op.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Onderwerpen"
+        ],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Topic"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v2/organisaties": {
+      "get": {
+        "operationId": "organisatiesList",
+        "description": "Geeft een lijst (met paginering) terug van alle bestaande organisaties.",
+        "summary": "Alle beschikbare organisaties.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "identifier",
+            "schema": {
+              "type": "string",
+              "format": "uri",
+              "title": "Identificatie"
+            },
+            "description": "Zoek een organisatie op basis van de unieke IRI die een specifieke organisatie identificeert."
+          },
+          {
+            "in": "query",
+            "name": "isActief",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "alle",
+                "false",
+                "true"
+              ]
+            },
+            "description": "Filter de organisaties op hun actief-status:\n\n* `true` - Haal alle actieve organisaties op (standaard).\n* `false` - Haal alle inactieve organisaties op.\n* `alle` - Haal alle organisaties op, ongeacht of ze actief zijn of niet."
+          },
+          {
+            "in": "query",
+            "name": "naam",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Zoek organisaties op basis van de organisatienaam. Je kan op delen van de naam zoeken, en het zoeken is niet hoofdlettergevoelig."
+          },
+          {
+            "in": "query",
+            "name": "oorsprong",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "gemeentelijst",
+                "oorglijst",
+                "solijst",
+                "zelf_toegevoegd"
+              ]
+            },
+            "description": "Zoek organisaties op basis van de oorsprong van de gegevens.\n\n* `gemeentelijst` - Register gemeenten compleet\n* `solijst` - Register samenwerkingsorganisaties compleet\n* `oorglijst` - Register overige overheidsorganisaties compleet\n* `zelf_toegevoegd` - Zelf-toegevoegd item"
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "description": "Number of results to return per page.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "tags": [
+          "Organisaties"
+        ],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedOrganisationList"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "operationId": "organisatiesCreate",
+        "description": "Maak een organisatie aan.",
+        "summary": "Maak een organisatie aan.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          }
+        ],
+        "tags": [
+          "Organisaties"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Organisation"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Organisation"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v2/organisaties/{uuid}": {
+      "get": {
+        "operationId": "organisatiesRetrieve",
+        "description": "Haal een specifieke organisatie op.",
+        "summary": "Haal een specifieke organisatie op.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Organisaties"
+        ],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Organisation"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "operationId": "organisatiesUpdate",
+        "description": "Werk een organisatie (in zijn geheel) bij.",
+        "summary": "Werk een organisatie (in zijn geheel) bij.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Organisaties"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Organisation"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Organisation"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "patch": {
+        "operationId": "organisatiesPartialUpdate",
+        "description": "Werk een organisatie (gedeeltelijk) bij.",
+        "summary": "Werk een organisatie (gedeeltelijk) bij.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Organisaties"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchedOrganisation"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Organisation"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v2/publicaties": {
+      "get": {
+        "operationId": "publicatiesList",
+        "description": "Geeft een lijst (met paginering) terug van alle bestaande publicaties.",
+        "summary": "Alle beschikbare publicaties.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "archiefactiedatumTot",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter publicaties op archiefactiedatum voor de opgegeven datumtijd."
+          },
+          {
+            "in": "query",
+            "name": "archiefactiedatumTotEnMet",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter publicaties op archiefactiedatum op of voor de opgegeven datumtijd."
+          },
+          {
+            "in": "query",
+            "name": "archiefactiedatumVanaf",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter publicaties op archiefactiedatum op of na de opgegeven datumtijd."
+          },
+          {
+            "in": "query",
+            "name": "archiefnominatie",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "blijvend_bewaren",
+                  "vernietigen"
+                ]
+              }
+            },
+            "description": "Filter publicaties op archiefnominatie.\n\n* `blijvend_bewaren` - Blijvend bewaren\n* `vernietigen` - Vernietigen",
+            "explode": true,
+            "style": "form"
+          },
+          {
+            "in": "query",
+            "name": "bron",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter publicaties op basis van de opgegeven kenmerkbron."
+          },
+          {
+            "in": "query",
+            "name": "eigenaar",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter publicaties op basis van de identificatie van de eigenaar."
+          },
+          {
+            "in": "query",
+            "name": "informatieCategorieen",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Filter publicaties die binnen een bepaalde informatiecategorie vallen. Als je meerdere categorieën opgeeft, dan krijg je alle publicaties die aan één van deze categorieën gerelateerd zijn.\n\nDe filterwaarden zijn UUIDs van de categorieën. Gebruik komma's om meerdere waarden van elkaar te scheiden.",
+            "explode": true,
+            "style": "form"
+          },
+          {
+            "in": "query",
+            "name": "kenmerk",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter publicaties op basis van het opgegeven kenmerk."
+          },
+          {
+            "in": "query",
+            "name": "onderwerpen",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "description": "Filter publicaties die bij een bepaald onderwerp horen. Als je meerdere onderwerpen opgeeft, dan krijg je alle publicaties die aan één van deze onderwerpen gerelateerd zijn.\n\nDe filterwaarden zijn de UUIDs van de onderwerpen. Gebruik komma's om meerdere waarden van elkaar te scheiden.",
+            "explode": true,
+            "style": "form"
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "description": "Number of results to return per page.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "publicatiestatus",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "title": "Status",
+                "enum": [
+                  "concept",
+                  "gepubliceerd",
+                  "ingetrokken"
+                ]
+              }
+            },
+            "description": "Filter publicaties op publicatiestatus.\n\n* `gepubliceerd` - Gepubliceerd\n* `concept` - Concept\n* `ingetrokken` - Ingetrokken",
+            "explode": true,
+            "style": "form"
+          },
+          {
+            "in": "query",
+            "name": "registratiedatumTot",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter publicaties op registratiedatum voor de opgegeven datumtijd."
+          },
+          {
+            "in": "query",
+            "name": "registratiedatumTotEnMet",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter publicaties op registratiedatum op of voor de opgegeven datumtijd."
+          },
+          {
+            "in": "query",
+            "name": "registratiedatumVanaf",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter publicaties op registratiedatum op of na de opgegeven datumtijd."
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Doorzoek publicaties op officiële en verkorte titel (niet hoofdlettergevoelig en zoekt op delen van de zoekterm)."
+          },
+          {
+            "in": "query",
+            "name": "sorteer",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "-officiele_titel",
+                  "-registratiedatum",
+                  "-verkorte_titel",
+                  "officiele_titel",
+                  "registratiedatum",
+                  "verkorte_titel"
+                ]
+              }
+            },
+            "description": "Sorteren op.\n\n* `registratiedatum` - Registratiedatum\n* `-registratiedatum` - Registratiedatum (aflopend)\n* `officiele_titel` - Officiele titel\n* `-officiele_titel` - Officiele titel (aflopend)\n* `verkorte_titel` - Verkorte titel\n* `-verkorte_titel` - Verkorte titel (aflopend)",
+            "explode": false,
+            "style": "form"
+          }
+        ],
+        "tags": [
+          "Publicaties"
+        ],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedPublicationReadList"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "operationId": "publicatiesCreate",
+        "description": "Maak een publicatie aan.\n\nBij het aanmaken van een conceptpublicatie is het enige verplichte veld  `officieleTitel`.",
+        "summary": "Maak een publicatie aan.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          }
+        ],
+        "tags": [
+          "Publicaties"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicationWrite"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicationRead"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v2/publicaties/{uuid}": {
+      "get": {
+        "operationId": "publicatiesRetrieve",
+        "description": "Haal een specifieke publicatie op.",
+        "summary": "Haal een specifieke publicatie op.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Publicaties"
+        ],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicationRead"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "operationId": "publicatiesUpdate",
+        "description": "Update een publicatie voledig.\n\nBij het updaten van een conceptpublicatie is het enige verplichte veld  `officieleTitel`.",
+        "summary": "Werk een publicatie (in zijn geheel) bij.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Publicaties"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicationWrite"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicationRead"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "patch": {
+        "operationId": "publicatiesPartialUpdate",
+        "description": "Werk een publicatie (gedeeltelijk) bij.",
+        "summary": "Werk een publicatie (gedeeltelijk) bij.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Publicaties"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchedPublicationWrite"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicationRead"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "operationId": "publicatiesDestroy",
+        "description": "Vernietig een publicatie.",
+        "summary": "Vernietig een publicatie.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Publicaties"
+        ],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/api/v2/themas": {
+      "get": {
+        "operationId": "themasList",
+        "description": "Geeft een resultatenlijst (met paginering) terug van de bestaande thema's.",
+        "summary": "Alle beschikbare thema's.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "description": "Number of results to return per page.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "tags": [
+          "Themas"
+        ],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedThemeList"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v2/themas/{uuid}": {
+      "get": {
+        "operationId": "themasRetrieve",
+        "description": "Haal een specifiek thema op.",
+        "summary": "Haal een specifiek thema op.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Audit-Remarks",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nAny additional information describing the action performed by the user.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe system identifier that uniquely identifies the user performing the action.\nIdeally, this is obtained from some Identity and Access Management\ninfrastructure. With OpenID Connect, this would typically be the `sub` claim.\n",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "Audit-User-Representation",
+            "schema": {
+              "type": "string"
+            },
+            "description": "\nThe display name of the user performing the action, to make them recognizable.\n",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Themas"
+        ],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Theme"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/catalogi/api/v1/informatieobjecttypen/{uuid}": {
+      "get": {
+        "operationId": "catalogiApiV1InformatieobjecttypenRetrieve",
+        "description": "Expose an information category as a Catalogi API `informatieobjecttype`.\n\n**NOTE**: this API endpoint is internal and used in the integration with the\nDocumenten API. Publication components are not expected to interact with it.",
+        "summary": "Haal een documenttype op",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Catalogi API"
+        ],
+        "security": [
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogiAPIDocumentType"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AanleveringBestandEnum": {
+        "enum": [
+          "ontvangen",
+          "ophalen"
+        ],
+        "type": "string",
+        "description": "* `ontvangen` - Ontvangen\n* `ophalen` - Ophalen"
+      },
+      "ArchiefnominatieEnum": {
+        "enum": [
+          "blijvend_bewaren",
+          "vernietigen"
+        ],
+        "type": "string",
+        "description": "* `blijvend_bewaren` - Blijvend bewaren\n* `vernietigen` - Vernietigen"
+      },
+      "BlankEnum": {
+        "enum": [
+          ""
+        ]
+      },
+      "CatalogiAPIDocumentType": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "readOnly": true
+          },
+          "catalogus": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE behoort."
+          },
+          "beginGeldigheid": {
+            "type": "string",
+            "format": "date",
+            "description": "De datum waarop het is ontstaan."
+          },
+          "informatieobjectcategorie": {
+            "type": "string",
+            "description": "Typering van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.",
+            "maxLength": 80
+          },
+          "omschrijving": {
+            "type": "string",
+            "description": "Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.",
+            "maxLength": 80
+          },
+          "vertrouwelijkheidaanduiding": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/VertrouwelijkheidaanduidingEnum"
+              }
+            ],
+            "description": "Aanduiding van de mate waarin informatieobjecten van dit INFORMATIEOBJECTTYPE voor de openbaarheid bestemd zijn.\n\n* `openbaar` - Openbaar\n* `beperkt_openbaar` - Beperkt openbaar\n* `intern` - Intern\n* `zaakvertrouwelijk` - Zaakvertrouwelijk\n* `vertrouwelijk` - Vertrouwelijk\n* `confidentieel` - Confidentieel\n* `geheim` - Geheim\n* `zeer_geheim` - Zeer geheim"
+          },
+          "concept": {
+            "type": "boolean",
+            "readOnly": true,
+            "description": "Geeft aan of het object een concept betreft. Concepten zijn niet-definitieve versies en zouden niet gebruikt moeten worden buiten deze API."
+          },
+          "besluittypen": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "readOnly": true,
+            "description": "URL-referenties naar de BESLUITTYPEN"
+          },
+          "zaaktypen": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "readOnly": true,
+            "description": "URL-referenties naar de ZAAKTYPEN"
+          }
+        },
+        "required": [
+          "beginGeldigheid",
+          "besluittypen",
+          "catalogus",
+          "concept",
+          "informatieobjectcategorie",
+          "omschrijving",
+          "url",
+          "vertrouwelijkheidaanduiding",
+          "zaaktypen"
+        ]
+      },
+      "ConceptPublicationWrite": {
+        "type": "object",
+        "description": "Base serializer for publication read and write operations.\n\nThis base class defines the shared logic that should be kept in sync between read\nand write operations for consistent API documentation (and behaviour).",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "urlPublicatieIntern": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "uri"
+              },
+              {
+                "enum": [
+                  ""
+                ],
+                "type": "string"
+              }
+            ],
+            "readOnly": true,
+            "title": "Werk een publicatie (in zijn geheel) bij.",
+            "description": "De URL die verwijst naar de UI van de interne applicatie waar de publicatie beheerd wordt. Dit vereist dat de algemene configuratieparameter ingevuld is, anders wordt er een lege string teruggestuurd."
+          },
+          "urlPublicatieExtern": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "uri"
+              },
+              {
+                "enum": [
+                  ""
+                ],
+                "type": "string"
+              }
+            ],
+            "readOnly": true,
+            "title": "externe publicatie-URL.",
+            "description": "De URL die verwijst naar de UI van de externe applicatie waar de publicatie publiek toegankelijk is. Dit vereist dat de algemene configuratieparameter ingevuld is, anders wordt er een lege string teruggestuurd."
+          },
+          "informatieCategorieen": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "De informatiecategorie verduidelijkt de soort informatie die in de publicatie voorkomt."
+          },
+          "diWooInformatieCategorieen": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "readOnly": true,
+            "description": "De informatiecategorieën voor in de sitemap."
+          },
+          "onderwerpen": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Onderwerpen gaan over maatschappelijk relevante informatie die meerdere publicaties omvatten. Ze kunnen tientallen jaren relevant blijven en overstijgen de typische levensduur van een enkele publicatie."
+          },
+          "publisher": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "De organisatie die de publicatie publiceert."
+          },
+          "verantwoordelijke": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "De organisatie die verantwoordelijk is voor de publicatie en haar inhoud."
+          },
+          "opsteller": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "De organisatie die de publicatie en haar inhoud opgesteld heeft."
+          },
+          "kenmerken": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicationIdentifier"
+            },
+            "description": "De set aan identificatiekenmerken horend bij deze publicatie."
+          },
+          "officieleTitel": {
+            "type": "string",
+            "title": "Officiële titel",
+            "maxLength": 255
+          },
+          "verkorteTitel": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "omschrijving": {
+            "type": "string"
+          },
+          "eigenaar": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Eigenaar"
+              }
+            ],
+            "nullable": true,
+            "description": "De persoon die het document aangemaakt heeft, afgeleid uit de auditlogs.\n\n**Pas op**: Als je het veld opgeeft tijdens het aanmaken of bijwerken van het object, dan zal de eigenaarinformatie afwijken van de audit headers."
+          },
+          "publicatiestatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublicatiestatusEnum"
+              }
+            ],
+            "default": "gepubliceerd",
+            "title": "Status",
+            "description": "\n**Waarschuwing**: je kan geen ingetrokken publicatie aanmaken.\n\n**Waarschuwing**: wanneer je een publicatie intrekt, dan worden ook de gerelateerde gepubliceerde documenten ingetrokken.\n\nDe mogelijke statuswijzigingen zijn:\n\n* `\"\"` -> `\"concept\"`\n* `\"\"` -> `\"gepubliceerd\"`\n* `\"concept\"` -> `\"gepubliceerd\"`\n* `\"gepubliceerd\"` -> `\"ingetrokken\"`.\n\nLet op dat bij sommige wijzigingen beperkt kunnen zijn door business-logica.\n\n* `gepubliceerd` - Gepubliceerd\n* `concept` - Concept\n* `ingetrokken` - Ingetrokken"
+          },
+          "gepubliceerdOp": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "nullable": true,
+            "description": "Systeemdatum en -tijd wanneer de publicatie gepubliceerd werd."
+          },
+          "ingetrokkenOp": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "nullable": true,
+            "description": "Systeemdatum en -tijd wanneer de publicatie ingetrokken werd."
+          },
+          "registratiedatum": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "title": "Geregistreerd op",
+            "description": "Systeemdatum en -tijd wanneer de publicatie in de databank opgeslagen is. Niet te verwarren met de creatiedatum van de publicatie, die typisch *voor* de registratiedatum valt."
+          },
+          "laatstGewijzigdDatum": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "title": "Laatst gewijzigd op",
+            "description": "Systeemdatum en -tijd wanneer de publicatie laatst gewijzigd is in de database."
+          },
+          "datumBeginGeldigheid": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "De datum waarop de rechten en plichten vastgelegd in deze documenten in werking treden."
+          },
+          "datumEindeGeldigheid": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "De datum waarop de rechten en plichten vastgelegd in deze documenten (zijn) komen te vervallen."
+          },
+          "bronBewaartermijn": {
+            "type": "string",
+            "description": "De bron waaruit de bewaartermijn bepaald is (bjivoorbeeld: Selectielijst gemeenten 2020).\n**Opmerking** handmatig opgegeven waarden worden bij het aanmaken (of wanneer de informatiecategorieën bijgewerkt worden) overschreven met de automatisch afgeleide waarden uit de gekoppelde informatiecategorie(ën).",
+            "maxLength": 255
+          },
+          "selectiecategorie": {
+            "type": "string",
+            "description": "De categorie waaruit de bewaartermijn bepaald is, zoals deze in de bron bewaartermijn voorkomt (bijvoorbeeld: 20.1.2).\n**Opmerking** handmatig opgegeven waarden worden bij het aanmaken (of wanneer de informatiecategorieën bijgewerkt worden) overschreven met de automatisch afgeleide waarden uit de gekoppelde informatiecategorie(ën).",
+            "maxLength": 255
+          },
+          "archiefnominatie": {
+            "description": "Geeft aan of de gegevens bij het archiveren bewaard blijven of definitief vernietigd worden.\n**Opmerking** handmatig opgegeven waarden worden bij het aanmaken (of wanneer de informatiecategorieën bijgewerkt worden) overschreven met de automatisch afgeleide waarden uit de gekoppelde informatiecategorie(ën).\n\n* `blijvend_bewaren` - Blijvend bewaren\n* `vernietigen` - Vernietigen",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ArchiefnominatieEnum"
+              },
+              {
+                "$ref": "#/components/schemas/BlankEnum"
+              }
+            ]
+          },
+          "archiefactiedatum": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "Datum waarop de publicatie overgebracht of definitief vernietigd zal worden.\n**Opmerking** handmatig opgegeven waarden worden bij het aanmaken (of wanneer de informatiecategorieën bijgewerkt worden) overschreven met de automatisch afgeleide waarden uit de gekoppelde informatiecategorie(ën)."
+          },
+          "toelichtingBewaartermijn": {
+            "type": "string",
+            "description": "**Opmerking** handmatig opgegeven waarden worden bij het aanmaken (of wanneer de informatiecategorieën bijgewerkt worden) overschreven met de automatisch afgeleide waarden uit de gekoppelde informatiecategorie(ën)."
+          }
+        },
+        "required": [
+          "diWooInformatieCategorieen",
+          "gepubliceerdOp",
+          "ingetrokkenOp",
+          "laatstGewijzigdDatum",
+          "officieleTitel",
+          "registratiedatum",
+          "urlPublicatieExtern",
+          "urlPublicatieIntern",
+          "uuid"
+        ]
+      },
+      "Document": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "identifier": {
+            "type": "string",
+            "title": "Identificatie",
+            "description": "De (primaire) unieke identificatie.",
+            "maxLength": 255,
+            "deprecated": true
+          },
+          "publicatie": {
+            "type": "string",
+            "format": "uuid",
+            "description": "De unieke identificatie van de publicatie."
+          },
+          "kenmerken": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentIdentifier"
+            },
+            "description": "De set aan identificatiekenmerken horend bij dit document."
+          },
+          "officieleTitel": {
+            "type": "string",
+            "title": "Officiële titel",
+            "maxLength": 255
+          },
+          "verkorteTitel": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "omschrijving": {
+            "type": "string"
+          },
+          "publicatiestatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublicatiestatusEnum"
+              }
+            ],
+            "readOnly": true,
+            "title": "Status",
+            "description": "\nTijdens het aanmaken wordt de publicatiestatus overgenomen van het publicatie. De publicatie kan niet zelf ingevuld worden.\n\nDe mogelijke statuswijzigingen zijn:\n\n* `\"\"` -> `\"concept\"`\n* `\"\"` -> `\"gepubliceerd\"`\n* `\"concept\"` -> `\"gepubliceerd\"`\n* `\"gepubliceerd\"` -> `\"ingetrokken\"`.\n\nLet op dat bij sommige wijzigingen beperkt kunnen zijn door business-logica.\n\n* `gepubliceerd` - Gepubliceerd\n* `concept` - Concept\n* `ingetrokken` - Ingetrokken"
+          },
+          "gepubliceerdOp": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "nullable": true,
+            "description": "Systeemdatum en -tijd wanneer de publicatie gepubliceerd werd."
+          },
+          "ingetrokkenOp": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "nullable": true,
+            "description": "Systeemdatum en -tijd wanneer de publicatie ingetrokken werd."
+          },
+          "creatiedatum": {
+            "type": "string",
+            "format": "date",
+            "description": "De datum waarop het document ontstaan is. Niet te verwarren met de registratiedatum - de creatiedatum valt typisch *voor* de registratiedatum."
+          },
+          "ontvangstdatum": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Indien van toepassing, datum wanneer het document door of namens de organisatie in ontvangst is genomen."
+          },
+          "datumOndertekend": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "title": "Datum ondertekening",
+            "description": "Indien van toepassing, datum waarop het document (door alle partijen) ondertekend is."
+          },
+          "bestandsformaat": {
+            "type": "string",
+            "description": "TODO - placeholder accepting anything, in the future this will be validated against a reference value list.",
+            "maxLength": 255
+          },
+          "bestandsnaam": {
+            "type": "string",
+            "description": "Bestandsnaam 'op de harde schijf' van het document, bijvoorbeeld 'gelakt-verslag.pdf'.",
+            "maxLength": 255
+          },
+          "bestandsomvang": {
+            "type": "integer",
+            "maximum": 9223372036854775807,
+            "minimum": 0,
+            "format": "int64",
+            "description": "Bestandsgrootte op de harde schijf, in bytes."
+          },
+          "eigenaar": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Eigenaar"
+              }
+            ],
+            "nullable": true,
+            "description": "De persoon die het document aangemaakt heeft, afgeleid uit de auditlogs.\n\n**Pas op**: Als je het veld opgeeft tijdens het aanmaken of bijwerken van het object, dan zal de eigenaarinformatie afwijken van de audit headers."
+          },
+          "registratiedatum": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "title": "Geregistreerd op",
+            "description": "Systeemdatum en -tijd wanneer het document in de databank opgeslagen is. Niet te verwarren met de creatiedatum van de publicatie, die typisch *voor* de registratiedatum valt."
+          },
+          "laatstGewijzigdDatum": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "title": "Laatst gewijzigd op",
+            "description": "Systeemdatum en -tijd wanneer het document laatst gewijzigd is in de database."
+          },
+          "uploadVoltooid": {
+            "type": "boolean",
+            "readOnly": true,
+            "title": "documentupload voltooid",
+            "description": "Geeft aan of alle bestandsdelen van het bestand ontvangen zijn en het document ontgrendeld en klaar voor gebruik is in de achterliggende Documenten-API."
+          }
+        },
+        "required": [
+          "creatiedatum",
+          "gepubliceerdOp",
+          "ingetrokkenOp",
+          "laatstGewijzigdDatum",
+          "officieleTitel",
+          "publicatie",
+          "publicatiestatus",
+          "registratiedatum",
+          "uploadVoltooid",
+          "uuid"
+        ]
+      },
+      "DocumentCreate": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/DocumentCreateShared"
+          },
+          {
+            "$ref": "#/components/schemas/DocumentCreateRetrieveUrlDocumentCreate"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "aanleveringBestand",
+          "mapping": {
+            "ontvangen": "#/components/schemas/DocumentCreateShared",
+            "ophalen": "#/components/schemas/DocumentCreateRetrieveUrlDocumentCreate"
+          }
+        }
+      },
+      "DocumentCreateRetrieveUrlDocumentCreate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DocumentCreateShared"
+          },
+          {
+            "$ref": "#/components/schemas/RetrieveUrlDocumentCreate"
+          }
+        ]
+      },
+      "DocumentCreateShared": {
+        "type": "object",
+        "description": "Manage the creation of new Documents.",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "identifier": {
+            "type": "string",
+            "title": "Identificatie",
+            "description": "De (primaire) unieke identificatie.",
+            "maxLength": 255,
+            "deprecated": true
+          },
+          "publicatie": {
+            "type": "string",
+            "format": "uuid",
+            "description": "De unieke identificatie van de publicatie."
+          },
+          "kenmerken": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentIdentifier"
+            },
+            "description": "De set aan identificatiekenmerken horend bij dit document."
+          },
+          "officieleTitel": {
+            "type": "string",
+            "title": "Officiële titel",
+            "maxLength": 255
+          },
+          "verkorteTitel": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "omschrijving": {
+            "type": "string"
+          },
+          "publicatiestatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublicatiestatusEnum"
+              }
+            ],
+            "readOnly": true,
+            "title": "Status",
+            "description": "\nTijdens het aanmaken wordt de publicatiestatus overgenomen van het publicatie. De publicatie kan niet zelf ingevuld worden.\n\nDe mogelijke statuswijzigingen zijn:\n\n* `\"\"` -> `\"concept\"`\n* `\"\"` -> `\"gepubliceerd\"`\n* `\"concept\"` -> `\"gepubliceerd\"`\n* `\"gepubliceerd\"` -> `\"ingetrokken\"`.\n\nLet op dat bij sommige wijzigingen beperkt kunnen zijn door business-logica.\n\n* `gepubliceerd` - Gepubliceerd\n* `concept` - Concept\n* `ingetrokken` - Ingetrokken"
+          },
+          "gepubliceerdOp": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "nullable": true,
+            "description": "Systeemdatum en -tijd wanneer de publicatie gepubliceerd werd."
+          },
+          "ingetrokkenOp": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "nullable": true,
+            "description": "Systeemdatum en -tijd wanneer de publicatie ingetrokken werd."
+          },
+          "creatiedatum": {
+            "type": "string",
+            "format": "date",
+            "description": "De datum waarop het document ontstaan is. Niet te verwarren met de registratiedatum - de creatiedatum valt typisch *voor* de registratiedatum."
+          },
+          "ontvangstdatum": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Indien van toepassing, datum wanneer het document door of namens de organisatie in ontvangst is genomen."
+          },
+          "datumOndertekend": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "title": "Datum ondertekening",
+            "description": "Indien van toepassing, datum waarop het document (door alle partijen) ondertekend is."
+          },
+          "bestandsformaat": {
+            "type": "string",
+            "description": "TODO - placeholder accepting anything, in the future this will be validated against a reference value list.",
+            "maxLength": 255
+          },
+          "bestandsnaam": {
+            "type": "string",
+            "description": "Bestandsnaam 'op de harde schijf' van het document, bijvoorbeeld 'gelakt-verslag.pdf'.",
+            "maxLength": 255
+          },
+          "bestandsomvang": {
+            "type": "integer",
+            "maximum": 9223372036854775807,
+            "minimum": 0,
+            "format": "int64",
+            "description": "Bestandsgrootte op de harde schijf, in bytes."
+          },
+          "eigenaar": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Eigenaar"
+              }
+            ],
+            "nullable": true,
+            "description": "De persoon die het document aangemaakt heeft, afgeleid uit de auditlogs.\n\n**Pas op**: Als je het veld opgeeft tijdens het aanmaken of bijwerken van het object, dan zal de eigenaarinformatie afwijken van de audit headers."
+          },
+          "registratiedatum": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "title": "Geregistreerd op",
+            "description": "Systeemdatum en -tijd wanneer het document in de databank opgeslagen is. Niet te verwarren met de creatiedatum van de publicatie, die typisch *voor* de registratiedatum valt."
+          },
+          "laatstGewijzigdDatum": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "title": "Laatst gewijzigd op",
+            "description": "Systeemdatum en -tijd wanneer het document laatst gewijzigd is in de database."
+          },
+          "uploadVoltooid": {
+            "type": "boolean",
+            "readOnly": true,
+            "title": "documentupload voltooid",
+            "description": "Geeft aan of alle bestandsdelen van het bestand ontvangen zijn en het document ontgrendeld en klaar voor gebruik is in de achterliggende Documenten-API."
+          },
+          "aanleveringBestand": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AanleveringBestandEnum"
+              }
+            ],
+            "default": "ontvangen",
+            "title": "aanleverwijze",
+            "description": "Als de aanleverwijze op `ophalen` staat, dan wordt dit verwerkt op de achtergrond en worden er geen `bestandsdelen` teruggegeven in het antwoord. Voor directe uploads wordt er een lijst van verwachte `bestandsdelen` teruggegeven.\n\n* `ontvangen` - Ontvangen\n* `ophalen` - Ophalen"
+          },
+          "bestandsdelen": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FilePart"
+            },
+            "readOnly": true,
+            "nullable": true,
+            "description": "De verwachte bestandsdelen/chunks om de bestandsinhoud te uploaden. Deze zijn afgeleid uit de opgegeven totale bestandsgrootte (`bestandsomvang`) in de body van de document-create-operatie."
+          }
+        },
+        "required": [
+          "bestandsdelen",
+          "creatiedatum",
+          "gepubliceerdOp",
+          "ingetrokkenOp",
+          "laatstGewijzigdDatum",
+          "officieleTitel",
+          "publicatie",
+          "publicatiestatus",
+          "registratiedatum",
+          "uploadVoltooid",
+          "uuid"
+        ]
+      },
+      "DocumentIdentifier": {
+        "type": "object",
+        "properties": {
+          "kenmerk": {
+            "type": "string",
+            "title": "Identificatie",
+            "description": "De identificatie die (samen met de bron) het document uniek herleidbaar maakt.",
+            "maxLength": 40
+          },
+          "bron": {
+            "type": "string",
+            "description": "Geeft aan in welk systeem het kenmerk leeft en waar het vandaan komt.",
+            "maxLength": 40
+          }
+        },
+        "required": [
+          "bron",
+          "kenmerk"
+        ]
+      },
+      "DocumentStatus": {
+        "type": "object",
+        "properties": {
+          "documentUploadVoltooid": {
+            "type": "boolean",
+            "title": "documentupload voltooid",
+            "description": "Geeft aan of alle bestandsdelen van het bestand ontvangen zijn en het document ontgrendeld en klaar voor gebruik is in de achterliggende Documenten-API."
+          }
+        },
+        "required": [
+          "documentUploadVoltooid"
+        ]
+      },
+      "DocumentUpdate": {
+        "type": "object",
+        "description": "Manage updates to metadata of Documents.",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "identifier": {
+            "type": "string",
+            "readOnly": true,
+            "title": "Identificatie",
+            "description": "De (primaire) unieke identificatie.",
+            "deprecated": true
+          },
+          "publicatie": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true,
+            "description": "De unieke identificatie van de publicatie."
+          },
+          "kenmerken": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentIdentifier"
+            },
+            "description": "De set aan identificatiekenmerken horend bij dit document."
+          },
+          "officieleTitel": {
+            "type": "string",
+            "title": "Officiële titel",
+            "maxLength": 255
+          },
+          "verkorteTitel": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "omschrijving": {
+            "type": "string"
+          },
+          "publicatiestatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublicatiestatusEnum"
+              }
+            ],
+            "title": "Status",
+            "description": "\nTijdens het aanmaken wordt de publicatiestatus overgenomen van het publicatie. De publicatie kan niet zelf ingevuld worden.\n\nDe mogelijke statuswijzigingen zijn:\n\n* `\"\"` -> `\"concept\"`\n* `\"\"` -> `\"gepubliceerd\"`\n* `\"concept\"` -> `\"gepubliceerd\"`\n* `\"gepubliceerd\"` -> `\"ingetrokken\"`.\n\nLet op dat bij sommige wijzigingen beperkt kunnen zijn door business-logica.\n\n* `gepubliceerd` - Gepubliceerd\n* `concept` - Concept\n* `ingetrokken` - Ingetrokken"
+          },
+          "gepubliceerdOp": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "nullable": true,
+            "description": "Systeemdatum en -tijd wanneer de publicatie gepubliceerd werd."
+          },
+          "ingetrokkenOp": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "nullable": true,
+            "description": "Systeemdatum en -tijd wanneer de publicatie ingetrokken werd."
+          },
+          "creatiedatum": {
+            "type": "string",
+            "format": "date",
+            "description": "De datum waarop het document ontstaan is. Niet te verwarren met de registratiedatum - de creatiedatum valt typisch *voor* de registratiedatum."
+          },
+          "ontvangstdatum": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Indien van toepassing, datum wanneer het document door of namens de organisatie in ontvangst is genomen."
+          },
+          "datumOndertekend": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "title": "Datum ondertekening",
+            "description": "Indien van toepassing, datum waarop het document (door alle partijen) ondertekend is."
+          },
+          "bestandsformaat": {
+            "type": "string",
+            "readOnly": true,
+            "description": "TODO - placeholder accepting anything, in the future this will be validated against a reference value list."
+          },
+          "bestandsnaam": {
+            "type": "string",
+            "readOnly": true,
+            "description": "Bestandsnaam 'op de harde schijf' van het document, bijvoorbeeld 'gelakt-verslag.pdf'."
+          },
+          "bestandsomvang": {
+            "type": "integer",
+            "readOnly": true,
+            "description": "Bestandsgrootte op de harde schijf, in bytes."
+          },
+          "eigenaar": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Eigenaar"
+              }
+            ],
+            "nullable": true,
+            "description": "De persoon die het document aangemaakt heeft, afgeleid uit de auditlogs.\n\n**Pas op**: Als je het veld opgeeft tijdens het aanmaken of bijwerken van het object, dan zal de eigenaarinformatie afwijken van de audit headers."
+          },
+          "registratiedatum": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "title": "Geregistreerd op",
+            "description": "Systeemdatum en -tijd wanneer het document in de databank opgeslagen is. Niet te verwarren met de creatiedatum van de publicatie, die typisch *voor* de registratiedatum valt."
+          },
+          "laatstGewijzigdDatum": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "title": "Laatst gewijzigd op",
+            "description": "Systeemdatum en -tijd wanneer het document laatst gewijzigd is in de database."
+          },
+          "uploadVoltooid": {
+            "type": "boolean",
+            "readOnly": true,
+            "title": "documentupload voltooid",
+            "description": "Geeft aan of alle bestandsdelen van het bestand ontvangen zijn en het document ontgrendeld en klaar voor gebruik is in de achterliggende Documenten-API."
+          }
+        },
+        "required": [
+          "bestandsformaat",
+          "bestandsnaam",
+          "bestandsomvang",
+          "gepubliceerdOp",
+          "identifier",
+          "ingetrokkenOp",
+          "laatstGewijzigdDatum",
+          "publicatie",
+          "publicatiestatus",
+          "registratiedatum",
+          "uploadVoltooid",
+          "uuid"
+        ]
+      },
+      "Eigenaar": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "title": "Identificatie",
+            "description": "De (unieke) identificatie waarmee de gebruiker die de actie uitvoert achterhaald kan worden.",
+            "maxLength": 255
+          },
+          "weergaveNaam": {
+            "type": "string",
+            "description": "De weergavenaam van de gebruiker."
+          }
+        },
+        "required": [
+          "identifier",
+          "weergaveNaam"
+        ]
+      },
+      "FilePart": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true,
+            "description": "Het unieke ID van een bestandsdeel horend bij een document."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "readOnly": true,
+            "description": "Endpoint waar het bestandsdeel geüpload moet worden."
+          },
+          "volgnummer": {
+            "type": "integer",
+            "readOnly": true,
+            "title": "volgorde",
+            "description": "Index van het bestandsdeel, geeft aan welk bestandsdeel precies geüpload wordt."
+          },
+          "omvang": {
+            "type": "integer",
+            "readOnly": true,
+            "title": "grootte",
+            "description": "Bestandsdeelomvang, in bytes. Grote bestanden moeten in meerdere stukken gesplitst worden, waarbij voor elk stuk een bepaalde bestandsgrootte verwacht wordt (deze grootte is ingesteld op de Documenten-API-server). Een bestandsdeel is pas voltooid als er binaire data van precies deze omvang geüpload zijn."
+          },
+          "inhoud": {
+            "type": "string",
+            "writeOnly": true,
+            "title": "binaire data",
+            "description": "De binaire data van dit stuk, dit wordt doorgezet naar de achterliggende Documenten-API. De bestandsgrootte moet overeenkomen met de `omvang` van het bestandsdeel."
+          }
+        },
+        "required": [
+          "inhoud",
+          "omvang",
+          "url",
+          "uuid",
+          "volgnummer"
+        ]
+      },
+      "InformationCategory": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "identifier": {
+            "type": "string",
+            "format": "uri",
+            "readOnly": true,
+            "title": "Identificatie",
+            "description": "De unieke IRI waarmee deze categorie gedefinieerd is in de overheid.nl waardelijst. Voor zelf-toegevoegde items wordt een identificatie gegenereerd."
+          },
+          "naam": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "naamMeervoud": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "definitie": {
+            "type": "string"
+          },
+          "omschrijving": {
+            "type": "string",
+            "description": "De beknopte toelichting die aan medewerkers en burgers getoond wordt."
+          },
+          "oorsprong": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/InformationCategoryOorsprongEnum"
+              }
+            ],
+            "description": "Geeft aan waar de categorie gedefinieerd is, waar de gegevens opgehaald worden en hoe de identificatie dient geïnterpreteerd te worden. Als een waardelijst als oorsprong gebruikt wordt, dan kan de categorie niet bewerkt of verwijderd worden.\n\n* `waardelijst` - Waardelijst\n* `zelf_toegevoegd` - Zelf-toegevoegd item"
+          },
+          "order": {
+            "type": "integer",
+            "readOnly": true,
+            "title": "Volgorde",
+            "description": "Heeft invloed op de (standaard-)sortering van categorieën in de resultaten."
+          }
+        },
+        "required": [
+          "identifier",
+          "naam",
+          "order"
+        ]
+      },
+      "InformationCategoryOorsprongEnum": {
+        "enum": [
+          "waardelijst",
+          "zelf_toegevoegd"
+        ],
+        "type": "string",
+        "description": "* `waardelijst` - Waardelijst\n* `zelf_toegevoegd` - Zelf-toegevoegd item"
+      },
+      "Organisation": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "identifier": {
+            "type": "string",
+            "format": "uri",
+            "readOnly": true,
+            "title": "Identificatie",
+            "description": "De unieke IRI waarmee deze organisatie gedefinieerd is in de overheid.nl waardelijsten. Voor zelf-toegevoegde items wordt een identificatie gegenereerd."
+          },
+          "naam": {
+            "type": "string",
+            "description": "De naam van de organisatie (deze kan enkel gewijzigd worden als de `oorsprong` `zelf_toegevoegd` is).",
+            "maxLength": 255
+          },
+          "oorsprong": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OrganisationOorsprongEnum"
+              }
+            ],
+            "readOnly": true,
+            "description": "Geeft aan waar de organisatie gedefinieerd is, waar de gegevens opgehaald worden en hoe de identificatie dient geïnterpreteerd te worden. Als een waardelijst als oorsprong gebruikt wordt, dan kan de organisatie niet bewerkt of verwijderd worden.\n\n* `gemeentelijst` - Register gemeenten compleet\n* `solijst` - Register samenwerkingsorganisaties compleet\n* `oorglijst` - Register overige overheidsorganisaties compleet\n* `zelf_toegevoegd` - Zelf-toegevoegd item"
+          },
+          "isActief": {
+            "type": "boolean",
+            "title": "Actief",
+            "description": "Geeft de actief-status van de organisatie aan."
+          }
+        },
+        "required": [
+          "identifier",
+          "oorsprong",
+          "uuid"
+        ]
+      },
+      "OrganisationOorsprongEnum": {
+        "enum": [
+          "gemeentelijst",
+          "solijst",
+          "oorglijst",
+          "zelf_toegevoegd"
+        ],
+        "type": "string",
+        "description": "* `gemeentelijst` - Register gemeenten compleet\n* `solijst` - Register samenwerkingsorganisaties compleet\n* `oorglijst` - Register overige overheidsorganisaties compleet\n* `zelf_toegevoegd` - Zelf-toegevoegd item"
+      },
+      "PaginatedDocumentList": {
+        "type": "object",
+        "required": [
+          "count",
+          "results"
+        ],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "example": 123
+          },
+          "next": {
+            "type": "string",
+            "nullable": true,
+            "format": "uri",
+            "example": "http://api.example.org/accounts/?page=4"
+          },
+          "previous": {
+            "type": "string",
+            "nullable": true,
+            "format": "uri",
+            "example": "http://api.example.org/accounts/?page=2"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Document"
+            }
+          }
+        }
+      },
+      "PaginatedInformationCategoryList": {
+        "type": "object",
+        "required": [
+          "count",
+          "results"
+        ],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "example": 123
+          },
+          "next": {
+            "type": "string",
+            "nullable": true,
+            "format": "uri",
+            "example": "http://api.example.org/accounts/?page=4"
+          },
+          "previous": {
+            "type": "string",
+            "nullable": true,
+            "format": "uri",
+            "example": "http://api.example.org/accounts/?page=2"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InformationCategory"
+            }
+          }
+        }
+      },
+      "PaginatedOrganisationList": {
+        "type": "object",
+        "required": [
+          "count",
+          "results"
+        ],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "example": 123
+          },
+          "next": {
+            "type": "string",
+            "nullable": true,
+            "format": "uri",
+            "example": "http://api.example.org/accounts/?page=4"
+          },
+          "previous": {
+            "type": "string",
+            "nullable": true,
+            "format": "uri",
+            "example": "http://api.example.org/accounts/?page=2"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Organisation"
+            }
+          }
+        }
+      },
+      "PaginatedPublicationReadList": {
+        "type": "object",
+        "required": [
+          "count",
+          "results"
+        ],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "example": 123
+          },
+          "next": {
+            "type": "string",
+            "nullable": true,
+            "format": "uri",
+            "example": "http://api.example.org/accounts/?page=4"
+          },
+          "previous": {
+            "type": "string",
+            "nullable": true,
+            "format": "uri",
+            "example": "http://api.example.org/accounts/?page=2"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicationRead"
+            }
+          }
+        }
+      },
+      "PaginatedThemeList": {
+        "type": "object",
+        "required": [
+          "count",
+          "results"
+        ],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "example": 123
+          },
+          "next": {
+            "type": "string",
+            "nullable": true,
+            "format": "uri",
+            "example": "http://api.example.org/accounts/?page=4"
+          },
+          "previous": {
+            "type": "string",
+            "nullable": true,
+            "format": "uri",
+            "example": "http://api.example.org/accounts/?page=2"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Theme"
+            }
+          }
+        }
+      },
+      "PaginatedTopicList": {
+        "type": "object",
+        "required": [
+          "count",
+          "results"
+        ],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "example": 123
+          },
+          "next": {
+            "type": "string",
+            "nullable": true,
+            "format": "uri",
+            "example": "http://api.example.org/accounts/?page=4"
+          },
+          "previous": {
+            "type": "string",
+            "nullable": true,
+            "format": "uri",
+            "example": "http://api.example.org/accounts/?page=2"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Topic"
+            }
+          }
+        }
+      },
+      "PatchedDocumentUpdate": {
+        "type": "object",
+        "description": "Manage updates to metadata of Documents.",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "identifier": {
+            "type": "string",
+            "readOnly": true,
+            "title": "Identificatie",
+            "description": "De (primaire) unieke identificatie.",
+            "deprecated": true
+          },
+          "publicatie": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true,
+            "description": "De unieke identificatie van de publicatie."
+          },
+          "kenmerken": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentIdentifier"
+            },
+            "description": "De set aan identificatiekenmerken horend bij dit document."
+          },
+          "officieleTitel": {
+            "type": "string",
+            "title": "Officiële titel",
+            "maxLength": 255
+          },
+          "verkorteTitel": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "omschrijving": {
+            "type": "string"
+          },
+          "publicatiestatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublicatiestatusEnum"
+              }
+            ],
+            "title": "Status",
+            "description": "\nTijdens het aanmaken wordt de publicatiestatus overgenomen van het publicatie. De publicatie kan niet zelf ingevuld worden.\n\nDe mogelijke statuswijzigingen zijn:\n\n* `\"\"` -> `\"concept\"`\n* `\"\"` -> `\"gepubliceerd\"`\n* `\"concept\"` -> `\"gepubliceerd\"`\n* `\"gepubliceerd\"` -> `\"ingetrokken\"`.\n\nLet op dat bij sommige wijzigingen beperkt kunnen zijn door business-logica.\n\n* `gepubliceerd` - Gepubliceerd\n* `concept` - Concept\n* `ingetrokken` - Ingetrokken"
+          },
+          "gepubliceerdOp": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "nullable": true,
+            "description": "Systeemdatum en -tijd wanneer de publicatie gepubliceerd werd."
+          },
+          "ingetrokkenOp": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "nullable": true,
+            "description": "Systeemdatum en -tijd wanneer de publicatie ingetrokken werd."
+          },
+          "creatiedatum": {
+            "type": "string",
+            "format": "date",
+            "description": "De datum waarop het document ontstaan is. Niet te verwarren met de registratiedatum - de creatiedatum valt typisch *voor* de registratiedatum."
+          },
+          "ontvangstdatum": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Indien van toepassing, datum wanneer het document door of namens de organisatie in ontvangst is genomen."
+          },
+          "datumOndertekend": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "title": "Datum ondertekening",
+            "description": "Indien van toepassing, datum waarop het document (door alle partijen) ondertekend is."
+          },
+          "bestandsformaat": {
+            "type": "string",
+            "readOnly": true,
+            "description": "TODO - placeholder accepting anything, in the future this will be validated against a reference value list."
+          },
+          "bestandsnaam": {
+            "type": "string",
+            "readOnly": true,
+            "description": "Bestandsnaam 'op de harde schijf' van het document, bijvoorbeeld 'gelakt-verslag.pdf'."
+          },
+          "bestandsomvang": {
+            "type": "integer",
+            "readOnly": true,
+            "description": "Bestandsgrootte op de harde schijf, in bytes."
+          },
+          "eigenaar": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Eigenaar"
+              }
+            ],
+            "nullable": true,
+            "description": "De persoon die het document aangemaakt heeft, afgeleid uit de auditlogs.\n\n**Pas op**: Als je het veld opgeeft tijdens het aanmaken of bijwerken van het object, dan zal de eigenaarinformatie afwijken van de audit headers."
+          },
+          "registratiedatum": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "title": "Geregistreerd op",
+            "description": "Systeemdatum en -tijd wanneer het document in de databank opgeslagen is. Niet te verwarren met de creatiedatum van de publicatie, die typisch *voor* de registratiedatum valt."
+          },
+          "laatstGewijzigdDatum": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "title": "Laatst gewijzigd op",
+            "description": "Systeemdatum en -tijd wanneer het document laatst gewijzigd is in de database."
+          },
+          "uploadVoltooid": {
+            "type": "boolean",
+            "readOnly": true,
+            "title": "documentupload voltooid",
+            "description": "Geeft aan of alle bestandsdelen van het bestand ontvangen zijn en het document ontgrendeld en klaar voor gebruik is in de achterliggende Documenten-API."
+          }
+        }
+      },
+      "PatchedOrganisation": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "identifier": {
+            "type": "string",
+            "format": "uri",
+            "readOnly": true,
+            "title": "Identificatie",
+            "description": "De unieke IRI waarmee deze organisatie gedefinieerd is in de overheid.nl waardelijsten. Voor zelf-toegevoegde items wordt een identificatie gegenereerd."
+          },
+          "naam": {
+            "type": "string",
+            "description": "De naam van de organisatie (deze kan enkel gewijzigd worden als de `oorsprong` `zelf_toegevoegd` is).",
+            "maxLength": 255
+          },
+          "oorsprong": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OrganisationOorsprongEnum"
+              }
+            ],
+            "readOnly": true,
+            "description": "Geeft aan waar de organisatie gedefinieerd is, waar de gegevens opgehaald worden en hoe de identificatie dient geïnterpreteerd te worden. Als een waardelijst als oorsprong gebruikt wordt, dan kan de organisatie niet bewerkt of verwijderd worden.\n\n* `gemeentelijst` - Register gemeenten compleet\n* `solijst` - Register samenwerkingsorganisaties compleet\n* `oorglijst` - Register overige overheidsorganisaties compleet\n* `zelf_toegevoegd` - Zelf-toegevoegd item"
+          },
+          "isActief": {
+            "type": "boolean",
+            "title": "Actief",
+            "description": "Geeft de actief-status van de organisatie aan."
+          }
+        }
+      },
+      "PatchedPublicationWrite": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/PatchedPublicationWriteConceptPublicationWrite"
+          },
+          {
+            "$ref": "#/components/schemas/PatchedPublicationWritePublishedOrRevokedPublicationWrite"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "publicatiestatus",
+          "mapping": {
+            "concept": "#/components/schemas/PatchedPublicationWriteConceptPublicationWrite",
+            "gepubliceerd": "#/components/schemas/PatchedPublicationWritePublishedOrRevokedPublicationWrite",
+            "ingetrokken": "#/components/schemas/PatchedPublicationWritePublishedOrRevokedPublicationWrite"
+          }
+        }
+      },
+      "PatchedPublicationWriteConceptPublicationWrite": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PatchedPublicationWriteShared"
+          },
+          {
+            "$ref": "#/components/schemas/ConceptPublicationWrite"
+          }
+        ]
+      },
+      "PatchedPublicationWritePublishedOrRevokedPublicationWrite": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PatchedPublicationWriteShared"
+          },
+          {
+            "$ref": "#/components/schemas/PublishedOrRevokedPublicationWrite"
+          }
+        ]
+      },
+      "PatchedPublicationWriteShared": {
+        "type": "object",
+        "description": "Encapsulate the create/update validation logic and behaviour.\n\nThe publication serializer is split in read/write parts so that the output can be\nproperly documented in the API schema. Writes for concept publications are much\nmore relaxed that published publications.\n\nThe write serializer in turn is a polymorphic serializer, covering the validation\nbehaviour for concept/published publication states.\n\n.. todo:: test validation behaviour of an incomplete concept publication being\nchanged to published.",
+        "properties": {
+          "publicatiestatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublicatiestatusEnum"
+              }
+            ],
+            "default": "gepubliceerd",
+            "title": "Status",
+            "description": "\n**Waarschuwing**: je kan geen ingetrokken publicatie aanmaken.\n\n**Waarschuwing**: wanneer je een publicatie intrekt, dan worden ook de gerelateerde gepubliceerde documenten ingetrokken.\n\n* `gepubliceerd` - Gepubliceerd\n* `concept` - Concept\n* `ingetrokken` - Ingetrokken"
+          }
+        }
+      },
+      "PublicatiestatusEnum": {
+        "enum": [
+          "gepubliceerd",
+          "concept",
+          "ingetrokken"
+        ],
+        "type": "string",
+        "description": "**Waarschuwing**: wanneer je een publicatie intrekt, dan worden ook de gerelateerde gepubliceerde documenten ingetrokken.\n\nDe mogelijke statuswijzigingen zijn:\n\n* `\"\"` -> `\"concept\"`\n* `\"\"` -> `\"gepubliceerd\"`\n* `\"concept\"` -> `\"gepubliceerd\"`\n* `\"gepubliceerd\"` -> `\"ingetrokken\"`.\n\nLet op dat bij sommige wijzigingen beperkt kunnen zijn door business-logica.\n\n* `gepubliceerd` - Gepubliceerd\n* `concept` - Concept\n* `ingetrokken` - Ingetrokken"
+      },
+      "PublicationIdentifier": {
+        "type": "object",
+        "properties": {
+          "kenmerk": {
+            "type": "string",
+            "title": "Identificatie",
+            "description": "De identificatie die (samen met de bron) de publicatie uniek herleidbaar maakt.",
+            "maxLength": 40
+          },
+          "bron": {
+            "type": "string",
+            "description": "Geeft aan in welk systeem het kenmerk leeft en waar het vandaan komt.",
+            "maxLength": 40
+          }
+        },
+        "required": [
+          "bron",
+          "kenmerk"
+        ]
+      },
+      "PublicationRead": {
+        "type": "object",
+        "description": "Encapsulate the read behaviour for publication serialization.\n\nFor read operations, we're much closer to the database model and can provide\nstronger guarantees about the returned data, leading to stricter schema/type\ndefinitions.",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "urlPublicatieIntern": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "uri"
+              },
+              {
+                "enum": [
+                  ""
+                ],
+                "type": "string"
+              }
+            ],
+            "readOnly": true,
+            "title": "Werk een publicatie (in zijn geheel) bij.",
+            "description": "De URL die verwijst naar de UI van de interne applicatie waar de publicatie beheerd wordt. Dit vereist dat de algemene configuratieparameter ingevuld is, anders wordt er een lege string teruggestuurd."
+          },
+          "urlPublicatieExtern": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "uri"
+              },
+              {
+                "enum": [
+                  ""
+                ],
+                "type": "string"
+              }
+            ],
+            "readOnly": true,
+            "title": "externe publicatie-URL.",
+            "description": "De URL die verwijst naar de UI van de externe applicatie waar de publicatie publiek toegankelijk is. Dit vereist dat de algemene configuratieparameter ingevuld is, anders wordt er een lege string teruggestuurd."
+          },
+          "informatieCategorieen": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "De informatiecategorie verduidelijkt de soort informatie die in de publicatie voorkomt."
+          },
+          "diWooInformatieCategorieen": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "readOnly": true,
+            "description": "De informatiecategorieën voor in de sitemap."
+          },
+          "onderwerpen": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Onderwerpen gaan over maatschappelijk relevante informatie die meerdere publicaties omvatten. Ze kunnen tientallen jaren relevant blijven en overstijgen de typische levensduur van een enkele publicatie."
+          },
+          "publisher": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "De organisatie die de publicatie publiceert.De 'publisher' kan `null` zijn voor conceptpublicaties."
+          },
+          "verantwoordelijke": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "De organisatie die verantwoordelijk is voor de publicatie en haar inhoud."
+          },
+          "opsteller": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "De organisatie die de publicatie en haar inhoud opgesteld heeft."
+          },
+          "kenmerken": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicationIdentifier"
+            },
+            "description": "De set aan identificatiekenmerken horend bij deze publicatie."
+          },
+          "officieleTitel": {
+            "type": "string",
+            "title": "Officiële titel",
+            "maxLength": 255
+          },
+          "verkorteTitel": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "omschrijving": {
+            "type": "string"
+          },
+          "eigenaar": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Eigenaar"
+              }
+            ],
+            "description": "De persoon die het document aangemaakt heeft, afgeleid uit de auditlogs.\n\n**Pas op**: Als je het veld opgeeft tijdens het aanmaken of bijwerken van het object, dan zal de eigenaarinformatie afwijken van de audit headers."
+          },
+          "publicatiestatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublicatiestatusEnum"
+              }
+            ],
+            "default": "gepubliceerd",
+            "title": "Status",
+            "description": "\n**Waarschuwing**: je kan geen ingetrokken publicatie aanmaken.\n\n**Waarschuwing**: wanneer je een publicatie intrekt, dan worden ook de gerelateerde gepubliceerde documenten ingetrokken.\n\nDe mogelijke statuswijzigingen zijn:\n\n* `\"\"` -> `\"concept\"`\n* `\"\"` -> `\"gepubliceerd\"`\n* `\"concept\"` -> `\"gepubliceerd\"`\n* `\"gepubliceerd\"` -> `\"ingetrokken\"`.\n\nLet op dat bij sommige wijzigingen beperkt kunnen zijn door business-logica.\n\n* `gepubliceerd` - Gepubliceerd\n* `concept` - Concept\n* `ingetrokken` - Ingetrokken"
+          },
+          "gepubliceerdOp": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "nullable": true,
+            "description": "Systeemdatum en -tijd wanneer de publicatie gepubliceerd werd."
+          },
+          "ingetrokkenOp": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "nullable": true,
+            "description": "Systeemdatum en -tijd wanneer de publicatie ingetrokken werd."
+          },
+          "registratiedatum": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "title": "Geregistreerd op",
+            "description": "Systeemdatum en -tijd wanneer de publicatie in de databank opgeslagen is. Niet te verwarren met de creatiedatum van de publicatie, die typisch *voor* de registratiedatum valt."
+          },
+          "laatstGewijzigdDatum": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "title": "Laatst gewijzigd op",
+            "description": "Systeemdatum en -tijd wanneer de publicatie laatst gewijzigd is in de database."
+          },
+          "datumBeginGeldigheid": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "De datum waarop de rechten en plichten vastgelegd in deze documenten in werking treden."
+          },
+          "datumEindeGeldigheid": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "De datum waarop de rechten en plichten vastgelegd in deze documenten (zijn) komen te vervallen."
+          },
+          "bronBewaartermijn": {
+            "type": "string",
+            "description": "De bron waaruit de bewaartermijn bepaald is (bjivoorbeeld: Selectielijst gemeenten 2020).",
+            "maxLength": 255
+          },
+          "selectiecategorie": {
+            "type": "string",
+            "description": "De categorie waaruit de bewaartermijn bepaald is, zoals deze in de bron bewaartermijn voorkomt (bijvoorbeeld: 20.1.2).",
+            "maxLength": 255
+          },
+          "archiefnominatie": {
+            "description": "Geeft aan of de gegevens bij het archiveren bewaard blijven of definitief vernietigd worden.\n\n* `blijvend_bewaren` - Blijvend bewaren\n* `vernietigen` - Vernietigen",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ArchiefnominatieEnum"
+              },
+              {
+                "$ref": "#/components/schemas/BlankEnum"
+              }
+            ]
+          },
+          "archiefactiedatum": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "Datum waarop de publicatie overgebracht of definitief vernietigd zal worden."
+          },
+          "toelichtingBewaartermijn": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "archiefactiedatum",
+          "archiefnominatie",
+          "bronBewaartermijn",
+          "datumBeginGeldigheid",
+          "datumEindeGeldigheid",
+          "diWooInformatieCategorieen",
+          "eigenaar",
+          "gepubliceerdOp",
+          "informatieCategorieen",
+          "ingetrokkenOp",
+          "kenmerken",
+          "laatstGewijzigdDatum",
+          "officieleTitel",
+          "omschrijving",
+          "onderwerpen",
+          "opsteller",
+          "publicatiestatus",
+          "publisher",
+          "registratiedatum",
+          "selectiecategorie",
+          "toelichtingBewaartermijn",
+          "urlPublicatieExtern",
+          "urlPublicatieIntern",
+          "uuid",
+          "verantwoordelijke",
+          "verkorteTitel"
+        ]
+      },
+      "PublicationWrite": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/PublicationWriteConceptPublicationWrite"
+          },
+          {
+            "$ref": "#/components/schemas/PublicationWritePublishedOrRevokedPublicationWrite"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "publicatiestatus",
+          "mapping": {
+            "concept": "#/components/schemas/PublicationWriteConceptPublicationWrite",
+            "gepubliceerd": "#/components/schemas/PublicationWritePublishedOrRevokedPublicationWrite",
+            "ingetrokken": "#/components/schemas/PublicationWritePublishedOrRevokedPublicationWrite"
+          }
+        }
+      },
+      "PublicationWriteConceptPublicationWrite": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PublicationWriteShared"
+          },
+          {
+            "$ref": "#/components/schemas/ConceptPublicationWrite"
+          }
+        ]
+      },
+      "PublicationWritePublishedOrRevokedPublicationWrite": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PublicationWriteShared"
+          },
+          {
+            "$ref": "#/components/schemas/PublishedOrRevokedPublicationWrite"
+          }
+        ]
+      },
+      "PublicationWriteShared": {
+        "type": "object",
+        "description": "Encapsulate the create/update validation logic and behaviour.\n\nThe publication serializer is split in read/write parts so that the output can be\nproperly documented in the API schema. Writes for concept publications are much\nmore relaxed that published publications.\n\nThe write serializer in turn is a polymorphic serializer, covering the validation\nbehaviour for concept/published publication states.\n\n.. todo:: test validation behaviour of an incomplete concept publication being\nchanged to published.",
+        "properties": {
+          "publicatiestatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublicatiestatusEnum"
+              }
+            ],
+            "default": "gepubliceerd",
+            "title": "Status",
+            "description": "\n**Waarschuwing**: je kan geen ingetrokken publicatie aanmaken.\n\n**Waarschuwing**: wanneer je een publicatie intrekt, dan worden ook de gerelateerde gepubliceerde documenten ingetrokken.\n\n* `gepubliceerd` - Gepubliceerd\n* `concept` - Concept\n* `ingetrokken` - Ingetrokken"
+          }
+        }
+      },
+      "PublishedOrRevokedPublicationWrite": {
+        "type": "object",
+        "description": "Base serializer for publication read and write operations.\n\nThis base class defines the shared logic that should be kept in sync between read\nand write operations for consistent API documentation (and behaviour).",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "urlPublicatieIntern": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "uri"
+              },
+              {
+                "enum": [
+                  ""
+                ],
+                "type": "string"
+              }
+            ],
+            "readOnly": true,
+            "title": "Werk een publicatie (in zijn geheel) bij.",
+            "description": "De URL die verwijst naar de UI van de interne applicatie waar de publicatie beheerd wordt. Dit vereist dat de algemene configuratieparameter ingevuld is, anders wordt er een lege string teruggestuurd."
+          },
+          "urlPublicatieExtern": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "uri"
+              },
+              {
+                "enum": [
+                  ""
+                ],
+                "type": "string"
+              }
+            ],
+            "readOnly": true,
+            "title": "externe publicatie-URL.",
+            "description": "De URL die verwijst naar de UI van de externe applicatie waar de publicatie publiek toegankelijk is. Dit vereist dat de algemene configuratieparameter ingevuld is, anders wordt er een lege string teruggestuurd."
+          },
+          "informatieCategorieen": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "De informatiecategorie verduidelijkt de soort informatie die in de publicatie voorkomt."
+          },
+          "diWooInformatieCategorieen": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "readOnly": true,
+            "description": "De informatiecategorieën voor in de sitemap."
+          },
+          "onderwerpen": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Onderwerpen gaan over maatschappelijk relevante informatie die meerdere publicaties omvatten. Ze kunnen tientallen jaren relevant blijven en overstijgen de typische levensduur van een enkele publicatie."
+          },
+          "publisher": {
+            "type": "string",
+            "format": "uuid",
+            "description": "De organisatie die de publicatie publiceert."
+          },
+          "verantwoordelijke": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "De organisatie die verantwoordelijk is voor de publicatie en haar inhoud."
+          },
+          "opsteller": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "De organisatie die de publicatie en haar inhoud opgesteld heeft."
+          },
+          "kenmerken": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicationIdentifier"
+            },
+            "description": "De set aan identificatiekenmerken horend bij deze publicatie."
+          },
+          "officieleTitel": {
+            "type": "string",
+            "title": "Officiële titel",
+            "maxLength": 255
+          },
+          "verkorteTitel": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "omschrijving": {
+            "type": "string"
+          },
+          "eigenaar": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Eigenaar"
+              }
+            ],
+            "nullable": true,
+            "description": "De persoon die het document aangemaakt heeft, afgeleid uit de auditlogs.\n\n**Pas op**: Als je het veld opgeeft tijdens het aanmaken of bijwerken van het object, dan zal de eigenaarinformatie afwijken van de audit headers."
+          },
+          "publicatiestatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublicatiestatusEnum"
+              }
+            ],
+            "default": "gepubliceerd",
+            "title": "Status",
+            "description": "\n**Waarschuwing**: je kan geen ingetrokken publicatie aanmaken.\n\n**Waarschuwing**: wanneer je een publicatie intrekt, dan worden ook de gerelateerde gepubliceerde documenten ingetrokken.\n\nDe mogelijke statuswijzigingen zijn:\n\n* `\"\"` -> `\"concept\"`\n* `\"\"` -> `\"gepubliceerd\"`\n* `\"concept\"` -> `\"gepubliceerd\"`\n* `\"gepubliceerd\"` -> `\"ingetrokken\"`.\n\nLet op dat bij sommige wijzigingen beperkt kunnen zijn door business-logica.\n\n* `gepubliceerd` - Gepubliceerd\n* `concept` - Concept\n* `ingetrokken` - Ingetrokken"
+          },
+          "gepubliceerdOp": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "nullable": true,
+            "description": "Systeemdatum en -tijd wanneer de publicatie gepubliceerd werd."
+          },
+          "ingetrokkenOp": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "nullable": true,
+            "description": "Systeemdatum en -tijd wanneer de publicatie ingetrokken werd."
+          },
+          "registratiedatum": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "title": "Geregistreerd op",
+            "description": "Systeemdatum en -tijd wanneer de publicatie in de databank opgeslagen is. Niet te verwarren met de creatiedatum van de publicatie, die typisch *voor* de registratiedatum valt."
+          },
+          "laatstGewijzigdDatum": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "title": "Laatst gewijzigd op",
+            "description": "Systeemdatum en -tijd wanneer de publicatie laatst gewijzigd is in de database."
+          },
+          "datumBeginGeldigheid": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "De datum waarop de rechten en plichten vastgelegd in deze documenten in werking treden."
+          },
+          "datumEindeGeldigheid": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "De datum waarop de rechten en plichten vastgelegd in deze documenten (zijn) komen te vervallen."
+          },
+          "bronBewaartermijn": {
+            "type": "string",
+            "description": "De bron waaruit de bewaartermijn bepaald is (bjivoorbeeld: Selectielijst gemeenten 2020).\n**Opmerking** handmatig opgegeven waarden worden bij het aanmaken (of wanneer de informatiecategorieën bijgewerkt worden) overschreven met de automatisch afgeleide waarden uit de gekoppelde informatiecategorie(ën).",
+            "maxLength": 255
+          },
+          "selectiecategorie": {
+            "type": "string",
+            "description": "De categorie waaruit de bewaartermijn bepaald is, zoals deze in de bron bewaartermijn voorkomt (bijvoorbeeld: 20.1.2).\n**Opmerking** handmatig opgegeven waarden worden bij het aanmaken (of wanneer de informatiecategorieën bijgewerkt worden) overschreven met de automatisch afgeleide waarden uit de gekoppelde informatiecategorie(ën).",
+            "maxLength": 255
+          },
+          "archiefnominatie": {
+            "description": "Geeft aan of de gegevens bij het archiveren bewaard blijven of definitief vernietigd worden.\n**Opmerking** handmatig opgegeven waarden worden bij het aanmaken (of wanneer de informatiecategorieën bijgewerkt worden) overschreven met de automatisch afgeleide waarden uit de gekoppelde informatiecategorie(ën).\n\n* `blijvend_bewaren` - Blijvend bewaren\n* `vernietigen` - Vernietigen",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ArchiefnominatieEnum"
+              },
+              {
+                "$ref": "#/components/schemas/BlankEnum"
+              }
+            ]
+          },
+          "archiefactiedatum": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "Datum waarop de publicatie overgebracht of definitief vernietigd zal worden.\n**Opmerking** handmatig opgegeven waarden worden bij het aanmaken (of wanneer de informatiecategorieën bijgewerkt worden) overschreven met de automatisch afgeleide waarden uit de gekoppelde informatiecategorie(ën)."
+          },
+          "toelichtingBewaartermijn": {
+            "type": "string",
+            "description": "**Opmerking** handmatig opgegeven waarden worden bij het aanmaken (of wanneer de informatiecategorieën bijgewerkt worden) overschreven met de automatisch afgeleide waarden uit de gekoppelde informatiecategorie(ën)."
+          }
+        },
+        "required": [
+          "diWooInformatieCategorieen",
+          "gepubliceerdOp",
+          "informatieCategorieen",
+          "ingetrokkenOp",
+          "laatstGewijzigdDatum",
+          "officieleTitel",
+          "publisher",
+          "registratiedatum",
+          "urlPublicatieExtern",
+          "urlPublicatieIntern",
+          "uuid"
+        ]
+      },
+      "RetrieveUrlDocumentCreate": {
+        "type": "object",
+        "properties": {
+          "documentUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "De bronlocatie (URL) van het document in een (externe) Documenten API. Dit moet verwijzen naar de detail-endpoint - wij bouwen vervolgens de download-URL  op. Dit veld moet opgegeven worden wanneer het `aanleveringBestand`-veld op `ophalen` staat, dit veld moet dan ook leeg zijn als het `aanleveringBestand` veld op `ontvangen` staat. Merk op dat je de `versie` query-parameter kan opnemen om naar een specifieke documentversie te verwijzen. "
+          }
+        },
+        "required": [
+          "documentUrl"
+        ]
+      },
+      "Theme": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "identifier": {
+            "type": "string",
+            "format": "uri",
+            "readOnly": true,
+            "title": "Identificatie",
+            "description": "De unieke IRI waarmee het thema in de overheid.nl waardenlijst gedefinieerd is. Voor zelf-toegevoegde items wordt een identificatie gegenereerd."
+          },
+          "naam": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "subThemes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Theme"
+            },
+            "description": "De subthema's die binnen het huidige thema bestaan."
+          }
+        },
+        "required": [
+          "identifier",
+          "naam",
+          "subThemes"
+        ]
+      },
+      "Topic": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "afbeelding": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "(?:jpg|jpeg|png|gif|webp)$"
+          },
+          "publicaties": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "De publicatie die aan dit onderwerp gekoppeld is."
+          },
+          "officieleTitel": {
+            "type": "string",
+            "title": "Officiële titel",
+            "maxLength": 255
+          },
+          "omschrijving": {
+            "type": "string"
+          },
+          "publicatiestatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublicatiestatusEnum"
+              }
+            ],
+            "title": "Status"
+          },
+          "promoot": {
+            "type": "boolean",
+            "description": "Vlag die aangeeft of dit onderwerp gepromoot wordt in het burgerportaal."
+          },
+          "registratiedatum": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "title": "Geregistreerd op",
+            "description": "Systeemdatum en -tijd wanneer het onderwerp geregistreerd is in de database."
+          },
+          "laatstGewijzigdDatum": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "title": "Laatst gewijzigd op",
+            "description": "Systeemdatum en -tijd wanneer het onderwerp laatst gewijzigd is in de database."
+          }
+        },
+        "required": [
+          "afbeelding",
+          "laatstGewijzigdDatum",
+          "officieleTitel",
+          "publicaties",
+          "registratiedatum",
+          "uuid"
+        ]
+      },
+      "VertrouwelijkheidaanduidingEnum": {
+        "enum": [
+          "openbaar",
+          "beperkt_openbaar",
+          "intern",
+          "zaakvertrouwelijk",
+          "vertrouwelijk",
+          "confidentieel",
+          "geheim",
+          "zeer_geheim"
+        ],
+        "type": "string",
+        "description": "* `openbaar` - Openbaar\n* `beperkt_openbaar` - Beperkt openbaar\n* `intern` - Intern\n* `zaakvertrouwelijk` - Zaakvertrouwelijk\n* `vertrouwelijk` - Vertrouwelijk\n* `confidentieel` - Confidentieel\n* `geheim` - Geheim\n* `zeer_geheim` - Zeer geheim"
+      }
+    },
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Token-based authentication with required prefix \"Token\""
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "Functional and technical documentation",
+    "url": "https://gpp-publicatiebank.readthedocs.io/"
+  }
+}

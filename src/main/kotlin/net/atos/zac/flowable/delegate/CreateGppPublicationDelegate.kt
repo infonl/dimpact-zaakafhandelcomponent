@@ -34,6 +34,7 @@ class CreateGppPublicationDelegate : AbstractDelegate() {
             "Creating GPP publication for zaak '${getZaakIdentificatie(execution)}' " +
                 "and selected documents: '${selectedDocuments.resolveValueAsList(execution)}'."
         }
+
     }
 
     private fun suspendZaak(execution: DelegateExecution) {

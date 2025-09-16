@@ -693,6 +693,13 @@ tasks {
         modelPackage.set("nl.info.client.pabc.model.generated")
     }
 
+    register<GenerateTask>("generateGppPublicatiebankClient") {
+        description = "Generates Java client code for the GPP Publicatiebank API"
+        inputSpec.set("$rootDir/src/main/resources/api-specs/gpp-publicatiebank/gpp-publicatiebank-openapi.yaml")
+        outputDir.set("$rootDir/src/generated/gpppublicatiebank/java")
+        modelPackage.set("nl.info.client.gpppublicatiebank.model.generated")
+    }
+
     register("generateJavaClients") {
         description = "Generates Java client code for the various REST APIs"
         dependsOn(
@@ -708,7 +715,8 @@ tasks {
             "generateZgwZrcClient",
             "generateZgwZtcClient",
             "generateOrObjectsClient",
-            "generatePabcClient"
+            "generatePabcClient",
+            "generateGppPublicatiebankClient"
         )
     }
 
