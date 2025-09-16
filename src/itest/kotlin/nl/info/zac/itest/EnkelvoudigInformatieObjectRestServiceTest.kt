@@ -116,6 +116,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 enkelvoudigInformatieObjectUUID = JSONObject(responseBody).getString("uuid")
             }
         }
+
         When("update of enkelvoudig informatie object with file upload endpoint is called with a TXT file") {
             val endpointUrl =
                 "$ZAC_API_URI/informatieobjecten/informatieobject/update"
