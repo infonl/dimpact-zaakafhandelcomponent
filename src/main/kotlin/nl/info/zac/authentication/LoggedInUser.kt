@@ -15,6 +15,7 @@ class LoggedInUser(
     email: String?,
     val roles: Set<String>,
     val groupIds: Set<String>,
+
     /**
      * List of zaaktypen for which the logged-in user is authorised, or 'null' if the user is authorised for all zaaktypen.
      */
