@@ -745,11 +745,53 @@ services:
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
-      - ./scripts/docker-compose/imports/gpp-publicatiebank-database/init-db.sql:/docker-entrypoint-initdb.d/init_db.sql
-      - ./scripts/docker-compose/imports/gpp-publicatiebank-database/open-zaak/db/0001-init-open-zaak-db.sql:/docker-entrypoint-initdb.d/0001-init-open-zaak-db.sql
-      - ./scripts/docker-compose/imports/gpp-publicatiebank-database/open-zaak/db/0002-extensions.sh:/docker-entrypoint-initdb.d/0002-extensions.sh
-      - ./scripts/docker-compose/imports/gpp-publicatiebank-database/gpp-zoeken/db/0001-init-gpp-zoeken-db.sql:/docker-entrypoint-initdb.d/0001-gpp-zoeken-db.sql
-      - ./scripts/docker-compose/volume-data/gpp-publicatiebank-database:/var/lib/postgresql/data
+      - ./scripts/docker-compose/imports/gpp-publicatiebank/init-db.sql:/docker-entrypoint-initdb.d/init_db.sql
+      - ./scripts/docker-compose/imports/gpp-publicatiebank/open-zaak/db/0001-init-open-zaak-db.sql:/docker-entrypoint-initdb.d/0001-init-open-zaak-db.sql
+      - ./scripts/docker-compose/imports/gpp-publicatiebank/open-zaak/db/0002-extensions.sh:/docker-entrypoint-initdb.d/0002-extensions.sh
+      - ./scripts/docker-compose/imports/gpp-publicatiebank/gpp-zoeken/db/0001-init-gpp-zoeken-db.sql:/docker-entrypoint-initdb.d/0001-gpp-zoeken-db.sql
+      - ./scripts/docker-compose/volume-data/gpp-publicatiebank:/var/lib/postgresql/data
+
+  gpp-zoeken-web:
+    image: ghcr.io/gpp-woo/gpp-zoeken:${GPP_ZOEKEN_VERSION:-latest}
+    platform: linux/amd64
+    environment:
+      - DJANGO_SETTINGS_MODULE=woo_search.conf.docker
+      - SECRET_KEY=${SECRET_KEY:-django-insecure-fgggi4*bl2wdg&@0&)t7ewy5-2!b3l4lhx4_+^zpw%x2i28v8}
+      - DB_NAME=gppzoeken
+      - DB_USER=gppzoeken
+      - DB_HOST=gpp-publicatiebank-database
+      - CACHE_DEFAULT=redis:6379/3
+      - CACHE_AXES=redis:6379/3
+      - ODS_SUPERUSER_USERNAME=admin
+      - ODS_SUPERUSER_EMAIL=admin@host.docker.internal
+      - DISABLE_2FA=true
+      - DJANGO_SUPERUSER_PASSWORD=admin
+      - ALLOWED_HOSTS=*
+      - CELERY_BROKER_URL=redis://redis:6379/4
+      - CELERY_RESULT_BACKEND=redis://redis:6379/4
+      - CELERY_LOGLEVEL=INFO
+      # ES is deliberately not configured yet, as long as the API works it's enough for this component.
+      - INIT_ES_INDICES=false
+      - ELASTICSEARCH_HOST=http://es:9200/
+      - ELASTICSEARCH_USER=elastic
+      - ELASTICSEARCH_PASSWORD=insecure-elastic
+      # Environment labeling
+      - SHOW_ENVIRONMENT=yes
+      - ENVIRONMENT_LABEL=docker-compose
+      - ENVIRONMENT_BACKGROUND_COLOR=#1d63ed
+      - ENVIRONMENT_FOREGROUND_COLOR=white
+    volumes: &web_volumes
+      - ./scripts/docker-compose/imports/gpp-publicatiebank/gpp-zoeken/fixtures/:/app/fixtures
+      - ./scripts/docker-compose/volume-data/gpp-zoeken-media:/app/media
+      - ./scripts/docker-compose/volume-data/gpp-zoeken-log:/app/log
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8007:8000"
+    depends_on:
+      - gpp-publicatiebank-database
+      - redis
+      # - es
 
   zac:
     # By default, we use the most recent ZAC Docker Image. Change this if you wish to use a specific version.
