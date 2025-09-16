@@ -39,10 +39,14 @@ public class PublicationRead  {
   protected UUID uuid;
 
   @JsonbProperty("urlPublicatieIntern")
-  protected WerkEenPublicatieInZijnGeheelBij urlPublicatieIntern;
+  // protected WerkEenPublicatieInZijnGeheelBij urlPublicatieIntern;
+  // use string for now as workaround for serialization issue
+  protected String urlPublicatieIntern;
 
   @JsonbProperty("urlPublicatieExtern")
-  protected ExternePublicatieURL urlPublicatieExtern;
+  // protected ExternePublicatieURL urlPublicatieExtern;
+  // use string for now as workaround for serialization issue
+  protected String urlPublicatieExtern;
 
  /**
   * De informatiecategorie verduidelijkt de soort informatie die in de publicatie voorkomt.
@@ -156,7 +160,7 @@ public class PublicationRead  {
   protected String selectiecategorie;
 
   @JsonbProperty("archiefnominatie")
-  protected PublicationReadArchiefnominatie archiefnominatie;
+  protected String archiefnominatie;
 
  /**
   * Datum waarop de publicatie overgebracht of definitief vernietigd zal worden.
@@ -201,18 +205,18 @@ public class PublicationRead  {
    * @return urlPublicatieIntern
    **/
   @NotNull
-  public WerkEenPublicatieInZijnGeheelBij getUrlPublicatieIntern() {
+  public String getUrlPublicatieIntern() {
     return urlPublicatieIntern;
   }
 
   /**
    * Set urlPublicatieIntern
    */
-  public void setUrlPublicatieIntern(WerkEenPublicatieInZijnGeheelBij urlPublicatieIntern) {
+  public void setUrlPublicatieIntern(String urlPublicatieIntern) {
     this.urlPublicatieIntern = urlPublicatieIntern;
   }
 
-  public PublicationRead urlPublicatieIntern(WerkEenPublicatieInZijnGeheelBij urlPublicatieIntern) {
+  public PublicationRead urlPublicatieIntern(String urlPublicatieIntern) {
     this.urlPublicatieIntern = urlPublicatieIntern;
     return this;
   }
@@ -222,18 +226,18 @@ public class PublicationRead  {
    * @return urlPublicatieExtern
    **/
   @NotNull
-  public ExternePublicatieURL getUrlPublicatieExtern() {
+  public String getUrlPublicatieExtern() {
     return urlPublicatieExtern;
   }
 
   /**
    * Set urlPublicatieExtern
    */
-  public void setUrlPublicatieExtern(ExternePublicatieURL urlPublicatieExtern) {
+  public void setUrlPublicatieExtern(String urlPublicatieExtern) {
     this.urlPublicatieExtern = urlPublicatieExtern;
   }
 
-  public PublicationRead urlPublicatieExtern(ExternePublicatieURL urlPublicatieExtern) {
+  public PublicationRead urlPublicatieExtern(String urlPublicatieExtern) {
     this.urlPublicatieExtern = urlPublicatieExtern;
     return this;
   }
@@ -627,18 +631,18 @@ public class PublicationRead  {
    * @return archiefnominatie
    **/
   @NotNull
-  public PublicationReadArchiefnominatie getArchiefnominatie() {
+  public String getArchiefnominatie() {
     return archiefnominatie;
   }
 
   /**
    * Set archiefnominatie
    */
-  public void setArchiefnominatie(PublicationReadArchiefnominatie archiefnominatie) {
+  public void setArchiefnominatie(String archiefnominatie) {
     this.archiefnominatie = archiefnominatie;
   }
 
-  public PublicationRead archiefnominatie(PublicationReadArchiefnominatie archiefnominatie) {
+  public PublicationRead archiefnominatie(String archiefnominatie) {
     this.archiefnominatie = archiefnominatie;
     return this;
   }

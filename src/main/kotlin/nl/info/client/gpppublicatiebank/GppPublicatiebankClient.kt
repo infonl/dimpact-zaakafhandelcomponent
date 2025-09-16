@@ -11,12 +11,12 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.gpppublicatiebank.PublicationRead
 import net.atos.client.gpppublicatiebank.PublicationWrite
-import nl.info.client.pabc.util.PabcClientHeadersFactory
+import nl.info.client.gpppublicatiebank.util.GppPublicatiebankClientHeadersFactory
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 
-@RegisterRestClient(configKey = "GPP-PUBLICATIEBANK-API-Client")
-@RegisterClientHeaders(PabcClientHeadersFactory::class)
+@RegisterRestClient(configKey = "GPPPUBLICATIEBANK-API-Client")
+@RegisterClientHeaders(GppPublicatiebankClientHeadersFactory::class)
 @Path("/api/v2")
 interface GppPublicatiebankClient {
     @POST
@@ -25,4 +25,3 @@ interface GppPublicatiebankClient {
     @Produces(MediaType.APPLICATION_JSON)
     fun createPublicatie(request: PublicationWrite): PublicationRead
 }
-

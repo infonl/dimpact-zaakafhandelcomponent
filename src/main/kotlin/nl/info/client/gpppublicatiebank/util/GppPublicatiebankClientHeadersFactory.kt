@@ -18,6 +18,7 @@ class GppPublicatiebankClientHeadersFactory @Inject constructor(
         const val HEADER_AUDIT_REMARKS = "Audit-Remarks"
         const val HEADER_AUDIT_USER_ID = "Audit-User-ID"
         const val HEADER_AUDIT_USER_REPRESENTATION = "Audit-User-Representation"
+
         // use hardcoded JWT token for now
         const val GPP_PUBLICATIEBANK_API_TOKEN = "insecure-ea1a8d297e3b2d3313b8a30b18959c3"
     }
@@ -28,6 +29,9 @@ class GppPublicatiebankClientHeadersFactory @Inject constructor(
     ): MultivaluedMap<String, String> {
         val loggedInUser = loggedInUserInstance.get()
         addAutorizationHeader(outgoingHeaders, loggedInUser)
+        outgoingHeaders.add(HEADER_AUDIT_REMARKS, "ZAC Common Ground demo")
+        outgoingHeaders.add(HEADER_AUDIT_USER_ID, loggedInUser.id)
+        outgoingHeaders.add(HEADER_AUDIT_USER_REPRESENTATION, loggedInUser.displayName)
         return outgoingHeaders
     }
 
@@ -37,8 +41,5 @@ class GppPublicatiebankClientHeadersFactory @Inject constructor(
     ) {
         // outgoingHeaders.add(HttpHeaders.AUTHORIZATION, JWTTokenGenerator.generate(clientId, secret, loggedInUser))
         outgoingHeaders.add(HttpHeaders.AUTHORIZATION, "Token $GPP_PUBLICATIEBANK_API_TOKEN")
-        outgoingHeaders.add(HEADER_AUDIT_REMARKS, "ZAC Common Ground demo")
-        outgoingHeaders.add(HEADER_AUDIT_USER_ID, loggedInUser.id)
-        outgoingHeaders.add(HEADER_AUDIT_USER_REPRESENTATION, loggedInUser.displayName)
     }
 }

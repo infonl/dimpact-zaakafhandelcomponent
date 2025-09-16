@@ -4,6 +4,8 @@
  */
 package net.atos.zac.flowable.delegate
 
+import net.atos.client.gpppublicatiebank.PublicatiestatusEnum
+import net.atos.client.gpppublicatiebank.PublicationWrite
 import net.atos.zac.flowable.FlowableHelper
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
@@ -24,21 +26,25 @@ class CreateGppPublicationDelegate : AbstractDelegate() {
     lateinit var selectedDocuments: Expression
 
     override fun execute(execution: DelegateExecution) {
-        createGppPublication(execution)
-        suspendZaak(execution)
+        val flowableHelper = FlowableHelper.getInstance()
+        createGppPublication(flowableHelper, execution)
+        suspendZaak(flowableHelper, execution)
     }
 
-    private fun createGppPublication(execution: DelegateExecution) {
-        // TODO Implement GPP publication creation logic here
+    private fun createGppPublication(flowableHelper: FlowableHelper, execution: DelegateExecution) {
         LOG.info {
             "Creating GPP publication for zaak '${getZaakIdentificatie(execution)}' " +
                 "and selected documents: '${selectedDocuments.resolveValueAsList(execution)}'."
         }
-
+        val publicationWrite = PublicationWrite().apply {
+            publicatiestatus = PublicatiestatusEnum.CONCEPT
+            officieleTitel = "Publicatie voor zaak '${getZaakIdentificatie(execution)}'"
+        }
+        val publication = flowableHelper.gppPublicatiebankClientService.createPublicatie(publicationWrite)
+        LOG.info("Created GPP publication: '$publication'")
     }
 
-    private fun suspendZaak(execution: DelegateExecution) {
-        val flowableHelper = FlowableHelper.getInstance()
+    private fun suspendZaak(flowableHelper: FlowableHelper, execution: DelegateExecution) {
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
         LOG.info(
             "Suspending zaak '${zaak.identificatie}' from activity '${execution.currentActivityName}' " +
