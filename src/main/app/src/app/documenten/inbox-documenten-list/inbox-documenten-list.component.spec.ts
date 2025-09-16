@@ -14,7 +14,7 @@ import { of } from "rxjs";
 import { SessionStorageUtil } from "src/app/shared/storage/session-storage.util";
 import { InboxDocumentenListComponent } from "./inbox-documenten-list.component";
 
-describe("InboxDocumentenListComponent tests", () => {
+describe(InboxDocumentenListComponent.name, () => {
   let fixture: ComponentFixture<InboxDocumentenListComponent>;
   let component: InboxDocumentenListComponent;
 
@@ -64,15 +64,17 @@ describe("InboxDocumentenListComponent tests", () => {
 
   it("should use remembered user data when reloading (ngOnInit)", () => {
     const rememberedParams = {
-      sort: "titel",
-      order: "asc",
-      maxResults: 25,
-      filtersType: "InboxDocumentListParameters",
+      sort: "MockedTitle",
+      order: "MockedOrder",
+      maxResults: 99999,
+      filtersType: "MockedInboxDocumentListParameters",
     };
 
     jest
       .spyOn(SessionStorageUtil, "getItem")
       .mockImplementation((key: string) => {
+        console.log("key", key);
+
         if (key === "INBOX_DOCUMENTEN_ZOEKPARAMETERS") {
           return rememberedParams;
         }
