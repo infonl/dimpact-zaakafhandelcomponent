@@ -73,7 +73,7 @@ object ItestConfiguration {
     const val OBJECT_PRODUCTAANVRAAG_COMBO_UUID = "225da1ce-f528-4a2c-b87d-c8c58fd2aca1"
     const val OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK = "f8534f13-0669-4d4d-a364-6b6c4ad3d243"
     const val OBJECT_PRODUCTAANVRAAG_BPMN_BRON_KENMERK = "c7e9e087-853d-4b16-9750-fddd7c0b9b0d"
-    const val OBJECT_PRODUCTAANVRAAG_COMBO_BRON_KENMERK = "kvk-vestiging-combo-12345678-000012345679"
+    const val OBJECT_PRODUCTAANVRAAG_COMBO_BRON_KENMERK = "kvk-vestiging-combo-12345678-000012345678"
     const val OBJECTS_BASE_URI = "http://objecten-api.local:8000"
     const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT = "021f685e-9482-4620-b157-34cd4003da6b"
     const val OFFICE_CONVERTER_BASE_URI = "http://office-converter:8080"
@@ -267,6 +267,7 @@ object ItestConfiguration {
     val DOCUMENT_2_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000002"
     val DOCUMENT_3_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000003"
     val DOCUMENT_4_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000004"
+    val DOCUMENT_5_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000005"
 
     /**
      * Constants used in the KVK WireMock template response
@@ -278,7 +279,7 @@ object ItestConfiguration {
     const val TEST_KVK_PLAATS_1 = "fakePlaats1"
     const val TEST_KVK_RSIN_1 = "123456789"
     const val TEST_KVK_VESTIGINGSNUMMER_1 = "000012345678"
-    const val TEST_KVK_VESTIGINGSNUMMER_2 = "000012345679"
+    const val TEST_KVK_VESTIGINGSNUMMER_2 = "000012345678"
     const val TEST_KVK_VESTIGINGSTYPE_HOOFDVESTIGING = "HOOFDVESTIGING"
     const val TEST_KVK_TYPE_RECHTSPERSOON = "RECHTSPERSOON"
     const val TEST_KVK_VESTIGING1_TOTAAL_WERKZAME_PERSONEN = 3

@@ -12,8 +12,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_3_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_4_IDENTIFICATION
+import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_5_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
@@ -91,7 +91,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                           "bestandsomvang" : ${file.length()},
                           "creatiedatum" : "${LocalDate.now()}",
                           "formaat" : "$PDF_MIME_TYPE",
-                          "identificatie" : "$DOCUMENT_3_IDENTIFICATION",
+                          "identificatie" : "$DOCUMENT_4_IDENTIFICATION",
                           "indicatieGebruiksrecht" : false,
                           "indicaties" : [ ],
                           "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
@@ -286,7 +286,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                       "bestandsomvang" : ${file.length()},
                       "creatiedatum" : "${LocalDate.now()}",
                       "formaat" : "$TEXT_MIME_TYPE",
-                      "identificatie" : "$DOCUMENT_4_IDENTIFICATION",
+                      "identificatie" : "$DOCUMENT_5_IDENTIFICATION",
                       "indicatieGebruiksrecht" : false,
                       "indicaties" : [ ],
                       "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
@@ -342,7 +342,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                           "beschrijving" : "",
                           "creatiedatum" : "${LocalDate.now()}",
                           "formaat" : "$PDF_MIME_TYPE",
-                          "identificatie" : "$DOCUMENT_4_IDENTIFICATION",
+                          "identificatie" : "$DOCUMENT_5_IDENTIFICATION",
                           "indicatieGebruiksrecht" : false,
                           "indicaties" : [ ],
                           "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
