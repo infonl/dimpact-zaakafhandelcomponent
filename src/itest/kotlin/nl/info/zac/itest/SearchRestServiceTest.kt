@@ -633,7 +633,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                                 },
                                 {
-                                    "aantal": 2,
+                                    "aantal": 1,
                                     "naam": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                                 }
                             ],
@@ -830,23 +830,23 @@ class SearchRestServiceTest : BehaviorSpec({
                       "totaal" : 2.0,
                       "filters" : {
                         "ZAAKTYPE" : [ {
-                          "aantal" : 1,
+                          "aantal" : 2,
                           "naam" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                         } ],
                         "DOCUMENT_STATUS" : [ {
-                          "aantal" : 1,
+                          "aantal" : 2,
                           "naam" : "$DOCUMENT_STATUS_DEFINITIEF"
                         } ],
                         "DOCUMENT_TYPE" : [ {
-                          "aantal" : 1,
+                          "aantal" : 2,
                           "naam" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING"
                         } ],
                         "DOCUMENT_VERGRENDELD_DOOR" : [ {
-                          "aantal" : 1,
+                          "aantal" : 2,
                           "naam" : "-NULL-"
                         } ],
                         "DOCUMENT_INDICATIES" : [ {
-                          "aantal" : 1,
+                          "aantal" : 2,
                           "naam" : "ONDERTEKEND"
                         } ]
                       }                   
