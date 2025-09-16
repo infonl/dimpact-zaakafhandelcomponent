@@ -4,6 +4,9 @@
 [![Codecov](https://codecov.io/gh/infonl/dimpact-zaakafhandelcomponent/branch/main/graph/badge.svg)](https://app.codecov.io/gh/infonl/dimpact-zaakafhandelcomponent/)
 [![License](https://img.shields.io/badge/License-EUPL_1.2-blue.svg)](https://opensource.org/license/eupl-1-2/)
 
+*This branch was made for the Common Ground Field lab of 15 and 16 Sept 2025 and contains an integration with the
+[GPP WOO Publicatiabank](https://github.com/GPP-Woo/GPP-publicatiebank). Please do not merge this branch into main.*
+
 This repository contains the source code of the "zaakafhandelcomponent" (ZAC), developed for [Dimpact](https://www.dimpact.nl/).
 The zaakafhandelcomponent is an open-source, generic, workflow-based component for managing 'zaken'
 in the context of [zaakgericht werken](https://www.noraonline.nl/wiki/Zaakgericht_Werken), a Dutch approach to case management.
