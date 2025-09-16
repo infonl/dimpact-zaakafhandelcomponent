@@ -9,6 +9,8 @@ import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import net.atos.client.gpppublicatiebank.Document
+import net.atos.client.gpppublicatiebank.DocumentCreate
 import net.atos.client.gpppublicatiebank.PublicationRead
 import net.atos.client.gpppublicatiebank.PublicationWrite
 import nl.info.client.gpppublicatiebank.util.GppPublicatiebankClientHeadersFactory
@@ -24,4 +26,10 @@ interface GppPublicatiebankClient {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     fun createPublicatie(request: PublicationWrite): PublicationRead
+
+    @POST
+    @Path("/documenten")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    fun createDocument(request: DocumentCreate): Document
 }
