@@ -8,7 +8,9 @@
   "paths": {
     "/api/v1/application-roles-per-entity-type": {
       "post": {
-        "tags": ["GetApplicationRolesPerEntityType"],
+        "tags": [
+          "GetApplicationRolesPerEntityType"
+        ],
         "operationId": "Get application roles per entity type",
         "requestBody": {
           "content": {
@@ -53,29 +55,7 @@
         },
         "security": [
           {
-            "ApiKey": []
-          }
-        ]
-      }
-    },
-    "/api/v1/seed": {
-      "get": {
-        "tags": ["Seed"],
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "ApiKey": []
+            "ApiKey": [ ]
           }
         ]
       }
@@ -84,7 +64,10 @@
   "components": {
     "schemas": {
       "ApplicationRoleModel": {
-        "required": ["application", "name"],
+        "required": [
+          "application",
+          "name"
+        ],
         "type": "object",
         "properties": {
           "name": {
@@ -101,7 +84,11 @@
         "additionalProperties": false
       },
       "EntityTypeModel": {
-        "required": ["id", "name", "type"],
+        "required": [
+          "id",
+          "name",
+          "type"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -123,7 +110,9 @@
         "additionalProperties": false
       },
       "GetApplicationRolesRequest": {
-        "required": ["functionalRoleNames"],
+        "required": [
+          "functionalRoleNames"
+        ],
         "type": "object",
         "properties": {
           "functionalRoleNames": {
@@ -132,13 +121,18 @@
               "type": "string"
             },
             "description": "The functional roles of the logged in user",
-            "example": ["GemeenteRol1", "GemeenteRol2"]
+            "example": [
+              "GemeenteRol1",
+              "GemeenteRol2"
+            ]
           }
         },
         "additionalProperties": false
       },
       "GetApplicationRolesResponse": {
-        "required": ["results"],
+        "required": [
+          "results"
+        ],
         "type": "object",
         "properties": {
           "results": {
@@ -151,7 +145,9 @@
         "additionalProperties": false
       },
       "GetApplicationRolesResponseModel": {
-        "required": ["applicationRoles", "entityType"],
+        "required": [
+          "applicationRoles"
+        ],
         "type": "object",
         "properties": {
           "entityType": {
@@ -161,7 +157,8 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ApplicationRoleModel"
-            }
+            },
+            "description": "List of application roles associated with this entity type"
           }
         },
         "additionalProperties": false
@@ -191,7 +188,7 @@
             "nullable": true
           }
         },
-        "additionalProperties": false
+        "additionalProperties": { }
       },
       "ValidationProblemDetails": {
         "type": "object",
@@ -227,7 +224,7 @@
             }
           }
         },
-        "additionalProperties": false
+        "additionalProperties": { }
       }
     },
     "securitySchemes": {
