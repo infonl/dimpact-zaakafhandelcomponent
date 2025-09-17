@@ -243,7 +243,7 @@ class PolicyService @Inject constructor(
         ).result
 
     @Deprecated(
-        "In PABC-based authorization, the concept of being authorized for a zaaktype is meaningless, " +
+        "In PABC-based authorisation, the concept of being authorised for a zaaktype is meaningless, " +
             "since a user is always authorised for a zaaktype _for specific application roles_."
     )
     fun isAuthorisedForZaaktype(zaakTypeOmschrijving: String) =
