@@ -64,9 +64,10 @@ class PolicyService @Inject constructor(
 ) {
     /**
      * Read 'overige' permissions.
-     * Note that for PABC-based authorization, the 'zaaktype' parameter is required, but for legacy
-     * ZAC-only authorization it is ignored.
-     * Until the old legacy authorization has been removed, it is therefore nullable.
+     *
+     * @param zaaktypeDescription Optional zaaktype description to include in the input. In the legacy
+     * non-PABC IAM architecture it is not used but in the new PABC-based IAM architecture it is,
+     * but only for those 'overige rechten' permissions that are zaaktype-specific.
      */
     fun readOverigeRechten(zaaktypeDescription: String? = null) =
         evaluationClient.readOverigeRechten(
@@ -241,11 +242,10 @@ class PolicyService @Inject constructor(
             )
         ).result
 
-    /**
-     * @deprecated For PABC-based authorization, the concept of being authorised for a zaaktype is meaningless,
-     * since you are always authorised for specific application roles for a zaaktype,
-     * so we always return true in that case.
-     */
+    @Deprecated(
+        "In PABC-based authorization, the concept of being authorized for a zaaktype is meaningless, " +
+            "since a user is always authorised for a zaaktype _for specific application roles_."
+    )
     fun isAuthorisedForZaaktype(zaakTypeOmschrijving: String) =
         if (configuratieService.featureFlagPabcIntegration()) {
             true
