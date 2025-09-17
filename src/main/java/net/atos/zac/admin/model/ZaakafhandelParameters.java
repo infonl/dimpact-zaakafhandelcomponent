@@ -219,7 +219,7 @@ public class ZaakafhandelParameters {
         }
         desiredHumanTaskParametersCollection.forEach(this::addHumanTaskParameters);
         this.humanTaskParametersCollection.removeIf(
-                humanTaskParameters -> !desiredHumanTaskParametersCollection.contains(humanTaskParameters)
+                humanTaskParameters -> elementNotInCollection(desiredHumanTaskParametersCollection, humanTaskParameters)
         );
     }
 
@@ -227,13 +227,14 @@ public class ZaakafhandelParameters {
         return mailtemplateKoppelingen != null ? mailtemplateKoppelingen : Collections.emptySet();
     }
 
-    public void setMailtemplateKoppelingen(final Collection<MailtemplateKoppeling> mailtemplateKoppelingen) {
+    public void setMailtemplateKoppelingen(final Collection<MailtemplateKoppeling> desiredMailtemplateKoppelingen) {
         if (this.mailtemplateKoppelingen == null) {
             this.mailtemplateKoppelingen = new HashSet<>();
-        } else {
-            this.mailtemplateKoppelingen.clear();
         }
-        mailtemplateKoppelingen.forEach(this::addMailtemplateKoppeling);
+        desiredMailtemplateKoppelingen.forEach(this::addMailtemplateKoppeling);
+        mailtemplateKoppelingen.removeIf(
+                mailtemplateKoppeling -> elementNotInCollection(desiredMailtemplateKoppelingen, mailtemplateKoppeling)
+        );
     }
 
     public AutomaticEmailConfirmation getAutomaticEmailConfirmation() {
@@ -253,8 +254,8 @@ public class ZaakafhandelParameters {
             this.zaakbeeindigParameters = new HashSet<>();
         }
         desiredZaakbeeindigParameters.forEach(this::addZaakbeeindigParameter);
-        this.zaakbeeindigParameters.removeIf(
-                zaakbeeindigParameter -> !desiredZaakbeeindigParameters.contains(zaakbeeindigParameter)
+        zaakbeeindigParameters.removeIf(
+            zaakbeeindigParameter -> elementNotInCollection(desiredZaakbeeindigParameters, zaakbeeindigParameter)
         );
     }
 
@@ -269,8 +270,8 @@ public class ZaakafhandelParameters {
             this.userEventListenerParametersCollection = new HashSet<>();
         }
         desiredUserEventListenerParametersCollection.forEach(this::addUserEventListenerParameters);
-        this.userEventListenerParametersCollection.removeIf(
-                userEventListenerParam -> !desiredUserEventListenerParametersCollection.contains(userEventListenerParam)
+        userEventListenerParametersCollection.removeIf(
+            userEventListenerParam -> elementNotInCollection(desiredUserEventListenerParametersCollection, userEventListenerParam)
         );
     }
 
@@ -278,50 +279,58 @@ public class ZaakafhandelParameters {
         return zaakAfzenders != null ? zaakAfzenders : Collections.emptySet();
     }
 
-    public void setZaakAfzenders(final Collection<ZaakAfzender> zaakAfzenders) {
+    public void setZaakAfzenders(final Collection<ZaakAfzender> desiredZaakAfzenders) {
         if (this.zaakAfzenders == null) {
             this.zaakAfzenders = new HashSet<>();
-        } else {
-            this.zaakAfzenders.clear();
         }
-        zaakAfzenders.forEach(this::addZaakAfzender);
+        desiredZaakAfzenders.forEach(this::addZaakAfzender);
+        zaakAfzenders.removeIf(
+            zaakAfzender -> elementNotInCollection(desiredZaakAfzenders, zaakAfzender)
+        );
     }
 
     private void addMailtemplateKoppeling(final MailtemplateKoppeling mailtemplateKoppeling) {
-        if (mailtemplateKoppelingen.add(mailtemplateKoppeling)) {
+        if (elementNotInCollection(mailtemplateKoppelingen, mailtemplateKoppeling)) {
+            mailtemplateKoppelingen.add(mailtemplateKoppeling);
             mailtemplateKoppeling.setZaakafhandelParameters(this);
         }
     }
 
     private void addHumanTaskParameters(final HumanTaskParameters humanTaskParameters) {
-        if (!humanTaskParametersCollection.contains(humanTaskParameters)) {
-            var result = humanTaskParametersCollection.stream().filter(h -> h.getPlanItemDefinitionID().equals(humanTaskParameters.getPlanItemDefinitionID())).toList();
-            if (!result.isEmpty()) {
-                var oneElement = result.getFirst();
-                var equalsResult = oneElement.equals(humanTaskParameters);
-            }
-        }
-        if (humanTaskParametersCollection.add(humanTaskParameters)) {
+        if (elementNotInCollection(humanTaskParametersCollection, humanTaskParameters)) {
             humanTaskParameters.setZaakafhandelParameters(this);
+            humanTaskParametersCollection.add(humanTaskParameters);
         }
     }
 
     private void addZaakbeeindigParameter(final ZaakbeeindigParameter zaakbeeindigParameter) {
-        if (zaakbeeindigParameters.add(zaakbeeindigParameter)) {
+        if (elementNotInCollection(zaakbeeindigParameters, zaakbeeindigParameter)) {
             zaakbeeindigParameter.setZaakafhandelParameters(this);
+            zaakbeeindigParameters.add(zaakbeeindigParameter);
         }
     }
 
     private void addUserEventListenerParameters(final UserEventListenerParameters userEventListenerParameters) {
-        if (userEventListenerParametersCollection.add(userEventListenerParameters)) {
+        if (elementNotInCollection(userEventListenerParametersCollection, userEventListenerParameters)) {
             userEventListenerParameters.setZaakafhandelParameters(this);
+            userEventListenerParametersCollection.add(userEventListenerParameters);
         }
     }
 
     private void addZaakAfzender(final ZaakAfzender zaakAfzender) {
-        if (zaakAfzenders.add(zaakAfzender)) {
+        if (elementNotInCollection(zaakAfzenders, zaakAfzender)) {
             zaakAfzender.setZaakafhandelParameters(this);
+            zaakAfzenders.add(zaakAfzender);
         }
+    }
+
+    private <T> boolean elementNotInCollection(Collection<T> target, T candidate) {
+        for (T targetElement : target) {
+            if (targetElement.equals(candidate)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public String getZaaktypeOmschrijving() {

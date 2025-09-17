@@ -124,8 +124,10 @@ class RestZaakafhandelParametersConverter @Inject constructor(
 
     fun toZaakafhandelParameters(
         restZaakafhandelParameters: RestZaakafhandelParameters
-    ): ZaakafhandelParameters =
-        zaakafhandelParameterService.readZaakafhandelParameters(
+    ): ZaakafhandelParameters {
+        // Load from DB to ensure the latest values are used
+        zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(restZaakafhandelParameters.zaaktype.uuid)
+        return zaakafhandelParameterService.readZaakafhandelParameters(
             restZaakafhandelParameters.zaaktype.uuid
         ).apply {
             id = restZaakafhandelParameters.id
@@ -170,4 +172,5 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             it.automaticEmailConfirmation = restZaakafhandelParameters.automaticEmailConfirmation
                 .toAutomaticEmailConfirmation(it)
         }
+    }
 }
