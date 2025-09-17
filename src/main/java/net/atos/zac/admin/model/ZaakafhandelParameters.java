@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -49,6 +50,8 @@ public class ZaakafhandelParameters {
 
     /** Naam van property: {@link ZaakafhandelParameters#productaanvraagtype} */
     public static final String PRODUCTAANVRAAGTYYPE = "productaanvraagtype";
+
+    private static final Logger LOG = Logger.getLogger(ZaakafhandelParameters.class.getName());
 
     @Id
     @GeneratedValue(generator = "sq_zaakafhandelparameters", strategy = GenerationType.SEQUENCE)
@@ -291,6 +294,13 @@ public class ZaakafhandelParameters {
     }
 
     private void addHumanTaskParameters(final HumanTaskParameters humanTaskParameters) {
+        if (!humanTaskParametersCollection.contains(humanTaskParameters)) {
+            var result = humanTaskParametersCollection.stream().filter(h -> h.getPlanItemDefinitionID().equals(humanTaskParameters.getPlanItemDefinitionID())).toList();
+            if (!result.isEmpty()) {
+                var oneElement = result.getFirst();
+                var equalsResult = oneElement.equals(humanTaskParameters);
+            }
+        }
         if (humanTaskParametersCollection.add(humanTaskParameters)) {
             humanTaskParameters.setZaakafhandelParameters(this);
         }

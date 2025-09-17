@@ -7,10 +7,7 @@ package net.atos.zac.admin.model;
 
 import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -179,11 +176,12 @@ public class HumanTaskParameters {
                Objects.equals(formulierDefinitieID, that.formulierDefinitieID) &&
                Objects.equals(planItemDefinitionID, that.planItemDefinitionID) &&
                Objects.equals(groepID, that.groepID) &&
-               Objects.equals(doorlooptijd, that.doorlooptijd);
+               Objects.equals(doorlooptijd, that.doorlooptijd) &&
+               Objects.deepEquals(referentieTabellen.toArray(), that.referentieTabellen.toArray());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(actief, formulierDefinitieID, planItemDefinitionID, groepID, doorlooptijd);
+        return Objects.hash(actief, formulierDefinitieID, planItemDefinitionID, groepID, doorlooptijd, referentieTabellen);
     }
 }

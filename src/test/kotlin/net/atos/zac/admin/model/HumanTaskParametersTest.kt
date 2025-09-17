@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package net.atos.zac.admin.model
 
 import io.kotest.core.spec.style.BehaviorSpec
@@ -16,6 +20,23 @@ class HumanTaskParametersTest : BehaviorSpec({
 
             Then("The objects should be considered equal") {
                 equalityResult shouldBe true
+            }
+        }
+    }
+
+    Given("Two HumanTaskParameters objects with the different values") {
+        val humanTaskParameters1 = createHumanTaskParameters(referenceTables = listOf(createHumanTaskReferentieTabel()))
+        val humanTaskParameters2 = createHumanTaskParameters(
+            referenceTables = listOf(createHumanTaskReferentieTabel())
+        ).apply {
+            referentieTabellen[0].tabel.values[0].name = "different name"
+        }
+
+        When("The values of the two objects are compared") {
+            val equalityResult = humanTaskParameters1 == humanTaskParameters2
+
+            Then("The objects should be considered equal") {
+                equalityResult shouldBe false
             }
         }
     }

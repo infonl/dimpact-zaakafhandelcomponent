@@ -69,7 +69,7 @@ class ReferenceTable {
         if (isSystemReferenceTable != other.isSystemReferenceTable) return false
         if (code != other.code) return false
         if (name != other.name) return false
-        if (values != other.values) return false
+        if (!values.toTypedArray().contentDeepEquals(other.values.toTypedArray())) return false
 
         return true
     }
@@ -81,8 +81,6 @@ class ReferenceTable {
         result = 31 * result + values.hashCode()
         return result
     }
-
-
 }
 
 fun ReferenceTable.toRestReferenceTable(inclusiefWaarden: Boolean): RestReferenceTable {
