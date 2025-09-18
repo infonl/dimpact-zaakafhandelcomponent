@@ -6,6 +6,8 @@ package net.atos.zac.admin.model;
 
 import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
 
+import java.util.Objects;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,7 +25,7 @@ import nl.info.zac.mailtemplates.model.MailTemplate;
 @Entity
 @Table(schema = SCHEMA, name = "mail_template_koppelingen")
 @SequenceGenerator(schema = SCHEMA, name = "sq_mail_template_koppelingen", sequenceName = "sq_mail_template_koppelingen", allocationSize = 1)
-public class MailtemplateKoppeling {
+public class MailtemplateKoppeling implements ZaakafhandelComponent {
 
     @Id
     @GeneratedValue(generator = "sq_mail_template_koppelingen", strategy = GenerationType.SEQUENCE)
@@ -60,5 +62,29 @@ public class MailtemplateKoppeling {
 
     public void setZaakafhandelParameters(final ZaakafhandelParameters zaakafhandelParameters) {
         this.zaakafhandelParameters = zaakafhandelParameters;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof MailtemplateKoppeling that))
+            return false;
+        return Objects.equals(mailTemplate.getId(), that.mailTemplate.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mailTemplate.getId());
+    }
+
+    @Override
+    public <T extends ZaakafhandelComponent> boolean isChanged(T original) {
+        return !this.equals(original);
+    }
+
+    @Override
+    public <T extends ZaakafhandelComponent> void modify(T changes) {
+        if (!(changes instanceof MailtemplateKoppeling that))
+            throw new IllegalArgumentException("Invalid data type for element modification");
+        mailTemplate = that.mailTemplate;
     }
 }

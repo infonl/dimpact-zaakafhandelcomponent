@@ -5,7 +5,6 @@
 package nl.info.zac.app.admin.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTHumanTaskParametersConverter
@@ -16,6 +15,7 @@ import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.admin.ZaakafhandelParameterBeheerService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.app.admin.model.RestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen
@@ -44,7 +44,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
     val zaakbeeindigParameterConverter: RESTZaakbeeindigParameterConverter,
     val humanTaskParametersConverter: RESTHumanTaskParametersConverter,
     val ztcClientService: ZtcClientService,
-    val zaakafhandelParameterService: ZaakafhandelParameterService,
+    val zaakafhandelParameterBeheerService: ZaakafhandelParameterBeheerService,
     val smartDocumentsService: SmartDocumentsService,
 ) {
     @Suppress("LongMethod")
@@ -125,10 +125,8 @@ class RestZaakafhandelParametersConverter @Inject constructor(
     fun toZaakafhandelParameters(
         restZaakafhandelParameters: RestZaakafhandelParameters
     ): ZaakafhandelParameters {
-        // Load from DB to ensure the latest values are used
-        zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(restZaakafhandelParameters.zaaktype.uuid)
-        return zaakafhandelParameterService.readZaakafhandelParameters(
-            restZaakafhandelParameters.zaaktype.uuid
+        return zaakafhandelParameterBeheerService.readZaakafhandelParameters(
+            restZaakafhandelParameters.zaaktype.uuid!!
         ).apply {
             id = restZaakafhandelParameters.id
             zaakTypeUUID = restZaakafhandelParameters.zaaktype.uuid

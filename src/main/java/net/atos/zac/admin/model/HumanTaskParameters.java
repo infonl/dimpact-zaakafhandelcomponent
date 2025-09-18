@@ -31,7 +31,7 @@ import nl.info.zac.app.planitems.converter.FormulierKoppelingConverterKt;
 @Entity
 @Table(schema = SCHEMA, name = "humantask_parameters")
 @SequenceGenerator(schema = SCHEMA, name = "sq_humantask_parameters", sequenceName = "sq_humantask_parameters", allocationSize = 1)
-public class HumanTaskParameters {
+public class HumanTaskParameters implements ZaakafhandelComponent {
 
     @Id
     @GeneratedValue(generator = "sq_humantask_parameters", strategy = GenerationType.SEQUENCE)
@@ -183,5 +183,26 @@ public class HumanTaskParameters {
     @Override
     public int hashCode() {
         return Objects.hash(actief, formulierDefinitieID, planItemDefinitionID, groepID, doorlooptijd, referentieTabellen);
+    }
+
+    @Override
+    public <T extends ZaakafhandelComponent> boolean isChanged(T original) {
+        if (!(original instanceof HumanTaskParameters that))
+            return false;
+        if (that.equals(this))
+            return false;
+        return that.planItemDefinitionID.equals(planItemDefinitionID) && (!that.formulierDefinitieID.equals(formulierDefinitieID) ||
+                                                                          !that.groepID.equals(planItemDefinitionID) ||
+                                                                          !that.doorlooptijd.equals(doorlooptijd));
+    }
+
+    @Override
+    public <T extends ZaakafhandelComponent> void modify(T changes) {
+        if (!(changes instanceof HumanTaskParameters that))
+            throw new IllegalArgumentException("Invalid data type for element modification");
+
+        formulierDefinitieID = that.formulierDefinitieID;
+        groepID = that.groepID;
+        doorlooptijd = that.doorlooptijd;
     }
 }

@@ -217,9 +217,9 @@ public class ZaakafhandelParameters {
         if (this.humanTaskParametersCollection == null) {
             this.humanTaskParametersCollection = new HashSet<>();
         }
-        desiredHumanTaskParametersCollection.forEach(this::addHumanTaskParameters);
+        desiredHumanTaskParametersCollection.forEach(this::setHumanTaskParameters);
         this.humanTaskParametersCollection.removeIf(
-                humanTaskParameters -> elementNotInCollection(desiredHumanTaskParametersCollection, humanTaskParameters)
+                humanTaskParameters -> isElementNotInCollection(desiredHumanTaskParametersCollection, humanTaskParameters)
         );
     }
 
@@ -231,9 +231,9 @@ public class ZaakafhandelParameters {
         if (this.mailtemplateKoppelingen == null) {
             this.mailtemplateKoppelingen = new HashSet<>();
         }
-        desiredMailtemplateKoppelingen.forEach(this::addMailtemplateKoppeling);
+        desiredMailtemplateKoppelingen.forEach(this::setMailtemplateKoppeling);
         mailtemplateKoppelingen.removeIf(
-                mailtemplateKoppeling -> elementNotInCollection(desiredMailtemplateKoppelingen, mailtemplateKoppeling)
+                mailtemplateKoppeling -> isElementNotInCollection(desiredMailtemplateKoppelingen, mailtemplateKoppeling)
         );
     }
 
@@ -253,9 +253,9 @@ public class ZaakafhandelParameters {
         if (this.zaakbeeindigParameters == null) {
             this.zaakbeeindigParameters = new HashSet<>();
         }
-        desiredZaakbeeindigParameters.forEach(this::addZaakbeeindigParameter);
+        desiredZaakbeeindigParameters.forEach(this::setZaakbeeindigParameter);
         zaakbeeindigParameters.removeIf(
-            zaakbeeindigParameter -> elementNotInCollection(desiredZaakbeeindigParameters, zaakbeeindigParameter)
+                zaakbeeindigParameter -> isElementNotInCollection(desiredZaakbeeindigParameters, zaakbeeindigParameter)
         );
     }
 
@@ -269,9 +269,9 @@ public class ZaakafhandelParameters {
         if (this.userEventListenerParametersCollection == null) {
             this.userEventListenerParametersCollection = new HashSet<>();
         }
-        desiredUserEventListenerParametersCollection.forEach(this::addUserEventListenerParameters);
+        desiredUserEventListenerParametersCollection.forEach(this::setUserEventListenerParameters);
         userEventListenerParametersCollection.removeIf(
-            userEventListenerParam -> elementNotInCollection(desiredUserEventListenerParametersCollection, userEventListenerParam)
+                userEventListenerParam -> isElementNotInCollection(desiredUserEventListenerParametersCollection, userEventListenerParam)
         );
     }
 
@@ -283,54 +283,54 @@ public class ZaakafhandelParameters {
         if (this.zaakAfzenders == null) {
             this.zaakAfzenders = new HashSet<>();
         }
-        desiredZaakAfzenders.forEach(this::addZaakAfzender);
+        desiredZaakAfzenders.forEach(this::setZaakAfzender);
         zaakAfzenders.removeIf(
-            zaakAfzender -> elementNotInCollection(desiredZaakAfzenders, zaakAfzender)
+                zaakAfzender -> isElementNotInCollection(desiredZaakAfzenders, zaakAfzender)
         );
     }
 
-    private void addMailtemplateKoppeling(final MailtemplateKoppeling mailtemplateKoppeling) {
-        if (elementNotInCollection(mailtemplateKoppelingen, mailtemplateKoppeling)) {
-            mailtemplateKoppelingen.add(mailtemplateKoppeling);
-            mailtemplateKoppeling.setZaakafhandelParameters(this);
-        }
+    private void setMailtemplateKoppeling(final MailtemplateKoppeling mailtemplateKoppeling) {
+        mailtemplateKoppeling.setZaakafhandelParameters(this);
+        setComponent(mailtemplateKoppelingen, mailtemplateKoppeling);
     }
 
-    private void addHumanTaskParameters(final HumanTaskParameters humanTaskParameters) {
-        if (elementNotInCollection(humanTaskParametersCollection, humanTaskParameters)) {
-            humanTaskParameters.setZaakafhandelParameters(this);
-            humanTaskParametersCollection.add(humanTaskParameters);
-        }
+    private void setHumanTaskParameters(final HumanTaskParameters humanTaskParameters) {
+        humanTaskParameters.setZaakafhandelParameters(this);
+        setComponent(humanTaskParametersCollection, humanTaskParameters);
     }
 
-    private void addZaakbeeindigParameter(final ZaakbeeindigParameter zaakbeeindigParameter) {
-        if (elementNotInCollection(zaakbeeindigParameters, zaakbeeindigParameter)) {
-            zaakbeeindigParameter.setZaakafhandelParameters(this);
-            zaakbeeindigParameters.add(zaakbeeindigParameter);
-        }
+    private void setZaakbeeindigParameter(final ZaakbeeindigParameter zaakbeeindigParameter) {
+        zaakbeeindigParameter.setZaakafhandelParameters(this);
+        setComponent(zaakbeeindigParameters, zaakbeeindigParameter);
     }
 
-    private void addUserEventListenerParameters(final UserEventListenerParameters userEventListenerParameters) {
-        if (elementNotInCollection(userEventListenerParametersCollection, userEventListenerParameters)) {
-            userEventListenerParameters.setZaakafhandelParameters(this);
-            userEventListenerParametersCollection.add(userEventListenerParameters);
-        }
+    private void setUserEventListenerParameters(final UserEventListenerParameters userEventListenerParameters) {
+        userEventListenerParameters.setZaakafhandelParameters(this);
+        setComponent(userEventListenerParametersCollection, userEventListenerParameters);
     }
 
-    private void addZaakAfzender(final ZaakAfzender zaakAfzender) {
-        if (elementNotInCollection(zaakAfzenders, zaakAfzender)) {
-            zaakAfzender.setZaakafhandelParameters(this);
-            zaakAfzenders.add(zaakAfzender);
-        }
+    private void setZaakAfzender(final ZaakAfzender zaakAfzender) {
+        zaakAfzender.setZaakafhandelParameters(this);
+        setComponent(zaakAfzenders, zaakAfzender);
     }
 
-    private <T> boolean elementNotInCollection(Collection<T> target, T candidate) {
-        for (T targetElement : target) {
-            if (targetElement.equals(candidate)) {
-                return false;
+    private <T extends ZaakafhandelComponent> void setComponent(Collection<T> targetCollection, T candidate) {
+        if (isElementNotInCollection(targetCollection, candidate)) {
+            targetCollection.add(candidate);
+        } else {
+            var existingElement = elementToChange(targetCollection, candidate);
+            if (existingElement != null) {
+                existingElement.modify(candidate);
             }
         }
-        return true;
+    }
+
+    private <T> boolean isElementNotInCollection(Collection<T> targetCollection, T candidate) {
+        return targetCollection.stream().noneMatch(targetElement -> targetElement.equals(candidate));
+    }
+
+    private <T extends ZaakafhandelComponent> T elementToChange(Collection<T> targetCollection, T candidate) {
+        return targetCollection.stream().filter(targetElement -> targetElement.isChanged(candidate)).findFirst().orElse(null);
     }
 
     public String getZaaktypeOmschrijving() {

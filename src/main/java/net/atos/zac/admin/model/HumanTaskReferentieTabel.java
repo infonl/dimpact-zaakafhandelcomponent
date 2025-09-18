@@ -7,6 +7,8 @@ package net.atos.zac.admin.model;
 
 import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
 
+import java.util.Objects;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,8 +22,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import nl.info.zac.admin.model.ReferenceTable;
-
-import java.util.Objects;
 
 @Entity
 @Table(schema = SCHEMA, name = "humantask_referentie_tabel")
