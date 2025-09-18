@@ -24,7 +24,7 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Table(schema = SCHEMA, name = "zaakafzender")
 @SequenceGenerator(schema = SCHEMA, name = "sq_zaakafzender", sequenceName = "sq_zaakafzender", allocationSize = 1)
-public class ZaakAfzender implements ZaakafhandelComponent {
+public class ZaakAfzender implements ZaakafhandelparametersComponent<ZaakAfzender> {
 
     public enum SpecialMail {
         GEMEENTE,
@@ -106,17 +106,23 @@ public class ZaakAfzender implements ZaakafhandelComponent {
     }
 
     @Override
-    public <T extends ZaakafhandelComponent> boolean isChanged(T original) {
+    public boolean isChanged(ZaakAfzender original) {
         return !this.equals(original);
     }
 
     @Override
-    public <T extends ZaakafhandelComponent> void modify(T changes) {
+    public void modify(ZaakAfzender changes) {
         if (!(changes instanceof ZaakAfzender that))
             throw new IllegalArgumentException("Invalid data type for element modification");
 
         this.defaultMail = that.defaultMail;
         this.mail = that.mail;
         this.replyTo = that.replyTo;
+    }
+
+    @Override
+    public ZaakAfzender clearId() {
+        id = null;
+        return this;
     }
 }

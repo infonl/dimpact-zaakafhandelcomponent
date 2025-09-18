@@ -7,6 +7,11 @@ package net.atos.zac.admin.model;
 
 import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,15 +31,10 @@ import jakarta.validation.constraints.NotNull;
 import nl.info.zac.admin.model.ReferenceTable;
 import nl.info.zac.app.planitems.converter.FormulierKoppelingConverterKt;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-
 @Entity
 @Table(schema = SCHEMA, name = "humantask_parameters")
 @SequenceGenerator(schema = SCHEMA, name = "sq_humantask_parameters", sequenceName = "sq_humantask_parameters", allocationSize = 1)
-public class HumanTaskParameters implements ZaakafhandelComponent {
+public class HumanTaskParameters implements ZaakafhandelparametersComponent<HumanTaskParameters> {
 
     @Id
     @GeneratedValue(generator = "sq_humantask_parameters", strategy = GenerationType.SEQUENCE)
@@ -189,7 +189,7 @@ public class HumanTaskParameters implements ZaakafhandelComponent {
     }
 
     @Override
-    public <T extends ZaakafhandelComponent> boolean isChanged(T original) {
+    public boolean isChanged(HumanTaskParameters original) {
         if (!(original instanceof HumanTaskParameters that))
             return false;
         if (that.equals(this))
@@ -200,12 +200,18 @@ public class HumanTaskParameters implements ZaakafhandelComponent {
     }
 
     @Override
-    public <T extends ZaakafhandelComponent> void modify(T changes) {
+    public void modify(HumanTaskParameters changes) {
         if (!(changes instanceof HumanTaskParameters that))
             throw new IllegalArgumentException("Invalid data type for element modification");
 
         formulierDefinitieID = that.formulierDefinitieID;
         groepID = that.groepID;
         doorlooptijd = that.doorlooptijd;
+    }
+
+    @Override
+    public HumanTaskParameters clearId() {
+        id = null;
+        return this;
     }
 }

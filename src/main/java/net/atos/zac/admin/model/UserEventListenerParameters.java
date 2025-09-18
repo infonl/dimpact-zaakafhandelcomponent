@@ -23,7 +23,7 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Table(schema = SCHEMA, name = "usereventlistener_parameters")
 @SequenceGenerator(schema = SCHEMA, name = "sq_usereventlistener_parameters", sequenceName = "sq_usereventlistener_parameters", allocationSize = 1)
-public class UserEventListenerParameters implements ZaakafhandelComponent {
+public class UserEventListenerParameters implements ZaakafhandelparametersComponent<UserEventListenerParameters> {
 
     @Id
     @GeneratedValue(generator = "sq_usereventlistener_parameters", strategy = GenerationType.SEQUENCE)
@@ -87,14 +87,20 @@ public class UserEventListenerParameters implements ZaakafhandelComponent {
 
 
     @Override
-    public <T extends ZaakafhandelComponent> boolean isChanged(T original) {
+    public boolean isChanged(UserEventListenerParameters original) {
         return !this.equals(original);
     }
 
     @Override
-    public <T extends ZaakafhandelComponent> void modify(T changes) {
+    public void modify(UserEventListenerParameters changes) {
         if (!(changes instanceof UserEventListenerParameters that))
             throw new IllegalArgumentException("Invalid data type for element modification");
         this.toelichting = that.toelichting;
+    }
+
+    @Override
+    public UserEventListenerParameters clearId() {
+        id = null;
+        return this;
     }
 }

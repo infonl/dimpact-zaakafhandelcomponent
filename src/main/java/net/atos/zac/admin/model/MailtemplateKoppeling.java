@@ -25,7 +25,7 @@ import nl.info.zac.mailtemplates.model.MailTemplate;
 @Entity
 @Table(schema = SCHEMA, name = "mail_template_koppelingen")
 @SequenceGenerator(schema = SCHEMA, name = "sq_mail_template_koppelingen", sequenceName = "sq_mail_template_koppelingen", allocationSize = 1)
-public class MailtemplateKoppeling implements ZaakafhandelComponent {
+public class MailtemplateKoppeling implements ZaakafhandelparametersComponent<MailtemplateKoppeling> {
 
     @Id
     @GeneratedValue(generator = "sq_mail_template_koppelingen", strategy = GenerationType.SEQUENCE)
@@ -77,14 +77,20 @@ public class MailtemplateKoppeling implements ZaakafhandelComponent {
     }
 
     @Override
-    public <T extends ZaakafhandelComponent> boolean isChanged(T original) {
+    public boolean isChanged(MailtemplateKoppeling original) {
         return !this.equals(original);
     }
 
     @Override
-    public <T extends ZaakafhandelComponent> void modify(T changes) {
+    public void modify(MailtemplateKoppeling changes) {
         if (!(changes instanceof MailtemplateKoppeling that))
             throw new IllegalArgumentException("Invalid data type for element modification");
         mailTemplate = that.mailTemplate;
+    }
+
+    @Override
+    public MailtemplateKoppeling clearId() {
+        id = null;
+        return this;
     }
 }

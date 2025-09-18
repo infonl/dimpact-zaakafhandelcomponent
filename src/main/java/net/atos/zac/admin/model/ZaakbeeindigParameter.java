@@ -24,7 +24,7 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Table(schema = SCHEMA, name = "zaakbeeindigparameter")
 @SequenceGenerator(schema = SCHEMA, name = "sq_zaakbeeindigparameter", sequenceName = "sq_zaakbeeindigparameter", allocationSize = 1)
-public class ZaakbeeindigParameter implements ZaakafhandelComponent {
+public class ZaakbeeindigParameter implements ZaakafhandelparametersComponent<ZaakbeeindigParameter> {
 
     @Id
     @GeneratedValue(generator = "sq_zaakbeeindigparameter", strategy = GenerationType.SEQUENCE)
@@ -88,7 +88,7 @@ public class ZaakbeeindigParameter implements ZaakafhandelComponent {
     }
 
     @Override
-    public <T extends ZaakafhandelComponent> boolean isChanged(T original) {
+    public boolean isChanged(ZaakbeeindigParameter original) {
         if (!(original instanceof ZaakbeeindigParameter that))
             return false;
         if (that.equals(this))
@@ -98,10 +98,16 @@ public class ZaakbeeindigParameter implements ZaakafhandelComponent {
     }
 
     @Override
-    public <T extends ZaakafhandelComponent> void modify(T changes) {
+    public void modify(ZaakbeeindigParameter changes) {
         if (!(changes instanceof ZaakbeeindigParameter that))
             throw new IllegalArgumentException("Invalid data type for element modification");
 
         resultaattype = that.resultaattype;
+    }
+
+    @Override
+    public ZaakbeeindigParameter clearId() {
+        id = null;
+        return this;
     }
 }

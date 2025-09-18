@@ -211,11 +211,11 @@ public class ZaakafhandelParameters {
     }
 
     public void setHumanTaskParametersCollection(final Collection<HumanTaskParameters> desiredHumanTaskParametersCollection) {
-        if (this.humanTaskParametersCollection == null) {
-            this.humanTaskParametersCollection = new HashSet<>();
+        if (humanTaskParametersCollection == null) {
+            humanTaskParametersCollection = new HashSet<>();
         }
         desiredHumanTaskParametersCollection.forEach(this::setHumanTaskParameters);
-        this.humanTaskParametersCollection.removeIf(
+        humanTaskParametersCollection.removeIf(
                 humanTaskParameters -> isElementNotInCollection(desiredHumanTaskParametersCollection, humanTaskParameters)
         );
     }
@@ -225,8 +225,8 @@ public class ZaakafhandelParameters {
     }
 
     public void setMailtemplateKoppelingen(final Collection<MailtemplateKoppeling> desiredMailtemplateKoppelingen) {
-        if (this.mailtemplateKoppelingen == null) {
-            this.mailtemplateKoppelingen = new HashSet<>();
+        if (mailtemplateKoppelingen == null) {
+            mailtemplateKoppelingen = new HashSet<>();
         }
         desiredMailtemplateKoppelingen.forEach(this::setMailtemplateKoppeling);
         mailtemplateKoppelingen.removeIf(
@@ -247,8 +247,8 @@ public class ZaakafhandelParameters {
     }
 
     public void setZaakbeeindigParameters(final Collection<ZaakbeeindigParameter> desiredZaakbeeindigParameters) {
-        if (this.zaakbeeindigParameters == null) {
-            this.zaakbeeindigParameters = new HashSet<>();
+        if (zaakbeeindigParameters == null) {
+            zaakbeeindigParameters = new HashSet<>();
         }
         desiredZaakbeeindigParameters.forEach(this::setZaakbeeindigParameter);
         zaakbeeindigParameters.removeIf(
@@ -263,8 +263,8 @@ public class ZaakafhandelParameters {
     public void setUserEventListenerParametersCollection(
             final Collection<UserEventListenerParameters> desiredUserEventListenerParametersCollection
     ) {
-        if (this.userEventListenerParametersCollection == null) {
-            this.userEventListenerParametersCollection = new HashSet<>();
+        if (userEventListenerParametersCollection == null) {
+            userEventListenerParametersCollection = new HashSet<>();
         }
         desiredUserEventListenerParametersCollection.forEach(this::setUserEventListenerParameters);
         userEventListenerParametersCollection.removeIf(
@@ -277,8 +277,8 @@ public class ZaakafhandelParameters {
     }
 
     public void setZaakAfzenders(final Collection<ZaakAfzender> desiredZaakAfzenders) {
-        if (this.zaakAfzenders == null) {
-            this.zaakAfzenders = new HashSet<>();
+        if (zaakAfzenders == null) {
+            zaakAfzenders = new HashSet<>();
         }
         desiredZaakAfzenders.forEach(this::setZaakAfzender);
         zaakAfzenders.removeIf(
@@ -311,13 +311,13 @@ public class ZaakafhandelParameters {
         setComponent(zaakAfzenders, zaakAfzender);
     }
 
-    private <T extends ZaakafhandelComponent> void setComponent(Collection<T> targetCollection, T candidate) {
-        if (isElementNotInCollection(targetCollection, candidate)) {
-            targetCollection.add(candidate);
+    private <T extends ZaakafhandelparametersComponent<T>> void setComponent(Collection<T> targetCollection, T candidate) {
+        var existingElement = elementToChange(targetCollection, candidate);
+        if (existingElement != null) {
+            existingElement.modify(candidate);
         } else {
-            var existingElement = elementToChange(targetCollection, candidate);
-            if (existingElement != null) {
-                existingElement.modify(candidate);
+            if (isElementNotInCollection(targetCollection, candidate)) {
+                targetCollection.add(candidate.clearId());
             }
         }
     }
@@ -326,7 +326,7 @@ public class ZaakafhandelParameters {
         return targetCollection.stream().noneMatch(targetElement -> targetElement.equals(candidate));
     }
 
-    private <T extends ZaakafhandelComponent> T elementToChange(Collection<T> targetCollection, T candidate) {
+    private <T extends ZaakafhandelparametersComponent<T>> T elementToChange(Collection<T> targetCollection, T candidate) {
         return targetCollection.stream().filter(targetElement -> targetElement.isChanged(candidate)).findFirst().orElse(null);
     }
 
