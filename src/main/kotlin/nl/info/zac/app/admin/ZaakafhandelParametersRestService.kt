@@ -159,12 +159,9 @@ class ZaakafhandelParametersRestService @Inject constructor(
         return zaakafhandelParametersConverter.toZaakafhandelParameters(
             restZaakafhandelParameters
         ).let { zaakafhandelParameters ->
-            val updatedZaakafhandelParameters = zaakafhandelParameters.id?.let {
-                zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters).also {
-                    zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
-                    zaakafhandelParameterService.clearListCache()
-                }
-            } ?: zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
+            val updatedZaakafhandelParameters = zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
+            zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
+            zaakafhandelParameterService.clearListCache()
             zaakafhandelParametersConverter.toRestZaakafhandelParameters(
                 updatedZaakafhandelParameters,
                 true
