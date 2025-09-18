@@ -141,14 +141,17 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
                 zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
                     productaanvraagtype
                 )
-            } returns
-                emptyList()
+            } returns emptyList()
             every {
                 zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
             } returns createdZaakafhandelParameters
             every {
                 zaakafhandelParametersConverter.toRestZaakafhandelParameters(createdZaakafhandelParameters, true)
             } returns updatedRestZaakafhandelParameters
+            every {
+                zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
+            } just runs
+            every { zaakafhandelParameterService.clearListCache() } returns "cache cleared"
 
             When("the zaakafhandelparameters are created") {
                 val returnedRestZaakafhandelParameters =

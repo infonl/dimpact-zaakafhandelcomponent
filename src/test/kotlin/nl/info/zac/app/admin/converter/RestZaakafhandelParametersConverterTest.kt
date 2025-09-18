@@ -111,7 +111,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     mailtemplateKoppelingen shouldHaveSize 1
                     zaakbeeindigParameters shouldBe listOf(restZaakbeeindigParameter)
                     zaakAfzenders shouldBe listOf(
-                        RestZaakAfzender(id = 1234, mail = "mail@example.com", replyTo = "replyTo@example.com"),
+                        RestZaakAfzender(id = null, mail = "mail@example.com", replyTo = "replyTo@example.com"),
                         RestZaakAfzender(mail = "GEMEENTE", speciaal = true),
                         RestZaakAfzender(mail = "MEDEWERKER", speciaal = true)
                     )

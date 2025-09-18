@@ -311,13 +311,13 @@ public class ZaakafhandelParameters {
         setComponent(zaakAfzenders, zaakAfzender);
     }
 
-    private <T extends ZaakafhandelparametersComponent<T>> void setComponent(Collection<T> targetCollection, T candidate) {
+    private <T extends UserModifiable<T>> void setComponent(Collection<T> targetCollection, T candidate) {
         var existingElement = elementToChange(targetCollection, candidate);
         if (existingElement != null) {
-            existingElement.modify(candidate);
+            existingElement.applyChanges(candidate);
         } else {
             if (isElementNotInCollection(targetCollection, candidate)) {
-                targetCollection.add(candidate.clearId());
+                targetCollection.add(candidate.resetId());
             }
         }
     }
@@ -337,8 +337,11 @@ public class ZaakafhandelParameters {
         return targetCollection.stream().noneMatch(targetElement -> targetElement.equals(candidate));
     }
 
-    private <T extends ZaakafhandelparametersComponent<T>> T elementToChange(Collection<T> targetCollection, T candidate) {
-        return targetCollection.stream().filter(targetElement -> targetElement.isChanged(candidate)).findFirst().orElse(null);
+    private <T extends UserModifiable<T>> T elementToChange(Collection<T> persistentCollection, T changeCandidate) {
+        return persistentCollection.stream()
+                .filter(targetElement -> targetElement.isModifiedFrom(changeCandidate))
+                .findFirst()
+                .orElse(null);
     }
 
     public String getZaaktypeOmschrijving() {

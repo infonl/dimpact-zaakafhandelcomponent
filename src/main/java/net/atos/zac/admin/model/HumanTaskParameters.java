@@ -34,7 +34,7 @@ import nl.info.zac.app.planitems.converter.FormulierKoppelingConverterKt;
 @Entity
 @Table(schema = SCHEMA, name = "humantask_parameters")
 @SequenceGenerator(schema = SCHEMA, name = "sq_humantask_parameters", sequenceName = "sq_humantask_parameters", allocationSize = 1)
-public class HumanTaskParameters implements ZaakafhandelparametersComponent<HumanTaskParameters> {
+public class HumanTaskParameters implements UserModifiable<HumanTaskParameters> {
 
     @Id
     @GeneratedValue(generator = "sq_humantask_parameters", strategy = GenerationType.SEQUENCE)
@@ -189,28 +189,22 @@ public class HumanTaskParameters implements ZaakafhandelparametersComponent<Huma
     }
 
     @Override
-    public boolean isChanged(HumanTaskParameters original) {
-        if (!(original instanceof HumanTaskParameters that))
-            return false;
-        if (that.equals(this))
-            return false;
-        return that.planItemDefinitionID.equals(planItemDefinitionID) && (!that.formulierDefinitieID.equals(formulierDefinitieID) ||
-                                                                          !that.groepID.equals(planItemDefinitionID) ||
-                                                                          !that.doorlooptijd.equals(doorlooptijd));
+    public boolean isModifiedFrom(HumanTaskParameters original) {
+        return Objects.equals(original.planItemDefinitionID, planItemDefinitionID) &&
+               (!Objects.equals(original.formulierDefinitieID, formulierDefinitieID) ||
+                !Objects.equals(original.groepID, planItemDefinitionID) ||
+                !Objects.equals(original.doorlooptijd, doorlooptijd));
     }
 
     @Override
-    public void modify(HumanTaskParameters changes) {
-        if (!(changes instanceof HumanTaskParameters that))
-            throw new IllegalArgumentException("Invalid data type for element modification");
-
-        formulierDefinitieID = that.formulierDefinitieID;
-        groepID = that.groepID;
-        doorlooptijd = that.doorlooptijd;
+    public void applyChanges(HumanTaskParameters changes) {
+        formulierDefinitieID = changes.formulierDefinitieID;
+        groepID = changes.groepID;
+        doorlooptijd = changes.doorlooptijd;
     }
 
     @Override
-    public HumanTaskParameters clearId() {
+    public HumanTaskParameters resetId() {
         id = null;
         return this;
     }
