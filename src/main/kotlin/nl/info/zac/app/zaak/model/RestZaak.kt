@@ -19,6 +19,7 @@ import java.util.UUID
 @AllOpen
 data class RestZaak(
     var archiefActiedatum: LocalDate?,
+    var startdatumBewaartermijn: LocalDate?,
     var archiefNominatie: String?,
     var behandelaar: RestUser?,
     var besluiten: List<RestDecision>?,

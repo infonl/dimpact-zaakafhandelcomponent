@@ -87,6 +87,7 @@
   "publicatiedatum": "Publicatiedatum",
   "uiterlijkereactiedatum": "Uiterlijke reactiedatum",
   "einddatum": "Einddatum",
+  "startdatumBewaartermijn": "Brondatum",
   "zaak.einddatum": "Zaak einddatum",
   "zaak.brondatum": "Zaak archivering brondatum",
   "streefdatum": "Streefdatum",

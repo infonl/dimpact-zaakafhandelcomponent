@@ -174,6 +174,7 @@ fun createRestZaak(
     uiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening,
     publicatiedatum = LocalDate.of(2023, 9, 16),
     archiefActiedatum = LocalDate.of(2023, 10, 15),
+    startdatumBewaartermijn = LocalDate.of(2032, 10, 15),
     archiefNominatie = "Sample Archief Nominatie",
     communicatiekanaal = communicatiekanaal,
     vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
