@@ -166,6 +166,10 @@ constructor(
      * Returns the active zaaktypen for which the user is authorised, or `null` if the user is
      * authorised for all zaaktypen.
      */
+    @Deprecated(
+        "In PABC-based authorization, the concept of being authorized for a zaaktype is meaningless, " +
+            "since a user is always authorized for a zaaktype _for specific application roles_."
+    )
     private fun getAuthorisedZaaktypen(roles: Set<String>): Set<String>? =
         if (roles.contains(ZACRole.DOMEIN_ELK_ZAAKTYPE.value)) {
             null

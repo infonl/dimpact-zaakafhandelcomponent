@@ -164,6 +164,7 @@ block-beta
     
     %% workaround to make sure titles of sub-blocks are vertically aligned
     %% see: https://github.com/mermaid-js/mermaid/issues/5423
+    class IAM BT
     class keycloakBlockTitle BT
     class zacBlockTitle BT
     class pabcBlockTitle BT
@@ -171,7 +172,7 @@ block-beta
 
     style Keycloak fill:darkgrey,stroke:#333,stroke-width:4px
     style ZAC fill:red,stroke:#333,stroke-width:4px
-    style PABC fill:darkslateblue,stroke:#333,stroke-width:4px
+    style PABC fill:grey,stroke:#333,stroke-width:4px
 ```
 
 ### Scenarios

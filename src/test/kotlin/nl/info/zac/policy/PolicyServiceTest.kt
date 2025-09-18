@@ -63,7 +63,7 @@ class PolicyServiceTest : BehaviorSpec({
         configuratieService
     )
 
-    Given("zaak with no status") {
+    Given("zaak with no status and PABC feature flag disabled") {
         val zaak = createZaak(
             status = URI("https://example.com/status/${UUID.randomUUID()}")
         )
@@ -79,6 +79,7 @@ class PolicyServiceTest : BehaviorSpec({
         every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
         every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { configuratieService.featureFlagPabcIntegration() } returns false
 
         When("policy rights are requested") {
             val zaakRechten = policyService.readZaakRechten(zaak)
@@ -101,7 +102,7 @@ class PolicyServiceTest : BehaviorSpec({
         }
     }
 
-    Given("zaak with status") {
+    Given("zaak with status and PABC feature flag disabled") {
         val zaak = createZaak(
             status = URI("https://example.com/${UUID.randomUUID()}")
         )
@@ -116,6 +117,7 @@ class PolicyServiceTest : BehaviorSpec({
         every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
         every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { configuratieService.featureFlagPabcIntegration() } returns false
 
         When("policy rights are requested") {
             val zaakRechten = policyService.readZaakRechten(zaak)
@@ -138,7 +140,7 @@ class PolicyServiceTest : BehaviorSpec({
         }
     }
 
-    Given("locked zaak with no status that is now in intake") {
+    Given("locked zaak with no status that is now in intake and PABC feature flag disabled") {
         val zaak = createZaak(
             verlenging = createVerlenging(),
             status = URI("https://example.com/status/${UUID.randomUUID()}"),
@@ -154,6 +156,7 @@ class PolicyServiceTest : BehaviorSpec({
         every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
         every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { configuratieService.featureFlagPabcIntegration() } returns false
 
         When("policy rights are requested") {
             val zaakRechten = policyService.readZaakRechten(zaak)
@@ -176,7 +179,7 @@ class PolicyServiceTest : BehaviorSpec({
         }
     }
 
-    Given("zaak with status that was reopened") {
+    Given("zaak with status that was reopened and PABC feature flag disabled") {
         val zaak = createZaak(
             verlenging = createVerlenging(),
             status = URI("https://example.com/${UUID.randomUUID()}")
@@ -192,6 +195,7 @@ class PolicyServiceTest : BehaviorSpec({
         every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
         every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { configuratieService.featureFlagPabcIntegration() } returns false
 
         When("policy rights are requested") {
             val zaakRechten = policyService.readZaakRechten(zaak)
@@ -214,7 +218,7 @@ class PolicyServiceTest : BehaviorSpec({
         }
     }
 
-    Given("ZaakZoekObject") {
+    Given("ZaakZoekObject and PABC feature flag disabled") {
         val zaakZoekObject = createZaakZoekObject().apply {
             this.setIndicatie(ZaakIndicatie.OPSCHORTING, true)
             this.setIndicatie(ZaakIndicatie.VERLENGD, true)
@@ -224,6 +228,7 @@ class PolicyServiceTest : BehaviorSpec({
         val ruleQuerySlot = slot<RuleQuery<ZaakInput>>()
         every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { configuratieService.featureFlagPabcIntegration() } returns false
 
         When("policy rights are requested") {
             val zaakRechten = policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
@@ -247,13 +252,14 @@ class PolicyServiceTest : BehaviorSpec({
         }
     }
 
-    Given("an evaluation client") {
+    Given("A logged-in user and PABC feature flag disabled") {
         val expectedWerklijstRechten = createWerklijstRechten()
         val ruleQuerySlot = slot<RuleQuery<UserInput>>()
         every {
             opaEvaluationClient.readWerklijstRechten(capture(ruleQuerySlot))
         } returns RuleResponse(expectedWerklijstRechten)
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { configuratieService.featureFlagPabcIntegration() } returns false
 
         When("the werklijst rechten are requested") {
 
@@ -273,7 +279,7 @@ class PolicyServiceTest : BehaviorSpec({
         }
     }
 
-    Given("unsigned information object") {
+    Given("unsigned information object and PABC feature flag disabled") {
         val zaak = createZaak()
         val zaakType = createZaakType()
         val enkelvoudigInformatieobject = createEnkelvoudigInformatieObject()
@@ -286,6 +292,7 @@ class PolicyServiceTest : BehaviorSpec({
             expectedDocumentRights
         )
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { configuratieService.featureFlagPabcIntegration() } returns false
 
         When("document policy rights are requested") {
             val documentRights = policyService.readDocumentRechten(
@@ -312,7 +319,7 @@ class PolicyServiceTest : BehaviorSpec({
         }
     }
 
-    Given("signed and locked information object") {
+    Given("signed and locked information object and PABC feature flag disabled") {
         val zaak = createZaak()
         val zaakType = createZaakType()
         val enkelvoudigInformatieobject = createEnkelvoudigInformatieObject(locked = true).apply {
@@ -330,6 +337,7 @@ class PolicyServiceTest : BehaviorSpec({
             opaEvaluationClient.readDocumentRechten(capture(ruleQuerySlot))
         } returns RuleResponse(expectedDocumentRights)
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { configuratieService.featureFlagPabcIntegration() } returns false
 
         When("document policy rights are requested") {
             val documentRights = policyService.readDocumentRechten(
@@ -359,7 +367,7 @@ class PolicyServiceTest : BehaviorSpec({
     Context("readOverigeRechten") {
         val functionalRoles = setOf("fakeRole1", "fakeRole2")
 
-        Given("readOverigeRechten with zaaktype present in pabcMappings -> rollen from PABC, zaaktypen is single") {
+        Given("A logged-in user with application roles per zaaktype with PABC integration enabled") {
             val zaaktype = "test-zaaktype"
             val pabcRolesForZaakType = setOf("applicationRole1", "applicationRole2")
             val loggedInUserWithMappings = LoggedInUser(
@@ -396,18 +404,18 @@ class PolicyServiceTest : BehaviorSpec({
             }
         }
 
-        Given("readOverigeRechten with null zaaktype - use functional roles + existing zaaktypen") {
-            val functionalRoles = setOf("fakeRole1", "fakeRole2")
-            val geautoriseerde = setOf("zaaktype1", "zaaktype2")
+        Given("A logged-in user with authorized zaaktypes without PABC integration enabled") {
+            val roles = setOf("fakeRole1", "fakeRole2")
+            val authorizedZaaktypes = setOf("zaaktype1", "zaaktype2")
             val loggedInUserLegacy = LoggedInUser(
                 id = "user1",
                 firstName = null,
                 lastName = null,
                 displayName = null,
                 email = null,
-                roles = functionalRoles,
+                roles = roles,
                 groupIds = emptySet(),
-                geautoriseerdeZaaktypen = geautoriseerde,
+                geautoriseerdeZaaktypen = authorizedZaaktypes,
                 applicationRolesPerZaaktype = emptyMap()
             )
 
@@ -417,7 +425,7 @@ class PolicyServiceTest : BehaviorSpec({
             every { opaEvaluationClient.readOverigeRechten(capture(rqSlot)) } returns RuleResponse(expected)
             every { configuratieService.featureFlagPabcIntegration() } returns false
 
-            When("calling readOverigeRechten with null") {
+            When("calling readOverigeRechten without a zaaktype") {
                 val actual = policyService.readOverigeRechten(null)
 
                 Then("OPA receives functional roles and original geautoriseerde zaaktypen") {
@@ -426,23 +434,23 @@ class PolicyServiceTest : BehaviorSpec({
                     verify(exactly = 1) { opaEvaluationClient.readOverigeRechten(any()) }
 
                     val userData = rqSlot.captured.input.user
-                    userData.rollen shouldBe functionalRoles
-                    userData.zaaktypen shouldBe geautoriseerde
+                    userData.rollen shouldBe roles
+                    userData.zaaktypen shouldBe authorizedZaaktypes
                 }
             }
 
-            When("calling readOverigeRechten with zaaktype") {
+            When("calling readOverigeRechten with a zaaktype") {
                 clearMocks(opaEvaluationClient, answers = false, recordedCalls = true, exclusionRules = false)
                 val actual = policyService.readOverigeRechten("redundant-zaaktype")
 
-                Then("OPA receives functional roles and still the original geautoriseerde zaaktypen") {
+                Then("OPA receives roles with the authorized zaaktypes") {
                     actual shouldBe expected
 
                     verify(exactly = 1) { opaEvaluationClient.readOverigeRechten(any()) }
 
                     val userData = rqSlot.captured.input.user
-                    userData.rollen shouldBe functionalRoles
-                    userData.zaaktypen shouldBe geautoriseerde
+                    userData.rollen shouldBe roles
+                    userData.zaaktypen shouldBe authorizedZaaktypes
                 }
             }
         }

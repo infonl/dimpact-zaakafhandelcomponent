@@ -106,8 +106,8 @@ export class InboxDocumentenListComponent
           this.utilService.setLoading(true);
           this.updateListParameters();
           return this.inboxDocumentenService.list({
-            ...this.listParameters,
             ...this.listParametersSort,
+            ...this.listParameters,
           });
         }),
         map((data) => {
