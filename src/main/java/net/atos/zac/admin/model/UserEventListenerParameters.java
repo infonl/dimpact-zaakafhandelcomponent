@@ -76,13 +76,15 @@ public class UserEventListenerParameters implements ZaakafhandelComponent {
     public boolean equals(Object o) {
         if (!(o instanceof UserEventListenerParameters that))
             return false;
-        return Objects.equals(toelichting, that.toelichting);
+        return Objects.equals(planItemDefinitionID, that.planItemDefinitionID) &&
+               Objects.equals(toelichting, that.toelichting);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(toelichting);
+        return Objects.hash(planItemDefinitionID, toelichting);
     }
+
 
     @Override
     public <T extends ZaakafhandelComponent> boolean isChanged(T original) {
