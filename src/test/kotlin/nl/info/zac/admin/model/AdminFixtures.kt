@@ -32,6 +32,7 @@ fun createBetrokkeneKoppelingen(
     this.kvkKoppelen = kvkKoppelen
 }
 
+@Suppress("LongParameterList")
 fun createHumanTaskParameters(
     id: Long = 1234L,
     zaakafhandelParameters: ZaakafhandelParameters = createZaakafhandelParameters(),
