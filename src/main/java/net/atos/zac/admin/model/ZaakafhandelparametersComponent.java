@@ -6,13 +6,13 @@
 package net.atos.zac.admin.model;
 
 /**
- * Interface for Zaakafhandelparameters data that is used-facing and can be modified.
+ * Interface for Zaakafhandelparameters data that users can modify.
  *
  * @param <T> Type of the associated set, part of {@link ZaakafhandelParameters}
  */
 public interface ZaakafhandelparametersComponent<T extends ZaakafhandelparametersComponent<T>> {
     /**
-     * Checks whether the given object is different from the original only using the fields that are changeable by user.
+     * Checks whether the given object is different from the original only using the fields that are changeable by the user.
      *
      * @param original Original object (part of {@link ZaakafhandelParameters}) to compare to.
      * @return <code>true</code> if the object is different from the original, <code>false</code> otherwise.
