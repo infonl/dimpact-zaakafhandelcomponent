@@ -7,8 +7,6 @@ package net.atos.zac.admin.model;
 
 import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
 
-import java.util.*;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,6 +25,11 @@ import jakarta.validation.constraints.NotNull;
 
 import nl.info.zac.admin.model.ReferenceTable;
 import nl.info.zac.app.planitems.converter.FormulierKoppelingConverterKt;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(schema = SCHEMA, name = "humantask_parameters")

@@ -14,7 +14,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -50,8 +49,6 @@ public class ZaakafhandelParameters {
 
     /** Naam van property: {@link ZaakafhandelParameters#productaanvraagtype} */
     public static final String PRODUCTAANVRAAGTYYPE = "productaanvraagtype";
-
-    private static final Logger LOG = Logger.getLogger(ZaakafhandelParameters.class.getName());
 
     @Id
     @GeneratedValue(generator = "sq_zaakafhandelparameters", strategy = GenerationType.SEQUENCE)
