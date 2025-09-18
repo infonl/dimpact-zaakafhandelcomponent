@@ -322,6 +322,17 @@ public class ZaakafhandelParameters {
         }
     }
 
+    /**
+     * This method replaces the Hibernate's PersistentSet#contains that does not use overridden <code>equals</code>
+     * and <code>hashCode</code>.
+     *
+     * @param targetCollection Collection that should be checked for the existence of the candidate element.
+     * @param candidate        Candidate element to be added to the collection.
+     * @return <code>true</code> if the element is not in the collection, <code>false</code> otherwise.
+     *
+     * @see <a href=https://hibernate.atlassian.net/browse/HHH-3799>Hibernate issue</a>
+     *
+     */
     private <T> boolean isElementNotInCollection(Collection<T> targetCollection, T candidate) {
         return targetCollection.stream().noneMatch(targetElement -> targetElement.equals(candidate));
     }
