@@ -240,6 +240,12 @@
                   >
                   </zac-static-text>
                   <zac-static-text
+                    *ngIf="zaak.startdatumBewaartermijn"
+                    [label]="'startdatumBewaartermijn' | translate"
+                    [value]="zaak.startdatumBewaartermijn | datum"
+                  >
+                  </zac-static-text>
+                  <zac-static-text
                     *ngIf="zaak.archiefNominatie === 'VERNIETIGEN'"
                     [label]="
                       'archiefNominatie.datum.' + zaak.archiefNominatie
