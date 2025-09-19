@@ -70,7 +70,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.testcontainers.containers.wait.strategy.Wait
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
-import java.net.HttpURLConnection.HTTP_NOT_FOUND
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.ZoneId
