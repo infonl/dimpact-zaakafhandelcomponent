@@ -192,7 +192,7 @@ public class HumanTaskParameters implements UserModifiable<HumanTaskParameters> 
     public boolean isModifiedFrom(HumanTaskParameters original) {
         return Objects.equals(original.planItemDefinitionID, planItemDefinitionID) &&
                (!Objects.equals(original.formulierDefinitieID, formulierDefinitieID) ||
-                !Objects.equals(original.groepID, planItemDefinitionID) ||
+                !Objects.equals(original.groepID, groepID) ||
                 !Objects.equals(original.doorlooptijd, doorlooptijd));
     }
 
