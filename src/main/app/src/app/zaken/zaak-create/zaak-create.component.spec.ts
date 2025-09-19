@@ -72,7 +72,7 @@ describe(ZaakCreateComponent.name, () => {
       .mockReturnValue(of([{ id: "test-user-id", naam: "test user" }]));
 
     zakenService = TestBed.inject(ZakenService);
-    jest.spyOn(zakenService, "listZaaktypes").mockReturnValue(
+    jest.spyOn(zakenService, "listZaaktypesForCreation").mockReturnValue(
       of([
         fromPartial<GeneratedType<"RestZaaktype">>({
           uuid: "test-zaaktype-1",

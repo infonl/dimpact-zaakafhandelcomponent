@@ -15,6 +15,7 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.ADDITIONAL_ALLOWED_FILE_TYPES
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
+import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.info.zac.itest.config.ItestConfiguration.KVK_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OFFICE_CONVERTER_BASE_URI
@@ -50,13 +51,12 @@ class ProjectConfig : AbstractProjectConfig() {
     private val logger = KotlinLogging.logger {}
     private val itestHttpClient = ItestHttpClient()
     private val zacDockerImage = System.getProperty("zacDockerImage") ?: ZAC_DEFAULT_DOCKER_IMAGE
-    private val featureflagPabcIntegration = System.getProperty("featureFlagPabcIntegration") ?: "true"
     private val dockerComposeEnvironment = mapOf(
         "AUTH_SSL_REQUIRED" to "none",
         "ADDITIONAL_ALLOWED_FILE_TYPES" to ADDITIONAL_ALLOWED_FILE_TYPES,
         "BAG_API_CLIENT_MP_REST_URL" to "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/",
         "FEATURE_FLAG_BPMN_SUPPORT" to "true",
-        "FEATURE_FLAG_PABC_INTEGRATION" to featureflagPabcIntegration,
+        "FEATURE_FLAG_PABC_INTEGRATION" to FEATURE_FLAG_PABC_INTEGRATION.toString(),
         "KVK_API_CLIENT_MP_REST_URL" to KVK_MOCK_BASE_URI,
         "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to OFFICE_CONVERTER_BASE_URI,
         "PABC_API_CLIENT_MP_REST_URL" to PABC_CLIENT_BASE_URI,

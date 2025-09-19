@@ -17,6 +17,8 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration
+import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
+import nl.info.zac.itest.config.ItestConfiguration.ACTIE_ZAAK_AFHANDELEN
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_ROL_TOEVOEGEN_REDEN
@@ -29,7 +31,15 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_2020_01_15
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2020_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_2
+import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
+import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
+import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
+import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
+import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
+import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_3
+import nl.info.zac.itest.config.ItestConfiguration.RESULTAAT_TYPE_GEWEIGERD_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BELANGHEBBENDE
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_MEDEAANVRAGER
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_UUID_BELANGHEBBENDE
@@ -41,6 +51,8 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_PASSWORD
+import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
@@ -53,11 +65,20 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CR
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_2_PASSWORD
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_2_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.VERANTWOORDELIJKE_ORGANISATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_REFERENTIEPROCES
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_2
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_EXPLANATION_1
@@ -97,9 +118,124 @@ class ZaakRestServiceTest : BehaviorSpec({
         authenticate(username = TEST_USER_1_USERNAME, password = TEST_USER_1_PASSWORD)
     }
 
-    Given("ZAC Docker container is running and zaakafhandelparameters have been created and a logged-in behandelaar") {
+    Context("listing zaaktypes for creating zaken") {
+        Given("ZAC Docker container is running and a functioneelbeheerder1 is logged-in") {
+            authenticate(username = TEST_FUNCTIONAL_ADMIN_1_USERNAME, password = TEST_FUNCTIONAL_ADMIN_1_PASSWORD)
+
+            When("zaaktype_test_1 is created") {
+                val response = zacClient.createZaakAfhandelParameters(
+                    zaakTypeIdentificatie = ZAAKTYPE_TEST_1_IDENTIFICATIE,
+                    zaakTypeUuid = ZAAKTYPE_TEST_1_UUID,
+                    zaakTypeDescription = ZAAKTYPE_TEST_1_DESCRIPTION,
+                    productaanvraagType = PRODUCTAANVRAAG_TYPE_3,
+                    domein = DOMEIN_TEST_2
+                )
+                Then("the response should be ok") {
+                    val responseBody = response.body.string()
+                    logger.info { "Response: $responseBody" }
+                    response.isSuccessful shouldBe true
+                }
+            }
+        }
+
+        Given(
+            """
+        ZAC Docker container is running, zaakafhandleparameters is created and a testuser1 is logged-in
+            """.trimIndent()
+        ) {
+            authenticate(username = TEST_USER_1_USERNAME, password = TEST_USER_1_PASSWORD)
+
+            When("zaak types are listed") {
+                val response = itestHttpClient.performGetRequest("$ZAC_API_URI/zaken/zaaktypes-for-creation")
+                lateinit var responseBody: String
+
+                Then("the response should be a 200 HTTP response") {
+                    responseBody = response.body.string()
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                }
+
+                And("the response body should contain the zaaktypes in all domains") {
+                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                [
+                  {
+                    "doel": "$ZAAKTYPE_TEST_1_DESCRIPTION",
+                    "identificatie": "$ZAAKTYPE_TEST_1_IDENTIFICATIE",
+                    "omschrijving": "$ZAAKTYPE_TEST_1_DESCRIPTION"
+                  },
+                  {
+                    "doel": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
+                    "identificatie": "$ZAAKTYPE_BPMN_TEST_IDENTIFICATIE",
+                    "omschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
+                  },
+                  {
+                    "doel": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
+                    "identificatie": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE",
+                    "omschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                  },
+                  {
+                    "doel": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
+                    "identificatie": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE",
+                    "omschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                  }
+                ]
+                    """.trimIndent()
+                }
+            }
+        }
+
+        Given(
+            """
+            ZAC Docker container is running and zaakafhandelparameters have been created
+            and a testuserdomaintest2 is logged-in
+            """.trimIndent()
+        ) {
+            authenticate(username = TEST_USER_DOMEIN_TEST_2_USERNAME, password = TEST_USER_DOMEIN_TEST_2_PASSWORD)
+            lateinit var responseBody: String
+
+            When("zaak types are listed") {
+                val response = itestHttpClient.performGetRequest("$ZAC_API_URI/zaken/zaaktypes-for-creation")
+                Then("the response should be a 200 HTTP response") {
+                    responseBody = response.body.string()
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                }
+                And("the response body should contain only the zaaktypes for which the user is authorized") {
+                    // In non-PABC case we always return BPMN zaken
+                    val nonPABCPayload = if (FEATURE_FLAG_PABC_INTEGRATION) {
+                        ""
+                    } else {
+                        """
+                         , {
+                             "doel": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
+                             "identificatie": "$ZAAKTYPE_BPMN_TEST_IDENTIFICATIE",
+                             "omschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
+                           }
+                        """.trimIndent()
+                    }
+
+                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                    [
+                      {
+                        "doel": "$ZAAKTYPE_TEST_1_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_TEST_1_IDENTIFICATIE",
+                        "omschrijving": "$ZAAKTYPE_TEST_1_DESCRIPTION"
+                      }$nonPABCPayload
+                    ]
+                    """.trimIndent()
+                }
+            }
+        }
+    }
+
+    Given(
+        """
+            ZAC Docker container is running and zaakafhandelparameters have been created and a behandelaar is logged-in
+        """.trimIndent()
+    ) {
         authenticate(username = TEST_BEHANDELAAR_1_USERNAME, password = TEST_BEHANDELAAR_1_PASSWORD)
         lateinit var responseBody: String
+
         When("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
             val response = zacClient.createZaak(
                 zaakTypeUUID = ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,
@@ -200,34 +336,34 @@ class ZaakRestServiceTest : BehaviorSpec({
                           "caseDefinition": {
                             "humanTaskDefinitions": [
                               {
-                                "defaultFormulierDefinitie": "AANVULLENDE_INFORMATIE",
-                                "id": "AANVULLENDE_INFORMATIE",
-                                "naam": "Aanvullende informatie",
-                                "type": "HUMAN_TASK"
+                                "defaultFormulierDefinitie": "$FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE",
+                                "id": "$FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE",
+                                "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
+                                "type": "$HUMAN_TASK_TYPE"
                               },
                               {
                                 "defaultFormulierDefinitie": "GOEDKEUREN",
                                 "id": "GOEDKEUREN",
                                 "naam": "Goedkeuren",
-                                "type": "HUMAN_TASK"
+                                "type": "$HUMAN_TASK_TYPE"
                               },
                               {
                                 "defaultFormulierDefinitie": "ADVIES",
                                 "id": "ADVIES_INTERN",
                                 "naam": "Advies intern",
-                                "type": "HUMAN_TASK"
+                                "type": "$HUMAN_TASK_TYPE"
                               },
                               {
                                 "defaultFormulierDefinitie": "EXTERN_ADVIES_VASTLEGGEN",
                                 "id": "ADVIES_EXTERN",
                                 "naam": "Advies extern",
-                                "type": "HUMAN_TASK"
+                                "type": "$HUMAN_TASK_TYPE"
                               },
                               {
                                 "defaultFormulierDefinitie": "DOCUMENT_VERZENDEN_POST",
                                 "id": "DOCUMENT_VERZENDEN_POST",
                                 "naam": "Document verzenden",
-                                "type": "HUMAN_TASK"
+                                "type": "$HUMAN_TASK_TYPE"
                               }
                             ],
                             "key": "generiek-zaakafhandelmodel",
@@ -235,13 +371,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                             "userEventListenerDefinitions": [
                               {
                                 "defaultFormulierDefinitie": "DEFAULT_TAAKFORMULIER",
-                                "id": "INTAKE_AFRONDEN",
+                                "id": "$ACTIE_INTAKE_AFRONDEN",
                                 "naam": "Intake afronden",
                                 "type": "USER_EVENT_LISTENER"
                               },
                               {
                                 "defaultFormulierDefinitie": "DEFAULT_TAAKFORMULIER",
-                                "id": "ZAAK_AFHANDELEN",
+                                "id": "$ACTIE_ZAAK_AFHANDELEN",
                                 "naam": "Zaak afhandelen",
                                 "type": "USER_EVENT_LISTENER"
                               }
@@ -251,12 +387,12 @@ class ZaakRestServiceTest : BehaviorSpec({
                           "humanTaskParameters": [
                             {
                               "actief": true,
-                              "formulierDefinitieId": "AANVULLENDE_INFORMATIE",
+                              "formulierDefinitieId": "$FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE",
                               "planItemDefinition": {
-                                "defaultFormulierDefinitie": "AANVULLENDE_INFORMATIE",
-                                "id": "AANVULLENDE_INFORMATIE",
-                                "naam": "Aanvullende informatie",
-                                "type": "HUMAN_TASK"
+                                "defaultFormulierDefinitie": "$FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE",
+                                "id": "$FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE",
+                                "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
+                                "type": "$HUMAN_TASK_TYPE"
                               },
                               "referentieTabellen": []
                             },
@@ -267,7 +403,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                                 "defaultFormulierDefinitie": "GOEDKEUREN",
                                 "id": "GOEDKEUREN",
                                 "naam": "Goedkeuren",
-                                "type": "HUMAN_TASK"
+                                "type": "$HUMAN_TASK_TYPE"
                               },
                               "referentieTabellen": []
                             },
@@ -278,7 +414,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                                 "defaultFormulierDefinitie": "ADVIES",
                                 "id": "ADVIES_INTERN",
                                 "naam": "Advies intern",
-                                "type": "HUMAN_TASK"
+                                "type": "$HUMAN_TASK_TYPE"
                               },
                               "referentieTabellen": [
                                 {
@@ -302,7 +438,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                                 "defaultFormulierDefinitie": "EXTERN_ADVIES_VASTLEGGEN",
                                 "id": "ADVIES_EXTERN",
                                 "naam": "Advies extern",
-                                "type": "HUMAN_TASK"
+                                "type": "$HUMAN_TASK_TYPE"
                               },
                               "referentieTabellen": []
                             },
@@ -313,7 +449,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                                 "defaultFormulierDefinitie": "DOCUMENT_VERZENDEN_POST",
                                 "id": "DOCUMENT_VERZENDEN_POST",
                                 "naam": "Document verzenden",
-                                "type": "HUMAN_TASK"
+                                "type": "$HUMAN_TASK_TYPE"
                               },
                               "referentieTabellen": []
                             }
@@ -321,14 +457,14 @@ class ZaakRestServiceTest : BehaviorSpec({
                           "id": 1,
                           "intakeMail": "BESCHIKBAAR_UIT",
                           "mailtemplateKoppelingen": [],
-                          "productaanvraagtype": "productaanvraag-type-1",
+                          "productaanvraagtype": "$PRODUCTAANVRAAG_TYPE_1",
                           "userEventListenerParameters": [
                             {
-                              "id": "INTAKE_AFRONDEN",
+                              "id": "$ACTIE_INTAKE_AFRONDEN",
                               "naam": "Intake afronden"
                             },
                             {
-                              "id": "ZAAK_AFHANDELEN",
+                              "id": "$ACTIE_ZAAK_AFHANDELEN",
                               "naam": "Zaak afhandelen"
                             }
                           ],
@@ -349,7 +485,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             "archiefNominatie": "VERNIETIGEN",
                             "archiefTermijn": "5 jaren",
                             "besluitVerplicht": false,
-                            "id": "dd2bcd87-ed7e-4b23-a8e3-ea7fe7ef00c6",
+                            "id": "$RESULTAAT_TYPE_GEWEIGERD_UUID",
                             "naam": "Geweigerd",
                             "naamGeneriek": "Geweigerd",
                             "toelichting": "Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen",

@@ -90,8 +90,8 @@ export class ZakenService {
     return this.zacHttpClient.GET("/rest/zaken/waarschuwing");
   }
 
-  listZaaktypes() {
-    return this.zacHttpClient.GET("/rest/zaken/zaaktypes");
+  listZaaktypesForCreation() {
+    return this.zacHttpClient.GET("/rest/zaken/zaaktypes-for-creation");
   }
 
   updateZaakdata(zaak: PutBody<"/rest/zaken/zaakdata">) {

@@ -41,7 +41,7 @@ export class ZaakCreateComponent implements OnDestroy {
 
   protected groups: Observable<GeneratedType<"RestGroup">[]> = of([]);
   protected users: GeneratedType<"RestUser">[] = [];
-  protected caseTypes = this.zakenService.listZaaktypes();
+  protected caseTypes = this.zakenService.listZaaktypesForCreation();
   protected communicationChannels: string[] = [];
   protected confidentialityNotices = this.utilService.getEnumAsSelectList(
     "vertrouwelijkheidaanduiding",

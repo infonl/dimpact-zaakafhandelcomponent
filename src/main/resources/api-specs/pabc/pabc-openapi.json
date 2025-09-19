@@ -57,28 +57,6 @@
           }
         ]
       }
-    },
-    "/api/v1/seed": {
-      "get": {
-        "tags": ["Seed"],
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ]
-      }
     }
   },
   "components": {
@@ -151,7 +129,7 @@
         "additionalProperties": false
       },
       "GetApplicationRolesResponseModel": {
-        "required": ["applicationRoles", "entityType"],
+        "required": ["applicationRoles"],
         "type": "object",
         "properties": {
           "entityType": {
@@ -161,7 +139,8 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ApplicationRoleModel"
-            }
+            },
+            "description": "List of application roles associated with this entity type"
           }
         },
         "additionalProperties": false

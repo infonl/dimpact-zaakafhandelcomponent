@@ -7,6 +7,7 @@ package nl.info.zac.itest.util
 
 import io.kotest.assertions.json.ArrayOrder
 import io.kotest.assertions.json.FieldComparison
+import io.kotest.assertions.json.PropertyOrder
 import io.kotest.assertions.json.shouldEqualJson
 
 infix fun String.shouldEqualJsonIgnoringOrder(other: String) =
@@ -24,6 +25,7 @@ infix fun String.shouldEqualJsonIgnoringExtraneousFields(other: String) =
 infix fun String.shouldEqualJsonIgnoringOrderAndExtraneousFields(other: String) =
     this shouldEqualJson {
         arrayOrder = ArrayOrder.Lenient
+        propertyOrder = PropertyOrder.Lenient
         fieldComparison = FieldComparison.Lenient
         other
     }
