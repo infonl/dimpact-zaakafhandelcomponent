@@ -314,12 +314,12 @@
           "maxLength": 12,
           "pattern": "^\\d{12}$"
         },
-        "kvkNummer" : {
-          "title" : "KVK nummer",
-          "description" : "Unieke identificatie van de onderneming bij de Kamer van Koophandel (KVK)",
-          "type" : "string",
-          "minLength" : 8,
-          "maxLength" : 8,
+        "kvkNummer": {
+          "title": "KVK nummer",
+          "description": "Unieke identificatie van de onderneming bij de Kamer van Koophandel (KVK)",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 8,
           "pattern": "^\\d{8}$"
         },
         "organisatorischeEenheidIdentificatie": {
