@@ -59,6 +59,8 @@ INSERT INTO public.klantinteracties_digitaaladres (id, uuid, soort_digitaal_adre
 
 -- add email and telephone number digital addresses to the vestiging partij
 INSERT INTO public.klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
-    VALUES (3, '22a2b1be-238d-4c47-aff4-db9165f43f5f', 'email', 'true','fake.vestiging@example.com', '', 4, 3, 'referentie1');
+    VALUES (3, '83d549d8-babb-43aa-a5e6-9bbd1b969440', 'email', 'true','fake.kvk@example.com', '', 2, 2, 'referentie1');
 INSERT INTO public.klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
-    VALUES (4, '0b582f1b-e2c9-4897-8117-744a0e6806ae', 'telefoonnummer', 'true','0201234567', '', 4, 3, 'referentie2');
+    VALUES (4, '22a2b1be-238d-4c47-aff4-db9165f43f5f', 'email', 'true','fake.vestiging@example.com', '', 4, 3, 'referentie1');
+INSERT INTO public.klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
+    VALUES (5, '0b582f1b-e2c9-4897-8117-744a0e6806ae', 'telefoonnummer', 'true','0201234567', '', 4, 3, 'referentie2');

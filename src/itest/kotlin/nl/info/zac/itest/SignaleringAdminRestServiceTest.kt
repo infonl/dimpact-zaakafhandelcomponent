@@ -101,6 +101,8 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                     }
             """.trimIndent()
         )
+
+        doHumanTaskPlanItemResponse.isSuccessful shouldBe true
         val doHumanTaskPlanItemResponseBody = doHumanTaskPlanItemResponse.body.string()
         logger.info { "Start task response: $doHumanTaskPlanItemResponseBody" }
 

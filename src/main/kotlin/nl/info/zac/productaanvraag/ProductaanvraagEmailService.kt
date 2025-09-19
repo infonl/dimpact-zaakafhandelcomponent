@@ -46,15 +46,19 @@ class ProductaanvraagEmailService @Inject constructor(
         betrokkene: Betrokkene?,
         zaakafhandelParameters: ZaakafhandelParameters
     ) {
+        LOG.info {
+            "Attempting to send automatic email confirmation for zaak '${zaak.uuid}' " +
+                "and zaaktype '${zaak.zaaktype}'. For initiator '$betrokkene'."
+        }
         zaakafhandelParameters.automaticEmailConfirmation?.takeIf { it.enabled }?.let { automaticEmailConfirmation ->
             betrokkene?.let { betrokkene ->
                 extractBetrokkeneEmail(betrokkene)?.let { to ->
                     sendMail(automaticEmailConfirmation, to, zaak)
-                } ?: LOG.fine(
+                } ?: LOG.info(
                     "No email address found for initiator '$betrokkene'. " +
                         "Skipping automatic email confirmation."
                 )
-            } ?: LOG.fine(
+            } ?: LOG.info(
                 "No initiator provided for zaak '$zaak'. " +
                     "Skipping automatic email confirmation."
             )
@@ -64,12 +68,17 @@ class ProductaanvraagEmailService @Inject constructor(
     private fun extractBetrokkeneEmail(betrokkene: Betrokkene) =
         betrokkene.performAction(
             onNatuurlijkPersoonIdentity = ::fetchEmail,
-            onVestigingIdentity = ::fetchEmail,
+            onKvkIdentity = ::fetchEmail,
             onNoIdentity = { null }
         )
 
     private fun fetchEmail(identity: String): String? =
         klantClientService.findDigitalAddressesByNumber(identity)
+            .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
+            ?.adres
+
+    private fun fetchEmail(kvkNummer: String, vestigingsNummer: String?): String? =
+        klantClientService.findDigitalAddressesByNumber(vestigingsNummer ?: kvkNummer)
             .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
             ?.adres
 

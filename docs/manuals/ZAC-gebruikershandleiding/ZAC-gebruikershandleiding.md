@@ -1358,6 +1358,8 @@ Een document vanuit een ‘Goedkeuren’ taak ondertekenen werkt zoals hierna om
 
 Van een document kan een PDF-versie gemaakt worden via de ‘Converteren’ actie. Dit is alleen mogelijk met MS Office documenten die de status ‘Definitief’ hebben.
 
+ℹ️ Conveteren van ander type documenten, zoals `.txt` bestanden, wordt ondersteund door de ZAC backend, maar wordt niet ondersteund via de UI.
+
 **Stappen**
 
 1 Op de documentgegevenspagina kies je de actie *Converteren*. De conversie wordt hierna direct gestart.

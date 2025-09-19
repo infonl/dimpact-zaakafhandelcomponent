@@ -206,6 +206,22 @@
     }
   },
   {
+    "model": "core.object",
+    "pk": 35,
+    "fields": {
+      "uuid": "0403f494-7804-4b6a-a2a7-41fdcc8ad5fc",
+      "object_type": 4
+    }
+  },
+  {
+    "model": "core.object",
+    "pk": 36,
+    "fields": {
+      "uuid": "225da1ce-f528-4a2c-b87d-c8c58fd2aca1",
+      "object_type": 4
+    }
+  },
+  {
     "model": "core.objectrecord",
     "pk": 4,
     "fields": {
@@ -925,25 +941,8 @@
         "taal": "nld",
         "betrokkenen": [
           {
-            "vestigingsNummer": "000012345678",
+            "kvkNummer": "12345678",
             "rolOmschrijvingGeneriek": "initiator"
-          },
-          {
-            "inpBsn": "999991838",
-            "roltypeOmschrijving": "Medeaanvrager",
-            "rolOmschrijvingGeneriek": "mede_initiator"
-          },
-          {
-            "inpBsn": "999991838",
-            "roltypeOmschrijving": "Bewindvoerder"
-          },
-          {
-            "inpBsn": "999992958",
-            "rolOmschrijvingGeneriek": "belanghebbende"
-          },
-          {
-            "inpBsn": "999992958",
-            "rolOmschrijvingGeneriek": "adviseur"
           }
         ],
         "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e"
@@ -980,6 +979,7 @@
         "taal": "nld",
         "betrokkenen": [
           {
+            "kvkNummer": "12345678",
             "vestigingsNummer": "000012345678",
             "rolOmschrijvingGeneriek": "initiator"
           },
@@ -1002,6 +1002,93 @@
       "start_at": "1998-01-01",
       "end_at": null,
       "registration_at": "1998-01-01",
+      "correct": null,
+      "geometry": null
+    }
+  },
+  {
+    "model": "core.objectrecord",
+    "pk": 46,
+    "fields": {
+      "index": 1,
+      "object": 35,
+      "version": 1,
+      "data": {
+        "bron": {
+          "naam": "open-forms",
+          "kenmerk": "invalid-vestiging-only-12345678-9abc-def0"
+        },
+        "type": "productaanvraag-type-1",
+        "aanvraaggegevens": {
+          "stap1": {
+            "naam": "Invalid Vestiging Only",
+            "telefoonnummer": "0612345678"
+          },
+          "stap2": {
+            "omschrijving": "This should be invalid - only vestigingsNummer"
+          }
+        },
+        "taal": "nld",
+        "betrokkenen": [
+          {
+            "vestigingsNummer": "000099999999",
+            "rolOmschrijvingGeneriek": "initiator"
+          },
+          {
+            "inpBsn": "999991838",
+            "roltypeOmschrijving": "Medeaanvrager",
+            "rolOmschrijvingGeneriek": "mede_initiator"
+          }
+        ],
+        "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/d20e1896-ab41-411b-9a20-1bce5a609df4"
+      },
+      "start_at": "1997-01-01",
+      "end_at": null,
+      "registration_at": "1997-01-01",
+      "correct": null,
+      "geometry": null
+    }
+  },
+  {
+    "model": "core.objectrecord",
+    "pk": 47,
+    "fields": {
+      "index": 1,
+      "object": 36,
+      "version": 1,
+      "data": {
+        "bron": {
+          "naam": "open-forms",
+          "kenmerk": "kvk-vestiging-combo-12345678-000012345678"
+        },
+        "type": "productaanvraag-type-1",
+        "aanvraaggegevens": {
+          "stap1": {
+            "naam": "KVK Vestiging Combo",
+            "telefoonnummer": "0612345678"
+          },
+          "stap2": {
+            "omschrijving": "Valid scenario with both kvkNummer and vestigingsNummer"
+          }
+        },
+        "taal": "nld",
+        "betrokkenen": [
+          {
+            "kvkNummer": "12345678",
+            "vestigingsNummer": "000012345678",
+            "rolOmschrijvingGeneriek": "initiator"
+          },
+          {
+            "inpBsn": "999991838",
+            "roltypeOmschrijving": "Medeaanvrager",
+            "rolOmschrijvingGeneriek": "mede_initiator"
+          }
+        ],
+        "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/41ccba34-5b31-4dd9-a375-543733a5359b"
+      },
+      "start_at": "1996-01-01",
+      "end_at": null,
+      "registration_at": "1996-01-01",
       "correct": null,
       "geometry": null
     }

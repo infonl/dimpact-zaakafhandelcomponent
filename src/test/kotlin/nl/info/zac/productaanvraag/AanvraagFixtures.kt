@@ -17,11 +17,13 @@ fun createBetrokkene(
     inBsn: String? = "fakeBsn",
     vestigingsNummer: String? = "fakeVestigingsNummer",
     roltypeOmschrijving: String = "fakeRoltypeOmschrijving",
+    kvkNummer: String? = "fakeKvkNummer"
 ) =
     Betrokkene().apply {
         this.inpBsn = inBsn
         this.vestigingsNummer = vestigingsNummer
         this.roltypeOmschrijving = roltypeOmschrijving
+        this.kvkNummer = kvkNummer
     }
 
 fun createBron(
