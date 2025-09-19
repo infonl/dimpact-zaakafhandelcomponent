@@ -525,18 +525,28 @@ class NotificationsTest : BehaviorSpec({
                 ).toString(),
                 addAuthorizationHeader = false
             )
+
+            val getZaakResponse = itestHttpClient.performGetRequest(
+                "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION"
+            )
+
             Then(
-                """the response should be 'no content', but no zaak should be created in OpenZaak
-                        because only vestigingsNummer without kvkNummer is invalid"""
+                """the zaak should still be created in OpenZaak
+                        even though only vestigingsNummer without kvkNummer is invalid"""
             ) {
                 response.code shouldBe HTTP_NO_CONTENT
 
-                // verify that no zaak was created by trying to retrieve it
-                val getZaakResponse = itestHttpClient.performGetRequest(
-                    "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION"
-                )
                 // The zaak should not exist, so we expect a 404 or similar error
-                getZaakResponse.code shouldBe HTTP_NOT_FOUND
+                getZaakResponse.code shouldBe HTTP_OK
+            }
+
+            And("No initiator should be set") {
+                val responseBody = getZaakResponse.body.string()
+                logger.info { "Response: $responseBody" }
+                with(JSONObject(responseBody)) {
+                    getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION
+                    has("initiatorIdentificatie") shouldBe false
+                }
             }
         }
     }
