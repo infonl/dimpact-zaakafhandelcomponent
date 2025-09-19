@@ -83,6 +83,7 @@ import kotlin.time.toJavaDuration
  * and therefore we run this test right after initialization.
  */
 @Order(TEST_SPEC_ORDER_AFTER_INITIALIZATION)
+@Suppress("LargeClass")
 class NotificationsTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
