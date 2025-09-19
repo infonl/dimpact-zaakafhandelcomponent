@@ -91,7 +91,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             entityManager.persist(zaakafhandelParameters)
             zaakafhandelParameters
         } else {
-            return entityManager.merge(zaakafhandelParameters)
+            entityManager.merge(zaakafhandelParameters)
         }
     }
 

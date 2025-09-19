@@ -10,6 +10,7 @@ import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -33,7 +34,7 @@ import nl.info.zac.app.planitems.converter.FormulierKoppelingConverterKt;
 @Entity
 @Table(schema = SCHEMA, name = "humantask_parameters")
 @SequenceGenerator(schema = SCHEMA, name = "sq_humantask_parameters", sequenceName = "sq_humantask_parameters", allocationSize = 1)
-public class HumanTaskParameters {
+public class HumanTaskParameters implements UserModifiable<HumanTaskParameters> {
 
     @Id
     @GeneratedValue(generator = "sq_humantask_parameters", strategy = GenerationType.SEQUENCE)
@@ -168,5 +169,43 @@ public class HumanTaskParameters {
 
     public void setActief(final boolean actief) {
         this.actief = actief;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof HumanTaskParameters that))
+            return false;
+        return actief == that.actief &&
+               Objects.equals(formulierDefinitieID, that.formulierDefinitieID) &&
+               Objects.equals(planItemDefinitionID, that.planItemDefinitionID) &&
+               Objects.equals(groepID, that.groepID) &&
+               Objects.equals(doorlooptijd, that.doorlooptijd) &&
+               Objects.deepEquals(referentieTabellen.toArray(), that.referentieTabellen.toArray());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(actief, formulierDefinitieID, planItemDefinitionID, groepID, doorlooptijd, referentieTabellen);
+    }
+
+    @Override
+    public boolean isModifiedFrom(HumanTaskParameters original) {
+        return Objects.equals(original.planItemDefinitionID, planItemDefinitionID) &&
+               (!Objects.equals(original.formulierDefinitieID, formulierDefinitieID) ||
+                !Objects.equals(original.groepID, groepID) ||
+                !Objects.equals(original.doorlooptijd, doorlooptijd));
+    }
+
+    @Override
+    public void applyChanges(HumanTaskParameters changes) {
+        formulierDefinitieID = changes.formulierDefinitieID;
+        groepID = changes.groepID;
+        doorlooptijd = changes.doorlooptijd;
+    }
+
+    @Override
+    public HumanTaskParameters resetId() {
+        id = null;
+        return this;
     }
 }

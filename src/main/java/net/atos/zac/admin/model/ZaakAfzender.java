@@ -7,6 +7,8 @@ package net.atos.zac.admin.model;
 
 import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
 
+import java.util.Objects;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,7 +24,7 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Table(schema = SCHEMA, name = "zaakafzender")
 @SequenceGenerator(schema = SCHEMA, name = "sq_zaakafzender", sequenceName = "sq_zaakafzender", allocationSize = 1)
-public class ZaakAfzender {
+public class ZaakAfzender implements UserModifiable<ZaakAfzender> {
 
     public enum SpecialMail {
         GEMEENTE,
@@ -89,5 +91,35 @@ public class ZaakAfzender {
 
     public void setReplyTo(final String replyTo) {
         this.replyTo = replyTo;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ZaakAfzender that))
+            return false;
+        return defaultMail == that.defaultMail && Objects.equals(mail, that.mail) && Objects.equals(replyTo, that.replyTo);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(defaultMail, mail, replyTo);
+    }
+
+    @Override
+    public boolean isModifiedFrom(ZaakAfzender original) {
+        return Objects.equals(mail, original.mail) && (!defaultMail == original.defaultMail ||
+                                                       !Objects.equals(replyTo, original.replyTo));
+    }
+
+    @Override
+    public void applyChanges(ZaakAfzender changes) {
+        this.defaultMail = changes.defaultMail;
+        this.replyTo = changes.replyTo;
+    }
+
+    @Override
+    public ZaakAfzender resetId() {
+        id = null;
+        return this;
     }
 }

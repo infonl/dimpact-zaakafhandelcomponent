@@ -6,6 +6,8 @@ package net.atos.zac.admin.model;
 
 import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
 
+import java.util.Objects;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,7 +23,7 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Table(schema = SCHEMA, name = "usereventlistener_parameters")
 @SequenceGenerator(schema = SCHEMA, name = "sq_usereventlistener_parameters", sequenceName = "sq_usereventlistener_parameters", allocationSize = 1)
-public class UserEventListenerParameters {
+public class UserEventListenerParameters implements UserModifiable<UserEventListenerParameters> {
 
     @Id
     @GeneratedValue(generator = "sq_usereventlistener_parameters", strategy = GenerationType.SEQUENCE)
@@ -68,5 +70,36 @@ public class UserEventListenerParameters {
 
     public void setToelichting(final String toelichting) {
         this.toelichting = toelichting;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof UserEventListenerParameters that))
+            return false;
+        return Objects.equals(planItemDefinitionID, that.planItemDefinitionID) &&
+               Objects.equals(toelichting, that.toelichting);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(planItemDefinitionID, toelichting);
+    }
+
+
+    @Override
+    public boolean isModifiedFrom(UserEventListenerParameters original) {
+        return Objects.equals(planItemDefinitionID, original.planItemDefinitionID) &&
+               !Objects.equals(this.toelichting, original.toelichting);
+    }
+
+    @Override
+    public void applyChanges(UserEventListenerParameters changes) {
+        this.toelichting = changes.toelichting;
+    }
+
+    @Override
+    public UserEventListenerParameters resetId() {
+        id = null;
+        return this;
     }
 }

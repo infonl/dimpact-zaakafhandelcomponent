@@ -381,7 +381,7 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
                     it shouldBeSameSizeAs originalZaakafhandelParameters.mailtemplateKoppelingen
                     it zip originalZaakafhandelParameters.mailtemplateKoppelingen
                 }.forEach { (new, original) ->
-                    new.id shouldNotBe original.id
+                    new.id shouldBe null
                     new.zaakafhandelParameters shouldNotBe original.zaakafhandelParameters
                     new.zaakafhandelParameters shouldBe slotPersistZaakafhandelParameters.captured
                     new.mailTemplate shouldBe original.mailTemplate
@@ -393,7 +393,7 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
                     it shouldBeSameSizeAs originalZaakafhandelParameters.zaakAfzenders
                     it zip originalZaakafhandelParameters.zaakAfzenders
                 }.forEach { (new, original) ->
-                    new.id shouldNotBe original.id
+                    new.id shouldBe null
                     new.zaakafhandelParameters shouldNotBe original.zaakafhandelParameters
                     new.zaakafhandelParameters shouldBe slotPersistZaakafhandelParameters.captured
                     new.isDefault shouldBe original.isDefault

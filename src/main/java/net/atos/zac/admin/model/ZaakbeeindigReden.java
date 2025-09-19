@@ -7,6 +7,8 @@ package net.atos.zac.admin.model;
 
 import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
 
+import java.util.Objects;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -43,5 +45,17 @@ public class ZaakbeeindigReden {
 
     public void setNaam(final String naam) {
         this.naam = naam;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ZaakbeeindigReden that))
+            return false;
+        return Objects.equals(naam, that.naam);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(naam);
     }
 }

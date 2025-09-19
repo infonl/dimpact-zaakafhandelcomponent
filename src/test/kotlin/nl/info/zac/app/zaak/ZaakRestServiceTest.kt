@@ -1981,22 +1981,14 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaakTypeURI = URI("https://example.com/zaaktypes/$zaakTypeUUID")
             )
             val zaakafhandelparameters = createZaakafhandelParameters(zaaktypeUUID = zaakTypeUUID)
-            val zaakAfzenders = setOf(
-                createZaakAfzender(
-                    id = 1L,
-                    zaakafhandelParameters = zaakafhandelparameters,
-                    defaultMail = false,
-                    mail = "test@example.com",
-                    replyTo = null
-                ),
+            val zaakAfzenders = zaakafhandelparameters.zaakAfzenders +
                 createZaakAfzender(
                     id = 2L,
                     zaakafhandelParameters = zaakafhandelparameters,
                     defaultMail = true,
                     mail = "GEMEENTE",
                     replyTo = "MEDEWERKER"
-                ),
-            )
+                )
             zaakafhandelparameters.setZaakAfzenders(zaakAfzenders)
             every { zrcClientService.readZaak(zaakUUID) } returns zaak
             every {
@@ -2017,7 +2009,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         // should be added automatically
                         size shouldBe 3
                         first().apply {
-                            id shouldBe 2L
+                            id shouldBe null
                             defaultMail shouldBe true
                             mail shouldBe "fake-gemeente@example.com"
                             replyTo shouldBe "fake-medewerker@example.com"
@@ -2031,10 +2023,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                             speciaal shouldBe true
                         }
                         last().apply {
-                            id shouldBe 1L
+                            id shouldBe null
                             defaultMail shouldBe false
-                            mail shouldBe "test@example.com"
-                            replyTo shouldBe null
+                            mail shouldBe "mail@example.com"
+                            replyTo shouldBe "replyTo@example.com"
                             speciaal shouldBe false
                         }
                     }
@@ -2047,7 +2039,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 Then("the default afzender is returned with the email address of the special mail type") {
                     returnedDefaultRestZaakAfzender shouldNotBe null
                     with(returnedDefaultRestZaakAfzender!!) {
-                        id shouldBe 2L
+                        id shouldBe null
                         defaultMail shouldBe true
                         mail shouldBe "fake-gemeente@example.com"
                         replyTo shouldBe "fake-medewerker@example.com"
