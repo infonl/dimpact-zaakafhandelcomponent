@@ -29,7 +29,7 @@ import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_BPMN_B
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_BPMN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_COMBO_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_COMBO_UUID
-import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_INVALID_UUID
+import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_VESTIGINGS_ONLY_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_2_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
@@ -514,8 +514,8 @@ class NotificationsTest : BehaviorSpec({
                     mapOf(
                         "kanaal" to "objecten",
                         "resource" to "object",
-                        "resourceUrl" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_INVALID_UUID",
-                        "hoofdObject" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_INVALID_UUID",
+                        "resourceUrl" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_VESTIGINGS_ONLY_UUID",
+                        "hoofdObject" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_VESTIGINGS_ONLY_UUID",
                         "actie" to "create",
                         "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
                         "kenmerken" to mapOf(
