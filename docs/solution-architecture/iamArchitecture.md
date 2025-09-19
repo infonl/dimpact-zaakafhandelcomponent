@@ -119,6 +119,62 @@ ZAC, nor Keycloak, have any knowledge of these `domains`.
 
 The functional roles and mappings from users (typically through groups) to functional roles are managed in Keycloak.
 
+### Main IAM components and used data types
+
+The relationship between the three main components in the new IAM architecture (Keycloak, PABC, ZAC) as well as the main 
+data types used within each component is illustrated in the following diagram. 
+Note that this is a simplified overview.
+
+- A '*' indicates that the current component is the source of a data type.
+- The arrows indicate the flow of data between the components, not dependencies.
+
+```mermaid
+block-beta
+    columns 1
+    block:IAM
+        block:Keycloak
+            columns 1
+            keycloakBlockTitle("Keycloak"):1
+            UsersSource("Users*")
+            GroupsSource("Groups*")
+            FunctionalRolesSource("Functional roles*")
+        end
+        space
+        block:PABC
+            columns 1
+            pabcBlockTitle("PABC"):1
+            Domains("Domains*")
+            FunctionalRoles("Functional roles")
+            ApplicationRoles("Application roles")
+            EntityTypes("Entity types (zaaktypes)*")
+        end
+    end
+    space
+    block:ZAC
+        columns 1
+        zacBlockTitle("ZAC"):1
+        Users("Users")
+        Groups("Groups")
+        ApplicationRolesSource("Application roles*")
+        Policies("Authorisation policies ('permissions')")
+    end
+    
+    Keycloak --> ZAC
+    PABC --> ZAC
+    
+    %% workaround to make sure titles of sub-blocks are vertically aligned
+    %% see: https://github.com/mermaid-js/mermaid/issues/5423
+    class IAM BT
+    class keycloakBlockTitle BT
+    class zacBlockTitle BT
+    class pabcBlockTitle BT
+    classDef BT stroke:transparent,fill:transparent
+
+    style Keycloak fill:darkgrey,stroke:#333,stroke-width:4px
+    style ZAC fill:red,stroke:#333,stroke-width:4px
+    style PABC fill:grey,stroke:#333,stroke-width:4px
+```
+
 ### Scenarios
 
 The following sequence diagram illustrates the scenario of a ZAC user logging in and retrieving the authorization mappings from the PABC:
