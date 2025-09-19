@@ -88,7 +88,8 @@ public class UserEventListenerParameters implements UserModifiable<UserEventList
 
     @Override
     public boolean isModifiedFrom(UserEventListenerParameters original) {
-        return Objects.equals(planItemDefinitionID, original.planItemDefinitionID) && !Objects.equals(this.toelichting, original.toelichting);
+        return Objects.equals(planItemDefinitionID, original.planItemDefinitionID) &&
+               !Objects.equals(this.toelichting, original.toelichting);
     }
 
     @Override
