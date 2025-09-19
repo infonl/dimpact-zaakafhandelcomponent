@@ -35,7 +35,7 @@ class HumanTaskParametersTest : BehaviorSpec({
         When("The values of the two objects are compared") {
             val equalityResult = humanTaskParameters1 == humanTaskParameters2
 
-            Then("The objects should be considered equal") {
+            Then("The objects should be considered different") {
                 equalityResult shouldBe false
             }
         }
