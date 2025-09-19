@@ -90,7 +90,7 @@ spec:
           image: "{{ .Values.opa.image.repository }}:{{ .Values.opa.image.tag }}"
           imagePullPolicy: {{ .Values.opa.image.pullPolicy }}
           ports:
-            - name: http
+            - name: http-opa
               containerPort: 8181
           args:
             - run

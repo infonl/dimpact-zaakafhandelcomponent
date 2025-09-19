@@ -64,16 +64,18 @@ class PolicyService @Inject constructor(
 ) {
     /**
      * Read 'overige' permissions.
-     * Note that for PABC-based authorization, the 'zaaktype' parameter is required, but for legacy
-     * ZAC-only authorization it is ignored.
-     * Until the old legacy authorization has been removed, it is therefore nullable.
+     *
+     * @param zaaktypeDescription Optional zaaktype description to include in the input. In the legacy
+     * non-PABC IAM architecture it is not used but in the new PABC-based IAM architecture it is,
+     * but only for those 'overige rechten' permissions that are zaaktype-specific.
      */
     fun readOverigeRechten(zaaktypeDescription: String? = null) =
         evaluationClient.readOverigeRechten(
             RuleQuery(
                 UserInput(
                     loggedInUser = loggedInUserInstance.get(),
-                    zaaktype = if (configuratieService.featureFlagPabcIntegration()) zaaktypeDescription else null
+                    zaaktype = zaaktypeDescription,
+                    featureFlagPabcIntegration = configuratieService.featureFlagPabcIntegration()
                 )
             )
         ).result
@@ -98,7 +100,11 @@ class PolicyService @Inject constructor(
         )
         return evaluationClient.readZaakRechten(
             RuleQuery(
-                ZaakInput(loggedInUserInstance.get(), zaakData)
+                ZaakInput(
+                    loggedInUser = loggedInUserInstance.get(),
+                    zaakData = zaakData,
+                    featureFlagPabcIntegration = configuratieService.featureFlagPabcIntegration()
+                )
             )
         ).result
     }
@@ -116,7 +122,13 @@ class PolicyService @Inject constructor(
             besloten = null
         )
         return evaluationClient.readZaakRechten(
-            RuleQuery(ZaakInput(loggedInUserInstance.get(), zaakData))
+            RuleQuery(
+                ZaakInput(
+                    loggedInUser = loggedInUserInstance.get(),
+                    zaakData = zaakData,
+                    featureFlagPabcIntegration = configuratieService.featureFlagPabcIntegration()
+                )
+            )
         ).result
     }
 
@@ -141,7 +153,13 @@ class PolicyService @Inject constructor(
             zaaktype = zaak?.let { ztcClientService.readZaaktype(it.getZaaktype()).getOmschrijving() }
         )
         return evaluationClient.readDocumentRechten(
-            RuleQuery(DocumentInput(loggedInUserInstance.get(), documentData))
+            RuleQuery(
+                DocumentInput(
+                    loggedInUser = loggedInUserInstance.get(),
+                    documentData = documentData,
+                    featureFlagPabcIntegration = configuratieService.featureFlagPabcIntegration()
+                )
+            )
         ).result
     }
 
@@ -155,7 +173,13 @@ class PolicyService @Inject constructor(
             ondertekend = enkelvoudigInformatieobject.ondertekeningDatum != null
         )
         return evaluationClient.readDocumentRechten(
-            RuleQuery(DocumentInput(loggedInUserInstance.get(), documentData))
+            RuleQuery(
+                DocumentInput(
+                    loggedInUser = loggedInUserInstance.get(),
+                    documentData = documentData,
+                    featureFlagPabcIntegration = configuratieService.featureFlagPabcIntegration()
+                )
+            )
         ).result
     }
 
@@ -173,7 +197,13 @@ class PolicyService @Inject constructor(
             zaaktype = zaaktypeOmschrijving
         )
         return evaluationClient.readTaakRechten(
-            RuleQuery(TaakInput(loggedInUserInstance.get(), taakData))
+            RuleQuery(
+                TaakInput(
+                    loggedInUser = loggedInUserInstance.get(),
+                    taakData = taakData,
+                    featureFlagPabcIntegration = configuratieService.featureFlagPabcIntegration()
+                )
+            )
         ).result
     }
 
@@ -182,25 +212,40 @@ class PolicyService @Inject constructor(
             zaaktype = taakZoekObject.zaaktypeOmschrijving
         )
         return evaluationClient.readTaakRechten(
-            RuleQuery(TaakInput(loggedInUserInstance.get(), taakData))
+            RuleQuery(
+                TaakInput(
+                    loggedInUser = loggedInUserInstance.get(),
+                    taakData = taakData,
+                    featureFlagPabcIntegration = configuratieService.featureFlagPabcIntegration()
+                )
+            )
         ).result
     }
 
     fun readNotitieRechten(): NotitieRechten =
         evaluationClient.readNotitieRechten(
-            RuleQuery(UserInput(loggedInUserInstance.get()))
+            RuleQuery(
+                UserInput(
+                    loggedInUser = loggedInUserInstance.get(),
+                    featureFlagPabcIntegration = configuratieService.featureFlagPabcIntegration()
+                )
+            )
         ).result
 
     fun readWerklijstRechten(): WerklijstRechten =
         evaluationClient.readWerklijstRechten(
-            RuleQuery(UserInput(loggedInUserInstance.get()))
+            RuleQuery(
+                UserInput(
+                    loggedInUser = loggedInUserInstance.get(),
+                    featureFlagPabcIntegration = configuratieService.featureFlagPabcIntegration()
+                )
+            )
         ).result
 
-    /**
-     * For PABC-based authorization, the concept of being authorised for a zaaktype is meaningless,
-     * since you are always authorised for specific application roles for a zaaktype,
-     * so we always return true in that case.
-     */
+    @Deprecated(
+        "In PABC-based authorisation, the concept of being authorised for a zaaktype is meaningless, " +
+            "since a user is always authorised for a zaaktype _for specific application roles_."
+    )
     fun isAuthorisedForZaaktype(zaakTypeOmschrijving: String) =
         if (configuratieService.featureFlagPabcIntegration()) {
             true
