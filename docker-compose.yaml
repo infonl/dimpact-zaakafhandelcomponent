@@ -42,11 +42,13 @@ services:
       - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
       - KC_HEALTH_ENABLED=true
       - KC_HOSTNAME=localhost
+      - KC_HTTP_PORT=8081
       - KC_DB=postgres
       - KC_DB_URL_HOST=keycloak-database
       - KC_DB_URL_DATABASE=keycloak
       - KC_DB_USERNAME=keycloak
       - KC_DB_PASSWORD=keycloak
+      - KC_IMPORT=/opt/keycloak/data/import/zaakafhandelcomponent-realm.json
       - ZAC_TESTUSER1_EMAIL_ADDRESS=${DOCKER_COMPOSE_TEST_USER_1_EMAIL_ADDRESS:-testuser1@example.com}
       - ZAC_TESTUSER2_EMAIL_ADDRESS=${DOCKER_COMPOSE_TEST_USER_2_EMAIL_ADDRESS:-testuser2@example.com}
       - ZAC_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS:-testuserdomaintest1@example.com}
@@ -69,7 +71,6 @@ services:
       - ./scripts/docker-compose/imports/keycloak/realms:/opt/keycloak/data/import
     command:
       - "start-dev"
-      - "--import-realm"
 
   openzaak-database:
     image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
