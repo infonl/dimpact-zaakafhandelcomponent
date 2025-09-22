@@ -73,8 +73,6 @@ describe(InboxDocumentenListComponent.name, () => {
     jest
       .spyOn(SessionStorageUtil, "getItem")
       .mockImplementation((key: string) => {
-        console.log("key", key);
-
         if (key === "INBOX_DOCUMENTEN_ZOEKPARAMETERS") {
           return rememberedParams;
         }
