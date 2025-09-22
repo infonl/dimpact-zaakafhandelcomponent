@@ -121,6 +121,7 @@ class RestZaakConverter @Inject constructor(
             registratiedatum = zaak.registratiedatum,
             archiefNominatie = zaak.archiefnominatie?.name,
             archiefActiedatum = zaak.archiefactiedatum,
+            startdatumBewaartermijn = zaak.startdatumBewaartermijn,
             omschrijving = zaak.omschrijving,
             toelichting = zaak.toelichting,
             zaaktype = restZaaktypeConverter.convert(zaakType),
