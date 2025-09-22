@@ -70,6 +70,7 @@ services:
       - ./scripts/docker-compose/imports/keycloak/realms:/opt/keycloak/data/import
     command:
       - "start-dev"
+      - "--import-realm"
 
   openzaak-database:
     image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
