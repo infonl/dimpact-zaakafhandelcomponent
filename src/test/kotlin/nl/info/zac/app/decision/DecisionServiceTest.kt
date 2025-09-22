@@ -77,9 +77,6 @@ class DecisionServiceTest : BehaviorSpec({
             ztcClientService.readBesluittype(restBesluitVastleggenGegevens.besluittypeUuid)
         } returns besluitType
         every { restDecisionConverter.convertToBesluit(zaak, restBesluitVastleggenGegevens) } returns besluit
-        every {
-            zgwApiService.createResultaatForZaak(zaak, restBesluitVastleggenGegevens.resultaattypeUuid, null)
-        } just runs
         every { brcClientService.createBesluit(besluit) } returns besluit
         every {
             drcClientService.readEnkelvoudigInformatieobject(
@@ -114,9 +111,6 @@ class DecisionServiceTest : BehaviorSpec({
             ztcClientService.readBesluittype(restBesluitVastleggenGegevens.besluittypeUuid)
         } returns besluitType
         every { restDecisionConverter.convertToBesluit(zaak, restBesluitVastleggenGegevens) } returns besluit
-        every {
-            zgwApiService.createResultaatForZaak(zaak, restBesluitVastleggenGegevens.resultaattypeUuid, null)
-        } just runs
         every { brcClientService.createBesluit(besluit) } returns besluit
         every {
             drcClientService.readEnkelvoudigInformatieobject(
