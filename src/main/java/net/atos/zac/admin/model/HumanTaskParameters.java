@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -28,7 +28,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import nl.info.zac.admin.model.ReferenceTable;
 import nl.info.zac.app.planitems.converter.FormulierKoppelingConverterKt;
 
 @Entity
@@ -121,46 +120,9 @@ public class HumanTaskParameters implements UserModifiable<HumanTaskParameters> 
         referentieTabellen.forEach(this::addReferentieTabel);
     }
 
-    private HumanTaskReferentieTabel getReferentieTabel(final String veld) {
-        return referentieTabellen.stream()
-                .filter(referentieTabel -> referentieTabel.getVeld().equals(veld))
-                .findAny()
-                .orElse(null);
-    }
-
     private boolean addReferentieTabel(final HumanTaskReferentieTabel referentieTabel) {
         referentieTabel.setHumantask(this);
         return referentieTabellen.add(referentieTabel);
-    }
-
-    private boolean removeReferentieTabel(final HumanTaskReferentieTabel referentieTabel) {
-        return referentieTabellen.remove(referentieTabel);
-    }
-
-    public ReferenceTable getTabel(final String veld) {
-        final HumanTaskReferentieTabel referentieTabel = getReferentieTabel(veld);
-        return referentieTabel == null ? null : referentieTabel.getTabel();
-    }
-
-    public ReferenceTable putTabel(final String veld, final ReferenceTable tabel) {
-        final HumanTaskReferentieTabel referentieTabel = getReferentieTabel(veld);
-        if (referentieTabel == null) {
-            addReferentieTabel(new HumanTaskReferentieTabel(veld, tabel));
-            return null;
-        } else {
-            final ReferenceTable previous = referentieTabel.getTabel();
-            referentieTabel.setTabel(tabel);
-            return previous;
-        }
-    }
-
-    public ReferenceTable removeTabel(final String veld) {
-        final HumanTaskReferentieTabel referentieTabel = getReferentieTabel(veld);
-        if (referentieTabel == null) {
-            return null;
-        }
-        removeReferentieTabel(referentieTabel);
-        return referentieTabel.getTabel();
     }
 
     public boolean isActief() {
@@ -180,7 +142,11 @@ public class HumanTaskParameters implements UserModifiable<HumanTaskParameters> 
                Objects.equals(planItemDefinitionID, that.planItemDefinitionID) &&
                Objects.equals(groepID, that.groepID) &&
                Objects.equals(doorlooptijd, that.doorlooptijd) &&
-               Objects.deepEquals(referentieTabellen.toArray(), that.referentieTabellen.toArray());
+               // PersistentSet equals and hashCode don't work for EAGER fetch, so use Arrays.deepEquals
+               // https://hibernate.atlassian.net/browse/HHH-3799
+               ((referentieTabellen == null && that.referentieTabellen == null) ||
+                ((referentieTabellen != null && that.referentieTabellen != null) &&
+                 Objects.deepEquals(referentieTabellen.toArray(), that.referentieTabellen.toArray())));
     }
 
     @Override

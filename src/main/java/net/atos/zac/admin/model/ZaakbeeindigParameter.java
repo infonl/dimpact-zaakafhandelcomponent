@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.admin.model;
 
 import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
@@ -78,12 +77,16 @@ public class ZaakbeeindigParameter implements UserModifiable<ZaakbeeindigParamet
     public boolean equals(Object o) {
         if (!(o instanceof ZaakbeeindigParameter that))
             return false;
+        if (zaakbeeindigReden == null || that.zaakbeeindigReden == null)
+            throw new IllegalStateException("zaakbeeindigReden is null");
         return Objects.equals(zaakbeeindigReden.getId(), that.zaakbeeindigReden.getId()) &&
                Objects.equals(resultaattype, that.resultaattype);
     }
 
     @Override
     public int hashCode() {
+        if (zaakbeeindigReden == null)
+            throw new IllegalStateException("zaakbeeindigReden is null");
         return Objects.hash(zaakbeeindigReden.getId(), resultaattype);
     }
 
