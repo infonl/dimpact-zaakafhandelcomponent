@@ -84,7 +84,8 @@ public class MailtemplateKoppeling implements UserModifiable<MailtemplateKoppeli
     public boolean isModifiedFrom(MailtemplateKoppeling original) {
         if (mailTemplate == null || original.mailTemplate == null)
             throw new IllegalStateException("mailTemplate is null");
-        return Objects.equals(id, original.id) && !Objects.equals(mailTemplate.getId(), original.mailTemplate.getId());
+        return Objects.equals(mailTemplate.mail, original.mailTemplate.mail) &&
+               !Objects.equals(mailTemplate.getId(), original.mailTemplate.getId());
     }
 
     @Override

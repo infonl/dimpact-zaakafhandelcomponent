@@ -157,16 +157,24 @@ public class HumanTaskParameters implements UserModifiable<HumanTaskParameters> 
     @Override
     public boolean isModifiedFrom(HumanTaskParameters original) {
         return Objects.equals(original.planItemDefinitionID, planItemDefinitionID) &&
-               (!Objects.equals(original.formulierDefinitieID, formulierDefinitieID) ||
+               (actief != original.actief ||
+                !Objects.equals(original.formulierDefinitieID, formulierDefinitieID) ||
                 !Objects.equals(original.groepID, groepID) ||
-                !Objects.equals(original.doorlooptijd, doorlooptijd));
+                !Objects.equals(original.doorlooptijd, doorlooptijd) ||
+                // PersistentSet equals and hashCode don't work for EAGER fetch, so use Arrays.deepEquals
+                // https://hibernate.atlassian.net/browse/HHH-3799
+                (referentieTabellen != null && original.referentieTabellen != null &&
+                 !Objects.deepEquals(referentieTabellen.toArray(), original.referentieTabellen.toArray())) ||
+                (referentieTabellen == null && original.referentieTabellen == null));
     }
 
     @Override
     public void applyChanges(HumanTaskParameters changes) {
+        actief = changes.actief;
         formulierDefinitieID = changes.formulierDefinitieID;
         groepID = changes.groepID;
         doorlooptijd = changes.doorlooptijd;
+        referentieTabellen = changes.referentieTabellen;
     }
 
     @Override

@@ -16,6 +16,12 @@ package net.atos.zac.admin.model;
 public interface UserModifiable<T extends UserModifiable<T>> {
     /**
      * Checks whether the passed original is the same as the current object and if it was changed by the user.
+     * <p>
+     * The result is based on two checks done on:
+     * <ul>
+     * <li>one pivotal field that should be the same</li>
+     * <li>one or more fields that should be different</li>
+     * </ul>
      *
      * @param original Original object (part of {@link ZaakafhandelParameters}) to compare to.
      * @return <code>true</code> if the object is different from the original, <code>false</code> otherwise.
