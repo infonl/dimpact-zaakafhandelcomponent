@@ -61,6 +61,26 @@ class ReferenceTable {
 
     @OneToMany(mappedBy = "referenceTable", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
     var values: MutableList<ReferenceTableValue> = ArrayList()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ReferenceTable) return false
+
+        if (isSystemReferenceTable != other.isSystemReferenceTable) return false
+        if (code != other.code) return false
+        if (name != other.name) return false
+        if (!values.toTypedArray().contentDeepEquals(other.values.toTypedArray())) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = isSystemReferenceTable.hashCode()
+        result = 31 * result + code.hashCode()
+        result = 31 * result + name.hashCode()
+        result = 31 * result + values.hashCode()
+        return result
+    }
 }
 
 fun ReferenceTable.toRestReferenceTable(inclusiefWaarden: Boolean): RestReferenceTable {

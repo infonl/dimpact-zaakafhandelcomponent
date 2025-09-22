@@ -87,6 +87,7 @@
   "publicatiedatum": "Publication date",
   "uiterlijkereactiedatum": "Final response date",
   "einddatum": "End date",
+  "startdatumBewaartermijn": "Source date",
   "zaak.einddatum": "Case end date",
   "zaak.brondatum": "Case archiving source date",
   "streefdatum": "Due date",

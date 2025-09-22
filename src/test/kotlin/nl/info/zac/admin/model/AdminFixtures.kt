@@ -32,14 +32,25 @@ fun createBetrokkeneKoppelingen(
     this.kvkKoppelen = kvkKoppelen
 }
 
+@Suppress("LongParameterList")
 fun createHumanTaskParameters(
     id: Long = 1234L,
     zaakafhandelParameters: ZaakafhandelParameters = createZaakafhandelParameters(),
-    isActief: Boolean = true
+    isActief: Boolean = true,
+    formulierDefinitieID: String? = "fakeFormulierDefinitieID",
+    planItemDefinitionID: String? = "fakePlanItemDefinitionID",
+    groupId: String? = "fakeGroupId",
+    leadTime: Int? = 1000000000,
+    referenceTables: List<HumanTaskReferentieTabel>? = emptyList()
 ) = HumanTaskParameters().apply {
     this.id = id
     this.zaakafhandelParameters = zaakafhandelParameters
     this.isActief = isActief
+    this.formulierDefinitieID = formulierDefinitieID
+    this.planItemDefinitionID = planItemDefinitionID
+    this.groepID = groupId
+    this.doorlooptijd = leadTime
+    referentieTabellen = referenceTables ?: emptyList()
 }
 
 fun createHumanTaskReferentieTabel(

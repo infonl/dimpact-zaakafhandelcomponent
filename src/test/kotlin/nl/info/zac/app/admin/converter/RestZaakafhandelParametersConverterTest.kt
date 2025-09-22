@@ -11,7 +11,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTHumanTaskParametersConverter
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
@@ -20,6 +19,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.admin.ZaakafhandelParameterBeheerService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.app.admin.createRestZaakAfhandelParameters
@@ -35,7 +35,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
     val zaakbeeindigParameterConverter = mockk<RESTZaakbeeindigParameterConverter>()
     val restHumanTaskParametersConverter = mockk<RESTHumanTaskParametersConverter>()
     val ztcClientService = mockk<ZtcClientService>()
-    val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
+    val zaakafhandelParameterBeheerService = mockk<ZaakafhandelParameterBeheerService>()
     val smartDocumentsService = mockk<SmartDocumentsService>()
 
     val restZaakafhandelParametersConverter = RestZaakafhandelParametersConverter(
@@ -43,7 +43,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         zaakbeeindigParameterConverter,
         restHumanTaskParametersConverter,
         ztcClientService,
-        zaakafhandelParameterService,
+        zaakafhandelParameterBeheerService,
         smartDocumentsService
     )
 
@@ -111,7 +111,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     mailtemplateKoppelingen shouldHaveSize 1
                     zaakbeeindigParameters shouldBe listOf(restZaakbeeindigParameter)
                     zaakAfzenders shouldBe listOf(
-                        RestZaakAfzender(id = 1234, mail = "mail@example.com", replyTo = "replyTo@example.com"),
+                        RestZaakAfzender(id = null, mail = "mail@example.com", replyTo = "replyTo@example.com"),
                         RestZaakAfzender(mail = "GEMEENTE", speciaal = true),
                         RestZaakAfzender(mail = "MEDEWERKER", speciaal = true)
                     )
@@ -132,7 +132,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         }
         val zaakafhandelParameters = createZaakafhandelParameters()
         every {
-            zaakafhandelParameterService.readZaakafhandelParameters(restZaakafhandelParameters.zaaktype.uuid)
+            zaakafhandelParameterBeheerService.readZaakafhandelParameters(restZaakafhandelParameters.zaaktype.uuid!!)
         } returns zaakafhandelParameters
         every { restHumanTaskParametersConverter.convertRESTHumanTaskParameters(any()) } returns emptyList()
 
