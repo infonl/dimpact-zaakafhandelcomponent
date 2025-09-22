@@ -5,6 +5,7 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -39,6 +40,53 @@ class ZaaktypeBpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                 val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
+            }
+        }
+    }
+
+    Given("Configured BPMN zaak type") {
+        lateinit var responseBody: String
+        val bpmnZaakType = """
+        {
+            "zaaktypeUuid": "$ZAAKTYPE_BPMN_TEST_UUID",
+            "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
+            "bpmnProcessDefinitionKey": "$BPMN_TEST_PROCESS_ID",
+            "productaanvraagtype": "$ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE",
+            "groepNaam": "$TEST_GROUP_A_DESCRIPTION"
+        }
+        """.trimIndent()
+
+        When("the BPMN zaak type is retrieved") {
+            val response = itestHttpClient.performGetRequest(
+                "$ZAC_API_URI/zaaktype-bpmn-process-definition/$BPMN_TEST_PROCESS_ID"
+            )
+
+            Then("the response is successful") {
+                responseBody = response.body.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+            }
+
+            And("the expected zaak type data is returned") {
+                responseBody shouldEqualJson bpmnZaakType
+            }
+        }
+
+        When("list of all BPMN zaak types is retrieved") {
+            lateinit var responseBody: String
+
+            val response = itestHttpClient.performGetRequest(
+                "$ZAC_API_URI/zaaktype-bpmn-process-definition"
+            )
+
+            Then("the response is successful") {
+                responseBody = response.body.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+            }
+
+            And("the expected zaak type data list is returned") {
+                responseBody shouldEqualJson "[$bpmnZaakType]"
             }
         }
     }

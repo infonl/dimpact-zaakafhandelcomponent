@@ -29,6 +29,8 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.admin.exception.BPMNModelAlreadyMappedException
+import nl.info.zac.flowable.bpmn.ZaaktypeBpmnProcessDefinitionService
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -47,7 +49,8 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
     private val entityManager: EntityManager,
     private val ztcClientService: ZtcClientService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
-    private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService
+    private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
+    private val zaaktypeBpmnProcessDefinitionService: ZaaktypeBpmnProcessDefinitionService
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZaakafhandelParameterBeheerService::class.java.name)
@@ -57,17 +60,30 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
      * Retrieves the zaakafhandelparameters for a given zaaktype UUID.
      * Note that a zaaktype UUID uniquely identifies a _version_ of a zaaktype, and therefore also
      * a specific version of the corresponding zaakafhandelparameters.
+     *
+     * @return the found [ZaakafhandelParameters] or a **new instance** if no such record exists yet.
      */
-    fun readZaakafhandelParameters(zaaktypeUUID: UUID): ZaakafhandelParameters {
+    fun fetchZaakafhandelParameters(zaaktypeUUID: UUID): ZaakafhandelParameters {
         ztcClientService.resetCacheTimeToNow()
+        return readZaakafhandelParameters(zaaktypeUUID) ?: ZaakafhandelParameters().apply {
+            zaakTypeUUID = zaaktypeUUID
+        }
+    }
+
+    /**
+     * Retrieves the zaakafhandelparameters for a given zaaktype UUID.
+     * Note that a zaaktype UUID uniquely identifies a _version_ of a zaaktype, and therefore also
+     * a specific version of the corresponding zaakafhandelparameters.
+     *
+     * @return the found [ZaakafhandelParameters] or `null` if no such record exists yet.
+     */
+    fun readZaakafhandelParameters(zaaktypeUUID: UUID): ZaakafhandelParameters? {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(ZaakafhandelParameters::class.java)
         val root = query.from(ZaakafhandelParameters::class.java)
         query.select(root).where(builder.equal(root.get<Any>(ZAAKTYPE_UUID), zaaktypeUUID))
         val resultList = entityManager.createQuery(query).setMaxResults(1).resultList
-        return resultList.firstOrNull() ?: ZaakafhandelParameters().apply {
-            zaakTypeUUID = zaaktypeUUID
-        }
+        return resultList.firstOrNull()
     }
 
     fun listZaakafhandelParameters(): List<ZaakafhandelParameters> {
@@ -78,8 +94,15 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
     }
 
     fun storeZaakafhandelParameters(zaakafhandelParameters: ZaakafhandelParameters): ZaakafhandelParameters {
-        zaakafhandelParameterService.clearListCache()
         ValidationUtil.valideerObject(zaakafhandelParameters)
+        zaaktypeBpmnProcessDefinitionService.findZaaktypeProcessDefinitionByZaaktypeUuid(
+            zaakafhandelParameters.zaakTypeUUID
+        )?.let {
+            throw BPMNModelAlreadyMappedException(
+                "BPMN configuration for zaaktype '${zaakafhandelParameters.zaaktypeOmschrijving} already exists"
+            )
+        }
+        zaakafhandelParameterService.clearListCache()
         zaakafhandelParameters.apply {
             humanTaskParametersCollection.forEach { ValidationUtil.valideerObject(it) }
             userEventListenerParametersCollection.forEach { ValidationUtil.valideerObject(it) }

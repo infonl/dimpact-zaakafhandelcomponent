@@ -8,6 +8,8 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
+import nl.info.zac.admin.ZaakafhandelParameterBeheerService
+import nl.info.zac.flowable.bpmn.exception.CMMNModelAlreadyMappedException
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition.Companion.PRODUCTAANVRAAGTTYPE_VARIABELE_NAME
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
@@ -20,9 +22,15 @@ import java.util.UUID
 @NoArgConstructor
 @AllOpen
 class ZaaktypeBpmnProcessDefinitionService @Inject constructor(
-    private val entityManager: EntityManager
+    private val entityManager: EntityManager,
+    private val zaakafhandelParameterBeheerService: ZaakafhandelParameterBeheerService
 ) {
     fun createZaaktypeBpmnProcessDefinition(zaaktypeBpmnProcessDefinition: ZaaktypeBpmnProcessDefinition) {
+        zaakafhandelParameterBeheerService.readZaakafhandelParameters(zaaktypeBpmnProcessDefinition.zaaktypeUuid)?.let {
+            throw CMMNModelAlreadyMappedException(
+                "CMMN configuration for zaaktype '${zaaktypeBpmnProcessDefinition.zaaktypeOmschrijving}' already exists"
+            )
+        }
         entityManager.persist(zaaktypeBpmnProcessDefinition)
     }
 

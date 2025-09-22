@@ -64,7 +64,7 @@ public class ZaakafhandelParameterService implements Caching {
     public ZaakafhandelParameters readZaakafhandelParameters(final UUID zaaktypeUUID) {
         return uuidToZaakafhandelParametersCache.get(
                 zaaktypeUUID,
-                uuid -> zaakafhandelParameterBeheerService.readZaakafhandelParameters(zaaktypeUUID)
+                uuid -> zaakafhandelParameterBeheerService.fetchZaakafhandelParameters(zaaktypeUUID)
         );
     }
 

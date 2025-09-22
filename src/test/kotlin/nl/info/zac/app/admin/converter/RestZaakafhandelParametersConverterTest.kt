@@ -132,7 +132,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         }
         val zaakafhandelParameters = createZaakafhandelParameters()
         every {
-            zaakafhandelParameterBeheerService.readZaakafhandelParameters(restZaakafhandelParameters.zaaktype.uuid!!)
+            zaakafhandelParameterBeheerService.fetchZaakafhandelParameters(restZaakafhandelParameters.zaaktype.uuid!!)
         } returns zaakafhandelParameters
         every { restHumanTaskParametersConverter.convertRESTHumanTaskParameters(any()) } returns emptyList()
 

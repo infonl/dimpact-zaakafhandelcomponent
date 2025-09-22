@@ -4,8 +4,10 @@
  */
 package nl.info.zac.flowable.bpmn
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -18,6 +20,9 @@ import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
+import nl.info.zac.admin.ZaakafhandelParameterBeheerService
+import nl.info.zac.admin.model.createZaakafhandelParameters
+import nl.info.zac.flowable.bpmn.exception.CMMNModelAlreadyMappedException
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
 import java.util.Optional
@@ -31,7 +36,9 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
     val pathUuid = mockk<Path<UUID>>()
     val pathProductAanvraagType = mockk<Path<String>>()
     val entityManager = mockk<EntityManager>()
-    val zaaktypeBpmnProcessDefinitionService = ZaaktypeBpmnProcessDefinitionService(entityManager)
+    val zaakafhandelParameterBeheerService = mockk<ZaakafhandelParameterBeheerService>()
+    val zaaktypeBpmnProcessDefinitionService =
+        ZaaktypeBpmnProcessDefinitionService(entityManager, zaakafhandelParameterBeheerService)
 
     beforeEach {
         checkUnnecessaryStub()
@@ -40,6 +47,9 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
     Context("Creating a zaaktype - BPMN process definition") {
         Given("A zaaktype - BPMN process definition relation") {
             val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnProcessDefinition()
+            every {
+                zaakafhandelParameterBeheerService.readZaakafhandelParameters(zaaktypeBpmnProcessDefinition.zaaktypeUuid)
+            } returns null
             every { entityManager.persist(zaaktypeBpmnProcessDefinition) } just Runs
 
             When("the zaaktype BPMN process definition relation is created") {
@@ -49,6 +59,25 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         entityManager.persist(zaaktypeBpmnProcessDefinition)
                     }
+                }
+            }
+        }
+
+        Given("A zaaktype and existing CMMN mapping for it") {
+            val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnProcessDefinition()
+            every {
+                zaakafhandelParameterBeheerService.readZaakafhandelParameters(zaaktypeBpmnProcessDefinition.zaaktypeUuid)
+            } returns createZaakafhandelParameters()
+
+            When("the zaaktype BPMN process definition relation is created") {
+                val exception = shouldThrow<CMMNModelAlreadyMappedException> {
+                    zaaktypeBpmnProcessDefinitionService.createZaaktypeBpmnProcessDefinition(
+                        zaaktypeBpmnProcessDefinition
+                    )
+                }
+
+                Then("an exception is thrown") {
+                    exception.message shouldContain zaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
                 }
             }
         }
