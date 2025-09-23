@@ -91,7 +91,7 @@ export class InformatieObjectAddComponent implements OnChanges {
     auteur: this.formBuilder.control<string | null>(null, [
       Validators.required,
     ]),
-    repeat: this.formBuilder.control(false, []),
+    addOtherInfoObject: this.formBuilder.control(false, []),
   });
 
   constructor(
@@ -102,21 +102,9 @@ export class InformatieObjectAddComponent implements OnChanges {
     private readonly vertrouwelijkaanduidingToTranslationKeyPipe: VertrouwelijkaanduidingToTranslationKeyPipe,
     private readonly formBuilder: FormBuilder,
   ) {
-    this.identityService.readLoggedInUser().subscribe((ingelogdeMedewerker) => {
-      this.form.controls.auteur.setValue(ingelogdeMedewerker.naam);
-    });
-
-    this.configuratieService.readDefaultTaal().subscribe((defaultTaal) => {
-      this.form.controls.taal.setValue(defaultTaal);
-    });
-
     this.form.controls.ontvangstdatum.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
-        console.log(
-          "ontvangstdatumontvangstdatumontvangstdatumontvangstdatum",
-          value,
-        );
         if (!value && this.form.controls.verzenddatum.disabled) {
           this.form.controls.status.enable();
           this.form.controls.verzenddatum.enable();
@@ -140,7 +128,6 @@ export class InformatieObjectAddComponent implements OnChanges {
     this.form.controls.verzenddatum.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
-        console.log("VERZENDDATUM", value);
         if (!value && this.form.controls.ontvangstdatum.disabled) {
           this.form.controls.ontvangstdatum.enable();
           return;
@@ -158,6 +145,16 @@ export class InformatieObjectAddComponent implements OnChanges {
           value?.name?.replace(/\.[^/.]+$/, "") || "",
         );
       });
+  }
+
+  ngOnInit() {
+    this.identityService.readLoggedInUser().subscribe((ingelogdeMedewerker) => {
+      this.form.controls.auteur.setValue(ingelogdeMedewerker.naam);
+    });
+
+    this.configuratieService.readDefaultTaal().subscribe((defaultTaal) => {
+      this.form.controls.taal.setValue(defaultTaal);
+    });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -209,7 +206,7 @@ export class InformatieObjectAddComponent implements OnChanges {
           this.utilService.openSnackbar(
             "msg.document.nieuwe.versie.toegevoegd",
           );
-          if (value.repeat) {
+          if (value.addOtherInfoObject) {
             this.form.reset();
             return;
           }
