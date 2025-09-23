@@ -30,9 +30,7 @@ import { MaterialModule } from "../../shared/material/material.module";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
-import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 import { InformatieObjectAddComponent } from "./informatie-object-add.component";
-import { mock } from "node:test";
 
 describe(InformatieObjectAddComponent.name, () => {
   let component: InformatieObjectAddComponent;

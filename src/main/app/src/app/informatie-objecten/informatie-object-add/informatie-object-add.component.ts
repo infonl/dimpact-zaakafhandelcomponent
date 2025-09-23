@@ -8,6 +8,7 @@ import {
   EventEmitter,
   Input,
   OnChanges,
+  OnInit,
   Output,
   SimpleChanges,
 } from "@angular/core";
@@ -28,7 +29,7 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
   selector: "zac-informatie-object-add",
   templateUrl: "./informatie-object-add.component.html",
 })
-export class InformatieObjectAddComponent implements OnChanges {
+export class InformatieObjectAddComponent implements OnChanges, OnInit {
   @Input()
   infoObject?: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
   @Input({ required: true }) sideNav!: MatDrawer;
