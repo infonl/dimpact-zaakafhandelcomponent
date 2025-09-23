@@ -181,10 +181,9 @@ class SearchRestServiceTest : BehaviorSpec({
                                 }
                             ],
                            "ZAAK_RESULTAAT" : [
-                              {
-                                "aantal" : 4,
-                                "naam" : "-NULL-"
-                              }
+
+                                { "aantal": 2, "naam": "Buiten behandeling" }
+
                             ],
                             "ZAAK_INDICATIES": [                        
                                 {
