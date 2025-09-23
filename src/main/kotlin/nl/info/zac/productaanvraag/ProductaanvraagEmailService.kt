@@ -46,7 +46,7 @@ class ProductaanvraagEmailService @Inject constructor(
         betrokkene: Betrokkene?,
         zaakafhandelParameters: ZaakafhandelParameters
     ) {
-        LOG.info {
+        LOG.fine {
             "Attempting to send automatic email confirmation for zaak '${zaak.uuid}' " +
                 "and zaaktype '${zaak.zaaktype}'. For initiator '$betrokkene'."
         }
