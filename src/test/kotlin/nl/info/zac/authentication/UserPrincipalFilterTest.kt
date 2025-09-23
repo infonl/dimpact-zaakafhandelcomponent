@@ -26,8 +26,8 @@ import nl.info.client.pabc.model.generated.ApplicationRoleModel
 import nl.info.client.pabc.model.generated.EntityTypeModel
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponseModel
+import nl.info.zac.admin.ZaaktypeBpmnProcessDefinitionService
 import nl.info.zac.admin.model.createZaakafhandelParameters
-import nl.info.zac.flowable.bpmn.ZaaktypeBpmnProcessDefinitionService
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
 import nl.info.zac.identity.model.getFullName
 import org.wildfly.security.http.oidc.AccessToken

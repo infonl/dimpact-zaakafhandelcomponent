@@ -13,7 +13,6 @@ import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
-import nl.info.zac.app.admin.model.RestZaaktypeBpmnProcessDefinition
 import nl.info.zac.database.flyway.FlywayIntegrator
 import nl.info.zac.util.AllOpen
 import java.util.UUID
@@ -58,12 +57,3 @@ class ZaaktypeBpmnProcessDefinition {
     @Column(name = "naam_groep", nullable = false)
     lateinit var groepNaam: String
 }
-
-fun ZaaktypeBpmnProcessDefinition.toRestZaaktypeBpmnProcessDefinition() =
-    RestZaaktypeBpmnProcessDefinition(
-        zaaktypeUuid = this.zaaktypeUuid,
-        bpmnProcessDefinitionKey = this.bpmnProcessDefinitionKey,
-        zaaktypeOmschrijving = this.zaaktypeOmschrijving,
-        groepNaam = this.groepNaam,
-        productaanvraagtype = this.productaanvraagtype
-    )

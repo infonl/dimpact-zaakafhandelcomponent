@@ -21,8 +21,9 @@ import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
+import nl.info.zac.admin.ZaaktypeBpmnProcessDefinitionService
+import nl.info.zac.admin.exception.ZaaktypeInUseException
 import nl.info.zac.admin.model.createZaakafhandelParameters
-import nl.info.zac.flowable.bpmn.exception.CMMNModelAlreadyMappedException
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
 import java.util.Optional
@@ -70,7 +71,7 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
             } returns createZaakafhandelParameters()
 
             When("the zaaktype BPMN process definition relation is created") {
-                val exception = shouldThrow<CMMNModelAlreadyMappedException> {
+                val exception = shouldThrow<ZaaktypeInUseException> {
                     zaaktypeBpmnProcessDefinitionService.createZaaktypeBpmnProcessDefinition(
                         zaaktypeBpmnProcessDefinition
                     )

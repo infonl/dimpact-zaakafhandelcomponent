@@ -4,4 +4,4 @@
  */
 package nl.info.zac.admin.exception
 
-class BPMNModelAlreadyMappedException(override val message: String) : IllegalArgumentException(message)
+class ZaaktypeInUseException(override val message: String) : IllegalArgumentException(message)

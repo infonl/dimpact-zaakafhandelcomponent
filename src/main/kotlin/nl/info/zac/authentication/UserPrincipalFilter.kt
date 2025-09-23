@@ -17,7 +17,7 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.exception.PabcRuntimeException
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
-import nl.info.zac.flowable.bpmn.ZaaktypeBpmnProcessDefinitionService
+import nl.info.zac.admin.ZaaktypeBpmnProcessDefinitionService
 import nl.info.zac.identity.model.ZACRole
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor

@@ -13,7 +13,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.ws.rs.NotFoundException
-import nl.info.zac.flowable.bpmn.ZaaktypeBpmnProcessDefinitionService
+import nl.info.zac.admin.ZaaktypeBpmnProcessDefinitionService
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
 import nl.info.zac.policy.PolicyService
 

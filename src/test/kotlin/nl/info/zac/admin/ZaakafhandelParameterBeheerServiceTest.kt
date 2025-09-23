@@ -33,9 +33,8 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.admin.exception.BPMNModelAlreadyMappedException
+import nl.info.zac.admin.exception.ZaaktypeInUseException
 import nl.info.zac.admin.model.createZaakafhandelParameters
-import nl.info.zac.flowable.bpmn.ZaaktypeBpmnProcessDefinitionService
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
@@ -461,7 +460,7 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
         } returns createZaaktypeBpmnProcessDefinition()
 
         When("create a zaakafhandelparameters is attempted") {
-            val exception = shouldThrow<BPMNModelAlreadyMappedException> {
+            val exception = shouldThrow<ZaaktypeInUseException> {
                 zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelparameters)
             }
 

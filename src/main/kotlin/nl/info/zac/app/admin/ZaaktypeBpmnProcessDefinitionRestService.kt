@@ -19,17 +19,16 @@ import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.UriInfo
+import nl.info.zac.admin.ZaaktypeBpmnProcessDefinitionService
 import nl.info.zac.app.admin.model.RestZaaktypeBpmnProcessDefinition
-import nl.info.zac.flowable.bpmn.ZaaktypeBpmnProcessDefinitionService
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition
-import nl.info.zac.flowable.bpmn.model.toRestZaaktypeBpmnProcessDefinition
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
 @Singleton
-@Path("zaaktype-bpmn-process-definition")
+@Path("zaaktype-bpmn-process-definitions")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @AllOpen
@@ -83,4 +82,13 @@ class ZaaktypeBpmnProcessDefinitionRestService @Inject constructor(
         )
         return Response.created(uriInfo.requestUri).build()
     }
+
+    private fun ZaaktypeBpmnProcessDefinition.toRestZaaktypeBpmnProcessDefinition() =
+        RestZaaktypeBpmnProcessDefinition(
+            zaaktypeUuid = this.zaaktypeUuid,
+            bpmnProcessDefinitionKey = this.bpmnProcessDefinitionKey,
+            zaaktypeOmschrijving = this.zaaktypeOmschrijving,
+            groepNaam = this.groepNaam,
+            productaanvraagtype = this.productaanvraagtype
+        )
 }

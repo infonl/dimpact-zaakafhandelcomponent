@@ -29,8 +29,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.admin.exception.BPMNModelAlreadyMappedException
-import nl.info.zac.flowable.bpmn.ZaaktypeBpmnProcessDefinitionService
+import nl.info.zac.admin.exception.ZaaktypeInUseException
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -98,7 +97,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         zaaktypeBpmnProcessDefinitionService.findZaaktypeProcessDefinitionByZaaktypeUuid(
             zaakafhandelParameters.zaakTypeUUID
         )?.let {
-            throw BPMNModelAlreadyMappedException(
+            throw ZaaktypeInUseException(
                 "BPMN configuration for zaaktype '${zaakafhandelParameters.zaaktypeOmschrijving} already exists"
             )
         }
