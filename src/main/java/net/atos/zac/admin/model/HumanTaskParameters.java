@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -10,6 +10,7 @@ import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -27,13 +28,12 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import nl.info.zac.admin.model.ReferenceTable;
 import nl.info.zac.app.planitems.converter.FormulierKoppelingConverterKt;
 
 @Entity
 @Table(schema = SCHEMA, name = "humantask_parameters")
 @SequenceGenerator(schema = SCHEMA, name = "sq_humantask_parameters", sequenceName = "sq_humantask_parameters", allocationSize = 1)
-public class HumanTaskParameters {
+public class HumanTaskParameters implements UserModifiable<HumanTaskParameters> {
 
     @Id
     @GeneratedValue(generator = "sq_humantask_parameters", strategy = GenerationType.SEQUENCE)
@@ -120,46 +120,9 @@ public class HumanTaskParameters {
         referentieTabellen.forEach(this::addReferentieTabel);
     }
 
-    private HumanTaskReferentieTabel getReferentieTabel(final String veld) {
-        return referentieTabellen.stream()
-                .filter(referentieTabel -> referentieTabel.getVeld().equals(veld))
-                .findAny()
-                .orElse(null);
-    }
-
     private boolean addReferentieTabel(final HumanTaskReferentieTabel referentieTabel) {
         referentieTabel.setHumantask(this);
         return referentieTabellen.add(referentieTabel);
-    }
-
-    private boolean removeReferentieTabel(final HumanTaskReferentieTabel referentieTabel) {
-        return referentieTabellen.remove(referentieTabel);
-    }
-
-    public ReferenceTable getTabel(final String veld) {
-        final HumanTaskReferentieTabel referentieTabel = getReferentieTabel(veld);
-        return referentieTabel == null ? null : referentieTabel.getTabel();
-    }
-
-    public ReferenceTable putTabel(final String veld, final ReferenceTable tabel) {
-        final HumanTaskReferentieTabel referentieTabel = getReferentieTabel(veld);
-        if (referentieTabel == null) {
-            addReferentieTabel(new HumanTaskReferentieTabel(veld, tabel));
-            return null;
-        } else {
-            final ReferenceTable previous = referentieTabel.getTabel();
-            referentieTabel.setTabel(tabel);
-            return previous;
-        }
-    }
-
-    public ReferenceTable removeTabel(final String veld) {
-        final HumanTaskReferentieTabel referentieTabel = getReferentieTabel(veld);
-        if (referentieTabel == null) {
-            return null;
-        }
-        removeReferentieTabel(referentieTabel);
-        return referentieTabel.getTabel();
     }
 
     public boolean isActief() {
@@ -168,5 +131,55 @@ public class HumanTaskParameters {
 
     public void setActief(final boolean actief) {
         this.actief = actief;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof HumanTaskParameters that))
+            return false;
+        return actief == that.actief &&
+               Objects.equals(formulierDefinitieID, that.formulierDefinitieID) &&
+               Objects.equals(planItemDefinitionID, that.planItemDefinitionID) &&
+               Objects.equals(groepID, that.groepID) &&
+               Objects.equals(doorlooptijd, that.doorlooptijd) &&
+               // PersistentSet equals and hashCode don't work for EAGER fetch, so use Arrays.deepEquals
+               // https://hibernate.atlassian.net/browse/HHH-3799
+               ((referentieTabellen == null && that.referentieTabellen == null) ||
+                ((referentieTabellen != null && that.referentieTabellen != null) &&
+                 Objects.deepEquals(referentieTabellen.toArray(), that.referentieTabellen.toArray())));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(actief, formulierDefinitieID, planItemDefinitionID, groepID, doorlooptijd, referentieTabellen);
+    }
+
+    @Override
+    public boolean isModifiedFrom(HumanTaskParameters original) {
+        return Objects.equals(original.planItemDefinitionID, planItemDefinitionID) &&
+               (actief != original.actief ||
+                !Objects.equals(original.formulierDefinitieID, formulierDefinitieID) ||
+                !Objects.equals(original.groepID, groepID) ||
+                !Objects.equals(original.doorlooptijd, doorlooptijd) ||
+                // PersistentSet equals and hashCode don't work for EAGER fetch, so use Arrays.deepEquals
+                // https://hibernate.atlassian.net/browse/HHH-3799
+                (referentieTabellen != null && original.referentieTabellen != null &&
+                 !Objects.deepEquals(referentieTabellen.toArray(), original.referentieTabellen.toArray())) ||
+                (referentieTabellen == null && original.referentieTabellen == null));
+    }
+
+    @Override
+    public void applyChanges(HumanTaskParameters changes) {
+        actief = changes.actief;
+        formulierDefinitieID = changes.formulierDefinitieID;
+        groepID = changes.groepID;
+        doorlooptijd = changes.doorlooptijd;
+        referentieTabellen = changes.referentieTabellen;
+    }
+
+    @Override
+    public HumanTaskParameters resetId() {
+        id = null;
+        return this;
     }
 }

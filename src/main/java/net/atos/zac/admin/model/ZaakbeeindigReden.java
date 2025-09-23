@@ -1,11 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.admin.model;
 
 import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
+
+import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -43,5 +44,17 @@ public class ZaakbeeindigReden {
 
     public void setNaam(final String naam) {
         this.naam = naam;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ZaakbeeindigReden that))
+            return false;
+        return Objects.equals(naam, that.naam);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(naam);
     }
 }

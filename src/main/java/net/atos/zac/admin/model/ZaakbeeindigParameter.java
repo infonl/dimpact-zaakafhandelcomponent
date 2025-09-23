@@ -1,12 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.admin.model;
 
 import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
 
+import java.util.Objects;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -23,7 +23,7 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Table(schema = SCHEMA, name = "zaakbeeindigparameter")
 @SequenceGenerator(schema = SCHEMA, name = "sq_zaakbeeindigparameter", sequenceName = "sq_zaakbeeindigparameter", allocationSize = 1)
-public class ZaakbeeindigParameter {
+public class ZaakbeeindigParameter implements UserModifiable<ZaakbeeindigParameter> {
 
     @Id
     @GeneratedValue(generator = "sq_zaakbeeindigparameter", strategy = GenerationType.SEQUENCE)
@@ -71,5 +71,38 @@ public class ZaakbeeindigParameter {
 
     public void setResultaattype(final UUID resultaattypeUUID) {
         this.resultaattype = resultaattypeUUID;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ZaakbeeindigParameter that))
+            return false;
+        if (zaakbeeindigReden == null || that.zaakbeeindigReden == null)
+            throw new IllegalStateException("zaakbeeindigReden is null");
+        return Objects.equals(zaakbeeindigReden.getId(), that.zaakbeeindigReden.getId()) &&
+               Objects.equals(resultaattype, that.resultaattype);
+    }
+
+    @Override
+    public int hashCode() {
+        if (zaakbeeindigReden == null)
+            throw new IllegalStateException("zaakbeeindigReden is null");
+        return Objects.hash(zaakbeeindigReden.getId(), resultaattype);
+    }
+
+    @Override
+    public boolean isModifiedFrom(ZaakbeeindigParameter original) {
+        return Objects.equals(zaakbeeindigReden, original.zaakbeeindigReden) && !Objects.equals(resultaattype, original.resultaattype);
+    }
+
+    @Override
+    public void applyChanges(ZaakbeeindigParameter changes) {
+        resultaattype = changes.resultaattype;
+    }
+
+    @Override
+    public ZaakbeeindigParameter resetId() {
+        id = null;
+        return this;
     }
 }
