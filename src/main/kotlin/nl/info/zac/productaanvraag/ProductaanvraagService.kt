@@ -353,7 +353,7 @@ class ProductaanvraagService @Inject constructor(
         roltypeOmschrijving: String,
         genericRolType: Boolean = false
     ) {
-        LOG.info { "Add betrokkene $betrokkene with role type $roltypeOmschrijving to zaak $zaak" }
+        LOG.fine { "Add betrokkene $betrokkene with role type $roltypeOmschrijving to zaak $zaak" }
         betrokkene.performAction(
             onNatuurlijkPersoonIdentity = { addNatuurlijkPersoonRole(type, it, zaak.url) },
             onKvkIdentity = { kvkNummer, vestigingsNummer ->
