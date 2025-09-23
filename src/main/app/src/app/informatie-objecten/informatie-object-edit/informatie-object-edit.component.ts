@@ -103,7 +103,7 @@ export class InformatieObjectEditComponent implements OnChanges {
     this.form.controls.ontvangstdatum.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
-        if (!value && !this.form.controls.verzenddatum.disabled) {
+        if (!value && this.form.controls.verzenddatum.disabled) {
           this.form.controls.status.enable();
           this.form.controls.verzenddatum.enable();
           return;
@@ -114,7 +114,9 @@ export class InformatieObjectEditComponent implements OnChanges {
           this.form.controls.verzenddatum.disable();
           this.form.controls.status.setValue(
             this.informatieobjectStatussen.find(
-              (option) => option.value === InformatieobjectStatus.DEFINITIEF,
+              (option) =>
+                option.value.toLowerCase() ===
+                InformatieobjectStatus.DEFINITIEF,
             ) ?? null,
           );
           return;
