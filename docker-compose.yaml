@@ -42,6 +42,7 @@ services:
       - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
       - KC_HEALTH_ENABLED=true
       - KC_HOSTNAME=localhost
+      - KC_HOSTNAME_BACKCHANNEL_DYNAMIC=true
       - KC_DB=postgres
       - KC_DB_URL_HOST=keycloak-database
       - KC_DB_URL_DATABASE=keycloak
