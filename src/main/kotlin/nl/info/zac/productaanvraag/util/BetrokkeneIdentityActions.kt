@@ -9,11 +9,11 @@ import nl.info.zac.productaanvraag.model.generated.Betrokkene
 
 fun <T> Betrokkene.performAction(
     onNatuurlijkPersoonIdentity: (identity: String) -> T,
-    onVestigingIdentity: (identity: String) -> T,
+    onKvkIdentity: (kvkNummer: String, vestigingsNummer: String?) -> T,
     onNoIdentity: () -> T
 ) =
     when {
         inpBsn != null -> onNatuurlijkPersoonIdentity(inpBsn)
-        vestigingsNummer != null -> onVestigingIdentity(vestigingsNummer)
+        kvkNummer != null -> onKvkIdentity(kvkNummer, vestigingsNummer)
         else -> onNoIdentity()
     }
