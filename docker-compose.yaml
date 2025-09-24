@@ -264,7 +264,7 @@ services:
         condition: service_started
 
   brp-personen-mock:
-    image: ghcr.io/brp-api/personen-mock:2.7.0-202508211438@sha256:43062e9200a1ae7cb92f1830acf0ab7ca19272dea0756400caaeb4748bed9fa5
+    image: ghcr.io/brp-api/personen-mock:2.7.0-202509221256@sha256:551ea5a7cab3dd96b2d682a7acebb5d162049d8b3d27b5195e59559e0d6132d5
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
@@ -361,14 +361,14 @@ services:
 
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
-    image: ghcr.io/eugenmayer/kontextwork-converter:1.8.0@sha256:48da70902307f27ad92a27ddf5875310464fd4d4a2f53ce53e1a6f9b3b4c3355
+    image: ghcr.io/eugenmayer/kontextwork-converter:1.8.1@sha256:653d38f59f4b271f2a4b3ebc7cf4f701b746307be339407ae54a613b1b9d300a
     platform: linux/amd64
     ports:
       - "8083:8080"
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.135.0@sha256:6d260efde7406a1f7d731a5d9663cb6ce25fa634f3ef3ef4a69266aaae1680fd
+    image: docker.io/otel/opentelemetry-collector:0.136.0@sha256:98fd3b410ae8a939be9588f1580c4b7c3da6ebba49f5363df4259a827aabb779
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -398,7 +398,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: docker.io/prom/prometheus:v3.5.0@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996
+    image: docker.io/prom/prometheus:v3.6.0@sha256:76947e7ef22f8a698fc638f706685909be425dbe09bd7a2cd7aca849f79b5f64
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver

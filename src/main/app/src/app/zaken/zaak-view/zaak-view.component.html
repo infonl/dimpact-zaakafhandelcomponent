@@ -216,41 +216,44 @@
                 <div class="zaak-grid">
                   <zac-static-text
                     class="grid-text"
-                    [label]="'status' | translate"
+                    label="status"
                     [value]="zaak.status | empty: 'naam'"
                   >
                   </zac-static-text>
                   <zac-static-text
                     class="grid-text"
-                    [label]="'registratiedatum' | translate"
+                    label="registratiedatum"
                     [value]="zaak.registratiedatum | datum"
                   >
                   </zac-static-text>
                   <zac-static-text
                     class="grid-text"
-                    [label]="'resultaat' | translate"
+                    label="resultaat"
                     [value]="zaak.resultaat?.resultaattype | empty: 'naam'"
                   >
                   </zac-static-text>
                   <div class="grid-placeholder"></div>
                   <zac-static-text
                     *ngIf="zaak.einddatum"
-                    [label]="'einddatum' | translate"
+                    label="einddatum"
                     [value]="zaak.einddatum | datum"
                   >
                   </zac-static-text>
                   <zac-static-text
+                    *ngIf="zaak.startdatumBewaartermijn"
+                    label="startdatumBewaartermijn"
+                    [value]="zaak.startdatumBewaartermijn | datum"
+                  >
+                  </zac-static-text>
+                  <zac-static-text
                     *ngIf="zaak.archiefNominatie === 'VERNIETIGEN'"
-                    [label]="
-                      'archiefNominatie.datum.' + zaak.archiefNominatie
-                        | translate
-                    "
+                    [label]="'archiefNominatie.datum.' + zaak.archiefNominatie"
                     [value]="zaak.archiefActiedatum | datum | empty"
                   >
                   </zac-static-text>
                   <zac-static-text
                     *ngIf="zaak.archiefNominatie === 'BLIJVEND_BEWAREN'"
-                    [label]="'archiefNominatie' | translate"
+                    label="archiefNominatie"
                     [value]="
                       'archiefNominatie.' + zaak.archiefNominatie | translate
                     "
@@ -261,19 +264,19 @@
                   ></mat-divider>
                   <zac-static-text
                     class="grid-text"
-                    [label]="'groep' | translate"
+                    label="groep"
                     [value]="zaak.groep?.naam | empty"
                   >
                   </zac-static-text>
                   <zac-static-text
                     class="grid-text"
-                    [label]="'behandelaar' | translate"
+                    label="behandelaar"
                     [value]="zaak.behandelaar?.naam | empty"
                   >
                   </zac-static-text>
                   <zac-static-text
                     class="grid-text"
-                    [label]="'communicatiekanaal' | translate"
+                    label="communicatiekanaal"
                     [value]="zaak.communicatiekanaal | empty"
                   >
                   </zac-static-text>
@@ -287,13 +290,13 @@
                   </button>
                   <zac-static-text
                     class="grid-text"
-                    [label]="'startdatum' | translate"
+                    label="startdatum"
                     [value]="zaak.startdatum | datum | empty"
                   >
                   </zac-static-text>
                   <zac-static-text
                     class="grid-text"
-                    [label]="'streefdatum' | translate"
+                    label="streefdatum"
                     [value]="zaak.einddatumGepland | datum | empty"
                     [icon]="dateFieldIconMap.get('einddatumGepland')"
                   >
@@ -301,7 +304,7 @@
                   </zac-static-text>
                   <zac-static-text
                     class="grid-text"
-                    [label]="'fataledatum' | translate"
+                    label="fataledatum"
                     [value]="zaak.uiterlijkeEinddatumAfdoening | datum | empty"
                     [icon]="
                       dateFieldIconMap.get('uiterlijkeEinddatumAfdoening')
@@ -339,7 +342,7 @@
                   </div>
                   <zac-static-text
                     class="full-width"
-                    [label]="'vertrouwelijkheidaanduiding' | translate"
+                    label="vertrouwelijkheidaanduiding"
                     [value]="
                       zaak.vertrouwelijkheidaanduiding
                         | vertrouwelijkaanduidingToTranslationKey
@@ -350,12 +353,12 @@
                   </zac-static-text>
                   <zac-static-text
                     class="full-width"
-                    [label]="'omschrijving' | translate"
+                    label="omschrijving"
                     [value]="zaak.omschrijving | empty"
                   ></zac-static-text>
                   <zac-static-text
                     class="full-width"
-                    [label]="'toelichting' | translate"
+                    label="toelichting"
                     [value]="zaak.toelichting | empty"
                   ></zac-static-text>
                 </div>

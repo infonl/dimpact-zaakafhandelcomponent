@@ -1,11 +1,13 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 package net.atos.zac.admin.model;
 
 import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
+
+import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -80,5 +82,18 @@ public class HumanTaskReferentieTabel {
 
     public void setVeld(final String veld) {
         this.veld = veld;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof HumanTaskReferentieTabel that))
+            return false;
+        return Objects.equals(tabel, that.tabel) &&
+               Objects.equals(veld, that.veld);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tabel, veld);
     }
 }

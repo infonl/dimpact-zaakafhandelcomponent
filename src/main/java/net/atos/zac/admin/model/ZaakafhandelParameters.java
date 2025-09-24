@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.admin.model;
 
 import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
@@ -210,26 +209,28 @@ public class ZaakafhandelParameters {
         return humanTaskParametersCollection != null ? humanTaskParametersCollection : Collections.emptySet();
     }
 
-    public void setHumanTaskParametersCollection(final Collection<HumanTaskParameters> humanTaskParametersCollection) {
-        if (this.humanTaskParametersCollection == null) {
-            this.humanTaskParametersCollection = new HashSet<>();
-        } else {
-            this.humanTaskParametersCollection.clear();
+    public void setHumanTaskParametersCollection(final Collection<HumanTaskParameters> desiredHumanTaskParametersCollection) {
+        if (humanTaskParametersCollection == null) {
+            humanTaskParametersCollection = new HashSet<>();
         }
-        humanTaskParametersCollection.forEach(this::addHumanTaskParameters);
+        desiredHumanTaskParametersCollection.forEach(this::setHumanTaskParameters);
+        humanTaskParametersCollection.removeIf(
+                humanTaskParameters -> isElementNotInCollection(desiredHumanTaskParametersCollection, humanTaskParameters)
+        );
     }
 
     public Set<MailtemplateKoppeling> getMailtemplateKoppelingen() {
         return mailtemplateKoppelingen != null ? mailtemplateKoppelingen : Collections.emptySet();
     }
 
-    public void setMailtemplateKoppelingen(final Collection<MailtemplateKoppeling> mailtemplateKoppelingen) {
-        if (this.mailtemplateKoppelingen == null) {
-            this.mailtemplateKoppelingen = new HashSet<>();
-        } else {
-            this.mailtemplateKoppelingen.clear();
+    public void setMailtemplateKoppelingen(final Collection<MailtemplateKoppeling> desiredMailtemplateKoppelingen) {
+        if (mailtemplateKoppelingen == null) {
+            mailtemplateKoppelingen = new HashSet<>();
         }
-        mailtemplateKoppelingen.forEach(this::addMailtemplateKoppeling);
+        desiredMailtemplateKoppelingen.forEach(this::setMailtemplateKoppeling);
+        mailtemplateKoppelingen.removeIf(
+                mailtemplateKoppeling -> isElementNotInCollection(desiredMailtemplateKoppelingen, mailtemplateKoppeling)
+        );
     }
 
     public AutomaticEmailConfirmation getAutomaticEmailConfirmation() {
@@ -244,13 +245,14 @@ public class ZaakafhandelParameters {
         return zaakbeeindigParameters != null ? zaakbeeindigParameters : Collections.emptySet();
     }
 
-    public void setZaakbeeindigParameters(final Collection<ZaakbeeindigParameter> zaakbeeindigParameters) {
-        if (this.zaakbeeindigParameters == null) {
-            this.zaakbeeindigParameters = new HashSet<>();
-        } else {
-            this.zaakbeeindigParameters.clear();
+    public void setZaakbeeindigParameters(final Collection<ZaakbeeindigParameter> desiredZaakbeeindigParameters) {
+        if (zaakbeeindigParameters == null) {
+            zaakbeeindigParameters = new HashSet<>();
         }
-        zaakbeeindigParameters.forEach(this::addZaakbeeindigParameter);
+        desiredZaakbeeindigParameters.forEach(this::setZaakbeeindigParameter);
+        zaakbeeindigParameters.removeIf(
+                zaakbeeindigParameter -> isElementNotInCollection(desiredZaakbeeindigParameters, zaakbeeindigParameter)
+        );
     }
 
     public Set<UserEventListenerParameters> getUserEventListenerParametersCollection() {
@@ -258,52 +260,87 @@ public class ZaakafhandelParameters {
     }
 
     public void setUserEventListenerParametersCollection(
-            final Collection<UserEventListenerParameters> userEventListenerParametersCollection
+            final Collection<UserEventListenerParameters> desiredUserEventListenerParametersCollection
     ) {
-        if (this.userEventListenerParametersCollection == null) {
-            this.userEventListenerParametersCollection = new HashSet<>();
-        } else {
-            this.userEventListenerParametersCollection.clear();
+        if (userEventListenerParametersCollection == null) {
+            userEventListenerParametersCollection = new HashSet<>();
         }
-        userEventListenerParametersCollection.forEach(this::addUserEventListenerParameters);
+        desiredUserEventListenerParametersCollection.forEach(this::setUserEventListenerParameters);
+        userEventListenerParametersCollection.removeIf(
+                userEventListenerParam -> isElementNotInCollection(desiredUserEventListenerParametersCollection, userEventListenerParam)
+        );
     }
 
     public Set<ZaakAfzender> getZaakAfzenders() {
         return zaakAfzenders != null ? zaakAfzenders : Collections.emptySet();
     }
 
-    public void setZaakAfzenders(final Collection<ZaakAfzender> zaakAfzenders) {
-        if (this.zaakAfzenders == null) {
-            this.zaakAfzenders = new HashSet<>();
-        } else {
-            this.zaakAfzenders.clear();
+    public void setZaakAfzenders(final Collection<ZaakAfzender> desiredZaakAfzenders) {
+        if (zaakAfzenders == null) {
+            zaakAfzenders = new HashSet<>();
         }
-        zaakAfzenders.forEach(this::addZaakAfzender);
+        desiredZaakAfzenders.forEach(this::setZaakAfzender);
+        zaakAfzenders.removeIf(
+                zaakAfzender -> isElementNotInCollection(desiredZaakAfzenders, zaakAfzender)
+        );
     }
 
-    private void addMailtemplateKoppeling(final MailtemplateKoppeling mailtemplateKoppeling) {
+    private void setMailtemplateKoppeling(final MailtemplateKoppeling mailtemplateKoppeling) {
         mailtemplateKoppeling.setZaakafhandelParameters(this);
-        mailtemplateKoppelingen.add(mailtemplateKoppeling);
+        setComponent(mailtemplateKoppelingen, mailtemplateKoppeling);
     }
 
-    private void addHumanTaskParameters(final HumanTaskParameters humanTaskParameters) {
+    private void setHumanTaskParameters(final HumanTaskParameters humanTaskParameters) {
         humanTaskParameters.setZaakafhandelParameters(this);
-        humanTaskParametersCollection.add(humanTaskParameters);
+        setComponent(humanTaskParametersCollection, humanTaskParameters);
     }
 
-    private void addZaakbeeindigParameter(final ZaakbeeindigParameter zaakbeeindigParameter) {
+    private void setZaakbeeindigParameter(final ZaakbeeindigParameter zaakbeeindigParameter) {
         zaakbeeindigParameter.setZaakafhandelParameters(this);
-        zaakbeeindigParameters.add(zaakbeeindigParameter);
+        setComponent(zaakbeeindigParameters, zaakbeeindigParameter);
     }
 
-    private void addUserEventListenerParameters(final UserEventListenerParameters userEventListenerParameters) {
+    private void setUserEventListenerParameters(final UserEventListenerParameters userEventListenerParameters) {
         userEventListenerParameters.setZaakafhandelParameters(this);
-        userEventListenerParametersCollection.add(userEventListenerParameters);
+        setComponent(userEventListenerParametersCollection, userEventListenerParameters);
     }
 
-    private void addZaakAfzender(final ZaakAfzender zaakAfzender) {
+    private void setZaakAfzender(final ZaakAfzender zaakAfzender) {
         zaakAfzender.setZaakafhandelParameters(this);
-        zaakAfzenders.add(zaakAfzender);
+        setComponent(zaakAfzenders, zaakAfzender);
+    }
+
+    private <T extends UserModifiable<T>> void setComponent(Collection<T> targetCollection, T candidate) {
+        var existingElement = elementToChange(targetCollection, candidate);
+        if (existingElement != null) {
+            existingElement.applyChanges(candidate);
+        } else {
+            if (isElementNotInCollection(targetCollection, candidate)) {
+                targetCollection.add(candidate.resetId());
+            }
+        }
+    }
+
+    /**
+     * This method replaces the Hibernate's PersistentSet#contains that does not use overridden <code>equals</code>
+     * and <code>hashCode</code>.
+     *
+     * @param targetCollection Collection that should be checked for the existence of the candidate element.
+     * @param candidate        Candidate element to be added to the collection.
+     * @return <code>true</code> if the element is not in the collection, <code>false</code> otherwise.
+     *
+     * @see <a href=https://hibernate.atlassian.net/browse/HHH-3799>Hibernate issue</a>
+     *
+     */
+    private <T> boolean isElementNotInCollection(Collection<T> targetCollection, T candidate) {
+        return targetCollection.stream().noneMatch(targetElement -> targetElement.equals(candidate));
+    }
+
+    private <T extends UserModifiable<T>> T elementToChange(Collection<T> persistentCollection, T changeCandidate) {
+        return persistentCollection.stream()
+                .filter(targetElement -> targetElement.isModifiedFrom(changeCandidate))
+                .findFirst()
+                .orElse(null);
     }
 
     public String getZaaktypeOmschrijving() {
