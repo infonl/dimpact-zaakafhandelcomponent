@@ -378,15 +378,15 @@ describe(InformatieObjectAddComponent.name, () => {
           titel: "Test Title",
           formaat: "text/plain",
           beschrijving: "Test Description",
+          status: "IN_BEWERKING",
           informatieobjectTypeUUID: mockInformatieObjectTypes[0].uuid,
           bestandsnaam: "test-file.txt",
-          verzenddatum: "2025-09-24T11:59:23.333Z",
-          status: undefined,
-          creatiedatum: undefined,
+          creatiedatum: "2025-09-24T11:59:23.111Z",
           ontvangstdatum: undefined,
-          vertrouwelijkheidaanduiding: undefined,
-          taal: null,
-          auteur: undefined,
+          verzenddatum: "2025-09-24T11:59:23.333Z",
+          vertrouwelijkheidaanduiding: "intern",
+          taal: mockTalen[0].code,
+          auteur: "Test Author",
         },
         true,
       );
@@ -502,7 +502,6 @@ describe(InformatieObjectAddComponent.name, () => {
       expect(mockSideNav.close).not.toHaveBeenCalled();
 
       expect(component["form"].pristine).toBe(true); // form pristine after adding document
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { creatiedatum: _ignoredCreatiedatum, ...objectToAssert } =
         component["form"].value;
       expect(objectToAssert).toEqual({
