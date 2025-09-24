@@ -502,6 +502,7 @@ describe(InformatieObjectAddComponent.name, () => {
       expect(mockSideNav.close).not.toHaveBeenCalled();
 
       expect(component["form"].pristine).toBe(true); // form pristine after adding document
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { creatiedatum: _ignoredCreatiedatum, ...objectToAssert } =
         component["form"].value;
       expect(objectToAssert).toEqual({
