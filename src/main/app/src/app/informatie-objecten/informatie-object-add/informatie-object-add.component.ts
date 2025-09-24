@@ -16,7 +16,6 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import moment, { Moment } from "moment";
-import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -91,16 +90,28 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
     >(null, [Validators.required]),
     auteur: this.formBuilder.control<string | null>(null, [
       Validators.required,
+      Validators.maxLength(200),
     ]),
     addOtherInfoObject: this.formBuilder.control(false, []),
   });
+
+  protected defaultFormValues: {
+    taal: GeneratedType<"RestTaal"> | null;
+    creatiedatum: Moment;
+    auteur: string | null;
+    addOtherInfoObject: boolean;
+  } = {
+    taal: null,
+    creatiedatum: moment(),
+    auteur: null,
+    addOtherInfoObject: true, // default to true since this object is only used when adding other info object is checked (and thus true)
+  };
 
   constructor(
     private readonly informatieObjectenService: InformatieObjectenService,
     private readonly utilService: UtilService,
     private readonly configuratieService: ConfiguratieService,
     private readonly identityService: IdentityService,
-    private readonly vertrouwelijkaanduidingToTranslationKeyPipe: VertrouwelijkaanduidingToTranslationKeyPipe,
     private readonly formBuilder: FormBuilder,
   ) {
     this.form.controls.ontvangstdatum.valueChanges
@@ -142,6 +153,7 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
     this.form.controls.bestand.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
+        console.log("file changes", value);
         this.form.controls.titel.setValue(
           value?.name?.replace(/\.[^/.]+$/, "") || "",
         );
@@ -150,11 +162,13 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
 
   ngOnInit() {
     this.identityService.readLoggedInUser().subscribe((ingelogdeMedewerker) => {
-      this.form.controls.auteur.setValue(ingelogdeMedewerker.naam);
+      this.defaultFormValues.auteur = ingelogdeMedewerker.naam;
+      this.form.controls.auteur.setValue(this.defaultFormValues.auteur);
     });
 
     this.configuratieService.readDefaultTaal().subscribe((defaultTaal) => {
-      this.form.controls.taal.setValue(defaultTaal);
+      this.defaultFormValues.taal = defaultTaal;
+      this.form.controls.taal.setValue(this.defaultFormValues.taal);
     });
   }
 
@@ -208,7 +222,7 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
             "msg.document.nieuwe.versie.toegevoegd",
           );
           if (value.addOtherInfoObject) {
-            this.form.reset();
+            this.form.reset(this.defaultFormValues);
             return;
           }
           this.resetAndClose();

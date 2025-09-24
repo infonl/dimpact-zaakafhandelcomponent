@@ -85,6 +85,7 @@ export class InformatieObjectEditComponent implements OnChanges {
     >(null, [Validators.required]),
     auteur: this.formBuilder.control<string | null>(null, [
       Validators.required,
+      Validators.maxLength(200),
     ]),
     toelichting: this.formBuilder.control<string | null>(null, [
       Validators.maxLength(1000),

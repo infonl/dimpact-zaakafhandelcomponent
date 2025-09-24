@@ -86,6 +86,15 @@ export class ZacFile<
     }
 
     this.allowedFormats = this.allowedFileTypes.join(", ");
+
+    this.control.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((file) => {
+        if (file) {
+          return;
+        }
+        this.displayControl.reset();
+      });
   }
 
   ngOnDestroy() {
@@ -146,7 +155,7 @@ export class ZacFile<
   }
 
   private updateInputControls(file: File | null) {
-    this.control?.patchValue(file, { emitEvent: false });
+    this.control?.patchValue(file);
     this.displayControl.patchValue(
       file ? file.name.replace(`.${this.getFileExtension(file)}`, "") : null,
       { emitEvent: false },
