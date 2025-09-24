@@ -124,17 +124,6 @@ class ProjectConfig : AbstractProjectConfig() {
 
     @OptIn(ExperimentalStdlibApi::class)
     override suspend fun afterProject() {
-        // Dump Keycloak logs before stopping/removing containers
-        dockerComposeContainer.getContainerByServiceName("keycloak").getOrNull()?.let { keycloakContainer ->
-            runCatching {
-                logger.info { "================ BEGIN KEYCLOAK LOGS ================" }
-                // getLogs() comes from ContainerState (Testcontainers). `logs` property access also works in Kotlin.
-                logger.info { keycloakContainer.logs }
-                logger.info { "================ END KEYCLOAK LOGS ==================" }
-            }.onFailure { e ->
-                logger.error(e) { "Failed to retrieve Keycloak container logs" }
-            }
-        }
         // stop ZAC Docker Container gracefully to give JaCoCo a change to generate the code coverage report
         dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).getOrNull()?.let { zacContainer ->
             logger.info { "Stopping ZAC Docker container" }
