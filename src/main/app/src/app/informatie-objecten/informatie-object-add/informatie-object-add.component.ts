@@ -232,7 +232,7 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
           creatiedatum: value.creatiedatum?.toISOString(),
           verzenddatum: value.verzenddatum?.toISOString(),
           ontvangstdatum: value.ontvangstdatum?.toISOString(),
-          taal: value?.taal?.code ?? this.defaultFormValues.taal?.code!,
+          taal: value?.taal?.code ?? this.defaultFormValues.taal?.code ?? null,
           auteur: value.auteur!,
         },
         this.zaakUuid !== this.documentReferenceId,
