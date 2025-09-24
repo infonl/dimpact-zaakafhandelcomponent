@@ -385,7 +385,7 @@ describe(InformatieObjectAddComponent.name, () => {
           creatiedatum: undefined,
           ontvangstdatum: undefined,
           vertrouwelijkheidaanduiding: undefined,
-          taal: undefined,
+          taal: null,
           auteur: undefined,
         },
         true,
