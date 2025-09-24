@@ -104,7 +104,7 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
     taal: null,
     creatiedatum: moment(),
     auteur: null,
-    addOtherInfoObject: true, // default to true since this object is only used when adding other info object is checked (and thus true)
+    addOtherInfoObject: true, // default set to true, since this whole object is only used when adding other info object, and so is checked (and so is true)
   };
 
   constructor(
@@ -153,7 +153,6 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
     this.form.controls.bestand.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
-        console.log("file changes", value);
         this.form.controls.titel.setValue(
           value?.name?.replace(/\.[^/.]+$/, "") || "",
         );
