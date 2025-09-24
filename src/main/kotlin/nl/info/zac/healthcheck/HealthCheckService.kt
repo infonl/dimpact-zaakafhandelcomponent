@@ -6,7 +6,7 @@ package nl.info.zac.healthcheck
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.util.time.LocalDateUtil
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -58,7 +58,7 @@ class HealthCheckService @Inject constructor(
     private val versionNumber: Optional<String?>,
 
     private val referenceTableService: ReferenceTableService,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService,
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val ztcClientService: ZtcClientService,
 ) {
     companion object {
@@ -83,7 +83,7 @@ class HealthCheckService @Inject constructor(
     }
 
     private fun inrichtingscheck(zaaktypeUuid: UUID, zaaktype: ZaakType): ZaaktypeInrichtingscheck =
-        zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid).let { zaakafhandelParams ->
+        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).let { zaakafhandelParams ->
             return ZaaktypeInrichtingscheck(zaaktype).apply {
                 isZaakafhandelParametersValide = zaakafhandelParams.isValide
             }.also {

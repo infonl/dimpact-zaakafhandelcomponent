@@ -20,26 +20,26 @@ import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
-import nl.info.zac.admin.ZaakafhandelParameterBeheerService
-import nl.info.zac.admin.ZaaktypeBpmnProcessDefinitionService
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.exception.ZaaktypeInUseException
-import nl.info.zac.admin.model.createZaakafhandelParameters
-import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition
-import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
+import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
+import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnConfiguration
+import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import java.util.Optional
 import java.util.UUID
 
-class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
+class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
     val criteriaBuilder = mockk<CriteriaBuilder>()
-    val criteriaQuery = mockk<CriteriaQuery<ZaaktypeBpmnProcessDefinition>>()
-    val root = mockk<Root<ZaaktypeBpmnProcessDefinition>>()
+    val criteriaQuery = mockk<CriteriaQuery<ZaaktypeBpmnConfiguration>>()
+    val root = mockk<Root<ZaaktypeBpmnConfiguration>>()
     val predicate = mockk<Predicate>()
     val pathUuid = mockk<Path<UUID>>()
     val pathProductAanvraagType = mockk<Path<String>>()
     val entityManager = mockk<EntityManager>()
-    val zaakafhandelParameterBeheerService = mockk<ZaakafhandelParameterBeheerService>()
-    val zaaktypeBpmnProcessDefinitionService =
-        ZaaktypeBpmnProcessDefinitionService(entityManager, zaakafhandelParameterBeheerService)
+    val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
+    val zaaktypeBpmnConfigurationService =
+        ZaaktypeBpmnConfigurationService(entityManager, zaaktypeCmmnConfigurationBeheerService)
 
     beforeEach {
         checkUnnecessaryStub()
@@ -47,14 +47,14 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
 
     Context("Creating a zaaktype - BPMN process definition") {
         Given("A zaaktype - BPMN process definition relation") {
-            val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnProcessDefinition()
+            val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
             every {
-                zaakafhandelParameterBeheerService.readZaakafhandelParameters(zaaktypeBpmnProcessDefinition.zaaktypeUuid)
+                zaaktypeCmmnConfigurationBeheerService.readZaaktypeCmmnConfiguration(zaaktypeBpmnProcessDefinition.zaaktypeUuid)
             } returns null
             every { entityManager.persist(zaaktypeBpmnProcessDefinition) } just Runs
 
             When("the zaaktype BPMN process definition relation is created") {
-                zaaktypeBpmnProcessDefinitionService.createZaaktypeBpmnProcessDefinition(zaaktypeBpmnProcessDefinition)
+                zaaktypeBpmnConfigurationService.createZaaktypeBpmnProcessDefinition(zaaktypeBpmnProcessDefinition)
 
                 Then("the zaaktype BPMN process definition relation is persisted") {
                     verify(exactly = 1) {
@@ -65,14 +65,14 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
         }
 
         Given("A zaaktype and existing CMMN mapping for it") {
-            val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnProcessDefinition()
+            val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
             every {
-                zaakafhandelParameterBeheerService.readZaakafhandelParameters(zaaktypeBpmnProcessDefinition.zaaktypeUuid)
-            } returns createZaakafhandelParameters()
+                zaaktypeCmmnConfigurationBeheerService.readZaaktypeCmmnConfiguration(zaaktypeBpmnProcessDefinition.zaaktypeUuid)
+            } returns createZaaktypeCmmnConfiguration()
 
             When("the zaaktype BPMN process definition relation is created") {
                 val exception = shouldThrow<ZaaktypeInUseException> {
-                    zaaktypeBpmnProcessDefinitionService.createZaaktypeBpmnProcessDefinition(
+                    zaaktypeBpmnConfigurationService.createZaaktypeBpmnProcessDefinition(
                         zaaktypeBpmnProcessDefinition
                     )
                 }
@@ -86,11 +86,11 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
 
     Context("Deleting a zaaktype - BPMN process definition") {
         Given("A stored zaaktype BPMN process definition relation") {
-            val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnProcessDefinition()
+            val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
             every { entityManager.remove(zaaktypeBpmnProcessDefinition) } just Runs
 
             When("the zaaktype BPMN process definition relation is deleted") {
-                zaaktypeBpmnProcessDefinitionService.deleteZaaktypeBpmnProcessDefinition(zaaktypeBpmnProcessDefinition)
+                zaaktypeBpmnConfigurationService.deleteZaaktypeBpmnProcessDefinition(zaaktypeBpmnProcessDefinition)
 
                 Then("the zaaktype BPMN process definition relation is removed") {
                     verify(exactly = 1) {
@@ -104,10 +104,10 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
     Context("Finding a BPMN process definition by zaaktype UUID") {
         Given("A valid zaaktype UUID with a corresponding BPMN process definition") {
             val zaaktypeUUID = UUID.randomUUID()
-            val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnProcessDefinition(zaaktypeUuid = zaaktypeUUID)
+            val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration(zaaktypeUuid = zaaktypeUUID)
             every { entityManager.criteriaBuilder } returns criteriaBuilder
-            every { criteriaBuilder.createQuery(ZaaktypeBpmnProcessDefinition::class.java) } returns criteriaQuery
-            every { criteriaQuery.from(ZaaktypeBpmnProcessDefinition::class.java) } returns root
+            every { criteriaBuilder.createQuery(ZaaktypeBpmnConfiguration::class.java) } returns criteriaQuery
+            every { criteriaQuery.from(ZaaktypeBpmnConfiguration::class.java) } returns root
             every { criteriaQuery.where(predicate) } returns criteriaQuery
             every { criteriaBuilder.equal(pathUuid, zaaktypeUUID) } returns predicate
             every { root.get<UUID>("zaaktypeUuid") } returns pathUuid
@@ -117,7 +117,7 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
 
             When("finding the BPMN process definition by zaaktype UUID") {
                 val result =
-                    zaaktypeBpmnProcessDefinitionService.findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeUUID)
+                    zaaktypeBpmnConfigurationService.findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeUUID)
 
                 Then("the BPMN process definition is returned") {
                     result shouldBe zaaktypeBpmnProcessDefinition
@@ -127,8 +127,8 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
         Given("A valid zaaktype UUID without a corresponding BPMN process definition") {
             val zaaktypeUUID = UUID.randomUUID()
             every { entityManager.criteriaBuilder } returns criteriaBuilder
-            every { criteriaBuilder.createQuery(ZaaktypeBpmnProcessDefinition::class.java) } returns criteriaQuery
-            every { criteriaQuery.from(ZaaktypeBpmnProcessDefinition::class.java) } returns root
+            every { criteriaBuilder.createQuery(ZaaktypeBpmnConfiguration::class.java) } returns criteriaQuery
+            every { criteriaQuery.from(ZaaktypeBpmnConfiguration::class.java) } returns root
             every { criteriaQuery.where(predicate) } returns criteriaQuery
             every { criteriaBuilder.equal(pathUuid, zaaktypeUUID) } returns predicate
             every { root.get<UUID>("zaaktypeUuid") } returns pathUuid
@@ -138,7 +138,7 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
 
             When("finding the BPMN process definition by zaaktype UUID") {
                 val result =
-                    zaaktypeBpmnProcessDefinitionService.findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeUUID)
+                    zaaktypeBpmnConfigurationService.findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeUUID)
 
                 Then("null is returned") {
                     result shouldBe null
@@ -150,10 +150,10 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
     Context("Finding a BPMN process definition by productaanvraagtype") {
         Given("A productaanvraagtype with a corresponding BPMN process definition") {
             val productAanvraagType = "fakeProductaanvraagtype"
-            val definition = createZaaktypeBpmnProcessDefinition()
+            val definition = createZaaktypeBpmnConfiguration()
             every { entityManager.criteriaBuilder } returns criteriaBuilder
-            every { criteriaBuilder.createQuery(ZaaktypeBpmnProcessDefinition::class.java) } returns criteriaQuery
-            every { criteriaQuery.from(ZaaktypeBpmnProcessDefinition::class.java) } returns root
+            every { criteriaBuilder.createQuery(ZaaktypeBpmnConfiguration::class.java) } returns criteriaQuery
+            every { criteriaQuery.from(ZaaktypeBpmnConfiguration::class.java) } returns root
             every { criteriaQuery.where(predicate) } returns criteriaQuery
             every { root.get<String>("productaanvraagtype") } returns pathProductAanvraagType
             every { criteriaBuilder.equal(pathProductAanvraagType, productAanvraagType) } returns predicate
@@ -161,7 +161,7 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
 
             When("finding the BPMN process definition by productaanvraagtype") {
                 val result =
-                    zaaktypeBpmnProcessDefinitionService.findByProductAanvraagType(productAanvraagType)
+                    zaaktypeBpmnConfigurationService.findByProductAanvraagType(productAanvraagType)
 
                 Then("the BPMN process definition is returned") {
                     result shouldBe definition
@@ -172,8 +172,8 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
         Given("A productaanvraagtype without a corresponding BPMN process definition") {
             val productAanvraagType = "notExistingProductaanvraagtype"
             every { entityManager.criteriaBuilder } returns criteriaBuilder
-            every { criteriaBuilder.createQuery(ZaaktypeBpmnProcessDefinition::class.java) } returns criteriaQuery
-            every { criteriaQuery.from(ZaaktypeBpmnProcessDefinition::class.java) } returns root
+            every { criteriaBuilder.createQuery(ZaaktypeBpmnConfiguration::class.java) } returns criteriaQuery
+            every { criteriaQuery.from(ZaaktypeBpmnConfiguration::class.java) } returns root
             every { criteriaQuery.where(predicate) } returns criteriaQuery
             every { root.get<String>("productaanvraagtype") } returns pathProductAanvraagType
             every { criteriaBuilder.equal(pathProductAanvraagType, productAanvraagType) } returns predicate
@@ -181,7 +181,7 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
 
             When("finding the BPMN process definition by productaanvraagtype") {
                 val result =
-                    zaaktypeBpmnProcessDefinitionService.findByProductAanvraagType(productAanvraagType)
+                    zaaktypeBpmnConfigurationService.findByProductAanvraagType(productAanvraagType)
 
                 Then("null is returned") {
                     result shouldBe null
@@ -192,15 +192,15 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
 
     Context("listing all BPMN definitions") {
         Given("Listing all BPMN process definitions when definitions exist") {
-            val definition1 = createZaaktypeBpmnProcessDefinition()
-            val definition2 = createZaaktypeBpmnProcessDefinition()
+            val definition1 = createZaaktypeBpmnConfiguration()
+            val definition2 = createZaaktypeBpmnConfiguration()
             every { entityManager.criteriaBuilder } returns criteriaBuilder
-            every { criteriaBuilder.createQuery(ZaaktypeBpmnProcessDefinition::class.java) } returns criteriaQuery
-            every { criteriaQuery.from(ZaaktypeBpmnProcessDefinition::class.java) } returns root
+            every { criteriaBuilder.createQuery(ZaaktypeBpmnConfiguration::class.java) } returns criteriaQuery
+            every { criteriaQuery.from(ZaaktypeBpmnConfiguration::class.java) } returns root
             every { entityManager.createQuery(criteriaQuery).resultList } returns listOf(definition1, definition2)
 
             When("listing BPMN process definitions") {
-                val result = zaaktypeBpmnProcessDefinitionService.listBpmnProcessDefinitions()
+                val result = zaaktypeBpmnConfigurationService.listBpmnProcessDefinitions()
 
                 Then("a list with all BPMN process definitions is returned") {
                     result shouldBe listOf(definition1, definition2)
@@ -210,12 +210,12 @@ class ZaaktypeBpmnProcessDefinitionServiceTest : BehaviorSpec({
 
         Given("Listing all BPMN process definitions when none exist") {
             every { entityManager.criteriaBuilder } returns criteriaBuilder
-            every { criteriaBuilder.createQuery(ZaaktypeBpmnProcessDefinition::class.java) } returns criteriaQuery
-            every { criteriaQuery.from(ZaaktypeBpmnProcessDefinition::class.java) } returns root
+            every { criteriaBuilder.createQuery(ZaaktypeBpmnConfiguration::class.java) } returns criteriaQuery
+            every { criteriaQuery.from(ZaaktypeBpmnConfiguration::class.java) } returns root
             every { entityManager.createQuery(criteriaQuery).resultList } returns emptyList()
 
             When("listing BPMN process definitions") {
-                val result = zaaktypeBpmnProcessDefinitionService.listBpmnProcessDefinitions()
+                val result = zaaktypeBpmnConfigurationService.listBpmnProcessDefinitions()
 
                 Then("an empty list is returned") {
                     result shouldBe emptyList()

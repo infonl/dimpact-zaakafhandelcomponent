@@ -21,9 +21,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(schema = SCHEMA, name = "zaakafzender")
-@SequenceGenerator(schema = SCHEMA, name = "sq_zaakafzender", sequenceName = "sq_zaakafzender", allocationSize = 1)
-public class ZaakAfzender implements UserModifiable<ZaakAfzender> {
+@Table(schema = SCHEMA, name = "zaaktype_cmmn_zaakafzender_parameters")
+@SequenceGenerator(schema = SCHEMA, name = "sq_zaaktype_cmmn_zaakafzender_parameters", sequenceName = "sq_zaaktype_cmmn_zaakafzender_parameters", allocationSize = 1)
+public class ZaaktypeCmmnZaakafzenderParameters implements UserModifiable<ZaaktypeCmmnZaakafzenderParameters> {
 
     public enum SpecialMail {
         GEMEENTE,
@@ -35,13 +35,13 @@ public class ZaakAfzender implements UserModifiable<ZaakAfzender> {
     }
 
     @Id
-    @GeneratedValue(generator = "sq_zaakafzender", strategy = GenerationType.SEQUENCE)
-    @Column(name = "id_zaakafzender")
+    @GeneratedValue(generator = "sq_zaaktype_cmmn_zaakafzender_parameters", strategy = GenerationType.SEQUENCE)
+    @Column(name = "id")
     private Long id;
 
     @NotNull @ManyToOne
-    @JoinColumn(name = "id_zaakafhandelparameters", referencedColumnName = "id_zaakafhandelparameters")
-    private ZaakafhandelParameters zaakafhandelParameters;
+    @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
+    private ZaaktypeCmmnConfiguration zaaktypeCmmnConfiguration;
 
     @Column(name = "default_mail", nullable = false)
     private boolean defaultMail;
@@ -60,12 +60,12 @@ public class ZaakAfzender implements UserModifiable<ZaakAfzender> {
         this.id = id;
     }
 
-    public ZaakafhandelParameters getZaakafhandelParameters() {
-        return zaakafhandelParameters;
+    public ZaaktypeCmmnConfiguration getZaaktypeCmmnConfiguration() {
+        return zaaktypeCmmnConfiguration;
     }
 
-    public void setZaakafhandelParameters(final ZaakafhandelParameters zaakafhandelParameters) {
-        this.zaakafhandelParameters = zaakafhandelParameters;
+    public void setZaaktypeCmmnConfiguration(final ZaaktypeCmmnConfiguration zaaktypeCmmnConfiguration) {
+        this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration;
     }
 
     public boolean isDefault() {
@@ -94,7 +94,7 @@ public class ZaakAfzender implements UserModifiable<ZaakAfzender> {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof ZaakAfzender that))
+        if (!(o instanceof ZaaktypeCmmnZaakafzenderParameters that))
             return false;
         return defaultMail == that.defaultMail && Objects.equals(mail, that.mail) && Objects.equals(replyTo, that.replyTo);
     }
@@ -105,19 +105,19 @@ public class ZaakAfzender implements UserModifiable<ZaakAfzender> {
     }
 
     @Override
-    public boolean isModifiedFrom(ZaakAfzender original) {
+    public boolean isModifiedFrom(ZaaktypeCmmnZaakafzenderParameters original) {
         return Objects.equals(mail, original.mail) && (!defaultMail == original.defaultMail ||
                                                        !Objects.equals(replyTo, original.replyTo));
     }
 
     @Override
-    public void applyChanges(ZaakAfzender changes) {
+    public void applyChanges(ZaaktypeCmmnZaakafzenderParameters changes) {
         this.defaultMail = changes.defaultMail;
         this.replyTo = changes.replyTo;
     }
 
     @Override
-    public ZaakAfzender resetId() {
+    public ZaaktypeCmmnZaakafzenderParameters resetId() {
         id = null;
         return this;
     }

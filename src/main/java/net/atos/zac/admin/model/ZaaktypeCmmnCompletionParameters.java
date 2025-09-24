@@ -21,18 +21,18 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(schema = SCHEMA, name = "zaakbeeindigparameter")
-@SequenceGenerator(schema = SCHEMA, name = "sq_zaakbeeindigparameter", sequenceName = "sq_zaakbeeindigparameter", allocationSize = 1)
-public class ZaakbeeindigParameter implements UserModifiable<ZaakbeeindigParameter> {
+@Table(schema = SCHEMA, name = "zaaktype_cmmn_completion_parameters")
+@SequenceGenerator(schema = SCHEMA, name = "sq_zaaktype_cmmn_completion_parameters", sequenceName = "sq_zaaktype_cmmn_completion_parameters", allocationSize = 1)
+public class ZaaktypeCmmnCompletionParameters implements UserModifiable<ZaaktypeCmmnCompletionParameters> {
 
     @Id
-    @GeneratedValue(generator = "sq_zaakbeeindigparameter", strategy = GenerationType.SEQUENCE)
-    @Column(name = "id_zaakbeeindigparameter")
+    @GeneratedValue(generator = "sq_zaaktype_cmmn_completion_parameters", strategy = GenerationType.SEQUENCE)
+    @Column(name = "id")
     private Long id;
 
     @NotNull @ManyToOne
-    @JoinColumn(name = "id_zaakafhandelparameters", referencedColumnName = "id_zaakafhandelparameters")
-    private ZaakafhandelParameters zaakafhandelParameters;
+    @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
+    private ZaaktypeCmmnConfiguration zaaktypeCmmnConfiguration;
 
     @NotNull @ManyToOne
     @JoinColumn(name = "id_zaakbeeindigreden", referencedColumnName = "id_zaakbeeindigreden")
@@ -49,12 +49,12 @@ public class ZaakbeeindigParameter implements UserModifiable<ZaakbeeindigParamet
         this.id = id;
     }
 
-    public ZaakafhandelParameters getZaakafhandelParameters() {
-        return zaakafhandelParameters;
+    public ZaaktypeCmmnConfiguration getZaaktypeCmmnConfiguration() {
+        return zaaktypeCmmnConfiguration;
     }
 
-    public void setZaakafhandelParameters(final ZaakafhandelParameters zaakafhandelParameters) {
-        this.zaakafhandelParameters = zaakafhandelParameters;
+    public void setZaaktypeCmmnConfiguration(final ZaaktypeCmmnConfiguration zaaktypeCmmnConfiguration) {
+        this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration;
     }
 
     public ZaakbeeindigReden getZaakbeeindigReden() {
@@ -75,7 +75,7 @@ public class ZaakbeeindigParameter implements UserModifiable<ZaakbeeindigParamet
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof ZaakbeeindigParameter that))
+        if (!(o instanceof ZaaktypeCmmnCompletionParameters that))
             return false;
         if (zaakbeeindigReden == null || that.zaakbeeindigReden == null)
             throw new IllegalStateException("zaakbeeindigReden is null");
@@ -91,17 +91,17 @@ public class ZaakbeeindigParameter implements UserModifiable<ZaakbeeindigParamet
     }
 
     @Override
-    public boolean isModifiedFrom(ZaakbeeindigParameter original) {
+    public boolean isModifiedFrom(ZaaktypeCmmnCompletionParameters original) {
         return Objects.equals(zaakbeeindigReden, original.zaakbeeindigReden) && !Objects.equals(resultaattype, original.resultaattype);
     }
 
     @Override
-    public void applyChanges(ZaakbeeindigParameter changes) {
+    public void applyChanges(ZaaktypeCmmnCompletionParameters changes) {
         resultaattype = changes.resultaattype;
     }
 
     @Override
-    public ZaakbeeindigParameter resetId() {
+    public ZaaktypeCmmnCompletionParameters resetId() {
         id = null;
         return this;
     }

@@ -17,8 +17,8 @@ import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
-import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
+import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -44,12 +44,12 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.admin.ZaakafhandelParameterBeheerService
-import nl.info.zac.admin.ZaaktypeBpmnProcessDefinitionService
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.flowable.bpmn.BpmnService
-import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition
+import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.productaanvraag.exception.ProductaanvraagNotSupportedException
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
@@ -77,14 +77,14 @@ class ProductaanvraagService @Inject constructor(
     private val drcClientService: DrcClientService,
     private val ztcClientService: ZtcClientService,
     private val identityService: IdentityService,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService,
-    private val zaakafhandelParameterBeheerService: ZaakafhandelParameterBeheerService,
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
     private val inboxDocumentenService: InboxDocumentenService,
     private val inboxProductaanvraagService: InboxProductaanvraagService,
     private val productaanvraagEmailService: ProductaanvraagEmailService,
     private val cmmnService: CMMNService,
     private val bpmnService: BpmnService,
-    private val zaaktypeBpmnProcessDefinitionService: ZaaktypeBpmnProcessDefinitionService,
+    private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,
     private val configuratieService: ConfiguratieService
 ) {
     companion object {
@@ -456,7 +456,7 @@ class ProductaanvraagService @Inject constructor(
 
     /**
      * Handles a productaanvraag-Dimpact [ModelObject]
-     * - If a CMMN mapping exists for the productaanvraagtype (via ZaakafhandelParameters),
+     * - If a CMMN mapping exists for the productaanvraagtype (via ZaaktypeCmmnConfiguration),
      *   a zaak is created and a CMMN case is started for that zaak.
      * - Else if a BPMN mapping exists for the productaanvraagtype, a zaak is created, and a BPMN
      *   process is started for that zaak using the configured process definition key.
@@ -468,12 +468,12 @@ class ProductaanvraagService @Inject constructor(
     private fun handleProductaanvraagDimpact(productaanvraagObject: ModelObject) {
         LOG.fine { "Start handling productaanvraag with object URL: ${productaanvraagObject.url}" }
         val productaanvraag = getProductaanvraag(productaanvraagObject)
-        val zaakafhandelparameters = zaakafhandelParameterBeheerService
-            .findActiveZaakafhandelparametersByProductaanvraagtype(productaanvraag.type)
-        val zaaktypeBpmnProcessDefinition = zaaktypeBpmnProcessDefinitionService.findByProductAanvraagType(
+        val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationBeheerService
+            .findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(productaanvraag.type)
+        val zaaktypeBpmnProcessDefinition = zaaktypeBpmnConfigurationService.findByProductAanvraagType(
             productaanvraag.type
         )
-        val hasCmmnDefinition = zaakafhandelparameters.isNotEmpty()
+        val hasCmmnDefinition = zaaktypeCmmnConfiguration.isNotEmpty()
         val hasBpmnDefinition = zaaktypeBpmnProcessDefinition != null
         if (hasCmmnDefinition && hasBpmnDefinition) {
             LOG.warning(
@@ -484,14 +484,14 @@ class ProductaanvraagService @Inject constructor(
         when {
             hasCmmnDefinition ->
                 processProductaanvraagWithCmmnZaaktype(
-                    zaakafhandelParameters = zaakafhandelparameters,
+                    zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
                     productaanvraagDimpact = productaanvraag,
                     productaanvraagObject = productaanvraagObject
                 )
 
             hasBpmnDefinition ->
                 processProductaanvraagWithBpmnZaaktype(
-                    zaaktypeBpmnProcessDefinition = zaaktypeBpmnProcessDefinition,
+                    zaaktypeBpmnConfiguration = zaaktypeBpmnProcessDefinition,
                     productaanvraagDimpact = productaanvraag,
                     productaanvraagObject = productaanvraagObject
                 )
@@ -508,32 +508,32 @@ class ProductaanvraagService @Inject constructor(
 
     @Suppress("TooGenericExceptionCaught")
     private fun processProductaanvraagWithCmmnZaaktype(
-        zaakafhandelParameters: List<ZaakafhandelParameters>,
+        zaaktypeCmmnConfiguration: List<ZaaktypeCmmnConfiguration>,
         productaanvraagDimpact: ProductaanvraagDimpact,
         productaanvraagObject: ModelObject
     ) {
-        if (zaakafhandelParameters.size > 1) {
+        if (zaaktypeCmmnConfiguration.size > 1) {
             LOG.warning(
-                "Multiple zaakafhandelparameters found for productaanvraag type '${productaanvraagDimpact.type}'. " +
-                    "Using the first one with zaaktype UUID: '${zaakafhandelParameters.first().zaakTypeUUID}' " +
-                    "and zaaktype omschrijving: '${zaakafhandelParameters.first().zaaktypeOmschrijving}'."
+                "Multiple zaaktypeCmmnConfiguration found for productaanvraag type '${productaanvraagDimpact.type}'. " +
+                    "Using the first one with zaaktype UUID: '${zaaktypeCmmnConfiguration.first().zaakTypeUUID}' " +
+                    "and zaaktype omschrijving: '${zaaktypeCmmnConfiguration.first().zaaktypeOmschrijving}'."
             )
         }
 
-        val firstZaakafhandelparameters = zaakafhandelParameters.first()
+        val firstZaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration.first()
         try {
             productaanvraagDimpact.betrokkenen?.run {
-                validateBetrokkenenForZaakafhandelparameters(
+                validateBetrokkenenForZaaktypeCmmnConfiguration(
                     betrokkenen = this,
                     productaanvraagObject = productaanvraagObject,
-                    zaakafhandelparameters = firstZaakafhandelparameters
+                    zaaktypeCmmnConfiguration = firstZaaktypeCmmnConfiguration
                 )
             }
             LOG.fine {
-                "Creating a zaak using a CMMN case with zaaktype UUID: '${firstZaakafhandelparameters.zaakTypeUUID}'"
+                "Creating a zaak using a CMMN case with zaaktype UUID: '${firstZaaktypeCmmnConfiguration.zaakTypeUUID}'"
             }
             startZaakWithCmmnProcess(
-                zaaktypeUuid = firstZaakafhandelparameters.zaakTypeUUID,
+                zaaktypeUuid = firstZaaktypeCmmnConfiguration.zaakTypeUUID,
                 productaanvraagDimpact = productaanvraagDimpact,
                 productaanvraagObject = productaanvraagObject
             )
@@ -593,18 +593,18 @@ class ProductaanvraagService @Inject constructor(
     }
 
     private fun processProductaanvraagWithBpmnZaaktype(
-        zaaktypeBpmnProcessDefinition: ZaaktypeBpmnProcessDefinition,
+        zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration,
         productaanvraagDimpact: ProductaanvraagDimpact,
         productaanvraagObject: ModelObject
     ) {
-        val zaaktype = ztcClientService.readZaaktype(zaaktypeBpmnProcessDefinition.zaaktypeUuid)
+        val zaaktype = ztcClientService.readZaaktype(zaaktypeBpmnConfiguration.zaaktypeUuid)
         val zaak = createZaak(zaaktype, productaanvraagDimpact, productaanvraagObject)
         bpmnService.startProcess(
             zaak = zaak,
             zaaktype = zaaktype,
-            processDefinitionKey = zaaktypeBpmnProcessDefinition.bpmnProcessDefinitionKey,
+            processDefinitionKey = zaaktypeBpmnConfiguration.bpmnProcessDefinitionKey,
             zaakData = buildMap {
-                put(VAR_ZAAK_GROUP, zaaktypeBpmnProcessDefinition.groepNaam)
+                put(VAR_ZAAK_GROUP, zaaktypeBpmnConfiguration.groupId)
             }
         )
         // First, pair the productaanvraag and assign the zaak to the group and/or user,
@@ -612,7 +612,7 @@ class ProductaanvraagService @Inject constructor(
         pairProductaanvraagWithZaak(productaanvraag = productaanvraagObject, zaakUrl = zaak.url)
         assignZaakToGroup(
             zaak = zaak,
-            groupName = zaaktypeBpmnProcessDefinition.groepNaam,
+            groupName = zaaktypeBpmnConfiguration.groupId,
         )
         // note: BPMN zaaktypes do not yet support a default employee to be assigned to the zaak, as is the case for CMMN
         pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
@@ -627,29 +627,29 @@ class ProductaanvraagService @Inject constructor(
     ) {
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
         val zaak = createZaak(zaaktype, productaanvraagDimpact, productaanvraagObject)
-        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid)
+        val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
         // First start the CMMN process for the zaak and only then perform other actions related to the zaak,
         // so that should things fail, at least the CMMN process has been started.
         // Note that the error handling here still has room for improvement.
         cmmnService.startCase(
             zaak = zaak,
             zaaktype = zaaktype,
-            zaakafhandelParameters = zaakafhandelParameters,
+            zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
             zaakData = getAanvraaggegevens(productaanvraagObject)
         )
         // First, pair the productaanvraag and assign the zaak to the group and/or user,
         // so that should things fail afterward, at least the productaanvraag has been paired and the zaak has been assigned.
         pairProductaanvraagWithZaak(productaanvraag = productaanvraagObject, zaakUrl = zaak.url)
-        zaakafhandelParameters.groepID?.run {
+        zaaktypeCmmnConfiguration.groepID?.run {
             assignZaakToGroup(
                 zaak = zaak,
                 groupName = this,
             )
         } ?: LOG.warning(
-            "No group ID found in zaakafhandelparameters for zaak with UUID '${zaak.uuid}'. " +
+            "No group ID found in zaaktypeCmmnConfiguration for zaak with UUID '${zaak.uuid}'. " +
                 "No group role was created."
         )
-        zaakafhandelParameters.gebruikersnaamMedewerker?.run {
+        zaaktypeCmmnConfiguration.gebruikersnaamMedewerker?.run {
             assignZaakToEmployee(
                 zaak = zaak,
                 employeeName = this,
@@ -657,7 +657,7 @@ class ProductaanvraagService @Inject constructor(
         }
         pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
         val initiator = addInitiatorAndBetrokkenenToZaak(productaanvraag = productaanvraagDimpact, zaak = zaak)
-        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, initiator, zaakafhandelParameters)
+        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, initiator, zaaktypeCmmnConfiguration)
     }
 
     private fun createZaak(
@@ -702,27 +702,27 @@ class ProductaanvraagService @Inject constructor(
         )
     }
 
-    private fun validateBetrokkenenForZaakafhandelparameters(
+    private fun validateBetrokkenenForZaaktypeCmmnConfiguration(
         betrokkenen: List<Betrokkene>,
         productaanvraagObject: ModelObject,
-        zaakafhandelparameters: ZaakafhandelParameters
+        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ) {
         betrokkenen.forEach {
-            if (!zaakafhandelparameters.betrokkeneKoppelingen.brpKoppelen) {
+            if (!zaaktypeCmmnConfiguration.betrokkeneParameters.brpKoppelen) {
                 it.inpBsn?.run {
                     throw ProductaanvraagNotSupportedException(
-                        "The BRP koppeling is not enabled for zaakafhandelparameters with zaaktype UUID " +
-                            "'${zaakafhandelparameters.zaakTypeUUID}'. " +
+                        "The BRP koppeling is not enabled for zaaktypeCmmnConfiguration with zaaktype UUID " +
+                            "'${zaaktypeCmmnConfiguration.zaakTypeUUID}'. " +
                             "Productaanvraag with URL '${productaanvraagObject.url}' cannot be processed because " +
                             "it contains one or more betrokkenen with a BSN identifier."
                     )
                 }
             }
-            if (!zaakafhandelparameters.betrokkeneKoppelingen.kvkKoppelen) {
+            if (!zaaktypeCmmnConfiguration.betrokkeneParameters.kvkKoppelen) {
                 it.vestigingsNummer?.run {
                     throw ProductaanvraagNotSupportedException(
-                        "The KVK koppeling is not enabled for zaakafhandelparameters with zaaktype UUID " +
-                            "'${zaakafhandelparameters.zaakTypeUUID}'. " +
+                        "The KVK koppeling is not enabled for zaaktypeCmmnConfiguration with zaaktype UUID " +
+                            "'${zaaktypeCmmnConfiguration.zaakTypeUUID}'. " +
                             "Productaanvraag with URL '${productaanvraagObject.url}' cannot be processed because " +
                             "it contains one or more betrokkenen with a KVK vestigingsnummer identifier."
                     )

@@ -22,7 +22,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 import net.atos.zac.admin.MailTemplateKoppelingenService;
-import net.atos.zac.admin.model.MailtemplateKoppeling;
+import net.atos.zac.admin.model.ZaaktypeCmmnMailtemplateParameters;
 import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter;
 import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling;
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter;
@@ -60,11 +60,13 @@ public class MailtemplateKoppelingRESTService {
     @GET
     public List<RESTMailtemplateKoppeling> listMailtemplateKoppelingen() {
         assertPolicy(policyService.readOverigeRechten(null).getBeheren());
-        final List<MailtemplateKoppeling> mailtemplateKoppelingList = mailTemplateKoppelingenService.listMailtemplateKoppelingen();
-        return mailtemplateKoppelingList.stream().map(mailtemplateKoppeling -> {
-            final RESTMailtemplateKoppeling restMailtemplateKoppeling = RESTMailtemplateKoppelingConverter.convert(mailtemplateKoppeling);
+        final List<ZaaktypeCmmnMailtemplateParameters> zaaktypeCmmnMailtemplateParametersList = mailTemplateKoppelingenService
+                .listMailtemplateKoppelingen();
+        return zaaktypeCmmnMailtemplateParametersList.stream().map(zaaktypeCmmnMailtemplateParameters -> {
+            final RESTMailtemplateKoppeling restMailtemplateKoppeling = RESTMailtemplateKoppelingConverter.convert(
+                    zaaktypeCmmnMailtemplateParameters);
             restMailtemplateKoppeling.zaakafhandelParameters = restZaakafhandelParametersConverter
-                    .toRestZaakafhandelParameters(mailtemplateKoppeling.getZaakafhandelParameters(), false);
+                    .toRestZaaktypeCmmnConfiguration(zaaktypeCmmnMailtemplateParameters.getZaaktypeCmmnConfiguration(), false);
             return restMailtemplateKoppeling;
         }).toList();
     }

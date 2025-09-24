@@ -31,18 +31,18 @@ import jakarta.validation.constraints.NotNull;
 import nl.info.zac.app.planitems.converter.FormulierKoppelingConverterKt;
 
 @Entity
-@Table(schema = SCHEMA, name = "humantask_parameters")
-@SequenceGenerator(schema = SCHEMA, name = "sq_humantask_parameters", sequenceName = "sq_humantask_parameters", allocationSize = 1)
-public class HumanTaskParameters implements UserModifiable<HumanTaskParameters> {
+@Table(schema = SCHEMA, name = "zaaktype_cmmn_humantask_parameters")
+@SequenceGenerator(schema = SCHEMA, name = "sq_zaaktype_cmmn_humantask_parameters", sequenceName = "sq_zaaktype_cmmn_humantask_parameters", allocationSize = 1)
+public class ZaaktypeCmmnHumantaskParameters implements UserModifiable<ZaaktypeCmmnHumantaskParameters> {
 
     @Id
-    @GeneratedValue(generator = "sq_humantask_parameters", strategy = GenerationType.SEQUENCE)
-    @Column(name = "id_humantask_parameters")
+    @GeneratedValue(generator = "sq_zaaktype_cmmn_humantask_parameters", strategy = GenerationType.SEQUENCE)
+    @Column(name = "id")
     private Long id;
 
     @NotNull @ManyToOne
-    @JoinColumn(name = "id_zaakafhandelparameters", referencedColumnName = "id_zaakafhandelparameters")
-    private ZaakafhandelParameters zaakafhandelParameters;
+    @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
+    private ZaaktypeCmmnConfiguration zaaktypeCmmnConfiguration;
 
     @Column(name = "actief")
     private boolean actief;
@@ -70,12 +70,12 @@ public class HumanTaskParameters implements UserModifiable<HumanTaskParameters> 
         this.id = id;
     }
 
-    public ZaakafhandelParameters getZaakafhandelParameters() {
-        return zaakafhandelParameters;
+    public ZaaktypeCmmnConfiguration getZaaktypeCmmnConfiguration() {
+        return zaaktypeCmmnConfiguration;
     }
 
-    public void setZaakafhandelParameters(final ZaakafhandelParameters zaakafhandelParameters) {
-        this.zaakafhandelParameters = zaakafhandelParameters;
+    public void setZaaktypeCmmnConfiguration(final ZaaktypeCmmnConfiguration zaaktypeCmmnConfiguration) {
+        this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration;
     }
 
     public String getFormulierDefinitieID() {
@@ -135,7 +135,7 @@ public class HumanTaskParameters implements UserModifiable<HumanTaskParameters> 
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof HumanTaskParameters that))
+        if (!(o instanceof ZaaktypeCmmnHumantaskParameters that))
             return false;
         return actief == that.actief &&
                Objects.equals(formulierDefinitieID, that.formulierDefinitieID) &&
@@ -155,7 +155,7 @@ public class HumanTaskParameters implements UserModifiable<HumanTaskParameters> 
     }
 
     @Override
-    public boolean isModifiedFrom(HumanTaskParameters original) {
+    public boolean isModifiedFrom(ZaaktypeCmmnHumantaskParameters original) {
         return Objects.equals(original.planItemDefinitionID, planItemDefinitionID) &&
                (actief != original.actief ||
                 !Objects.equals(original.formulierDefinitieID, formulierDefinitieID) ||
@@ -169,7 +169,7 @@ public class HumanTaskParameters implements UserModifiable<HumanTaskParameters> 
     }
 
     @Override
-    public void applyChanges(HumanTaskParameters changes) {
+    public void applyChanges(ZaaktypeCmmnHumantaskParameters changes) {
         actief = changes.actief;
         formulierDefinitieID = changes.formulierDefinitieID;
         groepID = changes.groepID;
@@ -178,7 +178,7 @@ public class HumanTaskParameters implements UserModifiable<HumanTaskParameters> 
     }
 
     @Override
-    public HumanTaskParameters resetId() {
+    public ZaaktypeCmmnHumantaskParameters resetId() {
         id = null;
         return this;
     }

@@ -5,8 +5,8 @@
 package nl.info.zac.app.task.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.model.HumanTaskParameters
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
+import net.atos.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import net.atos.zac.app.formulieren.converter.toRESTFormulierDefinitie
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskData
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
@@ -34,7 +34,7 @@ class RestTaskConverter @Inject constructor(
     private val groepConverter: RestGroupConverter,
     private val medewerkerConverter: RestUserConverter,
     private val policyService: PolicyService,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService,
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val formulierDefinitieService: FormulierDefinitieService,
     private val formioService: FormioService,
 ) {
@@ -120,7 +120,7 @@ class RestTaskConverter @Inject constructor(
         zaaktypeUUID: UUID,
         taskDefinitionKey: String
     ) {
-        zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID)
+        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID)
             .humanTaskParametersCollection
             .first { taskDefinitionKey == it.planItemDefinitionID }?.let {
                 verwerkZaakafhandelParameters(restTask, it)
@@ -129,10 +129,10 @@ class RestTaskConverter @Inject constructor(
 
     private fun verwerkZaakafhandelParameters(
         restTask: RestTask,
-        humanTaskParameters: HumanTaskParameters
+        zaaktypeCmmnHumantaskParameters: ZaaktypeCmmnHumantaskParameters
     ) {
-        restTask.formulierDefinitieId = humanTaskParameters.formulierDefinitieID
-        humanTaskParameters.referentieTabellen.forEach { humanTaskReferentieTabel ->
+        restTask.formulierDefinitieId = zaaktypeCmmnHumantaskParameters.formulierDefinitieID
+        zaaktypeCmmnHumantaskParameters.referentieTabellen.forEach { humanTaskReferentieTabel ->
             restTask.tabellen[humanTaskReferentieTabel.veld] = humanTaskReferentieTabel.tabel.values
                 .map { it.name }
         }
