@@ -4,7 +4,6 @@
  */
 package nl.info.zac.productaanvraag
 
-import io.kotest.assertions.any
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
@@ -28,6 +27,7 @@ import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
+import nl.info.client.kvk.model.createRandomKvkNumber
 import nl.info.client.kvk.model.createRandomVestigingsNumber
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
@@ -44,11 +44,11 @@ import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
+import nl.info.zac.admin.ZaaktypeBpmnProcessDefinitionService
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.flowable.bpmn.BpmnService
-import nl.info.zac.flowable.bpmn.ZaaktypeBpmnProcessDefinitionService
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
@@ -268,7 +268,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                                 "roltypeOmschrijving" to "Initiator"
                             ),
                             mapOf(
-                                "vestigingsNummer" to "fakeVestigingsNummer",
+                                "kvkNummer" to "fakeKvkNumber",
                                 "rolOmschrijvingGeneriek" to "initiator"
                             )
                         )
@@ -373,6 +373,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             )
             val formulierBron = createBron()
             val vestigingsNummer = createRandomVestigingsNumber()
+            val kvkNummer = createRandomKvkNumber()
             val productAanvraagORObject = createORObject(
                 record = createObjectRecord(
                     data = mapOf(
@@ -383,6 +384,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         "betrokkenen" to listOf(
                             mapOf(
                                 "vestigingsNummer" to vestigingsNummer,
+                                "kvkNummer" to kvkNummer,
                                 "rolOmschrijvingGeneriek" to "initiator"
                             )
                         )
@@ -418,7 +420,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         Given(
             """
         a productaanvraag-dimpact object registration object for which zaakafhandelparameters exist
-        containing a betrokkene with role initiator and type vestiging with an invalid vestigingsnummer
+        containing a betrokkene with role initiator and type vestiging with an invalid kvk nummer
         and zaakafhandelparameters that have the KVK koppeling enabled 
         """
         ) {
@@ -434,7 +436,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             )
             val formulierBron = createBron()
-            val invalidVestigingsNummer = "123456"
+            val invalidKvkNummer = "123456"
             val productAanvraagORObject = createORObject(
                 record = createObjectRecord(
                     data = mapOf(
@@ -444,7 +446,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue")),
                         "betrokkenen" to listOf(
                             mapOf(
-                                "vestigingsNummer" to invalidVestigingsNummer,
+                                "kvkNummer" to invalidKvkNummer,
                                 "rolOmschrijvingGeneriek" to "initiator"
                             )
                         )
@@ -497,6 +499,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             )
             val formulierBron = createBron()
             val vestigingsNummer = createRandomVestigingsNumber()
+            val kvkNummer = createRandomKvkNumber()
             val productAanvraagORObject = createORObject(
                 record = createObjectRecord(
                     data = mapOf(
@@ -507,6 +510,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         "betrokkenen" to listOf(
                             mapOf(
                                 "vestigingsNummer" to vestigingsNummer,
+                                "kvkNummer" to kvkNummer,
                                 "rolOmschrijvingGeneriek" to "initiator"
                             )
                         )
@@ -765,10 +769,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val beslisserBsn = "fakeBsn4"
             val klantcontacterBsn = "fakeBsn5"
             val medeInitiatorBsn = "fakeBsn6"
-            val belanghebbendeVestigingsnummer1 = createRandomVestigingsNumber()
-            val belanghebbendeVestigingsnummer2 = createRandomVestigingsNumber()
-            val beslisserVestigingsnummer = createRandomVestigingsNumber()
-            val zaakcoordinatorVestigingsnummer = createRandomVestigingsNumber()
+            val belanghebbendeKvkNummer1 = createRandomKvkNumber()
+            val belanghebbendeKvkNummer2 = createRandomKvkNumber()
+            val beslisserKvkNummer = createRandomKvkNumber()
+            val zaakcoordinatorKvkNummer = createRandomKvkNumber()
             val rolTypeBelanghebbende = createRolType(
                 zaakTypeUri = zaakType.url,
                 omschrijvingGeneriek = OmschrijvingGeneriekEnum.BELANGHEBBENDE
@@ -814,11 +818,11 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                                 "roltypeOmschrijving" to "Behandelaar"
                             ),
                             mapOf(
-                                "vestigingsNummer" to belanghebbendeVestigingsnummer1,
+                                "kvkNummer" to belanghebbendeKvkNummer1,
                                 "roltypeOmschrijving" to "Belanghebbende"
                             ),
                             mapOf(
-                                "vestigingsNummer" to belanghebbendeVestigingsnummer2,
+                                "kvkNummer" to belanghebbendeKvkNummer2,
                                 "roltypeOmschrijving" to "Belanghebbende"
                             ),
                             mapOf(
@@ -826,7 +830,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                                 "rolOmschrijvingGeneriek" to "beslisser"
                             ),
                             mapOf(
-                                "vestigingsNummer" to beslisserVestigingsnummer,
+                                "kvkNummer" to beslisserKvkNummer,
                                 "rolOmschrijvingGeneriek" to "beslisser"
                             ),
                             mapOf(
@@ -839,7 +843,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                                 "rolOmschrijvingGeneriek" to "mede_initiator"
                             ),
                             mapOf(
-                                "vestigingsNummer" to zaakcoordinatorVestigingsnummer,
+                                "kvkNummer" to zaakcoordinatorKvkNummer,
                                 "rolOmschrijvingGeneriek" to "zaakcoordinator"
                             )
                         )
@@ -962,12 +966,12 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     }
                     with(rolesToBeCreated[0]) {
                         betrokkeneType shouldBe BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
-                        identificatienummer shouldBe belanghebbendeVestigingsnummer1
+                        identificatienummer shouldBe belanghebbendeKvkNummer1
                         roltype shouldBe rolTypeBelanghebbende.url
                     }
                     with(rolesToBeCreated[1]) {
                         betrokkeneType shouldBe BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
-                        identificatienummer shouldBe belanghebbendeVestigingsnummer2
+                        identificatienummer shouldBe belanghebbendeKvkNummer2
                         roltype shouldBe rolTypeBelanghebbende.url
                     }
                     with(rolesToBeCreated[2]) {
@@ -977,7 +981,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     }
                     with(rolesToBeCreated[3]) {
                         betrokkeneType shouldBe BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
-                        identificatienummer shouldBe beslisserVestigingsnummer
+                        identificatienummer shouldBe beslisserKvkNummer
                         roltype shouldBe rolTypeBeslisser.url
                     }
                     with(rolesToBeCreated[4]) {
@@ -992,7 +996,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     }
                     with(rolesToBeCreated[6]) {
                         betrokkeneType shouldBe BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
-                        identificatienummer shouldBe zaakcoordinatorVestigingsnummer
+                        identificatienummer shouldBe zaakcoordinatorKvkNummer
                         roltype shouldBe rolTypeZaakcoordinator.url
                     }
                 }

@@ -254,7 +254,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
     Given("zaak created from productaanvraag and no identification for the initiator") {
         val zaak = createZaak()
-        val betrokkene = createBetrokkene(inBsn = null, vestigingsNummer = null)
+        val betrokkene = createBetrokkene(inBsn = null, kvkNummer = null)
         val zaakafhandelParameters = createZaakafhandelParameters()
 
         When("sendEmailForZaakFromProductaanvraag is called") {

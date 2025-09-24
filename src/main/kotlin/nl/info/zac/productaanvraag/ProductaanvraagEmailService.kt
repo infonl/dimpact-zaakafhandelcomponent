@@ -46,6 +46,10 @@ class ProductaanvraagEmailService @Inject constructor(
         betrokkene: Betrokkene?,
         zaakafhandelParameters: ZaakafhandelParameters
     ) {
+        LOG.fine {
+            "Attempting to send automatic email confirmation for zaak '${zaak.uuid}' " +
+                "and zaaktype '${zaak.zaaktype}'. For initiator '$betrokkene'."
+        }
         zaakafhandelParameters.automaticEmailConfirmation?.takeIf { it.enabled }?.let { automaticEmailConfirmation ->
             betrokkene?.let { betrokkene ->
                 extractBetrokkeneEmail(betrokkene)?.let { to ->
@@ -64,12 +68,17 @@ class ProductaanvraagEmailService @Inject constructor(
     private fun extractBetrokkeneEmail(betrokkene: Betrokkene) =
         betrokkene.performAction(
             onNatuurlijkPersoonIdentity = ::fetchEmail,
-            onVestigingIdentity = ::fetchEmail,
+            onKvkIdentity = ::fetchEmail,
             onNoIdentity = { null }
         )
 
     private fun fetchEmail(identity: String): String? =
         klantClientService.findDigitalAddressesByNumber(identity)
+            .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
+            ?.adres
+
+    private fun fetchEmail(kvkNummer: String, vestigingsNummer: String?): String? =
+        klantClientService.findDigitalAddressesByNumber(vestigingsNummer ?: kvkNummer)
             .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
             ?.adres
 

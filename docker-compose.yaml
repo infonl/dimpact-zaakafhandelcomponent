@@ -264,7 +264,7 @@ services:
         condition: service_started
 
   brp-personen-mock:
-    image: ghcr.io/brp-api/personen-mock:2.7.0-202508211438@sha256:43062e9200a1ae7cb92f1830acf0ab7ca19272dea0756400caaeb4748bed9fa5
+    image: ghcr.io/brp-api/personen-mock:2.7.0-202509221256@sha256:551ea5a7cab3dd96b2d682a7acebb5d162049d8b3d27b5195e59559e0d6132d5
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
@@ -368,7 +368,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.135.0@sha256:6d260efde7406a1f7d731a5d9663cb6ce25fa634f3ef3ef4a69266aaae1680fd
+    image: docker.io/otel/opentelemetry-collector:0.136.0@sha256:98fd3b410ae8a939be9588f1580c4b7c3da6ebba49f5363df4259a827aabb779
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -411,7 +411,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: docker.io/grafana/grafana:12.1.1@sha256:a1701c2180249361737a99a01bc770db39381640e4d631825d38ff4535efa47d
+    image: docker.io/grafana/grafana:12.2.0@sha256:74144189b38447facf737dfd0f3906e42e0776212bf575dc3334c3609183adf7
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana

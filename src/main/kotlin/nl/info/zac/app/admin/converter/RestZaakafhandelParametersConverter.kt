@@ -125,7 +125,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
     fun toZaakafhandelParameters(
         restZaakafhandelParameters: RestZaakafhandelParameters
     ): ZaakafhandelParameters {
-        return zaakafhandelParameterBeheerService.readZaakafhandelParameters(
+        return zaakafhandelParameterBeheerService.fetchZaakafhandelParameters(
             restZaakafhandelParameters.zaaktype.uuid!!
         ).apply {
             id = restZaakafhandelParameters.id
