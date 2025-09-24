@@ -149,7 +149,7 @@ export class ZaakDocumentenComponent
   }
 
   private loadInformatieObjecten(event?: ScreenEvent) {
-    if(!event?.objectId.detail) return
+    if (!event?.objectId.detail) return;
 
     this.informatieObjectenService
       .readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(
