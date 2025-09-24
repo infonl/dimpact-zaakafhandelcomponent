@@ -2,15 +2,14 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.flowable.bpmn
+package nl.info.zac.admin
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
+import nl.info.zac.admin.exception.ZaaktypeInUseException
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition
-import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition.Companion.PRODUCTAANVRAAGTTYPE_VARIABELE_NAME
-import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
@@ -20,9 +19,15 @@ import java.util.UUID
 @NoArgConstructor
 @AllOpen
 class ZaaktypeBpmnProcessDefinitionService @Inject constructor(
-    private val entityManager: EntityManager
+    private val entityManager: EntityManager,
+    private val zaakafhandelParameterBeheerService: ZaakafhandelParameterBeheerService
 ) {
     fun createZaaktypeBpmnProcessDefinition(zaaktypeBpmnProcessDefinition: ZaaktypeBpmnProcessDefinition) {
+        zaakafhandelParameterBeheerService.readZaakafhandelParameters(zaaktypeBpmnProcessDefinition.zaaktypeUuid)?.let {
+            throw ZaaktypeInUseException(
+                "CMMN configuration for zaaktype '${zaaktypeBpmnProcessDefinition.zaaktypeOmschrijving}' already exists"
+            )
+        }
         entityManager.persist(zaaktypeBpmnProcessDefinition)
     }
 
@@ -38,7 +43,12 @@ class ZaaktypeBpmnProcessDefinitionService @Inject constructor(
         entityManager.criteriaBuilder.let { criteriaBuilder ->
             criteriaBuilder.createQuery(ZaaktypeBpmnProcessDefinition::class.java).let { query ->
                 query.from(ZaaktypeBpmnProcessDefinition::class.java).let {
-                    query.where(criteriaBuilder.equal(it.get<UUID>(ZAAKTYPE_UUID_VARIABLE_NAME), zaaktypeUUID))
+                    query.where(
+                        criteriaBuilder.equal(
+                            it.get<UUID>(ZaaktypeBpmnProcessDefinition.ZAAKTYPE_UUID_VARIABLE_NAME),
+                            zaaktypeUUID
+                        )
+                    )
                 }
                 entityManager.createQuery(query).resultStream.findFirst().orElse(null)
             }
@@ -60,7 +70,10 @@ class ZaaktypeBpmnProcessDefinitionService @Inject constructor(
             criteriaBuilder.createQuery(ZaaktypeBpmnProcessDefinition::class.java).let { query ->
                 query.from(ZaaktypeBpmnProcessDefinition::class.java).let {
                     query.where(
-                        criteriaBuilder.equal(it.get<String>(PRODUCTAANVRAAGTTYPE_VARIABELE_NAME), productAanvraagType)
+                        criteriaBuilder.equal(
+                            it.get<String>(ZaaktypeBpmnProcessDefinition.PRODUCTAANVRAAGTTYPE_VARIABELE_NAME),
+                            productAanvraagType
+                        )
                     )
                 }
                 entityManager.createQuery(query).resultStream.findFirst().orElse(null)

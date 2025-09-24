@@ -4,11 +4,13 @@
  */
 package nl.info.zac.admin
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeSameSizeAs
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -31,7 +33,9 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.admin.exception.ZaaktypeInUseException
 import nl.info.zac.admin.model.createZaakafhandelParameters
+import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import java.net.URI
@@ -54,12 +58,14 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
     val expressionString = mockk<Expression<String>>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
+    val zaaktypeBpmnProcessDefinitionService = mockk<ZaaktypeBpmnProcessDefinitionService>()
 
     val zaakafhandelParameterBeheerService = ZaakafhandelParameterBeheerService(
         entityManager = entityManager,
         ztcClientService = ztcClientService,
         zaakafhandelParameterService = zaakafhandelParameterService,
-        smartDocumentsTemplatesService = smartDocumentsTemplatesService
+        smartDocumentsTemplatesService = smartDocumentsTemplatesService,
+        zaaktypeBpmnProcessDefinitionService = zaaktypeBpmnProcessDefinitionService
     )
 
     beforeEach {
@@ -88,7 +94,7 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
         } returns listOf(zaakafhandelparameters)
 
         When("the zaakafhandelparameters are retrieved based on the zaaktypeUUID") {
-            val returnedZaakafhandelParameters = zaakafhandelParameterBeheerService.readZaakafhandelParameters(
+            val returnedZaakafhandelParameters = zaakafhandelParameterBeheerService.fetchZaakafhandelParameters(
                 zaakafhandelparameters.zaakTypeUUID
             )
 
@@ -198,6 +204,10 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
         every { ztcClientService.clearZaaktypeCache() } returns "Cache cleared"
         every { ztcClientService.readZaaktype(zaaktypeUri) } returns zaakType
 
+        every {
+            zaaktypeBpmnProcessDefinitionService.findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeUUID)
+        } returns null
+
         // Relaxed entity manager mocking; criteria queries and persisting
         val criteriaQuery = mockk<CriteriaQuery<ZaakafhandelParameters>>(relaxed = true)
         every { entityManager.criteriaBuilder } returns mockk(relaxed = true) {
@@ -231,6 +241,10 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
         val zaakType = createZaakType(uri = zaaktypeUri, servicenorm = "P30D", concept = false)
 
         every { zaakafhandelParameterService.clearListCache() } returns "Cache cleared"
+
+        every {
+            zaaktypeBpmnProcessDefinitionService.findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeUUID)
+        } returns null
 
         // ZtcClientService mocking
         every { ztcClientService.clearZaaktypeCache() } returns "Cache cleared"
@@ -435,6 +449,23 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
                     it.emailSender shouldBe originalZaakafhandelParameters.automaticEmailConfirmation?.emailSender
                     it.emailReply shouldBe originalZaakafhandelParameters.automaticEmailConfirmation?.emailReply
                 }
+            }
+        }
+    }
+
+    Given("A zaaktype with existing BPMN process mapping") {
+        val zaakafhandelparameters = createZaakafhandelParameters()
+        every {
+            zaaktypeBpmnProcessDefinitionService.findZaaktypeProcessDefinitionByZaaktypeUuid(zaakafhandelparameters.zaakTypeUUID)
+        } returns createZaaktypeBpmnProcessDefinition()
+
+        When("create a zaakafhandelparameters is attempted") {
+            val exception = shouldThrow<ZaaktypeInUseException> {
+                zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelparameters)
+            }
+
+            Then("an exception should be thrown") {
+                exception.message shouldContain zaakafhandelparameters.zaaktypeOmschrijving
             }
         }
     }

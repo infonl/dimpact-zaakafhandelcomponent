@@ -19,6 +19,7 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.model.createReferentieProcess
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.engine.repository.createProcessDefinition
+import nl.info.zac.admin.ZaaktypeBpmnProcessDefinitionService
 import nl.info.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
 import org.flowable.engine.ProcessEngine
