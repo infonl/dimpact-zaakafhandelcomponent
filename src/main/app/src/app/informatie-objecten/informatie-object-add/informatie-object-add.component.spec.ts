@@ -227,7 +227,6 @@ describe(InformatieObjectAddComponent.name, () => {
         "createEnkelvoudigInformatieobject",
       );
       const creatiedatum = moment("2025-09-24T11:59:23.111Z");
-      // const ontvangstdatum = moment("2025-09-25T11:59:23.222Z");
       const verzenddatum = moment("2025-09-24T11:59:23.333Z");
 
       component["form"].patchValue({
@@ -240,7 +239,6 @@ describe(InformatieObjectAddComponent.name, () => {
         vertrouwelijkheidaanduiding: { label: "Intern", value: "intern" },
         auteur: "Test Author",
         creatiedatum,
-        // ontvangstdatum,
         verzenddatum,
       });
 
@@ -321,7 +319,7 @@ describe(InformatieObjectAddComponent.name, () => {
   });
 
   describe("Reset", () => {
-    it("should reset form and close side nav when cancel button is clicked", async () => {
+    it("should close side nav when cancel button is clicked", async () => {
       component["form"].patchValue({
         bestand: mockFile,
         titel: "Test Title",
@@ -329,7 +327,6 @@ describe(InformatieObjectAddComponent.name, () => {
 
       fixture.detectChanges();
 
-      // Find and click cancel button
       const cancelButton = await loader.getHarness(
         MatButtonHarness.with({ text: "actie.annuleren" }),
       );
@@ -351,7 +348,6 @@ describe(InformatieObjectAddComponent.name, () => {
         "createEnkelvoudigInformatieobject",
       );
       const creatiedatum = moment("2025-09-24T11:59:23.111Z");
-      // const ontvangstdatum = moment("2025-09-25T11:59:23.222Z");
       const verzenddatum = moment("2025-09-24T11:59:23.333Z");
 
       component["form"].patchValue({
@@ -364,7 +360,6 @@ describe(InformatieObjectAddComponent.name, () => {
         vertrouwelijkheidaanduiding: { label: "Intern", value: "intern" },
         auteur: "Test Author",
         creatiedatum,
-        // ontvangstdatum,
         verzenddatum,
       });
 
@@ -441,6 +436,88 @@ describe(InformatieObjectAddComponent.name, () => {
 
       await submitButton.click();
       expect(mockSideNav.close).toHaveBeenCalled();
+    });
+  });
+
+  describe("Adding multiple documents to a Zaak", () => {
+    beforeEach(() => {
+      componentRef.setInput("zaak", mockZaak);
+      fixture.detectChanges();
+    });
+
+    it("should call createEnkelvoudigInformatieobject when submit button is clicked", async () => {
+      const createSpy = jest.spyOn(
+        informatieObjectenService,
+        "createEnkelvoudigInformatieobject",
+      );
+      const emitSpy = jest.spyOn(component.document, "emit");
+      const creatiedatum = moment("2025-09-24T11:59:23.111Z");
+      const verzenddatum = moment("2025-09-24T11:59:23.333Z");
+
+      component["form"].patchValue({
+        bestand: mockFile,
+        titel: "Test Title",
+        beschrijving: "Test Description",
+        taal: mockTalen[0],
+        status: { label: "In bewerking", value: "IN_BEWERKING" },
+        informatieobjectType: mockInformatieObjectTypes[0],
+        vertrouwelijkheidaanduiding: { label: "Intern", value: "intern" },
+        auteur: "Test Author",
+        creatiedatum,
+        verzenddatum,
+        addOtherInfoObject: true,
+      });
+
+      fixture.detectChanges();
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.toevoegen" }),
+      );
+
+      await submitButton.click();
+      expect(createSpy).toHaveBeenCalledWith(
+        mockZaak.uuid,
+        mockZaak.uuid,
+        {
+          bestand: mockFile,
+          titel: "Test Title",
+          formaat: "text/plain",
+          beschrijving: "Test Description",
+          status: "IN_BEWERKING",
+          informatieobjectTypeUUID: mockInformatieObjectTypes[0].uuid,
+          bestandsnaam: "test-file.txt",
+          creatiedatum: "2025-09-24T11:59:23.111Z",
+          ontvangstdatum: undefined,
+          verzenddatum: "2025-09-24T11:59:23.333Z",
+          vertrouwelijkheidaanduiding: "intern",
+          taal: mockTalen[0].code,
+          auteur: "Test Author",
+        },
+        false,
+      );
+
+      fixture.detectChanges();
+
+      expect(emitSpy).toHaveBeenCalled();
+      expect(mockSideNav.close).not.toHaveBeenCalled();
+
+      expect(component["form"].pristine).toBe(true); // form pristine after adding document
+      const { creatiedatum: _ignoredCreatiedatum, ...objectToAssert } =
+        component["form"].value;
+      expect(objectToAssert).toEqual({
+        bestand: null,
+        titel: null,
+        beschrijving: null,
+        status: null,
+        vertrouwelijkheidaanduiding: null,
+        verzenddatum: null,
+        informatieobjectType: null,
+        ontvangstdatum: null,
+        taal: null,
+        auteur: "Test User",
+        // creatiedatum will always be unequal since form sets its own moment() instance; so not validating this value here
+        addOtherInfoObject: true,
+      });
     });
   });
 });
