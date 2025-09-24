@@ -149,27 +149,27 @@ export class ZaakDocumentenComponent
   }
 
   private loadInformatieObjecten(event?: ScreenEvent) {
-    if (event) {
-      this.informatieObjectenService
-        .readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(
-          event.objectId.detail,
-        )
-        .subscribe((enkelvoudigInformatieobject) => {
-          this.utilService
-            .openSnackbarAction(
-              "msg.document.toegevoegd.aan.zaak",
-              "actie.document.bekijken",
-              { document: enkelvoudigInformatieobject.titel },
-              7,
-            )
-            .subscribe(() => {
-              this.router.navigate([
-                "/informatie-objecten",
-                enkelvoudigInformatieobject.uuid,
-              ]);
-            });
-        });
-    }
+    if(!event?.objectId.detail) return
+
+    this.informatieObjectenService
+      .readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(
+        event.objectId.detail,
+      )
+      .subscribe((enkelvoudigInformatieobject) => {
+        this.utilService
+          .openSnackbarAction(
+            "msg.document.toegevoegd.aan.zaak",
+            "actie.document.bekijken",
+            { document: enkelvoudigInformatieobject.titel },
+            7,
+          )
+          .subscribe(() => {
+            this.router.navigate([
+              "/informatie-objecten",
+              enkelvoudigInformatieobject.uuid,
+            ]);
+          });
+      });
 
     this.searchEnkelvoudigeInformatieObjecten();
   }
@@ -365,7 +365,7 @@ export class ZaakDocumentenComponent
   ) {
     return (
       Boolean(enkelvoudigInformatieobject.rechten?.wijzigen) &&
-      FileFormatUtil.isOffice(enkelvoudigInformatieobject.formaat as FileFormat)
+      FileFormatUtil.isOffice(enkelvoudigInformatieobject.formaat as FileFormat) // The backend converter supports other formats (such as .txt), but only allow office formats in the UI
     );
   }
 

@@ -1,10 +1,10 @@
 #!/bin/bash
+set -e
 
 #
 # SPDX-FileCopyrightText: 2023 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-
 echo -e "Copying 'fake-test-document.pdf' ZAC test PDF to OpenZaak uploads folder"
 
 # multiple copies for multiple `product aanvragen` (see 06-setup-zac-config-after.sql)

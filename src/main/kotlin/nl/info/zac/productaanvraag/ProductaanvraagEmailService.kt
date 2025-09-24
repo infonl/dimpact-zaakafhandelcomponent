@@ -46,7 +46,7 @@ class ProductaanvraagEmailService @Inject constructor(
         betrokkene: Betrokkene?,
         zaakafhandelParameters: ZaakafhandelParameters
     ) {
-        LOG.info {
+        LOG.fine {
             "Attempting to send automatic email confirmation for zaak '${zaak.uuid}' " +
                 "and zaaktype '${zaak.zaaktype}'. For initiator '$betrokkene'."
         }
@@ -54,11 +54,11 @@ class ProductaanvraagEmailService @Inject constructor(
             betrokkene?.let { betrokkene ->
                 extractBetrokkeneEmail(betrokkene)?.let { to ->
                     sendMail(automaticEmailConfirmation, to, zaak)
-                } ?: LOG.info(
+                } ?: LOG.fine(
                     "No email address found for initiator '$betrokkene'. " +
                         "Skipping automatic email confirmation."
                 )
-            } ?: LOG.info(
+            } ?: LOG.fine(
                 "No initiator provided for zaak '$zaak'. " +
                     "Skipping automatic email confirmation."
             )
