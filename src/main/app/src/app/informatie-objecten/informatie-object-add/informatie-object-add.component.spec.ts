@@ -376,8 +376,8 @@ describe(InformatieObjectAddComponent.name, () => {
 
       await submitButton.click();
       expect(createSpy).toHaveBeenCalledWith(
-        mockTaak.id,
         mockTaak.zaakUuid,
+        mockTaak.id,
         {
           bestand: mockFile,
           titel: "Test Title",

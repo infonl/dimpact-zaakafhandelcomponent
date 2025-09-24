@@ -167,7 +167,7 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
         changes?.zaak?.currentValue.uuid ??
         changes?.taak?.currentValue.zaakUuid;
       this.documentReferenceId =
-        changes?.taak?.currentValue.zaakUuid ?? this.zaakUuid;
+        changes?.zaak?.currentValue.uuid ?? changes?.taak?.currentValue.id;
 
       this.informatieObjectenService
         .listInformatieobjecttypesForZaak(this.zaakUuid)
