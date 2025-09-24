@@ -192,6 +192,7 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
 
   submit() {
     const { value } = this.form;
+    const isTaskObject = this.zaakUuid !== this.documentReferenceId;
 
     this.informatieObjectenService
       .createEnkelvoudigInformatieobject(
@@ -212,7 +213,7 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
           taal: value.taal!.code,
           auteur: value.auteur!,
         },
-        this.zaakUuid !== this.documentReferenceId,
+        isTaskObject,
       )
       .subscribe({
         next: (document) => {
