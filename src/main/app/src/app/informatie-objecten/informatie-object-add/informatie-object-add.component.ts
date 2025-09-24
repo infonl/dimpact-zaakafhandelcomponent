@@ -188,6 +188,29 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
           this.informatieObjectTypes = informatieObjectTypes;
         });
     }
+
+    if (changes.taak && changes.taak.currentValue) {
+      // Taak has a subset of form fields to submit
+      this.form.controls.vertrouwelijkheidaanduiding.disable();
+      this.form.controls.taal.disable();
+      this.form.controls.status.disable();
+      this.form.controls.creatiedatum.disable();
+      this.form.controls.auteur.disable();
+
+      this.form.controls.vertrouwelijkheidaanduiding.setValue(
+        this.vertrouwelijkheidsAanduidingen.find(
+          (option) =>
+            option.value.toUpperCase() === Vertrouwelijkheidaanduiding.openbaar,
+        ) ?? null,
+      );
+
+      this.form.controls.status.setValue(
+        this.informatieobjectStatussen.find(
+          (option) =>
+            option.value.toLowerCase() === InformatieobjectStatus.DEFINITIEF,
+        ) ?? null,
+      );
+    }
   }
 
   submit() {
@@ -209,7 +232,7 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
           creatiedatum: value.creatiedatum?.toISOString(),
           verzenddatum: value.verzenddatum?.toISOString(),
           ontvangstdatum: value.ontvangstdatum?.toISOString(),
-          taal: value.taal!.code,
+          taal: value?.taal?.code ?? this.defaultFormValues.taal?.code!,
           auteur: value.auteur!,
         },
         this.zaakUuid !== this.documentReferenceId,
