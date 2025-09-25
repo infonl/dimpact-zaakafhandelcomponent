@@ -77,7 +77,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         zaakVariabelenService,
         cmmnService,
         zrcClientService,
-        brcClientService,
         zaaktypeCmmnConfigurationService,
         planItemConverter,
         zgwApiService,
@@ -369,17 +368,16 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             versturenEmail = true
         )
         every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
-        every { brcClientService.listBesluiten(zaak) } returns listOf(Besluit())
-        every { zrcClientService.readResultaat(zaak.resultaat) } returns resultaat
-        every { zrcClientService.updateResultaat(any<Resultaat>()) } returns resultaat
         every { mailService.sendMail(mailGegevens, any<Bronnen>()) } returns mailGegevens.body
+        every { cmmnService.startUserEventListenerPlanItem(any()) } just runs
 
         When("A user event to settle the zaak and send a corresponding email is planned") {
             val restMailGegevens = createRESTMailGegevens()
             val restUserEventListenerData = createRESTUserEventListenerData(
                 zaakUuid = zaak.uuid,
                 actie = UserEventListenerActie.ZAAK_AFHANDELEN,
-                restMailGegevens = restMailGegevens
+                restMailGegevens = restMailGegevens,
+                resultaattypeUuid = UUID.randomUUID()
             )
             every { restMailGegevensConverter.convert(restMailGegevens) } returns mailGegevens
 
@@ -417,8 +415,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
         every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
-        every { brcClientService.listBesluiten(zaak) } returns emptyList()
-
         every { zgwApiService.createResultaatForZaak(zaak, restUserEventListenerData.resultaattypeUuid!!, null) } just runs
         every { zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any()) } just runs
 
