@@ -380,10 +380,18 @@
           "required": ["innNnpId", "roltypeOmschrijving"]
         },
         {
-          "required": ["vestigingsNummer", "rolOmschrijvingGeneriek"]
+          "required": ["kvkNummer", "rolOmschrijvingGeneriek"],
+          "optional": ["vestigingsNummer"]
         },
         {
-          "required": ["vestigingsNummer", "roltypeOmschrijving"]
+          "required": ["kvkNummer", "roltypeOmschrijving"],
+          "optional": ["vestigingsNummer"]
+        },
+        {
+          "required": ["kvkNummer", "rolOmschrijvingGeneriek"]
+        },
+        {
+          "required": ["kvkNummer", "roltypeOmschrijving"]
         },
         {
           "required": [
