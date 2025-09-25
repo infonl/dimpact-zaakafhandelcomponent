@@ -7,6 +7,7 @@ package net.atos.zac.productaanvraag;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -24,8 +25,6 @@ import net.atos.zac.productaanvraag.model.InboxProductaanvraag;
 import net.atos.zac.productaanvraag.model.InboxProductaanvraagListParameters;
 import net.atos.zac.productaanvraag.model.InboxProductaanvraagResultaat;
 import nl.info.zac.shared.model.SorteerRichting;
-
-import java.util.logging.Logger;
 
 @ApplicationScoped
 @Transactional
