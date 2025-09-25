@@ -28,11 +28,6 @@ export class BesluitCreateComponent implements OnInit {
   protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
 
   protected form = this.formBuilder.group({
-    resultaat:
-      this.formBuilder.control<GeneratedType<"RestResultaattype"> | null>(
-        null,
-        Validators.required,
-      ),
     besluit: this.formBuilder.control<GeneratedType<"RestDecisionType"> | null>(
       null,
       Validators.required,
@@ -63,18 +58,6 @@ export class BesluitCreateComponent implements OnInit {
     private readonly informatieObjectenService: InformatieObjectenService,
     private readonly formBuilder: FormBuilder,
   ) {
-    this.form.controls.resultaat.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe((value) => {
-        if (value?.vervaldatumBesluitVerplicht) {
-          this.form.controls.vervaldatum.addValidators([Validators.required]);
-        } else {
-          this.form.controls.vervaldatum.removeValidators([
-            Validators.required,
-          ]);
-        }
-      });
-
     this.form.controls.ingangsdatum.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
@@ -170,10 +153,6 @@ export class BesluitCreateComponent implements OnInit {
       .subscribe((besluittypes) => {
         this.besluittypes = besluittypes;
       });
-
-    this.form.patchValue({
-      resultaat: this.zaak.resultaat?.resultaattype,
-    });
   }
 
   submit() {
@@ -183,7 +162,6 @@ export class BesluitCreateComponent implements OnInit {
       .createBesluit({
         ...value,
         zaakUuid: this.zaak.uuid,
-        resultaattypeUuid: value.resultaat!.id,
         besluittypeUuid: value.besluit!.id,
         ingangsdatum: value.ingangsdatum?.toISOString(),
         vervaldatum: value.vervaldatum?.toISOString(),

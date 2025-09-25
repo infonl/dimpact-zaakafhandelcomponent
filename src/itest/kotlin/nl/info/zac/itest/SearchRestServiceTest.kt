@@ -101,6 +101,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
+
                 // we only test on the total number of results and the filters, not on the actual results, to keep the test maintainable
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
@@ -179,15 +180,10 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "In behandeling"
                                 }
                             ],
-                            "ZAAK_RESULTAAT": [
-                              {
-                                "aantal": 2,
-                                "naam": "Buiten behandeling"
-                              },
-                              {
-                                "aantal": 1,
-                                "naam": "Toegekend"
-                              }
+                           "ZAAK_RESULTAAT" : [
+
+                                { "aantal": 2, "naam": "Buiten behandeling" }
+
                             ],
                             "ZAAK_INDICATIES": [                        
                                 {
@@ -367,14 +363,10 @@ class SearchRestServiceTest : BehaviorSpec({
                             } 
                          ],
                         "ZAAK_RESULTAAT" : [
-                         {
-                            "aantal": 1,
-                            "naam": "Toegekend"
-                          },                       
                           {
-                             "aantal" : 3,
-                             "naam" : "-NULL-"
-                           } 
+                            "aantal" : 4,
+                            "naam" : "-NULL-"
+                          }
                         ],
                         "ZAAK_INDICATIES" : [                    
                           {                       
