@@ -10,7 +10,7 @@ import net.atos.zac.app.bag.model.RESTOpenbareRuimte
 import net.atos.zac.app.bag.model.RESTPand
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
-import nl.info.zac.app.admin.createRestZaakAfhandelParameters
+import nl.info.zac.app.admin.createRestZaakafhandelParameters
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
@@ -378,7 +378,7 @@ fun createRestZaakStatus(
 )
 
 fun createRestZaaktype(
-    zaakafhandelParameters: RestZaakafhandelParameters = createRestZaakAfhandelParameters()
+    zaaktypeCmmnConfiguration: RestZaakafhandelParameters = createRestZaakafhandelParameters()
 ) = RestZaaktype(
     uuid = UUID.randomUUID(),
     identificatie = "fakeIdentificatie",
@@ -396,7 +396,7 @@ fun createRestZaaktype(
     verlengingstermijn = null,
     zaaktypeRelaties = emptyList(),
     informatieobjecttypes = emptyList(),
-    zaakafhandelparameters = zaakafhandelParameters
+    zaakafhandelparameters = zaaktypeCmmnConfiguration
 )
 
 private fun createZaakData() = mapOf(

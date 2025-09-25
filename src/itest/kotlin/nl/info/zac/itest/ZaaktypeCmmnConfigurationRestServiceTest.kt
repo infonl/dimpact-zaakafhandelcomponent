@@ -35,24 +35,24 @@ import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 
 @Order(TEST_SPEC_ORDER_AFTER_REFERENCE_TABLES_UPDATED)
-class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
+class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
 
     Given(
         """
-        ZAC Docker container is running and no zaakafhandelparameters have been created
+        ZAC Docker container is running and no zaaktypeCmmnConfiguration have been created
         and a test domein exists in the domein reference table 
         """.trimIndent()
     ) {
         When(
             """
-            the create zaakafhandelparameters endpoint is called to create a new zaakafhandelparameters
+            the create zaakafhandelparameters endpoint is called to create a new zaaktypeCmmnConfiguration
             for the 'melding klein evenement' zaaktype without specifying a 'domein'
             """.trimIndent()
         ) {
-            val response = zacClient.createZaakAfhandelParameters(
+            val response = zacClient.createZaaktypeCmmnConfiguration(
                 zaakTypeIdentificatie = ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE,
                 zaakTypeUuid = ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,
                 zaakTypeDescription = ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION,
@@ -71,7 +71,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
             for the 'indienen aansprakelijkheidstelling' zaaktype with specifying the existing test domein
             """.trimIndent()
         ) {
-            val response = zacClient.createZaakAfhandelParameters(
+            val response = zacClient.createZaaktypeCmmnConfiguration(
                 zaakTypeIdentificatie = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE,
                 zaakTypeUuid = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
                 zaakTypeDescription = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION,

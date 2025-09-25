@@ -6,8 +6,8 @@ package nl.info.client.brp
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
+import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.client.brp.model.generated.PersonenQuery
 import nl.info.client.brp.model.generated.PersonenQueryResponse
 import nl.info.client.brp.model.generated.Persoon
@@ -48,7 +48,7 @@ class BrpClientService @Inject constructor(
     private val retrievePersoonDefaultPurpose: Optional<String>,
 
     private val zrcClientService: ZrcClientService,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService
 ) {
     companion object {
         private val LOG = Logger.getLogger(BrpClientService::class.java.name)
@@ -106,7 +106,7 @@ class BrpClientService @Inject constructor(
     private fun resolvePurposeFromContext(
         auditEvent: String,
         defaultPurpose: String?,
-        extractPurpose: (ZaakafhandelParameters) -> String?
+        extractPurpose: (ZaaktypeCmmnConfiguration) -> String?
     ): String? =
         auditEvent
             .also { LOG.info("Resolving purpose for audit event: $auditEvent") }
@@ -114,7 +114,7 @@ class BrpClientService @Inject constructor(
             ?.runCatching {
                 zrcClientService.readZaakByID(this)
                     .zaaktype.extractUuid()
-                    .let(zaakafhandelParameterService::readZaakafhandelParameters)
+                    .let(zaaktypeCmmnConfigurationService::readZaaktypeCmmnConfiguration)
                     .let(extractPurpose)
             }?.onFailure {
                 LOG.log(Level.WARNING, "Failed to resolve purpose from audit event '$auditEvent'", it)

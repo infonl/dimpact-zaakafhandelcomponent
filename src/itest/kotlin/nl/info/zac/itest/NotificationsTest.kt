@@ -107,7 +107,7 @@ class NotificationsTest : BehaviorSpec({
     Given(
         """"
             ZAC and all related Docker containers are running, a productaanvraag object exists in Objecten with 
-            a productaanvraag type, zaakafhandelparameters are defined in ZAC configured with the same productaanvraag type
+            a productaanvraag type, zaaktypeCmmnConfiguration are defined in ZAC configured with the same productaanvraag type
             and with 'automatic acknowledgement of receipt' (ontvangstbevestiging) enabled,
             and the related productaanvraag PDF exists in Open Zaak
         """.trimIndent()
@@ -161,7 +161,7 @@ class NotificationsTest : BehaviorSpec({
                         getJSONObject("status").getString("naam") shouldBe "Intake"
                         getJSONObject("groep").getString("id") shouldBe "test-group-a"
                         // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
-                        // since we have defined zaakafhandelparameters for this zaaktype a CMMN proces should be started
+                        // since we have defined zaaktypeCmmnConfiguration for this zaaktype a CMMN proces should be started
                         getBoolean("isProcesGestuurd") shouldBe false
                         getString("communicatiekanaal") shouldBe "E-formulier"
                         getString("omschrijving") shouldBe ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
@@ -370,7 +370,7 @@ class NotificationsTest : BehaviorSpec({
                         getJSONObject("status").getString("naam") shouldBe "Intake"
                         getJSONObject("groep").getString("id") shouldBe "test-group-a"
                         // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
-                        // since we have defined zaakafhandelparameters for this zaaktype a CMMN proces should be started
+                        // since we have defined zaaktypeCmmnConfiguration for this zaaktype a CMMN proces should be started
                         getBoolean("isProcesGestuurd") shouldBe false
                         getString("communicatiekanaal") shouldBe "E-formulier"
                         getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +

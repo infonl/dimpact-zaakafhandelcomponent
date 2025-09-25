@@ -18,22 +18,22 @@ import nl.info.zac.util.AllOpen
 import java.util.UUID
 
 @Entity
-@Table(schema = FlywayIntegrator.SCHEMA, name = "zaaktype_bpmn_process_definition")
+@Table(schema = FlywayIntegrator.SCHEMA, name = "zaaktype_bpmn_configuration")
 @SequenceGenerator(
     schema = FlywayIntegrator.SCHEMA,
-    name = "sq_zaaktype_bpmn_process_definition",
-    sequenceName = "sq_zaaktype_bpmn_process_definition",
+    name = "sq_zaaktype_bpmn_configuration",
+    sequenceName = "sq_zaaktype_bpmn_configuration",
     allocationSize = 1
 )
 @AllOpen
-class ZaaktypeBpmnProcessDefinition {
+class ZaaktypeBpmnConfiguration {
     companion object {
         const val PRODUCTAANVRAAGTTYPE_VARIABELE_NAME = "productaanvraagtype"
         const val ZAAKTYPE_UUID_VARIABLE_NAME = "zaaktypeUuid"
     }
 
     @Id
-    @GeneratedValue(generator = "sq_zaaktype_bpmn_process_definition", strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(generator = "sq_zaaktype_bpmn_configuration", strategy = GenerationType.SEQUENCE)
     var id: Long = 0
 
     @NotNull
@@ -54,6 +54,6 @@ class ZaaktypeBpmnProcessDefinition {
      * Name of the user group that will be assigned by default to BPMN zaken started for this zaaktype.
      * Note that the group name acts as the unique group ID. Both terms are used interchangeably.
      */
-    @Column(name = "naam_groep", nullable = false)
-    lateinit var groepNaam: String
+    @Column(name = "group_id", nullable = false)
+    lateinit var groupId: String
 }

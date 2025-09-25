@@ -6,7 +6,7 @@
 package net.atos.zac.admin.model;
 
 /**
- * Represents a Zaakafhandelparameters data that can be modified by a user.
+ * Represents a ZaaktypeCmmnConfiguration data that can be modified by a user.
  * <p>
  * This interface provides a contract for applying changes and comparing states,
  * commonly used in DTOs or entities that are updated from user input.
@@ -23,7 +23,7 @@ public interface UserModifiable<T extends UserModifiable<T>> {
      * <li>one or more fields that should be different</li>
      * </ul>
      *
-     * @param original Original object (part of {@link ZaakafhandelParameters}) to compare to.
+     * @param original Original object (part of {@link ZaaktypeCmmnConfiguration}) to compare to.
      * @return <code>true</code> if the object is different from the original, <code>false</code> otherwise.
      */
     boolean isModifiedFrom(T original);

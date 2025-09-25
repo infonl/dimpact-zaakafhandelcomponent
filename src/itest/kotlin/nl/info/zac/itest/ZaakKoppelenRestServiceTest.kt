@@ -40,7 +40,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
     lateinit var zaakUUID: UUID
     lateinit var teKoppelenZaakUuid: UUID
 
-    Given("ZAC Docker container is running and the zaakafhandelparameters have been created") {
+    Given("ZAC Docker container is running and the zaaktypeCmmnConfiguration have been created") {
         itestHttpClient.performGetRequest(
             "$ZAC_API_URI/zaken/zaak/id/$ZAAK_MANUAL_2024_01_IDENTIFICATION"
         ).use { getZaakResponse ->

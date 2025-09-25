@@ -29,10 +29,10 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.client.zgw.zrc.model.ZaakListParameters
-import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_ID
-import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_REASON
-import net.atos.zac.admin.model.ZaakAfzender.SpecialMail
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService.INADMISSIBLE_TERMINATION_ID
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService.INADMISSIBLE_TERMINATION_REASON
+import net.atos.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters.SpecialMail
 import net.atos.zac.app.bag.converter.RestBagConverter
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
@@ -176,7 +176,7 @@ class ZaakRestService @Inject constructor(
     private val restDecisionConverter: RestDecisionConverter,
     private val restZaakOverzichtConverter: RestZaakOverzichtConverter,
     private val zaakHistoryLineConverter: ZaakHistoryLineConverter,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService,
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val healthCheckService: HealthCheckService,
     private val opschortenZaakHelper: SuspensionZaakHelper,
     private val zaakService: ZaakService,
@@ -484,7 +484,7 @@ class ZaakRestService @Inject constructor(
         val vandaag = LocalDate.now()
         val einddatumGeplandWaarschuwing = mutableMapOf<UUID, LocalDate>()
         val uiterlijkeEinddatumAfdoeningWaarschuwing = mutableMapOf<UUID, LocalDate>()
-        zaakafhandelParameterService.listZaakafhandelParameters().forEach {
+        zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration().forEach {
             if (it.einddatumGeplandWaarschuwing != null) {
                 einddatumGeplandWaarschuwing[it.zaakTypeUUID] = datumWaarschuwing(
                     vandaag,
@@ -526,7 +526,7 @@ class ZaakRestService @Inject constructor(
             .filter { it.isNuGeldig() }
             .filter {
                 // return zaaktypes for which a BPMN process definition key
-                // or a valid (CMMN) zaakafhandelparameters has been configured
+                // or a valid zaaktypeCmmnConfiguration has been configured
                 it.hasBPMNProcessDefinition() || healthCheckService.controleerZaaktype(it.url).isValide
             }
             .map(restZaaktypeConverter::convert)
@@ -661,15 +661,19 @@ class ZaakRestService @Inject constructor(
             )
         }
         zaakService.checkZaakAfsluitbaar(zaak)
-        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
+        val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
             zaakType.url.extractUuid()
         )
         if (afbrekenGegevens.zaakbeeindigRedenId == INADMISSIBLE_TERMINATION_ID) {
-            // Use the hardcoded "niet ontvankelijk" zaakbeeindigreden that we don't manage via ZaakafhandelParameters
-            terminateZaak(zaak, zaakafhandelParameters.nietOntvankelijkResultaattype, INADMISSIBLE_TERMINATION_REASON)
+            // Use the hardcoded "niet ontvankelijk" zaakbeeindigreden that we don't manage via ZaaktypeCmmnConfiguration
+            terminateZaak(
+                zaak,
+                zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype,
+                INADMISSIBLE_TERMINATION_REASON
+            )
         } else {
             afbrekenGegevens.zaakbeeindigRedenId.toLong().let { zaakbeeindigRedenId ->
-                zaakafhandelParameters.readZaakbeeindigParameter(zaakbeeindigRedenId).let {
+                zaaktypeCmmnConfiguration.readZaakbeeindigParameter(zaakbeeindigRedenId).let {
                     terminateZaak(zaak, it.resultaattype, it.zaakbeeindigReden.naam)
                 }
             }
@@ -863,7 +867,7 @@ class ZaakRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUUID)
         return sortAndRemoveDuplicateAfzenders(
             resolveZaakAfzenderMail(
-                zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid())
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid())
                     .zaakAfzenders
                     .toRestZaakAfzenders()
             )
@@ -1112,7 +1116,7 @@ class ZaakRestService @Inject constructor(
             cmmnService.startCase(
                 zaak = zaak,
                 zaaktype = zaakType,
-                zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
+                zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
                     zaakType.url.extractUuid()
                 )
             )
@@ -1416,13 +1420,13 @@ class ZaakRestService @Inject constructor(
     private fun speciaalMail(mail: String): SpecialMail? = if (!mail.contains("@")) SpecialMail.valueOf(mail) else null
 
     private fun assertCanAddBetrokkene(restZaak: RestZaakCreateData, zaakTypeUUID: UUID) {
-        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
+        val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
 
         restZaak.initiatorIdentificatie?.let {
-            if (it.type.isKvK && !zaakafhandelParameters.betrokkeneKoppelingen.kvkKoppelen) {
+            if (it.type.isKvK && !zaaktypeCmmnConfiguration.betrokkeneParameters.kvkKoppelen) {
                 throw BetrokkeneNotAllowedException()
             }
-            if (it.type.isBsn && !zaakafhandelParameters.betrokkeneKoppelingen.brpKoppelen) {
+            if (it.type.isBsn && !zaaktypeCmmnConfiguration.betrokkeneParameters.brpKoppelen) {
                 throw BetrokkeneNotAllowedException()
             }
         }

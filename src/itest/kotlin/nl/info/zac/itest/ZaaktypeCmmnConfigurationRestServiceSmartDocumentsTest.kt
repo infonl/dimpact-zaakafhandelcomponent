@@ -36,11 +36,11 @@ import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 
 @Order(TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED)
-class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
+class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given("ZAC Docker container is running and zaakafhandelparameters have been created") {
+    Given("ZAC Docker container is running and zaaktypeCmmnConfiguration have been created") {
         When("the list SmartDocuments templates endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaakafhandelparameters/smartdocuments-templates"

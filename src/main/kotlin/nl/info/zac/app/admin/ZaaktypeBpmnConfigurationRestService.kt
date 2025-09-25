@@ -19,9 +19,9 @@ import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.UriInfo
-import nl.info.zac.admin.ZaaktypeBpmnProcessDefinitionService
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.app.admin.model.RestZaaktypeBpmnProcessDefinition
-import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnProcessDefinition
+import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
@@ -33,14 +33,14 @@ import nl.info.zac.util.NoArgConstructor
 @Produces(MediaType.APPLICATION_JSON)
 @AllOpen
 @NoArgConstructor
-class ZaaktypeBpmnProcessDefinitionRestService @Inject constructor(
-    private val zaaktypeBpmnProcessDefinitionService: ZaaktypeBpmnProcessDefinitionService,
+class ZaaktypeBpmnConfigurationRestService @Inject constructor(
+    private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,
     private val policyService: PolicyService
 ) {
     @GET
     fun listZaaktypeBpmnProcessDefinitions(): List<RestZaaktypeBpmnProcessDefinition> {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return zaaktypeBpmnProcessDefinitionService.listBpmnProcessDefinitions().map {
+        return zaaktypeBpmnConfigurationService.listBpmnProcessDefinitions().map {
             it.toRestZaaktypeBpmnProcessDefinition()
         }
     }
@@ -51,7 +51,7 @@ class ZaaktypeBpmnProcessDefinitionRestService @Inject constructor(
         @NotEmpty @PathParam("processDefinitionKey") processDefinitionKey: String
     ): RestZaaktypeBpmnProcessDefinition {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        val processDefinitions = zaaktypeBpmnProcessDefinitionService
+        val processDefinitions = zaaktypeBpmnConfigurationService
             .listBpmnProcessDefinitions()
             .filter { it.bpmnProcessDefinitionKey == processDefinitionKey }
 
@@ -71,24 +71,24 @@ class ZaaktypeBpmnProcessDefinitionRestService @Inject constructor(
         @Context uriInfo: UriInfo
     ): Response {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        zaaktypeBpmnProcessDefinitionService.createZaaktypeBpmnProcessDefinition(
-            ZaaktypeBpmnProcessDefinition().apply {
+        zaaktypeBpmnConfigurationService.createZaaktypeBpmnProcessDefinition(
+            ZaaktypeBpmnConfiguration().apply {
                 zaaktypeUuid = restZaaktypeBpmnProcessDefinition.zaaktypeUuid
                 bpmnProcessDefinitionKey = processDefinitionKey
                 zaaktypeOmschrijving = restZaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
                 productaanvraagtype = restZaaktypeBpmnProcessDefinition.productaanvraagtype
-                groepNaam = restZaaktypeBpmnProcessDefinition.groepNaam
+                groupId = restZaaktypeBpmnProcessDefinition.groepNaam
             }
         )
         return Response.created(uriInfo.requestUri).build()
     }
 
-    private fun ZaaktypeBpmnProcessDefinition.toRestZaaktypeBpmnProcessDefinition() =
+    private fun ZaaktypeBpmnConfiguration.toRestZaaktypeBpmnProcessDefinition() =
         RestZaaktypeBpmnProcessDefinition(
             zaaktypeUuid = this.zaaktypeUuid,
             bpmnProcessDefinitionKey = this.bpmnProcessDefinitionKey,
             zaaktypeOmschrijving = this.zaaktypeOmschrijving,
-            groepNaam = this.groepNaam,
+            groepNaam = this.groupId,
             productaanvraagtype = this.productaanvraagtype
         )
 }

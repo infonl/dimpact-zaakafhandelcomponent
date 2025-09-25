@@ -15,9 +15,9 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_ID
-import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_REASON
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService.INADMISSIBLE_TERMINATION_ID
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService.INADMISSIBLE_TERMINATION_REASON
 import net.atos.zac.admin.model.FormulierDefinitie
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTReplyToConverter
@@ -31,7 +31,7 @@ import net.atos.zac.flowable.cmmn.CMMNService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ReferenceTableService
-import nl.info.zac.admin.ZaakafhandelParameterBeheerService
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
@@ -60,21 +60,21 @@ import java.util.logging.Logger
 @AllOpen
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
-class ZaakafhandelParametersRestService @Inject constructor(
+class ZaaktypeCmmnConfigurationRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val configuratieService: ConfiguratieService,
     private val cmmnService: CMMNService,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService,
-    private val zaakafhandelParameterBeheerService: ZaakafhandelParameterBeheerService,
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
     private val referenceTableService: ReferenceTableService,
-    private val zaakafhandelParametersConverter: RestZaakafhandelParametersConverter,
+    private val zaaktypeCmmnConfigurationConverter: RestZaakafhandelParametersConverter,
     private val caseDefinitionConverter: RESTCaseDefinitionConverter,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
     private val policyService: PolicyService,
     private val identityService: IdentityService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(ZaakafhandelParametersRestService::class.java.name)
+        private val LOG = Logger.getLogger(ZaaktypeCmmnConfigurationRestService::class.java.name)
     }
 
     /**
@@ -109,39 +109,39 @@ class ZaakafhandelParametersRestService @Inject constructor(
      * @return list of all zaakafhandelparameters
      */
     @GET
-    fun listZaakafhandelParameters(): List<RestZaakafhandelParameters> {
+    fun listZaaktypeCmmnConfiguration(): List<RestZaakafhandelParameters> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .map { it.url.extractUuid() }
-            .map(zaakafhandelParameterService::readZaakafhandelParameters)
-            .map { zaakafhandelParametersConverter.toRestZaakafhandelParameters(it, false) }
+            .map(zaaktypeCmmnConfigurationService::readZaaktypeCmmnConfiguration)
+            .map { zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(it, false) }
     }
 
     /**
-     * Retrieve the ZAAKAFHANDELPARAMETERS for a ZAAKTYPE
+     * Retrieve the ZaaktypeCmmnConfiguration for a ZAAKTYPE
      *
-     * @return ZAAKAFHANDELPARAMETERS for a ZAAKTYPE by uuid of the ZAAKTYPE
+     * @return ZaaktypeCmmnConfiguration for a ZAAKTYPE by uuid of the ZAAKTYPE
      */
     @GET
     @Path("{zaaktypeUUID}")
-    fun readZaakafhandelParameters(@PathParam("zaaktypeUUID") zaakTypeUUID: UUID): RestZaakafhandelParameters {
+    fun readZaaktypeCmmnConfiguration(@PathParam("zaaktypeUUID") zaakTypeUUID: UUID): RestZaakafhandelParameters {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID).let {
-            zaakafhandelParametersConverter.toRestZaakafhandelParameters(it, true)
+        return zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID).let {
+            zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(it, true)
         }
     }
 
     /**
-     * Creates or updates zaakafhandelparameters.
+     * Creates or updates ZaaktypeCmmnConfiguration.
      *
-     * @param restZaakafhandelParameters the zaakafhandelparameters to save or update;
-     * if the `id` field is null, a new zaakafhandelparameters will be created,
-     * otherwise the existing zaakafhandelparameters will be updated
+     * @param restZaakafhandelParameters the ZaaktypeCmmnConfiguration to save or update;
+     * if the `id` field is null, a new ZaaktypeCmmnConfiguration will be created,
+     * otherwise the existing ZaaktypeCmmnConfiguration will be updated
      * @throws InputValidationFailedException if the productaanvraagtype is already in use by another active zaaktype
      * @throws InputValidationFailedException if the productaanvraagtype is an empty string
      */
     @PUT
-    fun createOrUpdateZaakafhandelparameters(
+    fun createOrUpdateZaaktypeCmmnConfiguration(
         @Valid restZaakafhandelParameters: RestZaakafhandelParameters
     ): RestZaakafhandelParameters {
         assertPolicy(policyService.readOverigeRechten().beheren)
@@ -156,15 +156,15 @@ class ZaakafhandelParametersRestService @Inject constructor(
                 identityService.validateIfUserIsInGroup(defaultBehandelaarId, defaultGroepId)
             }
         }
-        return zaakafhandelParametersConverter.toZaakafhandelParameters(
+        return zaaktypeCmmnConfigurationConverter.toZaaktypeCmmnConfiguration(
             restZaakafhandelParameters
         ).let { zaakafhandelParameters ->
-            val updatedZaakafhandelParameters = zaakafhandelParameterBeheerService.storeZaakafhandelParameters(
+            val updatedZaakafhandelParameters = zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(
                 zaakafhandelParameters
             )
-            zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
-            zaakafhandelParameterService.clearListCache()
-            zaakafhandelParametersConverter.toRestZaakafhandelParameters(
+            zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(zaakafhandelParameters.zaakTypeUUID)
+            zaaktypeCmmnConfigurationService.clearListCache()
+            zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(
                 updatedZaakafhandelParameters,
                 true
             )
@@ -181,7 +181,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
     fun listZaakbeeindigRedenen(): List<RESTZaakbeeindigReden> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(
-            zaakafhandelParameterBeheerService.listZaakbeeindigRedenen()
+            zaaktypeCmmnConfigurationBeheerService.listZaakbeeindigRedenen()
         )
     }
 
@@ -307,7 +307,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
         )
 
     private fun readManagedZaakTerminationReasons(zaaktypeUUID: UUID?): List<RESTZaakbeeindigReden> =
-        zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID).zaakbeeindigParameters
+        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID).zaakbeeindigParameters
             .map { it.zaakbeeindigReden }
             .let { RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(it) }
 
@@ -315,25 +315,25 @@ class ZaakafhandelParametersRestService @Inject constructor(
         productaanvraagtype: String,
         zaaktypeOmschrijving: String
     ) {
-        val activeZaakafhandelparametersForProductaanvraagtype = zaakafhandelParameterBeheerService
-            .findActiveZaakafhandelparametersByProductaanvraagtype(productaanvraagtype)
-        if (activeZaakafhandelparametersForProductaanvraagtype.size > 1) {
+        val activeZaaktypeCmmnConfigurationForProductaanvraagtype = zaaktypeCmmnConfigurationBeheerService
+            .findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(productaanvraagtype)
+        if (activeZaaktypeCmmnConfigurationForProductaanvraagtype.size > 1) {
             LOG.warning(
                 "Productaanvraagtype '$productaanvraagtype' is already in use by multiple active zaaktypes: '" +
-                    activeZaakafhandelparametersForProductaanvraagtype.joinToString(", ") { it.toString() } + "'. " +
-                    "This indicates a configuration error in the zaakafhandelparameters. " +
-                    "There should be at most only one active zaakafhandelparameters for each productaanvraagtype."
+                    activeZaaktypeCmmnConfigurationForProductaanvraagtype.joinToString(", ") { it.toString() } + "'. " +
+                    "This indicates a configuration error in the zaaktypeCmmnConfiguration. " +
+                    "There should be at most only one active zaaktypeCmmnConfiguration for each productaanvraagtype."
             )
             throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
         }
-        if (activeZaakafhandelparametersForProductaanvraagtype.size == 1 &&
-            activeZaakafhandelparametersForProductaanvraagtype.first().zaaktypeOmschrijving != zaaktypeOmschrijving
+        if (activeZaaktypeCmmnConfigurationForProductaanvraagtype.size == 1 &&
+            activeZaaktypeCmmnConfigurationForProductaanvraagtype.first().zaaktypeOmschrijving != zaaktypeOmschrijving
         ) {
             LOG.info(
                 "Productaanvraagtype '$productaanvraagtype' is already in use by another active zaaktype " +
-                    "with zaaktype omschrijving: '${activeZaakafhandelparametersForProductaanvraagtype.first().zaaktypeOmschrijving}' " +
-                    "and zaaktype UUID: '${activeZaakafhandelparametersForProductaanvraagtype.first().zaakTypeUUID}'. " +
-                    "Please use a unique productaanvraagtype per active zaakafhandelparameters."
+                    "with zaaktype omschrijving: '${activeZaaktypeCmmnConfigurationForProductaanvraagtype.first().zaaktypeOmschrijving}' " +
+                    "and zaaktype UUID: '${activeZaaktypeCmmnConfigurationForProductaanvraagtype.first().zaakTypeUUID}'. " +
+                    "Please use a unique productaanvraagtype per active zaaktypeCmmnConfiguration."
             )
             throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
         }

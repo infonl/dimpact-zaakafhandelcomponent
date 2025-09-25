@@ -19,20 +19,20 @@ import jakarta.validation.constraints.NotNull;
 import nl.info.zac.database.flyway.FlywayIntegrator;
 
 @Entity
-@Table(schema = FlywayIntegrator.SCHEMA, name = "brp_doelbindingen")
+@Table(schema = FlywayIntegrator.SCHEMA, name = "zaaktype_cmmn_brp_parameters")
 @SequenceGenerator(
-        schema = FlywayIntegrator.SCHEMA, name = "sq_brp_doelbindingen", sequenceName = "sq_brp_doelbindingen", allocationSize = 1
+        schema = FlywayIntegrator.SCHEMA, name = "sq_zaaktype_cmmn_brp_parameters", sequenceName = "sq_zaaktype_cmmn_brp_parameters", allocationSize = 1
 )
-public class BrpDoelbindingen {
+public class ZaaktypeCmmnBrpParameters {
     @Id
-    @GeneratedValue(generator = "sq_brp_doelbindingen", strategy = GenerationType.SEQUENCE)
-    @Column(name = "id_brp_doelbindingen")
+    @GeneratedValue(generator = "sq_zaaktype_cmmn_brp_parameters", strategy = GenerationType.SEQUENCE)
+    @Column(name = "id")
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "id_zaakafhandelparameters", referencedColumnName = "id_zaakafhandelparameters")
+    @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
     @NotNull
-    private ZaakafhandelParameters zaakafhandelParameters;
+    private ZaaktypeCmmnConfiguration zaaktypeCmmnConfiguration;
 
     @Column(name = "zoekWaarde")
     private String zoekWaarde = "";
@@ -40,12 +40,12 @@ public class BrpDoelbindingen {
     @Column(name = "raadpleegWaarde")
     private String raadpleegWaarde = "";
 
-    public BrpDoelbindingen() {
+    public ZaaktypeCmmnBrpParameters() {
         // Default constructor
     }
 
-    public BrpDoelbindingen(ZaakafhandelParameters zaakafhandelParameters, String zoekWaarde, String raadpleegWaarde) {
-        this.zaakafhandelParameters = zaakafhandelParameters;
+    public ZaaktypeCmmnBrpParameters(ZaaktypeCmmnConfiguration zaaktypeCmmnConfiguration, String zoekWaarde, String raadpleegWaarde) {
+        this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration;
         this.zoekWaarde = zoekWaarde;
         this.raadpleegWaarde = raadpleegWaarde;
     }
@@ -59,12 +59,12 @@ public class BrpDoelbindingen {
         this.id = id;
     }
 
-    public ZaakafhandelParameters getZaakafhandelParameters() {
-        return zaakafhandelParameters;
+    public ZaaktypeCmmnConfiguration getZaaktypeCmmnConfiguration() {
+        return zaaktypeCmmnConfiguration;
     }
 
-    public void setZaakafhandelParameters(ZaakafhandelParameters zaakafhandelParameters) {
-        this.zaakafhandelParameters = zaakafhandelParameters;
+    public void setZaaktypeCmmnConfiguration(ZaaktypeCmmnConfiguration zaaktypeCmmnConfiguration) {
+        this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration;
     }
 
     public String getZoekWaarde() {
