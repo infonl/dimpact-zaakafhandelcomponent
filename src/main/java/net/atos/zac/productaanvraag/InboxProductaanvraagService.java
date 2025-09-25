@@ -25,10 +25,13 @@ import net.atos.zac.productaanvraag.model.InboxProductaanvraagListParameters;
 import net.atos.zac.productaanvraag.model.InboxProductaanvraagResultaat;
 import nl.info.zac.shared.model.SorteerRichting;
 
+import java.util.logging.Logger;
+
 @ApplicationScoped
 @Transactional
 public class InboxProductaanvraagService {
     private static final String LIKE = "%%%s%%";
+    private static final Logger LOG = Logger.getLogger(InboxProductaanvraagService.class.getName());
 
     private EntityManager entityManager;
 
@@ -61,6 +64,7 @@ public class InboxProductaanvraagService {
     }
 
     private List<InboxProductaanvraag> query(final InboxProductaanvraagListParameters listParameters) {
+        LOG.info("Querying inbox productaanvragen with parameters: " + listParameters);
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<InboxProductaanvraag> query = builder.createQuery(InboxProductaanvraag.class);
         final Root<InboxProductaanvraag> root = query.from(InboxProductaanvraag.class);
