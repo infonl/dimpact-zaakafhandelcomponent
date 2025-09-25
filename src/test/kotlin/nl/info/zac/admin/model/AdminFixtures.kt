@@ -5,15 +5,15 @@
 
 package nl.info.zac.admin.model
 
-import net.atos.zac.admin.model.AutomaticEmailConfirmation
-import net.atos.zac.admin.model.BetrokkeneKoppelingen
-import net.atos.zac.admin.model.BrpDoelbindingen
-import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.admin.model.HumanTaskReferentieTabel
-import net.atos.zac.admin.model.MailtemplateKoppeling
-import net.atos.zac.admin.model.ZaakAfzender
-import net.atos.zac.admin.model.ZaakafhandelParameters
-import net.atos.zac.admin.model.ZaakbeeindigParameter
+import net.atos.zac.admin.model.ZaaktypeCmmnBetrokkeneParameters
+import net.atos.zac.admin.model.ZaaktypeCmmnBrpParameters
+import net.atos.zac.admin.model.ZaaktypeCmmnCompletionParameters
+import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration
+import net.atos.zac.admin.model.ZaaktypeCmmnEmailParameters
+import net.atos.zac.admin.model.ZaaktypeCmmnHumantaskParameters
+import net.atos.zac.admin.model.ZaaktypeCmmnMailtemplateParameters
+import net.atos.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
 import java.time.ZonedDateTime
@@ -22,12 +22,12 @@ import java.util.UUID
 fun createBetrokkeneKoppelingen(
     id: Long? = 1234L,
     // Do not add default `= createZaakafhandelParameters()` as it will cause infinite loop
-    zaakafhandelParameters: ZaakafhandelParameters? = null,
+    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration? = null,
     brpKoppelen: Boolean = true,
     kvkKoppelen: Boolean = true
-) = BetrokkeneKoppelingen().apply {
+) = ZaaktypeCmmnBetrokkeneParameters().apply {
     this.id = id
-    this.zaakafhandelParameters = zaakafhandelParameters
+    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
     this.brpKoppelen = brpKoppelen
     this.kvkKoppelen = kvkKoppelen
 }
@@ -35,16 +35,16 @@ fun createBetrokkeneKoppelingen(
 @Suppress("LongParameterList")
 fun createHumanTaskParameters(
     id: Long = 1234L,
-    zaakafhandelParameters: ZaakafhandelParameters = createZaakafhandelParameters(),
+    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(),
     isActief: Boolean = true,
     formulierDefinitieID: String? = "fakeFormulierDefinitieID",
     planItemDefinitionID: String? = "fakePlanItemDefinitionID",
     groupId: String? = "fakeGroupId",
     leadTime: Int? = 1000000000,
     referenceTables: List<HumanTaskReferentieTabel>? = emptyList()
-) = HumanTaskParameters().apply {
+) = ZaaktypeCmmnHumantaskParameters().apply {
     this.id = id
-    this.zaakafhandelParameters = zaakafhandelParameters
+    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
     this.isActief = isActief
     this.formulierDefinitieID = formulierDefinitieID
     this.planItemDefinitionID = planItemDefinitionID
@@ -56,12 +56,12 @@ fun createHumanTaskParameters(
 fun createHumanTaskReferentieTabel(
     id: Long = 1234L,
     referenceTable: ReferenceTable = createReferenceTable(),
-    humanTaskParameters: HumanTaskParameters = createHumanTaskParameters(),
+    zaaktypeCmmnHumantaskParameters: ZaaktypeCmmnHumantaskParameters = createHumanTaskParameters(),
     field: String = "fakeField",
 ) = HumanTaskReferentieTabel().apply {
     this.id = id
     this.tabel = referenceTable
-    this.humantask = humanTaskParameters
+    this.humantask = zaaktypeCmmnHumantaskParameters
     this.veld = field
 }
 
@@ -92,7 +92,7 @@ fun createReferenceTableValue(
 }
 
 @Suppress("LongParameterList")
-fun createZaakafhandelParameters(
+fun createZaaktypeCmmnConfiguration(
     id: Long? = 1234L,
     creationDate: ZonedDateTime = ZonedDateTime.now(),
     domein: String? = "fakeDomein",
@@ -101,17 +101,17 @@ fun createZaakafhandelParameters(
     einddatumGeplandWaarschuwing: Int? = null,
     productaanvraagtype: String? = null,
     nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
-    zaakbeeindigParameters: Set<ZaakbeeindigParameter>? = emptySet(),
+    zaaktypeCmmnCompletionParameters: Set<ZaaktypeCmmnCompletionParameters>? = emptySet(),
     groupId: String? = null,
     caseDefinitionId: String = "fakeCaseDefinitionId",
-    betrokkeneKoppelingen: BetrokkeneKoppelingen = createBetrokkeneKoppelingen(),
-    brpDoelbindingen: BrpDoelbindingen? = BrpDoelbindingen().apply {
+    zaaktypeCmmnBetrokkeneParameters: ZaaktypeCmmnBetrokkeneParameters = createBetrokkeneKoppelingen(),
+    zaaktypeCmmnBrpParameters: ZaaktypeCmmnBrpParameters? = ZaaktypeCmmnBrpParameters().apply {
         zoekWaarde = ""
         raadpleegWaarde = ""
     },
-    automaticEmailConfirmation: AutomaticEmailConfirmation = createAutomaticEmailConfirmation()
+    zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters = createAutomaticEmailConfirmation()
 ) =
-    ZaakafhandelParameters().apply {
+    ZaaktypeCmmnConfiguration().apply {
         this.id = id
         this.creatiedatum = creationDate
         this.domein = domein
@@ -125,32 +125,32 @@ fun createZaakafhandelParameters(
         setMailtemplateKoppelingen(
             setOf(
                 createMailtemplateKoppelingen(
-                    zaakafhandelParameters = this,
+                    zaaktypeCmmnConfiguration = this,
                     mailTemplate = createMailTemplate()
                 )
             )
         )
-        setZaakAfzenders(setOf(createZaakAfzender(zaakafhandelParameters = this)))
-        setZaakbeeindigParameters(zaakbeeindigParameters)
+        setZaakAfzenders(setOf(createZaakAfzender(zaaktypeCmmnConfiguration = this)))
+        setZaakbeeindigParameters(zaaktypeCmmnCompletionParameters)
         val parameters = this
-        this.betrokkeneKoppelingen = betrokkeneKoppelingen.apply {
-            this.zaakafhandelParameters = parameters
+        this.betrokkeneParameters = zaaktypeCmmnBetrokkeneParameters.apply {
+            this.zaaktypeCmmnConfiguration = parameters
         }
-        this.brpDoelbindingen = brpDoelbindingen.apply {
-            this?.zaakafhandelParameters = parameters
+        this.brpDoelbindingen = zaaktypeCmmnBrpParameters.apply {
+            this?.zaaktypeCmmnConfiguration = parameters
         }
-        this.automaticEmailConfirmation = automaticEmailConfirmation.apply {
-            this.zaakafhandelParameters = parameters
+        this.automaticEmailConfirmation = zaaktypeCmmnEmailParameters.apply {
+            this.zaaktypeCmmnConfiguration = parameters
         }
     }
 
 fun createMailtemplateKoppelingen(
     id: Long? = 1234L,
-    zaakafhandelParameters: ZaakafhandelParameters,
+    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
     mailTemplate: MailTemplate
-) = MailtemplateKoppeling().apply {
+) = ZaaktypeCmmnMailtemplateParameters().apply {
     this.id = id
-    this.zaakafhandelParameters = zaakafhandelParameters
+    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
     this.mailTemplate = mailTemplate
 }
 
@@ -162,14 +162,14 @@ fun createAutomaticEmailConfirmation(
     emailSender: String? = "sender@info.nl",
     emailReply: String? = "reply@info.nl",
     // Do not add default `= createZaakafhandelParameters()` as it will cause infinite loop
-    zaakafhandelParameters: ZaakafhandelParameters? = null,
-) = AutomaticEmailConfirmation().apply {
+    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration? = null,
+) = ZaaktypeCmmnEmailParameters().apply {
     this.id = id
     this.enabled = enabled
     this.templateName = templateName
     this.emailSender = emailSender
     this.emailReply = emailReply
-    this.zaakafhandelParameters = zaakafhandelParameters
+    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
 }
 
 fun createMailTemplate(
@@ -184,13 +184,13 @@ fun createMailTemplate(
 
 fun createZaakAfzender(
     id: Long? = 1234L,
-    zaakafhandelParameters: ZaakafhandelParameters,
+    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
     defaultMail: Boolean = false,
     mail: String? = "mail@example.com",
     replyTo: String? = "replyTo@example.com",
-) = ZaakAfzender().apply {
+) = ZaaktypeCmmnZaakafzenderParameters().apply {
     this.id = id
-    this.zaakafhandelParameters = zaakafhandelParameters
+    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
     this.isDefault = defaultMail
     this.mail = mail
     this.replyTo = replyTo

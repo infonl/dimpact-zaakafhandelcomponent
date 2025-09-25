@@ -24,8 +24,8 @@ enum class ErrorCode(val value: String) {
         "msg.error.system.reference.table.system.values.cannot.be.changed"
     ),
     ERROR_CODE_REFERENCE_TABLE_WITH_SAME_CODE_ALREADY_EXISTS("msg.error.reference.table.with.same.code.already.exists"),
-    ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKAFHANDELPARAMETERS(
-        "msg.error.reference.table.is.in.use.by.zaakafhandelparameters"
+    ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKTYPE_CMMN_CONFIGURATION(
+        "msg.error.reference.table.is.in.use.by.zaaktypeCmmnConfiguration"
     ),
     ERROR_CODE_SYSTEM_REFERENCE_TABLE_CANNOT_BE_DELETED("msg.error.system.reference.table.cannot.be.deleted"),
     ERROR_CODE_ZRC_CLIENT("msg.error.zrc.client.exception"),

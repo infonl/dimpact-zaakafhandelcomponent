@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.admin.model;
 
-import net.atos.zac.admin.model.ZaakAfzender;
+import net.atos.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters;
 
 public class RESTReplyTo {
 
@@ -16,7 +16,7 @@ public class RESTReplyTo {
     public RESTReplyTo() {
     }
 
-    public RESTReplyTo(ZaakAfzender.SpecialMail specialMail) {
+    public RESTReplyTo(ZaaktypeCmmnZaakafzenderParameters.SpecialMail specialMail) {
         this.mail = specialMail.name();
         this.speciaal = true;
     }

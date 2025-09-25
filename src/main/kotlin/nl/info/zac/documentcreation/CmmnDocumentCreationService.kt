@@ -114,7 +114,7 @@ class CmmnDocumentCreationService @Inject constructor(
 
     fun getInformationObjecttypeUuid(zaak: Zaak, templateGroupId: String, templateId: String) =
         smartDocumentsTemplatesService.getInformationObjectTypeUUID(
-            zaakafhandelParametersUUID = zaak.zaaktype.extractUuid(),
+            zaaktypeCmmnConfigurationUUID = zaak.zaaktype.extractUuid(),
             templateGroupId = templateGroupId,
             templateId = templateId
         )

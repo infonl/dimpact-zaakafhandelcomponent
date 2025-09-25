@@ -18,7 +18,7 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.client.zgw.util.extractUuid
@@ -54,7 +54,7 @@ class DocumentCreationRestService @Inject constructor(
     private val cmmnDocumentCreationService: CmmnDocumentCreationService,
     private val bpmnDocumentCreationService: BpmnDocumentCreationService,
     private val zrcClientService: ZrcClientService,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService,
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val flowableTaskService: FlowableTaskService
 ) {
     companion object {
@@ -94,7 +94,7 @@ class DocumentCreationRestService @Inject constructor(
         zaak: Zaak,
         restDocumentCreationAttendedData: RestDocumentCreationAttendedData
     ): DocumentCreationAttendedResponse {
-        if (!zaakafhandelParameterService.isSmartDocumentsEnabled(zaak.zaaktype.extractUuid())) {
+        if (!zaaktypeCmmnConfigurationService.isSmartDocumentsEnabled(zaak.zaaktype.extractUuid())) {
             throw SmartDocumentsDisabledException()
         }
         return CmmnDocumentCreationDataAttended(

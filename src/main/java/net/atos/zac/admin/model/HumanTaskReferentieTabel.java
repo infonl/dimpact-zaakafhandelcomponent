@@ -38,8 +38,8 @@ public class HumanTaskReferentieTabel {
     private ReferenceTable tabel;
 
     @NotNull @ManyToOne
-    @JoinColumn(name = "id_humantask_parameters", referencedColumnName = "id_humantask_parameters")
-    private HumanTaskParameters humantask;
+    @JoinColumn(name = "id_humantask_parameters", referencedColumnName = "id")
+    private ZaaktypeCmmnHumantaskParameters humantask;
 
     @NotBlank @Column(name = "veld", nullable = false)
     private String veld;
@@ -68,11 +68,11 @@ public class HumanTaskReferentieTabel {
         this.tabel = tabel;
     }
 
-    public HumanTaskParameters getHumantask() {
+    public ZaaktypeCmmnHumantaskParameters getHumantask() {
         return humantask;
     }
 
-    public void setHumantask(final HumanTaskParameters humantask) {
+    public void setHumantask(final ZaaktypeCmmnHumantaskParameters humantask) {
         this.humantask = humantask;
     }
 

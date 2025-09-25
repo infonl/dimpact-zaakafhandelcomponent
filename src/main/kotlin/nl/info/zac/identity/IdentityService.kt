@@ -7,7 +7,7 @@ package nl.info.zac.identity
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.inject.Named
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.identity.exception.GroupNotFoundException
 import nl.info.zac.identity.exception.UserNotFoundException
 import nl.info.zac.identity.exception.UserNotInGroupException
@@ -31,7 +31,7 @@ import kotlin.collections.filter
 class IdentityService @Inject constructor(
     @Named("keycloakZacRealmResource")
     private val keycloakZacRealmResource: RealmResource,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService,
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
 
     @ConfigProperty(name = "AUTH_RESOURCE")
     private val zacKeycloakClientId: String,
@@ -56,7 +56,7 @@ class IdentityService @Inject constructor(
         val groups = keycloakZacRealmResource.groups()
             .groups("", 0, Integer.MAX_VALUE, false)
             .map { it.toGroup(zacKeycloakClientId) }
-        val domein = zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid).domein
+        val domein = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).domein
         return groups
             .filter { (domein == null || domein == ZACRole.DOMEIN_ELK_ZAAKTYPE.value) || it.zacClientRoles.contains(domein) }
             .sortedBy { it.name }

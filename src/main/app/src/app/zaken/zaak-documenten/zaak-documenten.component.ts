@@ -149,27 +149,27 @@ export class ZaakDocumentenComponent
   }
 
   private loadInformatieObjecten(event?: ScreenEvent) {
-    if (!event?.objectId.detail) return;
-
-    this.informatieObjectenService
-      .readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(
-        event.objectId.detail,
-      )
-      .subscribe((enkelvoudigInformatieobject) => {
-        this.utilService
-          .openSnackbarAction(
-            "msg.document.toegevoegd.aan.zaak",
-            "actie.document.bekijken",
-            { document: enkelvoudigInformatieobject.titel },
-            7,
-          )
-          .subscribe(() => {
-            this.router.navigate([
-              "/informatie-objecten",
-              enkelvoudigInformatieobject.uuid,
-            ]);
-          });
-      });
+    if (event?.objectId.detail) {
+      this.informatieObjectenService
+        .readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(
+          event.objectId.detail,
+        )
+        .subscribe((enkelvoudigInformatieobject) => {
+          this.utilService
+            .openSnackbarAction(
+              "msg.document.toegevoegd.aan.zaak",
+              "actie.document.bekijken",
+              { document: enkelvoudigInformatieobject.titel },
+              7,
+            )
+            .subscribe(() => {
+              this.router.navigate([
+                "/informatie-objecten",
+                enkelvoudigInformatieobject.uuid,
+              ]);
+            });
+        });
+    }
 
     this.searchEnkelvoudigeInformatieObjecten();
   }

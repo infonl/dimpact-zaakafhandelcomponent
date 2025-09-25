@@ -21,21 +21,21 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(schema = SCHEMA, name = "usereventlistener_parameters")
-@SequenceGenerator(schema = SCHEMA, name = "sq_usereventlistener_parameters", sequenceName = "sq_usereventlistener_parameters", allocationSize = 1)
-public class UserEventListenerParameters implements UserModifiable<UserEventListenerParameters> {
+@Table(schema = SCHEMA, name = "zaaktype_cmmn_usereventlistener_parameters")
+@SequenceGenerator(schema = SCHEMA, name = "sq_zaaktype_cmmn_usereventlistener_parameters", sequenceName = "sq_zaaktype_cmmn_usereventlistener_parameters", allocationSize = 1)
+public class ZaaktypeCmmnUsereventlistenerParameters implements UserModifiable<ZaaktypeCmmnUsereventlistenerParameters> {
 
     @Id
-    @GeneratedValue(generator = "sq_usereventlistener_parameters", strategy = GenerationType.SEQUENCE)
-    @Column(name = "id_usereventlistener_parameters")
+    @GeneratedValue(generator = "sq_zaaktype_cmmn_usereventlistener_parameters", strategy = GenerationType.SEQUENCE)
+    @Column(name = "id")
     private Long id;
 
     @NotBlank @Column(name = "id_planitem_definition", nullable = false)
     private String planItemDefinitionID;
 
     @NotNull @ManyToOne
-    @JoinColumn(name = "id_zaakafhandelparameters", referencedColumnName = "id_zaakafhandelparameters")
-    private ZaakafhandelParameters zaakafhandelParameters;
+    @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
+    private ZaaktypeCmmnConfiguration zaaktypeCmmnConfiguration;
 
     @Column(name = "toelichting")
     private String toelichting;
@@ -48,12 +48,12 @@ public class UserEventListenerParameters implements UserModifiable<UserEventList
         this.id = id;
     }
 
-    public ZaakafhandelParameters getZaakafhandelParameters() {
-        return zaakafhandelParameters;
+    public ZaaktypeCmmnConfiguration getZaaktypeCmmnConfiguration() {
+        return zaaktypeCmmnConfiguration;
     }
 
-    public void setZaakafhandelParameters(final ZaakafhandelParameters zaakafhandelParameters) {
-        this.zaakafhandelParameters = zaakafhandelParameters;
+    public void setZaaktypeCmmnConfiguration(final ZaaktypeCmmnConfiguration zaaktypeCmmnConfiguration) {
+        this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration;
     }
 
     public String getPlanItemDefinitionID() {
@@ -74,7 +74,7 @@ public class UserEventListenerParameters implements UserModifiable<UserEventList
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof UserEventListenerParameters that))
+        if (!(o instanceof ZaaktypeCmmnUsereventlistenerParameters that))
             return false;
         return Objects.equals(planItemDefinitionID, that.planItemDefinitionID) &&
                Objects.equals(toelichting, that.toelichting);
@@ -87,18 +87,18 @@ public class UserEventListenerParameters implements UserModifiable<UserEventList
 
 
     @Override
-    public boolean isModifiedFrom(UserEventListenerParameters original) {
+    public boolean isModifiedFrom(ZaaktypeCmmnUsereventlistenerParameters original) {
         return Objects.equals(planItemDefinitionID, original.planItemDefinitionID) &&
                !Objects.equals(this.toelichting, original.toelichting);
     }
 
     @Override
-    public void applyChanges(UserEventListenerParameters changes) {
+    public void applyChanges(ZaaktypeCmmnUsereventlistenerParameters changes) {
         this.toelichting = changes.toelichting;
     }
 
     @Override
-    public UserEventListenerParameters resetId() {
+    public ZaaktypeCmmnUsereventlistenerParameters resetId() {
         id = null;
         return this;
     }

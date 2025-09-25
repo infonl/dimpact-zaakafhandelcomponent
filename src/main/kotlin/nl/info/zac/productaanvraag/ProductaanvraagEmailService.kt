@@ -9,9 +9,9 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import net.atos.client.klant.KlantClientService
 import net.atos.client.klant.model.SoortDigitaalAdresEnum
-import net.atos.zac.admin.model.AutomaticEmailConfirmation
-import net.atos.zac.admin.model.ZaakAfzender
-import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration
+import net.atos.zac.admin.model.ZaaktypeCmmnEmailParameters
+import net.atos.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.mail.MailService
@@ -44,13 +44,13 @@ class ProductaanvraagEmailService @Inject constructor(
     fun sendEmailForZaakFromProductaanvraag(
         zaak: Zaak,
         betrokkene: Betrokkene?,
-        zaakafhandelParameters: ZaakafhandelParameters
+        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ) {
         LOG.fine {
             "Attempting to send automatic email confirmation for zaak '${zaak.uuid}' " +
                 "and zaaktype '${zaak.zaaktype}'. For initiator '$betrokkene'."
         }
-        zaakafhandelParameters.automaticEmailConfirmation?.takeIf { it.enabled }?.let { automaticEmailConfirmation ->
+        zaaktypeCmmnConfiguration.automaticEmailConfirmation?.takeIf { it.enabled }?.let { automaticEmailConfirmation ->
             betrokkene?.let { betrokkene ->
                 extractBetrokkeneEmail(betrokkene)?.let { to ->
                     sendMail(automaticEmailConfirmation, to, zaak)
@@ -83,13 +83,13 @@ class ProductaanvraagEmailService @Inject constructor(
             ?.adres
 
     private fun sendMail(
-        automaticEmailConfirmation: AutomaticEmailConfirmation,
+        zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters,
         to: String,
         zaakFromProductaanvraag: Zaak
     ) {
-        automaticEmailConfirmation.templateName?.let { templateName ->
+        zaaktypeCmmnEmailParameters.templateName?.let { templateName ->
             mailTemplateService.findMailtemplateByName(templateName)?.let { mailTemplate ->
-                configureEmail(automaticEmailConfirmation, to, mailTemplate)?.let { mailGegevens ->
+                configureEmail(zaaktypeCmmnEmailParameters, to, mailTemplate)?.let { mailGegevens ->
                     mailService.sendMail(mailGegevens, zaakFromProductaanvraag.getBronnenFromZaak())?.also {
                         zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaakFromProductaanvraag)
                     }
@@ -98,7 +98,7 @@ class ProductaanvraagEmailService @Inject constructor(
                         "Skipping automatic email confirmation."
                 )
             } ?: LOG.warning(
-                "No mail template found with name: '${automaticEmailConfirmation.templateName}'. " +
+                "No mail template found with name: '${zaaktypeCmmnEmailParameters.templateName}'. " +
                     "Skipping automatic email confirmation."
             )
         } ?: LOG.warning(
@@ -108,14 +108,14 @@ class ProductaanvraagEmailService @Inject constructor(
     }
 
     private fun configureEmail(
-        automaticEmailConfirmation: AutomaticEmailConfirmation,
+        zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters,
         to: String,
         mailTemplate: MailTemplate
-    ) = automaticEmailConfirmation.emailSender?.let { emailSender ->
+    ) = zaaktypeCmmnEmailParameters.emailSender?.let { emailSender ->
         MailGegevens(
             from = emailSender.generateMailAddress(configuratieService),
             to = MailAdres(email = to, name = null),
-            replyTo = automaticEmailConfirmation.emailReply?.generateMailAddress(configuratieService),
+            replyTo = zaaktypeCmmnEmailParameters.emailReply?.generateMailAddress(configuratieService),
             subject = mailTemplate.onderwerp,
             body = mailTemplate.body,
             attachments = null,
@@ -125,7 +125,7 @@ class ProductaanvraagEmailService @Inject constructor(
 
     private fun String.generateMailAddress(configurationService: ConfiguratieService) =
         when (this) {
-            ZaakAfzender.SpecialMail.GEMEENTE.toString() -> MailAdres(
+            ZaaktypeCmmnZaakafzenderParameters.SpecialMail.GEMEENTE.toString() -> MailAdres(
                 email = configurationService.readGemeenteMail(),
                 name = configurationService.readGemeenteNaam()
             )

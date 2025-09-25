@@ -13,18 +13,18 @@ import io.kotest.matchers.string.shouldMatch
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 
 class UtilRestServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
-    val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
+    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val policyService = mockk<PolicyService>()
     val utilRESTService = UtilRestService(
         ztcClientService = ztcClientService,
-        zaakafhandelParameterService = zaakafhandelParameterService,
+        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         policyService = policyService
     )
 
@@ -40,10 +40,10 @@ class UtilRestServiceTest : BehaviorSpec({
         every { ztcClientService.estimatedCacheSizes() } returns mapOf(
             "ztc-cache1" to 0
         )
-        every { zaakafhandelParameterService.cacheStatistics() } returns mapOf(
+        every { zaaktypeCmmnConfigurationService.cacheStatistics() } returns mapOf(
             "zafhPS-cache1" to CacheStats.empty()
         )
-        every { zaakafhandelParameterService.estimatedCacheSizes() } returns mapOf(
+        every { zaaktypeCmmnConfigurationService.estimatedCacheSizes() } returns mapOf(
             "zafhPS-cache1" to 0
         )
 

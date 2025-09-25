@@ -72,7 +72,7 @@ fun createRestReferenceTableValue(
 )
 
 @Suppress("LongParameterList")
-fun createRestZaakAfhandelParameters(
+fun createRestZaakafhandelParameters(
     id: Long? = 1234L,
     domein: String = "fakeDomein",
     restZaaktypeOverzicht: RestZaaktypeOverzicht = createRestZaaktypeOverzicht(),

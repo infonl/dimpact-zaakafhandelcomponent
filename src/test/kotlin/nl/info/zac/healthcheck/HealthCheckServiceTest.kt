@@ -8,7 +8,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.client.zgw.ztc.model.createBrondatumArchiefprocedure
@@ -21,7 +21,7 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable
 import nl.info.zac.admin.model.createReferenceTable
-import nl.info.zac.admin.model.createZaakafhandelParameters
+import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.configuratie.ConfiguratieService
 import java.net.URI
 import java.time.ZonedDateTime
@@ -39,7 +39,7 @@ class HealthCheckServiceTest : BehaviorSpec({
         val zaaktypeUri = URI("https://example.com/zaaktype/$zaaktypeUuid")
 
         val referenceTableService = mockk<ReferenceTableService>()
-        val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
+        val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
         val ztcClientService = mockk<ZtcClientService>()
 
         val healthCheckService = HealthCheckService(
@@ -47,15 +47,15 @@ class HealthCheckServiceTest : BehaviorSpec({
             commitHash,
             versionNumber,
             referenceTableService,
-            zaakafhandelParameterService,
+            zaaktypeCmmnConfigurationService,
             ztcClientService
         )
 
         every { ztcClientService.resetCacheTimeToNow() } returns ZonedDateTime.now()
         every { ztcClientService.readZaaktype(zaaktypeUri) } returns createZaakType(zaaktypeUri)
         every {
-            zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid)
-        } returns createZaakafhandelParameters(groupId = "fakeGroupId")
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+        } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
         every {
             ztcClientService.readStatustypen(zaaktypeUri)
         } returns listOf(

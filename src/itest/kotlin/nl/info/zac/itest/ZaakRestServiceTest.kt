@@ -123,7 +123,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             authenticate(username = TEST_FUNCTIONAL_ADMIN_1_USERNAME, password = TEST_FUNCTIONAL_ADMIN_1_PASSWORD)
 
             When("zaaktype_test_1 is created") {
-                val response = zacClient.createZaakAfhandelParameters(
+                val response = zacClient.createZaaktypeCmmnConfiguration(
                     zaakTypeIdentificatie = ZAAKTYPE_TEST_1_IDENTIFICATIE,
                     zaakTypeUuid = ZAAKTYPE_TEST_1_UUID,
                     zaakTypeDescription = ZAAKTYPE_TEST_1_DESCRIPTION,
@@ -186,7 +186,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         Given(
             """
-            ZAC Docker container is running and zaakafhandelparameters have been created
+            ZAC Docker container is running and zaaktypeCmmnConfiguration have been created
             and a testuserdomaintest2 is logged-in
             """.trimIndent()
         ) {
@@ -230,7 +230,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     Given(
         """
-            ZAC Docker container is running and zaakafhandelparameters have been created and a behandelaar is logged-in
+            ZAC Docker container is running and zaaktypeCmmnConfiguration have been created and a behandelaar is logged-in
         """.trimIndent()
     ) {
         authenticate(username = TEST_BEHANDELAAR_1_USERNAME, password = TEST_BEHANDELAAR_1_PASSWORD)

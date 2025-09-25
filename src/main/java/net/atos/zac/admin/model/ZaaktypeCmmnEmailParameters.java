@@ -19,20 +19,20 @@ import jakarta.validation.constraints.NotNull;
 import nl.info.zac.database.flyway.FlywayIntegrator;
 
 @Entity
-@Table(schema = FlywayIntegrator.SCHEMA, name = "automatic_email_confirmation")
+@Table(schema = FlywayIntegrator.SCHEMA, name = "zaaktype_cmmn_email_parameters")
 @SequenceGenerator(
-        schema = FlywayIntegrator.SCHEMA, name = "sq_automatic_email_confirmation", sequenceName = "sq_automatic_email_confirmation", allocationSize = 1
+        schema = FlywayIntegrator.SCHEMA, name = "sq_zaaktype_cmmn_email_parameters", sequenceName = "sq_zaaktype_cmmn_email_parameters", allocationSize = 1
 )
-public class AutomaticEmailConfirmation {
+public class ZaaktypeCmmnEmailParameters {
     @Id
-    @GeneratedValue(generator = "sq_automatic_email_confirmation", strategy = GenerationType.SEQUENCE)
-    @Column(name = "id_automatic_email_confirmation")
+    @GeneratedValue(generator = "sq_zaaktype_cmmn_email_parameters", strategy = GenerationType.SEQUENCE)
+    @Column(name = "id")
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "id_zaakafhandelparameters", referencedColumnName = "id_zaakafhandelparameters")
+    @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
     @NotNull
-    private ZaakafhandelParameters zaakafhandelParameters;
+    private ZaaktypeCmmnConfiguration zaaktypeCmmnConfiguration;
 
     @Column(name = "enabled")
     private boolean enabled = false;
@@ -46,18 +46,18 @@ public class AutomaticEmailConfirmation {
     @Column(name = "email_reply")
     private String emailReply;
 
-    public AutomaticEmailConfirmation() {
+    public ZaaktypeCmmnEmailParameters() {
         // Default constructor
     }
 
-    public AutomaticEmailConfirmation(
-            ZaakafhandelParameters zaakafhandelParameters,
+    public ZaaktypeCmmnEmailParameters(
+            ZaaktypeCmmnConfiguration zaaktypeCmmnConfiguration,
             boolean enabled,
             String templateName,
             String emailSender,
             String emailReply
     ) {
-        this.zaakafhandelParameters = zaakafhandelParameters;
+        this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration;
         this.enabled = enabled;
         this.templateName = templateName;
         this.emailSender = emailSender;
@@ -73,12 +73,12 @@ public class AutomaticEmailConfirmation {
         this.id = id;
     }
 
-    public ZaakafhandelParameters getZaakafhandelParameters() {
-        return zaakafhandelParameters;
+    public ZaaktypeCmmnConfiguration getZaaktypeCmmnConfiguration() {
+        return zaaktypeCmmnConfiguration;
     }
 
-    public void setZaakafhandelParameters(ZaakafhandelParameters zaakafhandelParameters) {
-        this.zaakafhandelParameters = zaakafhandelParameters;
+    public void setZaaktypeCmmnConfiguration(ZaaktypeCmmnConfiguration zaaktypeCmmnConfiguration) {
+        this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration;
     }
 
     public boolean getEnabled() {

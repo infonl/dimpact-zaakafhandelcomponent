@@ -27,7 +27,7 @@ import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.test.org.flowable.task.api.createTestTask
-import nl.info.zac.admin.ZaakafhandelParameterBeheerService
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.signalering.SignaleringService
@@ -43,7 +43,7 @@ class NotificationReceiverTest : BehaviorSpec({
     val indexingService = mockk<IndexingService>()
     val inboxDocumentenService = mockk<InboxDocumentenService>()
     val signaleringService = mockk<SignaleringService>()
-    val zaakafhandelParameterBeheerService = mockk<ZaakafhandelParameterBeheerService>()
+    val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
     val cmmnService = mockk<CMMNService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val taskService = mockk<TaskService>()
@@ -55,7 +55,7 @@ class NotificationReceiverTest : BehaviorSpec({
         productaanvraagService = productaanvraagService,
         indexingService = indexingService,
         inboxDocumentenService = inboxDocumentenService,
-        zaakafhandelParameterBeheerService = zaakafhandelParameterBeheerService,
+        zaaktypeCmmnConfigurationBeheerService = zaaktypeCmmnConfigurationBeheerService,
         cmmnService = cmmnService,
         zaakVariabelenService = zaakVariabelenService,
         signaleringService = signaleringService,
@@ -110,7 +110,7 @@ class NotificationReceiverTest : BehaviorSpec({
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
-        every { zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri) } just runs
+        every { zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktypeUri) } just runs
 
         When("notificatieReceive is called with the zaaktype create notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
@@ -120,7 +120,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
-                    zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri)
+                    zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktypeUri)
                 }
             }
         }
@@ -138,7 +138,7 @@ class NotificationReceiverTest : BehaviorSpec({
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
-        every { zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri) } just runs
+        every { zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktypeUri) } just runs
 
         When("notificatieReceive is called with the zaaktype create notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
@@ -148,7 +148,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
-                    zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri)
+                    zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktypeUri)
                 }
             }
         }
@@ -173,7 +173,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.FORBIDDEN.statusCode
                 verify(exactly = 0) {
-                    zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri)
+                    zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktypeUri)
                 }
             }
         }
