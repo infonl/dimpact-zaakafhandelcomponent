@@ -52,7 +52,6 @@ fun createRestDecision(
 @Suppress("LongParameterList")
 fun createRestDecisionCreateData(
     zaakUuid: UUID = UUID.randomUUID(),
-    resultaattypeUuid: UUID = UUID.randomUUID(),
     besluittypeUuid: UUID = UUID.randomUUID(),
     toelichting: String = "fakeToelichting",
     ingangsdatum: LocalDate = LocalDate.of(2023, 9, 14),
@@ -65,7 +64,6 @@ fun createRestDecisionCreateData(
         besluittypeUuid = besluittypeUuid,
         informatieobjecten = informatieobjecten,
         ingangsdatum = ingangsdatum,
-        resultaattypeUuid = resultaattypeUuid,
         toelichting = toelichting,
         vervaldatum = vervaldatum,
         zaakUuid = zaakUuid,
