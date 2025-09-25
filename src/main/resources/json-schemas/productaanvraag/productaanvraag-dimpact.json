@@ -386,6 +386,12 @@
           "required": ["vestigingsNummer", "roltypeOmschrijving"]
         },
         {
+          "required": ["kvkNummer", "rolOmschrijvingGeneriek"]
+        },
+        {
+          "required": ["kvkNummer", "roltypeOmschrijving"]
+        },
+        {
           "required": [
             "organisatorischeEenheidIdentificatie",
             "rolOmschrijvingGeneriek"
