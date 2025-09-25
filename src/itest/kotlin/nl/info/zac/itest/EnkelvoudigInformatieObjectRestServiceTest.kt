@@ -435,10 +435,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                   "isBesluitDocument" : false,
                   "rechten" : {
                     "lezen" : true,
-                    "ondertekenen" : false,
+                    "ondertekenen" : true,
                     "ontgrendelen" : true,
                     "toevoegenNieuweVersie" : true,
-                    "vergrendelen" : false,
+                    "vergrendelen" : true,
                     "verwijderen" : true,
                     "wijzigen" : true
                   },
