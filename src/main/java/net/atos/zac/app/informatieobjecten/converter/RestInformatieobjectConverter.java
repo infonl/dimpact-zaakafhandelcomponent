@@ -8,7 +8,6 @@ import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 import static nl.info.zac.app.configuratie.model.RestTaalKt.toRestTaal;
 import static nl.info.zac.app.identity.model.RestUserKt.toRestUser;
 import static nl.info.zac.app.policy.model.RestDocumentRechtenKt.toRestDocumentRechten;
-import static nl.info.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
 import static nl.info.zac.identity.model.UserKt.getFullName;
 import static nl.info.zac.util.Base64ConvertersKt.toBase64String;
 
@@ -192,7 +191,7 @@ public class RestInformatieobjectConverter {
                 .getInformatieobjecttype());
     }
 
-    public EnkelvoudigInformatieObjectCreateLockRequest convertZaakObject(
+    public EnkelvoudigInformatieObjectCreateLockRequest convertEnkelvoudigInformatieObject(
             final RestEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
     ) {
         final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieObjectCreateLockRequest = buildEnkelvoudigInformatieObjectData(
@@ -230,42 +229,6 @@ public class RestInformatieobjectConverter {
                 )
         );
         return enkelvoudigInformatieobjectWithInhoud;
-    }
-
-    public EnkelvoudigInformatieObjectCreateLockRequest convertTaakObject(
-            final RestEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
-    ) {
-        final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieObjectCreateLockRequest = buildTaakEnkelvoudigInformatieObjectData(
-                restEnkelvoudigInformatieobject
-        );
-        enkelvoudigInformatieObjectCreateLockRequest.setInhoud(toBase64String(restEnkelvoudigInformatieobject.file));
-        enkelvoudigInformatieObjectCreateLockRequest.setBestandsnaam(restEnkelvoudigInformatieobject.bestandsnaam);
-        enkelvoudigInformatieObjectCreateLockRequest.setBestandsomvang(restEnkelvoudigInformatieobject.file.length);
-        enkelvoudigInformatieObjectCreateLockRequest.setFormaat(restEnkelvoudigInformatieobject.formaat);
-        return enkelvoudigInformatieObjectCreateLockRequest;
-    }
-
-    @NotNull
-    private EnkelvoudigInformatieObjectCreateLockRequest buildTaakEnkelvoudigInformatieObjectData(
-            RestEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
-    ) {
-        final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieObjectData = new EnkelvoudigInformatieObjectCreateLockRequest();
-        enkelvoudigInformatieObjectData.setBronorganisatie(configuratieService.readBronOrganisatie());
-        enkelvoudigInformatieObjectData.setCreatiedatum(LocalDate.now());
-        enkelvoudigInformatieObjectData.setTitel(restEnkelvoudigInformatieobject.titel);
-        enkelvoudigInformatieObjectData.setAuteur(getFullName(loggedInUserInstance.get()));
-        enkelvoudigInformatieObjectData.setTaal(ConfiguratieService.TAAL_NEDERLANDS);
-        enkelvoudigInformatieObjectData.setInformatieobjecttype(
-                ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID).getUrl()
-        );
-        enkelvoudigInformatieObjectData.setBeschrijving(OMSCHRIJVING_TAAK_DOCUMENT);
-        enkelvoudigInformatieObjectData.setStatus(StatusEnum.DEFINITIEF);
-        enkelvoudigInformatieObjectData.setVerzenddatum(restEnkelvoudigInformatieobject.verzenddatum);
-        enkelvoudigInformatieObjectData.setOntvangstdatum(restEnkelvoudigInformatieobject.ontvangstdatum);
-        enkelvoudigInformatieObjectData.setVertrouwelijkheidaanduiding(
-                VertrouwelijkheidaanduidingEnum.OPENBAAR
-        );
-        return enkelvoudigInformatieObjectData;
     }
 
     public EnkelvoudigInformatieObjectCreateLockRequest convert(

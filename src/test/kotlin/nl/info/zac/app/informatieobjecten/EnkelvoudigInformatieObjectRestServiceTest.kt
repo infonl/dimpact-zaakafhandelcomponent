@@ -117,7 +117,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every {
-            restInformatieobjectConverter.convertZaakObject(restEnkelvoudigInformatieobject)
+            restInformatieobjectConverter.convertEnkelvoudigInformatieObject(restEnkelvoudigInformatieobject)
         } returns enkelvoudigInformatieObjectData
         every {
             restInformatieobjectConverter.convertToREST(zaakInformatieobject)
@@ -244,7 +244,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
         every { zrcClientService.readZaak(closedZaak.uuid) } returns closedZaak
         every {
-            restInformatieobjectConverter.convertZaakObject(restEnkelvoudigInformatieobject)
+            restInformatieobjectConverter.convertEnkelvoudigInformatieObject(restEnkelvoudigInformatieobject)
         } returns enkelvoudigInformatieObjectData
         every {
             enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(

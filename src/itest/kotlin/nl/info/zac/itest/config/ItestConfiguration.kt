@@ -153,7 +153,6 @@ object ItestConfiguration {
     const val TEST_PERSON_2_BSN = "999992958"
     const val TEST_PERSON_3_BSN = "999991838"
     const val TEST_PDF_FILE_NAME = "fäkeTestDocument.pdf"
-    const val TEST_PDF_FILE_SIZE = 9268
     const val TEST_TXT_FILE_NAME = "tëstTextDocument.txt"
     const val TEST_TXT_CONVERTED_TO_PDF_FILE_NAME = "tëstTextDocument.pdf"
     const val TEST_TXT_FILE_SIZE = 62
@@ -268,6 +267,7 @@ object ItestConfiguration {
     val DOCUMENT_3_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000003"
     val DOCUMENT_4_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000004"
     val DOCUMENT_5_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000005"
+    val DOCUMENT_6_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000006"
 
     /**
      * Constants used in the KVK WireMock template response
