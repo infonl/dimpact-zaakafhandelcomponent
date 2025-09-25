@@ -370,4 +370,30 @@ class DecisionServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("Zaak without resultaat, when a decision is made") {
+        val zaakWithoutResultaat = createZaak(resultaat = null)
+        val besluitToevoegenGegevens = createRestDecisionCreateData()
+        val besluit = createBesluit()
+
+        every { ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid) } returns besluitType
+        every { restDecisionConverter.convertToBesluit(zaakWithoutResultaat, besluitToevoegenGegevens) } returns besluit
+        every { brcClientService.createBesluit(besluit) } returns besluit
+        every {
+            drcClientService.readEnkelvoudigInformatieobject(
+                besluitToevoegenGegevens.informatieobjecten!!.first()
+            )
+        } returns enkelvoudigInformatieObject
+        every {
+            brcClientService.createBesluitInformatieobject(any<BesluitInformatieObject>(), "Aanmaken besluit")
+        } returns besluitInformatieObject
+
+        When("createDecision is called") {
+            decisionService.createDecision(zaakWithoutResultaat, besluitToevoegenGegevens)
+
+            Then("zaak.resultaat should still be null") {
+                zaakWithoutResultaat.resultaat shouldBe null
+            }
+        }
+    }
 })
