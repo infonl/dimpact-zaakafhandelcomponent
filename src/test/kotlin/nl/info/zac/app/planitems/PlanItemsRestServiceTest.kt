@@ -438,4 +438,32 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("Zaak without resultaat, when the zaak is closed") {
+        val zaak = createZaak(resultaat = null)
+        val resultaattypeUuid = UUID.randomUUID()
+        val restUserEventListenerData = createRESTUserEventListenerData(
+            zaakUuid = zaak.uuid,
+            actie = UserEventListenerActie.ZAAK_AFHANDELEN,
+            resultaattypeUuid = resultaattypeUuid,
+            restMailGegevens = null
+        )
+
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+        every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
+        every { brcClientService.listBesluiten(zaak) } returns emptyList()
+        every { zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any()) } just runs
+        every { zgwApiService.createResultaatForZaak(zaak, resultaattypeUuid, null) } just runs
+
+        When("doUserEventListenerPlanItem is called to close the zaak") {
+            planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+
+            Then("createResultaatForZaak should be called to set the resultaat") {
+                verify(exactly = 1) {
+                    zgwApiService.createResultaatForZaak(zaak, resultaattypeUuid, null)
+                }
+            }
+        }
+    }
 })
