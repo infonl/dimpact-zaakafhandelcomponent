@@ -392,7 +392,9 @@ class DecisionServiceTest : BehaviorSpec({
             decisionService.createDecision(zaakWithoutResultaat, besluitToevoegenGegevens)
 
             Then("zaak.resultaat should still be null") {
-                zaakWithoutResultaat.resultaat shouldBe null
+                verify(exactly = 0) {
+                    zgwApiService.createResultaatForZaak(zaakWithoutResultaat, any<UUID>(), any<String>())
+                }
             }
         }
     }
