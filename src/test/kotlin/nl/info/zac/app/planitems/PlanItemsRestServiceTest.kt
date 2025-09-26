@@ -58,7 +58,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val cmmnService = mockk<CMMNService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val brcClientService = mockk<BrcClientService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val planItemConverter = mockk<RESTPlanItemConverter>()
     val zgwApiService = mockk<ZGWApiService>()
