@@ -23,13 +23,10 @@ import net.atos.zac.app.mail.model.createRESTMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.util.time.DateTimeConverterUtil
-import nl.info.client.zgw.brc.BrcClientService
-import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.model.createResultaat
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.zac.admin.model.createHumanTaskParameters
@@ -60,7 +57,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val cmmnService = mockk<CMMNService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val brcClientService = mockk<BrcClientService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val planItemConverter = mockk<RESTPlanItemConverter>()
     val zgwApiService = mockk<ZGWApiService>()
@@ -77,7 +73,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         zaakVariabelenService,
         cmmnService,
         zrcClientService,
-        brcClientService,
         zaaktypeCmmnConfigurationService,
         planItemConverter,
         zgwApiService,
@@ -369,17 +364,16 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             versturenEmail = true
         )
         every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
-        every { brcClientService.listBesluiten(zaak) } returns listOf(Besluit())
-        every { zrcClientService.readResultaat(zaak.resultaat) } returns resultaat
-        every { zrcClientService.updateResultaat(any<Resultaat>()) } returns resultaat
         every { mailService.sendMail(mailGegevens, any<Bronnen>()) } returns mailGegevens.body
+        every { cmmnService.startUserEventListenerPlanItem(any()) } just runs
 
         When("A user event to settle the zaak and send a corresponding email is planned") {
             val restMailGegevens = createRESTMailGegevens()
             val restUserEventListenerData = createRESTUserEventListenerData(
                 zaakUuid = zaak.uuid,
                 actie = UserEventListenerActie.ZAAK_AFHANDELEN,
-                restMailGegevens = restMailGegevens
+                restMailGegevens = restMailGegevens,
+                resultaattypeUuid = UUID.randomUUID()
             )
             every { restMailGegevensConverter.convert(restMailGegevens) } returns mailGegevens
 
@@ -417,8 +411,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
         every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
-        every { brcClientService.listBesluiten(zaak) } returns emptyList()
-
         every { zgwApiService.createResultaatForZaak(zaak, restUserEventListenerData.resultaattypeUuid!!, null) } just runs
         every { zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any()) } just runs
 
