@@ -28,7 +28,9 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import nl.info.client.zgw.zrc.exception.ZrcResponseExceptionMapper
+import nl.info.client.zgw.zrc.model.ZaakAfsluiten
 import nl.info.client.zgw.zrc.model.ZaakUuid
+import nl.info.client.zgw.zrc.model.generated.PatchedZaakRequest
 import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.zrc.model.generated.Status
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -160,6 +162,10 @@ interface ZrcClient {
         @PathParam("uuid") uuid: UUID,
         zaakeigenschap: ZaakEigenschap
     ): ZaakEigenschap
+
+    @POST
+    @Path("zaak_afsluiten/{uuid}")
+    fun zaakAfsluiten(@PathParam("uuid") uuid: UUID, zaakAfsluiten: ZaakAfsluiten): ZaakAfsluiten
 
     @POST
     @Path("zaken/{zaak_uuid}/zaakeigenschappen")

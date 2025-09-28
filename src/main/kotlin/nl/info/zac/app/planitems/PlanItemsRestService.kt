@@ -27,6 +27,8 @@ import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.ResultaatSubRequest
+import nl.info.client.zgw.zrc.model.StatusSubRequest
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.zac.app.planitems.converter.RESTPlanItemConverter
@@ -259,8 +261,9 @@ class PlanItemsRestService @Inject constructor(
     }
 
     private fun handleZaakAfhandelen(zaak: Zaak, userEventListenerData: RESTUserEventListenerData) {
-        zaakService.checkZaakAfsluitbaar(zaak)
+//        zaakService.checkZaakAfsluitbaar(zaak)
 
+        // TODO: this is something we do not need to check anymore, it is the responsibility of open-zaak?
         if (!brcClientService.listBesluiten(zaak).isEmpty()) {
             val resultaat = zrcClientService.readResultaat(zaak.resultaat)
             resultaat.toelichting = userEventListenerData.resultaatToelichting
@@ -269,18 +272,15 @@ class PlanItemsRestService @Inject constructor(
         }
 
         userEventListenerData.resultaattypeUuid?.let { resultaattypeUUID ->
-            zaakService.processBrondatumProcedure(
-                zaak, resultaattypeUUID,
-                BrondatumArchiefprocedure().apply {
-                    this.datumkenmerk = userEventListenerData.brondatumEigenschap
-                }
+            val resultaatType = zgwApiService.getResultaatType(resultaattypeUUID)
+            val resultaat = ResultaatSubRequest(resultaatType.url, userEventListenerData.resultaatToelichting)
+            val satusType = zgwApiService.getStatusTypeEind(zaak.zaaktype)
+            val status = StatusSubRequest(
+                statustype = satusType.url,
+                statustoelichting = userEventListenerData.resultaatToelichting
             )
 
-            zgwApiService.createResultaatForZaak(
-                zaak,
-                resultaattypeUUID,
-                userEventListenerData.resultaatToelichting
-            )
+            zgwApiService.closeZaak(zaak, resultaat, status)
         } ?: throw InputValidationFailedException(
             errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
             message = "Resultaattype UUID moet gevuld zijn bij het afhandelen van een zaak."
