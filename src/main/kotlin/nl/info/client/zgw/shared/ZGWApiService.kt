@@ -20,6 +20,9 @@ import nl.info.client.zgw.shared.exception.ResultTypeNotFoundException
 import nl.info.client.zgw.shared.exception.StatusTypeNotFoundException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.ResultaatSubRequest
+import nl.info.client.zgw.zrc.model.StatusSubRequest
+import nl.info.client.zgw.zrc.model.ZaakAfsluiten
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.zrc.model.generated.Status
@@ -92,6 +95,14 @@ class ZGWApiService @Inject constructor(
         return createStatusForZaak(zaak.url, statustype.url, statusToelichting)
     }
 
+    fun getStatusTypeEind(zaakTypeURI: URI): StatusType {
+        val statustypes = ztcClientService.readStatustypen(zaakTypeURI)
+        return readStatustypeEind(
+            statustypes = statustypes,
+            zaaktypeURI = zaakTypeURI
+        )
+    }
+
     /**
      * Create [Resultaat] for a given [Zaak] based on [ResultaatType] .omschrijving and with
      * [Resultaat].toelichting.
@@ -114,6 +125,19 @@ class ZGWApiService @Inject constructor(
         createResultaat(zaak.url, resultaattype.url, resultaatToelichting)
     }
 
+    fun getResultaat(zaakTypeURI: URI, resultaatTypeOmschrijving: String): ResultaatType {
+        val resultaattypen = ztcClientService.readResultaattypen(zaakTypeURI)
+        return filterResultaattype(
+            resultaattypen,
+            resultaatTypeOmschrijving,
+            zaakTypeURI
+        )
+    }
+
+    fun getResultaatType(resultaatTypeUUID: UUID): ResultaatType {
+        return ztcClientService.readResultaattype(resultaatTypeUUID)
+    }
+
     /**
      * Create [Resultaat] for a given [Zaak] based on [ResultaatType].UUID and with [Resultaat].toelichting.
      *
@@ -125,9 +149,9 @@ class ZGWApiService @Inject constructor(
         zaak: Zaak,
         resultaattypeUUID: UUID,
         resultaatToelichting: String?
-    ) {
+    ): Resultaat? {
         val resultaattype = ztcClientService.readResultaattype(resultaattypeUUID)
-        createResultaat(zaak.url, resultaattype.url, resultaatToelichting)
+        return createResultaat(zaak.url, resultaattype.url, resultaatToelichting)
     }
 
     /**
@@ -152,8 +176,17 @@ class ZGWApiService @Inject constructor(
      * @param eindstatusToelichting Toelichting for thew Eind [Status].
      */
     fun endZaak(zaak: Zaak, eindstatusToelichting: String) {
-        closeZaak(zaak, eindstatusToelichting)
-        berekenArchiveringsparameters(zaak.uuid)
+        // TODO: set eind resultaat & status
+        val resultaattype = getResultaat(zaak.zaaktype, "Afgehandeld")
+        val resultaat = ResultaatSubRequest(resultaattype.url, eindstatusToelichting)
+        val statusType = getStatusTypeEind(zaak.zaaktype)
+        val status = StatusSubRequest(
+            statustype = statusType.url,
+            statustoelichting = eindstatusToelichting,
+        )
+
+        closeZaak(zaak, resultaat, status)
+//        berekenArchiveringsparameters(zaak.uuid)
     }
 
     /**
@@ -168,17 +201,15 @@ class ZGWApiService @Inject constructor(
     }
 
     /**
-     * Close [Zaak]. Creating a new Eind [Status] for the [Zaak].
+     * Close [Zaak].
      *
-     * @param zaak [Zaak] to be closed
-     * @param eindstatusToelichting Toelichting for thew Eind [Status].
+     * @param zaak [Zaak] to be closed.
+     * @param resultaat [Resultaat] the resultaat of closing the [Zaak].
+     * @param status Eind [Status] of the [Zaak].
      */
-    fun closeZaak(zaak: Zaak, eindstatusToelichting: String?) {
-        val eindStatustype = readStatustypeEind(
-            ztcClientService.readStatustypen(zaak.zaaktype),
-            zaak.zaaktype
-        )
-        createStatusForZaak(zaak.url, eindStatustype.url, eindstatusToelichting)
+    fun closeZaak(zaak: Zaak, resultaat: ResultaatSubRequest, status: StatusSubRequest) {
+        val zaakAfsluiten = ZaakAfsluiten(zaak, resultaat, status)
+        zrcClientService.closeCase(zaak.uuid, zaakAfsluiten)
     }
 
     /**
