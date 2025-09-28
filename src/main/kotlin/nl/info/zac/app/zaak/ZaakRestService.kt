@@ -53,6 +53,8 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
 import nl.info.client.zgw.zrc.model.NillableHoofdzaakZaakPatch
 import nl.info.client.zgw.zrc.model.NillableRelevanteZakenZaakPatch
+import nl.info.client.zgw.zrc.model.ResultaatSubRequest
+import nl.info.client.zgw.zrc.model.StatusSubRequest
 import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
 import nl.info.client.zgw.zrc.model.generated.RelevanteZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -135,8 +137,11 @@ import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.exception.ZaakWithADecisionCannotBeTerminatedException
 import org.apache.commons.collections4.CollectionUtils
+import org.apache.james.mime4j.dom.datetime.DateTime
 import java.net.URI
+import java.time.Instant
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 @Path("zaken")
@@ -661,18 +666,21 @@ class ZaakRestService @Inject constructor(
                 }
             }
         }
-
-        // Terminate case after the zaak is ended to prevent the EndCaseLifecycleListener from ending the zaak.
+        
+        // Terminate the case after the zaak is ended to prevent the EndCaseLifecycleListener from ending the zaak.
         cmmnService.terminateCase(zaakUUID)
     }
 
     private fun terminateZaak(
         zaak: Zaak,
-        resultaattype: UUID,
+        resultaattypeUUID: UUID,
         zaakbeeindigRedenNaam: String
     ) {
-        zgwApiService.createResultaatForZaak(zaak, resultaattype, zaakbeeindigRedenNaam)
-        zgwApiService.endZaak(zaak, zaakbeeindigRedenNaam)
+        val resultaatType = zgwApiService.getResultaatType(resultaattypeUUID)
+        val resultaat = ResultaatSubRequest(resultaatType.url, zaakbeeindigRedenNaam)
+        val satusType = zgwApiService.getStatusTypeEind(zaak.zaaktype)
+        val status = StatusSubRequest(satusType.url, null, zaakbeeindigRedenNaam, satusType.url)
+        zgwApiService.closeZaak(zaak, resultaat, status)
     }
 
     @PATCH
@@ -700,25 +708,15 @@ class ZaakRestService @Inject constructor(
         afsluitenGegevens: RESTZaakAfsluitenGegevens
     ) {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak, zaakType).behandelen)
+        assertPolicy(policyService.readZaakRechten(zaak, zaakType).behandelen)
 
         zaakService.checkZaakHasLockedInformationObjects(zaak)
+        val resultaatType = zgwApiService.getResultaatType(afsluitenGegevens.resultaattypeUuid)
+        val resultaat = ResultaatSubRequest(resultaatType.url, afsluitenGegevens.reden)
+        val satusType = zgwApiService.getStatusTypeEind(zaak.zaaktype)
+        val status = StatusSubRequest(satusType.url, null, afsluitenGegevens.reden, satusType.url)
 
-        zaakService.processBrondatumProcedure(
-            zaak,
-            afsluitenGegevens.resultaattypeUuid,
-            BrondatumArchiefprocedure().apply {
-                datumkenmerk = afsluitenGegevens.brondatumEigenschap
-            }
-        )
-
-        zgwApiService.updateResultaatForZaak(
-            zaak,
-            afsluitenGegevens.resultaattypeUuid,
-            afsluitenGegevens.reden
-        )
-
-        zgwApiService.closeZaak(zaak, afsluitenGegevens.reden)
+        return zgwApiService.closeZaak(zaak, resultaat, status)
     }
 
     @PATCH
