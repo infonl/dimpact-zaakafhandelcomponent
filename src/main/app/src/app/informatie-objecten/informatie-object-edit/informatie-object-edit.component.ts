@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024-2025 INFO.nl
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -85,6 +85,7 @@ export class InformatieObjectEditComponent implements OnChanges {
     >(null, [Validators.required]),
     auteur: this.formBuilder.control<string | null>(null, [
       Validators.required,
+      Validators.maxLength(200),
     ]),
     toelichting: this.formBuilder.control<string | null>(null, [
       Validators.maxLength(1000),
@@ -103,7 +104,7 @@ export class InformatieObjectEditComponent implements OnChanges {
     this.form.controls.ontvangstdatum.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
-        if (!value && !this.form.controls.verzenddatum.disabled) {
+        if (!value && this.form.controls.verzenddatum.disabled) {
           this.form.controls.status.enable();
           this.form.controls.verzenddatum.enable();
           return;
@@ -114,7 +115,9 @@ export class InformatieObjectEditComponent implements OnChanges {
           this.form.controls.verzenddatum.disable();
           this.form.controls.status.setValue(
             this.informatieobjectStatussen.find(
-              (option) => option.value === InformatieobjectStatus.DEFINITIEF,
+              (option) =>
+                option.value.toLowerCase() ===
+                InformatieobjectStatus.DEFINITIEF,
             ) ?? null,
           );
           return;
