@@ -60,7 +60,7 @@ class IdentityServiceTest : BehaviorSpec({
     Given(
         """
             Groups in the Keycloak ZAC realm with a Keycloak role which is also configured in the 
-            zaakafhandelparameters for a given zaaktype UUID
+            zaaktypeCmmnConfiguration for a given zaaktype UUID
         """.trimIndent()
     ) {
         When("the 'list groups for a zaaktype' endpoint is called for this zaaktype") {
@@ -85,7 +85,7 @@ class IdentityServiceTest : BehaviorSpec({
     Given(
         """
             Groups in the Keycloak ZAC realm and a zaaktype UUID which is not configured in any
-            zaakafhandelparameters for a given domein role
+            zaaktypeCmmnConfiguration for a given domein role
         """.trimIndent()
     ) {
         When("the 'list groups for a zaaktype' endpoint is called for this zaaktype") {

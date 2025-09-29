@@ -149,7 +149,7 @@ export class ZaakDocumentenComponent
   }
 
   private loadInformatieObjecten(event?: ScreenEvent) {
-    if (event) {
+    if (event?.objectId.detail) {
       this.informatieObjectenService
         .readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(
           event.objectId.detail,
@@ -365,7 +365,7 @@ export class ZaakDocumentenComponent
   ) {
     return (
       Boolean(enkelvoudigInformatieobject.rechten?.wijzigen) &&
-      FileFormatUtil.isOffice(enkelvoudigInformatieobject.formaat as FileFormat)
+      FileFormatUtil.isOffice(enkelvoudigInformatieobject.formaat as FileFormat) // The backend converter supports other formats (such as .txt), but only allow office formats in the UI
     );
   }
 

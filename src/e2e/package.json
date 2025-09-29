@@ -2,7 +2,7 @@
   "name": "app",
   "version": "0.0.1",
   "engines": {
-    "node": "22.19.0",
+    "node": "22.20.0",
     "npm": "10.9.3"
   },
   "scripts": {
@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@types/node": "22.18.6",
-    "@playwright/test": "1.55.0",
+    "@playwright/test": "1.55.1",
     "cucumber-html-reporter": "7.2.0",
     "cucumber-pretty": "6.0.1",
     "ts-node": "10.9.2",

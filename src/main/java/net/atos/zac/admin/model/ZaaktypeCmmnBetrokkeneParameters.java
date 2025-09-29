@@ -19,21 +19,21 @@ import jakarta.validation.constraints.NotNull;
 import nl.info.zac.database.flyway.FlywayIntegrator;
 
 @Entity
-@Table(schema = FlywayIntegrator.SCHEMA, name = "betrokkene_koppelingen")
+@Table(schema = FlywayIntegrator.SCHEMA, name = "zaaktype_cmmn_betrokkene_parameters")
 @SequenceGenerator(
-        schema = FlywayIntegrator.SCHEMA, name = "sq_betrokkene_koppelingen", sequenceName = "sq_betrokkene_koppelingen", allocationSize = 1
+        schema = FlywayIntegrator.SCHEMA, name = "sq_zaaktype_cmmn_betrokkene_parameters", sequenceName = "sq_zaaktype_cmmn_betrokkene_parameters", allocationSize = 1
 )
-public class BetrokkeneKoppelingen {
+public class ZaaktypeCmmnBetrokkeneParameters {
 
     @Id
-    @GeneratedValue(generator = "sq_betrokkene_koppelingen", strategy = GenerationType.SEQUENCE)
-    @Column(name = "id_betrokkene_koppelingen")
+    @GeneratedValue(generator = "sq_zaaktype_cmmn_betrokkene_parameters", strategy = GenerationType.SEQUENCE)
+    @Column(name = "id")
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "id_zaakafhandelparameters", referencedColumnName = "id_zaakafhandelparameters")
+    @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
     @NotNull
-    private ZaakafhandelParameters zaakafhandelParameters;
+    private ZaaktypeCmmnConfiguration zaaktypeCmmnConfiguration;
 
     @Column(name = "brpKoppelen")
     private boolean brpKoppelen = false;
@@ -41,12 +41,12 @@ public class BetrokkeneKoppelingen {
     @Column(name = "kvkKoppelen")
     private boolean kvkKoppelen = false;
 
-    public BetrokkeneKoppelingen() {
+    public ZaaktypeCmmnBetrokkeneParameters() {
         // Default constructor
     }
 
-    public BetrokkeneKoppelingen(ZaakafhandelParameters zaakafhandelParameters, boolean brpKoppelen, boolean kvkKoppelen) {
-        this.zaakafhandelParameters = zaakafhandelParameters;
+    public ZaaktypeCmmnBetrokkeneParameters(ZaaktypeCmmnConfiguration zaaktypeCmmnConfiguration, boolean brpKoppelen, boolean kvkKoppelen) {
+        this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration;
         this.brpKoppelen = brpKoppelen;
         this.kvkKoppelen = kvkKoppelen;
     }
@@ -61,12 +61,12 @@ public class BetrokkeneKoppelingen {
         this.id = id;
     }
 
-    public ZaakafhandelParameters getZaakafhandelParameters() {
-        return zaakafhandelParameters;
+    public ZaaktypeCmmnConfiguration getZaaktypeCmmnConfiguration() {
+        return zaaktypeCmmnConfiguration;
     }
 
-    public void setZaakafhandelParameters(ZaakafhandelParameters zaakafhandelParameters) {
-        this.zaakafhandelParameters = zaakafhandelParameters;
+    public void setZaaktypeCmmnConfiguration(ZaaktypeCmmnConfiguration zaaktypeCmmnConfiguration) {
+        this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration;
     }
 
     public boolean getBrpKoppelen() {

@@ -23,18 +23,18 @@ import nl.info.zac.mailtemplates.model.MailTemplate;
 
 
 @Entity
-@Table(schema = SCHEMA, name = "mail_template_koppelingen")
-@SequenceGenerator(schema = SCHEMA, name = "sq_mail_template_koppelingen", sequenceName = "sq_mail_template_koppelingen", allocationSize = 1)
-public class MailtemplateKoppeling implements UserModifiable<MailtemplateKoppeling> {
+@Table(schema = SCHEMA, name = "zaaktype_cmmn_mailtemplate_parameters")
+@SequenceGenerator(schema = SCHEMA, name = "sq_zaaktype_cmmn_mailtemplate_parameters", sequenceName = "sq_zaaktype_cmmn_mailtemplate_parameters", allocationSize = 1)
+public class ZaaktypeCmmnMailtemplateParameters implements UserModifiable<ZaaktypeCmmnMailtemplateParameters> {
 
     @Id
-    @GeneratedValue(generator = "sq_mail_template_koppelingen", strategy = GenerationType.SEQUENCE)
-    @Column(name = "id_mail_template_koppelingen")
+    @GeneratedValue(generator = "sq_zaaktype_cmmn_mailtemplate_parameters", strategy = GenerationType.SEQUENCE)
+    @Column(name = "id")
     private Long id;
 
     @NotNull @ManyToOne
-    @JoinColumn(name = "id_zaakafhandelparameters", referencedColumnName = "id_zaakafhandelparameters")
-    private ZaakafhandelParameters zaakafhandelParameters;
+    @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
+    private ZaaktypeCmmnConfiguration zaaktypeCmmnConfiguration;
 
     @NotNull @ManyToOne
     @JoinColumn(name = "id_mail_template", referencedColumnName = "id_mail_template")
@@ -56,17 +56,17 @@ public class MailtemplateKoppeling implements UserModifiable<MailtemplateKoppeli
         this.mailTemplate = mailTemplate;
     }
 
-    public ZaakafhandelParameters getZaakafhandelParameters() {
-        return zaakafhandelParameters;
+    public ZaaktypeCmmnConfiguration getZaaktypeCmmnConfiguration() {
+        return zaaktypeCmmnConfiguration;
     }
 
-    public void setZaakafhandelParameters(final ZaakafhandelParameters zaakafhandelParameters) {
-        this.zaakafhandelParameters = zaakafhandelParameters;
+    public void setZaaktypeCmmnConfiguration(final ZaaktypeCmmnConfiguration zaaktypeCmmnConfiguration) {
+        this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof MailtemplateKoppeling that))
+        if (!(o instanceof ZaaktypeCmmnMailtemplateParameters that))
             return false;
         if (mailTemplate == null || that.mailTemplate == null)
             throw new IllegalStateException("mailTemplate is null");
@@ -81,7 +81,7 @@ public class MailtemplateKoppeling implements UserModifiable<MailtemplateKoppeli
     }
 
     @Override
-    public boolean isModifiedFrom(MailtemplateKoppeling original) {
+    public boolean isModifiedFrom(ZaaktypeCmmnMailtemplateParameters original) {
         if (mailTemplate == null || original.mailTemplate == null)
             throw new IllegalStateException("mailTemplate is null");
         return Objects.equals(mailTemplate.mail, original.mailTemplate.mail) &&
@@ -89,12 +89,12 @@ public class MailtemplateKoppeling implements UserModifiable<MailtemplateKoppeli
     }
 
     @Override
-    public void applyChanges(MailtemplateKoppeling changes) {
+    public void applyChanges(ZaaktypeCmmnMailtemplateParameters changes) {
         mailTemplate = changes.mailTemplate;
     }
 
     @Override
-    public MailtemplateKoppeling resetId() {
+    public ZaaktypeCmmnMailtemplateParameters resetId() {
         id = null;
         return this;
     }

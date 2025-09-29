@@ -5,8 +5,8 @@
 
 package nl.info.zac.app.admin.model
 
-import net.atos.zac.admin.model.BrpDoelbindingen
-import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.admin.model.ZaaktypeCmmnBrpParameters
+import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
@@ -17,7 +17,7 @@ data class RestBrpDoelbindingen(
     var raadpleegWaarde: String? = null
 )
 
-fun BrpDoelbindingen.toRestBrpDoelbindingen(): RestBrpDoelbindingen =
+fun ZaaktypeCmmnBrpParameters.toRestBrpDoelbindingen(): RestBrpDoelbindingen =
     RestBrpDoelbindingen().apply {
         id = this@toRestBrpDoelbindingen.id
         zoekWaarde = this@toRestBrpDoelbindingen.zoekWaarde
@@ -25,10 +25,10 @@ fun BrpDoelbindingen.toRestBrpDoelbindingen(): RestBrpDoelbindingen =
     }
 
 fun RestBrpDoelbindingen.toBrpDoelbindingen(
-    zaakafhandelParameters: ZaakafhandelParameters
-): BrpDoelbindingen = BrpDoelbindingen().apply {
+    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+): ZaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
     id = this@toBrpDoelbindingen.id
     zoekWaarde = this@toBrpDoelbindingen.zoekWaarde
     raadpleegWaarde = this@toBrpDoelbindingen.raadpleegWaarde
-    this.zaakafhandelParameters = zaakafhandelParameters
+    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
 }

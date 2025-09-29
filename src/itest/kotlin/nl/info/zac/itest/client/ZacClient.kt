@@ -79,7 +79,7 @@ class ZacClient {
     }
 
     @Suppress("LongMethod", "LongParameterList")
-    fun createZaakAfhandelParameters(
+    fun createZaaktypeCmmnConfiguration(
         zaakTypeIdentificatie: String,
         zaakTypeUuid: UUID,
         zaakTypeDescription: String,
@@ -91,7 +91,7 @@ class ZacClient {
         automaticEmailConfirmationReply: String = "reply@info.nl"
     ): Response {
         logger.info {
-            "Creating zaakafhandelparameters in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
+            "Creating zaaktypeCmmnConfiguration in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
                 "and UUID: $zaakTypeUuid"
         }
         return itestHttpClient.performPutRequest(

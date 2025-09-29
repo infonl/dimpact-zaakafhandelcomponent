@@ -14,13 +14,13 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.flowable.cmmn.CMMNService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ReferenceTableService
-import nl.info.zac.admin.ZaakafhandelParameterBeheerService
-import nl.info.zac.admin.model.createZaakafhandelParameters
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
+import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
@@ -33,26 +33,26 @@ import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import java.util.UUID
 
-class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
+class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val configuratieService = mockk<ConfiguratieService>()
     val cmmnService = mockk<CMMNService>()
-    val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
-    val zaakafhandelParameterBeheerService = mockk<ZaakafhandelParameterBeheerService>()
+    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
+    val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
     val referenceTableService = mockk<ReferenceTableService>()
-    val zaakafhandelParametersConverter = mockk<RestZaakafhandelParametersConverter>()
+    val zaaktypeCmmnConfigurationConverter = mockk<RestZaakafhandelParametersConverter>()
     val caseDefinitionConverter = mockk<RESTCaseDefinitionConverter>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val policyService = mockk<PolicyService>()
     val identityService = mockk<IdentityService>()
-    val zaakafhandelParametersRestService = ZaakafhandelParametersRestService(
+    val zaaktypeCmmnConfigurationRestService = ZaaktypeCmmnConfigurationRestService(
         ztcClientService = ztcClientService,
         configuratieService = configuratieService,
         cmmnService = cmmnService,
-        zaakafhandelParameterService = zaakafhandelParameterService,
-        zaakafhandelParameterBeheerService = zaakafhandelParameterBeheerService,
+        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+        zaaktypeCmmnConfigurationBeheerService = zaaktypeCmmnConfigurationBeheerService,
         referenceTableService = referenceTableService,
-        zaakafhandelParametersConverter = zaakafhandelParametersConverter,
+        zaaktypeCmmnConfigurationConverter = zaaktypeCmmnConfigurationConverter,
         caseDefinitionConverter = caseDefinitionConverter,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
         policyService = policyService,
@@ -67,33 +67,33 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         Given("no productaanvraagtype") {
             val initialDomein = "initialDomein"
             val updatedDomein = "updatedDomein"
-            val restZaakafhandelParameters = createRestZaakAfhandelParameters(domein = initialDomein)
-            val updatedRestZaakafhandelParameters = createRestZaakAfhandelParameters(domein = updatedDomein)
-            val zaakafhandelParameters = createZaakafhandelParameters(
+            val restZaakafhandelParameters = createRestZaakafhandelParameters(domein = initialDomein)
+            val updatedRestZaakafhandelParameters = createRestZaakafhandelParameters(domein = updatedDomein)
+            val zaakafhandelParameters = createZaaktypeCmmnConfiguration(
                 id = 1234L,
                 domein = initialDomein
             )
-            val updatedZaakafhandelParameters = createZaakafhandelParameters(
+            val updatedZaakafhandelParameters = createZaaktypeCmmnConfiguration(
                 id = 1234L,
                 domein = updatedDomein
             )
             every { policyService.readOverigeRechten().beheren } returns true
             every {
-                zaakafhandelParametersConverter.toZaakafhandelParameters(restZaakafhandelParameters)
+                zaaktypeCmmnConfigurationConverter.toZaaktypeCmmnConfiguration(restZaakafhandelParameters)
             } returns zaakafhandelParameters
-            every { zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters) } returns
+            every { zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaakafhandelParameters) } returns
                 updatedZaakafhandelParameters
             every {
-                zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
+                zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(zaakafhandelParameters.zaakTypeUUID)
             } just runs
-            every { zaakafhandelParameterService.clearListCache() } returns "cache cleared"
+            every { zaaktypeCmmnConfigurationService.clearListCache() } returns "cache cleared"
             every {
-                zaakafhandelParametersConverter.toRestZaakafhandelParameters(updatedZaakafhandelParameters, true)
+                zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(updatedZaakafhandelParameters, true)
             } returns updatedRestZaakafhandelParameters
 
             When("the zaakafhandelparameters are updated with a different domein") {
                 val returnedRestZaakafhandelParameters =
-                    zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
+                    zaaktypeCmmnConfigurationRestService.createOrUpdateZaaktypeCmmnConfiguration(
                         restZaakafhandelParameters
                     )
 
@@ -105,11 +105,11 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
                 ) {
                     returnedRestZaakafhandelParameters shouldBe updatedRestZaakafhandelParameters
                     verify(exactly = 1) {
-                        zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
-                        zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(
+                        zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaakafhandelParameters)
+                        zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(
                             zaakafhandelParameters.zaakTypeUUID
                         )
-                        zaakafhandelParameterService.clearListCache()
+                        zaaktypeCmmnConfigurationService.clearListCache()
                     }
                 }
             }
@@ -119,43 +119,43 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
     Context("Zaakafhandelparameters without an ID (indicating new zaakafhandelparameters)") {
         Given("productaanvraagtype that is not already in use by another zaaktype") {
             val productaanvraagtype = "fakeProductaanvraagtype"
-            val restZaakafhandelParameters = createRestZaakAfhandelParameters(
+            val restZaakafhandelParameters = createRestZaakafhandelParameters(
                 id = null,
                 productaanvraagtype = productaanvraagtype
             )
-            val zaakafhandelParameters = createZaakafhandelParameters(
+            val zaakafhandelParameters = createZaaktypeCmmnConfiguration(
                 id = null
             )
-            val createdZaakafhandelParameters = createZaakafhandelParameters(
+            val createdZaakafhandelParameters = createZaaktypeCmmnConfiguration(
                 id = 1234L
             )
-            val updatedRestZaakafhandelParameters = createRestZaakAfhandelParameters(
+            val updatedRestZaakafhandelParameters = createRestZaakafhandelParameters(
                 id = 1234L,
                 productaanvraagtype = productaanvraagtype
             )
             every { policyService.readOverigeRechten().beheren } returns true
             every {
-                zaakafhandelParametersConverter.toZaakafhandelParameters(restZaakafhandelParameters)
+                zaaktypeCmmnConfigurationConverter.toZaaktypeCmmnConfiguration(restZaakafhandelParameters)
             } returns zaakafhandelParameters
             every {
-                zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
                     productaanvraagtype
                 )
             } returns emptyList()
             every {
-                zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
+                zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaakafhandelParameters)
             } returns createdZaakafhandelParameters
             every {
-                zaakafhandelParametersConverter.toRestZaakafhandelParameters(createdZaakafhandelParameters, true)
+                zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(createdZaakafhandelParameters, true)
             } returns updatedRestZaakafhandelParameters
             every {
-                zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
+                zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(zaakafhandelParameters.zaakTypeUUID)
             } just runs
-            every { zaakafhandelParameterService.clearListCache() } returns "cache cleared"
+            every { zaaktypeCmmnConfigurationService.clearListCache() } returns "cache cleared"
 
             When("the zaakafhandelparameters are created") {
                 val returnedRestZaakafhandelParameters =
-                    zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
+                    zaaktypeCmmnConfigurationRestService.createOrUpdateZaaktypeCmmnConfiguration(
                         restZaakafhandelParameters
                     )
 
@@ -166,29 +166,29 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
                 ) {
                     returnedRestZaakafhandelParameters shouldBe updatedRestZaakafhandelParameters
                     verify(exactly = 1) {
-                        zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
+                        zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaakafhandelParameters)
                     }
                 }
             }
         }
         Given("productaanvraagtype that is already in use by another zaaktype") {
             val productaanvraagtype = "fakeProductaanvraagtype"
-            val restZaakafhandelParameters = createRestZaakAfhandelParameters(
+            val restZaakafhandelParameters = createRestZaakafhandelParameters(
                 id = null,
                 productaanvraagtype = productaanvraagtype,
                 restZaaktypeOverzicht = createRestZaaktypeOverzicht(omschrijving = "fakeZaaktypeOmschrijving2")
             )
-            val zaakafhandelParameters = createZaakafhandelParameters(
+            val zaakafhandelParameters = createZaaktypeCmmnConfiguration(
                 id = null
             )
-            val activeZaakafhandelParametersForThisProductaanvraagtype = createZaakafhandelParameters(
+            val activeZaakafhandelParametersForThisProductaanvraagtype = createZaaktypeCmmnConfiguration(
                 id = 1234L,
                 productaanvraagtype = productaanvraagtype,
                 zaaktypeOmschrijving = "fakeZaaktypeOmschrijving1"
             )
             every { policyService.readOverigeRechten().beheren } returns true
             every {
-                zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
                     productaanvraagtype
                 )
             } returns
@@ -196,7 +196,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
 
             When("the zaakafhandelparameters are created") {
                 val exception = shouldThrow<InputValidationFailedException> {
-                    zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
+                    zaaktypeCmmnConfigurationRestService.createOrUpdateZaaktypeCmmnConfiguration(
                         restZaakafhandelParameters
                     )
                 }
@@ -209,7 +209,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
                     exception.errorCode shouldBe ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
                     exception.message shouldBe null
                     verify(exactly = 0) {
-                        zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
+                        zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaakafhandelParameters)
                     }
                 }
             }
@@ -222,7 +222,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
 
         When("storing templates mapping") {
             val exception = shouldThrow<SmartDocumentsConfigurationException> {
-                zaakafhandelParametersRestService.storeSmartDocumentsTemplatesMapping(
+                zaaktypeCmmnConfigurationRestService.storeSmartDocumentsTemplatesMapping(
                     UUID.randomUUID(),
                     emptySet()
                 )
@@ -235,7 +235,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
     }
 
     Given("A behandelaar is set but the behandelaar is not part of the behandelaar group") {
-        val zaakafhandelParameters = createZaakafhandelParameters(id = null)
+        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(id = null)
         val behandelaarId = "fakeBehandelaarId"
         val behandelaarGroupId = "fakeBehandelaarGroupId"
         every { policyService.readOverigeRechten().beheren } returns true
@@ -243,13 +243,13 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
             identityService.validateIfUserIsInGroup(behandelaarId, behandelaarGroupId)
         } throws UserNotInGroupException()
 
-        When("zaakafhandelparameters are created") {
-            val restZaakafhandelParameters = createRestZaakAfhandelParameters(
+        When("zaaktypeCmmnConfiguration are created") {
+            val restZaakafhandelParameters = createRestZaakafhandelParameters(
                 defaultBehandelaarId = behandelaarId,
                 defaultGroupId = behandelaarGroupId
             )
             val exception = shouldThrow<InputValidationFailedException> {
-                zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
+                zaaktypeCmmnConfigurationRestService.createOrUpdateZaaktypeCmmnConfiguration(
                     restZaakafhandelParameters
                 )
             }
@@ -258,7 +258,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
                 exception.errorCode shouldBe ERROR_CODE_USER_NOT_IN_GROUP
                 exception.message shouldBe null
                 verify(exactly = 0) {
-                    zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
+                    zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
                 }
             }
         }

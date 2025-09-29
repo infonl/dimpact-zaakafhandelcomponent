@@ -15,9 +15,9 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.admin.model.FormulierDefinitie
-import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
 import net.atos.zac.app.mail.model.createRESTMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -33,7 +33,7 @@ import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.zac.admin.model.createHumanTaskParameters
-import nl.info.zac.admin.model.createZaakafhandelParameters
+import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.planitems.converter.RESTPlanItemConverter
 import nl.info.zac.app.planitems.model.UserEventListenerActie
 import nl.info.zac.app.planitems.model.createRESTHumanTaskData
@@ -61,7 +61,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     val cmmnService = mockk<CMMNService>()
     val zrcClientService = mockk<ZrcClientService>()
     val brcClientService = mockk<BrcClientService>()
-    val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
+    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val planItemConverter = mockk<RESTPlanItemConverter>()
     val zgwApiService = mockk<ZGWApiService>()
     val indexingService = mockk<IndexingService>()
@@ -78,7 +78,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         cmmnService,
         zrcClientService,
         brcClientService,
-        zaakafhandelParameterService,
+        zaaktypeCmmnConfigurationService,
         planItemConverter,
         zgwApiService,
         indexingService,
@@ -94,7 +94,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     val planItemInstanceId = "fakePlanItemInstanceId"
     val planItemInstance = mockk<PlanItemInstance>()
     val zaakTypeUUID = UUID.randomUUID()
-    val zaakafhandelParameters = createZaakafhandelParameters(
+    val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
         zaaktypeUUID = zaakTypeUUID
     )
 
@@ -116,7 +116,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
         every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
+        every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
         every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
         every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
         every {
@@ -174,7 +174,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
-        every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
+        every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
         every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
         every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
         every {
@@ -221,7 +221,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
-        every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
+        every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
         every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
 
         When("A human task plan item is started") {
@@ -245,18 +245,18 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         val zaak = createZaak(
             zaakTypeURI = URI("http://example.com/$zaakTypeUUID")
         )
-        val zaakafhandelParametersMock = mockk<ZaakafhandelParameters>()
+        val zaaktypeCmmnConfigurationMock = mockk<ZaaktypeCmmnConfiguration>()
 
         every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
         every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
         every {
-            zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
-        } returns zaakafhandelParametersMock
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+        } returns zaaktypeCmmnConfigurationMock
         every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
         every {
-            zaakafhandelParametersMock.findHumanTaskParameter(planItemInstanceId)
+            zaaktypeCmmnConfigurationMock.findHumanTaskParameter(planItemInstanceId)
         } returns Optional.of(
             createHumanTaskParameters().apply {
                 doorlooptijd = 10
@@ -305,18 +305,18 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             zaakTypeURI = URI("http://example.com/$zaakTypeUUID"),
             uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(numberOfDays)
         )
-        val zaakafhandelParametersMock = mockk<ZaakafhandelParameters>()
+        val zaaktypeCmmnConfigurationMock = mockk<ZaaktypeCmmnConfiguration>()
 
         every { cmmnService.readOpenPlanItem(additionalInfoPlanItemInstanceId) } returns planItemInstance
         every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
         every {
-            zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
-        } returns zaakafhandelParametersMock
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+        } returns zaaktypeCmmnConfigurationMock
         every { planItemInstance.planItemDefinitionId } returns additionalInfoPlanItemInstanceId
         every {
-            zaakafhandelParametersMock.findHumanTaskParameter(additionalInfoPlanItemInstanceId)
+            zaaktypeCmmnConfigurationMock.findHumanTaskParameter(additionalInfoPlanItemInstanceId)
         } returns Optional.of(
             createHumanTaskParameters().apply {
                 doorlooptijd = 10

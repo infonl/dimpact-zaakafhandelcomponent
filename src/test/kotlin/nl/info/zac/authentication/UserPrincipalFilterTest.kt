@@ -20,15 +20,15 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpSession
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.model.generated.ApplicationRoleModel
 import nl.info.client.pabc.model.generated.EntityTypeModel
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponseModel
-import nl.info.zac.admin.model.createZaakafhandelParameters
-import nl.info.zac.flowable.bpmn.ZaaktypeBpmnProcessDefinitionService
-import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
+import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
+import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.identity.model.getFullName
 import org.wildfly.security.http.oidc.AccessToken
 import org.wildfly.security.http.oidc.OidcPrincipal
@@ -36,8 +36,8 @@ import org.wildfly.security.http.oidc.OidcSecurityContext
 import java.time.ZonedDateTime
 
 class UserPrincipalFilterTest : BehaviorSpec({
-    val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
-    val zaaktypeBpmnProcessDefinitionService = mockk<ZaaktypeBpmnProcessDefinitionService>()
+    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
+    val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
     val pabcClientService = mockk<PabcClientService>()
 
     val httpServletRequest = mockk<HttpServletRequest>()
@@ -80,8 +80,8 @@ class UserPrincipalFilterTest : BehaviorSpec({
 
     Context("PABC integration is enabled") {
         val userPrincipalFilter = UserPrincipalFilter(
-            zaakafhandelParameterService = zaakafhandelParameterService,
-            zaaktypeBpmnProcessDefinitionService = zaaktypeBpmnProcessDefinitionService,
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            zaaktypeBpmnConfigurationService = zaaktypeBpmnConfigurationService,
             pabcClientService = pabcClientService,
             pabcIntegrationEnabled = true
         )
@@ -145,9 +145,9 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 pabcClientService.getApplicationRoles(roles)
             } returns pabcRolesResponse(zaaktypeName, *pabcRoleNames.toTypedArray())
             every {
-                zaakafhandelParameterService.listZaakafhandelParameters()
-            } returns listOf(createZaakafhandelParameters())
-            every { zaaktypeBpmnProcessDefinitionService.listBpmnProcessDefinitions() } returns emptyList()
+                zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration()
+            } returns listOf(createZaaktypeCmmnConfiguration())
+            every { zaaktypeBpmnConfigurationService.listBpmnProcessDefinitions() } returns emptyList()
 
             When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -170,7 +170,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             """
             No logged-in user is present in the HTTP session and an OIDC security context is present with a token that 
             contains user information including a role for a domain which is also present in one of the currently 
-            active zaakafhandelparameters
+            active zaaktypeCmmnConfiguration
         """
         ) {
             val userName = "fakeUserName"
@@ -187,19 +187,19 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 "beheerder",
                 domein1
             )
-            val zaakafhandelParameters = listOf(
-                createZaakafhandelParameters(
+            val zaaktypeCmmnConfigurations = listOf(
+                createZaaktypeCmmnConfiguration(
                     domein = domein1,
                     zaaktypeOmschrijving = "fakeZaaktypeOmschrijving1"
                 ),
-                // zaakafhandelparameters for an old version of zaaktype2
-                createZaakafhandelParameters(
+                // zaaktypeCmmnConfiguration for an old version of zaaktype2
+                createZaaktypeCmmnConfiguration(
                     creationDate = ZonedDateTime.now().minusDays(1),
                     domein = domein1,
                     zaaktypeOmschrijving = "fakeZaaktypeOmschrijving2"
                 ),
-                // zaakafhandelparameters for the current version of zaaktype2
-                createZaakafhandelParameters(
+                // zaaktypeCmmnConfiguration for the current version of zaaktype2
+                createZaaktypeCmmnConfiguration(
                     creationDate = ZonedDateTime.now(),
                     domein = "fakeDomein2",
                     zaaktypeOmschrijving = "fakeZaaktypeOmschrijving2"
@@ -223,16 +223,16 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every { accessToken.name } returns fullName
             every { accessToken.email } returns email
             every { accessToken.getStringListClaimValue("group_membership") } returns groups
-            every { zaakafhandelParameterService.listZaakafhandelParameters() } returns zaakafhandelParameters
+            every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns zaaktypeCmmnConfigurations
             every { httpSession.setAttribute(any(), any()) } just runs
             every {
                 pabcClientService.getApplicationRoles(any())
             } returns pabcRolesResponse("fakeZaaktypeOmschrijving1", *pabcRoleNames.toTypedArray())
             every {
-                zaaktypeBpmnProcessDefinitionService.listBpmnProcessDefinitions()
+                zaaktypeBpmnConfigurationService.listBpmnProcessDefinitions()
             } returns listOf(
-                createZaaktypeBpmnProcessDefinition(zaaktypeOmschrijving = "bpmn1"),
-                createZaaktypeBpmnProcessDefinition(zaaktypeOmschrijving = "bpmn2")
+                createZaaktypeBpmnConfiguration(zaaktypeOmschrijving = "bpmn1"),
+                createZaaktypeBpmnConfiguration(zaaktypeOmschrijving = "bpmn2")
             )
 
             When("doFilter is called") {
@@ -241,7 +241,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 Then(
                     """
                     the user is retrieved from security context and is added to the HTTP session and the user should have 
-                    access to only that zaaktype for which zaakafhandelparameters are defined with the same domain as
+                    access to only that zaaktype for which zaaktypeCmmnConfiguration are defined with the same domain as
                     is present in the user's roles
                 """
                 ) {
@@ -333,8 +333,8 @@ class UserPrincipalFilterTest : BehaviorSpec({
 
     Context("PABC integration is disabled") {
         val userPrincipalFilter = UserPrincipalFilter(
-            zaakafhandelParameterService = zaakafhandelParameterService,
-            zaaktypeBpmnProcessDefinitionService = zaaktypeBpmnProcessDefinitionService,
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            zaaktypeBpmnConfigurationService = zaaktypeBpmnConfigurationService,
             pabcClientService = pabcClientService,
             pabcIntegrationEnabled = false
         )

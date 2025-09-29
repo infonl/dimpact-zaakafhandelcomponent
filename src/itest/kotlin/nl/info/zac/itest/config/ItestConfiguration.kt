@@ -42,6 +42,7 @@ object ItestConfiguration {
     const val BETROKKENE_TYPE_NATUURLIJK_PERSOON = "NATUURLIJK_PERSOON"
     const val BETROKKENE_IDENTIFICATION_TYPE_BSN = "BSN"
     const val BETROKKENE_IDENTIFACTION_TYPE_VESTIGING = "VN"
+    const val BETROKKENE_IDENTIFACTION_TYPE_KVK = "RSIN"
     const val BETROKKENE_ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
     const val BRON_ORGANISATIE = "123443210"
     const val CONFIG_MAX_FILE_SIZE_IN_MB = 80L
@@ -68,8 +69,11 @@ object ItestConfiguration {
     const val OBJECT_PRODUCTAANVRAAG_1_UUID = "9dbed186-89ca-48d7-8c6c-f9995ceb8e27"
     const val OBJECT_PRODUCTAANVRAAG_2_UUID = "f1f6f670-fda8-4e98-81a6-6528937f10ee"
     const val OBJECT_PRODUCTAANVRAAG_BPMN_UUID = "fb6b2c0e-f745-4725-ae27-2317f0cfbfc4"
+    const val OBJECT_PRODUCTAANVRAAG_VESTIGINGS_ONLY_UUID = "0403f494-7804-4b6a-a2a7-41fdcc8ad5fc"
+    const val OBJECT_PRODUCTAANVRAAG_COMBO_UUID = "225da1ce-f528-4a2c-b87d-c8c58fd2aca1"
     const val OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK = "f8534f13-0669-4d4d-a364-6b6c4ad3d243"
     const val OBJECT_PRODUCTAANVRAAG_BPMN_BRON_KENMERK = "c7e9e087-853d-4b16-9750-fddd7c0b9b0d"
+    const val OBJECT_PRODUCTAANVRAAG_COMBO_BRON_KENMERK = "kvk-vestiging-combo-12345678-000012345678"
     const val OBJECTS_BASE_URI = "http://objecten-api.local:8000"
     const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT = "021f685e-9482-4620-b157-34cd4003da6b"
     const val OFFICE_CONVERTER_BASE_URI = "http://office-converter:8080"
@@ -130,10 +134,10 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_SEARCH = 10
     const val TEST_SPEC_ORDER_AFTER_KOPPELEN = 11
 
-    const val TOTAL_COUNT_INDEXED_ZAKEN = 12
-    const val TOTAL_COUNT_INDEXED_ZAKEN_AFGEROND = 2
+    const val TOTAL_COUNT_INDEXED_ZAKEN = 14
+    const val TOTAL_COUNT_INDEXED_ZAKEN_AFGEROND = 4
     const val TOTAL_COUNT_INDEXED_TASKS = 4
-    const val TOTAL_COUNT_INDEXED_DOCUMENTS = 11
+    const val TOTAL_COUNT_INDEXED_DOCUMENTS = 14
 
     /**
      * Test person that exists in both the BRP and the Klanten API databases
@@ -154,6 +158,7 @@ object ItestConfiguration {
     const val TEST_TXT_CONVERTED_TO_PDF_FILE_NAME = "tëstTextDocument.pdf"
     const val TEST_TXT_FILE_SIZE = 62
     const val TEST_VESTIGING_EMAIL = "fake.vestiging@example.com"
+    const val TEST_KVK_EMAIL = "fake.kvk@example.com"
     const val TEST_VESTIGING_TELEPHONE_NUMBER = "0201234567"
     const val TEST_WORD_FILE_NAME = "fakeWordDocument.docx"
     const val TEST_USER_1_USERNAME = "testuser1"
@@ -262,6 +267,7 @@ object ItestConfiguration {
     val DOCUMENT_2_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000002"
     val DOCUMENT_3_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000003"
     val DOCUMENT_4_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000004"
+    val DOCUMENT_5_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000005"
 
     /**
      * Constants used in the KVK WireMock template response
@@ -342,6 +348,16 @@ object ItestConfiguration {
 
     const val ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION = "ZAAK-1998-0000000001"
     const val ZAAK_PRODUCTAANVRAAG_BPMN_UITERLIJKE_EINDDATUM_AFDOENING = "1998-01-31"
+
+    /**
+     * Invalid zaak that should not be created due to only vestigingsNummer (no kvkNummer).
+     */
+    const val ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION = "ZAAK-1997-0000000001"
+
+    /**
+     * Zaak created from productaanvraag with both kvkNummer and vestigingsNummer.
+     */
+    const val ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION = "ZAAK-1996-0000000001"
 
     const val ZAAK_MANUAL_2000_03_IDENTIFICATION = "ZAAK-2000-0000000003"
     const val ZAAK_MANUAL_2020_01_IDENTIFICATION = "ZAAK-2020-0000000001"
@@ -488,6 +504,18 @@ object ItestConfiguration {
      * from a productaanvraag.
      */
     lateinit var zaakProductaanvraag3Uuid: UUID
+
+    /**
+     * Global variable to store the UUID of an invalid zaak that should not be created
+     * from a productaanvraag with only vestigingsNummer.
+     */
+    lateinit var zaakProductaanvraagInvalidUuid: UUID
+
+    /**
+     * Global variable to store the UUID of a zaak created from a productaanvraag
+     * with both kvkNummer and vestigingsNummer.
+     */
+    lateinit var zaakProductaanvraagComboUuid: UUID
 
     /**
      * Global variable to store the UUID of an uploaded file in the integration tests.

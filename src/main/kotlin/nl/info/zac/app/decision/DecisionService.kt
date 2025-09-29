@@ -57,11 +57,6 @@ class DecisionService @Inject constructor(
         )
 
         val besluitToCreate = restDecisionConverter.convertToBesluit(zaak, besluitToevoegenGegevens)
-        zaak.resultaat?.let {
-            zgwApiService.updateResultaatForZaak(zaak, besluitToevoegenGegevens.resultaattypeUuid, null)
-        } ?: run {
-            zgwApiService.createResultaatForZaak(zaak, besluitToevoegenGegevens.resultaattypeUuid, null)
-        }
 
         return brcClientService.createBesluit(besluitToCreate).also {
             createDecisionInformationObjects(besluitToevoegenGegevens, it)

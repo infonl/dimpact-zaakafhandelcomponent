@@ -15,6 +15,7 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration
+import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_KVK
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_GEMEENTE_NAAM
@@ -26,6 +27,9 @@ import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_BPMN_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_BPMN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_COMBO_BRON_KENMERK
+import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_COMBO_UUID
+import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_VESTIGINGS_ONLY_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_2_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
@@ -34,11 +38,12 @@ import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAAK_ROLLEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_EMAIL_ADDRESS
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_EMAIL
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_INITIALIZATION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_VESTIGING_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
@@ -49,11 +54,14 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_UITERL
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_BPMN_UITERLIJKE_EINDDATUM_AFDOENING
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Betrokkene1Uuid
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag2Uuid
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag3Uuid
+import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraagComboUuid
 import nl.info.zac.itest.config.dockerComposeContainer
 import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
@@ -75,6 +83,7 @@ import kotlin.time.toJavaDuration
  * and therefore we run this test right after initialization.
  */
 @Order(TEST_SPEC_ORDER_AFTER_INITIALIZATION)
+@Suppress("LargeClass")
 class NotificationsTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
@@ -98,7 +107,7 @@ class NotificationsTest : BehaviorSpec({
     Given(
         """"
             ZAC and all related Docker containers are running, a productaanvraag object exists in Objecten with 
-            a productaanvraag type, zaakafhandelparameters are defined in ZAC configured with the same productaanvraag type
+            a productaanvraag type, zaaktypeCmmnConfiguration are defined in ZAC configured with the same productaanvraag type
             and with 'automatic acknowledgement of receipt' (ontvangstbevestiging) enabled,
             and the related productaanvraag PDF exists in Open Zaak
         """.trimIndent()
@@ -152,7 +161,7 @@ class NotificationsTest : BehaviorSpec({
                         getJSONObject("status").getString("naam") shouldBe "Intake"
                         getJSONObject("groep").getString("id") shouldBe "test-group-a"
                         // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
-                        // since we have defined zaakafhandelparameters for this zaaktype a CMMN proces should be started
+                        // since we have defined zaaktypeCmmnConfiguration for this zaaktype a CMMN proces should be started
                         getBoolean("isProcesGestuurd") shouldBe false
                         getString("communicatiekanaal") shouldBe "E-formulier"
                         getString("omschrijving") shouldBe ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
@@ -315,7 +324,7 @@ class NotificationsTest : BehaviorSpec({
         When(
             """
                 the notificaties endpoint is called with a second 'create productaanvraag' payload with authentication header
-                 and without zaakgegevens and with an initiator of type 'vestigingsnummer'
+                 and without zaakgegevens and with an initiator of type 'kvkNummer'
             """.trimIndent()
         ) {
             val response = itestHttpClient.performJSONPostRequest(
@@ -361,14 +370,14 @@ class NotificationsTest : BehaviorSpec({
                         getJSONObject("status").getString("naam") shouldBe "Intake"
                         getJSONObject("groep").getString("id") shouldBe "test-group-a"
                         // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
-                        // since we have defined zaakafhandelparameters for this zaaktype a CMMN proces should be started
+                        // since we have defined zaaktypeCmmnConfiguration for this zaaktype a CMMN proces should be started
                         getBoolean("isProcesGestuurd") shouldBe false
                         getString("communicatiekanaal") shouldBe "E-formulier"
                         getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
                             "met kenmerk '$OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_2_BRON_KENMERK'."
                         with(getJSONObject("initiatorIdentificatie")) {
-                            getString("vestigingsnummer") shouldBe TEST_KVK_VESTIGINGSNUMMER_1
-                            getString("type") shouldBe BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
+                            getString("kvkNummer") shouldBe TEST_KVK_NUMMER_1
+                            getString("type") shouldBe BETROKKENE_IDENTIFACTION_TYPE_KVK
                         }
                         zaakProductaanvraag2Uuid = getString("uuid").let(UUID::fromString)
                     }
@@ -376,7 +385,7 @@ class NotificationsTest : BehaviorSpec({
             }
             And("an automated email is sent") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
-                    url = "$GREENMAIL_API_URI/user/$TEST_VESTIGING_EMAIL/messages/"
+                    url = "$GREENMAIL_API_URI/user/$TEST_KVK_EMAIL/messages/"
                 )
                 receivedMailsResponse.code shouldBe HTTP_OK
 
@@ -397,6 +406,151 @@ class NotificationsTest : BehaviorSpec({
             }
         }
     }
+
+    Given(
+        """"ZAC and all related Docker containers are running, productaanvraag object exists in Objecten API
+                    with both kvkNummer and vestigingsNummer"""
+    ) {
+        When(
+            """
+                the notificaties endpoint is called with a 'create productaanvraag' payload with authentication header
+                 and with an initiator of type 'kvkNummer' and 'vestigingsNummer'
+            """.trimIndent()
+        ) {
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/notificaties",
+                headers = Headers.headersOf(
+                    "Content-Type",
+                    "application/json",
+                    "Authorization",
+                    OPEN_NOTIFICATIONS_API_SECRET_KEY
+                ),
+                requestBodyAsString = JSONObject(
+                    mapOf(
+                        "kanaal" to "objecten",
+                        "resource" to "object",
+                        "resourceUrl" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_COMBO_UUID",
+                        "hoofdObject" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_COMBO_UUID",
+                        "actie" to "create",
+                        "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
+                        "kenmerken" to mapOf(
+                            "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
+                        )
+                    )
+                ).toString(),
+                addAuthorizationHeader = false
+            )
+            Then(
+                """the response should be 'no content', a zaak should be created in OpenZaak
+                        and a zaak productaanvraag proces should be started in ZAC with both kvkNummer and vestigingsNummer"""
+            ) {
+                response.code shouldBe HTTP_NO_CONTENT
+
+                // retrieve the newly created zaak and check the contents
+                itestHttpClient.performGetRequest(
+                    "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION"
+                ).use { getZaakResponse ->
+                    val responseBody = getZaakResponse.body.string()
+                    logger.info { "Response: $responseBody" }
+                    with(JSONObject(responseBody)) {
+                        getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION
+                        getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID.toString()
+                        getJSONObject("status").getString("naam") shouldBe "Intake"
+                        getJSONObject("groep").getString("id") shouldBe "test-group-a"
+                        getBoolean("isProcesGestuurd") shouldBe false
+                        getString("communicatiekanaal") shouldBe "E-formulier"
+                        getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
+                            "met kenmerk '$OBJECT_PRODUCTAANVRAAG_COMBO_BRON_KENMERK'."
+                        with(getJSONObject("initiatorIdentificatie")) {
+                            getString("kvkNummer") shouldBe TEST_KVK_NUMMER_1
+                            getString("vestigingsnummer") shouldBe TEST_KVK_VESTIGINGSNUMMER_1
+                            getString("type") shouldBe BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
+                        }
+                        zaakProductaanvraagComboUuid = getString("uuid").let(UUID::fromString)
+                    }
+                }
+            }
+        }
+
+        When("the get betrokkene endpoint is called for the combo zaak created from the productaanvraag") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraagComboUuid/betrokkene",
+            )
+            Then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
+                response.code shouldBe HTTP_OK
+                val responseBody = response.body.string()
+                logger.info { "Response: $responseBody" }
+                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                    [ {
+                      "identificatie" : "999991838",
+                      "roltoelichting" : "Overgenomen vanuit de product aanvraag",
+                      "roltype" : "Medeaanvrager",
+                      "type" : "NATUURLIJK_PERSOON"
+                    } ]
+                """.trimIndent()
+            }
+        }
+    }
+
+    Given(
+        """"ZAC and all related Docker containers are running, productaanvraag object exists in Objecten API
+                    with only vestigingsNummer (invalid scenario)"""
+    ) {
+        When(
+            """
+                the notificaties endpoint is called with a 'create productaanvraag' payload with authentication header
+                 and with an initiator of type 'vestigingsNummer' only (should be invalid)
+            """.trimIndent()
+        ) {
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/notificaties",
+                headers = Headers.headersOf(
+                    "Content-Type",
+                    "application/json",
+                    "Authorization",
+                    OPEN_NOTIFICATIONS_API_SECRET_KEY
+                ),
+                requestBodyAsString = JSONObject(
+                    mapOf(
+                        "kanaal" to "objecten",
+                        "resource" to "object",
+                        "resourceUrl" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_VESTIGINGS_ONLY_UUID",
+                        "hoofdObject" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_VESTIGINGS_ONLY_UUID",
+                        "actie" to "create",
+                        "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
+                        "kenmerken" to mapOf(
+                            "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
+                        )
+                    )
+                ).toString(),
+                addAuthorizationHeader = false
+            )
+
+            val getZaakResponse = itestHttpClient.performGetRequest(
+                "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION"
+            )
+
+            Then(
+                """the zaak should still be created in OpenZaak
+                        even though only vestigingsNummer without kvkNummer is invalid"""
+            ) {
+                response.code shouldBe HTTP_NO_CONTENT
+
+                // The zaak should not exist, so we expect a 404 or similar error
+                getZaakResponse.code shouldBe HTTP_OK
+            }
+
+            And("No initiator should be set") {
+                val responseBody = getZaakResponse.body.string()
+                logger.info { "Response: $responseBody" }
+                with(JSONObject(responseBody)) {
+                    getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION
+                    has("initiatorIdentificatie") shouldBe false
+                }
+            }
+        }
+    }
+
     Given(
         """"ZAC and all related Docker containers are running"""
     ) {

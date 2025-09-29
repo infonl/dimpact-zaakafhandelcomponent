@@ -22,23 +22,23 @@ import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 
 import net.atos.client.zgw.shared.cache.Caching;
-import net.atos.zac.admin.model.ZaakafhandelParameters;
-import nl.info.zac.admin.ZaakafhandelParameterBeheerService;
+import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration;
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService;
 
 @ApplicationScoped
-public class ZaakafhandelParameterService implements Caching {
-    private static final Logger LOG = Logger.getLogger(ZaakafhandelParameterService.class.getName());
+public class ZaaktypeCmmnConfigurationService implements Caching {
+    private static final Logger LOG = Logger.getLogger(ZaaktypeCmmnConfigurationService.class.getName());
     private static final int MAX_CACHE_SIZE = 20;
     private static final int EXPIRATION_TIME_HOURS = 1;
 
     /**
-     * Hardcoded zaakbeeindigreden that we don't manage via ZaakafhandelParameters
+     * Hardcoded zaakbeeindigreden that we don't manage via ZaaktypeCmmnConfiguration
      */
     public static final String INADMISSIBLE_TERMINATION_ID = "ZAAK_NIET_ONTVANKELIJK";
     public static final String INADMISSIBLE_TERMINATION_REASON = "Zaak is niet ontvankelijk";
 
     @Inject
-    private ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService;
+    private ZaaktypeCmmnConfigurationBeheerService zaaktypeCmmnConfigurationBeheerService;
 
     private static final Map<String, Cache<?, ?>> CACHES = new HashMap<>();
 
@@ -57,40 +57,41 @@ public class ZaakafhandelParameterService implements Caching {
         return cache;
     }
 
-    private final Cache<UUID, ZaakafhandelParameters> uuidToZaakafhandelParametersCache = createCache("UUID -> ZaakafhandelParameters");
-    private final Cache<String, List<ZaakafhandelParameters>> stringToZaakafhandelParametersListCache = createCache(
-            "List<ZaakafhandelParameters>");
+    private final Cache<UUID, ZaaktypeCmmnConfiguration> uuidToZaaktypeCmmnConfigurationCache = createCache(
+            "UUID -> ZaaktypeCmmnConfiguration");
+    private final Cache<String, List<ZaaktypeCmmnConfiguration>> stringToZaaktypeCmmnConfigurationListCache = createCache(
+            "List<ZaaktypeCmmnConfiguration>");
 
-    public ZaakafhandelParameters readZaakafhandelParameters(final UUID zaaktypeUUID) {
-        return uuidToZaakafhandelParametersCache.get(
+    public ZaaktypeCmmnConfiguration readZaaktypeCmmnConfiguration(final UUID zaaktypeUUID) {
+        return uuidToZaaktypeCmmnConfigurationCache.get(
                 zaaktypeUUID,
-                uuid -> zaakafhandelParameterBeheerService.readZaakafhandelParameters(zaaktypeUUID)
+                uuid -> zaaktypeCmmnConfigurationBeheerService.fetchZaaktypeCmmnConfiguration(zaaktypeUUID)
         );
     }
 
-    public List<ZaakafhandelParameters> listZaakafhandelParameters() {
-        return stringToZaakafhandelParametersListCache.get(
-                ZAC_ZAAKAFHANDELPARAMETERS,
-                s -> zaakafhandelParameterBeheerService.listZaakafhandelParameters()
+    public List<ZaaktypeCmmnConfiguration> listZaaktypeCmmnConfiguration() {
+        return stringToZaaktypeCmmnConfigurationListCache.get(
+                ZAC_ZAAKTYPECMMNCONFIGURATION,
+                s -> zaaktypeCmmnConfigurationBeheerService.listZaaktypeCmmnConfiguration()
         );
     }
 
     public boolean isSmartDocumentsEnabled(final UUID zaaktypeUUID) {
-        return readZaakafhandelParameters(zaaktypeUUID).isSmartDocumentsIngeschakeld();
+        return readZaaktypeCmmnConfiguration(zaaktypeUUID).isSmartDocumentsIngeschakeld();
     }
 
-    public void cacheRemoveZaakafhandelParameters(final UUID zaaktypeUUID) {
-        uuidToZaakafhandelParametersCache.invalidate(zaaktypeUUID);
+    public void cacheRemoveZaaktypeCmmnConfiguration(final UUID zaaktypeUUID) {
+        uuidToZaaktypeCmmnConfigurationCache.invalidate(zaaktypeUUID);
     }
 
     public String clearManagedCache() {
-        uuidToZaakafhandelParametersCache.invalidateAll();
-        return cleared(Caching.ZAC_ZAAKAFHANDELPARAMETERS_MANAGED);
+        uuidToZaaktypeCmmnConfigurationCache.invalidateAll();
+        return cleared(Caching.ZAC_ZAAKTYPECMMNCONFIGURATION_MANAGED);
     }
 
     public String clearListCache() {
-        stringToZaakafhandelParametersListCache.invalidateAll();
-        return cleared(Caching.ZAC_ZAAKAFHANDELPARAMETERS);
+        stringToZaaktypeCmmnConfigurationListCache.invalidateAll();
+        return cleared(Caching.ZAC_ZAAKTYPECMMNCONFIGURATION);
     }
 
     @Override

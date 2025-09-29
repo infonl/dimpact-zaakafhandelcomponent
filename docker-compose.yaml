@@ -22,15 +22,11 @@ services:
       - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
 
   keycloak:
-    image: quay.io/keycloak/keycloak:25.0.6@sha256:82c5b7a110456dbd42b86ea572e728878549954cc8bd03cd65410d75328095d2
+    image: quay.io/keycloak/keycloak:26.3.5@sha256:357829ec7c4693397533035092ad13b0644bcc95ded311f33a3738c4d9e9bdba
     depends_on:
       keycloak-database:
         condition: service_healthy
     ports:
-      # Workaround to avoid the 'We are sorry... HTTPS required' error when trying to access the Keycloak master
-      # realm on macOS (with Docker Desktop).
-      # See: https://github.com/keycloak/keycloak/issues/30112
-      # This issue may be solved in a future Docker Desktop for the Mac version.
       - "127.0.0.1:8081:8080"
       - "9001:9000"
     healthcheck:
@@ -42,15 +38,18 @@ services:
       timeout: 10s
       retries: 10
     environment:
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
       - KC_HEALTH_ENABLED=true
+      - KC_HOSTNAME=http://localhost:8081
       - KC_HTTP_ENABLED=true
-      - DB_VENDOR=postgres
-      - DB_ADDR=keycloak-database
-      - DB_USER=keycloak
-      - DB_NAME=keycloak
-      - DB_PASSWORD=keycloak
+      - KC_HOSTNAME_BACKCHANNEL_DYNAMIC=true
+      - KC_DB=postgres
+      - KC_DB_URL_HOST=keycloak-database
+      - KC_DB_URL_DATABASE=keycloak
+      - KC_DB_USERNAME=keycloak
+      - KC_DB_PASSWORD=keycloak
+      - KC_IMPORT=/opt/keycloak/data/import/zaakafhandelcomponent-realm.json
       - ZAC_TESTUSER1_EMAIL_ADDRESS=${DOCKER_COMPOSE_TEST_USER_1_EMAIL_ADDRESS:-testuser1@example.com}
       - ZAC_TESTUSER2_EMAIL_ADDRESS=${DOCKER_COMPOSE_TEST_USER_2_EMAIL_ADDRESS:-testuser2@example.com}
       - ZAC_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS:-testuserdomaintest1@example.com}
@@ -74,8 +73,6 @@ services:
     command:
       - "start-dev"
       - "--import-realm"
-      - "--features=hostname:v1"
-      - "--hostname-url=http://localhost:8081"
 
   openzaak-database:
     image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
@@ -368,7 +365,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.135.0@sha256:6d260efde7406a1f7d731a5d9663cb6ce25fa634f3ef3ef4a69266aaae1680fd
+    image: docker.io/otel/opentelemetry-collector:0.136.0@sha256:98fd3b410ae8a939be9588f1580c4b7c3da6ebba49f5363df4259a827aabb779
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -411,7 +408,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: docker.io/grafana/grafana:12.1.1@sha256:a1701c2180249361737a99a01bc770db39381640e4d631825d38ff4535efa47d
+    image: docker.io/grafana/grafana:12.2.0@sha256:74144189b38447facf737dfd0f3906e42e0776212bf575dc3334c3609183adf7
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -434,7 +431,7 @@ services:
     profiles: [ "metrics" ]
 
   greenmail:
-    image: docker.io/greenmail/standalone:2.1.5@sha256:8a2024725c7b1ce8f720644bccb6f237781992a8cbf283023446eb7d29326ad0
+    image: docker.io/greenmail/standalone:2.1.6@sha256:f7ab2b32f1678d19e591eb478c16f542275434be1fcd6d731402fa1d2185c6cf
     environment:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0

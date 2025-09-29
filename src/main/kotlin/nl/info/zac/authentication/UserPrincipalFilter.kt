@@ -13,11 +13,11 @@ import jakarta.servlet.ServletResponse
 import jakarta.servlet.annotation.WebFilter
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpSession
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.exception.PabcRuntimeException
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
-import nl.info.zac.flowable.bpmn.ZaaktypeBpmnProcessDefinitionService
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.identity.model.ZACRole
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -38,8 +38,8 @@ const val REFRESH_TOKEN_ATTRIBUTE = "refresh_token"
 class UserPrincipalFilter
 @Inject
 constructor(
-    private val zaakafhandelParameterService: ZaakafhandelParameterService,
-    private val zaaktypeBpmnProcessDefinitionService: ZaaktypeBpmnProcessDefinitionService,
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,
     private val pabcClientService: PabcClientService,
     @ConfigProperty(name = "FEATURE_FLAG_PABC_INTEGRATION", defaultValue = "false")
     private val pabcIntegrationEnabled: Boolean
@@ -174,17 +174,17 @@ constructor(
         if (roles.contains(ZACRole.DOMEIN_ELK_ZAAKTYPE.value)) {
             null
         } else {
-            val zaakafhandelParameterDescriptions = zaakafhandelParameterService
-                .listZaakafhandelParameters()
+            val zaaktypeCmmnConfigurationDescriptions = zaaktypeCmmnConfigurationService
+                .listZaaktypeCmmnConfiguration()
                 // group by zaaktype omschrijving since this is the unique identifier for a
                 // zaaktype
                 // (not the zaaktype uuid since that changes for every version of a
                 // zaaktype)
                 .groupBy { it.zaaktypeOmschrijving }
-                // get the zaakafhandelparameter with the latest creation date (= the active
+                // get the zaaktypeCmmnConfigurations with the latest creation date (= the active
                 // one)
                 .map { it.value.maxBy { value -> value.creatiedatum } }
-                // filter out the zaakafhandelparameters that have a domain that is equal to
+                // filter out the zaaktypeCmmnConfigurations that have a domain that is equal to
                 // one of the user's (domain) roles
                 .filter { it.domein != null && roles.contains(it.domein) }
                 .map { it.zaaktypeOmschrijving }
@@ -194,10 +194,10 @@ constructor(
             // entity. This means that ALL BPMN zaaktypes will be visible to the user.
             // This function should be removed once we have migrated to the new PABC-based IAM architecture, and the
             // code below should be replaced with proper authorisation logic for BPMN zaaktypes.
-            val zaaktypeBpmnProcessDefinitionDescriptions = zaaktypeBpmnProcessDefinitionService
+            val zaaktypeBpmnProcessDefinitionDescriptions = zaaktypeBpmnConfigurationService
                 .listBpmnProcessDefinitions()
                 .map { it.zaaktypeOmschrijving }
 
-            zaakafhandelParameterDescriptions + zaaktypeBpmnProcessDefinitionDescriptions
+            zaaktypeCmmnConfigurationDescriptions + zaaktypeBpmnProcessDefinitionDescriptions
         }
 }
