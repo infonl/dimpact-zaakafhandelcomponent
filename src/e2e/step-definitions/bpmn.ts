@@ -171,8 +171,8 @@ When(
     await this.page
       .getByRole("searchbox", { name: "Select one or more documents" })
       .fill("");
-    await this.page.getByLabel("Test form").getByText("file A").click();
-    await this.page.getByLabel("Test form").getByText("file B").click();
+    await this.page.getByLabel("Test form").getByText("file A", { exact: true }).click();
+    await this.page.getByLabel("Test form").getByText("file B", { exact: true }).click();
     await this.page.getByLabel("Communication channel").selectOption("E-mail");
     await this.page.getByLabel("Select result").click();
     await this.page.getByLabel("Select result").selectOption("Verleend");
