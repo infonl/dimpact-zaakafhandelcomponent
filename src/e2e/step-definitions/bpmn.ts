@@ -37,7 +37,7 @@ Then(
       this.page.getByRole("button", { name: "Create" }),
     ).toBeVisible();
     await expect(
-      this.page.getByRole("textbox", { name: "Select one or more documents" }),
+      this.page.getByRole('searchbox', { name: 'Select one or more documents' })
     ).toBeVisible();
     await expect(this.page.getByLabel("Communication channel")).toBeVisible();
   },
@@ -169,7 +169,7 @@ When(
     await this.page.getByLabel("User").click();
     await this.page.getByLabel("User").selectOption("functioneelbeheerder2");
     await this.page
-      .getByRole("textbox", { name: "Select one or more documents" })
+      .getByRole("searchbox", { name: "Select one or more documents" })
       .fill("");
     await this.page.getByLabel("Test form").getByText("file A").click();
     await this.page.getByLabel("Test form").getByText("file B").click();
