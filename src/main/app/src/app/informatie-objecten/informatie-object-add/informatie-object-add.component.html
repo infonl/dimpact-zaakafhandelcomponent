@@ -5,23 +5,81 @@
 
 <mat-toolbar role="heading" class="gap-16">
   <mat-icon>upload_file</mat-icon>
-  <span class="flex-grow-1">{{ "actie.document.toevoegen" | translate }}</span>
+  <h3 class="flex-grow-1">{{ "actie.document.toevoegen" | translate }}</h3>
   <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<div class="form">
-  <!-- we use a for loop here to mount a completely new form here when there is a new iteration -->
-  @for (iteration of formIterations$ | async; track $index) {
-    @if (iteration === (activeIteration$ | async)) {
-      <mfb-form
-        *ngIf="fields$ | async"
-        (formSubmit)="onFormSubmit($event)"
-        [formFields]="fields$ | async"
-        [config]="formConfig"
-      ></mfb-form>
-    }
-  }
-</div>
+<form [formGroup]="form" (submit)="submit()" class="mt-2">
+  <fieldset>
+    <section class="row">
+      <zac-file
+        class="col-12"
+        [form]="form"
+        key="bestand"
+        label="bestandsnaam"
+      />
+      <zac-input class="col-12" [form]="form" key="titel" />
+      <zac-input class="col-12" [form]="form" key="beschrijving" />
+      <zac-select
+        class="col-12 col-md-6"
+        [form]="form"
+        key="informatieobjectType"
+        [options]="informatieObjectTypes"
+        optionDisplayValue="omschrijving"
+      />
+      <zac-select
+        class="col-12 col-md-6"
+        [form]="form"
+        key="vertrouwelijkheidaanduiding"
+        [options]="vertrouwelijkheidsAanduidingen"
+        optionDisplayValue="label"
+      />
+      <zac-select
+        class="col-12 col-md-6"
+        [form]="form"
+        key="status"
+        [options]="informatieobjectStatussen"
+        optionDisplayValue="label"
+      />
+      <zac-date class="col-12 col-md-6" [form]="form" key="creatiedatum" />
+      <zac-input class="col-12 col-md-6" [form]="form" key="auteur" />
+      <zac-select
+        class="col-12 col-md-6"
+        [form]="form"
+        key="taal"
+        [options]="talen"
+        optionDisplayValue="naam"
+      />
+      <zac-date class="col-12 col-md-6" [form]="form" key="ontvangstdatum">
+        <mat-hint>{{
+          "msg.document.ontvangstdatum.hint" | translate
+        }}</mat-hint>
+      </zac-date>
+      <zac-date class="col-12 col-md-6" [form]="form" key="verzenddatum" />
+      <zac-checkbox
+        class="col-12 col-md-6"
+        [form]="form"
+        key="addOtherInfoObject"
+        label="actie.document.toevoegen.nogmaals"
+      ></zac-checkbox>
+    </section>
+  </fieldset>
+  <fieldset>
+    <mat-action-row>
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="!form.valid"
+      >
+        {{ "actie.toevoegen" | translate }}
+      </button>
+      <button mat-button type="reset" (click)="resetAndClose()">
+        {{ "actie.annuleren" | translate }}
+      </button>
+    </mat-action-row>
+  </fieldset>
+</form>
