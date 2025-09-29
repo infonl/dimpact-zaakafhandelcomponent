@@ -361,18 +361,20 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             restMailGegevens = restMailGegevens,
             resultaattypeUuid = UUID.randomUUID(),
         )
+        restUserEventListenerData.planItemInstanceId = planItemInstanceId
 
-        // Mocking dependencies
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
             startenTaak = true,
             versturenEmail = true
         )
         every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
-        every { zaakService.processBrondatumProcedure(any(), any(), any()) } just runs
-//        every { cmmnService.startUserEventListenerPlanItem(any()) } just runs
+        every {
+            zaakService.processBrondatumProcedure(any(), any(), any())
+        } just runs
+        every { cmmnService.startUserEventListenerPlanItem(any()) } just runs
         every { zgwApiService.createResultaatForZaak(zaak, restUserEventListenerData.resultaattypeUuid!!, null) } just runs
-        every { restMailGegevensConverter.convert(any()) } returns mailGegevens
+        every { restMailGegevensConverter.convert(restMailGegevens) } returns mailGegevens
         every { mailService.sendMail(mailGegevens, any()) } returns ""
 
         When("A user event to settle the zaak and send a corresponding email is planned") {
