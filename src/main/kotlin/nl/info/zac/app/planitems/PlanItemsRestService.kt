@@ -274,15 +274,7 @@ class PlanItemsRestService @Inject constructor(
         }
 
         userEventListenerData.resultaattypeUuid?.let { resultaattypeUUID ->
-            val resultaatType = zgwApiService.getResultaatType(resultaattypeUUID)
-            val resultaat = ResultaatSubRequest(resultaatType.url, userEventListenerData.resultaatToelichting)
-            val satusType = zgwApiService.getStatusTypeEind(zaak.zaaktype)
-            val status = StatusSubRequest(
-                statustype = satusType.url,
-                statustoelichting = userEventListenerData.resultaatToelichting
-            )
-
-            zgwApiService.closeZaak(zaak, resultaat, status)
+            zgwApiService.closeZaak(zaak, resultaattypeUUID, userEventListenerData.resultaatToelichting)
         } ?: throw InputValidationFailedException(
             errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
             message = "Resultaattype UUID moet gevuld zijn bij het afhandelen van een zaak."
