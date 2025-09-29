@@ -696,11 +696,7 @@ class ZaakRestService @Inject constructor(
         resultaattypeUUID: UUID,
         zaakbeeindigRedenNaam: String
     ) {
-        val resultaatType = zgwApiService.getResultaatType(resultaattypeUUID)
-        val resultaat = ResultaatSubRequest(resultaatType.url, zaakbeeindigRedenNaam)
-        val satusType = zgwApiService.getStatusTypeEind(zaak.zaaktype)
-        val status = StatusSubRequest(satusType.url, null, zaakbeeindigRedenNaam, satusType.url)
-        zgwApiService.closeZaak(zaak, resultaat, status)
+        zgwApiService.closeZaak(zaak, resultaattypeUUID, zaakbeeindigRedenNaam)
     }
 
     @PATCH
@@ -730,12 +726,7 @@ class ZaakRestService @Inject constructor(
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak, zaakType).behandelen)
 
-        val resultaatType = zgwApiService.getResultaatType(afsluitenGegevens.resultaattypeUuid)
-        val resultaat = ResultaatSubRequest(resultaatType.url, afsluitenGegevens.reden)
-        val satusType = zgwApiService.getStatusTypeEind(zaak.zaaktype)
-        val status = StatusSubRequest(satusType.url, null, afsluitenGegevens.reden, satusType.url)
-
-        return zgwApiService.closeZaak(zaak, resultaat, status)
+        return zgwApiService.closeZaak(zaak, afsluitenGegevens.resultaattypeUuid, afsluitenGegevens.reden)
     }
 
     @PATCH
