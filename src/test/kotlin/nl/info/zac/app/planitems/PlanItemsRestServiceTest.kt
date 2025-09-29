@@ -23,7 +23,6 @@ import net.atos.zac.app.mail.model.createRESTMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.util.time.DateTimeConverterUtil
-import nl.info.client.zgw.model.createResultaat
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -38,7 +37,6 @@ import nl.info.zac.app.planitems.model.createRESTUserEventListenerData
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.mail.MailService
-import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.MailTemplateService
 import nl.info.zac.mailtemplates.model.createMailGegevens
 import nl.info.zac.policy.PolicyService
@@ -355,33 +353,34 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         val zaak = createZaak(
             resultaat = URI("https://example.com/resultaat/${UUID.randomUUID()}"),
         )
-
         val mailGegevens = createMailGegevens()
-        val resultaat = createResultaat()
+        val restMailGegevens = createRESTMailGegevens()
+        val restUserEventListenerData = createRESTUserEventListenerData(
+            zaakUuid = zaak.uuid,
+            actie = UserEventListenerActie.ZAAK_AFHANDELEN,
+            restMailGegevens = restMailGegevens,
+            resultaattypeUuid = UUID.randomUUID(),
+        )
+
+        // Mocking dependencies
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
             startenTaak = true,
             versturenEmail = true
         )
         every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
-        every { mailService.sendMail(mailGegevens, any<Bronnen>()) } returns mailGegevens.body
-        every { cmmnService.startUserEventListenerPlanItem(any()) } just runs
+        every { zaakService.processBrondatumProcedure(any(), any(), any()) } just runs
+//        every { cmmnService.startUserEventListenerPlanItem(any()) } just runs
+        every { zgwApiService.createResultaatForZaak(zaak, restUserEventListenerData.resultaattypeUuid!!, null) } just runs
+        every { restMailGegevensConverter.convert(any()) } returns mailGegevens
+        every { mailService.sendMail(mailGegevens, any()) } returns ""
 
         When("A user event to settle the zaak and send a corresponding email is planned") {
-            val restMailGegevens = createRESTMailGegevens()
-            val restUserEventListenerData = createRESTUserEventListenerData(
-                zaakUuid = zaak.uuid,
-                actie = UserEventListenerActie.ZAAK_AFHANDELEN,
-                restMailGegevens = restMailGegevens,
-                resultaattypeUuid = UUID.randomUUID()
-            )
-            every { restMailGegevensConverter.convert(restMailGegevens) } returns mailGegevens
-
             planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
 
             Then("the zaak is settled and the email is sent") {
                 verify(exactly = 1) {
-                    mailService.sendMail(mailGegevens, any<Bronnen>())
+                    mailService.sendMail(mailGegevens, any())
                 }
             }
         }
@@ -393,7 +392,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         )
         val resultaattypeUuid = UUID.randomUUID()
         val datumkenmerk = "testDatumkenmerk"
-        val brondatumEigenschap = "20231201" // YYYYMMDD format
+        val brondatumEigenschap = "20231201"
 
         val brondatumArchiefprocedure = BrondatumArchiefprocedure().apply {
             afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP
