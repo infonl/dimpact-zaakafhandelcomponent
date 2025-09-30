@@ -445,7 +445,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
         every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
-        every { brcClientService.listBesluiten(zaak) } returns emptyList()
         every { zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any()) } just runs
         every { zgwApiService.createResultaatForZaak(zaak, resultaattypeUuid, null) } just runs
 
