@@ -175,9 +175,8 @@ class ZGWApiService @Inject constructor(
      * @param zaak [Zaak]
      * @param eindstatusToelichting Toelichting for the Eind [Status].
      */
-    fun endZaak(zaak: Zaak, eindstatusToelichting: String) {
-        // TODO: determine the correct eind resultaat based on the zaaktype, this should get passed from the flowable handler
-        val resultaattype = getResultaat(zaak.zaaktype, eindstatusToelichting)
+    fun endZaak(zaak: Zaak, resultaatTypeOmschrijving: String, eindstatusToelichting: String) {
+        val resultaattype = getResultaat(zaak.zaaktype, resultaatTypeOmschrijving)
 
         closeZaak(zaak, resultaattype.url.extractUuid(), eindstatusToelichting)
     }
@@ -188,9 +187,9 @@ class ZGWApiService @Inject constructor(
      * @param zaakUUID UUID of the [Zaak]
      * @param eindstatusToelichting Toelichting for the Eind [Status].
      */
-    fun endZaak(zaakUUID: UUID, eindstatusToelichting: String) {
+    fun endZaak(zaakUUID: UUID, resultaatTypeOmschrijving: String, eindstatusToelichting: String) {
         val zaak = zrcClientService.readZaak(zaakUUID)
-        endZaak(zaak, eindstatusToelichting)
+        endZaak(zaak, resultaatTypeOmschrijving, eindstatusToelichting)
     }
 
     /**

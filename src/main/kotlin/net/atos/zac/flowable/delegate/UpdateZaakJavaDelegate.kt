@@ -32,7 +32,7 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
                 "Zaak '${zaak.getUuid()}': Aanmaken Status met resultaattype omschrijving " +
                     "'$resultaattypeOmschrijving'"
             )
-            flowableHelper.zgwApiService.createResultaatForZaak(zaak, resultaattypeOmschrijving, TOELICHTING)
+//            flowableHelper.zgwApiService.endZaak(zaak, resultaattypeOmschrijving, TOELICHTING)
         }
 
         val statustypeOmschrijving = statustypeOmschrijving.resolveValueAsString(execution)
