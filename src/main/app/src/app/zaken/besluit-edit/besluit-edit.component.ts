@@ -25,7 +25,6 @@ import { DateFormField } from "../../shared/material-form-builder/form-component
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
@@ -59,15 +58,6 @@ export class BesluitEditComponent implements OnDestroy, OnInit {
   ) {}
 
   ngOnInit() {
-    const resultaattypeField = new SelectFormFieldBuilder(
-      this.zaak.resultaat?.resultaattype,
-    )
-      .id("resultaattype")
-      .label("resultaat")
-      .optionLabel("naam")
-      .validators(Validators.required)
-      .options(this.zakenService.listResultaattypes(this.zaak.zaaktype.uuid))
-      .build();
     const besluittypeField = new InputFormFieldBuilder(
       this.besluit.besluittype?.naam,
     )
@@ -134,7 +124,6 @@ export class BesluitEditComponent implements OnDestroy, OnInit {
       .build();
 
     this.fields = [
-      [resultaattypeField],
       [besluittypeField],
       [ingangsdatumField],
       [vervaldatumField],
@@ -152,16 +141,6 @@ export class BesluitEditComponent implements OnDestroy, OnInit {
       [redenField],
     ];
 
-    resultaattypeField.formControl.valueChanges
-      .pipe(takeUntil(this.ngDestroy))
-      .subscribe((value) => {
-        if (value) {
-          vervaldatumField.required = Boolean(
-            (value as GeneratedType<"RestResultaattype">)
-              .vervaldatumBesluitVerplicht,
-          );
-        }
-      });
     ingangsdatumField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
@@ -208,10 +187,6 @@ export class BesluitEditComponent implements OnDestroy, OnInit {
     }
     const gegevens: GeneratedType<"RestDecisionChangeData"> = {
       besluitUuid: this.besluit.uuid,
-      resultaattypeUuid: (
-        formGroup.controls["resultaattype"]
-          .value as GeneratedType<"RestResultaattype">
-      ).id,
       toelichting: formGroup.controls["toelichting"].value,
       ingangsdatum: formGroup.controls["ingangsdatum"].value,
       vervaldatum: formGroup.controls["vervaldatum"].value,
