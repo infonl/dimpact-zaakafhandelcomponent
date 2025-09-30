@@ -16,8 +16,6 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.admin.model.FormulierDefinitie
-import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration
-import net.atos.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -29,6 +27,8 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import nl.info.zac.app.planitems.converter.RESTPlanItemConverter
 import nl.info.zac.app.planitems.model.RESTHumanTaskData
 import nl.info.zac.app.planitems.model.RESTPlanItem
@@ -164,9 +164,9 @@ class PlanItemsRestService @Inject constructor(
         if (humanTaskData.taakStuurGegevens.sendMail && humanTaskData.taakStuurGegevens.mail != null) {
             val mail = Mail.valueOf(humanTaskData.taakStuurGegevens.mail as String)
 
-            val mailTemplate = zaaktypeCmmnConfiguration.mailtemplateKoppelingen
-                .map { it.mailTemplate }
-                .firstOrNull { it.mail == mail }
+            val mailTemplate = zaaktypeCmmnConfiguration.getMailtemplateKoppelingen()
+                ?.map { it.mailTemplate }
+                ?.firstOrNull { it?.mail == mail }
                 ?: mailTemplateService.readMailtemplate(mail)
 
             val afzender = configuratieService.readGemeenteNaam()
@@ -253,7 +253,7 @@ class PlanItemsRestService @Inject constructor(
         )
         zgwApiService.createResultaatForZaak(
             zaak,
-            zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype,
+            zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!,
             userEventListenerData.resultaatToelichting
         )
     }
@@ -313,7 +313,7 @@ class PlanItemsRestService @Inject constructor(
     ): LocalDate? {
         if (zaaktypeCmmnHumantaskParameters.isPresent && zaaktypeCmmnHumantaskParameters.get().doorlooptijd != null) {
             var calculatedFinalDate = LocalDate.now().plusDays(
-                zaaktypeCmmnHumantaskParameters.get().doorlooptijd.toLong()
+                zaaktypeCmmnHumantaskParameters.get().doorlooptijd!!.toLong()
             )
             if (calculatedFinalDate.isAfter(zaakFatalDate)) {
                 calculatedFinalDate = zaakFatalDate

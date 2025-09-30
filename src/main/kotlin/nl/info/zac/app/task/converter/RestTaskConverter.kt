@@ -6,7 +6,6 @@ package nl.info.zac.app.task.converter
 
 import jakarta.inject.Inject
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import net.atos.zac.app.formulieren.converter.toRESTFormulierDefinitie
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskData
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
@@ -18,6 +17,7 @@ import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeUUID
 import net.atos.zac.flowable.util.TaskUtil
 import net.atos.zac.formulieren.FormulierDefinitieService
 import net.atos.zac.util.time.DateTimeConverterUtil
+import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.policy.model.toRestTaakRechten
@@ -121,8 +121,8 @@ class RestTaskConverter @Inject constructor(
         taskDefinitionKey: String
     ) {
         zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID)
-            .humanTaskParametersCollection
-            .first { taskDefinitionKey == it.planItemDefinitionID }?.let {
+            .getHumanTaskParametersCollection()
+            .first { taskDefinitionKey == it.planItemDefinitionID }.let {
                 verwerkZaakafhandelParameters(restTask, it)
             }
     }
@@ -131,8 +131,8 @@ class RestTaskConverter @Inject constructor(
         restTask: RestTask,
         zaaktypeCmmnHumantaskParameters: ZaaktypeCmmnHumantaskParameters
     ) {
-        restTask.formulierDefinitieId = zaaktypeCmmnHumantaskParameters.formulierDefinitieID
-        zaaktypeCmmnHumantaskParameters.referentieTabellen.forEach { humanTaskReferentieTabel ->
+        restTask.formulierDefinitieId = zaaktypeCmmnHumantaskParameters.getFormulierDefinitieID()
+        zaaktypeCmmnHumantaskParameters.getReferentieTabellen().forEach { humanTaskReferentieTabel ->
             restTask.tabellen[humanTaskReferentieTabel.veld] = humanTaskReferentieTabel.tabel.values
                 .map { it.name }
         }

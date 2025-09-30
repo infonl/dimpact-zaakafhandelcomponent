@@ -27,13 +27,13 @@ import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import jakarta.persistence.criteria.Subquery
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.admin.model.ZaaktypeCmmnBetrokkeneParameters
-import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.exception.ZaaktypeInUseException
+import nl.info.zac.admin.model.ZaaktypeCmmnBetrokkeneParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
@@ -95,7 +95,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
 
         When("the zaaktypeCmmnConfiguration are retrieved based on the zaaktypeUUID") {
             val returnedZaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationBeheerService.fetchZaaktypeCmmnConfiguration(
-                zaaktypeCmmnConfiguration.zaakTypeUUID
+                zaaktypeCmmnConfiguration.zaakTypeUUID!!
             )
 
             Then("the zaaktypeCmmnConfiguration should be returned") {
@@ -269,7 +269,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
             zaaktypeCmmnConfiguration = originalZaaktypeCmmnConfiguration
         }
 
-        originalZaaktypeCmmnConfiguration.betrokkeneParameters = betrokkeneKoppelingen
+        originalZaaktypeCmmnConfiguration.zaaktypeCmmnBetrokkeneParameters = betrokkeneKoppelingen
 
         val slotPersistZaaktypeCmmnConfiguration = slot<ZaaktypeCmmnConfiguration>()
 
@@ -343,31 +343,31 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                     afrondenMail shouldBe originalZaaktypeCmmnConfiguration.afrondenMail
                     productaanvraagtype shouldBe originalZaaktypeCmmnConfiguration.productaanvraagtype
                     domein shouldBe originalZaaktypeCmmnConfiguration.domein
-                    isSmartDocumentsIngeschakeld shouldBe originalZaaktypeCmmnConfiguration.isSmartDocumentsIngeschakeld
+                    smartDocumentsIngeschakeld shouldBe originalZaaktypeCmmnConfiguration.smartDocumentsIngeschakeld
                 }
             }
 
             And("The human task parameters should have been cloned") {
-                slotPersistZaaktypeCmmnConfiguration.captured.humanTaskParametersCollection.let {
-                    it shouldBeSameSizeAs originalZaaktypeCmmnConfiguration.humanTaskParametersCollection
-                    it zip originalZaaktypeCmmnConfiguration.humanTaskParametersCollection
+                slotPersistZaaktypeCmmnConfiguration.captured.getHumanTaskParametersCollection().let {
+                    it shouldBeSameSizeAs originalZaaktypeCmmnConfiguration.getHumanTaskParametersCollection()
+                    it zip originalZaaktypeCmmnConfiguration.getHumanTaskParametersCollection()
                 }.forEach { (new, original) ->
                     new.id shouldNotBe original.id
                     new.zaaktypeCmmnConfiguration shouldNotBe original.zaaktypeCmmnConfiguration
                     new.zaaktypeCmmnConfiguration shouldBe slotPersistZaaktypeCmmnConfiguration.captured
                     new.groepID shouldNotBe original.groepID
-                    new.isActief shouldBe original.isActief
+                    new.actief shouldBe original.actief
                     new.doorlooptijd shouldBe original.doorlooptijd
-                    new.formulierDefinitieID shouldBe original.formulierDefinitieID
+                    new.getFormulierDefinitieID() shouldBe original.getFormulierDefinitieID()
                     new.doorlooptijd shouldBe original.doorlooptijd
                     new.planItemDefinitionID shouldBe original.planItemDefinitionID
                 }
             }
 
             And("The user event listener parameters should get copied") {
-                slotPersistZaaktypeCmmnConfiguration.captured.userEventListenerParametersCollection.let {
-                    it shouldBeSameSizeAs originalZaaktypeCmmnConfiguration.userEventListenerParametersCollection
-                    it zip originalZaaktypeCmmnConfiguration.userEventListenerParametersCollection
+                slotPersistZaaktypeCmmnConfiguration.captured.getUserEventListenerParametersCollection().let {
+                    it shouldBeSameSizeAs originalZaaktypeCmmnConfiguration.getUserEventListenerParametersCollection()
+                    it zip originalZaaktypeCmmnConfiguration.getUserEventListenerParametersCollection()
                 }.forEach { (new, original) ->
                     new.id shouldNotBe original.id
                     new.zaaktypeCmmnConfiguration shouldNotBe original.zaaktypeCmmnConfiguration
@@ -378,9 +378,9 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
             }
 
             And("The zaakbeindiggegevens should get copied") {
-                slotPersistZaaktypeCmmnConfiguration.captured.zaakbeeindigParameters.let {
-                    it shouldBeSameSizeAs originalZaaktypeCmmnConfiguration.zaakbeeindigParameters
-                    it zip originalZaaktypeCmmnConfiguration.zaakbeeindigParameters
+                slotPersistZaaktypeCmmnConfiguration.captured.getZaakbeeindigParameters().let {
+                    it shouldBeSameSizeAs originalZaaktypeCmmnConfiguration.getZaakbeeindigParameters()
+                    it zip originalZaaktypeCmmnConfiguration.getZaakbeeindigParameters()
                 }.forEach { (new, original) ->
                     new.id shouldNotBe original.id
                     new.zaaktypeCmmnConfiguration shouldNotBe original.zaaktypeCmmnConfiguration
@@ -391,9 +391,9 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
             }
 
             And("The mailtemplate koppelingen should get copied") {
-                slotPersistZaaktypeCmmnConfiguration.captured.mailtemplateKoppelingen.let {
-                    it shouldBeSameSizeAs originalZaaktypeCmmnConfiguration.mailtemplateKoppelingen
-                    it zip originalZaaktypeCmmnConfiguration.mailtemplateKoppelingen
+                slotPersistZaaktypeCmmnConfiguration.captured.getMailtemplateKoppelingen().let {
+                    it shouldBeSameSizeAs originalZaaktypeCmmnConfiguration.getMailtemplateKoppelingen()
+                    it zip originalZaaktypeCmmnConfiguration.getMailtemplateKoppelingen()
                 }.forEach { (new, original) ->
                     new.id shouldBe null
                     new.zaaktypeCmmnConfiguration shouldNotBe original.zaaktypeCmmnConfiguration
@@ -403,30 +403,30 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
             }
 
             And("The afzenders should get copied") {
-                slotPersistZaaktypeCmmnConfiguration.captured.zaakAfzenders.let {
-                    it shouldBeSameSizeAs originalZaaktypeCmmnConfiguration.zaakAfzenders
-                    it zip originalZaaktypeCmmnConfiguration.zaakAfzenders
+                slotPersistZaaktypeCmmnConfiguration.captured.getZaakAfzenders().let {
+                    it shouldBeSameSizeAs originalZaaktypeCmmnConfiguration.getZaakAfzenders()
+                    it zip originalZaaktypeCmmnConfiguration.getZaakAfzenders()
                 }.forEach { (new, original) ->
                     new.id shouldBe null
                     new.zaaktypeCmmnConfiguration shouldNotBe original.zaaktypeCmmnConfiguration
                     new.zaaktypeCmmnConfiguration shouldBe slotPersistZaaktypeCmmnConfiguration.captured
-                    new.isDefault shouldBe original.isDefault
+                    new.defaultMail shouldBe original.defaultMail
                     new.mail shouldBe original.mail
                     new.replyTo shouldBe original.replyTo
                 }
             }
 
             And("The betrokkene koppelingen should get copied") {
-                slotPersistZaaktypeCmmnConfiguration.captured.betrokkeneParameters.let {
-                    it.brpKoppelen shouldBe originalZaaktypeCmmnConfiguration.betrokkeneParameters.brpKoppelen
-                    it.kvkKoppelen shouldBe originalZaaktypeCmmnConfiguration.betrokkeneParameters.kvkKoppelen
+                slotPersistZaaktypeCmmnConfiguration.captured.getBetrokkeneParameters().let {
+                    it.brpKoppelen shouldBe originalZaaktypeCmmnConfiguration.getBetrokkeneParameters().brpKoppelen
+                    it.kvkKoppelen shouldBe originalZaaktypeCmmnConfiguration.getBetrokkeneParameters().kvkKoppelen
                 }
             }
 
             And("The BRP doeleinden should get copied") {
-                slotPersistZaaktypeCmmnConfiguration.captured.brpDoelbindingen.let {
-                    it.zoekWaarde shouldBe originalZaaktypeCmmnConfiguration.brpDoelbindingen.zoekWaarde
-                    it.raadpleegWaarde shouldBe originalZaaktypeCmmnConfiguration.brpDoelbindingen.raadpleegWaarde
+                slotPersistZaaktypeCmmnConfiguration.captured.getBrpDoelbindingen().let {
+                    it.zoekWaarde shouldBe originalZaaktypeCmmnConfiguration.getBrpDoelbindingen().zoekWaarde
+                    it.raadpleegWaarde shouldBe originalZaaktypeCmmnConfiguration.getBrpDoelbindingen().raadpleegWaarde
                 }
             }
 
@@ -443,11 +443,11 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
             }
 
             And("The automatic email confirmation should be copied") {
-                slotPersistZaaktypeCmmnConfiguration.captured.automaticEmailConfirmation.let {
-                    it.enabled shouldBe originalZaaktypeCmmnConfiguration.automaticEmailConfirmation?.enabled
-                    it.templateName shouldBe originalZaaktypeCmmnConfiguration.automaticEmailConfirmation?.templateName
-                    it.emailSender shouldBe originalZaaktypeCmmnConfiguration.automaticEmailConfirmation?.emailSender
-                    it.emailReply shouldBe originalZaaktypeCmmnConfiguration.automaticEmailConfirmation?.emailReply
+                slotPersistZaaktypeCmmnConfiguration.captured.zaaktypeCmmnEmailParameters.let {
+                    it?.enabled shouldBe originalZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.enabled
+                    it?.templateName shouldBe originalZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName
+                    it?.emailSender shouldBe originalZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailSender
+                    it?.emailReply shouldBe originalZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailReply
                 }
             }
         }
@@ -456,7 +456,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
     Given("A zaaktype with existing BPMN process mapping") {
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
         every {
-            zaaktypeBpmnConfigurationService.findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeCmmnConfiguration.zaakTypeUUID)
+            zaaktypeBpmnConfigurationService.findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeCmmnConfiguration.zaakTypeUUID!!)
         } returns createZaaktypeBpmnConfiguration()
 
         When("create a zaaktypeCmmnConfiguration is attempted") {

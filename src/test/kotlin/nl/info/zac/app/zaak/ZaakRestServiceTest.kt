@@ -33,8 +33,6 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService.INADMISSIBLE_TERMINATION_ID
-import net.atos.zac.admin.model.ZaakbeeindigReden
-import net.atos.zac.admin.model.ZaaktypeCmmnCompletionParameters
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.documenten.model.OntkoppeldDocument
 import net.atos.zac.event.EventingService
@@ -70,6 +68,8 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import nl.info.zac.admin.model.ZaakbeeindigReden
+import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
 import nl.info.zac.admin.model.createZaakAfzender
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
@@ -1510,7 +1510,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zgwApiService.createResultaatForZaak(
                     zaak,
-                    zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype,
+                    zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!,
                     "Zaak is niet ontvankelijk"
                 )
             } just runs
@@ -1527,7 +1527,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         zgwApiService.createResultaatForZaak(
                             zaak,
-                            zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype,
+                            zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!,
                             "Zaak is niet ontvankelijk"
                         )
                         zgwApiService.endZaak(zaak, "Zaak is niet ontvankelijk")
@@ -1996,7 +1996,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaakTypeURI = URI("https://example.com/zaaktypes/$zaakTypeUUID")
             )
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID)
-            val zaakAfzenders = zaaktypeCmmnConfiguration.zaakAfzenders +
+            val zaakAfzenders = zaaktypeCmmnConfiguration.getZaakAfzenders().plus(
                 createZaakAfzender(
                     id = 2L,
                     zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
@@ -2004,6 +2004,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     mail = "GEMEENTE",
                     replyTo = "MEDEWERKER"
                 )
+            )
             zaaktypeCmmnConfiguration.setZaakAfzenders(zaakAfzenders)
             every { zrcClientService.readZaak(zaakUUID) } returns zaak
             every {

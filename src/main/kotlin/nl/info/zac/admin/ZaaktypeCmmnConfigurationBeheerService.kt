@@ -9,20 +9,6 @@ import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.admin.model.ZaakbeeindigReden
-import net.atos.zac.admin.model.ZaaktypeCmmnBetrokkeneParameters
-import net.atos.zac.admin.model.ZaaktypeCmmnBrpParameters
-import net.atos.zac.admin.model.ZaaktypeCmmnCompletionParameters
-import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration
-import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration.CREATIEDATUM
-import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration.PRODUCTAANVRAAGTYYPE
-import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration.ZAAKTYPE_OMSCHRIJVING
-import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration.ZAAKTYPE_UUID
-import net.atos.zac.admin.model.ZaaktypeCmmnEmailParameters
-import net.atos.zac.admin.model.ZaaktypeCmmnHumantaskParameters
-import net.atos.zac.admin.model.ZaaktypeCmmnMailtemplateParameters
-import net.atos.zac.admin.model.ZaaktypeCmmnUsereventlistenerParameters
-import net.atos.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
 import net.atos.zac.util.ValidationUtil
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -30,6 +16,20 @@ import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.exception.ZaaktypeInUseException
+import nl.info.zac.admin.model.ZaakbeeindigReden
+import nl.info.zac.admin.model.ZaaktypeCmmnBetrokkeneParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnBrpParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration.Companion.CREATIEDATUM
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration.Companion.PRODUCTAANVRAAGTYYPE
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration.Companion.ZAAKTYPE_UUID
+import nl.info.zac.admin.model.ZaaktypeCmmnEmailParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnMailtemplateParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnUsereventlistenerParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -38,6 +38,7 @@ import java.time.ZonedDateTime
 import java.util.Date
 import java.util.UUID
 import java.util.logging.Logger
+import kotlin.apply
 
 @ApplicationScoped
 @Transactional
@@ -95,7 +96,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
     fun storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration): ZaaktypeCmmnConfiguration {
         ValidationUtil.valideerObject(zaaktypeCmmnConfiguration)
         zaaktypeBpmnConfigurationService.findZaaktypeProcessDefinitionByZaaktypeUuid(
-            zaaktypeCmmnConfiguration.zaakTypeUUID
+            zaaktypeCmmnConfiguration.zaakTypeUUID!!
         )?.let {
             throw ZaaktypeInUseException(
                 "BPMN configuration for zaaktype '${zaaktypeCmmnConfiguration.zaaktypeOmschrijving} already exists"
@@ -103,9 +104,9 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         }
         zaaktypeCmmnConfigurationService.clearListCache()
         zaaktypeCmmnConfiguration.apply {
-            humanTaskParametersCollection.forEach { ValidationUtil.valideerObject(it) }
-            userEventListenerParametersCollection.forEach { ValidationUtil.valideerObject(it) }
-            mailtemplateKoppelingen.forEach { ValidationUtil.valideerObject(it) }
+            getHumanTaskParametersCollection().forEach { ValidationUtil.valideerObject(it) }
+            getUserEventListenerParametersCollection().forEach { ValidationUtil.valideerObject(it) }
+            getMailtemplateKoppelingen().forEach { ValidationUtil.valideerObject(it) }
             creatiedatum = zaaktypeCmmnConfiguration.creatiedatum ?: ZonedDateTime.now()
         }
 
@@ -193,7 +194,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         // ZaaktypeCmmnConfiguration and SmartDocumentsTemplates have circular relations. To solve this, we update
         // already existing ZaaktypeCmmnConfiguration with SmartDocuments settings
         previousZaaktypeCmmnConfiguration.zaakTypeUUID?.let { previousZaaktypeCmmnConfigurationUuid ->
-            mapSmartDocuments(previousZaaktypeCmmnConfigurationUuid, zaaktypeCmmnConfiguration.zaakTypeUUID)
+            mapSmartDocuments(previousZaaktypeCmmnConfigurationUuid, zaaktypeCmmnConfiguration.zaakTypeUUID!!)
             storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
         }
     }
@@ -224,14 +225,9 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             afrondenMail = previousZaaktypeCmmnConfiguration.afrondenMail
             productaanvraagtype = previousZaaktypeCmmnConfiguration.productaanvraagtype
             domein = previousZaaktypeCmmnConfiguration.domein
-            isSmartDocumentsIngeschakeld = previousZaaktypeCmmnConfiguration.isSmartDocumentsIngeschakeld
+            smartDocumentsIngeschakeld = previousZaaktypeCmmnConfiguration.smartDocumentsIngeschakeld
             uiterlijkeEinddatumAfdoeningWaarschuwing =
                 previousZaaktypeCmmnConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing
-            intakeMail = previousZaaktypeCmmnConfiguration.intakeMail
-            afrondenMail = previousZaaktypeCmmnConfiguration.afrondenMail
-            productaanvraagtype = previousZaaktypeCmmnConfiguration.productaanvraagtype
-            domein = previousZaaktypeCmmnConfiguration.domein
-            isSmartDocumentsIngeschakeld = previousZaaktypeCmmnConfiguration.isSmartDocumentsIngeschakeld
             creatiedatum = ZonedDateTime.now()
         }
 
@@ -276,15 +272,14 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
     private fun mapHumanTaskParameters(
         previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
         newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ) = previousZaaktypeCmmnConfiguration.humanTaskParametersCollection.map {
+    ) = previousZaaktypeCmmnConfiguration.getHumanTaskParametersCollection().map {
         ZaaktypeCmmnHumantaskParameters().apply {
             doorlooptijd = it.doorlooptijd
-            isActief = it.isActief
-            formulierDefinitieID = it.formulierDefinitieID
+            actief = it.actief
+            setFormulierDefinitieID(it.getFormulierDefinitieID())
             planItemDefinitionID = it.planItemDefinitionID
             groepID = it.groepID
-            referentieTabellen = it.referentieTabellen
-            formulierDefinitieID = it.formulierDefinitieID
+            setReferentieTabellen(it.getReferentieTabellen())
         }
     }.toSet().let(newZaaktypeCmmnConfiguration::setHumanTaskParametersCollection)
 
@@ -298,12 +293,12 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
     private fun mapUserEventListenerParameters(
         previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
         newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ) = previousZaaktypeCmmnConfiguration.userEventListenerParametersCollection.map {
+    ) = previousZaaktypeCmmnConfiguration.getUserEventListenerParametersCollection().map {
         ZaaktypeCmmnUsereventlistenerParameters().apply {
             planItemDefinitionID = it.planItemDefinitionID
             toelichting = it.toelichting
         }
-    }.toSet().let(newZaaktypeCmmnConfiguration::setUserEventListenerParametersCollection)
+    }?.toSet()?.let(newZaaktypeCmmnConfiguration::setUserEventListenerParametersCollection)
 
     /**
      * Kopieren van de ZaakbeeindigGegevens van de oude ZaaktypeCmmnConfiguration naar de nieuw ZaaktypeCmmnConfiguration
@@ -322,7 +317,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             previousZaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let {
                 mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen)
             }
-        val zaakbeeindigParametersCollection = previousZaaktypeCmmnConfiguration.zaakbeeindigParameters.mapNotNull {
+        val zaakbeeindigParametersCollection = previousZaaktypeCmmnConfiguration.getZaakbeeindigParameters().mapNotNull {
                 zaakbeeindigParameter ->
             zaakbeeindigParameter.resultaattype
                 ?.let { mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen) }
@@ -332,7 +327,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
                         resultaattype = it
                     }
                 }
-        }.toMutableSet()
+        }?.toMutableSet()
         newZaaktypeCmmnConfiguration.setZaakbeeindigParameters(zaakbeeindigParametersCollection)
     }
 
@@ -352,7 +347,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen)
         }
 
-        zaaktypeCmmnConfiguration.zaakbeeindigParameters.mapNotNull { zaakbeeindigParameter ->
+        zaaktypeCmmnConfiguration.getZaakbeeindigParameters().mapNotNull { zaakbeeindigParameter ->
             zaakbeeindigParameter.resultaattype
                 ?.let { mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen) }
                 ?.let {
@@ -367,12 +362,12 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
     private fun mapMailtemplateKoppelingen(
         previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
         newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ) = previousZaaktypeCmmnConfiguration.mailtemplateKoppelingen.map {
+    ) = previousZaaktypeCmmnConfiguration.getMailtemplateKoppelingen().map {
         ZaaktypeCmmnMailtemplateParameters().apply {
             mailTemplate = it.mailTemplate
             zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
         }
-    }.let(newZaaktypeCmmnConfiguration::setMailtemplateKoppelingen)
+    }?.let(newZaaktypeCmmnConfiguration::setMailtemplateKoppelingen)
 
     private fun mapVorigResultaattypeOpNieuwResultaattype(
         previousResultaattypeUUID: UUID,
@@ -394,9 +389,9 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
     private fun mapZaakAfzenders(
         previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
         newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ) = previousZaaktypeCmmnConfiguration.zaakAfzenders.map {
+    ) = previousZaaktypeCmmnConfiguration.getZaakAfzenders().map {
         ZaaktypeCmmnZaakafzenderParameters().apply {
-            isDefault = it.isDefault
+            defaultMail = it.defaultMail
             mail = it.mail
             replyTo = it.replyTo
             zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
@@ -407,34 +402,34 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
         newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ) = newZaaktypeCmmnConfiguration.apply {
-        betrokkeneParameters = ZaaktypeCmmnBetrokkeneParameters(
-            newZaaktypeCmmnConfiguration,
-            previousZaaktypeCmmnConfiguration.betrokkeneParameters.brpKoppelen,
-            previousZaaktypeCmmnConfiguration.betrokkeneParameters.kvkKoppelen
-        )
+        zaaktypeCmmnBetrokkeneParameters = ZaaktypeCmmnBetrokkeneParameters().apply {
+            zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
+            brpKoppelen = previousZaaktypeCmmnConfiguration.zaaktypeCmmnBetrokkeneParameters?.brpKoppelen
+            kvkKoppelen = previousZaaktypeCmmnConfiguration.zaaktypeCmmnBetrokkeneParameters?.kvkKoppelen
+        }
     }
 
     private fun mapBrpDoelbindingen(
         previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
         newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ) = newZaaktypeCmmnConfiguration.apply {
-        brpDoelbindingen = ZaaktypeCmmnBrpParameters(
-            newZaaktypeCmmnConfiguration,
-            previousZaaktypeCmmnConfiguration.brpDoelbindingen.zoekWaarde,
-            previousZaaktypeCmmnConfiguration.brpDoelbindingen.raadpleegWaarde
-        )
+        zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
+            zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
+            zoekWaarde = previousZaaktypeCmmnConfiguration.zaaktypeCmmnBrpParameters?.zoekWaarde
+            raadpleegWaarde = previousZaaktypeCmmnConfiguration.zaaktypeCmmnBrpParameters?.raadpleegWaarde
+        }
     }
 
     private fun mapAutomaticEmailConfirmation(
         previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
         newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ) = newZaaktypeCmmnConfiguration.apply {
-        automaticEmailConfirmation = ZaaktypeCmmnEmailParameters(
-            newZaaktypeCmmnConfiguration,
-            previousZaaktypeCmmnConfiguration.automaticEmailConfirmation.enabled,
-            previousZaaktypeCmmnConfiguration.automaticEmailConfirmation.templateName,
-            previousZaaktypeCmmnConfiguration.automaticEmailConfirmation.emailSender,
-            previousZaaktypeCmmnConfiguration.automaticEmailConfirmation.emailReply,
-        )
+        zaaktypeCmmnEmailParameters = ZaaktypeCmmnEmailParameters().apply {
+            zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
+            enabled = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.enabled ?: false
+            templateName = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName
+            emailSender = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailSender
+            emailReply = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailReply
+        }
     }
 }

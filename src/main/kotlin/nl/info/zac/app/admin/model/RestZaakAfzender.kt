@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.admin.model
 
-import net.atos.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -28,17 +28,17 @@ data class RestZaakAfzender(
 
 fun RestZaakAfzender.toZaakAfzender() = ZaaktypeCmmnZaakafzenderParameters().apply {
     id = this@toZaakAfzender.id
-    isDefault = this@toZaakAfzender.defaultMail
-    mail = this@toZaakAfzender.mail
+    defaultMail = this@toZaakAfzender.defaultMail
+    this@toZaakAfzender.mail?.let { mail = it }
     replyTo = this@toZaakAfzender.replyTo
 }
 
 fun ZaaktypeCmmnZaakafzenderParameters.toRestZaakAfzender() = RestZaakAfzender(
     id = this@toRestZaakAfzender.id,
-    defaultMail = this@toRestZaakAfzender.isDefault,
+    defaultMail = this@toRestZaakAfzender.defaultMail,
     mail = this@toRestZaakAfzender.mail,
     replyTo = this@toRestZaakAfzender.replyTo,
-    speciaal = ZaaktypeCmmnZaakafzenderParameters.SpecialMail.entries.any { it.`is`(this@toRestZaakAfzender.mail) },
+    speciaal = ZaaktypeCmmnZaakafzenderParameters.SpecialMail.entries.any { it.name(this@toRestZaakAfzender.mail) },
     suffix = null
 )
 
@@ -50,7 +50,7 @@ fun Set<ZaaktypeCmmnZaakafzenderParameters>.toRestZaakAfzenders(): List<RestZaak
     val restZaakAfzenders = this@toRestZaakAfzenders.map { it.toRestZaakAfzender() }.toMutableList()
     // now add the 'special' zaakafzender emails, if they are not already present
     for (speciaal in ZaaktypeCmmnZaakafzenderParameters.SpecialMail.entries) {
-        if (this@toRestZaakAfzenders.map { it.mail }.none { speciaal.`is`(it) }) {
+        if (this@toRestZaakAfzenders.map { it.mail }.none { speciaal.name(it) }) {
             restZaakAfzenders.add(
                 RestZaakAfzender(
                     mail = speciaal.name,

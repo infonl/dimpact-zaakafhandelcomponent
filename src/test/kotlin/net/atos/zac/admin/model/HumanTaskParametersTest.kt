@@ -29,7 +29,7 @@ class HumanTaskParametersTest : BehaviorSpec({
         val humanTaskParameters2 = createHumanTaskParameters(
             referenceTables = listOf(createHumanTaskReferentieTabel())
         ).apply {
-            referentieTabellen[0].tabel.values[0].name = "different name"
+            getReferentieTabellen()[0].tabel.values[0].name = "different name"
         }
 
         When("The values of the two objects are compared") {

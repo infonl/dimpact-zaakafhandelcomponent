@@ -237,7 +237,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 zaaktypeUUID = zaakTypeUUID,
             )
             zaaktypeCmmnConfiguration.apply {
-                betrokkeneParameters = createBetrokkeneKoppelingen(
+                zaaktypeCmmnBetrokkeneParameters = createBetrokkeneKoppelingen(
                     zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
                     brpKoppelen = true,
                     kvkKoppelen = true
@@ -863,7 +863,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             When("it is not allowed to add a betrokkene") {
                 val invalidZaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
                 val zaaktypeCmmnConfigurationNonAllowedBetrokkene = invalidZaaktypeCmmnConfiguration.apply {
-                    betrokkeneParameters = createBetrokkeneKoppelingen(
+                    zaaktypeCmmnBetrokkeneParameters = createBetrokkeneKoppelingen(
                         brpKoppelen = false,
                         zaaktypeCmmnConfiguration = invalidZaaktypeCmmnConfiguration
                     )

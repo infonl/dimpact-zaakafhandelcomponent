@@ -5,8 +5,8 @@
 
 package nl.info.zac.app.admin.model
 
-import net.atos.zac.admin.model.ZaaktypeCmmnBrpParameters
-import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeCmmnBrpParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor

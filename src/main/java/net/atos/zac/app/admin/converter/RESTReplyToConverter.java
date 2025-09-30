@@ -8,9 +8,9 @@ package net.atos.zac.app.admin.converter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import net.atos.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters;
 import net.atos.zac.app.admin.model.RESTReplyTo;
 import nl.info.zac.admin.model.ReferenceTableValue;
+import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters;
 
 public final class RESTReplyToConverter {
 

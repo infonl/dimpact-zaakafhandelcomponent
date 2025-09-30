@@ -85,7 +85,7 @@ class HealthCheckService @Inject constructor(
     private fun inrichtingscheck(zaaktypeUuid: UUID, zaaktype: ZaakType): ZaaktypeInrichtingscheck =
         zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).let { zaakafhandelParams ->
             return ZaaktypeInrichtingscheck(zaaktype).apply {
-                isZaakafhandelParametersValide = zaakafhandelParams.isValide
+                isZaakafhandelParametersValide = zaakafhandelParams.isValide()
             }.also {
                 controleerZaaktypeStatustypeInrichting(it)
                 controleerZaaktypeResultaattypeInrichting(it)

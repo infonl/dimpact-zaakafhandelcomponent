@@ -183,7 +183,7 @@ constructor(
                 .groupBy { it.zaaktypeOmschrijving }
                 // get the zaaktypeCmmnConfigurations with the latest creation date (= the active
                 // one)
-                .map { it.value.maxBy { value -> value.creatiedatum } }
+                .map { it.value.maxBy { value -> value.creatiedatum!! } }
                 // filter out the zaaktypeCmmnConfigurations that have a domain that is equal to
                 // one of the user's (domain) roles
                 .filter { it.domein != null && roles.contains(it.domein) }

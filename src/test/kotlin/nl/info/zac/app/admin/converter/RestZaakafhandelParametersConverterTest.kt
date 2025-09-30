@@ -56,12 +56,12 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         val restResultType = resultaatType.toRestResultaatType()
         val restZaakbeeindigParameter = createRestZaakbeeindigParameter(resultaattype = restResultType)
 
-        every { ztcClientService.readZaaktype(zaaktypeCmmnConfiguration.zaakTypeUUID) } returns zaakType
+        every { ztcClientService.readZaaktype(zaaktypeCmmnConfiguration.zaakTypeUUID!!) } returns zaakType
         every {
-            ztcClientService.readResultaattype(zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype)
+            ztcClientService.readResultaattype(zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!)
         } returns resultaatType
         every {
-            zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaaktypeCmmnConfiguration.zaakbeeindigParameters)
+            zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaaktypeCmmnConfiguration.getZaakbeeindigParameters())
         } returns listOf(restZaakbeeindigParameter)
         every { smartDocumentsService.isEnabled() } returns true
         every {
@@ -157,7 +157,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     afrondenMail shouldBe null
                     productaanvraagtype shouldBe null
                     domein shouldBe "fakeDomein"
-                    isSmartDocumentsIngeschakeld shouldBe false
+                    smartDocumentsIngeschakeld shouldBe false
                 }
             }
         }

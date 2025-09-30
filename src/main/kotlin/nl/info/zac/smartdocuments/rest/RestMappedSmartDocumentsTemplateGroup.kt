@@ -5,7 +5,7 @@
 
 package nl.info.zac.smartdocuments.rest
 
-import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.smartdocuments.templates.model.SmartDocumentsTemplate
 import nl.info.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
 import nl.info.zac.util.AllOpen
