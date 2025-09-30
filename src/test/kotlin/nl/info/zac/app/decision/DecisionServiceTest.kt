@@ -19,9 +19,7 @@ import nl.info.client.zgw.brc.model.generated.BesluitInformatieObject
 import nl.info.client.zgw.brc.model.generated.createBesluitInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
-import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.zac.app.zaak.converter.RestDecisionConverter
@@ -36,16 +34,12 @@ class DecisionServiceTest : BehaviorSpec({
     val brcClientService = mockk<BrcClientService>()
     val drcClientService = mockk<DrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
-    val zrcClientService = mockk<ZrcClientService>()
-    val zgwApiService = mockk<ZGWApiService>()
     val restDecisionConverter = mockk<RestDecisionConverter>()
 
     val decisionService = DecisionService(
         brcClientService,
         drcClientService,
         ztcClientService,
-        zrcClientService,
-        zgwApiService,
         restDecisionConverter
     )
 
@@ -245,7 +239,7 @@ class DecisionServiceTest : BehaviorSpec({
 
         When("update is requested") {
             besluitType.publicatieIndicatie(true)
-            decisionService.updateDecision(zaak, besluit, restBesluitWijzigenGegevens)
+            decisionService.updateDecision(besluit, restBesluitWijzigenGegevens)
 
             Then("update is executed correctly") {
                 besluit shouldBe besluit
@@ -273,7 +267,7 @@ class DecisionServiceTest : BehaviorSpec({
         } returns besluitInformatieObject
 
         When("update is requested") {
-            decisionService.updateDecision(zaak, besluit, restBesluitWijzigenGegevens)
+            decisionService.updateDecision(besluit, restBesluitWijzigenGegevens)
 
             Then("update is executed correctly") {
                 besluit shouldBe besluit
@@ -293,7 +287,7 @@ class DecisionServiceTest : BehaviorSpec({
 
         When("Besluit update is requested") {
             val exception = shouldThrow<DecisionPublicationDisabledException> {
-                decisionService.updateDecision(zaak, besluit, restBesluitWijzigenGegevens)
+                decisionService.updateDecision(besluit, restBesluitWijzigenGegevens)
             }
 
             Then("it throws exception") {
@@ -316,7 +310,7 @@ class DecisionServiceTest : BehaviorSpec({
             restBesluitWijzigenGegevens.publicationDate = null
 
             val exception = shouldThrow<DecisionPublicationDateMissingException> {
-                decisionService.updateDecision(zaak, besluit, restBesluitWijzigenGegevens)
+                decisionService.updateDecision(besluit, restBesluitWijzigenGegevens)
             }
 
             Then("it throws exception") {
@@ -339,7 +333,7 @@ class DecisionServiceTest : BehaviorSpec({
             restBesluitWijzigenGegevens.publicationDate = null
 
             val exception = shouldThrow<DecisionPublicationDateMissingException> {
-                decisionService.updateDecision(zaak, besluit, restBesluitWijzigenGegevens)
+                decisionService.updateDecision(besluit, restBesluitWijzigenGegevens)
             }
 
             Then("it throws exception") {
@@ -360,7 +354,7 @@ class DecisionServiceTest : BehaviorSpec({
 
         When("Besluit update is requested") {
             val exception = shouldThrow<DecisionResponseDateInvalidException> {
-                decisionService.updateDecision(zaak, besluit, restBesluitWijzigenGegevens)
+                decisionService.updateDecision(besluit, restBesluitWijzigenGegevens)
             }
 
             Then("it throws exception") {

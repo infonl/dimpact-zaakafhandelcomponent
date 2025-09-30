@@ -18,9 +18,6 @@ data class RestDecisionChangeData(
     @field:NotNull
     var besluitUuid: UUID,
 
-    @field:NotNull
-    var resultaattypeUuid: UUID,
-
     var toelichting: String? = null,
 
     var ingangsdatum: LocalDate? = null,
