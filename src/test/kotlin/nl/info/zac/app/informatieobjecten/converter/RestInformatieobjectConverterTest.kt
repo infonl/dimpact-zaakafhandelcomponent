@@ -107,42 +107,6 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         }
     }
 
-    Given("REST enkelvoudig informatie object data and REST file upload are provided for a taak") {
-        val restFileUpload = createRESTFileUpload()
-        val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
-        val providedInformatieObjectType = createInformatieObjectType()
-
-        every { loggedInUserInstance.get() } returns loggedInUser
-        every {
-            ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
-        } returns providedInformatieObjectType
-        every { configuratieService.readBronOrganisatie() } returns "123443210"
-
-        When("convert taak object is invoked") {
-            val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convertTaakObject(
-                restEnkelvoudigInformatieobject
-            )
-            Then("the provided data is converted correctly") {
-                with(enkelvoudigInformatieObjectData) {
-                    bronorganisatie shouldBe "123443210"
-                    creatiedatum shouldHaveSameDayAs LocalDate.now()
-                    titel shouldBe restEnkelvoudigInformatieobject.titel
-                    auteur shouldBe loggedInUser.getFullName()
-                    // currently hardcoded
-                    taal shouldBe "dut"
-                    informatieobjecttype shouldBe providedInformatieObjectType.url
-                    inhoud shouldBe Base64.getEncoder().encodeToString(restFileUpload.file)
-                    formaat shouldBe restFileUpload.type
-                    bestandsnaam shouldBe restFileUpload.filename
-                    // status should always be DEFINITIEF
-                    status shouldBe StatusEnum.DEFINITIEF
-                    // vertrouwelijkheidaanduiding should always be OPENBAAR
-                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
-                }
-            }
-        }
-    }
-
     Given("REST enkelvoudig informatie object data and REST file upload are provided for a zaak") {
         // when converting a zaak more fields in the RESTEnkelvoudigInformatieobject are used in the
         // conversion compared to when converting a taak
@@ -163,7 +127,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         every { configuratieService.readBronOrganisatie() } returns "123443210"
 
         When("convert zaak object is invoked") {
-            val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convertZaakObject(
+            val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convertEnkelvoudigInformatieObject(
                 restEnkelvoudigInformatieobject
             )
             Then("the provided data is converted correctly") {

@@ -244,7 +244,7 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:1.8.0-static@sha256:3c350b0f3130e71000c43c859e1479d8bb9c693442e7e5180e59026b61c068a1
+    image: docker.io/openpolicyagent/opa:1.9.0-static@sha256:60b6af32b58377718546ac7d4634eecbfe50ec36f7d3ca3f8ebf515f9826c2ac
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
@@ -349,7 +349,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:1.8.0@sha256:0917dda453560b65798d3c78caed0376c4db0708f1e4df5724058a5dfd412948
+    image: docker.io/openpolicyagent/opa:1.9.0@sha256:bd7e1216865884be8095726fb80282ece2f6b531883bc86f9f8917f2fc52de61
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -431,7 +431,7 @@ services:
     profiles: [ "metrics" ]
 
   greenmail:
-    image: docker.io/greenmail/standalone:2.1.5@sha256:8a2024725c7b1ce8f720644bccb6f237781992a8cbf283023446eb7d29326ad0
+    image: docker.io/greenmail/standalone:2.1.6@sha256:f7ab2b32f1678d19e591eb478c16f542275434be1fcd6d731402fa1d2185c6cf
     environment:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0

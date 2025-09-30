@@ -358,7 +358,7 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: authenticate with docker hub
-        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -486,7 +486,7 @@ jobs:
 
       - name: Upload Trivy scan results to GitHub Security tab
         if: github.ref == 'refs/heads/main'
-        uses: github/codeql-action/upload-sarif@303c0aef88fc2fe5ff6d63d3b1596bfd83dfa1f9 # v3.30.4
+        uses: github/codeql-action/upload-sarif@3599b3baa15b485a2e49ef411a7a4bb2452e7f93 # v3.30.5
         with:
           sarif_file: 'trivy-results.sarif'
 
@@ -512,7 +512,7 @@ jobs:
       NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
     steps:
       - name: Docker Login
-        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_URL }}
           username: ${{ github.actor }}
