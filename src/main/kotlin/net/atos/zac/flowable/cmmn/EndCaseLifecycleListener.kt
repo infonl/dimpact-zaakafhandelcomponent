@@ -34,7 +34,7 @@ class EndCaseLifecycleListener(
         if (FlowableHelper.getInstance().zrcClientService.readZaak(zaakUUID).isOpen()) {
             LOG.info("Zaak %${caseInstance.businessKey}: End Zaak")
             try {
-                FlowableHelper.getInstance().zgwApiService.endZaak(zaakUUID, EINDSTATUS_TOELICHTING)
+                FlowableHelper.getInstance().zgwApiService.endZaak(zaakUUID, "TODO resultaattypeomschrijving", EINDSTATUS_TOELICHTING)
             } catch (zgwValidationErrorException: ZgwValidationErrorException) {
                 // rethrow as an FlowableException, just to ensure that it is logged in [CommandContext] at log level INFO instead of ERROR
                 throw FlowableZgwValidationErrorException("Failed to end zaak", zgwValidationErrorException)
