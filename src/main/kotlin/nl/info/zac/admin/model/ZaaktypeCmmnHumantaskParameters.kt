@@ -99,16 +99,14 @@ class ZaaktypeCmmnHumantaskParameters :
             Objects.equals(formulierDefinitieID, other.formulierDefinitieID) &&
             Objects.equals(planItemDefinitionID, other.planItemDefinitionID) &&
             Objects.equals(groepID, other.groepID) &&
-            Objects.equals(doorlooptijd, other.doorlooptijd) &&
-            (
-                (referentieTabellen == null && other.referentieTabellen == null) ||
-                    (
-                        (referentieTabellen != null && other.referentieTabellen != null) &&
-                            Objects.deepEquals(
-                                referentieTabellen.toTypedArray(),
-                                other.referentieTabellen.toTypedArray()
-                            )
+            Objects.equals(doorlooptijd, other.doorlooptijd) && (
+                (
+                    (referentieTabellen != null && other.referentieTabellen != null) &&
+                        Objects.deepEquals(
+                            referentieTabellen.toTypedArray(),
+                            other.referentieTabellen.toTypedArray()
                         )
+                    )
                 )
     }
 

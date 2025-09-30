@@ -33,7 +33,8 @@ class ZaakbeeindigReden {
     var id: Long? = null
 
     @Column(name = "naam", nullable = false)
-    var naam: @NotBlank String? = null
+    @field:NotBlank
+    var naam: String? = null
 
     override fun equals(other: Any?): Boolean {
         if (other !is ZaakbeeindigReden) return false

@@ -59,25 +59,28 @@ class RESTPlanItemConverter @Inject constructor(
             ).toelichting
         }
 
+    @Suppress("ExplicitItLambdaParameter")
     private fun convertHumanTask(
         restPlanItem: RESTPlanItem,
         humanTaskPlanItem: PlanItemInstance,
         zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ): RESTPlanItem =
         restPlanItem.apply {
-            zaaktypeCmmnConfiguration.findHumanTaskParameter(humanTaskPlanItem.planItemDefinitionId).ifPresent {
-                actief = it.actief
-                if (it.getFormulierDefinitieID() != null) {
-                    formulierDefinitie = FormulierDefinitie.valueOf(it.getFormulierDefinitieID()!!)
+            zaaktypeCmmnConfiguration
+                .findHumanTaskParameter(humanTaskPlanItem.planItemDefinitionId)
+                ?.let { it ->
+                    actief = it.actief
+                    it.getFormulierDefinitieID()?.let { fd ->
+                        formulierDefinitie = FormulierDefinitie.valueOf(fd)
+                    }
+                    it.getReferentieTabellen().forEach { rt ->
+                        tabellen[rt.veld] = rt.tabel.values.map(ReferenceTableValue::name)
+                    }
+                    groepId = it.groepID
+                    it.doorlooptijd?.let { days ->
+                        fataleDatum = LocalDate.now().plusDays(days.toLong())
+                    }
                 }
-                it.getReferentieTabellen().forEach { rt ->
-                    tabellen[rt.veld] = rt.tabel.values.map(ReferenceTableValue::name)
-                }
-                groepId = it.groepID
-                if (it.doorlooptijd != null) {
-                    fataleDatum = LocalDate.now().plusDays(it.doorlooptijd!!.toLong())
-                }
-            }
         }
 
     private fun convertDefinitionType(planItemDefinitionType: String): PlanItemType =

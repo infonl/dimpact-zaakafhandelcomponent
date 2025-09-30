@@ -20,8 +20,8 @@ data class RestBetrokkeneKoppelingen(
 fun ZaaktypeCmmnBetrokkeneParameters.toRestBetrokkeneKoppelingen(): RestBetrokkeneKoppelingen =
     RestBetrokkeneKoppelingen().apply {
         id = this@toRestBetrokkeneKoppelingen.id
-        brpKoppelen = this@toRestBetrokkeneKoppelingen.brpKoppelen!!
-        kvkKoppelen = this@toRestBetrokkeneKoppelingen.kvkKoppelen!!
+        this@toRestBetrokkeneKoppelingen.brpKoppelen?.let { brpKoppelen = it }
+        this@toRestBetrokkeneKoppelingen.kvkKoppelen?.let { kvkKoppelen = it }
     }
 
 fun RestBetrokkeneKoppelingen.toBetrokkeneKoppelingen(

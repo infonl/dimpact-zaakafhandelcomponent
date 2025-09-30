@@ -53,7 +53,6 @@ import nl.info.zac.zaak.ZaakService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
-import java.util.Optional
 import java.util.UUID
 
 /**
@@ -249,11 +248,13 @@ class PlanItemsRestService @Inject constructor(
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
             zaak.zaaktype.extractUuid()
         )
-        zgwApiService.createResultaatForZaak(
-            zaak,
-            zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!,
-            userEventListenerData.resultaatToelichting
-        )
+        zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let { resultaattypeUUID ->
+            zgwApiService.createResultaatForZaak(
+                zaak,
+                resultaattypeUUID,
+                userEventListenerData.resultaatToelichting
+            )
+        }
     }
 
     private fun handleZaakAfhandelen(zaak: Zaak, userEventListenerData: RESTUserEventListenerData) {
@@ -299,19 +300,16 @@ class PlanItemsRestService @Inject constructor(
     }
 
     private fun calculateFatalDateFromLeadTime(
-        zaaktypeCmmnHumantaskParameters: Optional<ZaaktypeCmmnHumantaskParameters>,
+        zaaktypeCmmnHumantaskParameters: ZaaktypeCmmnHumantaskParameters?,
         zaakFatalDate: LocalDate?
     ): LocalDate? {
-        if (zaaktypeCmmnHumantaskParameters.isPresent && zaaktypeCmmnHumantaskParameters.get().doorlooptijd != null) {
-            var calculatedFinalDate = LocalDate.now().plusDays(
-                zaaktypeCmmnHumantaskParameters.get().doorlooptijd!!.toLong()
-            )
-            if (calculatedFinalDate.isAfter(zaakFatalDate)) {
+        zaaktypeCmmnHumantaskParameters?.doorlooptijd?.let { days ->
+            var calculatedFinalDate = LocalDate.now().plusDays(days.toLong())
+            if (zaakFatalDate != null && calculatedFinalDate.isAfter(zaakFatalDate)) {
                 calculatedFinalDate = zaakFatalDate
             }
             return calculatedFinalDate
         }
-
         return null
     }
 

@@ -50,7 +50,7 @@ fun Set<ZaaktypeCmmnZaakafzenderParameters>.toRestZaakAfzenders(): List<RestZaak
     val restZaakAfzenders = this@toRestZaakAfzenders.map { it.toRestZaakAfzender() }.toMutableList()
     // now add the 'special' zaakafzender emails, if they are not already present
     for (speciaal in ZaaktypeCmmnZaakafzenderParameters.SpecialMail.entries) {
-        if (this@toRestZaakAfzenders.map { it.mail }.none { speciaal.name(it) }) {
+        if (this@toRestZaakAfzenders.map { it.mail }.none { speciaal.name == it }) {
             restZaakAfzenders.add(
                 RestZaakAfzender(
                     mail = speciaal.name,

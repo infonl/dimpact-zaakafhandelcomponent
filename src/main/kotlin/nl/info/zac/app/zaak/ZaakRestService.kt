@@ -484,23 +484,24 @@ class ZaakRestService @Inject constructor(
         val vandaag = LocalDate.now()
         val einddatumGeplandWaarschuwing = mutableMapOf<UUID, LocalDate>()
         val uiterlijkeEinddatumAfdoeningWaarschuwing = mutableMapOf<UUID, LocalDate>()
-        zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration().forEach {
-            if (it.einddatumGeplandWaarschuwing != null) {
-                einddatumGeplandWaarschuwing[it.zaakTypeUUID!!] = datumWaarschuwing(
-                    vandaag,
-                    it.einddatumGeplandWaarschuwing!!
-                )
+
+        zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration().forEach { zaaktypeCmmnConfiguration ->
+            zaaktypeCmmnConfiguration.einddatumGeplandWaarschuwing?.let { days ->
+                zaaktypeCmmnConfiguration.zaakTypeUUID?.let { uuid ->
+                    einddatumGeplandWaarschuwing[uuid] = datumWaarschuwing(vandaag, days)
+                }
             }
-            if (it.uiterlijkeEinddatumAfdoeningWaarschuwing != null) {
-                uiterlijkeEinddatumAfdoeningWaarschuwing[it.zaakTypeUUID!!] = datumWaarschuwing(
-                    vandaag,
-                    it.uiterlijkeEinddatumAfdoeningWaarschuwing!!
-                )
+            zaaktypeCmmnConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing?.let { days ->
+                zaaktypeCmmnConfiguration.zaakTypeUUID?.let { uuid ->
+                    uiterlijkeEinddatumAfdoeningWaarschuwing[uuid] = datumWaarschuwing(vandaag, days)
+                }
             }
         }
+
         val zaakListParameters = ZaakListParameters().apply {
             rolBetrokkeneIdentificatieMedewerkerIdentificatie = loggedInUserInstance.get().id
         }
+
         return zrcClientService.listZaken(zaakListParameters).results
             .filter { it.isOpen() }
             .filter {
@@ -645,6 +646,7 @@ class ZaakRestService @Inject constructor(
 
     @PATCH
     @Path("/zaak/{uuid}/afbreken")
+    @Suppress("NestedBlockDepth")
     fun terminateZaak(
         @PathParam("uuid") zaakUUID: UUID,
         afbrekenGegevens: RESTZaakAfbrekenGegevens
@@ -664,20 +666,22 @@ class ZaakRestService @Inject constructor(
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
             zaakType.url.extractUuid()
         )
+
         if (afbrekenGegevens.zaakbeeindigRedenId == INADMISSIBLE_TERMINATION_ID) {
-            // Use the hardcoded "niet ontvankelijk" zaakbeeindigreden that we don't manage via ZaaktypeCmmnConfiguration
-            terminateZaak(
-                zaak,
-                zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!,
-                INADMISSIBLE_TERMINATION_REASON
-            )
+            // Use the hardcoded "niet ontvankelijk" reden that we don't manage via ZaaktypeCmmnConfiguration
+            zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let { resultaattype ->
+                terminateZaak(zaak, resultaattype, INADMISSIBLE_TERMINATION_REASON)
+            }
         } else {
             afbrekenGegevens.zaakbeeindigRedenId.toLong().let { zaakbeeindigRedenId ->
-                zaaktypeCmmnConfiguration.readZaakbeeindigParameter(zaakbeeindigRedenId).let {
-                    terminateZaak(zaak, it.resultaattype, it.zaakbeeindigReden.naam!!)
+                zaaktypeCmmnConfiguration.readZaakbeeindigParameter(zaakbeeindigRedenId).let { param ->
+                    param.zaakbeeindigReden.naam?.let { naam ->
+                        terminateZaak(zaak, param.resultaattype, naam)
+                    }
                 }
             }
         }
+
         // Terminate case after the zaak is ended to prevent the EndCaseLifecycleListener from ending the zaak.
         cmmnService.terminateCase(zaakUUID)
     }
@@ -1428,13 +1432,18 @@ class ZaakRestService @Inject constructor(
 
     private fun assertCanAddBetrokkene(restZaak: RestZaakCreateData, zaakTypeUUID: UUID) {
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+        val betrokkeneParameters = zaaktypeCmmnConfiguration.getBetrokkeneParameters()
 
-        restZaak.initiatorIdentificatie?.let {
-            if (it.type.isKvK && !zaaktypeCmmnConfiguration.getBetrokkeneParameters().kvkKoppelen!!) {
-                throw BetrokkeneNotAllowedException()
+        restZaak.initiatorIdentificatie?.let { initiator ->
+            betrokkeneParameters.kvkKoppelen?.let { enabled ->
+                if (initiator.type.isKvK && !enabled) {
+                    throw BetrokkeneNotAllowedException()
+                }
             }
-            if (it.type.isBsn && !zaaktypeCmmnConfiguration.getBetrokkeneParameters().brpKoppelen!!) {
-                throw BetrokkeneNotAllowedException()
+            betrokkeneParameters.brpKoppelen?.let { enabled ->
+                if (initiator.type.isBsn && !enabled) {
+                    throw BetrokkeneNotAllowedException()
+                }
             }
         }
     }

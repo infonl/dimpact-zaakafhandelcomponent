@@ -48,28 +48,32 @@ class ZaaktypeCmmnMailtemplateParameters :
 
     @Suppress("ExceptionRaisedInUnexpectedLocation", "UseCheckOrError")
     override fun equals(other: Any?): Boolean {
-        if (other !is ZaaktypeCmmnMailtemplateParameters) return false
-        if (mailTemplate == null || other.mailTemplate == null) {
-            throw IllegalStateException("mailTemplate is null")
+        if (other !is ZaaktypeCmmnMailtemplateParameters) {
+            return false
         }
-        return Objects.equals(mailTemplate!!.id, other.mailTemplate!!.id)
+
+        val result = mailTemplate?.let { mailtemplate ->
+            other.mailTemplate?.let { that ->
+                Objects.equals(mailtemplate.id, that.id)
+            }
+        }
+        return result ?: throw IllegalStateException("mailTemplate is null")
     }
 
     @Suppress("ExceptionRaisedInUnexpectedLocation", "UseCheckOrError")
-    override fun hashCode(): Int {
-        if (mailTemplate == null) {
-            throw IllegalStateException("mailTemplate is null")
-        }
-        return Objects.hash(mailTemplate!!.id)
-    }
+    override fun hashCode(): Int =
+        mailTemplate?.let { Objects.hash(it.id) }
+            ?: throw IllegalStateException("mailTemplate is null")
 
     @Suppress("UseCheckOrError")
     override fun isModifiedFrom(original: ZaaktypeCmmnMailtemplateParameters): Boolean {
-        if (mailTemplate == null || original.mailTemplate == null) {
-            throw IllegalStateException("mailTemplate is null")
+        val result = mailTemplate?.let { mailTemplate ->
+            original.mailTemplate?.let { otherMailTemplate ->
+                Objects.equals(mailTemplate.mail, otherMailTemplate.mail) &&
+                    !Objects.equals(mailTemplate.id, otherMailTemplate.id)
+            }
         }
-        return Objects.equals(mailTemplate!!.mail, original.mailTemplate!!.mail) &&
-            !Objects.equals(mailTemplate!!.id, original.mailTemplate!!.id)
+        return result ?: throw IllegalStateException("mailTemplate is null")
     }
 
     override fun applyChanges(changes: ZaaktypeCmmnMailtemplateParameters) {

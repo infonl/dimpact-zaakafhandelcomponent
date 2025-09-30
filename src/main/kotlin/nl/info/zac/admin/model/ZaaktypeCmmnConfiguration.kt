@@ -19,7 +19,6 @@ import jakarta.validation.constraints.NotBlank
 import nl.info.zac.database.flyway.FlywayIntegrator.Companion.SCHEMA
 import nl.info.zac.util.AllOpen
 import java.time.ZonedDateTime
-import java.util.Optional
 import java.util.UUID
 
 @Entity
@@ -194,8 +193,10 @@ class ZaaktypeCmmnConfiguration {
             zaaktypeCmmnHumantaskParametersCollection = mutableSetOf()
         }
         desired.forEach { setHumanTaskParameters(it) }
-        zaaktypeCmmnHumantaskParametersCollection!!.removeIf { existing ->
-            isElementNotInCollection(desired, existing)
+        zaaktypeCmmnHumantaskParametersCollection?.let { collection ->
+            collection.removeIf { existing ->
+                isElementNotInCollection(desired, existing)
+            }
         }
     }
 
@@ -209,8 +210,8 @@ class ZaaktypeCmmnConfiguration {
             zaaktypeCmmnMailtemplateKoppelingen = mutableSetOf()
         }
         desired.forEach { setMailtemplateKoppeling(it) }
-        zaaktypeCmmnMailtemplateKoppelingen!!.removeIf { existing ->
-            isElementNotInCollection(desired, existing)
+        zaaktypeCmmnMailtemplateKoppelingen?.let { mailtemplateParameters ->
+            mailtemplateParameters.removeIf { existing -> isElementNotInCollection(desired, existing) }
         }
     }
 
@@ -227,9 +228,11 @@ class ZaaktypeCmmnConfiguration {
         if (zaaktypeCmmnCompletionParameters == null) {
             zaaktypeCmmnCompletionParameters = mutableSetOf()
         }
-        desired!!.forEach { setZaakbeeindigParameter(it) }
-        zaaktypeCmmnCompletionParameters!!.removeIf { existing ->
-            isElementNotInCollection(desired, existing)
+        desired?.forEach { setZaakbeeindigParameter(it) }
+        zaaktypeCmmnCompletionParameters?.let { cmmnCompletionParameters ->
+            desired?.let { d ->
+                cmmnCompletionParameters.removeIf { existing -> isElementNotInCollection(d, existing) }
+            }
         }
     }
 
@@ -243,8 +246,8 @@ class ZaaktypeCmmnConfiguration {
             zaaktypeCmmnUsereventlistenerParametersCollection = mutableSetOf()
         }
         desired.forEach { setUserEventListenerParameters(it) }
-        zaaktypeCmmnUsereventlistenerParametersCollection!!.removeIf { existing ->
-            isElementNotInCollection(desired, existing)
+        zaaktypeCmmnUsereventlistenerParametersCollection?.let { cmmnUsereventlistenerParameters ->
+            cmmnUsereventlistenerParameters.removeIf { existing -> isElementNotInCollection(desired, existing) }
         }
     }
 
@@ -256,34 +259,34 @@ class ZaaktypeCmmnConfiguration {
             zaaktypeCmmnZaakafzenderParameters = mutableSetOf()
         }
         desired.forEach { setZaakAfzender(it) }
-        zaaktypeCmmnZaakafzenderParameters!!.removeIf { existing ->
-            isElementNotInCollection(desired, existing)
+        zaaktypeCmmnZaakafzenderParameters?.let { cmmnZaakafzenderParameters ->
+            cmmnZaakafzenderParameters.removeIf { existing -> isElementNotInCollection(desired, existing) }
         }
     }
 
     private fun setMailtemplateKoppeling(param: ZaaktypeCmmnMailtemplateParameters) {
         param.zaaktypeCmmnConfiguration = this
-        setComponent(zaaktypeCmmnMailtemplateKoppelingen!!, param)
+        zaaktypeCmmnMailtemplateKoppelingen?.let { setComponent(it, param) }
     }
 
     private fun setHumanTaskParameters(param: ZaaktypeCmmnHumantaskParameters) {
         param.zaaktypeCmmnConfiguration = this
-        setComponent(zaaktypeCmmnHumantaskParametersCollection!!, param)
+        zaaktypeCmmnHumantaskParametersCollection?.let { setComponent(it, param) }
     }
 
     private fun setZaakbeeindigParameter(param: ZaaktypeCmmnCompletionParameters) {
         param.zaaktypeCmmnConfiguration = this
-        setComponent(zaaktypeCmmnCompletionParameters!!, param)
+        zaaktypeCmmnCompletionParameters?.let { setComponent(it, param) }
     }
 
     private fun setUserEventListenerParameters(param: ZaaktypeCmmnUsereventlistenerParameters) {
         param.zaaktypeCmmnConfiguration = this
-        setComponent(zaaktypeCmmnUsereventlistenerParametersCollection!!, param)
+        zaaktypeCmmnUsereventlistenerParametersCollection?.let { setComponent(it, param) }
     }
 
     private fun setZaakAfzender(param: ZaaktypeCmmnZaakafzenderParameters) {
         param.zaaktypeCmmnConfiguration = this
-        setComponent(zaaktypeCmmnZaakafzenderParameters!!, param)
+        zaaktypeCmmnZaakafzenderParameters?.let { setComponent(it, param) }
     }
 
     /**
@@ -359,8 +362,11 @@ class ZaaktypeCmmnConfiguration {
             "No UserEventListenerParameters found for zaaktypeUUID: '$zaakTypeUUID' and planitemDefinitionID: '$planitemDefinitionID'"
         )
 
-    fun findHumanTaskParameter(planitemDefinitionID: String): Optional<ZaaktypeCmmnHumantaskParameters> =
-        Optional.ofNullable(
-            getHumanTaskParametersCollection().firstOrNull { it.planItemDefinitionID == planitemDefinitionID }
-        )
+//    fun findHumanTaskParameter(planitemDefinitionID: String): Optional<ZaaktypeCmmnHumantaskParameters> =
+//        Optional.ofNullable(
+//            getHumanTaskParametersCollection().firstOrNull { it.planItemDefinitionID == planitemDefinitionID }
+//        )
+
+    fun findHumanTaskParameter(planitemDefinitionID: String): ZaaktypeCmmnHumantaskParameters? =
+        getHumanTaskParametersCollection().find { it.planItemDefinitionID == planitemDefinitionID }
 }

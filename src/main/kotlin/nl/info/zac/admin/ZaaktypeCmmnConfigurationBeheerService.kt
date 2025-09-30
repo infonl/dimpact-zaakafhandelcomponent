@@ -95,19 +95,23 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
 
     fun storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration): ZaaktypeCmmnConfiguration {
         ValidationUtil.valideerObject(zaaktypeCmmnConfiguration)
-        zaaktypeBpmnConfigurationService.findZaaktypeProcessDefinitionByZaaktypeUuid(
-            zaaktypeCmmnConfiguration.zaakTypeUUID!!
-        )?.let {
-            throw ZaaktypeInUseException(
-                "BPMN configuration for zaaktype '${zaaktypeCmmnConfiguration.zaaktypeOmschrijving} already exists"
-            )
+
+        zaaktypeCmmnConfiguration.zaakTypeUUID?.let { uuid ->
+            zaaktypeBpmnConfigurationService
+                .findZaaktypeProcessDefinitionByZaaktypeUuid(uuid)
+                ?.let {
+                    throw ZaaktypeInUseException(
+                        "BPMN configuration for zaaktype '${zaaktypeCmmnConfiguration.zaaktypeOmschrijving} already exists"
+                    )
+                }
         }
+
         zaaktypeCmmnConfigurationService.clearListCache()
         zaaktypeCmmnConfiguration.apply {
             getHumanTaskParametersCollection().forEach { ValidationUtil.valideerObject(it) }
             getUserEventListenerParametersCollection().forEach { ValidationUtil.valideerObject(it) }
             getMailtemplateKoppelingen().forEach { ValidationUtil.valideerObject(it) }
-            creatiedatum = zaaktypeCmmnConfiguration.creatiedatum ?: ZonedDateTime.now()
+            creatiedatum = creatiedatum ?: ZonedDateTime.now()
         }
 
         return if (zaaktypeCmmnConfiguration.id == null) {
@@ -194,8 +198,10 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         // ZaaktypeCmmnConfiguration and SmartDocumentsTemplates have circular relations. To solve this, we update
         // already existing ZaaktypeCmmnConfiguration with SmartDocuments settings
         previousZaaktypeCmmnConfiguration.zaakTypeUUID?.let { previousZaaktypeCmmnConfigurationUuid ->
-            mapSmartDocuments(previousZaaktypeCmmnConfigurationUuid, zaaktypeCmmnConfiguration.zaakTypeUUID!!)
-            storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
+            zaaktypeCmmnConfiguration.zaakTypeUUID?.let { newZaaktypeCmmnConfigurationUuid ->
+                mapSmartDocuments(previousZaaktypeCmmnConfigurationUuid, newZaaktypeCmmnConfigurationUuid)
+                storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
+            }
         }
     }
 
@@ -298,7 +304,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             planItemDefinitionID = it.planItemDefinitionID
             toelichting = it.toelichting
         }
-    }?.toSet()?.let(newZaaktypeCmmnConfiguration::setUserEventListenerParametersCollection)
+    }.toSet().let(newZaaktypeCmmnConfiguration::setUserEventListenerParametersCollection)
 
     /**
      * Kopieren van de ZaakbeeindigGegevens van de oude ZaaktypeCmmnConfiguration naar de nieuw ZaaktypeCmmnConfiguration
@@ -317,17 +323,17 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             previousZaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let {
                 mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen)
             }
-        val zaakbeeindigParametersCollection = previousZaaktypeCmmnConfiguration.getZaakbeeindigParameters().mapNotNull {
-                zaakbeeindigParameter ->
-            zaakbeeindigParameter.resultaattype
-                ?.let { mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen) }
-                ?.let {
-                    ZaaktypeCmmnCompletionParameters().apply {
-                        zaakbeeindigReden = zaakbeeindigParameter.zaakbeeindigReden
-                        resultaattype = it
+        val zaakbeeindigParametersCollection = previousZaaktypeCmmnConfiguration.getZaakbeeindigParameters()
+            .mapNotNull { zaakbeeindigParameter ->
+                zaakbeeindigParameter.resultaattype
+                    .let { mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen) }
+                    ?.let {
+                        ZaaktypeCmmnCompletionParameters().apply {
+                            zaakbeeindigReden = zaakbeeindigParameter.zaakbeeindigReden
+                            resultaattype = it
+                        }
                     }
-                }
-        }?.toMutableSet()
+            }.toMutableSet()
         newZaaktypeCmmnConfiguration.setZaakbeeindigParameters(zaakbeeindigParametersCollection)
     }
 
@@ -367,7 +373,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             mailTemplate = it.mailTemplate
             zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
         }
-    }?.let(newZaaktypeCmmnConfiguration::setMailtemplateKoppelingen)
+    }.let(newZaaktypeCmmnConfiguration::setMailtemplateKoppelingen)
 
     private fun mapVorigResultaattypeOpNieuwResultaattype(
         previousResultaattypeUUID: UUID,

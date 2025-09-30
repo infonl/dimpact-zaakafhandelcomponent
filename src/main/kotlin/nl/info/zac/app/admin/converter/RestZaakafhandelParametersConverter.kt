@@ -124,20 +124,29 @@ class RestZaakafhandelParametersConverter @Inject constructor(
         this.zaakAfzenders = zaaktypeCmmnConfiguration.getZaakAfzenders().toRestZaakAfzenders()
     }
 
+    @Suppress("ThrowsCount")
     fun toZaaktypeCmmnConfiguration(
         restZaakafhandelParameters: RestZaakafhandelParameters
-    ): ZaaktypeCmmnConfiguration =
-        zaaktypeCmmnConfigurationBeheerService.fetchZaaktypeCmmnConfiguration(
-            restZaakafhandelParameters.zaaktype.uuid!!
-        ).apply {
+    ): ZaaktypeCmmnConfiguration {
+        val zaaktypeCmmnConfiguration = restZaakafhandelParameters.zaaktype.uuid?.let { uuid ->
+            zaaktypeCmmnConfigurationBeheerService.fetchZaaktypeCmmnConfiguration(uuid)
+        } ?: throw NullPointerException("restZaakafhandelParameters.zaaktype.uuid is null")
+
+        return zaaktypeCmmnConfiguration.apply {
             id = restZaakafhandelParameters.id
             zaakTypeUUID = restZaakafhandelParameters.zaaktype.uuid
-            zaaktypeOmschrijving = restZaakafhandelParameters.zaaktype.omschrijving!!
-            caseDefinitionID = restZaakafhandelParameters.caseDefinition!!.key
+            zaaktypeOmschrijving = restZaakafhandelParameters.zaaktype.omschrijving
+                ?: throw NullPointerException("restZaakafhandelParameters.zaaktype.omschrijving is null")
+            caseDefinitionID = (
+                restZaakafhandelParameters.caseDefinition
+                    ?: throw NullPointerException("restZaakafhandelParameters.caseDefinition is null")
+                ).key
+
             groepID = restZaakafhandelParameters.defaultGroepId
             uiterlijkeEinddatumAfdoeningWaarschuwing =
                 restZaakafhandelParameters.uiterlijkeEinddatumAfdoeningWaarschuwing
-            nietOntvankelijkResultaattype = restZaakafhandelParameters.zaakNietOntvankelijkResultaattype!!.id
+            nietOntvankelijkResultaattype = restZaakafhandelParameters.zaakNietOntvankelijkResultaattype?.id
+                ?: throw NullPointerException("restZaakafhandelParameters.zaakNietOntvankelijkResultaattype is null")
             intakeMail = restZaakafhandelParameters.intakeMail?.name
             afrondenMail = restZaakafhandelParameters.afrondenMail?.name
             productaanvraagtype = restZaakafhandelParameters.productaanvraagtype?.trim()
@@ -167,9 +176,12 @@ class RestZaakafhandelParametersConverter @Inject constructor(
                 )
             )
             it.setZaakAfzenders(restZaakafhandelParameters.zaakAfzenders.toZaakAfzenders())
-            it.zaaktypeCmmnBetrokkeneParameters = restZaakafhandelParameters.betrokkeneKoppelingen.toBetrokkeneKoppelingen(it)
-            it.zaaktypeCmmnBrpParameters = restZaakafhandelParameters.brpDoelbindingen.toBrpDoelbindingen(it)
-            it.zaaktypeCmmnEmailParameters = restZaakafhandelParameters.automaticEmailConfirmation
-                .toAutomaticEmailConfirmation(it)
+            it.zaaktypeCmmnBetrokkeneParameters =
+                restZaakafhandelParameters.betrokkeneKoppelingen.toBetrokkeneKoppelingen(it)
+            it.zaaktypeCmmnBrpParameters =
+                restZaakafhandelParameters.brpDoelbindingen.toBrpDoelbindingen(it)
+            it.zaaktypeCmmnEmailParameters =
+                restZaakafhandelParameters.automaticEmailConfirmation.toAutomaticEmailConfirmation(it)
         }
+    }
 }

@@ -48,7 +48,6 @@ import nl.info.zac.zaak.ZaakService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI
 import java.time.LocalDate
-import java.util.Optional
 import java.util.UUID
 
 class PlanItemsRestServiceTest : BehaviorSpec({
@@ -250,11 +249,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
         every {
             zaaktypeCmmnConfigurationMock.findHumanTaskParameter(planItemInstanceId)
-        } returns Optional.of(
+        } returns
             createHumanTaskParameters().apply {
                 doorlooptijd = 10
             }
-        )
+
         every {
             cmmnService.startHumanTaskPlanItem(
                 planItemInstanceId,
@@ -310,11 +309,10 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         every { planItemInstance.planItemDefinitionId } returns additionalInfoPlanItemInstanceId
         every {
             zaaktypeCmmnConfigurationMock.findHumanTaskParameter(additionalInfoPlanItemInstanceId)
-        } returns Optional.of(
+        } returns
             createHumanTaskParameters().apply {
                 doorlooptijd = 10
             }
-        )
         every {
             suspensionZaakHelper.extendZaakFatalDate(zaak, numberOfDays, "Aanvullende informatie opgevraagd")
         } returns extendedZaak
