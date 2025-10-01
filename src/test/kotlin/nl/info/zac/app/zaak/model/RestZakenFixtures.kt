@@ -74,7 +74,6 @@ fun createRestDecisionCreateData(
 @Suppress("LongParameterList")
 fun createRestDecisionChangeData(
     besluitUUID: UUID = UUID.randomUUID(),
-    resultTypeUUID: UUID = UUID.randomUUID(),
     description: String = "besluitFakeDescription",
     effectiveDate: LocalDate = LocalDate.of(2023, 9, 14),
     expirationDate: LocalDate = LocalDate.of(2023, 11, 14),
@@ -84,7 +83,6 @@ fun createRestDecisionChangeData(
     reason: String = "fakeReason"
 ) = RestDecisionChangeData(
     besluitUuid = besluitUUID,
-    resultaattypeUuid = resultTypeUUID,
     toelichting = description,
     ingangsdatum = effectiveDate,
     vervaldatum = expirationDate,
