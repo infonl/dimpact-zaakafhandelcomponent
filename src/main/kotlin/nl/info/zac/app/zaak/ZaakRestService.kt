@@ -32,7 +32,6 @@ import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService.INADMISSIBLE_TERMINATION_ID
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService.INADMISSIBLE_TERMINATION_REASON
-import net.atos.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters.SpecialMail
 import net.atos.zac.app.bag.converter.RestBagConverter
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
@@ -64,6 +63,7 @@ import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
 import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
 import nl.info.zac.app.decision.DecisionService
@@ -484,23 +484,24 @@ class ZaakRestService @Inject constructor(
         val vandaag = LocalDate.now()
         val einddatumGeplandWaarschuwing = mutableMapOf<UUID, LocalDate>()
         val uiterlijkeEinddatumAfdoeningWaarschuwing = mutableMapOf<UUID, LocalDate>()
-        zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration().forEach {
-            if (it.einddatumGeplandWaarschuwing != null) {
-                einddatumGeplandWaarschuwing[it.zaakTypeUUID] = datumWaarschuwing(
-                    vandaag,
-                    it.einddatumGeplandWaarschuwing
-                )
+
+        zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration().forEach { zaaktypeCmmnConfiguration ->
+            zaaktypeCmmnConfiguration.einddatumGeplandWaarschuwing?.let { days ->
+                zaaktypeCmmnConfiguration.zaakTypeUUID?.let { uuid ->
+                    einddatumGeplandWaarschuwing[uuid] = datumWaarschuwing(vandaag, days)
+                }
             }
-            if (it.uiterlijkeEinddatumAfdoeningWaarschuwing != null) {
-                uiterlijkeEinddatumAfdoeningWaarschuwing[it.zaakTypeUUID] = datumWaarschuwing(
-                    vandaag,
-                    it.uiterlijkeEinddatumAfdoeningWaarschuwing
-                )
+            zaaktypeCmmnConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing?.let { days ->
+                zaaktypeCmmnConfiguration.zaakTypeUUID?.let { uuid ->
+                    uiterlijkeEinddatumAfdoeningWaarschuwing[uuid] = datumWaarschuwing(vandaag, days)
+                }
             }
         }
+
         val zaakListParameters = ZaakListParameters().apply {
             rolBetrokkeneIdentificatieMedewerkerIdentificatie = loggedInUserInstance.get().id
         }
+
         return zrcClientService.listZaken(zaakListParameters).results
             .filter { it.isOpen() }
             .filter {
@@ -645,6 +646,7 @@ class ZaakRestService @Inject constructor(
 
     @PATCH
     @Path("/zaak/{uuid}/afbreken")
+    @Suppress("NestedBlockDepth")
     fun terminateZaak(
         @PathParam("uuid") zaakUUID: UUID,
         afbrekenGegevens: RESTZaakAfbrekenGegevens
@@ -664,20 +666,22 @@ class ZaakRestService @Inject constructor(
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
             zaakType.url.extractUuid()
         )
+
         if (afbrekenGegevens.zaakbeeindigRedenId == INADMISSIBLE_TERMINATION_ID) {
-            // Use the hardcoded "niet ontvankelijk" zaakbeeindigreden that we don't manage via ZaaktypeCmmnConfiguration
-            terminateZaak(
-                zaak,
-                zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype,
-                INADMISSIBLE_TERMINATION_REASON
-            )
+            // Use the hardcoded "niet ontvankelijk" reden that we don't manage via ZaaktypeCmmnConfiguration
+            zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let { resultaattype ->
+                terminateZaak(zaak, resultaattype, INADMISSIBLE_TERMINATION_REASON)
+            }
         } else {
             afbrekenGegevens.zaakbeeindigRedenId.toLong().let { zaakbeeindigRedenId ->
-                zaaktypeCmmnConfiguration.readZaakbeeindigParameter(zaakbeeindigRedenId).let {
-                    terminateZaak(zaak, it.resultaattype, it.zaakbeeindigReden.naam)
+                zaaktypeCmmnConfiguration.readZaakbeeindigParameter(zaakbeeindigRedenId).let { param ->
+                    param.zaakbeeindigReden.naam?.let { naam ->
+                        terminateZaak(zaak, param.resultaattype, naam)
+                    }
                 }
             }
         }
+
         // Terminate case after the zaak is ended to prevent the EndCaseLifecycleListener from ending the zaak.
         cmmnService.terminateCase(zaakUUID)
     }
@@ -868,7 +872,7 @@ class ZaakRestService @Inject constructor(
         return sortAndRemoveDuplicateAfzenders(
             resolveZaakAfzenderMail(
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid())
-                    .zaakAfzenders
+                    .getZaakAfzenders()
                     .toRestZaakAfzenders()
             )
         )
@@ -1364,10 +1368,10 @@ class ZaakRestService @Inject constructor(
         }
     }
 
-    private fun resolveSpecialMail(specialMail: SpecialMail) =
+    private fun resolveSpecialMail(specialMail: ZaaktypeCmmnZaakafzenderParameters.SpecialMail) =
         when (specialMail) {
-            SpecialMail.GEMEENTE -> configuratieService.readGemeenteMail()
-            SpecialMail.MEDEWERKER -> loggedInUserInstance.get().email
+            ZaaktypeCmmnZaakafzenderParameters.SpecialMail.GEMEENTE -> configuratieService.readGemeenteMail()
+            ZaaktypeCmmnZaakafzenderParameters.SpecialMail.MEDEWERKER -> loggedInUserInstance.get().email
         }
 
     private fun verlengOpenTaken(zaakUUID: UUID, durationDays: Long): Int =
@@ -1417,17 +1421,29 @@ class ZaakRestService @Inject constructor(
             )
             .distinctBy { it.mail }
 
-    private fun speciaalMail(mail: String): SpecialMail? = if (!mail.contains("@")) SpecialMail.valueOf(mail) else null
+    private fun speciaalMail(mail: String): ZaaktypeCmmnZaakafzenderParameters.SpecialMail? = if (!mail.contains(
+            "@"
+        )
+    ) {
+        ZaaktypeCmmnZaakafzenderParameters.SpecialMail.valueOf(mail)
+    } else {
+        null
+    }
 
     private fun assertCanAddBetrokkene(restZaak: RestZaakCreateData, zaakTypeUUID: UUID) {
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+        val betrokkeneParameters = zaaktypeCmmnConfiguration.getBetrokkeneParameters()
 
-        restZaak.initiatorIdentificatie?.let {
-            if (it.type.isKvK && !zaaktypeCmmnConfiguration.betrokkeneParameters.kvkKoppelen) {
-                throw BetrokkeneNotAllowedException()
+        restZaak.initiatorIdentificatie?.let { initiator ->
+            betrokkeneParameters.kvkKoppelen?.let { enabled ->
+                if (initiator.type.isKvK && !enabled) {
+                    throw BetrokkeneNotAllowedException()
+                }
             }
-            if (it.type.isBsn && !zaaktypeCmmnConfiguration.betrokkeneParameters.brpKoppelen) {
-                throw BetrokkeneNotAllowedException()
+            betrokkeneParameters.brpKoppelen?.let { enabled ->
+                if (initiator.type.isBsn && !enabled) {
+                    throw BetrokkeneNotAllowedException()
+                }
             }
         }
     }

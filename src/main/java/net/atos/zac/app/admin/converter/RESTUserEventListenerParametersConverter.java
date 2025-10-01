@@ -8,9 +8,9 @@ package net.atos.zac.app.admin.converter;
 import java.util.List;
 import java.util.Set;
 
-import net.atos.zac.admin.model.ZaaktypeCmmnUsereventlistenerParameters;
 import net.atos.zac.app.admin.model.RESTPlanItemDefinition;
 import net.atos.zac.app.admin.model.RESTUserEventListenerParameter;
+import nl.info.zac.admin.model.ZaaktypeCmmnUsereventlistenerParameters;
 
 public final class RESTUserEventListenerParametersConverter {
 

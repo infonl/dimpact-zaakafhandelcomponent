@@ -12,9 +12,9 @@ import java.util.Set;
 
 import jakarta.inject.Inject;
 
-import net.atos.zac.admin.model.ZaaktypeCmmnCompletionParameters;
 import net.atos.zac.app.admin.model.RESTZaakbeeindigParameter;
 import nl.info.client.zgw.ztc.ZtcClientService;
+import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters;
 
 public class RESTZaakbeeindigParameterConverter {
 
@@ -41,8 +41,7 @@ public class RESTZaakbeeindigParameterConverter {
         final RESTZaakbeeindigParameter restZaakbeeindigParameter = new RESTZaakbeeindigParameter();
         restZaakbeeindigParameter.id = zaaktypeCmmnCompletionParameters.getId();
         restZaakbeeindigParameter.zaakbeeindigReden = RESTZaakbeeindigRedenConverter.convertZaakbeeindigReden(
-                zaaktypeCmmnCompletionParameters
-                        .getZaakbeeindigReden()
+                zaaktypeCmmnCompletionParameters.zaakbeeindigReden
         );
         restZaakbeeindigParameter.resultaattype = toRestResultaatType(ztcClientService.readResultaattype(zaaktypeCmmnCompletionParameters
                 .getResultaattype()));
