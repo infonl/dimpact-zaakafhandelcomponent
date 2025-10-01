@@ -58,4 +58,20 @@ class ZaaktypeCmmnUsereventlistenerParameters : UserModifiable<ZaaktypeCmmnUsere
         id = null
         return this
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ZaaktypeCmmnUsereventlistenerParameters) return false
+
+        if (planItemDefinitionID != other.planItemDefinitionID) return false
+        if (toelichting != other.toelichting) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = planItemDefinitionID?.hashCode() ?: 0
+        result = 31 * result + (toelichting?.hashCode() ?: 0)
+        return result
+    }
 }
