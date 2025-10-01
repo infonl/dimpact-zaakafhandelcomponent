@@ -8,9 +8,9 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
+import { injectMutation } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { EMPTY, Observable, of, Subject, takeUntil } from "rxjs";
-import { catchError } from "rxjs/operators";
+import { firstValueFrom, Observable, of, Subject, takeUntil } from "rxjs";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { UtilService } from "../../core/service/util.service";
@@ -47,6 +47,15 @@ export class ZaakCreateComponent implements OnDestroy {
     "vertrouwelijkheidaanduiding",
     Vertrouwelijkheidaanduiding,
   );
+
+  protected createZaakMutation = injectMutation(() => ({
+    mutationFn: (
+      zaakData: Parameters<typeof this.zakenService.createZaak>[0],
+    ) => firstValueFrom(this.zakenService.createZaak(zaakData)),
+    onSuccess: ({ identificatie }) =>
+      this.router.navigate(["/zaken/", identificatie]),
+    onError: () => this.form.reset(),
+  }));
 
   protected readonly form = this.formBuilder.group({
     zaaktype: this.formBuilder.control<GeneratedType<"RestZaaktype"> | null>(
@@ -143,33 +152,23 @@ export class ZaakCreateComponent implements OnDestroy {
     this.handleProductRequest(this.inboxProductaanvraag);
   }
 
-  formSubmit(): void {
+  formSubmit() {
     const { value } = this.form;
 
-    this.zakenService
-      .createZaak({
-        zaak: {
-          ...value,
-          initiatorIdentificatie: value.initiatorIdentificatie
-            ? new BetrokkeneIdentificatie(value.initiatorIdentificatie)
-            : null,
-          vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
-          startdatum: value.startdatum?.toISOString(),
-          omschrijving: value.omschrijving!,
-          zaaktype: value.zaaktype!,
-        },
-        bagObjecten: value.bagObjecten,
-        inboxProductaanvraag: this.inboxProductaanvraag,
-      })
-      .pipe(
-        catchError(() => {
-          this.form.reset();
-          return EMPTY;
-        }),
-      )
-      .subscribe((zaak) =>
-        this.router.navigate(["/zaken/", zaak?.identificatie]),
-      );
+    this.createZaakMutation.mutate({
+      zaak: {
+        ...value,
+        initiatorIdentificatie: value.initiatorIdentificatie
+          ? new BetrokkeneIdentificatie(value.initiatorIdentificatie)
+          : null,
+        vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
+        startdatum: value.startdatum?.toISOString(),
+        omschrijving: value.omschrijving!,
+        zaaktype: value.zaaktype!,
+      },
+      bagObjecten: value.bagObjecten,
+      inboxProductaanvraag: this.inboxProductaanvraag,
+    });
   }
 
   async initiatorSelected(user: GeneratedType<"RestPersoon" | "RestBedrijf">) {
@@ -180,7 +179,7 @@ export class ZaakCreateComponent implements OnDestroy {
     await this.actionsSidenav.close();
   }
 
-  caseTypeSelected(caseType?: GeneratedType<"RestZaaktype"> | null): void {
+  caseTypeSelected(caseType?: GeneratedType<"RestZaaktype"> | null) {
     if (!caseType) return;
     const { zaakafhandelparameters, vertrouwelijkheidaanduiding } = caseType;
     this.form.controls.groep.enable();
