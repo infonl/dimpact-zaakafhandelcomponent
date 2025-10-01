@@ -52,7 +52,6 @@ class MailTemplateHelper @Inject constructor(
     companion object {
         private val LOG = Logger.getLogger(MailTemplateHelper::class.java.name)
         private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
-        private const val ACTION = "E-mail verzenden"
         private const val REPLACEMENT_FOR_UNKNOWN_NAME = "Onbekend"
     }
 
@@ -112,7 +111,7 @@ class MailTemplateHelper @Inject constructor(
             resolvedTekst = zgwApiService.findInitiatorRoleForZaak(zaak)?.let { initiatorRole ->
                 replaceInitiatorVariables(
                     resolvedText = resolvedTekst,
-                    auditEvent = "${zaak.getIdentificatie()}@$ACTION",
+                    zaakIdentificatie = zaak.identificatie,
                     initiatorRole = initiatorRole
                 )
             } ?: replaceInitiatorVariablesWithUnknownText(resolvedTekst)
@@ -223,7 +222,7 @@ class MailTemplateHelper @Inject constructor(
     @Suppress("NestedBlockDepth")
     private fun replaceInitiatorVariables(
         resolvedText: String,
-        auditEvent: String,
+        zaakIdentificatie: String,
         initiatorRole: Rol<*>
     ): String {
         val identificatie = initiatorRole.getIdentificatienummer() ?: run {
@@ -232,7 +231,7 @@ class MailTemplateHelper @Inject constructor(
         }
         return when (initiatorRole.betrokkeneType) {
             BetrokkeneTypeEnum.NATUURLIJK_PERSOON ->
-                brpClientService.retrievePersoon(identificatie, auditEvent)?.let {
+                brpClientService.retrievePersoon(identificatie, zaakIdentificatie)?.let {
                     replaceInitiatorVariablesPersoon(resolvedText, it)
                 } ?: ""
 

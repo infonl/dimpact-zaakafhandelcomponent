@@ -25,6 +25,7 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_VERWERKINGSREGISTER_WAARDE
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.COMMUNICATIEKANAAL
 import nl.info.zac.configuratie.ConfiguratieService.Companion.COMMUNICATIEKANAAL_EFORMULIER
 import nl.info.zac.configuratie.ConfiguratieService.Companion.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL
@@ -200,7 +201,12 @@ class HealthCheckService @Inject constructor(
             referenceTableService.readReferenceTable(BRP_DOELBINDING_ZOEK_WAARDE.name)
         val brpDoelbindingRaadpleegWaarde =
             referenceTableService.readReferenceTable(BRP_DOELBINDING_RAADPLEEG_WAARDE.name)
-        if (brpDoelbindingZoekWaarde.values.isNotEmpty() && brpDoelbindingRaadpleegWaarde.values.isNotEmpty()) {
+        val brpVerwerkingsregisterWaarde =
+            referenceTableService.readReferenceTable(BRP_VERWERKINGSREGISTER_WAARDE.name)
+        if (brpDoelbindingZoekWaarde.values.isNotEmpty() &&
+            brpDoelbindingRaadpleegWaarde.values.isNotEmpty() &&
+            brpVerwerkingsregisterWaarde.values.isNotEmpty()
+        ) {
             zaaktypeInrichtingscheck.isBrpDoelbindingenAanwezig = true
         }
     }

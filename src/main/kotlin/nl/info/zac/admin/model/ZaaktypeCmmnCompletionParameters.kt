@@ -50,7 +50,6 @@ class ZaaktypeCmmnCompletionParameters : UserModifiable<ZaaktypeCmmnCompletionPa
 
     override fun equals(other: Any?): Boolean {
         if (other !is ZaaktypeCmmnCompletionParameters) return false
-        check(!(zaakbeeindigReden == null || other.zaakbeeindigReden == null)) { "zaakbeeindigReden is null" }
         return zaakbeeindigReden.id == other.zaakbeeindigReden.id &&
             resultaattype == other.resultaattype
     }

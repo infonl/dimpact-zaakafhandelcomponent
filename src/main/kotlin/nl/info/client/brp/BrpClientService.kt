@@ -47,6 +47,9 @@ class BrpClientService @Inject constructor(
     @ConfigProperty(name = ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET)
     private val retrievePersoonDefaultPurpose: Optional<String>,
 
+    @ConfigProperty(name = ENV_VAR_BRP_VERWERKINGSREGISTER)
+    private val processingRegisterDefault: Optional<String>,
+
     private val zrcClientService: ZrcClientService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService
 ) {
@@ -54,6 +57,7 @@ class BrpClientService @Inject constructor(
         private val LOG = Logger.getLogger(BrpClientService::class.java.name)
         private const val ENV_VAR_BRP_DOELBINDING_ZOEKMET = "brp.doelbinding.zoekmet"
         private const val ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET = "brp.doelbinding.raadpleegmet"
+        private const val ENV_VAR_BRP_VERWERKINGSREGISTER = "brp.verwerkingsregister"
         private const val BURGERSERVICENUMMER = "burgerservicenummer"
         private const val GESLACHT = "geslacht"
         private const val NAAM = "naam"
@@ -73,15 +77,14 @@ class BrpClientService @Inject constructor(
         private val FIELDS_PERSOON_BEPERKT = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING)
     }
 
-    fun queryPersonen(personenQuery: PersonenQuery, auditEvent: String): PersonenQueryResponse =
+    fun queryPersonen(personenQuery: PersonenQuery, zaakIdentificatie: String? = null): PersonenQueryResponse =
         updateQuery(personenQuery).let { updatedQuery ->
             personenApi.personen(
                 personenQuery = updatedQuery,
-                purpose = resolvePurposeFromContext(
-                    auditEvent,
-                    queryPersonenDefaultPurpose.getOrNull()
-                ) { it.zaaktypeCmmnBrpParameters?.zoekWaarde },
-                auditEvent = auditEvent
+                purpose = resolvePurpose(zaakIdentificatie, queryPersonenDefaultPurpose.getOrNull()) {
+                    it.zaaktypeCmmnBrpParameters?.zoekWaarde
+                },
+                auditEvent = resoleProcessingValue(zaakIdentificatie, processingRegisterDefault.getOrNull())
             )
         }
 
@@ -89,49 +92,19 @@ class BrpClientService @Inject constructor(
      * Retrieves a person by burgerservicenummer from the BRP Personen API.
      *
      * @param burgerservicenummer the burgerservicenummer of the person to retrieve
+     * @param zaakIdentificatie the ID of the zaak the person is requested for, if any
      * @return the person if found, otherwise null
      *
      */
-    fun retrievePersoon(burgerservicenummer: String, auditEvent: String): Persoon? = (
+    fun retrievePersoon(burgerservicenummer: String, zaakIdentificatie: String? = null): Persoon? = (
         personenApi.personen(
             personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer),
-            purpose = resolvePurposeFromContext(
-                auditEvent,
-                retrievePersoonDefaultPurpose.getOrNull()
-            ) { it.zaaktypeCmmnBrpParameters?.raadpleegWaarde },
-            auditEvent = auditEvent
+            purpose = resolvePurpose(zaakIdentificatie, retrievePersoonDefaultPurpose.getOrNull()) {
+                it.zaaktypeCmmnBrpParameters?.raadpleegWaarde
+            },
+            auditEvent = resoleProcessingValue(zaakIdentificatie, processingRegisterDefault.getOrNull())
         ) as RaadpleegMetBurgerservicenummerResponse
         ).personen?.firstOrNull()
-
-    private fun resolvePurposeFromContext(
-        auditEvent: String,
-        defaultPurpose: String?,
-        extractPurpose: (ZaaktypeCmmnConfiguration) -> String?
-    ): String? =
-        auditEvent
-            .also { LOG.info("Resolving purpose for audit event: $auditEvent") }
-            .let { """ZAAK-\d{4}-\d+""".toRegex().find(it)?.value }
-            ?.runCatching {
-                zrcClientService.readZaakByID(this)
-                    .zaaktype.extractUuid()
-                    .let(zaaktypeCmmnConfigurationService::readZaaktypeCmmnConfiguration)
-                    .let(extractPurpose)
-            }?.onFailure {
-                LOG.log(Level.WARNING, "Failed to resolve purpose from audit event '$auditEvent'", it)
-            }?.getOrElse {
-                LOG.warning("Using default purpose '$defaultPurpose' for audit event '$auditEvent'")
-                null
-            }
-            ?: run {
-                LOG.info("No purpose found in audit event '$auditEvent', using default purpose '$defaultPurpose'")
-                defaultPurpose
-            }
-
-    private fun createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer: String) =
-        RaadpleegMetBurgerservicenummer().apply {
-            type = RAADPLEEG_MET_BURGERSERVICENUMMER
-            fields = FIELDS_PERSOON
-        }.addBurgerservicenummerItem(burgerservicenummer)
 
     private fun updateQuery(personenQuery: PersonenQuery): PersonenQuery = personenQuery.apply {
         type = when (personenQuery) {
@@ -146,4 +119,57 @@ class BrpClientService @Inject constructor(
         }
         fields = if (personenQuery is RaadpleegMetBurgerservicenummer) FIELDS_PERSOON else FIELDS_PERSOON_BEPERKT
     }
+
+    private fun createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer: String) =
+        RaadpleegMetBurgerservicenummer().apply {
+            type = RAADPLEEG_MET_BURGERSERVICENUMMER
+            fields = FIELDS_PERSOON
+        }.addBurgerservicenummerItem(burgerservicenummer)
+
+    private fun resolvePurpose(
+        zaakIdentificatie: String?,
+        defaultPurpose: String?,
+        extractPurpose: (ZaaktypeCmmnConfiguration) -> String?
+    ): String? =
+        zaakIdentificatie?.runCatching {
+            LOG.fine("Resolving purpose for zaak with UUID: $this")
+            zrcClientService.readZaakByID(this)
+                .zaaktype.extractUuid()
+                .let(zaaktypeCmmnConfigurationService::readZaaktypeCmmnConfiguration)
+                .let(extractPurpose)
+        }?.onFailure {
+            LOG.log(Level.WARNING, "Failed to resolve purpose from zaak $zaakIdentificatie", it)
+        }?.getOrElse {
+            LOG.info("Using default purpose '$defaultPurpose' for zaak $zaakIdentificatie")
+            null
+        } ?: run {
+            val reason = zaakIdentificatie?.let { "No purpose found for zaak $zaakIdentificatie" }
+                ?: "No zaak identification provided"
+            LOG.info("$reason. Using default purpose '$defaultPurpose'")
+            defaultPurpose
+        }
+
+    private fun resoleProcessingValue(
+        zaakIdentificatie: String?,
+        defaultProcessingRegisterValue: String?
+    ): String? =
+        zaakIdentificatie?.runCatching {
+            LOG.fine("Resolving processing value for zaak with UUID: $this")
+            zrcClientService.readZaakByID(this)
+                .zaaktype.extractUuid()
+                .let(zaaktypeCmmnConfigurationService::readZaaktypeCmmnConfiguration)
+                .let {
+                    "${it.zaaktypeCmmnBrpParameters?.verwerkingRegisterWaarde ?: defaultProcessingRegisterValue}@${it.zaaktypeOmschrijving}"
+                }
+        }?.onFailure {
+            LOG.log(Level.WARNING, "Failed to resolve processing value for zaak $zaakIdentificatie", it)
+        }?.getOrElse {
+            LOG.info("Using default processing value '$defaultProcessingRegisterValue' for zaak $zaakIdentificatie")
+            null
+        } ?: run {
+            val reason = zaakIdentificatie?.let { "No processing value found for zaak $zaakIdentificatie" }
+                ?: "No zaak identification provided"
+            LOG.info("$reason. Using default '$defaultProcessingRegisterValue'")
+            defaultProcessingRegisterValue
+        }
 }
