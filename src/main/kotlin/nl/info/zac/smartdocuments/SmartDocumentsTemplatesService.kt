@@ -11,7 +11,7 @@ import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.documentcreation.CmmnDocumentCreationService
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup

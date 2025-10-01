@@ -17,7 +17,6 @@ import io.mockk.slot
 import io.mockk.verify
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.admin.model.FormulierDefinitie
-import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
 import net.atos.zac.app.mail.model.createRESTMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -28,6 +27,7 @@ import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createHumanTaskParameters
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.planitems.converter.RESTPlanItemConverter
@@ -48,7 +48,6 @@ import nl.info.zac.zaak.ZaakService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI
 import java.time.LocalDate
-import java.util.Optional
 import java.util.UUID
 
 class PlanItemsRestServiceTest : BehaviorSpec({
@@ -250,11 +249,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
         every {
             zaaktypeCmmnConfigurationMock.findHumanTaskParameter(planItemInstanceId)
-        } returns Optional.of(
+        } returns
             createHumanTaskParameters().apply {
                 doorlooptijd = 10
             }
-        )
+
         every {
             cmmnService.startHumanTaskPlanItem(
                 planItemInstanceId,
@@ -310,11 +309,10 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         every { planItemInstance.planItemDefinitionId } returns additionalInfoPlanItemInstanceId
         every {
             zaaktypeCmmnConfigurationMock.findHumanTaskParameter(additionalInfoPlanItemInstanceId)
-        } returns Optional.of(
+        } returns
             createHumanTaskParameters().apply {
                 doorlooptijd = 10
             }
-        )
         every {
             suspensionZaakHelper.extendZaakFatalDate(zaak, numberOfDays, "Aanvullende informatie opgevraagd")
         } returns extendedZaak

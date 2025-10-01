@@ -22,8 +22,8 @@ import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 
 import net.atos.client.zgw.shared.cache.Caching;
-import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration;
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService;
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration;
 
 @ApplicationScoped
 public class ZaaktypeCmmnConfigurationService implements Caching {
@@ -77,7 +77,7 @@ public class ZaaktypeCmmnConfigurationService implements Caching {
     }
 
     public boolean isSmartDocumentsEnabled(final UUID zaaktypeUUID) {
-        return readZaaktypeCmmnConfiguration(zaaktypeUUID).isSmartDocumentsIngeschakeld();
+        return readZaaktypeCmmnConfiguration(zaaktypeUUID).getSmartDocumentsIngeschakeld();
     }
 
     public void cacheRemoveZaaktypeCmmnConfiguration(final UUID zaaktypeUUID) {

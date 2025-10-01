@@ -59,7 +59,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
             klantClientService.findDigitalAddressesByNumber(betrokkene.inpBsn)
         } returns listOf(digitalAddress)
         every {
-            mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.automaticEmailConfirmation.templateName)
+            mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
         } returns mailTemplate
         every { mailService.sendMail(capture(mailGegevens), capture(bronnen)) } returns "body"
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
@@ -72,9 +72,9 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                     mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
                 }
                 with(mailGegevens.captured) {
-                    from.email shouldBe zaaktypeCmmnConfiguration.automaticEmailConfirmation.emailSender
+                    from.email shouldBe zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailSender
                     to.email shouldBe receiverEmail
-                    replyTo!!.email shouldBe zaaktypeCmmnConfiguration.automaticEmailConfirmation.emailReply
+                    replyTo!!.email shouldBe zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailReply
                     subject shouldBe mailTemplate.onderwerp
                     body shouldBe mailTemplate.body
                     attachments shouldBe emptyList()
@@ -115,7 +115,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
             klantClientService.findDigitalAddressesByNumber(betrokkene.inpBsn)
         } returns listOf(digitalAddress)
         every {
-            mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.automaticEmailConfirmation.templateName)
+            mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
         } returns mailTemplate
 
         every { configuratieService.readGemeenteMail() } returns councilEmailAddress
@@ -166,7 +166,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
             klantClientService.findDigitalAddressesByNumber(betrokkene.inpBsn)
         } returns listOf(digitalAddress)
         every {
-            mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.automaticEmailConfirmation.templateName)
+            mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
         } returns mailTemplate
         every { mailService.sendMail(capture(mailGegevens), capture(bronnen)) } returns "body"
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
@@ -179,9 +179,9 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                     mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
                 }
                 with(mailGegevens.captured) {
-                    from.email shouldBe zaaktypeCmmnConfiguration.automaticEmailConfirmation.emailSender
+                    from.email shouldBe zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailSender
                     to.email shouldBe receiverEmail
-                    replyTo!!.email shouldBe zaaktypeCmmnConfiguration.automaticEmailConfirmation.emailReply
+                    replyTo!!.email shouldBe zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailReply
                     subject shouldBe mailTemplate.onderwerp
                     body shouldBe mailTemplate.body
                     attachments shouldBe emptyList()
@@ -225,7 +225,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
             klantClientService.findDigitalAddressesByNumber(betrokkene.vestigingsNummer)
         } returns listOf(digitalAddress)
         every {
-            mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.automaticEmailConfirmation.templateName)
+            mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
         } returns null
 
         When("sendEmailForZaakFromProductaanvraag is called") {
@@ -234,7 +234,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
             Then("no mail is sent") {
                 verify(exactly = 1) {
                     mailTemplateService.findMailtemplateByName(
-                        zaaktypeCmmnConfiguration.automaticEmailConfirmation.templateName
+                        zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!
                     )
                 }
             }

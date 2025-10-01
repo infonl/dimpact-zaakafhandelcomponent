@@ -6,14 +6,6 @@
 package nl.info.zac.admin.model
 
 import net.atos.zac.admin.model.HumanTaskReferentieTabel
-import net.atos.zac.admin.model.ZaaktypeCmmnBetrokkeneParameters
-import net.atos.zac.admin.model.ZaaktypeCmmnBrpParameters
-import net.atos.zac.admin.model.ZaaktypeCmmnCompletionParameters
-import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration
-import net.atos.zac.admin.model.ZaaktypeCmmnEmailParameters
-import net.atos.zac.admin.model.ZaaktypeCmmnHumantaskParameters
-import net.atos.zac.admin.model.ZaaktypeCmmnMailtemplateParameters
-import net.atos.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
 import java.time.ZonedDateTime
@@ -38,19 +30,19 @@ fun createHumanTaskParameters(
     zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(),
     isActief: Boolean = true,
     formulierDefinitieID: String? = "fakeFormulierDefinitieID",
-    planItemDefinitionID: String? = "fakePlanItemDefinitionID",
-    groupId: String? = "fakeGroupId",
+    planItemDefinitionID: String = "fakePlanItemDefinitionID",
+    groupId: String = "fakeGroupId",
     leadTime: Int? = 1000000000,
     referenceTables: List<HumanTaskReferentieTabel>? = emptyList()
 ) = ZaaktypeCmmnHumantaskParameters().apply {
     this.id = id
     this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
-    this.isActief = isActief
-    this.formulierDefinitieID = formulierDefinitieID
+    this.actief = isActief
+    this.setFormulierDefinitieID(formulierDefinitieID)
     this.planItemDefinitionID = planItemDefinitionID
     this.groepID = groupId
     this.doorlooptijd = leadTime
-    referentieTabellen = referenceTables ?: emptyList()
+    this.setReferentieTabellen((referenceTables ?: emptyList()).toMutableList())
 }
 
 fun createHumanTaskReferentieTabel(
@@ -133,13 +125,13 @@ fun createZaaktypeCmmnConfiguration(
         setZaakAfzenders(setOf(createZaakAfzender(zaaktypeCmmnConfiguration = this)))
         setZaakbeeindigParameters(zaaktypeCmmnCompletionParameters)
         val parameters = this
-        this.betrokkeneParameters = zaaktypeCmmnBetrokkeneParameters.apply {
+        this.zaaktypeCmmnBetrokkeneParameters = zaaktypeCmmnBetrokkeneParameters.apply {
             this.zaaktypeCmmnConfiguration = parameters
         }
-        this.brpDoelbindingen = zaaktypeCmmnBrpParameters.apply {
+        this.zaaktypeCmmnBrpParameters = zaaktypeCmmnBrpParameters.apply {
             this?.zaaktypeCmmnConfiguration = parameters
         }
-        this.automaticEmailConfirmation = zaaktypeCmmnEmailParameters.apply {
+        this.zaaktypeCmmnEmailParameters = zaaktypeCmmnEmailParameters.apply {
             this.zaaktypeCmmnConfiguration = parameters
         }
     }
@@ -186,12 +178,12 @@ fun createZaakAfzender(
     id: Long? = 1234L,
     zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
     defaultMail: Boolean = false,
-    mail: String? = "mail@example.com",
+    mail: String = "mail@example.com",
     replyTo: String? = "replyTo@example.com",
 ) = ZaaktypeCmmnZaakafzenderParameters().apply {
     this.id = id
     this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
-    this.isDefault = defaultMail
+    this.defaultMail = defaultMail
     this.mail = mail
     this.replyTo = replyTo
 }

@@ -10,10 +10,10 @@ import java.util.List;
 
 import jakarta.inject.Inject;
 
-import net.atos.zac.admin.model.ZaaktypeCmmnHumantaskParameters;
 import net.atos.zac.app.admin.model.RESTHumanTaskParameters;
 import net.atos.zac.app.admin.model.RESTPlanItemDefinition;
 import net.atos.zac.app.admin.model.RestHumanTaskReferenceTable;
+import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters;
 import nl.info.zac.app.planitems.converter.FormulierKoppelingConverterKt;
 
 public class RESTHumanTaskParametersConverter {
@@ -57,7 +57,7 @@ public class RESTHumanTaskParametersConverter {
     ) {
         final RESTHumanTaskParameters restHumanTaskParameters = new RESTHumanTaskParameters();
         restHumanTaskParameters.id = zaaktypeCmmnHumantaskParameters.getId();
-        restHumanTaskParameters.actief = zaaktypeCmmnHumantaskParameters.isActief();
+        restHumanTaskParameters.actief = zaaktypeCmmnHumantaskParameters.getActief();
         restHumanTaskParameters.defaultGroepId = zaaktypeCmmnHumantaskParameters.getGroepID();
         restHumanTaskParameters.planItemDefinition = humanTaskDefinition;
         restHumanTaskParameters.formulierDefinitieId = zaaktypeCmmnHumantaskParameters.getFormulierDefinitieID();

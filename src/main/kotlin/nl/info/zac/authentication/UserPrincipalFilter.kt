@@ -25,6 +25,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
 import org.wildfly.security.http.oidc.RefreshableOidcSecurityContext
+import java.time.Instant
+import java.time.ZoneOffset
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.jvm.java
@@ -183,7 +185,8 @@ constructor(
                 .groupBy { it.zaaktypeOmschrijving }
                 // get the zaaktypeCmmnConfigurations with the latest creation date (= the active
                 // one)
-                .map { it.value.maxBy { value -> value.creatiedatum } }
+                .values
+                .map { list -> list.maxBy { value -> value.creatiedatum ?: Instant.MIN.atZone(ZoneOffset.MIN) } }
                 // filter out the zaaktypeCmmnConfigurations that have a domain that is equal to
                 // one of the user's (domain) roles
                 .filter { it.domein != null && roles.contains(it.domein) }
