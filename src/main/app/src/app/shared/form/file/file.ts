@@ -58,23 +58,19 @@ export class ZacFile<
 
     effect(
       async () => {
-        const additionalFileTypes = await lastValueFrom(
-          this.configuratieService.readAdditionalAllowedFileTypes()
-        );
-
-        let allowedFileTypes = this.allowedFileTypes();
-
-        if (!allowedFileTypes.length) {
-          const defaultFileTypes = FileIcon.fileIcons.map((icon) =>
-            icon.getBestandsextensie()
-          );
-          allowedFileTypes = defaultFileTypes.concat(additionalFileTypes);
-        } else {
-          allowedFileTypes =
-            this.allowedFileTypes().concat(additionalFileTypes);
+        if(this.allowedFileTypes().length) {
+          this.allowedFormats.set(this.allowedFileTypes());
+          return
         }
 
-        this.allowedFormats.set(allowedFileTypes);
+        const additionalFileTypes = await lastValueFrom(
+            this.configuratieService.readAdditionalAllowedFileTypes()
+        );
+        const defaultFileTypes = FileIcon.fileIcons.map((icon) =>
+          icon.getBestandsextensie()
+        );
+
+        this.allowedFormats.set(defaultFileTypes.concat(additionalFileTypes));
       },
       { allowSignalWrites: true }
     );
@@ -100,6 +96,7 @@ export class ZacFile<
 
   ngOnDestroy() {
     this.reset();
+    super.ngOnDestroy()
   }
 
   protected reset() {
@@ -108,19 +105,19 @@ export class ZacFile<
     this.updateInputControls(null);
   }
 
-  protected droppedFile(files: FileList) {
+  protected async droppedFile(files: FileList) {
     if (!files.length) return;
-    this.setFile(files[0]);
+    await this.setFile(files[0]);
   }
 
-  protected selectedFile(event: Event) {
+  protected async selectedFile(event: Event) {
     if (!event.target) return;
     const fileInput = event.target as HTMLInputElement;
     if (!fileInput.files?.length) return;
-    this.setFile(fileInput.files[0]);
+    await this.setFile(fileInput.files[0]);
   }
 
-  private setFile(file: File) {
+  private async setFile(file: File) {
     this.control()?.setErrors(null);
     this.updateInputControls(file);
 
@@ -138,7 +135,7 @@ export class ZacFile<
       return;
     }
 
-    if (!this.isFileSizeAllowed(file)) {
+    if (!(await this.isFileSizeAllowed(file))) {
       this.control()?.setErrors({
         fileTooLarge: { size: this.getFileSizeInMB(file) },
       });
@@ -163,7 +160,8 @@ export class ZacFile<
 
   private async isFileSizeAllowed(file: File) {
     const fileSizeMB = this.getFileSizeInMB(file);
-    return fileSizeMB <= (await this.fileSize());
+    const maxFileSizeMB = await this.fileSize();
+    return fileSizeMB <= maxFileSizeMB;
   }
 
   private getFileExtension(file: File) {

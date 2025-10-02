@@ -199,6 +199,8 @@ describe(ZacFile.name, () => {
 
     it("should validate file type", async () => {
       componentRef.setInput("allowedFileTypes", [".txt", ".pdf"]);
+      fixture.detectChanges();
+      await fixture.whenStable()
       const invalidFile = createMockFile("test.doc", 1024);
       const mockEvent = fromPartial<Event>({
         target: fromPartial<HTMLInputElement>({
@@ -206,14 +208,14 @@ describe(ZacFile.name, () => {
         }),
       });
 
-      component["selectedFile"](mockEvent);
+      await component["selectedFile"](mockEvent);
 
       expect(component.form().controls.document.errors).toEqual({
         fileTypeInvalid: { type: "doc" },
       });
     });
 
-    it("should validate file size", () => {
+    it("should validate file size", async () => {
       componentRef.setInput("maxFileSizeMB", 1);
       const largeFile = createMockFile("test.txt", 2 * 1024 * 1024); // 2MB
       const mockEvent = fromPartial<Event>({
@@ -222,14 +224,14 @@ describe(ZacFile.name, () => {
         }),
       });
 
-      component["selectedFile"](mockEvent);
+      await component["selectedFile"](mockEvent);
 
       expect(component.form().controls.document.errors).toEqual({
         fileTooLarge: { size: 2 },
       });
     });
 
-    it("should validate empty file", () => {
+    it("should validate empty file", async () => {
       const emptyFile = createMockFile("test.txt", 0);
       const mockEvent = fromPartial<Event>({
         target: fromPartial<HTMLInputElement>({
@@ -237,14 +239,14 @@ describe(ZacFile.name, () => {
         }),
       });
 
-      component["selectedFile"](mockEvent);
+      await component["selectedFile"](mockEvent);
 
       expect(component.form().controls.document.errors).toEqual({
         fileEmpty: true,
       });
     });
 
-    it("should accept valid file", () => {
+    it("should accept valid file", async () => {
       componentRef.setInput("allowedFileTypes", [".txt"]);
       componentRef.setInput("maxFileSizeMB", 5);
       const validFile = createMockFile("test.txt", 1024);
@@ -254,7 +256,7 @@ describe(ZacFile.name, () => {
         }),
       });
 
-      component["selectedFile"](mockEvent);
+      await component["selectedFile"](mockEvent);
 
       expect(component.form().controls.document.value).toBe(validFile);
       expect(component.form().controls.document.errors).toBeNull();

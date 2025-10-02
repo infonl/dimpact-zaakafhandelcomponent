@@ -8,7 +8,12 @@ import {
   effect,
   booleanAttribute,
 } from "@angular/core";
-import {AbstractControl, FormGroup, ValidationErrors, Validators} from "@angular/forms";
+import {
+  AbstractControl,
+  FormGroup,
+  ValidationErrors,
+  Validators,
+} from "@angular/forms";
 import { FormHelper } from "./helpers";
 import { TranslateService } from "@ngx-translate/core";
 import { lastValueFrom, Observable, Subject, takeUntil } from "rxjs";
@@ -46,24 +51,30 @@ export class SingleInputFormField<
   public readonly readonly = input(false, { transform: booleanAttribute });
 
   constructor() {
-    effect(() => {
-      const control = this.control();
-      if (!control) {
-        this.controlErrors.set(null);
-        return;
-      }
+    effect(
+      () => {
+        const control = this.control();
+        if (!control) {
+          this.controlErrors.set(null);
+          return;
+        }
 
-      control.statusChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        control.statusChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+          this.controlErrors.set(control.errors);
+        });
+
+        // Set initial errors
         this.controlErrors.set(control.errors);
-      });
-
-      // Set initial errors
-      this.controlErrors.set(control.errors);
-    }, { allowSignalWrites: true });
+      },
+      { allowSignalWrites: true }
+    );
   }
 
   protected readonly formError = computed(() => {
-    return FormHelper.getErrorMessage(this.controlErrors(), this.translateService);
+    return FormHelper.getErrorMessage(
+      this.controlErrors(),
+      this.translateService
+    );
   });
 
   protected isRequired = computed(
@@ -86,14 +97,11 @@ export class SingleInputFormField<
   template: "",
 })
 export class MultiInputFormField<
-    Form extends Record<string, AbstractControl>,
-    Key extends keyof Form,
-    Option extends Form[Key]["value"],
-    OptionDisplayValue extends keyof Option | ((option: Option) => string),
-  >
-  extends SingleInputFormField<Form, Key, Option>
-  implements OnDestroy
-{
+  Form extends Record<string, AbstractControl>,
+  Key extends keyof Form,
+  Option extends Form[Key]["value"],
+  OptionDisplayValue extends keyof Option | ((option: Option) => string),
+> extends SingleInputFormField<Form, Key, Option> {
   public readonly options = input.required<
     Array<Option> | Observable<Array<Option>>
   >();
