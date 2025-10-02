@@ -4,6 +4,9 @@
  */
 
 import { Component, EventEmitter, OnInit, Output } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { GeneratedType } from "src/app/shared/utils/generated-types";
+import { string } from "ts-pattern/dist/patterns";
 
 @Component({
   selector: "zac-parameters-edit-bpmn",
@@ -15,7 +18,23 @@ export class ParameterEditBpmnComponent implements OnInit {
     "CMMN" | "BPMN" | "PRISTINE"
   >();
 
-  constructor() {}
+  protected isSavedZaakafhandelparameters: boolean = false;
+
+  parameters: GeneratedType<"RestZaaktypeBpmnProcessDefinition"> = {
+    zaaktypeUuid: "",
+    zaaktypeOmschrijving: "",
+    bpmnProcessDefinitionKey: "",
+    productaanvraagtype: null,
+    groepNaam: "",
+  };
+
+  constructor(private readonly route: ActivatedRoute) {
+    this.route.data.subscribe((data) => {
+      this.parameters = data.parameters.zaakafhandelparameters;
+      this.isSavedZaakafhandelparameters =
+        data?.parameters.isSavedZaakafhandelparameters;
+    });
+  }
 
   ngOnInit() {
     console.log("ParameterEditBpmnComponent ngOnInit called");

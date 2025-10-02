@@ -51,6 +51,8 @@ export class ParameterEditComponent implements OnDestroy, AfterViewInit {
 
   isSmartDocumentsStepValid: boolean = true;
 
+  protected isSavedZaakafhandelparameters: boolean = false;
+
   parameters: GeneratedType<"RestZaakafhandelParameters"> = {
     humanTaskParameters: [],
     mailtemplateKoppelingen: [],
@@ -184,7 +186,10 @@ export class ParameterEditComponent implements OnDestroy, AfterViewInit {
     private readonly cdr: ChangeDetectorRef,
   ) {
     this.route.data.subscribe((data) => {
-      this.parameters = data.parameters;
+      this.parameters = data.parameters.zaakafhandelparameters;
+      this.isSavedZaakafhandelparameters =
+        data?.parameters.isSavedZaakafhandelparameters;
+
       this.parameters.intakeMail = this.parameters.intakeMail
         ? this.parameters.intakeMail
         : "BESCHIKBAAR_UIT";

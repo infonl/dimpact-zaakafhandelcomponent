@@ -21,7 +21,7 @@ export class ParametersEditWrapperComponent
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
 
   data: any;
-  selected!: "CMMN" | "BPMN" | "PRISTINE";
+  processType!: "CMMN" | "BPMN" | "PRISTINE";
 
   constructor(
     public readonly utilService: UtilService,
@@ -35,15 +35,23 @@ export class ParametersEditWrapperComponent
     this.setupMenu("title.parameters.wijzigen");
 
     this.route.data.subscribe(({ parameters }) => {
-      this.data = parameters;
+      console.log("parameters", parameters);
 
-      console.log("ParametersEditWrapperComponent data:", this.data);
+      if (parameters.isBpmn) {
+        this.processType = "BPMN";
+        return;
+      }
 
-      this.selected = "PRISTINE";
+      if (parameters.isSavedZaakafhandelparameters) {
+        this.processType = "CMMN";
+        return;
+      }
+
+      this.processType = "PRISTINE";
     });
   }
 
   switchProcessDefinition(to: "CMMN" | "BPMN" | "PRISTINE") {
-    this.selected = to;
+    this.processType = to;
   }
 }
