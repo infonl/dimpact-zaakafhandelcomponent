@@ -9,7 +9,7 @@ import { forkJoin, Observable } from "rxjs";
 import { map } from "rxjs/operators";
 
 @Injectable({ providedIn: "root" })
-export class ParametersOutletResolver implements Resolve<any> {
+export class ParametersEditWrapperResolver implements Resolve<any> {
   constructor() {}
 
   resolve(route: ActivatedRouteSnapshot): Observable<any> {
