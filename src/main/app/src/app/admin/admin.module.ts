@@ -24,10 +24,12 @@ import { ParametersComponent } from "./parameters/parameters.component";
 import { ProcessDefinitionsComponent } from "./process-definitions/process-definitions.component";
 import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
 import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
+import { ParametersOutletComponent } from "./parameters-outlet/parameters-outlet.component";
 
 @NgModule({
   declarations: [
     GroepSignaleringenComponent,
+    ParametersOutletComponent,
     ParametersComponent,
     ParameterEditComponent,
     FormulierDefinitiesComponent,
