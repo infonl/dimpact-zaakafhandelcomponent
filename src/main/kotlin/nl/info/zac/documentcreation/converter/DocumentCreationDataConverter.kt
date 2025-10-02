@@ -116,15 +116,15 @@ class DocumentCreationDataConverter @Inject constructor(
 
     private fun createAanvragerData(zaak: Zaak): AanvragerData? =
         zgwApiService.findInitiatorRoleForZaak(zaak)?.let { initiator ->
-            convertToAanvragerData(initiator, zaak.uuid.toString())
+            convertToAanvragerData(initiator, zaak.identificatie)
         }
 
-    private fun convertToAanvragerData(initiator: Rol<*>, zaakUuid: String): AanvragerData? =
+    private fun convertToAanvragerData(initiator: Rol<*>, zaakIdentification: String): AanvragerData? =
         when (initiator.betrokkeneType) {
             NATUURLIJK_PERSOON -> initiator.identificatienummer?.run {
                 createAanvragerDataNatuurlijkPersoon(
                     bsn = this,
-                    zaakUuid = zaakUuid
+                    zaakIdentification = zaakIdentification
                 )
             }
             VESTIGING -> initiator.identificatienummer?.run {
@@ -134,8 +134,8 @@ class DocumentCreationDataConverter @Inject constructor(
             else -> error("Initiator of type '${initiator.betrokkeneType}' is not supported")
         }
 
-    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, zaakUuid: String): AanvragerData? {
-        return brpClientService.retrievePersoon(bsn, zaakUuid)?.let { convertToAanvragerDataPersoon(it) }
+    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, zaakIdentification: String): AanvragerData? {
+        return brpClientService.retrievePersoon(bsn, zaakIdentification)?.let { convertToAanvragerDataPersoon(it) }
     }
 
     private fun convertToAanvragerDataPersoon(persoon: Persoon) =

@@ -255,7 +255,7 @@ services:
       - ./scripts/docker-compose/imports/brp-personen-wiremock/mappings:/home/wiremock/mappings
     entrypoint: [ "/docker-entrypoint.sh", "--disable-gzip", "--verbose" ]
     ports:
-      - "5052:8080"
+      - "18084:8080"
     depends_on:
       brp-personen-mock:
         condition: service_started
