@@ -26,7 +26,7 @@ import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.co
 import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
 import { ParametersEditWrapperComponent } from "./parameters-edit-wrapper/parameters-edit-wrapper.component";
 import { ParameterEditBpmnComponent } from "./parameters-edit-bpmn/parameters-edit-bpmn.component";
-import { ParameterEditProcessDefinitionComponent } from "./parameter-edit-process-definition/parameter-edit-process-definition.component";
+import { ParameterEditProcessDefinitionComponent } from "./parameters-edit-process-definition/parameters-edit-process-definition.component";
 
 @NgModule({
   declarations: [
