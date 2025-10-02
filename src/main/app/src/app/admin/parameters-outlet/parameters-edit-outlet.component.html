@@ -18,8 +18,33 @@
     <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
   </mat-sidenav>
   <mat-sidenav-content class="flex-col gap-20">
-    <ng-container
-      *ngComponentOutlet="component; injector: componentInjector"
-    ></ng-container>
+    <ng-container [ngSwitch]="selected">
+      <!-- CMMN -->
+      <zac-parameter-edit
+        *ngSwitchCase="'CMMN'"
+        [data]="data"
+        (switchTo)="switch($event)"
+      >
+      </zac-parameter-edit>
+
+      <!-- BPMN -->
+      <zac-parameter-edit-bpmn
+        *ngSwitchCase="'BPMN'"
+        [data]="data"
+        (switchTo)="switch($event)"
+      >
+      </zac-parameter-edit-bpmn>
+
+      <!-- PRISTINE -->
+      <div *ngSwitchCase="'PRISTINE'" class="pristine-placeholder">
+        <p>No process defined yet.</p>
+        <button mat-raised-button color="primary" (click)="switch('CMMN')">
+          Start CMMN
+        </button>
+        <button mat-raised-button color="accent" (click)="switch('BPMN')">
+          Start BPMN
+        </button>
+      </div>
+    </ng-container>
   </mat-sidenav-content>
 </mat-sidenav-container>
