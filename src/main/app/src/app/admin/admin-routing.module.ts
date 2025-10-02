@@ -20,7 +20,7 @@ import { ReferentieTabelResolver } from "./referentie-tabel-resolver.service";
 import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
 import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
 import { ZaakafhandelParametersResolver } from "./zaakafhandel-parameters-resolver.service";
-import { ParametersEditWrapperomponent } from "./parameters-edit-wrapper/parameters-edit-wrapper.component";
+import { ParametersEditWrapperComponent } from "./parameters-edit-wrapper/parameters-edit-wrapper.component";
 
 const routes: Routes = [
   {
@@ -38,7 +38,7 @@ const routes: Routes = [
       { path: "parameters", component: ParametersComponent },
       {
         path: "parameters/:uuid",
-        component: ParametersEditWrapperomponent,
+        component: ParametersEditWrapperComponent,
         resolve: { parameters: ZaakafhandelParametersResolver },
       },
       { path: "processdefinitions", component: ProcessDefinitionsComponent },

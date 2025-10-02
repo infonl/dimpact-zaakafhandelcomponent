@@ -36,13 +36,13 @@
       </zac-parameter-edit>
 
       <!-- BPMN -->
-      <zac-parameter-edit-bpmn
+      <zac-parameters-edit-bpmn
         *ngSwitchCase="'BPMN'"
         [data]="data"
         (switchProcessDefinition)="switchProcessDefinition($event)"
       >
         >
-      </zac-parameter-edit-bpmn>
+      </zac-parameters-edit-bpmn>
     </ng-container>
   </mat-sidenav-content>
 </mat-sidenav-container>

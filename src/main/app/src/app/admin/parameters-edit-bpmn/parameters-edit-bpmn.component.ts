@@ -6,9 +6,9 @@
 import { Component, EventEmitter, OnInit, Output } from "@angular/core";
 
 @Component({
-  selector: "zac-parameter-edit-bpmn",
-  templateUrl: "./parameter-edit-bpmn.component.html",
-  styleUrls: ["./parameter-edit-bpmn.component.less"],
+  selector: "zac-parameters-edit-bpmn",
+  templateUrl: "./parameters-edit-bpmn.component.html",
+  styleUrls: ["./parameters-edit-bpmn.component.less"],
 })
 export class ParameterEditBpmnComponent implements OnInit {
   @Output() switchProcessDefinition = new EventEmitter<
