@@ -1,34 +1,52 @@
-// process-outlet.component.ts
-import { Component, Injector, OnInit, Type, Inject } from "@angular/core";
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+import { Component, Injector, OnInit, Type, ViewChild } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ParameterEditComponent } from "../parameter-edit/parameter-edit.component";
+import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
+import { AdminComponent } from "../admin/admin.component";
+import { UtilService } from "src/app/core/service/util.service";
+import { ConfiguratieService } from "src/app/configuratie/configuratie.service";
+import { ParameterEditBpmnComponent } from "../parameter-edit-bpmn/parameter-edit-bpmn.component";
 
 @Component({
-  selector: "app-parameters-outlet",
-  template: `
-    <ng-container
-      *ngComponentOutlet="component; injector: componentInjector"
-    ></ng-container>
-  `,
+  selector: "app-parameters-edit-outlet",
+  templateUrl: "./parameters-edit-outlet.component.html",
 })
-export class ParametersOutletComponent implements OnInit {
+export class ParametersOutletComponent
+  extends AdminComponent
+  implements OnInit
+{
+  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
+  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
+
   data: any;
   selected!: number;
   component!: Type<any>;
   componentInjector!: Injector;
 
   constructor(
+    public readonly utilService: UtilService,
+    public readonly configuratieService: ConfiguratieService,
+
     private route: ActivatedRoute,
     private injector: Injector,
-  ) {}
+  ) {
+    super(utilService, configuratieService);
+  }
 
   ngOnInit() {
+    this.setupMenu("title.parameters.wijzigen");
+
     this.route.data.subscribe(({ parameters }) => {
       this.data = parameters;
 
       console.log("ProcessOutletComponent data:", this.data);
       //   this.selected = process.selected;
-      this.selected = 1;
+      this.selected = 2;
       this.loadComponent(this.selected);
     });
   }
@@ -40,7 +58,7 @@ export class ParametersOutletComponent implements OnInit {
         this.component = ParameterEditComponent;
         break;
       case 2:
-        this.component = ParameterEditComponent;
+        this.component = ParameterEditBpmnComponent;
         break;
       case 3:
         this.component = ParameterEditComponent;
