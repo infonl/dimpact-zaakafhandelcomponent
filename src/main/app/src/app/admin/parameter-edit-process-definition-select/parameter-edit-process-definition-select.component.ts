@@ -3,10 +3,21 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, EventEmitter, OnInit, Output } from "@angular/core";
 
 @Component({
+  selector: "zac-parameter-edit-process-definition-select",
   templateUrl: "./parameter-edit-process-definition-select.component.html",
   styleUrls: ["./parameter-edit-process-definition-select.component.less"],
 })
-export class ParameterEditProcessDefinitionSelectComponent {}
+export class ParameterEditProcessDefinitionSelectComponent implements OnInit {
+  @Output() switchTo = new EventEmitter<"CMMN" | "BPMN">();
+
+  constructor() {}
+
+  ngOnInit() {
+    console.log(
+      "ParameterEditProcessDefinitionSelectComponent ngOnInit called",
+    );
+  }
+}
