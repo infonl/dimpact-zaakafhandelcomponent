@@ -11,10 +11,9 @@ import { UtilService } from "src/app/core/service/util.service";
 import { ConfiguratieService } from "src/app/configuratie/configuratie.service";
 
 @Component({
-  selector: "parameters-edit-outlet",
-  templateUrl: "./parameters-edit-outlet.component.html",
+  templateUrl: "./parameters-edit-wrapper.component.html",
 })
-export class ParametersOutletComponent
+export class ParametersEditWrapperomponent
   extends AdminComponent
   implements OnInit
 {
@@ -38,7 +37,7 @@ export class ParametersOutletComponent
     this.route.data.subscribe(({ parameters }) => {
       this.data = parameters;
 
-      console.log("ParametersOutletComponent data:", this.data);
+      console.log("ParametersEditWrapperomponent data:", this.data);
 
       this.selected = "PRISTINE";
     });

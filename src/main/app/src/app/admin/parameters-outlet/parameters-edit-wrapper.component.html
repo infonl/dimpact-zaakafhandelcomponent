@@ -36,15 +36,12 @@
       </zac-parameter-edit-bpmn>
 
       <!-- PRISTINE -->
-      <div *ngSwitchCase="'PRISTINE'" class="pristine-placeholder">
-        <p>No process defined yet.</p>
-        <button mat-raised-button color="primary" (click)="switch('CMMN')">
-          Start CMMN
-        </button>
-        <button mat-raised-button color="accent" (click)="switch('BPMN')">
-          Start BPMN
-        </button>
-      </div>
+      <zac-parameter-edit-process-definition-select
+        *ngSwitchCase="'PRISTINE'"
+        [data]="data"
+        (switchTo)="switch($event)"
+      >
+      </zac-parameter-edit-process-definition-select>
     </ng-container>
   </mat-sidenav-content>
 </mat-sidenav-container>
