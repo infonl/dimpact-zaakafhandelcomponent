@@ -216,6 +216,7 @@ class KlantRestService @Inject constructor(
             val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
             klantVestigingDigitalAddresses.await().toRestPersoon().let { klantVestigingRestPersoon ->
                 vestiging.await()?.toRestBedrijf()?.apply {
+                    if (kvkNummer == null) this.kvkNummer = null
                     emailadres = klantVestigingRestPersoon.emailadres
                     telefoonnummer = klantVestigingRestPersoon.telefoonnummer
                 } ?: throw VestigingNotFoundException(
