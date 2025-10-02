@@ -3,23 +3,25 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<ng-container class="flex-col gap-20">
-  <mat-card>
-    <mat-card-title>{{ "proces-definitie" | translate }}</mat-card-title>
+<ng-container>
+  <mat-card class="flex-col gap-10">
+    <mat-card-title>{{
+      "gegevens.proces-definitie" | translate
+    }}</mat-card-title>
     <mat-card-content>
       <button
         mat-raised-button
         color="primary"
         (click)="switchProcessDefinition.emit('CMMN')"
       >
-        Start CMMN
+        Selecteer CMMN
       </button>
       <button
         mat-raised-button
         color="accent"
         (click)="switchProcessDefinition.emit('BPMN')"
       >
-        Start BPMN
+        Selecteer BPMN
       </button>
     </mat-card-content>
   </mat-card>
