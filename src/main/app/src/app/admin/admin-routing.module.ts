@@ -21,6 +21,7 @@ import { ReferentieTabelResolver } from "./referentie-tabel-resolver.service";
 import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
 import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
 import { ZaakafhandelParametersResolver } from "./zaakafhandel-parameters-resolver.service";
+import { ParametersOutletComponent } from "./parameters-outlet/parameters-outlet.component";
 
 const routes: Routes = [
   {
@@ -38,7 +39,7 @@ const routes: Routes = [
       { path: "parameters", component: ParametersComponent },
       {
         path: "parameters/:uuid",
-        component: ParameterEditComponent,
+        component: ParametersOutletComponent,
         resolve: { parameters: ZaakafhandelParametersResolver },
       },
       { path: "processdefinitions", component: ProcessDefinitionsComponent },
