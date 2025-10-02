@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnInit } from "@angular/core";
+import { Component, EventEmitter, OnInit, Output } from "@angular/core";
 
 @Component({
   selector: "zac-parameter-edit-bpmn",
@@ -11,6 +11,10 @@ import { Component, OnInit } from "@angular/core";
   styleUrls: ["./parameter-edit-bpmn.component.less"],
 })
 export class ParameterEditBpmnComponent implements OnInit {
+  @Output() switchProcessDefinition = new EventEmitter<
+    "CMMN" | "BPMN" | "PRISTINE"
+  >();
+
   constructor() {}
 
   ngOnInit() {

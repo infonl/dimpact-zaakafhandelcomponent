@@ -43,7 +43,7 @@ export class ParametersEditWrapperomponent
     });
   }
 
-  switch(to: "CMMN" | "BPMN" | "PRISTINE") {
+  switchProcessDefinition(to: "CMMN" | "BPMN" | "PRISTINE") {
     this.selected = to;
   }
 }
