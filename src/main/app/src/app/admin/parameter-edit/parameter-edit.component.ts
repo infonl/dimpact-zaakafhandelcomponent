@@ -33,6 +33,7 @@ import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.servic
 import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
 
 @Component({
+  selector: "zac-parameter-edit",
   templateUrl: "./parameter-edit.component.html",
   styleUrls: ["./parameter-edit.component.less"],
 })

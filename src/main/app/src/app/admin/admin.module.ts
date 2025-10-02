@@ -25,6 +25,7 @@ import { ProcessDefinitionsComponent } from "./process-definitions/process-defin
 import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
 import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
 import { ParametersOutletComponent } from "./parameters-outlet/parameters-edit-outlet.component";
+import { ParameterEditBpmnComponent } from "./parameter-edit-bpmn/parameter-edit-bpmn.component";
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { ParametersOutletComponent } from "./parameters-outlet/parameters-edit-o
     ParametersOutletComponent,
     ParametersComponent,
     ParameterEditComponent,
+    ParameterEditBpmnComponent,
     FormulierDefinitiesComponent,
     FormulierDefinitieEditComponent,
     ReferentieTabellenComponent,
