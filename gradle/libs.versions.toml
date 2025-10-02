@@ -16,7 +16,7 @@ spotless-prettier-base = "3.4.2"
 spotless-prettier-organize-imports = "4.1.0"
 jacoco = "0.8.13"
 glassfish-expressly = "6.0.0"
-keycloak = "26.0.6"
+keycloak = "26.0.7"
 
 apache-commons-lang = "3.19.0"
 apache-commons-text = "1.14.0"
@@ -62,7 +62,7 @@ wildfly-security-elytron-http-oidc = "2.6.4.Final"
 eclipse-yasson = "3.0.4"
 
 kotest = "5.9.1"
-mockk = "1.14.5"
+mockk = "1.14.6"
 
 testcontainers = "1.21.3"
 
