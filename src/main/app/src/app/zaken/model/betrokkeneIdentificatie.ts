@@ -38,17 +38,17 @@ export class BetrokkeneIdentificatie
         throw new Error(
           `${BetrokkeneIdentificatie.name}: Tried to add a ${this.type} betrokkene without a BSN number`,
         );
-        case "VN":
-            if ("vestigingsnummer" in betrokkene) {
-                this.vestigingsnummer = betrokkene.vestigingsnummer;
-                if ("kvkNummer" in betrokkene && betrokkene.kvkNummer !== null) {
-                    this.kvkNummer = betrokkene.kvkNummer;
-                }
-                break;
-            }
-            throw new Error(
-                `${BetrokkeneIdentificatie.name}: Tried to add a ${this.type} betrokkene without a vestigingsnummer`,
-            );
+      case "VN":
+        if ("vestigingsnummer" in betrokkene) {
+          this.vestigingsnummer = betrokkene.vestigingsnummer;
+          if ("kvkNummer" in betrokkene && betrokkene.kvkNummer !== null) {
+            this.kvkNummer = betrokkene.kvkNummer;
+          }
+          break;
+        }
+        throw new Error(
+          `${BetrokkeneIdentificatie.name}: Tried to add a ${this.type} betrokkene without a vestigingsnummer`,
+        );
       case "RSIN":
         if (
           ("kvkNummer" in betrokkene && betrokkene.kvkNummer !== null) ||
