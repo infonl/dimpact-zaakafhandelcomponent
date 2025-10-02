@@ -9,7 +9,6 @@ import {
   ChangeDetectorRef,
   Component,
   OnDestroy,
-  OnInit,
   ViewChild,
 } from "@angular/core";
 import {
@@ -20,7 +19,6 @@ import {
 } from "@angular/forms";
 import { MatCheckboxChange } from "@angular/material/checkbox";
 import { MatSelectChange } from "@angular/material/select";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { forkJoin, Subject, Subscription, takeUntil } from "rxjs";
@@ -28,7 +26,6 @@ import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { AdminComponent } from "../admin/admin.component";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { getBeschikbareMailtemplateKoppelingen } from "../model/mail-utils";
 import { ReferentieTabelService } from "../referentie-tabel.service";
@@ -39,13 +36,7 @@ import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-docume
   templateUrl: "./parameter-edit.component.html",
   styleUrls: ["./parameter-edit.component.less"],
 })
-export class ParameterEditComponent
-  extends AdminComponent
-  implements OnInit, OnDestroy, AfterViewInit
-{
-  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
-  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
-
+export class ParameterEditComponent implements OnDestroy, AfterViewInit {
   @ViewChild("smartDocumentsFormRef")
   smartDocsFormGroup!: SmartDocumentsFormComponent;
 
@@ -185,7 +176,6 @@ export class ParameterEditComponent
     private readonly formBuilder: FormBuilder,
     private readonly cdr: ChangeDetectorRef,
   ) {
-    super(utilService, configuratieService);
     this.route.data.subscribe((data) => {
       this.parameters = data.parameters;
       this.parameters.intakeMail = this.parameters.intakeMail
@@ -235,10 +225,6 @@ export class ParameterEditComponent
         },
       );
     });
-  }
-
-  ngOnInit(): void {
-    this.setupMenu("title.parameters.wijzigen");
   }
 
   ngAfterViewInit(): void {
@@ -954,7 +940,6 @@ export class ParameterEditComponent
   }
 
   ngOnDestroy(): void {
-    super.ngOnDestroy();
     this.destroy$.next();
     this.destroy$.complete();
     for (const subscription of this.subscriptions$) {
