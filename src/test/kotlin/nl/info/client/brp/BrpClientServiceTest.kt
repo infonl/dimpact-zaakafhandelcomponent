@@ -251,6 +251,52 @@ class BrpClientServiceTest : BehaviorSpec({
         }
     }
 
+    Given("Unicode processing value configured for BRP person retrieval") {
+        val bsn = "123456789"
+        val person = createPersoon(
+            bsn = bsn
+        )
+        val raadpleegMetBurgerservicenummerResponse = createRaadpleegMetBurgerservicenummerResponse(
+            persons = listOf(person)
+        )
+        val brpClientService = BrpClientService(
+            personenApi = personenApi,
+            queryPersonenDefaultPurpose = Optional.of(QUERY_PERSONEN_PURPOSE),
+            retrievePersoonDefaultPurpose = Optional.of(RETRIEVE_PERSOON_PURPOSE),
+            processingRegisterDefault = Optional.of(DEFAULT_PROCESSING_VALUE),
+            zrcClientService = zrcClientService,
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService
+        )
+        val zaak = createZaak()
+        val retrievePersoonPurpose = "raadpleegWaarde"
+        val processingValue = "Bíj́na"
+        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
+            zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
+                raadpleegWaarde = retrievePersoonPurpose
+                verwerkingRegisterWaarde = processingValue
+            }
+        )
+
+        every {
+            zrcClientService.readZaakByID(ZAAK)
+        } returns zaak
+        every {
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid())
+        } returns zaaktypeCmmnConfiguration
+        every {
+            // Since we have a processing value in Unicode, the default value is used instead
+            personenApi.personen(any(), retrievePersoonPurpose, "$DEFAULT_PROCESSING_VALUE@fakeZaaktypeOmschrijving")
+        } returns raadpleegMetBurgerservicenummerResponse
+
+        When("find person is called with the BSN of the person") {
+            val personResponse = brpClientService.retrievePersoon(bsn, ZAAK)
+
+            Then("it should still return the person") {
+                personResponse shouldBe person
+            }
+        }
+    }
+
     Given("A person exists for a given BSN") {
         val bsn = "123456789"
         val person = createPersoon(

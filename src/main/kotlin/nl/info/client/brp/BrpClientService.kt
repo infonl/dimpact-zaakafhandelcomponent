@@ -30,6 +30,7 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
+import java.nio.charset.StandardCharsets
 import java.util.Optional
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -131,45 +132,67 @@ class BrpClientService @Inject constructor(
         defaultPurpose: String?,
         extractPurpose: (ZaaktypeCmmnConfiguration) -> String?
     ): String? =
-        zaakIdentificatie?.runCatching {
-            LOG.fine("Resolving purpose for zaak with UUID: $this")
-            zrcClientService.readZaakByID(this)
-                .zaaktype.extractUuid()
-                .let(zaaktypeCmmnConfigurationService::readZaaktypeCmmnConfiguration)
-                .let(extractPurpose)
-        }?.onFailure {
-            LOG.log(Level.WARNING, "Failed to resolve purpose from zaak $zaakIdentificatie", it)
-        }?.getOrElse {
-            LOG.info("Using default purpose '$defaultPurpose' for zaak $zaakIdentificatie")
-            null
-        } ?: run {
-            val reason = zaakIdentificatie?.let { "No purpose found for zaak $zaakIdentificatie" }
-                ?: "No zaak identification provided"
-            LOG.info("$reason. Using default purpose '$defaultPurpose'")
-            defaultPurpose
-        }
+        resolveBRPValue(
+            zaakIdentificatie = zaakIdentificatie,
+            defaultValue = defaultPurpose,
+            valueDescription = "purpose",
+            resolveFunction = extractPurpose,
+            buildFunction = { it, _ -> it }
+        )
 
     private fun resoleProcessingValue(
         zaakIdentificatie: String?,
         defaultProcessingRegisterValue: String?
     ): String? =
+        resolveBRPValue(
+            zaakIdentificatie = zaakIdentificatie,
+            defaultValue = defaultProcessingRegisterValue,
+            valueDescription = "processing value",
+            resolveFunction = { it.zaaktypeCmmnBrpParameters?.verwerkingRegisterWaarde },
+            buildFunction = { it, configuration -> "$it@${configuration.zaaktypeOmschrijving}" }
+        )
+
+    private fun resolveBRPValue(
+        zaakIdentificatie: String?,
+        defaultValue: String?,
+        valueDescription: String,
+        resolveFunction: (ZaaktypeCmmnConfiguration) -> String?,
+        buildFunction: (resolvedValue: String?, ZaaktypeCmmnConfiguration) -> String?
+    ): String? =
         zaakIdentificatie?.runCatching {
-            LOG.fine("Resolving processing value for zaak with UUID: $this")
-            zrcClientService.readZaakByID(this)
-                .zaaktype.extractUuid()
-                .let(zaaktypeCmmnConfigurationService::readZaaktypeCmmnConfiguration)
-                .let {
-                    "${it.zaaktypeCmmnBrpParameters?.verwerkingRegisterWaarde ?: defaultProcessingRegisterValue}@${it.zaaktypeOmschrijving}"
-                }
+            LOG.fine("Resolving purpose for zaak with UUID: $this")
+            resolveValueFromZaaktypeCmmnConfiguration(valueDescription, defaultValue, resolveFunction, buildFunction)
         }?.onFailure {
-            LOG.log(Level.WARNING, "Failed to resolve processing value for zaak $zaakIdentificatie", it)
+            LOG.log(Level.WARNING, "Failed to resolve $valueDescription from zaak $zaakIdentificatie", it)
         }?.getOrElse {
-            LOG.info("Using default processing value '$defaultProcessingRegisterValue' for zaak $zaakIdentificatie")
+            LOG.info("Using default $valueDescription '$defaultValue' for zaak $zaakIdentificatie")
             null
         } ?: run {
-            val reason = zaakIdentificatie?.let { "No processing value found for zaak $zaakIdentificatie" }
+            val reason = zaakIdentificatie?.let { "No $valueDescription found for zaak $zaakIdentificatie" }
                 ?: "No zaak identification provided"
-            LOG.info("$reason. Using default '$defaultProcessingRegisterValue'")
-            defaultProcessingRegisterValue
+            LOG.info("$reason. Using default $valueDescription '$defaultValue'")
+            defaultValue
         }
+
+    private fun String.resolveValueFromZaaktypeCmmnConfiguration(
+        valueDescription: String,
+        defaultValue: String?,
+        resolveFunction: (ZaaktypeCmmnConfiguration) -> String?,
+        buildFunction: (String?, ZaaktypeCmmnConfiguration) -> String?
+    ): String? =
+        zrcClientService.readZaakByID(this)
+            .zaaktype.extractUuid()
+            .let(zaaktypeCmmnConfigurationService::readZaaktypeCmmnConfiguration)
+            .let { zaaktypeCmmnConfiguration ->
+                resolveFunction(zaaktypeCmmnConfiguration)?.let {
+                    if (it.isPureAscii()) {
+                        it
+                    } else {
+                        LOG.warning { "Resolved $valueDescription '$it' contains non-ASCII characters. Using '$defaultValue' instead" }
+                        defaultValue
+                    }
+                }.let { buildFunction(it, zaaktypeCmmnConfiguration) }
+            }
+
+    private fun String.isPureAscii(): Boolean = StandardCharsets.US_ASCII.newEncoder().canEncode(this)
 }
