@@ -19,11 +19,19 @@
   </mat-sidenav>
   <mat-sidenav-content class="flex-col gap-20">
     <ng-container [ngSwitch]="selected">
+      <!-- PRISTINE -->
+      <zac-parameter-edit-process-definition
+        *ngSwitchCase="'PRISTINE'"
+        [data]="data"
+        (switchProcessDefinition)="switchProcessDefinition($event)"
+      >
+      </zac-parameter-edit-process-definition>
+
       <!-- CMMN -->
       <zac-parameter-edit
         *ngSwitchCase="'CMMN'"
         [data]="data"
-        (switchTo)="switch($event)"
+        (switchProcessDefinition)="switchProcessDefinition($event)"
       >
       </zac-parameter-edit>
 
@@ -31,17 +39,10 @@
       <zac-parameter-edit-bpmn
         *ngSwitchCase="'BPMN'"
         [data]="data"
-        (switchTo)="switch($event)"
+        (switchProcessDefinition)="switchProcessDefinition($event)"
       >
+        >
       </zac-parameter-edit-bpmn>
-
-      <!-- PRISTINE -->
-      <zac-parameter-edit-process-definition-select
-        *ngSwitchCase="'PRISTINE'"
-        [data]="data"
-        (switchTo)="switch($event)"
-      >
-      </zac-parameter-edit-process-definition-select>
     </ng-container>
   </mat-sidenav-content>
 </mat-sidenav-container>

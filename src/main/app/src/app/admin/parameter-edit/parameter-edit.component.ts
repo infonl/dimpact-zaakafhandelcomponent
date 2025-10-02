@@ -8,7 +8,9 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  EventEmitter,
   OnDestroy,
+  Output,
   ViewChild,
 } from "@angular/core";
 import {
@@ -38,6 +40,10 @@ import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-docume
   styleUrls: ["./parameter-edit.component.less"],
 })
 export class ParameterEditComponent implements OnDestroy, AfterViewInit {
+  @Output() switchProcessDefinition = new EventEmitter<
+    "CMMN" | "BPMN" | "PRISTINE"
+  >();
+
   @ViewChild("smartDocumentsFormRef")
   smartDocsFormGroup!: SmartDocumentsFormComponent;
 
