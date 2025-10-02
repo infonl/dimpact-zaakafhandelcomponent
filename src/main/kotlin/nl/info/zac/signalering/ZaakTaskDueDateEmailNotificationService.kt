@@ -97,7 +97,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
                         )
                         zaakEinddatumGeplandOnterechtVerzondenVerwijderen(
                             zaaktype,
-                            parameters.einddatumGeplandWaarschuwing
+                            parameters.einddatumGeplandWaarschuwing!!
                         )
                     }
                     parameters.uiterlijkeEinddatumAfdoeningWaarschuwing?.let {
@@ -107,7 +107,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
                         )
                         zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(
                             zaaktype,
-                            parameters.uiterlijkeEinddatumAfdoeningWaarschuwing
+                            parameters.uiterlijkeEinddatumAfdoeningWaarschuwing!!
                         )
                     }
                 }

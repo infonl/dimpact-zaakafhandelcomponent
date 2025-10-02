@@ -7,7 +7,6 @@ package nl.info.client.brp
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.client.brp.model.generated.PersonenQuery
 import nl.info.client.brp.model.generated.PersonenQueryResponse
 import nl.info.client.brp.model.generated.Persoon
@@ -26,6 +25,7 @@ import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -80,7 +80,7 @@ class BrpClientService @Inject constructor(
                 purpose = resolvePurposeFromContext(
                     auditEvent,
                     queryPersonenDefaultPurpose.getOrNull()
-                ) { it.brpDoelbindingen?.zoekWaarde },
+                ) { it.zaaktypeCmmnBrpParameters?.zoekWaarde },
                 auditEvent = auditEvent
             )
         }
@@ -98,7 +98,7 @@ class BrpClientService @Inject constructor(
             purpose = resolvePurposeFromContext(
                 auditEvent,
                 retrievePersoonDefaultPurpose.getOrNull()
-            ) { it.brpDoelbindingen?.raadpleegWaarde },
+            ) { it.zaaktypeCmmnBrpParameters?.raadpleegWaarde },
             auditEvent = auditEvent
         ) as RaadpleegMetBurgerservicenummerResponse
         ).personen?.firstOrNull()

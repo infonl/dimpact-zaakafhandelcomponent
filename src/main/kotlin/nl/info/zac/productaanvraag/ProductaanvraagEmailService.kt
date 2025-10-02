@@ -9,10 +9,10 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import net.atos.client.klant.KlantClientService
 import net.atos.client.klant.model.SoortDigitaalAdresEnum
-import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration
-import net.atos.zac.admin.model.ZaaktypeCmmnEmailParameters
-import net.atos.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeCmmnEmailParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.MailAdres
@@ -50,10 +50,10 @@ class ProductaanvraagEmailService @Inject constructor(
             "Attempting to send automatic email confirmation for zaak '${zaak.uuid}' " +
                 "and zaaktype '${zaak.zaaktype}'. For initiator '$betrokkene'."
         }
-        zaaktypeCmmnConfiguration.automaticEmailConfirmation?.takeIf { it.enabled }?.let { automaticEmailConfirmation ->
+        zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.takeIf { it.enabled }?.let { zaaktypeCmmnEmailParameters ->
             betrokkene?.let { betrokkene ->
                 extractBetrokkeneEmail(betrokkene)?.let { to ->
-                    sendMail(automaticEmailConfirmation, to, zaak)
+                    sendMail(zaaktypeCmmnEmailParameters, to, zaak)
                 } ?: LOG.fine(
                     "No email address found for initiator '$betrokkene'. " +
                         "Skipping automatic email confirmation."

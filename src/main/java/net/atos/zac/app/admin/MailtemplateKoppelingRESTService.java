@@ -22,9 +22,9 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 import net.atos.zac.admin.MailTemplateKoppelingenService;
-import net.atos.zac.admin.model.ZaaktypeCmmnMailtemplateParameters;
 import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter;
 import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling;
+import nl.info.zac.admin.model.ZaaktypeCmmnMailtemplateParameters;
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter;
 import nl.info.zac.policy.PolicyService;
 

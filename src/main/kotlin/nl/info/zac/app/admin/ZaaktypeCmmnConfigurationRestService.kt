@@ -307,7 +307,7 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
         )
 
     private fun readManagedZaakTerminationReasons(zaaktypeUUID: UUID?): List<RESTZaakbeeindigReden> =
-        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID).zaakbeeindigParameters
+        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID).getZaakbeeindigParameters()
             .map { it.zaakbeeindigReden }
             .let { RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(it) }
 

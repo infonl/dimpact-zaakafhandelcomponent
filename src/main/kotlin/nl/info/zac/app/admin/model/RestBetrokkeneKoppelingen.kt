@@ -5,8 +5,8 @@
 
 package nl.info.zac.app.admin.model
 
-import net.atos.zac.admin.model.ZaaktypeCmmnBetrokkeneParameters
-import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeCmmnBetrokkeneParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
@@ -20,8 +20,8 @@ data class RestBetrokkeneKoppelingen(
 fun ZaaktypeCmmnBetrokkeneParameters.toRestBetrokkeneKoppelingen(): RestBetrokkeneKoppelingen =
     RestBetrokkeneKoppelingen().apply {
         id = this@toRestBetrokkeneKoppelingen.id
-        brpKoppelen = this@toRestBetrokkeneKoppelingen.brpKoppelen
-        kvkKoppelen = this@toRestBetrokkeneKoppelingen.kvkKoppelen
+        this@toRestBetrokkeneKoppelingen.brpKoppelen?.let { brpKoppelen = it }
+        this@toRestBetrokkeneKoppelingen.kvkKoppelen?.let { kvkKoppelen = it }
     }
 
 fun RestBetrokkeneKoppelingen.toBetrokkeneKoppelingen(

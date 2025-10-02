@@ -170,7 +170,7 @@
             "nullable": true
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": false
       },
       "ValidationProblemDetails": {
         "type": "object",
@@ -206,7 +206,7 @@
             }
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": false
       }
     },
     "securitySchemes": {

@@ -12,13 +12,13 @@ import io.mockk.every
 import io.mockk.mockk
 import jakarta.ws.rs.NotFoundException
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.admin.model.ZaaktypeCmmnBrpParameters
 import nl.info.client.brp.model.createPersoon
 import nl.info.client.brp.model.createRaadpleegMetBurgerservicenummer
 import nl.info.client.brp.model.createRaadpleegMetBurgerservicenummerResponse
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.zac.admin.model.ZaaktypeCmmnBrpParameters
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import java.util.Optional
 

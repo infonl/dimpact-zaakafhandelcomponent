@@ -22,6 +22,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import nl.info.zac.admin.model.ReferenceTable;
+import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters;
 
 @Entity
 @Table(schema = SCHEMA, name = "humantask_referentie_tabel")

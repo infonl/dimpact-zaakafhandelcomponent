@@ -18,7 +18,6 @@ import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.admin.model.ZaaktypeCmmnConfiguration
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -46,6 +45,7 @@ import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.flowable.bpmn.BpmnService
@@ -533,7 +533,7 @@ class ProductaanvraagService @Inject constructor(
                 "Creating a zaak using a CMMN case with zaaktype UUID: '${firstZaaktypeCmmnConfiguration.zaakTypeUUID}'"
             }
             startZaakWithCmmnProcess(
-                zaaktypeUuid = firstZaaktypeCmmnConfiguration.zaakTypeUUID,
+                zaaktypeUuid = firstZaaktypeCmmnConfiguration.zaakTypeUUID!!,
                 productaanvraagDimpact = productaanvraagDimpact,
                 productaanvraagObject = productaanvraagObject
             )
@@ -707,8 +707,12 @@ class ProductaanvraagService @Inject constructor(
         productaanvraagObject: ModelObject,
         zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ) {
+        val zaaktypeCmmnBetrokkeneParameters = zaaktypeCmmnConfiguration.zaaktypeCmmnBetrokkeneParameters
+        val brpEnabled = zaaktypeCmmnBetrokkeneParameters?.brpKoppelen ?: false
+        val kvkEnabled = zaaktypeCmmnBetrokkeneParameters?.kvkKoppelen ?: false
+
         betrokkenen.forEach {
-            if (!zaaktypeCmmnConfiguration.betrokkeneParameters.brpKoppelen) {
+            if (!brpEnabled) {
                 it.inpBsn?.run {
                     throw ProductaanvraagNotSupportedException(
                         "The BRP koppeling is not enabled for zaaktypeCmmnConfiguration with zaaktype UUID " +
@@ -718,7 +722,7 @@ class ProductaanvraagService @Inject constructor(
                     )
                 }
             }
-            if (!zaaktypeCmmnConfiguration.betrokkeneParameters.kvkKoppelen) {
+            if (!kvkEnabled) {
                 it.vestigingsNummer?.run {
                     throw ProductaanvraagNotSupportedException(
                         "The KVK koppeling is not enabled for zaaktypeCmmnConfiguration with zaaktype UUID " +
