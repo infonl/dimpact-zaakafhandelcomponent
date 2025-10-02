@@ -13,7 +13,7 @@ import { ConfiguratieService } from "src/app/configuratie/configuratie.service";
 @Component({
   templateUrl: "./parameters-edit-wrapper.component.html",
 })
-export class ParametersEditWrapperomponent
+export class ParametersEditWrapperComponent
   extends AdminComponent
   implements OnInit
 {
@@ -37,7 +37,7 @@ export class ParametersEditWrapperomponent
     this.route.data.subscribe(({ parameters }) => {
       this.data = parameters;
 
-      console.log("ParametersEditWrapperomponent data:", this.data);
+      console.log("ParametersEditWrapperComponent data:", this.data);
 
       this.selected = "PRISTINE";
     });

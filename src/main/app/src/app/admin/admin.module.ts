@@ -24,14 +24,14 @@ import { ParametersComponent } from "./parameters/parameters.component";
 import { ProcessDefinitionsComponent } from "./process-definitions/process-definitions.component";
 import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
 import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
-import { ParametersEditWrapperomponent } from "./parameters-edit-wrapper/parameters-edit-wrapper.component";
-import { ParameterEditBpmnComponent } from "./parameter-edit-bpmn/parameter-edit-bpmn.component";
+import { ParametersEditWrapperComponent } from "./parameters-edit-wrapper/parameters-edit-wrapper.component";
+import { ParameterEditBpmnComponent } from "./parameters-edit-bpmn/parameters-edit-bpmn.component";
 import { ParameterEditProcessDefinitionComponent } from "./parameter-edit-process-definition/parameter-edit-process-definition.component";
 
 @NgModule({
   declarations: [
     GroepSignaleringenComponent,
-    ParametersEditWrapperomponent,
+    ParametersEditWrapperComponent,
     ParametersComponent,
     ParameterEditProcessDefinitionComponent,
     ParameterEditComponent,
