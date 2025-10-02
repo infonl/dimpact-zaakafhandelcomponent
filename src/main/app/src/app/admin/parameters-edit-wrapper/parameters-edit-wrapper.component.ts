@@ -9,6 +9,7 @@ import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { AdminComponent } from "../admin/admin.component";
 import { UtilService } from "src/app/core/service/util.service";
 import { ConfiguratieService } from "src/app/configuratie/configuratie.service";
+import { ProcessDefinitionType } from "../model/parameters/parameters-edit-process-definition-type";
 
 @Component({
   templateUrl: "./parameters-edit-wrapper.component.html",
@@ -21,7 +22,7 @@ export class ParametersEditWrapperComponent
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
 
   data: any;
-  processType!: "CMMN" | "BPMN" | "PRISTINE";
+  processDefinitionType!: ProcessDefinitionType;
 
   constructor(
     public readonly utilService: UtilService,
@@ -38,20 +39,20 @@ export class ParametersEditWrapperComponent
       console.log("parameters", parameters);
 
       if (parameters.isBpmn) {
-        this.processType = "BPMN";
+        this.processDefinitionType = "BPMN";
         return;
       }
 
       if (parameters.isSavedZaakafhandelparameters) {
-        this.processType = "CMMN";
+        this.processDefinitionType = "CMMN";
         return;
       }
 
-      this.processType = "PRISTINE";
+      this.processDefinitionType = "UNKNOWN";
     });
   }
 
-  switchProcessDefinition(to: "CMMN" | "BPMN" | "PRISTINE") {
-    this.processType = to;
+  switchProcessDefinition(switchToDefinition: ProcessDefinitionType) {
+    this.processDefinitionType = switchToDefinition;
   }
 }

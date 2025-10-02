@@ -33,6 +33,7 @@ import { getBeschikbareMailtemplateKoppelingen } from "../model/mail-utils";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
+import { ProcessDefinitionType } from "../model/parameters/parameters-edit-process-definition-type";
 
 @Component({
   selector: "zac-parameter-edit",
@@ -40,9 +41,7 @@ import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-docume
   styleUrls: ["./parameter-edit.component.less"],
 })
 export class ParameterEditComponent implements OnDestroy, AfterViewInit {
-  @Output() switchProcessDefinition = new EventEmitter<
-    "CMMN" | "BPMN" | "PRISTINE"
-  >();
+  @Output() switchProcessDefinition = new EventEmitter<ProcessDefinitionType>();
 
   @ViewChild("smartDocumentsFormRef")
   smartDocsFormGroup!: SmartDocumentsFormComponent;

@@ -4,6 +4,7 @@
  */
 
 import { Component, EventEmitter, OnInit, Output } from "@angular/core";
+import { ProcessDefinitionType } from "../model/parameters/parameters-edit-process-definition-type";
 
 @Component({
   selector: "zac-parameters-edit-process-definition",
@@ -11,9 +12,7 @@ import { Component, EventEmitter, OnInit, Output } from "@angular/core";
   styleUrls: ["./parameters-edit-process-definition.component.less"],
 })
 export class ParameterEditProcessDefinitionComponent implements OnInit {
-  @Output() switchProcessDefinition = new EventEmitter<
-    "CMMN" | "BPMN" | "PRISTINE"
-  >();
+  @Output() switchProcessDefinition = new EventEmitter<ProcessDefinitionType>();
 
   constructor() {}
 
