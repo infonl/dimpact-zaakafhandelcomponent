@@ -18,8 +18,7 @@
     <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
   </mat-sidenav>
   <mat-sidenav-content class="flex-col gap-20">
-    <ng-container [ngSwitch]="selected">
-      <!-- PRISTINE -->
+    <ng-container [ngSwitch]="processType">
       <zac-parameter-edit-process-definition
         *ngSwitchCase="'PRISTINE'"
         [data]="data"
@@ -27,7 +26,6 @@
       >
       </zac-parameter-edit-process-definition>
 
-      <!-- CMMN -->
       <zac-parameter-edit
         *ngSwitchCase="'CMMN'"
         [data]="data"
@@ -35,7 +33,6 @@
       >
       </zac-parameter-edit>
 
-      <!-- BPMN -->
       <zac-parameters-edit-bpmn
         *ngSwitchCase="'BPMN'"
         [data]="data"

@@ -17,6 +17,10 @@ export class ZaakafhandelParametersService {
     return this.zacHttpClient.GET("/rest/zaakafhandelparameters");
   }
 
+  listBPMNZaakafhandelParameters() {
+    return this.zacHttpClient.GET("/rest/zaaktype-bpmn-process-definitions");
+  }
+
   readZaakafhandelparameters(zaaktypeUUID: string) {
     return this.zacHttpClient.GET(
       "/rest/zaakafhandelparameters/{zaaktypeUUID}",

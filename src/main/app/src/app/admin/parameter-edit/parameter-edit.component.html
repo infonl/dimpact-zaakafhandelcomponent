@@ -118,10 +118,10 @@
         <button
           mat-raised-button
           (click)="switchProcessDefinition.emit('PRISTINE')"
+          [disabled]="isSavedZaakafhandelparameters"
         >
           {{ "actie.procesdefinitie.terug" | translate }}
         </button>
-
         <button mat-raised-button matStepperNext>
           {{ "actie.volgende" | translate }}
         </button>
