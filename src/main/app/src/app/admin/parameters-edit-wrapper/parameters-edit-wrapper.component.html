@@ -18,9 +18,9 @@
     <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
   </mat-sidenav>
   <mat-sidenav-content class="flex-col gap-20">
-    <ng-container [ngSwitch]="processType">
+    <ng-container [ngSwitch]="processDefinitionType">
       <zac-parameters-edit-process-definition
-        *ngSwitchCase="'PRISTINE'"
+        *ngSwitchCase="'UNKNOWN'"
         [data]="data"
         (switchProcessDefinition)="switchProcessDefinition($event)"
       >

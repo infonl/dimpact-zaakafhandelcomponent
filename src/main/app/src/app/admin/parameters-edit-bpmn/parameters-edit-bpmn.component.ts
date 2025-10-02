@@ -6,7 +6,7 @@
 import { Component, EventEmitter, OnInit, Output } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
-import { string } from "ts-pattern/dist/patterns";
+import { ProcessDefinitionType } from "../model/parameters/parameters-edit-process-definition-type";
 
 @Component({
   selector: "zac-parameters-edit-bpmn",
@@ -14,9 +14,7 @@ import { string } from "ts-pattern/dist/patterns";
   styleUrls: ["./parameters-edit-bpmn.component.less"],
 })
 export class ParameterEditBpmnComponent implements OnInit {
-  @Output() switchProcessDefinition = new EventEmitter<
-    "CMMN" | "BPMN" | "PRISTINE"
-  >();
+  @Output() switchProcessDefinition = new EventEmitter<ProcessDefinitionType>();
 
   protected isSavedZaakafhandelparameters: boolean = false;
 
