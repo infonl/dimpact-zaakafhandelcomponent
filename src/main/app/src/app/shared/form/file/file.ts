@@ -5,27 +5,23 @@
  */
 
 import {
-  booleanAttribute,
   ChangeDetectorRef,
   Component,
+  computed,
+  effect,
   ElementRef,
-  Input,
+  input,
   numberAttribute,
   OnDestroy,
   OnInit,
-  ViewChild,
+  signal,
+  viewChild,
 } from "@angular/core";
-import {
-  AbstractControl,
-  FormBuilder,
-  FormGroup,
-  Validators,
-} from "@angular/forms";
-import { TranslateService } from "@ngx-translate/core";
-import { lastValueFrom, Subject, takeUntil } from "rxjs";
+import { AbstractControl, FormBuilder } from "@angular/forms";
+import { lastValueFrom, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { FileIcon } from "../../../informatie-objecten/model/file-icon";
-import { FormHelper } from "../helpers";
+import { SingleInputFormField } from "../BaseFormField";
 
 @Component({
   selector: "zac-file",
@@ -35,60 +31,65 @@ export class ZacFile<
     Form extends Record<string, AbstractControl>,
     Key extends keyof Form,
   >
+  extends SingleInputFormField<Form, Key, File>
   implements OnInit, OnDestroy
 {
-  @Input({ required: true }) key!: Key & string;
-  @Input({ required: true }) form!: FormGroup<Form>;
-  @Input({ transform: booleanAttribute }) readonly = false;
-  @Input() label?: string;
-  @Input() allowedFileTypes: string[] = [];
-  @Input({ transform: numberAttribute }) maxFileSizeMB: number = 0;
-  @ViewChild("fileInput") fileInput!: ElementRef;
+  protected allowedFileTypes = input<string[]>([]);
+  protected maxFileSizeMB = input(0, { transform: numberAttribute });
+  protected fileInput = viewChild<ElementRef>("fileInput");
 
-  protected control?: AbstractControl<File | null>;
+  protected fileSize = computed(() => {
+    const maxFileSizeMB = this.maxFileSizeMB();
+    if (maxFileSizeMB) return Promise.resolve(maxFileSizeMB);
+
+    return lastValueFrom(this.configuratieService.readMaxFileSizeMB());
+  });
+
   protected displayControl = this.formBuilder.control<string | null>(null);
-  private destroy$ = new Subject<void>();
 
-  public allowedFormats = "";
+  protected allowedFormats = signal<string[]>([]);
 
   constructor(
-    private readonly translateService: TranslateService,
     private readonly changeDetector: ChangeDetectorRef,
     private readonly formBuilder: FormBuilder,
-    private readonly configuratieService: ConfiguratieService,
-  ) {}
+    private readonly configuratieService: ConfiguratieService
+  ) {
+    super();
 
-  async ngOnInit() {
-    this.control = this.form.get(String(this.key))!;
+    effect(
+      async () => {
+        const additionalFileTypes = await lastValueFrom(
+          this.configuratieService.readAdditionalAllowedFileTypes()
+        );
 
-    // Subscribe to form control status changes to sync errors
-    this.control?.statusChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
-      this.displayControl.setErrors(this.control?.errors ?? null);
-    });
+        let allowedFileTypes = this.allowedFileTypes();
 
-    if (!this.maxFileSizeMB) {
-      this.maxFileSizeMB = await lastValueFrom(
-        this.configuratieService.readMaxFileSizeMB(),
-      );
-    }
+        if (!allowedFileTypes.length) {
+          const defaultFileTypes = FileIcon.fileIcons.map((icon) =>
+            icon.getBestandsextensie()
+          );
+          allowedFileTypes = defaultFileTypes.concat(additionalFileTypes);
+        } else {
+          allowedFileTypes =
+            this.allowedFileTypes().concat(additionalFileTypes);
+        }
 
-    const additionalFileTypes = await lastValueFrom(
-      this.configuratieService.readAdditionalAllowedFileTypes(),
+        this.allowedFormats.set(allowedFileTypes);
+      },
+      { allowSignalWrites: true }
     );
+  }
 
-    if (!this.allowedFileTypes.length) {
-      const defaultFileTypes = FileIcon.fileIcons.map((icon) =>
-        icon.getBestandsextensie(),
-      );
-      this.allowedFileTypes = defaultFileTypes.concat(additionalFileTypes);
-    } else {
-      this.allowedFileTypes = this.allowedFileTypes.concat(additionalFileTypes);
-    }
+  ngOnInit() {
+    // Subscribe to form control status changes to sync errors
+    this.control()
+      ?.statusChanges.pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.displayControl.setErrors(this.control()?.errors ?? null);
+      });
 
-    this.allowedFormats = this.allowedFileTypes.join(", ");
-
-    this.control.valueChanges
-      .pipe(takeUntil(this.destroy$))
+    this.control()
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
       .subscribe((file) => {
         if (file) {
           return;
@@ -99,20 +100,11 @@ export class ZacFile<
 
   ngOnDestroy() {
     this.reset();
-    this.destroy$.next();
-    this.destroy$.complete();
   }
-
-  protected get required() {
-    return this.control?.hasValidator(Validators.required) ?? false;
-  }
-
-  protected getErrorMessage = () => {
-    return FormHelper.getErrorMessage(this.control, this.translateService);
-  };
 
   protected reset() {
-    this.fileInput.nativeElement.value = null;
+    const nativeElement = this.fileInput()?.nativeElement;
+    nativeElement.value = null;
     this.updateInputControls(null);
   }
 
@@ -129,25 +121,25 @@ export class ZacFile<
   }
 
   private setFile(file: File) {
-    this.control?.setErrors(null);
+    this.control()?.setErrors(null);
     this.updateInputControls(file);
 
     if (!this.isFileTypeAllowed(file)) {
-      this.control?.setErrors({
+      this.control()?.setErrors({
         fileTypeInvalid: { type: this.getFileExtension(file) },
       });
       return;
     }
 
     if (!file.size) {
-      this.control?.setErrors({
+      this.control()?.setErrors({
         fileEmpty: true,
       });
       return;
     }
 
     if (!this.isFileSizeAllowed(file)) {
-      this.control?.setErrors({
+      this.control()?.setErrors({
         fileTooLarge: { size: this.getFileSizeInMB(file) },
       });
       return;
@@ -155,24 +147,23 @@ export class ZacFile<
   }
 
   private updateInputControls(file: File | null) {
-    this.control?.patchValue(file);
+    this.control()?.patchValue(file);
     this.displayControl.patchValue(
       file ? file.name.replace(`.${this.getFileExtension(file)}`, "") : null,
-      { emitEvent: false },
+      { emitEvent: false }
     );
     this.changeDetector.detectChanges();
   }
 
   private isFileTypeAllowed(file: File) {
-    if (!this.allowedFileTypes.length) return false;
+    if (!this.allowedFormats().length) return false;
     const extension = this.getFileExtension(file);
-    return this.allowedFileTypes.includes(`.${extension}`);
+    return this.allowedFormats().includes(`.${extension}`);
   }
 
-  private isFileSizeAllowed(file: File) {
-    if (!this.maxFileSizeMB) return true;
+  private async isFileSizeAllowed(file: File) {
     const fileSizeMB = this.getFileSizeInMB(file);
-    return fileSizeMB <= this.maxFileSizeMB;
+    return fileSizeMB <= (await this.fileSize());
   }
 
   private getFileExtension(file: File) {

@@ -4,79 +4,66 @@
  *
  */
 
-import { booleanAttribute, Component, Input, OnInit } from "@angular/core";
-import { AbstractControl, FormGroup, Validators } from "@angular/forms";
-import { TranslateService } from "@ngx-translate/core";
+import { booleanAttribute, Component, computed, input } from "@angular/core";
+import { AbstractControl } from "@angular/forms";
 import { FormHelper } from "../helpers";
+import { SingleInputFormField} from "../BaseFormField";
 
 @Component({
   selector: "zac-input",
   templateUrl: "./input.html",
 })
 export class ZacInput<
-  Form extends Record<string, AbstractControl>,
-  Key extends keyof Form,
-  Option extends Form[Key]["value"],
-  DisplayValue extends keyof Option | ((option: Option) => string),
-> implements OnInit
+    Form extends Record<string, AbstractControl>,
+    Key extends keyof Form,
+    Option extends Form[Key]["value"],
+    DisplayValue extends keyof Option | ((option: Option) => string),
+  >
+  extends SingleInputFormField<Form, Key, Option>
 {
-  @Input({ required: true }) key!: Key & string;
-  @Input({ required: true }) form!: FormGroup<Form>;
-  @Input({ transform: booleanAttribute }) readonly = false;
-  @Input() type: "text" | "number" = "text";
-  @Input() label?: string;
+  public readonly readonly = input(false, { transform: booleanAttribute });
+  public readonly type = input<"text" | "number">("text");
+
   /**
    * When a `displayValue` is declared, the `input` will be hidden, and it will use an overlay for the value.
    * The input will also be put in a `readonly` mode.
    */
-  @Input() displayValue?: DisplayValue;
+  public displayValue = input<DisplayValue>();
 
-  protected control?: AbstractControl<Option | null>;
-  protected maxlength: number | null = null;
-  protected min?: number | null = null;
-  protected max?: number | null = null;
+  protected readonly maxlength = computed(() => FormHelper.getValidatorValue("maxLength", this.control() ?? null));
+  protected readonly min = computed(() => FormHelper.getValidatorValue("min", this.control() ?? null));
+  protected readonly max = computed(() => FormHelper.getValidatorValue("max", this.control() ?? null));
 
-  constructor(private readonly translateService: TranslateService) {}
+  protected readonly computedType = computed(() => {
+    const baseType = this.type()
+    if( baseType === "number") return "number"
 
-  ngOnInit() {
-    this.control = this.form.get(String(this.key))!;
-    this.maxlength = FormHelper.getValidatorValue("maxLength", this.control);
-    this.min = FormHelper.getValidatorValue("min", this.control);
-    this.max = FormHelper.getValidatorValue("max", this.control);
+    if (Number.isFinite(this.min()) || Number.isFinite(this.max())) return "number";
+    return baseType
+  })
 
-    if (Number.isFinite(this.min) || Number.isInteger(this.max)) {
-      this.type = "number";
-    }
-  }
-
-  protected getDisplayValue = (option?: Option) => {
+  protected getDisplayValue = (option?: Option | null) => {
     if (!option) return null;
 
-    switch (typeof this.displayValue) {
+    const displayValue = this.displayValue();
+    switch (typeof displayValue) {
       case "undefined":
         return String(option);
       case "function":
-        return this.displayValue(option);
+        return displayValue.call(this, option);
       default:
-        return String(option[this.displayValue as keyof Option]);
+        return String(option[displayValue as unknown as keyof Option]);
     }
   };
-
-  protected get required() {
-    return this.control?.hasValidator(Validators.required) ?? false;
-  }
-
-  protected getErrorMessage = () =>
-    FormHelper.getErrorMessage(this.control, this.translateService);
 
   protected onInput(event: Event) {
     const target = event.target as HTMLInputElement;
     const value = target.value;
-    switch (this.type) {
+    switch (this.type()) {
       case "text":
       case "number":
         if (value !== "") break;
-        this.control?.setValue(null); // Ensure we send over `null` instead of an empty string
+        this.control()?.setValue(null); // Ensure we send over `null` instead of an empty string
         break;
       default:
         // Nothing to do...

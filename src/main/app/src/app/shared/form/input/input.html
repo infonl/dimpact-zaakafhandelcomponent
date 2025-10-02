@@ -4,34 +4,33 @@
   ~
   -->
 
-<mat-form-field [formGroup]="form" class="full-width" appearance="fill">
+<mat-form-field [formGroup]="form()" class="full-width" appearance="fill">
   <mat-label>
     <ng-content select="mat-label">
-      {{ label ?? key | translate | capitalizeFirstLetter }}
+      {{ label() ?? key() | translate | capitalizeFirstLetter }}
     </ng-content>
   </mat-label>
-  <div *ngIf="displayValue" class="position-absolute overflow-hidden">
-    {{ getDisplayValue(control?.value) }}
+  <div *ngIf="displayValue()" class="position-absolute overflow-hidden">
+    {{ getDisplayValue(control()?.value) }}
   </div>
   <input
     matInput
     autocomplete="off"
-    [ngClass]="displayValue ? 'hide-gt-xs' : ''"
-    [formControlName]="key"
-    [maxlength]="maxlength"
-    [min]="min"
-    [max]="max"
-    [readonly]="readonly || displayValue"
-    [required]="required"
+    [ngClass]="displayValue() ? 'hide-gt-xs' : ''"
+    [formControlName]="key()"
+    [maxlength]="maxlength()"
+    [min]="min()"
+    [max]="max()"
+    [readonly]="readonly() || displayValue()"
     (input)="onInput($event)"
-    [type]="type"
+    [type]="computedType()"
   />
   <button
-    *ngIf="!readonly && !control?.disabled && control?.value?.length"
+    *ngIf="!readonly() && !control()?.disabled && control()?.value?.length"
     matSuffix
     mat-icon-button
     type="button"
-    (click)="control?.reset(undefined)"
+    (click)="control()?.reset(undefined)"
   >
     <mat-icon>clear</mat-icon>
   </button>
@@ -40,11 +39,11 @@
     <ng-content select="span"></ng-content>
     <ng-content select="mat-icon"></ng-content>
   </span>
-  <mat-error *ngIf="getErrorMessage()">{{ getErrorMessage() }}</mat-error>
+  <mat-error>{{ formError() ?? 'foo' }}</mat-error>
   <mat-hint>
     <ng-content select="mat-hint"></ng-content>
   </mat-hint>
-  <mat-hint align="end" *ngIf="maxlength">
-    {{ control?.value?.length ?? 0 }} / {{ maxlength }}
+  <mat-hint align="end" *ngIf="maxlength()">
+    {{ control()?.value?.length ?? 0 }} / {{ maxlength() }}
   </mat-hint>
 </mat-form-field>

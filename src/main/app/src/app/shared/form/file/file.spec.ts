@@ -27,6 +27,7 @@ import { MaterialFormBuilderModule } from "../../material-form-builder/material-
 import { MaterialModule } from "../../material/material.module";
 import { PipesModule } from "../../pipes/pipes.module";
 import { ZacFile } from "./file";
+import { ComponentRef } from "@angular/core";
 
 interface TestForm extends Record<string, AbstractControl> {
   document: FormControl<File | null>;
@@ -38,6 +39,7 @@ interface TestForm extends Record<string, AbstractControl> {
 // It is (near) impossible to mock the actual file uploading so we fake it in these tests
 describe(ZacFile.name, () => {
   let component: ZacFile<TestForm, keyof TestForm>;
+  let componentRef: ComponentRef<typeof component>;
   let fixture: ComponentFixture<typeof component>;
   let loader: HarnessLoader;
   let translateService: TranslateService;
@@ -55,7 +57,7 @@ describe(ZacFile.name, () => {
   const createMockFile = (
     name: string,
     size: number,
-    type: string = "text/plain",
+    type: string = "text/plain"
   ): File => {
     const file = new File(["test content"], name, { type });
     Object.defineProperty(file, "size", { value: size });
@@ -87,13 +89,14 @@ describe(ZacFile.name, () => {
 
     fixture = TestBed.createComponent(ZacFile<TestForm, keyof TestForm>);
     component = fixture.componentInstance;
+    componentRef = fixture.componentRef;
     loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
   describe("Basic functionality", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "document";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "document");
       component.ngOnInit();
       fixture.detectChanges();
     });
@@ -120,8 +123,8 @@ describe(ZacFile.name, () => {
 
   describe("Label display", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "document";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "document");
       component.ngOnInit();
       translateService.setTranslation("en", {
         document: "Test document label",
@@ -137,7 +140,7 @@ describe(ZacFile.name, () => {
     });
 
     it("should display custom label when provided", async () => {
-      component.label = "Custom Document Label";
+      componentRef.setInput("label", "Custom Document Label");
       fixture.detectChanges();
 
       const formField = await loader.getHarness(MatFormFieldHarness);
@@ -148,8 +151,8 @@ describe(ZacFile.name, () => {
 
   describe("File selection", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "document";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "document");
       component.ngOnInit();
       fixture.detectChanges();
     });
@@ -164,7 +167,7 @@ describe(ZacFile.name, () => {
 
       component["selectedFile"](mockEvent);
 
-      expect(component.form.controls.document.value).toBe(mockFile);
+      expect(component.form().controls.document.value).toBe(mockFile);
     });
 
     it("should handle file drop", () => {
@@ -173,29 +176,29 @@ describe(ZacFile.name, () => {
 
       component["droppedFile"](mockFileList);
 
-      expect(component.form.controls.document.value).toBe(mockFile);
+      expect(component.form().controls.document.value).toBe(mockFile);
     });
 
     it("should not process empty file list", () => {
       const emptyFileList = [] as unknown as FileList;
-      const initialValue = component.form.controls.document.value;
+      const initialValue = component.form().controls.document.value;
 
       component["droppedFile"](emptyFileList);
 
-      expect(component.form.controls.document.value).toBe(initialValue);
+      expect(component.form().controls.document.value).toBe(initialValue);
     });
   });
 
   describe("File validation", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "document";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "document");
       component.ngOnInit();
       fixture.detectChanges();
     });
 
     it("should validate file type", async () => {
-      component.allowedFileTypes = [".txt", ".pdf"];
+      componentRef.setInput("allowedFileTypes", [".txt", ".pdf"]);
       const invalidFile = createMockFile("test.doc", 1024);
       const mockEvent = fromPartial<Event>({
         target: fromPartial<HTMLInputElement>({
@@ -205,13 +208,13 @@ describe(ZacFile.name, () => {
 
       component["selectedFile"](mockEvent);
 
-      expect(component.form.controls.document.errors).toEqual({
+      expect(component.form().controls.document.errors).toEqual({
         fileTypeInvalid: { type: "doc" },
       });
     });
 
     it("should validate file size", () => {
-      component.maxFileSizeMB = 1;
+      componentRef.setInput("maxFileSizeMB", 1);
       const largeFile = createMockFile("test.txt", 2 * 1024 * 1024); // 2MB
       const mockEvent = fromPartial<Event>({
         target: fromPartial<HTMLInputElement>({
@@ -221,7 +224,7 @@ describe(ZacFile.name, () => {
 
       component["selectedFile"](mockEvent);
 
-      expect(component.form.controls.document.errors).toEqual({
+      expect(component.form().controls.document.errors).toEqual({
         fileTooLarge: { size: 2 },
       });
     });
@@ -236,14 +239,14 @@ describe(ZacFile.name, () => {
 
       component["selectedFile"](mockEvent);
 
-      expect(component.form.controls.document.errors).toEqual({
+      expect(component.form().controls.document.errors).toEqual({
         fileEmpty: true,
       });
     });
 
     it("should accept valid file", () => {
-      component.allowedFileTypes = [".txt"];
-      component.maxFileSizeMB = 5;
+      componentRef.setInput("allowedFileTypes", [".txt"]);
+      componentRef.setInput("maxFileSizeMB", 5);
       const validFile = createMockFile("test.txt", 1024);
       const mockEvent = fromPartial<Event>({
         target: fromPartial<HTMLInputElement>({
@@ -253,15 +256,15 @@ describe(ZacFile.name, () => {
 
       component["selectedFile"](mockEvent);
 
-      expect(component.form.controls.document.value).toBe(validFile);
-      expect(component.form.controls.document.errors).toBeNull();
+      expect(component.form().controls.document.value).toBe(validFile);
+      expect(component.form().controls.document.errors).toBeNull();
     });
   });
 
   describe("File reset functionality", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "document";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "document");
       component.ngOnInit();
       fixture.detectChanges();
     });
@@ -269,7 +272,7 @@ describe(ZacFile.name, () => {
     it("should reset file when reset button is clicked", async () => {
       // First set a file
       const mockFile = createMockFile("test.txt", 1024);
-      component.form.controls.document.setValue(mockFile);
+      component.form().controls.document.setValue(mockFile);
       fixture.detectChanges();
 
       // Find and click the reset button
@@ -277,12 +280,12 @@ describe(ZacFile.name, () => {
       await resetButton.click();
       fixture.detectChanges();
 
-      expect(component.form.controls.document.value).toBeNull();
+      expect(component.form().controls.document.value).toBeNull();
     });
 
     it("should clear display control when file is reset", async () => {
       const mockFile = createMockFile("test.txt", 1024);
-      component.form.controls.document.setValue(mockFile);
+      component.form().controls.document.setValue(mockFile);
       fixture.detectChanges();
 
       const resetButton = await loader.getHarness(MatButtonHarness);
@@ -295,8 +298,8 @@ describe(ZacFile.name, () => {
 
   describe("Button visibility", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "document";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "document");
       component.ngOnInit();
       fixture.detectChanges();
     });
@@ -308,10 +311,10 @@ describe(ZacFile.name, () => {
 
     it("should show delete button when file is selected", async () => {
       const mockFile = createMockFile("test.txt", 1024);
-      component.form = createTestForm();
-      component.key = "document";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "document");
       component.ngOnInit();
-      component.form.controls.document.setValue(mockFile);
+      component.form().controls.document.setValue(mockFile);
       fixture.detectChanges();
 
       const deleteButton = await loader.getHarness(MatButtonHarness);
@@ -321,17 +324,17 @@ describe(ZacFile.name, () => {
 
   describe("Required field validation", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "requiredDocument";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "requiredDocument");
       component.ngOnInit();
-      component.form.controls.requiredDocument.addValidators(
-        Validators.required,
-      );
+      component
+        .form()
+        .controls.requiredDocument.addValidators(Validators.required);
       fixture.detectChanges();
     });
 
     it("should indicate required field", () => {
-      expect(component["required"]).toBe(true);
+      expect(component["isRequired"]()).toBe(true);
     });
 
     it("should show required attribute on input", async () => {
@@ -342,14 +345,14 @@ describe(ZacFile.name, () => {
 
   describe("File type restrictions", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "document";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "document");
       component.ngOnInit();
       fixture.detectChanges();
     });
 
     it("should accept file with allowed extension", () => {
-      component.allowedFileTypes = [".txt", ".pdf"];
+      componentRef.setInput("allowedFileTypes", [".txt", ".pdf"]);
       fixture.detectChanges();
       const validFile = createMockFile("document.txt", 1024);
       const mockEvent = fromPartial<Event>({
@@ -360,21 +363,21 @@ describe(ZacFile.name, () => {
 
       component["selectedFile"](mockEvent);
 
-      expect(component.form.controls.document.value).toBe(validFile);
-      expect(component.form.controls.document.errors).toBeNull();
+      expect(component.form().controls.document.value).toBe(validFile);
+      expect(component.form().controls.document.errors).toBeNull();
     });
   });
 
   describe("File size restrictions", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "document";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "document");
       component.ngOnInit();
       fixture.detectChanges();
     });
 
     it("should accept file within size limit", () => {
-      component.maxFileSizeMB = 2;
+      componentRef.setInput("maxFileSizeMB", 2);
       fixture.detectChanges();
       const validFile = createMockFile("test.txt", 1024 * 1024); // 1MB
       const mockEvent = fromPartial<Event>({
@@ -385,15 +388,15 @@ describe(ZacFile.name, () => {
 
       component["selectedFile"](mockEvent);
 
-      expect(component.form.controls.document.value).toBe(validFile);
-      expect(component.form.controls.document.errors).toBeNull();
+      expect(component.form().controls.document.value).toBe(validFile);
+      expect(component.form().controls.document.errors).toBeNull();
     });
   });
 
   describe("Display control updates", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "document";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "document");
       component.ngOnInit();
       fixture.detectChanges();
     });
@@ -413,11 +416,11 @@ describe(ZacFile.name, () => {
 
     it("should clear display control when file is reset", async () => {
       const mockFile = createMockFile("test.txt", 1024);
-      component.form.controls.document.setValue(mockFile);
+      component.form().controls.document.setValue(mockFile);
       component["displayControl"].setValue("test");
 
       const resetButton = await loader.getHarness(
-        MatButtonHarness.with({ text: "delete" }),
+        MatButtonHarness.with({ text: "delete" })
       );
       await resetButton.click();
 
@@ -427,8 +430,8 @@ describe(ZacFile.name, () => {
 
   describe("Component lifecycle", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "document";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "document");
       component.ngOnInit();
       fixture.detectChanges();
     });
@@ -440,14 +443,14 @@ describe(ZacFile.name, () => {
 
   describe("Readonly mode", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "document";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "document");
       component.ngOnInit();
       fixture.detectChanges();
     });
 
     it("should be readonly when readonly input is true", async () => {
-      component.readonly = true;
+      componentRef.setInput("readonly", true);
       fixture.detectChanges();
       const input = await loader.getHarness(MatInputHarness);
       expect(await input.isReadonly()).toBe(true);
@@ -456,11 +459,11 @@ describe(ZacFile.name, () => {
 
   describe("Hint display", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "document";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "document");
       component.ngOnInit();
-      component.maxFileSizeMB = 5;
-      component.allowedFileTypes = [".txt", ".pdf"];
+      componentRef.setInput("maxFileSizeMB", 5);
+      componentRef.setInput("allowedFileTypes", [".txt", ".pdf"]);
       fixture.detectChanges();
       translateService.setTranslation("en", {
         "form.input.file.hint": "Max size: 5MB, Formats: .txt, .pdf",

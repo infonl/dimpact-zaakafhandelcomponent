@@ -7,17 +7,17 @@
 import {
   booleanAttribute,
   Component,
-  Input,
+  computed,
+  input,
   OnDestroy,
-  OnInit,
   SecurityContext,
 } from "@angular/core";
-import { AbstractControl, FormGroup, Validators } from "@angular/forms";
+import { AbstractControl } from "@angular/forms";
 import { DomSanitizer } from "@angular/platform-browser";
-import { TranslateService } from "@ngx-translate/core";
 import { Editor, Toolbar } from "ngx-editor";
 import { Schema } from "prosemirror-model";
 import { FormHelper } from "../helpers";
+import { SingleInputFormField } from "../BaseFormField";
 
 const plainTextSchema = new Schema({
   nodes: {
@@ -41,14 +41,13 @@ const plainTextSchema = new Schema({
 export class ZacHtmlEditor<
     Form extends Record<string, AbstractControl>,
     Key extends keyof Form,
+    Option extends Form[Key]["value"] = string | null,
   >
-  implements OnInit, OnDestroy
+  extends SingleInputFormField<Form, Key, Option>
+  implements OnDestroy
 {
-  @Input({ required: true }) key!: Key & string;
-  @Input({ required: true }) form!: FormGroup<Form>;
-  @Input({ transform: booleanAttribute }) readonly = false;
-  @Input({ transform: booleanAttribute }) isPlainText = false;
-  @Input() toolbar: Toolbar = [
+  protected isPlainText = input(false, { transform: booleanAttribute });
+  protected toolbar = input<Toolbar>([
     ["bold", "italic", "underline"],
     ["blockquote"],
     ["ordered_list", "bullet_list"],
@@ -57,51 +56,38 @@ export class ZacHtmlEditor<
     ["text_color", "background_color"],
     ["align_left", "align_center", "align_right", "align_justify"],
     [],
-  ];
-  @Input() variables: string[] = [];
-  @Input() label?: string;
+  ]);
 
-  protected editor = new Editor();
+  protected computedToolbar = computed(() =>
+    this.isPlainText() ? [] : this.toolbar()
+  );
+  protected variables = input<string[]>([]);
 
-  protected maxlength: number | null = null;
-  protected control?: AbstractControl<string | null>;
-
-  constructor(
-    private readonly translateService: TranslateService,
-    private readonly domSanitizer: DomSanitizer,
-  ) {}
-
-  ngOnInit() {
-    this.control = this.form.get(String(this.key))!;
-    this.maxlength = FormHelper.getValidatorValue("maxLength", this.control);
-
-    if (this.isPlainText) this.setupPlainTextEditor();
-  }
-
-  private setupPlainTextEditor() {
-    this.toolbar = [];
-    this.editor.destroy();
+  protected editor = computed(() => {
+    if (!this.isPlainText()) return new Editor();
 
     const sanitized = this.domSanitizer.sanitize(
       SecurityContext.HTML,
-      this.control?.value ?? null,
-    );
-    this.control?.setValue(sanitized);
+      this.control()?.value ?? null
+    ) as Option | null;
 
-    this.editor = new Editor({
+    this.control()?.setValue(sanitized);
+
+    return new Editor({
       keyboardShortcuts: false,
       schema: plainTextSchema,
     });
-  }
+  });
 
-  protected get required() {
-    return this.control?.hasValidator(Validators.required) ?? false;
-  }
+  protected maxlength = computed(() =>
+    FormHelper.getValidatorValue("maxLength", this.control() ?? null)
+  );
 
-  protected getErrorMessage = () =>
-    FormHelper.getErrorMessage(this.control, this.translateService);
+  constructor(private readonly domSanitizer: DomSanitizer) {
+    super();
+  }
 
   ngOnDestroy() {
-    this.editor.destroy();
+    this.editor().destroy();
   }
 }
