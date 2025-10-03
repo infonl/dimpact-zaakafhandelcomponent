@@ -137,7 +137,7 @@ class BrpClientService @Inject constructor(
             defaultValue = defaultPurpose,
             valueDescription = "purpose",
             resolveFunction = extractPurpose,
-            buildFunction = { it, _ -> it }
+            buildFunction = { resolvedValue, _ -> resolvedValue }
         )
 
     private fun resoleProcessingValue(
@@ -149,7 +149,7 @@ class BrpClientService @Inject constructor(
             defaultValue = defaultProcessingRegisterValue,
             valueDescription = "processing value",
             resolveFunction = { it.zaaktypeCmmnBrpParameters?.verwerkingRegisterWaarde },
-            buildFunction = { it, configuration -> "$it@${configuration.zaaktypeOmschrijving}" }
+            buildFunction = { resolvedValue, configuration -> "$resolvedValue@${configuration.zaaktypeOmschrijving}" }
         )
 
     private fun resolveBRPValue(
