@@ -45,6 +45,8 @@ import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.util.time.LocalDateUtil
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.client.kvk.KvkClientService
+import nl.info.client.kvk.model.KvkSearchParameters
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
@@ -186,7 +188,8 @@ class ZaakRestService @Inject constructor(
      * Declare a Kotlin coroutine dispatcher here so that it can be overridden in unit tests with a test dispatcher
      * while in normal operation it will be injected using [nl.info.zac.util.CoroutineDispatcherProducer].
      */
-    private val dispatcher: CoroutineDispatcher
+    private val dispatcher: CoroutineDispatcher,
+    private val kvkClientService: KvkClientService
 ) {
     companion object {
         private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
@@ -856,7 +859,14 @@ class ZaakRestService @Inject constructor(
     fun listBetrokkenenVoorZaak(@PathParam("uuid") zaakUUID: UUID): List<RestZaakBetrokkene> {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak, zaakType).lezen)
-        return zaakService.listBetrokkenenforZaak(zaak).toRestZaakBetrokkenen()
+        return zaakService.listBetrokkenenforZaak(zaak).toRestZaakBetrokkenen().map {
+            it.apply {
+                doesExistInKvK = kvkClientService.search(KvkSearchParameters().apply {
+                    kvkNummer = it.kvkNummer
+                    vestigingsnummer = it.identificatie
+                }).resultaten.isNotEmpty()
+            }
+        }
     }
 
     /**

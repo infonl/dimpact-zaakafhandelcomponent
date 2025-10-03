@@ -23,6 +23,7 @@ data class RestBedrijf(
     var adres: String? = null,
     var postcode: String? = null,
     var type: String? = null,
+    var doesExistInKvK: Boolean = true,
     override var emailadres: String? = null,
     override var naam: String? = null,
     override var telefoonnummer: String? = null
@@ -50,14 +51,15 @@ data class RestBedrijf(
         if (vestigingsnummer != null) vestigingsnummer else if (rsin != null) rsin else kvkNummer
 }
 
-fun ResultaatItem.toRestBedrijf() = RestBedrijf(
+fun ResultaatItem.toRestBedrijf(vestigingsnummer: String? = null, kvkNummer: String? = null) = RestBedrijf(
     kvkNummer = this.kvkNummer,
     vestigingsnummer = this.vestigingsnummer,
     naam = this.toName(),
     postcode = this.adres?.binnenlandsAdres?.postcode,
     rsin = this.rsin,
     type = this.type.uppercase(Locale.getDefault()),
-    adres = this.toAddress()
+    adres = this.toAddress(),
+    doesExistInKvK = (vestigingsnummer == null || this.vestigingsnummer == vestigingsnummer) && (kvkNummer == null || this.kvkNummer == kvkNummer),
 )
 
 fun List<RestBedrijf>.toRestResultaat() = RESTResultaat(this)

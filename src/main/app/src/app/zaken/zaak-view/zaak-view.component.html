@@ -652,7 +652,8 @@
                         [disabled]="
                           betrokkene.type === 'NIET_NATUURLIJK_PERSOON' &&
                           betrokkene.identificatieType === 'VN' &&
-                          !betrokkene.kvkNummer
+                          !betrokkene.kvkNummer ||
+                          !betrokkene.doesExistInKvK
                         "
                         (click)="betrokkeneGegevensOphalen(betrokkene)"
                       >
@@ -699,7 +700,7 @@
                         *ngIf="
                           (betrokkene.type === 'NIET_NATUURLIJK_PERSOON' ||
                             betrokkene.type === 'VESTIGING') &&
-                          betrokkene.kvkNummer
+                          betrokkene.kvkNummer && betrokkene.doesExistInKvK
                         "
                         mat-icon-button
                         [routerLink]="bedrijfRouteLink(betrokkene)"
@@ -716,8 +717,18 @@
                         class="mr-2"
                         color="warn"
                         [matTooltip]="'msg.hint.kvk.unknown' | translate"
-                        >warning</mat-icon
-                      >
+                        >warning</mat-icon>
+                        <mat-icon
+                                *ngIf="
+                          (betrokkene.type === 'NIET_NATUURLIJK_PERSOON' ||
+                            betrokkene.type === 'VESTIGING') &&
+                          betrokkene.kvkNummer && !betrokkene.doesExistInKvK
+                        "
+                                class="mr-2"
+                                color="warn"
+                                [matTooltip]="'msg.hint.kvk.outdated' | translate"
+                        >warning</mat-icon>
+
                       <button
                         *ngIf="zaak.rechten.verwijderenBetrokkene"
                         mat-icon-button

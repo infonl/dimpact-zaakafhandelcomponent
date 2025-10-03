@@ -49,7 +49,14 @@ data class RestZaakBetrokkene(
     /**
      * Only populated when type is [NIET_NATUURLIJK_PERSOON] and it is not a `INN NNP ID (=RSIN)`
      */
-    var kvkNummer: String?
+    var kvkNummer: String?,
+
+    /**
+     * Indicates whether this betrokkene (a company) actually exists in the KVK.
+     * This is only relevant for [NIET_NATUURLIJK_PERSOON] betrokkene types
+     * which has both a `kvkNummer` and a `vestigingsnummer`.
+     */
+    var doesExistInKvK: Boolean = true
 )
 
 /**
