@@ -89,7 +89,7 @@ describe(BedrijfResolverService.name, () => {
       },
     );
 
-    it("should call the error handling when trying to call just a vestigingsnummer", async () => {
+    it("shouldn't call the error handling when trying to call just a vestigingsnummer", async () => {
       const spy = jest.spyOn(foutAfhandelingService, "openFoutDialog");
       await bedrijfResolverService.resolve(
         fromPartial({
@@ -99,7 +99,7 @@ describe(BedrijfResolverService.name, () => {
         }),
       );
 
-      expect(spy).toHaveBeenCalled();
+      expect(spy).not.toHaveBeenCalled();
     });
   });
 });

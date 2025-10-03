@@ -24,7 +24,17 @@
             class="content flex-row flex-wrap space-between"
           >
             <zac-static-text label="bedrijfsnaam" [value]="bedrijf?.naam" />
-            <zac-static-text label="kvknummer" [value]="bedrijf?.kvkNummer" />
+            <zac-static-text
+              *ngIf="bedrijf?.kvkNummer"
+              label="kvknummer"
+              [value]="bedrijf?.kvkNummer"
+            />
+            <zac-static-text
+              *ngIf="!bedrijf?.kvkNummer"
+              label="kvknummer"
+              [icon]="warningIcon"
+              [value]="'msg.error.kvk.unknown' | translate"
+            />
             <zac-static-text
               *ngIf="bedrijf?.vestigingsnummer"
               label="vestigingsnummer"

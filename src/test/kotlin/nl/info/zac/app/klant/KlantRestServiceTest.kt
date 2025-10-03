@@ -354,7 +354,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     with(restBedrijf) {
                         this.rsin shouldBe rsin
                         this.naam shouldBe name
-                        this.kvkNummer shouldBe kvkNummer
+                        this.kvkNummer shouldBe null
                         this.vestigingsnummer shouldBe null
                         this.postcode = postcode
                         this.type = type

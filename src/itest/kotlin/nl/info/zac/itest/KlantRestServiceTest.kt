@@ -137,7 +137,6 @@ class KlantRestServiceTest : BehaviorSpec({
                       "emailadres": "$TEST_VESTIGING_EMAIL",
                       "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
                       "identificatieType": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
-                      "kvkNummer": "$TEST_KVK_NUMMER_1",
                       "naam": "$TEST_KVK_NAAM_1",
                       "type": "$VESTIGINGTYPE_NEVENVESTIGING",
                       "telefoonnummer": "$TEST_VESTIGING_TELEPHONE_NUMBER",
@@ -294,7 +293,6 @@ class KlantRestServiceTest : BehaviorSpec({
                       "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
                       "identificatie" : "$TEST_KVK_RSIN_1",
                       "identificatieType" : "RSIN",
-                      "kvkNummer" : "$TEST_KVK_NUMMER_1",
                       "naam" : "$TEST_KVK_NAAM_1",
                       "rsin" : "$TEST_KVK_RSIN_1",
                       "type" : "$TEST_KVK_TYPE_RECHTSPERSOON"
