@@ -255,7 +255,7 @@ services:
       - ./scripts/docker-compose/imports/brp-personen-wiremock/mappings:/home/wiremock/mappings
     entrypoint: [ "/docker-entrypoint.sh", "--disable-gzip", "--verbose" ]
     ports:
-      - "5052:8080"
+      - "18084:8080"
     depends_on:
       brp-personen-mock:
         condition: service_started
@@ -752,6 +752,7 @@ services:
       - BRP_ORIGIN_OIN=${BRON_ORGANISATIE_RSIN:-123443210}
       - BRP_DOELBINDING_ZOEKMET=BRPACT-Totaal
       - BRP_DOELBINDING_RAADPLEEGMET=BRPACT-Totaal
+      - BRP_VERWERKINGSREGISTER=Algemeen
       - BRON_ORGANISATIE_RSIN=${BRON_ORGANISATIE_RSIN:-123443210}
       - CONTEXT_URL=http://localhost:8080
       - DB_HOST=zac-database

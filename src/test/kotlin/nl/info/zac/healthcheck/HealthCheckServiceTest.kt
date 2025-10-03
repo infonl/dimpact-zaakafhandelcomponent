@@ -94,6 +94,9 @@ class HealthCheckServiceTest : BehaviorSpec({
         every {
             referenceTableService.readReferenceTable(SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE.name)
         } returns createReferenceTable()
+        every {
+            referenceTableService.readReferenceTable(SystemReferenceTable.BRP_VERWERKINGSREGISTER_WAARDE.name)
+        } returns createReferenceTable()
 
         When("controleerZaaktype is called") {
             val zaaktypeInrichtingscheck = healthCheckService.controleerZaaktype(zaaktypeUri)

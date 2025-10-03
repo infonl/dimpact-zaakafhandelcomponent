@@ -55,7 +55,7 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
     "acties",
   ] as const;
   personen = new MatTableDataSource<GeneratedType<"RestPersoon">>();
-  foutmelding?: string;
+  foutmelding?: string | null = null;
   loading = false;
   uuid = crypto.randomUUID();
 
@@ -254,17 +254,11 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
     this.personen.data = [];
     const { value } = this.formGroup;
     this.klantenService
-      .listPersonen(
-        {
-          ...value,
-          geboortedatum: value.geboortedatum?.toISOString(),
-          gemeenteVanInschrijving: value.gemeenteVanInschrijving?.toString(),
-        },
-        {
-          context: this.context(),
-          action: this.action(),
-        },
-      )
+      .listPersonen({
+        ...value,
+        geboortedatum: value.geboortedatum?.toISOString(),
+        gemeenteVanInschrijving: value.gemeenteVanInschrijving?.toString(),
+      })
       .subscribe({
         next: (personen) => {
           this.personen.data = personen.resultaten ?? [];

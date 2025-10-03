@@ -222,17 +222,12 @@ export class ZaakCreateComponent implements OnDestroy {
     const { initiatorID } = productRequest;
     switch (initiatorID.length) {
       case BSN_LENGTH: {
-        this.klantenService
-          .readPersoon(initiatorID, {
-            context: "ZAAK_AANMAKEN",
-            action: "find user",
-          })
-          .subscribe((result) => {
-            this.form.controls.initiatorIdentificatie.setValue({
-              ...result,
-              type: result.identificatieType!,
-            });
+        this.klantenService.readPersoon(initiatorID).subscribe((result) => {
+          this.form.controls.initiatorIdentificatie.setValue({
+            ...result,
+            type: result.identificatieType!,
           });
+        });
         break;
       }
       case VESTIGINGSNUMMER_LENGTH: {

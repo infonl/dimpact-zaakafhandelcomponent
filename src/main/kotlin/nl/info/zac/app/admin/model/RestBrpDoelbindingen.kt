@@ -14,7 +14,8 @@ data class RestBrpDoelbindingen(
     var id: Long? = null,
     var zaakafhandelParameters: RestZaakafhandelParameters? = null,
     var zoekWaarde: String? = null,
-    var raadpleegWaarde: String? = null
+    var raadpleegWaarde: String? = null,
+    var verwerkingRegisterWaarde: String? = null
 )
 
 fun ZaaktypeCmmnBrpParameters.toRestBrpDoelbindingen(): RestBrpDoelbindingen =
@@ -22,6 +23,7 @@ fun ZaaktypeCmmnBrpParameters.toRestBrpDoelbindingen(): RestBrpDoelbindingen =
         id = this@toRestBrpDoelbindingen.id
         zoekWaarde = this@toRestBrpDoelbindingen.zoekWaarde
         raadpleegWaarde = this@toRestBrpDoelbindingen.raadpleegWaarde
+        verwerkingRegisterWaarde = this@toRestBrpDoelbindingen.verwerkingRegisterWaarde
     }
 
 fun RestBrpDoelbindingen.toBrpDoelbindingen(
@@ -30,5 +32,6 @@ fun RestBrpDoelbindingen.toBrpDoelbindingen(
     id = this@toBrpDoelbindingen.id
     zoekWaarde = this@toBrpDoelbindingen.zoekWaarde
     raadpleegWaarde = this@toBrpDoelbindingen.raadpleegWaarde
+    verwerkingRegisterWaarde = this@toBrpDoelbindingen.verwerkingRegisterWaarde
     this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
 }
