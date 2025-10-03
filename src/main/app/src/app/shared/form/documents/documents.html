@@ -3,18 +3,20 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
 -->
 
-<div class="mb-2" style="font-weight: bold">{{ label ?? key | translate }}</div>
+<div class="mb-2" style="font-weight: bold">
+  {{ label() ?? key() | translate }}
+</div>
 <section class="table-wrapper mat-elevation-z1">
   <table mat-table [dataSource]="dataSource">
     <ng-container matColumnDef="select">
       <th mat-header-cell *matHeaderCellDef>
-        {{ selectLabel | translate }}
+        {{ selectLabel() | translate }}
       </th>
       <td mat-cell *matCellDef="let document">
         <mat-checkbox
-          *ngIf="!readonly"
+          *ngIf="!readonly()"
           (change)="onToggleOption(document)"
-          [disabled]="readonly"
+          [disabled]="readonly()"
           [checked]="selection.isSelected(document)"
         >
         </mat-checkbox>
@@ -85,7 +87,7 @@
           <a
             mat-icon-button
             [href]="viewLink(document)"
-            target="{{ viewDocumentInNewTab ? '_blank' : '' }}"
+            target="{{ viewDocumentInNewTab() ? '_blank' : '' }}"
             title="{{ 'actie.document.bekijken' | translate }}"
           >
             <mat-icon>visibility</mat-icon>
