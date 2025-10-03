@@ -6,21 +6,19 @@
 
 import { booleanAttribute, Component, computed, input } from "@angular/core";
 import { AbstractControl } from "@angular/forms";
+import { SingleInputFormField } from "../BaseFormField";
 import { FormHelper } from "../helpers";
-import { SingleInputFormField} from "../BaseFormField";
 
 @Component({
   selector: "zac-input",
   templateUrl: "./input.html",
 })
 export class ZacInput<
-    Form extends Record<string, AbstractControl>,
-    Key extends keyof Form,
-    Option extends Form[Key]["value"],
-    DisplayValue extends keyof Option | ((option: Option) => string),
-  >
-  extends SingleInputFormField<Form, Key, Option>
-{
+  Form extends Record<string, AbstractControl>,
+  Key extends keyof Form,
+  Option extends Form[Key]["value"],
+  DisplayValue extends keyof Option | ((option: Option) => string),
+> extends SingleInputFormField<Form, Key, Option> {
   public readonly readonly = input(false, { transform: booleanAttribute });
   public readonly type = input<"text" | "number">("text");
 
@@ -30,17 +28,24 @@ export class ZacInput<
    */
   public displayValue = input<DisplayValue>();
 
-  protected readonly maxlength = computed(() => FormHelper.getValidatorValue("maxLength", this.control() ?? null));
-  protected readonly min = computed(() => FormHelper.getValidatorValue("min", this.control() ?? null));
-  protected readonly max = computed(() => FormHelper.getValidatorValue("max", this.control() ?? null));
+  protected readonly maxlength = computed(() =>
+    FormHelper.getValidatorValue("maxLength", this.control() ?? null),
+  );
+  protected readonly min = computed(() =>
+    FormHelper.getValidatorValue("min", this.control() ?? null),
+  );
+  protected readonly max = computed(() =>
+    FormHelper.getValidatorValue("max", this.control() ?? null),
+  );
 
   protected readonly computedType = computed(() => {
-    const baseType = this.type()
-    if( baseType === "number") return "number"
+    const baseType = this.type();
+    if (baseType === "number") return "number";
 
-    if (Number.isFinite(this.min()) || Number.isFinite(this.max())) return "number";
-    return baseType
-  })
+    if (Number.isFinite(this.min()) || Number.isFinite(this.max()))
+      return "number";
+    return baseType;
+  });
 
   protected getDisplayValue = (option?: Option | null) => {
     if (!option) return null;

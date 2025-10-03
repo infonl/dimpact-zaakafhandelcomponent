@@ -3,7 +3,9 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
 -->
 
-<div class="mb-2" style="font-weight: bold">{{ label() ?? key() | translate }}</div>
+<div class="mb-2" style="font-weight: bold">
+  {{ label() ?? key() | translate }}
+</div>
 <section class="table-wrapper mat-elevation-z1">
   <table mat-table [dataSource]="dataSource">
     <ng-container matColumnDef="select">

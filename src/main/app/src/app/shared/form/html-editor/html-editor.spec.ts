@@ -7,6 +7,7 @@
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { CommonModule } from "@angular/common";
+import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import {
   AbstractControl,
@@ -27,7 +28,6 @@ import { NgxEditorModule, Toolbar } from "ngx-editor";
 import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
 import { PipesModule } from "../../pipes/pipes.module";
 import { ZacHtmlEditor } from "./html-editor";
-import { ComponentRef } from "@angular/core";
 
 interface TestForm extends Record<string, AbstractControl> {
   content: FormControl<string | null>;
@@ -102,7 +102,7 @@ describe(ZacHtmlEditor.name, () => {
       fixture.detectChanges();
 
       expect(component.form().controls.content.value).toBe(
-        "<p>Test content</p>"
+        "<p>Test content</p>",
       );
     });
   });
@@ -145,7 +145,7 @@ describe(ZacHtmlEditor.name, () => {
       const error = await loader.getHarness(
         MatErrorHarness.with({
           text: /required/,
-        })
+        }),
       );
       expect(error).toBeTruthy();
     });
@@ -163,7 +163,7 @@ describe(ZacHtmlEditor.name, () => {
       const errors = await loader.getAllHarnesses(
         MatErrorHarness.with({
           text: /required/,
-        })
+        }),
       );
       expect(errors.length).toBe(0);
     });
@@ -176,14 +176,14 @@ describe(ZacHtmlEditor.name, () => {
       fixture.detectChanges();
 
       form.controls.content.setValue(
-        "This content is too long and exceeds the maximum length"
+        "This content is too long and exceeds the maximum length",
       );
       fixture.detectChanges();
 
       const error = await loader.getHarness(
         MatErrorHarness.with({
           text: /maxlength/,
-        })
+        }),
       );
       expect(error).toBeTruthy();
     });

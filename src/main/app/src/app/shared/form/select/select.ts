@@ -4,25 +4,21 @@
  *
  */
 
-import {
-  Component, input,
-} from "@angular/core";
+import { Component, input } from "@angular/core";
 import { AbstractControl } from "@angular/forms";
-import {MultiInputFormField} from "../BaseFormField";
+import { MultiInputFormField } from "../BaseFormField";
 
 @Component({
   selector: "zac-select",
   templateUrl: "./select.html",
 })
 export class ZacSelect<
-    Form extends Record<string, AbstractControl>,
-    Key extends keyof Form,
-    Option extends Form[Key]["value"],
-    OptionDisplayValue extends keyof Option | ((option: Option) => string),
-    Compare extends (a: Option, b: Option) => boolean,
-  >
-  extends MultiInputFormField<Form, Key, Option, OptionDisplayValue>
-{
+  Form extends Record<string, AbstractControl>,
+  Key extends keyof Form,
+  Option extends Form[Key]["value"],
+  OptionDisplayValue extends keyof Option | ((option: Option) => string),
+  Compare extends (a: Option, b: Option) => boolean,
+> extends MultiInputFormField<Form, Key, Option, OptionDisplayValue> {
   protected readonly compare = input<Compare>();
 
   /**

@@ -6,6 +6,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import {
   AbstractControl,
@@ -23,7 +24,6 @@ import { MaterialFormBuilderModule } from "../../material-form-builder/material-
 import { MaterialModule } from "../../material/material.module";
 import { PipesModule } from "../../pipes/pipes.module";
 import { ZacInput } from "./input";
-import { ComponentRef } from "@angular/core";
 
 interface TestForm extends Record<string, AbstractControl> {
   name: FormControl<string | null>;
@@ -64,7 +64,7 @@ describe(ZacInput.name, () => {
 
     translateService = TestBed.inject(TranslateService);
     fixture = TestBed.createComponent(
-      ZacInput<TestForm, keyof TestForm, unknown, () => string>
+      ZacInput<TestForm, keyof TestForm, unknown, () => string>,
     );
     componentRef = fixture.componentRef;
     component = fixture.componentInstance;
@@ -192,7 +192,7 @@ describe(ZacInput.name, () => {
       fixture.detectChanges();
 
       // Test that the maxlength is properly extracted by the component
-      expect(component['maxlength']()).toBe(10);
+      expect(component["maxlength"]()).toBe(10);
 
       const input = await loader.getHarness(MatInputHarness);
       await input.setValue("This is too long for the maxlength");

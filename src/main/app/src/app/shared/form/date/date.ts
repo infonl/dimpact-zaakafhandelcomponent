@@ -4,11 +4,11 @@
  *
  */
 
-import {booleanAttribute, Component, computed, input} from "@angular/core";
-import { AbstractControl} from "@angular/forms";
+import { booleanAttribute, Component, computed, input } from "@angular/core";
+import { AbstractControl } from "@angular/forms";
 import moment from "moment";
+import { SingleInputFormField } from "../BaseFormField";
 import { FormHelper } from "../helpers";
-import {SingleInputFormField} from "../BaseFormField";
 
 @Component({
   selector: "zac-date",
@@ -18,9 +18,8 @@ import {SingleInputFormField} from "../BaseFormField";
 export class ZacDate<
   Form extends Record<string, AbstractControl>,
   Key extends keyof Form,
-    Option extends Form[Key]["value"],
-> extends SingleInputFormField<Form, Key, Option>
-{
+  Option extends Form[Key]["value"],
+> extends SingleInputFormField<Form, Key, Option> {
   protected showAmountOfDays = input(false, { transform: booleanAttribute });
 
   /**
@@ -29,7 +28,7 @@ export class ZacDate<
    * @example `Validators.min(moment().add(1, "day").startOf("day").valueOf())`
    */
   protected min = computed(() => {
-    const value = FormHelper.getValidatorValue("min", this.control() ?? null)
+    const value = FormHelper.getValidatorValue("min", this.control() ?? null);
     return value ? moment(value) : null;
   });
 
@@ -41,5 +40,5 @@ export class ZacDate<
   protected max = computed(() => {
     const value = FormHelper.getValidatorValue("max", this.control() ?? null);
     return value ? moment(value) : null;
-  })
+  });
 }

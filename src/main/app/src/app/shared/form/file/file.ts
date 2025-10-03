@@ -52,27 +52,27 @@ export class ZacFile<
   constructor(
     private readonly changeDetector: ChangeDetectorRef,
     private readonly formBuilder: FormBuilder,
-    private readonly configuratieService: ConfiguratieService
+    private readonly configuratieService: ConfiguratieService,
   ) {
     super();
 
     effect(
       async () => {
-        if(this.allowedFileTypes().length) {
+        if (this.allowedFileTypes().length) {
           this.allowedFormats.set(this.allowedFileTypes());
-          return
+          return;
         }
 
         const additionalFileTypes = await lastValueFrom(
-            this.configuratieService.readAdditionalAllowedFileTypes()
+          this.configuratieService.readAdditionalAllowedFileTypes(),
         );
         const defaultFileTypes = FileIcon.fileIcons.map((icon) =>
-          icon.getBestandsextensie()
+          icon.getBestandsextensie(),
         );
 
         this.allowedFormats.set(defaultFileTypes.concat(additionalFileTypes));
       },
-      { allowSignalWrites: true }
+      { allowSignalWrites: true },
     );
   }
 
@@ -96,7 +96,7 @@ export class ZacFile<
 
   ngOnDestroy() {
     this.reset();
-    super.ngOnDestroy()
+    super.ngOnDestroy();
   }
 
   protected reset() {
@@ -147,7 +147,7 @@ export class ZacFile<
     this.control()?.patchValue(file);
     this.displayControl.patchValue(
       file ? file.name.replace(`.${this.getFileExtension(file)}`, "") : null,
-      { emitEvent: false }
+      { emitEvent: false },
     );
     this.changeDetector.detectChanges();
   }

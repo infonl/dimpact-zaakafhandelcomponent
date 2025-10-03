@@ -45,7 +45,11 @@
       <ng-content select="mat-hint">
         {{
           "form.input.file.hint"
-            | translate: { sizeInMB: fileSize() | async, formats: allowedFormats().join(',') }
+            | translate
+              : {
+                  sizeInMB: fileSize() | async,
+                  formats: allowedFormats().join(","),
+                }
         }}
       </ng-content>
     </mat-hint>

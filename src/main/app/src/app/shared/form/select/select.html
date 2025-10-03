@@ -21,10 +21,13 @@
     <mat-select-trigger>
       {{ displayWith(control()?.value) | translate }}
     </mat-select-trigger>
-  <mat-option *ngIf="isLoading()" disabled="true">
-      {{ "-laden.generiek-" | translate: { label: (label() ?? key() | translate | lowercase) } }}
+    <mat-option *ngIf="isLoading()" disabled="true">
+      {{
+        "-laden.generiek-"
+          | translate: { label: (label() ?? key() | translate | lowercase) }
+      }}
       <mat-spinner diameter="15" matPrefix></mat-spinner>
-  </mat-option>
+    </mat-option>
     <mat-option [value]="" *ngIf="!isRequired() && !isLoading()">
       {{
         "-geen.generiek-"

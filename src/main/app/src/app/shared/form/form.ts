@@ -19,26 +19,28 @@ import { GeneratedType } from "../utils/generated-types";
 type _Form = Record<string, AbstractControl<unknown, unknown>>;
 
 type SingleInputFormField<
-    Form extends _Form,
-    Key extends keyof Form = keyof Form> = {
+  Form extends _Form,
+  Key extends keyof Form = keyof Form,
+> = {
   key: Key;
   label?: string;
   readonly?: boolean;
 };
 
 type MultipleInputFormField<
-    Form extends _Form,
-    Key extends keyof Form = keyof Form,
-    Option extends string | Record<string, unknown> = Record<string, unknown>
+  Form extends _Form,
+  Key extends keyof Form = keyof Form,
+  Option extends string | Record<string, unknown> = Record<string, unknown>,
 > = SingleInputFormField<Form, Key> & {
   options: Option[] | Observable<Option[]>;
   optionDisplayValue?: keyof Option | ((option: Option) => string);
 };
 
 type SelectFormField<
-    Form extends _Form,
-    Key extends keyof Form = keyof Form,
-    Option extends string | Record<string, unknown> = Record<string, unknown>> = MultipleInputFormField<Form, Key, Option> & {
+  Form extends _Form,
+  Key extends keyof Form = keyof Form,
+  Option extends string | Record<string, unknown> = Record<string, unknown>,
+> = MultipleInputFormField<Form, Key, Option> & {
   type: "select";
 };
 
@@ -56,22 +58,25 @@ type DateFormField<Form extends _Form> = SingleInputFormField<Form> & {
 
 type AutocompleteFormField<
   Form extends _Form,
-    Key extends keyof Form = keyof Form,
-    Option extends string | Record<string, unknown> = Record<string, unknown>
+  Key extends keyof Form = keyof Form,
+  Option extends string | Record<string, unknown> = Record<string, unknown>,
 > = MultipleInputFormField<Form, Key, Option> & {
   type: "auto-complete";
-}
+};
 
 type DocumentFormField<
   Form extends _Form,
-    Key extends keyof Form = keyof Form,
+  Key extends keyof Form = keyof Form,
   Option extends
     GeneratedType<"RestEnkelvoudigInformatieobject"> = GeneratedType<"RestEnkelvoudigInformatieobject">,
 > = MultipleInputFormField<Form, Key, Option> & {
   type: "documents";
 };
 
-type PlainTextField<Form extends _Form> = Omit<SingleInputFormField<Form>, "key"> & {
+type PlainTextField<Form extends _Form> = Omit<
+  SingleInputFormField<Form>,
+  "key"
+> & {
   type: "plain-text";
   text: string;
   header?: string;
@@ -79,7 +84,7 @@ type PlainTextField<Form extends _Form> = Omit<SingleInputFormField<Form>, "key"
 
 type RadioFormField<
   Form extends _Form,
-    Key extends keyof Form = keyof Form,
+  Key extends keyof Form = keyof Form,
   Option extends string | Record<string, unknown> = string,
 > = MultipleInputFormField<Form, Key, Option> & {
   type: "radio";

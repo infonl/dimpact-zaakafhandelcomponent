@@ -4,7 +4,12 @@
  *
  */
 
-import {AbstractControl, FormControl, ValidationErrors, Validators} from "@angular/forms";
+import {
+  AbstractControl,
+  FormControl,
+  ValidationErrors,
+  Validators,
+} from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 
 export class FormHelper {

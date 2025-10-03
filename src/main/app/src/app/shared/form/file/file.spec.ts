@@ -6,6 +6,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import {
   AbstractControl,
@@ -27,7 +28,6 @@ import { MaterialFormBuilderModule } from "../../material-form-builder/material-
 import { MaterialModule } from "../../material/material.module";
 import { PipesModule } from "../../pipes/pipes.module";
 import { ZacFile } from "./file";
-import { ComponentRef } from "@angular/core";
 
 interface TestForm extends Record<string, AbstractControl> {
   document: FormControl<File | null>;
@@ -57,7 +57,7 @@ describe(ZacFile.name, () => {
   const createMockFile = (
     name: string,
     size: number,
-    type: string = "text/plain"
+    type: string = "text/plain",
   ): File => {
     const file = new File(["test content"], name, { type });
     Object.defineProperty(file, "size", { value: size });
@@ -200,7 +200,7 @@ describe(ZacFile.name, () => {
     it("should validate file type", async () => {
       componentRef.setInput("allowedFileTypes", [".txt", ".pdf"]);
       fixture.detectChanges();
-      await fixture.whenStable()
+      await fixture.whenStable();
       const invalidFile = createMockFile("test.doc", 1024);
       const mockEvent = fromPartial<Event>({
         target: fromPartial<HTMLInputElement>({
@@ -422,7 +422,7 @@ describe(ZacFile.name, () => {
       component["displayControl"].setValue("test");
 
       const resetButton = await loader.getHarness(
-        MatButtonHarness.with({ text: "delete" })
+        MatButtonHarness.with({ text: "delete" }),
       );
       await resetButton.click();
 

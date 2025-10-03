@@ -4,10 +4,10 @@
  *
  */
 
-import {Component, input} from "@angular/core";
+import { Component, input } from "@angular/core";
 import { AbstractControl } from "@angular/forms";
-import {SingleInputFormField} from "../BaseFormField";
-import {MatSlideToggle} from "@angular/material/slide-toggle";
+import { MatSlideToggle } from "@angular/material/slide-toggle";
+import { SingleInputFormField } from "../BaseFormField";
 
 @Component({
   selector: "zac-toggle",
@@ -17,8 +17,7 @@ import {MatSlideToggle} from "@angular/material/slide-toggle";
 export class ZacToggle<
   Form extends Record<string, AbstractControl>,
   Key extends keyof Form,
-    Option extends Form[Key]["value"],
-> extends SingleInputFormField<Form, Key, Option>
-{
-  protected labelPosition = input<MatSlideToggle['labelPosition']>("after");
+  Option extends Form[Key]["value"],
+> extends SingleInputFormField<Form, Key, Option> {
+  protected labelPosition = input<MatSlideToggle["labelPosition"]>("after");
 }

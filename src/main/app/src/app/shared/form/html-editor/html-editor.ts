@@ -16,8 +16,8 @@ import { AbstractControl } from "@angular/forms";
 import { DomSanitizer } from "@angular/platform-browser";
 import { Editor, Toolbar } from "ngx-editor";
 import { Schema } from "prosemirror-model";
-import { FormHelper } from "../helpers";
 import { SingleInputFormField } from "../BaseFormField";
+import { FormHelper } from "../helpers";
 
 const plainTextSchema = new Schema({
   nodes: {
@@ -59,7 +59,7 @@ export class ZacHtmlEditor<
   ]);
 
   protected computedToolbar = computed(() =>
-    this.isPlainText() ? [] : this.toolbar()
+    this.isPlainText() ? [] : this.toolbar(),
   );
   protected variables = input<string[]>([]);
 
@@ -68,7 +68,7 @@ export class ZacHtmlEditor<
 
     const sanitized = this.domSanitizer.sanitize(
       SecurityContext.HTML,
-      this.control()?.value ?? null
+      this.control()?.value ?? null,
     ) as Option | null;
 
     this.control()?.setValue(sanitized);
@@ -80,7 +80,7 @@ export class ZacHtmlEditor<
   });
 
   protected maxlength = computed(() =>
-    FormHelper.getValidatorValue("maxLength", this.control() ?? null)
+    FormHelper.getValidatorValue("maxLength", this.control() ?? null),
   );
 
   constructor(private readonly domSanitizer: DomSanitizer) {

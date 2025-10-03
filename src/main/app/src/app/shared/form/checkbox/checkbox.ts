@@ -6,7 +6,7 @@
 
 import { Component } from "@angular/core";
 import { AbstractControl } from "@angular/forms";
-import {SingleInputFormField} from "../BaseFormField";
+import { SingleInputFormField } from "../BaseFormField";
 
 @Component({
   selector: "zac-checkbox",
@@ -16,6 +16,5 @@ import {SingleInputFormField} from "../BaseFormField";
 export class ZacCheckbox<
   Form extends Record<string, AbstractControl>,
   Key extends keyof Form,
-    Option extends Form[Key]["value"],
-> extends SingleInputFormField<Form, Key, Option>
-{}
+  Option extends Form[Key]["value"],
+> extends SingleInputFormField<Form, Key, Option> {}

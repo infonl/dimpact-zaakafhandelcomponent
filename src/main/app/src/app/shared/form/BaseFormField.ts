@@ -4,14 +4,14 @@
  */
 
 import {
+  booleanAttribute,
+  Component,
+  computed,
+  effect,
   inject,
   input,
-  computed,
-  Component,
   OnDestroy,
   signal,
-  effect,
-  booleanAttribute,
 } from "@angular/core";
 import {
   AbstractControl,
@@ -19,9 +19,9 @@ import {
   ValidationErrors,
   Validators,
 } from "@angular/forms";
-import { FormHelper } from "./helpers";
 import { TranslateService } from "@ngx-translate/core";
 import { lastValueFrom, Observable, Subject, takeUntil } from "rxjs";
+import { FormHelper } from "./helpers";
 
 /**
  * This base class is meant to be extended by form field components.
@@ -47,7 +47,7 @@ export class SingleInputFormField<
   protected readonly control = computed<AbstractControl<Option | null> | null>(
     () => {
       return this.form().controls[this.key()];
-    }
+    },
   );
 
   public readonly form = input.required<FormGroup<Form>>();
@@ -71,19 +71,19 @@ export class SingleInputFormField<
         // Set initial errors
         this.controlErrors.set(control.errors);
       },
-      { allowSignalWrites: true }
+      { allowSignalWrites: true },
     );
   }
 
   protected readonly formError = computed(() => {
     return FormHelper.getErrorMessage(
       this.controlErrors(),
-      this.translateService
+      this.translateService,
     );
   });
 
   protected isRequired = computed(
-    () => this.control()?.hasValidator(Validators.required) ?? false
+    () => this.control()?.hasValidator(Validators.required) ?? false,
   );
 
   ngOnDestroy() {
@@ -133,7 +133,7 @@ export class MultiInputFormField<
           this.isLoading.set(false);
         }
       },
-      { allowSignalWrites: true }
+      { allowSignalWrites: true },
     );
   }
 
