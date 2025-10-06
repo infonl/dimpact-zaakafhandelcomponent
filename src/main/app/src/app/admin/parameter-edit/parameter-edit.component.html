@@ -43,10 +43,11 @@
       <button
         mat-raised-button
         (click)="
-          switchProcessDefinition.emit({
-            type: cmmnBpmnFormGroup.value.options.value,
-            stepperStart: 1,
-          })
+          cmmnBpmnFormGroup.value.options?.value &&
+            switchProcessDefinition.emit({
+              type: cmmnBpmnFormGroup.value.options.value,
+              stepperStart: 1,
+            })
         "
       >
         {{ "actie.volgende" | translate }}
