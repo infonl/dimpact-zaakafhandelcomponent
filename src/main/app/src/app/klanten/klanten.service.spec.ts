@@ -57,6 +57,15 @@ describe(KlantenService.name, () => {
         "vestiging",
         { kvkNummer: "12345678", vestigingsnummer: "12345678" },
       ],
+        [
+            new BetrokkeneIdentificatie({
+                identificatieType: "VN",
+                kvkNummer: null,
+                vestigingsnummer: "12345678",
+            }),
+            "vestiging",
+            { vestigingsnummer: "12345678" },
+        ],
       [
         new BetrokkeneIdentificatie({
           identificatieType: "RSIN",
