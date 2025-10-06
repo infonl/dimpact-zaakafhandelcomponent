@@ -7,7 +7,7 @@
   *ngIf="algemeenFormGroup"
   orientation="horizontal"
   [linear]="!algemeenFormGroup.valid"
-  [selectedIndex]="startStep"
+  [selectedIndex]="stepperStart"
 >
   <!--
     Step below is skipped on load when parameters are already saved
@@ -24,7 +24,7 @@
     <button
       mat-raised-button
       color="primary"
-      (click)="switchProcessDefinition.emit({ type: 'CMMN', startStep: 1 })"
+      (click)="switchProcessDefinition.emit({ type: 'CMMN', stepperStart: 1 })"
       [disabled]="isSavedZaakafhandelparameters || isLoading"
     >
       Selecteer CMMN
@@ -32,7 +32,7 @@
     <button
       mat-raised-button
       color="accent"
-      (click)="switchProcessDefinition.emit({ type: 'BPMN', startStep: 1 })"
+      (click)="switchProcessDefinition.emit({ type: 'BPMN', stepperStart: 1 })"
       [disabled]="isSavedZaakafhandelparameters || isLoading"
     >
       Selecteer BPMN

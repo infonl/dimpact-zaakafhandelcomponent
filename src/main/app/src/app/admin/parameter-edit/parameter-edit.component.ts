@@ -42,8 +42,7 @@ import { ZaakProcessDefinition } from "../model/parameters/parameters-edit-proce
   styleUrls: ["./parameter-edit.component.less"],
 })
 export class ParameterEditComponent implements OnDestroy, AfterViewInit {
-  @Input() startStep: number = 0;
-
+  @Input() stepperStart: number = 0;
   @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
 
   @ViewChild("smartDocumentsFormRef")
