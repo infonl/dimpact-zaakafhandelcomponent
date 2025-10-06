@@ -16,14 +16,14 @@
     <button
       mat-raised-button
       color="primary"
-      (click)="switchProcessDefinition.emit('CMMN')"
+      (click)="switchProcessDefinition.emit({ type: 'CMMN', startStep: 1 })"
     >
       Selecteer CMMN
     </button>
     <button
       mat-raised-button
       color="accent"
-      (click)="switchProcessDefinition.emit('BPMN')"
+      (click)="switchProcessDefinition.emit({ type: 'BPMN', startStep: 1 })"
     >
       Selecteer BPMN
     </button>
@@ -43,30 +43,3 @@
     </div>
   </mat-step>
 </mat-stepper>
-
-<!--
-  This section displays a card with buttons to select either CMMN or BPMN process definition.
-<ng-container>
-  <mat-card class="flex-col gap-10">
-    <mat-card-title>{{
-      "gegevens.proces-definitie" | translate
-    }}</mat-card-title>
-    <mat-card-content>
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="switchProcessDefinition.emit('CMMN')"
-      >
-        Selecteer CMMN
-      </button>
-      <button
-        mat-raised-button
-        color="accent"
-        (click)="switchProcessDefinition.emit('BPMN')"
-      >
-        Selecteer BPMN
-      </button>
-    </mat-card-content>
-  </mat-card>
-</ng-container>
--->

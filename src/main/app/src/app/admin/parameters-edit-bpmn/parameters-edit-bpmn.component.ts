@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Output } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
-import { ProcessDefinitionType } from "../model/parameters/parameters-edit-process-definition-type";
+import { ZaakProcessDefinition } from "../model/parameters/parameters-edit-process-definition-type";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { IdentityService } from "src/app/identity/identity.service";
@@ -18,7 +18,8 @@ import { Subject } from "rxjs";
   styleUrls: ["./parameters-edit-bpmn.component.less"],
 })
 export class ParameterEditBpmnComponent {
-  @Output() switchProcessDefinition = new EventEmitter<ProcessDefinitionType>();
+  @Input() startStep: number = 0;
+  @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
 
   private readonly destroy$ = new Subject<void>();
 
@@ -115,19 +116,28 @@ export class ParameterEditBpmnComponent {
 
     console.log("bpmnZaakafhandelParameters", this.bpmnZaakafhandelParameters);
 
-    // this.zaakafhandelParametersService
-    //   .updateBpmnZaakafhandelparameters(
-    //     this.algemeenFormGroup.value.bpmnDefinition!.id || "",
-    //     this.algemeenFormGroup.value,
-    //   )
-    //   .subscribe({
-    //     next: (data) => {
-    //       this.isLoading = false;
-    //     },
-    //     error: () => {
-    //       this.isLoading = false;
-    //     },
-    //   });
+    this.zaakafhandelParametersService
+      .updateBpmnZaakafhandelparameters(
+        this.bpmnZaakafhandelParameters.bpmnProcessDefinitionKey,
+        {
+          zaaktypeUuid: this.bpmnZaakafhandelParameters.zaaktypeUuid,
+          zaaktypeOmschrijving:
+            this.bpmnZaakafhandelParameters.zaaktypeOmschrijving,
+          bpmnProcessDefinitionKey:
+            this.bpmnZaakafhandelParameters.bpmnProcessDefinitionKey,
+          productaanvraagtype:
+            this.algemeenFormGroup.value.productaanvraagtype || null,
+          groepNaam: this.algemeenFormGroup.value.defaultGroep!.id || "",
+        },
+      )
+      .subscribe({
+        next: (data) => {
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
+        },
+      });
   }
 
   protected isValid(): boolean {

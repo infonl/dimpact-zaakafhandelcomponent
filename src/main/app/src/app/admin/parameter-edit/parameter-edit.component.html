@@ -7,12 +7,11 @@
   *ngIf="algemeenFormGroup"
   orientation="horizontal"
   [linear]="!algemeenFormGroup.valid"
+  [selectedIndex]="startStep"
 >
   <!--
-    [selectedIndex]="1"
-    Step below is skipped on load
+    Step below is skipped on load when parameters are already saved
   -->
-
   <mat-step completed="true">
     <ng-template matStepLabel>{{
       "gegevens.proces-definitie" | translate
@@ -25,7 +24,7 @@
     <button
       mat-raised-button
       color="primary"
-      (click)="switchProcessDefinition.emit('CMMN')"
+      (click)="switchProcessDefinition.emit({ type: 'CMMN', startStep: 1 })"
       [disabled]="isSavedZaakafhandelparameters || isLoading"
     >
       Selecteer CMMN
@@ -33,7 +32,7 @@
     <button
       mat-raised-button
       color="accent"
-      (click)="switchProcessDefinition.emit('BPMN')"
+      (click)="switchProcessDefinition.emit({ type: 'BPMN', startStep: 1 })"
       [disabled]="isSavedZaakafhandelparameters || isLoading"
     >
       Selecteer BPMN

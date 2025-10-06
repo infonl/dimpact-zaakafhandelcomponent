@@ -3,13 +3,16 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<mat-stepper orientation="horizontal" [linear]="true">
+<mat-stepper
+  *ngIf="algemeenFormGroup"
+  orientation="horizontal"
+  [linear]="true"
+  [selectedIndex]="startStep"
+>
   <!--
-  [selectedIndex]="1"
-    Step below is skipped on load
+    Step below is skipped on load when parameters are already saved
   -->
-
-  <mat-step completed="true">
+  <mat-step>
     <ng-template matStepLabel>{{
       "gegevens.proces-definitie" | translate
     }}</ng-template>
@@ -21,7 +24,7 @@
     <button
       mat-raised-button
       color="primary"
-      (click)="switchProcessDefinition.emit('CMMN')"
+      (click)="switchProcessDefinition.emit({ type: 'CMMN', startStep: 1 })"
       [disabled]="isSavedZaakafhandelparameters || isLoading"
     >
       Selecteer CMMN
@@ -29,7 +32,7 @@
     <button
       mat-raised-button
       color="accent"
-      (click)="switchProcessDefinition.emit('BPMN')"
+      (click)="switchProcessDefinition.emit({ type: 'BPMN', startStep: 1 })"
       [disabled]="isSavedZaakafhandelparameters || isLoading"
     >
       Selecteer BPMN
@@ -129,15 +132,6 @@
       </div>
 
       <div class="button-group flex-row flex-wrap">
-        <!--
-        <button
-          mat-raised-button
-          (click)="switchProcessDefinition.emit('SELECT-PROCESS-DEFINITION')"
-          [disabled]="isSavedZaakafhandelparameters"
-        >
-          {{ "actie.procesdefinitie.terug" | translate }}
-        </button>
-        -->
         <button mat-raised-button matStepperPrevious>
           {{ "actie.terug" | translate }}
         </button>

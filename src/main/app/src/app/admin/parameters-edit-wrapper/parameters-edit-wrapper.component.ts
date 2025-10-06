@@ -9,7 +9,7 @@ import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { AdminComponent } from "../admin/admin.component";
 import { UtilService } from "src/app/core/service/util.service";
 import { ConfiguratieService } from "src/app/configuratie/configuratie.service";
-import { ProcessDefinitionType } from "../model/parameters/parameters-edit-process-definition-type";
+import { ZaakProcessDefinition } from "../model/parameters/parameters-edit-process-definition-type";
 
 @Component({
   templateUrl: "./parameters-edit-wrapper.component.html",
@@ -22,7 +22,7 @@ export class ParametersEditWrapperComponent
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
 
   data: any;
-  processDefinitionType!: ProcessDefinitionType;
+  processDefinitionType!: ZaakProcessDefinition;
 
   constructor(
     public readonly utilService: UtilService,
@@ -37,20 +37,20 @@ export class ParametersEditWrapperComponent
 
     this.route.data.subscribe(({ parameters }) => {
       if (parameters.isBpmn) {
-        this.processDefinitionType = "BPMN";
+        this.processDefinitionType = { type: "BPMN" };
         return;
       }
 
       if (parameters.isSavedZaakafhandelparameters) {
-        this.processDefinitionType = "CMMN";
+        this.processDefinitionType = { type: "CMMN" };
         return;
       }
 
-      this.processDefinitionType = "SELECT-PROCESS-DEFINITION";
+      this.processDefinitionType = { type: "SELECT-PROCESS-DEFINITION" };
     });
   }
 
-  switchProcessDefinition(switchToDefinition: ProcessDefinitionType) {
+  switchProcessDefinition(switchToDefinition: ZaakProcessDefinition) {
     this.processDefinitionType = switchToDefinition;
   }
 }

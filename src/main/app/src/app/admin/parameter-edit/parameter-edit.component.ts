@@ -9,6 +9,7 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  Input,
   OnDestroy,
   Output,
   ViewChild,
@@ -33,7 +34,7 @@ import { getBeschikbareMailtemplateKoppelingen } from "../model/mail-utils";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
-import { ProcessDefinitionType } from "../model/parameters/parameters-edit-process-definition-type";
+import { ZaakProcessDefinition } from "../model/parameters/parameters-edit-process-definition-type";
 
 @Component({
   selector: "zac-parameter-edit",
@@ -41,7 +42,9 @@ import { ProcessDefinitionType } from "../model/parameters/parameters-edit-proce
   styleUrls: ["./parameter-edit.component.less"],
 })
 export class ParameterEditComponent implements OnDestroy, AfterViewInit {
-  @Output() switchProcessDefinition = new EventEmitter<ProcessDefinitionType>();
+  @Input() startStep: number = 0;
+
+  @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
 
   @ViewChild("smartDocumentsFormRef")
   smartDocsFormGroup!: SmartDocumentsFormComponent;

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-export type ProcessDefinitionType =
-  | "CMMN"
-  | "BPMN"
-  | "SELECT-PROCESS-DEFINITION";
+export type ZaakProcessDefinition = {
+  type: "CMMN" | "BPMN" | "SELECT-PROCESS-DEFINITION";
+  startStep?: number | null;
+};

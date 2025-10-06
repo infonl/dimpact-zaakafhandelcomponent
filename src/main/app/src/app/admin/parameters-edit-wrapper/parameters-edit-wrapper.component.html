@@ -18,7 +18,7 @@
     <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
   </mat-sidenav>
   <mat-sidenav-content class="flex-col gap-20">
-    <ng-container [ngSwitch]="processDefinitionType">
+    <ng-container [ngSwitch]="processDefinitionType.type">
       <zac-parameters-edit-select-process-definition
         *ngSwitchCase="'SELECT-PROCESS-DEFINITION'"
         [data]="data"
@@ -29,6 +29,7 @@
       <zac-parameter-edit
         *ngSwitchCase="'CMMN'"
         [data]="data"
+        [startStep]="processDefinitionType.startStep"
         (switchProcessDefinition)="switchProcessDefinition($event)"
       >
       </zac-parameter-edit>
@@ -36,6 +37,7 @@
       <zac-parameters-edit-bpmn
         *ngSwitchCase="'BPMN'"
         [data]="data"
+        [startStep]="processDefinitionType.startStep"
         (switchProcessDefinition)="switchProcessDefinition($event)"
       >
         >
