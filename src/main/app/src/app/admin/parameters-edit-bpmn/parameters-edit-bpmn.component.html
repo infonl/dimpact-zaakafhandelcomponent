@@ -9,22 +9,123 @@
       "gegevens.algemeen" | translate
     }}</ng-template>
 
-    <p>Hier het formulier</p>
+    <form [formGroup]="algemeenFormGroup">
+      <fieldset>
+        <section class="row">
+          <zac-static-text
+            class="col-12 col-md-6"
+            label="zaaktypeOmschrijving"
+            [value]="bpmnProcessDefinition.zaaktypeOmschrijving"
+          />
+          <zac-static-text
+            class="col-12 col-md-6"
+            label="doel"
+            [value]="'bpmnProcessDefinition.zaaktypeDoel'"
+          />
+        </section>
+        <section class="row">
+          <zac-static-text
+            class="col-12 col-md-6"
+            label="identificatie"
+            [value]="bpmnProcessDefinition.bpmnProcessDefinitionKey"
+          />
+          <zac-static-text
+            class="col-12 col-md-6"
+            label="uuid"
+            [value]="bpmnProcessDefinition.zaaktypeUuid"
+          />
+        </section>
+      </fieldset>
+      <fieldset>
+        <section class="row">
+          <!--
+          <zac-select
+            class="col-12 col-md-6"
+            key="caseDefinition"
+            optionDisplayValue="naam"
+            [form]="algemeenFormGroup"
+            [options]="caseDefinitions"
+          >
+          </zac-select>
+          <zac-select
+            class="col-12 col-md-6"
+            key="domein"
+            [form]="algemeenFormGroup"
+            [options]="domeinen"
+          >
+          </zac-select>
+        </section>
+        <section class="row">
+          <zac-select
+            class="col-12 col-md-6"
+            key="defaultGroep"
+            label="groep"
+            optionDisplayValue="naam"
+            [form]="algemeenFormGroup"
+            [options]="groepen"
+          >
+          </zac-select>
 
-    <div class="button-group flex-row flex-wrap">
-      <button
-        mat-raised-button
-        (click)="switchProcessDefinition.emit('UNKNOWN')"
-        [disabled]="isSavedZaakafhandelparameters"
-      >
-        {{ "actie.procesdefinitie.terug" | translate }}
-      </button>
-      <button mat-raised-button matStepperNext>
-        {{ "actie.volgende" | translate }}
-      </button>
-      <button mat-raised-button color="primary">
-        {{ "actie.opslaan" | translate }}
-      </button>
-    </div>
+          <zac-select
+            class="col-12 col-md-6"
+            key="defaultBehandelaar"
+            label="behandelaar"
+            optionDisplayValue="naam"
+            [form]="algemeenFormGroup"
+            [options]="medewerkers"
+          >
+          </zac-select>
+        </section>
+        <section class="row">
+          <zac-input
+            class="col-12 col-md-6"
+            key="uiterlijkeEinddatumAfdoeningWaarschuwing"
+            [form]="algemeenFormGroup"
+          >
+            <span matSuffix>{{ "kalenderdagen" | translate }}</span>
+          </zac-input>
+          <zac-input
+            *ngIf="parameters.zaaktype.servicenorm"
+            class="col-12 col-md-6"
+            key="einddatumGeplandWaarschuwing"
+            [form]="algemeenFormGroup"
+          >
+            <span matSuffix>{{ "kalenderdagen" | translate }}</span>
+          </zac-input>
+        </section>
+        <section class="row">
+          <zac-input
+            class="col-12 col-md-6"
+            key="productaanvraagtype"
+            [form]="algemeenFormGroup"
+          >
+            <mat-hint>{{
+              "msg.zaakafhandelparameters.productaanvraagtype" | translate
+            }}</mat-hint>
+          </zac-input>
+          -->
+        </section>
+      </fieldset>
+
+      <div class="flex-row items-center gap-10 ml-3 mt-3">
+        <mat-icon color="warn" class="pr-3">warning</mat-icon>
+        <small>{{
+          "msg.zaakafhandelparameters.waarschuwing" | translate
+        }}</small>
+      </div>
+
+      <div class="button-group flex-row flex-wrap">
+        <button
+          mat-raised-button
+          (click)="switchProcessDefinition.emit('SELECT-PROCESS-DEFINITION')"
+          [disabled]="isSavedZaakafhandelparameters"
+        >
+          {{ "actie.procesdefinitie.terug" | translate }}
+        </button>
+        <button mat-raised-button color="primary">
+          {{ "actie.opslaan" | translate }}
+        </button>
+      </div>
+    </form>
   </mat-step>
 </mat-stepper>

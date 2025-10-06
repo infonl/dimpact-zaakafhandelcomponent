@@ -48,7 +48,7 @@ export class ParametersEditWrapperComponent
         return;
       }
 
-      this.processDefinitionType = "UNKNOWN";
+      this.processDefinitionType = "SELECT-PROCESS-DEFINITION";
     });
   }
 

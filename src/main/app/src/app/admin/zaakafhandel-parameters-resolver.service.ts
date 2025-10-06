@@ -26,19 +26,21 @@ export class ZaakafhandelParametersResolver {
     return forkJoin({
       zaakafhandelParameters:
         this.adminService.readZaakafhandelparameters(uuid),
-      zaakafhandelParametersBpmn:
+      bpmnProcessDefinitions:
         this.adminService.listBPMNZaakafhandelParameters(),
     }).pipe(
-      map(({ zaakafhandelParameters, zaakafhandelParametersBpmn }) => {
+      map(({ zaakafhandelParameters, bpmnProcessDefinitions }) => {
         const isSavedZaakafhandelparameters = zaakafhandelParameters?.id;
-        const isBpmn = zaakafhandelParametersBpmn.some(
+        const bpmnProcessDefinition = bpmnProcessDefinitions?.find(
           (item: any) =>
             item.zaaktypeUuid === zaakafhandelParameters.zaaktype.uuid,
         );
         return {
-          zaakafhandelparameters: zaakafhandelParameters,
-          isBpmn,
-          isSavedZaakafhandelparameters,
+          zaakafhandelparameters: zaakafhandelParameters, // full list of zaakafhandelparameters, both CMMN and BPMN
+          bpmnProcessDefinitions, // full list of BPMN process definitions
+          bpmnProcessDefinition, // the BPMN process definition that matches the zaakafhandelparameters (if any)
+          isBpmn: !!bpmnProcessDefinition, // true if there is a matching BPMN process definition
+          isSavedZaakafhandelparameters, // true if zaakafhandelparameters for this zaaktype has been saved before
         };
       }),
     );
