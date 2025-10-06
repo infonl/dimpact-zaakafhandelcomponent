@@ -15,7 +15,7 @@
     "@cucumber/cucumber": "12.2.0",
     "@types/uniqid": "5.3.4",
     "cross-fetch": "4.1.0",
-    "pdf-parse": "1.1.1",
+    "pdf-parse": "2.1.7",
     "uniqid": "5.4.0",
     "zod": "4.1.11"
   },
