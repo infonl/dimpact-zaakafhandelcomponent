@@ -76,6 +76,10 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         assertPolicy(policyService.readOverigeRechten().beheren)
         zaaktypeBpmnConfigurationService.createZaaktypeBpmnProcessDefinition(
             ZaaktypeBpmnConfiguration().apply {
+                zaaktypeUuid = restZaaktypeBpmnProcessDefinition.zaaktype.uuid
+                    ?: throw IllegalArgumentException("No zaaktype UUID provided")
+                zaaktypeOmschrijving = restZaaktypeBpmnProcessDefinition.zaaktype.omschrijving
+                    ?: throw IllegalArgumentException("No zaaktype description provided")
                 bpmnProcessDefinitionKey = processDefinitionKey
                 productaanvraagtype = restZaaktypeBpmnProcessDefinition.productaanvraagtype
                 groupId = restZaaktypeBpmnProcessDefinition.groepNaam

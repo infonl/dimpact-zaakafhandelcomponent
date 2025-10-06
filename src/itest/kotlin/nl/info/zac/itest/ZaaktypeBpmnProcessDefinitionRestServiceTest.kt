@@ -11,10 +11,12 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_ID
+import nl.info.zac.itest.config.ItestConfiguration.DATE_2025_01_01
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REFERENCE_TABLES_UPDATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 
@@ -22,15 +24,17 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 class ZaaktypeBpmnProcessDefinitionRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
-    val testUrl = "$ZAC_API_URI/zaaktype-bpmn-process-definitions"
+    val testUrl = "$ZAC_API_URI/zaaktype-bpmn-configurations"
 
     Given("No existing zaaktype - BPMN process definition mapping") {
         When("a mapping is created") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$testUrl/$BPMN_TEST_PROCESS_ID",
                 requestBodyAsString = """{ 
-                  "zaaktypeUuid": "$ZAAKTYPE_BPMN_TEST_UUID",
-                  "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
+                  "zaaktype": {
+                    "uuid": "$ZAAKTYPE_BPMN_TEST_UUID",
+                    "omschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
+                  },
                   "productaanvraagtype": "$ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE",
                   "groepNaam": "$TEST_GROUP_A_DESCRIPTION"
                 }
@@ -49,11 +53,20 @@ class ZaaktypeBpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         lateinit var responseBody: String
         val bpmnZaakType = """
         {
-            "zaaktypeUuid": "$ZAAKTYPE_BPMN_TEST_UUID",
-            "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
-            "bpmnProcessDefinitionKey": "$BPMN_TEST_PROCESS_ID",
-            "productaanvraagtype": "$ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE",
-            "groepNaam": "$TEST_GROUP_A_DESCRIPTION"
+          "zaaktype": {
+            "beginGeldigheid": "$DATE_2025_01_01",
+            "doel": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
+            "identificatie": "$ZAAKTYPE_BPMN_TEST_IDENTIFICATIE",
+            "nuGeldig": true,
+            "omschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
+            "servicenorm": false,
+            "uuid": "$ZAAKTYPE_BPMN_TEST_UUID",
+            "versiedatum": "$DATE_2025_01_01",
+            "vertrouwelijkheidaanduiding": "openbaar"
+          },
+          "bpmnProcessDefinitionKey": "$BPMN_TEST_PROCESS_ID",
+          "productaanvraagtype": "$ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE",
+          "groepNaam": "$TEST_GROUP_A_DESCRIPTION"
         }
         """.trimIndent()
 
