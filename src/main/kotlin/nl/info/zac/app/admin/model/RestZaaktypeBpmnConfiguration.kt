@@ -7,16 +7,12 @@ package nl.info.zac.app.admin.model
 import jakarta.validation.constraints.NotNull
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.util.UUID
 
 @NoArgConstructor
 @AllOpen
-data class RestZaaktypeBpmnProcessDefinition(
+data class RestZaaktypeBpmnConfiguration(
     @field:NotNull
-    var zaaktypeUuid: UUID,
-
-    @field:NotNull
-    var zaaktypeOmschrijving: String,
+    var zaaktype: RestZaaktypeOverzicht,
 
     var bpmnProcessDefinitionKey: String,
 

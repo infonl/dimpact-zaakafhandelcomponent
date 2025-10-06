@@ -13,6 +13,11 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.ws.rs.NotFoundException
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
+import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.policy.PolicyService
@@ -22,8 +27,10 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
 
     val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
     val policyService = mockk<PolicyService>()
+    val ztcClientService = mockk<ZtcClientService>()
     val zaaktypeBpmnConfigurationRestService =
-        ZaaktypeBpmnConfigurationRestService(zaaktypeBpmnConfigurationService, policyService)
+        ZaaktypeBpmnConfigurationRestService(zaaktypeBpmnConfigurationService, policyService, ztcClientService)
+    val zaakType = createZaakType()
 
     beforeEach {
         checkUnnecessaryStub()
@@ -35,6 +42,9 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeBpmnConfigurationService.listBpmnProcessDefinitions()
             } returns listOf(zaaktypeBpmnProcessDefinition)
+            every {
+                ztcClientService.readZaaktype(zaaktypeBpmnProcessDefinition.zaaktypeUuid)
+            } returns zaakType
 
             When("listing BPMN zaaktypes") {
                 val result = zaaktypeBpmnConfigurationRestService.listZaaktypeBpmnProcessDefinition(
@@ -43,8 +53,18 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
 
                 Then("it should return a list of BPMN zaaktypes") {
                     with(result) {
-                        zaaktypeUuid shouldBe zaaktypeBpmnProcessDefinition.zaaktypeUuid
-                        zaaktypeOmschrijving shouldBe zaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
+                        with(zaaktype) {
+                            uuid shouldBe zaakType.url.extractUuid()
+                            identificatie shouldBe zaakType.identificatie
+                            doel shouldBe zaakType.doel
+                            omschrijving shouldBe zaakType.omschrijving
+                            servicenorm shouldBe zaakType.isServicenormAvailable()
+                            versiedatum shouldBe zaakType.versiedatum
+                            beginGeldigheid shouldBe zaakType.beginGeldigheid
+                            eindeGeldigheid shouldBe zaakType.eindeGeldigheid
+                            vertrouwelijkheidaanduiding shouldBe zaakType.vertrouwelijkheidaanduiding
+                            nuGeldig shouldBe zaakType.isNuGeldig()
+                        }
                         bpmnProcessDefinitionKey shouldBe zaaktypeBpmnProcessDefinition.bpmnProcessDefinitionKey
                         productaanvraagtype shouldBe zaaktypeBpmnProcessDefinition.productaanvraagtype
                         groepNaam shouldBe zaaktypeBpmnProcessDefinition.groupId

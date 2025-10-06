@@ -19,8 +19,10 @@ import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.UriInfo
+import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
-import nl.info.zac.app.admin.model.RestZaaktypeBpmnProcessDefinition
+import nl.info.zac.app.admin.model.RestZaaktypeBpmnConfiguration
+import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
@@ -28,20 +30,21 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
 @Singleton
-@Path("zaaktype-bpmn-process-definitions")
+@Path("zaaktype-bpmn-configurations")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @AllOpen
 @NoArgConstructor
 class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,
-    private val policyService: PolicyService
+    private val policyService: PolicyService,
+    private val ztcClientService: ZtcClientService
 ) {
     @GET
-    fun listZaaktypeBpmnProcessDefinitions(): List<RestZaaktypeBpmnProcessDefinition> {
+    fun listZaaktypeBpmnConfigurations(): List<RestZaaktypeBpmnConfiguration> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return zaaktypeBpmnConfigurationService.listBpmnProcessDefinitions().map {
-            it.toRestZaaktypeBpmnProcessDefinition()
+            it.toRestZaaktypeBpmnConfiguration()
         }
     }
 
@@ -49,7 +52,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     @Path("{processDefinitionKey}")
     fun listZaaktypeBpmnProcessDefinition(
         @NotEmpty @PathParam("processDefinitionKey") processDefinitionKey: String
-    ): RestZaaktypeBpmnProcessDefinition {
+    ): RestZaaktypeBpmnConfiguration {
         assertPolicy(policyService.readOverigeRechten().beheren)
         val processDefinitions = zaaktypeBpmnConfigurationService
             .listBpmnProcessDefinitions()
@@ -60,22 +63,20 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         }
         check(processDefinitions.size == 1) { "Multiple process definitions found for key '$processDefinitionKey'" }
 
-        return processDefinitions.first().toRestZaaktypeBpmnProcessDefinition()
+        return processDefinitions.first().toRestZaaktypeBpmnConfiguration()
     }
 
     @POST
     @Path("{processDefinitionKey}")
     fun createZaaktypeBpmnProcessDefinition(
         @NotEmpty @PathParam("processDefinitionKey") processDefinitionKey: String,
-        @Valid restZaaktypeBpmnProcessDefinition: RestZaaktypeBpmnProcessDefinition,
+        @Valid restZaaktypeBpmnProcessDefinition: RestZaaktypeBpmnConfiguration,
         @Context uriInfo: UriInfo
     ): Response {
         assertPolicy(policyService.readOverigeRechten().beheren)
         zaaktypeBpmnConfigurationService.createZaaktypeBpmnProcessDefinition(
             ZaaktypeBpmnConfiguration().apply {
-                zaaktypeUuid = restZaaktypeBpmnProcessDefinition.zaaktypeUuid
                 bpmnProcessDefinitionKey = processDefinitionKey
-                zaaktypeOmschrijving = restZaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
                 productaanvraagtype = restZaaktypeBpmnProcessDefinition.productaanvraagtype
                 groupId = restZaaktypeBpmnProcessDefinition.groepNaam
             }
@@ -83,11 +84,10 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         return Response.created(uriInfo.requestUri).build()
     }
 
-    private fun ZaaktypeBpmnConfiguration.toRestZaaktypeBpmnProcessDefinition() =
-        RestZaaktypeBpmnProcessDefinition(
-            zaaktypeUuid = this.zaaktypeUuid,
+    private fun ZaaktypeBpmnConfiguration.toRestZaaktypeBpmnConfiguration() =
+        RestZaaktypeBpmnConfiguration(
+            zaaktype = ztcClientService.readZaaktype(this.zaaktypeUuid).toRestZaaktypeOverzicht(),
             bpmnProcessDefinitionKey = this.bpmnProcessDefinitionKey,
-            zaaktypeOmschrijving = this.zaaktypeOmschrijving,
             groepNaam = this.groupId,
             productaanvraagtype = this.productaanvraagtype
         )
