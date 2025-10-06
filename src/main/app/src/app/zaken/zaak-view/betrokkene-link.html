@@ -1,20 +1,45 @@
-@if(betrokkeneQuery.isLoading()) {
-<div>loading....</div>
-<div>{{betrokkene().type}}</div>
+@if (betrokkeneQuery.isLoading()) {
+  <mat-spinner diameter="18" />
 }
 
-@if(betrokkeneQuery.data()) {
-   @if(betrokkene()?.type !== 'BSN') {
-       <a  mat-icon-button
-               [routerLink]="bedrijfRouteLink()"
-               title="{{ 'actie.bedrijf.bekijken' | translate }}"
-       >
-           <mat-icon>visibility</mat-icon>
-       </a>
-   }
+@if (betrokkeneQuery.data()) {
+  @if (betrokkene().type === "NATUURLIJK_PERSOON") {
+    <a
+      mat-icon-button
+      [routerLink]="['/persoon', betrokkene().identificatie]"
+      title="{{ 'actie.persoon.bekijken' | translate }}"
+    >
+      <mat-icon>visibility</mat-icon>
+    </a>
+  }
+  @if (
+    betrokkene().type === "NIET_NATUURLIJK_PERSOON" ||
+    betrokkene().type === "VESTIGING"
+  ) {
+    @if (!betrokkene().kvkNummer) {
+      <mat-icon
+        class="mr-2"
+        color="warn"
+        [matTooltip]="'msg.hint.kvk.unknown' | translate"
+        >warning</mat-icon
+      >
+    } @else {
+      <a
+        mat-icon-button
+        [routerLink]="bedrijfRouteLink()"
+        title="{{ 'actie.bedrijf.bekijken' | translate }}"
+      >
+        <mat-icon>visibility</mat-icon>
+      </a>
+    }
+  }
 }
 
-@if(betrokkeneQuery.error()) {
-    <div>error</div>
+@if (betrokkeneQuery.error()) {
+  <mat-icon
+    class="mr-2"
+    color="warn"
+    [matTooltip]="'msg.hint.kvk.outdated' | translate"
+    >warning</mat-icon
+  >
 }
-

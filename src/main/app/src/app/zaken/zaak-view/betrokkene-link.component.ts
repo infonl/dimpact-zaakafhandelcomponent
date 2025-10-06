@@ -1,10 +1,10 @@
 import { Component, computed, input } from "@angular/core";
-import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
-import { lastValueFrom } from "rxjs";
-import { KlantenService } from "../../klanten/klanten.service";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { buildBedrijfRouteLink } from "../../klanten/klanten-routing.module";
+import { lastValueFrom } from "rxjs";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
+import { buildBedrijfRouteLink } from "../../klanten/klanten-routing.module";
+import { KlantenService } from "../../klanten/klanten.service";
+import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 
 @Component({
   selector: "betrokkene-link",
@@ -14,7 +14,13 @@ import { GeneratedType } from "src/app/shared/utils/generated-types";
 export class BetrokkeneLinkComponent {
   protected readonly betrokkeneQuery = injectQuery(() => ({
     enabled: !!this.betrokkene(),
-    queryKey: ["bedrijf", this.betrokkene()?.identificatie],
+    queryKey: [
+      this.betrokkene()?.type,
+      this.betrokkene()
+        ? new BetrokkeneIdentificatie(this.betrokkene()!).uniqueKey
+        : null,
+    ],
+    retry: false,
     queryFn: async () => {
       const betrokkene = this.betrokkene();
       if (!betrokkene) throw new Error("No betrokkene provided");
@@ -24,14 +30,13 @@ export class BetrokkeneLinkComponent {
           this.klantService.readPersoon(betrokkene.identificatie, {
             context: "BetrokkeneLinkComponent",
             action: "view",
-          })
+          }),
         );
         return new BetrokkeneIdentificatie(persoon);
       }
 
-      console.log(betrokkene)
       const bedrijf = await lastValueFrom(
-        this.klantService.readBedrijf(new BetrokkeneIdentificatie(betrokkene))
+        this.klantService.readBedrijf(new BetrokkeneIdentificatie(betrokkene)),
       );
       return new BetrokkeneIdentificatie(bedrijf);
     },
@@ -41,7 +46,7 @@ export class BetrokkeneLinkComponent {
     input.required<GeneratedType<"RestZaakBetrokkene">>();
 
   protected readonly bedrijfRouteLink = computed(() =>
-    buildBedrijfRouteLink(this.betrokkene())
+    buildBedrijfRouteLink(this.betrokkene()),
   );
 
   constructor(private readonly klantService: KlantenService) {}

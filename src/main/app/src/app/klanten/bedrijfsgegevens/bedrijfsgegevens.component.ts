@@ -3,13 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  Output,
-} from "@angular/core";
+import { Component, computed, input, output, signal } from "@angular/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
+import { lastValueFrom } from "rxjs";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
@@ -21,19 +17,42 @@ import { KlantenService } from "../klanten.service";
   templateUrl: "./bedrijfsgegevens.component.html",
   styleUrls: ["./bedrijfsgegevens.component.less"],
 })
-export class BedrijfsgegevensComponent implements OnChanges {
-  @Input() isVerwijderbaar?: boolean | null = false;
-  @Input() isWijzigbaar?: boolean | null = false;
-  @Input()
-  initiatorIdentificatie?: GeneratedType<"BetrokkeneIdentificatie"> | null;
-  @Output() delete = new EventEmitter<GeneratedType<"RestBedrijf">>();
-  @Output() edit = new EventEmitter<GeneratedType<"RestBedrijf">>();
+export class BedrijfsgegevensComponent {
+  protected isVerwijderbaar = input<boolean | null>(false);
+  protected isWijzigbaar = input<boolean | null>(false);
+  protected initiatorIdentificatie =
+    input<GeneratedType<"BetrokkeneIdentificatie"> | null>(null);
 
-  vestigingsprofielOphalenMogelijk = true;
-  vestigingsprofiel: GeneratedType<"RestVestigingsprofiel"> | null = null;
-  bedrijf: GeneratedType<"RestBedrijf"> | null = null;
-  klantExpanded = false;
-  warningIcon = new TextIcon(
+  protected delete = output<GeneratedType<"RestBedrijf"> | null>();
+  protected edit = output<GeneratedType<"RestBedrijf"> | null>();
+
+  protected bedrijfQuery = injectQuery(() => ({
+    enabled: !!this.initiatorIdentificatie(),
+    retry: false,
+    queryKey: [
+      this.initiatorIdentificatie()?.type,
+      this.initiatorIdentificatie()
+        ? new BetrokkeneIdentificatie(this.initiatorIdentificatie()!).uniqueKey
+        : null,
+    ],
+    queryFn: () => {
+      const betrokkkene = this.initiatorIdentificatie();
+      if (!betrokkkene) return Promise.resolve(null);
+      return lastValueFrom(
+        this.klantenService.readBedrijf(
+          new BetrokkeneIdentificatie(betrokkkene),
+        ),
+      );
+    },
+  }));
+
+  protected vestigingsprofielOphalenMogelijk = computed(
+    () => !!this.bedrijfQuery.data()?.vestigingsnummer,
+  );
+  protected vestigingsprofiel =
+    signal<GeneratedType<"RestVestigingsprofiel"> | null>(null);
+
+  protected warningIcon = new TextIcon(
     () => true,
     "warning",
     "warning-icon",
@@ -43,35 +62,18 @@ export class BedrijfsgegevensComponent implements OnChanges {
 
   constructor(private klantenService: KlantenService) {}
 
-  ngOnChanges(): void {
-    this.bedrijf = null;
-    this.vestigingsprofiel = null;
-
-    if (!this.initiatorIdentificatie) return;
-
-    this.klantenService
-      .readBedrijf(new BetrokkeneIdentificatie(this.initiatorIdentificatie))
-      .subscribe((bedrijf) => {
-        if (!bedrijf) return;
-
-        this.bedrijf = bedrijf;
-        this.klantExpanded = true;
-        this.vestigingsprofielOphalenMogelijk = !!this.bedrijf.vestigingsnummer;
-      });
-  }
-
   protected bedrijfRouteLink() {
-    return buildBedrijfRouteLink(this.bedrijf);
+    return buildBedrijfRouteLink(this.bedrijfQuery.data());
   }
 
   ophalenVestigingsprofiel() {
-    this.vestigingsprofielOphalenMogelijk = false;
-    if (!this.bedrijf?.vestigingsnummer) return;
+    const vestigingsnummer = this.bedrijfQuery.data()?.vestigingsnummer;
+    if (!vestigingsnummer) return;
 
     this.klantenService
-      .readVestigingsprofiel(this.bedrijf.vestigingsnummer)
+      .readVestigingsprofiel(vestigingsnummer)
       .subscribe((value) => {
-        this.vestigingsprofiel = value;
+        this.vestigingsprofiel.set(value);
       });
   }
 }

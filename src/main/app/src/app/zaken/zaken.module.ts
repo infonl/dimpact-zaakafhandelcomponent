@@ -34,6 +34,7 @@ import { ZaakOntkoppelenDialogComponent } from "./zaak-ontkoppelen/zaak-ontkoppe
 import { ZaakOpschortenDialogComponent } from "./zaak-opschorten-dialog/zaak-opschorten-dialog.component";
 import { ZaakVerkortComponent } from "./zaak-verkort/zaak-verkort.component";
 import { ZaakVerlengenDialogComponent } from "./zaak-verlengen-dialog/zaak-verlengen-dialog.component";
+import { BetrokkeneLinkComponent } from "./zaak-view/betrokkene-link.component";
 import { ZaakViewComponent } from "./zaak-view/zaak-view.component";
 import { ZaakdataFormComponent } from "./zaakdata/zaakdata-form/zaakdata-form.component";
 import { ZaakdataComponent } from "./zaakdata/zaakdata.component";
@@ -43,7 +44,6 @@ import { ZakenRoutingModule } from "./zaken-routing.module";
 import { ZakenVerdelenDialogComponent } from "./zaken-verdelen-dialog/zaken-verdelen-dialog.component";
 import { ZakenVrijgevenDialogComponent } from "./zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component";
 import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorraad.component";
-import {BetrokkeneLinkComponent} from "./zaak-view/betrokkene-link.component";
 
 @NgModule({
   declarations: [
@@ -52,7 +52,7 @@ import {BetrokkeneLinkComponent} from "./zaak-view/betrokkene-link.component";
     BesluitViewComponent,
     IntakeAfrondenDialogComponent,
     ZaakViewComponent,
-      BetrokkeneLinkComponent,
+    BetrokkeneLinkComponent,
     ZaakVerkortComponent,
     ZaakCreateComponent,
     ZakenWerkvoorraadComponent,
