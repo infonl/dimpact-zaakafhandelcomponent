@@ -742,6 +742,7 @@ export class ParameterEditComponent implements OnDestroy, AfterViewInit {
 
   protected isValid(): boolean {
     return (
+      this.cmmnBpmnFormGroup.valid &&
       this.algemeenFormGroup.valid &&
       this.humanTasksFormGroup.valid &&
       this.zaakbeeindigFormGroup.valid &&

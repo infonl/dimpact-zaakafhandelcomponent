@@ -148,6 +148,6 @@ export class ParameterEditBpmnComponent {
   }
 
   protected isValid(): boolean {
-    return false;
+    return this.cmmnBpmnFormGroup.valid && this.algemeenFormGroup.valid;
   }
 }

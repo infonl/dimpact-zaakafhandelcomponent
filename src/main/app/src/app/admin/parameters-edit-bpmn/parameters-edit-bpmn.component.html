@@ -12,7 +12,7 @@
   <!--
     Step below is skipped on load when parameters are already saved
   -->
-  <mat-step>
+  <mat-step *ngIf="cmmnBpmnFormGroup" [stepControl]="cmmnBpmnFormGroup">
     <ng-template matStepLabel>{{
       "gegevens.proces-definitie" | translate
     }}</ng-template>
@@ -62,7 +62,7 @@
     </div>
   </mat-step>
 
-  <mat-step>
+  <mat-step *ngIf="algemeenFormGroup" stepControl="algemeenFormGroup">
     <ng-template matStepLabel>{{
       "gegevens.algemeen" | translate
     }}</ng-template>
