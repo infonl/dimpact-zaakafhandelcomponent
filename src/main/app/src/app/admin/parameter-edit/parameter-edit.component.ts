@@ -168,7 +168,7 @@ export class ParameterEditComponent implements OnDestroy, AfterViewInit {
   zaakbeeindigRedenen: GeneratedType<"RESTZaakbeeindigReden">[] = [];
   mailtemplates: GeneratedType<"RESTMailtemplate">[] = [];
   replyTos: GeneratedType<"RESTReplyTo">[] = [];
-  loading = false;
+  isLoading = false;
   subscriptions$: Subscription[] = [];
   brpConsultingValues: string[] = [];
   brpSearchValues: string[] = [];
@@ -740,7 +740,7 @@ export class ParameterEditComponent implements OnDestroy, AfterViewInit {
   }
 
   protected opslaan() {
-    this.loading = true;
+    this.isLoading = true;
     this.parameters = {
       ...this.parameters,
       ...this.algemeenFormGroup.value,
@@ -871,7 +871,7 @@ export class ParameterEditComponent implements OnDestroy, AfterViewInit {
       .updateZaakafhandelparameters(this.parameters)
       .subscribe({
         next: (data) => {
-          this.loading = false;
+          this.isLoading = false;
           this.utilService.openSnackbar(
             "msg.zaakafhandelparameters.opgeslagen",
           );
@@ -890,7 +890,7 @@ export class ParameterEditComponent implements OnDestroy, AfterViewInit {
           }
         },
         error: () => {
-          this.loading = false;
+          this.isLoading = false;
         },
       });
 

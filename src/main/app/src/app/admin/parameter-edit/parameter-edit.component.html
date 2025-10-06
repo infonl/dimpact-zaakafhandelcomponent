@@ -4,10 +4,61 @@
   -->
 
 <mat-stepper
+  *ngIf="algemeenFormGroup"
   orientation="horizontal"
   [linear]="!algemeenFormGroup.valid"
-  *ngIf="algemeenFormGroup"
 >
+  <!--
+    [selectedIndex]="1"
+    Step below is skipped on load
+  -->
+
+  <mat-step completed="true">
+    <ng-template matStepLabel>{{
+      "gegevens.proces-definitie" | translate
+    }}</ng-template>
+
+    <p>
+      zac-radio form="form" key="processDefinitionType" label="field.label"
+      ptions=" value: 'CMMN', label: 'CMMN', value: 'BPMN', label: 'BPMN', ]"
+    </p>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="switchProcessDefinition.emit('CMMN')"
+      [disabled]="isSavedZaakafhandelparameters || isLoading"
+    >
+      Selecteer CMMN
+    </button>
+    <button
+      mat-raised-button
+      color="accent"
+      (click)="switchProcessDefinition.emit('BPMN')"
+      [disabled]="isSavedZaakafhandelparameters || isLoading"
+    >
+      Selecteer BPMN
+    </button>
+
+    <div class="flex-row items-center gap-10 ml-3 mt-3">
+      <mat-icon color="warn" class="pr-3">warning</mat-icon>
+      <small>{{ "msg.zaakafhandelparameters.waarschuwing" | translate }}</small>
+    </div>
+
+    <div class="button-group flex-row flex-wrap">
+      <button mat-raised-button matStepperNext>
+        {{ "actie.volgende" | translate }}
+      </button>
+      <button
+        mat-raised-button
+        color="primary"
+        [disabled]="!isValid() || isLoading"
+        (click)="opslaan()"
+      >
+        {{ "actie.opslaan" | translate }}
+      </button>
+    </div>
+  </mat-step>
+
   <mat-step [stepControl]="algemeenFormGroup">
     <ng-template matStepLabel>{{
       "gegevens.algemeen" | translate
@@ -114,13 +165,10 @@
           "msg.zaakafhandelparameters.waarschuwing" | translate
         }}</small>
       </div>
+
       <div class="button-group flex-row flex-wrap">
-        <button
-          mat-raised-button
-          (click)="switchProcessDefinition.emit('SELECT-PROCESS-DEFINITION')"
-          [disabled]="isSavedZaakafhandelparameters"
-        >
-          {{ "actie.procesdefinitie.terug" | translate }}
+        <button mat-raised-button matStepperPrevious>
+          {{ "actie.terug" | translate }}
         </button>
         <button mat-raised-button matStepperNext>
           {{ "actie.volgende" | translate }}
@@ -128,7 +176,7 @@
         <button
           mat-raised-button
           color="primary"
-          [disabled]="!isValid() || loading"
+          [disabled]="!isValid() || isLoading"
           (click)="opslaan()"
         >
           {{ "actie.opslaan" | translate }}
@@ -276,7 +324,7 @@
           <button
             mat-raised-button
             color="primary"
-            [disabled]="!isValid() || loading"
+            [disabled]="!isValid() || isLoading"
             (click)="opslaan()"
           >
             {{ "actie.opslaan" | translate }}
@@ -326,7 +374,7 @@
           <button
             mat-raised-button
             color="primary"
-            [disabled]="!isValid() || loading"
+            [disabled]="!isValid() || isLoading"
             (click)="opslaan()"
           >
             {{ "actie.opslaan" | translate }}
@@ -604,7 +652,7 @@
           <button
             mat-raised-button
             color="primary"
-            [disabled]="!isValid() || loading"
+            [disabled]="!isValid() || isLoading"
             (click)="opslaan()"
           >
             {{ "actie.opslaan" | translate }}
@@ -698,7 +746,7 @@
         <button
           mat-raised-button
           color="primary"
-          [disabled]="!isValid() || loading"
+          [disabled]="!isValid() || isLoading"
           (click)="opslaan()"
         >
           {{ "actie.opslaan" | translate }}
@@ -827,7 +875,7 @@
         <button
           mat-raised-button
           color="primary"
-          [disabled]="!isValid() || loading"
+          [disabled]="!isValid() || isLoading"
           (click)="opslaan()"
         >
           {{ "actie.opslaan" | translate }}

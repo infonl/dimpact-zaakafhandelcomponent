@@ -27,7 +27,7 @@ export class ZaakafhandelParametersResolver {
       zaakafhandelParameters:
         this.adminService.readZaakafhandelparameters(uuid),
       bpmnProcessDefinitions:
-        this.adminService.listBPMNZaakafhandelParameters(),
+        this.adminService.listBpmnZaakafhandelParameters(),
     }).pipe(
       map(({ zaakafhandelParameters, bpmnProcessDefinitions }) => {
         const isSavedZaakafhandelparameters = zaakafhandelParameters?.id;

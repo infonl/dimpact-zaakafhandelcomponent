@@ -22,7 +22,15 @@ import {
 export class ParameterEditBpmnComponent implements OnInit {
   @Output() switchProcessDefinition = new EventEmitter<ProcessDefinitionType>();
 
+  protected isLoading: boolean = false;
   protected isSavedZaakafhandelparameters: boolean = false;
+
+  protected zaakType: GeneratedType<"RestZaaktype"> = {
+    uuid: "",
+    identificatie: "",
+    doel: "",
+    omschrijving: "",
+  };
 
   protected bpmnProcessDefinition: GeneratedType<"RestZaaktypeBpmnProcessDefinition"> =
     {
@@ -62,6 +70,7 @@ export class ParameterEditBpmnComponent implements OnInit {
   ) {
     this.route.data.subscribe((data) => {
       this.bpmnProcessDefinition = data.parameters.bpmnProcessDefinition;
+      this.zaakType = data.parameters.zaakafhandelparameters.zaaktype; // these zaaktype props should be provided by the bpmnProcessDefinition endpoint; for now taken from zaakafhandelparameters
       this.isSavedZaakafhandelparameters =
         data?.parameters.isSavedZaakafhandelparameters;
     });
@@ -69,5 +78,9 @@ export class ParameterEditBpmnComponent implements OnInit {
 
   ngOnInit() {
     console.log("ParameterEditBpmnComponent ngOnInit called");
+  }
+
+  protected isValid(): boolean {
+    return false;
   }
 }
